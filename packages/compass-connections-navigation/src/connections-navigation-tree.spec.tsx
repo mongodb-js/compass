@@ -88,7 +88,7 @@ const props = {
   ...TEST_VIRTUAL_PROPS,
 };
 
-describe.only('ConnectionsNavigationTree', function () {
+describe('ConnectionsNavigationTree', function () {
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {
@@ -147,19 +147,34 @@ describe.only('ConnectionsNavigationTree', function () {
     });
   });
 
-  it('should render connections', function () {
-    render(<ConnectionsNavigationTree {...props} />);
+  it('should render connections (multiple connections)', async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableRenameCollectionModal: true,
+      enableNewMultipleConnectionSystem: true,
+    });
+
+    render(
+      <PreferencesProvider value={preferences}>
+        <ConnectionsNavigationTree {...props} />
+      </PreferencesProvider>
+    );
 
     expect(screen.getByText('turtles')).to.exist;
     expect(screen.getByText('peaches')).to.exist;
   });
 
-  it('when a connection is collapsed, it should not render databases', function () {
+  it('when a connection is collapsed, it should not render databases', async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableRenameCollectionModal: true,
+      enableNewMultipleConnectionSystem: true,
+    });
+
     render(
-      <ConnectionsNavigationTree
-        {...props}
-        expanded={{ connection_ready: false }}
-      />
+      <PreferencesProvider value={preferences}>
+        <ConnectionsNavigationTree {...props} />
+      </PreferencesProvider>
     );
 
     expect(screen.queryByText('foo')).not.to.exist;
@@ -178,12 +193,20 @@ describe.only('ConnectionsNavigationTree', function () {
     expect(screen.getByText('bar')).to.exist;
   });
 
-  it('when a connection is expanded but databases are not ready, it should render database placeholders', function () {
+  it('when a connection is expanded but databases are not ready, it should render database placeholders', async function () {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableRenameCollectionModal: true,
+      enableNewMultipleConnectionSystem: true,
+    });
+
     render(
-      <ConnectionsNavigationTree
-        {...props}
-        expanded={{ connection_initial: {} }}
-      />
+      <PreferencesProvider value={preferences}>
+        <ConnectionsNavigationTree
+          {...props}
+          expanded={{ connection_initial: {} }}
+        />
+      </PreferencesProvider>
     );
 
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(2);
@@ -357,7 +380,7 @@ describe.only('ConnectionsNavigationTree', function () {
       });
     });
 
-    it.only('should activate callback with `select-connection` when a connection is clicked', function () {
+    it('should activate callback with `select-connection` when a connection is clicked', function () {
       const spy = Sinon.spy();
       render(
         <PreferencesProvider value={preferences}>
