@@ -8,7 +8,7 @@ export const runPipelineConfirmationDescription = ({
 }: {
   typeOfWrite: string;
   stage: { name: string; link: string };
-  ns: string;
+  ns: string | null;
 }) => {
   if (!ns) {
     return (
