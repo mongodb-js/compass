@@ -74,6 +74,8 @@ export function useConnectionRepository(): ConnectionRepository {
         .filter((connection) => connection.savedConnectionType !== 'favorite')
         .sort(sortedAlphabetically);
 
+      console.log('?????', { favoriteConnections, nonFavoriteConnections });
+
       setFavoriteConnections((prevList) => {
         if (areConnectionsEqual(prevList, favoriteConnections)) {
           return prevList;
@@ -94,6 +96,9 @@ export function useConnectionRepository(): ConnectionRepository {
     void updateListsOfConnections();
 
     function updateListsOfConnectionsSubscriber() {
+      console.log(
+        '???????? updateListsOfConnectionsSubscriber CONNECTION_CHANGED'
+      );
       void updateListsOfConnections();
     }
 
@@ -112,6 +117,7 @@ export function useConnectionRepository(): ConnectionRepository {
 
   const saveConnection = useCallback(
     async (info: PartialConnectionInfo) => {
+      console.log('????????? saveConnection', { info });
       const oldConnectionInfo = await storage.load({ id: info.id });
       const infoToSave = (
         oldConnectionInfo ? merge(oldConnectionInfo, info) : info

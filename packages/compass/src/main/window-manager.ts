@@ -129,6 +129,7 @@ function showConnectWindow(
       contextIsolation: false,
       enableRemoteModule: true,
       ...(opts && opts.webPreferences),
+      devTools: true,
     },
   };
 
@@ -137,6 +138,7 @@ function showConnectWindow(
   const { networkTraffic } = preferences.getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
+  window.webContents.openDevTools();
   if (mongodbUrl) {
     registerMongoDbUrlForBrowserWindow(window, mongodbUrl);
   }

@@ -109,13 +109,13 @@ class CompassRendererConnectionStorage
     if (this.hasAlreadyRequestedAutoConnectInfo) {
       return;
     }
+    this.hasAlreadyRequestedAutoConnectInfo = true;
     const autoConnectInfo = await this.ipc.getAutoConnectInfo(
       autoConnectPreferences ??
         (await this.getInitialAutoConnectPreferences?.()) ?? {
           shouldAutoConnect: false,
         }
     );
-    this.hasAlreadyRequestedAutoConnectInfo = true;
     return autoConnectInfo;
   }
 
