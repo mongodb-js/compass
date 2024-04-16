@@ -162,7 +162,7 @@ type QueryOptions = {
   userInput: string;
 };
 
-function generateFindQuery(options: QueryOptions) {
+export function generateFindQuery(options: QueryOptions) {
   return fetchAtlasPrivateApi(
     '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
     {
@@ -172,7 +172,7 @@ function generateFindQuery(options: QueryOptions) {
   );
 }
 
-function generateAggregation(options: QueryOptions) {
+export function generateAggregation(options: QueryOptions) {
   return fetchAtlasPrivateApi(
     '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
     {
@@ -182,7 +182,7 @@ function generateAggregation(options: QueryOptions) {
   );
 }
 
-const parseShellString = (shellSyntaxString?: string) => {
+export const parseShellString = (shellSyntaxString?: string) => {
   if (shellSyntaxString === null || shellSyntaxString === undefined) {
     return shellSyntaxString;
   }
@@ -199,15 +199,17 @@ const parseShellString = (shellSyntaxString?: string) => {
 let cluster: MongoCluster;
 let mongoClient: MongoClient;
 
-const generateMQL = async ({
+export const generateMQL = async ({
   type,
   databaseName,
+  mongoClient,
   collectionName,
   userInput,
   includeSampleDocuments,
 }: {
   type: string;
   databaseName: string;
+  mongoClient: MongoClient;
   collectionName: string;
   userInput: string;
   includeSampleDocuments?: boolean;
@@ -272,6 +274,7 @@ const runOnce = async (
     collectionName,
     userInput,
     includeSampleDocuments,
+    mongoClient,
   });
 
   usageStats.push({ promptTokens: 1, completionTokens: 1 });
@@ -922,4 +925,4 @@ async function main() {
   }
 }
 
-void main();
+// void main();
