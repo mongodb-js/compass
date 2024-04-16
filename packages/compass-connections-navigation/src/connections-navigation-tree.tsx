@@ -46,6 +46,9 @@ export type Connection = {
   databasesStatus: Status;
   databasesLength: number;
   databases: Database[];
+  isReady: boolean;
+  isDataLake: boolean;
+  isWritable: boolean;
 };
 
 type PlaceholderTreeItem = {

@@ -23,19 +23,15 @@ function findCollection(ns: string, databases: Database[]) {
 }
 
 function SidebarDatabasesNavigation({
-  isDataLake,
-  isWritable,
+  connections,
   onNamespaceAction: _onNamespaceAction,
-  databases,
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
   'isReadOnly' | 'databases'
 > & {
-  databases: Database[];
-  isDataLake?: boolean;
-  isWritable?: boolean;
-  expanded?: Record<string, boolean>;
+  connections: Connection[];
+  expanded?: Record<string, Record<string, boolean> | false>;
 }) {
   const {
     openCollectionsWorkspace,
@@ -43,7 +39,9 @@ function SidebarDatabasesNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
   const preferencesReadOnly = usePreference('readOnly');
-  const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
+  const connection = connections[0];
+  const isReadOnly =
+    preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       // TODO: COMPASS-7718 to use connectionId for new tabs
@@ -58,7 +56,11 @@ function SidebarDatabasesNavigation({
           openCollectionWorkspace(ns, { newTab: true });
           return;
         case 'modify-view': {
-          const coll = findCollection(ns, databases);
+          const coll = findCollection(
+            ns,
+            (connections.find((cn) => cn.connectionInfo.id === connectionId)
+              ?.databases as Database[]) || []
+          );
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(coll._id, {
               sourceName: coll.sourceName,
@@ -74,7 +76,7 @@ function SidebarDatabasesNavigation({
       }
     },
     [
-      databases,
+      connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
@@ -84,8 +86,8 @@ function SidebarDatabasesNavigation({
 
   return (
     <ConnectionsNavigationTree
+      connections={connections}
       {...dbNavigationProps}
-      databases={databases}
       onNamespaceAction={onNamespaceAction}
       isReadOnly={isReadOnly}
     />
@@ -98,6 +100,7 @@ function mapStateToProps(
 ): {
   isReady: boolean;
   connections: Connection[];
+  expanded: Record<string, Record<string, boolean> | false>;
 } {
   const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
@@ -120,8 +123,8 @@ function mapStateToProps(
     ])
   );
 
-  const isDataLake = instance?.dataLake?.isDataLake;
-  const isWritable = instance?.isWritable;
+  const isDataLake = instance?.dataLake?.isDataLake ?? false;
+  const isWritable = instance?.isWritable ?? false;
 
   return {
     isReady: true,
@@ -132,7 +135,9 @@ function mapStateToProps(
         isWritable,
         name: '',
         connectionInfo,
-        databasesStatus: status,
+        databasesLength: filteredDatabases.length,
+        databasesStatus: (status ??
+          'fetching') as Connection['databasesStatus'],
         databases: filteredDatabases,
       },
     ],

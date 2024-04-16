@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
+  type Connection,
   type Actions,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
-import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
   getConnectionTitle,
@@ -59,14 +59,11 @@ const activeConnectionCountStyles = css({
 });
 
 function ActiveConnectionNavigation({
-  // isDataLake,
-  // isWritable,
   activeConnections,
   connections,
   expanded,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
-  databases,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -81,7 +78,7 @@ function ActiveConnectionNavigation({
   connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
-  expanded: Record<string, boolean>;
+  expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace: { type: string; namespace?: string } | null;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
@@ -142,8 +139,8 @@ function ActiveConnectionNavigation({
         case 'modify-view': {
           const coll = findCollection(
             ns,
-            connections.find((conn) => conn.connectionInfo.id === connectionId)
-              .databases
+            (connections.find((conn) => conn.connectionInfo.id === connectionId)
+              ?.databases as Database[]) ?? []
           );
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(coll._id, {
@@ -160,7 +157,7 @@ function ActiveConnectionNavigation({
       }
     },
     [
-      databases,
+      connections,
       openDatabasesWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
@@ -207,6 +204,7 @@ function mapStateToProps(
 ): {
   isReady: boolean;
   connections: Connection[];
+  expanded: Record<string, Record<string, boolean> | false>;
 } {
   const connections: Connection[] = [];
   const expandedResult: Record<string, any> = {};
@@ -233,8 +231,8 @@ function mapStateToProps(
       ])
     );
 
-    const isDataLake = instance?.dataLake?.isDataLake;
-    const isWritable = instance?.isWritable;
+    const isDataLake = instance?.dataLake?.isDataLake ?? false;
+    const isWritable = instance?.isWritable ?? false;
 
     connections.push({
       isReady,
@@ -242,7 +240,8 @@ function mapStateToProps(
       isWritable,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesStatus: status,
+      databasesLength: filteredDatabases.length,
+      databasesStatus: status as Connection['databasesStatus'],
       databases: filteredDatabases,
     });
 
