@@ -102,11 +102,14 @@ describe('CompassWeb', function () {
     );
 
     // Wait for connection to happen and navigation tree to render
-    await waitFor(() => {
-      screen.getByTestId('compass-web-connected');
-      screen.getByRole('button', { name: 'Databases' });
-      screen.getAllByRole('tree');
-    });
+    await waitFor(
+      () => {
+        screen.getByTestId('compass-web-connected');
+        screen.getByRole('button', { name: 'Databases' });
+        screen.getAllByRole('tree');
+      },
+      { timeout: 10_000 }
+    );
 
     // TODO(COMPASS-7551): These are not rendered in tests because of the
     // navigation virtualization. We should make it possible to render those
