@@ -23,16 +23,18 @@ export const PlaceholderItem: React.FunctionComponent<{
     [level, isSingleConnection]
   );
 
+  const multiConnectionProps = {
+    gradientStart: 'var(--item-bg-color-active)',
+    gradientEnd: 'var(--item-bg-color)',
+    style: { filter: 'brightness(0.98)' },
+  };
+
   return (
     <div
       className={cx(placeholderItem)}
       style={{ ...style, ...itemPaddingStyles }}
     >
-      <Placeholder
-        gradientStart={'var(--item-bg-color)'}
-        gradientEnd={'#DADCFF'}
-        style={{ filter: 'brightness(0.97)' }}
-      />
+      <Placeholder {...(isSingleConnection ? {} : multiConnectionProps)} />
     </div>
   );
 };

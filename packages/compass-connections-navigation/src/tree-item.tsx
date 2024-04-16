@@ -111,6 +111,10 @@ const itemContainer = css({
   backgroundColor: 'var(--item-bg-color)',
   backgroundRadious: 'var(--item-bg-radius)',
 
+  '.item-background': {
+    backgroundColor: 'var(--item-bg-color)',
+  },
+
   '& .item-action-controls': {
     marginLeft: 'auto',
     marginRight: spacing[1],
@@ -118,6 +122,10 @@ const itemContainer = css({
 
   '&:hover .item-background': {
     display: 'block',
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+
+  '&:hover': {
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
@@ -132,9 +140,10 @@ const itemContainer = css({
 
 const activeItemContainer = css({
   color: 'var(--item-color-active)',
+  backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
 
-  '.item-background, :hover .item-background': {
+  '&:hover': {
     backgroundColor: 'var(--item-bg-color-active)',
   },
 

@@ -3,6 +3,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { palette } from '@mongodb-js/compass-components';
 
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
+export const DefaultColorCode = 'color10';
 
 const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color1: palette.green.dark1,
@@ -28,6 +29,19 @@ const COLOR_CODES_TO_UI_COLORS_NEW_THEME: Record<ColorCode, string> = {
   color8: '#E6E7FF',
   color9: '#F2E2FC',
   color10: palette.gray.light1,
+};
+
+const COLOR_CODES_TO_UI_COLORS_NEW_THEME_ACTIVE: Record<ColorCode, string> = {
+  color1: '#FFCDCE',
+  color2: '#F6CEE7',
+  color3: '#FFD19A',
+  color4: '#FFE770',
+  color5: '#C4E8D1',
+  color6: '#B8EAE0',
+  color7: '#C2E5FF',
+  color8: '#DADCFF',
+  color9: '#EAD5F9',
+  color10: palette.gray.light2,
 };
 
 export const COLOR_CODE_TO_NAME: Record<ColorCode, string> = {
@@ -83,6 +97,9 @@ export function legacyColorsToColorCode(
 export function useConnectionColor(): {
   connectionColorCodes: () => ColorCode[];
   connectionColorToHex: (colorCode: string | undefined) => string | undefined;
+  connectionColorToHex_Active: (
+    colorCode: string | undefined
+  ) => string | undefined;
   connectionColorToName: (colorCode: string | undefined) => string | undefined;
 } {
   const newColorCodeToHex = useCallback(
@@ -92,6 +109,17 @@ export function useConnectionColor(): {
       }
 
       return COLOR_CODES_TO_UI_COLORS_NEW_THEME[colorCode];
+    },
+    []
+  );
+
+  const connectionColorToHex_Active = useCallback(
+    (colorCode: string | undefined): string | undefined => {
+      if (!colorCode || !isColorCode(colorCode)) {
+        return;
+      }
+
+      return COLOR_CODES_TO_UI_COLORS_NEW_THEME_ACTIVE[colorCode];
     },
     []
   );
@@ -139,6 +167,7 @@ export function useConnectionColor(): {
     connectionColorToHex: isMultiConnectionEnabled
       ? newColorCodeToHex
       : colorCodeToHex,
+    connectionColorToHex_Active,
     connectionColorToName: colorToName,
     connectionColorCodes,
   };
