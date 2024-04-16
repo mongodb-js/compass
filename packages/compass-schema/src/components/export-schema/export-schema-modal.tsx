@@ -149,7 +149,7 @@ const MongodbJsonSchema: React.FunctionComponent<{ schema: Schema }> = ({
       settings={
         <>
           <Checkbox
-            label="Include _id"
+            label={<>Include <InlineCode>_id</InlineCode></>}
             onChange={(event) => setIncludeId(event.target.checked)}
             checked={includeId}
           />
