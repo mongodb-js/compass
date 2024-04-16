@@ -516,17 +516,6 @@ const tests: TestOptions[] = [
     type: 'query',
     databaseName: 'netflix',
     collectionName: 'movies',
-    userInput: 'find all the movies released in 1983',
-    assertResult: isDeepStrictEqualToFixtures(
-      'netflix',
-      'movies',
-      (doc: Document) => doc._id.$oid === '573b864df29313caabe35593'
-    ),
-  },
-  {
-    type: 'query',
-    databaseName: 'netflix',
-    collectionName: 'movies',
     userInput:
       'find three movies with alien in the title, show earliest movies first, only the _id, title and year',
     assertResult: isDeepStrictEqualTo([
@@ -740,15 +729,33 @@ const tests: TestOptions[] = [
     type: 'aggregation',
     databaseName: 'netflix',
     collectionName: 'movies',
-    userInput: 'find all the movies released in 1983',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy. gpt-3.5-turbo usually tries to
+    // use $expr in a $project stage which is not valid syntax.
+    minAccuracyForTest: 0.4,
+    userInput:
+      'What are the 5 most frequent words used in movie titles in the 1980s and 1990s combined? Sorted first by frequency count then alphabetically. output fields count and word',
     assertResult: isDeepStrictEqualTo([
       {
-        _id: {
-          $oid: '573b864df29313caabe35593',
-        },
-        title: 'Smokey and the Bandit Part 3',
-        year: '1983',
-        id: '168',
+        count: 3,
+        word: 'Alien',
+      },
+      {
+        count: 2,
+        word: 'The',
+      },
+      {
+        count: 1,
+        word: '3',
+      },
+      {
+        count: 1,
+        word: '3:',
+      },
+      {
+        count: 1,
+        word: 'A',
       },
     ]),
   },
