@@ -122,7 +122,7 @@ function useSchemaConversion<T>(
       const errorMessage = (e as Error)?.message || String(e);
       return { error: `Conversion failed: ${errorMessage}` };
     }
-  }, [converter, schema, ...(settings && Object.values(settings))]);
+  }, [converter, schema, ...(settings && Object.entries(settings).flat())]);
 
   return exportInfo;
 }
