@@ -21,7 +21,6 @@ export const CompassSidebarPlugin = registerHadronPlugin<
   {
     connectionsManager: () => ConnectionsManager;
     instancesManager: () => MongoDBInstancesManager;
-    connectionInfoAccess: () => ConnectionInfoAccess;
     logger: () => LoggerAndTelemetry;
   }
 >(
@@ -62,7 +61,6 @@ export const CompassSidebarPlugin = registerHadronPlugin<
   {
     connectionsManager: connectionsManagerLocator,
     instancesManager: mongoDBInstancesManagerLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-SIDEBAR-UI'),
   }
 );
