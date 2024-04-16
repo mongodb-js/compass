@@ -246,18 +246,21 @@ const confirmWriteOperationIfNeeded = async (
     [lastStageOperator]: pipeline[pipeline.length - 1][lastStageOperator],
   });
 
-  if (!destinationNamespace) {
-    return true;
-  }
-
   if (lastStageOperator === '$out') {
-    const { database, collection } = toNS(destinationNamespace);
-    const isNamespaceExists = !!(await instance.getNamespace({
-      dataService,
-      database,
-      collection,
-    }));
-    typeOfWrite = isNamespaceExists
+    let isOverwritingCollection;
+
+    if (destinationNamespace) {
+      const { database, collection } = toNS(destinationNamespace);
+      isOverwritingCollection = !!(await instance.getNamespace({
+        dataService,
+        database,
+        collection,
+      }));
+    } else {
+      isOverwritingCollection = true;
+    }
+
+    typeOfWrite = isOverwritingCollection
       ? WriteOperation.Overwrite
       : WriteOperation.Create;
   } else {
