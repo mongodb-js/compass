@@ -21,28 +21,21 @@
 **/
 
 import { MongoCluster } from 'mongodb-runner';
-import { promises as fs } from 'fs';
 import os from 'os';
 import { MongoClient } from 'mongodb';
 import { EJSON } from 'bson';
-import type { Document } from 'bson';
-import path from 'path';
 import { getSimplifiedSchema } from 'mongodb-schema';
-import OpenAI from 'openai';
-import { toJSString } from 'mongodb-query-parser';
 
-import { generateMQL, parseShellString } from './ai-accuracy-tests';
 import { SchemaFormatter } from './schema';
-
-const openai = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'],
-});
-
-type Fixtures = {
-  [dbName: string]: {
-    [colName: string]: Document;
-  };
-};
+import { extractDelimitedText, parseShellString } from './ai-response';
+import { createAIChatCompletion } from './ai-backend';
+import { loadFixturesToDB } from './fixtures';
+import {
+  createSuggestPromptPrompt,
+  getAggregationSystemPrompt,
+  getAggregationUserPrompt,
+} from './prompt';
+import type { Fixtures } from './fixtures';
 
 async function setup(): Promise<{
   cluster: MongoCluster;
@@ -56,84 +49,14 @@ async function setup(): Promise<{
 
   const mongoClient = new MongoClient(cluster.connectionString);
 
-  const fixtureFiles = (
-    await fs.readdir(path.join(__dirname, 'fixtures'), 'utf-8')
-  ).filter((f) => f.endsWith('.json'));
-
-  const fixtures: Fixtures = {};
-
-  for (const fixture of fixtureFiles) {
-    // Skip delimiter dataset for this.
-    if (fixture.includes('delimiter')) continue;
-
-    const fileContent = await fs.readFile(
-      path.join(__dirname, 'fixtures', fixture),
-      'utf-8'
-    );
-
-    const [db, coll] = fixture.split('.');
-
-    const ejson = EJSON.parse(fileContent);
-
-    fixtures[db] = { [coll]: EJSON.serialize(ejson.data) };
-
-    await mongoClient.db(db).collection(coll).insertMany(ejson.data);
-
-    if (ejson.indexes) {
-      for (const index of ejson.indexes) {
-        await mongoClient.db(db).collection(coll).createIndex(index);
-      }
-    }
-  }
-  // console.log('inserted docs into the db, ', mongoClient);
+  const fixtures = await loadFixturesToDB({
+    mongoClient,
+  });
 
   return {
     cluster,
     fixtures,
     mongoClient,
-  };
-}
-
-function createSuggestPromptPrompt({
-  databaseName,
-  collectionName,
-  fixtures,
-}: {
-  databaseName: string;
-  collectionName: string;
-  fixtures: Fixtures;
-}) {
-  const sampleDocShellSyntaxString = toJSString(
-    EJSON.deserialize(fixtures[databaseName][collectionName][0]),
-    2
-  );
-
-  const prompt = `
-I'm looking to make a natural language prompt to MongoDB query language test.
-These will be used to benchmark how good an ai model is at generating queries from a prompt and the schema of a collection.
-What is a natural language question/prompt someone would ask of this collection which would generate a complex aggregation pipeline?
-At least 5 stages, string or array manipulation may help here.
-These must create similar results every time regardless of light interpretation.
-Keep the result of running the generated pipeline predictable and consistent.
-Keep your response concise, it will be be parsed by a machine.
-Dataset: ${databaseName} ${collectionName}
-Example document from dataset:
-${sampleDocShellSyntaxString}
-`;
-
-  // Real world scenarios.
-
-  //   const prompt = `
-  // Suggest a natural language prompt for querying a dataset.
-
-  // Keep your response concise, it will be be parsed by a machine.
-  // Dataset: ${databaseName} ${collectionName}
-  // Example document from dataset:
-  // ${sampleDocShellSyntaxString}
-  // `;
-
-  return {
-    prompt,
   };
 }
 
@@ -157,9 +80,8 @@ async function createPromptQuestion({
     console.log('SuggestPromptPrompt:');
     console.log(suggestPromptPrompt);
 
-    const response = await openai.chat.completions.create({
-      messages: [{ role: 'user', content: suggestPromptPrompt }],
-      model: 'gpt-3.5-turbo',
+    const response = await createAIChatCompletion({
+      user: suggestPromptPrompt,
     });
 
     if (response.choices && response.choices.length > 0) {
@@ -173,69 +95,6 @@ async function createPromptQuestion({
     console.error('Failed to generate prompt:', error);
     throw error;
   }
-}
-
-function extractDelimitedText(str: string, delimiter: string): string {
-  if (!str.includes(delimiter)) {
-    return '';
-  }
-
-  let res = str;
-  try {
-    res = str.split(`<${delimiter}>`)[1].split(`</${delimiter}>`)[0];
-  } catch (e) {
-    // delimiters may not be found or be unbalanced
-  }
-
-  // in case the model returns unbalanced or redundant delimiters
-  // we strip everything that remains from the text:
-  return res
-    .replace(`<${delimiter}>`, '')
-    .replace(`</${delimiter}>`, '')
-    .replace(`${delimiter}`, '');
-}
-
-function getAggregationSystemPrompt() {
-  return `
-Reduce prose to the minimum, your output will be parsed by a machine. You generate MongoDB aggregation pipelines. Provide only the aggregation pipeline contents in an array in shell syntax, wrapped with XML delimiters as follows:
-<aggregation>[]</aggregation>
-Additional instructions:
-- If specifying latitude and longitude coordinates, list the longitude first, and then latitude.
-- The current date is ${new Date().toString()}
-`;
-}
-
-function getAggregationUserPrompt({
-  databaseName,
-  collectionName,
-  schema,
-  userInput,
-  sampleDocuments,
-}: {
-  databaseName: string;
-  collectionName: string;
-  schema: string;
-  userInput: string;
-  sampleDocuments?: Document;
-}) {
-  return `
-Database name: "${databaseName}"
-Collection name: "${collectionName}"
-Schema from a sample of documents from the collection:
-\`\`\`
-${schema}
-\`\`\`
-${
-  sampleDocuments
-    ? `
-Sample documents:
-${toJSString(sampleDocuments)}
-`
-    : ''
-}
-
-Write a query that does the following: "${userInput}"
-`;
 }
 
 async function generateAggregation({
@@ -255,25 +114,16 @@ async function generateAggregation({
   const simplifiedSchema = await getSimplifiedSchema(collection.find());
   const sample = await collection.find().limit(2).toArray();
 
-  const response = await openai.chat.completions.create({
-    messages: [
-      { role: 'system', content: getAggregationSystemPrompt() },
-      {
-        role: 'user',
-        content: getAggregationUserPrompt({
-          databaseName,
-          schema: new SchemaFormatter().format(simplifiedSchema),
-          collectionName,
-          userInput,
-          sampleDocuments: includeSampleDocuments ? sample : undefined,
-        }),
-      },
-    ],
-    model: 'gpt-3.5-turbo',
+  const response = await createAIChatCompletion({
+    system: getAggregationSystemPrompt(),
+    user: getAggregationUserPrompt({
+      databaseName,
+      schema: new SchemaFormatter().format(simplifiedSchema),
+      collectionName,
+      userInput,
+      sampleDocuments: includeSampleDocuments ? sample : undefined,
+    }),
   });
-
-  // console.log('generate aggregation response', response);
-  // console.log('\n\nsmall', response.choices[0].message.content?.trim());
 
   return extractDelimitedText(
     response.choices[0].message.content?.trim() || '',
@@ -284,8 +134,10 @@ async function generateAggregation({
 async function main() {
   const { cluster, mongoClient, fixtures } = await setup();
 
+  // Skip delimiter dataset for this, ain't much in there.
+  delete fixtures['delimiter'];
+
   try {
-    // const fixtureToUse =
     // const databaseName = 'sample_airbnb';
     // const collectionName = 'listingsAndReviews';
 
@@ -308,15 +160,6 @@ async function main() {
     console.log(prompt);
 
     // 2. Use the generate prompt to generate an aggregation.
-    // const response = await generateMQL({
-    //   type: 'aggregation',
-    //   databaseName,
-    //   mongoClient,
-    //   collectionName,
-    //   userInput: prompt,
-    //   // includeSampleDocuments,
-    // });
-
     const aggregation = await generateAggregation({
       databaseName,
       mongoClient,
@@ -325,19 +168,10 @@ async function main() {
       // includeSampleDocuments,
     });
 
-    console.log('aggregationaggregation aggregation aggregation', aggregation);
-
-    // console.log('response', response);
-
-    // const aggregation = response?.content?.aggregation ?? {};
-
-    // console.log('about to mongo client ', mongoClient);
+    console.log('aggregation', aggregation);
 
     const collection = mongoClient.db(databaseName).collection(collectionName);
-    const cursor = collection.aggregate(
-      // parseShellString(aggregation?.pipeline)
-      parseShellString(aggregation)
-    );
+    const cursor = collection.aggregate(parseShellString(aggregation));
 
     const result = (await cursor.toArray()).map((doc) => EJSON.serialize(doc));
 
@@ -358,7 +192,6 @@ async function main() {
     //   }
     // }
   } finally {
-    // console.log('finally');
     await mongoClient?.close();
     await cluster?.close();
   }

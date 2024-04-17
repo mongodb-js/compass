@@ -15,11 +15,13 @@
 //   AI_TESTS_BACKEND=atlas-local \
 //     npm run ai-accuracy-tests
 
+// To run these tests with open ai:
+// > OPENAI_API_KEY="..." \
+//     npm run ai-accuracy-tests
+
 import { MongoCluster } from 'mongodb-runner';
-import { promises as fs } from 'fs';
 import os from 'os';
 import assert from 'assert';
-import ejsonShellParser from 'ejson-shell-parser';
 import { MongoClient } from 'mongodb';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
@@ -28,9 +30,18 @@ import type { SimplifiedSchema } from 'mongodb-schema';
 import path from 'path';
 import util from 'util';
 import { execFile as callbackExecFile } from 'child_process';
-import DigestClient from 'digest-fetch';
-import nodeFetch from 'node-fetch';
-import decomment from 'decomment';
+
+import { AtlasAPI, createAIChatCompletion } from './ai-backend';
+import { loadFixturesToDB } from './fixtures';
+import type { Fixtures } from './fixtures';
+import { extractDelimitedText, parseShellString } from './ai-response';
+import {
+  getAggregationSystemPrompt,
+  getAggregationUserPrompt,
+  getQuerySystemPrompt,
+  getQueryUserPrompt,
+} from './prompt';
+import { SchemaFormatter } from './schema';
 
 const execFile = util.promisify(callbackExecFile);
 
@@ -64,8 +75,6 @@ const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
 const AI_TESTS_USE_SAMPLE_DOCS =
   process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
 
-const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
-
 type AITestError = Error & {
   errorCode?: string;
   status?: number;
@@ -73,39 +82,6 @@ type AITestError = Error & {
   prompt?: string;
   causedBy?: Error;
 };
-
-if (!['atlas-dev', 'atlas-local', 'compass'].includes(BACKEND)) {
-  throw new Error('Unknown backend');
-}
-
-const fetch = (() => {
-  if (BACKEND === 'atlas-dev' || BACKEND === 'atlas-local') {
-    const ATLAS_PUBLIC_KEY = process.env.ATLAS_PUBLIC_KEY;
-    const ATLAS_PRIVATE_KEY = process.env.ATLAS_PRIVATE_KEY;
-
-    if (!(ATLAS_PUBLIC_KEY || ATLAS_PRIVATE_KEY)) {
-      throw new Error('ATLAS_PUBLIC_KEY and ATLAS_PRIVATE_KEY are required.');
-    }
-
-    const client = new DigestClient(ATLAS_PUBLIC_KEY, ATLAS_PRIVATE_KEY, {
-      algorithm: 'MD5',
-    });
-
-    return client.fetch.bind(client);
-  }
-
-  return nodeFetch;
-})() as typeof nodeFetch;
-
-const backendBaseUrl =
-  process.env.AI_TESTS_BACKEND_URL ||
-  (BACKEND === 'atlas-dev'
-    ? 'https://cloud-dev.mongodb.com/api/private'
-    : BACKEND === 'atlas-local'
-    ? 'http://localhost:8080/api/private'
-    : 'http://localhost:8080');
-
-let httpErrors = 0;
 
 type TestResult = {
   Type: string;
@@ -116,44 +92,6 @@ type TestResult = {
   'Time Elapsed (MS)': number;
 };
 
-async function fetchAtlasPrivateApi(
-  urlPath: string,
-  init: Partial<Parameters<typeof fetch>[1]> = {}
-) {
-  const url = `${backendBaseUrl}${
-    urlPath.startsWith('/') ? urlPath : `/${urlPath}`
-  }`;
-
-  return await fetch(url, {
-    ...init,
-    headers: {
-      ...init.headers,
-      'Content-Type': 'application/json',
-      'User-Agent': 'Compass AI Accuracy tests',
-    },
-  })
-    .then(async (res) => [res, await res.json()])
-    .then(([res, data]) => {
-      if (res.ok && data) {
-        console.info(data);
-        return data;
-      }
-
-      const errorCode = data?.errorCode || '-';
-
-      const error: AITestError = new Error(
-        `Request failed: ${res.status} - ${res.statusText}: ${errorCode}`
-      );
-
-      error.status = res.status;
-      error.errorCode = errorCode;
-
-      httpErrors++;
-
-      return Promise.reject(error);
-    });
-}
-
 type QueryOptions = {
   schema: SimplifiedSchema;
   collectionName: string;
@@ -162,39 +100,121 @@ type QueryOptions = {
   userInput: string;
 };
 
-export function generateFindQuery(options: QueryOptions) {
-  return fetchAtlasPrivateApi(
-    '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
-    {
-      method: 'POST',
-      body: JSON.stringify(options),
-    }
-  );
-}
+const atlasBackend = new AtlasAPI();
 
-export function generateAggregation(options: QueryOptions) {
-  return fetchAtlasPrivateApi(
-    '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
-    {
-      method: 'POST',
-      body: JSON.stringify(options),
-    }
-  );
-}
+const USE_ATLAS = !process.env['OPENAI_API_KEY'];
 
-export const parseShellString = (shellSyntaxString?: string) => {
-  if (shellSyntaxString === null || shellSyntaxString === undefined) {
-    return shellSyntaxString;
-  }
+type UsageStats = { promptTokens: number; completionTokens: number };
 
-  const parsed = ejsonShellParser(decomment(shellSyntaxString));
-
-  if (!parsed) {
-    throw new Error(`Failed to parse shell syntax: \n"${shellSyntaxString}"`);
-  }
-
-  return parsed;
+type GenerationResponse = {
+  prompt?: string;
+  content?: any;
+  query?: {
+    filter?: string;
+    project?: string;
+    sort?: string;
+    limit?: string;
+    skip?: string;
+  };
+  aggregation?: string;
+  usageStats?: UsageStats;
 };
+
+function getFieldsFromCompletionResponse({
+  completion,
+  userInput,
+}: {
+  completion: Awaited<ReturnType<typeof createAIChatCompletion>>;
+  userInput: string;
+}): GenerationResponse {
+  const content = completion.choices[0].message.content;
+
+  return {
+    content,
+    prompt: userInput,
+    query: Object.fromEntries(
+      ['filter', 'project', 'skip', 'limit', 'sort'].map((delimiter) => [
+        delimiter,
+        extractDelimitedText(content ?? '', delimiter),
+      ])
+    ),
+    aggregation: extractDelimitedText(content ?? '', 'aggregation'),
+
+    ...(completion.usage
+      ? {
+          usageStats: {
+            promptTokens: completion.usage?.prompt_tokens,
+            completionTokens: completion.usage?.completion_tokens,
+          },
+        }
+      : {}),
+  };
+}
+
+export async function generateFindQuery(
+  options: QueryOptions
+): Promise<GenerationResponse> {
+  if (USE_ATLAS) {
+    const response = await atlasBackend.fetchAtlasPrivateApi(
+      '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
+      {
+        method: 'POST',
+        body: JSON.stringify(options),
+      }
+    );
+    return {
+      content: response.content,
+      prompt: response.prompt,
+      query: response?.content?.query,
+      aggregation: response?.content?.aggregation?.pipeline,
+    };
+  }
+
+  const completion = await createAIChatCompletion({
+    system: getQuerySystemPrompt(),
+    user: getQueryUserPrompt({
+      ...options,
+      schema: new SchemaFormatter().format(options.schema),
+    }),
+  });
+  return getFieldsFromCompletionResponse({
+    userInput: options.userInput,
+    completion,
+  });
+}
+
+export async function generateAggregation(
+  options: QueryOptions
+): Promise<GenerationResponse> {
+  if (USE_ATLAS) {
+    const response = await atlasBackend.fetchAtlasPrivateApi(
+      '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
+      {
+        method: 'POST',
+        body: JSON.stringify(options),
+      }
+    );
+    return {
+      content: response.content,
+      prompt: response.prompt,
+      query: response?.content?.query,
+      aggregation: response?.content?.aggregation?.pipeline,
+    };
+  }
+
+  const completion = await createAIChatCompletion({
+    system: getAggregationSystemPrompt(),
+    user: getAggregationUserPrompt({
+      ...options,
+      schema: new SchemaFormatter().format(options.schema),
+    }),
+  });
+
+  return getFieldsFromCompletionResponse({
+    userInput: options.userInput,
+    completion,
+  });
+}
 
 let cluster: MongoCluster;
 let mongoClient: MongoClient;
@@ -213,13 +233,13 @@ export const generateMQL = async ({
   collectionName: string;
   userInput: string;
   includeSampleDocuments?: boolean;
-}) => {
+}): Promise<GenerationResponse> => {
   const collection = mongoClient.db(databaseName).collection(collectionName);
   const schema = await getSimplifiedSchema(collection.find());
   const sample = await collection.find().limit(2).toArray();
 
   if (type === 'aggregation') {
-    return await generateAggregation({
+    return generateAggregation({
       schema: schema,
       collectionName,
       databaseName,
@@ -229,7 +249,7 @@ export const generateMQL = async ({
     });
   }
 
-  return await generateFindQuery({
+  return generateFindQuery({
     schema: schema,
     collectionName,
     databaseName,
@@ -239,8 +259,6 @@ export const generateMQL = async ({
   });
 };
 
-type UsageStats = { promptTokens: number; completionTokens: number };
-
 type TestOptions = {
   type: string;
   databaseName: string;
@@ -249,25 +267,20 @@ type TestOptions = {
   userInput: string;
   // When supplied, this overrides the general test accuracy requirement. (0-1)
   minAccuracyForTest?: number;
-  assertResponse?: (responseContent: unknown) => Promise<void>;
   assertResult?: (responseContent: Document[]) => Promise<void> | void;
   acceptAggregationResponse?: boolean;
 };
 
 // eslint-disable-next-line complexity
-const runOnce = async (
-  {
-    type,
-    databaseName,
-    collectionName,
-    userInput,
-    includeSampleDocuments,
-    assertResponse,
-    assertResult,
-    acceptAggregationResponse,
-  }: TestOptions,
-  usageStats: UsageStats[]
-) => {
+const runOnce = async ({
+  type,
+  databaseName,
+  collectionName,
+  userInput,
+  includeSampleDocuments,
+  assertResult,
+  acceptAggregationResponse,
+}: TestOptions): Promise<UsageStats | void> => {
   const response = await generateMQL({
     type,
     databaseName,
@@ -277,17 +290,11 @@ const runOnce = async (
     mongoClient,
   });
 
-  usageStats.push({ promptTokens: 1, completionTokens: 1 });
-
   try {
-    if (assertResponse) {
-      await assertResponse(response.content);
-    }
-
     const collection = mongoClient.db(databaseName).collection(collectionName);
 
-    const aggregation = response?.content?.aggregation ?? {};
-    const query = response?.content?.query ?? {};
+    const aggregation = response?.aggregation;
+    const query = response?.query ?? {};
 
     if (assertResult) {
       let cursor;
@@ -296,10 +303,10 @@ const runOnce = async (
         type === 'aggregation' ||
         (type === 'query' &&
           acceptAggregationResponse &&
-          aggregation.pipeline &&
-          aggregation.pipeline !== '[]')
+          aggregation &&
+          aggregation !== '[]')
       ) {
-        cursor = collection.aggregate(parseShellString(aggregation?.pipeline));
+        cursor = collection.aggregate(parseShellString(aggregation));
       } else {
         cursor = collection.find(parseShellString(query.filter));
 
@@ -311,11 +318,11 @@ const runOnce = async (
           cursor = cursor.sort(parseShellString(query.sort));
         }
 
-        if (query.limit) {
+        if (query.limit && query.limit !== '0') {
           cursor = cursor.limit(parseShellString(query.limit));
         }
 
-        if (query.skip) {
+        if (query.skip && query.skip !== '0') {
           cursor = cursor.skip(parseShellString(query.skip));
         }
       }
@@ -332,11 +339,22 @@ const runOnce = async (
     newError.query = (error as Error).message;
     newError.prompt = response.prompt;
     newError.causedBy = error as Error;
+    console.log('Incorrect result, response:');
+    console.log(response?.content);
     throw error;
   }
+
+  return response.usageStats;
 };
 
-const runTest = async (testOptions: TestOptions) => {
+const runTest = async (
+  testOptions: TestOptions
+): Promise<{
+  accuracy: number;
+  timeouts: number;
+  totalTestTimeMS: number;
+  usageStats?: UsageStats[];
+}> => {
   const usageStats: UsageStats[] = [];
   const attempts = ATTEMPTS_PER_TEST;
   let fails = 0;
@@ -365,7 +383,10 @@ const runTest = async (testOptions: TestOptions) => {
       console.info('---------------------------------------------------');
       console.info('Running', JSON.stringify(testOptions.userInput));
       console.info('Attempt', i + 1, 'of', attempts, 'Failures:', fails);
-      await runOnce(testOptions, usageStats);
+      const stats = await runOnce(testOptions);
+      if (stats) {
+        usageStats.push(stats);
+      }
 
       console.info('OK');
       totalTestTimeMS += Date.now() - testStartTime;
@@ -390,11 +411,7 @@ const runTest = async (testOptions: TestOptions) => {
   return { accuracy, timeouts, totalTestTimeMS, usageStats };
 };
 
-const fixtures: {
-  [dbName: string]: {
-    [colName: string]: Document;
-  };
-} = {};
+let fixtures: Fixtures = {};
 
 async function setup() {
   // p-queue is ESM-only in recent versions.
@@ -407,30 +424,9 @@ async function setup() {
 
   mongoClient = new MongoClient(cluster.connectionString);
 
-  const fixtureFiles = (
-    await fs.readdir(path.join(__dirname, 'fixtures'), 'utf-8')
-  ).filter((f) => f.endsWith('.json'));
-
-  for (const fixture of fixtureFiles) {
-    const fileContent = await fs.readFile(
-      path.join(__dirname, 'fixtures', fixture),
-      'utf-8'
-    );
-
-    const [db, coll] = fixture.split('.');
-
-    const ejson = EJSON.parse(fileContent);
-
-    fixtures[db] = { [coll]: EJSON.serialize(ejson.data) };
-
-    await mongoClient.db(db).collection(coll).insertMany(ejson.data);
-
-    if (ejson.indexes) {
-      for (const index of ejson.indexes) {
-        await mongoClient.db(db).collection(coll).createIndex(index);
-      }
-    }
-  }
+  fixtures = await loadFixturesToDB({
+    mongoClient,
+  });
 }
 
 async function teardown() {
@@ -856,6 +852,10 @@ const tests: TestOptions[] = [
     ]),
   },
 ];
+
+const meanAverage = (arr: number[]) =>
+  arr.reduce((a: number, b: number) => a + b) / arr.length;
+
 async function main() {
   try {
     await setup();
@@ -868,13 +868,16 @@ async function main() {
       concurrency: TESTS_TO_RUN_CONCURRENTLY,
     });
 
+    let hasUsageStats = false;
+
     tests.map((test) =>
       testPromiseQueue.add(async () => {
-        const {
-          accuracy,
-          totalTestTimeMS,
-          // usageStats
-        } = await runTest(test);
+        const { accuracy, totalTestTimeMS, usageStats } = await runTest(test);
+
+        if (usageStats) {
+          hasUsageStats = true;
+        }
+
         const minAccuracy = DEFAULT_MIN_ACCURACY;
         const failed = accuracy < (test.minAccuracyForTest ?? minAccuracy);
 
@@ -884,8 +887,17 @@ async function main() {
           Namespace: `${test.databaseName}.${test.collectionName}`,
           Accuracy: accuracy,
           'Time Elapsed (MS)': totalTestTimeMS,
-          // 'Prompt Tokens': usageStats[0]?.promptTokens,
-          // 'Completion Tokens': usageStats[0]?.completionTokens,
+          ...(usageStats
+            ? {
+                'Avg Prompt Tokens': meanAverage(
+                  usageStats.map((usageStats) => usageStats.promptTokens)
+                ),
+                // 'Avg Completion Tokens': usageStats[0]?.completionTokens,
+                'Avg Completion Tokens': meanAverage(
+                  usageStats.map((usageStats) => usageStats.completionTokens)
+                ),
+              }
+            : {}),
           Pass: failed ? '✗' : '✓',
         });
 
@@ -901,8 +913,7 @@ async function main() {
       'Namespace',
       'Accuracy',
       'Time Elapsed (MS)',
-      // 'Prompt Tokens',
-      // 'Completion Tokens',
+      ...(hasUsageStats ? ['Avg Prompt Tokens', 'Avg Completion Tokens'] : []),
       'Pass',
     ]);
 
@@ -910,12 +921,12 @@ async function main() {
       await pushResultsToDB({
         results,
         anyFailed,
-        httpErrors,
+        httpErrors: atlasBackend.httpErrors,
         runTimeMS: Date.now() - startTime,
       });
     }
 
-    console.log('\nTotal HTTP errors received', httpErrors);
+    console.log('\nTotal HTTP errors received', atlasBackend.httpErrors);
 
     if (anyFailed) {
       process.exit(1);
@@ -925,4 +936,4 @@ async function main() {
   }
 }
 
-// void main();
+void main();
