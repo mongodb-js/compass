@@ -220,7 +220,7 @@ export function Sidebar({
           }
         />
         <ConnectionInfoModal
-          initialConnectionInfo={initialConnectionInfo as any}
+          initialConnectionInfo={initialConnectionInfo}
           isVisible={isConnectionInfoModalVisible}
           close={() => setIsConnectionInfoModalVisible(false)}
         />

@@ -48,7 +48,7 @@ export function ConnectionInfoModal({
   close,
   infos,
 }: {
-  initialConnectionInfo: ConnectionInfo;
+  initialConnectionInfo: ConnectionStorageConnectionInfo;
   isVisible: boolean;
   close: () => void;
   infos: ConnectionInfo[];
