@@ -116,6 +116,7 @@ class CompassRendererConnectionStorage
           shouldAutoConnect: false,
         }
     );
+    this.emit(ConnectionStorageEvents.ConnectionsChanged);
     return autoConnectInfo;
   }
 

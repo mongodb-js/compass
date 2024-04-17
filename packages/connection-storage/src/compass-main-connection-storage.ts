@@ -170,7 +170,10 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     signal?: AbortSignal;
   }): Promise<void> {
     throwIfAborted(signal);
-    if (connectionInfo.id === this.autoConnectInfo?.id) {
+    if (
+      connectionInfo.id === this.autoConnectInfo?.id ||
+      connectionInfo.savedConnectionType === 'autoConnectInfo'
+    ) {
       log.warn(
         mongoLogId(1_001_000_308),
         'Connection Storage',
@@ -320,10 +323,16 @@ class CompassMainConnectionStorage implements ConnectionStorage {
           `Could not find connection with id '${id}' in connection file '${file}'`
         );
       }
-      return (this.autoConnectInfo = applyUsernameAndPassword(connectionInfo, {
-        username,
-        password,
-      }));
+      return (this.autoConnectInfo = applyUsernameAndPassword(
+        {
+          ...connectionInfo,
+          savedConnectionType: 'autoConnectInfo',
+        },
+        {
+          username,
+          password,
+        }
+      ));
     } else {
       const connectionString = getConnectionStringFromArgs(positionalArguments);
       if (!connectionString) {
@@ -333,6 +342,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         {
           connectionOptions: { connectionString },
           id: new UUID().toString(),
+          savedConnectionType: 'autoConnectInfo',
         },
         { username, password }
       ));

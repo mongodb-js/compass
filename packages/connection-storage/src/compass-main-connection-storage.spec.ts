@@ -4,7 +4,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import { UUID } from 'bson';
-import { sortBy } from 'lodash';
+import { omit, sortBy } from 'lodash';
 
 import {
   initCompassMainConnectionStorage,
@@ -1288,7 +1288,7 @@ describe('ConnectionStorage', function () {
     });
   });
 
-  context('when autoConnectInfo is available and cached', function () {
+  describe('getAutoConnectInfo', function () {
     const autoConnectInfo: ConnectionInfo = {
       id: new UUID().toString(),
       connectionOptions: {
@@ -1308,45 +1308,115 @@ describe('ConnectionStorage', function () {
       Sinon.restore();
       const connectionInfo = getConnectionInfo({ lastUsed: new Date() });
       await writeFakeConnection(tmpDir, { connectionInfo });
+    });
 
-      await connectionStorage.getAutoConnectInfo({
+    it('should return autoConnectInfo when a file is provided', async function () {
+      const info = await connectionStorage.getAutoConnectInfo({
         shouldAutoConnect: true,
         file: getExportedConnectionsFilePath(tmpDir),
       });
+      expect(info?.id).to.equal(autoConnectInfo.id);
+      expect(info?.connectionOptions).to.deep.equal(
+        autoConnectInfo.connectionOptions
+      );
+      expect(info?.savedConnectionType).to.equal('autoConnectInfo');
     });
 
-    it('loadAll returns the disk connections alongside the autoConnectInfo', async function () {
-      const allConnections = await connectionStorage.loadAll();
+    it('should return autoConnectInfo when a file with positional argument is provided', async function () {
+      const info = await connectionStorage.getAutoConnectInfo({
+        shouldAutoConnect: true,
+        file: getExportedConnectionsFilePath(tmpDir),
+        positionalArguments: [autoConnectInfo.id],
+      });
+      expect(info?.id).to.equal(autoConnectInfo.id);
+      expect(info?.connectionOptions).to.deep.equal(
+        autoConnectInfo.connectionOptions
+      );
+      expect(info?.savedConnectionType).to.equal('autoConnectInfo');
+    });
+
+    it('should return autoConnectInfo when a mongodb url is provided', async function () {
+      const info = await connectionStorage.getAutoConnectInfo({
+        shouldAutoConnect: true,
+        positionalArguments: ['mongodb://localhost:2021/'],
+      });
+      expect(info?.connectionOptions.connectionString).to.equal(
+        'mongodb://localhost:2021/'
+      );
+      expect(info?.savedConnectionType).to.equal('autoConnectInfo');
+    });
+
+    it('should cache autoConnectInfo and subsequent calls should return the same autoConnectInfo', async function () {
+      const infoFromUrl = await connectionStorage.getAutoConnectInfo({
+        shouldAutoConnect: true,
+        positionalArguments: ['mongodb://localhost:2021/'],
+      });
+
       expect(
-        allConnections.find(({ id }) => {
-          return id === autoConnectInfo.id;
+        await connectionStorage.getAutoConnectInfo({
+          shouldAutoConnect: true,
+          positionalArguments: ['mongodb://localhost:2021/'],
         })
-      ).to.not.be.undefined;
-    });
+      ).to.deep.equal(infoFromUrl);
 
-    it('load returns the autoConnectInfo when there is a match', async function () {
-      const connection = await connectionStorage.load({
-        id: autoConnectInfo.id,
+      const infoFromFile = await connectionStorage.getAutoConnectInfo({
+        shouldAutoConnect: true,
+        file: getExportedConnectionsFilePath(tmpDir),
       });
-      expect(connection).to.deep.equal(autoConnectInfo);
+
+      expect(
+        await connectionStorage.getAutoConnectInfo({
+          shouldAutoConnect: true,
+          file: getExportedConnectionsFilePath(tmpDir),
+        })
+      ).to.deep.equal(infoFromFile);
     });
 
-    it('save ignores the call when the passed connectionInfo matches autoConnectInfo', async function () {
-      await connectionStorage.save({
-        connectionInfo: {
-          ...autoConnectInfo,
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:2020/',
+    context('when autoConnectInfo is available and cached', function () {
+      beforeEach(async function () {
+        await connectionStorage.getAutoConnectInfo({
+          shouldAutoConnect: true,
+          file: getExportedConnectionsFilePath(tmpDir),
+        });
+      });
+
+      it('loadAll returns the disk connections alongside the autoConnectInfo', async function () {
+        const allConnections = await connectionStorage.loadAll();
+        expect(
+          allConnections.find(({ id }) => {
+            return id === autoConnectInfo.id;
+          })
+        ).to.not.be.undefined;
+      });
+
+      it('load returns the autoConnectInfo when there is a match', async function () {
+        const connection = await connectionStorage.load({
+          id: autoConnectInfo.id,
+        });
+        expect(omit(connection, 'savedConnectionType')).to.deep.equal(
+          autoConnectInfo
+        );
+      });
+
+      it('save ignores the call when the passed connectionInfo matches autoConnectInfo', async function () {
+        await connectionStorage.save({
+          connectionInfo: {
+            ...autoConnectInfo,
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:2020/',
+            },
           },
-        },
-      });
+        });
 
-      try {
-        await readConnection(tmpDir, autoConnectInfo.id);
-        expect.fail('Did not expect auto connect info to be saved but it was');
-      } catch (error) {
-        //
-      }
+        try {
+          await readConnection(tmpDir, autoConnectInfo.id);
+          expect.fail(
+            'Did not expect auto connect info to be saved but it was'
+          );
+        } catch (error) {
+          //
+        }
+      });
     });
   });
 });

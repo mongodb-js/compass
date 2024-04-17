@@ -44,6 +44,13 @@ describe('useConnectionRepository', function () {
           savedConnectionType: 'favorite',
           favorite: { name: 'Aa' },
         },
+        {
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
+        },
+        {
+          id: '4',
+        },
       ]);
 
       const { result } = renderHookWithContext(() => useConnectionRepository());
@@ -79,6 +86,10 @@ describe('useConnectionRepository', function () {
 
       mockStorage.loadAll = function () {
         return Promise.resolve([
+          {
+            id: '4',
+            savedConnectionType: 'autoConnectInfo',
+          },
           {
             id: '3',
             savedConnectionType: 'recent',
@@ -122,6 +133,10 @@ describe('useConnectionRepository', function () {
           id: '1',
           savedConnectionType: 'recent',
           favorite: { name: 'Aa' },
+        },
+        {
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
         },
       ]);
 
@@ -185,6 +200,35 @@ describe('useConnectionRepository', function () {
         expect(nonFavoriteConnections).to.equal(initialNonFavoriteConnections);
         expect(favoriteConnections.length).to.equal(1);
         expect(favoriteConnections[0].id).to.equal('3');
+      });
+    });
+  });
+
+  describe('when there is autoConnectInfo available from underlying storage', function () {
+    it('getConnectionInfoById should return the connection info for auto connection if the correct id is specified', async function () {
+      mockStorage = new InMemoryConnectionStorage([
+        {
+          id: '2',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'Bb' },
+        },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'Aa' },
+        },
+        {
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
+        },
+      ]);
+
+      const { result } = renderHookWithContext(() => useConnectionRepository());
+      await waitFor(() => {
+        expect(result.current.getConnectionInfoById('3')).to.deep.equal({
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
+        });
       });
     });
   });

@@ -100,7 +100,7 @@ describe('auto connection argument parsing', function () {
     const info = await fn?.();
     expect(info).to.deep.equal({
       ...connectionInfo,
-      savedConnectionType: 'favorite',
+      savedConnectionType: 'autoConnectInfo',
     });
   });
 
@@ -178,7 +178,7 @@ describe('auto connection argument parsing', function () {
     expect(info).to.deep.equal({
       ...connectionInfo,
       id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9',
-      savedConnectionType: 'favorite',
+      savedConnectionType: 'autoConnectInfo',
     });
   });
 
@@ -239,7 +239,7 @@ describe('auto connection argument parsing', function () {
     const info = await fn?.();
     expect(info).to.deep.equal({
       ...connectionInfo,
-      savedConnectionType: 'favorite',
+      savedConnectionType: 'autoConnectInfo',
     });
   });
 

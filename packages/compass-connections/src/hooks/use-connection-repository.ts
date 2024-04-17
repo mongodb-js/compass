@@ -61,6 +61,10 @@ export function useConnectionRepository(): ConnectionRepository {
     ConnectionInfo[]
   >([]);
 
+  const [autoConnectInfo, setAutoConnectInfo] = useState<
+    ConnectionInfo | undefined
+  >(undefined);
+
   const persistOIDCTokens = usePreference('persistOIDCTokens');
 
   useEffect(() => {
@@ -71,10 +75,16 @@ export function useConnectionRepository(): ConnectionRepository {
         .sort(sortedAlphabetically);
 
       const nonFavoriteConnections = allConnections
-        .filter((connection) => connection.savedConnectionType !== 'favorite')
+        .filter(
+          ({ savedConnectionType }) =>
+            savedConnectionType !== 'favorite' &&
+            savedConnectionType !== 'autoConnectInfo'
+        )
         .sort(sortedAlphabetically);
 
-      console.log('?????', { favoriteConnections, nonFavoriteConnections });
+      const autoConnectInfo = allConnections.find(
+        ({ savedConnectionType }) => savedConnectionType === 'autoConnectInfo'
+      );
 
       setFavoriteConnections((prevList) => {
         if (areConnectionsEqual(prevList, favoriteConnections)) {
@@ -91,14 +101,21 @@ export function useConnectionRepository(): ConnectionRepository {
           return nonFavoriteConnections;
         }
       });
+
+      if (autoConnectInfo) {
+        setAutoConnectInfo((prevAutoConnectInfo) => {
+          if (prevAutoConnectInfo?.id !== autoConnectInfo.id) {
+            return autoConnectInfo;
+          } else {
+            return prevAutoConnectInfo;
+          }
+        });
+      }
     }
 
     void updateListsOfConnections();
 
     function updateListsOfConnectionsSubscriber() {
-      console.log(
-        '???????? updateListsOfConnectionsSubscriber CONNECTION_CHANGED'
-      );
       void updateListsOfConnections();
     }
 
@@ -117,7 +134,6 @@ export function useConnectionRepository(): ConnectionRepository {
 
   const saveConnection = useCallback(
     async (info: PartialConnectionInfo) => {
-      console.log('????????? saveConnection', { info });
       const oldConnectionInfo = await storage.load({ id: info.id });
       const infoToSave = (
         oldConnectionInfo ? merge(oldConnectionInfo, info) : info
@@ -151,12 +167,12 @@ export function useConnectionRepository(): ConnectionRepository {
       const allConnections = [
         ...favoriteConnections,
         ...nonFavoriteConnections,
+        ...(autoConnectInfo ? [autoConnectInfo] : []),
       ];
       return allConnections.find(({ id }) => id === connectionInfoId);
     },
-    [favoriteConnections, nonFavoriteConnections]
+    [favoriteConnections, nonFavoriteConnections, autoConnectInfo]
   );
-
   return {
     getConnectionInfoById,
     favoriteConnections,
