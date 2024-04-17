@@ -9,6 +9,7 @@ import type {
 } from '@mongodb-js/atlas-service/provider';
 import type { Document } from 'mongodb';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { EJSON } from 'bson';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -53,6 +54,44 @@ type AIQuery = {
     aggregation?: { pipeline: string };
   };
 };
+
+export function buildQueryOrAggregationMessageBody(
+  input: Omit<GenerativeAiInput, 'signal' | 'requestId'>
+) {
+  const sampleDocuments = input.sampleDocuments
+    ? EJSON.serialize(input.sampleDocuments, {
+        relaxed: false,
+      })
+    : undefined;
+
+  let msgBody = JSON.stringify({
+    ...input,
+    sampleDocuments,
+  });
+  if (msgBody.length > AI_MAX_REQUEST_SIZE && sampleDocuments) {
+    // When the message body is over the max size, we try
+    // to see if with fewer sample documents we can still perform the request.
+    // If that fails we throw an error indicating this collection's
+    // documents are too large to send to the ai.
+    msgBody = JSON.stringify({
+      ...input,
+      sampleDocuments: EJSON.serialize(
+        input.sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS) || [],
+        {
+          relaxed: false,
+        }
+      ),
+    });
+  }
+
+  if (msgBody.length > AI_MAX_REQUEST_SIZE) {
+    throw new Error(
+      'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
+    );
+  }
+
+  return msgBody;
+}
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
@@ -137,29 +176,9 @@ export class AtlasAiService {
   ): Promise<T> => {
     await this.initPromise;
     await this.throwIfAINotEnabled();
+
     const { signal, requestId, ...rest } = input;
-    let msgBody = JSON.stringify(rest);
-    if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-      // When the message body is over the max size, we try
-      // to see if with fewer sample documents we can still perform the request.
-      // If that fails we throw an error indicating this collection's
-      // documents are too large to send to the ai.
-      msgBody = JSON.stringify({
-        userInput: input.userInput,
-        collectionName: input.collectionName,
-        databaseName: input.databaseName,
-        schema: input.schema,
-        sampleDocuments: input.sampleDocuments?.slice(
-          0,
-          AI_MIN_SAMPLE_DOCUMENTS
-        ),
-      });
-      if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-        throw new Error(
-          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
-        );
-      }
-    }
+    const msgBody = buildQueryOrAggregationMessageBody(rest);
 
     const url = this.atlasService.privateAtlasEndpoint(uri, requestId);
     const res = await this.atlasService.authenticatedFetch(url, {
