@@ -23,6 +23,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
 import type { SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
+import ConnectionInfoModal from '../connection-info-modal';
 
 type MultipleConnectionSidebarProps = {
   activeWorkspace: { type: string; namespace?: string } | null;
@@ -87,6 +88,15 @@ export function MultipleConnectionSidebar({
   const activeConnections = useActiveConnections();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+  const [isConnectionInfoModalOpen, setIsConnectionInfoModalOpen] = useState<
+    string | undefined
+  >();
+
+  const findActiveConnection = useCallback(
+    (connectionId: string) =>
+      activeConnections.find(({ id }) => id === connectionId),
+    [activeConnections]
+  );
 
   const onConnected = useCallback(
     (info: ConnectionInfo) => {
@@ -273,6 +283,9 @@ export function MultipleConnectionSidebar({
         <ActiveConnectionNavigation
           activeConnections={activeConnections}
           activeWorkspace={activeWorkspace}
+          onOpenConnectionInfo={(connectionId: string) =>
+            setIsConnectionInfoModalOpen(connectionId)
+          }
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
@@ -294,6 +307,15 @@ export function MultipleConnectionSidebar({
           initialConnectionInfo={activeConnectionInfo}
           connectionErrorMessage={connectionErrorMessage}
           preferences={preferences}
+        />
+        <ConnectionInfoModal
+          connectionInfo={
+            isConnectionInfoModalOpen
+              ? findActiveConnection(isConnectionInfoModalOpen)
+              : undefined
+          }
+          isVisible={!!isConnectionInfoModalOpen}
+          close={() => setIsConnectionInfoModalOpen(undefined)}
         />
       </aside>
     </ResizableSidebar>
