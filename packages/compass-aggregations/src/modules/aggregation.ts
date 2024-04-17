@@ -231,10 +231,6 @@ const confirmWriteOperationIfNeeded = async (
   namespace: string,
   pipeline: Document[]
 ) => {
-  if (!pipeline.length) {
-    return true;
-  }
-
   const lastStageOperator = getStageOperator(pipeline[pipeline.length - 1]);
   let typeOfWrite;
 
@@ -242,12 +238,13 @@ const confirmWriteOperationIfNeeded = async (
     return true;
   }
 
-  const destinationNamespace = getDestinationNamespaceFromStage(namespace, {
-    [lastStageOperator]: pipeline[pipeline.length - 1][lastStageOperator],
-  });
+  const destinationNamespace = getDestinationNamespaceFromStage(
+    namespace,
+    pipeline[pipeline.length - 1]
+  );
 
   if (lastStageOperator === '$out') {
-    let isOverwritingCollection;
+    let isOverwritingCollection: boolean;
 
     if (destinationNamespace) {
       const { database, collection } = toNS(destinationNamespace);
@@ -294,14 +291,13 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
     getState,
     { pipelineBuilder, logger: { track }, instance, dataService }
   ) => {
-    const state = getState();
-    const pipeline = getPipelineFromBuilderState(state, pipelineBuilder);
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     if (
       !(await confirmWriteOperationIfNeeded(
         instance,
         dataService,
-        state.namespace,
+        getState().namespace,
         pipeline
       ))
     ) {
