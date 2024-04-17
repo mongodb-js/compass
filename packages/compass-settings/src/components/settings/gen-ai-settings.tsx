@@ -27,7 +27,11 @@ export const GenAISettings: React.FunctionComponent<{
           <div className={atlasSettingsContainerStyles}>
             <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
           </div>
-          <SettingsList fields={['enableGenAISampleDocumentPassing']} />
+          {/* TODO(COMPASS-7865): We're currently sending our sample field values to the server
+            and into the ai prompt as regular JSON. This means the AI isn't generating good
+            results with certain bson types. It'll take a bit of work server
+            side for us to do this. In the meantime we are hiding this setting. */}
+          {/* <SettingsList fields={['enableGenAISampleDocumentPassing']} /> */}
         </>
       )}
     </div>
