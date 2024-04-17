@@ -93,7 +93,7 @@ export class AtlasAPI {
 export function createAIChatCompletion({
   system,
   user,
-  model = 'gpt-3.5-turbo',
+  model = 'gpt-3.5-turbo', // 'gpt-4-turbo', //
 }: {
   system?: string;
   user: string;

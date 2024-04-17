@@ -139,7 +139,6 @@ function getFieldsFromCompletionResponse({
       ])
     ),
     aggregation: extractDelimitedText(content ?? '', 'aggregation'),
-
     ...(completion.usage
       ? {
           usageStats: {
@@ -271,16 +270,18 @@ type TestOptions = {
   acceptAggregationResponse?: boolean;
 };
 
-// eslint-disable-next-line complexity
-const runOnce = async ({
-  type,
-  databaseName,
-  collectionName,
-  userInput,
-  includeSampleDocuments,
-  assertResult,
-  acceptAggregationResponse,
-}: TestOptions): Promise<UsageStats | void> => {
+const runOnce = async (
+  {
+    type,
+    databaseName,
+    collectionName,
+    userInput,
+    includeSampleDocuments,
+    assertResult,
+    acceptAggregationResponse,
+  }: TestOptions,
+  usageStats: UsageStats[]
+): Promise<void> => {
   const response = await generateMQL({
     type,
     databaseName,
@@ -289,6 +290,10 @@ const runOnce = async ({
     includeSampleDocuments,
     mongoClient,
   });
+
+  if (response.usageStats) {
+    usageStats.push(response.usageStats);
+  }
 
   try {
     const collection = mongoClient.db(databaseName).collection(collectionName);
@@ -339,12 +344,10 @@ const runOnce = async ({
     newError.query = (error as Error).message;
     newError.prompt = response.prompt;
     newError.causedBy = error as Error;
-    console.log('Incorrect result, response:');
+    console.log('\n__\nIncorrect result. Response:');
     console.log(response?.content);
     throw error;
   }
-
-  return response.usageStats;
 };
 
 const runTest = async (
@@ -383,10 +386,7 @@ const runTest = async (
       console.info('---------------------------------------------------');
       console.info('Running', JSON.stringify(testOptions.userInput));
       console.info('Attempt', i + 1, 'of', attempts, 'Failures:', fails);
-      const stats = await runOnce(testOptions);
-      if (stats) {
-        usageStats.push(stats);
-      }
+      await runOnce(testOptions, usageStats);
 
       console.info('OK');
       totalTestTimeMS += Date.now() - testStartTime;
@@ -753,6 +753,39 @@ const tests: TestOptions[] = [
   },
   {
     type: 'aggregation',
+    databaseName: 'netflix',
+    collectionName: 'movies',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy.
+    minAccuracyForTest: 0.4,
+    userInput:
+      'What are the 5 most frequent words used in movie titles in the 1980s and 1990s combined? Sorted first by frequency count then alphabetically. output fields count and word',
+    assertResult: isDeepStrictEqualTo([
+      {
+        count: 3,
+        word: 'Alien',
+      },
+      {
+        count: 2,
+        word: 'The',
+      },
+      {
+        count: 1,
+        word: '3',
+      },
+      {
+        count: 1,
+        word: '3:',
+      },
+      {
+        count: 1,
+        word: 'A',
+      },
+    ]),
+  },
+  {
+    type: 'aggregation',
     databaseName: 'sample_airbnb',
     collectionName: 'listingsAndReviews',
     // TODO(COMPASS-7763): GPT-4 generates better results for this input.
@@ -766,17 +799,16 @@ const tests: TestOptions[] = [
       isDeepStrictEqualTo([
         {
           _id: null,
-          tvPercentage: '67%',
+          washerPercentage: '67%',
         },
       ]),
       isDeepStrictEqualTo([
         {
-          tvPercentage: '67%',
+          washerPercentage: '67%',
         },
       ]),
     ]),
   },
-
   {
     type: 'query',
     databaseName: 'NYC',
@@ -870,7 +902,7 @@ async function main() {
 
     let hasUsageStats = false;
 
-    tests.map((test) =>
+    tests.map((test, index) =>
       testPromiseQueue.add(async () => {
         const { accuracy, totalTestTimeMS, usageStats } = await runTest(test);
 
@@ -881,13 +913,13 @@ async function main() {
         const minAccuracy = DEFAULT_MIN_ACCURACY;
         const failed = accuracy < (test.minAccuracyForTest ?? minAccuracy);
 
-        results.push({
+        results[index] = {
           Type: test.type.slice(0, 1).toUpperCase(),
           'User Input': test.userInput.slice(0, 50),
           Namespace: `${test.databaseName}.${test.collectionName}`,
           Accuracy: accuracy,
           'Time Elapsed (MS)': totalTestTimeMS,
-          ...(usageStats
+          ...(usageStats && usageStats.length > 0
             ? {
                 'Avg Prompt Tokens': meanAverage(
                   usageStats.map((usageStats) => usageStats.promptTokens)
@@ -899,7 +931,7 @@ async function main() {
               }
             : {}),
           Pass: failed ? '✗' : '✓',
-        });
+        };
 
         anyFailed = anyFailed || failed;
       })
