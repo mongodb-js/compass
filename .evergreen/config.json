@@ -3,7 +3,7 @@
     "run_on": [
       "ubuntu2004-large",
       "windows-vsCurrent-large",
-      "rhel76-large",
+      "rhel80-large",
       ["macos-1100", { "gui": "macos-1100-gui" }],
       ["macos-1100-arm64", { "gui": "macos-1100-arm64-gui" }]
     ],
@@ -136,7 +136,7 @@
           "vars": {
             "mongodb_version": "latest-alpha-enterprise"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel80-large"]
         }
       ],
       "test-web-sandbox": [
@@ -146,7 +146,7 @@
             "mongodb_version": "latest-alpha-enterprise",
             "browser_name": "chrome"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large", "windows-vsCurrent-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel80-large", "windows-vsCurrent-large"]
         },
         {
           "name": "firefox",
@@ -154,7 +154,7 @@
             "mongodb_version": "latest-alpha-enterprise",
             "browser_name": "firefox"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel76-large", "windows-vsCurrent-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel80-large", "windows-vsCurrent-large"]
         }
       ]
     }
@@ -163,7 +163,7 @@
     "short": {
       "ubuntu2004-large": "ubuntu",
       "windows-vsCurrent-large": "windows",
-      "rhel76-large": "rhel",
+      "rhel80-large": "rhel",
       "macos-1100": "macos",
       "macos-1100-arm64": "macos-arm",
       "macos-1100-gui": "macos-gui",
@@ -172,7 +172,7 @@
     "long": {
       "ubuntu2004-large": "Ubuntu 20.04",
       "windows-vsCurrent-large": "Windows 10",
-      "rhel76-large": "RHEL 7.6",
+      "rhel80-large": "RHEL 8.0",
       "macos-1100": "MacOS x64 11.00",
       "macos-1100-arm64": "MacOS arm64 11.00",
       "macos-1100-gui": "MacOS x64 11.00 w/ GUI Session",
