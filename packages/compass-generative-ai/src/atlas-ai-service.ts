@@ -55,7 +55,7 @@ type AIQuery = {
   };
 };
 
-export function buildQueryOrAggregationMessageBody(
+function buildQueryOrAggregationMessageBody(
   input: Omit<GenerativeAiInput, 'signal' | 'requestId'>
 ) {
   const sampleDocuments = input.sampleDocuments
