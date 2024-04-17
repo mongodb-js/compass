@@ -33,6 +33,13 @@ export const OPTION_DEFINITION: {
     placeholder: "{ field: -1 } or [['field', -1]]",
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/',
   },
+  hint: {
+    name: 'hint',
+    label: 'Index Hint',
+    type: 'document',
+    placeholder: '{ field: -1 }',
+    link: 'https://docs.mongodb.com/manual/reference/method/cursor.hint/',
+  },
   collation: {
     name: 'collation',
     type: 'document',

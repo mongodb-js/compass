@@ -379,7 +379,9 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      ipcMain?.broadcast('autoupdate:update-download-success');
+      ipcMain?.broadcast('autoupdate:update-download-success', {
+        updatedVersion: updateInfo.to,
+      });
     },
   },
   [AutoUpdateManagerState.ManualDownload]: {
