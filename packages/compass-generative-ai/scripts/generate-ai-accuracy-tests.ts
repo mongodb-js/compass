@@ -27,10 +27,12 @@ import { MongoClient } from 'mongodb';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import path from 'path';
+import { getSimplifiedSchema } from 'mongodb-schema';
 import OpenAI from 'openai';
 import { toJSString } from 'mongodb-query-parser';
 
 import { generateMQL, parseShellString } from './ai-accuracy-tests';
+import { SchemaFormatter } from './schema';
 
 const openai = new OpenAI({
   apiKey: process.env['OPENAI_API_KEY'],
@@ -173,6 +175,112 @@ async function createPromptQuestion({
   }
 }
 
+function extractDelimitedText(str: string, delimiter: string): string {
+  if (!str.includes(delimiter)) {
+    return '';
+  }
+
+  let res = str;
+  try {
+    res = str.split(`<${delimiter}>`)[1].split(`</${delimiter}>`)[0];
+  } catch (e) {
+    // delimiters may not be found or be unbalanced
+  }
+
+  // in case the model returns unbalanced or redundant delimiters
+  // we strip everything that remains from the text:
+  return res
+    .replace(`<${delimiter}>`, '')
+    .replace(`</${delimiter}>`, '')
+    .replace(`${delimiter}`, '');
+}
+
+function getAggregationSystemPrompt() {
+  return `
+Reduce prose to the minimum, your output will be parsed by a machine. You generate MongoDB aggregation pipelines. Provide only the aggregation pipeline contents in an array in shell syntax, wrapped with XML delimiters as follows:
+<aggregation>[]</aggregation>
+Additional instructions:
+- If specifying latitude and longitude coordinates, list the longitude first, and then latitude.
+- The current date is ${new Date().toString()}
+`;
+}
+
+function getAggregationUserPrompt({
+  databaseName,
+  collectionName,
+  schema,
+  userInput,
+  sampleDocuments,
+}: {
+  databaseName: string;
+  collectionName: string;
+  schema: string;
+  userInput: string;
+  sampleDocuments?: Document;
+}) {
+  return `
+Database name: "${databaseName}"
+Collection name: "${collectionName}"
+Schema from a sample of documents from the collection:
+\`\`\`
+${schema}
+\`\`\`
+${
+  sampleDocuments
+    ? `
+Sample documents:
+${toJSString(sampleDocuments)}
+`
+    : ''
+}
+
+Write a query that does the following: "${userInput}"
+`;
+}
+
+async function generateAggregation({
+  databaseName,
+  mongoClient,
+  collectionName,
+  userInput,
+  includeSampleDocuments,
+}: {
+  databaseName: string;
+  mongoClient: MongoClient;
+  collectionName: string;
+  userInput: string;
+  includeSampleDocuments?: boolean;
+}): Promise<string> {
+  const collection = mongoClient.db(databaseName).collection(collectionName);
+  const simplifiedSchema = await getSimplifiedSchema(collection.find());
+  const sample = await collection.find().limit(2).toArray();
+
+  const response = await openai.chat.completions.create({
+    messages: [
+      { role: 'system', content: getAggregationSystemPrompt() },
+      {
+        role: 'user',
+        content: getAggregationUserPrompt({
+          databaseName,
+          schema: new SchemaFormatter().format(simplifiedSchema),
+          collectionName,
+          userInput,
+          sampleDocuments: includeSampleDocuments ? sample : undefined,
+        }),
+      },
+    ],
+    model: 'gpt-3.5-turbo',
+  });
+
+  // console.log('generate aggregation response', response);
+  // console.log('\n\nsmall', response.choices[0].message.content?.trim());
+
+  return extractDelimitedText(
+    response.choices[0].message.content?.trim() || '',
+    'aggregation'
+  );
+}
+
 async function main() {
   const { cluster, mongoClient, fixtures } = await setup();
 
@@ -200,8 +308,16 @@ async function main() {
     console.log(prompt);
 
     // 2. Use the generate prompt to generate an aggregation.
-    const response = await generateMQL({
-      type: 'aggregation',
+    // const response = await generateMQL({
+    //   type: 'aggregation',
+    //   databaseName,
+    //   mongoClient,
+    //   collectionName,
+    //   userInput: prompt,
+    //   // includeSampleDocuments,
+    // });
+
+    const aggregation = await generateAggregation({
       databaseName,
       mongoClient,
       collectionName,
@@ -209,13 +325,18 @@ async function main() {
       // includeSampleDocuments,
     });
 
-    const aggregation = response?.content?.aggregation ?? {};
+    console.log('aggregationaggregation aggregation aggregation', aggregation);
+
+    // console.log('response', response);
+
+    // const aggregation = response?.content?.aggregation ?? {};
 
     // console.log('about to mongo client ', mongoClient);
 
     const collection = mongoClient.db(databaseName).collection(collectionName);
     const cursor = collection.aggregate(
-      parseShellString(aggregation?.pipeline)
+      // parseShellString(aggregation?.pipeline)
+      parseShellString(aggregation)
     );
 
     const result = (await cursor.toArray()).map((doc) => EJSON.serialize(doc));
