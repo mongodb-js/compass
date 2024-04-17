@@ -36,6 +36,7 @@ interface Database extends DatabaseProps {
   toJSON(opts?: { derived: boolean }): DatabaseProps;
   previousAttributes(): DatabaseProps;
   set(val: Partial<DatabaseProps>): this;
+  modelType: 'Database';
 }
 
 interface DatabaseCollection extends Array<Database> {
