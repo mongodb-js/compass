@@ -72,6 +72,18 @@ export default function reducer(
   action: RootAction
 ): DatabaseState {
   if (action.type === TOGGLE_DATABASE) {
+    if (
+      state[action.connectionId] &&
+      state[action.connectionId].expandedDbList
+    ) {
+      const previousExpandedState =
+        state[action.connectionId]?.expandedDbList[action.database];
+
+      if (previousExpandedState === action.expanded) {
+        return state;
+      }
+    }
+
     return {
       ...state,
       [action.connectionId]: {
@@ -149,6 +161,7 @@ export const toggleDatabaseExpanded =
     const { database } = toNS(databaseId);
     const { expandedDbList } = getState().databases[connectionId];
     const expanded = forceExpand ?? !expandedDbList[database];
+
     if (expanded) {
       // Fetch collections list on expand if we haven't done it yet (this is
       // relevant only for the code path that has global overlay disabled)

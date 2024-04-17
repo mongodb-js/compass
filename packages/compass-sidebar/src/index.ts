@@ -13,8 +13,6 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
-import { connectionInfoAccessLocator } from '@mongodb-js/connection-storage/provider';
-import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
 
 export const CompassSidebarPlugin = registerHadronPlugin<
   SidebarPluginProps,
