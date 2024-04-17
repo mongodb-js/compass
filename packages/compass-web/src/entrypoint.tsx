@@ -160,6 +160,7 @@ type CompassWebProps = {
 function CompassWorkspace({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
+  connectionInfo,
 }: CompassWorkspaceProps) {
   return (
     <WorkspacesProvider
@@ -197,6 +198,7 @@ function CompassWorkspace({
               return (
                 <CompassSidebarPlugin
                   showConnectionInfo={false}
+                  initialConnectionInfo={connectionInfo}
                 ></CompassSidebarPlugin>
               );
             }}
