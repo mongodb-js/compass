@@ -84,7 +84,7 @@ function readablePlatformName(arch, platform, fileName = '') {
       break;
     case 'linux-x64':
       name = fileName.endsWith('.rpm')
-        ? 'RedHat 64-bit (7+)'
+        ? 'RedHat 64-bit (8+)'
         : 'Ubuntu 64-bit (16.04+)';
       break;
     default:
