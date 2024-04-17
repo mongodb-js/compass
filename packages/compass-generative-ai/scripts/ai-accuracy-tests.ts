@@ -516,6 +516,17 @@ const tests: TestOptions[] = [
     type: 'query',
     databaseName: 'netflix',
     collectionName: 'movies',
+    userInput: 'find all the movies released in 1983',
+    assertResult: isDeepStrictEqualToFixtures(
+      'netflix',
+      'movies',
+      (doc: Document) => doc._id.$oid === '573b864df29313caabe35593'
+    ),
+  },
+  {
+    type: 'query',
+    databaseName: 'netflix',
+    collectionName: 'movies',
     userInput:
       'find three movies with alien in the title, show earliest movies first, only the _id, title and year',
     assertResult: isDeepStrictEqualTo([
@@ -723,6 +734,22 @@ const tests: TestOptions[] = [
           host_url: 'https://www.airbnb.com/users/show/51471538',
         },
       ]),
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'netflix',
+    collectionName: 'movies',
+    userInput: 'find all the movies released in 1983',
+    assertResult: isDeepStrictEqualTo([
+      {
+        _id: {
+          $oid: '573b864df29313caabe35593',
+        },
+        title: 'Smokey and the Bandit Part 3',
+        year: '1983',
+        id: '168',
+      },
     ]),
   },
   {
