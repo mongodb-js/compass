@@ -418,7 +418,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           connection,
           connectionIndex,
           connectionsLength: connections.length,
-          expanded: expanded,
+          expanded,
         })
       );
     } else {
@@ -430,7 +430,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
 
         return databaseToItems({
-          connectionId: connection.connectionInfo.id, // 'TOFIX'
+          connectionId: connection.connectionInfo.id,
           database,
           databaseIndex,
           databasesLength: connection.databases.length || 0,

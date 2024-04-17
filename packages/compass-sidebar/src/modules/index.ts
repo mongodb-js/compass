@@ -1,6 +1,6 @@
 import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
-import type { DatabaseState, DatabasesAction } from './databases';
+import type { AllDatabasesState, DatabasesAction } from './databases';
 import databases from './databases';
 import type { InstanceAction, InstanceState } from './instance';
 import instance from './instance';
@@ -27,7 +27,7 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 export interface RootState {
   connectionOptions: ConnectionOptionsState;
-  databases: DatabaseState;
+  databases: AllDatabasesState;
   instance: InstanceState;
   isGenuineMongoDBVisible: IsGenuineMongoDBVisibleState;
   isPerformanceTabSupported: IsPerformanceTabSupportedState;

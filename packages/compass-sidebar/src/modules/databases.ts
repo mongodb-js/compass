@@ -46,8 +46,11 @@ export type Database = Pick<
     '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
   >[];
 };
-export type DatabaseState = Record<ConnectionInfo['id'], SingleDatabaseState>;
-export interface SingleDatabaseState {
+export type AllDatabasesState = Record<
+  ConnectionInfo['id'],
+  ConnectionDatabasesState
+>;
+export interface ConnectionDatabasesState {
   databases: Database[];
   filteredDatabases: Database[];
   expandedDbList: Record<string, boolean>;
@@ -57,7 +60,7 @@ export interface SingleDatabaseState {
 /**
  * The initial state of the sidebar databases.
  */
-export const INITIAL_STATE: DatabaseState = {};
+export const INITIAL_STATE: AllDatabasesState = {};
 
 /**
  * Reducer function for handle state changes to sidebar databases.
@@ -68,9 +71,9 @@ export const INITIAL_STATE: DatabaseState = {};
  * @returns {Object} The new state.
  */
 export default function reducer(
-  state: DatabaseState = INITIAL_STATE,
+  state: AllDatabasesState = INITIAL_STATE,
   action: RootAction
-): DatabaseState {
+): AllDatabasesState {
   if (action.type === TOGGLE_DATABASE) {
     if (
       state[action.connectionId] &&
