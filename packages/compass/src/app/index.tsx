@@ -74,7 +74,7 @@ import {
   onAutoupdateFailed,
   onAutoupdateStarted,
   onAutoupdateSuccess,
-} from './utils/update-handlers';
+} from './components/update-toasts';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
@@ -289,20 +289,24 @@ const app = {
       onAutoupdateStarted
     );
     ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
-    ipcRenderer?.on('autoupdate:update-download-success', () => {
-      onAutoupdateSuccess({
-        onUpdate: () => {
-          void ipcRenderer?.call(
-            'autoupdate:update-download-restart-confirmed'
-          );
-        },
-        onDismiss: () => {
-          void ipcRenderer?.call(
-            'autoupdate:update-download-restart-dismissed'
-          );
-        },
-      });
-    });
+    ipcRenderer?.on(
+      'autoupdate:update-download-success',
+      (_, { updatedVersion }: { updatedVersion: string }) => {
+        onAutoupdateSuccess({
+          updatedVersion,
+          onUpdate: () => {
+            void ipcRenderer?.call(
+              'autoupdate:update-download-restart-confirmed'
+            );
+          },
+          onDismiss: () => {
+            void ipcRenderer?.call(
+              'autoupdate:update-download-restart-dismissed'
+            );
+          },
+        });
+      }
+    );
     // As soon as dom is ready, render and set up the rest.
     state.render();
     marky.stop('Time to Connect rendered');
