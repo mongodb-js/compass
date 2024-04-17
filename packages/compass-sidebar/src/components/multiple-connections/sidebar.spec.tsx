@@ -30,7 +30,6 @@ import {
   createSandboxFromDefaultPreferences,
 } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { createInstance } from '../../../test/helpers';
 import {
   type WorkspacesService,
   WorkspacesServiceProvider,
