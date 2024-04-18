@@ -149,7 +149,7 @@ export function Sidebar({
       onSidebarAction,
       openToast,
       maybeProtectConnectionString,
-      initialConnectionInfo?.connectionOptions?.connectionString,
+      initialConnectionInfo.connectionOptions.connectionString,
     ]
   );
 
