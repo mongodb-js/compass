@@ -408,7 +408,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         onDatabaseExpand(connection.connectionInfo.id, activeNamespace, true);
       }
     }
-  }, [activeNamespace, onDatabaseExpand, connections]);
+  }, [activeNamespace, onDatabaseExpand, connections[0]?.connectionInfo.id]);
   // TODO(COMPASS-7775): the we'll need something similar to expand the active connection
 
   const items: TreeItem[] = useMemo(() => {
