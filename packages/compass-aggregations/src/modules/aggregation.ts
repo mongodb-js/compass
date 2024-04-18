@@ -15,9 +15,30 @@ import {
 import {
   getDestinationNamespaceFromStage,
   getStageOperator,
+  isOutputStage,
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
+import {
+  showConfirmation,
+  ConfirmationModalVariant,
+} from '@mongodb-js/compass-components';
+import { runPipelineConfirmationDescription } from '../utils/modal-descriptions';
+import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { DataService } from '../modules/data-service';
+import toNS from 'mongodb-ns';
+
+const WRITE_STAGE_LINK = {
+  $merge:
+    'https://www.mongodb.com/docs/manual/reference/operator/aggregation/merge/',
+  $out: 'https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/',
+};
+
+export const WriteOperation = {
+  Alter: 'altering',
+  Create: 'creating',
+  Overwrite: 'overwriting',
+} as const;
 
 export enum ActionTypes {
   RunAggregation = 'compass-aggeregations/runAggregation',
@@ -204,9 +225,85 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
+const confirmWriteOperationIfNeeded = async (
+  instance: MongoDBInstance,
+  dataService: DataService,
+  namespace: string,
+  pipeline: Document[]
+) => {
+  const lastStageOperator = getStageOperator(pipeline[pipeline.length - 1]);
+  let typeOfWrite;
+
+  if (!lastStageOperator || !isOutputStage(lastStageOperator)) {
+    return true;
+  }
+
+  const destinationNamespace = getDestinationNamespaceFromStage(
+    namespace,
+    pipeline[pipeline.length - 1]
+  );
+
+  if (lastStageOperator === '$out') {
+    let isOverwritingCollection: boolean;
+
+    if (destinationNamespace) {
+      const { database, collection } = toNS(destinationNamespace);
+      isOverwritingCollection = !!(await instance.getNamespace({
+        dataService,
+        database,
+        collection,
+      }));
+    } else {
+      isOverwritingCollection = true;
+    }
+
+    typeOfWrite = isOverwritingCollection
+      ? WriteOperation.Overwrite
+      : WriteOperation.Create;
+  } else {
+    typeOfWrite = WriteOperation.Alter;
+  }
+
+  return await showConfirmation({
+    variant:
+      typeOfWrite === WriteOperation.Overwrite
+        ? ConfirmationModalVariant.Danger
+        : ConfirmationModalVariant.Default,
+    title: 'A write operation will occur',
+    description: runPipelineConfirmationDescription({
+      typeOfWrite,
+      stage: {
+        name: lastStageOperator,
+        link: WRITE_STAGE_LINK[
+          lastStageOperator as keyof typeof WRITE_STAGE_LINK
+        ],
+      },
+      ns: destinationNamespace,
+    }),
+    buttonText: 'Yes, run pipeline',
+    'data-testid': `write-operation-confirmation-modal`,
+  });
+};
+
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, logger: { track }, instance, dataService }
+  ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+
+    if (
+      !(await confirmWriteOperationIfNeeded(
+        instance,
+        dataService,
+        getState().namespace,
+        pipeline
+      ))
+    ) {
+      return;
+    }
+
     void dispatch(fetchExplainForPipeline());
     dispatch({
       type: ActionTypes.RunAggregation,

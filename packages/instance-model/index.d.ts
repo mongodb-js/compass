@@ -123,7 +123,7 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
     fetchCollStats?: boolean;
   }): Promise<void>;
   getNamespace(opts: {
-    dataService: DataService;
+    dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>;
     database: string;
     collection: string;
   }): Promise<Collection | null>;
