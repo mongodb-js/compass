@@ -800,12 +800,12 @@ const tests: TestOptions[] = [
       isDeepStrictEqualTo([
         {
           _id: null,
-          tvPercentage: '67%',
+          washerPercentage: '67%',
         },
       ]),
       isDeepStrictEqualTo([
         {
-          tvPercentage: '67%',
+          washerPercentage: '67%',
         },
       ]),
     ]),
