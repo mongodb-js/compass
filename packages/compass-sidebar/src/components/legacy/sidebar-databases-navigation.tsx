@@ -76,7 +76,7 @@ function SidebarDatabasesNavigation({
       }
     },
     [
-      connections,
+      connection,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,

@@ -127,7 +127,7 @@ export function Sidebar({
       if (action === 'copy-connection-string') {
         void copyConnectionString(
           maybeProtectConnectionString(
-            initialConnectionInfo?.connectionOptions?.connectionString ?? ''
+            initialConnectionInfo.connectionOptions.connectionString ?? ''
           )
         );
         return;
