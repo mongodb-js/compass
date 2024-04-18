@@ -5,6 +5,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import { ObjectId } from 'mongodb';
 
 const ATLAS_USER = {
   enabledAIFeature: true,
@@ -159,7 +160,9 @@ describe('AtlasAiService', function () {
             collectionName: 'jam',
             databaseName: 'peanut',
             schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
-            sampleDocuments: [{ _id: 1234 }],
+            sampleDocuments: [
+              { _id: new ObjectId('642d766b7300158b1f22e972') },
+            ],
             requestId: 'abc',
           });
 
@@ -171,7 +174,7 @@ describe('AtlasAiService', function () {
             `http://example.com/ai/api/v1/${aiEndpoint}?request_id=abc`
           );
           expect(args[1].body).to.eq(
-            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
+            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":{"$oid":"642d766b7300158b1f22e972"}}]}'
           );
           expect(res).to.deep.eq(responses.success);
         });
