@@ -8,6 +8,7 @@ import databasesReducer, {
 } from './databases';
 
 import { createInstance } from '../../test/helpers';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 
 function createGetState(dbs: any[] = []) {
   return function () {
@@ -101,6 +102,7 @@ describe('sidebar databases', function () {
               // noop
             },
           } as any,
+          connectionStorage: new InMemoryConnectionStorage(),
         });
 
         expect(slice.state).to.deep.eq({

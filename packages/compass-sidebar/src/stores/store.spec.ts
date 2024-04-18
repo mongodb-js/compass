@@ -4,6 +4,10 @@ import { createSidebarStore } from '.';
 import { createInstance } from '../../test/helpers';
 import type { Database } from '../modules/databases';
 import type { MongoDBInstance } from 'mongodb-instance-model';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 const instance = createInstance();
 
@@ -42,10 +46,12 @@ describe('SidebarStore [Store]', function () {
           },
           currentOp() {},
           top() {},
-        },
+        } as DataService,
         instance,
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        connectionStorage: new InMemoryConnectionStorage(),
+        logger: createNoopLoggerAndTelemetry(),
+        connectionInfo: TEST_CONNECTION_INFO,
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
   });
