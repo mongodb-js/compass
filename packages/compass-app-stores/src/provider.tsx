@@ -6,7 +6,8 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from 'hadron-app-registry';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { MongoDBInstanceProps } from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 import React, {
   createContext,
   useContext,
@@ -25,8 +26,18 @@ export {
   type MongoDBInstancesManager,
 } from './instances-manager';
 
+class TestMongoDBInstanceManager {
+  getMongoDBInstanceForConnection() {
+    return new MongoDBInstance({} as MongoDBInstanceProps);
+  }
+}
+
 export const MongoDBInstancesManagerContext =
-  createContext<MongoDBInstancesManager | null>(null);
+  createContext<MongoDBInstancesManager | null>(
+    process.env.NODE_ENV === 'test'
+      ? (new TestMongoDBInstanceManager() as unknown as MongoDBInstancesManager)
+      : null
+  );
 
 export const MongoDBInstancesManagerProvider =
   MongoDBInstancesManagerContext.Provider;

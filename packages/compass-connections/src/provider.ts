@@ -12,8 +12,16 @@ export { useConnections } from './stores/connections-store';
 export { useConnectionRepository } from './hooks/use-connection-repository';
 export { useActiveConnections } from './hooks/use-active-connections';
 
+class TestConnectionsManager {
+  getDataServiceForConnection() {
+    return {} as DataService;
+  }
+}
+
 const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
-  null
+  process.env.NODE_ENV === 'test'
+    ? (new TestConnectionsManager() as unknown as ConnectionsManager)
+    : null
 );
 export const ConnectionsManagerProvider = ConnectionsManagerContext.Provider;
 
