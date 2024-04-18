@@ -7,6 +7,7 @@ import type {
   AtlasAuthService,
   AtlasService,
 } from '@mongodb-js/atlas-service/provider';
+import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Document } from 'mongodb';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -106,7 +107,7 @@ export class AtlasAiService {
 
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_300),
-        'AtlasService',
+        'AtlasAIService',
         'Fetched if the AI feature is enabled',
         {
           enabled: isAIFeatureEnabled,
@@ -123,7 +124,7 @@ export class AtlasAiService {
       // Default to what's already in Compass when we can't fetch the preference.
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_302),
-        'AtlasService',
+        'AtlasAIService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }
       );
@@ -162,6 +163,21 @@ export class AtlasAiService {
     }
 
     const url = this.atlasService.privateAtlasEndpoint(uri, requestId);
+
+    this.logger.log.info(
+      this.logger.mongoLogId(1_001_000_308),
+      'AtlasAIService',
+      'Running AI query generation request',
+      {
+        url,
+        userInput: input.userInput,
+        collectionName: input.collectionName,
+        databaseName: input.databaseName,
+        messageBodyLength: msgBody.length,
+        requestId,
+      }
+    );
+
     const res = await this.atlasService.authenticatedFetch(url, {
       signal,
       method: 'POST',
@@ -171,7 +187,32 @@ export class AtlasAiService {
         Accept: 'application/json',
       },
     });
-    const data = await res.json();
+
+    // Sometimes the server will return empty response and calling res.json directly
+    // throws and user see "Unexpected end of JSON input" error, which is not helpful.
+    // So we will get the text from the response first and then try to parse it.
+    // If it fails, we will throw a more helpful error message.
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      this.logger.log.info(
+        this.logger.mongoLogId(1_001_000_310),
+        'AtlasAIService',
+        'Failed to parse the response from AI API',
+        {
+          text,
+          requestId,
+        }
+      );
+      throw new AtlasServiceError(
+        'ServerError',
+        500, // Not using res.status as its 200 in this case
+        'Internal server error',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
     validationFn(data);
     return data;
   };
