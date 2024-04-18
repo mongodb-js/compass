@@ -47,6 +47,8 @@ describe('tabs behavior', function () {
     collectionRemoved,
     databaseRemoved,
     collectionSubtabSelected,
+    openFallbackTab,
+    getActiveTab,
   } = workspacesSlice;
 
   describe('openWorkspace', function () {
@@ -59,7 +61,7 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('activeTabId', state.tabs[0].id);
     });
 
-    it('should open a workspace in new tab even if another exists', function () {
+    it('when `newTab` is `true` should open a workspace in new tab even if another exists', function () {
       const store = configureStore();
       store.dispatch(openWorkspace({ type: 'My Queries' }));
       store.dispatch(openWorkspace({ type: 'My Queries' }, { newTab: true }));
@@ -69,6 +71,8 @@ describe('tabs behavior', function () {
       expect(state).to.have.nested.property('tabs[1].type', 'My Queries');
       expect(state).to.have.property('activeTabId', state.tabs[1].id);
     });
+
+    it('when `newTab` is `false` should always open a workspace in the same tab', function () {});
 
     it('should open workspace in the same tab if type is the same, but other workspace options are different', function () {
       const store = configureStore();
@@ -328,6 +332,46 @@ describe('tabs behavior', function () {
           'it does not change active tab id'
         ).to.equal(activeTabId);
       });
+    });
+  });
+
+  describe('openFallbackTab', function () {
+    it('should replace the tab with a fallback namespace', function () {
+      const store = configureStore();
+
+      store.dispatch(
+        openWorkspace({ type: 'Collection', namespace: 'foo.bar' })
+      );
+      expect(store.getState().tabs).to.have.lengthOf(1);
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Collection'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'namespace',
+        'foo.bar'
+      );
+
+      // Replace collection tab with collections list one
+      store.dispatch(openFallbackTab(getActiveTab(store.getState())!, 'foo'));
+      expect(store.getState().tabs).to.have.lengthOf(1);
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Collections'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'namespace',
+        'foo'
+      );
+
+      // Replace collections list tab with the databases list
+      store.dispatch(openFallbackTab(getActiveTab(store.getState())!, null));
+      expect(store.getState().tabs).to.have.lengthOf(1);
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Databases'
+      );
+      expect(getActiveTab(store.getState())).to.not.have.property('namespace');
     });
   });
 });

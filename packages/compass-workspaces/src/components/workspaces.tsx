@@ -19,6 +19,7 @@ import {
   getActiveTab,
   getLocalAppRegistryForTab,
   moveTab,
+  openFallbackTab,
   openTabFromCurrent,
   selectNextTab,
   selectPrevTab,
@@ -29,6 +30,7 @@ import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
+import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -74,6 +76,10 @@ type CompassWorkspacesProps = {
   onMoveTab(from: number, to: number): void;
   onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
+  onNamespaceNotFound(
+    tab: WorkspaceTab,
+    fallbackNamespace: string | null
+  ): void;
 };
 
 const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
@@ -87,6 +93,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onMoveTab,
   onCreateTab,
   onCloseTab,
+  onNamespaceNotFound,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -165,18 +172,36 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       }
       case 'Collections': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component namespace={activeTab.namespace}></Component>;
+        return (
+          <NamespaceProvider
+            namespace={activeTab.namespace}
+            onNamespaceFallbackSelect={(ns) => {
+              onNamespaceNotFound(activeTab, ns);
+            }}
+          >
+            <Component namespace={activeTab.namespace}></Component>
+          </NamespaceProvider>
+        );
       }
       case 'Collection': {
         const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, type, ...collectionMetadata } = activeTab;
-        return <Component tabId={id} {...collectionMetadata}></Component>;
+        return (
+          <NamespaceProvider
+            namespace={activeTab.namespace}
+            onNamespaceFallbackSelect={(ns) => {
+              onNamespaceNotFound(activeTab, ns);
+            }}
+          >
+            <Component tabId={id} {...collectionMetadata}></Component>;
+          </NamespaceProvider>
+        );
       }
       default:
         return null;
     }
-  }, [activeTab, getWorkspacePluginByName]);
+  }, [activeTab, getWorkspacePluginByName, onNamespaceNotFound]);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);
@@ -244,5 +269,6 @@ export default connect(
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
+    onNamespaceNotFound: openFallbackTab,
   }
 )(CompassWorkspaces);
