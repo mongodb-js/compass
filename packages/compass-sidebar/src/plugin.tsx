@@ -17,13 +17,14 @@ const errorBoundaryStyles = css({
 
 export interface SidebarPluginProps {
   showConnectionInfo?: boolean;
-  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
-  // away with refactoring compoass-conneciton to a plugin
-  initialConnectionInfo?: ConnectionInfo | null | undefined;
+  initialConnectionInfo?: ConnectionInfo;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
+  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
+  // away with refactoring compoass-conneciton to a plugin
+  initialConnectionInfo,
 }) => {
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
@@ -32,14 +33,24 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   const activeWorkspace = useActiveWorkspace();
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
 
-  const sidebar = isMultiConnectionEnabled ? (
-    <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />
-  ) : (
-    <Sidebar
-      showConnectionInfo={showConnectionInfo}
-      activeWorkspace={activeWorkspace}
-    />
-  );
+  let sidebar;
+  if (isMultiConnectionEnabled) {
+    sidebar = <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />;
+  } else {
+    if (!initialConnectionInfo) {
+      throw new Error(
+        'Could not find a connection info for the single connection sidebar.'
+      );
+    }
+
+    sidebar = (
+      <Sidebar
+        showConnectionInfo={showConnectionInfo}
+        initialConnectionInfo={initialConnectionInfo}
+        activeWorkspace={activeWorkspace}
+      />
+    );
+  }
 
   return (
     <ErrorBoundary

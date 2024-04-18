@@ -24,7 +24,6 @@ import {
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
-import toNS from 'mongodb-ns';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
@@ -34,36 +33,6 @@ export type WorkspacesServices = {
   dataService: DataService;
   logger: LoggerAndTelemetry;
 };
-
-/**
- * When opening tabs initially, there might be the case that db and collection
- * models don't exist yet on the instance model. Workspaces expect the models to
- * exist when rendered, so we prepopulate instance model with collections and
- * databases to support that case
- */
-function prepopulateInstanceModel(
-  tabs: OpenWorkspaceOptions[],
-  instance: MongoDBInstance
-) {
-  for (const tab of tabs) {
-    if (tab.type === 'Collections' || tab.type === 'Collection') {
-      const { ns, database, collection, validCollectionName } = toNS(
-        tab.namespace
-      );
-      const db =
-        instance.databases.get(database) ??
-        instance.databases.add({ _id: database });
-
-      if (
-        collection &&
-        validCollectionName &&
-        !db.collections.get(collection, 'name')
-      ) {
-        db.collections.add({ _id: ns });
-      }
-    }
-  }
-}
 
 export function configureStore(
   initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
@@ -75,8 +44,6 @@ export function configureStore(
           return getInitialTabState(tab);
         })
       : [];
-
-  prepopulateInstanceModel(initialTabs, services.instance);
 
   const store = createStore(
     workspacesReducer,

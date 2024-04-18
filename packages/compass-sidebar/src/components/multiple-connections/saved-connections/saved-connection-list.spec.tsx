@@ -4,9 +4,11 @@ import { spy, stub } from 'sinon';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SavedConnectionList } from './saved-connection-list';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
+import {
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/provider';
 
 import {
   ConnectionsManagerProvider,
@@ -51,15 +53,10 @@ describe('SavedConnectionList Component', function () {
     favoriteInfo: ConnectionInfo[],
     nonFavoriteInfo: ConnectionInfo[]
   ) {
-    const connectionStorage = {
-      events: new ConnectionStorageBus(),
-      loadAll() {
-        return Promise.resolve([
-          FAVOURITE_CONNECTION_INFO,
-          NON_FAVOURITE_CONNECTION_INFO,
-        ]);
-      },
-    } as any;
+    const connectionStorage = new InMemoryConnectionStorage([
+      FAVOURITE_CONNECTION_INFO,
+      NON_FAVOURITE_CONNECTION_INFO,
+    ]);
 
     const connectionManager = new ConnectionsManager({
       logger: {} as any,

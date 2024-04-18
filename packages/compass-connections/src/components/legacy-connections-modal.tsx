@@ -14,7 +14,7 @@ import {
   Banner,
 } from '@mongodb-js/compass-components';
 
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/renderer';
+import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 
 const LEGACY_MODAL_STORAGE_KEY = 'hide_legacy_connections_modal';
 
@@ -43,7 +43,16 @@ const footerStyles = css({
   justifyContent: 'space-between',
 });
 
-const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
+const useLegacyModel = () => {
+  const connectionStorage = useConnectionStorageContext();
+  const getLegacyConnectionsImpl =
+    connectionStorage.getLegacyConnections?.bind(connectionStorage);
+  if (!getLegacyConnectionsImpl) {
+    throw new Error(
+      'LegacyConnections migrations require provided ConnectionStorage to implement getLegacyConnections'
+    );
+  }
+
   const [connections, setConnections] = useState<{ name: string }[]>([]);
 
   const [isModalHiddenByUser, setIsModalHiddenByUser] = usePersistedState(
@@ -52,10 +61,10 @@ const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
   );
 
   useEffect(() => {
-    void connectionStorage
-      .getLegacyConnections()
-      .then((connections) => setConnections(connections));
-  }, []);
+    void getLegacyConnectionsImpl().then((connections) =>
+      setConnections(connections)
+    );
+  }, [getLegacyConnectionsImpl]);
 
   return {
     isOpen: connections.length > 0 && !isModalHiddenByUser,
@@ -68,14 +77,10 @@ const useLegacyModel = (connectionStorage: typeof ConnectionStorage) => {
   };
 };
 
-export const LegacyConnectionsModal = ({
-  connectionStorage,
-}: {
-  connectionStorage: typeof ConnectionStorage;
-}) => {
+export const LegacyConnectionsModal = () => {
   const [isHideModalChecked, setIsHideModalChecked] = useState(false);
   const { hideModal, hideModalPermanently, isOpen, connections } =
-    useLegacyModel(connectionStorage);
+    useLegacyModel();
 
   const onCloseModal = useCallback(() => {
     if (isHideModalChecked) {

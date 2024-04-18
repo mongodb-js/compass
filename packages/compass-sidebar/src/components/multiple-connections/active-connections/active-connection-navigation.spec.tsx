@@ -1,22 +1,17 @@
 import React from 'react';
 import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ActiveConnectionNavigation from './active-connection-navigation';
-import {
-  ConnectionStorageProvider,
-  type ConnectionStorage,
-} from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
+  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
-import Sinon from 'sinon';
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createInstance } from '../../../../test/helpers';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -40,46 +35,38 @@ const mockConnections: ConnectionInfo[] = [
 
 describe('<ActiveConnectionNavigation />', function () {
   let connectionsManager: ConnectionsManager;
-  let mockConnectionStorage: typeof ConnectionStorage;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
 
   beforeEach(() => {
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
-    mockConnectionStorage = {
-      loadAll: Sinon.stub().resolves(mockConnections),
-      events: new ConnectionStorageBus(),
-    } as any;
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        instancesManager: {
+          listMongoDBInstances() {
+            return new Map();
           },
-          currentOp() {},
-          top() {},
-        },
-        instance,
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        } as any,
+        connectionsManager,
+        logger: createNoopLoggerAndTelemetry(),
+        initialConnectionInfo: TEST_CONNECTION_INFO,
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
 
     render(
-      <ConnectionStorageProvider value={mockConnectionStorage}>
-        <ConnectionsManagerProvider value={connectionsManager}>
-          <Provider store={store}>
-            <ActiveConnectionNavigation
-              activeWorkspace={{ type: 'connection' }}
-            />
-          </Provider>
-        </ConnectionsManagerProvider>
-      </ConnectionStorageProvider>
+      <ConnectionsManagerProvider value={connectionsManager}>
+        <Provider store={store}>
+          <ActiveConnectionNavigation
+            activeConnections={mockConnections}
+            activeWorkspace={{ type: 'connection' }}
+          />
+        </Provider>
+      </ConnectionsManagerProvider>
     );
   });
 

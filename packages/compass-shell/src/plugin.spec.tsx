@@ -13,6 +13,10 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import {
+  ConnectionStorageProvider,
+  InMemoryConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
 
 // Wait until a component is present that is rendered in a limited number
 // of microtask queue iterations. In particular, this does *not* wait for the
@@ -24,10 +28,10 @@ async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
     wrapper.update();
     result = wrapper.find(Component);
     // Return immediately if we found something
-    if (result.length > 0) {
+    if (result.length > 0 && result.exists()) {
       return result;
     }
-    await Promise.resolve(); // wait a microtask queue iteration
+    await new Promise((r) => setTimeout(r)); // wait a microtask queue iteration
   }
   return result;
 }
@@ -63,18 +67,22 @@ describe('CompassShellPlugin', function () {
         {/* global */}
         <AppRegistryProvider>
           {/* local */}
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
-              <CompassShellPlugin />
-            </ConnectionInfoProvider>
-          </ConnectionsManagerProvider>
+          <ConnectionStorageProvider
+            value={new InMemoryConnectionStorage([dummyConnectionInfo])}
+          >
+            <ConnectionsManagerProvider value={connectionsManager}>
+              <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
+                <CompassShellPlugin />
+              </ConnectionInfoProvider>
+            </ConnectionsManagerProvider>
+          </ConnectionStorageProvider>
         </AppRegistryProvider>
       </AppRegistryProvider>
     );
 
     const component = await waitForAsyncComponent(wrapper, CompassShell);
 
-    expect(component.exists()).to.equal(true);
+    expect(component?.exists()).to.equal(true);
   });
 
   it('emits an event on the app registry when it is expanded', async function () {
@@ -88,11 +96,15 @@ describe('CompassShellPlugin', function () {
         {/* global */}
         <AppRegistryProvider>
           {/* local */}
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
-              <CompassShellPlugin />
-            </ConnectionInfoProvider>
-          </ConnectionsManagerProvider>
+          <ConnectionStorageProvider
+            value={new InMemoryConnectionStorage([dummyConnectionInfo])}
+          >
+            <ConnectionsManagerProvider value={connectionsManager}>
+              <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
+                <CompassShellPlugin />
+              </ConnectionInfoProvider>
+            </ConnectionsManagerProvider>
+          </ConnectionStorageProvider>
         </AppRegistryProvider>
       </AppRegistryProvider>
     );
@@ -102,8 +114,8 @@ describe('CompassShellPlugin', function () {
       CompassShell
     );
 
-    const { emitShellPluginOpened } = shellComponentWrapper.props();
-    emitShellPluginOpened();
+    const { emitShellPluginOpened } = shellComponentWrapper?.props() ?? {};
+    emitShellPluginOpened?.();
 
     expect(eventOccured).to.equal(true);
   });

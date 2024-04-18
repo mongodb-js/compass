@@ -5,6 +5,8 @@ import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootState } from '../modules';
 import type { Database } from '../modules/databases';
+import type { SingleConnectionOptionsState } from '../modules/connection-options';
+import type { SingleInstanceState } from '../modules/instance';
 
 type ConnectionInfo = {
   term: string;
@@ -46,6 +48,7 @@ export function ConnectionInfoModal({
   close,
   infos,
 }: {
+  initialConnectionInfo: ConnectionStorageConnectionInfo;
   isVisible: boolean;
   close: () => void;
   infos: ConnectionInfo[];
@@ -94,7 +97,9 @@ function getVersionDistro({
   return isEnterprise ? 'Enterprise' : 'Community';
 }
 
-type InfoParameters = Pick<RootState, 'instance' | 'connectionOptions'> & {
+type InfoParameters = {
+  instance: SingleInstanceState;
+  connectionOptions: SingleConnectionOptionsState;
   databases: Database[];
   connectionInfo: Partial<ConnectionStorageConnectionInfo>;
 };
@@ -239,16 +244,22 @@ function getInfos(infoParameters: InfoParameters) {
   return infos;
 }
 
-const mapStateToProps = (state: RootState) => {
-  const { instance, databases, connectionOptions } = state;
-  const { connectionInfo } = state.connectionInfo;
+const mapStateToProps = (
+  state: RootState,
+  {
+    initialConnectionInfo,
+  }: { initialConnectionInfo: ConnectionStorageConnectionInfo }
+) => {
+  const instance = state.instance[initialConnectionInfo.id];
+  const databases = state.databases[initialConnectionInfo.id];
+  const connectionOptions = state.connectionOptions[initialConnectionInfo.id];
 
   return {
     infos: getInfos({
-      instance,
-      databases: databases.databases,
-      connectionInfo,
-      connectionOptions,
+      instance: instance,
+      databases: databases.databases ?? [],
+      connectionInfo: initialConnectionInfo,
+      connectionOptions: connectionOptions || {},
     }),
   };
 };

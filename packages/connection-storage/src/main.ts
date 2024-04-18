@@ -1,5 +1,8 @@
 export type { ConnectionInfo } from '@mongodb-js/connection-info';
-export { ConnectionStorage } from './connection-storage';
+export {
+  initCompassMainConnectionStorage,
+  getCompassMainConnectionStorage,
+} from './compass-main-connection-storage';
 export type {
   ExportConnectionOptions,
   ImportConnectionOptions,

@@ -53,7 +53,6 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.23.0",
     "bson": "^6.6.0",
-    "@mongodb-js/compass-connection-import-export": "^0.22.0",
     "@mongodb-js/compass-logging": "^1.2.15",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.17.0",
     "@mongodb-js/connection-form": "^1.24.0",
