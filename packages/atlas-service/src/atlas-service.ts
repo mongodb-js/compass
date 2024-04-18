@@ -58,7 +58,6 @@ export class AtlasService {
           url,
           status: res.status,
           statusText: res.statusText,
-          contentLength: res.headers.get('content-length'),
         }
       );
       await throwIfNotOk(res);

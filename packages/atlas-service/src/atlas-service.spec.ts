@@ -65,7 +65,6 @@ describe('AtlasService', function () {
       ok: false,
       statusText: 'Internal Server Error',
       json: sandbox.stub().rejects(new Error('invalid json')),
-      headers: new Headers(),
     });
     global.fetch = fetchStub;
 
@@ -97,7 +96,6 @@ describe('AtlasService', function () {
       status: 200,
       ok: true,
       json: () => Promise.resolve(expectedData),
-      headers: new Headers(),
     });
     global.fetch = fetchStub;
     const response = await atlasService.fetch('https://example.com');
@@ -113,7 +111,6 @@ describe('AtlasService', function () {
       status: 200,
       ok: true,
       json: () => Promise.resolve(expectedData),
-      headers: new Headers(),
     });
     global.fetch = fetchStub;
     const getAuthHeadersFn = sandbox.stub().resolves({
