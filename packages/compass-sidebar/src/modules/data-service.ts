@@ -10,9 +10,9 @@ export const setConnectionIsCSFLEEnabled = (
       connectionsManager.getDataServiceForConnection(connectionId);
 
     if (!dataService) {
-      // This should be unreachable because this is only visible when
-      // we are connected.
-      return;
+      throw new Error(
+        'unreachable: This is only visible when we are connected.'
+      );
     }
 
     dataService.setCSFLEEnabled(enable);
