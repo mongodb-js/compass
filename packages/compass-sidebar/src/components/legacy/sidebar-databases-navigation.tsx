@@ -58,9 +58,9 @@ function SidebarDatabasesNavigation({
         case 'modify-view': {
           const coll = findCollection(
             ns,
-            (connections.find((cn) => cn.connectionInfo.id === connectionId)
-              ?.databases as Database[]) || []
+            (connection.databases as Database[]) || []
           );
+
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(coll._id, {
               sourceName: coll.sourceName,
