@@ -62,6 +62,7 @@ export function DBStats({
   refreshingStatus,
   databases,
 }: {
+  connectionId: string;
   refreshingStatus: RefreshingStatus;
   databases: Database[];
 }) {
@@ -80,11 +81,12 @@ export function DBStats({
   );
 }
 
-const mapStateToProps = (state: RootState) => ({
-  refreshingStatus: state.instance
-    ? state.instance.refreshingStatus
-    : 'initial',
-  databases: state.databases.databases,
+const mapStateToProps = (
+  state: RootState,
+  { connectionId }: { connectionId: string }
+) => ({
+  refreshingStatus: state.instance[connectionId]?.refreshingStatus ?? 'initial',
+  databases: state.databases[connectionId].databases,
 });
 
 const MappedDBStats = connect(mapStateToProps, {})(DBStats);
