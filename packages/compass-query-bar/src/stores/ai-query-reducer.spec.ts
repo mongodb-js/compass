@@ -46,6 +46,7 @@ describe('aiQueryReducer', function () {
         const mockDataService = {
           sample: sandbox.stub().resolves([{ _id: 42 }]),
         };
+        const emitStub = sandbox.stub();
 
         const store = createStore(
           {
@@ -57,6 +58,9 @@ describe('aiQueryReducer', function () {
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLoggerAndTelemetry(),
+            localAppRegistry: {
+              emit: emitStub,
+            },
           } as any
         );
 
@@ -83,6 +87,59 @@ describe('aiQueryReducer', function () {
         expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         expect(store.getState().aiQuery.status).to.equal('success');
+      });
+    });
+
+    describe('when the server returns both an aggregation and query fields', function () {
+      it('should prefer the aggregation and emit the generate-aggregation-from-query event', async function () {
+        const mockAtlasAiService = {
+          getQueryFromUserInput: sandbox.stub().resolves({
+            content: {
+              query: { sort: '{price: 1}' },
+              aggregation: {
+                pipeline:
+                  '[{$match: {type: "sale"}}, {$group: {_id: "$name", total: {$sum: "price"} }}]',
+              },
+            },
+          }),
+        };
+
+        const mockDataService = {
+          sample: sandbox.stub().resolves([{ _id: 42 }]),
+        };
+
+        const emitStub = sandbox.stub();
+        const store = createStore(
+          {
+            namespace: 'database.collection',
+          },
+          {
+            dataService: mockDataService,
+            atlasAuthService: { on: sandbox.stub() },
+            atlasAiService: mockAtlasAiService,
+            preferences,
+            logger: createNoopLoggerAndTelemetry(),
+            localAppRegistry: {
+              emit: emitStub,
+            },
+          } as any
+        );
+
+        expect(emitStub.called).to.be.false;
+        await store.dispatch(runAIQuery('testing prompt'));
+
+        expect(emitStub).to.be.calledOnce;
+        expect(emitStub.firstCall.args[0]).to.equal(
+          'generate-aggregation-from-query'
+        );
+        expect(emitStub.firstCall.args[1]).to.deep.equal({
+          userInput: 'testing prompt',
+          aggregation: {
+            pipeline:
+              '[{$match: {type: "sale"}}, {$group: {_id: "$name", total: {$sum: "price"} }}]',
+          },
+          requestId: store.getState().aiQuery.aiQueryRequestId,
+        });
       });
     });
 

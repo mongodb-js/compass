@@ -292,30 +292,34 @@ export const runAIQuery = (
       return;
     }
 
+    const aggregation = jsonResponse?.content?.aggregation;
+    // The query endpoint may return the aggregation property in
+    // addition to filter, project, etc.. It happens when the AI model couldn't
+    // generate a query and tried to fulfill a task with the aggregation.
+    // We prefer an aggregation to using any returned query fields as the model will
+    // also sometimes include a sort, projection, skip, or limit in addition to the aggregation.
+    // There is a tradeoff that sometimes the ai model will use an aggregation when
+    // a query could suffice, however we still prefer the aggregation.
+    if (aggregation?.pipeline && aggregation.pipeline.length > 0) {
+      localAppRegistry?.emit('generate-aggregation-from-query', {
+        userInput,
+        aggregation,
+        requestId,
+      });
+      const msg =
+        'Query requires stages from aggregation framework therefore an aggregation was generated.';
+      trackAndLogFailed({
+        errorName: 'ai_generated_aggregation_instead_of_query',
+        errorMessage: msg,
+        log,
+        track,
+        requestId,
+      });
+      return;
+    }
+
     // Error when the response is empty or there is nothing to map.
     if (!generatedFields || Object.keys(generatedFields).length === 0) {
-      const aggregation = jsonResponse?.content?.aggregation;
-
-      // The query endpoint may return the aggregation property in addition to filter, project, etc..
-      // It happens when the AI model couldn't generate a query and tried to fulfill a task with the aggregation.
-      if (aggregation) {
-        localAppRegistry?.emit('generate-aggregation-from-query', {
-          userInput,
-          aggregation,
-          requestId,
-        });
-        const msg =
-          'Query requires stages from aggregation framework therefore an aggregation was generated.';
-        trackAndLogFailed({
-          errorName: 'ai_generated_aggregation_instead_of_query',
-          errorMessage: msg,
-          log,
-          track,
-          requestId,
-        });
-        return;
-      }
-
       const msg =
         'No query was returned from the ai. Consider re-wording your prompt.';
       trackAndLogFailed({
