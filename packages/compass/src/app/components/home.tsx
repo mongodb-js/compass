@@ -9,29 +9,30 @@ import {
   palette,
   resetGlobalCSS,
   showConfirmation,
+  useEffectOnChange,
 } from '@mongodb-js/compass-components';
-import Connections from '@mongodb-js/compass-connections';
+import Connections, {
+  LegacyConnectionsModal,
+} from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import {
-  type ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/renderer';
+import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
   ConnectionInfoProvider,
+  type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
 import React, {
   useCallback,
   useEffect,
-  useLayoutEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -51,6 +52,10 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import {
+  ImportConnectionsModal,
+  ExportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 
 resetGlobalCSS();
 
@@ -97,13 +102,11 @@ const globalDarkThemeStyles = css({
 type State = {
   connectionInfo: ConnectionInfo | null;
   isConnected: boolean;
-  hasDisconnectedAtLeastOnce: boolean;
 };
 
 const initialState: State = {
   connectionInfo: null,
   isConnected: false,
-  hasDisconnectedAtLeastOnce: false,
 };
 
 type Action =
@@ -123,9 +126,8 @@ function reducer(state: State, action: Action): State {
       };
     case 'disconnected':
       return {
-        // Reset to initial state, but do not automatically connect this time.
+        // Reset to initial state
         ...initialState,
-        hasDisconnectedAtLeastOnce: true,
       };
     default:
       return state;
@@ -143,30 +145,88 @@ async function reauthenticationHandler() {
   }
 }
 
+function useConnectionImportExportModalRenderer() {
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+
+  const openConnectionImportModal = useCallback(() => {
+    setImportModalOpen(true);
+  }, []);
+
+  const openConnectionExportModal = useCallback(() => {
+    setExportModalOpen(true);
+  }, []);
+
+  const ConnectionImportModal = useMemo(
+    () =>
+      function ConnectionImportModal() {
+        return (
+          <ImportConnectionsModal
+            open={importModalOpen}
+            setOpen={setImportModalOpen}
+            trackingProps={{ context: 'connectionsList' }}
+          />
+        );
+      },
+    [importModalOpen]
+  );
+
+  const ConnectionExportModal = useMemo(
+    () =>
+      function ConnectionExportModal() {
+        return (
+          <ExportConnectionsModal
+            open={exportModalOpen}
+            setOpen={setExportModalOpen}
+            trackingProps={{ context: 'connectionsList' }}
+          />
+        );
+      },
+    [exportModalOpen]
+  );
+
+  const openConnectionImportExportModal = useCallback(
+    (action: 'export-favorites' | 'import-favorites') => {
+      if (action === 'export-favorites') {
+        openConnectionExportModal();
+      } else {
+        openConnectionImportModal();
+      }
+    },
+    [openConnectionImportModal, openConnectionExportModal]
+  );
+
+  return {
+    ConnectionImportModal,
+    ConnectionExportModal,
+    openConnectionImportExportModal,
+  };
+}
+
 export type HomeProps = {
   appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   showWelcomeModal?: boolean;
   createFileInputBackend: () => FileInputBackend;
   onDisconnect: () => void;
   showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
   hideCollectionSubMenu: () => void;
   showSettings: () => void;
+  connectionStorage: ConnectionStorage;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_CONNECTION_STORAGE?: typeof ConnectionStorage;
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 };
 
 function Home({
   appName,
-  getAutoConnectInfo,
   showWelcomeModal = false,
   createFileInputBackend,
   onDisconnect,
   showCollectionSubMenu,
   hideCollectionSubMenu,
   showSettings,
+  connectionStorage,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-  __TEST_CONNECTION_STORAGE,
+  __TEST_INITIAL_CONNECTION_INFO,
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
@@ -180,10 +240,7 @@ function Home({
     })
   );
 
-  const [
-    { connectionInfo, isConnected, hasDisconnectedAtLeastOnce },
-    dispatch,
-  ] = useReducer(reducer, {
+  const [{ connectionInfo, isConnected }, dispatch] = useReducer(reducer, {
     ...initialState,
   });
 
@@ -254,15 +311,13 @@ function Home({
     [appName, connectionInfo, showCollectionSubMenu, hideCollectionSubMenu]
   );
 
-  const onDataServiceDisconnected = useCallback(() => {
+  useEffectOnChange(() => {
     if (!isConnected) {
       updateTitle(appName);
       hideCollectionSubMenu();
       onDisconnect();
     }
   }, [appName, isConnected, onDisconnect, hideCollectionSubMenu]);
-
-  useLayoutEffect(onDataServiceDisconnected);
 
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
@@ -276,28 +331,32 @@ function Home({
     [setIsWelcomeOpen, showSettings]
   );
 
-  const connectionStorage =
-    __TEST_CONNECTION_STORAGE === undefined
-      ? ConnectionStorage
-      : __TEST_CONNECTION_STORAGE;
+  const {
+    ConnectionImportModal,
+    ConnectionExportModal,
+    openConnectionImportExportModal,
+  } = useConnectionImportExportModalRenderer();
+
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageProvider value={connectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
-              <ConnectionInfoProvider value={connectionInfo}>
-                {isConnected && connectionInfo && (
-                  <AppRegistryProvider
-                    key={connectionInfo.id}
-                    scopeName="Connected Application"
-                  >
-                    <Workspace
-                      connectionInfo={connectionInfo}
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
-                  </AppRegistryProvider>
-                )}
+              <ConnectionInfoProvider connectionInfoId={connectionInfo?.id}>
+                {(connectionInfo) => {
+                  return (
+                    <AppRegistryProvider
+                      key={connectionInfo.id}
+                      scopeName="Connected Application"
+                    >
+                      <Workspace
+                        connectionInfo={connectionInfo}
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                    </AppRegistryProvider>
+                  );
+                }}
               </ConnectionInfoProvider>
             </FieldStorePlugin>
           </CompassInstanceStorePlugin>
@@ -315,9 +374,10 @@ function Home({
                 onConnected={onConnected}
                 onConnectionFailed={onConnectionFailed}
                 onConnectionAttemptStarted={onConnectionAttemptStarted}
-                getAutoConnectInfo={
-                  hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+                openConnectionImportExportModal={
+                  openConnectionImportExportModal
                 }
+                __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
               />
             </div>
           </div>
@@ -325,6 +385,9 @@ function Home({
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
           <AtlasAuthPlugin></AtlasAuthPlugin>
+          <ConnectionImportModal />
+          <ConnectionExportModal />
+          <LegacyConnectionsModal />
         </ConnectionsManagerProvider>
       </ConnectionStorageProvider>
     </FileInputBackendProvider>

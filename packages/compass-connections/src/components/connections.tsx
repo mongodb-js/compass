@@ -8,24 +8,18 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import {
-  ExportConnectionsModal,
-  ImportConnectionsModal,
-} from '@mongodb-js/compass-connection-import-export';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
-import { type ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { connect, DataService } from 'mongodb-data-service';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
 import { useConnections } from '../stores/connections-store';
 import Connecting from './connecting/connecting';
 import ConnectionList from './connection-list/connection-list';
 import FormHelp from './form-help/form-help';
-import { LegacyConnectionsModal } from './legacy-connections-modal';
 
 type ConnectFn = typeof connect;
 
@@ -87,7 +81,8 @@ function Connections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  getAutoConnectInfo,
+  openConnectionImportExportModal,
+  __TEST_INITIAL_CONNECTION_INFO,
 }: {
   appRegistry: AppRegistry;
   onConnected: (
@@ -99,13 +94,12 @@ function Connections({
     error: Error
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  openConnectionImportExportModal?: (
+    action: 'export-favorites' | 'import-favorites'
+  ) => void;
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
-  // TODO(COMPASS-7397): services should not be used directly in render method,
-  // when this code is refactored to use the hadron plugin interface, storage
-  // should be handled through the plugin activation lifecycle
-  const connectionStorage = useConnectionStorageContext();
 
   const {
     state,
@@ -123,7 +117,7 @@ function Connections({
     onConnected,
     onConnectionFailed,
     onConnectionAttemptStarted,
-    getAutoConnectInfo,
+    __TEST_INITIAL_CONNECTION_INFO,
   });
   const {
     connectingConnectionId,
@@ -135,23 +129,7 @@ function Connections({
     oidcDeviceAuthUserCode,
   } = state;
 
-  const [showExportConnectionsModal, setShowExportConnectionsModal] =
-    useState(false);
-  const [showImportConnectionsModal, setShowImportConnectionsModal] =
-    useState(false);
-
   const darkMode = useDarkMode();
-
-  const openConnectionImportExportModal = useCallback(
-    (action: 'export-favorites' | 'import-favorites') => {
-      if (action === 'export-favorites') {
-        setShowExportConnectionsModal(true);
-      } else {
-        setShowImportConnectionsModal(true);
-      }
-    },
-    []
-  );
 
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
@@ -260,21 +238,6 @@ function Connections({
           }
         />
       )}
-      <ImportConnectionsModal
-        open={showImportConnectionsModal}
-        setOpen={setShowImportConnectionsModal}
-        favoriteConnections={favoriteConnections}
-        trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={connectionStorage}
-      />
-      <ExportConnectionsModal
-        open={showExportConnectionsModal}
-        setOpen={setShowExportConnectionsModal}
-        favoriteConnections={favoriteConnections}
-        trackingProps={{ context: 'connectionsList' }}
-        connectionStorage={connectionStorage}
-      />
-      <LegacyConnectionsModal connectionStorage={connectionStorage} />
     </div>
   );
 }

@@ -27,7 +27,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
     component: SidebarPlugin,
     activate(
       // @eslint-ignore-next-line
-      props: SidebarPluginProps,
+      { initialConnectionInfo }: SidebarPluginProps,
       {
         globalAppRegistry,
         connectionsManager,
@@ -46,6 +46,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
           globalAppRegistry,
           connectionsManager,
           instancesManager,
+          initialConnectionInfo: initialConnectionInfo,
           logger,
         },
         helpers

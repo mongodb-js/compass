@@ -16,7 +16,8 @@ import Home from './home';
 import type { DataService } from 'mongodb-data-service';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { WithAtlasProviders, WithStorageProviders } from './entrypoint';
-import EventEmitter from 'events';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 
 const createDataService = () =>
   ({
@@ -46,20 +47,6 @@ const createDataService = () =>
     removeListener() {},
   } as unknown as DataService);
 
-class MockConnectionStorage {
-  static events = new EventEmitter();
-  static importConnections() {}
-  static exportConnections() {
-    return Promise.resolve('[]');
-  }
-  static deserializeConnections() {
-    return Promise.resolve([]);
-  }
-  static getLegacyConnections() {
-    return Promise.resolve([]);
-  }
-}
-
 const HOME_PROPS = {
   appName: 'home-testing',
   createFileInputBackend: (() => {}) as any,
@@ -69,6 +56,7 @@ const HOME_PROPS = {
   showSettings: () => {},
   getAutoConnectInfo: () => Promise.resolve(undefined),
   showWelcomeModal: false,
+  connectionStorage: new InMemoryConnectionStorage([TEST_CONNECTION_INFO]),
 } as const;
 
 describe('Home [Component]', function () {
@@ -101,7 +89,7 @@ describe('Home [Component]', function () {
                 __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
                   return Promise.resolve(dataService);
                 }}
-                __TEST_CONNECTION_STORAGE={MockConnectionStorage as any}
+                __TEST_INITIAL_CONNECTION_INFO={TEST_CONNECTION_INFO}
                 {...props}
               />
             </WithStorageProviders>
@@ -122,7 +110,10 @@ describe('Home [Component]', function () {
     );
   }
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    sinon.restore();
+  });
 
   describe('is not connected', function () {
     it('renders the connect screen', function () {
@@ -186,12 +177,13 @@ describe('Home [Component]', function () {
 
       it('on `app:disconnect`', async function () {
         hadronIpc.ipcRenderer?.emit('app:disconnect');
-
-        expect(onDisconnectSpy.called, 'it calls onDisconnect').to.be.true;
-        expect(
-          hideCollectionSubMenuSpy.called,
-          'it calls hideCollectionSubMenu'
-        ).to.be.true;
+        await waitFor(() => {
+          expect(onDisconnectSpy.called, 'it calls onDisconnect').to.be.true;
+          expect(
+            hideCollectionSubMenuSpy.called,
+            'it calls hideCollectionSubMenu'
+          ).to.be.true;
+        });
 
         await waitFor(() => {
           expect(screen.queryByTestId('connections-wrapper')).to.be.visible;
@@ -203,7 +195,52 @@ describe('Home [Component]', function () {
 
   describe('when rendered', function () {
     beforeEach(function () {
-      render(<Home {...HOME_PROPS} />);
+      renderHome();
+    });
+
+    context('when user has any legacy connection', function () {
+      it('shows modal', async function () {
+        sinon
+          .stub(HOME_PROPS.connectionStorage, 'getLegacyConnections')
+          .resolves([{ name: 'Connection1' }]);
+
+        renderHome();
+
+        await waitFor(
+          () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
+        );
+
+        const modal = screen.getByTestId('legacy-connections-modal');
+        expect(within(modal).getByText('Connection1')).to.exist;
+      });
+
+      it('does not show modal when user hides it', async function () {
+        sinon
+          .stub(HOME_PROPS.connectionStorage, 'getLegacyConnections')
+          .resolves([{ name: 'Connection2' }]);
+
+        renderHome();
+
+        await waitFor(() => screen.getByTestId('legacy-connections-modal'));
+
+        const modal = screen.getByTestId('legacy-connections-modal');
+
+        const storageSpy = sinon.spy(Storage.prototype, 'setItem');
+
+        // Click the don't show again checkbox and close the modal
+        userEvent.click(within(modal).getByText(/don't show this again/i));
+        userEvent.click(within(modal).getByText(/close/i));
+
+        // Saves data in storage
+        expect(storageSpy.firstCall.args).to.deep.equal([
+          'hide_legacy_connections_modal',
+          'true',
+        ]);
+
+        expect(() => {
+          screen.getByTestId('legacy-connections-modal');
+        }).to.throw;
+      });
     });
   });
 });

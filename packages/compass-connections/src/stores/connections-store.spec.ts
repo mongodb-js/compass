@@ -1,21 +1,20 @@
 import { expect } from 'chai';
-import EventEmitter from 'events';
 import { waitFor, cleanup } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
 import sinon from 'sinon';
 
 import { useConnections } from './connections-store';
-import {
-  type ConnectionStorage,
-  ConnectionStorageBus,
-} from '@mongodb-js/connection-storage/renderer';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createElement } from 'react';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import {
+  InMemoryConnectionStorage,
+  type ConnectionStorage,
+  ConnectionStorageProvider,
+} from '@mongodb-js/connection-storage/provider';
 
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
@@ -58,11 +57,7 @@ const mockConnections: ConnectionInfo[] = [
 
 describe('use-connections hook', function () {
   let connectionsManager: ConnectionsManager;
-  let mockConnectionStorage: typeof ConnectionStorage;
-  let loadAllSpy: sinon.SinonSpy;
-  let saveSpy: sinon.SinonSpy;
-  let deleteSpy: sinon.SinonSpy;
-  let loadSpy: sinon.SinonSpy;
+  let mockConnectionStorage: ConnectionStorage;
   let renderHookWithContext: typeof renderHook;
 
   before(async function () {
@@ -90,19 +85,7 @@ describe('use-connections hook', function () {
   });
 
   beforeEach(function () {
-    loadAllSpy = sinon.spy();
-    saveSpy = sinon.spy();
-    deleteSpy = sinon.spy();
-    loadSpy = sinon.spy();
-
-    mockConnectionStorage = {
-      events: new ConnectionStorageBus(),
-      loadAll: loadAllSpy,
-      save: saveSpy,
-      delete: deleteSpy,
-      load: loadSpy,
-    };
-
+    mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);
     connectionsManager = getConnectionsManager(() =>
       Promise.resolve({
         mockDataService: 'yes',
@@ -111,24 +94,26 @@ describe('use-connections hook', function () {
     );
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    sinon.restore();
+  });
 
   describe('#onMount', function () {
-    const getAutoConnectInfo = () =>
-      Promise.resolve({
+    it('allows connecting to a dynamically provided connection info object', async function () {
+      const onConnected = sinon.spy();
+      sinon.stub(mockConnectionStorage, 'getAutoConnectInfo').resolves({
         id: 'new',
         connectionOptions: {
           connectionString: 'mongodb://new-recent',
         },
       });
-    it('allows connecting to a dynamically provided connection info object', async function () {
-      const onConnected = sinon.spy();
+      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       renderHookWithContext(() =>
         useConnections({
           onConnected,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
-          getAutoConnectInfo,
         })
       );
 
@@ -141,8 +126,7 @@ describe('use-connections hook', function () {
 
   describe('#loadConnections', function () {
     it('loads the connections from the connection storage', async function () {
-      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
+      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -157,14 +141,14 @@ describe('use-connections hook', function () {
         expect(result.current.favoriteConnections.length).to.equal(2)
       );
 
-      expect(loadAllSpyWithData).to.have.been.called;
+      expect(loadAllSpy).to.have.been.called;
     });
 
     it('filters and sort favorites connections', async function () {
       const connectionOptions = {
         connectionString: 'mongodb://turtle',
       };
-      const loadAllSpyWithData = sinon.fake.resolves([
+      mockConnectionStorage = new InMemoryConnectionStorage([
         {
           id: '1',
           savedConnectionType: 'favorite',
@@ -179,7 +163,6 @@ describe('use-connections hook', function () {
           connectionOptions,
         },
       ]);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -216,7 +199,7 @@ describe('use-connections hook', function () {
       const connectionOptions = {
         connectionString: 'mongodb://turtle',
       };
-      const loadAllSpyWithData = sinon.fake.resolves([
+      mockConnectionStorage = new InMemoryConnectionStorage([
         {
           id: '1',
           savedConnectionType: 'favorite',
@@ -250,7 +233,6 @@ describe('use-connections hook', function () {
           connectionOptions,
         },
       ]);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -293,6 +275,7 @@ describe('use-connections hook', function () {
   describe('#connect', function () {
     it(`calls onConnected`, async function () {
       const onConnected = sinon.spy();
+      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
@@ -318,9 +301,9 @@ describe('use-connections hook', function () {
   describe('#saveConnection', function () {
     describe('with an existing connection', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
+      let saveSpy: sinon.SinonSpy;
       beforeEach(async function () {
-        mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
-        mockConnectionStorage.load = () => Promise.resolve(mockConnections[1]);
+        saveSpy = sinon.spy(mockConnectionStorage, 'save');
 
         const { result } = renderHookWithContext(() =>
           useConnections({
@@ -380,7 +363,9 @@ describe('use-connections hook', function () {
     });
 
     describe('saving a new connection', function () {
+      let saveSpy: sinon.SinonSpy;
       beforeEach(async function () {
+        saveSpy = sinon.spy(mockConnectionStorage, 'save');
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
@@ -410,7 +395,10 @@ describe('use-connections hook', function () {
 
     describe('saving an invalid connection', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
+      let saveSpy: sinon.SinonSpy;
       beforeEach(async function () {
+        mockConnectionStorage = new InMemoryConnectionStorage([]);
+        saveSpy = sinon.spy(mockConnectionStorage, 'save');
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
@@ -448,14 +436,11 @@ describe('use-connections hook', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
 
       beforeEach(function () {
-        mockConnectionStorage.events = new EventEmitter();
-
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
-            connectFn: noop,
           })
         );
 
@@ -473,11 +458,9 @@ describe('use-connections hook', function () {
         ]);
 
         mockConnectionStorage.loadAll = loadAllSpyWithData;
-        mockConnectionStorage.events.emit('connections-changed');
+        mockConnectionStorage.emit('ConnectionsChanged');
 
-        await waitFor(
-          () => expect(mockConnectionStorage.loadAll).to.have.been.called
-        );
+        await waitFor(() => expect(loadAllSpyWithData).to.have.been.called);
 
         expect(hookResult.current.favoriteConnections.length).to.equal(1);
       });
@@ -486,8 +469,6 @@ describe('use-connections hook', function () {
     describe('saving the current active connection', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
       beforeEach(async function () {
-        mockConnectionStorage.loadAll = () => Promise.resolve(mockConnections);
-
         const { result } = renderHookWithContext(() =>
           useConnections({
             onConnected: noop,
@@ -497,9 +478,9 @@ describe('use-connections hook', function () {
         );
 
         // Wait for the async loading of connections to complete.
-        await waitFor(() =>
-          expect(result.current.favoriteConnections.length).to.equal(2)
-        );
+        await waitFor(() => {
+          return expect(result.current.favoriteConnections.length).to.equal(2);
+        });
 
         // Make the first connection the active connection.
         act(() => {
@@ -537,9 +518,10 @@ describe('use-connections hook', function () {
       });
     });
   });
+
   describe('#removeAllRecentsConnections', function () {
     it('should delete all recent connections', async function () {
-      const mockConnections = [
+      mockConnectionStorage = new InMemoryConnectionStorage([
         {
           id: 'dolphin',
           connectionOptions: {
@@ -570,9 +552,9 @@ describe('use-connections hook', function () {
             name: 'oranges',
           },
         },
-      ];
-      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
+      ]);
+      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
+      const deleteSpy = sinon.spy(mockConnectionStorage, 'delete');
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -587,16 +569,17 @@ describe('use-connections hook', function () {
       });
       await result.current.removeAllRecentsConnections();
 
-      expect(loadAllSpyWithData).to.have.been.called;
+      expect(loadAllSpy).to.have.been.called;
       expect(deleteSpy.callCount).to.equal(2);
     });
   });
+
   describe('#duplicateConnection', function () {
     let hookResult: RenderResult<ReturnType<typeof useConnections>>;
 
     it('should duplicate a connection', async function () {
-      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
+      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
+      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -613,7 +596,7 @@ describe('use-connections hook', function () {
       result.current.duplicateConnection(result.current.favoriteConnections[0]);
 
       await waitFor(() => {
-        expect(loadAllSpyWithData).to.have.been.called;
+        expect(loadAllSpy).to.have.been.called;
         expect(saveSpy.callCount).to.equal(1);
       });
 
@@ -624,11 +607,12 @@ describe('use-connections hook', function () {
       expect(hookResult.current.state.activeConnectionId).to.not.equal(null);
     });
   });
+
   describe('#removeConnection', function () {
     let hookResult: RenderResult<ReturnType<typeof useConnections>>;
     it('should remove a connection', async function () {
-      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
+      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
+      const deleteSpy = sinon.spy(mockConnectionStorage, 'delete');
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -645,7 +629,7 @@ describe('use-connections hook', function () {
       });
       result.current.removeConnection(result.current.favoriteConnections[1]);
 
-      expect(loadAllSpyWithData).to.have.been.called;
+      expect(loadAllSpy).to.have.been.called;
       expect(deleteSpy.callCount).to.equal(1);
       hookResult = result;
     });
@@ -657,9 +641,10 @@ describe('use-connections hook', function () {
       ).equal('mongodb://localhost:27017');
     });
   });
+
   describe('#createNewConnection', function () {
     it('should create a connection', async function () {
-      const mockConnections = [
+      mockConnectionStorage = new InMemoryConnectionStorage([
         {
           id: 'turtle',
           connectionOptions: {
@@ -680,9 +665,8 @@ describe('use-connections hook', function () {
             name: 'peaches',
           },
         },
-      ];
-      const loadAllSpyWithData = sinon.fake.resolves(mockConnections);
-      mockConnectionStorage.loadAll = loadAllSpyWithData;
+      ]);
+      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
 
       const { result } = renderHookWithContext(() =>
         useConnections({
@@ -697,7 +681,7 @@ describe('use-connections hook', function () {
       act(() => {
         result.current.setActiveConnectionById('turtle');
       });
-      expect(loadAllSpyWithData).to.have.been.called;
+      expect(loadAllSpy).to.have.been.called;
       result.current.createNewConnection();
       expect(result.current.state.activeConnectionId).not.undefined;
       expect(

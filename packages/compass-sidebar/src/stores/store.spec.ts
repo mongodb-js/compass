@@ -2,13 +2,15 @@ import { expect } from 'chai';
 import { stub, type SinonStub, spy, type SinonSpy } from 'sinon';
 import { createSidebarStore } from '.';
 import { createInstance } from '../../test/helpers';
-import type { DataService } from 'mongodb-data-service';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 const CONNECTION_ID = 'webscale';
 
 describe('SidebarStore [Store]', function () {
   const instance = createInstance();
-  const globalAppRegistry = {};
+  const globalAppRegistry = {} as any;
   let instanceOnSpy: SinonSpy;
 
   let deactivate: () => void;
@@ -42,9 +44,10 @@ describe('SidebarStore [Store]', function () {
         } as any,
         instancesManager: {
           listMongoDBInstances: listMongoDBInstancesStub,
-        },
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        } as any,
+        logger: createNoopLoggerAndTelemetry(),
+        initialConnectionInfo: TEST_CONNECTION_INFO,
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
   });
