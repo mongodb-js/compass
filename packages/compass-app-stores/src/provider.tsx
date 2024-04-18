@@ -16,7 +16,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { type MongoDBInstancesManager } from './instances-manager';
+import { MongoDBInstancesManager } from './instances-manager';
 import toNS from 'mongodb-ns';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
@@ -26,9 +26,23 @@ export {
   type MongoDBInstancesManager,
 } from './instances-manager';
 
-class TestMongoDBInstanceManager {
+/**
+ * Exported only for testing purposes. Allows to set up a MongoDBInstanceManager
+ * with preconfigured MongoDBInstance
+ *
+ * @internal
+ */
+export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
+  private _instance: MongoDBInstance;
+  constructor(instanceProps = {} as Partial<MongoDBInstanceProps>) {
+    super();
+    this._instance = new MongoDBInstance(instanceProps as MongoDBInstanceProps);
+  }
   getMongoDBInstanceForConnection() {
-    return new MongoDBInstance({} as MongoDBInstanceProps);
+    return this._instance;
+  }
+  createMongoDBInstanceForConnection() {
+    return this._instance;
   }
 }
 
@@ -113,7 +127,7 @@ export const NamespaceProvider = createServiceProvider(
   }: {
     children?: React.ReactNode;
     namespace: string;
-    onNamespaceFallbackSelect(namespace: string | null): void;
+    onNamespaceFallbackSelect?(namespace: string | null): void;
   }) {
     const onNamespaceFallbackSelectRef = useRef(onNamespaceFallbackSelect);
     onNamespaceFallbackSelectRef.current = onNamespaceFallbackSelect;
@@ -125,10 +139,10 @@ export const NamespaceProvider = createServiceProvider(
     const [namespaceModel, setNamespaceModel] = useState<
       Database | Collection | null
     >(() => {
-      return (
-        mongoDBInstance.databases.get(ns.database)?.collections.get(ns.ns) ??
-        null
-      );
+      const model = ns.collection
+        ? mongoDBInstance.databases.get(ns.database)?.collections.get(ns.ns)
+        : mongoDBInstance.databases.get(ns.database);
+      return model ?? null;
     });
 
     useEffect(() => {
@@ -147,7 +161,7 @@ export const NamespaceProvider = createServiceProvider(
         const db = mongoDBInstance.databases.get(ns.database);
 
         if (!db) {
-          onNamespaceFallbackSelectRef.current(null);
+          onNamespaceFallbackSelectRef.current?.(null);
           return;
         }
 
@@ -164,7 +178,7 @@ export const NamespaceProvider = createServiceProvider(
         const coll = db.collections.get(ns.ns);
 
         if (!coll) {
-          onNamespaceFallbackSelectRef.current(db._id);
+          onNamespaceFallbackSelectRef.current?.(db._id);
           return;
         }
 
