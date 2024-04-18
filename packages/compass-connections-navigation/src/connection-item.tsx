@@ -124,14 +124,13 @@ export const ConnectionItem: React.FunctionComponent<
         icon: 'Favorite',
         label: isFavorite ? 'Unfavorite' : 'Favorite',
       },
+      {
+        action: 'connection-disconnect',
+        icon: 'Disconnect',
+        label: 'Disconnect',
+        variant: 'destructive',
+      },
     ];
-
-    actions.push({
-      action: 'connection-disconnect',
-      icon: 'Disconnect',
-      label: 'Disconnect',
-      variant: 'destructive',
-    });
 
     return actions;
   }, [connectionInfo.savedConnectionType]);
