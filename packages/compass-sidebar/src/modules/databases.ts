@@ -1,27 +1,32 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { RootAction, SidebarThunkAction } from '.';
 import toNS from 'mongodb-ns';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 /**
  * Databases actions.
  */
 export const CHANGE_FILTER_REGEX =
   'sidebar/databases/CHANGE_FILTER_REGEX' as const;
+
 interface ChangeFilterRegexAction {
   type: typeof CHANGE_FILTER_REGEX;
+  connectionId: ConnectionInfo['id'];
   filterRegex: null | RegExp;
 }
 
 export const CHANGE_DATABASES = 'sidebar/databases/CHANGE_DATABASES' as const;
 interface ChangeDatabasesAction {
   type: typeof CHANGE_DATABASES;
+  connectionId: ConnectionInfo['id'];
   databases: Database[];
 }
 
 export const TOGGLE_DATABASE = 'sidebar/databases/TOGGLE_DATABASE' as const;
 interface ToggleDatabaseAction {
   type: typeof TOGGLE_DATABASE;
-  id: string;
+  connectionId: ConnectionInfo['id'];
+  database: string;
   expanded: boolean;
 }
 
@@ -29,10 +34,6 @@ export type DatabasesAction =
   | ChangeFilterRegexAction
   | ChangeDatabasesAction
   | ToggleDatabaseAction;
-
-const NO_REGEX = null;
-
-export const NO_ACTIVE_NAMESPACE = '';
 
 type DatabaseRaw = MongoDBInstance['databases'][number];
 
@@ -45,7 +46,11 @@ export type Database = Pick<
     '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
   >[];
 };
-export interface DatabaseState {
+export type AllDatabasesState = Record<
+  ConnectionInfo['id'],
+  ConnectionDatabasesState
+>;
+export interface ConnectionDatabasesState {
   databases: Database[];
   filteredDatabases: Database[];
   expandedDbList: Record<string, boolean>;
@@ -55,12 +60,7 @@ export interface DatabaseState {
 /**
  * The initial state of the sidebar databases.
  */
-export const INITIAL_STATE: DatabaseState = {
-  databases: [],
-  filteredDatabases: [],
-  expandedDbList: Object.create(null),
-  filterRegex: NO_REGEX,
-};
+export const INITIAL_STATE: AllDatabasesState = {};
 
 /**
  * Reducer function for handle state changes to sidebar databases.
@@ -71,25 +71,38 @@ export const INITIAL_STATE: DatabaseState = {
  * @returns {Object} The new state.
  */
 export default function reducer(
-  state: DatabaseState = INITIAL_STATE,
+  state: AllDatabasesState = INITIAL_STATE,
   action: RootAction
-): DatabaseState {
+): AllDatabasesState {
   if (action.type === TOGGLE_DATABASE) {
+    if (
+      state[action.connectionId] &&
+      state[action.connectionId].expandedDbList
+    ) {
+      const previousExpandedState =
+        state[action.connectionId]?.expandedDbList[action.database];
+
+      if (previousExpandedState === action.expanded) {
+        return state;
+      }
+    }
+
     return {
       ...state,
-      expandedDbList: {
-        ...state.expandedDbList,
-        [action.id]: action.expanded,
+      [action.connectionId]: {
+        ...state[action.connectionId],
+        expandedDbList: {
+          ...state[action.connectionId].expandedDbList,
+          [action.database]: action.expanded,
+        },
       },
     };
-  }
-
-  if (action.type === CHANGE_FILTER_REGEX) {
+  } else if (action.type === CHANGE_FILTER_REGEX) {
     const filterModeStatusChange =
-      Boolean(state.filterRegex && !action.filterRegex) ||
-      Boolean(!state.filterRegex && action.filterRegex);
+      Boolean(state[action.connectionId]?.filterRegex && !action.filterRegex) ||
+      Boolean(!state[action.connectionId]?.filterRegex && action.filterRegex);
 
-    let expandedDbList = state.expandedDbList;
+    let expandedDbList = state[action.connectionId]?.expandedDbList ?? {};
 
     // On filter mode status change (when either entering "filter mode" when no
     // regex was in the search box before or exiting it) we want to filter out
@@ -105,64 +118,78 @@ export default function reducer(
 
     return {
       ...state,
-      filterRegex: action.filterRegex,
-      filteredDatabases: filterDatabases(state.databases, action.filterRegex),
-      expandedDbList,
+      [action.connectionId]: {
+        ...state[action.connectionId],
+        filterRegex: action.filterRegex,
+        filteredDatabases: filterDatabases(
+          state[action.connectionId]?.databases ?? [],
+          action.filterRegex
+        ),
+        expandedDbList,
+      },
+    };
+  } else if (action.type === CHANGE_DATABASES) {
+    return {
+      ...state,
+      [action.connectionId]: {
+        ...state[action.connectionId],
+        databases: action.databases,
+        filteredDatabases: filterDatabases(
+          action.databases,
+          state[action.connectionId]?.filterRegex
+        ),
+      },
     };
   }
 
-  if (action.type === CHANGE_DATABASES) {
-    return {
-      ...state,
-      databases: action.databases,
-      filteredDatabases: filterDatabases(action.databases, state.filterRegex),
-    };
-  }
   return state;
 }
 
-/**
- * The change databases action creator.
- *
- * @param {Array} databases
- *
- * @returns {Object} The action.
- */
-export const changeDatabases = (databases: Database[]) => ({
+export const changeDatabases = (
+  connectionId: ConnectionInfo['id'],
+  databases: Database[]
+) => ({
   type: CHANGE_DATABASES,
+  connectionId,
   databases,
 });
 
 export const toggleDatabaseExpanded =
   (
-    id: string,
+    connectionId: ConnectionInfo['id'],
+    databaseId: string,
     forceExpand: boolean
   ): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
-    const { database } = toNS(id);
-    const { databases } = getState();
-    const expanded = forceExpand ?? !databases.expandedDbList[database];
+    const { database } = toNS(databaseId);
+    const { expandedDbList } = getState().databases[connectionId];
+    const expanded = forceExpand ?? !expandedDbList[database];
+
     if (expanded) {
       // Fetch collections list on expand if we haven't done it yet (this is
       // relevant only for the code path that has global overlay disabled)
       globalAppRegistry.emit('sidebar-expand-database', database);
     }
-    dispatch({ type: TOGGLE_DATABASE, id: database, expanded });
+    dispatch({ type: TOGGLE_DATABASE, connectionId, database, expanded });
   };
 
 export const changeFilterRegex =
   (filterRegex: RegExp | null): SidebarThunkAction<void, DatabasesAction> =>
-  (dispatch, _getState, { globalAppRegistry }) => {
+  (dispatch, getState, { globalAppRegistry }) => {
     if (filterRegex) {
       // When filtering, emit an event so that we can fetch all collections. This
       // is required as a workaround for the syncronous nature of the current
       // filtering feature
       globalAppRegistry.emit('sidebar-filter-navigation-list');
     }
-    dispatch({
-      type: CHANGE_FILTER_REGEX,
-      filterRegex: filterRegex,
-    });
+
+    for (const connectionId of Object.keys(getState().databases)) {
+      dispatch({
+        type: CHANGE_FILTER_REGEX,
+        connectionId,
+        filterRegex,
+      });
+    }
   };
 
 const filterDatabases = (databases: Database[], re: RegExp | null) => {

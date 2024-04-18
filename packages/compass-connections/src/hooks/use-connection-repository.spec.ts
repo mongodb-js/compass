@@ -1,45 +1,22 @@
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionRepository } from './use-connection-repository';
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import { spy, restore } from 'sinon';
 import {
   type ConnectionStorage,
-  ConnectionStorageBus,
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
   ConnectionStorageEvents,
-} from '@mongodb-js/connection-storage/renderer';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+} from '@mongodb-js/connection-storage/provider';
 import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 
 describe('useConnectionRepository', function () {
   let renderHookWithContext: typeof renderHook;
-  let mockStorage: typeof ConnectionStorage;
-  let saveStub: ReturnType<typeof stub>;
-  let deleteStub: ReturnType<typeof stub>;
-
-  function mockStorageWithConnections(
-    connections: Partial<ConnectionInfo>[]
-  ): typeof ConnectionStorage {
-    saveStub = stub();
-    deleteStub = stub();
-
-    mockStorage = {
-      events: new ConnectionStorageBus(),
-      loadAll(): Promise<ConnectionInfo[]> {
-        return Promise.resolve(connections as ConnectionInfo[]);
-      },
-      async load({ id }: { id: string }): Promise<ConnectionInfo> {
-        return Promise.resolve(
-          connections.find((c) => c.id === id) as ConnectionInfo
-        );
-      },
-      save: saveStub,
-      delete: deleteStub,
-    } as any;
-  }
+  let mockStorage: ConnectionStorage;
 
   beforeEach(function () {
+    mockStorage = new InMemoryConnectionStorage([]);
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
         createElement(ConnectionStorageProvider, {
@@ -50,9 +27,13 @@ describe('useConnectionRepository', function () {
     };
   });
 
+  afterEach(function () {
+    restore();
+  });
+
   describe('favoriteConnections', function () {
     it('should return favourite connections sorted by name alphabetically', async function () {
-      mockStorageWithConnections([
+      mockStorage = new InMemoryConnectionStorage([
         {
           id: '2',
           savedConnectionType: 'favorite',
@@ -62,6 +43,13 @@ describe('useConnectionRepository', function () {
           id: '1',
           savedConnectionType: 'favorite',
           favorite: { name: 'Aa' },
+        },
+        {
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
+        },
+        {
+          id: '4',
         },
       ]);
 
@@ -75,7 +63,7 @@ describe('useConnectionRepository', function () {
     });
 
     it('should not change if only non favourite connections change', async function () {
-      mockStorageWithConnections([
+      mockStorage = new InMemoryConnectionStorage([
         {
           id: '2',
           savedConnectionType: 'favorite',
@@ -99,6 +87,10 @@ describe('useConnectionRepository', function () {
       mockStorage.loadAll = function () {
         return Promise.resolve([
           {
+            id: '4',
+            savedConnectionType: 'autoConnectInfo',
+          },
+          {
             id: '3',
             savedConnectionType: 'recent',
             favorite: { name: 'Cc' },
@@ -116,7 +108,7 @@ describe('useConnectionRepository', function () {
         ]);
       };
 
-      mockStorage.events.emit(ConnectionStorageEvents.ConnectionsChanged);
+      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
 
       await waitFor(() => {
         const favoriteConnections = result.current.favoriteConnections;
@@ -131,7 +123,7 @@ describe('useConnectionRepository', function () {
 
   describe('nonFavoriteConnections', function () {
     it('should return non favourite connections sorted by name alphabetically', async function () {
-      mockStorageWithConnections([
+      mockStorage = new InMemoryConnectionStorage([
         {
           id: '2',
           savedConnectionType: 'recent',
@@ -141,6 +133,10 @@ describe('useConnectionRepository', function () {
           id: '1',
           savedConnectionType: 'recent',
           favorite: { name: 'Aa' },
+        },
+        {
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
         },
       ]);
 
@@ -154,7 +150,7 @@ describe('useConnectionRepository', function () {
     });
 
     it('should not change if only favourite connections change', async function () {
-      mockStorageWithConnections([
+      mockStorage = new InMemoryConnectionStorage([
         {
           id: '2',
           savedConnectionType: 'recent',
@@ -195,7 +191,7 @@ describe('useConnectionRepository', function () {
         ]);
       };
 
-      mockStorage.events.emit(ConnectionStorageEvents.ConnectionsChanged);
+      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
 
       await waitFor(() => {
         const favoriteConnections = result.current.favoriteConnections;
@@ -208,9 +204,39 @@ describe('useConnectionRepository', function () {
     });
   });
 
+  describe('when there is autoConnectInfo available from underlying storage', function () {
+    it('getConnectionInfoById should return the connection info for auto connection if the correct id is specified', async function () {
+      mockStorage = new InMemoryConnectionStorage([
+        {
+          id: '2',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'Bb' },
+        },
+        {
+          id: '1',
+          savedConnectionType: 'favorite',
+          favorite: { name: 'Aa' },
+        },
+        {
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
+        },
+      ]);
+
+      const { result } = renderHookWithContext(() => useConnectionRepository());
+      await waitFor(() => {
+        expect(result.current.getConnectionInfoById('3')).to.deep.equal({
+          id: '3',
+          savedConnectionType: 'autoConnectInfo',
+        });
+      });
+    });
+  });
+
   describe('#saveConnection', function () {
     it('should save a new connection if it has a valid connection string', async function () {
-      mockStorageWithConnections([]);
+      mockStorage = new InMemoryConnectionStorage([]);
+      const saveSpy = spy(mockStorage, 'save');
       const { result } = renderHookWithContext(() => useConnectionRepository());
 
       const connectionToSave = {
@@ -220,15 +246,16 @@ describe('useConnectionRepository', function () {
 
       await result.current.saveConnection(connectionToSave);
 
-      expect(saveStub).to.have.been.calledOnceWith({
+      expect(saveSpy).to.have.been.calledOnceWith({
         connectionInfo: connectionToSave,
       });
     });
 
     it('should merge the connection info is one was already saved with the same id', async function () {
-      mockStorageWithConnections([
+      mockStorage = new InMemoryConnectionStorage([
         { id: '1', savedConnectionType: 'favorite' },
       ]);
+      const saveSpy = spy(mockStorage, 'save');
 
       const { result } = renderHookWithContext(() => useConnectionRepository());
       const connectionToSave = {
@@ -238,7 +265,7 @@ describe('useConnectionRepository', function () {
 
       await result.current.saveConnection(connectionToSave);
 
-      expect(saveStub).to.have.been.calledOnceWith({
+      expect(saveSpy).to.have.been.calledOnceWith({
         connectionInfo: {
           id: '1',
           savedConnectionType: 'favorite',
@@ -248,7 +275,7 @@ describe('useConnectionRepository', function () {
     });
 
     it('should merge oidc connection info if exists', async function () {
-      mockStorageWithConnections([
+      mockStorage = new InMemoryConnectionStorage([
         {
           id: '1',
           savedConnectionType: 'favorite',
@@ -258,6 +285,7 @@ describe('useConnectionRepository', function () {
           },
         },
       ]);
+      const saveSpy = spy(mockStorage, 'save');
 
       const { result } = renderHookWithContext(() => useConnectionRepository());
       const connectionToSave = {
@@ -271,7 +299,7 @@ describe('useConnectionRepository', function () {
 
       await result.current.saveConnection(connectionToSave);
 
-      expect(saveStub).to.have.been.calledOnceWith({
+      expect(saveSpy).to.have.been.calledOnceWith({
         connectionInfo: {
           id: '1',
           savedConnectionType: 'favorite',
@@ -285,7 +313,8 @@ describe('useConnectionRepository', function () {
     });
 
     it('should not save a new connection if it has an invalid connection string', async function () {
-      mockStorageWithConnections([]);
+      mockStorage = new InMemoryConnectionStorage([]);
+      const saveSpy = spy(mockStorage, 'save');
       const { result } = renderHookWithContext(() => useConnectionRepository());
 
       try {
@@ -295,7 +324,7 @@ describe('useConnectionRepository', function () {
         });
 
         expect.fail('Expected saveConnection to throw an exception.');
-        expect(saveStub).to.not.have.been.calledOnce;
+        expect(saveSpy).to.not.have.been.calledOnce;
       } catch (ex) {
         expect(ex).to.have.property(
           'message',
@@ -307,7 +336,8 @@ describe('useConnectionRepository', function () {
 
   describe('#deleteConnection', function () {
     it('should delete a saved connection from the underlying storage', async function () {
-      mockStorageWithConnections([]);
+      mockStorage = new InMemoryConnectionStorage([]);
+      const deleteSpy = spy(mockStorage, 'delete');
       const { result } = renderHookWithContext(() => useConnectionRepository());
       const connectionToDelete = {
         id: '1',
@@ -316,7 +346,7 @@ describe('useConnectionRepository', function () {
 
       await result.current.deleteConnection(connectionToDelete);
 
-      expect(deleteStub).to.have.been.calledOnceWith(connectionToDelete);
+      expect(deleteSpy).to.have.been.calledOnceWith(connectionToDelete);
     });
   });
 });

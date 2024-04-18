@@ -74,8 +74,12 @@ import {
   onAutoupdateFailed,
   onAutoupdateStarted,
   onAutoupdateSuccess,
-} from './utils/update-handlers';
+} from './components/update-toasts';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
+import {
+  CompassRendererConnectionStorage,
+  type AutoConnectPreferences,
+} from '@mongodb-js/connection-storage/renderer';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -99,6 +103,10 @@ function notifyMainProcessOfDisconnect() {
 
 function showSettingsModal() {
   ipcRenderer?.emit('window:show-settings');
+}
+
+async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
+  return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
 }
 
 /**
@@ -193,15 +201,22 @@ const Application = View.extend({
    */
   render: async function () {
     await defaultPreferencesInstance.refreshPreferences();
-    const getAutoConnectInfo = await (
-      await import('./utils/auto-connect')
-    ).loadAutoConnectInfo();
+    const initialAutoConnectPreferences =
+      await getWindowAutoConnectPreferences();
+    const getInitialAutoConnectPreferences =
+      (): Promise<AutoConnectPreferences> => {
+        return Promise.resolve(initialAutoConnectPreferences);
+      };
+    const connectionStorage = new CompassRendererConnectionStorage(
+      ipcRenderer,
+      getInitialAutoConnectPreferences
+    );
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
       'Rendering app container',
       {
-        autoConnectEnabled: !!getAutoConnectInfo,
+        autoConnectEnabled: initialAutoConnectPreferences.shouldAutoConnect,
       }
     );
 
@@ -221,13 +236,13 @@ const Application = View.extend({
       <React.StrictMode>
         <CompassElectron
           appName={remote.app.getName()}
-          getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
           createFileInputBackend={createElectronFileInputBackend(remote)}
           onDisconnect={notifyMainProcessOfDisconnect}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}
+          connectionStorage={connectionStorage}
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')
@@ -289,20 +304,24 @@ const app = {
       onAutoupdateStarted
     );
     ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
-    ipcRenderer?.on('autoupdate:update-download-success', () => {
-      onAutoupdateSuccess({
-        onUpdate: () => {
-          void ipcRenderer?.call(
-            'autoupdate:update-download-restart-confirmed'
-          );
-        },
-        onDismiss: () => {
-          void ipcRenderer?.call(
-            'autoupdate:update-download-restart-dismissed'
-          );
-        },
-      });
-    });
+    ipcRenderer?.on(
+      'autoupdate:update-download-success',
+      (_, { updatedVersion }: { updatedVersion: string }) => {
+        onAutoupdateSuccess({
+          updatedVersion,
+          onUpdate: () => {
+            void ipcRenderer?.call(
+              'autoupdate:update-download-restart-confirmed'
+            );
+          },
+          onDismiss: () => {
+            void ipcRenderer?.call(
+              'autoupdate:update-download-restart-dismissed'
+            );
+          },
+        });
+      }
+    );
     // As soon as dom is ready, render and set up the rest.
     state.render();
     marky.stop('Time to Connect rendered');
