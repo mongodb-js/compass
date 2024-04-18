@@ -22,6 +22,8 @@ export interface SidebarPluginProps {
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
+  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
+  // away with refactoring compoass-conneciton to a plugin
   initialConnectionInfo,
 }) => {
   const isMultiConnectionEnabled = usePreference(
