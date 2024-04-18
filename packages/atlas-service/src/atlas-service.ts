@@ -50,6 +50,17 @@ export class AtlasService {
           ...init?.headers,
         },
       });
+      this.logger.log.info(
+        this.logger.mongoLogId(1_001_000_309),
+        'AtlasService',
+        'Received API response',
+        {
+          url,
+          status: res.status,
+          statusText: res.statusText,
+          contentLength: res.headers.get('content-length'),
+        }
+      );
       await throwIfNotOk(res);
       return res;
     } catch (err) {
