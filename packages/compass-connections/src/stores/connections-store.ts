@@ -13,6 +13,7 @@ import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../hooks/use-connection-repository';
+import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
   'COMPASS-CONNECTIONS'
@@ -58,9 +59,12 @@ type State = {
   oidcDeviceAuthUserCode: string | null;
 };
 
-export function defaultConnectionsState(): State {
+export function defaultConnectionsState(
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo
+): State {
   return {
-    activeConnectionInfo: createNewConnectionInfo(),
+    activeConnectionInfo:
+      __TEST_INITIAL_CONNECTION_INFO ?? createNewConnectionInfo(),
     connectingStatusText: '',
     connectingConnectionId: null,
     connectionErrorMessage: null,
@@ -157,7 +161,7 @@ export function useConnections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
-  getAutoConnectInfo,
+  __TEST_INITIAL_CONNECTION_INFO,
 }: {
   onConnected: (
     connectionInfo: ConnectionInfo,
@@ -168,7 +172,7 @@ export function useConnections({
     error: Error
   ) => void;
   onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
+  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 }): {
   state: State;
   recentConnections: ConnectionInfo[];
@@ -186,6 +190,7 @@ export function useConnections({
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionsManager = useConnectionsManagerContext();
+  const connectionStorage = useConnectionStorageContext();
   const {
     favoriteConnections,
     nonFavoriteConnections: recentConnections,
@@ -200,7 +205,7 @@ export function useConnections({
 
   const [state, dispatch]: [State, Dispatch<Action>] = useReducer(
     connectionsReducer,
-    defaultConnectionsState()
+    defaultConnectionsState(__TEST_INITIAL_CONNECTION_INFO)
   );
   const { activeConnectionId } = state;
 
@@ -317,16 +322,12 @@ export function useConnections({
   );
 
   useEffect(() => {
-    // Load connections after first render.
     void connectWithAutoConnectInfoIfAvailable();
     async function connectWithAutoConnectInfoIfAvailable() {
-      let connectionInfo: ConnectionInfo | undefined;
+      let autoConnectInfo: ConnectionInfo | undefined;
       try {
-        connectionInfo =
-          typeof getAutoConnectInfo === 'function'
-            ? await getAutoConnectInfo()
-            : undefined;
-        if (connectionInfo) {
+        autoConnectInfo = await connectionStorage.getAutoConnectInfo?.();
+        if (autoConnectInfo) {
           log.info(
             mongoLogId(1_001_000_160),
             'Connection Store',
@@ -334,12 +335,12 @@ export function useConnections({
           );
           dispatch({
             type: 'set-active-connection',
-            connectionInfo,
+            connectionInfo: autoConnectInfo,
           });
-          void connect(connectionInfo, false);
+          void connect(autoConnectInfo, false);
         }
       } catch (error) {
-        onConnectionFailed(connectionInfo ?? null, error as Error);
+        onConnectionFailed(autoConnectInfo ?? null, error as Error);
         log.error(
           mongoLogId(1_001_000_290),
           'Connection Store',
@@ -361,7 +362,7 @@ export function useConnections({
       // not resolved.
       connectionsManager.cancelAllConnectionAttempts();
     };
-  }, [getAutoConnectInfo, persistOIDCTokens]);
+  }, []);
 
   const connect = async (
     connectionInfo: ConnectionInfo,

@@ -10,17 +10,18 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MultipleConnectionSidebar from './sidebar';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageProvider,
-  type ConnectionStorage,
+  InMemoryConnectionStorage,
+  type ConnectionInfo,
 } from '@mongodb-js/connection-storage/provider';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
+  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
@@ -31,6 +32,7 @@ import {
   WorkspacesServiceProvider,
 } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -63,35 +65,18 @@ const savedConnection: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
-type ItselfAndStub<T> = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  [K in keyof T]: T[K] extends Function ? ReturnType<typeof stub> : T[K];
-};
-
 describe('Multiple Connections Sidebar Component', function () {
-  const connectionStorage: ItselfAndStub<
-    Pick<
-      typeof ConnectionStorage,
-      'events' | 'loadAll' | 'load' | 'save' | 'delete'
-    >
-  > = {
-    events: new ConnectionStorageBus(),
-    loadAll: stub(),
-    load: stub(),
-    save: stub(),
-    delete: stub(),
-  };
   const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
   const emitSpy = spy(globalAppRegistry, 'emit');
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
+  let connectionStorage: ConnectionStorage;
   let openMyQueriesWorkspaceStub: SinonStub;
 
   const connectFn = stub();
 
   function doRender() {
-    const storage = connectionStorage as any;
     const connectionManager = new ConnectionsManager({
       logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,
@@ -105,10 +90,12 @@ describe('Multiple Connections Sidebar Component', function () {
           },
           currentOp() {},
           top() {},
-        },
+        } as DataService,
         instance,
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        connectionStorage: new InMemoryConnectionStorage(),
+        logger: createNoopLoggerAndTelemetry(),
+        connectionInfo: TEST_CONNECTION_INFO,
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
     openMyQueriesWorkspaceStub = stub();
@@ -125,7 +112,7 @@ describe('Multiple Connections Sidebar Component', function () {
           <WorkspacesProvider
             value={[{ name: 'My Queries', component: () => null }]}
           >
-            <ConnectionStorageProvider value={storage}>
+            <ConnectionStorageProvider value={connectionStorage}>
               <ConnectionsManagerProvider value={connectionManager}>
                 <Provider store={store}>
                   <MultipleConnectionSidebar
@@ -141,17 +128,11 @@ describe('Multiple Connections Sidebar Component', function () {
   }
 
   beforeEach(function () {
-    connectionStorage.loadAll.returns([savedConnection]);
-
+    connectionStorage = new InMemoryConnectionStorage([savedConnection]);
     doRender();
   });
 
   afterEach(function () {
-    connectionStorage.loadAll.reset();
-    connectionStorage.load.reset();
-    connectionStorage.save.reset();
-    connectionStorage.delete.reset();
-
     deactivate();
     cleanup();
     emitSpy.resetHistory();
@@ -185,7 +166,6 @@ describe('Multiple Connections Sidebar Component', function () {
 
     describe('when failing to connect', function () {
       it('calls the connection function and renders the error toast', async function () {
-        connectionStorage.loadAll.returns([savedConnection]);
         connectFn.returns(slowConnection(andFail('Expected failure')));
         parentSavedConnection = screen.getByTestId('saved-connection-12345');
 

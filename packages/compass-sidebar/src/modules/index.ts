@@ -33,6 +33,7 @@ import type {
 } from './is-performance-tab-supported';
 import isPerformanceTabSupported from './is-performance-tab-supported';
 import type { ThunkAction } from 'redux-thunk';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 
 export interface RootState {
   dataService: DataServiceState;
@@ -58,7 +59,7 @@ export type RootAction =
 export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
   RootState,
-  { globalAppRegistry: AppRegistry },
+  { globalAppRegistry: AppRegistry; connectionStorage: ConnectionStorage },
   A
 >;
 

@@ -1,11 +1,29 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import reducer, {
+import connectionInfoReducer, {
   INITIAL_STATE,
   changeConnectionInfo,
   updateAndSaveConnectionInfo,
 } from './connection-info';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { AppRegistry } from 'hadron-app-registry';
+import type { RootAction } from '.';
+
+function createMockStoreSlice(
+  initialState = {},
+  reducer = connectionInfoReducer
+) {
+  let state = { ...INITIAL_STATE, ...initialState };
+  return {
+    getState() {
+      return state;
+    },
+    dispatch(action: RootAction) {
+      state = reducer(state, action);
+    },
+  } as any;
+}
 
 describe('connection info module', function () {
   const connectionInfoNotFavorite = {
@@ -19,14 +37,16 @@ describe('connection info module', function () {
     context('when the action is changeConnectionInfo', function () {
       it('returns the new state', function () {
         expect(
-          reducer(undefined, changeConnectionInfo(connectionInfoNotFavorite))
-            .connectionInfo
+          connectionInfoReducer(
+            undefined,
+            changeConnectionInfo(connectionInfoNotFavorite)
+          ).connectionInfo
         ).to.deep.equal(connectionInfoNotFavorite);
       });
 
       it('does not call the connection storage to save', function () {
         const saveSpy = sinon.spy();
-        reducer(
+        connectionInfoReducer(
           {
             connectionStorage: {
               save: saveSpy,
@@ -40,44 +60,51 @@ describe('connection info module', function () {
     });
 
     context('when the action is updateAndSaveConnectionInfo', function () {
-      it('returns the new state', function () {
-        const newConnection = updateAndSaveConnectionInfo({
+      let saveSpy: sinon.SinonSpy;
+      let slice: ReturnType<typeof createMockStoreSlice>;
+      const globalAppRegistry = new AppRegistry();
+      const connectionStorage = new InMemoryConnectionStorage();
+
+      beforeEach(function () {
+        saveSpy = sinon.spy(connectionStorage, 'save');
+        slice = createMockStoreSlice();
+      });
+
+      afterEach(function () {
+        sinon.restore();
+      });
+
+      it('updates store with new state', function () {
+        updateAndSaveConnectionInfo({
           ...connectionInfoNotFavorite,
           favorite: {
             name: 'My Favorite',
             color: '#d4366e',
           },
+        })(slice.dispatch.bind(slice), slice.getState.bind(slice), {
+          globalAppRegistry,
+          connectionStorage,
         });
-        const state = reducer(
-          {
-            connectionStorage: {
-              save: function () {},
-            },
-          } as any,
-          newConnection
-        );
 
-        expect(state.connectionInfo.favorite?.name).to.equal('My Favorite');
-        expect(state.connectionInfo.favorite?.color).to.equal('#d4366e');
+        expect(slice.getState().connectionInfo.favorite?.name).to.equal(
+          'My Favorite'
+        );
+        expect(slice.getState().connectionInfo.favorite?.color).to.equal(
+          '#d4366e'
+        );
       });
 
       it('calls to save the connection info in the connection storage', function () {
-        const newConnection = updateAndSaveConnectionInfo({
+        updateAndSaveConnectionInfo({
           ...connectionInfoNotFavorite,
           favorite: {
             name: 'My Favorite',
             color: '#d4366e',
           },
+        })(slice.dispatch.bind(slice), slice.getState.bind(slice), {
+          globalAppRegistry,
+          connectionStorage,
         });
-        const saveSpy = sinon.spy();
-        reducer(
-          {
-            connectionStorage: {
-              save: saveSpy,
-            },
-          } as any,
-          newConnection
-        );
 
         expect(saveSpy.callCount).to.equal(1);
         expect(saveSpy.firstCall.args[0]).to.deep.equal({
@@ -97,7 +124,9 @@ describe('connection info module', function () {
 
     context('when an action is not provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {} as any)).to.equal(INITIAL_STATE);
+        expect(connectionInfoReducer(undefined, {} as any)).to.equal(
+          INITIAL_STATE
+        );
       });
     });
   });
