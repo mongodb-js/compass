@@ -257,7 +257,7 @@ export function MultipleConnectionSidebar({
     [duplicateConnection, setIsConnectionFormOpen]
   );
 
-  const onToggleFavoriteConnection = useCallback(
+  const onToggleFavoriteConnectionInfo = useCallback(
     (info: ConnectionInfo) => {
       info.savedConnectionType =
         info.savedConnectionType === 'favorite' ? 'recent' : 'favorite';
@@ -267,7 +267,26 @@ export function MultipleConnectionSidebar({
     [saveConnection]
   );
 
-  const onCopyConnectionString = useCallback(
+  const onToggleFavoriteActiveConnection = useCallback(
+    (connectionId: ConnectionInfo['id']) => {
+      const connectionInfo = findActiveConnection(connectionId);
+      if (!connectionInfo) return; // TODO: decide how to handle. I guess this could happen if the connection disconnected?
+      onToggleFavoriteConnectionInfo(connectionInfo);
+    },
+    [onToggleFavoriteConnectionInfo, findActiveConnection]
+  );
+
+  const onOpenConnectionInfo = useCallback(
+    (connectionId: string) => setIsConnectionInfoModalOpen(connectionId),
+    []
+  );
+
+  const onCloseConnectionInfo = useCallback(
+    () => setIsConnectionInfoModalOpen(undefined),
+    []
+  );
+
+  const onCopyActiveConnectionString = useCallback(
     (connectionId: string) => {
       const connectionInfo = findActiveConnection(connectionId);
       if (!connectionInfo) return; // TODO: decide how to handle. I guess this could happen if the connection disconnected?
@@ -321,10 +340,9 @@ export function MultipleConnectionSidebar({
         <ActiveConnectionNavigation
           activeConnections={activeConnections}
           activeWorkspace={activeWorkspace}
-          onOpenConnectionInfo={(connectionId: string) =>
-            setIsConnectionInfoModalOpen(connectionId)
-          }
-          onCopyConnectionString={onCopyConnectionString}
+          onOpenConnectionInfo={onOpenConnectionInfo}
+          onCopyConnectionString={onCopyActiveConnectionString}
+          onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
@@ -334,7 +352,7 @@ export function MultipleConnectionSidebar({
           onEditConnection={onEditConnection}
           onDeleteConnection={onDeleteConnection}
           onDuplicateConnection={onDuplicateConnection}
-          onToggleFavoriteConnection={onToggleFavoriteConnection}
+          onToggleFavoriteConnection={onToggleFavoriteConnectionInfo}
         />
         <ConnectionFormModal
           isOpen={isConnectionFormOpen}
@@ -354,7 +372,7 @@ export function MultipleConnectionSidebar({
               : undefined
           }
           isVisible={!!isConnectionInfoModalOpen}
-          close={() => setIsConnectionInfoModalOpen(undefined)}
+          close={onCloseConnectionInfo}
         />
       </aside>
     </ResizableSidebar>

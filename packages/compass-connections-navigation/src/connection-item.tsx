@@ -101,6 +101,8 @@ export const ConnectionItem: React.FunctionComponent<
   );
 
   const actions: ItemAction<Actions>[] = useMemo(() => {
+    const isFavorite = connectionInfo.savedConnectionType === 'favorite';
+
     const actions: ItemAction<Actions>[] = [
       {
         action: 'connection-performance-metrics',
@@ -117,22 +119,12 @@ export const ConnectionItem: React.FunctionComponent<
         icon: 'Copy',
         label: 'Copy connection string',
       },
+      {
+        action: 'connection-toggle-favorite',
+        icon: 'Favorite',
+        label: isFavorite ? 'Unfavorite' : 'Favorite',
+      },
     ];
-
-    const isFavorite = connectionInfo.savedConnectionType === 'favorite';
-    if (isFavorite) {
-      actions.push({
-        action: 'connection-unfavorite',
-        icon: 'Favorite',
-        label: 'Unfavorite',
-      });
-    } else {
-      actions.push({
-        action: 'connection-favorite',
-        icon: 'Favorite',
-        label: 'Favorite',
-      });
-    }
 
     actions.push({
       action: 'connection-disconnect',
