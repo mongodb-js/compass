@@ -51,7 +51,10 @@ export default [
       md5: new Binary(Buffer.from('c//SZESzTGmQ6OfR38A11A=='), 5), // 5
       encrypted: new Binary(Buffer.from('c//SZESzTGmQ6OfR38A11A=='), 6), // 6
       compressedTimeSeries: new Binary(
-        Buffer.from('c//SZESzTGmQ6OfR38A11A=='),
+        Buffer.from(
+          'CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==',
+          'base64'
+        ),
         7
       ), // 7
       custom: new Binary(Buffer.from('//8='), 128), // 128
