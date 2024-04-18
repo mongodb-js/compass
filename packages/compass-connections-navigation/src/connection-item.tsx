@@ -108,14 +108,14 @@ export const ConnectionItem: React.FunctionComponent<
         label: 'View performance metrics',
       },
       {
-        action: 'connection-info',
+        action: 'open-connection-info',
         icon: 'InfoWithCircle',
         label: 'Show connection info',
       },
       {
-        action: 'connection-copy-connection-string',
+        action: 'copy-connection-string',
         icon: 'Copy',
-        label: 'Copy connection stringCopy connection string',
+        label: 'Copy connection string',
       },
     ];
 

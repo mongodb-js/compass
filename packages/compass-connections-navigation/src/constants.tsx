@@ -9,8 +9,8 @@ export const ROW_HEIGHT = spacing[5];
 
 export type Actions =
   | 'connection-performance-metrics'
-  | 'connection-info'
-  | 'connection-copy-connection-string'
+  | 'open-connection-info'
+  | 'copy-connection-string'
   | 'connection-favorite'
   | 'connection-unfavorite'
   | 'connection-disconnect'

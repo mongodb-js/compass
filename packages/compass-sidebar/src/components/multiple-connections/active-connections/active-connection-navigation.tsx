@@ -65,6 +65,7 @@ export function ActiveConnectionNavigation({
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
   onOpenConnectionInfo,
+  onCopyConnectionString,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -82,6 +83,7 @@ export function ActiveConnectionNavigation({
   expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace: { type: string; namespace?: string } | null;
   onOpenConnectionInfo: (connectionId: string) => void;
+  onCopyConnectionString: (connectionId: string) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
@@ -129,8 +131,11 @@ export function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
-        case 'connection-info':
+        case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
+          return;
+        case 'copy-connection-string':
+          onCopyConnectionString(connectionId);
           return;
         case 'select-database':
           openCollectionsWorkspace(ns);

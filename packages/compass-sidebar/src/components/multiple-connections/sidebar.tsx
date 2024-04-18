@@ -15,6 +15,7 @@ import {
   Link,
   useToast,
   spacing,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
@@ -24,6 +25,9 @@ import ActiveConnectionNavigation from './active-connections/active-connection-n
 import type { SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
+import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+
+const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 type MultipleConnectionSidebarProps = {
   activeWorkspace: { type: string; namespace?: string } | null;
@@ -79,6 +83,26 @@ function ConnectionErrorToastBody({
   );
 }
 
+async function copyConnectionString(connectionString: string) {
+  try {
+    await navigator.clipboard.writeText(connectionString);
+    openToast('copy-to-clipboard', {
+      title: 'Success',
+      description: 'Copied to clipboard.',
+      variant: 'success',
+      timeout: TOAST_TIMEOUT_MS,
+    });
+  } catch (err) {
+    openToast('copy-to-clipboard', {
+      title: 'Error',
+      description:
+        'An error occurred when copying to clipboard. Please try again.',
+      variant: 'warning',
+      timeout: TOAST_TIMEOUT_MS,
+    });
+  }
+}
+
 export function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
@@ -86,6 +110,7 @@ export function MultipleConnectionSidebar({
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
   const activeConnections = useActiveConnections();
+  const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
   const [isConnectionInfoModalOpen, setIsConnectionInfoModalOpen] = useState<
@@ -242,6 +267,19 @@ export function MultipleConnectionSidebar({
     [saveConnection]
   );
 
+  const onCopyConnectionString = useCallback(
+    (connectionId: string) => {
+      const connectionInfo = findActiveConnection(connectionId);
+      if (!connectionInfo) return; // TODO: decide how to handle. I guess this could happen if the connection disconnected?
+      void copyConnectionString(
+        maybeProtectConnectionString(
+          connectionInfo?.connectionOptions.connectionString
+        )
+      );
+    },
+    [findActiveConnection, maybeProtectConnectionString]
+  );
+
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
   const showKerberosPasswordField = usePreference('showKerberosPasswordField');
@@ -286,6 +324,7 @@ export function MultipleConnectionSidebar({
           onOpenConnectionInfo={(connectionId: string) =>
             setIsConnectionInfoModalOpen(connectionId)
           }
+          onCopyConnectionString={onCopyConnectionString}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
