@@ -92,7 +92,7 @@ async function copyConnectionString(connectionString: string) {
       variant: 'success',
       timeout: TOAST_TIMEOUT_MS,
     });
-  } catch (err) {
+  } catch {
     openToast('copy-to-clipboard', {
       title: 'Error',
       description:
