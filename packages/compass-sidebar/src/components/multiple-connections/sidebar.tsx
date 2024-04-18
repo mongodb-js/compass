@@ -113,9 +113,8 @@ export function MultipleConnectionSidebar({
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
-  const [isConnectionInfoModalOpen, setIsConnectionInfoModalOpen] = useState<
-    string | undefined
-  >();
+  const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
+    useState<string | undefined>();
 
   const findActiveConnection = useCallback(
     (connectionId: string) =>
@@ -277,12 +276,12 @@ export function MultipleConnectionSidebar({
   );
 
   const onOpenConnectionInfo = useCallback(
-    (connectionId: string) => setIsConnectionInfoModalOpen(connectionId),
+    (connectionId: string) => setConnectionInfoModalConnectionId(connectionId),
     []
   );
 
   const onCloseConnectionInfo = useCallback(
-    () => setIsConnectionInfoModalOpen(undefined),
+    () => setConnectionInfoModalConnectionId(undefined),
     []
   );
 
@@ -367,11 +366,11 @@ export function MultipleConnectionSidebar({
         />
         <ConnectionInfoModal
           connectionInfo={
-            isConnectionInfoModalOpen
-              ? findActiveConnection(isConnectionInfoModalOpen)
+            connectionInfoModalConnectionId
+              ? findActiveConnection(connectionInfoModalConnectionId)
               : undefined
           }
-          isVisible={!!isConnectionInfoModalOpen}
+          isVisible={!!connectionInfoModalConnectionId}
           close={onCloseConnectionInfo}
         />
       </aside>
