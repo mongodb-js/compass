@@ -175,7 +175,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       connectionInfo.savedConnectionType === 'autoConnectInfo'
     ) {
       log.warn(
-        mongoLogId(1_001_000_308),
+        mongoLogId(1_001_000_311),
         'Connection Storage',
         'Attempted to save autoConnectInfo, ignoring the call'
       );
@@ -234,7 +234,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     }
     if (id === this.autoConnectInfo?.id) {
       log.warn(
-        mongoLogId(1_001_000_309),
+        mongoLogId(1_001_000_312),
         'Connection Storage',
         'Attempted to save autoConnectInfo, ignoring the call'
       );
