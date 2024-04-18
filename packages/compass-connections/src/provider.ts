@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
 import { useConnectionInfo } from './connection-info-provider';
-
+import { EventEmitter } from 'events';
 import type { DataService } from 'mongodb-data-service';
 import { ConnectionsManager } from './connections-manager';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -12,9 +12,9 @@ export { useConnections } from './stores/connections-store';
 export { useConnectionRepository } from './hooks/use-connection-repository';
 export { useActiveConnections } from './hooks/use-active-connections';
 
-class TestConnectionsManager {
+class TestConnectionsManager extends EventEmitter {
   getDataServiceForConnection() {
-    return {} as DataService;
+    return new EventEmitter() as unknown as DataService;
   }
 }
 
