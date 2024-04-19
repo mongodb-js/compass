@@ -77,7 +77,7 @@ describe('<ActiveConnectionNavigation />', function () {
           <Provider store={store}>
             <ActiveConnectionNavigation
               activeConnections={mockConnections}
-              activeWorkspace={{ id: 'turtle', type: 'Databases' }}
+              activeWorkspace={{ type: 'Databases' }}
               onOpenConnectionInfo={onOpenConnectionInfoStub}
               onCopyConnectionString={onCopyConnectionStringStub}
               onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
