@@ -83,6 +83,17 @@ function ConnectionErrorToastBody({
   );
 }
 
+function activeConnectionNotFoundError(
+  description = 'Connection not found. Please try again'
+) {
+  openToast('active-connection-not-found', {
+    title: 'Error',
+    description,
+    variant: 'warning',
+    timeout: TOAST_TIMEOUT_MS,
+  });
+}
+
 async function copyConnectionString(connectionString: string) {
   try {
     await navigator.clipboard.writeText(connectionString);
@@ -269,7 +280,12 @@ export function MultipleConnectionSidebar({
   const onToggleFavoriteActiveConnection = useCallback(
     (connectionId: ConnectionInfo['id']) => {
       const connectionInfo = findActiveConnection(connectionId);
-      if (!connectionInfo) return; // TODO: decide how to handle. I guess this could happen if the connection disconnected?
+      if (!connectionInfo) {
+        activeConnectionNotFoundError(
+          'Favorite/Unfavorite action failed - Connection not found. Please try again.'
+        );
+        return;
+      }
       onToggleFavoriteConnectionInfo(connectionInfo);
     },
     [onToggleFavoriteConnectionInfo, findActiveConnection]
@@ -288,7 +304,12 @@ export function MultipleConnectionSidebar({
   const onCopyActiveConnectionString = useCallback(
     (connectionId: string) => {
       const connectionInfo = findActiveConnection(connectionId);
-      if (!connectionInfo) return; // TODO: decide how to handle. I guess this could happen if the connection disconnected?
+      if (!connectionInfo) {
+        activeConnectionNotFoundError(
+          'Copying to clipboard failed - Connection not found. Please try again.'
+        );
+        return;
+      }
       void copyConnectionString(
         maybeProtectConnectionString(
           connectionInfo?.connectionOptions.connectionString
