@@ -43,6 +43,8 @@ describe('<ActiveConnectionNavigation />', function () {
   let deactivate: () => void;
   const globalAppRegistry = new AppRegistry();
   const onOpenConnectionInfoStub = sinon.stub();
+  const onCopyConnectionStringStub = sinon.stub();
+  const onToggleFavoriteConnectionStub = sinon.stub();
 
   beforeEach(async () => {
     connectionsManager = new ConnectionsManager({} as any);
@@ -77,6 +79,8 @@ describe('<ActiveConnectionNavigation />', function () {
               activeConnections={mockConnections}
               activeWorkspace={{ id: 'turtle', type: 'Databases' }}
               onOpenConnectionInfo={onOpenConnectionInfoStub}
+              onCopyConnectionString={onCopyConnectionStringStub}
+              onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
             />
           </Provider>
         </ConnectionsManagerProvider>
@@ -112,6 +116,40 @@ describe('<ActiveConnectionNavigation />', function () {
       userEvent.click(openConnectionInfoBtn);
 
       expect(onOpenConnectionInfoStub).to.have.been.calledWith('turtle');
+    });
+
+    it('Calls onCopyConnectionString', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const copyConnectionStringBtn = await screen.findByText(
+        'Copy connection string'
+      );
+      expect(copyConnectionStringBtn).to.be.visible;
+
+      userEvent.click(copyConnectionStringBtn);
+
+      expect(onCopyConnectionStringStub).to.have.been.calledWith('turtle');
+    });
+
+    it('Calls onToggleFavoriteConnection', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const favoriteBtn = await screen.findByText('Favorite');
+      expect(favoriteBtn).to.be.visible;
+
+      userEvent.click(favoriteBtn);
+
+      expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
     });
   });
 });
