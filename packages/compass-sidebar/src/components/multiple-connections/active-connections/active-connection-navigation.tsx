@@ -67,6 +67,7 @@ export function ActiveConnectionNavigation({
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
+  onDisconnect,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -86,6 +87,7 @@ export function ActiveConnectionNavigation({
   onOpenConnectionInfo: (connectionId: string) => void;
   onCopyConnectionString: (connectionId: string) => void;
   onToggleFavoriteConnection: (connectionId: string) => void;
+  onDisconnect: (connectionId: string) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
@@ -133,6 +135,9 @@ export function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'connection-disconnect':
+          onDisconnect(connectionId);
+          return;
         case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
           return;
@@ -179,6 +184,7 @@ export function ActiveConnectionNavigation({
       onCopyConnectionString,
       onOpenConnectionInfo,
       onToggleFavoriteConnection,
+      onDisconnect,
       _onNamespaceAction,
     ]
   );

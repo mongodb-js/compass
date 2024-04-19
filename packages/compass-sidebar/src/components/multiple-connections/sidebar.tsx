@@ -185,6 +185,7 @@ export function MultipleConnectionSidebar({
   const {
     setActiveConnectionById,
     connect,
+    closeConnection,
     favoriteConnections,
     recentConnections,
     cancelConnectionAttempt,
@@ -319,6 +320,10 @@ export function MultipleConnectionSidebar({
     [findActiveConnection, maybeProtectConnectionString]
   );
 
+  const onDisconnect = useCallback((connectionId: string) => {
+    void closeConnection(connectionId); // TODO: error handling
+  }, []);
+
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
   const showKerberosPasswordField = usePreference('showKerberosPasswordField');
@@ -363,6 +368,7 @@ export function MultipleConnectionSidebar({
           onOpenConnectionInfo={onOpenConnectionInfo}
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
+          onDisconnect={onDisconnect}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}

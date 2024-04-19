@@ -116,6 +116,7 @@ export class ConnectionsManager extends EventEmitter {
   private readonly reAuthenticationHandler?: ReauthenticationHandler;
   private readonly __TEST_CONNECT_FN?: ConnectFn;
   private appName: string | undefined;
+  // TODO: cleanup these maps on disconnect
   private connectionAttempts = new Map<ConnectionInfoId, ConnectionAttempt>();
   private connectionStatuses = new Map<ConnectionInfoId, ConnectionStatus>();
   private dataServices = new Map<ConnectionInfoId, DataService>();
