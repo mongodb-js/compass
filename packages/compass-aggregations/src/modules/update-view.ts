@@ -82,7 +82,13 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, workspaces, logger: { track, debug }, globalAppRegistry }
+    {
+      pipelineBuilder,
+      workspaces,
+      logger: { track, debug },
+      globalAppRegistry,
+      connectionInfoAccess,
+    }
   ) => {
     dispatch(dismissViewError());
 
@@ -93,6 +99,9 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     if (!viewNamespace) {
       return;
     }
+
+    const { id: connectionId } =
+      connectionInfoAccess.getCurrentConnectionInfo();
 
     const viewPipeline = getPipelineFromBuilderState(
       getState(),
@@ -111,7 +120,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       });
       debug('selecting namespace', viewNamespace);
       globalAppRegistry.emit('view-edited', viewNamespace);
-      workspaces.openCollectionWorkspace(viewNamespace);
+      workspaces.openCollectionWorkspace(connectionId, viewNamespace);
     } catch (e: any) {
       debug('Unexpected error updating view', e);
       dispatch(updateViewErrorOccured(e));

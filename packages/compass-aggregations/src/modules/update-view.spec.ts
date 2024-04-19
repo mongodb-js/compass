@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { ERROR_UPDATING_VIEW, updateView } from './update-view';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import AppRegistry from 'hadron-app-registry';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 describe('update-view module', function () {
   const thunkArg = {
@@ -20,6 +21,11 @@ describe('update-view module', function () {
       openCollectionWorkspace() {},
     },
     logger: createNoopLoggerAndTelemetry(),
+    connectionInfoAccess: {
+      getCurrentConnectionInfo() {
+        return TEST_CONNECTION_INFO;
+      },
+    },
   };
 
   describe('#updateView', function () {

@@ -1,6 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 describe('CreateViewStore [Store]', function () {
   if (
@@ -26,6 +27,11 @@ describe('CreateViewStore [Store]', function () {
         dataService: ds,
         logger,
         workspaces: {} as any,
+        connectionInfoAccess: {
+          getCurrentConnectionInfo() {
+            return TEST_CONNECTION_INFO;
+          },
+        },
       }
     ));
   });
