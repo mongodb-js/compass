@@ -48,6 +48,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 }) => {
   const { id: connectionId } = useConnectionInfo();
   const { openCollectionWorkspace } = useOpenWorkspace();
+  const { id: connectionId } = useConnectionInfo();
 
   useTrackOnChange(
     'COMPASS-COLLECTIONS-UI',
@@ -74,7 +75,10 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    { onCollectionClick: openCollectionWorkspace, onRefreshClick },
+    {
+      onCollectionClick: openCollectionWorkspace.bind(undefined, connectionId),
+      onRefreshClick,
+    },
     isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
   );
 

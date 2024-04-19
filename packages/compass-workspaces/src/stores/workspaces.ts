@@ -471,10 +471,10 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
-  | Pick<Workspace<'Databases'>, 'type' | 'connectionInfoId'>
-  | Pick<Workspace<'Performance'>, 'type' | 'connectionInfoId'>
-  | Pick<Workspace<'Collections'>, 'type' | 'connectionInfoId' | 'namespace'>
-  | (Pick<Workspace<'Collection'>, 'type' | 'connectionInfoId' | 'namespace'> &
+  | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
+  | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
+  | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>
+  | (Pick<Workspace<'Collection'>, 'type' | 'connectionId' | 'namespace'> &
       Partial<
         Pick<
           Workspace<'Collection'>,
@@ -530,20 +530,20 @@ export const openWorkspace = (
           const { database, collection } = toNS(workspaceOptions.namespace);
           try {
             const dataService = connectionsManager.getDataServiceForConnection(
-              workspaceOptions.connectionInfoId
+              workspaceOptions.connectionId
             );
             if (!dataService) {
               throw new Error(
-                `DataService not available for connectionInfoId=${workspaceOptions.connectionInfoId}`
+                `DataService not available for connectionId=${workspaceOptions.connectionId}`
               );
             }
 
             const instance = instancesManager.getMongoDBInstanceForConnection(
-              workspaceOptions.connectionInfoId
+              workspaceOptions.connectionId
             );
             if (!instance) {
               throw new Error(
-                `MongoDBInstance not available for connectionInfoId=${workspaceOptions.connectionInfoId}`
+                `MongoDBInstance not available for connectionId=${workspaceOptions.connectionId}`
               );
             }
 
@@ -634,7 +634,6 @@ export const openTabFromCurrent = (
   return {
     type: WorkspacesActions.OpenTabFromCurrentActive,
     defaultTab: defaultTab ?? { type: 'My Queries' },
-    // defaultTab: defaultTab ?? { type: 'Welcome' },
   };
 };
 
@@ -720,6 +719,7 @@ export const collectionSubtabSelected = (
 
 export const openFallbackTab = (
   tab: WorkspaceTab,
+  connectionId: string,
   fallbackNamespace?: string | null
 ): WorkspacesThunkAction<void> => {
   return (dispatch, getState) => {
@@ -729,9 +729,10 @@ export const openFallbackTab = (
           type: toNS(fallbackNamespace).collection
             ? 'Collection'
             : 'Collections',
+          connectionId,
           namespace: fallbackNamespace,
         }
-      : { type: 'Databases' };
+      : { type: 'Databases', connectionId };
     const tabIndex = getState().tabs.findIndex((ws) => {
       return ws.id === tab.id;
     });

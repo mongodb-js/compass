@@ -18,6 +18,7 @@ import type { CollectionState } from '../../modules/collection-tab';
 import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { connect } from 'react-redux';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const collectionHeaderStyles = css({
   padding: spacing[3],
@@ -99,31 +100,34 @@ export const CollectionHeader: React.FunctionComponent<
   const showInsights = usePreference('showInsights');
   const { openCollectionWorkspace, openCollectionsWorkspace } =
     useOpenWorkspace();
+  const { id: connectionId } = useConnectionInfo();
 
   const breadcrumbItems = useMemo(() => {
     return [
       // TODO (COMPASS-7684): add connection name
       {
         name: toNS(namespace).database,
-        onClick: () => openCollectionsWorkspace(toNS(namespace).database),
+        onClick: () =>
+          openCollectionsWorkspace(connectionId, toNS(namespace).database),
       },
       // When viewing a view, show the source namespace first
       sourceName && {
         name: toNS(sourceName).collection,
-        onClick: () => openCollectionWorkspace(sourceName),
+        onClick: () => openCollectionWorkspace(connectionId, sourceName),
       },
       // Show the current namespace
       {
         name: toNS(namespace).collection,
-        onClick: () => openCollectionWorkspace(namespace),
+        onClick: () => openCollectionWorkspace(connectionId, namespace),
       },
       // When editing a view, show the view namespace last
       editViewName && {
         name: toNS(editViewName).collection,
-        onClick: () => openCollectionWorkspace(editViewName),
+        onClick: () => openCollectionWorkspace(connectionId, editViewName),
       },
     ].filter(Boolean) as BreadcrumbItem[];
   }, [
+    connectionId,
     namespace,
     sourceName,
     editViewName,

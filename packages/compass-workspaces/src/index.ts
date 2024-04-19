@@ -21,6 +21,7 @@ import type Database from 'mongodb-database-model';
 import {
   connectionsManagerLocator,
   type ConnectionsManager,
+  type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
@@ -29,7 +30,6 @@ import {
   type MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
 } from '@mongodb-js/compass-app-stores/provider';
-import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;

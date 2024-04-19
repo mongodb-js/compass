@@ -15,17 +15,17 @@ export type MyQueriesWorkspace = {
 
 export type ServerStatsWorkspace = {
   type: 'Performance';
-  connectionInfoId: string;
+  connectionId: string;
 };
 
 export type DatabasesWorkspace = {
   type: 'Databases';
-  connectionInfoId: string;
+  connectionId: string;
 };
 
 export type CollectionsWorkspace = {
   type: 'Collections';
-  connectionInfoId: string;
+  connectionId: string;
   namespace: string;
 };
 
@@ -36,7 +36,7 @@ export type CollectionWorkspace = {
   // 2. to avoid unnecessary changes in the types definition within those plugins.
   tabId: string;
   type: 'Collection';
-  connectionInfoId: string;
+  connectionId: string;
   namespace: string;
   subTab: CollectionSubtab;
   initialQuery?: unknown;
@@ -61,7 +61,7 @@ export type Workspace<T extends AnyWorkspace['type']> = Extract<
 
 export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
   Workspace<T>,
-  'type'
+  'type' | 'connectionId'
 >;
 
 export type WorkspaceComponent<T extends AnyWorkspace['type']> = {

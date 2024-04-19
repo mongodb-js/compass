@@ -84,6 +84,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   const { id: connectionId } = useConnectionInfo();
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
+  const { id: connectionId } = useConnectionInfo();
 
   useTrackOnChange(
     'COMPASS-DATABASES-UI',
@@ -111,7 +112,10 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
 
   const editable = isWritable && !isPreferencesReadOnly;
   const actions = Object.assign(
-    { onDatabaseClick: openCollectionsWorkspace, onRefreshClick },
+    {
+      onDatabaseClick: openCollectionsWorkspace.bind(undefined, connectionId),
+      onRefreshClick,
+    },
     editable && !isDataLake
       ? { onDeleteDatabaseClick, onCreateDatabaseClick }
       : {}

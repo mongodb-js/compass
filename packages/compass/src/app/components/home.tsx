@@ -25,7 +25,6 @@ import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
-  ConnectionInfoProvider,
   type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
@@ -343,21 +342,12 @@ function Home({
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
-              <ConnectionInfoProvider connectionInfoId={connectionInfo?.id}>
-                {(connectionInfo) => {
-                  return (
-                    <AppRegistryProvider
-                      key={connectionInfo.id}
-                      scopeName="Connected Application"
-                    >
-                      <Workspace
-                        connectionInfo={connectionInfo}
-                        onActiveWorkspaceTabChange={onWorkspaceChange}
-                      />
-                    </AppRegistryProvider>
-                  );
-                }}
-              </ConnectionInfoProvider>
+              <AppRegistryProvider>
+                <Workspace
+                  singleConnectionConnectionInfo={connectionInfo ?? undefined}
+                  onActiveWorkspaceTabChange={onWorkspaceChange}
+                />
+              </AppRegistryProvider>
             </FieldStorePlugin>
           </CompassInstanceStorePlugin>
           {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if

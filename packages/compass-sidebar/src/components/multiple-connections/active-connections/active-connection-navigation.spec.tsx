@@ -5,12 +5,11 @@ import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
-  TEST_CONNECTION_INFO,
+  type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import userEvent from '@testing-library/user-event';
 import sinon from 'sinon';
@@ -60,7 +59,6 @@ describe('<ActiveConnectionNavigation />', function () {
         } as any,
         connectionsManager,
         logger: createNoopLoggerAndTelemetry(),
-        initialConnectionInfo: TEST_CONNECTION_INFO,
       },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
