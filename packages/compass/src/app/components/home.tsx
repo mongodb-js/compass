@@ -55,6 +55,7 @@ import {
   ImportConnectionsModal,
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
+import { usePreference } from 'compass-preferences-model/provider';
 
 resetGlobalCSS();
 
@@ -336,6 +337,10 @@ function Home({
     openConnectionImportExportModal,
   } = useConnectionImportExportModalRenderer();
 
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageProvider value={connectionStorage}>
@@ -343,41 +348,58 @@ function Home({
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
               <AppRegistryProvider>
-                <Workspace
-                  singleConnectionConnectionInfo={connectionInfo ?? undefined}
-                  onActiveWorkspaceTabChange={onWorkspaceChange}
+                <div
+                  className={
+                    !multiConnectionsEnabled && !isConnected
+                      ? hiddenStyles
+                      : undefined
+                  }
+                >
+                  <Workspace
+                    singleConnectionConnectionInfo={connectionInfo ?? undefined}
+                    onActiveWorkspaceTabChange={onWorkspaceChange}
+                  />
+                </div>
+                {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
+                  connected so that the connection import/export functionality can still
+                  be used through the application menu */}
+                <div
+                  className={
+                    multiConnectionsEnabled || isConnected
+                      ? hiddenStyles
+                      : homeViewStyles
+                  }
+                  data-hidden={multiConnectionsEnabled || isConnected}
+                  data-testid="connections"
+                >
+                  <div className={homePageStyles}>
+                    <Connections
+                      appRegistry={appRegistry}
+                      onConnected={onConnected}
+                      onConnectionFailed={onConnectionFailed}
+                      onConnectionAttemptStarted={onConnectionAttemptStarted}
+                      openConnectionImportExportModal={
+                        openConnectionImportExportModal
+                      }
+                      __TEST_INITIAL_CONNECTION_INFO={
+                        __TEST_INITIAL_CONNECTION_INFO
+                      }
+                    />
+                  </div>
+                </div>
+                <Welcome
+                  isOpen={isWelcomeOpen}
+                  closeModal={closeWelcomeModal}
                 />
+                <CompassSettingsPlugin></CompassSettingsPlugin>
+                <CompassFindInPagePlugin></CompassFindInPagePlugin>
+                <AtlasAuthPlugin></AtlasAuthPlugin>
+                <ConnectionImportModal />
+                <ConnectionExportModal />
+                <LegacyConnectionsModal />
               </AppRegistryProvider>
             </FieldStorePlugin>
           </CompassInstanceStorePlugin>
-          {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
-            connected so that the connection import/export functionality can still
-            be used through the application menu */}
-          <div
-            className={isConnected ? hiddenStyles : homeViewStyles}
-            data-hidden={isConnected}
-            data-testid="connections"
-          >
-            <div className={homePageStyles}>
-              <Connections
-                appRegistry={appRegistry}
-                onConnected={onConnected}
-                onConnectionFailed={onConnectionFailed}
-                onConnectionAttemptStarted={onConnectionAttemptStarted}
-                openConnectionImportExportModal={
-                  openConnectionImportExportModal
-                }
-                __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
-              />
-            </div>
-          </div>
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-          <CompassSettingsPlugin></CompassSettingsPlugin>
-          <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasAuthPlugin></AtlasAuthPlugin>
-          <ConnectionImportModal />
-          <ConnectionExportModal />
-          <LegacyConnectionsModal />
         </ConnectionsManagerProvider>
       </ConnectionStorageProvider>
     </FileInputBackendProvider>
