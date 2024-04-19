@@ -1,13 +1,16 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
-import type { Actions } from '@mongodb-js/compass-connections-navigation';
+import type {
+  Actions,
+  Connection,
+} from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import type { Database } from '../../modules/databases';
-import { toggleDatabaseExpanded } from '../../modules/databases';
+import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -20,19 +23,15 @@ function findCollection(ns: string, databases: Database[]) {
 }
 
 function SidebarDatabasesNavigation({
-  isDataLake,
-  isWritable,
+  connections,
   onNamespaceAction: _onNamespaceAction,
-  databases,
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
   'isReadOnly' | 'databases'
 > & {
-  databases: Database[];
-  isDataLake?: boolean;
-  isWritable?: boolean;
-  expanded?: Record<string, boolean>;
+  connections: Connection[];
+  expanded?: Record<string, Record<string, boolean> | false>;
 }) {
   const {
     openCollectionsWorkspace,
@@ -40,9 +39,12 @@ function SidebarDatabasesNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
   const preferencesReadOnly = usePreference('readOnly');
-  const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
+  const connection = connections[0];
+  const isReadOnly =
+    preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   const onNamespaceAction = useCallback(
-    (ns: string, action: Actions) => {
+    (connectionId: string, ns: string, action: Actions) => {
+      // TODO: COMPASS-7718 to use connectionId for new tabs
       switch (action) {
         case 'select-database':
           openCollectionsWorkspace(ns);
@@ -54,7 +56,11 @@ function SidebarDatabasesNavigation({
           openCollectionWorkspace(ns, { newTab: true });
           return;
         case 'modify-view': {
-          const coll = findCollection(ns, databases);
+          const coll = findCollection(
+            ns,
+            (connection.databases as Database[]) || []
+          );
+
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(coll._id, {
               sourceName: coll.sourceName,
@@ -65,12 +71,12 @@ function SidebarDatabasesNavigation({
           return;
         }
         default:
-          _onNamespaceAction(ns, action);
+          _onNamespaceAction(connectionId, ns, action);
           return;
       }
     },
     [
-      databases,
+      connection,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
@@ -80,46 +86,74 @@ function SidebarDatabasesNavigation({
 
   return (
     <ConnectionsNavigationTree
+      connections={connections}
       {...dbNavigationProps}
-      databases={databases}
       onNamespaceAction={onNamespaceAction}
       isReadOnly={isReadOnly}
     />
   );
 }
 
-function mapStateToProps(state: RootState) {
+function mapStateToProps(
+  state: RootState,
+  { connectionInfo }: { connectionInfo: ConnectionInfo }
+): {
+  isReady: boolean;
+  connections: Connection[];
+  expanded: Record<string, Record<string, boolean> | false>;
+} {
+  const connectionId = connectionInfo.id;
+  const instance = state.instance[connectionId];
   const {
-    databases: { filterRegex, filteredDatabases, expandedDbList },
-    instance,
-  } = state;
+    filterRegex,
+    filteredDatabases,
+    expandedDbList: initialExpandedDbList,
+  } = state.databases[connectionId] || {};
+
   const status = instance?.databasesStatus;
   const isReady =
     status !== undefined && !['initial', 'fetching'].includes(status);
   const defaultExpanded = Boolean(filterRegex);
+
+  const expandedDbList = initialExpandedDbList ?? {};
   const expanded = Object.fromEntries(
-    (filteredDatabases as any[]).map(({ name }) => [
+    ((filteredDatabases as any[]) || []).map(({ name }) => [
       name,
       expandedDbList[name] ?? defaultExpanded,
     ])
   );
-  const isDataLake = instance?.dataLake.isDataLake;
-  const isWritable = instance?.isWritable;
+
+  const isDataLake = instance?.dataLake?.isDataLake ?? false;
+  const isWritable = instance?.isWritable ?? false;
 
   return {
-    isReady,
-    isDataLake,
-    isWritable,
-    databases: filteredDatabases,
-    expanded,
+    isReady: true,
+    connections: [
+      {
+        isReady,
+        isDataLake,
+        isWritable,
+        name: '',
+        connectionInfo,
+        databasesLength: filteredDatabases?.length || 0,
+        databasesStatus: (status ??
+          'fetching') as Connection['databasesStatus'],
+        databases: filteredDatabases ?? [],
+      },
+    ],
+    expanded: {
+      [connectionId]: expanded,
+    },
   };
 }
 
 const onNamespaceAction = (
+  connectionId: string,
   namespace: string,
   action: Actions
 ): SidebarThunkAction<void> => {
   return (_dispatch, getState, { globalAppRegistry }) => {
+    // TODO: COMPASS-7719 to adapt modals to be multiple connection aware
     const emit = (action: string, ...rest: any[]) => {
       globalAppRegistry.emit(action, ...rest);
     };
@@ -138,7 +172,10 @@ const onNamespaceAction = (
         emit('open-create-collection', ns);
         return;
       case 'duplicate-view': {
-        const coll = findCollection(namespace, getState().databases.databases);
+        const coll = findCollection(
+          namespace,
+          getState().databases[connectionId].databases
+        );
         if (coll && coll.sourceName) {
           emit('open-create-view', {
             source: coll.sourceName,

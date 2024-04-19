@@ -2,8 +2,6 @@ import React from 'react';
 import { expect } from 'chai';
 import { render, screen, waitFor } from '@testing-library/react';
 import ActiveConnectionNavigation from './active-connection-navigation';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
@@ -12,12 +10,7 @@ import {
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createInstance } from '../../../../test/helpers';
-import {
-  InMemoryConnectionStorage,
-  type ConnectionStorage,
-  type ConnectionInfo,
-} from '@mongodb-js/connection-storage/provider';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 const mockConnections: ConnectionInfo[] = [
@@ -44,9 +37,7 @@ describe('<ActiveConnectionNavigation />', function () {
   let connectionsManager: ConnectionsManager;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  const instance = createInstance();
   const globalAppRegistry = new AppRegistry();
-  let mockConnectionStorage: ConnectionStorage;
 
   beforeEach(() => {
     connectionsManager = new ConnectionsManager({} as any);
@@ -55,32 +46,27 @@ describe('<ActiveConnectionNavigation />', function () {
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        instancesManager: {
+          listMongoDBInstances() {
+            return new Map();
           },
-          currentOp() {},
-          top() {},
-        } as DataService,
-        instance,
-        connectionStorage: new InMemoryConnectionStorage(),
+        } as any,
+        connectionsManager,
         logger: createNoopLoggerAndTelemetry(),
-        connectionInfo: TEST_CONNECTION_INFO,
+        initialConnectionInfo: TEST_CONNECTION_INFO,
       },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
-    mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);
 
     render(
-      <ConnectionStorageProvider value={mockConnectionStorage}>
-        <ConnectionsManagerProvider value={connectionsManager}>
-          <Provider store={store}>
-            <ActiveConnectionNavigation
-              activeWorkspace={{ type: 'connection' }}
-            />
-          </Provider>
-        </ConnectionsManagerProvider>
-      </ConnectionStorageProvider>
+      <ConnectionsManagerProvider value={connectionsManager}>
+        <Provider store={store}>
+          <ActiveConnectionNavigation
+            activeConnections={mockConnections}
+            activeWorkspace={{ type: 'connection' }}
+          />
+        </Provider>
+      </ConnectionsManagerProvider>
     );
   });
 

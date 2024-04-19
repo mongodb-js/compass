@@ -754,6 +754,39 @@ const tests: TestOptions[] = [
   },
   {
     type: 'aggregation',
+    databaseName: 'netflix',
+    collectionName: 'movies',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy.
+    minAccuracyForTest: 0.4,
+    userInput:
+      'What are the 5 most frequent words used in movie titles in the 1980s and 1990s combined? Sorted first by frequency count then alphabetically. output fields count and word',
+    assertResult: isDeepStrictEqualTo([
+      {
+        count: 3,
+        word: 'Alien',
+      },
+      {
+        count: 2,
+        word: 'The',
+      },
+      {
+        count: 1,
+        word: '3',
+      },
+      {
+        count: 1,
+        word: '3:',
+      },
+      {
+        count: 1,
+        word: 'A',
+      },
+    ]),
+  },
+  {
+    type: 'aggregation',
     databaseName: 'sample_airbnb',
     collectionName: 'listingsAndReviews',
     // TODO(COMPASS-7763): GPT-4 generates better results for this input.
@@ -767,12 +800,12 @@ const tests: TestOptions[] = [
       isDeepStrictEqualTo([
         {
           _id: null,
-          tvPercentage: '67%',
+          washerPercentage: '67%',
         },
       ]),
       isDeepStrictEqualTo([
         {
-          tvPercentage: '67%',
+          washerPercentage: '67%',
         },
       ]),
     ]),

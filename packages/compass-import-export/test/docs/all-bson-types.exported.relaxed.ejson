@@ -105,7 +105,7 @@
     },
     "compressedTimeSeries": {
       "$binary": {
-        "base64": "Yy8vU1pFU3pUR21RNk9mUjM4QTExQT09",
+        "base64": "CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==",
         "subType": "07"
       }
     },
