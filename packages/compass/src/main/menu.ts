@@ -128,23 +128,25 @@ function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const subMenu: MenuTemplate = [
-    connectItem(app),
-    disconnectItem(),
-    separator(),
-    {
-      label: '&Import Saved Connections',
-      click() {
-        ipcMain?.broadcastFocused('compass:open-import-connections');
-      },
+  const subMenu: MenuTemplate = [connectItem(app)];
+
+  if (!app.preferences.getPreferences().enableNewMultipleConnectionSystem) {
+    subMenu.push(disconnectItem());
+  }
+
+  subMenu.push(separator());
+  subMenu.push({
+    label: '&Import Saved Connections',
+    click() {
+      ipcMain?.broadcastFocused('compass:open-import-connections');
     },
-    {
-      label: '&Export Saved Connections',
-      click() {
-        ipcMain?.broadcastFocused('compass:open-export-connections');
-      },
+  });
+  subMenu.push({
+    label: '&Export Saved Connections',
+    click() {
+      ipcMain?.broadcastFocused('compass:open-export-connections');
     },
-  ];
+  });
 
   if (nonDarwin) {
     subMenu.push(separator());
