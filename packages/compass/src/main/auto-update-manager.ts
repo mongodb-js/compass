@@ -358,11 +358,6 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      if (isDownloadForManualCheck) {
-        ipcMain?.broadcast('autoupdate:update-download-in-progress', {
-          newVersion: updateInfo.to,
-        });
-      }
       autoUpdater.checkForUpdates();
     },
   },
