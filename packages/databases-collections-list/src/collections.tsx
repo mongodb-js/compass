@@ -75,12 +75,14 @@ function collectionPropertyToBadge({
 }
 
 const CollectionsList: React.FunctionComponent<{
+  connectionId: string;
   collections: Collection[];
   onCollectionClick(id: string): void;
-  onDeleteCollectionClick?: (id: string) => void;
+  onDeleteCollectionClick?: (connectionId: string, id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
+  connectionId,
   collections,
   onCollectionClick,
   onCreateCollectionClick,
@@ -103,7 +105,7 @@ const CollectionsList: React.FunctionComponent<{
         { name: 'index_size', label: 'Total index size' },
       ]}
       onItemClick={onCollectionClick}
-      onDeleteItemClick={onDeleteCollectionClick}
+      onDeleteItemClick={(ns) => onDeleteCollectionClick?.(connectionId, ns)}
       onCreateItemClick={onCreateCollectionClick}
       onRefreshClick={onRefreshClick}
       renderItem={({
