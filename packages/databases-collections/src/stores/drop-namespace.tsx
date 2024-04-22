@@ -7,7 +7,10 @@ import {
 } from '@mongodb-js/compass-components';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionsManager,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
@@ -15,22 +18,32 @@ type NS = ReturnType<typeof toNS>;
 
 type DropNamespaceServices = {
   globalAppRegistry: AppRegistry;
-  dataService: Pick<DataService, 'dropDatabase' | 'dropCollection'>;
+  connectionsManager: ConnectionsManager;
   logger: LoggerAndTelemetry;
 };
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, dataService, logger: { track } }: DropNamespaceServices,
+  {
+    globalAppRegistry,
+    connectionsManager,
+    logger: { track },
+  }: DropNamespaceServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
-  const onDropNamespace = async (namespace: string | NS) => {
+  const onDropNamespace = async (
+    connectionId: string,
+    namespace: string | NS
+  ) => {
     // `drop-collection` is emitted with NS, `drop-database` is emitted with a
     // string, we're keeping compat with both for now to avoid conflicts with
     // other refactoring
+    console.log(1, { connectionId, namespace });
     if (typeof namespace === 'string') {
       namespace = toNS(namespace);
     }
+
+    console.log(2, { connectionId, namespace });
     const {
       ns,
       validCollectionName: isCollection,
@@ -53,6 +66,14 @@ export function activatePlugin(
     if (confirmed) {
       try {
         const method = isCollection ? 'dropCollection' : 'dropDatabase';
+        const dataService =
+          connectionsManager.getDataServiceForConnection(connectionId);
+        if (!dataService) {
+          throw new Error(
+            'unreachable: only available when there is an open connection.'
+          );
+        }
+
         await dataService[method](ns);
         globalAppRegistry.emit(
           isCollection ? 'collection-dropped' : 'database-dropped',

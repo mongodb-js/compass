@@ -6,6 +6,7 @@ import toNS from 'mongodb-ns';
 import { render, cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
+import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 describe('DropNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
@@ -14,11 +15,14 @@ describe('DropNamespacePlugin', function () {
     dropDatabase: sandbox.stub().resolves(true),
     dropCollection: sandbox.stub().resolves(true),
   };
+  const connectionsManager = {
+    getDataServiceForConnection: sandbox.stub().returns(dataService),
+  } as any;
 
   beforeEach(function () {
     const Plugin = DropNamespacePlugin.withMockServices({
       globalAppRegistry: appRegistry,
-      dataService,
+      connectionsManager,
     });
     render(<Plugin></Plugin>);
   });

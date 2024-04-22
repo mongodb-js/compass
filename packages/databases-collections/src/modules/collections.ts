@@ -94,10 +94,16 @@ export const createNewCollection = (
 };
 
 export const deleteCollection = (
+  connectionId: string,
   namespace: string
 ): CollectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-drop-collection', toNS(namespace));
+    console.log('deleteCollection', { connectionId, namespace });
+    globalAppRegistry.emit(
+      'open-drop-collection',
+      connectionId,
+      toNS(namespace)
+    );
   };
 };
 
