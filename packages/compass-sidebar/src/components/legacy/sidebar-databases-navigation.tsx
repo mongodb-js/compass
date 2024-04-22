@@ -44,7 +44,6 @@ function SidebarDatabasesNavigation({
     preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
-      // TODO: COMPASS-7718 to use connectionId for new tabs
       switch (action) {
         case 'select-database':
           openCollectionsWorkspace(connectionId, ns);
