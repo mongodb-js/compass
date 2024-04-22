@@ -59,17 +59,6 @@ import { usePreference } from 'compass-preferences-model/provider';
 
 resetGlobalCSS();
 
-const homeViewStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
-  height: '100vh',
-});
-
-const hiddenStyles = css({
-  display: 'none',
-});
-
 const homePageStyles = css({
   display: 'flex',
   flexDirection: 'row',
@@ -348,43 +337,27 @@ function Home({
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
               <AppRegistryProvider>
-                <div
-                  data-testid="workspaces-container"
-                  className={
-                    // Workspaces renders the sidebar and the tab layout right
-                    // away and we want this to appear only when either the
-                    // multi-connections is enabled or when it is not but we are
-                    // connected to a connection
-                    !multiConnectionsEnabled && !isConnected
-                      ? hiddenStyles
-                      : undefined
-                  }
-                >
+                {multiConnectionsEnabled ? (
                   <Workspace
-                    // Workspace receives the singleConnectionConnectionInfo to
-                    // wrap the "My Queries" workspace with a
-                    // ConnectionInfoProvider. This makes sure that "My Queries"
-                    // can continue to work when FF for multi-connection is not
-                    // enabled.
+                    // Workspace receives the singleConnectionConnectionInfo
+                    // to wrap the "My Queries" workspace with a
+                    // ConnectionInfoProvider. This makes sure that "My
+                    // Queries" can continue to work when FF for
+                    // multi-connection is not enabled.
                     singleConnectionConnectionInfo={connectionInfo ?? undefined}
                     onActiveWorkspaceTabChange={onWorkspaceChange}
                   />
-                </div>
-                {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
-                  connected so that the connection import/export functionality can still
-                  be used through the application menu */}
-                <div
-                  className={
-                    // Opposite to what we do for workspace, we want to hide
-                    // this list and connection form when either the
-                    // multi-connection flag is enabled or when we are connected
-                    multiConnectionsEnabled || isConnected
-                      ? hiddenStyles
-                      : homeViewStyles
-                  }
-                  data-hidden={multiConnectionsEnabled || isConnected}
-                  data-testid="connections"
-                >
+                ) : isConnected ? (
+                  <Workspace
+                    // Workspace receives the singleConnectionConnectionInfo
+                    // to wrap the "My Queries" workspace with a
+                    // ConnectionInfoProvider. This makes sure that "My
+                    // Queries" can continue to work when FF for
+                    // multi-connection is not enabled.
+                    singleConnectionConnectionInfo={connectionInfo ?? undefined}
+                    onActiveWorkspaceTabChange={onWorkspaceChange}
+                  />
+                ) : (
                   <div className={homePageStyles}>
                     <Connections
                       appRegistry={appRegistry}
@@ -399,7 +372,7 @@ function Home({
                       }
                     />
                   </div>
-                </div>
+                )}
                 <Welcome
                   isOpen={isWelcomeOpen}
                   closeModal={closeWelcomeModal}

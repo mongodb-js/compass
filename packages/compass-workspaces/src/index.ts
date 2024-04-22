@@ -83,6 +83,26 @@ export function activateWorkspacePlugin(
 
   addCleanup(cleanupLocalAppRegistries);
 
+  const setupInstanceListeners = (instance: MongoDBInstance) => {
+    on(instance, 'change:collections._id', (collection: Collection) => {
+      const { _id: from } = collection.previousAttributes();
+      store.dispatch(collectionRenamed(from, collection.ns));
+    });
+
+    on(instance, 'remove:collections', (collection: Collection) => {
+      store.dispatch(collectionRemoved(collection.ns));
+    });
+
+    on(instance, 'remove:databases', (database: Database) => {
+      store.dispatch(databaseRemoved(database.name));
+    });
+  };
+
+  const existingInstances = instancesManager.listMongoDBInstances();
+  for (const instance of existingInstances.values()) {
+    setupInstanceListeners(instance);
+  }
+
   on(
     instancesManager,
     MongoDBInstancesManagerEvents.InstanceCreated,
@@ -90,18 +110,7 @@ export function activateWorkspacePlugin(
       connectionInfoId: ConnectionInfo['id'],
       instance: MongoDBInstance
     ) {
-      on(instance, 'change:collections._id', (collection: Collection) => {
-        const { _id: from } = collection.previousAttributes();
-        store.dispatch(collectionRenamed(from, collection.ns));
-      });
-
-      on(instance, 'remove:collections', (collection: Collection) => {
-        store.dispatch(collectionRemoved(collection.ns));
-      });
-
-      on(instance, 'remove:databases', (database: Database) => {
-        store.dispatch(databaseRemoved(database.name));
-      });
+      setupInstanceListeners(instance);
     }
   );
 

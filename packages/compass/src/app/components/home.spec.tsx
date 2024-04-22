@@ -125,10 +125,10 @@ describe('Home [Component]', function () {
   });
 
   describe('is not connected', function () {
-    it('shows the connect screen and hides the workspaces', function () {
+    it('renders the connect screen', function () {
       renderHome();
-      expect(screen.getByTestId('workspaces-container')).to.not.be.displayed;
-      expect(screen.getByTestId('connections')).to.be.displayed;
+      expect(() => screen.getByTestId('home')).to.throw;
+      expect(screen.getByTestId('connections-wrapper')).to.be.displayed;
     });
 
     it('renders welcome modal and hides it', async function () {
@@ -154,12 +154,12 @@ describe('Home [Component]', function () {
     });
 
     describe('and multi connections is enabled', function () {
-      it('hides the connect screen and shows the workspaces', function () {
+      it('renders only the workspaces', function () {
         renderHome({}, createDataService(), {
           enableNewMultipleConnectionSystem: true,
         });
-        expect(screen.getByTestId('workspaces-container')).to.be.displayed;
-        expect(screen.getByTestId('connections')).to.not.be.displayed;
+        expect(screen.getByTestId('home')).to.be.displayed;
+        expect(() => screen.getByTestId('connections-wrapper')).to.throw;
       });
     });
   });
@@ -195,9 +195,9 @@ describe('Home [Component]', function () {
         sinon.restore();
       });
 
-      it('hides the connect screen and shows the workspaces', function () {
-        expect(screen.getByTestId('workspaces-container')).to.be.displayed;
-        expect(screen.getByTestId('connections')).to.not.be.displayed;
+      it('renders only the workspaces', function () {
+        expect(screen.getByTestId('home')).to.be.displayed;
+        expect(() => screen.getByTestId('connections-wrapper')).to.throw;
       });
 
       it('on `app:disconnect`', async function () {
