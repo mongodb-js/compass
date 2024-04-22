@@ -171,20 +171,18 @@ const connectionToItems = ({
 
   return ([connectionTI] as TreeItem[]).concat(
     areDatabasesReady
-      ? databases
-          .map((database, databaseIndex) => {
-            const dbExpanded = expanded?.[connectionInfo.id] || {};
-            return databaseToItems({
-              connectionId: connectionInfo.id,
-              database,
-              connectionIndex,
-              databaseIndex,
-              databasesLength: databases.length,
-              expanded: dbExpanded,
-              level: 2,
-            });
-          })
-          .flat()
+      ? databases.flatMap((database, databaseIndex) => {
+          const dbExpanded = expanded?.[connectionInfo.id] || {};
+          return databaseToItems({
+            connectionId: connectionInfo.id,
+            database,
+            connectionIndex,
+            databaseIndex,
+            databasesLength: databases.length,
+            expanded: dbExpanded,
+            level: 2,
+          });
+        })
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: `${connectionIndex}-${index}`,
           level: 2,

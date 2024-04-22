@@ -5,7 +5,10 @@ import {
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  mongoDBInstanceLocator,
+  mongoDBInstancesManagerLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { CollectionsPlugin } from './collections-plugin';
 import {
   DropNamespaceComponent,
@@ -68,9 +71,8 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     activate: activateRenameCollectionPlugin,
   },
   {
-    dataService:
-      dataServiceLocator as typeof dataServiceLocator<'renameCollection'>,
-    instance: mongoDBInstanceLocator,
+    connectionsManager: connectionsManagerLocator,
+    instancesManager: mongoDBInstancesManagerLocator,
     queryStorage: favoriteQueryStorageAccessLocator,
     pipelineStorage: pipelineStorageLocator,
   }

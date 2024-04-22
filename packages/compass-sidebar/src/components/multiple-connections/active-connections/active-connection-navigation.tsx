@@ -58,7 +58,7 @@ const activeConnectionCountStyles = css({
   fontWeight: 'normal',
 });
 
-function ActiveConnectionNavigation({
+export function ActiveConnectionNavigation({
   activeConnections,
   connections,
   expanded,
@@ -270,7 +270,7 @@ const onNamespaceAction = (
         emit('open-drop-database', connectionId, ns.database);
         return;
       case 'rename-collection':
-        emit('open-rename-collection', ns);
+        emit('open-rename-collection', connectionId, ns);
         return;
       case 'drop-collection':
         emit('open-drop-collection', connectionId, ns);
