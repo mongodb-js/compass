@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
-describe('DropNamespacePlugin', function () {
+describe.only('DropNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
@@ -33,7 +33,7 @@ describe('DropNamespacePlugin', function () {
   });
 
   it('should ask for confirmation and delete collection on `open-drop-collection` event', async function () {
-    appRegistry.emit('open-drop-collection', toNS('test.to-drop'));
+    appRegistry.emit('open-drop-collection', 'TEST', toNS('test.to-drop'));
 
     expect(
       screen.getByText(
@@ -62,7 +62,7 @@ describe('DropNamespacePlugin', function () {
   });
 
   it('should ask for confirmation and delete database on `open-drop-database` event', async function () {
-    appRegistry.emit('open-drop-database', 'db-to-drop');
+    appRegistry.emit('open-drop-database', 'TEST', 'db-to-drop');
 
     expect(
       screen.getByText('Are you sure you want to drop database "db-to-drop"?')

@@ -20,6 +20,5 @@ export const CollectionsPlugin = registerHadronPlugin(
   {
     instance: mongoDBInstanceLocator,
     database: databaseModelLocator,
-    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
   }
 );
