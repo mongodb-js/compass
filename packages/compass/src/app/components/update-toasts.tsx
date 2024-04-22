@@ -7,8 +7,9 @@ import {
   useDarkMode,
   cx,
   Link,
+  openToast,
+  closeToast,
 } from '@mongodb-js/compass-components';
-import { openToast } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   display: 'flex',
@@ -34,26 +35,6 @@ const buttonDarkStyles = css({
   color: palette.blue.light1,
 });
 
-const linkStyles = css({
-  whiteSpace: 'nowrap',
-  textDecoration: 'none !important',
-  span: {
-    color: palette.blue.base,
-  },
-  svg: {
-    color: palette.blue.base,
-  },
-});
-
-const linkDarkStyles = css({
-  span: {
-    color: palette.blue.light1,
-  },
-  svg: {
-    color: palette.blue.light1,
-  },
-});
-
 const RestartCompassToastContent = ({
   newVersion,
   onUpdateClicked,
@@ -77,65 +58,6 @@ const RestartCompassToastContent = ({
   );
 };
 
-const ToastContentWithExternalLink = ({
-  content,
-  link,
-  linkText,
-}: {
-  content: string;
-  link: string;
-  linkText: string;
-}) => {
-  const darkmode = useDarkMode();
-  return (
-    <div className={containerStyles}>
-      <Body className={textStyles}>{content}</Body>
-      <Link
-        as="a"
-        target="_blank"
-        className={cx(linkStyles, darkmode && linkDarkStyles)}
-        href={link}
-      >
-        {linkText}
-      </Link>
-    </div>
-  );
-};
-
-const UpdateExternallyToastContent = ({
-  newVersion,
-  currentVersion,
-}: {
-  newVersion: string;
-  currentVersion: string;
-}) => {
-  const content = `You are currently using version ${currentVersion}. New version of Compass (${newVersion}) is available to install.`;
-  const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
-  return (
-    <ToastContentWithExternalLink
-      content={content}
-      link={link}
-      linkText={'Visit download center'}
-    />
-  );
-};
-
-const UpdateInstalledToastContent = ({
-  newVersion,
-}: {
-  newVersion: string;
-}) => {
-  const content = `Compass ${newVersion} is installed successfully`;
-  const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
-  return (
-    <ToastContentWithExternalLink
-      content={content}
-      linkText={'Release Notes'}
-      link={link}
-    />
-  );
-};
-
 export function onAutoupdateExternally({
   currentVersion,
   newVersion,
@@ -145,19 +67,31 @@ export function onAutoupdateExternally({
   newVersion: string;
   onDismiss: () => void;
 }) {
-  openToast('compass-update-externally', {
+  const toastId = 'compass-update-externally';
+  openToast(toastId, {
     variant: 'note',
     title: 'A new Compass version available to install',
     description: (
-      <UpdateExternallyToastContent
-        newVersion={newVersion}
-        currentVersion={currentVersion}
-      />
+      <>
+        <Body>
+          You are currently using version {currentVersion}. New version of
+          Compass {newVersion} is available.
+        </Body>
+        <Link
+          as="a"
+          target="_blank"
+          href={'https://www.mongodb.com/try/download/compass'}
+          onClick={() => {
+            closeToast(toastId);
+          }}
+        >
+          Visit download center
+        </Link>
+      </>
     ),
     onClose: onDismiss,
   });
 }
-
 export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
   openToast('compass-update-started', {
     variant: 'progress',
@@ -193,9 +127,21 @@ export function onAutoupdateSuccess({
   });
 }
 export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
-  openToast('compass-update-restarted', {
+  const toastId = 'compass-update-restarted';
+  openToast(toastId, {
     variant: 'note',
-    title: '',
-    description: <UpdateInstalledToastContent newVersion={newVersion} />,
+    title: `Compass ${newVersion} is installed successfully`,
+    description: (
+      <Link
+        as="a"
+        target="_blank"
+        href={`https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`}
+        onClick={() => {
+          closeToast(toastId);
+        }}
+      >
+        Release Notes
+      </Link>
+    ),
   });
 }
