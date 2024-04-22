@@ -98,7 +98,6 @@ export const deleteCollection = (
   namespace: string
 ): CollectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    console.log('deleteCollection', { connectionId, namespace });
     globalAppRegistry.emit(
       'open-drop-collection',
       connectionId,

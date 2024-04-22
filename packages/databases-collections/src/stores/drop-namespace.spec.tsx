@@ -6,9 +6,8 @@ import toNS from 'mongodb-ns';
 import { render, cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
-describe.only('DropNamespacePlugin', function () {
+describe('DropNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
