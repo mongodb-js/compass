@@ -72,12 +72,6 @@ const connections: Connection[] = [
   },
 ];
 
-const TEST_VIRTUAL_PROPS = {
-  __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH: 1024,
-  __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT: 768,
-  __TEST_REACT_WINDOW_OVERSCAN: Infinity,
-};
-
 const props = {
   connections,
   expanded: { turtles: { bar: true } },
@@ -85,7 +79,6 @@ const props = {
   onConnectionExpand: () => {},
   onDatabaseExpand: () => {},
   onNamespaceAction: () => {},
-  ...TEST_VIRTUAL_PROPS,
 };
 
 describe('ConnectionsNavigationTree', function () {
