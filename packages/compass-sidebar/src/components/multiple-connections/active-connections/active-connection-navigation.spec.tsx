@@ -96,6 +96,7 @@ describe('<ActiveConnectionNavigation />', function () {
   const onOpenConnectionInfoStub = sinon.stub();
   const onCopyConnectionStringStub = sinon.stub();
   const onToggleFavoriteConnectionStub = sinon.stub();
+  const onDisconnectStub = sinon.stub();
 
   const renderActiveConnectionsNavigation = async ({
     activeWorkspace = {
@@ -140,6 +141,7 @@ describe('<ActiveConnectionNavigation />', function () {
               onOpenConnectionInfo={onOpenConnectionInfoStub}
               onCopyConnectionString={onCopyConnectionStringStub}
               onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+              onDisconnect={onDisconnectStub}
             />
           </Provider>
         </ConnectionsManagerProvider>
@@ -214,6 +216,22 @@ describe('<ActiveConnectionNavigation />', function () {
       userEvent.click(favoriteBtn);
 
       expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
+    });
+
+    it('Calls onDisconnect', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const disconnectBtn = await screen.findByText('Disconnect');
+      expect(disconnectBtn).to.be.visible;
+
+      userEvent.click(disconnectBtn);
+
+      expect(onDisconnectStub).to.have.been.calledWith('turtle');
     });
   });
 
