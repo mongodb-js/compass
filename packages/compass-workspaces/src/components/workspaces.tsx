@@ -108,13 +108,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
       switch (tab.type) {
-        case 'Welcome':
-          return {
-            id: tab.id,
-            title: tab.type,
-            // TODO: Change this to correct glyph
-            iconGlyph: 'Home',
-          } as const;
         case 'My Queries':
           return {
             id: tab.id,
