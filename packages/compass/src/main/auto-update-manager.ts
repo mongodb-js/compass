@@ -438,7 +438,7 @@ const STATE_UPDATE: Record<
 
       if (!supportsAutoupdater()) {
         return shell.openExternal(
-          `https://github.com/mongodb-js/compass/releases/tag/v${updateInfo.to}`
+          'https://www.mongodb.com/try/download/compass'
         );
       }
 
