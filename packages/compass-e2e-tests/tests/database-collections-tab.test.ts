@@ -15,6 +15,32 @@ import {
   createNumbersCollection,
 } from '../helpers/insert-data';
 
+async function waitForCollectionAndBadge(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string,
+  badgeSelector: string
+) {
+  const cardSelector = Selectors.collectionCard(dbName, collectionName);
+  await browser.scrollToVirtualItem(
+    Selectors.CollectionsGrid,
+    cardSelector,
+    'grid'
+  );
+
+  // Hit refresh because depending on timing the card might appear without the
+  // badge at first. Especially in Firefox for whatever reason.
+  await browser.screenshot('click-refresh.png');
+  await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
+
+  await browser.scrollToVirtualItem(
+    Selectors.CollectionsGrid,
+    cardSelector,
+    'grid'
+  );
+  await browser.$(cardSelector).$(badgeSelector).waitForDisplayed();
+}
+
 describe('Database collections tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -196,22 +222,12 @@ describe('Database collections tab', function () {
 
     await browser.navigateToDatabaseCollectionsTab('test');
 
-    const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      selector,
-      'grid'
+    await waitForCollectionAndBadge(
+      browser,
+      'test',
+      collectionName,
+      '[data-testid="collection-badge-collation"]'
     );
-    const collectionCard = await browser.$(selector);
-    await collectionCard.waitForDisplayed();
-
-    // Hit refresh because depending on timing the card might appear without the
-    // badge at first. Especially in Firefox for whatever reason.
-    await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
-
-    await collectionCard
-      .$('[data-testid="collection-badge-collation"]')
-      .waitForDisplayed();
   });
 
   it('can create a time series collection', async function () {
@@ -239,18 +255,12 @@ describe('Database collections tab', function () {
 
     await browser.navigateToDatabaseCollectionsTab('test');
 
-    const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      selector,
-      'grid'
+    await waitForCollectionAndBadge(
+      browser,
+      'test',
+      collectionName,
+      '[data-testid="collection-badge-timeseries"]'
     );
-    const collectionCard = await browser.$(selector);
-    await collectionCard.waitForDisplayed();
-
-    await collectionCard
-      .$('[data-testid="collection-badge-timeseries"]')
-      .waitForDisplayed();
   });
 
   it('can create a time series collection with flexible bucket configuration', async function () {
@@ -258,7 +268,7 @@ describe('Database collections tab', function () {
       return this.skip();
     }
 
-    const collectionName = 'my-timeseries-collection';
+    const collectionName = 'my-flexible-timeseries-collection';
 
     // open the create collection modal from the button at the top
     await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
@@ -279,18 +289,12 @@ describe('Database collections tab', function () {
 
     await browser.navigateToDatabaseCollectionsTab('test');
 
-    const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      selector,
-      'grid'
+    await waitForCollectionAndBadge(
+      browser,
+      'test',
+      collectionName,
+      '[data-testid="collection-badge-timeseries"]'
     );
-    const collectionCard = await browser.$(selector);
-    await collectionCard.waitForDisplayed();
-
-    await collectionCard
-      .$('[data-testid="collection-badge-timeseries"]')
-      .waitForDisplayed();
   });
 
   it('can create a clustered collection', async function () {
@@ -317,18 +321,12 @@ describe('Database collections tab', function () {
 
     await browser.navigateToDatabaseCollectionsTab('test');
 
-    const selector = Selectors.collectionCard('test', collectionName);
-    await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      selector,
-      'grid'
+    await waitForCollectionAndBadge(
+      browser,
+      'test',
+      collectionName,
+      '[data-testid="collection-badge-clustered"]'
     );
-    const collectionCard = await browser.$(selector);
-    await collectionCard.waitForDisplayed();
-
-    await collectionCard
-      .$('[data-testid="collection-badge-clustered"]')
-      .waitForDisplayed();
 
     await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
 
