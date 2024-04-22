@@ -81,6 +81,7 @@ describe('Collections [Plugin]', function () {
       userEvent.click(screen.getByRole('button', { name: /Delete/ }));
       expect(appRegistry.emit).to.have.been.calledWithMatch(
         'open-drop-collection',
+        'TEST',
         { ns: 'foo.bar' }
       );
     });

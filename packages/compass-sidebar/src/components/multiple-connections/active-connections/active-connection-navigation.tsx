@@ -284,13 +284,13 @@ const onNamespaceAction = (
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':
-        emit('open-drop-database', ns.database);
+        emit('open-drop-database', connectionId, ns.database);
         return;
       case 'rename-collection':
         emit('open-rename-collection', connectionId, ns);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns);
+        emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
         emit('open-create-collection', ns);
