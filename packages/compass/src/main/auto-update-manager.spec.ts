@@ -298,8 +298,9 @@ describe('CompassAutoUpdateManager', function () {
   });
 
   describe('when update is downloaded and ready to install', function () {
+    let quitAndInstallStub: Sinon.SinonStub;
     beforeEach(function () {
-      sandbox.stub(autoUpdater);
+      quitAndInstallStub = sandbox.stub(autoUpdater, 'quitAndInstall');
     });
 
     it('should restart the app if user confirms', async function () {
@@ -323,7 +324,7 @@ describe('CompassAutoUpdateManager', function () {
       ).to.eq(true);
 
       expect(restartToastIpcPrompt).to.be.calledOnce;
-      expect(autoUpdater.quitAndInstall).to.be.calledOnce;
+      expect(quitAndInstallStub).to.be.calledOnce;
     });
 
     it('should transition to restart dismissed if user does not confirm restart', async function () {

@@ -313,12 +313,6 @@ const app = {
         onAutoupdateExternally({
           newVersion,
           currentVersion,
-          onUpdate: () => {
-            console.log('update clicked');
-          },
-          onDismiss: () => {
-            console.log('dismiss clicked');
-          },
         });
       }
     );
