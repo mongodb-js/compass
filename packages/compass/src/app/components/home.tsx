@@ -349,13 +349,23 @@ function Home({
             <FieldStorePlugin>
               <AppRegistryProvider>
                 <div
+                  data-testid="workspaces-container"
                   className={
+                    // Workspaces renders the sidebar and the tab layout right
+                    // away and we want this to appear only when either the
+                    // multi-connections is enabled or when it is not but we are
+                    // connected to a connection
                     !multiConnectionsEnabled && !isConnected
                       ? hiddenStyles
                       : undefined
                   }
                 >
                   <Workspace
+                    // Workspace receives the singleConnectionConnectionInfo to
+                    // wrap the "My Queries" workspace with a
+                    // ConnectionInfoProvider. This makes sure that "My Queries"
+                    // can continue to work when FF for multi-connection is not
+                    // enabled.
                     singleConnectionConnectionInfo={connectionInfo ?? undefined}
                     onActiveWorkspaceTabChange={onWorkspaceChange}
                   />
@@ -365,6 +375,9 @@ function Home({
                   be used through the application menu */}
                 <div
                   className={
+                    // Opposite to what we do for workspace, we want to hide
+                    // this list and connection form when either the
+                    // multi-connection flag is enabled or when we are connected
                     multiConnectionsEnabled || isConnected
                       ? hiddenStyles
                       : homeViewStyles

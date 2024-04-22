@@ -178,10 +178,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
-      case 'Welcome': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component></Component>;
-      }
+      // TODO: Remove the ConnectionInfoProvider when we make My Queries
+      // workspace work independently of a DataService
       case 'My Queries': {
         const Component = getWorkspacePluginByName(activeTab.type);
         return (

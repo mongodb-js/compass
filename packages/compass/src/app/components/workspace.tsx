@@ -67,12 +67,6 @@ export default function Workspace({
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
         value={[
-          {
-            name: 'Welcome',
-            component: function Welcome() {
-              return <div>Welcome</div>;
-            },
-          },
           MyQueriesWorkspace,
           PerformanceWorkspace,
           DatabasesWorkspaceTab,
