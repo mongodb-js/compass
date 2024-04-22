@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-disable valid-jsdoc */
 const fs = require('fs');
 const path = require('path');

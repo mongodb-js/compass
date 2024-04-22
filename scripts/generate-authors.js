@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Generate an AUTHOR file on the repo root and on each lerna package based on git log.
  *

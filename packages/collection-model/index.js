@@ -1,3 +1,4 @@
+'use strict';
 var ExtendedCollectionModel = require('./lib/model');
 var ExtendedCollectionModelCollection = require('./lib/model').Collection;
 

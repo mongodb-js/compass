@@ -1,3 +1,4 @@
+'use strict';
 // @ts-check
 const path = require('path');
 // @ts-ignore

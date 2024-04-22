@@ -1,3 +1,4 @@
+'use strict';
 /* eslint complexity: 0, camelcase: 0, "new-cap": 0 */
 const {
   BsonTranspilersAttributeError,

@@ -1,3 +1,4 @@
+'use strict';
 const PROPERTIES_COLLATION = 'collation';
 const PROPERTIES_TIME_SERIES = 'timeseries';
 const PROPERTIES_CAPPED = 'capped';

@@ -1,3 +1,4 @@
+'use strict';
 const detect = require('./detect-coordinates');
 const assert = require('assert');
 const legacyPairs = require('../../test/fixtures/legacy_pairs.json');

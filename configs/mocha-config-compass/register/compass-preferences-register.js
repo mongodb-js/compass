@@ -1,3 +1,4 @@
+'use strict';
 let setupPreferencesPromise;
 
 module.exports = {
