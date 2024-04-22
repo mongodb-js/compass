@@ -30,7 +30,7 @@ const readYAML = (filename) => {
   return parseResult;
 };
 
-describe('Casting tests', () => {
+describe('Casting tests', function() {
   if (modes.length > 0 && modes.indexOf('casting') === -1) {
     return;
   }
@@ -64,8 +64,8 @@ describe('Casting tests', () => {
           doc.BsonSymbols, doc.NativeSymbols);
         transpiler.Syntax = doc.Syntax;
         transpiler.SYMBOL_TYPE = doc.SymbolTypes;
-        describe(`from ${input} to ${output}`, () => {
-          it(test.description, () => {
+        describe(`from ${input} to ${output}`, function() {
+          it(test.description, function() {
             if (test.input[input].args) {
               transpiler.Symbols.TestFunc.args = test.input[input].args.map((t) => {
                 return t.map((k) => ( k !== null ? transpiler.Types[k] : k ));

@@ -73,17 +73,17 @@ fs.readdirSync(testpath).map((file) => {
   if (modes.length > 0 && modes.indexOf(mode) === -1) {
     return;
   }
-  describe(mode, () => {
+  describe(mode, function() {
     const tests = readYAML(path.join(testpath, file));
     for (const type of Object.keys(tests.tests)) {
       if (skipType.indexOf(type) !== -1) {
         continue;
       }
-      describe(`${type}`, () => {
+      describe(`${type}`, function() {
         for (const test of tests.tests[type]) {
           const description = test.description
             ? (d) => {
-              describe(`${test.description}`, () => (d()));
+              describe(`${test.description}`, function() { return d(); });
             }
             : (d) => (d());
           description(() => {
@@ -97,7 +97,7 @@ fs.readdirSync(testpath).map((file) => {
                   continue;
                 }
                 if (test.output && output === 'object') { // Can't import libraries from YAML, so un-stringify it first
-                  it(`${input}: ${test.input[input]} => runnable object`, () => {
+                  it(`${input}: ${test.input[input]} => runnable object`, function() {
                     const expected = executeJavascript(test.output.object);
                     const actual = transpiler[input].object.compile(test.input[input]);
                     if (expected && typeof expected === 'object' && '_bsontype' in expected) {

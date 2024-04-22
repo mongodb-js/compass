@@ -53,6 +53,7 @@ const uploadManifest = async(manifest) => {
 };
 
 const downloadAssetFromEvergreen = ({ name, path: dest }) => {
+  // eslint-disable-next-line no-async-promise-executor
   return new Promise(async(resolve, reject) => {
     requireEnvironmentVariables([
       'EVERGREEN_BUCKET_NAME',
