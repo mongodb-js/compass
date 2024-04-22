@@ -205,6 +205,10 @@ describe('Database collections tab', function () {
     const collectionCard = await browser.$(selector);
     await collectionCard.waitForDisplayed();
 
+    // Hit refresh because depending on timing the card might appear without the
+    // badge at first. Especially in Firefox for whatever reason.
+    await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
+
     await collectionCard
       .$('[data-testid="collection-badge-collation"]')
       .waitForDisplayed();
