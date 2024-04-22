@@ -518,7 +518,7 @@ const STATE_UPDATE: Record<
         { releaseVersion: updateInfo.to, isDownloadForManualCheck }
       );
 
-      if (isDownloadForManualCheck) {
+      if (!isDownloadForManualCheck) {
         ipcMain?.broadcast('autoupdate:download-update-externally', {
           currentVersion: updateInfo.from,
           newVersion: updateInfo.to,
@@ -771,6 +771,11 @@ class CompassAutoUpdateManager {
     ipcMain?.on(
       'autoupdate:update-download-restart-dismissed',
       this.handleIpcUpdateDownloadRestartDismissed.bind(this)
+    );
+
+    ipcMain?.on(
+      'autoupdate:download-update-dismissed',
+      this.setState.bind(this, AutoUpdateManagerState.UpdateDismissed)
     );
 
     const { preferences } = compassApp;

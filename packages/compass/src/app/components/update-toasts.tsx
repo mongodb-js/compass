@@ -105,9 +105,11 @@ const ToastContentWithExternalLink = ({
 export function onAutoupdateExternally({
   currentVersion,
   newVersion,
+  onDismiss,
 }: {
   currentVersion: string;
   newVersion: string;
+  onDismiss: () => void;
 }) {
   const content = `You are currently using version ${currentVersion}. New version of Compass (${newVersion}) is available to install.`;
   const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
@@ -121,6 +123,7 @@ export function onAutoupdateExternally({
         linkText={'Visit download center'}
       />
     ),
+    onClose: onDismiss,
   });
 }
 

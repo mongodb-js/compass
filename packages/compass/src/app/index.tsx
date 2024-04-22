@@ -313,6 +313,9 @@ const app = {
         onAutoupdateExternally({
           newVersion,
           currentVersion,
+          onDismiss: () => {
+            void ipcRenderer?.call('autoupdate:download-update-dismissed');
+          },
         });
       }
     );

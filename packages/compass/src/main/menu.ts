@@ -509,9 +509,9 @@ class CompassMenu {
           case AutoUpdateManagerState.UpdateAvailable:
           case AutoUpdateManagerState.UpdateDismissed:
           case AutoUpdateManagerState.DownloadingError:
+          case AutoUpdateManagerState.PromptToUpdateExternally:
           case AutoUpdateManagerState.Restarting:
             return 'idle';
-          case AutoUpdateManagerState.PromptToUpdateExternally:
           case AutoUpdateManagerState.ManualDownload:
           case AutoUpdateManagerState.DownloadingUpdate:
             return 'installing updates';
