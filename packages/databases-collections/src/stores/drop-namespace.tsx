@@ -38,12 +38,10 @@ export function activatePlugin(
     // `drop-collection` is emitted with NS, `drop-database` is emitted with a
     // string, we're keeping compat with both for now to avoid conflicts with
     // other refactoring
-    console.log(1, { connectionId, namespace });
     if (typeof namespace === 'string') {
       namespace = toNS(namespace);
     }
 
-    console.log(2, { connectionId, namespace });
     const {
       ns,
       validCollectionName: isCollection,
