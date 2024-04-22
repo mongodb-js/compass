@@ -1,6 +1,9 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import { useConnections } from '@mongodb-js/compass-connections/provider';
+import {
+  useActiveConnections,
+  useConnections,
+} from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
   getConnectionTitle,
@@ -81,6 +84,7 @@ export function MultipleConnectionSidebar({
 }: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
+  const activeConnections = useActiveConnections();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
 
@@ -266,7 +270,10 @@ export function MultipleConnectionSidebar({
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
-        <ActiveConnectionNavigation activeWorkspace={activeWorkspace} />
+        <ActiveConnectionNavigation
+          activeConnections={activeConnections}
+          activeWorkspace={activeWorkspace}
+        />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}

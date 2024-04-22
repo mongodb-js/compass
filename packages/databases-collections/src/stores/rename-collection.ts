@@ -1,18 +1,18 @@
 import { legacy_createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
-import type { MongoDBInstance } from 'mongodb-instance-model';
 import type {
   FavoriteQueryStorageAccess,
   PipelineStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import { type MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 
 export type RenameCollectionPluginServices = {
-  dataService: Pick<DataService, 'renameCollection'>;
   globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
+  connectionsManager: ConnectionsManager;
+  instancesManager: MongoDBInstancesManager;
   queryStorage?: FavoriteQueryStorageAccess;
   pipelineStorage?: PipelineStorage;
 };
@@ -21,8 +21,8 @@ export function activateRenameCollectionPlugin(
   _: unknown,
   {
     globalAppRegistry,
-    dataService,
-    instance,
+    connectionsManager,
+    instancesManager,
     queryStorage,
     pipelineStorage,
   }: RenameCollectionPluginServices
@@ -50,12 +50,24 @@ export function activateRenameCollectionPlugin(
     applyMiddleware(
       thunk.withExtraArgument({
         globalAppRegistry,
-        dataService,
+        instancesManager,
+        connectionsManager,
       })
     )
   );
 
-  const onRenameCollection = (ns: { database: string; collection: string }) => {
+  const onRenameCollection = (
+    connectionId: string,
+    ns: { database: string; collection: string }
+  ) => {
+    const instance =
+      instancesManager.getMongoDBInstanceForConnection(connectionId);
+    if (!instance) {
+      throw new Error(
+        'unreachable: this modal is only shown when the connection is open.'
+      );
+    }
+
     const collections: { name: string }[] =
       instance.databases.get(ns.database)?.collections ?? [];
     void checkIfSavedQueriesAndAggregationsExist(
@@ -63,6 +75,7 @@ export function activateRenameCollectionPlugin(
     ).then((areSavedQueriesAndAggregationsImpacted) => {
       store.dispatch(
         open({
+          connectionId,
           db: ns.database,
           collection: ns.collection,
           collections,

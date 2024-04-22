@@ -95,7 +95,7 @@ export const ConnectionItem: React.FunctionComponent<
 
   const onAction = useCallback(
     (action: Actions) => {
-      onNamespaceAction(id, action);
+      onNamespaceAction(id, id, action);
     },
     [id, onNamespaceAction]
   );

@@ -7,7 +7,7 @@ import {
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
 import { cloneDeep, merge } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
+import { UUID } from 'bson';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -42,7 +42,7 @@ type RecursivePartial<T> = {
 
 export function createNewConnectionInfo(): ConnectionInfo {
   return {
-    id: uuidv4(),
+    id: new UUID().toString(),
     connectionOptions: {
       connectionString: 'mongodb://localhost:27017',
     },
@@ -507,7 +507,7 @@ export function useConnections({
     duplicateConnection(connectionInfo: ConnectionInfo) {
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
-        id: uuidv4(),
+        id: new UUID().toString(),
       };
 
       if (duplicate.favorite?.name) {
