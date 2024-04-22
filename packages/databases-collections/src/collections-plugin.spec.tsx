@@ -50,6 +50,7 @@ describe('Collections [Plugin]', function () {
     beforeEach(async function () {
       const Plugin = CollectionsPlugin.withMockServices({
         instance: mongodbInstance,
+        database: mongodbInstance.databases.get('foo'),
         globalAppRegistry: appRegistry,
         dataService,
       });

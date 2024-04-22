@@ -194,7 +194,7 @@ export function createServiceLocator<
  * function to allow usage of serviceLocator functions in providers outside of
  * the usual hadron plugin "activate" lifecycle.
  */
-export function createServiceProvider<T extends React.FunctionComponent>(
+export function createServiceProvider<T extends React.FunctionComponent<any>>(
   fn: T
 ): T {
   const displayName = `ServiceProvider(${fn.displayName ?? fn.name})`;

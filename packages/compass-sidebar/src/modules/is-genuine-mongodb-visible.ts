@@ -1,3 +1,4 @@
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootAction } from '.';
 
 /**
@@ -12,15 +13,20 @@ export const TOGGLE_IS_GENUINE_MONGODB_VISIBLE =
   `${PREFIX}/TOGGLE_IS_GENUINE_MONGODB_VISIBLE` as const;
 interface ToggleIsGenuineMongoDBVisibleAction {
   type: typeof TOGGLE_IS_GENUINE_MONGODB_VISIBLE;
+  connectionId: ConnectionInfo['id'];
   isVisible: boolean;
 }
 export type IsGenuineMongoDBVisibleAction = ToggleIsGenuineMongoDBVisibleAction;
-export type IsGenuineMongoDBVisibleState = boolean;
+export type IsGenuineMongoDBVisibleState = Record<
+  ConnectionInfo['id'],
+  boolean
+>;
+export type IsGenuineMongoDBVisibleSingleState = boolean;
 
 /**
  * The initial state of the is visible attribute.
  */
-export const INITIAL_STATE: IsGenuineMongoDBVisibleState = false;
+export const INITIAL_STATE: IsGenuineMongoDBVisibleState = {};
 
 /**
  * Reducer function for handle state changes to is visible.
@@ -35,7 +41,10 @@ export default function reducer(
   action: RootAction
 ): IsGenuineMongoDBVisibleState {
   if (action.type === TOGGLE_IS_GENUINE_MONGODB_VISIBLE) {
-    return action.isVisible;
+    return {
+      ...state,
+      [action.connectionId]: action.isVisible,
+    };
   }
   return state;
 }
@@ -48,8 +57,10 @@ export default function reducer(
  * @returns {Object} The action.
  */
 export const toggleIsGenuineMongoDBVisible = (
+  connectionId: ConnectionInfo['id'],
   isVisible: boolean
 ): ToggleIsGenuineMongoDBVisibleAction => ({
   type: TOGGLE_IS_GENUINE_MONGODB_VISIBLE,
-  isVisible: isVisible,
+  connectionId,
+  isVisible,
 });

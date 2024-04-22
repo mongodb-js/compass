@@ -15,8 +15,8 @@ import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import {
   type ConnectionStorage,
   ConnectionStorageProvider,
+  InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import { useCanOpenNewConnections } from './use-can-open-new-connections';
 
 const FAVORITE_CONNECTION_INFO: ConnectionInfo = {
@@ -57,15 +57,10 @@ describe('useCanOpenNewConnections', function () {
   beforeEach(async function () {
     preferencesAccess = await createSandboxFromDefaultPreferences();
     connectionManager = new ConnectionsManager({} as any);
-    connectionStorage = {
-      loadAll() {
-        return Promise.resolve([
-          FAVORITE_CONNECTION_INFO,
-          NONFAVORITE_CONNECTION_INFO,
-        ]);
-      },
-      events: new ConnectionStorageBus(),
-    } as ConnectionStorage;
+    connectionStorage = new InMemoryConnectionStorage([
+      FAVORITE_CONNECTION_INFO,
+      NONFAVORITE_CONNECTION_INFO,
+    ]);
 
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>

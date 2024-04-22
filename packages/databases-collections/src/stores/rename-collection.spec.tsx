@@ -9,17 +9,7 @@ import { render, cleanup, screen, waitFor } from '@testing-library/react';
 describe('RenameCollectionPlugin', function () {
   const sandbox = Sinon.createSandbox();
   const appRegistry = sandbox.spy(new AppRegistry());
-  const dataService = {
-    renameCollection: sandbox.stub().resolves({}),
-  };
-  const favoriteQueries = {
-    getStorage: () => ({
-      loadAll: sandbox.stub().resolves([]),
-    }),
-  };
-  const pipelineStorage = {
-    loadAll: sandbox.stub().resolves([]),
-  };
+  const connectionsManager = {};
   const instanceModel = {
     databases: {
       get: function () {
@@ -29,11 +19,22 @@ describe('RenameCollectionPlugin', function () {
       },
     },
   };
+  const instancesManager = {
+    getMongoDBInstanceForConnection: sandbox.stub().returns(instanceModel),
+  };
+  const favoriteQueries = {
+    getStorage: () => ({
+      loadAll: sandbox.stub().resolves([]),
+    }),
+  };
+  const pipelineStorage = {
+    loadAll: sandbox.stub().resolves([]),
+  };
   beforeEach(function () {
     const Plugin = RenameCollectionPlugin.withMockServices({
       globalAppRegistry: appRegistry,
-      dataService,
-      instance: instanceModel as any,
+      connectionsManager: connectionsManager as any,
+      instancesManager: instancesManager as any,
       queryStorage: favoriteQueries as any,
       pipelineStorage: pipelineStorage as any,
     });
@@ -47,7 +48,7 @@ describe('RenameCollectionPlugin', function () {
   });
 
   it('handles the open-rename-collection event', async function () {
-    appRegistry.emit('open-rename-collection', {
+    appRegistry.emit('open-rename-collection', '12345', {
       database: 'foo',
       collection: 'bar',
     });

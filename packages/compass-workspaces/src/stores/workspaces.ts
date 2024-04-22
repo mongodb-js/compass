@@ -176,7 +176,7 @@ const reducer: Reducer<WorkspacesState> = (
 ) => {
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
     const newTab = getInitialTabState(action.workspace);
-    if (action.newTab) {
+    if (action.newTab === true) {
       return {
         ...state,
         tabs: [...state.tabs, newTab],
@@ -184,15 +184,16 @@ const reducer: Reducer<WorkspacesState> = (
       };
     }
     const activeTab = getActiveTab(state);
-    // If current tab type is the same as the new one we're trying to open and
-    // the workspaces are not equal, replace the current tab with the new one
+    // If we're explicitly trying NOT to open a new tab OR current tab type is
+    // the same as the new one we're trying to open and the workspaces are not
+    // equal, replace the current tab with the new one
     if (
-      activeTab?.type === newTab.type &&
-      !isWorkspaceEqual(activeTab, newTab)
+      action.newTab === false ||
+      (activeTab?.type === newTab.type && !isWorkspaceEqual(activeTab, newTab))
     ) {
-      const activeTabIndex = getActiveTabIndex(state);
+      const toReplaceIndex = action.atIndex ?? getActiveTabIndex(state);
       const newTabs = [...state.tabs];
-      newTabs.splice(activeTabIndex, 1, newTab);
+      newTabs.splice(toReplaceIndex, 1, newTab);
       return {
         ...state,
         tabs: newTabs,
@@ -486,6 +487,7 @@ type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
   workspace: OpenWorkspaceOptions;
   newTab?: boolean;
+  atIndex?: number;
 };
 
 type FetchCollectionInfoAction = {
@@ -494,11 +496,20 @@ type FetchCollectionInfoAction = {
   info: CollectionTabInfo;
 };
 
-export type TabOptions = { newTab?: boolean };
+export type TabOptions = {
+  /**
+   * Optional
+   *  * If set to `true`, always opens workspace in a new tab
+   *  * If set to `false`, always opens workspace in the same tab
+   *  * If `undefined`, tries to autodetect whether or not the tab should be opened
+   *    in a new tab or not (see workspaces reducer for the autodetection logic)
+   */
+  newTab?: boolean;
+};
 
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
-  tabOptions?: TabOptions
+  tabOptions?: TabOptions & { atIndex?: number }
 ): WorkspacesThunkAction<
   void,
   OpenWorkspaceAction | FetchCollectionInfoAction
@@ -552,7 +563,8 @@ export const openWorkspace = (
     dispatch({
       type: WorkspacesActions.OpenWorkspace,
       workspace: workspaceOptions,
-      newTab: !!tabOptions?.newTab,
+      newTab: tabOptions?.newTab,
+      atIndex: tabOptions?.atIndex,
     });
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
@@ -679,5 +691,27 @@ export const collectionSubtabSelected = (
   tabId,
   subTab,
 });
+
+export const openFallbackTab = (
+  tab: WorkspaceTab,
+  fallbackNamespace?: string | null
+): WorkspacesThunkAction<void> => {
+  return (dispatch, getState) => {
+    const oldTabs = getState().tabs;
+    const options: OpenWorkspaceOptions = fallbackNamespace
+      ? {
+          type: toNS(fallbackNamespace).collection
+            ? 'Collection'
+            : 'Collections',
+          namespace: fallbackNamespace,
+        }
+      : { type: 'Databases' };
+    const tabIndex = getState().tabs.findIndex((ws) => {
+      return ws.id === tab.id;
+    });
+    dispatch(openWorkspace(options, { newTab: false, atIndex: tabIndex }));
+    cleanupRemovedTabs(oldTabs, getState().tabs);
+  };
+};
 
 export default reducer;

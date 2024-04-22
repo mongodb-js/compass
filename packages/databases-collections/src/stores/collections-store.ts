@@ -3,15 +3,18 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { collectionsReducer } from '../modules';
 import type AppRegistry from 'hadron-app-registry';
-import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { collectionsChanged, instanceChanged } from '../modules/collections';
-import type Database from 'mongodb-database-model';
+import type {
+  MongoDBInstance,
+  Database,
+} from '@mongodb-js/compass-app-stores/provider';
 
 export type CollectionsServices = {
   globalAppRegistry: AppRegistry;
   instance: MongoDBInstance;
+  database: Database;
   dataService: DataService;
 };
 
@@ -22,16 +25,10 @@ export type CollectionsThunkExtraArg = {
 };
 
 export function activatePlugin(
-  { namespace }: { namespace: string },
-  { globalAppRegistry, instance, dataService }: CollectionsServices,
+  _initialProps: { namespace: string },
+  { globalAppRegistry, instance, dataService, database }: CollectionsServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const database = instance.databases.get(namespace);
-
-  if (!database) {
-    throw new Error("Can't activate collections workspace without database");
-  }
-
   const store = createStore(
     collectionsReducer,
     {
