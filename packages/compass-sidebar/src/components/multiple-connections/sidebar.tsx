@@ -26,11 +26,12 @@ import type { SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 type MultipleConnectionSidebarProps = {
-  activeWorkspace: { type: string; namespace?: string } | null;
+  activeWorkspace: WorkspaceTab | null;
   onSidebarAction(action: string, ...rest: any[]): void;
 };
 

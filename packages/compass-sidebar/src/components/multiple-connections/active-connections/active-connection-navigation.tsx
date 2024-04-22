@@ -22,6 +22,7 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -82,7 +83,7 @@ export function ActiveConnectionNavigation({
   isDataLake?: boolean;
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
-  activeWorkspace: { type: string; namespace?: string } | null;
+  activeWorkspace: WorkspaceTab | null;
   onOpenConnectionInfo: (connectionId: string) => void;
   onCopyConnectionString: (connectionId: string) => void;
   onToggleFavoriteConnection: (connectionId: string) => void;
@@ -99,17 +100,19 @@ export function ActiveConnectionNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
-  const onConnectionToggle = (connectionId: string, forceExpand: boolean) => {
-    if (!forceExpand && !collapsed.includes(connectionId))
-      setCollapsed([...collapsed, connectionId]);
-    else if (forceExpand && collapsed.includes(connectionId)) {
-      const index = collapsed.indexOf(connectionId);
-      setCollapsed([
-        ...collapsed.slice(0, index),
-        ...collapsed.slice(index + 1),
-      ]);
-    }
-  };
+  const onConnectionToggle = useCallback(
+    (connectionId: string, forceExpand: boolean) => {
+      if (!forceExpand && !collapsed.includes(connectionId))
+        setCollapsed((collapsed) => [...collapsed, connectionId]);
+      else if (forceExpand && collapsed.includes(connectionId)) {
+        setCollapsed((collapsed) => {
+          const index = collapsed.indexOf(connectionId);
+          return [...collapsed.slice(0, index), ...collapsed.slice(index + 1)];
+        });
+      }
+    },
+    [setCollapsed, collapsed]
+  );
 
   useEffect(() => {
     // cleanup connections that are no longer active
@@ -195,7 +198,7 @@ export function ActiveConnectionNavigation({
       <ConnectionsNavigationTree
         isReady={true}
         connections={connections}
-        activeNamespace={activeWorkspace?.namespace}
+        activeWorkspace={activeWorkspace ?? undefined}
         onNamespaceAction={onNamespaceAction}
         onConnectionSelect={(connectionId) =>
           openDatabasesWorkspace(connectionId)
