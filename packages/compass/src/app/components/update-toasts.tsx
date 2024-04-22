@@ -102,6 +102,40 @@ const ToastContentWithExternalLink = ({
   );
 };
 
+const UpdateExternallyToastContent = ({
+  newVersion,
+  currentVersion,
+}: {
+  newVersion: string;
+  currentVersion: string;
+}) => {
+  const content = `You are currently using version ${currentVersion}. New version of Compass (${newVersion}) is available to install.`;
+  const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
+  return (
+    <ToastContentWithExternalLink
+      content={content}
+      link={link}
+      linkText={'Visit download center'}
+    />
+  );
+};
+
+const UpdateInstalledToastContent = ({
+  newVersion,
+}: {
+  newVersion: string;
+}) => {
+  const content = `Compass ${newVersion} is installed successfully`;
+  const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
+  return (
+    <ToastContentWithExternalLink
+      content={content}
+      linkText={'Release Notes'}
+      link={link}
+    />
+  );
+};
+
 export function onAutoupdateExternally({
   currentVersion,
   newVersion,
@@ -111,16 +145,13 @@ export function onAutoupdateExternally({
   newVersion: string;
   onDismiss: () => void;
 }) {
-  const content = `You are currently using version ${currentVersion}. New version of Compass (${newVersion}) is available to install.`;
-  const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
-  openToast('update-externally', {
+  openToast('compass-update-externally', {
     variant: 'note',
     title: 'A new Compass version available to install',
     description: (
-      <ToastContentWithExternalLink
-        content={content}
-        link={link}
-        linkText={'Visit download center'}
+      <UpdateExternallyToastContent
+        newVersion={newVersion}
+        currentVersion={currentVersion}
       />
     ),
     onClose: onDismiss,
@@ -162,17 +193,9 @@ export function onAutoupdateSuccess({
   });
 }
 export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
-  const content = `Compass ${newVersion} is installed successfully`;
-  const link = `https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`;
   openToast('compass-update-restarted', {
     variant: 'note',
     title: '',
-    description: (
-      <ToastContentWithExternalLink
-        content={content}
-        linkText={'Release Notes'}
-        link={link}
-      />
-    ),
+    description: <UpdateInstalledToastContent newVersion={newVersion} />,
   });
 }

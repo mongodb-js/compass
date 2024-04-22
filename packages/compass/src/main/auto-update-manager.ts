@@ -531,7 +531,7 @@ const STATE_UPDATE: Record<
         title: 'New version available',
         message: 'A new version of Compass is available to install',
         detail: `Compass ${updateInfo.to} is available. You are currently using ${updateInfo.from}. Would you like to download it now?`,
-        buttons: ['Download', 'Ask me later'],
+        buttons: ['Visit download center', 'Ask me later'],
         cancelId: 1,
       });
 
