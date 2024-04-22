@@ -372,8 +372,7 @@ async function createWorkspace({
   );
 
   const eslintrcPath = path.join(packagePath, '.eslintrc.js');
-  const eslintrcContent = `\
-'use strict';
+  const eslintrcContent = `
 module.exports = {
   root: true,
   extends: ['@mongodb-js/eslint-config-compass${isPlugin ? '/plugin' : ''}'],
@@ -387,9 +386,7 @@ module.exports = {
   const eslintIgnoreContent = '.nyc-output\ndist\n';
 
   const mocharcPath = path.join(packagePath, '.mocharc.js');
-  const mocharcContent = `\
-'use strict';
-module.exports = require('${
+  const mocharcContent = `module.exports = require('${
     isPlugin
       ? '@mongodb-js/mocha-config-compass/compass-plugin'
       : isReact
@@ -401,7 +398,7 @@ module.exports = require('${
 
   const indexSrcPath = path.join(indexSrcDir, 'index.ts');
   const indexSrcContent = isPlugin
-    ? `\
+    ? `
 import { registerHadronPlugin } from "hadron-app-registry";
 
 const Plugin = registerHadronPlugin({
@@ -418,7 +415,7 @@ export default Plugin;
 
   const indexSpecPath = path.join(indexSrcDir, 'index.spec.tsx');
   const indexSpecContent = isPlugin
-    ? `\
+    ? `
 import React from 'react';
 import { expect } from 'chai';
 import { cleanup, render } from '@testing-library/react';
