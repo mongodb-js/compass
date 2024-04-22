@@ -71,6 +71,7 @@ import { setupIntercom } from '@mongodb-js/compass-intercom';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
+  onAutoupdateExternally,
   onAutoupdateFailed,
   onAutoupdateStarted,
   onAutoupdateSuccess,
@@ -299,6 +300,27 @@ const app = {
       globalAppRegistry.emit('open-active-namespace-import');
     });
     // Autoupdate handlers
+    ipcRenderer?.on(
+      'autoupdate:download-update-externally',
+      (
+        _,
+        {
+          newVersion,
+          currentVersion,
+        }: { newVersion: string; currentVersion: string }
+      ) => {
+        onAutoupdateExternally({
+          newVersion,
+          currentVersion,
+          onUpdate: () => {
+            console.log('update clicked');
+          },
+          onDismiss: () => {
+            console.log('dismiss clicked');
+          },
+        });
+      }
+    );
     ipcRenderer?.on(
       'autoupdate:update-download-in-progress',
       onAutoupdateStarted

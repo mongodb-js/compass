@@ -5,9 +5,8 @@ import {
   AutoUpdateManagerState,
   CompassAutoUpdateManager,
 } from './auto-update-manager';
-import autoUpdater from './auto-updater';
 import type { DownloadItem } from 'electron';
-import { dialog } from 'electron';
+import { dialog, autoUpdater } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';

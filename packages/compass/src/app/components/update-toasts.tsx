@@ -61,6 +61,25 @@ const RestartCompassToastContent = ({
   );
 };
 
+export function onAutoupdateExternally({
+  currentVersion,
+  newVersion,
+  onUpdate,
+  onDismiss,
+}: {
+  currentVersion: string;
+  newVersion: string;
+  onUpdate: () => void;
+  onDismiss: () => void;
+}) {
+  openToast('update-externally', {
+    variant: 'note',
+    title: 'A new Compass version available to install',
+    description: `You are currently using version ${currentVersion}. New version of Compass (${newVersion}) is available to install. `,
+    onClose: onDismiss,
+  });
+}
+
 export function onAutoupdateStarted() {
   openToast('update-download', {
     variant: 'progress',
