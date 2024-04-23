@@ -42,6 +42,7 @@ and the specific method of passing messages should be an implementation detail.
 Alternative methods of passing messages between plugins include using React
 contexts to provide an API that can be used by nested plugins, or if that is
 not possible, your plugin can expose methods that other plugins can then access.
+(`WorkspacesServiceProvider` is currently an example of this pattern.)
 
 ## Usage
 
@@ -146,6 +147,13 @@ const Plugin = registerHadronPlugin({
   }
 }, { /* services */});
 ```
+
+> [!NOTE]
+> The `props` and `services` parameters reflect the React properties passed
+> to the plugin (`Plugin` in the example above) at the time of the first
+> instantiation and the services returned by the service locators at that time;
+> changes to the values returned from these will not have an effect on the
+> already-instantiated plugin.
 
 ## Testing support
 
