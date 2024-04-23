@@ -383,15 +383,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onDatabaseExpand,
   onNamespaceAction,
   isReadOnly = false,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error ignoring test props so they are not part of the interface
-  __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH = null,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error ignoring test props so they are not part of the interface
-  __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT = null,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error ignoring test props so they are not part of the interface
-  __TEST_REACT_WINDOW_OVERSCAN = null,
 }) => {
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
@@ -497,6 +488,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     return data.items[index].key;
   }, []);
 
+  const isTestEnv = process.env.NODE_ENV === 'test';
+
   return (
     <>
       <VisuallyHidden id={id}>Databases and Collections</VisuallyHidden>
@@ -507,13 +500,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         {...rootProps}
         data-testid="databases-and-collections"
       >
-        <AutoSizer
-          disableWidth={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_WIDTH)}
-          disableHeight={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT)}
-        >
+        <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
           {({
-            width = __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH,
-            height = __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT,
+            width = isTestEnv ? 1024 : '',
+            height = isTestEnv ? 768 : '',
           }) => (
             <List
               ref={listRef}
@@ -523,7 +513,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               itemCount={items.length}
               itemSize={ROW_HEIGHT}
               itemKey={getItemKey}
-              overscanCount={__TEST_REACT_WINDOW_OVERSCAN ?? 5}
+              overscanCount={isTestEnv ? Infinity : 5}
             >
               {NavigationItem}
             </List>
