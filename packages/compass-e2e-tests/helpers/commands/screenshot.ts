@@ -7,7 +7,7 @@ const withTimeout = (millis: number, promise: Promise<any>) => {
   const timeout = new Promise(
     (resolve, reject) =>
       (timeoutPid = setTimeout(
-        () => reject(`Timed out after ${millis} ms.`),
+        () => reject(new Error(`Timed out after ${millis} ms.`)),
         millis
       ))
   );
