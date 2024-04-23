@@ -4,6 +4,8 @@ import fs from 'fs';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import type { ChildProcessWithoutNullStreams } from 'child_process';
+// @ts-expect-error it thinks process does not have getActiveResourcesInfo
+import { getActiveResourcesInfo } from 'process';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
@@ -106,6 +108,17 @@ async function setup() {
   updateMongoDBServerInfo();
 }
 
+function getResources() {
+  const resources: Record<string, number> = {};
+  for (const resource of getActiveResourcesInfo()) {
+    if (resources[resource] === undefined) {
+      resources[resource] = 0;
+    }
+    ++resources[resource];
+  }
+  return resources;
+}
+
 function cleanup() {
   removeUserDataDir();
 
@@ -155,6 +168,14 @@ function cleanup() {
   // Since the webdriverio update something is messing with the terminal's
   // cursor. This brings it back.
   crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
+
+  const intervalId = setInterval(() => {
+    console.log(getResources());
+  }, 1_000);
+
+  setTimeout(() => {
+    clearInterval(intervalId);
+  }, 60_000);
 }
 
 async function main() {
