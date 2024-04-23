@@ -7,6 +7,7 @@ export async function hideToasts(browser: CompassBrowser): Promise<void> {
   if (!isToastContainerVisible) {
     return;
   }
+  // LG toasts are stacked in scroll container and we need to close them all.
   const toasts = await toastContainer.$$('div');
   for (const toast of toasts) {
     await browser.hover(Selectors.LGToastContainer);
@@ -14,7 +15,7 @@ export async function hideToasts(browser: CompassBrowser): Promise<void> {
     if (!isToastVisible) {
       continue;
     }
-    await toast.$(Selectors.LGToastCloseButton).click();
+    await browser.clickVisible(toast.$(Selectors.LGToastCloseButton));
     await toast.waitForExist({ reverse: true });
   }
 }

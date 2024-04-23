@@ -7,8 +7,7 @@ export async function showShell(browser: CompassBrowser): Promise<void> {
   await retryWithBackoff(async function () {
     const shellContentElement = await browser.$(Selectors.ShellContent);
     if (!(await shellContentElement.isDisplayed())) {
-      // The toasts may be covering the shell, so we need to close them. LG
-      // toasts are stacked in scroll container and we need to close them all.
+      // The toasts may be covering the shell, so we need to close them.
       await browser.hideToasts();
       await browser.clickVisible(Selectors.ShellExpandButton);
     }
