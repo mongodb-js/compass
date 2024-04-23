@@ -26,7 +26,6 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
   type ConnectionInfo,
-  ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
 import React, {
