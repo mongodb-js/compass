@@ -25,7 +25,6 @@ import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
-  ConnectionInfoProvider,
   type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
@@ -56,19 +55,9 @@ import {
   ImportConnectionsModal,
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
+import { usePreference } from 'compass-preferences-model/provider';
 
 resetGlobalCSS();
-
-const homeViewStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
-  height: '100vh',
-});
-
-const hiddenStyles = css({
-  display: 'none',
-});
 
 const homePageStyles = css({
   display: 'flex',
@@ -337,57 +326,65 @@ function Home({
     openConnectionImportExportModal,
   } = useConnectionImportExportModalRenderer();
 
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageProvider value={connectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
-              <ConnectionInfoProvider connectionInfoId={connectionInfo?.id}>
-                {(connectionInfo) => {
-                  return (
-                    <AppRegistryProvider
-                      key={connectionInfo.id}
-                      scopeName="Connected Application"
-                    >
-                      <Workspace
-                        connectionInfo={connectionInfo}
-                        onActiveWorkspaceTabChange={onWorkspaceChange}
-                      />
-                    </AppRegistryProvider>
-                  );
-                }}
-              </ConnectionInfoProvider>
+              {multiConnectionsEnabled ? (
+                <AppRegistryProvider>
+                  <Workspace
+                    // Workspace receives the singleConnectionConnectionInfo
+                    // to wrap the "My Queries" workspace with a
+                    // ConnectionInfoProvider. This makes sure that "My
+                    // Queries" can continue to work when FF for
+                    // multi-connection is not enabled.
+                    singleConnectionConnectionInfo={connectionInfo ?? undefined}
+                    onActiveWorkspaceTabChange={onWorkspaceChange}
+                  />
+                </AppRegistryProvider>
+              ) : isConnected ? (
+                <AppRegistryProvider>
+                  <Workspace
+                    // Workspace receives the singleConnectionConnectionInfo
+                    // to wrap the "My Queries" workspace with a
+                    // ConnectionInfoProvider. This makes sure that "My
+                    // Queries" can continue to work when FF for
+                    // multi-connection is not enabled.
+                    singleConnectionConnectionInfo={connectionInfo ?? undefined}
+                    onActiveWorkspaceTabChange={onWorkspaceChange}
+                  />
+                </AppRegistryProvider>
+              ) : (
+                <div className={homePageStyles}>
+                  <Connections
+                    appRegistry={appRegistry}
+                    onConnected={onConnected}
+                    onConnectionFailed={onConnectionFailed}
+                    onConnectionAttemptStarted={onConnectionAttemptStarted}
+                    openConnectionImportExportModal={
+                      openConnectionImportExportModal
+                    }
+                    __TEST_INITIAL_CONNECTION_INFO={
+                      __TEST_INITIAL_CONNECTION_INFO
+                    }
+                  />
+                </div>
+              )}
+              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+              <CompassSettingsPlugin></CompassSettingsPlugin>
+              <CompassFindInPagePlugin></CompassFindInPagePlugin>
+              <AtlasAuthPlugin></AtlasAuthPlugin>
+              <ConnectionImportModal />
+              <ConnectionExportModal />
+              <LegacyConnectionsModal />
             </FieldStorePlugin>
           </CompassInstanceStorePlugin>
-          {/* TODO(COMPASS-7397): Hide <Connections> but keep it in scope if
-            connected so that the connection import/export functionality can still
-            be used through the application menu */}
-          <div
-            className={isConnected ? hiddenStyles : homeViewStyles}
-            data-hidden={isConnected}
-            data-testid="connections"
-          >
-            <div className={homePageStyles}>
-              <Connections
-                appRegistry={appRegistry}
-                onConnected={onConnected}
-                onConnectionFailed={onConnectionFailed}
-                onConnectionAttemptStarted={onConnectionAttemptStarted}
-                openConnectionImportExportModal={
-                  openConnectionImportExportModal
-                }
-                __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
-              />
-            </div>
-          </div>
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-          <CompassSettingsPlugin></CompassSettingsPlugin>
-          <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasAuthPlugin></AtlasAuthPlugin>
-          <ConnectionImportModal />
-          <ConnectionExportModal />
-          <LegacyConnectionsModal />
         </ConnectionsManagerProvider>
       </ConnectionStorageProvider>
     </FileInputBackendProvider>

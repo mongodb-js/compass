@@ -211,13 +211,21 @@ export const createNamespace = (
   return async (
     dispatch,
     getState,
-    { dataService: ds, globalAppRegistry, logger: { track, debug }, workspaces }
+    {
+      dataService: ds,
+      globalAppRegistry,
+      logger: { track, debug },
+      workspaces,
+      connectionInfoAccess,
+    }
   ) => {
     const { databaseName } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
     const dbName = databaseName ?? data.database;
     const collName = data.collection;
     const namespace = `${dbName}.${collName}`;
+    const { id: connectionId } =
+      connectionInfoAccess.getCurrentConnectionInfo();
 
     dispatch(clearError());
 
@@ -244,7 +252,9 @@ export const createNamespace = (
       track(`${kind} Created`, trackEvent);
 
       globalAppRegistry.emit('collection-created', namespace);
-      workspaces.openCollectionWorkspace(namespace, { newTab: true });
+      workspaces.openCollectionWorkspace(connectionId, namespace, {
+        newTab: true,
+      });
       dispatch(reset());
     } catch (e) {
       debug('create collection failed', e);

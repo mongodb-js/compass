@@ -9,6 +9,7 @@ import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 export class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {
@@ -71,6 +72,11 @@ export default function configureStore(
       logger,
       atlasAiService: atlasAiService as any,
       atlasAuthService,
+      connectionInfoAccess: {
+        getCurrentConnectionInfo() {
+          return TEST_CONNECTION_INFO;
+        },
+      },
       ...services,
     },
     createActivateHelpers()
