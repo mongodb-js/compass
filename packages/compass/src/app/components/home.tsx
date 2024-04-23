@@ -26,6 +26,7 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
   type ConnectionInfo,
+  ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
 import React, {
@@ -336,8 +337,8 @@ function Home({
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
-              <AppRegistryProvider>
-                {multiConnectionsEnabled ? (
+              {multiConnectionsEnabled ? (
+                <AppRegistryProvider>
                   <Workspace
                     // Workspace receives the singleConnectionConnectionInfo
                     // to wrap the "My Queries" workspace with a
@@ -347,7 +348,9 @@ function Home({
                     singleConnectionConnectionInfo={connectionInfo ?? undefined}
                     onActiveWorkspaceTabChange={onWorkspaceChange}
                   />
-                ) : isConnected ? (
+                </AppRegistryProvider>
+              ) : isConnected ? (
+                <AppRegistryProvider>
                   <Workspace
                     // Workspace receives the singleConnectionConnectionInfo
                     // to wrap the "My Queries" workspace with a
@@ -357,33 +360,30 @@ function Home({
                     singleConnectionConnectionInfo={connectionInfo ?? undefined}
                     onActiveWorkspaceTabChange={onWorkspaceChange}
                   />
-                ) : (
-                  <div className={homePageStyles}>
-                    <Connections
-                      appRegistry={appRegistry}
-                      onConnected={onConnected}
-                      onConnectionFailed={onConnectionFailed}
-                      onConnectionAttemptStarted={onConnectionAttemptStarted}
-                      openConnectionImportExportModal={
-                        openConnectionImportExportModal
-                      }
-                      __TEST_INITIAL_CONNECTION_INFO={
-                        __TEST_INITIAL_CONNECTION_INFO
-                      }
-                    />
-                  </div>
-                )}
-                <Welcome
-                  isOpen={isWelcomeOpen}
-                  closeModal={closeWelcomeModal}
-                />
-                <CompassSettingsPlugin></CompassSettingsPlugin>
-                <CompassFindInPagePlugin></CompassFindInPagePlugin>
-                <AtlasAuthPlugin></AtlasAuthPlugin>
-                <ConnectionImportModal />
-                <ConnectionExportModal />
-                <LegacyConnectionsModal />
-              </AppRegistryProvider>
+                </AppRegistryProvider>
+              ) : (
+                <div className={homePageStyles}>
+                  <Connections
+                    appRegistry={appRegistry}
+                    onConnected={onConnected}
+                    onConnectionFailed={onConnectionFailed}
+                    onConnectionAttemptStarted={onConnectionAttemptStarted}
+                    openConnectionImportExportModal={
+                      openConnectionImportExportModal
+                    }
+                    __TEST_INITIAL_CONNECTION_INFO={
+                      __TEST_INITIAL_CONNECTION_INFO
+                    }
+                  />
+                </div>
+              )}
+              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+              <CompassSettingsPlugin></CompassSettingsPlugin>
+              <CompassFindInPagePlugin></CompassFindInPagePlugin>
+              <AtlasAuthPlugin></AtlasAuthPlugin>
+              <ConnectionImportModal />
+              <ConnectionExportModal />
+              <LegacyConnectionsModal />
             </FieldStorePlugin>
           </CompassInstanceStorePlugin>
         </ConnectionsManagerProvider>
