@@ -19,6 +19,7 @@ import {
   updateMongoDBServerInfo,
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
+import log from 'why-is-node-running';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -155,6 +156,10 @@ function cleanup() {
   // Since the webdriverio update something is messing with the terminal's
   // cursor. This brings it back.
   crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
+
+  setTimeout(function () {
+    log(); // logs out active handles that are keeping node running
+  }, 1000);
 }
 
 async function main() {
