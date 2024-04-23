@@ -1,7 +1,8 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
-  "compilerOptions": {
-    // https://webdriver.io/docs/typescript/#framework-setup
-    //"types": ["node", "@wdio/globals/types"]
-  }
+  // https://stackoverflow.com/questions/51610583/ts-node-ignores-d-ts-files-while-tsc-successfully-compiles-the-project
+  "ts-node": {
+    "files": true
+  },
+  "files": ["index.ts", "typings.d.ts"]
 }
