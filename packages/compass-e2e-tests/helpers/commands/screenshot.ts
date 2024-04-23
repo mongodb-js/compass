@@ -2,6 +2,22 @@ import path from 'path';
 import type { CompassBrowser } from '../compass-browser';
 import { SCREENSHOTS_PATH } from '../compass';
 
+const withTimeout = (millis: number, promise: Promise<any>) => {
+  let timeoutPid: NodeJS.Timeout;
+  const timeout = new Promise(
+    (resolve, reject) =>
+      (timeoutPid = setTimeout(
+        () => reject(`Timed out after ${millis} ms.`),
+        millis
+      ))
+  );
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutPid) {
+      clearTimeout(timeoutPid);
+    }
+  });
+};
+
 export async function screenshot(
   browser: CompassBrowser,
   filename: string
@@ -9,5 +25,14 @@ export async function screenshot(
   // Give animations a second. Hard to have a generic way to know if animations
   // are still in progress or not.
   await browser.pause(1000);
-  await browser.saveScreenshot(path.join(SCREENSHOTS_PATH, filename));
+
+  const fullPath = path.join(SCREENSHOTS_PATH, filename);
+  try {
+    await withTimeout(10000, browser.saveScreenshot(fullPath));
+  } catch (err: any) {
+    // For some reason browser.saveScreenshot() sometimes times out on mac with
+    // `WARN webdriver: Request timed out! Consider increasing the
+    // "connectionRetryTimeout" option.`. The default is 120 seconds.
+    console.error(`Unable to save screenshot: ${fullPath}`);
+  }
 }
