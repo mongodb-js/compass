@@ -101,7 +101,10 @@ export default function Workspace({
             )}
             renderModals={() => {
               return multiConnectionsEnabled ? (
-                <RenameCollectionPlugin></RenameCollectionPlugin>
+                <>
+                  <DropNamespacePlugin></DropNamespacePlugin>
+                  <RenameCollectionPlugin></RenameCollectionPlugin>
+                </>
               ) : (
                 <ConnectionInfoProvider
                   connectionInfoId={singleConnectionConnectionInfo?.id}
