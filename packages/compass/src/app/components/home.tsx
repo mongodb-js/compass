@@ -337,7 +337,7 @@ function Home({
           <CompassInstanceStorePlugin>
             <FieldStorePlugin>
               {multiConnectionsEnabled ? (
-                <AppRegistryProvider scopeName="Multiple Connection">
+                <AppRegistryProvider scopeName="Multiple Connections">
                   <Workspace
                     // Workspace receives the singleConnectionConnectionInfo
                     // to wrap the "My Queries" workspace with a
