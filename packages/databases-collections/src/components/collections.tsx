@@ -48,7 +48,6 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 }) => {
   const { id: connectionId } = useConnectionInfo();
   const { openCollectionWorkspace } = useOpenWorkspace();
-  const { id: connectionId } = useConnectionInfo();
 
   useTrackOnChange(
     'COMPASS-COLLECTIONS-UI',

@@ -84,7 +84,6 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   const { id: connectionId } = useConnectionInfo();
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
-  const { id: connectionId } = useConnectionInfo();
 
   useTrackOnChange(
     'COMPASS-DATABASES-UI',
