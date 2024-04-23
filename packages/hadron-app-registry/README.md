@@ -56,7 +56,10 @@ import {
   registerHadronPlugin,
 } from 'hadron-app-registry';
 import CompassLogging from '@mongodb-js/compass-logging';
-import { LoggingProvider, logging } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggingProvider,
+  loggingLocator,
+} from '@mongodb-js/compass-logging/provider';
 
 const PluginWithLogger = registerHadronPlugin(
   {
@@ -68,7 +71,7 @@ const PluginWithLogger = registerHadronPlugin(
       logging.log('Plugin activated!');
     },
   },
-  { logging }
+  { logging: loggingLocator }
 );
 
 ReactDOM.render(
