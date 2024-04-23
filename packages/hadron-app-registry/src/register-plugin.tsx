@@ -387,7 +387,7 @@ export type HadronPluginComponent<
  *   name: 'LoggingPlugin',
  *   component: () => null,
  *   activate(opts, { logging }) {
- *     loggging.log('Plugin activated!');
+ *     logging.log('Plugin activated!');
  *   }
  * }, { logging })
  */
