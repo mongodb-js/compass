@@ -761,7 +761,7 @@ export async function startBrowser(
     ...webdriverOptions,
     ...wdioOptions,
   })) as CompassBrowser;
-  await browser.navigateTo('http://localhost:8080/');
+  await browser.navigateTo('http://localhost:7777/');
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,

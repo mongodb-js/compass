@@ -98,7 +98,7 @@ type CompassWebProps = {
   darkMode?: boolean;
   stackedElementsZIndex?: number;
   onAutoconnectInfoRequest: () => Promise<ConnectionInfo>;
-  renderConnecting?: (connectionInfo: ConnectionInfo) => React.ReactNode;
+  renderConnecting?: (connectionInfo: ConnectionInfo | null) => React.ReactNode;
   renderError?: (
     connectionInfo: ConnectionInfo | null,
     err: any
@@ -227,13 +227,18 @@ const CompassWeb = ({
     });
   }, []);
 
-  const onConnectionFailed = useCallback((_connectionInfo, error: Error) => {
-    setConnectedState({
-      isConnected: false,
-      connectionInfo: null,
-      connectionError: error,
-    });
-  }, []);
+  const onConnectionFailed = useCallback(
+    (connectionInfo: ConnectionInfo | null, error: Error) => {
+      setConnectedState((prevState) => {
+        return {
+          isConnected: false,
+          connectionInfo: connectionInfo ?? prevState.connectionInfo,
+          connectionError: error,
+        };
+      });
+    },
+    []
+  );
 
   const onConnectionAttemptStarted = useCallback(
     (connectionInfo: ConnectionInfo) => {
@@ -283,13 +288,13 @@ const CompassWeb = ({
               <ConnectionsManagerProvider value={connectionsManager.current}>
                 <CompassInstanceStorePlugin>
                   <FieldStorePlugin>
-                    <ConnectionInfoProvider
-                      connectionInfoId={connectionInfo?.id}
-                    >
-                      {isConnected && connectionInfo ? (
-                        <AppRegistryProvider
-                          key={connectionInfo.id}
-                          scopeName="Connected Application"
+                    {isConnected && connectionInfo ? (
+                      <AppRegistryProvider
+                        key={connectionInfo.id}
+                        scopeName="Connected Application"
+                      >
+                        <ConnectionInfoProvider
+                          connectionInfoId={connectionInfo.id}
                         >
                           <CompassWorkspace
                             connectionInfo={connectionInfo}
@@ -298,13 +303,13 @@ const CompassWeb = ({
                               onActiveWorkspaceTabChange
                             }
                           />
-                        </AppRegistryProvider>
-                      ) : connectionError ? (
-                        renderError(connectionInfo, connectionError)
-                      ) : connectionInfo ? (
-                        renderConnecting(connectionInfo)
-                      ) : null}
-                    </ConnectionInfoProvider>
+                        </ConnectionInfoProvider>
+                      </AppRegistryProvider>
+                    ) : connectionError ? (
+                      renderError(connectionInfo, connectionError)
+                    ) : (
+                      renderConnecting(connectionInfo)
+                    )}
                     {/**
                      * Compass connections is not only handling connection, but
                      * actually renders connection UI, we need to use it for the

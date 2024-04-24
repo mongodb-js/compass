@@ -5,8 +5,8 @@ import type {
   WorkspaceTab,
 } from '@mongodb-js/compass-workspaces';
 
-function getCollectionSubTabFromRoute(subTab: string): CollectionSubtab {
-  switch (subTab.toLowerCase()) {
+function getCollectionSubTabFromRoute(subTab?: string): CollectionSubtab {
+  switch (subTab?.toLowerCase() ?? '') {
     case 'schema':
       return 'Schema';
     case 'indexes':
@@ -20,7 +20,7 @@ function getCollectionSubTabFromRoute(subTab: string): CollectionSubtab {
   }
 }
 function getWorkspaceTabFromRoute(route: string): OpenWorkspaceOptions {
-  const [, tab, namespace = '', subTab] = route.split('/');
+  const [, tab, namespace = '', subTab] = decodeURIComponent(route).split('/');
   if (tab === 'databases') {
     return { type: 'Databases' };
   }
@@ -49,10 +49,12 @@ export function useWorkspaceTabRouter() {
         newPath = '/databases';
         break;
       case 'Collections':
-        newPath = `/collections/${tab.namespace}`;
+        newPath = `/collections/${encodeURIComponent(tab.namespace)}`;
         break;
       case 'Collection':
-        newPath = `/collection/${tab.namespace}/${tab.subTab.toLowerCase()}`;
+        newPath = `/collection/${encodeURIComponent(
+          tab.namespace
+        )}/${tab.subTab.toLowerCase()}`;
         break;
       default:
         newPath = '/';
