@@ -169,13 +169,23 @@ function cleanup() {
   // cursor. This brings it back.
   crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
 
+  // Log what's preventing the process from exiting normally to help debug the
+  // cases where the process hangs and gets killed 10 minutes later by evergreen
+  // because there's no output.
   const intervalId = setInterval(() => {
     console.log(getResources());
   }, 1_000);
 
-  setTimeout(() => {
+  // Don't keep logging forever because then evergreen can't kill the job after
+  // 10 minutes of inactivity if we get into a broken state
+  const timeoutId = setTimeout(() => {
     clearInterval(intervalId);
   }, 60_000);
+
+  // No need to hold things up for a minute if there's nothing else preventing
+  // the process from exiting.
+  intervalId.unref();
+  timeoutId.unref();
 }
 
 async function main() {
