@@ -423,7 +423,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     }
-  }, [activeWorkspace, onDatabaseExpand, onConnectionExpand]); // TODO: figure out onConnectionExpand loop
+    // onConnectionExpand is excluded from the deps intentionally -
+    // we only want to expand as a reaction to activeWorkspace change, not to a collapse action
+    // otherwise active connections are re-expanded
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWorkspace, onDatabaseExpand]);
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
