@@ -529,8 +529,8 @@ const STATE_UPDATE: Record<
       const answer = await dialog.showMessageBox({
         icon: COMPASS_ICON,
         title: 'New version available',
-        message: 'A new version of Compass is available to install',
-        detail: `Compass ${updateInfo.to} is available. You are currently using ${updateInfo.from}. Would you like to download it now?`,
+        message: `Compass ${updateInfo.to} is available`,
+        detail: `You are currently using ${updateInfo.from}. Update now for the latest Compass features.`,
         buttons: ['Visit download center', 'Ask me later'],
         cancelId: 1,
       });

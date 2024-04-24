@@ -70,12 +70,12 @@ export function onAutoupdateExternally({
   const toastId = 'compass-update-externally';
   openToast(toastId, {
     variant: 'note',
-    title: 'A new Compass version is available to install',
+    title: `Compass ${newVersion} is available`,
     description: (
       <>
         <Body>
-          Compass {newVersion} is available. You are currently using{' '}
-          {currentVersion}. Would you like to download it now?
+          You are currently using {currentVersion}. Update now for the latest
+          Compass features.
         </Body>
         <Link
           as="a"
