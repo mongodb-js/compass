@@ -14,7 +14,7 @@ export default function StyledNavigationItem({
   isSingleConnection: boolean;
   children: React.ReactChild;
 }): React.ReactElement {
-  const { connectionColorToHex, connectionColorToHex_Active } =
+  const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
   const style: React.CSSProperties & {
     '--item-bg-color'?: string;
@@ -25,8 +25,8 @@ export default function StyledNavigationItem({
   if (!isSingleConnection) {
     if (colorCode && colorCode !== DefaultColorCode) {
       style['--item-bg-color'] = connectionColorToHex(colorCode);
-      style['--item-bg-color-hover'] = connectionColorToHex_Active(colorCode);
-      style['--item-bg-color-active'] = connectionColorToHex_Active(colorCode);
+      style['--item-bg-color-hover'] = connectionColorToHexActive(colorCode);
+      style['--item-bg-color-active'] = connectionColorToHexActive(colorCode);
     }
   }
   return <div style={style}>{children}</div>;
