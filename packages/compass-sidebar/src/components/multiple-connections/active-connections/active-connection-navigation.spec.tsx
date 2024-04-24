@@ -15,6 +15,7 @@ import userEvent from '@testing-library/user-event';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -75,7 +76,9 @@ describe('<ActiveConnectionNavigation />', function () {
           <Provider store={store}>
             <ActiveConnectionNavigation
               activeConnections={mockConnections}
-              activeWorkspace={{ type: 'Databases' }}
+              activeWorkspace={
+                { type: 'Databases', connectionId: 'turtle' } as WorkspaceTab
+              }
               onOpenConnectionInfo={onOpenConnectionInfoStub}
               onCopyConnectionString={onCopyConnectionStringStub}
               onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
