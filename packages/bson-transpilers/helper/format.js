@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Takes in an identifier that may or may not be a string and returns a string
  * with double quotes. Replace any non-escaped double quotes with \"

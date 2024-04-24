@@ -1,3 +1,4 @@
+'use strict';
 const _ = require('lodash');
 const Target = require('../lib/target');
 const verifyDistro = require('../lib/distro');

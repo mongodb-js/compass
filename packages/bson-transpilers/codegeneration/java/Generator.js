@@ -1,3 +1,4 @@
+'use strict';
 /* eslint complexity: 0 */
 const {doubleQuoteStringify, removeQuotes} = require('../../helper/format');
 const {

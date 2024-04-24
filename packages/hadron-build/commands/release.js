@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-disable valid-jsdoc */
 /* eslint-disable no-shadow */
 

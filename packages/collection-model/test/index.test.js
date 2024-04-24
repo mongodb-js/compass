@@ -1,3 +1,4 @@
+'use strict';
 var assert = require('assert');
 var Collection = require('../');
 var CollectionCollection = require('../').Collection;
