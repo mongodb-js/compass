@@ -1,3 +1,4 @@
+'use strict';
 // Manually align internal dependencies in packages/compass/package.json due to
 // private packages and peer dependencies being ignored by `lerna version`
 // command (see https://github.com/lerna/lerna/issues/1575)

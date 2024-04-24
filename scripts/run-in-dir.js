@@ -1,3 +1,4 @@
+'use strict';
 const { promisify } = require('util');
 const { exec } = require('child_process');
 

@@ -5,7 +5,6 @@ import { createSidebarStore } from '.';
 import { createInstance } from '../../test/helpers';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
@@ -75,7 +74,6 @@ describe('SidebarStore [Store]', function () {
         } as any,
         instancesManager: instancesManager,
         logger: createNoopLoggerAndTelemetry(),
-        initialConnectionInfo: TEST_CONNECTION_INFO,
       },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));

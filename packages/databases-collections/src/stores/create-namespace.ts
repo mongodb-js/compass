@@ -1,5 +1,8 @@
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Action, AnyAction } from 'redux';
@@ -25,6 +28,7 @@ export type CreateNamespaceServices = {
   instance: MongoDBInstance;
   logger: LoggerAndTelemetry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
+  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 function configureStore(services: CreateNamespaceServices) {

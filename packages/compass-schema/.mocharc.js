@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const mochaConfig = require('@mongodb-js/mocha-config-compass/compass-plugin');
 

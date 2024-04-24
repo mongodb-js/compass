@@ -1,3 +1,4 @@
+'use strict';
 /* eslint no-unused-vars: 1 */
 const _ = require('lodash');
 const chai = require('chai');

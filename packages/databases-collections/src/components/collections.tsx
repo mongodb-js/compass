@@ -74,7 +74,10 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    { onCollectionClick: openCollectionWorkspace, onRefreshClick },
+    {
+      onCollectionClick: openCollectionWorkspace.bind(undefined, connectionId),
+      onRefreshClick,
+    },
     isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
   );
 

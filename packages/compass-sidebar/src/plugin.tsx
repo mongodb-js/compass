@@ -10,6 +10,7 @@ import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/legacy/sidebar';
 import { usePreference } from 'compass-preferences-model/provider';
 import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
+import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -17,14 +18,14 @@ const errorBoundaryStyles = css({
 
 export interface SidebarPluginProps {
   showConnectionInfo?: boolean;
-  initialConnectionInfo?: ConnectionInfo;
+  singleConnectionConnectionInfo?: ConnectionInfo;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
   // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
-  // away with refactoring compoass-conneciton to a plugin
-  initialConnectionInfo,
+  // away with refactoring compass-connection to a plugin
+  singleConnectionConnectionInfo,
 }) => {
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
@@ -37,18 +38,20 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   if (isMultiConnectionEnabled) {
     sidebar = <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />;
   } else {
-    if (!initialConnectionInfo) {
-      throw new Error(
-        'Could not find a connection info for the single connection sidebar.'
-      );
-    }
-
     sidebar = (
-      <Sidebar
-        showConnectionInfo={showConnectionInfo}
-        initialConnectionInfo={initialConnectionInfo}
-        activeWorkspace={activeWorkspace}
-      />
+      <ConnectionInfoProvider
+        connectionInfoId={singleConnectionConnectionInfo?.id}
+      >
+        {(connectionInfo) => {
+          return (
+            <Sidebar
+              showConnectionInfo={showConnectionInfo}
+              initialConnectionInfo={connectionInfo}
+              activeWorkspace={activeWorkspace}
+            />
+          );
+        }}
+      </ConnectionInfoProvider>
     );
   }
 

@@ -1,3 +1,4 @@
+'use strict';
 const { runInDir } = require('./run-in-dir');
 
 // Gather all log ids from the Compass source,

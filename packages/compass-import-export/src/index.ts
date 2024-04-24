@@ -1,5 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -27,6 +28,7 @@ export const ImportPlugin = registerHadronPlugin(
     workspaces: workspacesServiceLocator,
     preferences: preferencesLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-IMPORT-UI'),
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 

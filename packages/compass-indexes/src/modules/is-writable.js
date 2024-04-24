@@ -1,3 +1,4 @@
+'use strict';
 /**
  * The module action prefix.
  */

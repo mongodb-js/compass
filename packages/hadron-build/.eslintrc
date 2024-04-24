@@ -4,13 +4,9 @@
     "es6": true
   },
   "parserOptions": {
-    "ecmaVersion": 2018,
-    "sourceType": "module"
+    "ecmaVersion": 2020
   },
-  "extends": [
-    "mongodb-js/node",
-    "plugin:mocha/recommended"
-  ],
+  "extends": ["@mongodb-js/eslint-config-compass/plugin"],
   "plugins": [
     "mocha"
   ],

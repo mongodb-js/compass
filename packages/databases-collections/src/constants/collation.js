@@ -1,3 +1,4 @@
+'use strict';
 const LOADING_STATE = null;
 const COLLATION_OPTIONS = [
   {

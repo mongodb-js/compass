@@ -1,3 +1,4 @@
+'use strict';
 const fetch = require('make-fetch-happen');
 const semver = require('semver');
 const util = require('util');
