@@ -16,6 +16,7 @@ import reducer, {
 } from '../modules/create-namespace';
 import type toNS from 'mongodb-ns';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -53,41 +54,29 @@ export type CreateNamespaceThunkAction<
   A extends Action = AnyAction
 > = ThunkAction<R, CreateNamespaceRootState, CreateNamespaceServices, A>;
 
-export function activatePlugin(_: unknown, services: CreateNamespaceServices) {
+export function activatePlugin(
+  _: unknown,
+  services: CreateNamespaceServices,
+  { on, cleanup }: ActivateHelpers
+) {
   const store = configureStore(services);
 
   const { instance, globalAppRegistry } = services;
 
-  const onTopologyChange = () => {
+  on(instance, 'change:topologyDescription', () => {
     store.dispatch(topologyChanged(instance.topologyDescription.type));
-  };
+  });
 
-  instance.on('change:topologyDescription', onTopologyChange);
-
-  const onOpenCreateDatabase = () => {
+  on(globalAppRegistry, 'open-create-database', () => {
     store.dispatch(open(null));
-  };
+  });
 
-  globalAppRegistry.on('open-create-database', onOpenCreateDatabase);
-
-  const onOpenCreateCollection = (ns: NS) => {
+  on(globalAppRegistry, 'open-create-collection', (ns: NS) => {
     store.dispatch(open(ns.database));
-  };
-
-  globalAppRegistry.on('open-create-collection', onOpenCreateCollection);
+  });
 
   return {
     store,
-    deactivate() {
-      instance.removeListener('change:topologyDescription', onTopologyChange);
-      globalAppRegistry.removeListener(
-        'open-create-database',
-        onOpenCreateDatabase
-      );
-      globalAppRegistry.removeListener(
-        'open-create-collection',
-        onOpenCreateCollection
-      );
-    },
+    deactivate: cleanup,
   };
 }
