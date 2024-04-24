@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import {
   type SchemaFieldSubset,
   schemaFieldsToAutocompleteItems,

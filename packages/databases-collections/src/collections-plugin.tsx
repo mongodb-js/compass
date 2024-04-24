@@ -1,4 +1,7 @@
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  databaseModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import CollectionsList from './components/collections';
 import { activatePlugin as activateCollectionsTabPlugin } from './stores/collections-store';
 import { registerHadronPlugin } from 'hadron-app-registry';
@@ -16,6 +19,7 @@ export const CollectionsPlugin = registerHadronPlugin(
   },
   {
     instance: mongoDBInstanceLocator,
+    database: databaseModelLocator,
     dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
   }
 );

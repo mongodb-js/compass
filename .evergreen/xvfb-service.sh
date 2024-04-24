@@ -3,7 +3,7 @@
 set -e
 
 XVFB=/usr/bin/Xvfb
-XVFBARGS=":1 -screen 0 1024x768x24 -ac +extension GLX +render -noreset"
+XVFBARGS=":1 -screen 0 1432x840x24 -ac +extension GLX +render -noreset"
 PIDFILE=/var/run/xvfb.pid
 case "$1" in
   start)

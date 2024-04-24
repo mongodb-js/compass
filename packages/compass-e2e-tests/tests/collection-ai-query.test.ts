@@ -123,10 +123,19 @@ describe('Collection ai query', function () {
       const lastPathRegex = /[^/]*$/;
       const userId = lastPathRegex.exec(requests[0].req.url)?.[0];
       expect((userId?.match(/-/g) || []).length).to.equal(4); // Is uuid like.
-      expect(requests[1].content.userInput).to.equal(testUserInput);
-      expect(requests[1].content.collectionName).to.equal('numbers');
-      expect(requests[1].content.databaseName).to.equal('test');
-      expect(requests[1].content.schema).to.exist;
+
+      const queryRequest = requests[1];
+      const queryURL = new URL(
+        queryRequest.req.url,
+        `http://${queryRequest.req.headers.host}`
+      );
+      expect([...new Set(queryURL.searchParams.keys())].length).to.equal(1);
+      const requestId = queryURL.searchParams.get('request_id');
+      expect((requestId?.match(/-/g) || []).length).to.equal(4); // Is uuid like.
+      expect(queryRequest.content.userInput).to.equal(testUserInput);
+      expect(queryRequest.content.collectionName).to.equal('numbers');
+      expect(queryRequest.content.databaseName).to.equal('test');
+      expect(queryRequest.content.schema).to.exist;
 
       // Run it and check that the correct documents are shown.
       await browser.runFind('Documents', true);

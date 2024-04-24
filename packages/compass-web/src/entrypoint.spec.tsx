@@ -62,13 +62,24 @@ describe('CompassWeb', function () {
     props: Partial<React.ComponentProps<typeof CompassWeb>> = {},
     connectFn = mockConnectFn
   ) {
+    const getAutoConnectInfo = () => {
+      return Promise.resolve({
+        id: 'foo',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      });
+    };
     return render(
       <CompassWeb
-        connectionInfo={{
-          id: 'foo',
-          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
-        }}
+        onAutoconnectInfoRequest={getAutoConnectInfo}
         onActiveWorkspaceTabChange={() => {}}
+        renderConnecting={(connectionInfo) => {
+          const [host] = new ConnectionString(
+            connectionInfo.connectionOptions.connectionString
+          ).hosts;
+          return <div>Connecting to {host}…</div>;
+        }}
         {...props}
         // @ts-expect-error see component props description
         __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
@@ -85,17 +96,20 @@ describe('CompassWeb', function () {
       screen.getByText('Connecting to localhost:27017…');
     });
 
-    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.deep.equal({
-      connectionString: 'mongodb://localhost:27017/',
-      oidc: {},
-    });
+    expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
+      'connectionString',
+      'mongodb://localhost:27017/'
+    );
 
     // Wait for connection to happen and navigation tree to render
-    await waitFor(() => {
-      screen.getByTestId('compass-web-connected');
-      screen.getByRole('button', { name: 'Databases' });
-      screen.getAllByRole('tree');
-    });
+    await waitFor(
+      () => {
+        screen.getByTestId('compass-web-connected');
+        screen.getByRole('button', { name: 'Databases' });
+        screen.getAllByRole('tree');
+      },
+      { timeout: 10_000 }
+    );
 
     // TODO(COMPASS-7551): These are not rendered in tests because of the
     // navigation virtualization. We should make it possible to render those

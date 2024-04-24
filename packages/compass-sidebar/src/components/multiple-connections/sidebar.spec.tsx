@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { stub } from 'sinon';
+import { stub, spy, type SinonStub } from 'sinon';
 import {
   render,
   screen,
@@ -9,19 +9,31 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MultipleConnectionSidebar } from './sidebar';
+import MultipleConnectionSidebar from './sidebar';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
 import {
-  ConnectionStorageContext,
-  type ConnectionStorage,
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
 } from '@mongodb-js/connection-storage/provider';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
+import { createSidebarStore } from '../../stores';
+import { Provider } from 'react-redux';
+import AppRegistry from 'hadron-app-registry';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  type WorkspacesService,
+  WorkspacesServiceProvider,
+} from '@mongodb-js/compass-workspaces/provider';
+import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -54,58 +66,80 @@ const savedConnection: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
-type ItselfAndStub<T> = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  [K in keyof T]: T[K] extends Function ? ReturnType<typeof stub> : T[K];
-};
-
 describe('Multiple Connections Sidebar Component', function () {
-  const connectionStorage: ItselfAndStub<
-    Pick<
-      typeof ConnectionStorage,
-      'events' | 'loadAll' | 'load' | 'save' | 'delete'
-    >
-  > = {
-    events: new ConnectionStorageBus(),
-    loadAll: stub(),
-    load: stub(),
-    save: stub(),
-    delete: stub(),
-  };
+  let preferences: PreferencesAccess;
+
+  const connectionStorage = new InMemoryConnectionStorage([savedConnection]);
+  const globalAppRegistry = new AppRegistry();
+  const emitSpy = spy(globalAppRegistry, 'emit');
+  let store: ReturnType<typeof createSidebarStore>['store'];
+  let deactivate: () => void;
+  let openMyQueriesWorkspaceStub: SinonStub;
 
   const connectFn = stub();
 
   function doRender() {
-    const storage = connectionStorage as any;
     const connectionManager = new ConnectionsManager({
       logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,
     });
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        instancesManager: {
+          listMongoDBInstances() {
+            return [];
+          },
+        },
+        logger: { log: { warn() {} }, mongoLogId() {} },
+      } as any,
+      { on() {}, cleanup() {}, addCleanup() {} } as any
+    ));
+    openMyQueriesWorkspaceStub = stub();
 
     return render(
       <ToastArea>
-        <ConnectionStorageContext.Provider value={storage}>
-          <ConnectionsManagerProvider value={connectionManager}>
-            <MultipleConnectionSidebar />
-          </ConnectionsManagerProvider>
-        </ConnectionStorageContext.Provider>
+        <PreferencesProvider value={preferences}>
+          <WorkspacesServiceProvider
+            value={
+              {
+                openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
+              } as unknown as WorkspacesService
+            }
+          >
+            <WorkspacesProvider
+              value={[{ name: 'My Queries', component: () => null }]}
+            >
+              <ConnectionStorageProvider value={connectionStorage}>
+                <ConnectionsManagerProvider value={connectionManager}>
+                  <Provider store={store}>
+                    <MultipleConnectionSidebar
+                      activeWorkspace={{ type: 'connection' }}
+                    />
+                  </Provider>
+                </ConnectionsManagerProvider>
+              </ConnectionStorageProvider>
+            </WorkspacesProvider>
+          </WorkspacesServiceProvider>
+        </PreferencesProvider>
       </ToastArea>
     );
   }
 
-  beforeEach(function () {
-    connectionStorage.loadAll.returns([savedConnection]);
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
 
     doRender();
   });
 
   afterEach(function () {
-    connectionStorage.loadAll.reset();
-    connectionStorage.load.reset();
-    connectionStorage.save.reset();
-    connectionStorage.delete.reset();
-
+    deactivate();
     cleanup();
+    emitSpy.resetHistory();
+    openMyQueriesWorkspaceStub.resetHistory();
   });
 
   describe('opening a new connection', function () {
@@ -135,7 +169,6 @@ describe('Multiple Connections Sidebar Component', function () {
 
     describe('when failing to connect', function () {
       it('calls the connection function and renders the error toast', async function () {
-        connectionStorage.loadAll.returns([savedConnection]);
         connectFn.returns(slowConnection(andFail('Expected failure')));
         parentSavedConnection = screen.getByTestId('saved-connection-12345');
 
@@ -154,6 +187,26 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.queryByText('Expected failure')).to.exist;
         });
       });
+    });
+  });
+
+  describe('actions', () => {
+    it('when clicking on the Settings btn, it emits open-compass-settings', () => {
+      const settingsBtn = screen.getByTitle('Compass Settings');
+      expect(settingsBtn).to.be.visible;
+
+      userEvent.click(settingsBtn);
+
+      expect(emitSpy).to.have.been.calledWith('open-compass-settings');
+    });
+
+    it('when clicking on "My Queries", it opens the workspace', () => {
+      const navItem = screen.getByText('My Queries');
+      expect(navItem).to.be.visible;
+
+      userEvent.click(navItem);
+
+      expect(openMyQueriesWorkspaceStub).to.have.been.called;
     });
   });
 });

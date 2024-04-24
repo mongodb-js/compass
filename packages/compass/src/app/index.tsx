@@ -72,10 +72,15 @@ import { setupIntercom } from '@mongodb-js/compass-intercom';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   onAutoupdateFailed,
+  onAutoupdateInstalled,
   onAutoupdateStarted,
   onAutoupdateSuccess,
-} from './utils/update-handlers';
+} from './components/update-toasts';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
+import {
+  CompassRendererConnectionStorage,
+  type AutoConnectPreferences,
+} from '@mongodb-js/connection-storage/renderer';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -99,6 +104,10 @@ function notifyMainProcessOfDisconnect() {
 
 function showSettingsModal() {
   ipcRenderer?.emit('window:show-settings');
+}
+
+async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
+  return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
 }
 
 /**
@@ -193,15 +202,22 @@ const Application = View.extend({
    */
   render: async function () {
     await defaultPreferencesInstance.refreshPreferences();
-    const getAutoConnectInfo = await (
-      await import('./utils/auto-connect')
-    ).loadAutoConnectInfo();
+    const initialAutoConnectPreferences =
+      await getWindowAutoConnectPreferences();
+    const getInitialAutoConnectPreferences =
+      (): Promise<AutoConnectPreferences> => {
+        return Promise.resolve(initialAutoConnectPreferences);
+      };
+    const connectionStorage = new CompassRendererConnectionStorage(
+      ipcRenderer,
+      getInitialAutoConnectPreferences
+    );
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
       'Rendering app container',
       {
-        autoConnectEnabled: !!getAutoConnectInfo,
+        autoConnectEnabled: initialAutoConnectPreferences.shouldAutoConnect,
       }
     );
 
@@ -221,13 +237,13 @@ const Application = View.extend({
       <React.StrictMode>
         <CompassElectron
           appName={remote.app.getName()}
-          getAutoConnectInfo={getAutoConnectInfo}
           showWelcomeModal={!wasNetworkOptInShown}
           createFileInputBackend={createElectronFileInputBackend(remote)}
           onDisconnect={notifyMainProcessOfDisconnect}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}
+          connectionStorage={connectionStorage}
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')
@@ -286,23 +302,29 @@ const app = {
     // Autoupdate handlers
     ipcRenderer?.on(
       'autoupdate:update-download-in-progress',
-      onAutoupdateStarted
+      (_, { newVersion }: { newVersion: string }) => {
+        onAutoupdateStarted({ newVersion });
+      }
     );
     ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
-    ipcRenderer?.on('autoupdate:update-download-success', () => {
-      onAutoupdateSuccess({
-        onUpdate: () => {
-          void ipcRenderer?.call(
-            'autoupdate:update-download-restart-confirmed'
-          );
-        },
-        onDismiss: () => {
-          void ipcRenderer?.call(
-            'autoupdate:update-download-restart-dismissed'
-          );
-        },
-      });
-    });
+    ipcRenderer?.on(
+      'autoupdate:update-download-success',
+      (_, { newVersion }: { newVersion: string }) => {
+        onAutoupdateSuccess({
+          newVersion,
+          onUpdate: () => {
+            void ipcRenderer?.call(
+              'autoupdate:update-download-restart-confirmed'
+            );
+          },
+          onDismiss: () => {
+            void ipcRenderer?.call(
+              'autoupdate:update-download-restart-dismissed'
+            );
+          },
+        });
+      }
+    );
     // As soon as dom is ready, render and set up the rest.
     state.render();
     marky.stop('Time to Connect rendered');
@@ -312,6 +334,15 @@ const app = {
       queueMicrotask(() => {
         throw new Error('fake exception');
       });
+    }
+
+    if (semver.gt(APP_VERSION, state.previousVersion)) {
+      // Wait a bit before showing the update toast.
+      setTimeout(() => {
+        onAutoupdateInstalled({
+          newVersion: APP_VERSION,
+        });
+      }, 2000);
     }
   },
 };

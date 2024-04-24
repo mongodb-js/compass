@@ -1,38 +1,84 @@
 import { expect } from 'chai';
-
-import reducer, {
-  INITIAL_STATE,
-  changeInstance,
-  CHANGE_INSTANCE,
-} from './instance';
-
-const instance: any = {
-  _id: '123',
-};
+import { createInstance } from '../../test/helpers';
+import { spy, stub, type SinonSpy, type SinonStub } from 'sinon';
+import type { DataService } from 'mongodb-data-service';
+import { setupInstance } from './instance';
+import type { RootState } from '.';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type AppRegistry from 'hadron-app-registry';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 
 describe('sidebar instance', function () {
-  describe('#reducer', function () {
-    context('when an action is provided', function () {
-      it('returns the new state', function () {
-        expect(reducer(undefined, changeInstance(instance))).to.deep.equal({
-          _id: '123',
-        });
-      });
-    });
+  const instance = createInstance();
+  let instanceOnSpy: SinonSpy;
+  const globalAppRegistry = {} as any as AppRegistry;
+  const connectionsManager = {
+    getDataServiceForConnection() {
+      return {
+        getConnectionOptions() {
+          return {};
+        },
+        currentOp() {
+          return Promise.resolve(null);
+        },
+        top() {
+          return Promise.resolve(null);
+        },
+      } as unknown as DataService;
+    },
+  } as any as ConnectionsManager;
+  let instancesManager: MongoDBInstancesManager;
+  let logger: LoggerAndTelemetry;
+  let listMongoDBInstancesStub: SinonStub;
 
-    context('when an action is not provided', function () {
-      it('returns the default state', function () {
-        expect(reducer(undefined, {} as any)).to.equal(INITIAL_STATE);
-      });
-    });
+  beforeEach(function () {
+    instanceOnSpy = spy();
+    instance.on = instanceOnSpy;
+    instancesManager = {
+      listMongoDBInstances: listMongoDBInstancesStub,
+    } as any;
+    logger = {
+      log: { warn() {} },
+      mongoLogId() {},
+    } as any as LoggerAndTelemetry;
   });
 
-  describe('#changeInstance', function () {
-    it('returns the action', function () {
-      expect(changeInstance('new instance w action' as any)).to.deep.equal({
-        type: CHANGE_INSTANCE,
-        instance: 'new instance w action',
-      });
+  for (const event of [
+    'change:status',
+    'change:refreshingStatus',
+    'change:databasesStatus',
+    'change:csfleMode',
+    'change:topologyDescription',
+    'change:isWritable',
+    'change:env',
+    'change:databasesStatus',
+    'add:databases',
+    'remove:databases',
+    'change:databases',
+    'change:databases.collectionsStatus',
+    'add:collections',
+    'remove:collections',
+    'change:collections._id',
+    'change:collections.status',
+    'change:genuineMongoDB.isGenuine',
+  ]) {
+    it(`subscribes to an existing instance event ${event}`, function () {
+      setupInstance(instance._id, instance)(
+        stub(),
+        () =>
+          ({
+            instance: [],
+          } as any as RootState),
+        {
+          globalAppRegistry,
+          connectionsManager,
+          instancesManager,
+          logger,
+        }
+      );
+
+      expect(instanceOnSpy).to.have.been.calledWith(event);
     });
-  });
+  }
 });

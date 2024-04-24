@@ -5,6 +5,8 @@ import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { ConnectionInfo as ConnectionStorageConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootState } from '../modules';
 import type { Database } from '../modules/databases';
+import type { SingleConnectionOptionsState } from '../modules/connection-options';
+import type { SingleInstanceState } from '../modules/instance';
 
 type ConnectionInfo = {
   term: string;
@@ -44,11 +46,12 @@ function Info({
 export function ConnectionInfoModal({
   isVisible,
   close,
-  infos,
+  infos = [],
 }: {
+  connectionInfo?: ConnectionStorageConnectionInfo;
   isVisible: boolean;
   close: () => void;
-  infos: ConnectionInfo[];
+  infos?: ConnectionInfo[];
 }) {
   return (
     <InfoModal
@@ -94,7 +97,9 @@ function getVersionDistro({
   return isEnterprise ? 'Enterprise' : 'Community';
 }
 
-type InfoParameters = Pick<RootState, 'instance' | 'connectionOptions'> & {
+type InfoParameters = {
+  instance: SingleInstanceState;
+  connectionOptions: SingleConnectionOptionsState;
   databases: Database[];
   connectionInfo: Partial<ConnectionStorageConnectionInfo>;
 };
@@ -239,16 +244,22 @@ function getInfos(infoParameters: InfoParameters) {
   return infos;
 }
 
-const mapStateToProps = (state: RootState) => {
-  const { instance, databases, connectionOptions } = state;
-  const { connectionInfo } = state.connectionInfo;
+const mapStateToProps = (
+  state: RootState,
+  { connectionInfo }: { connectionInfo?: ConnectionStorageConnectionInfo }
+) => {
+  if (!connectionInfo) return { infos: [] };
+
+  const instance = state.instance[connectionInfo.id];
+  const databases = state.databases[connectionInfo.id];
+  const connectionOptions = state.connectionOptions[connectionInfo.id];
 
   return {
     infos: getInfos({
-      instance,
-      databases: databases.databases,
-      connectionInfo,
-      connectionOptions,
+      instance: instance,
+      databases: databases.databases ?? [],
+      connectionInfo: connectionInfo,
+      connectionOptions: connectionOptions || {},
     }),
   };
 };

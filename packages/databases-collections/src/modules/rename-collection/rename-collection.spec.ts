@@ -16,6 +16,10 @@ describe('rename collection module', function () {
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
   };
+  const connectionsManager = {
+    getDataServiceForConnection: sandbox.stub().returns(dataService),
+  };
+  const instancesManager = {} as any;
   const favoriteQueries = {
     getStorage: () => ({
       loadAll: sandbox.stub().resolves([]),
@@ -24,20 +28,11 @@ describe('rename collection module', function () {
   const pipelineStorage = {
     loadAll: sandbox.stub().resolves([]),
   };
-  const instanceModel = {
-    databases: {
-      get: function () {
-        return {
-          collections: [],
-        };
-      },
-    },
-  };
 
   const extraThunkArgs: RenameCollectionPluginServices = {
     globalAppRegistry: appRegistry,
-    dataService,
-    instance: instanceModel as any,
+    connectionsManager: connectionsManager as any,
+    instancesManager: instancesManager,
     queryStorage: favoriteQueries as any,
     pipelineStorage: pipelineStorage as any,
   };
@@ -48,8 +43,8 @@ describe('rename collection module', function () {
         {},
         {
           globalAppRegistry: appRegistry,
-          dataService,
-          instance: instanceModel as any,
+          connectionsManager: connectionsManager as any,
+          instancesManager: instancesManager,
           queryStorage: favoriteQueries as any,
           pipelineStorage: pipelineStorage as any,
         }

@@ -36,6 +36,7 @@ import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 export const POLLING_INTERVAL = 5000;
 
@@ -284,6 +285,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   pollingInterval = POLLING_INTERVAL,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
+  const { id: connectionId } = useConnectionInfo();
 
   useEffect(() => {
     const id = setInterval(onPollIndexes, pollingInterval);
@@ -323,7 +325,7 @@ export const SearchIndexesTable: React.FunctionComponent<
               onDropIndex={onDropIndex}
               onEditIndex={onEditIndex}
               onRunAggregateIndex={(name) => {
-                openCollectionWorkspace(namespace, {
+                openCollectionWorkspace(connectionId, namespace, {
                   newTab: true,
                   ...(isVectorSearchIndex
                     ? {
@@ -352,7 +354,14 @@ export const SearchIndexesTable: React.FunctionComponent<
           ),
         };
       }),
-    [indexes, namespace, onDropIndex, onEditIndex, openCollectionWorkspace]
+    [
+      connectionId,
+      indexes,
+      namespace,
+      onDropIndex,
+      onEditIndex,
+      openCollectionWorkspace,
+    ]
   );
 
   if (!isReadyStatus(status)) {

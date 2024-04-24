@@ -125,6 +125,36 @@ describe('ConnectionList Component', function () {
       );
       expect(filter).to.not.exist;
     });
+
+    it('does not show connection import export option when there is no openConnectionImportExportModal prop', function () {
+      const connectionsHeader = screen.getByTestId(
+        'favorite-connections-list-header'
+      );
+      userEvent.hover(connectionsHeader);
+      expect(() => screen.getByTestId('favorites-menu-show-actions')).to.throw;
+    });
+
+    it('shows connection import export option when there is a openConnectionImportExportModal prop', function () {
+      cleanup();
+      render(
+        <ConnectionList
+          activeConnectionId={mockFavorites[2].id}
+          favoriteConnections={mockFavorites}
+          recentConnections={mockRecents}
+          createNewConnection={createNewConnectionSpy}
+          setActiveConnectionId={setActiveConnectionIdSpy}
+          removeAllRecentsConnections={() => true}
+          onDoubleClick={() => true}
+          openConnectionImportExportModal={() => {}}
+        />
+      );
+      const connectionsHeader = screen.getByTestId(
+        'favorite-connections-list-header'
+      );
+      userEvent.hover(connectionsHeader);
+      expect(() => screen.getByTestId('favorites-menu-show-actions')).to.not
+        .throw;
+    });
   });
 
   describe('with more than 10 favorite connections', function () {

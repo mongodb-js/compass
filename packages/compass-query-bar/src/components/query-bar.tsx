@@ -69,13 +69,6 @@ const queryBarFirstRowStyles = css({
   gap: spacing[2],
 });
 
-const moreOptionsContainerStyles = css({
-  // We explicitly offset this element so we can use
-  // `alignItems: 'flex-start'` on the first row of the query bar.
-  paddingTop: 2,
-  paddingBottom: 2,
-});
-
 const filterContainerStyles = css({
   display: 'flex',
   position: 'relative',
@@ -100,10 +93,6 @@ const queryOptionsContainerStyles = css({
 
 const queryAIContainerStyles = css({
   margin: `0px ${spacing[2]}px`,
-});
-
-const visibleAIContainerStyles = css({
-  marginTop: '2px',
 });
 
 const QueryOptionsToggle = connect(
@@ -151,6 +140,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     'project',
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
+    'hint',
   ],
   queryChanged,
   resultId,
@@ -221,6 +211,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
       data-apply-id={applyId}
     >
+      {isAIFeatureEnabled && (
+        <div className={queryAIContainerStyles}>
+          <QueryAI
+            onClose={() => {
+              onHideAIInputClick?.();
+            }}
+            show={isAIInputVisible}
+          />
+        </div>
+      )}
       <div className={queryBarFirstRowStyles}>
         {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         <div className={filterContainerStyles}>
@@ -288,7 +288,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         )}
 
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
-          <div className={moreOptionsContainerStyles}>
+          <div>
             <QueryOptionsToggle
               aria-controls="additional-query-options-container"
               data-testid="query-bar-options-toggle"
@@ -313,21 +313,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             ))}
           </div>
         )}
-      {isAIFeatureEnabled && (
-        <div
-          className={cx(
-            queryAIContainerStyles,
-            isAIInputVisible && visibleAIContainerStyles
-          )}
-        >
-          <QueryAI
-            onClose={() => {
-              onHideAIInputClick?.();
-            }}
-            show={isAIInputVisible}
-          />
-        </div>
-      )}
     </form>
   );
 };

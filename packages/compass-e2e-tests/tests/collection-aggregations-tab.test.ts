@@ -619,11 +619,31 @@ describe('Collection aggregations tab', function () {
 
     // run the $out stage
     await browser.clickVisible(Selectors.RunPipelineButton);
+
+    // confirm the write operation
+    const writeOperationConfirmationModal = await browser.$(
+      Selectors.AggregationWriteOperationConfirmationModal
+    );
+    await writeOperationConfirmationModal.waitForDisplayed();
+
+    const description = await browser
+      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
+      .getText();
+
+    expect(description).to.contain('creating');
+    expect(description).to.contain('test.my-out-collection');
+
+    await browser.clickVisible(
+      Selectors.AggregationWriteOperationConfirmButton
+    );
+
+    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+
+    // go to the new collection
     const goToCollectionButton = await browser.$(
       Selectors.GoToCollectionButton
     );
     await goToCollectionButton.waitForDisplayed();
-    // go to the new collection
     await browser.clickVisible(Selectors.GoToCollectionButton);
 
     await browser.waitUntil(
@@ -636,6 +656,52 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-out-collection` namespace tab to be visible',
       }
     );
+  });
+
+  it('cancels pipeline with $out as the last stage', async function () {
+    await browser.selectStageOperator(0, '$out');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      "'numbers'"
+    );
+
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
+    await browser.clickVisible(Selectors.AddStageButton);
+
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$match');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(1),
+      `{ i: 5 }`
+    );
+
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+
+    // delete the stage after $out
+    await deleteStage(browser, 1);
+
+    // run the $out stage
+    await browser.clickVisible(Selectors.RunPipelineButton);
+
+    // confirm the write operation
+    const writeOperationConfirmationModal = await browser.$(
+      Selectors.AggregationWriteOperationConfirmationModal
+    );
+    await writeOperationConfirmationModal.waitForDisplayed();
+
+    const description = await browser
+      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
+      .getText();
+
+    expect(description).to.contain('overwriting');
+    expect(description).to.contain('test.numbers');
+
+    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
+    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+
+    // the pipeline can be futher edited
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
   });
 
   it('supports $merge as the last stage', async function () {
@@ -669,11 +735,31 @@ describe('Collection aggregations tab', function () {
 
     // run the $merge stage
     await browser.clickVisible(Selectors.RunPipelineButton);
+
+    // confirm the write operation
+    const writeOperationConfirmationModal = await browser.$(
+      Selectors.AggregationWriteOperationConfirmationModal
+    );
+    await writeOperationConfirmationModal.waitForDisplayed();
+
+    const description = await browser
+      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
+      .getText();
+
+    expect(description).to.contain('altering');
+    expect(description).to.contain('test.my-merge-collection');
+
+    await browser.clickVisible(
+      Selectors.AggregationWriteOperationConfirmButton
+    );
+
+    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+
+    // go to the new collection
     const goToCollectionButton = await browser.$(
       Selectors.GoToCollectionButton
     );
     await goToCollectionButton.waitForDisplayed();
-    // go to the new collection
     await browser.clickVisible(Selectors.GoToCollectionButton);
 
     await browser.waitUntil(
@@ -686,6 +772,56 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-merge-collection` namespace tab to be visible',
       }
     );
+  });
+
+  it('cancels pipeline with $merge as the last stage', async function () {
+    if (serverSatisfies('< 4.2.0')) {
+      return this.skip();
+    }
+
+    await browser.selectStageOperator(0, '$merge');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(0),
+      "'numbers'"
+    );
+
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
+
+    await browser.clickVisible(Selectors.AddStageButton);
+
+    await browser.focusStageOperator(1);
+    await browser.selectStageOperator(1, '$match');
+    await browser.setCodemirrorEditorValue(
+      Selectors.stageEditor(1),
+      `{ i: 5 }`
+    );
+
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
+
+    // delete the stage after $out
+    await deleteStage(browser, 1);
+
+    // run the $out stage
+    await browser.clickVisible(Selectors.RunPipelineButton);
+
+    // confirm the write operation
+    const writeOperationConfirmationModal = await browser.$(
+      Selectors.AggregationWriteOperationConfirmationModal
+    );
+    await writeOperationConfirmationModal.waitForDisplayed();
+
+    const description = await browser
+      .$(Selectors.AggregationWriteOperationConfirmationModalDescription)
+      .getText();
+
+    expect(description).to.contain('altering');
+    expect(description).to.contain('test.numbers');
+
+    await browser.clickVisible(Selectors.AggregationWriteOperationCancelButton);
+    await writeOperationConfirmationModal.waitForDisplayed({ reverse: true });
+
+    // the pipeline can be futher edited
+    await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
   });
 
   it('supports running and editing aggregation', async function () {
@@ -923,15 +1059,15 @@ describe('Collection aggregations tab', function () {
       expect(await textContent.getText()).to.contain(`[
   {
     $match: {
-      i: 5,
-    },
-  },
+      i: 5
+    }
+  }
 ]`);
 
       await switchPipelineMode(browser, 'builder-ui');
       const stageContent = await browser.$(Selectors.stageContent(0));
       expect(await stageContent.getText()).to.equal(`{
-  i: 5,
+  i: 5
 }`);
     });
 
@@ -1130,7 +1266,7 @@ describe('Collection aggregations tab', function () {
       const content = await browser.$(Selectors.stageContent(0));
       await waitForAnyText(browser, content);
       expect(await content.getText()).to.equal(`{
-  i: 0,
+  i: 0
 }`);
     });
 
@@ -1471,7 +1607,7 @@ describe('Collection aggregations tab', function () {
         .$(Selectors.stageContent(oldLength))
         .getText();
       expect(stageContent).to.equal(`{
-  name: 1,
+  name: 1
 }`);
     });
   });

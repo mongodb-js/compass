@@ -67,6 +67,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           darkMode && headerAndOptionsRowDarkStyles
         )}
       >
+        {isAIFeatureEnabled && isBuilderView && <PipelineAI />}
         <PipelineHeader
           isOptionsVisible={isOptionsVisible}
           onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
@@ -79,7 +80,6 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             <PipelineOptions />
           </div>
         )}
-        {isAIFeatureEnabled && isBuilderView && <PipelineAI />}
       </div>
       {isBuilderView ? (
         <div className={settingsRowStyles}>

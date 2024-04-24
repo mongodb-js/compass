@@ -94,9 +94,7 @@ export function mapQueryToFormFields(
         let valueAsString =
           typeof _value === 'undefined' ? '' : toJSString(_value, 0) || '';
 
-        valueAsString = prettify(valueAsString, 'javascript-expression', {
-          trailingComma: 'none',
-        });
+        valueAsString = prettify(valueAsString, 'javascript-expression');
 
         const value = validateField(key, valueAsString, preferences);
         const valid: boolean = value !== false;
@@ -149,6 +147,12 @@ export function validateField(
     ) {
       return false;
     }
+  }
+
+  // We don't have a validator for indexes, but indexes share the same structure as
+  // a sort document, so we're leveraging this to validate the hint field
+  if (field === 'hint') {
+    return validate('sort', value);
   }
 
   return validated;

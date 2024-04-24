@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 /**
  * TODO (imlucas) Switch from yargs to http://npm.im/commander
  */

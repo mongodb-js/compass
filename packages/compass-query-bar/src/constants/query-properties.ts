@@ -6,6 +6,7 @@ export const QUERY_PROPERTIES = [
   'project',
   'collation',
   'sort',
+  'hint',
   'skip',
   'limit',
   'maxTimeMS',
@@ -26,6 +27,7 @@ export type QueryFormFields = {
   project: FormField<Document>;
   collation: FormField<Document>;
   sort: FormField<Document>;
+  hint: FormField<Document>;
   skip: FormField<number>;
   limit: FormField<number>;
   maxTimeMS: FormField<number>;

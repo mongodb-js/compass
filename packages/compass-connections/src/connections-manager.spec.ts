@@ -294,6 +294,31 @@ describe('ConnectionsManager', function () {
     }
   );
 
+  context('when connecting to Atlas Streams', function () {
+    beforeEach(function () {
+      connectionsManager = getConnectionsManager(mockConnectFn);
+    });
+
+    it('should throw an error', async function () {
+      const maybeError = await connectionsManager
+        .connect(
+          {
+            id: '1',
+            connectionOptions: {
+              connectionString:
+                'mongodb://atlas-stream-example.mongodb.net/?tls=true',
+            },
+          },
+          getConnectionConfigurationOptions()
+        )
+        .catch((error) => error);
+
+      expect(maybeError.message).to.equal(
+        'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
+      );
+    });
+  });
+
   context('when a connection attempt is cancelled', function () {
     let canceledPromise;
     beforeEach(function () {

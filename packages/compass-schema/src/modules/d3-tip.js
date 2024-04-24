@@ -1,3 +1,4 @@
+'use strict';
 /* eslint no-use-before-define: 0, one-var: 0, no-else-return: 0, no-unused-vars: 0, eqeqeq: 0, no-shadow: 0, yoda: 0, consistent-return: 0, one-var: 0, camelcase: 0 */
 // d3.tip
 // Copyright (c) 2013 Justin Palmer

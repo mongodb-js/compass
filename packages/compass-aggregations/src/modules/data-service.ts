@@ -5,7 +5,9 @@ export type RequiredDataServiceProps =
   | 'estimatedCount'
   | 'aggregate'
   | 'getConnectionString'
-  | 'updateCollection';
+  | 'updateCollection'
+  | 'getCurrentTopologyType'
+  | 'instance';
 export type OptionalDataServiceProps =
   | 'explainAggregate'
   | 'getSearchIndexes'

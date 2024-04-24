@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Wouldn't it be great if you or a CI system were notified properly
  * that you aren't using the right version of node.js or npm?

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionInfoAccess } from './connection-info-provider';
 import { ConnectionScopedAppRegistryImpl } from './connection-scoped-app-registry';
 
 const connectionInfoAccess: ConnectionInfoAccess = {

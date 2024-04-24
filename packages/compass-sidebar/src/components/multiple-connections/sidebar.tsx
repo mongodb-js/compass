@@ -1,22 +1,38 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { useConnections } from '@mongodb-js/compass-connections/provider';
+import { connect } from 'react-redux';
+import {
+  useActiveConnections,
+  useConnections,
+} from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import { SavedConnectionList } from './saved-connections/saved-connection-list';
-import { ActiveConnectionList } from './active-connections/active-connection-list';
 import {
   ResizableSidebar,
   css,
   Link,
   useToast,
   spacing,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
+import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
+import type { SidebarThunkAction } from '../../modules';
+import { Navigation } from './navigation/navigation';
+import ConnectionInfoModal from '../connection-info-modal';
+import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
+
+const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
+
+type MultipleConnectionSidebarProps = {
+  activeWorkspace: { type: string; namespace?: string } | null;
+  onSidebarAction(action: string, ...rest: any[]): void;
+};
 
 const sidebarStyles = css({
   // Sidebar internally has z-indexes higher than zero. We set zero on the
@@ -67,11 +83,55 @@ function ConnectionErrorToastBody({
   );
 }
 
-export function MultipleConnectionSidebar() {
+function activeConnectionNotFoundError(
+  description = 'Connection not found. Please try again'
+) {
+  openToast('active-connection-not-found', {
+    title: 'Error',
+    description,
+    variant: 'warning',
+    timeout: TOAST_TIMEOUT_MS,
+  });
+}
+
+async function copyConnectionString(connectionString: string) {
+  try {
+    await navigator.clipboard.writeText(connectionString);
+    openToast('copy-to-clipboard', {
+      title: 'Success',
+      description: 'Copied to clipboard.',
+      variant: 'success',
+      timeout: TOAST_TIMEOUT_MS,
+    });
+  } catch {
+    openToast('copy-to-clipboard', {
+      title: 'Error',
+      description:
+        'An error occurred when copying to clipboard. Please try again.',
+      variant: 'warning',
+      timeout: TOAST_TIMEOUT_MS,
+    });
+  }
+}
+
+export function MultipleConnectionSidebar({
+  activeWorkspace,
+  onSidebarAction,
+}: MultipleConnectionSidebarProps) {
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
+  const activeConnections = useActiveConnections();
+  const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+  const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
+    useState<string | undefined>();
+
+  const findActiveConnection = useCallback(
+    (connectionId: string) =>
+      activeConnections.find(({ id }) => id === connectionId),
+    [activeConnections]
+  );
 
   const onConnected = useCallback(
     (info: ConnectionInfo) => {
@@ -207,7 +267,7 @@ export function MultipleConnectionSidebar() {
     [duplicateConnection, setIsConnectionFormOpen]
   );
 
-  const onToggleFavoriteConnection = useCallback(
+  const onToggleFavoriteConnectionInfo = useCallback(
     (info: ConnectionInfo) => {
       info.savedConnectionType =
         info.savedConnectionType === 'favorite' ? 'recent' : 'favorite';
@@ -215,6 +275,48 @@ export function MultipleConnectionSidebar() {
       void saveConnection(info);
     },
     [saveConnection]
+  );
+
+  const onToggleFavoriteActiveConnection = useCallback(
+    (connectionId: ConnectionInfo['id']) => {
+      const connectionInfo = findActiveConnection(connectionId);
+      if (!connectionInfo) {
+        activeConnectionNotFoundError(
+          'Favorite/Unfavorite action failed - Connection not found. Please try again.'
+        );
+        return;
+      }
+      onToggleFavoriteConnectionInfo(connectionInfo);
+    },
+    [onToggleFavoriteConnectionInfo, findActiveConnection]
+  );
+
+  const onOpenConnectionInfo = useCallback(
+    (connectionId: string) => setConnectionInfoModalConnectionId(connectionId),
+    []
+  );
+
+  const onCloseConnectionInfo = useCallback(
+    () => setConnectionInfoModalConnectionId(undefined),
+    []
+  );
+
+  const onCopyActiveConnectionString = useCallback(
+    (connectionId: string) => {
+      const connectionInfo = findActiveConnection(connectionId);
+      if (!connectionInfo) {
+        activeConnectionNotFoundError(
+          'Copying to clipboard failed - Connection not found. Please try again.'
+        );
+        return;
+      }
+      void copyConnectionString(
+        maybeProtectConnectionString(
+          connectionInfo?.connectionOptions.connectionString
+        )
+      );
+    },
+    [findActiveConnection, maybeProtectConnectionString]
   );
 
   const protectConnectionStrings = usePreference('protectConnectionStrings');
@@ -253,8 +355,15 @@ export function MultipleConnectionSidebar() {
   return (
     <ResizableSidebar data-testid="navigation-sidebar">
       <aside className={sidebarStyles}>
-        <SidebarHeader />
-        <ActiveConnectionList />
+        <SidebarHeader onAction={onSidebarAction} />
+        <Navigation currentLocation={activeWorkspace?.type ?? null} />
+        <ActiveConnectionNavigation
+          activeConnections={activeConnections}
+          activeWorkspace={activeWorkspace}
+          onOpenConnectionInfo={onOpenConnectionInfo}
+          onCopyConnectionString={onCopyActiveConnectionString}
+          onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
+        />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}
@@ -263,7 +372,7 @@ export function MultipleConnectionSidebar() {
           onEditConnection={onEditConnection}
           onDeleteConnection={onDeleteConnection}
           onDuplicateConnection={onDuplicateConnection}
-          onToggleFavoriteConnection={onToggleFavoriteConnection}
+          onToggleFavoriteConnection={onToggleFavoriteConnectionInfo}
         />
         <ConnectionFormModal
           isOpen={isConnectionFormOpen}
@@ -276,7 +385,31 @@ export function MultipleConnectionSidebar() {
           connectionErrorMessage={connectionErrorMessage}
           preferences={preferences}
         />
+        <ConnectionInfoModal
+          connectionInfo={
+            connectionInfoModalConnectionId
+              ? findActiveConnection(connectionInfoModalConnectionId)
+              : undefined
+          }
+          isVisible={!!connectionInfoModalConnectionId}
+          close={onCloseConnectionInfo}
+        />
       </aside>
     </ResizableSidebar>
   );
 }
+
+const onSidebarAction = (
+  action: string,
+  ...rest: any[]
+): SidebarThunkAction<void> => {
+  return (_dispatch, _getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit(action, ...rest);
+  };
+};
+
+const MappedMultipleConnectionSidebar = connect(undefined, {
+  onSidebarAction,
+})(MultipleConnectionSidebar);
+
+export default MappedMultipleConnectionSidebar;

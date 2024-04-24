@@ -18,17 +18,20 @@ const HANDLE_ERROR = 'database-collections/rename-collection/HANDLE_ERROR';
  * Open drop database action creator.
  */
 export const open = ({
+  connectionId,
   db,
   collection,
   collections,
   areSavedQueriesAndAggregationsImpacted,
 }: {
+  connectionId: string;
   db: string;
   collection: string;
   collections: { name: string }[];
   areSavedQueriesAndAggregationsImpacted: boolean;
 }) => ({
   type: OPEN,
+  connectionId,
   db,
   collection,
   collections,
@@ -53,6 +56,7 @@ export type RenameCollectionRootState = {
   initialCollectionName: string;
   isRunning: boolean;
   isVisible: boolean;
+  connectionId: string;
   databaseName: string;
   collections: { name: string }[];
   areSavedQueriesAndAggregationsImpacted: boolean;
@@ -62,6 +66,7 @@ const defaultState: RenameCollectionRootState = {
   isRunning: false,
   isVisible: false,
   error: null,
+  connectionId: '',
   databaseName: '',
   initialCollectionName: '',
   collections: [],
@@ -77,6 +82,7 @@ const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
   } else if (action.type === OPEN) {
     return {
       initialCollectionName: action.collection,
+      connectionId: action.connectionId,
       databaseName: action.db,
       collections: action.collections,
       areSavedQueriesAndAggregationsImpacted:
@@ -136,9 +142,21 @@ export const renameCollection = (
   RenameCollectionPluginServices,
   AnyAction
 > => {
-  return async (dispatch, getState, { dataService, globalAppRegistry }) => {
+  return async (
+    dispatch,
+    getState,
+    { connectionsManager, globalAppRegistry }
+  ) => {
     const state = getState();
-    const { databaseName, initialCollectionName } = state;
+    const { connectionId, databaseName, initialCollectionName } = state;
+    const dataService =
+      connectionsManager.getDataServiceForConnection(connectionId);
+
+    if (!dataService) {
+      throw new Error(
+        'unreachable: The modal is only shown when the connection is active.'
+      );
+    }
 
     dispatch(renameRequestInProgress());
     const oldNamespace = `${databaseName}.${initialCollectionName}`;

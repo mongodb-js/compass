@@ -1,5 +1,9 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
+import type { DataService } from 'mongodb-data-service';
 
 import configureReduxStore from '../../../test/configure-store';
 import {
@@ -10,24 +14,29 @@ import {
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
 import { MockAtlasAiService } from '../../../test/configure-store';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
+  let preferences: PreferencesAccess;
 
-  afterEach(function () {
-    sandbox.reset();
-  });
-
-  async function configureStore(aiService: Partial<AtlasAiService> = {}) {
-    const preferences = await createSandboxFromDefaultPreferences();
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableGenAIFeatures: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: true,
       },
     });
+  });
+
+  afterEach(function () {
+    sandbox.reset();
+  });
+
+  function configureStore(
+    aiService: Partial<AtlasAiService> = {},
+    mockDataService?: Partial<DataService>
+  ) {
     const atlasAiService = Object.assign(new MockAtlasAiService(), aiService);
     return configureReduxStore(
       {
@@ -39,6 +48,8 @@ describe('AIPipelineReducer', function () {
       } as any,
       {
         atlasAiService: atlasAiService as any,
+        dataService: mockDataService as any,
+        preferences,
       }
     );
   }
@@ -49,7 +60,7 @@ describe('AIPipelineReducer', function () {
         const fetchJsonStub = sandbox.stub().resolves({
           content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
         });
-        const store = await configureStore({
+        const store = configureStore({
           getAggregationFromUserInput: fetchJsonStub,
         });
 
@@ -72,8 +83,8 @@ describe('AIPipelineReducer', function () {
         expect(args).to.not.have.property('sampleDocuments');
 
         expect(
-          store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-        ).to.equal(-1);
+          store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+        ).to.equal(null);
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal(undefined);
@@ -85,7 +96,7 @@ describe('AIPipelineReducer', function () {
 
     describe('when there is an error', function () {
       it('sets the error on the store', async function () {
-        const store = await configureStore({
+        const store = configureStore({
           getAggregationFromUserInput: sandbox
             .stub()
             .rejects(new Error('500 Internal Server Error')),
@@ -95,8 +106,8 @@ describe('AIPipelineReducer', function () {
         ).to.equal(undefined);
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
         expect(
-          store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-        ).to.equal(-1);
+          store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+        ).to.equal(null);
         expect(
           store.getState().pipelineBuilder.aiPipeline.errorMessage
         ).to.equal('500 Internal Server Error');
@@ -108,7 +119,7 @@ describe('AIPipelineReducer', function () {
       it('resets the store if errs was caused by user being unauthorized', async function () {
         const authError = new Error('Unauthorized');
         (authError as any).statusCode = 401;
-        const store = await configureStore({
+        const store = configureStore({
           getAggregationFromUserInput: sandbox.stub().rejects(authError),
         });
         await store.dispatch(runAIPipelineGeneration('testing prompt') as any);
@@ -118,37 +129,104 @@ describe('AIPipelineReducer', function () {
           errorMessage: undefined,
           errorCode: undefined,
           isInputVisible: false,
-          aiPipelineFetchId: -1,
+          aiPipelineRequestId: null,
+          lastAIPipelineRequestId: null,
           isAggregationGeneratedFromQuery: false,
         });
+      });
+    });
+
+    describe('when the sample documents setting is enabled', function () {
+      beforeEach(async function () {
+        await preferences.savePreferences({
+          enableGenAISampleDocumentPassing: true,
+        });
+      });
+
+      it('includes sample documents in the request', async function () {
+        const fetchJsonStub = sandbox.stub().resolves({
+          content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
+        });
+        const mockDataService = {
+          sample: sandbox.stub().resolves([{ pineapple: 'turtle' }]),
+        };
+        const store = configureStore(
+          {
+            getAggregationFromUserInput: fetchJsonStub,
+          },
+          mockDataService
+        );
+
+        // Set autoPreview false so that it doesn't start the
+        // follow up async preview doc requests.
+        store.dispatch(toggleAutoPreview(false));
+        expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
+          'ready'
+        );
+
+        await preferences.savePreferences({
+          enableGenAISampleDocumentPassing: true,
+        });
+
+        await store.dispatch(runAIPipelineGeneration('testing prompt'));
+
+        expect(fetchJsonStub).to.have.been.calledOnce;
+        const args = fetchJsonStub.getCall(0).firstArg;
+        expect(args).to.have.deep.property('sampleDocuments', [
+          { pineapple: 'turtle' },
+        ]);
+      });
+    });
+
+    describe('when the sample documents setting is disabled', function () {
+      it('does not include sample documents in the request', async function () {
+        const fetchJsonStub = sandbox.stub().resolves({
+          content: { aggregation: { pipeline: '[{ $match: { _id: 1 } }]' } },
+        });
+        const store = configureStore({
+          getAggregationFromUserInput: fetchJsonStub,
+        });
+
+        // Set autoPreview false so that it doesn't start the
+        // follow up async preview doc requests.
+        store.dispatch(toggleAutoPreview(false));
+        expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
+          'ready'
+        );
+
+        await store.dispatch(runAIPipelineGeneration('testing prompt'));
+        expect(fetchJsonStub).to.have.been.calledOnce;
+
+        const args = fetchJsonStub.getCall(0).firstArg;
+        expect(args).to.not.have.property('sampleDocuments');
       });
     });
   });
 
   describe('cancelAIPipelineGeneration', function () {
-    it('should unset the fetching id and set the status on the store', async function () {
-      const store = await configureStore();
+    it('should unset the fetching id and set the status on the store', function () {
+      const store = configureStore();
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(-1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal(null);
 
       store.dispatch({
         type: AIPipelineActionTypes.AIPipelineStarted,
-        fetchId: 1,
+        requestId: 'pineapples',
       });
 
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'fetching'
       );
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal('pineapples');
 
       store.dispatch(cancelAIPipelineGeneration());
 
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(-1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal(null);
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'ready'
       );
@@ -156,8 +234,8 @@ describe('AIPipelineReducer', function () {
   });
 
   describe('generateAggregationFromQuery', function () {
-    it('should create an aggregation pipeline', async function () {
-      const store = await configureStore({
+    it('should create an aggregation pipeline', function () {
+      const store = configureStore({
         getAggregationFromUserInput: sandbox.stub().resolves({
           content: {
             aggregation: { pipeline: '[{ $group: { _id: "$price" } }]' },
@@ -178,12 +256,13 @@ describe('AIPipelineReducer', function () {
           aggregation: {
             pipeline: '[{ $group: { _id: "$price" } }]',
           },
+          requestId: 'abc',
         })
       );
 
       expect(
-        store.getState().pipelineBuilder.aiPipeline.aiPipelineFetchId
-      ).to.equal(-1);
+        store.getState().pipelineBuilder.aiPipeline.aiPipelineRequestId
+      ).to.equal(null);
       expect(store.getState().pipelineBuilder.aiPipeline.errorMessage).to.equal(
         undefined
       );
@@ -196,6 +275,9 @@ describe('AIPipelineReducer', function () {
       expect(
         store.getState().pipelineBuilder.aiPipeline.isInputVisible
       ).to.equal(true);
+      expect(
+        store.getState().pipelineBuilder.aiPipeline.lastAIPipelineRequestId
+      ).to.equal('abc');
       expect(
         store.getState().pipelineBuilder.aiPipeline
           .isAggregationGeneratedFromQuery

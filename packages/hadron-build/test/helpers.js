@@ -1,3 +1,4 @@
+'use strict';
 const Target = require('../lib/target');
 const path = require('path');
 

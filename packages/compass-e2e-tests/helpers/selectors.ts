@@ -11,6 +11,10 @@ export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
 
+// LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
+export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
+export const LGToastCloseButton = '[data-testid="lg-toast-dismiss-button"]';
+
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
 export const CloseWelcomeModalButton =
@@ -714,6 +718,11 @@ export const AggregationRestultsPrevPageButton =
 export const AggregationResultsCancelButton =
   '[data-testid="pipeline-results-loader-button"]';
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
+export const AggregationWriteOperationConfirmationModal =
+  '[data-testid="write-operation-confirmation-modal"]';
+export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm-button"]`;
+export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel-button"]`;
+export const AggregationWriteOperationConfirmationModalDescription = `${AggregationWriteOperationConfirmationModal} [data-testid="confirmation-description"]`;
 
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
