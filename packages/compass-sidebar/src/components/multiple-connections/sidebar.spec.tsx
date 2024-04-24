@@ -10,29 +10,30 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MultipleConnectionSidebar from './sidebar';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import {
-  ConnectionStorageProvider,
   InMemoryConnectionStorage,
-  type ConnectionInfo,
+  ConnectionStorageProvider,
 } from '@mongodb-js/connection-storage/provider';
 import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
-  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createInstance } from '../../../test/helpers';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   type WorkspacesService,
   WorkspacesServiceProvider,
 } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -66,12 +67,13 @@ const savedConnection: ConnectionInfo = {
 };
 
 describe('Multiple Connections Sidebar Component', function () {
-  const instance = createInstance();
+  let preferences: PreferencesAccess;
+
+  const connectionStorage = new InMemoryConnectionStorage([savedConnection]);
   const globalAppRegistry = new AppRegistry();
   const emitSpy = spy(globalAppRegistry, 'emit');
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  let connectionStorage: ConnectionStorage;
   let openMyQueriesWorkspaceStub: SinonStub;
 
   const connectFn = stub();
@@ -84,51 +86,52 @@ describe('Multiple Connections Sidebar Component', function () {
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        instancesManager: {
+          listMongoDBInstances() {
+            return [];
           },
-          currentOp() {},
-          top() {},
-        } as DataService,
-        instance,
-        connectionStorage: new InMemoryConnectionStorage(),
-        logger: createNoopLoggerAndTelemetry(),
-        connectionInfo: TEST_CONNECTION_INFO,
-      },
+        },
+        logger: { log: { warn() {} }, mongoLogId() {} },
+      } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
     openMyQueriesWorkspaceStub = stub();
 
     return render(
       <ToastArea>
-        <WorkspacesServiceProvider
-          value={
-            {
-              openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
-            } as unknown as WorkspacesService
-          }
-        >
-          <WorkspacesProvider
-            value={[{ name: 'My Queries', component: () => null }]}
+        <PreferencesProvider value={preferences}>
+          <WorkspacesServiceProvider
+            value={
+              {
+                openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
+              } as unknown as WorkspacesService
+            }
           >
-            <ConnectionStorageProvider value={connectionStorage}>
-              <ConnectionsManagerProvider value={connectionManager}>
-                <Provider store={store}>
-                  <MultipleConnectionSidebar
-                    activeWorkspace={{ type: 'connection' }}
-                  />
-                </Provider>
-              </ConnectionsManagerProvider>
-            </ConnectionStorageProvider>
-          </WorkspacesProvider>
-        </WorkspacesServiceProvider>
+            <WorkspacesProvider
+              value={[{ name: 'My Queries', component: () => null }]}
+            >
+              <ConnectionStorageProvider value={connectionStorage}>
+                <ConnectionsManagerProvider value={connectionManager}>
+                  <Provider store={store}>
+                    <MultipleConnectionSidebar
+                      activeWorkspace={{ type: 'connection' }}
+                    />
+                  </Provider>
+                </ConnectionsManagerProvider>
+              </ConnectionStorageProvider>
+            </WorkspacesProvider>
+          </WorkspacesServiceProvider>
+        </PreferencesProvider>
       </ToastArea>
     );
   }
 
-  beforeEach(function () {
-    connectionStorage = new InMemoryConnectionStorage([savedConnection]);
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
+
     doRender();
   });
 

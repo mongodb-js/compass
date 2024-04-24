@@ -97,9 +97,12 @@ export const createDatabase = (): DatabasesThunkAction<void> => {
   };
 };
 
-export const dropDatabase = (ns: string): DatabasesThunkAction<void> => {
+export const dropDatabase = (
+  connectionId: string,
+  ns: string
+): DatabasesThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-drop-database', ns);
+    globalAppRegistry.emit('open-drop-database', connectionId, ns);
   };
 };
 

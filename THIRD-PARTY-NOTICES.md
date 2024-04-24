@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Apr 18 2024.
+This document was automatically generated on Mon Apr 22 2024.
 
 ## List of dependencies
 
@@ -249,7 +249,7 @@ This document was automatically generated on Thu Apr 18 2024.
 | **[ejson-shell-parser](#88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b)**                                 | 2.0.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#dcda22e402581a033ec2a017d6d05c094bf3173c1b03ae0471b2ce9078d3f601)**                          | 1.0.0        | Apache-2.0                          |
-| **[electron](#c246c219a293f45342a6d310a565ea32e0861f3064f377b40c6036a348c9bd44)**                                           | 29.3.0       | MIT                                 |
+| **[electron](#4e183d4b327e0da0de21843054b6fb7903970cc998c3b84a5ef79d7692e563c7)**                                           | 29.3.1       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -582,7 +582,6 @@ This document was automatically generated on Thu Apr 18 2024.
 | **[use-sync-external-store](#f7d4a0ea4ee9d814fb264db8103d6ad3a831aa79bf7f3ea70bfa182f8a930f0a)**                            | 1.2.0        | MIT                                 |
 | **[util-deprecate](#a1bd80d6a50b36e34032c402c5204d6276747d8212b68b164a9e3f895b90c2d6)**                                     | 1.0.2        | MIT                                 |
 | **[utils-merge](#daf17cb7acc6dd4694e84d0920d7b32dba2be0fcf114309bfce8538812e7c458)**                                        | 1.0.1        | MIT                                 |
-| **[uuid](#a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26)**                                               | 8.3.2        | MIT                                 |
 | **[uuid](#8e5d6b0bb24ea0188cd3a88b1f790f104e774bb8ed04c0dac0db7cfe2911227e)**                                               | 9.0.1        | MIT                                 |
 | **[vary](#d308bd3935a6f29310b20de016cdb7b3de3aa40a7d4c3365b96e35d2c248d74a)**                                               | 1.1.2        | MIT                                 |
 | **[w3c-keyname](#160316b2bf7a19e2cc0418d5ef94b5a999f9092fee3023ac9b2c7d76d2934f5b)**                                        | 2.2.6        | MIT                                 |
@@ -20880,9 +20879,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="c246c219a293f45342a6d310a565ea32e0861f3064f377b40c6036a348c9bd44"></a>
+<a id="4e183d4b327e0da0de21843054b6fb7903970cc998c3b84a5ef79d7692e563c7"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 29.3.0)
+### [electron](https://www.npmjs.com/package/electron) (version 29.3.1)
 
 License tags: MIT
 
@@ -40658,26 +40657,6 @@ License files:
       COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="a34e7819c122fe308fef4f0c9e534d305065097a743da82251b903f2761b2d26"></a>
-
-### [uuid](https://www.npmjs.com/package/uuid) (version 8.3.2)
-
-License tags: MIT
-
-License files:
-
-- LICENSE.md:
-
-      The MIT License (MIT)
-
-      Copyright (c) 2010-2020 Robert Kieffer and other contributors
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="8e5d6b0bb24ea0188cd3a88b1f790f104e774bb8ed04c0dac0db7cfe2911227e"></a>
 

@@ -14,11 +14,14 @@ describe('DropNamespacePlugin', function () {
     dropDatabase: sandbox.stub().resolves(true),
     dropCollection: sandbox.stub().resolves(true),
   };
+  const connectionsManager = {
+    getDataServiceForConnection: sandbox.stub().returns(dataService),
+  } as any;
 
   beforeEach(function () {
     const Plugin = DropNamespacePlugin.withMockServices({
       globalAppRegistry: appRegistry,
-      dataService,
+      connectionsManager,
     });
     render(<Plugin></Plugin>);
   });
@@ -29,7 +32,7 @@ describe('DropNamespacePlugin', function () {
   });
 
   it('should ask for confirmation and delete collection on `open-drop-collection` event', async function () {
-    appRegistry.emit('open-drop-collection', toNS('test.to-drop'));
+    appRegistry.emit('open-drop-collection', 'TEST', toNS('test.to-drop'));
 
     expect(
       screen.getByText(
@@ -58,7 +61,7 @@ describe('DropNamespacePlugin', function () {
   });
 
   it('should ask for confirmation and delete database on `open-drop-database` event', async function () {
-    appRegistry.emit('open-drop-database', 'db-to-drop');
+    appRegistry.emit('open-drop-database', 'TEST', 'db-to-drop');
 
     expect(
       screen.getByText('Are you sure you want to drop database "db-to-drop"?')

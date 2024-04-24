@@ -129,7 +129,7 @@ export function onAutoupdateSuccess({
 export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
   const toastId = 'compass-update-restarted';
   openToast(toastId, {
-    variant: 'note',
+    variant: 'success',
     title: `Compass ${newVersion} is installed successfully`,
     description: (
       <Link
