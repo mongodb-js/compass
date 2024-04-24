@@ -17,6 +17,7 @@ import {
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const connections: Connection[] = [
   {
@@ -53,6 +54,9 @@ const connections: Connection[] = [
         ],
       },
     ],
+    isReady: true,
+    isDataLake: false,
+    isWritable: false,
   },
   {
     connectionInfo: {
@@ -69,13 +73,20 @@ const connections: Connection[] = [
     databasesStatus: 'initial',
     databasesLength: 2,
     databases: [],
+    isReady: true,
+    isDataLake: false,
+    isWritable: false,
   },
 ];
 
 const props = {
   connections,
   expanded: { turtles: { bar: true } },
-  activeNamespace: 'bar.meow',
+  activeWorkspace: {
+    connectionId: 'connection_ready',
+    namespace: 'db_ready.meow',
+    type: 'Collection',
+  } as WorkspaceTab,
   onConnectionExpand: () => {},
   onDatabaseExpand: () => {},
   onNamespaceAction: () => {},
@@ -99,7 +110,6 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: { db_ready: true } }}
-            activeNamespace="db_ready.meow" // TODO(COMPASS-7775) this should be connection_ready.db_ready.meow
           />
         </PreferencesProvider>
       );
@@ -121,7 +131,6 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: { db_ready: true } }}
-            activeNamespace="db_ready.meow" // TODO(COMPASS-7775) this should be connection_ready.db_ready.meow
             onNamespaceAction={spy}
           />
         </PreferencesProvider>
@@ -234,7 +243,13 @@ describe('ConnectionsNavigationTree', function () {
       <ConnectionsNavigationTree
         {...props}
         expanded={{ connection_ready: {} }}
-        activeNamespace="db_ready" // TODO(COMPASS-7775) this should be connection_ready.db_ready
+        activeWorkspace={
+          {
+            ...props.activeWorkspace,
+            namespace: 'db_ready',
+            type: 'Collections',
+          } as WorkspaceTab
+        }
       />
     );
 
@@ -273,7 +288,13 @@ describe('ConnectionsNavigationTree', function () {
         <ConnectionsNavigationTree
           {...props}
           expanded={{ connection_ready: {} }}
-          activeNamespace="db_ready" // TODO(COMPASS-7775) this should be connection_ready.db_ready
+          activeWorkspace={
+            {
+              ...props.activeWorkspace,
+              namespace: 'db_ready',
+              type: 'Collections',
+            } as WorkspaceTab
+          }
         />
       );
 
@@ -288,7 +309,6 @@ describe('ConnectionsNavigationTree', function () {
         <ConnectionsNavigationTree
           {...props}
           expanded={{ connection_ready: { db_ready: true } }}
-          activeNamespace="db_ready.meow" // TODO(COMPASS-7775) this should be connection_ready.db_ready.meow
         />
       );
 
@@ -309,7 +329,12 @@ describe('ConnectionsNavigationTree', function () {
         <ConnectionsNavigationTree
           {...props}
           expanded={{ connection_ready: { db_ready: true } }}
-          activeNamespace="db_ready.bwok" // TODO(COMPASS-7775) this should be connection_ready.db_ready.bwok
+          activeWorkspace={
+            {
+              ...props.activeWorkspace,
+              namespace: 'db_ready.bwok',
+            } as WorkspaceTab
+          }
         />
       );
 
@@ -336,7 +361,13 @@ describe('ConnectionsNavigationTree', function () {
         <ConnectionsNavigationTree
           {...props}
           expanded={{ connection_ready: { db_ready: true } }}
-          activeNamespace="db_ready" // TODO(COMPASS-7775) this should be connection_ready.db_ready
+          activeWorkspace={
+            {
+              ...props.activeWorkspace,
+              namespace: 'db_ready',
+              type: 'Collections',
+            } as WorkspaceTab
+          }
           isReadOnly
         />
       );
@@ -352,7 +383,12 @@ describe('ConnectionsNavigationTree', function () {
         <ConnectionsNavigationTree
           {...props}
           expanded={{ connection_ready: { db_ready: true } }}
-          activeNamespace="db_ready.bwok" // TODO(COMPASS-7775) this should be connection_ready.db_ready.bwok
+          activeWorkspace={
+            {
+              ...props.activeWorkspace,
+              namespace: 'db_ready.bwok',
+            } as WorkspaceTab
+          }
           isReadOnly
         />
       );
@@ -431,7 +467,13 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: {} }}
-            activeNamespace="db_initial" // TODO(COMPASS-7775) this should be connection_ready.db_initial
+            activeWorkspace={
+              {
+                ...props.activeWorkspace,
+                namespace: 'db_initial',
+                type: 'Collections',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
           />
         );
@@ -451,7 +493,13 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: {} }}
-            activeNamespace="db_initial" // TODO(COMPASS-7775) this should be connection_ready.db_initial
+            activeWorkspace={
+              {
+                ...props.activeWorkspace,
+                namespace: 'db_initial',
+                type: 'Collections',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
           />
         );
@@ -473,7 +521,6 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: { db_ready: true } }}
-            activeNamespace="db_ready.meow" // TODO(COMPASS-7775) this should be connection_ready.db_ready.meow
             onNamespaceAction={spy}
           />
         );
@@ -498,7 +545,6 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: { db_ready: true } }}
-            activeNamespace="db_ready.meow" // TODO(COMPASS-7775) this should be connection_ready.db_ready.meow
             onNamespaceAction={spy}
           />
         );
@@ -526,7 +572,12 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: { db_ready: true } }}
-            activeNamespace="db_ready.bwok" // TODO(COMPASS-7775) this should be connection_ready.db_ready.bwok
+            activeWorkspace={
+              {
+                ...props.activeWorkspace,
+                namespace: 'db_ready.bwok',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
           />
         );
@@ -550,7 +601,12 @@ describe('ConnectionsNavigationTree', function () {
           <ConnectionsNavigationTree
             {...props}
             expanded={{ connection_ready: { db_ready: true } }}
-            activeNamespace="db_ready.bwok" // TODO(COMPASS-7775) this should be connection_ready.db_ready.bwok
+            activeWorkspace={
+              {
+                ...props.activeWorkspace,
+                namespace: 'db_ready.bwok',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
           />
         );
