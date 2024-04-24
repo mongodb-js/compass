@@ -1,3 +1,4 @@
+'use strict';
 const STANDALONE = 'Standalone';
 const MONGOS = 'Mongos';
 const POSSIBLE_PRIMARY = 'PossiblePrimary';

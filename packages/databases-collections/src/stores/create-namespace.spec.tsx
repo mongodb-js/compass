@@ -96,8 +96,11 @@ describe('CreateNamespacePlugin', function () {
       {}
     );
 
+    // Called with 'TEST' as  first arg because in our tests the default
+    // connection info is TEST_CONNECTION_INFO (see connection-info-provider.tsx
+    // in @mongodb-js/compass-connections)
     expect(
       workspaces.openCollectionWorkspace
-    ).to.have.been.called.calledOnceWith('db.coll2');
+    ).to.have.been.called.calledOnceWith('TEST', 'db.coll2');
   });
 });

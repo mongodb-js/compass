@@ -3,10 +3,7 @@ import thunk from 'redux-thunk';
 import reducer from '../modules';
 import { closeInstance, setupInstance } from '../modules/instance';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
-import type {
-  ConnectionInfo,
-  ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import {
   type MongoDBInstancesManager,
@@ -23,7 +20,6 @@ export function createSidebarStore(
     globalAppRegistry: AppRegistry;
     connectionsManager: ConnectionsManager;
     instancesManager: MongoDBInstancesManager;
-    initialConnectionInfo?: ConnectionInfo;
     logger: LoggerAndTelemetry;
   },
   { on, cleanup }: ActivateHelpers

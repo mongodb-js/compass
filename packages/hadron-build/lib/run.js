@@ -1,3 +1,4 @@
+'use strict';
 var fs = require('fs');
 var { format, promisify } = require('util');
 var spawn = require('child_process').spawn;

@@ -113,7 +113,6 @@ function validateConnectionString(str: string) {
 }
 
 const App = () => {
-  const [initialCurrentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const [connectionsHistory, updateConnectionsHistory] =
     useConnectionsHistory();
   const {
@@ -126,6 +125,9 @@ const App = () => {
   const [connectionString, setConnectionString] = useState('');
   const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
     null
+  );
+  const [initialCurrentTab, updateCurrentTab] = useWorkspaceTabRouter(
+    connectionInfo?.id
   );
   const [openCompassWeb, setOpenCompassWeb] = useState(false);
   const [

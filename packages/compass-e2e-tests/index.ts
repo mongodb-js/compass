@@ -4,6 +4,8 @@ import fs from 'fs';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import type { ChildProcessWithoutNullStreams } from 'child_process';
+// @ts-expect-error it thinks process does not have getActiveResourcesInfo
+import { getActiveResourcesInfo } from 'process';
 import Mocha from 'mocha';
 import Debug from 'debug';
 import type { MongoClient } from 'mongodb';
@@ -106,6 +108,17 @@ async function setup() {
   updateMongoDBServerInfo();
 }
 
+function getResources() {
+  const resources: Record<string, number> = {};
+  for (const resource of getActiveResourcesInfo()) {
+    if (resources[resource] === undefined) {
+      resources[resource] = 0;
+    }
+    ++resources[resource];
+  }
+  return resources;
+}
+
 function cleanup() {
   removeUserDataDir();
 
@@ -155,6 +168,24 @@ function cleanup() {
   // Since the webdriverio update something is messing with the terminal's
   // cursor. This brings it back.
   crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
+
+  // Log what's preventing the process from exiting normally to help debug the
+  // cases where the process hangs and gets killed 10 minutes later by evergreen
+  // because there's no output.
+  const intervalId = setInterval(() => {
+    console.log(getResources());
+  }, 1_000);
+
+  // Don't keep logging forever because then evergreen can't kill the job after
+  // 10 minutes of inactivity if we get into a broken state
+  const timeoutId = setTimeout(() => {
+    clearInterval(intervalId);
+  }, 60_000);
+
+  // No need to hold things up for a minute if there's nothing else preventing
+  // the process from exiting.
+  intervalId.unref();
+  timeoutId.unref();
 }
 
 async function main() {

@@ -144,13 +144,16 @@ function CompassWorkspace({
         >
           <WorkspacesPlugin
             initialWorkspaceTabs={initialWorkspaceTabs}
-            openOnEmptyWorkspace={DEFAULT_TAB}
+            openOnEmptyWorkspace={{
+              type: 'Databases',
+              connectionId: connectionInfo.id,
+            }}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
             renderSidebar={() => {
               return (
                 <CompassSidebarPlugin
                   showConnectionInfo={false}
-                  initialConnectionInfo={connectionInfo}
+                  singleConnectionConnectionInfo={connectionInfo}
                 ></CompassSidebarPlugin>
               );
             }}
@@ -170,8 +173,6 @@ function CompassWorkspace({
     </WorkspacesProvider>
   );
 }
-
-const DEFAULT_TAB = { type: 'Databases' } as const;
 
 const LINK_PROPS = {
   utmSource: 'DE',

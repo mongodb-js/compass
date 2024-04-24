@@ -1,3 +1,4 @@
+'use strict';
 const debug = require('debug')('hadron-build:zip');
 
 const { execFileSync } = require('child_process');

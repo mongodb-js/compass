@@ -203,7 +203,13 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { globalAppRegistry, dataService, logger: { track }, workspaces }
+    {
+      globalAppRegistry,
+      dataService,
+      logger: { track },
+      workspaces,
+      connectionInfoAccess,
+    }
   ) => {
     const state = getState();
 
@@ -214,6 +220,8 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
     const options = {};
 
     dispatch(clearError());
+    const { id: connectionId } =
+      connectionInfoAccess.getCurrentConnectionInfo();
 
     try {
       dispatch(toggleIsRunning(true));
@@ -226,7 +234,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
       const ns = `${database}.${viewName}`;
       track('Aggregation Saved As View', { num_stages: viewPipeline.length });
       globalAppRegistry.emit('view-created', ns);
-      workspaces.openCollectionWorkspace(ns, { newTab: true });
+      workspaces.openCollectionWorkspace(connectionId, ns, { newTab: true });
       dispatch(reset());
     } catch (e) {
       dispatch(stopWithError(e as Error));

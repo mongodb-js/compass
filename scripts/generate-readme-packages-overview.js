@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Generate the `Packages Overview` section of the monorepo README.
  * Uses the `description` from the `package.json` of the packages in the monorepo.

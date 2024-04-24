@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type {
   OpenWorkspaceOptions,
   CollectionSubtab,
@@ -19,29 +19,45 @@ function getCollectionSubTabFromRoute(subTab?: string): CollectionSubtab {
       return 'Documents';
   }
 }
-function getWorkspaceTabFromRoute(route: string): OpenWorkspaceOptions {
+
+function getWorkspaceTabFromRoute(
+  route: string,
+  connectionId: string | undefined
+): OpenWorkspaceOptions | null {
   const [, tab, namespace = '', subTab] = decodeURIComponent(route).split('/');
+  if (!connectionId) {
+    return null;
+  }
   if (tab === 'databases') {
-    return { type: 'Databases' };
+    return { type: 'Databases', connectionId };
   }
   if (tab === 'collections' && namespace) {
-    return { type: 'Collections', namespace };
+    return { type: 'Collections', connectionId, namespace };
   }
   if (tab === 'collection' && namespace) {
     return {
       type: 'Collection',
+      connectionId,
       namespace,
       initialSubtab: getCollectionSubTabFromRoute(subTab),
     };
   }
-  return { type: 'Databases' };
+  return { type: 'Databases', connectionId };
 }
-export function useWorkspaceTabRouter() {
+
+export function useWorkspaceTabRouter(connectionId: string | undefined) {
   const [currentTab, setCurrentTab] = useState<OpenWorkspaceOptions | null>(
     () => {
-      return getWorkspaceTabFromRoute(window.location.pathname);
+      return getWorkspaceTabFromRoute(window.location.pathname, connectionId);
     }
   );
+
+  useEffect(() => {
+    setCurrentTab(
+      getWorkspaceTabFromRoute(window.location.pathname, connectionId)
+    );
+  }, [connectionId]);
+
   const updateCurrentTab = useCallback((tab: WorkspaceTab | null) => {
     let newPath: string;
     switch (tab?.type) {

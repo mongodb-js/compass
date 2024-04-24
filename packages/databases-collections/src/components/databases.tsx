@@ -111,7 +111,10 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
 
   const editable = isWritable && !isPreferencesReadOnly;
   const actions = Object.assign(
-    { onDatabaseClick: openCollectionsWorkspace, onRefreshClick },
+    {
+      onDatabaseClick: openCollectionsWorkspace.bind(undefined, connectionId),
+      onRefreshClick,
+    },
     editable && !isDataLake
       ? { onDeleteDatabaseClick, onCreateDatabaseClick }
       : {}

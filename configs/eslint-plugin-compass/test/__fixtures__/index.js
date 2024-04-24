@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-disable @mongodb-js/compass/unique-mongodb-log-id */
 /* global mongoLogId */
 mongoLogId(1);
