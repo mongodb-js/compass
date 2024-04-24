@@ -395,8 +395,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   connections,
   expanded,
   activeWorkspace = {},
-  onConnectionExpand,
-  // onConnectionSelect only has a default to support single-connection usage
+  // onConnectionExpand and onConnectionSelect only has a default to support single-connection usage
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onConnectionExpand = () => {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionSelect = () => {},
   onDatabaseExpand,
@@ -416,7 +417,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         activeWorkspace as { connectionId?: string; namespace?: string };
 
       if (activeConnectionId) {
-        if (onConnectionExpand) onConnectionExpand(activeConnectionId, true);
+        onConnectionExpand(activeConnectionId, true);
 
         if (activeNamespace) {
           onDatabaseExpand(activeConnectionId, activeNamespace, true);
@@ -462,8 +463,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const onExpandedChange = useCallback(
     ({ id, type, connectionId }, isExpanded: boolean) => {
       if (type === 'database') onDatabaseExpand(connectionId, id, isExpanded);
-      if (type === 'connection' && onConnectionExpand)
-        onConnectionExpand(id, isExpanded);
+      if (type === 'connection') onConnectionExpand(id, isExpanded);
     },
     [onDatabaseExpand, onConnectionExpand]
   );
@@ -484,7 +484,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
     {
       items: items as NavigationTreeData,
-      activeItemId: '', // TODO activeNamespace || ''
+      activeItemId: (activeWorkspace as { namespace?: string }).namespace || '',
       onExpandedChange,
       onFocusMove,
     }
