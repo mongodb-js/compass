@@ -93,6 +93,19 @@ const props = {
 };
 
 describe('ConnectionsNavigationTree', function () {
+  async function renderConnectionsNavigationTree(customProps = {}) {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableRenameCollectionModal: true,
+      enableNewMultipleConnectionSystem: true,
+    });
+    render(
+      <PreferencesProvider value={preferences}>
+        <ConnectionsNavigationTree {...props} {...customProps} />
+      </PreferencesProvider>
+    );
+  }
+
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {
@@ -104,15 +117,10 @@ describe('ConnectionsNavigationTree', function () {
       });
     });
 
-    it('shows the Rename Collection action', function () {
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: { db_ready: true } }}
-          />
-        </PreferencesProvider>
-      );
+    it('shows the Rename Collection action', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: { connection_ready: { db_ready: true } },
+      });
 
       const collection = screen.getByTestId('sidebar-collection-db_ready.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
@@ -124,17 +132,12 @@ describe('ConnectionsNavigationTree', function () {
       expect(screen.getByText('Rename collection')).to.exist;
     });
 
-    it('should activate callback with `rename-collection` when corresponding action is clicked', function () {
+    it('should activate callback with `rename-collection` when corresponding action is clicked', async function () {
       const spy = Sinon.spy();
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: { db_ready: true } }}
-            onNamespaceAction={spy}
-          />
-        </PreferencesProvider>
-      );
+      await renderConnectionsNavigationTree({
+        expanded: { connection_ready: { db_ready: true } },
+        onNamespaceAction: spy,
+      });
 
       const collection = screen.getByTestId('sidebar-collection-db_ready.meow');
 
@@ -149,109 +152,66 @@ describe('ConnectionsNavigationTree', function () {
     });
   });
 
-  it('should render connections (multiple connections)', async function () {
-    const preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences({
-      enableRenameCollectionModal: true,
-      enableNewMultipleConnectionSystem: true,
-    });
-
-    render(
-      <PreferencesProvider value={preferences}>
-        <ConnectionsNavigationTree {...props} />
-      </PreferencesProvider>
-    );
+  it('should render connections', async function () {
+    await renderConnectionsNavigationTree();
 
     expect(screen.getByText('turtles')).to.exist;
     expect(screen.getByText('peaches')).to.exist;
   });
 
   it('when a connection is collapsed, it should not render databases', async function () {
-    const preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences({
-      enableRenameCollectionModal: true,
-      enableNewMultipleConnectionSystem: true,
-    });
-
-    render(
-      <PreferencesProvider value={preferences}>
-        <ConnectionsNavigationTree {...props} />
-      </PreferencesProvider>
-    );
+    await renderConnectionsNavigationTree();
 
     expect(screen.queryByText('foo')).not.to.exist;
     expect(screen.queryByText('bar')).not.to.exist;
   });
 
-  it('when a connection is expanded, it should render databases', function () {
-    render(
-      <ConnectionsNavigationTree
-        {...props}
-        expanded={{ connection_ready: {} }}
-      />
-    );
+  it('when a connection is expanded, it should render databases', async function () {
+    await renderConnectionsNavigationTree({
+      expanded: { connection_ready: {} },
+    });
 
     expect(screen.getByText('foo')).to.exist;
     expect(screen.getByText('bar')).to.exist;
   });
 
   it('when a connection is expanded but databases are not ready, it should render database placeholders', async function () {
-    const preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences({
-      enableRenameCollectionModal: true,
-      enableNewMultipleConnectionSystem: true,
+    await renderConnectionsNavigationTree({
+      expanded: { connection_initial: {} },
     });
-
-    render(
-      <PreferencesProvider value={preferences}>
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_initial: {} }}
-        />
-      </PreferencesProvider>
-    );
 
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(2);
   });
 
-  it('when database is expanded, it should render collections', function () {
-    render(
-      <ConnectionsNavigationTree
-        {...props}
-        expanded={{ connection_ready: { db_ready: true } }}
-      />
-    );
+  it('when database is expanded, it should render collections', async function () {
+    await renderConnectionsNavigationTree({
+      expanded: { connection_ready: { db_ready: true } },
+    });
 
     expect(screen.getByText('meow')).to.exist;
     expect(screen.getByText('woof')).to.exist;
     expect(screen.getByText('bwok')).to.exist;
   });
 
-  it('when database is expanded but collections are not ready, it should render collection placeholders', function () {
-    render(
-      <ConnectionsNavigationTree
-        {...props}
-        expanded={{ connection_ready: { db_initial: true } }}
-      />
-    );
+  it('when database is expanded but collections are not ready, it should render collection placeholders', async function () {
+    await renderConnectionsNavigationTree({
+      expanded: { connection_ready: { db_initial: true } },
+    });
 
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
   it('should make current active namespace tabbable', async function () {
-    render(
-      <ConnectionsNavigationTree
-        {...props}
-        expanded={{ connection_ready: {} }}
-        activeWorkspace={
-          {
-            ...props.activeWorkspace,
-            namespace: 'db_ready',
-            type: 'Collections',
-          } as WorkspaceTab
-        }
-      />
-    );
+    await renderConnectionsNavigationTree({
+      expanded: {
+        connection_ready: {},
+      },
+      activeWorkspace: {
+        ...props.activeWorkspace,
+        namespace: 'db_ready',
+        type: 'Collections',
+      } as WorkspaceTab,
+    });
 
     userEvent.tab();
 
@@ -267,13 +227,10 @@ describe('ConnectionsNavigationTree', function () {
   });
 
   describe('when isReadOnly is false or undefined', function () {
-    it('should show all database actions on hover', function () {
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: {} }}
-        />
-      );
+    it('should show all database actions on hover', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: { connection_ready: {} },
+      });
 
       userEvent.hover(screen.getByText('foo'));
 
@@ -283,20 +240,17 @@ describe('ConnectionsNavigationTree', function () {
       expect(within(database).getByTitle('Drop database')).to.exist;
     });
 
-    it('should show all database actions for active namespace', function () {
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: {} }}
-          activeWorkspace={
-            {
-              ...props.activeWorkspace,
-              namespace: 'db_ready',
-              type: 'Collections',
-            } as WorkspaceTab
-          }
-        />
-      );
+    it('should show all database actions for active namespace', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: {
+          connection_ready: {},
+        },
+        activeWorkspace: {
+          ...props.activeWorkspace,
+          namespace: 'db_ready',
+          type: 'Collections',
+        } as WorkspaceTab,
+      });
 
       const database = screen.getByTestId('sidebar-database-db_ready');
 
@@ -304,13 +258,12 @@ describe('ConnectionsNavigationTree', function () {
       expect(within(database).getByTitle('Drop database')).to.exist;
     });
 
-    it('should show all collection actions', function () {
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: { db_ready: true } }}
-        />
-      );
+    it('should show all collection actions', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: {
+          connection_ready: { db_ready: true },
+        },
+      });
 
       const collection = screen.getByTestId('sidebar-collection-db_ready.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
@@ -324,19 +277,16 @@ describe('ConnectionsNavigationTree', function () {
       expect(screen.getByText('Drop collection')).to.exist;
     });
 
-    it('should show all view actions', function () {
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: { db_ready: true } }}
-          activeWorkspace={
-            {
-              ...props.activeWorkspace,
-              namespace: 'db_ready.bwok',
-            } as WorkspaceTab
-          }
-        />
-      );
+    it('should show all view actions', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: {
+          connection_ready: { db_ready: true },
+        },
+        activeWorkspace: {
+          ...props.activeWorkspace,
+          namespace: 'db_ready.bwok',
+        } as WorkspaceTab,
+      });
 
       const collection = screen.getByTestId('sidebar-collection-db_ready.bwok');
       const showActionsButton = within(collection).getByTitle('Show actions');
@@ -356,21 +306,18 @@ describe('ConnectionsNavigationTree', function () {
   });
 
   describe('when isReadOnly is true', function () {
-    it('should not show database actions', function () {
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: { db_ready: true } }}
-          activeWorkspace={
-            {
-              ...props.activeWorkspace,
-              namespace: 'db_ready',
-              type: 'Collections',
-            } as WorkspaceTab
-          }
-          isReadOnly
-        />
-      );
+    it('should not show database actions', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: {
+          connection_ready: { db_ready: true },
+        },
+        activeWorkspace: {
+          ...props.activeWorkspace,
+          namespace: 'db_ready',
+          type: 'Collections',
+        } as WorkspaceTab,
+        isReadOnly: true,
+      });
 
       const database = screen.getByTestId('sidebar-database-db_ready');
 
@@ -378,20 +325,18 @@ describe('ConnectionsNavigationTree', function () {
       expect(() => within(database).getByTitle('Drop database')).to.throw;
     });
 
-    it('should show only one collection action', function () {
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: { db_ready: true } }}
-          activeWorkspace={
-            {
-              ...props.activeWorkspace,
-              namespace: 'db_ready.bwok',
-            } as WorkspaceTab
-          }
-          isReadOnly
-        />
-      );
+    it('should show only one collection action', async function () {
+      await renderConnectionsNavigationTree({
+        expanded: {
+          connection_ready: { db_ready: true },
+        },
+        activeWorkspace: {
+          ...props.activeWorkspace,
+          namespace: 'db_ready.bwok',
+          type: 'Collection',
+        } as WorkspaceTab,
+        isReadOnly: true,
+      });
 
       const collection = screen.getByTestId('sidebar-collection-db_ready.bwok');
 
@@ -409,28 +354,23 @@ describe('ConnectionsNavigationTree', function () {
       });
     });
 
-    it('should activate callback with `select-connection` when a connection is clicked', function () {
+    it('should activate callback with `select-connection` when a connection is clicked', async function () {
       const spy = Sinon.spy();
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsNavigationTree {...props} onConnectionSelect={spy} />
-        </PreferencesProvider>
-      );
+      await renderConnectionsNavigationTree({
+        onConnectionSelect: spy,
+      });
 
       userEvent.click(screen.getByText('turtles'));
 
       expect(spy).to.be.calledOnceWithExactly('connection_ready');
     });
 
-    it('should activate callback with `select-database` when database is clicked', function () {
+    it('should activate callback with `select-database` when database is clicked', async function () {
       const spy = Sinon.spy();
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: {} }}
-          onNamespaceAction={spy}
-        />
-      );
+      await renderConnectionsNavigationTree({
+        expanded: { connection_ready: {} },
+        onNamespaceAction: spy,
+      });
 
       userEvent.click(screen.getByText('foo'));
 
@@ -441,15 +381,12 @@ describe('ConnectionsNavigationTree', function () {
       );
     });
 
-    it('should activate callback with `select-collection` when collection is clicked', function () {
+    it('should activate callback with `select-collection` when collection is clicked', async function () {
       const spy = Sinon.spy();
-      render(
-        <ConnectionsNavigationTree
-          {...props}
-          expanded={{ connection_ready: { db_ready: true } }}
-          onNamespaceAction={spy}
-        />
-      );
+      await renderConnectionsNavigationTree({
+        expanded: { connection_ready: { db_ready: true } },
+        onNamespaceAction: spy,
+      });
 
       userEvent.click(screen.getByText('meow'));
 
@@ -461,22 +398,17 @@ describe('ConnectionsNavigationTree', function () {
     });
 
     describe('database actions', function () {
-      it('should activate callback with `drop-database` when corresponding action is clicked', function () {
+      it('should activate callback with `drop-database` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: {} }}
-            activeWorkspace={
-              {
-                ...props.activeWorkspace,
-                namespace: 'db_initial',
-                type: 'Collections',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-          />
-        );
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: {} },
+          onNamespaceAction: spy,
+          activeWorkspace: {
+            ...props.activeWorkspace,
+            namespace: 'db_initial',
+            type: 'Collections',
+          } as WorkspaceTab,
+        });
 
         userEvent.click(screen.getByTitle('Drop database'));
 
@@ -487,22 +419,17 @@ describe('ConnectionsNavigationTree', function () {
         );
       });
 
-      it('should activate callback with `create-collection` when corresponding action is clicked', function () {
+      it('should activate callback with `create-collection` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: {} }}
-            activeWorkspace={
-              {
-                ...props.activeWorkspace,
-                namespace: 'db_initial',
-                type: 'Collections',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-          />
-        );
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: {} },
+          onNamespaceAction: spy,
+          activeWorkspace: {
+            ...props.activeWorkspace,
+            namespace: 'db_initial',
+            type: 'Collections',
+          } as WorkspaceTab,
+        });
 
         userEvent.click(screen.getByTitle('Create collection'));
 
@@ -515,15 +442,12 @@ describe('ConnectionsNavigationTree', function () {
     });
 
     describe('collection actions', function () {
-      it('should activate callback with `open-in-new-tab` when corresponding action is clicked', function () {
+      it('should activate callback with `open-in-new-tab` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: { db_ready: true } }}
-            onNamespaceAction={spy}
-          />
-        );
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          onNamespaceAction: spy,
+        });
 
         const collection = screen.getByTestId(
           'sidebar-collection-db_ready.meow'
@@ -539,15 +463,12 @@ describe('ConnectionsNavigationTree', function () {
         );
       });
 
-      it('should activate callback with `drop-collection` when corresponding action is clicked', function () {
+      it('should activate callback with `drop-collection` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: { db_ready: true } }}
-            onNamespaceAction={spy}
-          />
-        );
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          onNamespaceAction: spy,
+        });
 
         const collection = screen.getByTestId(
           'sidebar-collection-db_ready.meow'
@@ -565,22 +486,16 @@ describe('ConnectionsNavigationTree', function () {
     });
 
     describe('view actions', function () {
-      it('should activate callback with `duplicate-view` when corresponding action is clicked', function () {
+      it('should activate callback with `duplicate-view` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
-
-        render(
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: { db_ready: true } }}
-            activeWorkspace={
-              {
-                ...props.activeWorkspace,
-                namespace: 'db_ready.bwok',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-          />
-        );
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          activeWorkspace: {
+            ...props.activeWorkspace,
+            namespace: 'db_ready.bwok',
+          } as WorkspaceTab,
+          onNamespaceAction: spy,
+        });
 
         const view = screen.getByTestId('sidebar-collection-db_ready.bwok');
 
@@ -594,22 +509,16 @@ describe('ConnectionsNavigationTree', function () {
         );
       });
 
-      it('should activate callback with `modify-view` when corresponding action is clicked', function () {
+      it('should activate callback with `modify-view` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
-
-        render(
-          <ConnectionsNavigationTree
-            {...props}
-            expanded={{ connection_ready: { db_ready: true } }}
-            activeWorkspace={
-              {
-                ...props.activeWorkspace,
-                namespace: 'db_ready.bwok',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-          />
-        );
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          activeWorkspace: {
+            ...props.activeWorkspace,
+            namespace: 'db_ready.bwok',
+          } as WorkspaceTab,
+          onNamespaceAction: spy,
+        });
 
         const view = screen.getByTestId('sidebar-collection-db_ready.bwok');
 
