@@ -8,7 +8,7 @@ export async function showShell(browser: CompassBrowser): Promise<void> {
     const shellContentElement = await browser.$(Selectors.ShellContent);
     if (!(await shellContentElement.isDisplayed())) {
       // The toasts may be covering the shell, so we need to close them.
-      await browser.hideToasts();
+      await browser.hideAllVisibleToasts();
       await browser.clickVisible(Selectors.ShellExpandButton);
     }
 

@@ -1,7 +1,9 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-export async function hideToasts(browser: CompassBrowser): Promise<void> {
+export async function hideAllVisibleToasts(
+  browser: CompassBrowser
+): Promise<void> {
   const toastContainer = await browser.$(Selectors.LGToastContainer);
   const isToastContainerVisible = await toastContainer.isDisplayed();
   if (!isToastContainerVisible) {
