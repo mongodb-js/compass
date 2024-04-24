@@ -19,6 +19,7 @@ import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { connect } from 'react-redux';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const collectionHeaderStyles = css({
   padding: spacing[3],
@@ -98,13 +99,21 @@ export const CollectionHeader: React.FunctionComponent<
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
-  const { openCollectionWorkspace, openCollectionsWorkspace } =
-    useOpenWorkspace();
-  const { id: connectionId } = useConnectionInfo();
+  const {
+    openCollectionWorkspace,
+    openCollectionsWorkspace,
+    openDatabasesWorkspace,
+  } = useOpenWorkspace();
+  const connectionInfo = useConnectionInfo();
+  const connectionId = connectionInfo.id;
+  const connectionName = getConnectionTitle(connectionInfo);
 
   const breadcrumbItems = useMemo(() => {
     return [
-      // TODO (COMPASS-7684): add connection name
+      {
+        name: connectionName,
+        onClick: () => openDatabasesWorkspace(connectionId),
+      },
       {
         name: toNS(namespace).database,
         onClick: () =>
@@ -128,11 +137,13 @@ export const CollectionHeader: React.FunctionComponent<
     ].filter(Boolean) as BreadcrumbItem[];
   }, [
     connectionId,
+    connectionName,
     namespace,
     sourceName,
     editViewName,
     openCollectionsWorkspace,
     openCollectionWorkspace,
+    openDatabasesWorkspace,
   ]);
 
   const insights =
