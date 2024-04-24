@@ -59,7 +59,7 @@ export function activatePlugin(_: unknown, services: CreateNamespaceServices) {
   const { instance, globalAppRegistry } = services;
 
   const onTopologyChange = () => {
-    topologyChanged(instance.topologyDescription.type);
+    store.dispatch(topologyChanged(instance.topologyDescription.type));
   };
 
   instance.on('change:topologyDescription', onTopologyChange);

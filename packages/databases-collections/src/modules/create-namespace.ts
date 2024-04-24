@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
@@ -28,72 +28,110 @@ export const INITIAL_STATE = {
   currentTopologyType: 'Unknown' as const,
 };
 
-export const RESET = 'databases-collections/reset';
+export const enum CreateNamespaceActionTypes {
+  Reset = 'databases-collections/Reset',
+  Open = 'databases-collections/create-collection/Open',
+  HandleError = 'databases-collections/error/HandleError',
+  ClearError = 'databases-collections/error/ClearError',
+  ToggleIsRunning = 'databases-collections/is-running/ToggleIsRunning',
+  ToggleIsVisible = 'databases-collections/is-visible/ToggleIsVisible',
+  TopologyChanged = 'databases-collections/TopologyChanged',
+}
 
-export const reset = () => ({
-  type: RESET,
+export type ResetAction = {
+  type: CreateNamespaceActionTypes.Reset;
+};
+
+export type OpenAction = {
+  type: CreateNamespaceActionTypes.Open;
+  databaseName: string | null;
+};
+
+export type HandleErrorAction = {
+  type: CreateNamespaceActionTypes.HandleError;
+  error: Error;
+};
+
+export type ClearErrorAction = {
+  type: CreateNamespaceActionTypes.ClearError;
+};
+
+export type ToggleIsRunningAction = {
+  type: CreateNamespaceActionTypes.ToggleIsRunning;
+  isRunning: boolean;
+};
+
+export type ToggleIsVisibleAction = {
+  type: CreateNamespaceActionTypes.ToggleIsVisible;
+  isVisible: boolean;
+};
+
+export type TopologyChangedAction = {
+  type: CreateNamespaceActionTypes.TopologyChanged;
+  newTopology: string;
+};
+
+export const reset = (): ResetAction => ({
+  type: CreateNamespaceActionTypes.Reset,
 });
-
-const OPEN = 'databases-collections/create-collection/OPEN';
 
 export const open = (
   dbName: string | null = null
-): CreateNamespaceThunkAction<void> => {
+): CreateNamespaceThunkAction<void, OpenAction> => {
   return (dispatch, _getState, { logger: { track } }) => {
     track('Screen', {
       name: dbName ? 'create_collection_modal' : 'create_database_modal',
     });
 
     dispatch({
-      type: OPEN,
+      type: CreateNamespaceActionTypes.Open,
       databaseName: dbName,
     });
   };
 };
 
-export const HANDLE_ERROR = `databases-collections/error/HANDLE_ERROR`;
-
-export const handleError = (error: Error) => ({
-  type: HANDLE_ERROR,
+export const handleError = (error: Error): HandleErrorAction => ({
+  type: CreateNamespaceActionTypes.HandleError,
   error: error,
 });
 
-export const CLEAR_ERROR = `databases-collections/error/CLEAR_ERROR`;
-
-export const clearError = () => ({
-  type: CLEAR_ERROR,
+export const clearError = (): ClearErrorAction => ({
+  type: CreateNamespaceActionTypes.ClearError,
 });
 
-export const TOGGLE_IS_RUNNING =
-  'databases-collections/is-running/TOGGLE_IS_RUNNING';
-
-export const toggleIsRunning = (isRunning: boolean) => ({
-  type: TOGGLE_IS_RUNNING,
+export const toggleIsRunning = (isRunning: boolean): ToggleIsRunningAction => ({
+  type: CreateNamespaceActionTypes.ToggleIsRunning,
   isRunning: isRunning,
 });
 
-export const TOGGLE_IS_VISIBLE = `databases-collections/is-visible/TOGGLE_IS_VISIBLE`;
-
-export const toggleIsVisible = (isVisible: boolean) => ({
-  type: TOGGLE_IS_VISIBLE,
+export const toggleIsVisible = (isVisible: boolean): ToggleIsVisibleAction => ({
+  type: CreateNamespaceActionTypes.ToggleIsVisible,
   isVisible: isVisible,
 });
 
-export const TOPOLOGY_CHANGED = `databases-collections/TOPOLOGY_CHANGED`;
-
-export const topologyChanged = (newTopology: string) => ({
-  type: TOPOLOGY_CHANGED,
+export const topologyChanged = (
+  newTopology: string
+): TopologyChangedAction => ({
+  type: CreateNamespaceActionTypes.TopologyChanged,
   newTopology: newTopology,
 });
+
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 const reducer: Reducer<CreateNamespaceState> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (action.type === RESET) {
+  if (isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset)) {
     return { ...INITIAL_STATE, serverVersion: state.serverVersion };
   }
-  if (action.type === OPEN) {
+
+  if (isAction<OpenAction>(action, CreateNamespaceActionTypes.Open)) {
     return {
       ...state,
       databaseName: action.databaseName,
@@ -103,25 +141,43 @@ const reducer: Reducer<CreateNamespaceState> = (
       error: null,
     };
   }
-  if (action.type === HANDLE_ERROR) {
+
+  if (
+    isAction<HandleErrorAction>(action, CreateNamespaceActionTypes.HandleError)
+  ) {
     return {
       ...state,
       error: action.error,
     };
   }
-  if (action.type === CLEAR_ERROR) {
+
+  if (
+    isAction<ClearErrorAction>(action, CreateNamespaceActionTypes.ClearError)
+  ) {
     return {
       ...state,
       error: null,
     };
   }
-  if (action.type === TOGGLE_IS_VISIBLE) {
+
+  if (
+    isAction<ToggleIsVisibleAction>(
+      action,
+      CreateNamespaceActionTypes.ToggleIsVisible
+    )
+  ) {
     return {
       ...state,
       isVisible: action.isVisible,
     };
   }
-  if (action.type === TOPOLOGY_CHANGED) {
+
+  if (
+    isAction<TopologyChangedAction>(
+      action,
+      CreateNamespaceActionTypes.TopologyChanged
+    )
+  ) {
     return {
       ...state,
       currentTopologyType: action.newTopology,
