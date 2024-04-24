@@ -93,13 +93,15 @@ const props = {
 };
 
 describe('ConnectionsNavigationTree', function () {
+  let preferences: PreferencesAccess;
+
   async function renderConnectionsNavigationTree(customProps = {}) {
-    const preferences = await createSandboxFromDefaultPreferences();
+    preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableRenameCollectionModal: true,
       enableNewMultipleConnectionSystem: true,
     });
-    render(
+    return render(
       <PreferencesProvider value={preferences}>
         <ConnectionsNavigationTree {...props} {...customProps} />
       </PreferencesProvider>
@@ -109,14 +111,6 @@ describe('ConnectionsNavigationTree', function () {
   afterEach(cleanup);
 
   context('when the rename collection feature flag is enabled', () => {
-    let preferences: PreferencesAccess;
-    beforeEach(async function () {
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableRenameCollectionModal: true,
-      });
-    });
-
     it('shows the Rename Collection action', async function () {
       await renderConnectionsNavigationTree({
         expanded: { connection_ready: { db_ready: true } },
@@ -157,6 +151,72 @@ describe('ConnectionsNavigationTree', function () {
 
     expect(screen.getByText('turtles')).to.exist;
     expect(screen.getByText('peaches')).to.exist;
+  });
+
+  it('should expand the connection when a child workspace is entered', async function () {
+    const onConnectionExpandSpy = Sinon.spy();
+    const { rerender } = await renderConnectionsNavigationTree({
+      expanded: {},
+      activeWorkspace: { type: 'My Queries' } as WorkspaceTab,
+      onConnectionExpand: onConnectionExpandSpy,
+    });
+
+    expect(onConnectionExpandSpy).not.to.have.been.called;
+
+    rerender(
+      <PreferencesProvider value={preferences}>
+        <ConnectionsNavigationTree
+          {...props}
+          expanded={{}}
+          activeWorkspace={
+            {
+              type: 'Collections',
+              connectionId: 'connection_ready',
+              namespace: 'db_ready',
+            } as WorkspaceTab
+          }
+          onConnectionExpand={onConnectionExpandSpy}
+        />
+      </PreferencesProvider>
+    );
+
+    expect(onConnectionExpandSpy).to.have.been.calledWith(
+      'connection_ready',
+      true
+    );
+  });
+
+  it('should expand the database when a child workspace is entered', async function () {
+    const onConnectionExpandSpy = Sinon.spy();
+    const { rerender } = await renderConnectionsNavigationTree({
+      expanded: {},
+      activeWorkspace: { type: 'My Queries' } as WorkspaceTab,
+      onConnectionExpand: onConnectionExpandSpy,
+    });
+
+    expect(onConnectionExpandSpy).not.to.have.been.called;
+
+    rerender(
+      <PreferencesProvider value={preferences}>
+        <ConnectionsNavigationTree
+          {...props}
+          expanded={{}}
+          activeWorkspace={
+            {
+              type: 'Collection',
+              connectionId: 'connection_ready',
+              namespace: 'db_ready.meow',
+            } as WorkspaceTab
+          }
+          onConnectionExpand={onConnectionExpandSpy}
+        />
+      </PreferencesProvider>
+    );
+
+    expect(onConnectionExpandSpy).to.have.been.calledWith(
+      'connection_ready',
+      true
+    );
   });
 
   it('when a connection is collapsed, it should not render databases', async function () {

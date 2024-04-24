@@ -67,7 +67,6 @@ export const CollectionItem: React.FunctionComponent<
   style,
   onNamespaceAction,
 }) => {
-  console.log({ isReadOnly });
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
