@@ -10,7 +10,8 @@ import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import reducer, {
-  INITIAL_STATE,
+  dataServiceProvided,
+  instanceProvided,
   open,
   topologyChanged,
 } from '../modules/create-namespace';
@@ -35,12 +36,6 @@ export type CreateNamespaceServices = {
 function configureStore(services: CreateNamespaceServices) {
   return createStore(
     reducer,
-    {
-      ...INITIAL_STATE,
-      serverVersion: services.instance.build.version,
-      currentTopologyType: services.instance.topologyDescription.type,
-      configuredKMSProviders: services.dataService.configuredKMSProviders(),
-    },
     applyMiddleware(thunk.withExtraArgument(services))
   );
 }
@@ -59,13 +54,36 @@ export function activatePlugin(
   services: CreateNamespaceServices,
   { on, cleanup }: ActivateHelpers
 ) {
+  const { instance, globalAppRegistry, dataService } = services;
   const store = configureStore(services);
+  const onInstanceProvided = (instance: MongoDBInstance) => {
+    store.dispatch(
+      instanceProvided({
+        serverVersion: instance.build.version,
+        topology: instance.topologyDescription.type,
+      })
+    );
 
-  const { instance, globalAppRegistry } = services;
+    on(instance, 'change:topologyDescription', () => {
+      store.dispatch(topologyChanged(instance.topologyDescription.type));
+    });
+  };
 
-  on(instance, 'change:topologyDescription', () => {
-    store.dispatch(topologyChanged(instance.topologyDescription.type));
-  });
+  const onDataServiceProvided = (
+    dataService: Pick<
+      DataService,
+      'createCollection' | 'createDataKey' | 'configuredKMSProviders'
+    >
+  ) => {
+    store.dispatch(
+      dataServiceProvided({
+        configuredKMSProviders: dataService.configuredKMSProviders(),
+      })
+    );
+  };
+
+  onInstanceProvided(instance);
+  onDataServiceProvided(dataService);
 
   on(globalAppRegistry, 'open-create-database', () => {
     store.dispatch(open(null));

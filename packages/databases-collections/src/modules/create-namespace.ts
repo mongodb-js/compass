@@ -36,6 +36,8 @@ export const enum CreateNamespaceActionTypes {
   ToggleIsRunning = 'databases-collections/is-running/ToggleIsRunning',
   ToggleIsVisible = 'databases-collections/is-visible/ToggleIsVisible',
   TopologyChanged = 'databases-collections/TopologyChanged',
+  InstanceProvided = 'databases-collections/InstanceProvided',
+  DataServiceProvided = 'databases-collections/DataServiceProvided',
 }
 
 export type ResetAction = {
@@ -69,6 +71,17 @@ export type ToggleIsVisibleAction = {
 export type TopologyChangedAction = {
   type: CreateNamespaceActionTypes.TopologyChanged;
   newTopology: string;
+};
+
+export type InstanceProvidedAction = {
+  type: CreateNamespaceActionTypes.InstanceProvided;
+  topology: string;
+  serverVersion: string;
+};
+
+export type DataServiceProvidedAction = {
+  type: CreateNamespaceActionTypes.DataServiceProvided;
+  configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>;
 };
 
 export const reset = (): ResetAction => ({
@@ -114,6 +127,21 @@ export const topologyChanged = (
 ): TopologyChangedAction => ({
   type: CreateNamespaceActionTypes.TopologyChanged,
   newTopology: newTopology,
+});
+
+export const instanceProvided = (params: {
+  serverVersion: string;
+  topology: string;
+}): InstanceProvidedAction => ({
+  type: CreateNamespaceActionTypes.InstanceProvided,
+  ...params,
+});
+
+export const dataServiceProvided = (params: {
+  configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>;
+}): DataServiceProvidedAction => ({
+  type: CreateNamespaceActionTypes.DataServiceProvided,
+  ...params,
 });
 
 function isAction<A extends AnyAction>(
@@ -181,6 +209,31 @@ const reducer: Reducer<CreateNamespaceState> = (
     return {
       ...state,
       currentTopologyType: action.newTopology,
+    };
+  }
+
+  if (
+    isAction<InstanceProvidedAction>(
+      action,
+      CreateNamespaceActionTypes.InstanceProvided
+    )
+  ) {
+    return {
+      ...state,
+      serverVersion: action.serverVersion,
+      currentTopologyType: action.topology,
+    };
+  }
+
+  if (
+    isAction<DataServiceProvidedAction>(
+      action,
+      CreateNamespaceActionTypes.DataServiceProvided
+    )
+  ) {
+    return {
+      ...state,
+      configuredKMSProviders: action.configuredKMSProviders,
     };
   }
   return state;
