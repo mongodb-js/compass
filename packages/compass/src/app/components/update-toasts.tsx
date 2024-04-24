@@ -35,26 +35,6 @@ const buttonDarkStyles = css({
   color: palette.blue.light1,
 });
 
-const linkStyles = css({
-  whiteSpace: 'nowrap',
-  textDecoration: 'none !important',
-  span: {
-    color: palette.blue.base,
-  },
-  svg: {
-    color: palette.blue.base,
-  },
-});
-
-const linkDarkStyles = css({
-  span: {
-    color: palette.blue.light1,
-  },
-  svg: {
-    color: palette.blue.light1,
-  },
-});
-
 const RestartCompassToastContent = ({
   newVersion,
   onUpdateClicked,
