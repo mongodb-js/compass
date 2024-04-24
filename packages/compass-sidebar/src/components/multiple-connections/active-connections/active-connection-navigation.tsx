@@ -83,7 +83,7 @@ export function ActiveConnectionNavigation({
   isDataLake?: boolean;
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
-  activeWorkspace: WorkspaceTab | null;
+  activeWorkspace?: WorkspaceTab;
   onOpenConnectionInfo: (connectionId: string) => void;
   onCopyConnectionString: (connectionId: string) => void;
   onToggleFavoriteConnection: (connectionId: string) => void;
@@ -198,7 +198,7 @@ export function ActiveConnectionNavigation({
       <ConnectionsNavigationTree
         isReady={true}
         connections={connections}
-        activeWorkspace={activeWorkspace ?? undefined}
+        activeWorkspace={activeWorkspace}
         onNamespaceAction={onNamespaceAction}
         onConnectionSelect={(connectionId) =>
           openDatabasesWorkspace(connectionId)

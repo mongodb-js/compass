@@ -32,7 +32,7 @@ import {
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 

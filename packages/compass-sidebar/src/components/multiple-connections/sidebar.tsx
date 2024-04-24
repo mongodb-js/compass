@@ -360,7 +360,7 @@ export function MultipleConnectionSidebar({
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
         <ActiveConnectionNavigation
           activeConnections={activeConnections}
-          activeWorkspace={activeWorkspace}
+          activeWorkspace={activeWorkspace ?? undefined}
           onOpenConnectionInfo={onOpenConnectionInfo}
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}

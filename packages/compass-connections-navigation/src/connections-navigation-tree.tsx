@@ -23,7 +23,7 @@ import { TopPlaceholder } from './top-placeholder';
 import { ConnectionItem } from './connection-item';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 type Collection = {
   _id: string;
@@ -104,7 +104,7 @@ type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
   isSingleConnection?: boolean;
-  activeWorkspace: WorkspaceTab | Record<string, never>;
+  activeWorkspace: { namespace?: string; connectionId?: string; type: string };
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
   onConnectionSelect(this: void, id: string): void;
@@ -286,16 +286,6 @@ const NavigationItem = memo<{
     onNamespaceAction,
   } = data;
 
-  const {
-    connectionId: activeConnectionId,
-    namespace: activeNamespace,
-    type: activeWorkspaceType,
-  } = activeWorkspace as {
-    connectionId?: string;
-    namespace?: string;
-    type?: string;
-  };
-
   const itemData = items[index];
 
   if (itemData.type === 'connection') {
@@ -306,8 +296,8 @@ const NavigationItem = memo<{
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
         isActive={
-          activeConnectionId === itemData.connectionInfo.id &&
-          activeWorkspaceType === 'Databases'
+          activeWorkspace.connectionId === itemData.connectionInfo.id &&
+          activeWorkspace.type === 'Databases'
         }
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -325,8 +315,8 @@ const NavigationItem = memo<{
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
         isActive={
-          itemData.connectionId === activeConnectionId &&
-          itemData.id === activeNamespace
+          itemData.connectionId === activeWorkspace.connectionId &&
+          itemData.id === activeWorkspace.namespace
         }
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -349,8 +339,8 @@ const NavigationItem = memo<{
                 isReadOnly={isReadOnly}
                 isSingleConnection={isSingleConnection}
                 isActive={
-                  itemData.connectionId === activeConnectionId &&
-                  itemData.id === activeNamespace
+                  itemData.connectionId === activeWorkspace.connectionId &&
+                  itemData.id === activeWorkspace.namespace
                 }
                 isTabbable={itemData.id === currentTabbable}
                 onNamespaceAction={onNamespaceAction}
@@ -411,11 +401,24 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const listRef = useRef<List | null>(null);
   const id = useId();
 
+  // there are different workspace variants, not all have a connectionId or namespace
+  // we destructure these properties here to not deal with this uncertainty repeatedly
+  const { activeConnectionId, activeNamespace, activeWorkspaceType } =
+    useMemo(() => {
+      const {
+        connectionId: activeConnectionId,
+        namespace: activeNamespace,
+        type: activeWorkspaceType,
+      } = activeWorkspace as {
+        connectionId?: string;
+        namespace?: string;
+        type: string;
+      };
+      return { activeConnectionId, activeNamespace, activeWorkspaceType };
+    }, [activeWorkspace]);
+
   useEffect(() => {
     if (activeWorkspace) {
-      const { connectionId: activeConnectionId, namespace: activeNamespace } =
-        activeWorkspace as { connectionId?: string; namespace?: string };
-
       if (activeConnectionId) {
         onConnectionExpand(activeConnectionId, true);
 
@@ -425,10 +428,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       }
     }
     // onConnectionExpand is excluded from the deps intentionally -
-    // we only want to expand as a reaction to activeWorkspace change, not to a collapse action
+    // we only want to expand as a reaction to workspace change, not to a collapse action
     // otherwise active connections are re-expanded
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeWorkspace, onDatabaseExpand]);
+  }, [activeConnectionId, activeNamespace, onDatabaseExpand]);
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
@@ -484,7 +487,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
     {
       items: items as NavigationTreeData,
-      activeItemId: (activeWorkspace as { namespace?: string }).namespace || '',
+      activeItemId: activeNamespace || '', // TODO
       onExpandedChange,
       onFocusMove,
     }
@@ -495,7 +498,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       items,
       isReadOnly,
       isSingleConnection,
-      activeWorkspace,
+      activeWorkspace: {
+        namespace: activeNamespace,
+        connectionId: activeConnectionId,
+        type: activeWorkspaceType,
+      },
       currentTabbable,
       onNamespaceAction,
       onConnectionExpand,
