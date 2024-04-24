@@ -23,6 +23,7 @@ import { TopPlaceholder } from './top-placeholder';
 import { ConnectionItem } from './connection-item';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import StyledNavigationItem from './styled-navigation-item';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type Collection = {
   _id: string;
@@ -46,6 +47,9 @@ export type Connection = {
   databasesStatus: Status;
   databasesLength: number;
   databases: Database[];
+  isReady: boolean;
+  isDataLake: boolean;
+  isWritable: boolean;
 };
 
 type PlaceholderTreeItem = {
@@ -70,6 +74,7 @@ type ConnectionTreeItem = {
 };
 
 type DatabaseTreeItem = {
+  connectionId: string;
   key: string;
   type: 'database';
   level: number;
@@ -82,6 +87,7 @@ type DatabaseTreeItem = {
 };
 
 type CollectionTreeItem = {
+  connectionId: string;
   key: string;
   type: 'collection' | 'view' | 'timeseries';
   level: number;
@@ -106,8 +112,18 @@ type ListItemData = {
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
   onConnectionSelect(this: void, id: string): void;
-  onDatabaseExpand(this: void, id: string, isExpanded: boolean): void;
-  onNamespaceAction(this: void, namespace: string, action: Actions): void;
+  onDatabaseExpand(
+    this: void,
+    connectionId: string,
+    id: string,
+    isExpanded: boolean
+  ): void;
+  onNamespaceAction(
+    this: void,
+    connectionId: string,
+    namespace: string,
+    action: Actions
+  ): void;
 };
 
 const collectionItemContainer = css({
@@ -163,20 +179,19 @@ const connectionToItems = ({
 
   return ([connectionTI] as TreeItem[]).concat(
     areDatabasesReady
-      ? databases
-          .map((database, databaseIndex) => {
-            const dbExpanded = expanded?.[connectionInfo.id] || {};
-            return databaseToItems({
-              database,
-              connectionIndex,
-              databaseIndex,
-              databasesLength: databases.length,
-              expanded: dbExpanded,
-              level: 2,
-              colorCode,
-            });
-          })
-          .flat()
+      ? databases.flatMap((database, databaseIndex) => {
+          const dbExpanded = expanded?.[connectionInfo.id] || {};
+          return databaseToItems({
+            connectionId: connectionInfo.id,
+            database,
+            connectionIndex,
+            databaseIndex,
+            databasesLength: databases.length,
+            expanded: dbExpanded,
+            level: 2,
+            colorCode,
+          });
+        })
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: `${connectionIndex}-${index}`,
           level: 2,
@@ -194,6 +209,7 @@ const databaseToItems = ({
     collectionsLength,
     collectionsStatus,
   },
+  connectionId,
   connectionIndex,
   databaseIndex,
   databasesLength,
@@ -202,6 +218,7 @@ const databaseToItems = ({
   colorCode,
 }: {
   database: Database;
+  connectionId: string;
   connectionIndex?: number;
   databaseIndex: number;
   databasesLength: number;
@@ -213,6 +230,7 @@ const databaseToItems = ({
   const isInConnection = typeof connectionIndex !== undefined;
 
   const databaseTI: DatabaseTreeItem = {
+    connectionId,
     key: isInConnection
       ? `${connectionIndex as number}-${databaseIndex}`
       : `${databaseIndex}`,
@@ -242,6 +260,7 @@ const databaseToItems = ({
   return ([databaseTI] as TreeItem[]).concat(
     areCollectionsReady
       ? collections.map(({ _id: id, name, type }, index) => ({
+          connectionId,
           key: isInConnection
             ? `${connectionIndex as number}-${databaseIndex}-${index}`
             : `${databaseIndex}-${index}`,
@@ -288,6 +307,7 @@ const NavigationItem = memo<{
   if (itemData.type === 'connection') {
     Item = (
       <ConnectionItem
+        connectionId={itemData.connectionInfo.id}
         style={style}
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
@@ -358,31 +378,25 @@ const navigationTree = css({
   flex: '1 0 auto',
 });
 
-interface MCConnectionsNavigationTreeProps {
+interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
-}
-
-interface SCConnectionsNavigationTreeProps {
-  databases: Database[];
-  expanded?: Record<string, boolean>;
-}
-
-interface BaseConnectionsNavigationTreeProps {
   onConnectionExpand?(id: string, isExpanded: boolean): void;
   onConnectionSelect?(id: string): void;
-  onDatabaseExpand(id: string, isExpanded: boolean): void;
-  onNamespaceAction(namespace: string, action: Actions): void;
+  onDatabaseExpand(connectionId: string, id: string, isExpanded: boolean): void;
+  onNamespaceAction(
+    connectionId: string,
+    namespace: string,
+    action: Actions
+  ): void;
   activeNamespace?: string;
   isReadOnly?: boolean;
 }
 
-type ConnectionsNavigationTreeProps = BaseConnectionsNavigationTreeProps &
-  (MCConnectionsNavigationTreeProps | SCConnectionsNavigationTreeProps);
-
 const ConnectionsNavigationTree: React.FunctionComponent<
   ConnectionsNavigationTreeProps
 > = ({
+  connections,
   expanded,
   activeNamespace = '',
   // onConnectionExpand and onConnectionSelect only have a default to support single-connection usage
@@ -393,77 +407,56 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onDatabaseExpand,
   onNamespaceAction,
   isReadOnly = false,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error ignoring test props so they are not part of the interface
-  __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH = null,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error ignoring test props so they are not part of the interface
-  __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT = null,
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error ignoring test props so they are not part of the interface
-  __TEST_REACT_WINDOW_OVERSCAN = null,
-  ...restProps
 }) => {
-  // we'll have either connections for MC version, or databases for SC version
-  const {
-    isSingleConnection,
-    data,
-  }: {
-    isSingleConnection: boolean;
-    data:
-      | MCConnectionsNavigationTreeProps['connections']
-      | SCConnectionsNavigationTreeProps['databases'];
-  } = useMemo(() => {
-    if ((restProps as SCConnectionsNavigationTreeProps).databases) {
-      return {
-        isSingleConnection: true,
-        data: (restProps as SCConnectionsNavigationTreeProps).databases,
-      };
-    }
-    return {
-      isSingleConnection: false,
-      data: (restProps as MCConnectionsNavigationTreeProps).connections,
-    };
-  }, [restProps]);
+  const isSingleConnection = !usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
 
   const listRef = useRef<List | null>(null);
   const id = useId();
 
   useEffect(() => {
     if (activeNamespace) {
-      onDatabaseExpand(activeNamespace, true);
+      for (const connection of connections) {
+        onDatabaseExpand(connection.connectionInfo.id, activeNamespace, true);
+      }
     }
-  }, [activeNamespace, onDatabaseExpand]);
+  }, [activeNamespace, onDatabaseExpand, connections[0]?.connectionInfo.id]);
   // TODO(COMPASS-7775): the we'll need something similar to expand the active connection
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
-      return (data as MCConnectionsNavigationTreeProps['connections']).flatMap(
-        (connection, connectionIndex) =>
-          connectionToItems({
-            connection,
-            connectionIndex,
-            connectionsLength: data.length,
-            expanded: expanded as MCConnectionsNavigationTreeProps['expanded'],
-          })
+      return connections.flatMap((connection, connectionIndex) =>
+        connectionToItems({
+          connection,
+          connectionIndex,
+          connectionsLength: connections.length,
+          expanded,
+        })
       );
     } else {
-      return (data as SCConnectionsNavigationTreeProps['databases']).flatMap(
-        (database, databaseIndex) =>
-          databaseToItems({
-            database,
-            databaseIndex,
-            databasesLength: data.length || 0,
-            expanded: expanded as SCConnectionsNavigationTreeProps['expanded'],
-            level: 1,
-          })
-      );
+      const connection = connections[0];
+      return connection.databases.flatMap((database, databaseIndex) => {
+        let isExpanded: undefined | Record<string, boolean> = undefined;
+        if (expanded) {
+          isExpanded = expanded[connection.connectionInfo.id] || {};
+        }
+
+        return databaseToItems({
+          connectionId: connection.connectionInfo.id,
+          database,
+          databaseIndex,
+          databasesLength: connection.databases.length || 0,
+          expanded: isExpanded,
+          level: 1,
+        });
+      });
     }
-  }, [isSingleConnection, data, expanded]);
+  }, [isSingleConnection, connections, expanded]);
 
   const onExpandedChange = useCallback(
-    ({ id, type }, isExpanded: boolean) => {
-      if (type === 'database') onDatabaseExpand(id, isExpanded);
+    ({ id, type, connectionId }, isExpanded: boolean) => {
+      if (type === 'database') onDatabaseExpand(connectionId, id, isExpanded);
       if (type === 'connection') onConnectionExpand(id, isExpanded);
     },
     [onDatabaseExpand, onConnectionExpand]
@@ -519,6 +512,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     return data.items[index].key;
   }, []);
 
+  const isTestEnv = process.env.NODE_ENV === 'test';
+
   return (
     <>
       <VisuallyHidden id={id}>Databases and Collections</VisuallyHidden>
@@ -529,13 +524,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         {...rootProps}
         data-testid="databases-and-collections"
       >
-        <AutoSizer
-          disableWidth={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_WIDTH)}
-          disableHeight={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT)}
-        >
+        <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
           {({
-            width = __TEST_REACT_AUTOSIZER_DEFAULT_WIDTH,
-            height = __TEST_REACT_AUTOSIZER_DEFAULT_HEIGHT,
+            width = isTestEnv ? 1024 : '',
+            height = isTestEnv ? 768 : '',
           }) => (
             <List
               ref={listRef}
@@ -545,7 +537,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               itemCount={items.length}
               itemSize={ROW_HEIGHT}
               itemKey={getItemKey}
-              overscanCount={__TEST_REACT_WINDOW_OVERSCAN ?? 5}
+              overscanCount={isTestEnv ? Infinity : 5}
             >
               {NavigationItem}
             </List>
@@ -576,8 +568,10 @@ const contentContainer = css({
 const NavigationWithPlaceholder: React.FunctionComponent<
   { isReady: boolean } & React.ComponentProps<typeof ConnectionsNavigationTree>
 > = ({ isReady, ...props }) => {
-  const isSingleConnection = !!(props as SCConnectionsNavigationTreeProps)
-    .databases;
+  const isSingleConnection = !usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+
   return (
     <FadeInPlaceholder
       className={isSingleConnection ? SCContainer : MCContainer}

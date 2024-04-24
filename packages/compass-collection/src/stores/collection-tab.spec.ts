@@ -37,22 +37,6 @@ describe('Collection Tab Content store', function () {
 
   const localAppRegistry = sandbox.spy(new AppRegistry());
   const dataService = {} as any;
-  const instance = {
-    databases: {
-      get() {
-        return {
-          collections: {
-            get() {
-              return mockCollection;
-            },
-          },
-        };
-      },
-    },
-    dataLake: {},
-    build: {},
-    removeListener() {},
-  } as any;
   let store: ReturnType<typeof activatePlugin>['store'];
   let deactivate: ReturnType<typeof activatePlugin>['deactivate'];
 
@@ -68,7 +52,7 @@ describe('Collection Tab Content store', function () {
       {
         dataService,
         localAppRegistry,
-        instance,
+        collection: mockCollection as any,
         workspaces: workspaces as any,
       },
       { on() {}, cleanup() {} } as any

@@ -1,51 +1,80 @@
-import AppRegistry from 'hadron-app-registry';
+import { EventEmitter } from 'events';
 import { expect } from 'chai';
+import { stub, type SinonStub, spy, type SinonSpy } from 'sinon';
 import { createSidebarStore } from '.';
 import { createInstance } from '../../test/helpers';
-import type { Database } from '../modules/databases';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+import {
+  MongoDBInstancesManagerEvents,
+  type MongoDBInstancesManager,
+} from '@mongodb-js/compass-app-stores/provider';
 
-const instance = createInstance();
-
-function getDatabases(_instance: MongoDBInstance) {
-  return _instance.databases.map((db: Database) => {
-    return {
-      _id: db._id,
-      name: db.name,
-      collectionsStatus: db.collectionsStatus,
-      collectionsLength: db.collectionsLength,
-      collections: db.collections.map((coll) => {
-        return {
-          _id: coll._id,
-          name: coll.name,
-          type: coll.type,
-          pipeline: coll.pipeline,
-          sourceName: coll.sourceName,
-        };
-      }),
-    };
-  });
-}
+const CONNECTION_ID = 'webscale';
+const ALL_EVENTS = [
+  'change:status',
+  'change:refreshingStatus',
+  'change:databasesStatus',
+  'change:csfleMode',
+  'change:topologyDescription',
+  'change:isWritable',
+  'change:env',
+  'change:databasesStatus',
+  'add:databases',
+  'remove:databases',
+  'change:databases',
+  'change:databases.collectionsStatus',
+  'add:collections',
+  'remove:collections',
+  'change:collections._id',
+  'change:collections.status',
+  'change:genuineMongoDB.isGenuine',
+];
 
 describe('SidebarStore [Store]', function () {
-  const globalAppRegistry = new AppRegistry();
-  let store: ReturnType<typeof createSidebarStore>['store'];
+  const instance = createInstance();
+  const globalAppRegistry = {} as any;
+  let instanceOnSpy: SinonSpy;
+  let instanceOffSpy: SinonSpy;
+
   let deactivate: () => void;
+  let listMongoDBInstancesStub: SinonStub;
+  let instancesManager: MongoDBInstancesManager;
 
   beforeEach(function () {
-    ({ store, deactivate } = createSidebarStore(
+    instanceOnSpy = spy();
+    instanceOffSpy = spy();
+    instance.on = instanceOnSpy;
+    (instance as any).off = instanceOffSpy;
+
+    listMongoDBInstancesStub = stub().returns(
+      new Map([[CONNECTION_ID, instance]])
+    );
+
+    instancesManager = new EventEmitter() as MongoDBInstancesManager;
+    instancesManager.listMongoDBInstances = listMongoDBInstancesStub;
+
+    ({ deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        connectionsManager: {
+          getDataServiceForConnection() {
+            return {
+              getConnectionOptions() {
+                return {};
+              },
+              currentOp() {
+                return Promise.resolve(null);
+              },
+              top() {
+                return Promise.resolve(null);
+              },
+            } as unknown as DataService;
           },
-          currentOp() {},
-          top() {},
-        },
-        instance,
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
+        } as any,
+        instancesManager: instancesManager,
+        logger: createNoopLoggerAndTelemetry(),
+      },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
   });
@@ -54,47 +83,25 @@ describe('SidebarStore [Store]', function () {
     deactivate();
   });
 
-  context('when instance created', function () {
-    it('updates the instance and databases state', function () {
-      const state = store.getState();
-
-      expect(state)
-        .to.have.property('instance')
-        .deep.equal({
-          build: {
-            isEnterprise: undefined,
-            version: undefined,
-          },
-          csfleMode: 'unavailable',
-          dataLake: {
-            isDataLake: false,
-            version: undefined,
-          },
-          databasesStatus: 'initial',
-          env: 'on-prem',
-          genuineMongoDB: {
-            dbType: undefined,
-            isGenuine: true,
-          },
-          isAtlas: false,
-          isLocalAtlas: false,
-          isWritable: false,
-          refreshingStatus: 'initial',
-          status: 'initial',
-          topologyDescription: {
-            servers: [],
-            setName: 'foo',
-            type: 'Unknown',
-          },
-        });
-      expect(state)
-        .to.have.property('databases')
-        .deep.equal({
-          databases: getDatabases(instance),
-          filteredDatabases: getDatabases(instance),
-          expandedDbList: {},
-          filterRegex: null,
-        });
+  for (const event of ALL_EVENTS) {
+    it(`subscribes to an existing instance event ${event}`, function () {
+      expect(instanceOnSpy).to.have.been.calledWith(event);
     });
+  }
+
+  describe('when a new instance is created', function () {
+    beforeEach(function () {
+      instancesManager.emit(
+        MongoDBInstancesManagerEvents.InstanceCreated,
+        'newConnection',
+        createInstance()
+      );
+    });
+
+    for (const event of ALL_EVENTS) {
+      it(`subscribes to an existing instance event ${event}`, function () {
+        expect(instanceOnSpy).to.have.been.calledWith(event);
+      });
+    }
   });
 });

@@ -50,6 +50,7 @@ describe('Collections [Plugin]', function () {
     beforeEach(async function () {
       const Plugin = CollectionsPlugin.withMockServices({
         instance: mongodbInstance,
+        database: mongodbInstance.databases.get('foo'),
         globalAppRegistry: appRegistry,
         dataService,
       });
@@ -80,6 +81,7 @@ describe('Collections [Plugin]', function () {
       userEvent.click(screen.getByRole('button', { name: /Delete/ }));
       expect(appRegistry.emit).to.have.been.calledWithMatch(
         'open-drop-collection',
+        'TEST',
         { ns: 'foo.bar' }
       );
     });

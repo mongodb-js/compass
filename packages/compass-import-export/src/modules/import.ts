@@ -191,6 +191,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       globalAppRegistry: appRegistry,
       workspaces,
       logger: { log, mongoLogId, track, debug },
+      connectionInfoAccess,
     }
   ) => {
     const startTime = Date.now();
@@ -404,7 +405,11 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     } else {
       const onReviewDocumentsClick = appRegistry
         ? () => {
-            workspaces.openCollectionWorkspace(ns, { newTab: true });
+            const { id: connectionId } =
+              connectionInfoAccess.getCurrentConnectionInfo();
+            workspaces.openCollectionWorkspace(connectionId, ns, {
+              newTab: true,
+            });
           }
         : undefined;
 

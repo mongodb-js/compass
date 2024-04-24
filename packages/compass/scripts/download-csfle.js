@@ -38,8 +38,8 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
     // The CSFLE shared library is built for different distros,
     // but since it only depends on glibc, we can just download
     // a CSFLE library from a distro with a low glibc version
-    // such as RHEL7.
-    downloadOptions.distro = 'rhel70';
+    // such as RHEL8.
+    downloadOptions.distro = 'rhel80';
   }
 
   const downloaded = await downloadMongoDb(

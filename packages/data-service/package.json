@@ -71,7 +71,6 @@
     "@mongodb-js/prettier-config-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.3",
     "@types/lodash": "^4.14.188",
-    "@types/uuid": "^8.3.1",
     "@types/whatwg-url": "^8.2.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
@@ -83,8 +82,7 @@
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "socks": "^2.7.3",
-    "typescript": "^5.0.4",
-    "uuid": "^8.3.2"
+    "typescript": "^5.0.4"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^6.0.0"

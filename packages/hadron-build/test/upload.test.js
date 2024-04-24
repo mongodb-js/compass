@@ -89,7 +89,7 @@ describe('upload', function() {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-1.0.0.x86_64.rpm',
-              name: 'RedHat 64-bit (7+)',
+              name: 'RedHat 64-bit (8+)',
               os: 'linux'
             },
             {
@@ -144,7 +144,7 @@ describe('upload', function() {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.0.0.x86_64.rpm',
-              name: 'RedHat 64-bit (7+)',
+              name: 'RedHat 64-bit (8+)',
               os: 'linux'
             },
             {
@@ -199,7 +199,7 @@ describe('upload', function() {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.0.0.x86_64.rpm',
-              name: 'RedHat 64-bit (7+)',
+              name: 'RedHat 64-bit (8+)',
               os: 'linux'
             },
             {

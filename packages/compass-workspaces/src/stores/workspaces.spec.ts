@@ -1,6 +1,9 @@
 import { expect } from 'chai';
+import { createSandbox } from 'sinon';
 import { activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
+import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 describe('tabs behavior', function () {
   const instance = {
@@ -13,11 +16,21 @@ describe('tabs behavior', function () {
   const globalAppRegistry = { on() {}, removeListener() {} } as any;
   const helpers = { on() {}, cleanup() {}, addCleanup() {} } as any;
   const dataService = {} as any;
+  const instancesManager = new TestMongoDBInstanceManager();
+  const connectionsManager = new ConnectionsManager({
+    logger: (() => {}) as any,
+  });
+  const sandbox = createSandbox();
 
   function configureStore() {
     return activateWorkspacePlugin(
       {},
-      { globalAppRegistry, instance, dataService, logger: {} as any },
+      {
+        globalAppRegistry,
+        instancesManager,
+        connectionsManager,
+        logger: {} as any,
+      },
       helpers
     ).store;
   }
@@ -47,7 +60,22 @@ describe('tabs behavior', function () {
     collectionRemoved,
     databaseRemoved,
     collectionSubtabSelected,
+    openFallbackTab,
+    getActiveTab,
   } = workspacesSlice;
+
+  beforeEach(function () {
+    sandbox
+      .stub(connectionsManager, 'getDataServiceForConnection')
+      .returns(dataService);
+    sandbox
+      .stub(instancesManager, 'getMongoDBInstanceForConnection')
+      .returns(instance);
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+  });
 
   describe('openWorkspace', function () {
     it('should open a tab and make it active', function () {
@@ -59,7 +87,7 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('activeTabId', state.tabs[0].id);
     });
 
-    it('should open a workspace in new tab even if another exists', function () {
+    it('when `newTab` is `true` should open a workspace in new tab even if another exists', function () {
       const store = configureStore();
       store.dispatch(openWorkspace({ type: 'My Queries' }));
       store.dispatch(openWorkspace({ type: 'My Queries' }, { newTab: true }));
@@ -70,11 +98,17 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('activeTabId', state.tabs[1].id);
     });
 
+    it('when `newTab` is `false` should always open a workspace in the same tab', function () {});
+
     it('should open workspace in the same tab if type is the same, but other workspace options are different', function () {
       const store = configureStore();
       openTabs(store);
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'test.bar' })
+        openWorkspace({
+          type: 'Collection',
+          connectionId: '1',
+          namespace: 'test.bar',
+        })
       );
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(3);
@@ -289,7 +323,13 @@ describe('tabs behavior', function () {
     it('should remove all tabs with matching namespace', function () {
       const store = configureStore();
       openTabs(store);
-      store.dispatch(openWorkspace({ type: 'Collections', namespace: 'test' }));
+      store.dispatch(
+        openWorkspace({
+          type: 'Collections',
+          connectionId: '1',
+          namespace: 'test',
+        })
+      );
       store.dispatch(openWorkspace({ type: 'My Queries' }));
       const myQueriesTab = workspacesSlice.getActiveTab(store.getState());
       store.dispatch(databaseRemoved('test'));
@@ -328,6 +368,54 @@ describe('tabs behavior', function () {
           'it does not change active tab id'
         ).to.equal(activeTabId);
       });
+    });
+  });
+
+  describe('openFallbackTab', function () {
+    it('should replace the tab with a fallback namespace', function () {
+      const store = configureStore();
+
+      store.dispatch(
+        openWorkspace({
+          type: 'Collection',
+          connectionId: '1',
+          namespace: 'foo.bar',
+        })
+      );
+      expect(store.getState().tabs).to.have.lengthOf(1);
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Collection'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'namespace',
+        'foo.bar'
+      );
+
+      // Replace collection tab with collections list one
+      store.dispatch(
+        openFallbackTab(getActiveTab(store.getState())!, '1', 'foo')
+      );
+      expect(store.getState().tabs).to.have.lengthOf(1);
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Collections'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'namespace',
+        'foo'
+      );
+
+      // Replace collections list tab with the databases list
+      store.dispatch(
+        openFallbackTab(getActiveTab(store.getState())!, '1', null)
+      );
+      expect(store.getState().tabs).to.have.lengthOf(1);
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Databases'
+      );
+      expect(getActiveTab(store.getState())).to.not.have.property('namespace');
     });
   });
 });

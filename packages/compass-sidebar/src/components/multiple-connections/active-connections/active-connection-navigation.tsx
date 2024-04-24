@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import {
+  type Connection,
   type Actions,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
-import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
   getConnectionTitle,
@@ -58,13 +58,15 @@ const activeConnectionCountStyles = css({
   fontWeight: 'normal',
 });
 
-function ActiveConnectionNavigation({
-  // isDataLake,
-  // isWritable,
+export function ActiveConnectionNavigation({
+  activeConnections,
+  connections,
   expanded,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
-  databases,
+  onOpenConnectionInfo,
+  onCopyConnectionString,
+  onToggleFavoriteConnection,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -75,13 +77,16 @@ function ActiveConnectionNavigation({
   | 'onConnectionExpand'
   | 'isReady'
 > & {
-  databases: Database[];
+  activeConnections: ConnectionInfo[];
+  connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
-  expanded: Record<string, boolean>;
+  expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace: { type: string; namespace?: string } | null;
+  onOpenConnectionInfo: (connectionId: string) => void;
+  onCopyConnectionString: (connectionId: string) => void;
+  onToggleFavoriteConnection: (connectionId: string) => void;
 }): React.ReactElement {
-  const activeConnections = useActiveConnections();
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
     { connectionInfo: ConnectionInfo; name: string }[]
@@ -125,21 +130,34 @@ function ActiveConnectionNavigation({
   }, [activeConnections]);
 
   const onNamespaceAction = useCallback(
-    (ns: string, action: Actions) => {
+    (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'open-connection-info':
+          onOpenConnectionInfo(connectionId);
+          return;
+        case 'copy-connection-string':
+          onCopyConnectionString(connectionId);
+          return;
+        case 'connection-toggle-favorite':
+          onToggleFavoriteConnection(connectionId);
+          return;
         case 'select-database':
-          openCollectionsWorkspace(ns);
+          openCollectionsWorkspace(connectionId, ns);
           return;
         case 'select-collection':
-          openCollectionWorkspace(ns);
+          openCollectionWorkspace(connectionId, ns);
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(ns, { newTab: true });
+          openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
-          const coll = findCollection(ns, databases);
+          const coll = findCollection(
+            ns,
+            (connections.find((conn) => conn.connectionInfo.id === connectionId)
+              ?.databases as Database[]) ?? []
+          );
           if (coll && coll.sourceName && coll.pipeline) {
-            openEditViewWorkspace(coll._id, {
+            openEditViewWorkspace(connectionId, coll._id, {
               sourceName: coll.sourceName,
               sourcePipeline: coll.pipeline,
               newTab: true,
@@ -148,16 +166,18 @@ function ActiveConnectionNavigation({
           return;
         }
         default:
-          _onNamespaceAction(ns, action);
+          _onNamespaceAction(connectionId, ns, action);
           return;
       }
     },
     [
-      databases,
-      openDatabasesWorkspace,
+      connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
+      onCopyConnectionString,
+      onOpenConnectionInfo,
+      onToggleFavoriteConnection,
       _onNamespaceAction,
     ]
   );
@@ -174,22 +194,18 @@ function ActiveConnectionNavigation({
       </header>
       <ConnectionsNavigationTree
         isReady={true}
-        connections={namedConnections.map(({ connectionInfo, name }) => ({
-          connectionInfo,
-          name,
-          databasesStatus: 'ready',
-          databasesLength: databases?.length,
-          databases,
-        }))}
+        connections={connections}
         activeNamespace={activeWorkspace?.namespace}
         onNamespaceAction={onNamespaceAction}
-        onConnectionSelect={() => openDatabasesWorkspace()}
+        onConnectionSelect={(connectionId) =>
+          openDatabasesWorkspace(connectionId)
+        }
         onConnectionExpand={onConnectionToggle}
         expanded={namedConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {
             obj[connectionId] = collapsed.includes(connectionId)
               ? false
-              : expanded;
+              : expanded[connectionId];
             return obj;
           },
           {} as Record<string, false | Record<string, boolean>>
@@ -200,34 +216,65 @@ function ActiveConnectionNavigation({
   );
 }
 
-function mapStateToProps(state: RootState) {
-  const {
-    databases: { filterRegex, filteredDatabases, expandedDbList },
-    instance,
-  } = state;
-  const status = instance?.databasesStatus;
-  const isReady =
-    status !== undefined && !['initial', 'fetching'].includes(status);
-  const defaultExpanded = Boolean(filterRegex);
-  const expanded = Object.fromEntries(
-    (filteredDatabases as any[]).map(({ name }) => [
-      name,
-      expandedDbList[name] ?? defaultExpanded,
-    ])
-  );
-  const isDataLake = instance?.dataLake.isDataLake;
-  const isWritable = instance?.isWritable;
+function mapStateToProps(
+  state: RootState,
+  { activeConnections }: { activeConnections: ConnectionInfo[] }
+): {
+  isReady: boolean;
+  connections: Connection[];
+  expanded: Record<string, Record<string, boolean> | false>;
+} {
+  const connections: Connection[] = [];
+  const expandedResult: Record<string, any> = {};
+
+  for (const connectionInfo of activeConnections) {
+    const connectionId = connectionInfo.id;
+    const instance = state.instance[connectionId];
+    const {
+      filterRegex,
+      filteredDatabases,
+      expandedDbList: initialExpandedDbList,
+    } = state.databases[connectionId] || {};
+
+    const status = instance?.databasesStatus;
+    const isReady =
+      status !== undefined && !['initial', 'fetching'].includes(status);
+    const defaultExpanded = Boolean(filterRegex);
+
+    const expandedDbList = initialExpandedDbList ?? {};
+    const expanded = Object.fromEntries(
+      ((filteredDatabases as any[]) || []).map(({ name }) => [
+        name,
+        expandedDbList[name] ?? defaultExpanded,
+      ])
+    );
+
+    const isDataLake = instance?.dataLake?.isDataLake ?? false;
+    const isWritable = instance?.isWritable ?? false;
+
+    connections.push({
+      isReady,
+      isDataLake,
+      isWritable,
+      name: getConnectionTitle(connectionInfo),
+      connectionInfo,
+      databasesLength: filteredDatabases?.length ?? 0,
+      databasesStatus: status as Connection['databasesStatus'],
+      databases: filteredDatabases ?? [],
+    });
+
+    expandedResult[connectionId] = expanded;
+  }
 
   return {
-    isReady,
-    isDataLake,
-    isWritable,
-    databases: filteredDatabases,
-    expanded,
+    isReady: true,
+    connections,
+    expanded: expandedResult,
   };
 }
 
 const onNamespaceAction = (
+  connectionId: string,
   namespace: string,
   action: Actions
 ): SidebarThunkAction<void> => {
@@ -238,19 +285,22 @@ const onNamespaceAction = (
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':
-        emit('open-drop-database', ns.database);
+        emit('open-drop-database', connectionId, ns.database);
         return;
       case 'rename-collection':
-        emit('open-rename-collection', ns);
+        emit('open-rename-collection', connectionId, ns);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns);
+        emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
         emit('open-create-collection', ns);
         return;
       case 'duplicate-view': {
-        const coll = findCollection(namespace, getState().databases.databases);
+        const coll = findCollection(
+          namespace,
+          getState().databases[connectionId].databases
+        );
         if (coll && coll.sourceName) {
           emit('open-create-view', {
             source: coll.sourceName,

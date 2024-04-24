@@ -31,6 +31,7 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -252,6 +253,7 @@ const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
 
 export function NavigationItems({
   isReady,
+  connectionInfo,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
   onFilterChange,
@@ -261,6 +263,7 @@ export function NavigationItems({
   showTooManyCollectionsInsight = false,
 }: {
   isReady?: boolean;
+  connectionInfo: ConnectionInfo;
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
@@ -331,7 +334,7 @@ export function NavigationItems({
                 {hasWorkspacePlugin('Performance') && (
                   <NavigationItem<''>
                     onAction={onAction}
-                    onClick={openPerformanceWorkspace}
+                    onClick={() => openPerformanceWorkspace(connectionInfo.id)}
                     glyph="Gauge"
                     label="Performance"
                     isActive={currentLocation === 'Performance'}
@@ -341,7 +344,7 @@ export function NavigationItems({
                 )}
                 <NavigationItem<DatabasesActions>
                   onAction={onAction}
-                  onClick={openDatabasesWorkspace}
+                  onClick={() => openDatabasesWorkspace(connectionInfo.id)}
                   glyph="Database"
                   label="Databases"
                   actions={databasesActions}
@@ -356,6 +359,7 @@ export function NavigationItems({
 
       <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       <SidebarDatabasesNavigation
+        connectionInfo={connectionInfo}
         activeNamespace={currentNamespace ?? undefined}
       />
     </>
@@ -364,9 +368,13 @@ export function NavigationItems({
 
 const mapStateToProps = (
   state: RootState,
-  { readOnly: preferencesReadOnly }: { readOnly: boolean }
+  {
+    connectionInfo,
+    readOnly: preferencesReadOnly,
+  }: { connectionInfo: ConnectionInfo; readOnly: boolean }
 ) => {
-  const totalCollectionsCount = state.databases.databases.reduce(
+  const connectionId = connectionInfo.id;
+  const totalCollectionsCount = state.databases[connectionId].databases.reduce(
     (acc: number, db: { collectionsLength: number }) => {
       return acc + db.collectionsLength;
     },
@@ -374,11 +382,12 @@ const mapStateToProps = (
   );
 
   const isReady =
-    ['ready', 'refreshing'].includes(state.instance?.status ?? '') &&
-    state.isPerformanceTabSupported !== null;
+    ['ready', 'refreshing'].includes(
+      state.instance[connectionId]?.status ?? ''
+    ) && state.isPerformanceTabSupported !== null;
 
-  const isDataLake = state.instance?.dataLake.isDataLake ?? false;
-  const isWritable = state.instance?.isWritable ?? false;
+  const isDataLake = state.instance[connectionId]?.dataLake.isDataLake ?? false;
+  const isWritable = state.instance[connectionId]?.isWritable ?? false;
 
   return {
     isReady,

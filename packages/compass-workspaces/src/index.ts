@@ -15,55 +15,28 @@ import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
 import {
-  dataServiceLocator,
-  type DataService,
-  type DataServiceLocator,
+  connectionsManagerLocator,
+  type ConnectionsManager,
+  type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
-import toNS from 'mongodb-ns';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import {
+  type MongoDBInstancesManager,
+  MongoDBInstancesManagerEvents,
+} from '@mongodb-js/compass-app-stores/provider';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
-  dataService: DataService;
+  instancesManager: MongoDBInstancesManager;
+  connectionsManager: ConnectionsManager;
   logger: LoggerAndTelemetry;
 };
-
-/**
- * When opening tabs initially, there might be the case that db and collection
- * models don't exist yet on the instance model. Workspaces expect the models to
- * exist when rendered, so we prepopulate instance model with collections and
- * databases to support that case
- */
-function prepopulateInstanceModel(
-  tabs: OpenWorkspaceOptions[],
-  instance: MongoDBInstance
-) {
-  for (const tab of tabs) {
-    if (tab.type === 'Collections' || tab.type === 'Collection') {
-      const { ns, database, collection, validCollectionName } = toNS(
-        tab.namespace
-      );
-      const db =
-        instance.databases.get(database) ??
-        instance.databases.add({ _id: database });
-
-      if (
-        collection &&
-        validCollectionName &&
-        !db.collections.get(collection, 'name')
-      ) {
-        db.collections.add({ _id: ns });
-      }
-    }
-  }
-}
 
 export function configureStore(
   initialWorkspaceTabs: OpenWorkspaceOptions[] | undefined | null,
@@ -75,8 +48,6 @@ export function configureStore(
           return getInitialTabState(tab);
         })
       : [];
-
-  prepopulateInstanceModel(initialTabs, services.instance);
 
   const store = createStore(
     workspacesReducer,
@@ -95,30 +66,53 @@ export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
   }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
-  { globalAppRegistry, instance, dataService, logger }: WorkspacesServices,
+  {
+    globalAppRegistry,
+    instancesManager,
+    connectionsManager,
+    logger,
+  }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
-    instance,
-    dataService,
+    instancesManager,
+    connectionsManager,
     logger,
   });
 
   addCleanup(cleanupLocalAppRegistries);
 
-  on(instance, 'change:collections._id', (collection: Collection) => {
-    const { _id: from } = collection.previousAttributes();
-    store.dispatch(collectionRenamed(from, collection.ns));
-  });
+  const setupInstanceListeners = (instance: MongoDBInstance) => {
+    on(instance, 'change:collections._id', (collection: Collection) => {
+      const { _id: from } = collection.previousAttributes();
+      store.dispatch(collectionRenamed(from, collection.ns));
+    });
 
-  on(instance, 'remove:collections', (collection: Collection) => {
-    store.dispatch(collectionRemoved(collection.ns));
-  });
+    on(instance, 'remove:collections', (collection: Collection) => {
+      store.dispatch(collectionRemoved(collection.ns));
+    });
 
-  on(instance, 'remove:databases', (database: Database) => {
-    store.dispatch(databaseRemoved(database.name));
-  });
+    on(instance, 'remove:databases', (database: Database) => {
+      store.dispatch(databaseRemoved(database.name));
+    });
+  };
+
+  const existingInstances = instancesManager.listMongoDBInstances();
+  for (const instance of existingInstances.values()) {
+    setupInstanceListeners(instance);
+  }
+
+  on(
+    instancesManager,
+    MongoDBInstancesManagerEvents.InstanceCreated,
+    function (
+      connectionInfoId: ConnectionInfo['id'],
+      instance: MongoDBInstance
+    ) {
+      setupInstanceListeners(instance);
+    }
+  );
 
   on(globalAppRegistry, 'menu-share-schema-json', () => {
     const activeTab = getActiveTab(store.getState());
@@ -162,8 +156,8 @@ const WorkspacesPlugin = registerHadronPlugin(
     activate: activateWorkspacePlugin,
   },
   {
-    instance: mongoDBInstanceLocator,
-    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    instancesManager: mongoDBInstancesManagerLocator,
+    connectionsManager: connectionsManagerLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-WORKSPACES-UI'),
   }
 );

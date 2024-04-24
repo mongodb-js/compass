@@ -1,5 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataService,
   type DataServiceLocator,
@@ -26,6 +27,7 @@ const serviceLocators = {
   workspaces: workspacesServiceLocator,
   pipelineStorage: pipelineStorageLocator,
   favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
+  connectionInfoAccess: connectionInfoAccessLocator,
 };
 
 export const MyQueriesPlugin = registerHadronPlugin<

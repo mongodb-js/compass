@@ -96,10 +96,6 @@ describe('CrudToolbar Component', function () {
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences({
-      enableBulkUpdateOperations: true,
-      enableBulkDeleteOperations: true,
-    });
   });
 
   it('renders the query bar role', function () {
@@ -283,14 +279,6 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('update button', function () {
-    it('should not be visible when the enableBulkUpdateOperations toggle is off', async function () {
-      await preferences.savePreferences({
-        enableBulkUpdateOperations: false,
-      });
-
-      expect(screen.queryByText(updateDataText)).to.not.exist;
-    });
-
     it('should render disabled when the query has a skip', function () {
       renderCrudToolbar({
         querySkip: 10,
@@ -322,14 +310,6 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('delete button', function () {
-    it('should not be visible when the enableBulkDeleteOperations toggle is off', async function () {
-      await preferences.savePreferences({
-        enableBulkDeleteOperations: false,
-      });
-
-      expect(screen.queryByText(deleteDataText)).to.not.exist;
-    });
-
     it('should render disabled when the query has a skip', function () {
       renderCrudToolbar({
         querySkip: 10,

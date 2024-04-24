@@ -6,7 +6,6 @@ import {
   WorkspaceContainer,
   css,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 
 type DeleteMenuButtonProps = {
   isWritable: boolean;
@@ -24,12 +23,6 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
   isWritable,
   onClick,
 }) => {
-  const isVisible = usePreference('enableBulkDeleteOperations');
-
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <Button
       disabled={!isWritable}
