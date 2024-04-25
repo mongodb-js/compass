@@ -1,3 +1,4 @@
+'use strict';
 const chai = require('chai');
 const { spy } = require('sinon');
 const { sign, getSignedFilename } = require('../lib/signtool');

@@ -334,7 +334,7 @@ export function NavigationItems({
                 {hasWorkspacePlugin('Performance') && (
                   <NavigationItem<''>
                     onAction={onAction}
-                    onClick={openPerformanceWorkspace}
+                    onClick={() => openPerformanceWorkspace(connectionInfo.id)}
                     glyph="Gauge"
                     label="Performance"
                     isActive={currentLocation === 'Performance'}
@@ -344,7 +344,7 @@ export function NavigationItems({
                 )}
                 <NavigationItem<DatabasesActions>
                   onAction={onAction}
-                  onClick={openDatabasesWorkspace}
+                  onClick={() => openDatabasesWorkspace(connectionInfo.id)}
                   glyph="Database"
                   label="Databases"
                   actions={databasesActions}

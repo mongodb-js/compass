@@ -358,9 +358,10 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      if (isDownloadForManualCheck) {
-        ipcMain?.broadcast('autoupdate:update-download-in-progress');
-      }
+      ipcMain?.broadcast('autoupdate:update-download-in-progress', {
+        newVersion: updateInfo.to,
+      });
+
       autoUpdater.checkForUpdates();
     },
   },
@@ -380,7 +381,7 @@ const STATE_UPDATE: Record<
       this.maybeInterrupt();
 
       ipcMain?.broadcast('autoupdate:update-download-success', {
-        updatedVersion: updateInfo.to,
+        newVersion: updateInfo.to,
       });
     },
   },

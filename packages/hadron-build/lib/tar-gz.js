@@ -1,3 +1,4 @@
+'use strict';
 const tar = require('tar');
 const path = require('path');
 

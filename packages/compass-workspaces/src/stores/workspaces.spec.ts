@@ -1,6 +1,9 @@
 import { expect } from 'chai';
+import { createSandbox } from 'sinon';
 import { activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
+import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 describe('tabs behavior', function () {
   const instance = {
@@ -13,11 +16,21 @@ describe('tabs behavior', function () {
   const globalAppRegistry = { on() {}, removeListener() {} } as any;
   const helpers = { on() {}, cleanup() {}, addCleanup() {} } as any;
   const dataService = {} as any;
+  const instancesManager = new TestMongoDBInstanceManager();
+  const connectionsManager = new ConnectionsManager({
+    logger: (() => {}) as any,
+  });
+  const sandbox = createSandbox();
 
   function configureStore() {
     return activateWorkspacePlugin(
       {},
-      { globalAppRegistry, instance, dataService, logger: {} as any },
+      {
+        globalAppRegistry,
+        instancesManager,
+        connectionsManager,
+        logger: {} as any,
+      },
       helpers
     ).store;
   }
@@ -51,6 +64,19 @@ describe('tabs behavior', function () {
     getActiveTab,
   } = workspacesSlice;
 
+  beforeEach(function () {
+    sandbox
+      .stub(connectionsManager, 'getDataServiceForConnection')
+      .returns(dataService);
+    sandbox
+      .stub(instancesManager, 'getMongoDBInstanceForConnection')
+      .returns(instance);
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+  });
+
   describe('openWorkspace', function () {
     it('should open a tab and make it active', function () {
       const store = configureStore();
@@ -78,7 +104,11 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'test.bar' })
+        openWorkspace({
+          type: 'Collection',
+          connectionId: '1',
+          namespace: 'test.bar',
+        })
       );
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(3);
@@ -293,7 +323,13 @@ describe('tabs behavior', function () {
     it('should remove all tabs with matching namespace', function () {
       const store = configureStore();
       openTabs(store);
-      store.dispatch(openWorkspace({ type: 'Collections', namespace: 'test' }));
+      store.dispatch(
+        openWorkspace({
+          type: 'Collections',
+          connectionId: '1',
+          namespace: 'test',
+        })
+      );
       store.dispatch(openWorkspace({ type: 'My Queries' }));
       const myQueriesTab = workspacesSlice.getActiveTab(store.getState());
       store.dispatch(databaseRemoved('test'));
@@ -340,7 +376,11 @@ describe('tabs behavior', function () {
       const store = configureStore();
 
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'foo.bar' })
+        openWorkspace({
+          type: 'Collection',
+          connectionId: '1',
+          namespace: 'foo.bar',
+        })
       );
       expect(store.getState().tabs).to.have.lengthOf(1);
       expect(getActiveTab(store.getState())).to.have.property(
@@ -353,7 +393,9 @@ describe('tabs behavior', function () {
       );
 
       // Replace collection tab with collections list one
-      store.dispatch(openFallbackTab(getActiveTab(store.getState())!, 'foo'));
+      store.dispatch(
+        openFallbackTab(getActiveTab(store.getState())!, '1', 'foo')
+      );
       expect(store.getState().tabs).to.have.lengthOf(1);
       expect(getActiveTab(store.getState())).to.have.property(
         'type',
@@ -365,7 +407,9 @@ describe('tabs behavior', function () {
       );
 
       // Replace collections list tab with the databases list
-      store.dispatch(openFallbackTab(getActiveTab(store.getState())!, null));
+      store.dispatch(
+        openFallbackTab(getActiveTab(store.getState())!, '1', null)
+      );
       expect(store.getState().tabs).to.have.lengthOf(1);
       expect(getActiveTab(store.getState())).to.have.property(
         'type',

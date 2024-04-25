@@ -64,6 +64,9 @@ export function ActiveConnectionNavigation({
   expanded,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
+  onOpenConnectionInfo,
+  onCopyConnectionString,
+  onToggleFavoriteConnection,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -80,6 +83,9 @@ export function ActiveConnectionNavigation({
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace: { type: string; namespace?: string } | null;
+  onOpenConnectionInfo: (connectionId: string) => void;
+  onCopyConnectionString: (connectionId: string) => void;
+  onToggleFavoriteConnection: (connectionId: string) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
@@ -87,7 +93,6 @@ export function ActiveConnectionNavigation({
   >([]);
 
   const {
-    // TODO: add connection id as the first parameter
     openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
@@ -127,14 +132,23 @@ export function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'open-connection-info':
+          onOpenConnectionInfo(connectionId);
+          return;
+        case 'copy-connection-string':
+          onCopyConnectionString(connectionId);
+          return;
+        case 'connection-toggle-favorite':
+          onToggleFavoriteConnection(connectionId);
+          return;
         case 'select-database':
-          openCollectionsWorkspace(ns);
+          openCollectionsWorkspace(connectionId, ns);
           return;
         case 'select-collection':
-          openCollectionWorkspace(ns);
+          openCollectionWorkspace(connectionId, ns);
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(ns, { newTab: true });
+          openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
           const coll = findCollection(
@@ -143,7 +157,7 @@ export function ActiveConnectionNavigation({
               ?.databases as Database[]) ?? []
           );
           if (coll && coll.sourceName && coll.pipeline) {
-            openEditViewWorkspace(coll._id, {
+            openEditViewWorkspace(connectionId, coll._id, {
               sourceName: coll.sourceName,
               sourcePipeline: coll.pipeline,
               newTab: true,
@@ -158,10 +172,12 @@ export function ActiveConnectionNavigation({
     },
     [
       connections,
-      openDatabasesWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
+      onCopyConnectionString,
+      onOpenConnectionInfo,
+      onToggleFavoriteConnection,
       _onNamespaceAction,
     ]
   );
@@ -181,7 +197,9 @@ export function ActiveConnectionNavigation({
         connections={connections}
         activeNamespace={activeWorkspace?.namespace}
         onNamespaceAction={onNamespaceAction}
-        onConnectionSelect={() => openDatabasesWorkspace()}
+        onConnectionSelect={(connectionId) =>
+          openDatabasesWorkspace(connectionId)
+        }
         onConnectionExpand={onConnectionToggle}
         expanded={namedConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {
@@ -267,13 +285,13 @@ const onNamespaceAction = (
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':
-        emit('open-drop-database', ns.database);
+        emit('open-drop-database', connectionId, ns.database);
         return;
       case 'rename-collection':
         emit('open-rename-collection', connectionId, ns);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns);
+        emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
         emit('open-create-collection', ns);

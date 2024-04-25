@@ -1,3 +1,4 @@
+'use strict';
 const antlr4 = require('antlr4');
 
 const { BsonTranspilersSyntaxError } = require('../helper/error');

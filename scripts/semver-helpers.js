@@ -1,3 +1,4 @@
+'use strict';
 const semver = require('semver');
 
 function intersects(range) {

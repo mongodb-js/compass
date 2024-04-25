@@ -46,12 +46,12 @@ function Info({
 export function ConnectionInfoModal({
   isVisible,
   close,
-  infos,
+  infos = [],
 }: {
-  initialConnectionInfo: ConnectionStorageConnectionInfo;
+  connectionInfo?: ConnectionStorageConnectionInfo;
   isVisible: boolean;
   close: () => void;
-  infos: ConnectionInfo[];
+  infos?: ConnectionInfo[];
 }) {
   return (
     <InfoModal
@@ -246,19 +246,19 @@ function getInfos(infoParameters: InfoParameters) {
 
 const mapStateToProps = (
   state: RootState,
-  {
-    initialConnectionInfo,
-  }: { initialConnectionInfo: ConnectionStorageConnectionInfo }
+  { connectionInfo }: { connectionInfo?: ConnectionStorageConnectionInfo }
 ) => {
-  const instance = state.instance[initialConnectionInfo.id];
-  const databases = state.databases[initialConnectionInfo.id];
-  const connectionOptions = state.connectionOptions[initialConnectionInfo.id];
+  if (!connectionInfo) return { infos: [] };
+
+  const instance = state.instance[connectionInfo.id];
+  const databases = state.databases[connectionInfo.id];
+  const connectionOptions = state.connectionOptions[connectionInfo.id];
 
   return {
     infos: getInfos({
       instance: instance,
       databases: databases.databases ?? [],
-      connectionInfo: initialConnectionInfo,
+      connectionInfo: connectionInfo,
       connectionOptions: connectionOptions || {},
     }),
   };

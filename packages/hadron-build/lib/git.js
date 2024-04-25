@@ -1,3 +1,4 @@
+'use strict';
 /* eslint no-sync: 0 */
 const Promise = require('bluebird');
 const execFile = Promise.promisify(require('child_process').execFile);

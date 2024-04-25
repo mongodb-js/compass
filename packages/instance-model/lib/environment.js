@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Constants for various environments MongoDB can run in.
  */

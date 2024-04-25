@@ -15,22 +15,26 @@ import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import type Collection from 'mongodb-collection-model';
 import type Database from 'mongodb-database-model';
 import {
-  dataServiceLocator,
-  type DataService,
-  type DataServiceLocator,
+  connectionsManagerLocator,
+  type ConnectionsManager,
+  type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import {
+  type MongoDBInstancesManager,
+  MongoDBInstancesManagerEvents,
+} from '@mongodb-js/compass-app-stores/provider';
 
 export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
-  dataService: DataService;
+  instancesManager: MongoDBInstancesManager;
+  connectionsManager: ConnectionsManager;
   logger: LoggerAndTelemetry;
 };
 
@@ -62,30 +66,53 @@ export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
   }: { initialWorkspaceTabs?: OpenWorkspaceOptions[] | null },
-  { globalAppRegistry, instance, dataService, logger }: WorkspacesServices,
+  {
+    globalAppRegistry,
+    instancesManager,
+    connectionsManager,
+    logger,
+  }: WorkspacesServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore(initialWorkspaceTabs, {
     globalAppRegistry,
-    instance,
-    dataService,
+    instancesManager,
+    connectionsManager,
     logger,
   });
 
   addCleanup(cleanupLocalAppRegistries);
 
-  on(instance, 'change:collections._id', (collection: Collection) => {
-    const { _id: from } = collection.previousAttributes();
-    store.dispatch(collectionRenamed(from, collection.ns));
-  });
+  const setupInstanceListeners = (instance: MongoDBInstance) => {
+    on(instance, 'change:collections._id', (collection: Collection) => {
+      const { _id: from } = collection.previousAttributes();
+      store.dispatch(collectionRenamed(from, collection.ns));
+    });
 
-  on(instance, 'remove:collections', (collection: Collection) => {
-    store.dispatch(collectionRemoved(collection.ns));
-  });
+    on(instance, 'remove:collections', (collection: Collection) => {
+      store.dispatch(collectionRemoved(collection.ns));
+    });
 
-  on(instance, 'remove:databases', (database: Database) => {
-    store.dispatch(databaseRemoved(database.name));
-  });
+    on(instance, 'remove:databases', (database: Database) => {
+      store.dispatch(databaseRemoved(database.name));
+    });
+  };
+
+  const existingInstances = instancesManager.listMongoDBInstances();
+  for (const instance of existingInstances.values()) {
+    setupInstanceListeners(instance);
+  }
+
+  on(
+    instancesManager,
+    MongoDBInstancesManagerEvents.InstanceCreated,
+    function (
+      connectionInfoId: ConnectionInfo['id'],
+      instance: MongoDBInstance
+    ) {
+      setupInstanceListeners(instance);
+    }
+  );
 
   on(globalAppRegistry, 'menu-share-schema-json', () => {
     const activeTab = getActiveTab(store.getState());
@@ -129,8 +156,8 @@ const WorkspacesPlugin = registerHadronPlugin(
     activate: activateWorkspacePlugin,
   },
   {
-    instance: mongoDBInstanceLocator,
-    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    instancesManager: mongoDBInstancesManagerLocator,
+    connectionsManager: connectionsManagerLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-WORKSPACES-UI'),
   }
 );

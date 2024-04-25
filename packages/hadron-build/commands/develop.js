@@ -1,3 +1,4 @@
+'use strict';
 /**
  * TODO (imlucas) Use nodemon so main process has livereload.
  */

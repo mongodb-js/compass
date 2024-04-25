@@ -1,3 +1,4 @@
+'use strict';
 const assert = require('assert');
 const windowsInstallerVersion = require('../lib/windows-installer-version');
 

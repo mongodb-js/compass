@@ -1,3 +1,4 @@
+'use strict';
 // @ts-check
 const express = require('express');
 const proxyMiddleware = require('express-http-proxy');

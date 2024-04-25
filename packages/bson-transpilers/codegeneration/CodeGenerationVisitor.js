@@ -1,3 +1,4 @@
+'use strict';
 /* eslint complexity: 0, camelcase: 0, "new-cap": 0 */
 const {
   BsonTranspilersAttributeError,
@@ -466,7 +467,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
       type = this.Types[type];
     }
     while (type !== null) {
-      if (!(type.attr.hasOwnProperty(rhs))) {
+      if (!(Object.prototype.hasOwnProperty.call(type.attr, rhs))) {
         if (type.id in this.BsonTypes && this.BsonTypes[type.id].id !== null) { // TODO: tell symbols vs types
           throw new BsonTranspilersAttributeError(
             `'${rhs}' not an attribute of ${type.id}`

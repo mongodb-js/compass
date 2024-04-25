@@ -1,14 +1,15 @@
+'use strict';
 const assert = require('assert');
 const DeclarationStore = require('../codegeneration/DeclarationStore');
 
-describe('DeclarationStore', () => {
-  it('adds data using #add', () => {
+describe('DeclarationStore', function() {
+  it('adds data using #add', function() {
     const ds = new DeclarationStore();
 
     ds.addVar('Temp', 'objectID', (varName) => { return `objectId${varName}`; });
     assert.strictEqual(ds.length(), 1);
   });
-  it('returns incremented variable names given the pre-incremented variable root-name', () => {
+  it('returns incremented variable names given the pre-incremented variable root-name', function() {
     const ds = new DeclarationStore();
 
     ds.addVar('ForTemp', 'objectID', () => { return 1; });
@@ -20,7 +21,7 @@ describe('DeclarationStore', () => {
     ds.addVar('ForTemp', 'objectID', () => { return 3; });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp3');
   });
-  it('stringifies multiple variables declarations', () => {
+  it('stringifies multiple variables declarations', function() {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -55,7 +56,7 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('skips defining declarations for multiple of the exact same declaration (1)', () => {
+  it('skips defining declarations for multiple of the exact same declaration (1)', function() {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -101,7 +102,7 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('skips defining declarations for multiple of the exact same declaration (2)', () => {
+  it('skips defining declarations for multiple of the exact same declaration (2)', function() {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -147,7 +148,7 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('ignores duplications over different variables', () => {
+  it('ignores duplications over different variables', function() {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -198,7 +199,7 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('ignores duplications over different functions', () => {
+  it('ignores duplications over different functions', function() {
     const ds = new DeclarationStore();
     const declaration1 = 'var x := func() {}';
     const declaration2 = 'var x := func() {}';
@@ -215,7 +216,7 @@ describe('DeclarationStore', () => {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('get length of sets', () => {
+  it('get length of sets', function() {
     const ds = new DeclarationStore();
     const declaration1 = 'var x := func() {}';
     const declaration2 = 'var x := func() {}';

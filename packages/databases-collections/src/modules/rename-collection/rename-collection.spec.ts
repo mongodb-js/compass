@@ -32,7 +32,7 @@ describe('rename collection module', function () {
   const extraThunkArgs: RenameCollectionPluginServices = {
     globalAppRegistry: appRegistry,
     connectionsManager: connectionsManager as any,
-    instancesManager: instancesManager as any,
+    instancesManager: instancesManager,
     queryStorage: favoriteQueries as any,
     pipelineStorage: pipelineStorage as any,
   };
@@ -44,7 +44,7 @@ describe('rename collection module', function () {
         {
           globalAppRegistry: appRegistry,
           connectionsManager: connectionsManager as any,
-          instancesManager: instancesManager as any,
+          instancesManager: instancesManager,
           queryStorage: favoriteQueries as any,
           pipelineStorage: pipelineStorage as any,
         }
