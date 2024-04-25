@@ -104,6 +104,7 @@ export default function Workspace({
                 <>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
+                  <CreateNamespacePlugin></CreateNamespacePlugin>
                 </>
               ) : (
                 <ConnectionInfoProvider
