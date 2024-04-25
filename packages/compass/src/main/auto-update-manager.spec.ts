@@ -185,13 +185,20 @@ describe('CompassAutoUpdateManager', function () {
   });
 
   describe('when showing update available dialog to the user', function () {
+    // In test env we do not have squirrel for win, so windows is not supported.
+    const supportsAutoupdates = !['linux', 'win32'].includes(process.platform);
     beforeEach(function () {
       sandbox.stub(autoUpdater);
     });
 
-    describe('when electron does not support plafrom updates', function () {
-      beforeEach(function () {
-        sandbox.stub(process, 'platform').get(() => 'linux');
+    describe('when electron does not support plaform updates', function () {
+      before(function () {
+        if (supportsAutoupdates) {
+          console.log(
+            'Skipping these tests because platform supports autoupdates'
+          );
+          this.skip();
+        }
       });
 
       it('should show dialog when checking for updates manually', async function () {
@@ -225,17 +232,14 @@ describe('CompassAutoUpdateManager', function () {
       });
     });
 
-    describe('when electron supports plafrom updates', function () {
-      beforeEach(function () {
-        sandbox.stub(os, 'cpus').callsFake(() => {
-          return [{ model: 'intel' }] as os.CpuInfo[];
-        });
-        sandbox.stub(process, 'platform').get(() => 'darwin');
-        sandbox.stub(process, 'arch').get(() => 'x64');
-      });
-
-      afterEach(function () {
-        sandbox.reset();
+    describe('when electron supports plaform updates', function () {
+      before(function () {
+        if (!supportsAutoupdates) {
+          console.log(
+            'Skipping these tests because platform does not support autoupdates'
+          );
+          this.skip();
+        }
       });
 
       it('should start downloading update without prompt for automatic updates', async function () {
