@@ -398,6 +398,16 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     'enableNewMultipleConnectionSystem'
   );
 
+  const onConnectionExpandRef = useRef(onConnectionExpand);
+  useEffect(() => {
+    onConnectionExpandRef.current = onConnectionExpand;
+  }, [onConnectionExpand]);
+
+  const onDatabaseExpandRef = useRef(onDatabaseExpand);
+  useEffect(() => {
+    onDatabaseExpandRef.current = onDatabaseExpand;
+  }, [onDatabaseExpand]);
+
   const listRef = useRef<List | null>(null);
   const id = useId();
 
@@ -417,21 +427,30 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       return { activeConnectionId, activeNamespace, activeWorkspaceType };
     }, [activeWorkspace]);
 
+  // auto-expanding
   useEffect(() => {
     if (activeWorkspace) {
       if (activeConnectionId) {
-        onConnectionExpand(activeConnectionId, true);
+        onConnectionExpandRef.current(activeConnectionId, true);
 
         if (activeNamespace) {
-          onDatabaseExpand(activeConnectionId, activeNamespace, true);
+          onDatabaseExpandRef.current(
+            activeConnectionId,
+            activeNamespace,
+            true
+          );
         }
       }
     }
-    // onConnectionExpand is excluded from the deps intentionally -
-    // we only want to expand as a reaction to workspace change, not to a collapse action
-    // otherwise active connections are re-expanded
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeConnectionId, activeNamespace, onDatabaseExpand]);
+  }, [
+    activeWorkspace,
+    activeConnectionId,
+    activeNamespace,
+    // onConnectionExpand and onDatabaseExpand are used as a ref -
+    // we only want to expand as a reaction to a workspace change
+    onConnectionExpandRef,
+    onDatabaseExpandRef,
+  ]);
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
