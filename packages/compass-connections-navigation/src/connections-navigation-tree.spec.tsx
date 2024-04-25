@@ -202,7 +202,7 @@ describe('ConnectionsNavigationTree', function () {
       </PreferencesProvider>
     );
 
-    expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(2);
+    expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
   it('when database is expanded, it should render collections', function () {
