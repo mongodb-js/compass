@@ -188,7 +188,7 @@ describe('CollectionHeader [Component]', function () {
         crumbs.push(item.textContent);
       });
       expect(crumbs.filter(Boolean).join('.').toLowerCase()).to.equal(
-        items.join('.').toLowerCase()
+        `localhost:27020.${items.join('.').toLowerCase()}`
       );
     }
 

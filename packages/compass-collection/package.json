@@ -51,6 +51,7 @@
     "@mongodb-js/compass-app-stores": "^7.11.0",
     "@mongodb-js/compass-components": "^1.23.0",
     "@mongodb-js/compass-connections": "^1.26.0",
+    "@mongodb-js/connection-info": "^0.2.0",
     "@mongodb-js/compass-logging": "^1.2.15",
     "@mongodb-js/compass-workspaces": "^0.6.0",
     "compass-preferences-model": "^2.19.0",
