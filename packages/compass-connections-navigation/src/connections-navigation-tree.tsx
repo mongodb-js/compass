@@ -12,6 +12,7 @@ import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
   MAX_DATABASE_PLACEHOLDER_ITEMS,
+  MIN_DATABASE_PLACEHOLDER_ITEMS,
   ROW_HEIGHT,
 } from './constants';
 import { DatabaseItem } from './database-item';
@@ -153,9 +154,10 @@ const connectionToItems = ({
     databasesStatus
   );
 
-  const placeholdersLength = Math.min(
-    databasesLength,
-    MAX_DATABASE_PLACEHOLDER_ITEMS
+  const placeholdersLength = Math.max(
+    Math.min(databasesLength, MAX_DATABASE_PLACEHOLDER_ITEMS),
+    // we are connecting and we don't have metadata on how many databases are in this cluster
+    MIN_DATABASE_PLACEHOLDER_ITEMS
   );
 
   const colorCode = connectionInfo.favorite?.color;
