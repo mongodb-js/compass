@@ -172,6 +172,7 @@ export type TabProps = {
   id: string;
   title: string;
   subtitle?: string;
+  connectionId?: string;
   iconGlyph: Extract<keyof typeof glyphs, string>;
 } & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'>;
 
