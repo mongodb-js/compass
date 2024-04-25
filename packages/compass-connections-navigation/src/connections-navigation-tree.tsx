@@ -400,10 +400,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     'enableNewMultipleConnectionSystem'
   );
 
-  const onConnectionExpandRef = useRef();
+  const onConnectionExpandRef = useRef(onConnectionExpand);
   onConnectionExpandRef.current = onConnectionExpand;
 
-  const onDatabaseExpandRef = useRef();
+  const onDatabaseExpandRef = useRef(onDatabaseExpand);
   onDatabaseExpandRef.current = onDatabaseExpand;
 
   const listRef = useRef<List | null>(null);
