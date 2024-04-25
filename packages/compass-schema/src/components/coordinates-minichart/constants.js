@@ -1,3 +1,4 @@
+'use strict';
 const LIGHTMODE_TILE_URL =
   'https://compass-maps.mongodb.com/compass/maptile/reduced.day/{z}/{x}/{y}/512';
 const DARKMODE_TILE_URL =

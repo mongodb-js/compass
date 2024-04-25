@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const { promises: fs } = require('fs');
 const { traverse, parseAsync } = require('@babel/core');

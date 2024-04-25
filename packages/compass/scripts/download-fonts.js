@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Because of the hadron-build, compass can't have any references to the
  * external resources and as such it gets its own version for download-fonts

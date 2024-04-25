@@ -219,7 +219,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
                 onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
               }}
             >
-              <Component tabId={id} {...collectionMetadata}></Component>;
+              <Component tabId={id} {...collectionMetadata}></Component>
             </NamespaceProvider>
           </ConnectionInfoProvider>
         );

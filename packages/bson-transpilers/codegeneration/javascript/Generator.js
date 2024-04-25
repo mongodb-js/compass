@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Class for handling edge cases for node code generation. Defines "emit" methods.
  */
