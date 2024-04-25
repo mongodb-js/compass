@@ -8,4 +8,12 @@ export {
   adjustConnectionOptionsBeforeConnect,
   ConnectionFormModal,
 };
+
+export {
+  legacyColorsToColorCode,
+  useConnectionColor,
+  DefaultColorCode,
+  CONNECTION_COLOR_CODES,
+} from './hooks/use-connection-color';
+
 export default ConnectionForm;

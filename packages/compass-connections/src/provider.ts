@@ -93,11 +93,4 @@ export {
 } from './hooks/use-connection-repository';
 export * from './connection-info-provider';
 
-export {
-  legacyColorsToColorCode,
-  useConnectionColor,
-  CONNECTION_COLOR_CODES,
-  DefaultColorCode,
-} from './hooks/use-connection-color';
-
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

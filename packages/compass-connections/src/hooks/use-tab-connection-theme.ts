@@ -1,5 +1,5 @@
 import { ConnectionInfo } from '@mongodb-js/connection-info';
-import { useConnectionColor } from './use-connection-color';
+import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useConnectionRepository } from './use-connection-repository';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@leafygreen-ui/palette';

@@ -20,7 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from '../../with-status-marker';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { useConnectionColor } from '@mongodb-js/compass-connections/provider';
+import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { ItemSeparator } from '@mongodb-js/compass-components/lib/components/item-action-controls';
 import { ServerIcon } from '@mongodb-js/compass-components';

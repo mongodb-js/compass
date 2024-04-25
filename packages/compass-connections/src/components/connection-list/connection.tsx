@@ -17,7 +17,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 import ConnectionIcon from './connection-icon';
-import { useConnectionColor } from '../../hooks/use-connection-color';
+import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
