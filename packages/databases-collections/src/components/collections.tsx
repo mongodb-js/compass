@@ -33,7 +33,7 @@ type CollectionsListProps = {
   collectionsLoadingError?: string | null;
   isEditable: boolean;
   onDeleteCollectionClick(connectionId: string, ns: string): void;
-  onCreateCollectionClick(dbName: string): void;
+  onCreateCollectionClick(connectionId: string, dbName: string): void;
   onRefreshClick(): void;
 };
 
@@ -43,7 +43,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   collectionsLoadingStatus,
   collectionsLoadingError,
   isEditable,
-  onDeleteCollectionClick,
+  onDeleteCollectionClick: _onDeleteCollectionClick,
   onCreateCollectionClick: _onCreateCollectionClick,
   onRefreshClick,
 }) => {
@@ -62,9 +62,27 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     []
   );
 
+  const onCollectionClick = useCallback(
+    (ns: string) => {
+      openCollectionWorkspace(connectionId, ns);
+    },
+    [connectionId, openCollectionWorkspace]
+  );
+
   const onCreateCollectionClick = useCallback(() => {
-    _onCreateCollectionClick(toNS(namespace).database);
-  }, [namespace, _onCreateCollectionClick]);
+    _onCreateCollectionClick(connectionId, toNS(namespace).database);
+  }, [connectionId, namespace, _onCreateCollectionClick]);
+
+  const onDeleteCollectionClick = useCallback(
+    (ns: string) => {
+      _onDeleteCollectionClick(connectionId, ns);
+    },
+    [connectionId, _onDeleteCollectionClick]
+  );
+
+  const onClickConnectionBreadcrumb = useCallback(() => {
+    openDatabasesWorkspace(connectionId);
+  }, [connectionId, openDatabasesWorkspace]);
 
   if (collectionsLoadingStatus === 'error') {
     return (
@@ -80,19 +98,23 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 
   const actions = Object.assign(
     {
-      onCollectionClick: openCollectionWorkspace.bind(undefined, connectionId),
+      onCollectionClick,
       onRefreshClick,
     },
-    isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
+    isEditable
+      ? {
+          onCreateCollectionClick,
+          onDeleteCollectionClick,
+        }
+      : {}
   );
 
   return (
     <CollectionsList
-      connectionId={connectionId}
       collections={collections}
-      connectionTitle={getConnectionTitle(connectionInfo)}
       databaseName={parsedNS.database}
-      onClickConnectionBreadcrumb={openDatabasesWorkspace}
+      connectionTitle={getConnectionTitle(connectionInfo)}
+      onClickConnectionBreadcrumb={onClickConnectionBreadcrumb}
       {...actions}
     />
   );
