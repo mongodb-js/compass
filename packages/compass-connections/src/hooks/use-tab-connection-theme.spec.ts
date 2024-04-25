@@ -84,7 +84,7 @@ describe('useTabConnectionTheme', function () {
           },
           '--workspace-tab-background-color': '#016BF8',
           '--workspace-tab-border-color': '#E8EDEB',
-          '--workspace-tab-color': '#889397',
+          '--workspace-tab-color': '#5C6C75',
           '--workspace-tab-selected-background-color': '#FFD19A',
           '--workspace-tab-selected-color': '#3D4F58',
         });
