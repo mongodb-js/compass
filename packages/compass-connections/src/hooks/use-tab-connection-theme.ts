@@ -22,14 +22,6 @@ export function useTabConnectionTheme(): ThemeProvider {
       const bgColor = connectionColorToHex(color);
       const activeBgColor = connectionColorToHexActive(color);
 
-      console.log({
-        connectionId,
-        connectionInfo,
-        color,
-        bgColor,
-        activeBgColor,
-      });
-
       if (!color || !bgColor || !activeBgColor) {
         return;
       }
