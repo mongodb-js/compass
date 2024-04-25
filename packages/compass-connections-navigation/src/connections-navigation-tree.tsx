@@ -104,7 +104,7 @@ type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
   isSingleConnection?: boolean;
-  activeWorkspace: { namespace?: string; connectionId?: string; type: string };
+  activeWorkspace?: WorkspaceTab;
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
   onConnectionSelect(this: void, id: string): void;
@@ -296,8 +296,8 @@ const NavigationItem = memo<{
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
         isActive={
-          activeWorkspace.connectionId === itemData.connectionInfo.id &&
-          activeWorkspace.type === 'Databases'
+          activeWorkspace?.type === 'Databases' &&
+          activeWorkspace.connectionId === itemData.connectionInfo.id
         }
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -315,8 +315,9 @@ const NavigationItem = memo<{
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
         isActive={
-          itemData.connectionId === activeWorkspace.connectionId &&
-          itemData.id === activeWorkspace.namespace
+          activeWorkspace?.type === 'Collections' &&
+          activeWorkspace.connectionId === itemData.connectionId &&
+          activeWorkspace.namespace === itemData.id
         }
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
@@ -339,8 +340,9 @@ const NavigationItem = memo<{
                 isReadOnly={isReadOnly}
                 isSingleConnection={isSingleConnection}
                 isActive={
-                  itemData.connectionId === activeWorkspace.connectionId &&
-                  itemData.id === activeWorkspace.namespace
+                  activeWorkspace?.type === 'Collection' &&
+                  activeWorkspace.connectionId === itemData.connectionId &&
+                  activeWorkspace.namespace === itemData.id
                 }
                 isTabbable={itemData.id === currentTabbable}
                 onNamespaceAction={onNamespaceAction}
@@ -384,7 +386,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 > = ({
   connections,
   expanded,
-  activeWorkspace = {},
+  activeWorkspace,
   // onConnectionExpand and onConnectionSelect only has a default to support single-connection usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionExpand = () => {},
@@ -411,41 +413,23 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const listRef = useRef<List | null>(null);
   const id = useId();
 
-  // there are different workspace variants, not all have a connectionId or namespace
-  // we destructure these properties here to not deal with this uncertainty repeatedly
-  const { activeConnectionId, activeNamespace, activeWorkspaceType } =
-    useMemo(() => {
-      const {
-        connectionId: activeConnectionId,
-        namespace: activeNamespace,
-        type: activeWorkspaceType,
-      } = activeWorkspace as {
-        connectionId?: string;
-        namespace?: string;
-        type: string;
-      };
-      return { activeConnectionId, activeNamespace, activeWorkspaceType };
-    }, [activeWorkspace]);
-
   // auto-expanding
   useEffect(() => {
-    if (activeWorkspace) {
-      if (activeConnectionId) {
-        onConnectionExpandRef.current(activeConnectionId, true);
+    const { connectionId: activeConnectionId, namespace: activeNamespace } =
+      activeWorkspace as {
+        connectionId?: string;
+        namespace?: string;
+      };
 
-        if (activeNamespace) {
-          onDatabaseExpandRef.current(
-            activeConnectionId,
-            activeNamespace,
-            true
-          );
-        }
+    if (activeConnectionId) {
+      onConnectionExpandRef.current(activeConnectionId, true);
+
+      if (activeNamespace) {
+        onDatabaseExpandRef.current(activeConnectionId, activeNamespace, true);
       }
     }
   }, [
     activeWorkspace,
-    activeConnectionId,
-    activeNamespace,
     // onConnectionExpand and onDatabaseExpand are used as a ref -
     // we only want to expand as a reaction to a workspace change
     onConnectionExpandRef,
@@ -506,7 +490,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
     {
       items: items as NavigationTreeData,
-      activeItemId: activeNamespace || '', // TODO
+      activeItemId: (activeWorkspace as { namespace?: string }).namespace || '', // TODO
       onExpandedChange,
       onFocusMove,
     }
@@ -517,11 +501,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       items,
       isReadOnly,
       isSingleConnection,
-      activeWorkspace: {
-        namespace: activeNamespace,
-        connectionId: activeConnectionId,
-        type: activeWorkspaceType,
-      },
+      activeWorkspace,
       currentTabbable,
       onNamespaceAction,
       onConnectionExpand,
@@ -532,9 +512,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     items,
     isReadOnly,
     isSingleConnection,
-    activeNamespace,
-    activeConnectionId,
-    activeWorkspaceType,
+    activeWorkspace,
     currentTabbable,
     onNamespaceAction,
     onConnectionExpand,
