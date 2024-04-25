@@ -415,6 +415,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   // auto-expanding
   useEffect(() => {
+    // here we don't care about the exact type,
+    // only if the workspace is within the connection & db scope
     const { connectionId: activeConnectionId, namespace: activeNamespace } =
       activeWorkspace as {
         connectionId?: string;
@@ -490,7 +492,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
     {
       items: items as NavigationTreeData,
-      activeItemId: (activeWorkspace as { namespace?: string }).namespace || '', // TODO
+      activeItemId: (activeWorkspace as { namespace?: string }).namespace || '', // TODO(COMPASS-7887)
       onExpandedChange,
       onFocusMove,
     }
