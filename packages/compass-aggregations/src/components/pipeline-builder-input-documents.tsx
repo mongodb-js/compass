@@ -20,6 +20,7 @@ import {
   toggleInputDocumentsCollapsed,
 } from '../modules/input-documents';
 import LoadingOverlay from './loading-overlay';
+import type { CollectionStatsState } from '../modules/collection-stats';
 
 const headerStyles = css({
   display: 'flex',
@@ -67,7 +68,7 @@ type InputProps = {
   documents: DocumentType[];
   isExpanded: boolean;
   isLoading: boolean;
-  count: number;
+  count?: number;
   toggleInputDocumentsCollapsed: (arg0: boolean) => void;
   refreshInputDocuments: () => void;
 };
@@ -101,12 +102,14 @@ function PipelineBuilderInputDocuments({
             size="small"
           ></Icon>
         </IconButton>
-        <Body className={headerTextStyles}>
-          <b>
-            {count} Document{count === 1 ? '' : 's'}
-          </b>{' '}
-          in the collection
-        </Body>
+        {count !== undefined && (
+          <Body className={headerTextStyles}>
+            <b>
+              {count} Document{count === 1 ? '' : 's'}
+            </b>{' '}
+            in the collection
+          </Body>
+        )}
         <IconButton
           onClick={refreshInputDocuments}
           aria-label="Refresh"
@@ -147,12 +150,18 @@ type InputDocuments = {
 };
 
 export default connect(
-  ({ inputDocuments }: { inputDocuments: InputDocuments }) => {
+  ({
+    inputDocuments,
+    collectionStats,
+  }: {
+    inputDocuments: InputDocuments;
+    collectionStats: CollectionStatsState;
+  }) => {
     return {
       documents: inputDocuments.documents,
       isExpanded: inputDocuments.isExpanded,
       isLoading: inputDocuments.isLoading,
-      count: inputDocuments.count,
+      count: collectionStats?.document_count,
     };
   },
   {

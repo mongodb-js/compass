@@ -28,6 +28,7 @@ import countDocuments from './count-documents';
 import isDataLake from './is-datalake';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
+import collectionStats from './collection-stats';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
@@ -85,6 +86,7 @@ const rootReducer = combineReducers({
   collectionsFields,
   insights,
   searchIndexes,
+  collectionStats,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
