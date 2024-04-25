@@ -194,6 +194,7 @@ describe('CompassAutoUpdateManager', function () {
     describe('when electron does not support plaform updates', function () {
       before(function () {
         if (supportsAutoupdates) {
+          // eslint-disable-next-line no-console
           console.log(
             'Skipping these tests because platform supports autoupdates'
           );
@@ -235,6 +236,7 @@ describe('CompassAutoUpdateManager', function () {
     describe('when electron supports plaform updates', function () {
       before(function () {
         if (!supportsAutoupdates) {
+          // eslint-disable-next-line no-console
           console.log(
             'Skipping these tests because platform does not support autoupdates'
           );
