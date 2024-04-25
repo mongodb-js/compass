@@ -45,13 +45,18 @@ const footerStyles = css({
 
 const useLegacyModel = () => {
   const connectionStorage = useConnectionStorageContext();
-  const getLegacyConnectionsImpl =
-    connectionStorage.getLegacyConnections?.bind(connectionStorage);
-  if (!getLegacyConnectionsImpl) {
+  if (typeof connectionStorage.getLegacyConnections !== 'function') {
     throw new Error(
       'LegacyConnections migrations require provided ConnectionStorage to implement getLegacyConnections'
     );
   }
+
+  const getLegacyConnectionsImpl = useCallback(
+    async (options?: { signal: AbortSignal | undefined }) => {
+      return await connectionStorage.getLegacyConnections?.(options);
+    },
+    [connectionStorage]
+  );
 
   const [connections, setConnections] = useState<{ name: string }[]>([]);
 
@@ -61,9 +66,11 @@ const useLegacyModel = () => {
   );
 
   useEffect(() => {
-    void getLegacyConnectionsImpl().then((connections) =>
-      setConnections(connections)
-    );
+    void getLegacyConnectionsImpl().then((connections) => {
+      if (connections) {
+        setConnections(connections);
+      }
+    });
   }, [getLegacyConnectionsImpl]);
 
   return {
