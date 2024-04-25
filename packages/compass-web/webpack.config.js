@@ -185,5 +185,13 @@ module.exports = async (env, args) => {
       // active work on the connumicatino protocol is wrapped up
       tls: 'commonjs2 tls',
     },
+    plugins: [
+      // Always package dist with NODE_ENV set to production, otherwise @emotion
+      // dev mode behavior completely hangs code in the browser when applying
+      // dev build to locally running mms
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('production'),
+      }),
+    ],
   });
 };
