@@ -93,4 +93,10 @@ export {
 } from './hooks/use-connection-repository';
 export * from './connection-info-provider';
 
+export {
+  legacyColorsToColorCode,
+  useConnectionColor,
+  CONNECTION_COLOR_CODES,
+} from './hooks/use-connection-color';
+
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

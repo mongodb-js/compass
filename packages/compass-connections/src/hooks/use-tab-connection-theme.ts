@@ -3,6 +3,7 @@ import { useConnectionColor } from './use-connection-color';
 import { useConnectionRepository } from './use-connection-repository';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@leafygreen-ui/palette';
+import { useCallback } from 'react';
 
 type ThemeProvider = {
   getThemeOf(connectionId: ConnectionInfo['id']): TabTheme | undefined;
@@ -14,12 +15,20 @@ export function useTabConnectionTheme(): ThemeProvider {
   const { getConnectionInfoById } = useConnectionRepository();
   const darkTheme = useDarkMode();
 
-  return {
-    getThemeOf(connectionId: ConnectionInfo['id']) {
+  const getThemeOf = useCallback(
+    (connectionId: ConnectionInfo['id']) => {
       const connectionInfo = getConnectionInfoById(connectionId);
       const color = connectionInfo?.favorite?.color;
       const bgColor = connectionColorToHex(color);
       const activeBgColor = connectionColorToHexActive(color);
+
+      console.log({
+        connectionId,
+        connectionInfo,
+        color,
+        bgColor,
+        activeBgColor,
+      });
 
       if (!color || !bgColor || !activeBgColor) {
         return;
@@ -45,5 +54,15 @@ export function useTabConnectionTheme(): ThemeProvider {
         },
       };
     },
+    [
+      palette,
+      getConnectionInfoById,
+      connectionColorToHex,
+      connectionColorToHexActive,
+    ]
+  );
+
+  return {
+    getThemeOf,
   };
 }
