@@ -3,7 +3,7 @@ import { spacing } from '@mongodb-js/compass-components';
 import {
   useConnectionColor,
   DefaultColorCode,
-} from '@mongodb-js/connection-form';
+} from '@mongodb-js/compass-connections/provider';
 
 export default function StyledNavigationItem({
   colorCode,

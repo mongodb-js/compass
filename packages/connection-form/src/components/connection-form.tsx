@@ -43,7 +43,7 @@ import {
   ConnectionFormPreferencesContext,
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
-import { useConnectionColor } from '../hooks/use-connection-color';
+import { useConnectionColor } from '@mongodb-js/compass-connections/provider';
 import FormHelp from './form-help/form-help';
 
 const descriptionStyles = css({

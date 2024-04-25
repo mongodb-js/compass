@@ -10,7 +10,7 @@ import {
   CONNECTION_COLOR_CODES,
   legacyColorsToColorCode,
   useConnectionColor,
-} from '../hooks/use-connection-color';
+} from '@mongodb-js/compass-connections/provider';
 
 /**
  * Default colors.
