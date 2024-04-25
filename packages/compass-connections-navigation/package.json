@@ -49,6 +49,7 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.23.0",
     "@mongodb-js/connection-info": "^0.2.0",
+    "@mongodb-js/compass-connections": "^1.26.0",
     "compass-preferences-model": "^2.19.0",
     "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",
