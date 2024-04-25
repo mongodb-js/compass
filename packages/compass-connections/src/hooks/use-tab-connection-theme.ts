@@ -1,12 +1,15 @@
-import { ConnectionInfo } from '@mongodb-js/connection-info';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useConnectionRepository } from './use-connection-repository';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
-import { palette } from '@leafygreen-ui/palette';
+import { palette } from '@mongodb-js/compass-components';
 import { useCallback } from 'react';
 
 type ThemeProvider = {
-  getThemeOf(connectionId: ConnectionInfo['id']): TabTheme | undefined;
+  getThemeOf(
+    this: void,
+    connectionId: ConnectionInfo['id']
+  ): TabTheme | undefined;
 };
 
 export function useTabConnectionTheme(): ThemeProvider {

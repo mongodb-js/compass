@@ -1,17 +1,11 @@
 import { expect } from 'chai';
-import { useConnectionStatus } from './use-connection-status';
 import { renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react';
 import { createElement } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { useTabConnectionTheme } from '../provider';
 import {
-  ConnectionsManager,
-  ConnectionsManagerEvents,
-  ConnectionsManagerProvider,
-  useTabConnectionTheme,
-} from '../provider';
-import {
-  ConnectionStorage,
+  type ConnectionStorage,
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
@@ -67,7 +61,7 @@ describe('useTabConnectionTheme', function () {
   describe('when a connection does not exist', function () {
     it('should not return a theme', function () {
       const { result } = renderHookWithContext(() => {
-        let { getThemeOf } = useTabConnectionTheme();
+        const { getThemeOf } = useTabConnectionTheme();
         return getThemeOf('NON_EXISTING');
       });
 
@@ -78,7 +72,7 @@ describe('useTabConnectionTheme', function () {
   describe('when a connection exists', function () {
     it('should return the theme with the connection colors', async function () {
       const { result } = renderHookWithContext(() => {
-        let { getThemeOf } = useTabConnectionTheme();
+        const { getThemeOf } = useTabConnectionTheme();
         return getThemeOf(CONNECTION_INFO.id);
       });
 
@@ -99,7 +93,7 @@ describe('useTabConnectionTheme', function () {
 
     it('should not return a theme when there is no color', async function () {
       const { result } = renderHookWithContext(() => {
-        let { getThemeOf } = useTabConnectionTheme();
+        const { getThemeOf } = useTabConnectionTheme();
         return getThemeOf(CONNECTION_INFO_NO_COLOR.id);
       });
 
@@ -110,7 +104,7 @@ describe('useTabConnectionTheme', function () {
 
     it('should not return a theme when the color is invalid', async function () {
       const { result } = renderHookWithContext(() => {
-        let { getThemeOf } = useTabConnectionTheme();
+        const { getThemeOf } = useTabConnectionTheme();
         return getThemeOf(CONNECTION_INFO_INVALID_COLOR.id);
       });
 
