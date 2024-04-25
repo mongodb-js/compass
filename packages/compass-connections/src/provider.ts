@@ -97,6 +97,7 @@ export {
   legacyColorsToColorCode,
   useConnectionColor,
   CONNECTION_COLOR_CODES,
+  DefaultColorCode,
 } from './hooks/use-connection-color';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

@@ -1,8 +1,7 @@
 import React from 'react';
-import { spacing } from '@mongodb-js/compass-components';
 import {
   useConnectionColor,
-  DefaultColorCode,
+  type DefaultColorCode,
 } from '@mongodb-js/compass-connections/provider';
 
 export default function StyledNavigationItem({
