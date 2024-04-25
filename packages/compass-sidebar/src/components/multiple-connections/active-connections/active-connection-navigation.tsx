@@ -321,7 +321,9 @@ const onNamespaceAction = (
         emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
-        emit('open-create-collection', ns);
+        emit('open-create-collection', ns, {
+          connectionId,
+        });
         return;
       case 'duplicate-view': {
         const coll = findCollection(
