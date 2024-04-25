@@ -53,6 +53,7 @@ export function useTabConnectionTheme(): ThemeProvider {
       getConnectionInfoById,
       connectionColorToHex,
       connectionColorToHexActive,
+      darkTheme,
     ]
   );
 
