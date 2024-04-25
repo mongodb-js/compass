@@ -419,6 +419,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         namespace?: string;
       };
 
+    // onConnectionExpand and onDatabaseExpand are used as a ref -
+    // we only want to expand as a reaction to a workspace change
     if (activeConnectionId) {
       onConnectionExpandRef.current(activeConnectionId, true);
 
@@ -426,13 +428,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         onDatabaseExpandRef.current(activeConnectionId, activeNamespace, true);
       }
     }
-  }, [
-    activeWorkspace,
-    // onConnectionExpand and onDatabaseExpand are used as a ref -
-    // we only want to expand as a reaction to a workspace change
-    onConnectionExpandRef,
-    onDatabaseExpandRef,
-  ]);
+  }, [activeWorkspace]);
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
