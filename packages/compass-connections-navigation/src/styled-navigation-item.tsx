@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   useConnectionColor,
-  type DefaultColorCode,
+  DefaultColorCode,
 } from '@mongodb-js/compass-connections/provider';
 
 export default function StyledNavigationItem({
