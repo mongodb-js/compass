@@ -123,7 +123,8 @@ describe('CompassAutoUpdateManager', function () {
       expect(stub).to.be.calledOnce;
     });
 
-    it('should transition to update available if update is available', async function () {
+    it('should transition to update available if update is available and platform supports autoupdates', async function () {
+      sandbox.stub(process, 'platform').get(() => 'darwin');
       const stub = sandbox
         .stub(CompassAutoUpdateManager, 'checkForUpdate')
         .callsFake(() => {
@@ -135,6 +136,25 @@ describe('CompassAutoUpdateManager', function () {
           AutoUpdateManagerState.Initial,
           AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
           AutoUpdateManagerState.UpdateAvailable
+        )
+      ).to.eq(true);
+
+      expect(stub).to.be.calledOnce;
+    });
+
+    it('should transition to "prompt-to-update-externally" if update is available and platform does not support autoupdates', async function () {
+      sandbox.stub(process, 'platform').get(() => 'linux');
+      const stub = sandbox
+        .stub(CompassAutoUpdateManager, 'checkForUpdate')
+        .callsFake(() => {
+          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+        });
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerState.PromptToUpdateExternally
         )
       ).to.eq(true);
 
@@ -169,69 +189,119 @@ describe('CompassAutoUpdateManager', function () {
       sandbox.stub(autoUpdater);
     });
 
-    it('should start downloading update without prompt for automatic updates', async function () {
-      expect(
-        await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-          AutoUpdateManagerState.UpdateAvailable,
-          AutoUpdateManagerState.DownloadingUpdate
-        )
-      ).to.eq(true);
-    });
-
-    it('should start downloading manual update if user confirms update install', async function () {
-      const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
-        return Promise.resolve({ response: 0, checkboxChecked: false });
+    describe('when electron does not support plafrom updates', function () {
+      beforeEach(function () {
+        sandbox.stub(process, 'platform').get(() => 'linux');
       });
 
-      expect(
-        await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-          AutoUpdateManagerState.UpdateAvailable,
-          AutoUpdateManagerState.DownloadingUpdate
-        )
-      ).to.eq(true);
-
-      expect(stub).to.be.calledOnce;
-    });
-
-    it('should transition to update dismissed if user cancels the update', async function () {
-      const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
-        return Promise.resolve({ response: 1, checkboxChecked: false });
+      it('should show dialog when checking for updates manually', async function () {
+        const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return Promise.resolve({ response: 0, checkboxChecked: false });
+        });
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.PromptToUpdateExternally
+          )
+        ).to.eq(true);
+        expect(stub).to.be.calledOnce;
       });
 
-      expect(
-        await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-          AutoUpdateManagerState.UpdateAvailable,
-          AutoUpdateManagerState.UpdateDismissed
-        )
-      ).to.eq(true);
-
-      expect(stub).to.be.calledOnce;
+      it('should show toast when checking for updates automatically', async function () {
+        const downloadCompassExternallyPrompt = sandbox
+          .stub(ipcMain!, 'broadcast')
+          .callsFake((arg) => {
+            expect(arg).to.equal('autoupdate:download-update-externally');
+          });
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.PromptToUpdateExternally
+          )
+        ).to.eq(true);
+        expect(downloadCompassExternallyPrompt).to.be.calledOnce;
+      });
     });
 
-    it('should ignore user input and go to disabled when autoupdate is disabled while prompting user', async function () {
-      const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
-        return wait(100, { response: 0, checkboxChecked: false });
+    describe('when electron supports plafrom updates', function () {
+      beforeEach(function () {
+        sandbox.stub(os, 'cpus').callsFake(() => {
+          return [{ model: 'intel' }] as os.CpuInfo[];
+        });
+        sandbox.stub(process, 'platform').get(() => 'darwin');
+        sandbox.stub(process, 'arch').get(() => 'x64');
       });
 
-      CompassAutoUpdateManager['state'] =
-        AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
-      CompassAutoUpdateManager.setState(
-        AutoUpdateManagerState.UpdateAvailable,
-        {}
-      );
-      CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
+      afterEach(function () {
+        sandbox.reset();
+      });
 
-      await wait(1000);
+      it('should start downloading update without prompt for automatic updates', async function () {
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.DownloadingUpdate
+          )
+        ).to.eq(true);
+      });
 
-      // Message box returned install update, but as we disabled in the meantime
-      // the state is still disabled and wasn't transitioned
-      expect(stub).to.be.calledOnce;
-      expect(CompassAutoUpdateManager['state']).to.eq(
-        AutoUpdateManagerState.Disabled
-      );
+      it('should start downloading manual update if user confirms update install', async function () {
+        const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return Promise.resolve({ response: 0, checkboxChecked: false });
+        });
+
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.DownloadingUpdate
+          )
+        ).to.eq(true);
+
+        expect(stub).to.be.calledOnce;
+      });
+
+      it('should transition to update dismissed if user cancels the update', async function () {
+        const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return Promise.resolve({ response: 1, checkboxChecked: false });
+        });
+
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.UpdateDismissed
+          )
+        ).to.eq(true);
+
+        expect(stub).to.be.calledOnce;
+      });
+
+      it('should ignore user input and go to disabled when autoupdate is disabled while prompting user', async function () {
+        const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return wait(100, { response: 0, checkboxChecked: false });
+        });
+
+        CompassAutoUpdateManager['state'] =
+          AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
+        CompassAutoUpdateManager.setState(
+          AutoUpdateManagerState.UpdateAvailable,
+          {}
+        );
+        CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
+
+        await wait(1000);
+
+        // Message box returned install update, but as we disabled in the meantime
+        // the state is still disabled and wasn't transitioned
+        expect(stub).to.be.calledOnce;
+        expect(CompassAutoUpdateManager['state']).to.eq(
+          AutoUpdateManagerState.Disabled
+        );
+      });
     });
 
     describe('when arch is mismatched on darwin', function () {
