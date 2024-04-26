@@ -7,7 +7,10 @@ import {
 } from '@mongodb-js/compass-components';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedAppRegistry,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
@@ -17,6 +20,9 @@ type DropNamespaceServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
   logger: LoggerAndTelemetry;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<
+    'database-dropped' | 'collection-dropped'
+  >;
 };
 
 export function activatePlugin(
@@ -25,18 +31,25 @@ export function activatePlugin(
     globalAppRegistry,
     connectionsManager,
     logger: { track },
+    connectionScopedAppRegistry,
   }: DropNamespaceServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   const onDropNamespace = async (
-    connectionId: string,
-    namespace: string | NS
+    namespace: string | NS,
+    { connectionId }: { connectionId?: string } = {}
   ) => {
     // `drop-collection` is emitted with NS, `drop-database` is emitted with a
     // string, we're keeping compat with both for now to avoid conflicts with
     // other refactoring
     if (typeof namespace === 'string') {
       namespace = toNS(namespace);
+    }
+
+    if (!connectionId) {
+      throw new Error(
+        'Cannot drop a namespace without specifying connectionId'
+      );
     }
 
     const {
@@ -70,7 +83,7 @@ export function activatePlugin(
         }
 
         await dataService[method](ns);
-        globalAppRegistry.emit(
+        connectionScopedAppRegistry.emit(
           isCollection ? 'collection-dropped' : 'database-dropped',
           ns
         );

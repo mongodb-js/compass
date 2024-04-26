@@ -52,6 +52,10 @@ export const DropNamespacePlugin = registerHadronPlugin(
   {
     logger: createLoggerAndTelemetryLocator('COMPASS-DROP-NAMESPACE-UI'),
     connectionsManager: connectionsManagerLocator,
+    connectionScopedAppRegistry:
+      connectionScopedAppRegistryLocator as () => ConnectionScopedAppRegistry<
+        'database-dropped' | 'collection-dropped'
+      >,
   }
 );
 
