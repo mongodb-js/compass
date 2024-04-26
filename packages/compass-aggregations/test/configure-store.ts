@@ -10,6 +10,7 @@ import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
+import type Collection from 'mongodb-collection-model';
 
 export class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {
@@ -77,6 +78,7 @@ export default function configureStore(
           return TEST_CONNECTION_INFO;
         },
       },
+      collection: {} as Collection,
       ...services,
     },
     createActivateHelpers()
