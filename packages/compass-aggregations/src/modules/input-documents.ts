@@ -20,7 +20,6 @@ type DocumentsFetchStartedAction = {
 
 type DocumentsFetchFinishedAction = {
   type: ActionTypes.DocumentsFetchFinished;
-  count: number | null;
   documents: HadronDocument[];
   error: Error | null;
 };
@@ -31,7 +30,6 @@ export type InputDocumentsAction =
   | DocumentsFetchStartedAction;
 
 export type InputDocumentsState = {
-  count: number | null;
   documents: HadronDocument[];
   error: Error | null;
   isExpanded: boolean;
@@ -39,7 +37,6 @@ export type InputDocumentsState = {
 };
 
 export const INITIAL_STATE: InputDocumentsState = {
-  count: null,
   documents: [],
   error: null,
   isExpanded: true,
@@ -71,7 +68,6 @@ const reducer = (
   ) {
     return {
       ...state,
-      count: action.count,
       documents: action.documents,
       error: action.error,
       isLoading: false,
@@ -91,12 +87,10 @@ export const loadingInputDocuments = (): DocumentsFetchStartedAction => ({
 });
 
 export const updateInputDocuments = (
-  count: number | null,
   documents: HadronDocument[],
   error: Error | null
 ): DocumentsFetchFinishedAction => ({
   type: ActionTypes.DocumentsFetchFinished,
-  count,
   documents,
   error,
 });
@@ -122,38 +116,21 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
         | undefined,
     };
 
-    // maxTimeMS defaults to null here because the aggregation options field's
-    // maxTimeMS defaults to empty and the preference defaults to undefined.
-    // We need a timeout on count because for timeseries estimatedCount() seems
-    // to just do a colscan and we need that timeout to be low compared to the
-    // aggregation one anyway. For aggregations it is less critical because we
-    // $limit to the first few records.
-    const countOptions = { ...options, maxTimeMS: 500 };
     const aggregateOptions = { ...options };
-
     const exampleDocumentsPipeline = [{ $limit: sampleSize }];
 
     dispatch(loadingInputDocuments());
 
     try {
-      const data = await Promise.allSettled([
-        dataService.estimatedCount(ns, countOptions),
-        dataService.aggregate(ns, exampleDocumentsPipeline, aggregateOptions),
-      ]);
-
-      const count = data[0].status === 'fulfilled' ? data[0].value : null;
-      const docs = data[1].status === 'fulfilled' ? data[1].value : [];
+      const docs = await dataService.aggregate(
+        ns,
+        exampleDocumentsPipeline,
+        aggregateOptions
+      );
       const hadronDocs = docs.map((doc: any) => new HadronDocument(doc));
-
-      const error =
-        data[0].status === 'rejected'
-          ? data[0].reason
-          : data[1].status === 'rejected'
-          ? data[1].reason
-          : null;
-      dispatch(updateInputDocuments(count, hadronDocs, error));
+      dispatch(updateInputDocuments(hadronDocs, null));
     } catch (error) {
-      dispatch(updateInputDocuments(null, [], error as Error));
+      dispatch(updateInputDocuments([], error as Error));
     }
   };
 };

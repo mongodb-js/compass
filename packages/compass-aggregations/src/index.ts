@@ -15,7 +15,10 @@ import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './modules/data-service';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
@@ -41,6 +44,7 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
     connectionInfoAccess: connectionInfoAccessLocator,
+    collection: collectionModelLocator,
   }
 );
 
