@@ -102,14 +102,12 @@ function PipelineBuilderInputDocuments({
             size="small"
           ></Icon>
         </IconButton>
-        {count !== undefined && (
-          <Body className={headerTextStyles}>
-            <b>
-              {count} Document{count === 1 ? '' : 's'}
-            </b>{' '}
-            in the collection
-          </Body>
-        )}
+        <Body className={headerTextStyles}>
+          <b>
+            {count ?? 'N/A'} Document{count === 1 ? '' : 's'}
+          </b>{' '}
+          in the collection
+        </Body>
         <IconButton
           onClick={refreshInputDocuments}
           aria-label="Refresh"
