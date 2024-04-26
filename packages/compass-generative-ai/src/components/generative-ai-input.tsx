@@ -329,14 +329,14 @@ function GenerativeAIInput({
   return (
     <div className={containerStyles}>
       <div className={inputBarContainerStyles}>
-        <div className={cx(inputContainerStyles)}>
+        <div className={inputContainerStyles}>
           <div className={cx(isFetching ? gradientAnimationStyles : null)}>
             <div
-              className={cx(contentWrapperStyles)}
+              className={contentWrapperStyles}
               data-testid="ai-user-text-input-wrapper"
             >
               <TextInput
-                className={cx(textInputStyles)}
+                className={textInputStyles}
                 ref={promptTextInputRef}
                 sizeVariant="small"
                 data-testid="ai-user-text-input"
