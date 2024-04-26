@@ -355,10 +355,10 @@ export const createNamespace = (
     dispatch,
     getState,
     {
+      globalAppRegistry,
       connectionsManager,
       logger: { track, debug },
       workspaces,
-      connectionScopedAppRegistry,
     }
   ) => {
     const { databaseName, connectionId } = getState();
@@ -395,7 +395,9 @@ export const createNamespace = (
 
       track(`${kind} Created`, trackEvent);
 
-      connectionScopedAppRegistry.emit('collection-created', namespace);
+      globalAppRegistry.emit('collection-created', namespace, {
+        connectionId,
+      });
       workspaces.openCollectionWorkspace(connectionId, namespace, {
         newTab: true,
       });
