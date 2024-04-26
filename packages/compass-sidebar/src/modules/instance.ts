@@ -163,17 +163,6 @@ export const setupInstance =
       { leading: true, trailing: true }
     );
 
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connectionId);
-    if (!dataService) {
-      // This should be unreachable, because the instance state is only available
-      // whenever we have a Data Service connected, as it reads server metadata.
-      return;
-    }
-
-    const connectionOptions = dataService.getConnectionOptions();
-    dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status
-
     instance.on('change:status', onInstanceChange);
     instance.on('change:refreshingStatus', onInstanceChange);
     instance.on('change:databasesStatus', onInstanceChange);
@@ -192,6 +181,17 @@ export const setupInstance =
     instance.on('remove:collections', onDatabasesChange);
     instance.on('change:collections._id', onDatabasesChange);
     instance.on('change:collections.status', onDatabasesChange);
+
+    const dataService =
+      connectionsManager.getDataServiceForConnection(connectionId);
+    if (!dataService) {
+      // This should be unreachable, because the instance state is only available
+      // whenever we have a Data Service connected, as it reads server metadata.
+      return;
+    }
+
+    const connectionOptions = dataService.getConnectionOptions();
+    dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status
 
     dispatch(
       toggleIsGenuineMongoDBVisible(

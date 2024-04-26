@@ -14,8 +14,37 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 import userEvent from '@testing-library/user-event';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
+import {
+  type PreferencesAccess,
+  PreferencesProvider,
+} from 'compass-preferences-model/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { EventEmitter } from 'events';
+
+class MockInstance extends EventEmitter {
+  _id: string;
+  status: string;
+  databasesStatus: string;
+  databases: {
+    _id: string;
+    name: string;
+    status: string;
+    collectionsLength: number;
+    collectionsStatus: string;
+    collections: any[];
+  };
+  build: Record<string, never>;
+  dataLake: Record<string, never>;
+  genuineMongoDB: Record<string, never>;
+  topologyDescription: Record<string, never>;
+
+  constructor(props: Record<string, any>) {
+    super();
+    for (const [key, value] of Object.entries(props)) {
+      this[key] = value;
+    }
+  }
+}
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -39,14 +68,49 @@ const mockConnections: ConnectionInfo[] = [
 
 describe('<ActiveConnectionNavigation />', function () {
   let connectionsManager: ConnectionsManager;
+  let preferences: PreferencesAccess;
   let store: ReturnType<typeof createSidebarStore>['store'];
+  let turtleInstance: EventEmitter;
   let deactivate: () => void;
   const globalAppRegistry = new AppRegistry();
   const onOpenConnectionInfoStub = sinon.stub();
   const onCopyConnectionStringStub = sinon.stub();
   const onToggleFavoriteConnectionStub = sinon.stub();
 
-  beforeEach(async () => {
+  const renderActiveConnectionsNavigation = async ({
+    activeWorkspace = {
+      type: 'Databases',
+      connectionId: 'turtle',
+      id: '12345',
+    },
+  }: {
+    activeWorkspace?: WorkspaceTab;
+  } = {}) => {
+    turtleInstance = new MockInstance({
+      _id: 'turtle',
+      status: 'ready',
+      databasesStatus: 'ready',
+      databases: [
+        {
+          _id: 'turtleDB1',
+          name: 'turtleDB1',
+          status: 'ready',
+          collectionsLength: 1,
+          collectionsStatus: 'ready',
+          collections: [
+            {
+              _id: 'turtleDB1Coll1',
+              name: 'turtleDB1Coll1',
+              type: 'collection',
+            },
+          ],
+        },
+      ],
+      build: {},
+      dataLake: {},
+      genuineMongoDB: {},
+      topologyDescription: {},
+    });
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
@@ -55,7 +119,7 @@ describe('<ActiveConnectionNavigation />', function () {
         globalAppRegistry,
         instancesManager: {
           listMongoDBInstances() {
-            return new Map();
+            return new Map([['turtle', turtleInstance]]);
           },
         } as any,
         connectionsManager,
@@ -64,21 +128,19 @@ describe('<ActiveConnectionNavigation />', function () {
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));
 
-    const preferences = await createSandboxFromDefaultPreferences();
+    preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableRenameCollectionModal: true,
       enableNewMultipleConnectionSystem: true,
     });
 
-    render(
+    return render(
       <PreferencesProvider value={preferences}>
         <ConnectionsManagerProvider value={connectionsManager}>
           <Provider store={store}>
             <ActiveConnectionNavigation
               activeConnections={mockConnections}
-              activeWorkspace={
-                { type: 'Databases', connectionId: 'turtle' } as WorkspaceTab
-              }
+              activeWorkspace={activeWorkspace}
               onOpenConnectionInfo={onOpenConnectionInfoStub}
               onCopyConnectionString={onCopyConnectionStringStub}
               onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
@@ -87,7 +149,7 @@ describe('<ActiveConnectionNavigation />', function () {
         </ConnectionsManagerProvider>
       </PreferencesProvider>
     );
-  });
+  };
 
   afterEach(() => {
     deactivate();
@@ -95,16 +157,21 @@ describe('<ActiveConnectionNavigation />', function () {
   });
 
   it('Should render the number of connections', async function () {
+    await renderActiveConnectionsNavigation();
     await waitFor(() => {
       expect(screen.queryByText('(2)')).to.be.visible;
     });
   });
 
   describe('Connection actions', () => {
+    beforeEach(async () => {
+      await renderActiveConnectionsNavigation();
+    });
+
     it('Calls onOpenConnectionInfo', async () => {
       userEvent.hover(screen.getByText('turtle'));
 
-      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
 
       userEvent.click(connectionActionsBtn);
@@ -122,7 +189,7 @@ describe('<ActiveConnectionNavigation />', function () {
     it('Calls onCopyConnectionString', async () => {
       userEvent.hover(screen.getByText('turtle'));
 
-      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
 
       userEvent.click(connectionActionsBtn);
@@ -140,7 +207,7 @@ describe('<ActiveConnectionNavigation />', function () {
     it('Calls onToggleFavoriteConnection', async () => {
       userEvent.hover(screen.getByText('turtle'));
 
-      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
 
       userEvent.click(connectionActionsBtn);
@@ -151,6 +218,88 @@ describe('<ActiveConnectionNavigation />', function () {
       userEvent.click(favoriteBtn);
 
       expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
+    });
+  });
+
+  describe('Collapse and Auto-expand', () => {
+    it('should expand the connection when a child workspace is entered', async function () {
+      // step 1 - turtle connection is expanded at first
+      const { rerender } = await renderActiveConnectionsNavigation({
+        activeWorkspace: { type: 'My Queries', id: 'abcd' },
+      });
+
+      turtleInstance.emit('change:databasesStatus');
+
+      expect(screen.getByText('turtleDB1')).to.be.visible;
+
+      // step 2 - user collapses the turtle connection
+      const connectionItem = screen.getByText('turtle');
+
+      userEvent.click(connectionItem);
+      userEvent.keyboard('[ArrowLeft]');
+
+      expect(screen.queryByText('turtleDB1')).not.to.exist;
+
+      // step 3 - user entered a workspace that belongs to the turtle connection
+      rerender(
+        <PreferencesProvider value={preferences}>
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <Provider store={store}>
+              <ActiveConnectionNavigation
+                activeConnections={mockConnections}
+                activeWorkspace={
+                  {
+                    type: 'Collections',
+                    connectionId: 'turtle',
+                    namespace: 'db1',
+                  } as WorkspaceTab
+                }
+                onOpenConnectionInfo={onOpenConnectionInfoStub}
+                onCopyConnectionString={onCopyConnectionStringStub}
+                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+              />
+            </Provider>
+          </ConnectionsManagerProvider>
+        </PreferencesProvider>
+      );
+
+      expect(screen.getByText('turtleDB1')).to.be.visible;
+    });
+
+    it('should expand a database when a child workspace is entered', async function () {
+      // step 1 - turtleDB1 is collapsed at first
+      const { rerender } = await renderActiveConnectionsNavigation({
+        activeWorkspace: { type: 'My Queries', id: 'abcd' },
+      });
+
+      turtleInstance.emit('change:databasesStatus');
+
+      expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
+
+      // step 2 - user entered a workspace that belongs to the turtleDB1 database
+      rerender(
+        <PreferencesProvider value={preferences}>
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <Provider store={store}>
+              <ActiveConnectionNavigation
+                activeConnections={mockConnections}
+                activeWorkspace={
+                  {
+                    type: 'Collection',
+                    connectionId: 'turtle',
+                    namespace: 'turtleDB1.turtleDB1Coll1',
+                  } as WorkspaceTab
+                }
+                onOpenConnectionInfo={onOpenConnectionInfoStub}
+                onCopyConnectionString={onCopyConnectionStringStub}
+                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+              />
+            </Provider>
+          </ConnectionsManagerProvider>
+        </PreferencesProvider>
+      );
+
+      expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
   });
 });

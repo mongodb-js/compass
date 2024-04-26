@@ -400,35 +400,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     'enableNewMultipleConnectionSystem'
   );
 
-  const onConnectionExpandRef = useRef(onConnectionExpand);
-  onConnectionExpandRef.current = onConnectionExpand;
-
-  const onDatabaseExpandRef = useRef(onDatabaseExpand);
-  onDatabaseExpandRef.current = onDatabaseExpand;
-
   const listRef = useRef<List | null>(null);
   const id = useId();
-
-  // auto-expanding
-  useEffect(() => {
-    // here we don't care about the exact type,
-    // only if the workspace is within the connection & db scope
-    const { connectionId: activeConnectionId, namespace: activeNamespace } =
-      (activeWorkspace || {}) as {
-        connectionId?: string;
-        namespace?: string;
-      };
-
-    // onConnectionExpand and onDatabaseExpand are used as a ref -
-    // we only want to expand as a reaction to a workspace change
-    if (activeConnectionId) {
-      onConnectionExpandRef.current(activeConnectionId, true);
-
-      if (activeNamespace) {
-        onDatabaseExpandRef.current(activeConnectionId, activeNamespace, true);
-      }
-    }
-  }, [activeWorkspace]);
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {

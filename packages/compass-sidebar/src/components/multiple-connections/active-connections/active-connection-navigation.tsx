@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   type Connection,
@@ -68,6 +68,7 @@ export function ActiveConnectionNavigation({
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
+  onDatabaseExpand,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -131,6 +132,28 @@ export function ActiveConnectionNavigation({
     setNamedConnections(newConnectionList);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConnections]);
+
+  const onConnectionToggleRef = useRef(onConnectionToggle);
+  onConnectionToggleRef.current = onConnectionToggle;
+  // auto-expanding on a workspace change
+  useEffect(() => {
+    if (
+      activeWorkspace &&
+      (activeWorkspace.type === 'Databases' ||
+        activeWorkspace.type === 'Collections' ||
+        activeWorkspace.type === 'Collection')
+    ) {
+      const connectionId: string = activeWorkspace.connectionId;
+      // we're using a ref for this toggle because collapsing depends on the collapsed state,
+      // but we don't want to auto-expand when collapsed state changes, only workspace
+      onConnectionToggleRef.current(connectionId, true);
+
+      if (activeWorkspace.type !== 'Databases') {
+        const namespace: string = activeWorkspace.namespace;
+        onDatabaseExpand(connectionId, namespace, true);
+      }
+    }
+  }, [activeWorkspace, onDatabaseExpand]);
 
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
@@ -204,6 +227,7 @@ export function ActiveConnectionNavigation({
           openDatabasesWorkspace(connectionId)
         }
         onConnectionExpand={onConnectionToggle}
+        onDatabaseExpand={onDatabaseExpand}
         expanded={namedConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {
             obj[connectionId] = collapsed.includes(connectionId)
