@@ -45,7 +45,7 @@ export const CreateNamespacePlugin = registerHadronPlugin(
     instancesManager: mongoDBInstancesManagerLocator,
     workspaces: workspacesServiceLocator,
     connectionScopedAppRegistry:
-      connectionScopedAppRegistryLocator as () => ConnectionScopedAppRegistry<'collection-created'>,
+      connectionScopedAppRegistryLocator<'collection-created'>,
   }
 );
 
