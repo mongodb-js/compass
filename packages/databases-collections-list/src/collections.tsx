@@ -1,6 +1,11 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import { spacing } from '@mongodb-js/compass-components';
+import React, { useMemo } from 'react';
+import {
+  type BreadcrumbItem,
+  Breadcrumbs,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
@@ -74,97 +79,136 @@ function collectionPropertyToBadge({
   }
 }
 
+const pageContainerStyles = css({
+  height: 'auto',
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const breadcrumbStyles = css({
+  paddingLeft: spacing[3],
+  paddingTop: spacing[3],
+  paddingBottom: spacing[2],
+});
+
 const CollectionsList: React.FunctionComponent<{
   connectionId: string;
+  connectionTitle: string;
+  databaseName: string;
   collections: Collection[];
   onCollectionClick(id: string): void;
+  onClickConnectionBreadcrumb(connectionId: string): void;
   onDeleteCollectionClick?: (connectionId: string, id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
   connectionId,
+  connectionTitle,
+  databaseName,
   collections,
+  onClickConnectionBreadcrumb,
   onCollectionClick,
   onCreateCollectionClick,
   onDeleteCollectionClick,
   onRefreshClick,
 }) => {
+  const breadcrumbItems = useMemo(() => {
+    return [
+      {
+        name: connectionTitle,
+        onClick: () => onClickConnectionBreadcrumb(connectionId),
+      },
+      {
+        name: databaseName,
+      },
+    ] as BreadcrumbItem[];
+  }, [
+    connectionId,
+    connectionTitle,
+    databaseName,
+    onClickConnectionBreadcrumb,
+  ]);
+
   return (
-    <ItemsGrid
-      items={collections}
-      itemType="collection"
-      itemGridWidth={COLLECTION_CARD_WIDTH}
-      itemGridHeight={COLLECTION_CARD_HEIGHT}
-      itemListHeight={COLLECTION_CARD_LIST_HEIGHT}
-      sortBy={[
-        { name: 'name', label: 'Collection Name' },
-        { name: 'document_count', label: 'Documents' },
-        { name: 'avg_document_size', label: 'Avg. document size' },
-        { name: 'storage_size', label: 'Storage size' },
-        { name: 'index_count', label: 'Indexes' },
-        { name: 'index_size', label: 'Total index size' },
-      ]}
-      onItemClick={onCollectionClick}
-      onDeleteItemClick={(ns) => onDeleteCollectionClick?.(connectionId, ns)}
-      onCreateItemClick={onCreateCollectionClick}
-      onRefreshClick={onRefreshClick}
-      renderItem={({
-        item: coll,
-        onItemClick,
-        onDeleteItemClick,
-        ...props
-      }) => {
-        const data =
-          coll.type === 'view'
-            ? [{ label: 'View on', value: coll.source?.name }]
-            : [
-                {
-                  label: 'Storage size',
-                  value: compactBytes(
-                    coll.storage_size - coll.free_storage_size
-                  ),
-                  hint: `Uncompressed data size: ${compactBytes(
-                    coll.document_size
-                  )}`,
-                },
-                {
-                  label: 'Documents',
-                  value: compactNumber(coll.document_count),
-                },
-                {
-                  label: 'Avg. document size',
-                  value: compactBytes(coll.avg_document_size),
-                },
-                {
-                  label: 'Indexes',
-                  value: compactNumber(coll.index_count),
-                },
-                {
-                  label: 'Total index size',
-                  value: compactBytes(coll.index_size),
-                },
-              ];
+    <div className={pageContainerStyles}>
+      <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
+      <ItemsGrid
+        items={collections}
+        itemType="collection"
+        itemGridWidth={COLLECTION_CARD_WIDTH}
+        itemGridHeight={COLLECTION_CARD_HEIGHT}
+        itemListHeight={COLLECTION_CARD_LIST_HEIGHT}
+        sortBy={[
+          { name: 'name', label: 'Collection Name' },
+          { name: 'document_count', label: 'Documents' },
+          { name: 'avg_document_size', label: 'Avg. document size' },
+          { name: 'storage_size', label: 'Storage size' },
+          { name: 'index_count', label: 'Indexes' },
+          { name: 'index_size', label: 'Total index size' },
+        ]}
+        onItemClick={onCollectionClick}
+        onDeleteItemClick={(ns) => onDeleteCollectionClick?.(connectionId, ns)}
+        onCreateItemClick={onCreateCollectionClick}
+        onRefreshClick={onRefreshClick}
+        renderItem={({
+          item: coll,
+          onItemClick,
+          onDeleteItemClick,
+          ...props
+        }) => {
+          const data =
+            coll.type === 'view'
+              ? [{ label: 'View on', value: coll.source?.name }]
+              : [
+                  {
+                    label: 'Storage size',
+                    value: compactBytes(
+                      coll.storage_size - coll.free_storage_size
+                    ),
+                    hint: `Uncompressed data size: ${compactBytes(
+                      coll.document_size
+                    )}`,
+                  },
+                  {
+                    label: 'Documents',
+                    value: compactNumber(coll.document_count),
+                  },
+                  {
+                    label: 'Avg. document size',
+                    value: compactBytes(coll.avg_document_size),
+                  },
+                  {
+                    label: 'Indexes',
+                    value: compactNumber(coll.index_count),
+                  },
+                  {
+                    label: 'Total index size',
+                    value: compactBytes(coll.index_size),
+                  },
+                ];
 
-        const badges = coll.properties.map((prop) => {
-          return collectionPropertyToBadge(prop);
-        });
+          const badges = coll.properties.map((prop) => {
+            return collectionPropertyToBadge(prop);
+          });
 
-        return (
-          <NamespaceItemCard
-            id={coll._id}
-            key={coll._id}
-            name={coll.name}
-            type="collection"
-            status={coll.status}
-            data={data}
-            badges={badges}
-            onItemClick={onItemClick}
-            onItemDeleteClick={onDeleteItemClick}
-            {...props}
-          ></NamespaceItemCard>
-        );
-      }}
-    ></ItemsGrid>
+          return (
+            <NamespaceItemCard
+              id={coll._id}
+              key={coll._id}
+              name={coll.name}
+              type="collection"
+              status={coll.status}
+              data={data}
+              badges={badges}
+              onItemClick={onItemClick}
+              onItemDeleteClick={onDeleteItemClick}
+              {...props}
+            ></NamespaceItemCard>
+          );
+        }}
+      ></ItemsGrid>
+    </div>
   );
 };
 
