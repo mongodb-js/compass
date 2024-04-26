@@ -218,7 +218,7 @@ describe('<ActiveConnectionNavigation />', function () {
   });
 
   describe('Collapse and Auto-expand', () => {
-    it('should expand the connection when a child workspace is entered', async function () {
+    it('should collapse a connection, and expand it automatically when a child workspace is entered', async function () {
       // step 1 - turtle connection is expanded at first
       const { rerender } = await renderActiveConnectionsNavigation({
         activeWorkspace: { type: 'My Queries', id: 'abcd' },
@@ -296,6 +296,31 @@ describe('<ActiveConnectionNavigation />', function () {
       );
 
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
+    });
+
+    it.only('should collapse and expand database', async function () {
+      // step 1 - turtleDB1 is collapsed at first
+      await renderActiveConnectionsNavigation({
+        activeWorkspace: { type: 'My Queries', id: 'abcd' },
+      });
+
+      turtleInstance.emit('change:databasesStatus');
+
+      expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
+
+      // step 2 - user expands the turtleDB1 database
+      const databaseItem = screen.getByText('turtleDB1');
+
+      userEvent.click(databaseItem);
+      userEvent.keyboard('[ArrowRight]');
+
+      expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
+
+      // step 2 - user collapses the turtleDB1 database
+      userEvent.click(databaseItem);
+      userEvent.keyboard('[ArrowLeft]');
+
+      expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
     });
   });
 });
