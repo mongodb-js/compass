@@ -70,5 +70,7 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     instancesManager: mongoDBInstancesManagerLocator,
     queryStorage: favoriteQueryStorageAccessLocator,
     pipelineStorage: pipelineStorageLocator,
+    connectionScopedAppRegistry:
+      connectionScopedAppRegistryLocator as () => ConnectionScopedAppRegistry<'collection-renamed'>,
   }
 );

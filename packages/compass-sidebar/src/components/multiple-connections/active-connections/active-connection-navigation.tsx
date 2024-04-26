@@ -315,7 +315,7 @@ const onNamespaceAction = (
         emit('open-drop-database', ns.database, { connectionId });
         return;
       case 'rename-collection':
-        emit('open-rename-collection', connectionId, ns);
+        emit('open-rename-collection', ns, { connectionId });
         return;
       case 'drop-collection':
         emit('open-drop-collection', ns, { connectionId });
