@@ -32,6 +32,7 @@ import {
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -258,8 +259,7 @@ export function NavigationItems({
   isPerformanceTabSupported,
   onFilterChange,
   onAction,
-  currentLocation,
-  currentNamespace,
+  activeWorkspace,
   showTooManyCollectionsInsight = false,
 }: {
   isReady?: boolean;
@@ -268,8 +268,7 @@ export function NavigationItems({
   isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
-  currentLocation: string | null;
-  currentNamespace: string | null;
+  activeWorkspace?: WorkspaceTab;
   showTooManyCollectionsInsight?: boolean;
 }) {
   const {
@@ -328,7 +327,7 @@ export function NavigationItems({
                     onClick={openMyQueriesWorkspace}
                     glyph="CurlyBraces"
                     label="My Queries"
-                    isActive={currentLocation === 'My Queries'}
+                    isActive={activeWorkspace?.type === 'My Queries'}
                   />
                 )}
                 {hasWorkspacePlugin('Performance') && (
@@ -337,7 +336,7 @@ export function NavigationItems({
                     onClick={() => openPerformanceWorkspace(connectionInfo.id)}
                     glyph="Gauge"
                     label="Performance"
-                    isActive={currentLocation === 'Performance'}
+                    isActive={activeWorkspace?.type === 'Performance'}
                     disabled={!isPerformanceTabSupported}
                     disabledMessage="Performance metrics are not available for your deployment or to your database user"
                   />
@@ -348,7 +347,7 @@ export function NavigationItems({
                   glyph="Database"
                   label="Databases"
                   actions={databasesActions}
-                  isActive={currentLocation === 'Databases'}
+                  isActive={activeWorkspace?.type === 'Databases'}
                   showTooManyCollectionsInsight={showTooManyCollectionsInsight}
                 />
               </>
@@ -360,7 +359,7 @@ export function NavigationItems({
       <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       <SidebarDatabasesNavigation
         connectionInfo={connectionInfo}
-        activeNamespace={currentNamespace ?? undefined}
+        activeWorkspace={activeWorkspace ?? undefined}
       />
     </>
   );

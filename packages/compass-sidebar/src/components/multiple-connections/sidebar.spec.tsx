@@ -33,6 +33,7 @@ import {
   type WorkspacesService,
   WorkspacesServiceProvider,
 } from '@mongodb-js/compass-workspaces/provider';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
 type PromiseFunction = (
@@ -114,7 +115,12 @@ describe('Multiple Connections Sidebar Component', function () {
                 <ConnectionsManagerProvider value={connectionManager}>
                   <Provider store={store}>
                     <MultipleConnectionSidebar
-                      activeWorkspace={{ type: 'connection' }}
+                      activeWorkspace={
+                        {
+                          type: 'Databases',
+                          connectionId: savedConnection.id,
+                        } as WorkspaceTab
+                      }
                     />
                   </Provider>
                 </ConnectionsManagerProvider>
