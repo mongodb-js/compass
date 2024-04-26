@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, memo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {
