@@ -293,7 +293,14 @@ export function createInstancesStore(
       on(
         globalAppRegistry,
         'collection-renamed',
-        ({ from, to }: { from: string; to: string }) => {
+        (
+          { from, to }: { from: string; to: string },
+          { connectionId }: { connectionId?: string }
+        ) => {
+          if (!connectionId) {
+            return;
+          }
+
           const { database, collection } = toNS(from);
           instance.databases
             .get(database)
