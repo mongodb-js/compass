@@ -9,6 +9,11 @@ import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 const CONNECTION_INFO: ConnectionInfo = {
   id: '1234',
@@ -45,14 +50,23 @@ const CONNECTION_INFO_INVALID_COLOR: ConnectionInfo = {
 describe('useTabConnectionTheme', function () {
   let renderHookWithContext: typeof renderHook;
   let mockStorage: ConnectionStorage;
+  let preferencesAccess: PreferencesAccess;
 
-  beforeEach(function () {
+  beforeEach(async function () {
+    preferencesAccess = await createSandboxFromDefaultPreferences();
+    await preferencesAccess.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
+
     mockStorage = new InMemoryConnectionStorage([CONNECTION_INFO]);
     renderHookWithContext = (callback, options) => {
       const wrapper: React.FC = ({ children }) =>
-        createElement(ConnectionStorageProvider, {
-          value: mockStorage,
-          children,
+        createElement(PreferencesProvider, {
+          value: preferencesAccess,
+          children: createElement(ConnectionStorageProvider, {
+            value: mockStorage,
+            children,
+          }),
         });
       return renderHook(callback, { wrapper, ...options });
     };
@@ -82,7 +96,7 @@ describe('useTabConnectionTheme', function () {
             '--workspace-tab-border-color': '#016BF8',
             '--workspace-tab-selected-color': '#016BF8',
           },
-          '--workspace-tab-background-color': '#016BF8',
+          '--workspace-tab-background-color': '#FFDFB5',
           '--workspace-tab-border-color': '#E8EDEB',
           '--workspace-tab-color': '#5C6C75',
           '--workspace-tab-selected-background-color': '#FFD19A',
