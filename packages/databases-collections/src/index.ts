@@ -1,7 +1,6 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import {
-  type ConnectionScopedAppRegistry,
   connectionScopedAppRegistryLocator,
   connectionsManagerLocator,
 } from '@mongodb-js/compass-connections/provider';

@@ -132,9 +132,12 @@ export function activatePlugin(
     }: {
       connectionId?: string;
     } = {}) => {
-      if (connectionId) {
-        store.dispatch(open(connectionId, null));
+      if (!connectionId) {
+        throw new Error(
+          'Cannot create a database without specifying a connection id'
+        );
       }
+      store.dispatch(open(connectionId, null));
     }
   );
 
@@ -149,9 +152,12 @@ export function activatePlugin(
         connectionId?: string;
       } = {}
     ) => {
-      if (connectionId) {
-        store.dispatch(open(connectionId, ns.database));
+      if (!connectionId) {
+        throw new Error(
+          'Cannot create a collection without specifying a connection id'
+        );
       }
+      store.dispatch(open(connectionId, ns.database));
     }
   );
 
