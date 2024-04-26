@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type {
@@ -25,6 +25,8 @@ function findCollection(ns: string, databases: Database[]) {
 function SidebarDatabasesNavigation({
   connections,
   onNamespaceAction: _onNamespaceAction,
+  onDatabaseExpand,
+  activeWorkspace,
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -83,11 +85,25 @@ function SidebarDatabasesNavigation({
     ]
   );
 
+  // auto-expanding on a workspace change
+  useEffect(() => {
+    if (
+      activeWorkspace &&
+      (activeWorkspace.type === 'Collections' ||
+        activeWorkspace.type === 'Collection')
+    ) {
+      const namespace: string = activeWorkspace.namespace;
+      onDatabaseExpand(connection.connectionInfo.id, namespace, true);
+    }
+  }, [activeWorkspace, onDatabaseExpand, connection.connectionInfo.id]);
+
   return (
     <ConnectionsNavigationTree
       connections={connections}
       {...dbNavigationProps}
       onNamespaceAction={onNamespaceAction}
+      onDatabaseExpand={onDatabaseExpand}
+      activeWorkspace={activeWorkspace}
       isReadOnly={isReadOnly}
     />
   );
