@@ -32,17 +32,37 @@ class MockInstance extends EventEmitter {
     collectionsLength: number;
     collectionsStatus: string;
     collections: any[];
-  };
+  }[];
   build: Record<string, never>;
   dataLake: Record<string, never>;
   genuineMongoDB: Record<string, never>;
   topologyDescription: Record<string, never>;
 
-  constructor(props: Record<string, any>) {
+  constructor() {
     super();
-    for (const [key, value] of Object.entries(props)) {
-      this[key] = value;
-    }
+    this._id = 'turtle';
+    this.status = 'ready';
+    this.databasesStatus = 'ready';
+    this.databases = [
+      {
+        _id: 'turtleDB1',
+        name: 'turtleDB1',
+        status: 'ready',
+        collectionsLength: 1,
+        collectionsStatus: 'ready',
+        collections: [
+          {
+            _id: 'turtleDB1Coll1',
+            name: 'turtleDB1Coll1',
+            type: 'collection',
+          },
+        ],
+      },
+    ];
+    this.build = {};
+    this.dataLake = {};
+    this.genuineMongoDB = {};
+    this.topologyDescription = {};
   }
 }
 
@@ -86,31 +106,7 @@ describe('<ActiveConnectionNavigation />', function () {
   }: {
     activeWorkspace?: WorkspaceTab;
   } = {}) => {
-    turtleInstance = new MockInstance({
-      _id: 'turtle',
-      status: 'ready',
-      databasesStatus: 'ready',
-      databases: [
-        {
-          _id: 'turtleDB1',
-          name: 'turtleDB1',
-          status: 'ready',
-          collectionsLength: 1,
-          collectionsStatus: 'ready',
-          collections: [
-            {
-              _id: 'turtleDB1Coll1',
-              name: 'turtleDB1Coll1',
-              type: 'collection',
-            },
-          ],
-        },
-      ],
-      build: {},
-      dataLake: {},
-      genuineMongoDB: {},
-      topologyDescription: {},
-    });
+    turtleInstance = new MockInstance();
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
