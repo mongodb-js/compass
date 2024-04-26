@@ -298,7 +298,7 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
 
-    it.only('should collapse and expand database', async function () {
+    it('should collapse and expand database', async function () {
       // step 1 - turtleDB1 is collapsed at first
       await renderActiveConnectionsNavigation({
         activeWorkspace: { type: 'My Queries', id: 'abcd' },
