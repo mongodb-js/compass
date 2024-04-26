@@ -78,7 +78,10 @@ export default function configureStore(
           return TEST_CONNECTION_INFO;
         },
       },
-      collection: {} as Collection,
+      collection: {
+        toJSON: () => ({}),
+        on: () => {},
+      } as any,
       ...services,
     },
     createActivateHelpers()

@@ -20,7 +20,7 @@ import {
   toggleInputDocumentsCollapsed,
 } from '../modules/input-documents';
 import LoadingOverlay from './loading-overlay';
-import type { CollectionStatsState } from '../modules/collection-stats';
+import type { CollectionStats } from '../modules/collection-stats';
 
 const headerStyles = css({
   display: 'flex',
@@ -153,7 +153,7 @@ export default connect(
     collectionStats,
   }: {
     inputDocuments: InputDocuments;
-    collectionStats: CollectionStatsState;
+    collectionStats: CollectionStats;
   }) => {
     return {
       documents: inputDocuments.documents,

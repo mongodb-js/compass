@@ -99,6 +99,7 @@ describe('Aggregation Store', function () {
             isDataLake: INITIAL_STATE.isDataLake,
             pipelineBuilder: INITIAL_STATE.pipelineBuilder,
             focusMode: INITIAL_STATE.focusMode,
+            collectionStats: INITIAL_STATE.collectionStats,
             collectionsFields: INITIAL_STATE.collectionsFields,
             searchIndexes: INITIAL_STATE.searchIndexes,
           });
