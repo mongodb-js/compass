@@ -60,7 +60,7 @@ describe('CreateNamespacePlugin', function () {
     topologyDescription: { type: 'Unknown' },
   } as unknown as MongoDBInstance;
   const workspaces = {
-    openCollectionWorkspace: sandbox.stub(),
+    openCollectionWorkspace() {},
   };
 
   beforeEach(function () {
@@ -98,6 +98,7 @@ describe('CreateNamespacePlugin', function () {
   });
 
   afterEach(function () {
+    sandbox.restore();
     sandbox.resetHistory();
     cleanup();
   });
@@ -124,6 +125,10 @@ describe('CreateNamespacePlugin', function () {
 
     it('should handle create database flow on `open-create-database` event', async function () {
       const createCollectionSpy = sandbox.spy(dataService1, 'createCollection');
+      const openCollectionWorkspaceSpy = sandbox.spy(
+        workspaces,
+        'openCollectionWorkspace'
+      );
       appRegistry.emit('open-create-database', { connectionId: '1' });
 
       expect(screen.getByRole('heading', { name: 'Create Database' })).to.exist;
@@ -146,9 +151,10 @@ describe('CreateNamespacePlugin', function () {
 
       expect(createCollectionSpy).to.have.been.calledOnceWith('db.coll1', {});
 
-      expect(
-        workspaces.openCollectionWorkspace
-      ).to.have.been.called.calledOnceWith('1', 'db.coll1');
+      expect(openCollectionWorkspaceSpy).to.have.been.called.calledOnceWith(
+        '1',
+        'db.coll1'
+      );
     });
   });
 
@@ -162,6 +168,10 @@ describe('CreateNamespacePlugin', function () {
 
     it('should handle create collection flow on `open-create-collection` event', async function () {
       const createCollectionSpy = sandbox.spy(dataService2, 'createCollection');
+      const openCollectionWorkspaceSpy = sandbox.spy(
+        workspaces,
+        'openCollectionWorkspace'
+      );
       appRegistry.emit(
         'open-create-collection',
         { database: 'db' },
@@ -191,9 +201,10 @@ describe('CreateNamespacePlugin', function () {
 
       expect(createCollectionSpy).to.have.been.calledOnceWith('db.coll2', {});
 
-      expect(
-        workspaces.openCollectionWorkspace
-      ).to.have.been.called.calledOnceWith('2', 'db.coll2');
+      expect(openCollectionWorkspaceSpy).to.have.been.called.calledOnceWith(
+        '2',
+        'db.coll2'
+      );
     });
   });
 });
