@@ -1,6 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
   ConnectionsManagerEvents,
+  type ConnectionScopedAppRegistry,
   type ConnectionsManager,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
@@ -32,6 +33,7 @@ export type CreateNamespaceServices = {
   globalAppRegistry: AppRegistry;
   logger: LoggerAndTelemetry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'collection-created'>;
 };
 
 function configureStore(services: CreateNamespaceServices) {

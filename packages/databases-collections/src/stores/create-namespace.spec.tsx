@@ -62,6 +62,9 @@ describe('CreateNamespacePlugin', function () {
   const workspaces = {
     openCollectionWorkspace() {},
   };
+  const connectionScopedAppRegistry = {
+    emit() {},
+  };
 
   beforeEach(function () {
     const connectionsManager = new ConnectionsManager({
@@ -93,6 +96,7 @@ describe('CreateNamespacePlugin', function () {
       connectionsManager,
       instancesManager,
       workspaces: workspaces as any,
+      connectionScopedAppRegistry,
     });
     render(<Plugin></Plugin>);
   });
@@ -124,6 +128,7 @@ describe('CreateNamespacePlugin', function () {
     });
 
     it('should handle create database flow on `open-create-database` event', async function () {
+      const emitSpy = sandbox.spy(connectionScopedAppRegistry, 'emit');
       const createCollectionSpy = sandbox.spy(dataService1, 'createCollection');
       const openCollectionWorkspaceSpy = sandbox.spy(
         workspaces,
@@ -155,6 +160,11 @@ describe('CreateNamespacePlugin', function () {
         '1',
         'db.coll1'
       );
+
+      expect(emitSpy).to.have.been.calledOnceWithExactly(
+        'collection-created',
+        'db.coll1'
+      );
     });
   });
 
@@ -167,6 +177,7 @@ describe('CreateNamespacePlugin', function () {
     });
 
     it('should handle create collection flow on `open-create-collection` event', async function () {
+      const emitSpy = sandbox.spy(connectionScopedAppRegistry, 'emit');
       const createCollectionSpy = sandbox.spy(dataService2, 'createCollection');
       const openCollectionWorkspaceSpy = sandbox.spy(
         workspaces,
@@ -203,6 +214,11 @@ describe('CreateNamespacePlugin', function () {
 
       expect(openCollectionWorkspaceSpy).to.have.been.called.calledOnceWith(
         '2',
+        'db.coll2'
+      );
+
+      expect(emitSpy).to.have.been.calledOnceWithExactly(
+        'collection-created',
         'db.coll2'
       );
     });

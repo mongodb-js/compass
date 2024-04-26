@@ -51,10 +51,8 @@ describe('InstanceStore [Store]', function () {
   let dataService: any;
   let connectionsManager: ConnectionsManager;
   let store: ReturnType<typeof createInstancesStore>;
-  let connectedInstance: MongoDBInstance;
   let instancesManager: MongoDBInstancesManager;
 
-  let initialInstanceRefreshedPromise: Promise<unknown>;
   let sandbox: sinon.SinonSandbox;
 
   function waitForInstanceRefresh(instance: MongoDBInstance): Promise<void> {
@@ -119,6 +117,8 @@ describe('InstanceStore [Store]', function () {
   });
 
   context('when connected', function () {
+    let connectedInstance: MongoDBInstance;
+    let initialInstanceRefreshedPromise: Promise<unknown>;
     beforeEach(function () {
       connectionsManager.emit(
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,
@@ -218,11 +218,7 @@ describe('InstanceStore [Store]', function () {
         });
       });
 
-      const createdEvents = [
-        'collection-created',
-        'view-created',
-        'agg-pipeline-out-executed',
-      ];
+      const createdEvents = ['view-created', 'agg-pipeline-out-executed'];
 
       for (const evt of createdEvents) {
         context(`on '${evt}' event`, function () {
@@ -251,6 +247,52 @@ describe('InstanceStore [Store]', function () {
           });
         });
       }
+
+      context(`on 'collection-created' event`, function () {
+        it('should only respond when there is a connectionId and it matches the connectionId for the instance', function () {
+          const collectionsLength =
+            connectedInstance.databases.get('foo')?.collections.length;
+          expect(collectionsLength).to.equal(2); // we only start with 2 collections;
+
+          // emit the event without connectionId
+          globalAppRegistry.emit('collection-created', 'foo.qux');
+          expect(collectionsLength).to.equal(2); // should still be 2
+
+          // emit the event with a different connectionId
+          globalAppRegistry.emit('collection-created', 'foo.qux', {
+            connectionId: '2',
+          });
+          expect(collectionsLength).to.equal(2); // should still be 2
+        });
+
+        it('should add collection to the databases collections', function () {
+          globalAppRegistry.emit('collection-created', 'foo.qux', {
+            connectionId: connectedConnectionInfoId,
+          });
+          expect(
+            connectedInstance.databases.get('foo')?.collections
+          ).to.have.lengthOf(3);
+          expect(
+            connectedInstance.databases
+              .get('foo')
+              ?.collections.get('foo.qux', '_id')
+          ).to.exist;
+        });
+
+        it("should add new database and add collection to its collections if database doesn't exist yet", function () {
+          globalAppRegistry.emit('collection-created', 'bar.qux', {
+            connectionId: connectedConnectionInfoId,
+          });
+          expect(connectedInstance.databases).to.have.lengthOf(2);
+          expect(connectedInstance.databases.get('bar')).to.exist;
+          expect(
+            connectedInstance.databases.get('bar')?.collections
+          ).to.have.lengthOf(1);
+          expect(
+            connectedInstance.databases.get('bar')?.collections.get('bar.qux')
+          ).to.exist;
+        });
+      });
 
       context(`on 'collection-renamed' event`, function () {
         it('should update collection _id', function () {
