@@ -83,10 +83,10 @@ describe('databases and collections list', function () {
       render(
         <CollectionsList
           connectionTitle="My Connection"
-          connectionId="1"
           databaseName="My Database"
           collections={colls}
           onCollectionClick={clickSpy}
+          onClickConnectionBreadcrumb={() => {}}
         ></CollectionsList>
       );
 
@@ -110,7 +110,6 @@ describe('databases and collections list', function () {
       render(
         <CollectionsList
           connectionTitle="My Connection"
-          connectionId="1"
           databaseName="My Database"
           collections={colls}
           onClickConnectionBreadcrumb={connectionClickSpy}
@@ -120,7 +119,7 @@ describe('databases and collections list', function () {
 
       userEvent.click(screen.getByText('My Connection'));
 
-      expect(connectionClickSpy).to.be.calledWith('1');
+      expect(connectionClickSpy).to.be.called;
     });
   });
 });

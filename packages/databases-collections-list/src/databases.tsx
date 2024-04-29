@@ -22,14 +22,12 @@ const DATABASE_CARD_HEIGHT = 154;
 const DATABASE_CARD_LIST_HEIGHT = 118;
 
 const DatabasesList: React.FunctionComponent<{
-  connectionId: string;
   databases: Database[];
   onDatabaseClick(id: string): void;
-  onDeleteDatabaseClick?: (connectionId: string, id: string) => void;
+  onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
-  connectionId,
   databases,
   onDatabaseClick,
   onCreateDatabaseClick,
@@ -50,9 +48,7 @@ const DatabasesList: React.FunctionComponent<{
         { name: 'index_count', label: 'Indexes' },
       ]}
       onItemClick={onDatabaseClick}
-      onDeleteItemClick={(database) =>
-        onDeleteDatabaseClick?.(connectionId, database)
-      }
+      onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
       onRefreshClick={onRefreshClick}
       renderItem={({

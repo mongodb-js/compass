@@ -1,7 +1,8 @@
 import type AppRegistry from 'hadron-app-registry';
-import type {
-  ConnectionInfoAccess,
-  DataService,
+import {
+  ConnectionsManagerEvents,
+  type ConnectionsManager,
+  type DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -10,27 +11,27 @@ import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import reducer, {
-  dataServiceProvided,
-  instanceProvided,
+  kmsProvidersRetrieved,
+  serverVersionRetrieved,
   open,
   topologyChanged,
 } from '../modules/create-namespace';
 import type toNS from 'mongodb-ns';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
+import {
+  MongoDBInstancesManagerEvents,
+  type MongoDBInstancesManager,
+} from '@mongodb-js/compass-app-stores/provider';
 
 type NS = ReturnType<typeof toNS>;
 
 export type CreateNamespaceServices = {
-  dataService: Pick<
-    DataService,
-    'createCollection' | 'createDataKey' | 'configuredKMSProviders'
-  >;
+  connectionsManager: ConnectionsManager;
+  instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
   logger: LoggerAndTelemetry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
-  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 function configureStore(services: CreateNamespaceServices) {
@@ -54,44 +55,109 @@ export function activatePlugin(
   services: CreateNamespaceServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const { instance, globalAppRegistry, dataService } = services;
+  const { instancesManager, connectionsManager, globalAppRegistry } = services;
   const store = configureStore(services);
-  const onInstanceProvided = (instance: MongoDBInstance) => {
+  const onInstanceProvided = (
+    connectionId: string,
+    instance: MongoDBInstance
+  ) => {
     store.dispatch(
-      instanceProvided({
-        serverVersion: instance.build.version,
-        topology: instance.topologyDescription.type,
-      })
+      serverVersionRetrieved(connectionId, instance.build.version)
+    );
+    store.dispatch(
+      topologyChanged(connectionId, instance.topologyDescription.type)
     );
 
+    // Because the version could be undefined if the instance hasn't finished
+    // refreshing
+    on(instance, 'change:build.version', () => {
+      store.dispatch(
+        serverVersionRetrieved(connectionId, instance.build.version)
+      );
+    });
+
     on(instance, 'change:topologyDescription', () => {
-      store.dispatch(topologyChanged(instance.topologyDescription.type));
+      store.dispatch(
+        topologyChanged(connectionId, instance.topologyDescription.type)
+      );
     });
   };
 
   const onDataServiceProvided = (
+    connectionId: string,
     dataService: Pick<
       DataService,
       'createCollection' | 'createDataKey' | 'configuredKMSProviders'
     >
   ) => {
     store.dispatch(
-      dataServiceProvided({
-        configuredKMSProviders: dataService.configuredKMSProviders(),
-      })
+      kmsProvidersRetrieved(connectionId, dataService.configuredKMSProviders())
     );
   };
 
-  onInstanceProvided(instance);
-  onDataServiceProvided(dataService);
+  for (const [
+    connectionId,
+    instance,
+  ] of instancesManager.listMongoDBInstances()) {
+    const dataService =
+      connectionsManager.getDataServiceForConnection(connectionId);
+    onInstanceProvided(connectionId, instance);
+    onDataServiceProvided(
+      connectionId,
+      dataService as Pick<
+        DataService,
+        'createCollection' | 'createDataKey' | 'configuredKMSProviders'
+      >
+    );
+  }
 
-  on(globalAppRegistry, 'open-create-database', () => {
-    store.dispatch(open(null));
-  });
+  on(
+    instancesManager,
+    MongoDBInstancesManagerEvents.InstanceCreated,
+    onInstanceProvided
+  );
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionAttemptSuccessful,
+    onDataServiceProvided
+  );
 
-  on(globalAppRegistry, 'open-create-collection', (ns: NS) => {
-    store.dispatch(open(ns.database));
-  });
+  on(
+    globalAppRegistry,
+    'open-create-database',
+    ({
+      connectionId,
+    }: {
+      connectionId?: string;
+    } = {}) => {
+      if (!connectionId) {
+        throw new Error(
+          'Cannot create a database without specifying a connection id'
+        );
+      }
+      store.dispatch(open(connectionId, null));
+    }
+  );
+
+  on(
+    globalAppRegistry,
+    'open-create-collection',
+    (
+      ns: NS,
+      {
+        connectionId,
+      }: {
+        connectionId?: string;
+      } = {}
+    ) => {
+      if (!connectionId) {
+        throw new Error(
+          'Cannot create a collection without specifying a connection id'
+        );
+      }
+      store.dispatch(open(connectionId, ns.database));
+    }
+  );
 
   return {
     store,

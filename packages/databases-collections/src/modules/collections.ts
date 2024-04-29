@@ -86,10 +86,13 @@ export const refreshCollections = (): CollectionsThunkAction<void> => {
 };
 
 export const createNewCollection = (
+  connectionId: string,
   dbName: string
 ): CollectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-create-collection', toNS(dbName));
+    globalAppRegistry.emit('open-create-collection', toNS(dbName), {
+      connectionId,
+    });
   };
 };
 

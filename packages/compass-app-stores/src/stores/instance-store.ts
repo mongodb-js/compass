@@ -64,7 +64,7 @@ export function createInstancesStore(
   on(
     connectionsManager,
     ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    function (connectionInfoId: string, dataService: DataService) {
+    function (instanceConnectionId: string, dataService: DataService) {
       async function refreshInstance(
         refreshOptions: Omit<
           Parameters<MongoDBInstance['refresh']>[0],
@@ -197,7 +197,7 @@ export function createInstancesStore(
         ),
       };
       const instance = instancesManager.createMongoDBInstanceForConnection(
-        connectionInfoId,
+        instanceConnectionId,
         initialInstanceProps as MongoDBInstanceProps
       );
 
@@ -290,7 +290,11 @@ export function createInstancesStore(
       on(
         globalAppRegistry,
         'collection-created',
-        maybeAddAndRefreshCollectionModel
+        (ns: string, { connectionId }: { connectionId?: string } = {}) => {
+          if (connectionId === instanceConnectionId) {
+            void maybeAddAndRefreshCollectionModel(ns);
+          }
+        }
       );
 
       on(globalAppRegistry, 'view-created', maybeAddAndRefreshCollectionModel);

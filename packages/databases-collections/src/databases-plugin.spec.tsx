@@ -53,7 +53,12 @@ describe('Databasees [Plugin]', function () {
 
     it('renders a list of databases', function () {
       userEvent.click(screen.getByRole('button', { name: /Create database/ }));
-      expect(appRegistry.emit).to.have.been.calledWith('open-create-database');
+      expect(appRegistry.emit).to.have.been.calledWith(
+        'open-create-database',
+        // this event is supposed to emit always with a connectionId and this
+        // connection id is the default provided by the connectionInfoProvider
+        { connectionId: 'TEST' }
+      );
 
       userEvent.click(screen.getByRole('button', { name: /Refresh/ }));
       expect(appRegistry.emit).to.have.been.calledWith('refresh-databases');
