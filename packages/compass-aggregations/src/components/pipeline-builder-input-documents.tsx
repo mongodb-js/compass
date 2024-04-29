@@ -20,6 +20,7 @@ import {
   toggleInputDocumentsCollapsed,
 } from '../modules/input-documents';
 import LoadingOverlay from './loading-overlay';
+import type { CollectionStats } from '../modules/collection-stats';
 
 const headerStyles = css({
   display: 'flex',
@@ -67,7 +68,7 @@ type InputProps = {
   documents: DocumentType[];
   isExpanded: boolean;
   isLoading: boolean;
-  count: number;
+  count?: number;
   toggleInputDocumentsCollapsed: (arg0: boolean) => void;
   refreshInputDocuments: () => void;
 };
@@ -103,7 +104,7 @@ function PipelineBuilderInputDocuments({
         </IconButton>
         <Body className={headerTextStyles}>
           <b>
-            {count} Document{count === 1 ? '' : 's'}
+            {count ?? 'N/A'} Document{count === 1 ? '' : 's'}
           </b>{' '}
           in the collection
         </Body>
@@ -147,12 +148,18 @@ type InputDocuments = {
 };
 
 export default connect(
-  ({ inputDocuments }: { inputDocuments: InputDocuments }) => {
+  ({
+    inputDocuments,
+    collectionStats,
+  }: {
+    inputDocuments: InputDocuments;
+    collectionStats: CollectionStats;
+  }) => {
     return {
       documents: inputDocuments.documents,
       isExpanded: inputDocuments.isExpanded,
       isLoading: inputDocuments.isLoading,
-      count: inputDocuments.count,
+      count: collectionStats?.document_count,
     };
   },
   {

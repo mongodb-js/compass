@@ -69,7 +69,10 @@ describe('Collections [Plugin]', function () {
       );
       expect(appRegistry.emit).to.have.been.calledWithMatch(
         'open-create-collection',
-        { ns: 'foo' }
+        { ns: 'foo' },
+        // this event is supposed to emit always with a connectionId and this
+        // connection id is the default provided by the connectionInfoProvider
+        { connectionId: 'TEST' }
       );
 
       userEvent.click(screen.getByRole('button', { name: /Refresh/ }));

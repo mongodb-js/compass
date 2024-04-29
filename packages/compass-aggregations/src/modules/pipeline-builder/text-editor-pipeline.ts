@@ -219,7 +219,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
       collationString,
       limit,
       largeLimit,
-      inputDocuments,
+      collectionStats,
       dataService,
       pipelineBuilder: {
         textEditor: {
@@ -256,7 +256,7 @@ export const loadPreviewForPipeline = (): PipelineBuilderThunkAction<
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count ?? undefined,
+        totalDocumentCount: collectionStats?.document_count,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(

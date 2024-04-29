@@ -187,7 +187,6 @@ describe('Home [Component]', function () {
           },
           dataService
         );
-        screen.logTestingPlaygroundURL();
         await waitForConnect();
       });
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   type Connection,
@@ -22,6 +22,7 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -67,6 +68,7 @@ export function ActiveConnectionNavigation({
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
+  onDatabaseExpand,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -82,7 +84,7 @@ export function ActiveConnectionNavigation({
   isDataLake?: boolean;
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
-  activeWorkspace: { type: string; namespace?: string } | null;
+  activeWorkspace?: WorkspaceTab;
   onOpenConnectionInfo: (connectionId: string) => void;
   onCopyConnectionString: (connectionId: string) => void;
   onToggleFavoriteConnection: (connectionId: string) => void;
@@ -99,17 +101,19 @@ export function ActiveConnectionNavigation({
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
-  const onConnectionToggle = (connectionId: string, forceExpand: boolean) => {
-    if (!forceExpand && !collapsed.includes(connectionId))
-      setCollapsed([...collapsed, connectionId]);
-    else if (forceExpand && collapsed.includes(connectionId)) {
-      const index = collapsed.indexOf(connectionId);
-      setCollapsed([
-        ...collapsed.slice(0, index),
-        ...collapsed.slice(index + 1),
-      ]);
-    }
-  };
+  const onConnectionToggle = useCallback(
+    (connectionId: string, forceExpand: boolean) => {
+      if (!forceExpand && !collapsed.includes(connectionId))
+        setCollapsed((collapsed) => [...collapsed, connectionId]);
+      else if (forceExpand && collapsed.includes(connectionId)) {
+        setCollapsed((collapsed) => {
+          const index = collapsed.indexOf(connectionId);
+          return [...collapsed.slice(0, index), ...collapsed.slice(index + 1)];
+        });
+      }
+    },
+    [setCollapsed, collapsed]
+  );
 
   useEffect(() => {
     // cleanup connections that are no longer active
@@ -128,6 +132,28 @@ export function ActiveConnectionNavigation({
     setNamedConnections(newConnectionList);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConnections]);
+
+  const onConnectionToggleRef = useRef(onConnectionToggle);
+  onConnectionToggleRef.current = onConnectionToggle;
+  // auto-expanding on a workspace change
+  useEffect(() => {
+    if (
+      activeWorkspace &&
+      (activeWorkspace.type === 'Databases' ||
+        activeWorkspace.type === 'Collections' ||
+        activeWorkspace.type === 'Collection')
+    ) {
+      const connectionId: string = activeWorkspace.connectionId;
+      // we're using a ref for this toggle because collapsing depends on the collapsed state,
+      // but we don't want to auto-expand when collapsed state changes, only workspace
+      onConnectionToggleRef.current(connectionId, true);
+
+      if (activeWorkspace.type !== 'Databases') {
+        const namespace: string = activeWorkspace.namespace;
+        onDatabaseExpand(connectionId, namespace, true);
+      }
+    }
+  }, [activeWorkspace, onDatabaseExpand]);
 
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
@@ -195,12 +221,13 @@ export function ActiveConnectionNavigation({
       <ConnectionsNavigationTree
         isReady={true}
         connections={connections}
-        activeNamespace={activeWorkspace?.namespace}
+        activeWorkspace={activeWorkspace}
         onNamespaceAction={onNamespaceAction}
         onConnectionSelect={(connectionId) =>
           openDatabasesWorkspace(connectionId)
         }
         onConnectionExpand={onConnectionToggle}
+        onDatabaseExpand={onDatabaseExpand}
         expanded={namedConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {
             obj[connectionId] = collapsed.includes(connectionId)
@@ -294,7 +321,9 @@ const onNamespaceAction = (
         emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
-        emit('open-create-collection', ns);
+        emit('open-create-collection', ns, {
+          connectionId,
+        });
         return;
       case 'duplicate-view': {
         const coll = findCollection(

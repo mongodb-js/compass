@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, memo, useRef, useEffect } from 'react';
+import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import {
@@ -25,6 +25,7 @@ import { ConnectionItem } from './connection-item';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import StyledNavigationItem from './styled-navigation-item';
 import { usePreference } from 'compass-preferences-model/provider';
+import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 type Collection = {
   _id: string;
@@ -108,8 +109,8 @@ export type TreeItem =
 type ListItemData = {
   items: TreeItem[];
   isReadOnly: boolean;
-  isSingleConnection: boolean;
-  activeNamespace?: string;
+  isSingleConnection?: boolean;
+  activeWorkspace?: WorkspaceTab;
   currentTabbable?: string;
   onConnectionExpand(this: void, id: string, isExpanded: boolean): void;
   onConnectionSelect(this: void, id: string): void;
@@ -294,7 +295,7 @@ const NavigationItem = memo<{
     items,
     isSingleConnection,
     isReadOnly,
-    activeNamespace,
+    activeWorkspace,
     currentTabbable,
     onConnectionExpand,
     onConnectionSelect,
@@ -313,7 +314,10 @@ const NavigationItem = memo<{
         style={style}
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
-        isActive={activeNamespace === ''} // TODO(COMPASS-7775) we'll need something like activeConnection
+        isActive={
+          activeWorkspace?.type === 'Databases' &&
+          activeWorkspace.connectionId === itemData.connectionInfo.id
+        }
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
         onConnectionExpand={onConnectionExpand}
@@ -327,7 +331,11 @@ const NavigationItem = memo<{
         style={style}
         isReadOnly={isReadOnly}
         isSingleConnection={isSingleConnection}
-        isActive={itemData.id === activeNamespace}
+        isActive={
+          activeWorkspace?.type === 'Collections' &&
+          activeWorkspace.connectionId === itemData.connectionId &&
+          activeWorkspace.namespace === itemData.id
+        }
         isTabbable={itemData.id === currentTabbable}
         onNamespaceAction={onNamespaceAction}
         onDatabaseExpand={onDatabaseExpand}
@@ -347,7 +355,11 @@ const NavigationItem = memo<{
                 <CollectionItem
                   isReadOnly={isReadOnly}
                   isSingleConnection={isSingleConnection}
-                  isActive={itemData.id === activeNamespace}
+                  isActive={
+                    activeWorkspace?.type === 'Collection' &&
+                    activeWorkspace.connectionId === itemData.connectionId &&
+                    activeWorkspace.namespace === itemData.id
+                  }
                   isTabbable={itemData.id === currentTabbable}
                   onNamespaceAction={onNamespaceAction}
                   {...itemData}
@@ -368,7 +380,7 @@ const NavigationItem = memo<{
 
   return (
     <StyledNavigationItem
-      isSingleConnection={isSingleConnection}
+      isSingleConnection={isSingleConnection ?? false}
       colorCode={itemData.colorCode}
     >
       {Item}
@@ -391,7 +403,7 @@ interface ConnectionsNavigationTreeProps {
     namespace: string,
     action: Actions
   ): void;
-  activeNamespace?: string;
+  activeWorkspace?: WorkspaceTab;
   isReadOnly?: boolean;
 }
 
@@ -400,8 +412,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 > = ({
   connections,
   expanded,
-  activeNamespace = '',
-  // onConnectionExpand and onConnectionSelect only have a default to support single-connection usage
+  activeWorkspace,
+  // onConnectionExpand and onConnectionSelect only has a default to support single-connection usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionExpand = () => {},
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -416,15 +428,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const listRef = useRef<List | null>(null);
   const id = useId();
-
-  useEffect(() => {
-    if (activeNamespace) {
-      for (const connection of connections) {
-        onDatabaseExpand(connection.connectionInfo.id, activeNamespace, true);
-      }
-    }
-  }, [activeNamespace, onDatabaseExpand, connections[0]?.connectionInfo.id]);
-  // TODO(COMPASS-7775): the we'll need something similar to expand the active connection
 
   const items: TreeItem[] = useMemo(() => {
     if (!isSingleConnection) {
@@ -480,7 +483,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
     {
       items: items as NavigationTreeData,
-      activeItemId: activeNamespace,
+      activeItemId:
+        (activeWorkspace as { namespace?: string })?.namespace || '', // TODO(COMPASS-7887)
       onExpandedChange,
       onFocusMove,
     }
@@ -491,7 +495,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       items,
       isReadOnly,
       isSingleConnection,
-      activeNamespace,
+      activeWorkspace,
       currentTabbable,
       onNamespaceAction,
       onConnectionExpand,
@@ -502,7 +506,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     items,
     isReadOnly,
     isSingleConnection,
-    activeNamespace,
+    activeWorkspace,
     currentTabbable,
     onNamespaceAction,
     onConnectionExpand,

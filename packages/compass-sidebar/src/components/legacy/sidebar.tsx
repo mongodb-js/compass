@@ -27,6 +27,7 @@ import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
 import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { RootState, SidebarThunkAction } from '../../modules';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -85,7 +86,7 @@ export function Sidebar({
   onSidebarAction,
 }: {
   showConnectionInfo?: boolean;
-  activeWorkspace: { type: string; namespace?: string } | null;
+  activeWorkspace: WorkspaceTab | null;
   initialConnectionInfo: ConnectionInfo;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (
@@ -160,9 +161,17 @@ export function Sidebar({
         return;
       }
 
+      if (action === 'open-create-database') {
+        onSidebarAction(action, ...rest, {
+          connectionId: initialConnectionInfo.id,
+        });
+        return;
+      }
+
       onSidebarAction(action, ...rest);
     },
     [
+      initialConnectionInfo.id,
       onSidebarAction,
       openToast,
       maybeProtectConnectionString,
@@ -172,7 +181,7 @@ export function Sidebar({
 
   const showNonGenuineModal = useCallback(() => {
     toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, true);
-  }, [toggleIsGenuineMongoDBVisible]);
+  }, [initialConnectionInfo.id, toggleIsGenuineMongoDBVisible]);
 
   const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
 
@@ -213,8 +222,7 @@ export function Sidebar({
         <div className={navigationItemsContainerStyles}>
           <NavigationItems
             connectionInfo={initialConnectionInfo}
-            currentLocation={activeWorkspace?.type ?? null}
-            currentNamespace={activeWorkspace?.namespace ?? null}
+            activeWorkspace={activeWorkspace ?? undefined}
             onAction={onAction}
           />
         </div>

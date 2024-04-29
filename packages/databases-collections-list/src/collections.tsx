@@ -93,17 +93,15 @@ const breadcrumbStyles = css({
 });
 
 const CollectionsList: React.FunctionComponent<{
-  connectionId: string;
   connectionTitle: string;
   databaseName: string;
   collections: Collection[];
   onCollectionClick(id: string): void;
-  onClickConnectionBreadcrumb(connectionId: string): void;
-  onDeleteCollectionClick?: (connectionId: string, id: string) => void;
+  onClickConnectionBreadcrumb(): void;
+  onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
-  connectionId,
   connectionTitle,
   databaseName,
   collections,
@@ -117,18 +115,13 @@ const CollectionsList: React.FunctionComponent<{
     return [
       {
         name: connectionTitle,
-        onClick: () => onClickConnectionBreadcrumb(connectionId),
+        onClick: () => onClickConnectionBreadcrumb(),
       },
       {
         name: databaseName,
       },
     ] as BreadcrumbItem[];
-  }, [
-    connectionId,
-    connectionTitle,
-    databaseName,
-    onClickConnectionBreadcrumb,
-  ]);
+  }, [connectionTitle, databaseName, onClickConnectionBreadcrumb]);
 
   return (
     <div className={pageContainerStyles}>
@@ -148,7 +141,7 @@ const CollectionsList: React.FunctionComponent<{
           { name: 'index_size', label: 'Total index size' },
         ]}
         onItemClick={onCollectionClick}
-        onDeleteItemClick={(ns) => onDeleteCollectionClick?.(connectionId, ns)}
+        onDeleteItemClick={onDeleteCollectionClick}
         onCreateItemClick={onCreateCollectionClick}
         onRefreshClick={onRefreshClick}
         renderItem={({
