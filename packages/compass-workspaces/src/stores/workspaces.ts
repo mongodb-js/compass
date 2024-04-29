@@ -15,6 +15,7 @@ import type {
 } from '..';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -742,12 +743,12 @@ export const databaseRemoved = (
 
 type ConnectionDisconnectedAction = {
   type: WorkspacesActions.ConnectionDisconnected;
-  connectionId: string;
+  connectionId: ConnectionInfo['id'];
   tabsToClose: (WorkspaceTab & { index: number })[];
 };
 
 export const connectionDisconnected = (
-  connectionId: string
+  connectionId: ConnectionInfo['id']
 ): WorkspacesThunkAction<void, ConnectionDisconnectedAction> => {
   return (dispatch, getState) => {
     const tabsToClose = getState()

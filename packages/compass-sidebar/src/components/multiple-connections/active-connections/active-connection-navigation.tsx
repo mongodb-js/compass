@@ -86,10 +86,10 @@ export function ActiveConnectionNavigation({
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace?: WorkspaceTab;
-  onOpenConnectionInfo: (connectionId: string) => void;
-  onCopyConnectionString: (connectionId: string) => void;
-  onToggleFavoriteConnection: (connectionId: string) => void;
-  onDisconnect: (connectionId: string) => void;
+  onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
+  onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
+  onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
+  onDisconnect: (connectionId: ConnectionInfo['id']) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<

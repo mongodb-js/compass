@@ -321,9 +321,12 @@ export function MultipleConnectionSidebar({
     [findActiveConnection, maybeProtectConnectionString]
   );
 
-  const onDisconnect = useCallback((connectionId: string) => {
-    void closeConnection(connectionId); // TODO: error handling
-  }, []);
+  const onDisconnect = useCallback(
+    (connectionId: string) => {
+      void closeConnection(connectionId); // TODO: error handling
+    },
+    [closeConnection]
+  );
 
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');

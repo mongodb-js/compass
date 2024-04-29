@@ -221,7 +221,7 @@ describe('<ActiveConnectionNavigation />', function () {
     it('Calls onDisconnect', async () => {
       userEvent.hover(screen.getByText('turtle'));
 
-      const connectionActionsBtn = screen.getAllByTitle('Show actions')[0]; // TODO: This will be a single element once we fix the workspaces
+      const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
 
       userEvent.click(connectionActionsBtn);

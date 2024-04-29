@@ -289,12 +289,12 @@ export class ConnectionsManager extends EventEmitter {
           `Started closing connection but found no DataService to disconnect`
         );
       }
-      this.oidcState.delete(connectionInfoId);
       this.updateAndNotifyConnectionStatus(
         connectionInfoId,
         ConnectionsManagerEvents.ConnectionDisconnected,
         [connectionInfoId]
       );
+      this.oidcState.delete(connectionInfoId);
       this.connectionAttempts.delete(connectionInfoId);
       this.connectionStatuses.delete(connectionInfoId);
     } else {
@@ -358,12 +358,6 @@ export class ConnectionsManager extends EventEmitter {
     const currentStatus = this.statusOf(connectionInfoId);
     const nextStatus =
       connectionStatusTransitions[connectionEvent]?.[currentStatus];
-    console.log({
-      nextStatus,
-      connectionStatusTransitions,
-      connectionEvent,
-      currentStatus,
-    });
     if (nextStatus === undefined) {
       throw new Error(
         `Unexpected state for ConnectionInfoId ${connectionInfoId}. Encountered ${connectionEvent} with currentStatus=${currentStatus}`
