@@ -10,6 +10,7 @@ import workspacesReducer, {
   getInitialTabState,
   getLocalAppRegistryForTab,
   cleanupLocalAppRegistries,
+  connectionDisconnected,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -22,6 +23,7 @@ import {
   connectionsManagerLocator,
   type ConnectionsManager,
   type ConnectionInfo,
+  ConnectionsManagerEvents,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
@@ -111,6 +113,14 @@ export function activateWorkspacePlugin(
       instance: MongoDBInstance
     ) {
       setupInstanceListeners(instance);
+    }
+  );
+
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connectionId: string) {
+      store.dispatch(connectionDisconnected(connectionId));
     }
   );
 
