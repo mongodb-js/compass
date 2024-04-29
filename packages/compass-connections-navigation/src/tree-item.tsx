@@ -114,7 +114,7 @@ const itemContainer = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
-  backgroundRadious: 'var(--item-bg-radius)',
+  backgroundRadius: 'var(--item-bg-radius)',
 
   '.item-background': {
     backgroundColor: 'var(--item-bg-color)',
