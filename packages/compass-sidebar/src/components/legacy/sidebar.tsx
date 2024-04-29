@@ -5,12 +5,9 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   css,
-  cx,
   spacing,
   ResizableSidebar,
   useToast,
-  palette,
-  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
