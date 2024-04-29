@@ -176,7 +176,7 @@ export function Sidebar({
   return (
     <ResizableSidebar
       data-testid="navigation-sidebar"
-      className={cx(sidebarStyles)}
+      className={sidebarStyles}
     >
       <>
         {showConnectionInfo && (
