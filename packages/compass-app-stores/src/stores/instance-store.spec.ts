@@ -247,7 +247,7 @@ describe('InstanceStore [Store]', function () {
           expect(connectedInstance.databases.length).to.equal(1);
 
           // emit the event with a different connectionId
-          globalAppRegistry.emit('collection-created', 'foo', {
+          globalAppRegistry.emit('database-dropped', 'foo', {
             connectionId: '2',
           });
 
