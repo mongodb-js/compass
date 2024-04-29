@@ -51,10 +51,14 @@ describe('RenameCollectionModal [Component]', function () {
         pipelineStorage: pipelineStorage as any,
       });
       render(<Plugin> </Plugin>);
-      appRegistry.emit('open-rename-collection', '12345', {
-        database: 'foo',
-        collection: 'bar',
-      });
+      appRegistry.emit(
+        'open-rename-collection',
+        {
+          database: 'foo',
+          collection: 'bar',
+        },
+        { connectionId: '12345' }
+      );
 
       await waitFor(() => screen.getByText('Rename collection'));
     });
@@ -171,10 +175,14 @@ describe('RenameCollectionModal [Component]', function () {
             pipelineStorage: pipelineStorage as any,
           });
           render(<Plugin> </Plugin>);
-          appRegistry.emit('open-rename-collection', '1234', {
-            database: 'foo',
-            collection: 'bar',
-          });
+          appRegistry.emit(
+            'open-rename-collection',
+            {
+              database: 'foo',
+              collection: 'bar',
+            },
+            { connectionId: '12345' }
+          );
 
           await waitFor(() => screen.getByText('Rename collection'));
 

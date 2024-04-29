@@ -8,6 +8,7 @@ import type {
   PipelineStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import { type MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type RenameCollectionPluginServices = {
   globalAppRegistry: AppRegistry;
@@ -25,7 +26,8 @@ export function activateRenameCollectionPlugin(
     instancesManager,
     queryStorage,
     pipelineStorage,
-  }: RenameCollectionPluginServices
+  }: RenameCollectionPluginServices,
+  { cleanup, on }: ActivateHelpers
 ) {
   async function checkIfSavedQueriesAndAggregationsExist(
     oldNamespace: string
@@ -56,43 +58,47 @@ export function activateRenameCollectionPlugin(
     )
   );
 
-  const onRenameCollection = (
-    connectionId: string,
-    ns: { database: string; collection: string }
-  ) => {
-    const instance =
-      instancesManager.getMongoDBInstanceForConnection(connectionId);
-    if (!instance) {
-      throw new Error(
-        'unreachable: this modal is only shown when the connection is open.'
-      );
-    }
+  on(
+    globalAppRegistry,
+    'open-rename-collection',
+    (
+      ns: { database: string; collection: string },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      if (!connectionId) {
+        throw new Error(
+          'Cannot rename a namespace without specifying connectionId'
+        );
+      }
 
-    const collections: { name: string }[] =
-      instance.databases.get(ns.database)?.collections ?? [];
-    void checkIfSavedQueriesAndAggregationsExist(
-      `${ns.database}.${ns.collection}`
-    ).then((areSavedQueriesAndAggregationsImpacted) => {
-      store.dispatch(
-        open({
-          connectionId,
-          db: ns.database,
-          collection: ns.collection,
-          collections,
-          areSavedQueriesAndAggregationsImpacted,
-        })
-      );
-    });
-  };
-  globalAppRegistry.on('open-rename-collection', onRenameCollection);
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(connectionId);
+      if (!instance) {
+        throw new Error(
+          'unreachable: this modal is only shown when the connection is open.'
+        );
+      }
+
+      const collections: { name: string }[] =
+        instance.databases.get(ns.database)?.collections ?? [];
+      void checkIfSavedQueriesAndAggregationsExist(
+        `${ns.database}.${ns.collection}`
+      ).then((areSavedQueriesAndAggregationsImpacted) => {
+        store.dispatch(
+          open({
+            connectionId,
+            db: ns.database,
+            collection: ns.collection,
+            collections,
+            areSavedQueriesAndAggregationsImpacted,
+          })
+        );
+      });
+    }
+  );
 
   return {
     store,
-    deactivate() {
-      globalAppRegistry.removeListener(
-        'open-rename-collection',
-        onRenameCollection
-      );
-    },
+    deactivate: cleanup,
   };
 }
