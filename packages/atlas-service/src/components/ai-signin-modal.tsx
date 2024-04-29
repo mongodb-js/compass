@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  Badge,
   Body,
   Icon,
   Link,
@@ -31,16 +30,8 @@ const titleStyles = css({
   alignItems: 'center',
 });
 
-const paragraphStyles = css({
-  marginBottom: spacing[200],
-});
-
 const disclaimer = css({
   padding: `0 ${spacing[900]}px`,
-});
-
-const previewBadgeStyles = css({
-  marginBottom: spacing[400],
 });
 
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
@@ -67,9 +58,6 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       graphic={<AISignInImageBanner></AISignInImageBanner>}
       title={
         <div className={titleStyles}>
-          <Badge variant="blue" className={previewBadgeStyles}>
-            Preview
-          </Badge>
           Use natural language to generate queries and pipelines
         </div>
       }
@@ -102,13 +90,11 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       linkText="Not now"
       onLinkClick={onSignInModalClose}
     >
-      <div>
-        <Body className={paragraphStyles}>
-          Atlas users can now quickly create queries and aggregations with
-          MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today
-          in Compass.
-        </Body>
-      </div>
+      <Body>
+        Atlas users can now quickly create queries and aggregations with
+        MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today in
+        Compass.
+      </Body>
     </MarketingModal>
   );
 };
