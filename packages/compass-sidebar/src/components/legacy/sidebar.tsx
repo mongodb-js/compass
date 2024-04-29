@@ -38,20 +38,6 @@ const sidebarStyles = css({
   zIndex: 0,
 });
 
-const sidebarStylesDark = css({
-  '--item-color-active': palette.green.base,
-  '--item-bg-color-hover': palette.gray.dark2,
-  '--item-bg-color-active': palette.black,
-});
-
-const sidebarStylesLight = css({
-  '--item-color-active': palette.green.dark2,
-  '--item-bg-color-hover': palette.gray.light2,
-  '--item-bg-color-active': palette.green.light3,
-});
-
-const connectionInfoContainerStyles = css({});
-
 const connectionBadgesContainerStyles = css({
   display: 'grid',
   gridTemplateColumns: '100%',
@@ -102,8 +88,6 @@ export function Sidebar({
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
     useState(false);
-
-  const isDarkMode = useDarkMode();
 
   const onClickSaveFavorite = useCallback(
     (newFavoriteInfo) => {
@@ -192,14 +176,11 @@ export function Sidebar({
   return (
     <ResizableSidebar
       data-testid="navigation-sidebar"
-      className={cx(
-        sidebarStyles,
-        isDarkMode ? sidebarStylesDark : sidebarStylesLight
-      )}
+      className={cx(sidebarStyles)}
     >
       <>
         {showConnectionInfo && (
-          <div className={connectionInfoContainerStyles}>
+          <div>
             <SidebarTitle
               title={getConnectionTitle(initialConnectionInfo)}
               isFavorite={!!initialConnectionInfo.favorite}
