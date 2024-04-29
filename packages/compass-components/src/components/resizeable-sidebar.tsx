@@ -75,10 +75,10 @@ const ResizableSidebar = ({
   const [width, setWidth] = useState(initialWidth);
   const newThemeStyles = useNewTheme
     ? {
-        '--item-color-active': !darkMode ? palette.gray.dark3 : palette.white,
-        '--item-bg-color-active': !darkMode
-          ? palette.gray.light2
-          : palette.gray.dark2,
+        '--item-color-active': darkMode ? palette.white : palette.gray.dark3,
+        '--item-bg-color-active': darkMode
+          ? palette.gray.dark2
+          : palette.gray.light2,
       }
     : {};
 
