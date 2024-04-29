@@ -353,7 +353,7 @@ export function MultipleConnectionSidebar({
   );
 
   return (
-    <ResizableSidebar data-testid="navigation-sidebar">
+    <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
