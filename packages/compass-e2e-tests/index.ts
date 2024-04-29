@@ -180,6 +180,10 @@ function cleanup() {
   // 10 minutes of inactivity if we get into a broken state
   const timeoutId = setTimeout(() => {
     clearInterval(intervalId);
+
+    // Just exit now rather than waiting for 10 minutes just so evergreen can
+    // kill the task and fail anyway.
+    process.exit(process.exitCode ?? 1);
   }, 60_000);
 
   // No need to hold things up for a minute if there's nothing else preventing
