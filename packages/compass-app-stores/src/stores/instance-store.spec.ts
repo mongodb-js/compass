@@ -367,7 +367,7 @@ describe('InstanceStore [Store]', function () {
           ).to.equal(2);
 
           // emit the event without connectionId
-          globalAppRegistry.emit('collection-created', 'foo.qux');
+          globalAppRegistry.emit('collection-renamed', 'foo.qux');
 
           // should still be 2
           expect(
@@ -375,7 +375,7 @@ describe('InstanceStore [Store]', function () {
           ).to.equal(2);
 
           // emit the event with a different connectionId
-          globalAppRegistry.emit('collection-created', 'foo.qux', {
+          globalAppRegistry.emit('collection-renamed', 'foo.qux', {
             connectionId: '2',
           });
 
@@ -386,10 +386,16 @@ describe('InstanceStore [Store]', function () {
         });
 
         it('should update collection _id', function () {
-          globalAppRegistry.emit('collection-renamed', {
-            from: 'foo.bar',
-            to: 'foo.qux',
-          });
+          globalAppRegistry.emit(
+            'collection-renamed',
+            {
+              from: 'foo.bar',
+              to: 'foo.qux',
+            },
+            {
+              connectionId: connectedConnectionInfoId,
+            }
+          );
           expect(
             connectedInstance.databases.get('foo')?.collections
           ).to.have.lengthOf(2);

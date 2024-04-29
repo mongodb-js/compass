@@ -17,9 +17,6 @@ describe('DropNamespacePlugin', function () {
   const connectionsManager = {
     getDataServiceForConnection: sandbox.stub().returns(dataService),
   } as any;
-  const connectionScopedAppRegistry = sandbox.spy({
-    emit() {},
-  });
 
   beforeEach(function () {
     const Plugin = DropNamespacePlugin.withMockServices({
@@ -64,9 +61,10 @@ describe('DropNamespacePlugin', function () {
     );
     expect(dataService.dropDatabase).to.have.not.been.called;
 
-    expect(connectionScopedAppRegistry.emit).to.have.been.calledWithExactly(
+    expect(appRegistry.emit).to.have.been.calledWithExactly(
       'collection-dropped',
-      'test.to-drop'
+      'test.to-drop',
+      { connectionId: 'TEST' }
     );
   });
 
@@ -98,9 +96,10 @@ describe('DropNamespacePlugin', function () {
     );
     expect(dataService.dropCollection).to.have.not.been.called;
 
-    expect(connectionScopedAppRegistry.emit).to.have.been.calledWithExactly(
+    expect(appRegistry.emit).to.have.been.calledWithExactly(
       'database-dropped',
-      'db-to-drop'
+      'db-to-drop',
+      { connectionId: 'TEST' }
     );
   });
 });

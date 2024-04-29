@@ -7,10 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type {
-  ConnectionScopedAppRegistry,
-  ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
@@ -20,9 +17,6 @@ type DropNamespaceServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
   logger: LoggerAndTelemetry;
-  connectionScopedAppRegistry: ConnectionScopedAppRegistry<
-    'database-dropped' | 'collection-dropped'
-  >;
 };
 
 export function activatePlugin(
@@ -31,7 +25,6 @@ export function activatePlugin(
     globalAppRegistry,
     connectionsManager,
     logger: { track },
-    connectionScopedAppRegistry,
   }: DropNamespaceServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
@@ -83,9 +76,10 @@ export function activatePlugin(
         }
 
         await dataService[method](ns);
-        connectionScopedAppRegistry.emit(
+        globalAppRegistry.emit(
           isCollection ? 'collection-dropped' : 'database-dropped',
-          ns
+          ns,
+          { connectionId }
         );
         openToast('drop-namespace-success', {
           variant: 'success',

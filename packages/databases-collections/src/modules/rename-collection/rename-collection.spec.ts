@@ -29,17 +29,12 @@ describe('rename collection module', function () {
     loadAll: sandbox.stub().resolves([]),
   };
 
-  const connectionScopedAppRegistry = sandbox.spy({
-    emit() {},
-  });
-
   const extraThunkArgs: RenameCollectionPluginServices = {
     globalAppRegistry: appRegistry,
     connectionsManager: connectionsManager as any,
     instancesManager: instancesManager,
     queryStorage: favoriteQueries as any,
     pipelineStorage: pipelineStorage as any,
-    connectionScopedAppRegistry,
   };
 
   context('when the modal is visible', function () {
@@ -52,7 +47,6 @@ describe('rename collection module', function () {
           instancesManager: instancesManager,
           queryStorage: favoriteQueries as any,
           pipelineStorage: pipelineStorage as any,
-          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -101,13 +95,14 @@ describe('rename collection module', function () {
         expect(dataService.renameCollection).to.have.been.called;
         // because we did not emit any event and directly called the action the
         // database in store is set to an empty string '' which is how the old
-        // namespace will be just a '.'
-        expect(connectionScopedAppRegistry.emit).to.have.been.calledWithExactly(
+        // namespace will be just a '.' and connectionId will just be ''
+        expect(appRegistry.emit).to.have.been.calledWithExactly(
           'collection-renamed',
           {
             to: '.new-collection',
             from: '.',
-          }
+          },
+          { connectionId: '' }
         );
       });
 

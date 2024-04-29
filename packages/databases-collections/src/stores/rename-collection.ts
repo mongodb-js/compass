@@ -1,10 +1,7 @@
 import { legacy_createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type {
-  ConnectionScopedAppRegistry,
-  ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
 import type {
   FavoriteQueryStorageAccess,
@@ -19,7 +16,6 @@ export type RenameCollectionPluginServices = {
   instancesManager: MongoDBInstancesManager;
   queryStorage?: FavoriteQueryStorageAccess;
   pipelineStorage?: PipelineStorage;
-  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'collection-renamed'>;
 };
 
 export function activateRenameCollectionPlugin(
@@ -30,7 +26,6 @@ export function activateRenameCollectionPlugin(
     instancesManager,
     queryStorage,
     pipelineStorage,
-    connectionScopedAppRegistry,
   }: RenameCollectionPluginServices,
   { cleanup, on }: ActivateHelpers
 ) {
@@ -59,7 +54,6 @@ export function activateRenameCollectionPlugin(
         globalAppRegistry,
         instancesManager,
         connectionsManager,
-        connectionScopedAppRegistry,
       })
     )
   );

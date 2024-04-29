@@ -145,7 +145,7 @@ export const renameCollection = (
   return async (
     dispatch,
     getState,
-    { connectionsManager, connectionScopedAppRegistry }
+    { connectionsManager, globalAppRegistry }
   ) => {
     const state = getState();
     const { connectionId, databaseName, initialCollectionName } = state;
@@ -164,10 +164,16 @@ export const renameCollection = (
 
     try {
       await dataService.renameCollection(oldNamespace, newCollectionName);
-      connectionScopedAppRegistry.emit('collection-renamed', {
-        to: newNamespace,
-        from: oldNamespace,
-      });
+      globalAppRegistry.emit(
+        'collection-renamed',
+        {
+          to: newNamespace,
+          from: oldNamespace,
+        },
+        {
+          connectionId,
+        }
+      );
       dispatch(close());
       openToast('collection-rename-success', {
         variant: 'success',

@@ -52,9 +52,6 @@ export const DropNamespacePlugin = registerHadronPlugin(
   {
     logger: createLoggerAndTelemetryLocator('COMPASS-DROP-NAMESPACE-UI'),
     connectionsManager: connectionsManagerLocator,
-    connectionScopedAppRegistry: connectionScopedAppRegistryLocator<
-      'database-dropped' | 'collection-dropped'
-    >,
   }
 );
 
@@ -69,7 +66,5 @@ export const RenameCollectionPlugin = registerHadronPlugin(
     instancesManager: mongoDBInstancesManagerLocator,
     queryStorage: favoriteQueryStorageAccessLocator,
     pipelineStorage: pipelineStorageLocator,
-    connectionScopedAppRegistry:
-      connectionScopedAppRegistryLocator<'collection-renamed'>,
   }
 );

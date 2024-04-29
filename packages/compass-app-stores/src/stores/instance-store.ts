@@ -295,9 +295,9 @@ export function createInstancesStore(
         'collection-renamed',
         (
           { from, to }: { from: string; to: string },
-          { connectionId }: { connectionId?: string }
+          { connectionId }: { connectionId?: string } = {}
         ) => {
-          if (!connectionId) {
+          if (connectionId !== instanceConnectionId) {
             return;
           }
 
