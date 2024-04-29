@@ -16,8 +16,9 @@ ignores:
  - 'events'
  - 'process'
  - 'util'
-# Already a dependency of mongodb-data-service -> devtools-connect, only
-# referenced in webpack for weird polyfilling reasons (see config)
- - 'resolve-mongodb-srv'
+# Not explicitly used, but helpful to have them in devDeps to make sure
+# compass-web is on the same version as other package in the monorepo
+ - 'mongodb'
+ - 'bson'
 ignore-patterns:
  - 'dist'
