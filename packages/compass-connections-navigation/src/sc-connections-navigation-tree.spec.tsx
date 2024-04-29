@@ -17,6 +17,7 @@ import {
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 const connections: Connection[] = [
   {
@@ -56,6 +57,12 @@ const TEST_VIRTUAL_PROPS = {
   __TEST_REACT_WINDOW_OVERSCAN: Infinity,
 };
 
+const activeWorkspace = {
+  connectionId: 'connectionId',
+  namespace: 'bar.meow',
+  type: 'Collection',
+};
+
 describe('ConnectionsNavigationTree -- Single connection usage', function () {
   afterEach(cleanup);
 
@@ -75,7 +82,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           <ConnectionsNavigationTree
             connections={connections}
             expanded={{ connectionId: { bar: true } }}
-            activeNamespace="bar.meow"
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onDatabaseExpand={() => {}}
             onNamespaceAction={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -100,7 +107,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           <ConnectionsNavigationTree
             connections={connections}
             expanded={{ connectionId: { bar: true } }}
-            activeNamespace="bar.meow"
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -169,7 +176,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     render(
       <ConnectionsNavigationTree
         connections={connections}
-        activeNamespace="bar"
+        activeWorkspace={
+          {
+            ...activeWorkspace,
+            namespace: 'bar',
+            type: 'Collections',
+          } as WorkspaceTab
+        }
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -212,7 +225,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       render(
         <ConnectionsNavigationTree
           connections={connections}
-          activeNamespace="bar"
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar',
+              type: 'Collections',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -230,7 +249,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         <ConnectionsNavigationTree
           connections={connections}
           expanded={{ connectionId: { bar: true } }}
-          activeNamespace="bar.meow"
+          activeWorkspace={activeWorkspace as WorkspaceTab}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -254,7 +273,12 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         <ConnectionsNavigationTree
           connections={connections}
           expanded={{ connectionId: { bar: true } }}
-          activeNamespace="bar.bwok"
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar.bwok',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -283,7 +307,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       render(
         <ConnectionsNavigationTree
           connections={connections}
-          activeNamespace="bar"
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar',
+              type: 'Collections',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
@@ -302,7 +332,12 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         <ConnectionsNavigationTree
           connections={connections}
           expanded={{ connectionId: { bar: true } }}
-          activeNamespace="bar.bwok"
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar.bwok',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
@@ -364,7 +399,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         render(
           <ConnectionsNavigationTree
             connections={connections}
-            activeNamespace="foo"
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'foo',
+                type: 'Collections',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -385,7 +426,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         render(
           <ConnectionsNavigationTree
             connections={connections}
-            activeNamespace="foo"
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'foo',
+                type: 'Collections',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -409,7 +456,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           <ConnectionsNavigationTree
             connections={connections}
             expanded={{ connectionId: { bar: true } }}
-            activeNamespace="bar.meow"
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -434,7 +481,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           <ConnectionsNavigationTree
             connections={connections}
             expanded={{ connectionId: { bar: true } }}
-            activeNamespace="bar.meow"
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -462,7 +509,12 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           <ConnectionsNavigationTree
             connections={connections}
             expanded={{ connectionId: { bar: true } }}
-            activeNamespace="bar.bwok"
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'bar.bwok',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -488,7 +540,12 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           <ConnectionsNavigationTree
             connections={connections}
             expanded={{ connectionId: { bar: true } }}
-            activeNamespace="bar.bwok"
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'bar.bwok',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}

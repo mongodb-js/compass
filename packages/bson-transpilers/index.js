@@ -1,3 +1,4 @@
+'use strict';
 const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');

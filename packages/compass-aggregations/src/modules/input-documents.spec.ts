@@ -25,34 +25,11 @@ describe('input documents module', function () {
 
   describe('#updateInputDocuments', function () {
     it('returns the ActionTypes.DocumentsFetchFinished action', function () {
-      expect(updateInputDocuments(10, [], null)).to.deep.equal({
+      expect(updateInputDocuments([], null)).to.deep.equal({
         type: ActionTypes.DocumentsFetchFinished,
-        count: 10,
         documents: [],
         error: null,
       });
-    });
-  });
-
-  describe('#refreshInputDocuments', function () {
-    context('when the data service is connected', function () {
-      context('when the count succeeds', function () {
-        context('when the aggregation succeeds', function () {
-          it('sets the count and documents in the state', function () {});
-        });
-
-        context('when the aggregation fails', function () {
-          it('sets the error in the state', function () {});
-        });
-      });
-
-      context('when the count fails', function () {
-        it('sets the error in the state', function () {});
-      });
-    });
-
-    context('when the dataservice is not connected', function () {
-      it('sets the error in the state', function () {});
     });
   });
 
@@ -65,7 +42,6 @@ describe('input documents module', function () {
             documents: [],
             error: null,
             isExpanded: true,
-            count: null,
             isLoading: false,
           });
         });
@@ -80,7 +56,6 @@ describe('input documents module', function () {
           documents: [],
           error: null,
           isExpanded: false,
-          count: null,
           isLoading: false,
         });
       });

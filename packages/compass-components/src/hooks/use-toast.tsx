@@ -60,8 +60,9 @@ class GlobalToastState implements ToastActions {
       ...defaultToastProperties,
       ...props,
       'data-testid': `toast-${id}`,
-      onClose: () => {
+      onClose: (e: React.EventHandler<any>) => {
         this.closeToast(id);
+        props.onClose?.(e);
       },
     };
     this.toasts.set(id, toastProps);

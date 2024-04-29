@@ -1,3 +1,4 @@
+'use strict';
 /* eslint complexity: 0 */
 const vm = require('vm');
 const bson = require('bson');

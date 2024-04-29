@@ -1,3 +1,4 @@
+'use strict';
 /*
  * Class for handling edge cases for python code generation. Defines "emit" methods.
  */

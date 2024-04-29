@@ -34,8 +34,6 @@ function renderNavigationItems(
           onFilterChange={() => {
             /* noop */
           }}
-          currentLocation={null}
-          currentNamespace={null}
           {...props}
         />
       </WorkspacesProvider>

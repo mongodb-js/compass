@@ -17,6 +17,8 @@ import {
 import type Collection from 'mongodb-collection-model';
 import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 
@@ -30,7 +32,7 @@ type CollectionsListProps = {
   collectionsLoadingStatus: string;
   collectionsLoadingError?: string | null;
   isEditable: boolean;
-  onDeleteCollectionClick(ns: string): void;
+  onDeleteCollectionClick(connectionId: string, ns: string): void;
   onCreateCollectionClick(dbName: string): void;
   onRefreshClick(): void;
 };
@@ -45,7 +47,12 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   onCreateCollectionClick: _onCreateCollectionClick,
   onRefreshClick,
 }) => {
-  const { openCollectionWorkspace } = useOpenWorkspace();
+  const connectionInfo = useConnectionInfo();
+  const { id: connectionId } = connectionInfo;
+  const { openDatabasesWorkspace, openCollectionWorkspace } =
+    useOpenWorkspace();
+
+  const parsedNS = toNS(namespace);
 
   useTrackOnChange(
     'COMPASS-COLLECTIONS-UI',
@@ -72,11 +79,23 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    { onCollectionClick: openCollectionWorkspace, onRefreshClick },
+    {
+      onCollectionClick: openCollectionWorkspace.bind(undefined, connectionId),
+      onRefreshClick,
+    },
     isEditable ? { onDeleteCollectionClick, onCreateCollectionClick } : {}
   );
 
-  return <CollectionsList collections={collections} {...actions} />;
+  return (
+    <CollectionsList
+      connectionId={connectionId}
+      collections={collections}
+      connectionTitle={getConnectionTitle(connectionInfo)}
+      databaseName={parsedNS.database}
+      onClickConnectionBreadcrumb={openDatabasesWorkspace}
+      {...actions}
+    />
+  );
 };
 
 const ConnectedCollections = connect(

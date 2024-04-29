@@ -1,3 +1,4 @@
+'use strict';
 const { RuleTester } = require('eslint');
 const path = require('path');
 const rule = require('./no-leafygreen-outside-compass-components');

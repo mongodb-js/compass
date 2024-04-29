@@ -1,3 +1,4 @@
+'use strict';
 const SINGLE = 'Single';
 const REPLICA_SET_NO_PRIMARY = 'ReplicaSetNoPrimary';
 const REPLICA_SET_WITH_PRIMARY = 'ReplicaSetWithPrimary';

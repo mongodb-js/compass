@@ -1,3 +1,4 @@
+'use strict';
 const Reflux = require('reflux');
 
 /**

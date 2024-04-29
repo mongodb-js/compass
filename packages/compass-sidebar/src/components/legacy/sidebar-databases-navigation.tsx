@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type {
@@ -25,6 +25,8 @@ function findCollection(ns: string, databases: Database[]) {
 function SidebarDatabasesNavigation({
   connections,
   onNamespaceAction: _onNamespaceAction,
+  onDatabaseExpand,
+  activeWorkspace,
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -44,16 +46,15 @@ function SidebarDatabasesNavigation({
     preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
-      // TODO: COMPASS-7718 to use connectionId for new tabs
       switch (action) {
         case 'select-database':
-          openCollectionsWorkspace(ns);
+          openCollectionsWorkspace(connectionId, ns);
           return;
         case 'select-collection':
-          openCollectionWorkspace(ns);
+          openCollectionWorkspace(connectionId, ns);
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(ns, { newTab: true });
+          openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
           const coll = findCollection(
@@ -62,7 +63,7 @@ function SidebarDatabasesNavigation({
           );
 
           if (coll && coll.sourceName && coll.pipeline) {
-            openEditViewWorkspace(coll._id, {
+            openEditViewWorkspace(connectionId, coll._id, {
               sourceName: coll.sourceName,
               sourcePipeline: coll.pipeline,
               newTab: true,
@@ -84,11 +85,25 @@ function SidebarDatabasesNavigation({
     ]
   );
 
+  // auto-expanding on a workspace change
+  useEffect(() => {
+    if (
+      activeWorkspace &&
+      (activeWorkspace.type === 'Collections' ||
+        activeWorkspace.type === 'Collection')
+    ) {
+      const namespace: string = activeWorkspace.namespace;
+      onDatabaseExpand(connection.connectionInfo.id, namespace, true);
+    }
+  }, [activeWorkspace, onDatabaseExpand, connection.connectionInfo.id]);
+
   return (
     <ConnectionsNavigationTree
       connections={connections}
       {...dbNavigationProps}
       onNamespaceAction={onNamespaceAction}
+      onDatabaseExpand={onDatabaseExpand}
+      activeWorkspace={activeWorkspace}
       isReadOnly={isReadOnly}
     />
   );
@@ -160,13 +175,13 @@ const onNamespaceAction = (
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':
-        emit('open-drop-database', ns.database);
+        emit('open-drop-database', connectionId, ns.database);
         return;
       case 'rename-collection':
         emit('open-rename-collection', connectionId, ns);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns);
+        emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
         emit('open-create-collection', ns);

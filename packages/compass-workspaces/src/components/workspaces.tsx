@@ -31,6 +31,10 @@ import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
+import {
+  type ConnectionInfo,
+  ConnectionInfoProvider,
+} from '@mongodb-js/compass-connections/provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -69,6 +73,7 @@ type CompassWorkspacesProps = {
   activeTab?: WorkspaceTab | null;
   collectionInfo: Record<string, CollectionTabInfo>;
   openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
+  singleConnectionConnectionInfo?: ConnectionInfo;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -78,6 +83,7 @@ type CompassWorkspacesProps = {
   onCloseTab(at: number): void;
   onNamespaceNotFound(
     tab: WorkspaceTab,
+    connectionId: string,
     fallbackNamespace: string | null
   ): void;
 };
@@ -94,6 +100,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCreateTab,
   onCloseTab,
   onNamespaceNotFound,
+  singleConnectionConnectionInfo,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -164,44 +171,68 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
-      case 'My Queries':
+      // TODO: Remove the ConnectionInfoProvider when we make My Queries
+      // workspace work independently of a DataService
+      case 'My Queries': {
+        const Component = getWorkspacePluginByName(activeTab.type);
+        return (
+          <ConnectionInfoProvider
+            connectionInfoId={singleConnectionConnectionInfo?.id}
+          >
+            <Component></Component>
+          </ConnectionInfoProvider>
+        );
+      }
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);
-        return <Component></Component>;
+        return (
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
+            <Component></Component>
+          </ConnectionInfoProvider>
+        );
       }
       case 'Collections': {
         const Component = getWorkspacePluginByName(activeTab.type);
         return (
-          <NamespaceProvider
-            namespace={activeTab.namespace}
-            onNamespaceFallbackSelect={(ns) => {
-              onNamespaceNotFound(activeTab, ns);
-            }}
-          >
-            <Component namespace={activeTab.namespace}></Component>
-          </NamespaceProvider>
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
+            <NamespaceProvider
+              namespace={activeTab.namespace}
+              onNamespaceFallbackSelect={(ns) => {
+                onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
+              }}
+            >
+              <Component namespace={activeTab.namespace}></Component>
+            </NamespaceProvider>
+          </ConnectionInfoProvider>
         );
       }
       case 'Collection': {
         const Component = getWorkspacePluginByName(activeTab.type);
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { id, type, ...collectionMetadata } = activeTab;
+        const { id, type, connectionId, ...collectionMetadata } = activeTab;
         return (
-          <NamespaceProvider
-            namespace={activeTab.namespace}
-            onNamespaceFallbackSelect={(ns) => {
-              onNamespaceNotFound(activeTab, ns);
-            }}
-          >
-            <Component tabId={id} {...collectionMetadata}></Component>;
-          </NamespaceProvider>
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
+            <NamespaceProvider
+              namespace={activeTab.namespace}
+              onNamespaceFallbackSelect={(ns) => {
+                onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
+              }}
+            >
+              <Component tabId={id} {...collectionMetadata}></Component>
+            </NamespaceProvider>
+          </ConnectionInfoProvider>
         );
       }
       default:
         return null;
     }
-  }, [activeTab, getWorkspacePluginByName, onNamespaceNotFound]);
+  }, [
+    singleConnectionConnectionInfo,
+    activeTab,
+    getWorkspacePluginByName,
+    onNamespaceNotFound,
+  ]);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   type Connection,
@@ -22,6 +22,7 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -64,6 +65,10 @@ export function ActiveConnectionNavigation({
   expanded,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
+  onOpenConnectionInfo,
+  onCopyConnectionString,
+  onToggleFavoriteConnection,
+  onDatabaseExpand,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -79,7 +84,10 @@ export function ActiveConnectionNavigation({
   isDataLake?: boolean;
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
-  activeWorkspace: { type: string; namespace?: string } | null;
+  activeWorkspace?: WorkspaceTab;
+  onOpenConnectionInfo: (connectionId: string) => void;
+  onCopyConnectionString: (connectionId: string) => void;
+  onToggleFavoriteConnection: (connectionId: string) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
@@ -87,24 +95,25 @@ export function ActiveConnectionNavigation({
   >([]);
 
   const {
-    // TODO: add connection id as the first parameter
     openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
-  const onConnectionToggle = (connectionId: string, forceExpand: boolean) => {
-    if (!forceExpand && !collapsed.includes(connectionId))
-      setCollapsed([...collapsed, connectionId]);
-    else if (forceExpand && collapsed.includes(connectionId)) {
-      const index = collapsed.indexOf(connectionId);
-      setCollapsed([
-        ...collapsed.slice(0, index),
-        ...collapsed.slice(index + 1),
-      ]);
-    }
-  };
+  const onConnectionToggle = useCallback(
+    (connectionId: string, forceExpand: boolean) => {
+      if (!forceExpand && !collapsed.includes(connectionId))
+        setCollapsed((collapsed) => [...collapsed, connectionId]);
+      else if (forceExpand && collapsed.includes(connectionId)) {
+        setCollapsed((collapsed) => {
+          const index = collapsed.indexOf(connectionId);
+          return [...collapsed.slice(0, index), ...collapsed.slice(index + 1)];
+        });
+      }
+    },
+    [setCollapsed, collapsed]
+  );
 
   useEffect(() => {
     // cleanup connections that are no longer active
@@ -124,17 +133,48 @@ export function ActiveConnectionNavigation({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConnections]);
 
+  const onConnectionToggleRef = useRef(onConnectionToggle);
+  onConnectionToggleRef.current = onConnectionToggle;
+  // auto-expanding on a workspace change
+  useEffect(() => {
+    if (
+      activeWorkspace &&
+      (activeWorkspace.type === 'Databases' ||
+        activeWorkspace.type === 'Collections' ||
+        activeWorkspace.type === 'Collection')
+    ) {
+      const connectionId: string = activeWorkspace.connectionId;
+      // we're using a ref for this toggle because collapsing depends on the collapsed state,
+      // but we don't want to auto-expand when collapsed state changes, only workspace
+      onConnectionToggleRef.current(connectionId, true);
+
+      if (activeWorkspace.type !== 'Databases') {
+        const namespace: string = activeWorkspace.namespace;
+        onDatabaseExpand(connectionId, namespace, true);
+      }
+    }
+  }, [activeWorkspace, onDatabaseExpand]);
+
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'open-connection-info':
+          onOpenConnectionInfo(connectionId);
+          return;
+        case 'copy-connection-string':
+          onCopyConnectionString(connectionId);
+          return;
+        case 'connection-toggle-favorite':
+          onToggleFavoriteConnection(connectionId);
+          return;
         case 'select-database':
-          openCollectionsWorkspace(ns);
+          openCollectionsWorkspace(connectionId, ns);
           return;
         case 'select-collection':
-          openCollectionWorkspace(ns);
+          openCollectionWorkspace(connectionId, ns);
           return;
         case 'open-in-new-tab':
-          openCollectionWorkspace(ns, { newTab: true });
+          openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
           const coll = findCollection(
@@ -143,7 +183,7 @@ export function ActiveConnectionNavigation({
               ?.databases as Database[]) ?? []
           );
           if (coll && coll.sourceName && coll.pipeline) {
-            openEditViewWorkspace(coll._id, {
+            openEditViewWorkspace(connectionId, coll._id, {
               sourceName: coll.sourceName,
               sourcePipeline: coll.pipeline,
               newTab: true,
@@ -158,10 +198,12 @@ export function ActiveConnectionNavigation({
     },
     [
       connections,
-      openDatabasesWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
+      onCopyConnectionString,
+      onOpenConnectionInfo,
+      onToggleFavoriteConnection,
       _onNamespaceAction,
     ]
   );
@@ -179,10 +221,13 @@ export function ActiveConnectionNavigation({
       <ConnectionsNavigationTree
         isReady={true}
         connections={connections}
-        activeNamespace={activeWorkspace?.namespace}
+        activeWorkspace={activeWorkspace}
         onNamespaceAction={onNamespaceAction}
-        onConnectionSelect={() => openDatabasesWorkspace()}
+        onConnectionSelect={(connectionId) =>
+          openDatabasesWorkspace(connectionId)
+        }
         onConnectionExpand={onConnectionToggle}
+        onDatabaseExpand={onDatabaseExpand}
         expanded={namedConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {
             obj[connectionId] = collapsed.includes(connectionId)
@@ -267,13 +312,13 @@ const onNamespaceAction = (
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':
-        emit('open-drop-database', ns.database);
+        emit('open-drop-database', connectionId, ns.database);
         return;
       case 'rename-collection':
         emit('open-rename-collection', connectionId, ns);
         return;
       case 'drop-collection':
-        emit('open-drop-collection', ns);
+        emit('open-drop-collection', connectionId, ns);
         return;
       case 'create-collection':
         emit('open-create-collection', ns);

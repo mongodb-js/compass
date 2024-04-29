@@ -71,7 +71,9 @@ import { setupIntercom } from '@mongodb-js/compass-intercom';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
+  onAutoupdateExternally,
   onAutoupdateFailed,
+  onAutoupdateInstalled,
   onAutoupdateStarted,
   onAutoupdateSuccess,
 } from './components/update-toasts';
@@ -300,15 +302,35 @@ const app = {
     });
     // Autoupdate handlers
     ipcRenderer?.on(
+      'autoupdate:download-update-externally',
+      (
+        _,
+        {
+          newVersion,
+          currentVersion,
+        }: { newVersion: string; currentVersion: string }
+      ) => {
+        onAutoupdateExternally({
+          newVersion,
+          currentVersion,
+          onDismiss: () => {
+            void ipcRenderer?.call('autoupdate:download-update-dismissed');
+          },
+        });
+      }
+    );
+    ipcRenderer?.on(
       'autoupdate:update-download-in-progress',
-      onAutoupdateStarted
+      (_, { newVersion }: { newVersion: string }) => {
+        onAutoupdateStarted({ newVersion });
+      }
     );
     ipcRenderer?.on('autoupdate:update-download-failed', onAutoupdateFailed);
     ipcRenderer?.on(
       'autoupdate:update-download-success',
-      (_, { updatedVersion }: { updatedVersion: string }) => {
+      (_, { newVersion }: { newVersion: string }) => {
         onAutoupdateSuccess({
-          updatedVersion,
+          newVersion,
           onUpdate: () => {
             void ipcRenderer?.call(
               'autoupdate:update-download-restart-confirmed'
@@ -331,6 +353,15 @@ const app = {
       queueMicrotask(() => {
         throw new Error('fake exception');
       });
+    }
+
+    if (semver.gt(APP_VERSION, state.previousVersion)) {
+      // Wait a bit before showing the update toast.
+      setTimeout(() => {
+        onAutoupdateInstalled({
+          newVersion: APP_VERSION,
+        });
+      }, 2000);
     }
   },
 };

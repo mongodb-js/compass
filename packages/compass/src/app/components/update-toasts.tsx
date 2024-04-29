@@ -6,18 +6,15 @@ import {
   palette,
   useDarkMode,
   cx,
+  Link,
+  openToast,
+  closeToast,
 } from '@mongodb-js/compass-components';
-import { openToast } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  div: {
-    display: 'flex',
-    flexDirection: 'column',
-    margin: 'auto',
-    padding: spacing[1],
-  },
+  gap: spacing[100],
 });
 
 const textStyles = css({
@@ -39,17 +36,17 @@ const buttonDarkStyles = css({
 });
 
 const RestartCompassToastContent = ({
-  updatedVersion,
+  newVersion,
   onUpdateClicked,
 }: {
-  updatedVersion: string;
+  newVersion: string;
   onUpdateClicked: () => void;
 }) => {
   const darkmode = useDarkMode();
   return (
     <div className={containerStyles}>
       <Body className={textStyles}>
-        Compass update {updatedVersion} has finished downloading
+        Compass update {newVersion} has finished downloading
       </Body>
       <button
         className={cx(buttonStyles, darkmode && buttonDarkStyles)}
@@ -61,37 +58,90 @@ const RestartCompassToastContent = ({
   );
 };
 
-export function onAutoupdateStarted() {
-  openToast('update-download', {
+export function onAutoupdateExternally({
+  currentVersion,
+  newVersion,
+  onDismiss,
+}: {
+  currentVersion: string;
+  newVersion: string;
+  onDismiss: () => void;
+}) {
+  const toastId = 'compass-update-externally';
+  openToast(toastId, {
+    variant: 'note',
+    title: `Compass ${newVersion} is available`,
+    description: (
+      <>
+        <Body>
+          You are currently using {currentVersion}. Update now for the latest
+          Compass features.
+        </Body>
+        <Link
+          as="a"
+          target="_blank"
+          href={'https://www.mongodb.com/try/download/compass'}
+          onClick={() => {
+            closeToast(toastId);
+          }}
+        >
+          Visit download center
+        </Link>
+      </>
+    ),
+    onClose: onDismiss,
+  });
+}
+export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
+  openToast('compass-update-started', {
     variant: 'progress',
-    title: 'Compass update is in progress',
+    title: `Compass ${newVersion} is downloading`,
   });
 }
 export function onAutoupdateFailed() {
-  openToast('update-download', {
+  openToast('compass-update-failed', {
     variant: 'warning',
     title: 'Failed to download Compass update',
     description: 'Downloading a newer Compass version failed',
   });
 }
 export function onAutoupdateSuccess({
-  updatedVersion,
+  newVersion,
   onUpdate,
   onDismiss,
 }: {
-  updatedVersion: string;
+  newVersion: string;
   onUpdate: () => void;
   onDismiss: () => void;
 }) {
-  openToast('update-download', {
-    variant: 'note',
+  openToast('compass-update-succeeded', {
+    variant: 'success',
     title: '',
     description: (
       <RestartCompassToastContent
-        updatedVersion={updatedVersion}
+        newVersion={newVersion}
         onUpdateClicked={onUpdate}
       />
     ),
     onClose: onDismiss,
+  });
+}
+export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
+  const toastId = 'compass-update-restarted';
+  openToast(toastId, {
+    variant: 'success',
+    title: `Compass ${newVersion} is installed successfully`,
+    description: (
+      <Link
+        as="a"
+        target="_blank"
+        href={`https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`}
+        onClick={() => {
+          closeToast(toastId);
+        }}
+      >
+        Release Notes
+      </Link>
+    ),
   });
 }

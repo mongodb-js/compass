@@ -1,3 +1,4 @@
+'use strict';
 /* eslint new-cap: 0 camelcase: 0 */
 const bson = require('bson');
 const {

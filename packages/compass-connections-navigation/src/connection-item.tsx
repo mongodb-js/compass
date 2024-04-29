@@ -101,14 +101,39 @@ export const ConnectionItem: React.FunctionComponent<
   );
 
   const actions: ItemAction<Actions>[] = useMemo(() => {
-    return [
+    const isFavorite = connectionInfo.savedConnectionType === 'favorite';
+
+    const actions: ItemAction<Actions>[] = [
       {
-        action: 'connection-options', // TODO(COMPASS-7714)
-        icon: 'Ellipsis',
-        label: 'Options',
+        action: 'connection-performance-metrics',
+        icon: 'Gauge',
+        label: 'View performance metrics',
+      },
+      {
+        action: 'open-connection-info',
+        icon: 'InfoWithCircle',
+        label: 'Show connection info',
+      },
+      {
+        action: 'copy-connection-string',
+        icon: 'Copy',
+        label: 'Copy connection string',
+      },
+      {
+        action: 'connection-toggle-favorite',
+        icon: 'Favorite',
+        label: isFavorite ? 'Unfavorite' : 'Favorite',
+      },
+      {
+        action: 'connection-disconnect',
+        icon: 'Disconnect',
+        label: 'Disconnect',
+        variant: 'destructive',
       },
     ];
-  }, []);
+
+    return actions;
+  }, [connectionInfo.savedConnectionType]);
 
   const connectionIcon = isLocalhost ? (
     <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />
@@ -152,7 +177,6 @@ export const ConnectionItem: React.FunctionComponent<
             onAction={onAction}
             isVisible={isActive || isHovered}
             data-testid="sidebar-connection-item-actions"
-            collapseToMenuThreshold={3}
             iconSize="small"
             actions={actions}
           ></ItemActionControls>
