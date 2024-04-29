@@ -209,7 +209,7 @@ function Tab({
     }
 
     return css(tabTheme);
-  }, [tabTheme, darkMode, tabDarkThemeStyles, tabLightThemeStyles, css]);
+  }, [tabTheme, darkMode]);
 
   const style = {
     transform: cssDndKit.Transform.toString(transform),

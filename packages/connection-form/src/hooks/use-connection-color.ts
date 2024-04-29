@@ -131,9 +131,10 @@ export function useConnectionColor(): {
   ) => string | undefined;
   connectionColorToName: (colorCode: string | undefined) => string | undefined;
 } {
+  const isDarkMode = useDarkMode();
+
   const newColorCodeToHex = useCallback(
     (colorCode: string | undefined): string | undefined => {
-      const isDarkMode = useDarkMode();
       if (!colorCode || !isColorCode(colorCode)) {
         return;
       }
@@ -143,13 +144,11 @@ export function useConnectionColor(): {
       }
       return PALETTE.LIGHT.DEFAULT[colorCode];
     },
-    []
+    [isDarkMode]
   );
 
   const connectionColorToHexActive = useCallback(
     (colorCode: string | undefined): string | undefined => {
-      const isDarkMode = useDarkMode();
-
       if (!colorCode || !isColorCode(colorCode)) {
         return;
       }
@@ -159,7 +158,7 @@ export function useConnectionColor(): {
       }
       return PALETTE.LIGHT.ACTIVE[colorCode];
     },
-    []
+    [isDarkMode]
   );
 
   const colorCodeToHex = useCallback(
