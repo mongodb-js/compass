@@ -111,6 +111,86 @@ const getTabId = () => {
   return new ObjectId().toString();
 };
 
+const filterConnections = ({
+  state,
+  isToBeRemoved,
+}: {
+  state: WorkspacesState;
+  isToBeRemoved: (tab: WorkspaceTab, index?: number) => boolean;
+}): {
+  newTabs: WorkspaceTab[];
+  removedIndexes: number[];
+} => {
+  const newTabs: WorkspaceTab[] = [];
+  const removedIndexes: number[] = [];
+  state.tabs.forEach((tab, index) => {
+    if (isToBeRemoved(tab, index)) {
+      removedIndexes.push(index);
+    } else {
+      newTabs.push(tab);
+    }
+  });
+  return { newTabs, removedIndexes };
+};
+
+const getNewActiveTabId = ({
+  state,
+  newTabs,
+  removedIndexes,
+}: {
+  state: WorkspacesState;
+  newTabs: WorkspaceTab[];
+  removedIndexes: number[];
+}) => {
+  // We follow standard browser behavior with tabs on how we handle
+  // which tab gets activated if we close the active tab. We
+  // activate the next tab that isn't being closed. If there is no next tab, we activate the last one.
+  let newActiveTabId = state.activeTabId;
+  let activeTabIndex = getActiveTabIndex(state);
+  while (removedIndexes.includes(activeTabIndex)) {
+    activeTabIndex++;
+  }
+  if (!newTabs.length) {
+    // no tabs left open
+    newActiveTabId = null;
+  } else if (activeTabIndex >= state.tabs.length) {
+    // the active tab and everything after it was closed
+    newActiveTabId = newTabs[newTabs.length - 1].id;
+  } else {
+    newActiveTabId = state.tabs[activeTabIndex].id;
+  }
+  return newActiveTabId;
+};
+
+const bulkTabsClose = ({
+  state,
+  isToBeRemoved,
+}: {
+  state: WorkspacesState;
+  isToBeRemoved: (tab: WorkspaceTab, index?: number) => boolean;
+}) => {
+  const { newTabs, removedIndexes } = filterConnections({
+    state,
+    isToBeRemoved,
+  });
+
+  if (newTabs.length === state.tabs.length) {
+    return state;
+  }
+
+  const newActiveTabId = getNewActiveTabId({
+    state,
+    removedIndexes,
+    newTabs,
+  });
+
+  return {
+    ...state,
+    activeTabId: newActiveTabId,
+    tabs: newTabs,
+  };
+};
+
 export const getInitialTabState = (
   workspace: OpenWorkspaceOptions
 ): WorkspaceTab => {
@@ -331,97 +411,47 @@ const reducer: Reducer<WorkspacesState> = (
   }
 
   if (
-    isAction<ConnectionDisconnectedAction>(
-      action,
-      WorkspacesActions.ConnectionDisconnected
-    )
-  ) {
-    const { tabsToClose } = action;
-    const indexesToRemove = tabsToClose.map(({ index }) => index);
-    const newTabs = state.tabs.filter(
-      (tab, index) => !indexesToRemove.includes(index)
-    );
-
-    // We follow standard browser behavior with tabs on how we handle
-    // which tab gets activated if we close the active tab. We
-    // activate the next tab that isn't being closed. If there is no next tab, we activate the last one.
-    let newActiveTabId = state.activeTabId;
-    let activeTabIndex = getActiveTabIndex(state);
-    while (indexesToRemove.includes(activeTabIndex)) {
-      activeTabIndex++;
-    }
-    if (!newTabs.length) {
-      // no tabs left open
-      newActiveTabId = null;
-    } else if (activeTabIndex >= state.tabs.length) {
-      // the active tab and everything after it was closed
-      newActiveTabId = newTabs[newTabs.length - 1].id;
-    } else {
-      newActiveTabId = state.tabs[activeTabIndex].id;
-    }
-
-    return {
-      ...state,
-      activeTabId: newActiveTabId,
-      tabs: newTabs,
-    };
-  }
-
-  if (
     isAction<CollectionRemovedAction>(
       action,
       WorkspacesActions.CollectionRemoved
     )
   ) {
-    const tabs = state.tabs.filter((tab) => {
-      switch (tab.type) {
-        case 'Collection':
-          return tab.namespace !== action.namespace;
-        default:
-          return true;
-      }
+    const isToBeRemoved = (tab: WorkspaceTab) =>
+      tab.type === 'Collection' && tab.namespace === action.namespace;
+
+    return bulkTabsClose({
+      state,
+      isToBeRemoved,
     });
-    if (tabs.length === state.tabs.length) {
-      return state;
-    }
-    const activeTabRemoved = !tabs.some((tab) => {
-      return tab.id === state.activeTabId;
-    });
-    return {
-      ...state,
-      tabs,
-      activeTabId: activeTabRemoved
-        ? tabs[tabs.length - 1]?.id ?? null
-        : state.activeTabId,
-    };
   }
 
   if (
     isAction<DatabaseRemovedAction>(action, WorkspacesActions.DatabaseRemoved)
   ) {
-    const tabs = state.tabs.filter((tab) => {
-      switch (tab.type) {
-        case 'Collections':
-          return tab.namespace !== action.namespace;
-        case 'Collection':
-          return toNS(tab.namespace).database !== action.namespace;
-        default:
-          return true;
-      }
+    const isToBeRemoved = (tab: WorkspaceTab) =>
+      (tab.type === 'Collections' && tab.namespace === action.namespace) ||
+      (tab.type === 'Collection' &&
+        toNS(tab.namespace).database === action.namespace);
+
+    return bulkTabsClose({
+      state,
+      isToBeRemoved,
     });
-    if (tabs.length === state.tabs.length) {
-      return state;
-    }
-    const activeTabRemoved = !tabs.some((tab) => {
-      return tab.id === state.activeTabId;
+  }
+
+  if (
+    isAction<ConnectionDisconnectedAction>(
+      action,
+      WorkspacesActions.ConnectionDisconnected
+    )
+  ) {
+    const isToBeRemoved = (tab: WorkspaceTab) =>
+      tab.type !== 'My Queries' && tab.connectionId === action.connectionId;
+
+    return bulkTabsClose({
+      state,
+      isToBeRemoved,
     });
-    return {
-      ...state,
-      tabs,
-      activeTabId: activeTabRemoved
-        ? tabs[tabs.length - 1]?.id ?? null
-        : state.activeTabId,
-    };
   }
 
   if (
@@ -744,24 +774,18 @@ export const databaseRemoved = (
 type ConnectionDisconnectedAction = {
   type: WorkspacesActions.ConnectionDisconnected;
   connectionId: ConnectionInfo['id'];
-  tabsToClose: (WorkspaceTab & { index: number })[];
 };
 
 export const connectionDisconnected = (
   connectionId: ConnectionInfo['id']
 ): WorkspacesThunkAction<void, ConnectionDisconnectedAction> => {
   return (dispatch, getState) => {
-    const tabsToClose = getState()
-      .tabs.map((tab, index) => ({ ...tab, index }))
-      .filter(
-        (tab) => tab.type !== 'My Queries' && tab.connectionId === connectionId
-      );
+    const oldTabs = getState().tabs;
     dispatch({
       type: WorkspacesActions.ConnectionDisconnected,
       connectionId,
-      tabsToClose,
     });
-    tabsToClose.forEach((tab) => cleanupLocalAppRegistryForTab(tab?.id));
+    cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
 
