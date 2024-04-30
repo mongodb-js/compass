@@ -92,3 +92,5 @@ export {
   useConnectionRepository,
 } from './hooks/use-connection-repository';
 export * from './connection-info-provider';
+
+export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

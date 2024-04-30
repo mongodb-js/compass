@@ -8,7 +8,15 @@ const placeholderItem = css({
   display: 'flex',
   alignItems: 'center',
   height: ROW_HEIGHT,
+  backgroundColor: 'var(--item-bg-color)',
+  color: 'var(--item-color)',
 });
+
+const MULTIPLE_CONNECTION_PROPS = {
+  gradientStart: 'var(--item-bg-color-active)',
+  gradientEnd: 'var(--item-bg-color)',
+  style: { filter: 'brightness(0.98)' },
+} as const;
 
 export const PlaceholderItem: React.FunctionComponent<{
   level: number;
@@ -26,7 +34,7 @@ export const PlaceholderItem: React.FunctionComponent<{
       className={cx(placeholderItem)}
       style={{ ...style, ...itemPaddingStyles }}
     >
-      <Placeholder />
+      <Placeholder {...(isSingleConnection ? {} : MULTIPLE_CONNECTION_PROPS)} />
     </div>
   );
 };

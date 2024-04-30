@@ -1,8 +1,64 @@
 import { useCallback } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
-import { palette } from '@mongodb-js/compass-components';
+import { palette, useDarkMode } from '@mongodb-js/compass-components';
 
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
+export const DefaultColorCode = 'color10';
+
+const PALETTE = {
+  DARK: {
+    ACTIVE: {
+      color1: '#611623',
+      color2: '#591C47',
+      color3: '#562800',
+      color4: '#433500',
+      color5: '#174933',
+      color6: '#084843',
+      color7: '#004074',
+      color8: '#303374',
+      color9: '#48295C',
+      color10: palette.gray.light2,
+    },
+    DEFAULT: {
+      color1: '#500F1C',
+      color2: '#4B143D',
+      color3: '#462100',
+      color4: '#362B00',
+      color5: '#113B29',
+      color6: '#023B37',
+      color7: '#003362',
+      color8: '#262A65',
+      color9: '#3D224E',
+      color10: palette.gray.light2,
+    },
+  },
+  LIGHT: {
+    ACTIVE: {
+      color1: '#FFCDCE',
+      color2: '#F6CEE7',
+      color3: '#FFD19A',
+      color4: '#FFE770',
+      color5: '#C4E8D1',
+      color6: '#B8EAE0',
+      color7: '#C2E5FF',
+      color8: '#DADCFF',
+      color9: '#EAD5F9',
+      color10: palette.gray.light2,
+    },
+    DEFAULT: {
+      color1: '#FFDBDC',
+      color2: '#FBDCEF',
+      color3: '#FFDFB5',
+      color4: '#FFF394',
+      color5: '#D6F1DF',
+      color6: '#CCF3EA',
+      color7: '#D5EFFF',
+      color8: '#E6E7FF',
+      color9: '#F2E2FC',
+      color10: palette.gray.light1,
+    },
+  },
+} as const;
 
 const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color1: palette.green.dark1,
@@ -14,19 +70,6 @@ const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color7: palette.purple.base,
   color8: palette.purple.light2,
   color9: palette.gray.base,
-  color10: palette.gray.light1,
-};
-
-const COLOR_CODES_TO_UI_COLORS_NEW_THEME: Record<ColorCode, string> = {
-  color1: '#FFDBDC',
-  color2: '#FBDCEF',
-  color3: '#FFDFB5',
-  color4: '#FFF394',
-  color5: '#D6F1DF',
-  color6: '#CCF3EA',
-  color7: '#D5EFFF',
-  color8: '#E6E7FF',
-  color9: '#F2E2FC',
   color10: palette.gray.light1,
 };
 
@@ -83,17 +126,39 @@ export function legacyColorsToColorCode(
 export function useConnectionColor(): {
   connectionColorCodes: () => ColorCode[];
   connectionColorToHex: (colorCode: string | undefined) => string | undefined;
+  connectionColorToHexActive: (
+    colorCode: string | undefined
+  ) => string | undefined;
   connectionColorToName: (colorCode: string | undefined) => string | undefined;
 } {
+  const isDarkMode = useDarkMode();
+
   const newColorCodeToHex = useCallback(
     (colorCode: string | undefined): string | undefined => {
       if (!colorCode || !isColorCode(colorCode)) {
         return;
       }
 
-      return COLOR_CODES_TO_UI_COLORS_NEW_THEME[colorCode];
+      if (isDarkMode) {
+        return PALETTE.DARK.DEFAULT[colorCode];
+      }
+      return PALETTE.LIGHT.DEFAULT[colorCode];
     },
-    []
+    [isDarkMode]
+  );
+
+  const connectionColorToHexActive = useCallback(
+    (colorCode: string | undefined): string | undefined => {
+      if (!colorCode || !isColorCode(colorCode)) {
+        return;
+      }
+
+      if (isDarkMode) {
+        return PALETTE.DARK.ACTIVE[colorCode];
+      }
+      return PALETTE.LIGHT.ACTIVE[colorCode];
+    },
+    [isDarkMode]
   );
 
   const colorCodeToHex = useCallback(
@@ -139,6 +204,7 @@ export function useConnectionColor(): {
     connectionColorToHex: isMultiConnectionEnabled
       ? newColorCodeToHex
       : colorCodeToHex,
+    connectionColorToHexActive: connectionColorToHexActive,
     connectionColorToName: colorToName,
     connectionColorCodes,
   };
