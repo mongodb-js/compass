@@ -555,32 +555,33 @@ describe('importJSON', function () {
     expect(result.dbStats.insertedCount).to.equal(0);
 
     expect(progressCallback.callCount).to.equal(2);
-    expect(errorCallback.callCount).to.equal(3); // yes one more MongoBulkWriteError than items in the batch
+    expect(errorCallback.callCount).to.equal(1); // once for the batch
 
-    const expectedErrors = [
+    const expectedErrors: ErrorJSON[] = [
       {
-        // first one speems to relate to the batch as there's no index
         name: 'MongoBulkWriteError',
         message: 'Document failed validation',
         code: 121,
-      },
-      {
-        name: 'WriteConcernError',
-        message: 'Document failed validation',
-        index: 0,
-        code: 121,
-      },
-      {
-        name: 'WriteConcernError',
-        message: 'Document failed validation',
-        index: 1,
-        code: 121,
+        numErrors: 2,
       },
     ];
 
     const errors = errorCallback.args.map((args) => args[0]);
-
     expect(errors).to.deep.equal(expectedErrors);
+
+    // the log file has one for each error in the bulk write too
+    expectedErrors.push({
+      name: 'WriteConcernError',
+      message: 'Document failed validation',
+      index: 0,
+      code: 121,
+    });
+    expectedErrors.push({
+      name: 'WriteConcernError',
+      message: 'Document failed validation',
+      index: 1,
+      code: 121,
+    });
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));

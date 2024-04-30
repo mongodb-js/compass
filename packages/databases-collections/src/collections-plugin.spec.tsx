@@ -64,6 +64,10 @@ describe('Collections [Plugin]', function () {
     });
 
     it('renders a list of collections', function () {
+      expect(screen.getAllByRole('gridcell')).to.have.lengthOf(2);
+    });
+
+    it('initiates action to create a collection', function () {
       userEvent.click(
         screen.getByRole('button', { name: /Create collection/ })
       );
@@ -74,18 +78,24 @@ describe('Collections [Plugin]', function () {
         // connection id is the default provided by the connectionInfoProvider
         { connectionId: 'TEST' }
       );
+    });
 
+    it('initiates action to refresh collections', function () {
       userEvent.click(screen.getByRole('button', { name: /Refresh/ }));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mongodbInstance.databases.get('foo')?.fetchCollectionsDetails).to
         .have.been.called;
+    });
 
+    it('initiates action to drop a collection', function () {
       userEvent.hover(screen.getByRole('gridcell', { name: /bar/ }));
       userEvent.click(screen.getByRole('button', { name: /Delete/ }));
       expect(appRegistry.emit).to.have.been.calledWithMatch(
         'open-drop-collection',
-        'TEST',
-        { ns: 'foo.bar' }
+        { ns: 'foo.bar' },
+        // this event is supposed to emit always with a connectionId and this
+        // connection id is the default provided by the connectionInfoProvider
+        { connectionId: 'TEST' }
       );
     });
 

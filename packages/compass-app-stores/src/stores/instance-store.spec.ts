@@ -177,8 +177,35 @@ describe('InstanceStore [Store]', function () {
       });
 
       context(`on 'collection-dropped' event`, function () {
-        it('should remove collection from the database collections', function () {
+        it('should not respond when the connectionId does not matches the connectionId for the instance', function () {
+          // we only start with 2 collections;
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+
+          // emit the event without connectionId
           globalAppRegistry.emit('collection-dropped', 'foo.bar');
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+
+          // emit the event with a different connectionId
+          globalAppRegistry.emit('collection-dropped', 'foo.bar', {
+            connectionId: '2',
+          });
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+        });
+
+        it('should remove collection from the database collections', function () {
+          globalAppRegistry.emit('collection-dropped', 'foo.bar', {
+            connectionId: '1',
+          });
           expect(
             connectedInstance.databases.get('foo')?.collections.get('foo.bar')
           ).not.to.exist;
@@ -190,21 +217,48 @@ describe('InstanceStore [Store]', function () {
             ?.collections.get('foo.bar', '_id');
           coll?.on('change', () => {});
           expect((coll as any)._events.change).to.have.lengthOf(1);
-          globalAppRegistry.emit('collection-dropped', 'foo.bar');
+          globalAppRegistry.emit('collection-dropped', 'foo.bar', {
+            connectionId: '1',
+          });
           expect((coll as any)._events).to.not.exist;
         });
 
         it('should remove database if last collection was removed', function () {
-          globalAppRegistry.emit('collection-dropped', 'foo.bar');
-          globalAppRegistry.emit('collection-dropped', 'foo.buz');
+          globalAppRegistry.emit('collection-dropped', 'foo.bar', {
+            connectionId: '1',
+          });
+          globalAppRegistry.emit('collection-dropped', 'foo.buz', {
+            connectionId: '1',
+          });
           expect(connectedInstance.databases).to.have.lengthOf(0);
           expect(connectedInstance.databases.get('foo')).not.to.exist;
         });
       });
 
       context(`on 'database-dropped' event`, function () {
-        it('should remove database from instance databases', function () {
+        it('should not respond when the connectionId does not matches the connectionId for the instance', function () {
+          // we only start with 1 database;
+          expect(connectedInstance.databases.length).to.equal(1);
+
+          // emit the event without connectionId
           globalAppRegistry.emit('database-dropped', 'foo');
+
+          // should still be 1
+          expect(connectedInstance.databases.length).to.equal(1);
+
+          // emit the event with a different connectionId
+          globalAppRegistry.emit('database-dropped', 'foo', {
+            connectionId: '2',
+          });
+
+          // should still be 1
+          expect(connectedInstance.databases.length).to.equal(1);
+        });
+
+        it('should remove database from instance databases', function () {
+          globalAppRegistry.emit('database-dropped', 'foo', {
+            connectionId: '1',
+          });
           expect(connectedInstance.databases).to.have.lengthOf(0);
           expect(connectedInstance.databases.get('foo')).not.to.exist;
         });
@@ -213,7 +267,9 @@ describe('InstanceStore [Store]', function () {
           const db = connectedInstance.databases.get('foo');
           db?.on('change', () => {});
           expect((db as any)._events.change).to.have.lengthOf(1);
-          globalAppRegistry.emit('database-dropped', 'foo');
+          globalAppRegistry.emit('database-dropped', 'foo', {
+            connectionId: '1',
+          });
           expect((db as any)._events).to.not.exist;
         });
       });
@@ -249,20 +305,29 @@ describe('InstanceStore [Store]', function () {
       }
 
       context(`on 'collection-created' event`, function () {
-        it('should only respond when there is a connectionId and it matches the connectionId for the instance', function () {
-          const collectionsLength =
-            connectedInstance.databases.get('foo')?.collections.length;
-          expect(collectionsLength).to.equal(2); // we only start with 2 collections;
+        it('should not respond when the connectionId does not matches the connectionId for the instance', function () {
+          // we only start with 2 collections;
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
 
           // emit the event without connectionId
           globalAppRegistry.emit('collection-created', 'foo.qux');
-          expect(collectionsLength).to.equal(2); // should still be 2
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
 
           // emit the event with a different connectionId
           globalAppRegistry.emit('collection-created', 'foo.qux', {
             connectionId: '2',
           });
-          expect(collectionsLength).to.equal(2); // should still be 2
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
         });
 
         it('should add collection to the databases collections', function () {
@@ -295,11 +360,42 @@ describe('InstanceStore [Store]', function () {
       });
 
       context(`on 'collection-renamed' event`, function () {
-        it('should update collection _id', function () {
-          globalAppRegistry.emit('collection-renamed', {
-            from: 'foo.bar',
-            to: 'foo.qux',
+        it('should not respond when the connectionId does not matches the connectionId for the instance', function () {
+          // we only start with 2 collections;
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+
+          // emit the event without connectionId
+          globalAppRegistry.emit('collection-renamed', 'foo.qux');
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+
+          // emit the event with a different connectionId
+          globalAppRegistry.emit('collection-renamed', 'foo.qux', {
+            connectionId: '2',
           });
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+        });
+
+        it('should update collection _id', function () {
+          globalAppRegistry.emit(
+            'collection-renamed',
+            {
+              from: 'foo.bar',
+              to: 'foo.qux',
+            },
+            {
+              connectionId: connectedConnectionInfoId,
+            }
+          );
           expect(
             connectedInstance.databases.get('foo')?.collections
           ).to.have.lengthOf(2);

@@ -164,10 +164,16 @@ export const renameCollection = (
 
     try {
       await dataService.renameCollection(oldNamespace, newCollectionName);
-      globalAppRegistry.emit('collection-renamed', {
-        to: newNamespace,
-        from: oldNamespace,
-      });
+      globalAppRegistry.emit(
+        'collection-renamed',
+        {
+          to: newNamespace,
+          from: oldNamespace,
+        },
+        {
+          connectionId,
+        }
+      );
       dispatch(close());
       openToast('collection-rename-success', {
         variant: 'success',

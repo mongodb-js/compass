@@ -131,7 +131,8 @@ export async function importCSV({
   const collectionStream = createCollectionWriteStream(
     dataService,
     ns,
-    stopOnErrors ?? false
+    stopOnErrors ?? false,
+    errorCallback
   );
 
   const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, {
@@ -166,7 +167,6 @@ export async function importCSV({
       await processWriteStreamErrors({
         collectionStream,
         output,
-        errorCallback,
       });
 
       const result = makeImportResult(
@@ -194,7 +194,6 @@ export async function importCSV({
   await processWriteStreamErrors({
     collectionStream,
     output,
-    errorCallback,
   });
 
   const result = makeImportResult(

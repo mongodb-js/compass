@@ -15,24 +15,32 @@ export function showInProgressToast({
   fileName,
   cancelImport,
   docsWritten,
+  numErrors,
   bytesProcessed,
   bytesTotal,
 }: {
   fileName: string;
   cancelImport: () => void;
   docsWritten: number;
+  numErrors: number;
   bytesProcessed: number;
   bytesTotal: number;
 }) {
   // Update the toast with the new progress.
   const progress = bytesTotal ? bytesProcessed / bytesTotal : undefined;
+
+  let statusMessage = `${docsWritten} document${
+    docsWritten !== 1 ? 's' : ''
+  } written.`;
+  if (numErrors) {
+    statusMessage += ` ${numErrors} error${numErrors !== 1 ? 's' : ''}.`;
+  }
+
   openToast(importToastId, {
     title: `Importing ${path.basename(fileName)}…`,
     description: (
       <ToastBody
-        statusMessage={`${docsWritten} document${
-          docsWritten !== 1 ? 's' : ''
-        } written.`}
+        statusMessage={statusMessage}
         actionHandler={cancelImport}
         actionText="stop"
       />

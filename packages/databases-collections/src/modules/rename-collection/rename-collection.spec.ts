@@ -4,7 +4,7 @@ import type { RenameCollectionRootState } from './rename-collection';
 import { renameCollection, renameRequestInProgress } from './rename-collection';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import type { RenameCollectionPluginServices } from '../../stores/rename-collection';
 import { activateRenameCollectionPlugin } from '../../stores/rename-collection';
 
@@ -47,7 +47,8 @@ describe('rename collection module', function () {
           instancesManager: instancesManager,
           queryStorage: favoriteQueries as any,
           pipelineStorage: pipelineStorage as any,
-        }
+        },
+        createActivateHelpers()
       );
       store = plugin.store;
     });
@@ -92,6 +93,17 @@ describe('rename collection module', function () {
         const creator = renameCollection('new-collection');
         await creator(dispatch, getState, extraThunkArgs);
         expect(dataService.renameCollection).to.have.been.called;
+        // because we did not emit any event and directly called the action the
+        // database in store is set to an empty string '' which is how the old
+        // namespace will be just a '.' and connectionId will just be ''
+        expect(appRegistry.emit).to.have.been.calledWithExactly(
+          'collection-renamed',
+          {
+            to: '.new-collection',
+            from: '.',
+          },
+          { connectionId: '' }
+        );
       });
 
       context('when there is an error', () => {

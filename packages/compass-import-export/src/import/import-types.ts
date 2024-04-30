@@ -22,6 +22,7 @@ export type ErrorJSON = {
   code?: string | number;
   op?: any;
   errorInfo?: Document;
+  numErrors?: number;
 };
 
 export type ImportProgress = {
