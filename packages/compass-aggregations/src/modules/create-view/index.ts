@@ -5,6 +5,7 @@ import type { CreateViewThunkAction } from '../../stores/create-view';
 import { isAction } from '../../utils/is-action';
 
 export type CreateViewState = {
+  connectionId: string;
   isRunning: boolean;
   isVisible: boolean;
   isDuplicating: boolean;
@@ -15,6 +16,7 @@ export type CreateViewState = {
 };
 
 export const INITIAL_STATE: CreateViewState = {
+  connectionId: '',
   isRunning: false,
   isVisible: false,
   isDuplicating: false,
@@ -36,6 +38,7 @@ enum CreateViewActionTypes {
 
 export type OpenAction = {
   type: CreateViewActionTypes.Open;
+  connectionId: string;
   source: string;
   pipeline: unknown[];
   duplicate: boolean;
@@ -77,12 +80,19 @@ export type CreateViewAction =
   | ClearErrorAction
   | ChangeViewNameAction;
 
-export const open = (
-  sourceNs: string,
-  sourcePipeline: unknown[],
-  duplicate: boolean
-): OpenAction => ({
+export const open = ({
+  connectionId,
+  sourceNs,
+  sourcePipeline,
+  duplicate,
+}: {
+  connectionId: string;
+  sourceNs: string;
+  sourcePipeline: unknown[];
+  duplicate: boolean;
+}): OpenAction => ({
   type: CreateViewActionTypes.Open,
+  connectionId,
   source: sourceNs,
   pipeline: sourcePipeline,
   duplicate: duplicate,
@@ -133,6 +143,7 @@ const reducer: Reducer<CreateViewState, CreateViewAction> = (
       ...state,
       ...INITIAL_STATE,
       isVisible: true,
+      connectionId: action.connectionId,
       isDuplicating: action.duplicate,
       source: action.source,
       pipeline: action.pipeline,

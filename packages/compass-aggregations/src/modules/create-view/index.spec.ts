@@ -12,9 +12,18 @@ import { expect } from 'chai';
 
 describe('create view module', function () {
   it('handles the open and close actions', function () {
-    const stateAfterOpen = reducer(INITIAL_STATE, open('test.coll', [], true));
+    const stateAfterOpen = reducer(
+      INITIAL_STATE,
+      open({
+        connectionId: 'TEST',
+        sourceNs: 'test.coll',
+        sourcePipeline: [],
+        duplicate: true,
+      })
+    );
     expect(stateAfterOpen).to.deep.equal({
       ...INITIAL_STATE,
+      connectionId: 'TEST',
       isRunning: false,
       isVisible: true,
       isDuplicating: true,

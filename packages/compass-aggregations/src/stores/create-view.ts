@@ -57,7 +57,14 @@ export function activateCreateViewPlugin(
     pipeline: any[];
     duplicate?: boolean;
   }) => {
-    store.dispatch(open(meta.source, meta.pipeline, meta.duplicate ?? false));
+    store.dispatch(
+      open({
+        connectionId: '',
+        sourceNs: meta.source,
+        sourcePipeline: meta.pipeline,
+        duplicate: meta.duplicate ?? false,
+      })
+    );
   };
 
   globalAppRegistry.on('open-create-view', onOpenCreateView);
