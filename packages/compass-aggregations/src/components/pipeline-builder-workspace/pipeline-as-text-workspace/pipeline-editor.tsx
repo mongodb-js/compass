@@ -127,6 +127,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   }, [syntaxErrors]);
 
   const darkMode = useDarkMode();
+  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
+    queryAppliedFromExternalKey,
+    isExternalAppliedPipeline
+  );
 
   const showErrorContainer = serverError || syntaxErrors.length > 0;
 
@@ -135,7 +139,13 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       className={cx(containerStyles, darkMode && containerDarkStyles)}
       data-testid="pipeline-as-text-editor"
     >
-      <div className={editorContainerStyles}>
+      <div
+        className={cx(
+          editorContainerStyles,
+          inputAppliedVisualEffect.className
+        )}
+        key={inputAppliedVisualEffect.key}
+      >
         <CodemirrorMultilineEditor
           text={pipelineText}
           onChangeText={onChangePipelineText}

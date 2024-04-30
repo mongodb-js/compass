@@ -8,6 +8,7 @@ import {
   spacing,
   palette,
   useDarkMode,
+  useVisuallyAppliedEffect,
 } from '@mongodb-js/compass-components';
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
@@ -87,6 +88,8 @@ type QueryOptionProps = {
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
+  isExternalAppliedQuery: boolean;
+  queryAppliedFromExternalKey: number;
 };
 
 // Helper component to allow flexible computation of extra props for the TextInput
@@ -118,6 +121,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   value,
   onApply,
   insights,
+  isExternalAppliedQuery,
+  queryAppliedFromExternalKey,
 }) => {
   const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
   const darkMode = useDarkMode();
@@ -138,6 +143,11 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     [name, onChange]
   );
 
+  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
+    queryAppliedFromExternalKey,
+    isExternalAppliedQuery
+  );
+
   const onBlurEditor = useCallback(() => {
     if (
       !!editorCurrentValueRef.current &&
@@ -153,8 +163,11 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     <div
       className={cx(
         queryOptionStyles,
-        isDocumentEditor && documentEditorOptionContainerStyles
+        isDocumentEditor && documentEditorOptionContainerStyles,
+        value !== '' && inputAppliedVisualEffect.className
       )}
+      // Forces a refresh of the component when it's externally applied.
+      key={inputAppliedVisualEffect.key}
       data-testid={`query-bar-option-${name}`}
     >
       {/* The filter label is shown by the query bar. */}
@@ -228,6 +241,8 @@ const ConnectedQueryOption = connect(
   (state: RootState, ownProps: { name: QueryProperty }) => {
     const field = state.queryBar.fields[ownProps.name];
     return {
+      isExternalAppliedQuery: state.queryBar.isQueryAppliedFromExternal,
+      queryAppliedFromExternalKey: state.queryBar.queryAppliedFromExternalId,
       value: field.string,
       hasError: !field.valid,
     };
