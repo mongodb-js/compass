@@ -20,6 +20,10 @@ import {
 } from 'compass-preferences-model/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { EventEmitter } from 'events';
+import {
+  type WorkspacesService,
+  WorkspacesServiceProvider,
+} from '@mongodb-js/compass-workspaces/provider';
 
 class MockInstance extends EventEmitter {
   _id: string;
@@ -96,6 +100,7 @@ describe('<ActiveConnectionNavigation />', function () {
   const onOpenConnectionInfoStub = sinon.stub();
   const onCopyConnectionStringStub = sinon.stub();
   const onToggleFavoriteConnectionStub = sinon.stub();
+  const openPerformanceWorkspaceStub = sinon.stub();
 
   const renderActiveConnectionsNavigation = async ({
     activeWorkspace = {
@@ -132,17 +137,25 @@ describe('<ActiveConnectionNavigation />', function () {
 
     return render(
       <PreferencesProvider value={preferences}>
-        <ConnectionsManagerProvider value={connectionsManager}>
-          <Provider store={store}>
-            <ActiveConnectionNavigation
-              activeConnections={mockConnections}
-              activeWorkspace={activeWorkspace}
-              onOpenConnectionInfo={onOpenConnectionInfoStub}
-              onCopyConnectionString={onCopyConnectionStringStub}
-              onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
-            />
-          </Provider>
-        </ConnectionsManagerProvider>
+        <WorkspacesServiceProvider
+          value={
+            {
+              openPerformanceWorkspace: openPerformanceWorkspaceStub,
+            } as unknown as WorkspacesService
+          }
+        >
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <Provider store={store}>
+              <ActiveConnectionNavigation
+                activeConnections={mockConnections}
+                activeWorkspace={activeWorkspace}
+                onOpenConnectionInfo={onOpenConnectionInfoStub}
+                onCopyConnectionString={onCopyConnectionStringStub}
+                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+              />
+            </Provider>
+          </ConnectionsManagerProvider>
+        </WorkspacesServiceProvider>
       </PreferencesProvider>
     );
   };
@@ -214,6 +227,22 @@ describe('<ActiveConnectionNavigation />', function () {
       userEvent.click(favoriteBtn);
 
       expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
+    });
+
+    it('Calls openPerformanceWorkspace', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getByTitle('Show actions');
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const metricsBtn = await screen.findByText('View performance metrics');
+      expect(metricsBtn).to.be.visible;
+
+      userEvent.click(metricsBtn);
+
+      expect(openPerformanceWorkspaceStub).to.have.been.calledWith('turtle');
     });
   });
 

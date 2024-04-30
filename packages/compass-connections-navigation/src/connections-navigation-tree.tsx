@@ -52,6 +52,7 @@ export type Connection = {
   isReady: boolean;
   isDataLake: boolean;
   isWritable: boolean;
+  isPerformanceTabSupported: boolean;
 };
 
 type PlaceholderTreeItem = {
