@@ -268,7 +268,6 @@ const runOnce = async (
       const result = (await cursor.toArray()).map((doc) =>
         EJSON.serialize(doc)
       );
-      // const result = await cursor.toArray();
 
       await assertResult(result);
     }
@@ -728,6 +727,20 @@ const tests: TestOptions[] = [
         year: '1983',
         id: '168',
       },
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'listingsAndReviews',
+    collectionName: 'movies',
+    // Test $unwind with array of documents.
+    // This currently fails with our method of formatting arrays with documents in our prompt,
+    // at least with gpt-3.5-turbo. So we set the min accuracy to 0.
+    minAccuracyForTest: 0,
+    userInput:
+      'build an array of all of the review comments by reviewer id 72064521',
+    assertResult: isDeepStrictEqualTo([
+      'Our stay was fantastic. Mehmet was was excellent with communication and made us feel at home. His place is centrally located and the cafe downstairs as a nice welcoming vibe. Would recommend to stay here on a trip to Istanbul.',
     ]),
   },
   {
