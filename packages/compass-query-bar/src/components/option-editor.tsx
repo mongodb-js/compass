@@ -93,6 +93,7 @@ type OptionEditorProps = {
   value?: string;
   ['data-testid']?: string;
   insights?: Signal | Signal[];
+  disabled?: boolean;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -108,6 +109,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   value = '',
   ['data-testid']: dataTestId,
   insights,
+  disabled = false,
 }) => {
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -199,6 +201,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         onFocus={onFocus}
         onPaste={onPaste}
         onBlur={onBlur}
+        readOnly={disabled}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>

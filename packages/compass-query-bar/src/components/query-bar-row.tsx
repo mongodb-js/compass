@@ -19,12 +19,14 @@ type QueryBarRowProps = {
   queryOptionsLayout: QueryBarRowLayout;
   onApply?(): void;
   placeholders?: Record<QueryProperty, string>;
+  disabled?: boolean;
 };
 
 export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
   queryOptionsLayout,
   onApply,
   placeholders,
+  disabled,
 }) => {
   return (
     <div className={rowStyles}>
@@ -35,6 +37,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
           id={`query-bar-option-input-${queryOptionsLayout}`}
           onApply={onApply}
           placeholder={placeholders?.[queryOptionsLayout]}
+          disabled={disabled}
         />
       ) : (
         queryOptionsLayout.map((optionName: QueryOption) => (
@@ -44,6 +47,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
             id={`query-bar-option-input-${optionName}`}
             onApply={onApply}
             placeholder={placeholders?.[optionName]}
+            disabled={disabled}
           />
         ))
       )}

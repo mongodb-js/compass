@@ -119,13 +119,13 @@ type QueryBarProps = {
   applyId: number;
   filterHasContent: boolean;
   showExplainButton?: boolean;
-  showExportToLanguageButton?: boolean;
   valid: boolean;
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
   onExplain?: () => void;
   insights?: Signal | Signal[];
   isAIInputVisible?: boolean;
+  isAIFetching?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
 };
@@ -147,13 +147,13 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   applyId,
   filterHasContent,
   showExplainButton = false,
-  showExportToLanguageButton = true,
   valid: isQueryValid,
   expanded: isQueryOptionsExpanded,
   placeholders,
   onExplain,
   insights,
   isAIInputVisible = false,
+  isAIFetching = false,
   onShowAIInputClick,
   onHideAIInputClick,
 }) => {
@@ -230,6 +230,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             onApply={onApply}
             placeholder={filterPlaceholder}
             insights={insights}
+            disabled={isAIFetching}
           />
           {showAIEntryButton && (
             <div className={aiEntryContainerStyles}>
@@ -247,7 +248,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             title="View the execution plan for the current query"
             data-testid="query-bar-explain-button"
             onClick={onExplain}
-            disabled={!isQueryValid}
+            disabled={!isQueryValid || isAIFetching}
             size="small"
             type="button"
           >
@@ -258,7 +259,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
           onClick={onReset}
-          disabled={!queryChanged}
+          disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
         >
@@ -266,7 +267,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         </Button>
         <Button
           data-testid="query-bar-apply-filter-button"
-          disabled={!isQueryValid}
+          disabled={!isQueryValid || isAIFetching}
           variant="primary"
           size="small"
           type="submit"
@@ -274,18 +275,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         >
           {buttonLabel}
         </Button>
-        {showExportToLanguageButton && (
-          <Button
-            onClick={onOpenExportToLanguage}
-            title="Open export to language"
-            aria-label="Open export to language"
-            data-testid="query-bar-open-export-to-language-button"
-            type="button"
-            size="small"
-          >
-            <Icon glyph="Code" />
-          </Button>
-        )}
+        <Button
+          onClick={onOpenExportToLanguage}
+          title="Open export to language"
+          aria-label="Open export to language"
+          data-testid="query-bar-open-export-to-language-button"
+          disabled={isAIFetching}
+          type="button"
+          size="small"
+        >
+          <Icon glyph="Code" />
+        </Button>
 
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div>
@@ -308,6 +308,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
                 queryOptionsLayout={queryOptionRowLayout}
                 key={`query-bar-row-${rowIndex}`}
                 onApply={onApply}
+                disabled={isAIFetching}
                 placeholders={placeholders}
               />
             ))}
@@ -331,6 +332,7 @@ export default connect(
       valid: isQueryValid(fields),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
+      isAIFetching: aiQuery.status === 'fetching',
     };
   },
   (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {
