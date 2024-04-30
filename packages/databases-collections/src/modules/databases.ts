@@ -104,7 +104,7 @@ export const dropDatabase = (
   ns: string
 ): DatabasesThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-drop-database', connectionId, ns);
+    globalAppRegistry.emit('open-drop-database', ns, { connectionId });
   };
 };
 

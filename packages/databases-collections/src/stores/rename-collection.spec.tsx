@@ -48,10 +48,14 @@ describe('RenameCollectionPlugin', function () {
   });
 
   it('handles the open-rename-collection event', async function () {
-    appRegistry.emit('open-rename-collection', '12345', {
-      database: 'foo',
-      collection: 'bar',
-    });
+    appRegistry.emit(
+      'open-rename-collection',
+      {
+        database: 'foo',
+        collection: 'bar',
+      },
+      { connectionId: '12345' }
+    );
     await waitFor(() => screen.getByText('Rename collection'));
 
     expect(screen.getByRole('heading', { name: 'Rename collection' })).to.exist;
