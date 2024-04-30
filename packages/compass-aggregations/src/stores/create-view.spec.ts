@@ -21,13 +21,13 @@ describe('CreateViewStore [Store]', function () {
 
   let store: any;
   let deactivate: any;
-  const globalAppRegistry = new AppRegistry();
+  let globalAppRegistry: AppRegistry;
+  let appRegistryEmitSpy: Sinon.SinonSpy;
   const logger = { track() {} } as any;
   const createViewStub = Sinon.stub();
   const dataService = {
     createView: createViewStub,
   } as unknown as DataService;
-  const appRegistryEmitSpy = Sinon.spy(globalAppRegistry, 'emit');
   const connectionsManager = new ConnectionsManager({ logger });
   const openCollectionWorkspaceStub = Sinon.stub();
   const workspaces = {
@@ -35,6 +35,8 @@ describe('CreateViewStore [Store]', function () {
   } as unknown as WorkspacesService;
 
   beforeEach(function () {
+    globalAppRegistry = new AppRegistry();
+    appRegistryEmitSpy = Sinon.spy(globalAppRegistry, 'emit');
     Sinon.stub(connectionsManager, 'getDataServiceForConnection').returns(
       dataService
     );
