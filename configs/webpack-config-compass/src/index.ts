@@ -102,6 +102,10 @@ const sharedResolveOptions = (
         'create-instance',
         'index.js'
       ),
+
+      // This is an optional dependency of the AWS SDK that doesn't look like
+      // an optional dependency to webpack because it's not wrapped in try/catch.
+      '@aws-sdk/client-sso-oidc': false,
     },
   };
 };
