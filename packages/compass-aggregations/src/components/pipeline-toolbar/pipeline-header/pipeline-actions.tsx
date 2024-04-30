@@ -170,17 +170,20 @@ const mapState = (state: RootState) => {
   const isMergeOrOutPipeline = isOutputStage(lastStage);
   const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   const isBuilderView = state.workspace === 'builder';
+  const isAIFetching = state.pipelineBuilder.aiPipeline.status === 'fetching';
 
   return {
-    isRunButtonDisabled: hasSyntaxErrors,
-    isExplainButtonDisabled: hasSyntaxErrors,
-    isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
+    isRunButtonDisabled: hasSyntaxErrors || isAIFetching,
+    isExplainButtonDisabled: hasSyntaxErrors || isAIFetching,
+    isExportButtonDisabled:
+      isMergeOrOutPipeline || hasSyntaxErrors || isAIFetching,
     showAIEntry:
       !state.pipelineBuilder.aiPipeline.isInputVisible &&
       resultPipeline.length > 0 &&
       isBuilderView,
     showUpdateViewButton: Boolean(state.editViewName),
-    isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
+    isUpdateViewButtonDisabled:
+      !state.isModified || hasSyntaxErrors || isAIFetching,
     showCollectionScanInsight: state.insights.isCollectionScan,
   };
 };
