@@ -1,3 +1,4 @@
+/* eslint-disable @mongodb-js/compass/no-leafygreen-outside-compass-components */
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -6,7 +7,7 @@ import type { glyphs } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import { useDarkMode } from '../../hooks/use-theme';
-import { Icon, IconButton } from '../leafygreen';
+import { Icon, IconButton, MongoDBLogoMark } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 
@@ -161,7 +162,7 @@ type TabProps = {
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: IconGlyph;
+  iconGlyph: IconGlyph | 'Logo';
   tabContentId: string;
   subtitle?: string;
 };
@@ -218,13 +219,23 @@ function Tab({
       title={subtitle ? subtitle : title}
       {...tabProps}
     >
-      <Icon
-        size="small"
-        role="presentation"
-        className={tabIconStyles}
-        glyph={iconGlyph}
-        data-testid={`workspace-tab-icon-${iconGlyph}`}
-      />
+      {iconGlyph === 'Logo' && (
+        <MongoDBLogoMark
+          height={16}
+          role="presentation"
+          className={tabIconStyles}
+          data-testid={`workspace-tab-icon-${iconGlyph}`}
+        />
+      )}
+      {iconGlyph !== 'Logo' && (
+        <Icon
+          size="small"
+          role="presentation"
+          className={tabIconStyles}
+          glyph={iconGlyph}
+          data-testid={`workspace-tab-icon-${iconGlyph}`}
+        />
+      )}
 
       <div className={tabTitleContainerStyles}>
         <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>

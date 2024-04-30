@@ -1,3 +1,4 @@
+/* eslint-disable @mongodb-js/compass/no-leafygreen-outside-compass-components */
 import React, {
   useEffect,
   useCallback,
@@ -172,7 +173,7 @@ export type TabProps = {
   id: string;
   title: string;
   subtitle?: string;
-  iconGlyph: Extract<keyof typeof glyphs, string>;
+  iconGlyph: Extract<keyof typeof glyphs, string> | 'Logo';
 } & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({

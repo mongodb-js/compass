@@ -2,6 +2,7 @@ import React, { useContext, useRef } from 'react';
 import type { AnyWorkspace, WorkspaceComponent } from '../';
 
 export type AnyWorkspaceComponent =
+  | WorkspaceComponent<'Welcome'>
   | WorkspaceComponent<'My Queries'>
   | WorkspaceComponent<'Performance'>
   | WorkspaceComponent<'Databases'>

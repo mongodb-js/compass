@@ -117,6 +117,7 @@ function CompassWorkspace({
   return (
     <WorkspacesProvider
       value={[
+        // TODO: we probably need a welcome workspace here?
         DatabasesWorkspaceTab,
         CollectionsWorkspaceTab,
         CollectionWorkspace,
