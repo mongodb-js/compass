@@ -26,7 +26,7 @@ export const INITIAL_STATE: CreateViewState = {
 
 enum CreateViewActionTypes {
   Open = 'aggregations/create-view/Open',
-  ToggleIsVisible = 'aggregations/create-view/is-visible/ToggleIsVisible',
+  Close = 'aggregations/create-view/Close',
   ToggleIsRunning = 'aggregations/create-view/is-running/ToggleIsRunning',
   HandleError = 'aggregations/create-view/error/HandleError',
   ClearError = 'aggregations/create-view/error/ClearError',
@@ -41,9 +41,8 @@ export type OpenAction = {
   duplicate: boolean;
 };
 
-export type ToggleIsVisibleAction = {
-  type: CreateViewActionTypes.ToggleIsVisible;
-  isVisible: boolean;
+export type CloseAction = {
+  type: CreateViewActionTypes.Close;
 };
 
 export type ToggleIsRunningAction = {
@@ -70,13 +69,13 @@ export type ResetAction = {
 };
 
 export type CreateViewAction =
+  | OpenAction
+  | CloseAction
+  | ResetAction
   | ToggleIsRunningAction
-  | ToggleIsVisibleAction
   | HandleErrorAction
   | ClearErrorAction
-  | ChangeViewNameAction
-  | ResetAction
-  | OpenAction;
+  | ChangeViewNameAction;
 
 export const open = (
   sourceNs: string,
@@ -89,9 +88,8 @@ export const open = (
   duplicate: duplicate,
 });
 
-export const toggleIsVisible = (isVisible: boolean): ToggleIsVisibleAction => ({
-  type: CreateViewActionTypes.ToggleIsVisible,
-  isVisible: isVisible,
+export const close = (): CloseAction => ({
+  type: CreateViewActionTypes.Close,
 });
 
 export const toggleIsRunning = (isRunning: boolean): ToggleIsRunningAction => ({
@@ -124,7 +122,10 @@ const reducer: Reducer<CreateViewState, CreateViewAction> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (isAction<ResetAction>(action, CreateViewActionTypes.Reset)) {
+  if (
+    isAction<ResetAction>(action, CreateViewActionTypes.Reset) ||
+    isAction<CloseAction>(action, CreateViewActionTypes.Close)
+  ) {
     return { ...INITIAL_STATE };
   }
   if (isAction<OpenAction>(action, CreateViewActionTypes.Open)) {
@@ -146,17 +147,6 @@ const reducer: Reducer<CreateViewState, CreateViewAction> = (
     return {
       ...state,
       isRunning: action.isRunning,
-    };
-  }
-  if (
-    isAction<ToggleIsVisibleAction>(
-      action,
-      CreateViewActionTypes.ToggleIsVisible
-    )
-  ) {
-    return {
-      ...state,
-      isVisible: action.isVisible,
     };
   }
   if (
