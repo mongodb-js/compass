@@ -388,12 +388,13 @@ describe('tabs behavior', function () {
 
     it('when the active tab is removed, it should make the next tab active', function () {
       const store = configureStore();
+      const connectionId = 'connectionA';
       const connectionTab: Pick<
         Workspace<'Databases'>,
         'type' | 'connectionId'
       > = {
         type: 'Databases',
-        connectionId: 'connection1',
+        connectionId,
       };
       openTabs(store, {});
       store.dispatch(openWorkspace(connectionTab));
@@ -406,10 +407,39 @@ describe('tabs behavior', function () {
       );
       expect(getActiveTab(store.getState())).to.have.property(
         'connectionId',
-        'connection1'
+        connectionId
       );
 
       store.dispatch(connectionDisconnected('connection1'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(1);
+      expect(getActiveTab(state)).to.have.property('type', 'My Queries');
+    });
+
+    it.only('when the last & active tab is removed, it should make the new last active', function () {
+      const store = configureStore();
+      const connectionId = 'connectionA';
+      openTabs(store, {});
+      store.dispatch(openWorkspace({ type: 'My Queries' }));
+      store.dispatch(
+        openWorkspace({
+          type: 'Collections',
+          connectionId,
+          namespace: 'db.coll',
+        })
+      );
+      store.dispatch(openWorkspace({ type: 'Databases', connectionId }));
+
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Databases'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'connectionId',
+        connectionId
+      );
+
+      store.dispatch(connectionDisconnected(connectionId));
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(1);
       expect(getActiveTab(state)).to.have.property('type', 'My Queries');
