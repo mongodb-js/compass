@@ -17,7 +17,7 @@ const developmentFeatureFlagFields = featureFlagFields.filter(
   (k: keyof typeof featureFlags) => featureFlags[k].stage === 'development'
 );
 
-function useShouldShowDevFeatures(): boolean {
+export function useShouldShowDevFeatures(): boolean {
   const showDevFeatureFlags = usePreference('showDevFeatureFlags') ?? false;
 
   return showDevFeatureFlags && developmentFeatureFlagFields.length > 0;
