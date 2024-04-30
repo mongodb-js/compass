@@ -1,7 +1,13 @@
 import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionsManager,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
+import { changeViewName, createView } from '../modules/create-view';
+import Sinon from 'sinon';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 describe('CreateViewStore [Store]', function () {
   if (
@@ -16,16 +22,29 @@ describe('CreateViewStore [Store]', function () {
   let store: any;
   let deactivate: any;
   const globalAppRegistry = new AppRegistry();
-  const logger = {} as any;
+  const logger = { track() {} } as any;
+  const createViewStub = Sinon.stub();
+  const dataService = {
+    createView: createViewStub,
+  } as unknown as DataService;
+  const appRegistryEmitSpy = Sinon.spy(globalAppRegistry, 'emit');
+  const connectionsManager = new ConnectionsManager({ logger });
+  const openCollectionWorkspaceStub = Sinon.stub();
+  const workspaces = {
+    openCollectionWorkspace: openCollectionWorkspaceStub,
+  } as unknown as WorkspacesService;
 
   beforeEach(function () {
+    Sinon.stub(connectionsManager, 'getDataServiceForConnection').returns(
+      dataService
+    );
     ({ store, deactivate } = activateCreateViewPlugin(
       {},
       {
         globalAppRegistry,
-        connectionsManager: new ConnectionsManager({ logger }),
+        connectionsManager,
         logger,
-        workspaces: {} as any,
+        workspaces,
       },
       createActivateHelpers()
     ));
@@ -33,6 +52,7 @@ describe('CreateViewStore [Store]', function () {
 
   afterEach(function () {
     store = null;
+    Sinon.restore();
     deactivate();
   });
 
@@ -64,6 +84,40 @@ describe('CreateViewStore [Store]', function () {
         expect(store.getState().source).to.equal('dataService.test');
         expect(store.getState().connectionId).to.equal('TEST');
       });
+    });
+
+    it('handles createView action and notifies the rest of the app', async function () {
+      globalAppRegistry.emit(
+        'open-create-view',
+        {
+          source: 'dataService.test',
+          pipeline: [{ $project: { a: 1 } }],
+        },
+        {
+          connectionId: 'TEST',
+        }
+      );
+      store.dispatch(changeViewName('TestView'));
+      await store.dispatch(createView());
+
+      expect(createViewStub).to.be.calledWithExactly(
+        'TestView',
+        'dataService.test',
+        [{ $project: { a: 1 } }],
+        {}
+      );
+
+      expect(appRegistryEmitSpy.lastCall).to.be.calledWithExactly(
+        'view-created',
+        'dataService.TestView',
+        { connectionId: 'TEST' }
+      );
+
+      expect(openCollectionWorkspaceStub).to.be.calledWithExactly(
+        'TEST',
+        'dataService.TestView',
+        { newTab: true }
+      );
     });
   });
 });
