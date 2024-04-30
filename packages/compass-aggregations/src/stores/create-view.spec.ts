@@ -1,7 +1,7 @@
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
-import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 describe('CreateViewStore [Store]', function () {
   if (
@@ -16,7 +16,6 @@ describe('CreateViewStore [Store]', function () {
   let store: any;
   let deactivate: any;
   const globalAppRegistry = new AppRegistry();
-  const ds = 'data-service' as any;
   const logger = {} as any;
 
   beforeEach(function () {
@@ -24,15 +23,11 @@ describe('CreateViewStore [Store]', function () {
       {},
       {
         globalAppRegistry,
-        dataService: ds,
+        connectionsManager: new ConnectionsManager({ logger }),
         logger,
         workspaces: {} as any,
-        connectionInfoAccess: {
-          getCurrentConnectionInfo() {
-            return TEST_CONNECTION_INFO;
-          },
-        },
-      }
+      },
+      createActivateHelpers()
     ));
   });
 
@@ -43,25 +38,31 @@ describe('CreateViewStore [Store]', function () {
 
   describe('#configureStore', function () {
     describe('when open create view is emitted', function () {
-      beforeEach(function () {
-        globalAppRegistry.emit('open-create-view', {
-          source: 'dataService.test',
-          pipeline: [{ $project: { a: 1 } }],
-        });
+      it('throws an error when the action is emitted without connection meta', function () {
+        expect(() => {
+          globalAppRegistry.emit('open-create-view', {
+            source: 'dataService.test',
+            pipeline: [{ $project: { a: 1 } }],
+          });
+        }).to.throw;
       });
-
-      it('dispatches the toggle action', function () {
+      it('dispatches the open action and sets the correct state', function () {
+        globalAppRegistry.emit(
+          'open-create-view',
+          {
+            source: 'dataService.test',
+            pipeline: [{ $project: { a: 1 } }],
+          },
+          {
+            connectionId: 'TEST',
+          }
+        );
         expect(store.getState().isVisible).to.equal(true);
-      });
-
-      it('sets the pipeline', function () {
         expect(store.getState().pipeline).to.deep.equal([
           { $project: { a: 1 } },
         ]);
-      });
-
-      it('sets the source', function () {
         expect(store.getState().source).to.equal('dataService.test');
+        expect(store.getState().connectionId).to.equal('TEST');
       });
     });
   });

@@ -202,27 +202,28 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    {
-      globalAppRegistry,
-      dataService,
-      logger: { track },
-      workspaces,
-      connectionInfoAccess,
-    }
+    { globalAppRegistry, connectionsManager, logger: { track }, workspaces }
   ) => {
-    const state = getState();
-
-    const viewName = state.name;
-    const viewSource = state.source;
-    const { database } = parseNs(state.source);
-    const viewPipeline = state.pipeline;
+    const {
+      name: viewName,
+      source: viewSource,
+      pipeline: viewPipeline,
+      connectionId,
+    } = getState();
+    const { database } = parseNs(viewSource);
     const options = {};
 
     dispatch(clearError());
-    const { id: connectionId } =
-      connectionInfoAccess.getCurrentConnectionInfo();
 
     try {
+      const dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
+      if (!dataService) {
+        throw new Error(
+          `DataService for connectionId ${connectionId} not found`
+        );
+      }
+
       dispatch(toggleIsRunning(true));
       await dataService.createView(
         viewName,
@@ -232,7 +233,9 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
       );
       const ns = `${database}.${viewName}`;
       track('Aggregation Saved As View', { num_stages: viewPipeline.length });
-      globalAppRegistry.emit('view-created', ns);
+      globalAppRegistry.emit('view-created', ns, {
+        connectionId,
+      });
       workspaces.openCollectionWorkspace(connectionId, ns, { newTab: true });
       dispatch(reset());
     } catch (e) {
