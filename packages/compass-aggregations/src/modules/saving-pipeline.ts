@@ -163,7 +163,11 @@ export const savingPipelineOpen = ({
  * @see create-view src/stores/create-view.js
  */
 export const openCreateView = (): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState, { pipelineBuilder, globalAppRegistry }) => {
+  return (
+    _dispatch,
+    getState,
+    { pipelineBuilder, globalAppRegistry, connectionInfoAccess }
+  ) => {
     const state = getState();
     const sourceNs = state.namespace;
     const sourcePipeline = getPipelineFromBuilderState(
@@ -176,6 +180,9 @@ export const openCreateView = (): PipelineBuilderThunkAction<void> => {
       pipeline: sourcePipeline,
     };
 
-    globalAppRegistry.emit('open-create-view', meta);
+    const { id: connectionId } =
+      connectionInfoAccess.getCurrentConnectionInfo();
+
+    globalAppRegistry.emit('open-create-view', meta, { connectionId });
   };
 };

@@ -5,17 +5,16 @@ import thunk from 'redux-thunk';
 import type { CreateViewAction } from '../modules/create-view';
 import reducer, { open } from '../modules/create-view';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 type CreateViewServices = {
   globalAppRegistry: AppRegistry;
-  dataService: Pick<DataService, 'createView'>;
+  connectionsManager: ConnectionsManager;
   logger: LoggerAndTelemetry;
   workspaces: WorkspacesService;
-  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 export function configureStore(services: CreateViewServices) {
@@ -34,38 +33,57 @@ export type CreateViewThunkAction<
   A extends Action = CreateViewAction
 > = ThunkAction<R, CreateViewRootState, CreateViewServices, A>;
 
+type OpenCreateViewEventParams = {
+  source: string;
+  pipeline: any[];
+  duplicate?: boolean;
+};
+
+type ConnectionMeta = {
+  connectionId?: string;
+};
+
 export function activateCreateViewPlugin(
   _: unknown,
   {
     globalAppRegistry,
-    dataService,
+    connectionsManager,
     logger,
     workspaces,
-    connectionInfoAccess,
-  }: CreateViewServices
+  }: CreateViewServices,
+  { on, cleanup }: ActivateHelpers
 ) {
   const store = configureStore({
     globalAppRegistry,
-    dataService,
+    connectionsManager,
     logger,
     workspaces,
-    connectionInfoAccess,
   });
 
-  const onOpenCreateView = (meta: {
-    source: string;
-    pipeline: any[];
-    duplicate?: boolean;
-  }) => {
-    store.dispatch(open(meta.source, meta.pipeline, meta.duplicate ?? false));
-  };
+  on(
+    globalAppRegistry,
+    'open-create-view',
+    function (
+      eventParams: OpenCreateViewEventParams,
+      connectionMeta: ConnectionMeta = {}
+    ) {
+      if (!connectionMeta.connectionId) {
+        throw new Error('Cannot open CreateViewModal without a connectionId');
+      }
 
-  globalAppRegistry.on('open-create-view', onOpenCreateView);
+      store.dispatch(
+        open({
+          connectionId: connectionMeta.connectionId,
+          sourceNs: eventParams.source,
+          sourcePipeline: eventParams.pipeline,
+          duplicate: eventParams.duplicate ?? false,
+        })
+      );
+    }
+  );
 
   return {
     store,
-    deactivate(this: void) {
-      globalAppRegistry.removeListener('open-create-view', onOpenCreateView);
-    },
+    deactivate: cleanup,
   };
 }

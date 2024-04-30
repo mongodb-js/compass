@@ -4,100 +4,8 @@ import type { Document } from 'bson';
 import type { CreateViewThunkAction } from '../../stores/create-view';
 import { isAction } from '../../utils/is-action';
 
-export const TOGGLE_IS_RUNNING =
-  'aggregations/create-view/is-running/TOGGLE_IS_RUNNING' as const;
-interface ToggleIsRunningAction {
-  type: typeof TOGGLE_IS_RUNNING;
-  isRunning: boolean;
-}
-
-export const toggleIsRunning = (isRunning: boolean): ToggleIsRunningAction => ({
-  type: TOGGLE_IS_RUNNING,
-  isRunning: isRunning,
-});
-
-export const TOGGLE_IS_VISIBLE =
-  'aggregations/create-view/is-visible/TOGGLE_IS_VISIBLE' as const;
-interface ToggleIsVisibleAction {
-  type: typeof TOGGLE_IS_VISIBLE;
-  isVisible: boolean;
-}
-
-export const toggleIsVisible = (isVisible: boolean): ToggleIsVisibleAction => ({
-  type: TOGGLE_IS_VISIBLE,
-  isVisible: isVisible,
-});
-
-/**
- * Handle error action name.
- */
-export const HANDLE_ERROR =
-  `aggregations/create-view/error/HANDLE_ERROR` as const;
-interface HandleErrorAction {
-  type: typeof HANDLE_ERROR;
-  error: Error;
-}
-
-/**
- * Handle error action creator.
- */
-export const handleError = (error: Error): HandleErrorAction => ({
-  type: HANDLE_ERROR,
-  error: error,
-});
-
-export const CLEAR_ERROR =
-  `aggregations/create-view/error/CLEAR_ERROR` as const;
-interface ClearErrorAction {
-  type: typeof CLEAR_ERROR;
-}
-
-export const clearError = (): ClearErrorAction => ({
-  type: CLEAR_ERROR,
-});
-
-export const CHANGE_VIEW_NAME =
-  'aggregations/create-view/name/CHANGE_NAME' as const;
-interface ChangeViewNameAction {
-  type: typeof CHANGE_VIEW_NAME;
-  name: string;
-}
-
-export const changeViewName = (name: string): ChangeViewNameAction => ({
-  type: CHANGE_VIEW_NAME,
-  name: name,
-});
-
-export const RESET = 'aggregations/create-view/reset' as const;
-interface ResetAction {
-  type: typeof RESET;
-}
-
-export const reset = (): ResetAction => ({
-  type: RESET,
-});
-
-/**
- * Open action name.
- */
-const OPEN = 'aggregations/create-view/OPEN' as const;
-interface OpenAction {
-  type: typeof OPEN;
-  source: string;
-  pipeline: unknown[];
-  duplicate: boolean;
-}
-
-export type CreateViewAction =
-  | ToggleIsRunningAction
-  | ToggleIsVisibleAction
-  | HandleErrorAction
-  | ClearErrorAction
-  | ChangeViewNameAction
-  | ResetAction
-  | OpenAction;
-
 export type CreateViewState = {
+  connectionId: string;
   isRunning: boolean;
   isVisible: boolean;
   isDuplicating: boolean;
@@ -108,6 +16,7 @@ export type CreateViewState = {
 };
 
 export const INITIAL_STATE: CreateViewState = {
+  connectionId: '',
   isRunning: false,
   isVisible: false,
   isDuplicating: false,
@@ -117,6 +26,105 @@ export const INITIAL_STATE: CreateViewState = {
   pipeline: [],
 };
 
+enum CreateViewActionTypes {
+  Open = 'aggregations/create-view/Open',
+  Close = 'aggregations/create-view/Close',
+  ToggleIsRunning = 'aggregations/create-view/is-running/ToggleIsRunning',
+  HandleError = 'aggregations/create-view/error/HandleError',
+  ClearError = 'aggregations/create-view/error/ClearError',
+  ChangeViewName = 'aggregations/create-view/name/ChangeName',
+  Reset = 'aggregations/create-view/reset',
+}
+
+export type OpenAction = {
+  type: CreateViewActionTypes.Open;
+  connectionId: string;
+  source: string;
+  pipeline: unknown[];
+  duplicate: boolean;
+};
+
+export type CloseAction = {
+  type: CreateViewActionTypes.Close;
+};
+
+export type ToggleIsRunningAction = {
+  type: CreateViewActionTypes.ToggleIsRunning;
+  isRunning: boolean;
+};
+
+export type HandleErrorAction = {
+  type: CreateViewActionTypes.HandleError;
+  error: Error;
+};
+
+export type ClearErrorAction = {
+  type: CreateViewActionTypes.ClearError;
+};
+
+export type ChangeViewNameAction = {
+  type: CreateViewActionTypes.ChangeViewName;
+  name: string;
+};
+
+export type ResetAction = {
+  type: CreateViewActionTypes.Reset;
+};
+
+export type CreateViewAction =
+  | OpenAction
+  | CloseAction
+  | ResetAction
+  | ToggleIsRunningAction
+  | HandleErrorAction
+  | ClearErrorAction
+  | ChangeViewNameAction;
+
+export const open = ({
+  connectionId,
+  sourceNs,
+  sourcePipeline,
+  duplicate,
+}: {
+  connectionId: string;
+  sourceNs: string;
+  sourcePipeline: unknown[];
+  duplicate: boolean;
+}): OpenAction => ({
+  type: CreateViewActionTypes.Open,
+  connectionId,
+  source: sourceNs,
+  pipeline: sourcePipeline,
+  duplicate: duplicate,
+});
+
+export const close = (): CloseAction => ({
+  type: CreateViewActionTypes.Close,
+});
+
+export const toggleIsRunning = (isRunning: boolean): ToggleIsRunningAction => ({
+  type: CreateViewActionTypes.ToggleIsRunning,
+  isRunning: isRunning,
+});
+
+export const handleError = (error: Error): HandleErrorAction => ({
+  type: CreateViewActionTypes.HandleError,
+  error: error,
+});
+
+export const clearError = (): ClearErrorAction => ({
+  type: CreateViewActionTypes.ClearError,
+});
+
+export const changeViewName = (name: string): ChangeViewNameAction => ({
+  type: CreateViewActionTypes.ChangeViewName,
+  name: name,
+});
+
+export const reset = (): ResetAction => ({
+  type: CreateViewActionTypes.Reset,
+});
+
 /**
  * The main reducer.
  */
@@ -124,44 +132,49 @@ const reducer: Reducer<CreateViewState, CreateViewAction> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (isAction<ResetAction>(action, RESET)) {
+  if (
+    isAction<ResetAction>(action, CreateViewActionTypes.Reset) ||
+    isAction<CloseAction>(action, CreateViewActionTypes.Close)
+  ) {
     return { ...INITIAL_STATE };
   }
-  if (isAction<OpenAction>(action, OPEN)) {
+  if (isAction<OpenAction>(action, CreateViewActionTypes.Open)) {
     return {
       ...state,
       ...INITIAL_STATE,
       isVisible: true,
+      connectionId: action.connectionId,
       isDuplicating: action.duplicate,
       source: action.source,
       pipeline: action.pipeline,
     };
   }
-  if (isAction<ToggleIsRunningAction>(action, TOGGLE_IS_RUNNING)) {
+  if (
+    isAction<ToggleIsRunningAction>(
+      action,
+      CreateViewActionTypes.ToggleIsRunning
+    )
+  ) {
     return {
       ...state,
       isRunning: action.isRunning,
     };
   }
-  if (isAction<ToggleIsVisibleAction>(action, TOGGLE_IS_VISIBLE)) {
-    return {
-      ...state,
-      isVisible: action.isVisible,
-    };
-  }
-  if (isAction<ChangeViewNameAction>(action, CHANGE_VIEW_NAME)) {
+  if (
+    isAction<ChangeViewNameAction>(action, CreateViewActionTypes.ChangeViewName)
+  ) {
     return {
       ...state,
       name: action.name,
     };
   }
-  if (isAction<HandleErrorAction>(action, HANDLE_ERROR)) {
+  if (isAction<HandleErrorAction>(action, CreateViewActionTypes.HandleError)) {
     return {
       ...state,
       error: action.error,
     };
   }
-  if (isAction<ClearErrorAction>(action, CLEAR_ERROR)) {
+  if (isAction<ClearErrorAction>(action, CreateViewActionTypes.ClearError)) {
     return {
       ...state,
       error: null,
@@ -183,47 +196,34 @@ const stopWithError = (err: Error): CreateViewThunkAction<void> => {
 };
 
 /**
- * Open create view action creator.
- */
-export const open = (
-  sourceNs: string,
-  sourcePipeline: unknown[],
-  duplicate: boolean
-): OpenAction => ({
-  type: OPEN,
-  source: sourceNs,
-  pipeline: sourcePipeline,
-  duplicate: duplicate,
-});
-
-/**
  * The create view action.
  */
 export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    {
-      globalAppRegistry,
-      dataService,
-      logger: { track },
-      workspaces,
-      connectionInfoAccess,
-    }
+    { globalAppRegistry, connectionsManager, logger: { track }, workspaces }
   ) => {
-    const state = getState();
-
-    const viewName = state.name;
-    const viewSource = state.source;
-    const { database } = parseNs(state.source);
-    const viewPipeline = state.pipeline;
+    const {
+      name: viewName,
+      source: viewSource,
+      pipeline: viewPipeline,
+      connectionId,
+    } = getState();
+    const { database } = parseNs(viewSource);
     const options = {};
 
     dispatch(clearError());
-    const { id: connectionId } =
-      connectionInfoAccess.getCurrentConnectionInfo();
 
     try {
+      const dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
+      if (!dataService) {
+        throw new Error(
+          `DataService for connectionId ${connectionId} not found`
+        );
+      }
+
       dispatch(toggleIsRunning(true));
       await dataService.createView(
         viewName,
@@ -233,7 +233,9 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
       );
       const ns = `${database}.${viewName}`;
       track('Aggregation Saved As View', { num_stages: viewPipeline.length });
-      globalAppRegistry.emit('view-created', ns);
+      globalAppRegistry.emit('view-created', ns, {
+        connectionId,
+      });
       workspaces.openCollectionWorkspace(connectionId, ns, { newTab: true });
       dispatch(reset());
     } catch (e) {

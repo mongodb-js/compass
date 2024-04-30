@@ -7,6 +7,7 @@ import StageEditor from './components/stage-editor';
 import CreateViewModal from './components/create-view-modal';
 import {
   connectionInfoAccessLocator,
+  connectionsManagerLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -60,10 +61,9 @@ export const CreateViewPlugin = registerHadronPlugin(
     activate: activateCreateViewPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<'createView'>,
+    connectionsManager: connectionsManagerLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-CREATE-VIEW-UI'),
     workspaces: workspacesServiceLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 

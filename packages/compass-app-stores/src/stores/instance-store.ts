@@ -323,7 +323,15 @@ export function createInstancesStore(
         }
       );
 
-      on(globalAppRegistry, 'view-created', maybeAddAndRefreshCollectionModel);
+      on(
+        globalAppRegistry,
+        'view-created',
+        (ns: string, { connectionId }: { connectionId?: string } = {}) => {
+          if (connectionId === instanceConnectionId) {
+            void maybeAddAndRefreshCollectionModel(ns);
+          }
+        }
+      );
 
       on(
         globalAppRegistry,
