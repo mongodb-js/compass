@@ -271,6 +271,7 @@ describe('<ActiveConnectionNavigation />', function () {
                 onOpenConnectionInfo={onOpenConnectionInfoStub}
                 onCopyConnectionString={onCopyConnectionStringStub}
                 onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+                onDisconnect={onDisconnectStub}
               />
             </Provider>
           </ConnectionsManagerProvider>
@@ -307,6 +308,7 @@ describe('<ActiveConnectionNavigation />', function () {
                 onOpenConnectionInfo={onOpenConnectionInfoStub}
                 onCopyConnectionString={onCopyConnectionStringStub}
                 onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+                onDisconnect={onDisconnectStub}
               />
             </Provider>
           </ConnectionsManagerProvider>
