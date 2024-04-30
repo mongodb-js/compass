@@ -9,6 +9,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const buttonReset = css({
   padding: 0,
@@ -151,8 +152,17 @@ const activeItemContainer = css({
   '&:hover': {
     backgroundColor: 'var(--item-bg-color-active)',
   },
+});
 
-  // this is copied from leafygreen's own navigation, hence the pixel values
+const legacyActiveItemContainer = css({
+  color: 'var(--item-color-active)',
+  backgroundColor: 'var(--item-bg-color-active)',
+  fontWeight: 'bold',
+
+  '&:hover': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
+
   '::before': {
     zIndex: 1,
     backgroundColor: 'var(--item-color-active)',
@@ -221,12 +231,19 @@ export const ItemContainer: React.FunctionComponent<
   className,
   ...props
 }) => {
+  const isMultipleConnection = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
   const extraCSS = [];
   if (isActive) {
-    extraCSS.push(activeItemContainer);
+    if (isMultipleConnection) {
+      extraCSS.push(activeItemContainer);
+    } else {
+      extraCSS.push(legacyActiveItemContainer);
+    }
   }
 
   const treeItemProps = mergeProps(
