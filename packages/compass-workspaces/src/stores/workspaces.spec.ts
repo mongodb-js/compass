@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import { createSandbox } from 'sinon';
-import { activateWorkspacePlugin } from '../index';
+import { Workspace, activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import { ConnectionInfo } from '../../../connection-info/dist';
+import { WorkspaceTab } from '../../dist';
 
 describe('tabs behavior', function () {
   const instance = {
@@ -37,15 +39,22 @@ describe('tabs behavior', function () {
 
   function openTabs(
     store: ReturnType<typeof configureStore>,
-    namespaces: string[] = ['test.foo', 'test.bar', 'test.buz']
+    connectionNamespaces: Record<ConnectionInfo['id'], string[]> = {
+      connection1: ['test.foo', 'test.bar', 'test.buz'],
+    }
   ) {
-    namespaces.forEach((namespace) => {
-      store.dispatch(
-        openWorkspace({ type: 'Collection', namespace } as any, {
-          newTab: true,
-        })
-      );
-    });
+    for (const connectionId in connectionNamespaces) {
+      connectionNamespaces[connectionId].forEach((namespace) => {
+        store.dispatch(
+          openWorkspace(
+            { type: 'Collection', namespace, connectionId },
+            {
+              newTab: true,
+            }
+          )
+        );
+      });
+    }
   }
 
   const {
@@ -59,6 +68,7 @@ describe('tabs behavior', function () {
     collectionRenamed,
     collectionRemoved,
     databaseRemoved,
+    connectionDisconnected,
     collectionSubtabSelected,
     openFallbackTab,
     getActiveTab,
@@ -145,10 +155,14 @@ describe('tabs behavior', function () {
 
     it('should not change any state when opening a workspace for the active tab even if other similar workspaces are open', function () {
       const store = configureStore();
-      openTabs(store, ['db.coll', 'db.coll', 'db.coll']);
+      openTabs(store, { connection1: ['db.coll', 'db.coll', 'db.coll'] });
       const currentState = store.getState();
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'db.coll' } as any)
+        openWorkspace({
+          type: 'Collection',
+          namespace: 'db.coll',
+          connectionId: 'connection1',
+        })
       );
       expect(store.getState()).to.eq(currentState);
     });
@@ -316,7 +330,8 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       const state = store.getState();
-      store.dispatch(collectionRenamed('foo.bar', 'foo.buz'));
+
+      store.dispatch(databaseRemoved('blah'));
       expect(store.getState()).to.eq(state);
     });
 
@@ -342,6 +357,68 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       store.dispatch(databaseRemoved('test'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(0);
+      expect(state).to.have.property('tabs').deep.eq([]);
+      expect(state).to.have.property('activeTabId', null);
+    });
+  });
+
+  describe('connectionDisconnected', function () {
+    it('should not change state if no tabs were removed', function () {
+      const store = configureStore();
+      openTabs(store);
+      const state = store.getState();
+      store.dispatch(connectionDisconnected('otherConnection'));
+      expect(store.getState()).to.eq(state);
+    });
+
+    it('should remove all tabs with matching connection', function () {
+      const store = configureStore();
+      openTabs(store, {
+        connectionA: ['dbA', 'db.coll'],
+        connectionB: ['dbB', 'db2.coll'],
+      });
+      store.dispatch(connectionDisconnected('connectionA'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(2);
+      expect(state).to.have.nested.property('tabs[0].namespace', 'dbB');
+      expect(state).to.have.nested.property('tabs[1].namespace', 'dbB.coll');
+    });
+
+    it('when the active tab is removed, it should make the next tab active', function () {
+      const store = configureStore();
+      const connectionTab: Pick<
+        Workspace<'Databases'>,
+        'type' | 'connectionId'
+      > = {
+        type: 'Databases',
+        connectionId: 'connection1',
+      };
+      openTabs(store, {});
+      store.dispatch(openWorkspace(connectionTab));
+      store.dispatch(openWorkspace({ type: 'My Queries' }));
+      store.dispatch(openWorkspace(connectionTab)); // this is to make the first tab active
+
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Databases'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'connectionId',
+        'connection1'
+      );
+
+      store.dispatch(connectionDisconnected('connection1'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(1);
+      expect(getActiveTab(state)).to.have.property('type', 'My Queries');
+    });
+
+    it('should remove all tabs completely if all of them belong to the connection', function () {
+      const store = configureStore();
+      openTabs(store);
+      store.dispatch(connectionDisconnected('connection1'));
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(0);
       expect(state).to.have.property('tabs').deep.eq([]);
