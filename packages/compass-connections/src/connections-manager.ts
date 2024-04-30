@@ -244,7 +244,6 @@ export class ConnectionsManager extends EventEmitter {
         dataService.addReauthenticationHandler(this.reAuthenticationHandler);
       }
 
-      this.connectionAttempts.delete(connectionId);
       this.dataServices.set(connectionId, dataService);
 
       this.updateAndNotifyConnectionStatus(
@@ -269,6 +268,8 @@ export class ConnectionsManager extends EventEmitter {
         );
       }
       throw error;
+    } finally {
+      this.connectionAttempts.delete(connectionId);
     }
   }
 
@@ -296,7 +297,6 @@ export class ConnectionsManager extends EventEmitter {
       );
       this.oidcState.delete(connectionInfoId);
       this.connectionAttempts.delete(connectionInfoId);
-      this.connectionStatuses.delete(connectionInfoId);
     } else {
       this.logger.warn(
         'ConnectionsManager',
