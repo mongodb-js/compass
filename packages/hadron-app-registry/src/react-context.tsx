@@ -50,6 +50,21 @@ type AppRegistryProviderProps =
       scopeName?: string;
     };
 
+export function GlobalAppRegistryProvider({
+  value,
+  children,
+}: {
+  value?: AppRegistry;
+  children?: React.ReactNode;
+}) {
+  const appRegistry = useRef(value ?? globalAppRegistry).current;
+  return (
+    <GlobalAppRegistryContext.Provider value={appRegistry}>
+      {children}
+    </GlobalAppRegistryContext.Provider>
+  );
+}
+
 export function AppRegistryProvider({
   children,
   ...props

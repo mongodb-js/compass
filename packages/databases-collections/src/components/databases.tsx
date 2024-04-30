@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -66,7 +66,7 @@ type DatabasesProps = {
   isGenuineMongoDB: boolean;
   isDataLake: boolean;
   onDeleteDatabaseClick(connectionId: string, ns: string): void;
-  onCreateDatabaseClick(): void;
+  onCreateDatabaseClick(connectionId: string): void;
   onRefreshClick(): void;
 };
 
@@ -77,13 +77,31 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   isWritable,
   isDataLake,
   isGenuineMongoDB,
-  onDeleteDatabaseClick,
-  onCreateDatabaseClick,
+  onDeleteDatabaseClick: _onDeleteDatabaseClick,
+  onCreateDatabaseClick: _onCreateDatabaseClick,
   onRefreshClick,
 }) => {
   const { id: connectionId } = useConnectionInfo();
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
+
+  const onDatabaseClick = useCallback(
+    (ns: string) => {
+      openCollectionsWorkspace(connectionId, ns);
+    },
+    [connectionId, openCollectionsWorkspace]
+  );
+
+  const onDeleteDatabaseClick = useCallback(
+    (ns: string) => {
+      _onDeleteDatabaseClick(connectionId, ns);
+    },
+    [connectionId, _onDeleteDatabaseClick]
+  );
+
+  const onCreateDatabaseClick = useCallback(() => {
+    _onCreateDatabaseClick(connectionId);
+  }, [connectionId, _onCreateDatabaseClick]);
 
   useTrackOnChange(
     'COMPASS-DATABASES-UI',
@@ -112,21 +130,18 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   const editable = isWritable && !isPreferencesReadOnly;
   const actions = Object.assign(
     {
-      onDatabaseClick: openCollectionsWorkspace.bind(undefined, connectionId),
+      onDatabaseClick,
       onRefreshClick,
     },
     editable && !isDataLake
-      ? { onDeleteDatabaseClick, onCreateDatabaseClick }
+      ? {
+          onDeleteDatabaseClick,
+          onCreateDatabaseClick,
+        }
       : {}
   );
 
-  return (
-    <DatabasesList
-      connectionId={connectionId}
-      databases={databases}
-      {...actions}
-    />
-  );
+  return <DatabasesList databases={databases} {...actions} />;
 };
 
 const mapStateToProps = (state: DatabasesState) => {

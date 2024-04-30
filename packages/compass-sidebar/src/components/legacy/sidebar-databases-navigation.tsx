@@ -175,16 +175,18 @@ const onNamespaceAction = (
     const ns = toNS(namespace);
     switch (action) {
       case 'drop-database':
-        emit('open-drop-database', connectionId, ns.database);
+        emit('open-drop-database', ns.database, { connectionId });
         return;
       case 'rename-collection':
-        emit('open-rename-collection', connectionId, ns);
+        emit('open-rename-collection', ns, { connectionId });
         return;
       case 'drop-collection':
-        emit('open-drop-collection', connectionId, ns);
+        emit('open-drop-collection', ns, { connectionId });
         return;
       case 'create-collection':
-        emit('open-create-collection', ns);
+        emit('open-create-collection', ns, {
+          connectionId,
+        });
         return;
       case 'duplicate-view': {
         const coll = findCollection(
@@ -192,11 +194,17 @@ const onNamespaceAction = (
           getState().databases[connectionId].databases
         );
         if (coll && coll.sourceName) {
-          emit('open-create-view', {
-            source: coll.sourceName,
-            pipeline: coll.pipeline,
-            duplicate: true,
-          });
+          emit(
+            'open-create-view',
+            {
+              source: coll.sourceName,
+              pipeline: coll.pipeline,
+              duplicate: true,
+            },
+            {
+              connectionId,
+            }
+          );
         }
         return;
       }

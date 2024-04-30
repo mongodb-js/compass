@@ -223,6 +223,7 @@ export function SavedConnection({
       }}
       className={savedConnectionStyles}
       data-testid={`saved-connection-${connectionInfo.id}`}
+      onDoubleClick={() => onConnect(connectionInfo)}
     >
       {icon}{' '}
       <div className={savedConnectionNameStyles}>

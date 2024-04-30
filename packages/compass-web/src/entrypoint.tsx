@@ -1,5 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { AppRegistryProvider, useGlobalAppRegistry } from 'hadron-app-registry';
+import AppRegistry, {
+  AppRegistryProvider,
+  GlobalAppRegistryProvider,
+} from 'hadron-app-registry';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
@@ -98,7 +101,7 @@ type CompassWebProps = {
   darkMode?: boolean;
   stackedElementsZIndex?: number;
   onAutoconnectInfoRequest: () => Promise<ConnectionInfo>;
-  renderConnecting?: (connectionInfo: ConnectionInfo) => React.ReactNode;
+  renderConnecting?: (connectionInfo: ConnectionInfo | null) => React.ReactNode;
   renderError?: (
     connectionInfo: ConnectionInfo | null,
     err: any
@@ -202,7 +205,7 @@ const CompassWeb = ({
   // It's imperative that this method doesn't change during render otherwise the
   // application will be stuck in a neverending re-connect loop
   const onAutoconnectInfoRequestRef = useRef(onAutoconnectInfoRequest);
-  const appRegistry = useGlobalAppRegistry();
+  const appRegistry = useRef(new AppRegistry());
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-WEB-UI');
 
   const connectionsManager = useRef(
@@ -228,13 +231,18 @@ const CompassWeb = ({
     });
   }, []);
 
-  const onConnectionFailed = useCallback((_connectionInfo, error: Error) => {
-    setConnectedState({
-      isConnected: false,
-      connectionInfo: null,
-      connectionError: error,
-    });
-  }, []);
+  const onConnectionFailed = useCallback(
+    (connectionInfo: ConnectionInfo | null, error: Error) => {
+      setConnectedState((prevState) => {
+        return {
+          isConnected: false,
+          connectionInfo: connectionInfo ?? prevState.connectionInfo,
+          connectionError: error,
+        };
+      });
+    },
+    []
+  );
 
   const onConnectionAttemptStarted = useCallback(
     (connectionInfo: ConnectionInfo) => {
@@ -272,63 +280,67 @@ const CompassWeb = ({
   );
 
   return (
-    <AppRegistryProvider scopeName="Compass Web Root">
-      <CompassComponentsProvider
-        darkMode={darkMode}
-        stackedElementsZIndex={stackedElementsZIndex}
-        {...LINK_PROPS}
-      >
-        <PreferencesProvider value={preferencesAccess.current}>
-          <WithAtlasProviders>
-            <ConnectionStorageProvider value={connectionStorage.current}>
-              <ConnectionsManagerProvider value={connectionsManager.current}>
-                <CompassInstanceStorePlugin>
-                  <FieldStorePlugin>
-                    <ConnectionInfoProvider
-                      connectionInfoId={connectionInfo?.id}
-                    >
+    <GlobalAppRegistryProvider value={appRegistry.current}>
+      <AppRegistryProvider scopeName="Compass Web Root">
+        <CompassComponentsProvider
+          darkMode={darkMode}
+          stackedElementsZIndex={stackedElementsZIndex}
+          {...LINK_PROPS}
+        >
+          <PreferencesProvider value={preferencesAccess.current}>
+            <WithAtlasProviders>
+              <ConnectionStorageProvider value={connectionStorage.current}>
+                <ConnectionsManagerProvider value={connectionsManager.current}>
+                  <CompassInstanceStorePlugin>
+                    <FieldStorePlugin>
                       {isConnected && connectionInfo ? (
                         <AppRegistryProvider
                           key={connectionInfo.id}
                           scopeName="Connected Application"
                         >
-                          <CompassWorkspace
-                            connectionInfo={connectionInfo}
-                            initialWorkspaceTabs={initialWorkspaceTabs}
-                            onActiveWorkspaceTabChange={
-                              onActiveWorkspaceTabChange
-                            }
-                          />
+                          <ConnectionInfoProvider
+                            connectionInfoId={connectionInfo.id}
+                          >
+                            <CompassWorkspace
+                              connectionInfo={connectionInfo}
+                              initialWorkspaceTabs={initialWorkspaceTabs}
+                              onActiveWorkspaceTabChange={
+                                onActiveWorkspaceTabChange
+                              }
+                            />
+                          </ConnectionInfoProvider>
                         </AppRegistryProvider>
                       ) : connectionError ? (
                         renderError(connectionInfo, connectionError)
-                      ) : connectionInfo ? (
+                      ) : (
                         renderConnecting(connectionInfo)
-                      ) : null}
-                    </ConnectionInfoProvider>
-                    {/**
-                     * Compass connections is not only handling connection, but
-                     * actually renders connection UI, we need to use it for the
-                     * connection handling business logic, but hide it visually
-                     * because this is not something that we want to be visible
-                     * in DE
-                     */}
-                    <div style={{ display: 'none' }}>
-                      <CompassConnections
-                        appRegistry={appRegistry}
-                        onConnected={onConnected}
-                        onConnectionFailed={onConnectionFailed}
-                        onConnectionAttemptStarted={onConnectionAttemptStarted}
-                      ></CompassConnections>
-                    </div>
-                  </FieldStorePlugin>
-                </CompassInstanceStorePlugin>
-              </ConnectionsManagerProvider>
-            </ConnectionStorageProvider>
-          </WithAtlasProviders>
-        </PreferencesProvider>
-      </CompassComponentsProvider>
-    </AppRegistryProvider>
+                      )}
+                      {/**
+                       * Compass connections is not only handling connection, but
+                       * actually renders connection UI, we need to use it for the
+                       * connection handling business logic, but hide it visually
+                       * because this is not something that we want to be visible
+                       * in DE
+                       */}
+                      <div style={{ display: 'none' }}>
+                        <CompassConnections
+                          appRegistry={appRegistry.current}
+                          onConnected={onConnected}
+                          onConnectionFailed={onConnectionFailed}
+                          onConnectionAttemptStarted={
+                            onConnectionAttemptStarted
+                          }
+                        ></CompassConnections>
+                      </div>
+                    </FieldStorePlugin>
+                  </CompassInstanceStorePlugin>
+                </ConnectionsManagerProvider>
+              </ConnectionStorageProvider>
+            </WithAtlasProviders>
+          </PreferencesProvider>
+        </CompassComponentsProvider>
+      </AppRegistryProvider>
+    </GlobalAppRegistryProvider>
   );
 };
 

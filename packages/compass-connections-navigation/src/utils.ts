@@ -28,10 +28,10 @@ export const getItemPaddingStyles = ({
     /** MC version */
     switch (level) {
       case 2:
-        paddingLeft = spacing[3];
+        paddingLeft = spacing[3] + spacing[1] + spacing[50];
         break;
       case 3:
-        paddingLeft = spacing[3] + spacing[5];
+        paddingLeft = spacing[6] + spacing[2];
         break;
     }
 

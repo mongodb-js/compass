@@ -35,8 +35,6 @@ const sidebarStyles = css({
   zIndex: 0,
 });
 
-const connectionInfoContainerStyles = css({});
-
 const connectionBadgesContainerStyles = css({
   display: 'grid',
   gridTemplateColumns: '100%',
@@ -144,9 +142,17 @@ export function Sidebar({
         return;
       }
 
+      if (action === 'open-create-database') {
+        onSidebarAction(action, ...rest, {
+          connectionId: initialConnectionInfo.id,
+        });
+        return;
+      }
+
       onSidebarAction(action, ...rest);
     },
     [
+      initialConnectionInfo.id,
       onSidebarAction,
       openToast,
       maybeProtectConnectionString,
@@ -156,7 +162,7 @@ export function Sidebar({
 
   const showNonGenuineModal = useCallback(() => {
     toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, true);
-  }, [toggleIsGenuineMongoDBVisible]);
+  }, [initialConnectionInfo.id, toggleIsGenuineMongoDBVisible]);
 
   const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
 
@@ -171,7 +177,7 @@ export function Sidebar({
     >
       <>
         {showConnectionInfo && (
-          <div className={connectionInfoContainerStyles}>
+          <div>
             <SidebarTitle
               title={getConnectionTitle(initialConnectionInfo)}
               isFavorite={!!initialConnectionInfo.favorite}

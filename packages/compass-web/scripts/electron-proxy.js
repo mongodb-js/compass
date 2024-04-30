@@ -9,12 +9,12 @@ const proxyWebServer = express();
 
 const PROXY_PORT = process.env.COMPASS_WEB_HTTP_PROXY_PORT
   ? Number(process.env.COMPASS_WEB_HTTP_PROXY_PORT)
-  : 8080;
+  : 7777;
 
 const WEBPACK_DEV_SERVER_PORT = process.env
   .COMPASS_WEB_HTTP_WEBPACK_DEV_SERVER_PORT
   ? Number(process.env.COMPASS_WEB_HTTP_WEBPACK_DEV_SERVER_PORT)
-  : 8081;
+  : 4242;
 
 const CLOUD_CONFIG_VARIANTS = {
   dev: {

@@ -78,13 +78,6 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
             <Badge className={devBadgeStyles}>dev</Badge>
           </span>
         )}
-        {name === 'enableGenAIFeatures' && (
-          <span>
-            <Badge variant="blue" className={devBadgeStyles}>
-              Preview
-            </Badge>
-          </span>
-        )}
       </Label>
       {long && <Description>{long}</Description>}
     </>

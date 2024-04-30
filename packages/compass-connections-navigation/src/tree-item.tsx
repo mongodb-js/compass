@@ -9,6 +9,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const buttonReset = css({
   padding: 0,
@@ -113,6 +114,12 @@ export function useDefaultAction<T>(
 const itemContainer = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
+  backgroundColor: 'var(--item-bg-color)',
+  backgroundRadius: 'var(--item-bg-radius)',
+
+  '.item-background': {
+    backgroundColor: 'var(--item-bg-color)',
+  },
 
   '& .item-action-controls': {
     marginLeft: 'auto',
@@ -121,6 +128,10 @@ const itemContainer = css({
 
   '&:hover .item-background': {
     display: 'block',
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+
+  '&:hover': {
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
@@ -135,13 +146,23 @@ const itemContainer = css({
 
 const activeItemContainer = css({
   color: 'var(--item-color-active)',
+  backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
 
-  '.item-background, :hover .item-background': {
+  '&:hover': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
+});
+
+const legacyActiveItemContainer = css({
+  color: 'var(--item-color-active)',
+  backgroundColor: 'var(--item-bg-color-active)',
+  fontWeight: 'bold',
+
+  '&:hover': {
     backgroundColor: 'var(--item-bg-color-active)',
   },
 
-  // this is copied from leafygreen's own navigation, hence the pixel values
   '::before': {
     zIndex: 1,
     backgroundColor: 'var(--item-color-active)',
@@ -210,12 +231,19 @@ export const ItemContainer: React.FunctionComponent<
   className,
   ...props
 }) => {
+  const isMultipleConnection = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
   const extraCSS = [];
   if (isActive) {
-    extraCSS.push(activeItemContainer);
+    if (isMultipleConnection) {
+      extraCSS.push(activeItemContainer);
+    } else {
+      extraCSS.push(legacyActiveItemContainer);
+    }
   }
 
   const treeItemProps = mergeProps(

@@ -63,14 +63,24 @@ const ResizableSidebar = ({
   children,
   className,
   style,
+  useNewTheme,
   ...props
 }: {
   initialWidth?: number;
   minWidth?: number;
   children: JSX.Element;
+  useNewTheme?: boolean;
 } & React.HTMLProps<HTMLDivElement>): JSX.Element => {
   const darkMode = useDarkMode();
   const [width, setWidth] = useState(initialWidth);
+  const newThemeStyles = useNewTheme
+    ? {
+        '--item-color-active': darkMode ? palette.white : palette.gray.dark3,
+        '--item-bg-color-active': darkMode
+          ? palette.gray.dark2
+          : palette.gray.light2,
+      }
+    : {};
 
   const getMaxSidebarWidth = useCallback(() => {
     return Math.max(minWidth, 600);
@@ -101,6 +111,7 @@ const ResizableSidebar = ({
         minWidth,
         width: renderedWidth,
         flex: 'none',
+        ...newThemeStyles,
       }}
       {...props}
     >
