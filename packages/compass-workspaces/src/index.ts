@@ -119,7 +119,7 @@ export function activateWorkspacePlugin(
   on(
     connectionsManager,
     ConnectionsManagerEvents.ConnectionDisconnected,
-    function (connectionId: string) {
+    function (connectionId: ConnectionInfo['id']) {
       store.dispatch(connectionDisconnected(connectionId));
     }
   );

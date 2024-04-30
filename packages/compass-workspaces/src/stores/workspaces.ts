@@ -111,20 +111,20 @@ const getTabId = () => {
   return new ObjectId().toString();
 };
 
-const filterConnections = ({
-  state,
-  isToBeRemoved,
+const filterTabs = ({
+  tabs,
+  isToBeClosed,
 }: {
-  state: WorkspacesState;
-  isToBeRemoved: (tab: WorkspaceTab, index?: number) => boolean;
+  tabs: WorkspaceTab[];
+  isToBeClosed: (tab: WorkspaceTab) => boolean;
 }): {
   newTabs: WorkspaceTab[];
   removedIndexes: number[];
 } => {
   const newTabs: WorkspaceTab[] = [];
   const removedIndexes: number[] = [];
-  state.tabs.forEach((tab, index) => {
-    if (isToBeRemoved(tab, index)) {
+  tabs.forEach((tab, index) => {
+    if (isToBeClosed(tab)) {
       removedIndexes.push(index);
     } else {
       newTabs.push(tab);
@@ -155,23 +155,26 @@ const getNewActiveTabId = ({
     newActiveTabId = null;
   } else if (activeTabIndex >= state.tabs.length) {
     // the active tab and everything after it was closed
-    newActiveTabId = newTabs[newTabs.length - 1].id;
+    newActiveTabId = newTabs[newTabs.length - 1]?.id;
   } else {
-    newActiveTabId = state.tabs[activeTabIndex].id;
+    newActiveTabId = state.tabs[activeTabIndex]?.id;
   }
   return newActiveTabId;
 };
 
-const bulkTabsClose = ({
+/**
+ * only exported for tests
+ */
+export const _bulkTabsClose = ({
   state,
-  isToBeRemoved,
+  isToBeClosed,
 }: {
   state: WorkspacesState;
-  isToBeRemoved: (tab: WorkspaceTab, index?: number) => boolean;
+  isToBeClosed: (tab: WorkspaceTab, index?: number) => boolean;
 }) => {
-  const { newTabs, removedIndexes } = filterConnections({
-    state,
-    isToBeRemoved,
+  const { newTabs, removedIndexes } = filterTabs({
+    tabs: state.tabs,
+    isToBeClosed,
   });
 
   if (newTabs.length === state.tabs.length) {
@@ -416,26 +419,26 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.CollectionRemoved
     )
   ) {
-    const isToBeRemoved = (tab: WorkspaceTab) =>
+    const isToBeClosed = (tab: WorkspaceTab) =>
       tab.type === 'Collection' && tab.namespace === action.namespace;
 
-    return bulkTabsClose({
+    return _bulkTabsClose({
       state,
-      isToBeRemoved,
+      isToBeClosed,
     });
   }
 
   if (
     isAction<DatabaseRemovedAction>(action, WorkspacesActions.DatabaseRemoved)
   ) {
-    const isToBeRemoved = (tab: WorkspaceTab) =>
+    const isToBeClosed = (tab: WorkspaceTab) =>
       (tab.type === 'Collections' && tab.namespace === action.namespace) ||
       (tab.type === 'Collection' &&
         toNS(tab.namespace).database === action.namespace);
 
-    return bulkTabsClose({
+    return _bulkTabsClose({
       state,
-      isToBeRemoved,
+      isToBeClosed,
     });
   }
 
@@ -445,12 +448,12 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.ConnectionDisconnected
     )
   ) {
-    const isToBeRemoved = (tab: WorkspaceTab) =>
+    const isToBeClosed = (tab: WorkspaceTab) =>
       tab.type !== 'My Queries' && tab.connectionId === action.connectionId;
 
-    return bulkTabsClose({
+    return _bulkTabsClose({
       state,
-      isToBeRemoved,
+      isToBeClosed,
     });
   }
 

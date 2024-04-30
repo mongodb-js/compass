@@ -323,7 +323,7 @@ export function MultipleConnectionSidebar({
 
   const onDisconnect = useCallback(
     (connectionId: string) => {
-      void closeConnection(connectionId); // TODO: error handling
+      void closeConnection(connectionId);
     },
     [closeConnection]
   );
