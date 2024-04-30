@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
@@ -13,89 +13,172 @@ type CreateNamespaceState = {
   isVisible: boolean;
   databaseName: string | null;
   error: Error | null;
-  serverVersion: string;
-  currentTopologyType: string;
-  configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>;
+  // The connection id for which the modal was opened
+  connectionId: string;
+  connectionMetaData: {
+    [connectionId: string]: {
+      serverVersion: string;
+      currentTopologyType: string;
+      configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>;
+    };
+  };
 };
 
-export const INITIAL_STATE = {
+export const INITIAL_STATE: CreateNamespaceState = {
   isRunning: false,
   isVisible: false,
   databaseName: null,
   error: null,
-  serverVersion: '0.0.0',
-  configuredKMSProviders: [],
-  currentTopologyType: 'Unknown' as const,
+  connectionId: '',
+  connectionMetaData: {},
 };
 
-export const RESET = 'databases-collections/reset';
+export const enum CreateNamespaceActionTypes {
+  Reset = 'databases-collections/Reset',
+  Open = 'databases-collections/create-collection/Open',
+  Close = 'databases-collections/create-collection/Close',
+  HandleError = 'databases-collections/error/HandleError',
+  ClearError = 'databases-collections/error/ClearError',
+  ToggleIsRunning = 'databases-collections/is-running/ToggleIsRunning',
+  TopologyChanged = 'databases-collections/TopologyChanged',
+  ServerVersionRetrieved = 'databases-collections/ServerVersionRetrieved',
+  KMSProvidersRetrieved = 'databases-collections/KMSProvidersRetrieved',
+}
 
-export const reset = () => ({
-  type: RESET,
+export type ResetAction = {
+  type: CreateNamespaceActionTypes.Reset;
+};
+
+export type OpenAction = {
+  type: CreateNamespaceActionTypes.Open;
+  connectionId: string;
+  databaseName: string | null;
+};
+
+export type CloseAction = {
+  type: CreateNamespaceActionTypes.Close;
+};
+
+export type HandleErrorAction = {
+  type: CreateNamespaceActionTypes.HandleError;
+  error: Error;
+};
+
+export type ClearErrorAction = {
+  type: CreateNamespaceActionTypes.ClearError;
+};
+
+export type ToggleIsRunningAction = {
+  type: CreateNamespaceActionTypes.ToggleIsRunning;
+  isRunning: boolean;
+};
+
+export type TopologyChangedAction = {
+  type: CreateNamespaceActionTypes.TopologyChanged;
+  connectionId: string;
+  newTopology: string;
+};
+
+export type ServerVersionRetrievedAction = {
+  type: CreateNamespaceActionTypes.ServerVersionRetrieved;
+  connectionId: string;
+  version: string;
+};
+
+export type KMSProvidersRetrievedAction = {
+  type: CreateNamespaceActionTypes.KMSProvidersRetrieved;
+  connectionId: string;
+  configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>;
+};
+
+export const reset = (): ResetAction => ({
+  type: CreateNamespaceActionTypes.Reset,
 });
 
-const OPEN = 'databases-collections/create-collection/OPEN';
-
 export const open = (
+  connectionId: string,
   dbName: string | null = null
-): CreateNamespaceThunkAction<void> => {
+): CreateNamespaceThunkAction<void, OpenAction> => {
   return (dispatch, _getState, { logger: { track } }) => {
     track('Screen', {
       name: dbName ? 'create_collection_modal' : 'create_database_modal',
     });
 
     dispatch({
-      type: OPEN,
+      type: CreateNamespaceActionTypes.Open,
+      connectionId,
       databaseName: dbName,
     });
   };
 };
 
-export const HANDLE_ERROR = `databases-collections/error/HANDLE_ERROR`;
+export const close = (): CloseAction => ({
+  type: CreateNamespaceActionTypes.Close,
+});
 
-export const handleError = (error: Error) => ({
-  type: HANDLE_ERROR,
+export const handleError = (error: Error): HandleErrorAction => ({
+  type: CreateNamespaceActionTypes.HandleError,
   error: error,
 });
 
-export const CLEAR_ERROR = `databases-collections/error/CLEAR_ERROR`;
-
-export const clearError = () => ({
-  type: CLEAR_ERROR,
+export const clearError = (): ClearErrorAction => ({
+  type: CreateNamespaceActionTypes.ClearError,
 });
 
-export const TOGGLE_IS_RUNNING =
-  'databases-collections/is-running/TOGGLE_IS_RUNNING';
-
-export const toggleIsRunning = (isRunning: boolean) => ({
-  type: TOGGLE_IS_RUNNING,
+export const toggleIsRunning = (isRunning: boolean): ToggleIsRunningAction => ({
+  type: CreateNamespaceActionTypes.ToggleIsRunning,
   isRunning: isRunning,
 });
 
-export const TOGGLE_IS_VISIBLE = `databases-collections/is-visible/TOGGLE_IS_VISIBLE`;
-
-export const toggleIsVisible = (isVisible: boolean) => ({
-  type: TOGGLE_IS_VISIBLE,
-  isVisible: isVisible,
+export const topologyChanged = (
+  connectionId: string,
+  newTopology: string
+): TopologyChangedAction => ({
+  type: CreateNamespaceActionTypes.TopologyChanged,
+  connectionId,
+  newTopology,
 });
 
-export const TOPOLOGY_CHANGED = `databases-collections/TOPOLOGY_CHANGED`;
-
-export const topologyChanged = (newTopology: string) => ({
-  type: TOPOLOGY_CHANGED,
-  newTopology: newTopology,
+export const serverVersionRetrieved = (
+  connectionId: string,
+  version: string
+): ServerVersionRetrievedAction => ({
+  type: CreateNamespaceActionTypes.ServerVersionRetrieved,
+  connectionId,
+  version,
 });
+
+export const kmsProvidersRetrieved = (
+  connectionId: string,
+  configuredKMSProviders: ReturnType<DataService['configuredKMSProviders']>
+): KMSProvidersRetrievedAction => ({
+  type: CreateNamespaceActionTypes.KMSProvidersRetrieved,
+  connectionId,
+  configuredKMSProviders,
+});
+
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 const reducer: Reducer<CreateNamespaceState> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (action.type === RESET) {
-    return { ...INITIAL_STATE, serverVersion: state.serverVersion };
+  if (
+    isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset) ||
+    isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)
+  ) {
+    return { ...INITIAL_STATE };
   }
-  if (action.type === OPEN) {
+
+  if (isAction<OpenAction>(action, CreateNamespaceActionTypes.Open)) {
     return {
       ...state,
+      connectionId: action.connectionId,
       databaseName: action.databaseName,
       // Reset form related state on open
       isRunning: false,
@@ -103,28 +186,88 @@ const reducer: Reducer<CreateNamespaceState> = (
       error: null,
     };
   }
-  if (action.type === HANDLE_ERROR) {
+
+  if (
+    isAction<HandleErrorAction>(action, CreateNamespaceActionTypes.HandleError)
+  ) {
     return {
       ...state,
       error: action.error,
     };
   }
-  if (action.type === CLEAR_ERROR) {
+
+  if (
+    isAction<ClearErrorAction>(action, CreateNamespaceActionTypes.ClearError)
+  ) {
     return {
       ...state,
       error: null,
     };
   }
-  if (action.type === TOGGLE_IS_VISIBLE) {
+
+  if (
+    isAction<ToggleIsRunningAction>(
+      action,
+      CreateNamespaceActionTypes.ToggleIsRunning
+    )
+  ) {
     return {
       ...state,
-      isVisible: action.isVisible,
+      isRunning: action.isRunning,
     };
   }
-  if (action.type === TOPOLOGY_CHANGED) {
+
+  if (
+    isAction<TopologyChangedAction>(
+      action,
+      CreateNamespaceActionTypes.TopologyChanged
+    )
+  ) {
     return {
       ...state,
-      currentTopologyType: action.newTopology,
+      connectionMetaData: {
+        ...state.connectionMetaData,
+        [action.connectionId]: {
+          ...state.connectionMetaData[action.connectionId],
+          currentTopologyType: action.newTopology,
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<ServerVersionRetrievedAction>(
+      action,
+      CreateNamespaceActionTypes.ServerVersionRetrieved
+    )
+  ) {
+    return {
+      ...state,
+      connectionMetaData: {
+        ...state.connectionMetaData,
+        [action.connectionId]: {
+          ...state.connectionMetaData[action.connectionId],
+          serverVersion: action.version,
+        },
+      },
+    };
+  }
+
+  if (
+    isAction<KMSProvidersRetrievedAction>(
+      action,
+      CreateNamespaceActionTypes.KMSProvidersRetrieved
+    )
+  ) {
+    return {
+      ...state,
+      connectionMetaData: {
+        ...state.connectionMetaData,
+        [action.connectionId]: {
+          ...state.connectionMetaData[action.connectionId],
+          configuredKMSProviders: action.configuredKMSProviders,
+        },
+      },
     };
   }
   return state;
@@ -211,9 +354,14 @@ export const createNamespace = (
   return async (
     dispatch,
     getState,
-    { dataService: ds, globalAppRegistry, logger: { track, debug }, workspaces }
+    {
+      globalAppRegistry,
+      connectionsManager,
+      logger: { track, debug },
+      workspaces,
+    }
   ) => {
-    const { databaseName } = getState();
+    const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
     const dbName = databaseName ?? data.database;
     const collName = data.collection;
@@ -227,6 +375,10 @@ export const createNamespace = (
 
     try {
       dispatch(toggleIsRunning(true));
+      const ds = connectionsManager.getDataServiceForConnection(connectionId);
+      if (!ds) {
+        throw new Error('DataService not available for connection');
+      }
 
       const options = await handleFLE2Options(ds, data.options);
 
@@ -243,8 +395,12 @@ export const createNamespace = (
 
       track(`${kind} Created`, trackEvent);
 
-      globalAppRegistry.emit('collection-created', namespace);
-      workspaces.openCollectionWorkspace(namespace, { newTab: true });
+      globalAppRegistry.emit('collection-created', namespace, {
+        connectionId,
+      });
+      workspaces.openCollectionWorkspace(connectionId, namespace, {
+        newTab: true,
+      });
       dispatch(reset());
     } catch (e) {
       debug('create collection failed', e);

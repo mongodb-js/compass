@@ -11,7 +11,7 @@ import type { CreateNamespaceRootState } from '../stores/create-namespace';
 import type { CreateNamespaceOptions } from '../modules/create-namespace';
 import {
   createNamespace,
-  toggleIsVisible,
+  close,
   clearError,
 } from '../modules/create-namespace';
 import CollectionFields from './collection-fields';
@@ -33,7 +33,7 @@ type CreateNamespaceModalProps = {
   isVisible: boolean;
   error: Error | null;
   createNamespace(data: CreateNamespaceOptions): void;
-  toggleIsVisible(newVisible: boolean): void;
+  close(): void;
   clearError(): void;
   serverVersion: string;
   configuredKMSProviders?: string[];
@@ -61,7 +61,7 @@ class CreateDatabaseModal extends PureComponent<
   };
 
   onCancel = () => {
-    return this.props.toggleIsVisible(false);
+    return this.props.close();
   };
 
   onConfirm = () => {
@@ -154,16 +154,20 @@ class CreateDatabaseModal extends PureComponent<
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state: CreateNamespaceRootState) => ({
-  databaseName: state.databaseName,
-  isCreateCollection: state.databaseName !== null,
-  isRunning: state.isRunning,
-  isVisible: state.isVisible,
-  error: state.error,
-  serverVersion: state.serverVersion,
-  configuredKMSProviders: state.configuredKMSProviders,
-  currentTopologyType: state.currentTopologyType,
-});
+const mapStateToProps = (state: CreateNamespaceRootState) => {
+  const connectionMetaData = state.connectionMetaData[state.connectionId] ?? {};
+  return {
+    connectionId: state.connectionId,
+    databaseName: state.databaseName,
+    isCreateCollection: state.databaseName !== null,
+    isRunning: state.isRunning,
+    isVisible: state.isVisible,
+    error: state.error,
+    serverVersion: connectionMetaData.serverVersion,
+    configuredKMSProviders: connectionMetaData.configuredKMSProviders,
+    currentTopologyType: connectionMetaData.currentTopologyType,
+  };
+};
 
 /**
  * Connect the redux store to the component.
@@ -171,7 +175,7 @@ const mapStateToProps = (state: CreateNamespaceRootState) => ({
  */
 const MappedCreateDatabaseModal = connect(mapStateToProps, {
   createNamespace,
-  toggleIsVisible,
+  close,
   clearError,
 })(CreateDatabaseModal);
 

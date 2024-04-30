@@ -86,18 +86,24 @@ export const refreshCollections = (): CollectionsThunkAction<void> => {
 };
 
 export const createNewCollection = (
+  connectionId: string,
   dbName: string
 ): CollectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-create-collection', toNS(dbName));
+    globalAppRegistry.emit('open-create-collection', toNS(dbName), {
+      connectionId,
+    });
   };
 };
 
 export const deleteCollection = (
+  connectionId: string,
   namespace: string
 ): CollectionsThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('open-drop-collection', toNS(namespace));
+    globalAppRegistry.emit('open-drop-collection', toNS(namespace), {
+      connectionId,
+    });
   };
 };
 

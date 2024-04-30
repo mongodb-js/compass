@@ -5,6 +5,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 
@@ -32,6 +33,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
 }: CollectionHeaderActionsProps) => {
+  const { id: connectionId } = useConnectionInfo();
   const { openCollectionWorkspace, openEditViewWorkspace } = useOpenWorkspace();
   return (
     <div
@@ -44,7 +46,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           size={ButtonSize.Small}
           onClick={() => {
             if (sourceName && sourcePipeline) {
-              openEditViewWorkspace(namespace, {
+              openEditViewWorkspace(connectionId, namespace, {
                 sourceName,
                 sourcePipeline,
               });
@@ -61,7 +63,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           size={ButtonSize.Small}
           onClick={() => {
             if (editViewName) {
-              openCollectionWorkspace(editViewName);
+              openCollectionWorkspace(connectionId, editViewName);
             }
           }}
         >

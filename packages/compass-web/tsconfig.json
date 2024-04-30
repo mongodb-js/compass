@@ -5,6 +5,7 @@
   },
   "include": [
     "src/**/*",
+    "polyfills/**/*",
     // Including sandbox so that ts check and editor intellisense can provide
     // useful information when working in the sandbox. It needs to be in the
     // default tsconfig file

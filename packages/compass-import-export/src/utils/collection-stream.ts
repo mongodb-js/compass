@@ -10,6 +10,8 @@ import type {
   BulkWriteResult,
 } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
+import type { ErrorJSON } from '../import/import-types';
+import { errorToJSON } from '../import/import-utils';
 
 import { createDebug } from './logger';
 
@@ -88,11 +90,13 @@ export class WritableCollectionStream extends Writable {
   _batchCounter: number;
   _stats: CollectionStreamStats;
   _errors: CollectionStreamProgressError[];
+  errorCallback?: (error: ErrorJSON) => void;
 
   constructor(
     dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>,
     ns: string,
-    stopOnErrors: boolean
+    stopOnErrors: boolean,
+    errorCallback?: (error: ErrorJSON) => void
   ) {
     super({ objectMode: true });
     this.dataService = dataService;
@@ -117,6 +121,7 @@ export class WritableCollectionStream extends Writable {
     };
 
     this._errors = [];
+    this.errorCallback = errorCallback;
   }
 
   _write(
@@ -181,7 +186,8 @@ export class WritableCollectionStream extends Writable {
             await this.dataService.insertOne(this.ns, doc);
             insertedCount += 1;
           } catch (insertOneByOneError: any) {
-            this._errors.push(insertOneByOneError as Error);
+            this._errors.push(insertOneByOneError);
+            this.errorCallback?.(errorToJSON(insertOneByOneError));
 
             if (this.stopOnErrors) {
               break;
@@ -195,7 +201,9 @@ export class WritableCollectionStream extends Writable {
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
         result = (bulkWriteError as MongoBulkWriteError).result;
+
         this._errors.push(bulkWriteError);
+        this.errorCallback?.(errorToJSON(bulkWriteError));
       }
     }
 
@@ -281,7 +289,13 @@ export class WritableCollectionStream extends Writable {
 export const createCollectionWriteStream = function (
   dataService: Pick<DataService, 'bulkWrite' | 'insertOne'>,
   ns: string,
-  stopOnErrors: boolean
+  stopOnErrors: boolean,
+  errorCallback?: (error: ErrorJSON) => void
 ) {
-  return new WritableCollectionStream(dataService, ns, stopOnErrors);
+  return new WritableCollectionStream(
+    dataService,
+    ns,
+    stopOnErrors,
+    errorCallback
+  );
 };

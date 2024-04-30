@@ -1,3 +1,4 @@
+'use strict';
 const bsonTranspilers = require('..');
 const assert = require('assert');
 
@@ -5,22 +6,22 @@ const {
   BsonTranspilersUnimplementedError
 } = require('../helper/error');
 
-describe('function expressions (shell)', () => {
-  it('compiles functions to javascript', () => {
+describe('function expressions (shell)', function() {
+  it('compiles functions to javascript', function() {
     assert.strictEqual(
       bsonTranspilers.shell.javascript.compile('function(){ return this.x === 1 }'),
       'function(){ return this.x === 1 }'
     );
   });
 
-  it('compiles functions to javascript (takes the right source range)', () => {
+  it('compiles functions to javascript (takes the right source range)', function() {
     assert.strictEqual(
       bsonTranspilers.shell.javascript.compile('1 + function(){ return this.x === 1 }'),
       '1 + function(){ return this.x === 1 }'
     );
   });
 
-  it('compiles functions to javascript (preserve new lines)', () => {
+  it('compiles functions to javascript (preserve new lines)', function() {
     assert.strictEqual(
       bsonTranspilers.shell.javascript.compile(`function(){
   return this.x === 1
@@ -31,7 +32,7 @@ describe('function expressions (shell)', () => {
     );
   });
 
-  it('allows functions in pipeline stages', () => {
+  it('allows functions in pipeline stages', function() {
     assert.strictEqual(
       bsonTranspilers.shell.javascript.compile(`{
   $match: {
@@ -47,7 +48,7 @@ describe('function expressions (shell)', () => {
   });
 
   ['object', 'csharp', 'java', 'python', 'ruby', 'rust', 'php'].forEach((language) => {
-    it(`throws an unsupported error compiling functions to ${language}`, () => {
+    it(`throws an unsupported error compiling functions to ${language}`, function() {
       assert.throws(
         () => {
           bsonTranspilers.shell[language].compile('function(){}');

@@ -1,3 +1,4 @@
+'use strict';
 // Not implemented in jsdom
 if (!window.matchMedia) {
   window.matchMedia = globalThis.matchMedia = (media) => {

@@ -1,4 +1,3 @@
-import type toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 
 type CollectionMetadata = {
@@ -99,6 +98,7 @@ interface Collection extends CollectionProps {
   toJSON(opts?: { derived: boolean }): CollectionProps;
   previousAttributes(): CollectionProps;
   set(val: Partial<CollectionProps>): this;
+  modelType: 'Collection';
 }
 
 interface CollectionCollection extends Array<Collection> {

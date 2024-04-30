@@ -17,8 +17,6 @@ export type FeatureFlags = {
   enableOidc: boolean; // Not capitalized "OIDC" for spawn arg casing.
   newExplainPlan: boolean;
   showInsights: boolean;
-  enableBulkUpdateOperations: boolean;
-  enableBulkDeleteOperations: boolean;
   enableRenameCollectionModal: boolean;
   enableNewMultipleConnectionSystem: boolean;
 };
@@ -50,29 +48,6 @@ export const featureFlags: Required<{
     description: {
       short: 'Show performance insights',
       long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
-    },
-  },
-
-  /**
-   * Feature flag bulk updates
-   * Epic: COMPASS-6671
-   */
-  enableBulkUpdateOperations: {
-    stage: 'released',
-    description: {
-      short: 'Enable bulk update operations.',
-      long: 'Allows editing all documents given a query.',
-    },
-  },
-  /**
-   * Feature flag for bulk deletes.
-   * Epic: COMPASS-6671
-   */
-  enableBulkDeleteOperations: {
-    stage: 'released',
-    description: {
-      short: 'Enable bulk delete operations.',
-      long: 'Allows deleting all documents given a query.',
     },
   },
 

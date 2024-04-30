@@ -13,10 +13,9 @@ import MultipleConnectionSidebar from './sidebar';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { ToastArea } from '@mongodb-js/compass-components';
 import {
+  InMemoryConnectionStorage,
   ConnectionStorageProvider,
-  type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
-import { ConnectionStorageBus } from '@mongodb-js/connection-storage/renderer';
 import type { DataService } from 'mongodb-data-service';
 import {
   ConnectionsManagerProvider,
@@ -25,11 +24,16 @@ import {
 import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createInstance } from '../../../test/helpers';
+import {
+  type PreferencesAccess,
+  createSandboxFromDefaultPreferences,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import {
   type WorkspacesService,
   WorkspacesServiceProvider,
 } from '@mongodb-js/compass-workspaces/provider';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 
 type PromiseFunction = (
@@ -63,25 +67,10 @@ const savedConnection: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
-type ItselfAndStub<T> = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  [K in keyof T]: T[K] extends Function ? ReturnType<typeof stub> : T[K];
-};
-
 describe('Multiple Connections Sidebar Component', function () {
-  const connectionStorage: ItselfAndStub<
-    Pick<
-      typeof ConnectionStorage,
-      'events' | 'loadAll' | 'load' | 'save' | 'delete'
-    >
-  > = {
-    events: new ConnectionStorageBus(),
-    loadAll: stub(),
-    load: stub(),
-    save: stub(),
-    delete: stub(),
-  };
-  const instance = createInstance();
+  let preferences: PreferencesAccess;
+
+  const connectionStorage = new InMemoryConnectionStorage([savedConnection]);
   const globalAppRegistry = new AppRegistry();
   const emitSpy = spy(globalAppRegistry, 'emit');
   let store: ReturnType<typeof createSidebarStore>['store'];
@@ -91,7 +80,6 @@ describe('Multiple Connections Sidebar Component', function () {
   const connectFn = stub();
 
   function doRender() {
-    const storage = connectionStorage as any;
     const connectionManager = new ConnectionsManager({
       logger: { debug: stub() } as any,
       __TEST_CONNECT_FN: connectFn,
@@ -99,14 +87,11 @@ describe('Multiple Connections Sidebar Component', function () {
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
-        dataService: {
-          getConnectionOptions() {
-            return {};
+        instancesManager: {
+          listMongoDBInstances() {
+            return [];
           },
-          currentOp() {},
-          top() {},
         },
-        instance,
         logger: { log: { warn() {} }, mongoLogId() {} },
       } as any,
       { on() {}, cleanup() {}, addCleanup() {} } as any
@@ -115,43 +100,48 @@ describe('Multiple Connections Sidebar Component', function () {
 
     return render(
       <ToastArea>
-        <WorkspacesServiceProvider
-          value={
-            {
-              openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
-            } as unknown as WorkspacesService
-          }
-        >
-          <WorkspacesProvider
-            value={[{ name: 'My Queries', component: () => null }]}
+        <PreferencesProvider value={preferences}>
+          <WorkspacesServiceProvider
+            value={
+              {
+                openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
+              } as unknown as WorkspacesService
+            }
           >
-            <ConnectionStorageProvider value={storage}>
-              <ConnectionsManagerProvider value={connectionManager}>
-                <Provider store={store}>
-                  <MultipleConnectionSidebar
-                    activeWorkspace={{ type: 'connection' }}
-                  />
-                </Provider>
-              </ConnectionsManagerProvider>
-            </ConnectionStorageProvider>
-          </WorkspacesProvider>
-        </WorkspacesServiceProvider>
+            <WorkspacesProvider
+              value={[{ name: 'My Queries', component: () => null }]}
+            >
+              <ConnectionStorageProvider value={connectionStorage}>
+                <ConnectionsManagerProvider value={connectionManager}>
+                  <Provider store={store}>
+                    <MultipleConnectionSidebar
+                      activeWorkspace={
+                        {
+                          type: 'Databases',
+                          connectionId: savedConnection.id,
+                        } as WorkspaceTab
+                      }
+                    />
+                  </Provider>
+                </ConnectionsManagerProvider>
+              </ConnectionStorageProvider>
+            </WorkspacesProvider>
+          </WorkspacesServiceProvider>
+        </PreferencesProvider>
       </ToastArea>
     );
   }
 
-  beforeEach(function () {
-    connectionStorage.loadAll.returns([savedConnection]);
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
 
     doRender();
   });
 
   afterEach(function () {
-    connectionStorage.loadAll.reset();
-    connectionStorage.load.reset();
-    connectionStorage.save.reset();
-    connectionStorage.delete.reset();
-
     deactivate();
     cleanup();
     emitSpy.resetHistory();
@@ -185,7 +175,6 @@ describe('Multiple Connections Sidebar Component', function () {
 
     describe('when failing to connect', function () {
       it('calls the connection function and renders the error toast', async function () {
-        connectionStorage.loadAll.returns([savedConnection]);
         connectFn.returns(slowConnection(andFail('Expected failure')));
         parentSavedConnection = screen.getByTestId('saved-connection-12345');
 

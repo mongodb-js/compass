@@ -1,3 +1,4 @@
+'use strict';
 /* eslint-disable mocha/no-top-level-hooks */
 /* eslint-disable no-sync */
 const fsExtra = require('fs-extra');

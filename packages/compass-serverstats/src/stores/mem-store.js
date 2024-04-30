@@ -1,3 +1,4 @@
+'use strict';
 const Reflux = require('reflux');
 const Actions = require('../actions');
 const ServerStatsStore = require('./server-stats-graphs-store');

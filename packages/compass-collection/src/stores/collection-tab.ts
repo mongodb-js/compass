@@ -8,9 +8,7 @@ import reducer, {
   pickCollectionStats,
   selectTab,
 } from '../modules/collection-tab';
-import type Collection from 'mongodb-collection-model';
-import toNs from 'mongodb-ns';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
@@ -32,7 +30,7 @@ export type CollectionTabOptions = {
 
 export type CollectionTabServices = {
   dataService: DataService;
-  instance: MongoDBInstance;
+  collection: Collection;
   localAppRegistry: AppRegistry;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
@@ -42,13 +40,12 @@ export function activatePlugin(
   services: CollectionTabServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const { dataService, instance, localAppRegistry, workspaces } = services;
-
-  const { database, collection } = toNs(namespace);
-
-  const collectionModel = instance.databases
-    .get(database)
-    ?.collections.get(collection, 'name');
+  const {
+    dataService,
+    collection: collectionModel,
+    localAppRegistry,
+    workspaces,
+  } = services;
 
   if (!collectionModel) {
     throw new Error(

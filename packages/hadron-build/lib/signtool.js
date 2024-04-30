@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const debug = require('debug')('hadron-build:target');
 const { sign: _garasign } = require('@mongodb-js/signing-utils');

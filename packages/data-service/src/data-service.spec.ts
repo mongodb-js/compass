@@ -5,9 +5,8 @@ import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
 import { Collection, MongoServerError } from 'mongodb';
 import { MongoClient } from 'mongodb';
-import { Int32 } from 'bson';
+import { Int32, UUID } from 'bson';
 import sinon from 'sinon';
-import { v4 as uuid } from 'uuid';
 import type { DataService } from './data-service';
 import { DataServiceImpl } from './data-service';
 import type {
@@ -75,7 +74,7 @@ describe('DataService', function () {
     beforeEach(async function () {
       sandbox = sinon.createSandbox();
 
-      testCollectionName = `coll-${uuid()}`;
+      testCollectionName = `coll-${new UUID().toString()}`;
       testNamespace = `${testDatabaseName}.${testCollectionName}`;
 
       await mongoClient
@@ -256,7 +255,7 @@ describe('DataService', function () {
     describe('#dropDatabase', function () {
       let dbName: string;
       beforeEach(async function () {
-        dbName = uuid();
+        dbName = new UUID().toString();
         await mongoClient.db(dbName).createCollection('testing');
       });
 

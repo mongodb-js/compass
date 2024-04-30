@@ -1,3 +1,4 @@
+'use strict';
 exports = function() {};
 
 exports.clean = require('./commands/clean');

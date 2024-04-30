@@ -14,11 +14,14 @@ describe('DropNamespacePlugin', function () {
     dropDatabase: sandbox.stub().resolves(true),
     dropCollection: sandbox.stub().resolves(true),
   };
+  const connectionsManager = {
+    getDataServiceForConnection: sandbox.stub().returns(dataService),
+  } as any;
 
   beforeEach(function () {
     const Plugin = DropNamespacePlugin.withMockServices({
       globalAppRegistry: appRegistry,
-      dataService,
+      connectionsManager,
     });
     render(<Plugin></Plugin>);
   });
@@ -29,7 +32,9 @@ describe('DropNamespacePlugin', function () {
   });
 
   it('should ask for confirmation and delete collection on `open-drop-collection` event', async function () {
-    appRegistry.emit('open-drop-collection', toNS('test.to-drop'));
+    appRegistry.emit('open-drop-collection', toNS('test.to-drop'), {
+      connectionId: 'TEST',
+    });
 
     expect(
       screen.getByText(
@@ -55,10 +60,18 @@ describe('DropNamespacePlugin', function () {
       'test.to-drop'
     );
     expect(dataService.dropDatabase).to.have.not.been.called;
+
+    expect(appRegistry.emit).to.have.been.calledWithExactly(
+      'collection-dropped',
+      'test.to-drop',
+      { connectionId: 'TEST' }
+    );
   });
 
   it('should ask for confirmation and delete database on `open-drop-database` event', async function () {
-    appRegistry.emit('open-drop-database', 'db-to-drop');
+    appRegistry.emit('open-drop-database', 'db-to-drop', {
+      connectionId: 'TEST',
+    });
 
     expect(
       screen.getByText('Are you sure you want to drop database "db-to-drop"?')
@@ -82,5 +95,11 @@ describe('DropNamespacePlugin', function () {
       'db-to-drop'
     );
     expect(dataService.dropCollection).to.have.not.been.called;
+
+    expect(appRegistry.emit).to.have.been.calledWithExactly(
+      'database-dropped',
+      'db-to-drop',
+      { connectionId: 'TEST' }
+    );
   });
 });

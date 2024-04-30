@@ -31,6 +31,8 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -252,21 +254,21 @@ const PlaceholderItem = ({ forLabel }: { forLabel: string }) => {
 
 export function NavigationItems({
   isReady,
+  connectionInfo,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
   onFilterChange,
   onAction,
-  currentLocation,
-  currentNamespace,
+  activeWorkspace,
   showTooManyCollectionsInsight = false,
 }: {
   isReady?: boolean;
+  connectionInfo: ConnectionInfo;
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
   onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
-  currentLocation: string | null;
-  currentNamespace: string | null;
+  activeWorkspace?: WorkspaceTab;
   showTooManyCollectionsInsight?: boolean;
 }) {
   const {
@@ -325,27 +327,27 @@ export function NavigationItems({
                     onClick={openMyQueriesWorkspace}
                     glyph="CurlyBraces"
                     label="My Queries"
-                    isActive={currentLocation === 'My Queries'}
+                    isActive={activeWorkspace?.type === 'My Queries'}
                   />
                 )}
                 {hasWorkspacePlugin('Performance') && (
                   <NavigationItem<''>
                     onAction={onAction}
-                    onClick={openPerformanceWorkspace}
+                    onClick={() => openPerformanceWorkspace(connectionInfo.id)}
                     glyph="Gauge"
                     label="Performance"
-                    isActive={currentLocation === 'Performance'}
+                    isActive={activeWorkspace?.type === 'Performance'}
                     disabled={!isPerformanceTabSupported}
                     disabledMessage="Performance metrics are not available for your deployment or to your database user"
                   />
                 )}
                 <NavigationItem<DatabasesActions>
                   onAction={onAction}
-                  onClick={openDatabasesWorkspace}
+                  onClick={() => openDatabasesWorkspace(connectionInfo.id)}
                   glyph="Database"
                   label="Databases"
                   actions={databasesActions}
-                  isActive={currentLocation === 'Databases'}
+                  isActive={activeWorkspace?.type === 'Databases'}
                   showTooManyCollectionsInsight={showTooManyCollectionsInsight}
                 />
               </>
@@ -356,7 +358,8 @@ export function NavigationItems({
 
       <DatabaseCollectionFilter onFilterChange={onFilterChange} />
       <SidebarDatabasesNavigation
-        activeNamespace={currentNamespace ?? undefined}
+        connectionInfo={connectionInfo}
+        activeWorkspace={activeWorkspace ?? undefined}
       />
     </>
   );
@@ -364,9 +367,13 @@ export function NavigationItems({
 
 const mapStateToProps = (
   state: RootState,
-  { readOnly: preferencesReadOnly }: { readOnly: boolean }
+  {
+    connectionInfo,
+    readOnly: preferencesReadOnly,
+  }: { connectionInfo: ConnectionInfo; readOnly: boolean }
 ) => {
-  const totalCollectionsCount = state.databases.databases.reduce(
+  const connectionId = connectionInfo.id;
+  const totalCollectionsCount = state.databases[connectionId].databases.reduce(
     (acc: number, db: { collectionsLength: number }) => {
       return acc + db.collectionsLength;
     },
@@ -374,11 +381,12 @@ const mapStateToProps = (
   );
 
   const isReady =
-    ['ready', 'refreshing'].includes(state.instance?.status ?? '') &&
-    state.isPerformanceTabSupported !== null;
+    ['ready', 'refreshing'].includes(
+      state.instance[connectionId]?.status ?? ''
+    ) && state.isPerformanceTabSupported !== null;
 
-  const isDataLake = state.instance?.dataLake.isDataLake ?? false;
-  const isWritable = state.instance?.isWritable ?? false;
+  const isDataLake = state.instance[connectionId]?.dataLake.isDataLake ?? false;
+  const isWritable = state.instance[connectionId]?.isWritable ?? false;
 
   return {
     isReady,

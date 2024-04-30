@@ -70,10 +70,10 @@ const spinnerStyles = css({
   flex: 'none',
 });
 
-function LoadingScreen({ connectionString }: { connectionString: string }) {
+function LoadingScreen({ connectionString }: { connectionString?: string }) {
   const host = useMemo(() => {
     try {
-      const url = new ConnectionString(connectionString);
+      const url = new ConnectionString(connectionString ?? '');
       return url.hosts[0];
     } catch {
       return 'cluster';
@@ -113,7 +113,6 @@ function validateConnectionString(str: string) {
 }
 
 const App = () => {
-  const [initialCurrentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const [connectionsHistory, updateConnectionsHistory] =
     useConnectionsHistory();
   const {
@@ -126,6 +125,9 @@ const App = () => {
   const [connectionString, setConnectionString] = useState('');
   const [connectionInfo, setConnectionInfo] = useState<ConnectionInfo | null>(
     null
+  );
+  const [initialCurrentTab, updateCurrentTab] = useWorkspaceTabRouter(
+    connectionInfo?.id
   );
   const [openCompassWeb, setOpenCompassWeb] = useState(false);
   const [
@@ -199,7 +201,7 @@ const App = () => {
               return (
                 <LoadingScreen
                   connectionString={
-                    connectionInfo.connectionOptions.connectionString
+                    connectionInfo?.connectionOptions.connectionString
                   }
                 ></LoadingScreen>
               );

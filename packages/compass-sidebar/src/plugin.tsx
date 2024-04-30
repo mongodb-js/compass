@@ -10,6 +10,7 @@ import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/legacy/sidebar';
 import { usePreference } from 'compass-preferences-model/provider';
 import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
+import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -17,13 +18,14 @@ const errorBoundaryStyles = css({
 
 export interface SidebarPluginProps {
   showConnectionInfo?: boolean;
-  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
-  // away with refactoring compoass-conneciton to a plugin
-  initialConnectionInfo?: ConnectionInfo | null | undefined;
+  singleConnectionConnectionInfo?: ConnectionInfo;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
+  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
+  // away with refactoring compass-connection to a plugin
+  singleConnectionConnectionInfo,
 }) => {
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
@@ -32,14 +34,26 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   const activeWorkspace = useActiveWorkspace();
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
 
-  const sidebar = isMultiConnectionEnabled ? (
-    <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />
-  ) : (
-    <Sidebar
-      showConnectionInfo={showConnectionInfo}
-      activeWorkspace={activeWorkspace}
-    />
-  );
+  let sidebar;
+  if (isMultiConnectionEnabled) {
+    sidebar = <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />;
+  } else {
+    sidebar = (
+      <ConnectionInfoProvider
+        connectionInfoId={singleConnectionConnectionInfo?.id}
+      >
+        {(connectionInfo) => {
+          return (
+            <Sidebar
+              showConnectionInfo={showConnectionInfo}
+              initialConnectionInfo={connectionInfo}
+              activeWorkspace={activeWorkspace}
+            />
+          );
+        }}
+      </ConnectionInfoProvider>
+    );
+  }
 
   return (
     <ErrorBoundary

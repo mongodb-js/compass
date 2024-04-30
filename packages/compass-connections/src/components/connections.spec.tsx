@@ -5,23 +5,22 @@ import {
   screen,
   waitFor,
   fireEvent,
-  within,
 } from '@testing-library/react';
 import { expect } from 'chai';
 import type { ConnectionOptions, connect } from 'mongodb-data-service';
-import {
-  type ConnectionInfo,
-  type ConnectionStorage,
-  ConnectionStorageBus,
-} from '@mongodb-js/connection-storage/renderer';
-import { v4 as uuid } from 'uuid';
+import { UUID } from 'bson';
 import sinon from 'sinon';
 import Connections from './connections';
 import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
+import {
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
+  type ConnectionStorage,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-storage/provider';
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -32,23 +31,6 @@ function getConnectionsManager(mockTestConnectFn?: typeof connect) {
     logger: log.unbound,
     __TEST_CONNECT_FN: mockTestConnectFn,
   });
-}
-
-function getMockConnectionStorage(mockConnections: ConnectionInfo[]) {
-  return {
-    events: new ConnectionStorageBus(),
-    loadAll: () => {
-      return Promise.resolve(mockConnections);
-    },
-    getLegacyConnections: () => Promise.resolve([]),
-    save: () => Promise.resolve(),
-    delete: () => Promise.resolve(),
-    load: (id: string) =>
-      Promise.resolve(mockConnections.find((conn) => conn.id === id)),
-    importConnections: () => Promise.resolve([]),
-    exportConnections: () => Promise.resolve('{}'),
-    deserializeConnections: () => Promise.resolve([]),
-  } as unknown as typeof ConnectionStorage;
 }
 
 async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
@@ -96,7 +78,7 @@ describe('Connections Component', function () {
   context('when rendered', function () {
     let loadConnectionsSpy: sinon.SinonSpy;
     beforeEach(function () {
-      const mockStorage = getMockConnectionStorage([]);
+      const mockStorage = new InMemoryConnectionStorage([]);
       loadConnectionsSpy = sinon.spy(mockStorage, 'loadAll');
       render(
         <PreferencesProvider value={preferences}>
@@ -157,15 +139,15 @@ describe('Connections Component', function () {
 
   context('when rendered with saved connections in storage', function () {
     let connectSpyFn: sinon.SinonSpy;
-    let mockStorage: typeof ConnectionStorage;
+    let mockStorage: ConnectionStorage;
     let savedConnectionId: string;
     let savedConnectionWithAppNameId: string;
     let saveConnectionSpy: sinon.SinonSpy;
     let connections: ConnectionInfo[];
 
     beforeEach(async function () {
-      savedConnectionId = uuid();
-      savedConnectionWithAppNameId = uuid();
+      savedConnectionId = new UUID().toString();
+      savedConnectionWithAppNameId = new UUID().toString();
       saveConnectionSpy = sinon.spy();
 
       connections = [
@@ -184,7 +166,7 @@ describe('Connections Component', function () {
           },
         },
       ];
-      mockStorage = getMockConnectionStorage(connections);
+      mockStorage = new InMemoryConnectionStorage(connections);
       sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
       const connectionsManager = getConnectionsManager(() => {
@@ -331,8 +313,8 @@ describe('Connections Component', function () {
 
       beforeEach(async function () {
         saveConnectionSpy = sinon.spy();
-        savedConnectableId = uuid();
-        savedUnconnectableId = uuid();
+        savedConnectableId = new UUID().toString();
+        savedUnconnectableId = new UUID().toString();
 
         mockConnectFn = sinon.fake(
           async ({
@@ -380,7 +362,7 @@ describe('Connections Component', function () {
             },
           },
         ];
-        const mockStorage = getMockConnectionStorage(connections);
+        const mockStorage = new InMemoryConnectionStorage(connections);
         sinon.replace(mockStorage, 'save', saveConnectionSpy);
 
         render(
@@ -509,95 +491,4 @@ describe('Connections Component', function () {
       });
     }
   );
-
-  context('when user has any legacy connection', function () {
-    it('shows modal', async function () {
-      const mockStorage = getMockConnectionStorage([]);
-      sinon
-        .stub(mockStorage, 'getLegacyConnections')
-        .resolves([{ name: 'Connection1' }]);
-
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={mockStorage}>
-            <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                />
-              </ToastArea>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </PreferencesProvider>
-      );
-
-      await waitFor(
-        () => expect(screen.getByTestId('legacy-connections-modal')).to.exist
-      );
-
-      const modal = screen.getByTestId('legacy-connections-modal');
-      expect(within(modal).getByText('Connection1')).to.exist;
-    });
-
-    it('does not show modal when user hides it', async function () {
-      const mockStorage = getMockConnectionStorage([]);
-      sinon
-        .stub(mockStorage, 'getLegacyConnections')
-        .resolves([{ name: 'Connection2' }]);
-
-      const { rerender } = render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={mockStorage}>
-            <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                />
-              </ToastArea>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </PreferencesProvider>
-      );
-
-      await waitFor(() => screen.getByTestId('legacy-connections-modal'));
-
-      const modal = screen.getByTestId('legacy-connections-modal');
-
-      const storageSpy = sinon.spy(Storage.prototype, 'setItem');
-
-      // Click the don't show again checkbox and close the modal
-      fireEvent.click(within(modal).getByText(/don't show this again/i));
-      fireEvent.click(within(modal).getByText(/close/i));
-
-      rerender(
-        <PreferencesProvider value={preferences}>
-          <ConnectionStorageProvider value={mockStorage}>
-            <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                />
-              </ToastArea>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </PreferencesProvider>
-      );
-
-      // Saves data in storage
-      expect(storageSpy.firstCall.args).to.deep.equal([
-        'hide_legacy_connections_modal',
-        'true',
-      ]);
-
-      expect(() => {
-        screen.getByTestId('legacy-connections-modal');
-      }).to.throw;
-    });
-  });
 });

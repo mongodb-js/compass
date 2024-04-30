@@ -1,18 +1,19 @@
 import { legacy_createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import reducer, { open } from '../modules/rename-collection/rename-collection';
-import type { MongoDBInstance } from 'mongodb-instance-model';
 import type {
   FavoriteQueryStorageAccess,
   PipelineStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import { type MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type RenameCollectionPluginServices = {
-  dataService: Pick<DataService, 'renameCollection'>;
   globalAppRegistry: AppRegistry;
-  instance: MongoDBInstance;
+  connectionsManager: ConnectionsManager;
+  instancesManager: MongoDBInstancesManager;
   queryStorage?: FavoriteQueryStorageAccess;
   pipelineStorage?: PipelineStorage;
 };
@@ -21,11 +22,12 @@ export function activateRenameCollectionPlugin(
   _: unknown,
   {
     globalAppRegistry,
-    dataService,
-    instance,
+    connectionsManager,
+    instancesManager,
     queryStorage,
     pipelineStorage,
-  }: RenameCollectionPluginServices
+  }: RenameCollectionPluginServices,
+  { cleanup, on }: ActivateHelpers
 ) {
   async function checkIfSavedQueriesAndAggregationsExist(
     oldNamespace: string
@@ -50,36 +52,53 @@ export function activateRenameCollectionPlugin(
     applyMiddleware(
       thunk.withExtraArgument({
         globalAppRegistry,
-        dataService,
+        instancesManager,
+        connectionsManager,
       })
     )
   );
 
-  const onRenameCollection = (ns: { database: string; collection: string }) => {
-    const collections: { name: string }[] =
-      instance.databases.get(ns.database)?.collections ?? [];
-    void checkIfSavedQueriesAndAggregationsExist(
-      `${ns.database}.${ns.collection}`
-    ).then((areSavedQueriesAndAggregationsImpacted) => {
-      store.dispatch(
-        open({
-          db: ns.database,
-          collection: ns.collection,
-          collections,
-          areSavedQueriesAndAggregationsImpacted,
-        })
-      );
-    });
-  };
-  globalAppRegistry.on('open-rename-collection', onRenameCollection);
+  on(
+    globalAppRegistry,
+    'open-rename-collection',
+    (
+      ns: { database: string; collection: string },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      if (!connectionId) {
+        throw new Error(
+          'Cannot rename a namespace without specifying connectionId'
+        );
+      }
+
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(connectionId);
+      if (!instance) {
+        throw new Error(
+          'unreachable: this modal is only shown when the connection is open.'
+        );
+      }
+
+      const collections: { name: string }[] =
+        instance.databases.get(ns.database)?.collections ?? [];
+      void checkIfSavedQueriesAndAggregationsExist(
+        `${ns.database}.${ns.collection}`
+      ).then((areSavedQueriesAndAggregationsImpacted) => {
+        store.dispatch(
+          open({
+            connectionId,
+            db: ns.database,
+            collection: ns.collection,
+            collections,
+            areSavedQueriesAndAggregationsImpacted,
+          })
+        );
+      });
+    }
+  );
 
   return {
     store,
-    deactivate() {
-      globalAppRegistry.removeListener(
-        'open-rename-collection',
-        onRenameCollection
-      );
-    },
+    deactivate: cleanup,
   };
 }

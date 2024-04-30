@@ -29,6 +29,7 @@ import { getId } from './stage-ids';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import AppRegistry from 'hadron-app-registry';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 const MATCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
@@ -122,6 +123,12 @@ function createStore({
         workspaces: {} as any,
         preferences,
         logger: createNoopLoggerAndTelemetry(),
+        dataService: {} as any,
+        connectionInfoAccess: {
+          getCurrentConnectionInfo() {
+            return TEST_CONNECTION_INFO;
+          },
+        },
       })
     )
   );

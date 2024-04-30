@@ -10,29 +10,44 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { ConnectionsNavigationTree } from './connections-navigation-tree';
+import {
+  type Connection,
+  ConnectionsNavigationTree,
+} from './connections-navigation-tree';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
-const databases = [
+const connections: Connection[] = [
   {
-    _id: 'foo',
-    name: 'foo',
-    collectionsStatus: 'initial',
-    collectionsLength: 5,
-    collections: [],
-  },
-  {
-    _id: 'bar',
-    name: 'bar',
-    collectionsStatus: 'ready',
-    collectionsLength: 3,
-    collections: [
-      { _id: 'bar.meow', name: 'meow', type: 'collection' },
-      { _id: 'bar.woof', name: 'woof', type: 'timeseries' },
-      { _id: 'bar.bwok', name: 'bwok', type: 'view' },
+    connectionInfo: { id: 'connectionId' } as any,
+    databases: [
+      {
+        _id: 'foo',
+        name: 'foo',
+        collectionsStatus: 'initial',
+        collectionsLength: 5,
+        collections: [],
+      },
+      {
+        _id: 'bar',
+        name: 'bar',
+        collectionsStatus: 'ready',
+        collectionsLength: 3,
+        collections: [
+          { _id: 'bar.meow', name: 'meow', type: 'collection' },
+          { _id: 'bar.woof', name: 'woof', type: 'timeseries' },
+          { _id: 'bar.bwok', name: 'bwok', type: 'view' },
+        ],
+      },
     ],
+    databasesLength: 2,
+    databasesStatus: 'ready',
+    isDataLake: false,
+    isReady: true,
+    isWritable: true,
+    name: 'test',
   },
 ];
 
@@ -42,6 +57,12 @@ const TEST_VIRTUAL_PROPS = {
   __TEST_REACT_WINDOW_OVERSCAN: Infinity,
 };
 
+const activeWorkspace = {
+  connectionId: 'connectionId',
+  namespace: 'bar.meow',
+  type: 'Collection',
+};
+
 describe('ConnectionsNavigationTree -- Single connection usage', function () {
   afterEach(cleanup);
 
@@ -49,16 +70,19 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     let preferences: PreferencesAccess;
     beforeEach(async function () {
       preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({ enableRenameCollectionModal: true });
+      await preferences.savePreferences({
+        enableRenameCollectionModal: true,
+        enableNewMultipleConnectionSystem: false,
+      });
     });
 
     it('shows the Rename Collection action', function () {
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionsNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
-            activeNamespace="bar.meow"
+            connections={connections}
+            expanded={{ connectionId: { bar: true } }}
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onDatabaseExpand={() => {}}
             onNamespaceAction={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -81,9 +105,9 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       render(
         <PreferencesProvider value={preferences}>
           <ConnectionsNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
-            activeNamespace="bar.meow"
+            connections={connections}
+            expanded={{ connectionId: { bar: true } }}
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -96,14 +120,18 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       userEvent.click(within(collection).getByTitle('Show actions'));
       userEvent.click(screen.getByText('Rename collection'));
 
-      expect(spy).to.be.calledOnceWithExactly('bar.meow', 'rename-collection');
+      expect(spy).to.be.calledOnceWithExactly(
+        'connectionId',
+        'bar.meow',
+        'rename-collection'
+      );
     });
   });
 
   it('should render databases', function () {
     render(
       <ConnectionsNavigationTree
-        databases={databases}
+        connections={connections}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -117,8 +145,8 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
   it('should render collections when database is expanded', function () {
     render(
       <ConnectionsNavigationTree
-        databases={databases}
-        expanded={{ bar: true }}
+        connections={connections}
+        expanded={{ connectionId: { bar: true } }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -133,8 +161,8 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
   it('should render collection placeholders when database is expanded but collections are not ready', function () {
     render(
       <ConnectionsNavigationTree
-        databases={databases}
-        expanded={{ foo: true }}
+        connections={connections}
+        expanded={{ connectionId: { foo: true } }}
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -147,8 +175,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
   it('should make current active namespace tabbable', async function () {
     render(
       <ConnectionsNavigationTree
-        databases={databases}
-        activeNamespace="bar"
+        connections={connections}
+        activeWorkspace={
+          {
+            ...activeWorkspace,
+            namespace: 'bar',
+            type: 'Collections',
+          } as WorkspaceTab
+        }
         onDatabaseExpand={() => {}}
         onNamespaceAction={() => {}}
         {...TEST_VIRTUAL_PROPS}
@@ -172,7 +206,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     it('should show all database actions on hover', function () {
       render(
         <ConnectionsNavigationTree
-          databases={databases}
+          connections={connections}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -190,8 +224,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     it('should show all database actions for active namespace', function () {
       render(
         <ConnectionsNavigationTree
-          databases={databases}
-          activeNamespace="bar"
+          connections={connections}
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar',
+              type: 'Collections',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -207,9 +247,9 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     it('should show all collection actions', function () {
       render(
         <ConnectionsNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
-          activeNamespace="bar.meow"
+          connections={connections}
+          expanded={{ connectionId: { bar: true } }}
+          activeWorkspace={activeWorkspace as WorkspaceTab}
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -231,9 +271,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     it('should show all view actions', function () {
       render(
         <ConnectionsNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
-          activeNamespace="bar.bwok"
+          connections={connections}
+          expanded={{ connectionId: { bar: true } }}
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar.bwok',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -261,8 +306,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     it('should not show database actions', function () {
       render(
         <ConnectionsNavigationTree
-          databases={databases}
-          activeNamespace="bar"
+          connections={connections}
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar',
+              type: 'Collections',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
@@ -279,9 +330,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     it('should show only one collection action', function () {
       render(
         <ConnectionsNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
-          activeNamespace="bar.bwok"
+          connections={connections}
+          expanded={{ connectionId: { bar: true } }}
+          activeWorkspace={
+            {
+              ...activeWorkspace,
+              namespace: 'bar.bwok',
+            } as WorkspaceTab
+          }
           onDatabaseExpand={() => {}}
           onNamespaceAction={() => {}}
           isReadOnly
@@ -300,7 +356,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       const spy = Sinon.spy();
       render(
         <ConnectionsNavigationTree
-          databases={databases}
+          connections={connections}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -309,15 +365,19 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
       userEvent.click(screen.getByText('foo'));
 
-      expect(spy).to.be.calledOnceWithExactly('foo', 'select-database');
+      expect(spy).to.be.calledOnceWithExactly(
+        'connectionId',
+        'foo',
+        'select-database'
+      );
     });
 
     it('should activate callback with `select-collection` when collection is clicked', function () {
       const spy = Sinon.spy();
       render(
         <ConnectionsNavigationTree
-          databases={databases}
-          expanded={{ bar: true }}
+          connections={connections}
+          expanded={{ connectionId: { bar: true } }}
           onNamespaceAction={spy}
           onDatabaseExpand={() => {}}
           {...TEST_VIRTUAL_PROPS}
@@ -326,7 +386,11 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
       userEvent.click(screen.getByText('meow'));
 
-      expect(spy).to.be.calledOnceWithExactly('bar.meow', 'select-collection');
+      expect(spy).to.be.calledOnceWithExactly(
+        'connectionId',
+        'bar.meow',
+        'select-collection'
+      );
     });
 
     describe('database actions', function () {
@@ -334,8 +398,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databases={databases}
-            activeNamespace="foo"
+            connections={connections}
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'foo',
+                type: 'Collections',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -344,15 +414,25 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
         userEvent.click(screen.getByTitle('Drop database'));
 
-        expect(spy).to.be.calledOnceWithExactly('foo', 'drop-database');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connectionId',
+          'foo',
+          'drop-database'
+        );
       });
 
       it('should activate callback with `create-collection` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databases={databases}
-            activeNamespace="foo"
+            connections={connections}
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'foo',
+                type: 'Collections',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -361,7 +441,11 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
         userEvent.click(screen.getByTitle('Create collection'));
 
-        expect(spy).to.be.calledOnceWithExactly('foo', 'create-collection');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connectionId',
+          'foo',
+          'create-collection'
+        );
       });
     });
 
@@ -370,9 +454,9 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
-            activeNamespace="bar.meow"
+            connections={connections}
+            expanded={{ connectionId: { bar: true } }}
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -384,16 +468,20 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Open in new tab'));
 
-        expect(spy).to.be.calledOnceWithExactly('bar.meow', 'open-in-new-tab');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connectionId',
+          'bar.meow',
+          'open-in-new-tab'
+        );
       });
 
       it('should activate callback with `drop-collection` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
         render(
           <ConnectionsNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
-            activeNamespace="bar.meow"
+            connections={connections}
+            expanded={{ connectionId: { bar: true } }}
+            activeWorkspace={activeWorkspace as WorkspaceTab}
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -405,7 +493,11 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Drop collection'));
 
-        expect(spy).to.be.calledOnceWithExactly('bar.meow', 'drop-collection');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connectionId',
+          'bar.meow',
+          'drop-collection'
+        );
       });
     });
 
@@ -415,9 +507,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
         render(
           <ConnectionsNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
-            activeNamespace="bar.bwok"
+            connections={connections}
+            expanded={{ connectionId: { bar: true } }}
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'bar.bwok',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -429,7 +526,11 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Duplicate view'));
 
-        expect(spy).to.be.calledOnceWithExactly('bar.bwok', 'duplicate-view');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connectionId',
+          'bar.bwok',
+          'duplicate-view'
+        );
       });
 
       it('should activate callback with `modify-view` when corresponding action is clicked', function () {
@@ -437,9 +538,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
         render(
           <ConnectionsNavigationTree
-            databases={databases}
-            expanded={{ bar: true }}
-            activeNamespace="bar.bwok"
+            connections={connections}
+            expanded={{ connectionId: { bar: true } }}
+            activeWorkspace={
+              {
+                ...activeWorkspace,
+                namespace: 'bar.bwok',
+              } as WorkspaceTab
+            }
             onNamespaceAction={spy}
             onDatabaseExpand={() => {}}
             {...TEST_VIRTUAL_PROPS}
@@ -451,7 +557,11 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify view'));
 
-        expect(spy).to.be.calledOnceWithExactly('bar.bwok', 'modify-view');
+        expect(spy).to.be.calledOnceWithExactly(
+          'connectionId',
+          'bar.bwok',
+          'modify-view'
+        );
       });
     });
   });

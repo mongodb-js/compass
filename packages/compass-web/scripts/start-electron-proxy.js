@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const child_process = require('child_process');
 const electronPath = require('electron');

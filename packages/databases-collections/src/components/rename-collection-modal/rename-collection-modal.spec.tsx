@@ -27,6 +27,12 @@ describe('RenameCollectionModal [Component]', function () {
       },
     },
   };
+  const connectionsManager = {
+    getDataServiceForConnection: sandbox.stub().returns(dataService),
+  };
+  const instancesManager = {
+    getMongoDBInstanceForConnection: sandbox.stub().returns(instanceModel),
+  };
   const favoriteQueries = {
     getStorage: () => ({
       loadAll: sandbox.stub().resolves([]),
@@ -39,16 +45,20 @@ describe('RenameCollectionModal [Component]', function () {
     beforeEach(async function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
         globalAppRegistry: appRegistry,
-        dataService,
-        instance: instanceModel as any,
+        connectionsManager: connectionsManager as any,
+        instancesManager: instancesManager as any,
         queryStorage: favoriteQueries as any,
         pipelineStorage: pipelineStorage as any,
       });
       render(<Plugin> </Plugin>);
-      appRegistry.emit('open-rename-collection', {
-        database: 'foo',
-        collection: 'bar',
-      });
+      appRegistry.emit(
+        'open-rename-collection',
+        {
+          database: 'foo',
+          collection: 'bar',
+        },
+        { connectionId: '12345' }
+      );
 
       await waitFor(() => screen.getByText('Rename collection'));
     });
@@ -152,18 +162,27 @@ describe('RenameCollectionModal [Component]', function () {
         beforeEach(async function () {
           cleanup();
           pipelineStorage.loadAll.resolves([{ namespace: 'foo.bar' }]);
+          connectionsManager.getDataServiceForConnection.returns(dataService);
+          instancesManager.getMongoDBInstanceForConnection.returns(
+            instanceModel
+          );
+
           const Plugin = RenameCollectionPlugin.withMockServices({
             globalAppRegistry: appRegistry,
-            dataService,
-            instance: instanceModel as any,
+            connectionsManager: connectionsManager as any,
+            instancesManager: instancesManager as any,
             queryStorage: favoriteQueries as any,
             pipelineStorage: pipelineStorage as any,
           });
           render(<Plugin> </Plugin>);
-          appRegistry.emit('open-rename-collection', {
-            database: 'foo',
-            collection: 'bar',
-          });
+          appRegistry.emit(
+            'open-rename-collection',
+            {
+              database: 'foo',
+              collection: 'bar',
+            },
+            { connectionId: '12345' }
+          );
 
           await waitFor(() => screen.getByText('Rename collection'));
 

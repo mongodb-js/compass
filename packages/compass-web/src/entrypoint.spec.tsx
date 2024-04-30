@@ -62,21 +62,25 @@ describe('CompassWeb', function () {
     props: Partial<React.ComponentProps<typeof CompassWeb>> = {},
     connectFn = mockConnectFn
   ) {
+    const getAutoConnectInfo = () => {
+      return Promise.resolve({
+        id: 'foo',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+      });
+    };
     return render(
       <CompassWeb
-        onAutoconnectInfoRequest={() => {
-          return Promise.resolve({
-            id: 'foo',
-            connectionOptions: {
-              connectionString: 'mongodb://localhost:27017',
-            },
-          });
-        }}
+        onAutoconnectInfoRequest={getAutoConnectInfo}
         onActiveWorkspaceTabChange={() => {}}
         renderConnecting={(connectionInfo) => {
-          const [host] = new ConnectionString(
-            connectionInfo.connectionOptions.connectionString
-          ).hosts;
+          let host = 'cluster';
+          if (connectionInfo) {
+            [host] = new ConnectionString(
+              connectionInfo.connectionOptions.connectionString
+            ).hosts;
+          }
           return <div>Connecting to {host}…</div>;
         }}
         {...props}
@@ -101,11 +105,14 @@ describe('CompassWeb', function () {
     );
 
     // Wait for connection to happen and navigation tree to render
-    await waitFor(() => {
-      screen.getByTestId('compass-web-connected');
-      screen.getByRole('button', { name: 'Databases' });
-      screen.getAllByRole('tree');
-    });
+    await waitFor(
+      () => {
+        screen.getByTestId('compass-web-connected');
+        screen.getByRole('button', { name: 'Databases' });
+        screen.getAllByRole('tree');
+      },
+      { timeout: 10_000 }
+    );
 
     // TODO(COMPASS-7551): These are not rendered in tests because of the
     // navigation virtualization. We should make it possible to render those
@@ -114,5 +121,26 @@ describe('CompassWeb', function () {
     // expect(screen.getByRole('treeitem', {name: 'foo'})).to.exist;
     // expect(screen.getByRole('treeitem', {name: 'bar'})).to.exist;
     // expect(screen.getByRole('treeitem', {name: 'buz'})).to.exist;
+  });
+
+  it('should render error state if connection fails', async function () {
+    renderCompassWeb(
+      {
+        renderError(_connectionInfo, err) {
+          return (
+            <>Failed to connect because of the following error: {err.message}</>
+          );
+        },
+      },
+      (() => {
+        return Promise.reject(new Error('Whoops!'));
+      }) as any
+    );
+
+    await waitFor(() => {
+      screen.getByText(
+        'Failed to connect because of the following error: Whoops!'
+      );
+    });
   });
 });
