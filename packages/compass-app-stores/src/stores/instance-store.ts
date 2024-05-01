@@ -311,7 +311,18 @@ export function createInstancesStore(
 
       on(globalAppRegistry, 'document-deleted', refreshNamespaceStats);
       on(globalAppRegistry, 'document-inserted', refreshNamespaceStats);
-      on(globalAppRegistry, 'import-finished', refreshNamespaceStats);
+      on(
+        globalAppRegistry,
+        'import-finished',
+        (
+          { ns }: { ns: string },
+          { connectionId }: { connectionId?: string } = {}
+        ) => {
+          if (connectionId === instanceConnectionId) {
+            void refreshNamespaceStats({ ns });
+          }
+        }
+      );
 
       on(
         globalAppRegistry,

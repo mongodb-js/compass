@@ -202,12 +202,21 @@ export function activateAggregationsPlugin(
     refreshInput();
   });
 
-  on(globalAppRegistry, 'import-finished', ({ ns }) => {
-    const { namespace } = store.getState();
-    if (ns === namespace) {
-      refreshInput();
+  on(
+    globalAppRegistry,
+    'import-finished',
+    (
+      { ns }: { ns: string },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      const { id: currentConnectionId } =
+        connectionInfoAccess.getCurrentConnectionInfo();
+      const { namespace } = store.getState();
+      if (currentConnectionId === connectionId && ns === namespace) {
+        refreshInput();
+      }
     }
-  });
+  );
 
   on(collectionModel, 'change:status', (model: Collection, status: string) => {
     if (status === 'ready') {

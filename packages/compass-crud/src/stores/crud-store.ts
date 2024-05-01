@@ -60,6 +60,7 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
+import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -1957,6 +1958,7 @@ export type DocumentsPluginServices = {
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
   fieldStoreService: FieldStoreService;
+  connectionInfoAccess: ConnectionInfoAccess;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1970,6 +1972,7 @@ export function activateDocumentsPlugin(
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
     fieldStoreService,
+    connectionInfoAccess,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -2020,11 +2023,20 @@ export function activateDocumentsPlugin(
     void store.refreshDocuments();
   });
 
-  on(globalAppRegistry, 'import-finished', ({ ns }) => {
-    if (ns === store.state.ns) {
-      void store.refreshDocuments();
+  on(
+    globalAppRegistry,
+    'import-finished',
+    (
+      { ns }: { ns: string },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      const { id: currentConnectionId } =
+        connectionInfoAccess.getCurrentConnectionInfo();
+      if (currentConnectionId === connectionId && ns === store.state.ns) {
+        void store.refreshDocuments();
+      }
     }
-  });
+  );
 
   if (!options.noRefreshOnConfigure) {
     queueMicrotask(() => {

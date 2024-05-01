@@ -25,6 +25,10 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
+import {
+  type ConnectionInfoAccess,
+  TEST_CONNECTION_INFO,
+} from '@mongodb-js/compass-connections/provider';
 
 chai.use(chaiAsPromised);
 
@@ -112,6 +116,11 @@ describe('store', function () {
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
+  const connectionInfoAccess = {
+    getCurrentConnectionInfo() {
+      return TEST_CONNECTION_INFO;
+    },
+  } as ConnectionInfoAccess;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -197,6 +206,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -299,6 +309,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -357,6 +368,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -408,6 +420,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -458,6 +471,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -576,6 +590,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -863,6 +878,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -973,6 +989,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1013,6 +1030,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1097,6 +1115,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1259,6 +1278,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1435,6 +1455,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1611,6 +1632,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1799,6 +1821,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1845,6 +1868,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1888,6 +1912,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -1929,6 +1954,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2010,6 +2036,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2060,6 +2087,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2107,6 +2135,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2156,6 +2185,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2212,6 +2242,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2283,6 +2314,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -2395,6 +2427,7 @@ describe('store', function () {
           favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -2847,6 +2880,7 @@ describe('store', function () {
           },
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
@@ -2907,6 +2941,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -2997,6 +3032,7 @@ describe('store', function () {
             favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
+            connectionInfoAccess,
           },
           createActivateHelpers()
         );
@@ -3063,6 +3099,7 @@ describe('store', function () {
             },
           },
           fieldStoreService: mockFieldStoreService,
+          connectionInfoAccess,
         },
         createActivateHelpers()
       );
