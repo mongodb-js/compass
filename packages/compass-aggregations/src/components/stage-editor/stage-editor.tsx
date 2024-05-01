@@ -15,6 +15,7 @@ import {
   Banner,
   useDarkMode,
   useRequiredURLSearchParams,
+  useVisuallyAppliedEffect,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
@@ -25,6 +26,7 @@ import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { appliedExternalInputEffectOverlayStyles } from '../pipeline-builder-workspace/pipeline-as-text-workspace/pipeline-editor';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -36,7 +38,7 @@ const editorContainerStyles = css({
 });
 
 const editorContainerStylesDark = css({
-  background: palette.gray.dark4,
+  background: palette.gray.black,
 });
 
 const editorContainerStylesLight = css({
@@ -69,7 +71,9 @@ const bannerStyles = css({
 
 type StageEditorProps = {
   index: number;
+  isPipelineLoadedFromExternal: boolean;
   namespace: string;
+  pipelineLoadedFromExternalKey: number;
   stageOperator: string | null;
   stageValue: string | null;
   serverVersion: string;
@@ -87,7 +91,9 @@ export const StageEditor = ({
   stageValue,
   stageOperator,
   index,
+  isPipelineLoadedFromExternal,
   onChange,
+  pipelineLoadedFromExternalKey,
   serverError,
   syntaxError,
   className,
@@ -147,6 +153,11 @@ export const StageEditor = ({
     }
   }, [track, num_stages, index, stageOperator, editor_view_type]);
 
+  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
+    `${pipelineLoadedFromExternalKey}`,
+    isPipelineLoadedFromExternal
+  );
+
   return (
     <div
       className={cx(
@@ -156,6 +167,15 @@ export const StageEditor = ({
       )}
     >
       <div className={codeEditorContainerStyles}>
+        <div
+          className={cx(
+            // The code editor has it's own background styles which we
+            // need to overlay, so we use this separate overlay element.
+            appliedExternalInputEffectOverlayStyles,
+            inputAppliedVisualEffect.className
+          )}
+          key={inputAppliedVisualEffect.key}
+        />
         <CodemirrorMultilineEditor
           ref={editorRef}
           text={stageValue ?? ''}
@@ -204,6 +224,10 @@ export default connect(
     const num_stages = pipelineFromStore(stages).length;
     return {
       namespace: state.namespace,
+      isPipelineLoadedFromExternal:
+        state.isPipelineLoadedFromExternal.isPipelineLoadedFromExternal,
+      pipelineLoadedFromExternalKey:
+        state.isPipelineLoadedFromExternal.pipelineLoadedFromExternalId,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
       syntaxError: !stage.empty ? stage.syntaxError ?? null : null,

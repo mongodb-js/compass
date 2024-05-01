@@ -31,6 +31,10 @@ import type {
 } from '@mongodb-js/my-queries-storage';
 
 type QueryBarState = {
+  // Used to visually indicate when a field has been applied from
+  // something like the ai generator or query history.
+  isQueryAppliedFromExternal: boolean;
+  queryAppliedFromExternalId: number;
   isReadonlyConnection: boolean;
   fields: QueryFormFields;
   expanded: boolean;
@@ -48,6 +52,8 @@ type QueryBarState = {
 };
 
 export const INITIAL_STATE: QueryBarState = {
+  isQueryAppliedFromExternal: false,
+  queryAppliedFromExternalId: 0,
   isReadonlyConnection: false,
   fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
   expanded: false,
@@ -486,6 +492,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
     return {
       ...state,
+      isQueryAppliedFromExternal: false,
       fields: {
         ...state.fields,
         [action.name]: action.value,
@@ -496,6 +503,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<SetQueryAction>(action, QueryBarActions.SetQuery)) {
     return {
       ...state,
+      isQueryAppliedFromExternal: false,
       fields: {
         ...state.fields,
         ...action.fields,
@@ -506,6 +514,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
+      isQueryAppliedFromExternal: false,
       lastAppliedQuery: action.query,
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
@@ -514,21 +523,17 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ResetQueryAction>(action, QueryBarActions.ResetQuery)) {
     return {
       ...state,
+      isQueryAppliedFromExternal: false,
       lastAppliedQuery: null,
       fields: action.fields,
     };
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
-  ) {
-    return {
-      ...state,
-      fields: action.fields,
-    };
-  }
-
-  if (
+    isAction<ApplyFromHistoryAction>(
+      action,
+      QueryBarActions.ApplyFromHistory
+    ) ||
     isAction<AIQuerySucceededAction>(
       action,
       AIQueryActionTypes.AIQuerySucceeded
@@ -536,6 +541,9 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   ) {
     return {
       ...state,
+      isQueryAppliedFromExternal: true,
+      queryAppliedFromExternalId:
+        (state.queryAppliedFromExternalId + 1) % Number.MAX_SAFE_INTEGER,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
     };

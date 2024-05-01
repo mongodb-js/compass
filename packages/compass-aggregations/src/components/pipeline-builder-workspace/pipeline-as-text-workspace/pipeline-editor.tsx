@@ -9,6 +9,7 @@ import {
   useDarkMode,
   cx,
   useRequiredURLSearchParams,
+  useVisuallyAppliedEffect,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -36,7 +37,7 @@ const containerStyles = css({
 });
 
 const containerDarkStyles = css({
-  backgroundColor: palette.gray.dark4,
+  backgroundColor: palette.black,
 });
 
 const editorContainerStyles = css({
@@ -52,6 +53,16 @@ const codeEditorStyles = css({
   },
 });
 
+export const appliedExternalInputEffectOverlayStyles = css({
+  position: 'absolute',
+  zIndex: 5,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  pointerEvents: 'none',
+});
+
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
@@ -60,8 +71,10 @@ const errorContainerStyles = css({
 });
 
 export type PipelineEditorProps = {
+  isPipelineLoadedFromExternal: boolean;
   namespace: string;
   num_stages: number;
+  pipelineLoadedFromExternalKey: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
@@ -70,8 +83,10 @@ export type PipelineEditorProps = {
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
+  isPipelineLoadedFromExternal,
   namespace,
   num_stages,
+  pipelineLoadedFromExternalKey,
   pipelineText,
   serverError,
   syntaxErrors,
@@ -127,6 +142,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   }, [syntaxErrors]);
 
   const darkMode = useDarkMode();
+  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
+    `${pipelineLoadedFromExternalKey}`,
+    isPipelineLoadedFromExternal
+  );
 
   const showErrorContainer = serverError || syntaxErrors.length > 0;
 
@@ -136,6 +155,15 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       data-testid="pipeline-as-text-editor"
     >
       <div className={editorContainerStyles}>
+        <div
+          className={cx(
+            // The code editor has it's own background styles which we
+            // need to overlay, so we use this separate overlay element.
+            appliedExternalInputEffectOverlayStyles,
+            inputAppliedVisualEffect.className
+          )}
+          key={inputAppliedVisualEffect.key}
+        />
         <CodemirrorMultilineEditor
           text={pipelineText}
           onChangeText={onChangePipelineText}
@@ -166,6 +194,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
+  isPipelineLoadedFromExternal: {
+    isPipelineLoadedFromExternal,
+    pipelineLoadedFromExternalId,
+  },
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -179,8 +211,10 @@ const mapState = ({
   },
   serverVersion,
 }: RootState) => ({
+  isPipelineLoadedFromExternal,
   namespace,
   num_stages: pipeline.length,
+  pipelineLoadedFromExternalKey: pipelineLoadedFromExternalId,
   pipelineText,
   serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,

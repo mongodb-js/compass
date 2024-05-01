@@ -124,6 +124,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
+export { useVisuallyAppliedEffect } from './hooks/use-input-applied';
 export { resetGlobalCSS } from './utils/reset-global-css';
 export { getScrollbarStyles, useScrollbars } from './hooks/use-scrollbars';
 export {
