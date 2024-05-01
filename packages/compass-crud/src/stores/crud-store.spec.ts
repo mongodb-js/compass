@@ -29,6 +29,7 @@ import {
   type ConnectionInfoAccess,
   TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
+import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/dist/connection-scoped-app-registry';
 
 chai.use(chaiAsPromised);
 
@@ -121,6 +122,10 @@ describe('store', function () {
       return TEST_CONNECTION_INFO;
     },
   } as ConnectionInfoAccess;
+  const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
+    globalAppRegistry.emit.bind(globalAppRegistry),
+    connectionInfoAccess
+  );
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -207,6 +212,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -310,6 +316,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -369,6 +376,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -421,6 +429,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -472,6 +481,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -591,6 +601,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -879,6 +890,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -990,6 +1002,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1031,6 +1044,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1116,6 +1130,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1279,6 +1294,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1456,6 +1472,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1633,6 +1650,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1822,6 +1840,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1869,6 +1888,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1913,6 +1933,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -1955,6 +1976,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -2037,6 +2059,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -2088,6 +2111,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -2136,6 +2160,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -2186,6 +2211,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -2243,6 +2269,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -2315,6 +2342,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -2428,6 +2456,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -2881,6 +2910,7 @@ describe('store', function () {
           recentQueryStorageAccess: compassRecentQueryStorageAccess,
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
@@ -2942,6 +2972,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -3033,6 +3064,7 @@ describe('store', function () {
             recentQueryStorageAccess: compassRecentQueryStorageAccess,
             fieldStoreService: mockFieldStoreService,
             connectionInfoAccess,
+            connectionScopedAppRegistry,
           },
           createActivateHelpers()
         );
@@ -3100,6 +3132,7 @@ describe('store', function () {
           },
           fieldStoreService: mockFieldStoreService,
           connectionInfoAccess,
+          connectionScopedAppRegistry,
         },
         createActivateHelpers()
       );
