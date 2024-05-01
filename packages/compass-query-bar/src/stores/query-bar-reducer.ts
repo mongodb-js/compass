@@ -530,16 +530,10 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ApplyFromHistoryAction>(action, QueryBarActions.ApplyFromHistory)
-  ) {
-    return {
-      ...state,
-      isQueryAppliedFromExternal: true,
-      fields: action.fields,
-    };
-  }
-
-  if (
+    isAction<ApplyFromHistoryAction>(
+      action,
+      QueryBarActions.ApplyFromHistory
+    ) ||
     isAction<AIQuerySucceededAction>(
       action,
       AIQueryActionTypes.AIQuerySucceeded

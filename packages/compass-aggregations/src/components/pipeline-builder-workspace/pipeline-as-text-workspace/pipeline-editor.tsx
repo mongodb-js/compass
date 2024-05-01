@@ -37,7 +37,7 @@ const containerStyles = css({
 });
 
 const containerDarkStyles = css({
-  backgroundColor: palette.gray.dark4,
+  backgroundColor: palette.black,
 });
 
 const editorContainerStyles = css({
@@ -51,6 +51,16 @@ const codeEditorStyles = css({
   '& .cm-editor': {
     background: 'transparent !important',
   },
+});
+
+export const appliedExternalInputEffectOverlayStyles = css({
+  position: 'absolute',
+  zIndex: 5,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  pointerEvents: 'none',
 });
 
 const errorContainerStyles = css({
@@ -144,13 +154,16 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       className={cx(containerStyles, darkMode && containerDarkStyles)}
       data-testid="pipeline-as-text-editor"
     >
-      <div
-        className={cx(
-          editorContainerStyles,
-          inputAppliedVisualEffect.className
-        )}
-        key={inputAppliedVisualEffect.key}
-      >
+      <div className={editorContainerStyles}>
+        <div
+          className={cx(
+            // The code editor has it's own background styles which we
+            // need to overlay, so we use this separate overlay element.
+            appliedExternalInputEffectOverlayStyles,
+            inputAppliedVisualEffect.className
+          )}
+          key={inputAppliedVisualEffect.key}
+        />
         <CodemirrorMultilineEditor
           text={pipelineText}
           onChangeText={onChangePipelineText}

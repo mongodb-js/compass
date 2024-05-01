@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
-import { UUID } from 'bson';
 import { useDarkMode } from './use-theme';
 
-const ANIMATION_TIMEOUT_MS = 4000;
+const ANIMATION_TIMEOUT_MS = 3500;
 
 const externalAppliedQueryStyles = css({
   borderRadius: spacing[150],
@@ -12,7 +11,7 @@ const externalAppliedQueryStyles = css({
 
 const fadeOutAnimationDarkMode = keyframes({
   from: {
-    background: 'rgba(223, 245, 253, 0.5)',
+    background: 'rgba(223, 245, 253, 0.4)',
   },
   to: {
     opacity: 'rgba(225, 247, 255, 0)',
@@ -44,17 +43,15 @@ const externalAppliedQueryLightModeStyles = css({
 // The returned key updates as a way to refresh the effect.
 export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
   const [hasBeenApplied, setHasBeenApplied] = useState(false);
-  const [forceRefreshKey, setForceRefreshKey] = useState(key);
   const darkMode = useDarkMode();
 
   useEffect(() => {
     if (isApplied) {
+      // When it's set to false we don't want the effect to immediately stop as the
+      // it fades away. This may happen from asynchronous formatting.
       setHasBeenApplied(true);
-      // When it's applied and there's already an effect,
-      // we update the returned key to refresh it.
-      setForceRefreshKey(key + new UUID().toString());
     }
-  }, [isApplied, key]);
+  }, [isApplied]);
 
   return {
     className: hasBeenApplied
@@ -65,6 +62,6 @@ export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
             : externalAppliedQueryLightModeStyles
         )
       : undefined,
-    key: hasBeenApplied ? forceRefreshKey : undefined,
+    key: hasBeenApplied ? key : undefined,
   };
 };
