@@ -9,6 +9,7 @@ import {
   useDarkMode,
   cx,
   useRequiredURLSearchParams,
+  useVisuallyAppliedEffect,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -60,8 +61,10 @@ const errorContainerStyles = css({
 });
 
 export type PipelineEditorProps = {
+  isPipelineLoadedFromExternal: boolean;
   namespace: string;
   num_stages: number;
+  pipelineLoadedFromExternalKey: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
@@ -70,8 +73,10 @@ export type PipelineEditorProps = {
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
+  isPipelineLoadedFromExternal,
   namespace,
   num_stages,
+  pipelineLoadedFromExternalKey,
   pipelineText,
   serverError,
   syntaxErrors,
@@ -128,8 +133,8 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const darkMode = useDarkMode();
   const inputAppliedVisualEffect = useVisuallyAppliedEffect(
-    queryAppliedFromExternalKey,
-    isExternalAppliedPipeline
+    `${pipelineLoadedFromExternalKey}`,
+    isPipelineLoadedFromExternal
   );
 
   const showErrorContainer = serverError || syntaxErrors.length > 0;
@@ -176,6 +181,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
+  isPipelineLoadedFromExternal: {
+    isPipelineLoadedFromExternal,
+    pipelineLoadedFromExternalId,
+  },
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -189,8 +198,10 @@ const mapState = ({
   },
   serverVersion,
 }: RootState) => ({
+  isPipelineLoadedFromExternal,
   namespace,
   num_stages: pipeline.length,
+  pipelineLoadedFromExternalKey: pipelineLoadedFromExternalId,
   pipelineText,
   serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,

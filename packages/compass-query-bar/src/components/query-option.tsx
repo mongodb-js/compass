@@ -146,7 +146,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   );
 
   const inputAppliedVisualEffect = useVisuallyAppliedEffect(
-    queryAppliedFromExternalKey,
+    `${queryAppliedFromExternalKey}`,
     isExternalAppliedQuery
   );
 

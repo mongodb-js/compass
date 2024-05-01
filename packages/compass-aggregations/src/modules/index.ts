@@ -11,6 +11,7 @@ import isTimeSeries from './is-time-series';
 import serverVersion from './server-version';
 import isModified from './is-modified';
 import name from './name';
+import isPipelineLoadedFromExternal from './is-pipeline-loaded-from-external';
 import limit from './limit';
 import largeLimit from './large-limit';
 import maxTimeMS from './max-time-ms';
@@ -66,6 +67,7 @@ const rootReducer = combineReducers({
   collationString,
   id,
   isModified,
+  isPipelineLoadedFromExternal,
   settings,
   limit,
   largeLimit,

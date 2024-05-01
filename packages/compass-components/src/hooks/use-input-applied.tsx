@@ -44,21 +44,15 @@ const externalAppliedQueryLightModeStyles = css({
 // The returned key updates as a way to refresh the effect.
 export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
   const [hasBeenApplied, setHasBeenApplied] = useState(false);
-  const hasStylesApplied = useRef<boolean>(isApplied);
   const [forceRefreshKey, setForceRefreshKey] = useState(key);
   const darkMode = useDarkMode();
 
   useEffect(() => {
     if (isApplied) {
       setHasBeenApplied(true);
-
       // When it's applied and there's already an effect,
       // we update the returned key to refresh it.
-      if (hasStylesApplied.current) {
-        setForceRefreshKey(key + new UUID().toString());
-      }
-
-      hasStylesApplied.current = true;
+      setForceRefreshKey(key + new UUID().toString());
     }
   }, [isApplied, key]);
 
