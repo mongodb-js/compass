@@ -42,18 +42,27 @@ export type WorkspacesService = {
   /**
    * Open "Databases" workspace showing list of all databases in the cluster
    */
-  openDatabasesWorkspace(this: void, tabOptions?: TabOptions): void;
+  openDatabasesWorkspace(
+    this: void,
+    connectionId: string,
+    tabOptions?: TabOptions
+  ): void;
   /**
    * Open "Performance" workspace showing charts of various cluster performance
    * metrics
    */
-  openPerformanceWorkspace(this: void, tabOptions?: TabOptions): void;
+  openPerformanceWorkspace(
+    this: void,
+    connectionId: string,
+    tabOptions?: TabOptions
+  ): void;
   /**
    * Open "Collections" workspace showing list of collections for a certain
    * database namespace
    */
   openCollectionsWorkspace(
     this: void,
+    connectionId: string,
     namespace: string,
     tabOptions?: TabOptions
   ): void;
@@ -63,11 +72,12 @@ export type WorkspacesService = {
    */
   openCollectionWorkspace(
     this: void,
+    connectionId: string,
     namespace: string,
     options?: TabOptions &
       Omit<
         Extract<OpenWorkspaceOptions, { type: 'Collection' }>,
-        'type' | 'namespace' | 'editViewName' | 'initialSubtab'
+        'type' | 'namespace' | 'editViewName' | 'initialSubtab' | 'connectionId'
       >
   ): void;
   /**
@@ -84,6 +94,7 @@ export type WorkspacesService = {
    */
   openEditViewWorkspace(
     this: void,
+    connectionId: string,
     viewNamespace: string,
     options: { sourceName: string; sourcePipeline: unknown[] } & TabOptions
   ): void;
@@ -145,27 +156,31 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openDatabasesWorkspace: (tabOptions) => {
+      openDatabasesWorkspace: (connectionId, tabOptions) => {
         return store.dispatch(
-          openWorkspaceAction({ type: 'Databases' }, tabOptions)
+          openWorkspaceAction({ type: 'Databases', connectionId }, tabOptions)
         );
       },
-      openPerformanceWorkspace: (tabOptions) => {
+      openPerformanceWorkspace: (connectionId, tabOptions) => {
         return store.dispatch(
-          openWorkspaceAction({ type: 'Performance' }, tabOptions)
+          openWorkspaceAction({ type: 'Performance', connectionId }, tabOptions)
         );
       },
-      openCollectionsWorkspace: (namespace, tabOptions) => {
+      openCollectionsWorkspace: (connectionId, namespace, tabOptions) => {
         return store.dispatch(
-          openWorkspaceAction({ type: 'Collections', namespace }, tabOptions)
+          openWorkspaceAction(
+            { type: 'Collections', connectionId, namespace },
+            tabOptions
+          )
         );
       },
-      openCollectionWorkspace: (namespace, options) => {
+      openCollectionWorkspace: (connectionId, namespace, options) => {
         const { newTab, ...collectionOptions } = options ?? {};
         return store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
+              connectionId,
               namespace,
               ...collectionOptions,
             },
@@ -176,12 +191,13 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       openCollectionWorkspaceSubtab(tabId, subtab) {
         store.dispatch(collectionSubtabSelected(tabId, subtab));
       },
-      openEditViewWorkspace: (viewNamespace, options) => {
+      openEditViewWorkspace: (connectionId, viewNamespace, options) => {
         const { newTab, sourceName, sourcePipeline } = options ?? {};
         return store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
+              connectionId,
               namespace: sourceName,
               initialPipeline: sourcePipeline,
               editViewName: viewNamespace,

@@ -9,7 +9,7 @@ import Sinon from 'sinon';
 
 describe('Databasees [Plugin]', function () {
   let dataService: any;
-  let mongodbInstance: MongoDBInstance;
+  let mongodbInstance: Sinon.SinonSpiedInstance<MongoDBInstance>;
   let appRegistry: Sinon.SinonSpiedInstance<AppRegistry>;
 
   beforeEach(function () {
@@ -23,10 +23,12 @@ describe('Databasees [Plugin]', function () {
 
   describe('with loaded databases', function () {
     beforeEach(async function () {
-      mongodbInstance = new MongoDBInstance({
-        databases: [],
-        topologyDescription: { type: 'ReplicaSetWithPrimary' },
-      } as any);
+      mongodbInstance = Sinon.spy(
+        new MongoDBInstance({
+          databases: [],
+          topologyDescription: { type: 'ReplicaSetWithPrimary' },
+        } as any)
+      );
 
       dataService = {
         listDatabases() {
@@ -52,15 +54,36 @@ describe('Databasees [Plugin]', function () {
     });
 
     it('renders a list of databases', function () {
-      userEvent.click(screen.getByRole('button', { name: /Create database/ }));
-      expect(appRegistry.emit).to.have.been.calledWith('open-create-database');
+      expect(screen.getAllByRole('gridcell')).to.have.lengthOf(2);
+    });
 
+    it('initiates action to create a database', function () {
+      userEvent.click(screen.getByRole('button', { name: /Create database/ }));
+      expect(appRegistry.emit).to.have.been.calledWith(
+        'open-create-database',
+        // this event is supposed to emit always with a connectionId and this
+        // connection id is the default provided by the connectionInfoProvider
+        { connectionId: 'TEST' }
+      );
+    });
+
+    it('initiates action to refresh databases', function () {
       userEvent.click(screen.getByRole('button', { name: /Refresh/ }));
       expect(appRegistry.emit).to.have.been.calledWith('refresh-databases');
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mongodbInstance.fetchDatabases).to.have.been.called;
+    });
 
+    it('initiates action to delete a database', function () {
       userEvent.hover(screen.getByRole('gridcell', { name: /foo/ }));
       userEvent.click(screen.getByRole('button', { name: /Delete/ }));
-      expect(appRegistry.emit).to.have.been.calledWith('refresh-databases');
+      expect(appRegistry.emit).to.have.been.calledWith(
+        'open-drop-database',
+        'foo',
+        // this event is supposed to emit always with a connectionId and this
+        // connection id is the default provided by the connectionInfoProvider
+        { connectionId: 'TEST' }
+      );
     });
 
     it('updates when instance model updates', async function () {

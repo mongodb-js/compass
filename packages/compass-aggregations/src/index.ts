@@ -6,6 +6,8 @@ import { activateCreateViewPlugin } from './stores/create-view';
 import StageEditor from './components/stage-editor';
 import CreateViewModal from './components/create-view-modal';
 import {
+  connectionInfoAccessLocator,
+  connectionsManagerLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -14,7 +16,10 @@ import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './modules/data-service';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
@@ -39,6 +44,8 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     atlasAuthService: atlasAuthServiceLocator,
     atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
+    collection: collectionModelLocator,
   }
 );
 
@@ -54,7 +61,7 @@ export const CreateViewPlugin = registerHadronPlugin(
     activate: activateCreateViewPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<'createView'>,
+    connectionsManager: connectionsManagerLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-CREATE-VIEW-UI'),
     workspaces: workspacesServiceLocator,
   }

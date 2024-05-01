@@ -5,6 +5,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import { ObjectId } from 'mongodb';
 
 const ATLAS_USER = {
   enabledAIFeature: true,
@@ -43,12 +44,23 @@ class MockAtlasAuthService extends AtlasAuthService {
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   privateUnAuthEndpoint = (url: string) => [BASE_URL, url].join('/');
-  privateAtlasEndpoint = (url: string) => [BASE_URL, url].join('/');
+  privateAtlasEndpoint = (url: string, requestId?: string) =>
+    `${[BASE_URL, url].join('/')}${
+      requestId ? `?request_id=${requestId}` : ''
+    }`;
   authenticatedFetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
   fetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
+  };
+}
+
+function makeResponse(content: any) {
+  return {
+    ok: true,
+    json: () => Promise.resolve(content),
+    text: () => Promise.resolve(JSON.stringify(content)),
   };
 }
 
@@ -79,18 +91,15 @@ describe('AtlasAiService', function () {
   describe('ai api calls', function () {
     beforeEach(async function () {
       // Enable the AI feature
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: {
-              GEN_AI_COMPASS: {
-                enabled: true,
-              },
+      const fetchStub = sandbox.stub().resolves(
+        makeResponse({
+          features: {
+            GEN_AI_COMPASS: {
+              enabled: true,
             },
-          });
-        },
-      });
+          },
+        })
+      );
       global.fetch = fetchStub;
       await atlasAiService['setupAIAccess']();
       global.fetch = initialFetch;
@@ -105,10 +114,14 @@ describe('AtlasAiService', function () {
             content: { query: { filter: "{ test: 'pineapple' }" } },
           },
           invalid: [
-            {},
-            { countent: {} },
-            { content: { qooery: {} } },
-            { content: { query: { filter: { foo: 1 } } } },
+            [undefined, 'internal server error'],
+            [{}, 'unexpected response'],
+            [{ countent: {} }, 'unexpected response'],
+            [{ content: { qooery: {} } }, 'unexpected keys'],
+            [
+              { content: { query: { filter: { foo: 1 } } } },
+              'unexpected response',
+            ],
           ],
         },
       },
@@ -120,10 +133,14 @@ describe('AtlasAiService', function () {
             content: { aggregation: { pipeline: "[{ test: 'pineapple' }]" } },
           },
           invalid: [
-            {},
-            { content: { aggregation: {} } },
-            { content: { aggrogation: {} } },
-            { content: { aggregation: { pipeline: true } } },
+            [undefined, 'internal server error'],
+            [{}, 'unexpected response'],
+            [{ content: { aggregation: {} } }, 'unexpected response'],
+            [{ content: { aggrogation: {} } }, 'unexpected keys'],
+            [
+              { content: { aggregation: { pipeline: true } } },
+              'unexpected response',
+            ],
           ],
         },
       },
@@ -132,10 +149,9 @@ describe('AtlasAiService', function () {
     for (const { functionName, aiEndpoint, responses } of atlasAIServiceTests) {
       describe(functionName, function () {
         it('makes a post request with the user input to the endpoint in the environment', async function () {
-          const fetchStub = sandbox.stub().resolves({
-            ok: true,
-            json: () => Promise.resolve(responses.success),
-          });
+          const fetchStub = sandbox
+            .stub()
+            .resolves(makeResponse(responses.success));
           global.fetch = fetchStub;
 
           const res = await atlasAiService[functionName]({
@@ -144,26 +160,28 @@ describe('AtlasAiService', function () {
             collectionName: 'jam',
             databaseName: 'peanut',
             schema: { _id: { types: [{ bsonType: 'ObjectId' }] } },
-            sampleDocuments: [{ _id: 1234 }],
+            sampleDocuments: [
+              { _id: new ObjectId('642d766b7300158b1f22e972') },
+            ],
+            requestId: 'abc',
           });
 
           expect(fetchStub).to.have.been.calledOnce;
 
           const { args } = fetchStub.firstCall;
 
-          expect(args[0]).to.eq(`http://example.com/ai/api/v1/${aiEndpoint}`);
+          expect(args[0]).to.eq(
+            `http://example.com/ai/api/v1/${aiEndpoint}?request_id=abc`
+          );
           expect(args[1].body).to.eq(
-            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":1234}]}'
+            '{"userInput":"test","collectionName":"jam","databaseName":"peanut","schema":{"_id":{"types":[{"bsonType":"ObjectId"}]}},"sampleDocuments":[{"_id":{"$oid":"642d766b7300158b1f22e972"}}]}'
           );
           expect(res).to.deep.eq(responses.success);
         });
 
         it('should fail when response is not matching expected schema', async function () {
-          for (const res of responses.invalid) {
-            const fetchStub = sandbox.stub().resolves({
-              ok: true,
-              json: () => Promise.resolve(res),
-            });
+          for (const [res, error] of responses.invalid) {
+            const fetchStub = sandbox.stub().resolves(makeResponse(res));
             global.fetch = fetchStub;
 
             try {
@@ -171,10 +189,12 @@ describe('AtlasAiService', function () {
                 userInput: 'test',
                 collectionName: 'test',
                 databaseName: 'peanut',
+                requestId: 'abc',
+                signal: new AbortController().signal,
               });
               expect.fail(`Expected ${functionName} to throw`);
             } catch (err) {
-              expect((err as Error).message).to.match(/Unexpected.+?response/);
+              expect((err as Error).message).to.match(new RegExp(error, 'i'));
             }
           }
         });
@@ -185,7 +205,9 @@ describe('AtlasAiService', function () {
               userInput: 'test',
               collectionName: 'test',
               databaseName: 'peanut',
-              sampleDocuments: [{ test: '4'.repeat(60000) }],
+              sampleDocuments: [{ test: '4'.repeat(600000) }],
+              requestId: 'abc',
+              signal: new AbortController().signal,
             });
             expect.fail(`Expected ${functionName} to throw`);
           } catch (err) {
@@ -197,10 +219,9 @@ describe('AtlasAiService', function () {
         });
 
         it('passes fewer documents if the request would be too much for the ai with all of the documents', async function () {
-          const fetchStub = sandbox.stub().resolves({
-            ok: true,
-            json: () => Promise.resolve(responses.success),
-          });
+          const fetchStub = sandbox
+            .stub()
+            .resolves(makeResponse(responses.success));
           global.fetch = fetchStub;
 
           await atlasAiService[functionName]({
@@ -211,8 +232,10 @@ describe('AtlasAiService', function () {
               { a: '1' },
               { a: '2' },
               { a: '3' },
-              { a: '4'.repeat(50000) },
+              { a: '4'.repeat(500000) },
             ],
+            requestId: 'abc',
+            signal: new AbortController().signal,
           });
 
           const { args } = fetchStub.firstCall;
@@ -234,18 +257,15 @@ describe('AtlasAiService', function () {
     });
 
     it('should set the cloudFeatureRolloutAccess true when returned true', async function () {
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: {
-              GEN_AI_COMPASS: {
-                enabled: true,
-              },
+      const fetchStub = sandbox.stub().resolves(
+        makeResponse({
+          features: {
+            GEN_AI_COMPASS: {
+              enabled: true,
             },
-          });
-        },
-      });
+          },
+        })
+      );
       global.fetch = fetchStub;
 
       let currentCloudFeatureRolloutAccess =
@@ -267,18 +287,15 @@ describe('AtlasAiService', function () {
     });
 
     it('should set the cloudFeatureRolloutAccess false when returned false', async function () {
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: {
-              GEN_AI_COMPASS: {
-                enabled: false,
-              },
+      const fetchStub = sandbox.stub().resolves(
+        makeResponse({
+          features: {
+            GEN_AI_COMPASS: {
+              enabled: false,
             },
-          });
-        },
-      });
+          },
+        })
+      );
       global.fetch = fetchStub;
 
       let currentCloudFeatureRolloutAccess =
@@ -300,14 +317,11 @@ describe('AtlasAiService', function () {
     });
 
     it('should set the cloudFeatureRolloutAccess false when returned null', async function () {
-      const fetchStub = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({
-            features: null,
-          });
-        },
-      });
+      const fetchStub = sandbox.stub().resolves(
+        makeResponse({
+          features: null,
+        })
+      );
       global.fetch = fetchStub;
 
       let currentCloudFeatureRolloutAccess =

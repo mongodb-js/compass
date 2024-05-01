@@ -24,45 +24,115 @@ import { AIFeedback } from './ai-feedback';
 import { AIGuideCue } from './ai-guide-cue';
 
 const containerStyles = css({
-  display: 'flex',
+  width: '100%',
   flexDirection: 'column',
-  gap: spacing[1],
+  gap: spacing[25],
+  marginBottom: spacing[300],
 });
 
 const inputBarContainerStyles = css({
-  paddingTop: spacing[2],
-  gap: spacing[2],
-  flexGrow: 1,
   display: 'flex',
+  width: '100%',
+  paddingTop: spacing[100],
+  gap: spacing[2],
+});
+
+const gradientWidth = spacing[50];
+const gradientOffset = spacing[25];
+
+const gradientAnimationStyles = css`
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    top: -${gradientWidth + gradientOffset}px;
+    left: -${gradientWidth + gradientOffset}px;
+    width: calc(100% + ${(gradientWidth + gradientOffset) * 2}px);
+    height: calc(100% + ${(gradientWidth + gradientOffset) * 2}px);
+    border-radius: 12px;
+    background-color: ${palette.blue.light1};
+    background-size: 400% 400%;
+    background-position: 800% 800%;
+  }
+
+  &:after {
+    animation: 4s animateBg linear;
+  }
+
+  &:before {
+    filter: blur(4px) opacity(0.6);
+    animation: 4s animateBg, animateShadow linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes animateBg {
+    0% {
+      background-position: 400% 400%;
+      background-image: linear-gradient(
+        20deg,
+        ${palette.blue.light1} 0%,
+        ${palette.blue.light1} 30%,
+        #00ede0 45%,
+        #00ebc1 75%,
+        #0498ec
+      );
+    }
+    100% {
+      background-position: 0% 0%;
+      background-image: linear-gradient(
+        20deg,
+        ${palette.blue.light1} 0%,
+        ${palette.blue.light1} 30%,
+        #00ede0 45%,
+        #00ebc1 75%,
+        #0498ec
+      );
+    }
+  }
+
+  @keyframes animateShadow {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+`;
+
+const contentWrapperStyles = css({
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  zIndex: 2,
 });
 
 const inputContainerStyles = css({
-  display: 'flex',
-  flexGrow: 1,
+  width: '100%',
   position: 'relative',
 });
 
 const textInputStyles = css({
   flexGrow: 1,
-  // Override LeafyGreen input's padding to space for our robot.
   input: {
-    paddingLeft: spacing[5],
-    paddingRight: spacing[6] * 2 + spacing[2],
+    paddingLeft: spacing[800],
+    paddingRight: spacing[1600] * 2 + spacing[200],
   },
 });
 
 const errorSummaryContainer = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
 });
 
 const floatingButtonsContainerStyles = css({
   position: 'absolute',
-  right: spacing[1],
+  right: spacing[100],
   display: 'flex',
-  gap: spacing[2],
+  gap: spacing[200],
   alignItems: 'center',
   // Match the whole textbox.
-  height: spacing[4] + spacing[1],
+  height: spacing[600] + spacing[100],
 });
 
 const successIndicatorDarkModeStyles = css({
@@ -79,7 +149,7 @@ const successIndicatorLightModeStyles = css({
 
 const generateButtonStyles = css({
   border: 'none',
-  height: spacing[4] - spacing[1],
+  height: spacing[600] - spacing[100],
   display: 'flex',
   fontSize: '12px',
   borderRadius: spacing[1],
@@ -95,7 +165,7 @@ const buttonHighlightStyles = css({
   // Custom button styles.
   height: `${highlightSize}px`,
   lineHeight: `${highlightSize}px`,
-  padding: `0px ${spacing[1]}px`,
+  padding: `0px ${spacing[100]}px`,
   borderRadius: '2px',
 });
 
@@ -110,9 +180,9 @@ const buttonHighlightLightModeStyles = css({
 });
 
 const loaderContainerStyles = css({
-  padding: spacing[1],
+  padding: spacing[100],
   display: 'inline-flex',
-  width: DEFAULT_AI_ENTRY_SIZE + spacing[2],
+  width: DEFAULT_AI_ENTRY_SIZE + spacing[200],
   justifyContent: 'space-around',
 });
 
@@ -125,10 +195,10 @@ const buttonResetStyles = css({
 });
 
 const closeAIButtonStyles = css(buttonResetStyles, focusRing, {
-  height: spacing[4] + spacing[1],
+  height: spacing[600] + spacing[100],
   display: 'flex',
   alignItems: 'center',
-  padding: `${spacing[1]}px ${spacing[2]}px`,
+  padding: `${spacing[100]}px ${spacing[200]}px`,
   position: 'absolute',
 });
 
@@ -260,102 +330,109 @@ function GenerativeAIInput({
     <div className={containerStyles}>
       <div className={inputBarContainerStyles}>
         <div className={inputContainerStyles}>
-          <TextInput
-            className={textInputStyles}
-            ref={promptTextInputRef}
-            sizeVariant="small"
-            data-testid="ai-user-text-input"
-            aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-            placeholder={placeholder}
-            value={aiPromptText}
-            onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-              onChangeAIPromptText(evt.currentTarget.value)
-            }
-            onKeyDown={onTextInputKeyDown}
-          />
-          <div className={floatingButtonsContainerStyles}>
-            {isFetching ? (
-              <div className={loaderContainerStyles}>
-                <SpinLoader />
-              </div>
-            ) : showSuccess ? (
-              <div className={loaderContainerStyles}>
-                <Icon
-                  className={
-                    darkMode
-                      ? successIndicatorDarkModeStyles
-                      : successIndicatorLightModeStyles
-                  }
-                  glyph="CheckmarkWithCircle"
-                />
-              </div>
-            ) : (
-              <>
-                {aiPromptText && (
-                  <IconButton
-                    aria-label="Clear prompt"
-                    onClick={() => onChangeAIPromptText('')}
-                    data-testid="ai-text-clear-prompt"
-                  >
-                    <Icon glyph="X" />
-                  </IconButton>
-                )}
-              </>
-            )}
-            <Button
-              size="small"
-              className={cx(
-                generateButtonStyles,
-                !darkMode && generateButtonLightModeStyles
-              )}
-              disabled={!aiPromptText}
-              data-testid="ai-generate-button"
-              onClick={() =>
-                isFetching ? onCancelRequest() : handleSubmit(aiPromptText)
-              }
+          <div className={cx(isFetching ? gradientAnimationStyles : null)}>
+            <div
+              className={contentWrapperStyles}
+              data-testid="ai-user-text-input-wrapper"
             >
-              {isFetching ? (
-                <>
-                  <div>Cancel</div>
-                  <span
-                    className={cx(
-                      buttonHighlightStyles,
-                      darkMode
-                        ? buttonHighlightDarkModeStyles
-                        : buttonHighlightLightModeStyles
+              <TextInput
+                className={textInputStyles}
+                ref={promptTextInputRef}
+                sizeVariant="small"
+                data-testid="ai-user-text-input"
+                aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
+                placeholder={placeholder}
+                value={aiPromptText}
+                onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+                  onChangeAIPromptText(evt.currentTarget.value)
+                }
+                onKeyDown={onTextInputKeyDown}
+              />
+              <div className={floatingButtonsContainerStyles}>
+                {isFetching ? (
+                  <div className={loaderContainerStyles}>
+                    <SpinLoader />
+                  </div>
+                ) : showSuccess ? (
+                  <div className={loaderContainerStyles}>
+                    <Icon
+                      className={
+                        darkMode
+                          ? successIndicatorDarkModeStyles
+                          : successIndicatorLightModeStyles
+                      }
+                      glyph="CheckmarkWithCircle"
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {aiPromptText && (
+                      <IconButton
+                        aria-label="Clear prompt"
+                        onClick={() => onChangeAIPromptText('')}
+                        data-testid="ai-text-clear-prompt"
+                      >
+                        <Icon glyph="X" />
+                      </IconButton>
                     )}
-                  >
-                    esc
-                  </span>
-                </>
-              ) : (
-                <>
-                  <div>Generate</div>
-                  <SubmitArrowSVG darkMode={darkMode} />
-                </>
-              )}
-            </Button>
+                  </>
+                )}
+                <Button
+                  size="small"
+                  className={cx(
+                    generateButtonStyles,
+                    !darkMode && generateButtonLightModeStyles
+                  )}
+                  disabled={!aiPromptText}
+                  data-testid="ai-generate-button"
+                  onClick={() =>
+                    isFetching ? onCancelRequest() : handleSubmit(aiPromptText)
+                  }
+                >
+                  {isFetching ? (
+                    <>
+                      <div>Cancel</div>
+                      <span
+                        className={cx(
+                          buttonHighlightStyles,
+                          darkMode
+                            ? buttonHighlightDarkModeStyles
+                            : buttonHighlightLightModeStyles
+                        )}
+                      >
+                        esc
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div>Generate</div>
+                      <SubmitArrowSVG darkMode={darkMode} />
+                    </>
+                  )}
+                </Button>
+              </div>
+              <button
+                className={closeAIButtonStyles}
+                data-testid="close-ai-button"
+                aria-label={closeText}
+                title={closeText}
+                onClick={() => onClose()}
+              >
+                <AIGuideCue
+                  showGuideCue={isAggregationGeneratedFromQuery}
+                  onCloseGuideCue={() => {
+                    onResetIsAggregationGeneratedFromQuery?.();
+                  }}
+                  refEl={guideCueRef}
+                  title="Aggregation generated"
+                  description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+                />
+                <span className={aiEntryContainerStyles} ref={guideCueRef}>
+                  <Icon glyph="Sparkle" />
+                </span>
+              </button>
+            </div>
           </div>
-          <button
-            className={closeAIButtonStyles}
-            data-testid="close-ai-button"
-            aria-label={closeText}
-            title={closeText}
-            onClick={() => onClose()}
-          >
-            <AIGuideCue
-              showGuideCue={isAggregationGeneratedFromQuery}
-              onCloseGuideCue={() => {
-                onResetIsAggregationGeneratedFromQuery?.();
-              }}
-              refEl={guideCueRef}
-              title="Aggregation generated"
-              description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
-            />
-            <span className={aiEntryContainerStyles} ref={guideCueRef}>
-              <Icon glyph="Sparkle" />
-            </span>
-          </button>
         </div>
         {didSucceed && onSubmitFeedback && (
           <AIFeedback onSubmitFeedback={onSubmitFeedback} />

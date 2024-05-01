@@ -7,8 +7,10 @@ import type {
   AtlasAuthService,
   AtlasService,
 } from '@mongodb-js/atlas-service/provider';
+import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Document } from 'mongodb';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { EJSON } from 'bson';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -16,10 +18,13 @@ type GenerativeAiInput = {
   databaseName: string;
   schema?: SimplifiedSchema;
   sampleDocuments?: Document[];
-  signal?: AbortSignal;
+  signal: AbortSignal;
+  requestId: string;
 };
 
-const AI_MAX_REQUEST_SIZE = 10000;
+// The size/token validation happens on the server, however, we do
+// want to ensure we're not uploading massive documents (some folks have documents > 1mb).
+const AI_MAX_REQUEST_SIZE = 100000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
 const USER_AI_URI = (userId: string) => `ai/api/v1/hello/${userId}`;
 const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';
@@ -50,6 +55,44 @@ type AIQuery = {
     aggregation?: { pipeline: string };
   };
 };
+
+function buildQueryOrAggregationMessageBody(
+  input: Omit<GenerativeAiInput, 'signal' | 'requestId'>
+) {
+  const sampleDocuments = input.sampleDocuments
+    ? EJSON.serialize(input.sampleDocuments, {
+        relaxed: false,
+      })
+    : undefined;
+
+  let msgBody = JSON.stringify({
+    ...input,
+    sampleDocuments,
+  });
+  if (msgBody.length > AI_MAX_REQUEST_SIZE && sampleDocuments) {
+    // When the message body is over the max size, we try
+    // to see if with fewer sample documents we can still perform the request.
+    // If that fails we throw an error indicating this collection's
+    // documents are too large to send to the ai.
+    msgBody = JSON.stringify({
+      ...input,
+      sampleDocuments: EJSON.serialize(
+        input.sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS) || [],
+        {
+          relaxed: false,
+        }
+      ),
+    });
+  }
+
+  if (msgBody.length > AI_MAX_REQUEST_SIZE) {
+    throw new Error(
+      'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
+    );
+  }
+
+  return msgBody;
+}
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
@@ -103,7 +146,7 @@ export class AtlasAiService {
 
       this.logger.log.info(
         this.logger.mongoLogId(1_001_000_300),
-        'AtlasService',
+        'AtlasAIService',
         'Fetched if the AI feature is enabled',
         {
           enabled: isAIFeatureEnabled,
@@ -120,7 +163,7 @@ export class AtlasAiService {
       // Default to what's already in Compass when we can't fetch the preference.
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_302),
-        'AtlasService',
+        'AtlasAIService',
         'Failed to load if the AI feature is enabled',
         { error: (err as Error).stack }
       );
@@ -134,31 +177,26 @@ export class AtlasAiService {
   ): Promise<T> => {
     await this.initPromise;
     await this.throwIfAINotEnabled();
-    const { signal, ...rest } = input;
-    let msgBody = JSON.stringify(rest);
-    if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-      // When the message body is over the max size, we try
-      // to see if with fewer sample documents we can still perform the request.
-      // If that fails we throw an error indicating this collection's
-      // documents are too large to send to the ai.
-      msgBody = JSON.stringify({
+
+    const { signal, requestId, ...rest } = input;
+    const msgBody = buildQueryOrAggregationMessageBody(rest);
+
+    const url = this.atlasService.privateAtlasEndpoint(uri, requestId);
+
+    this.logger.log.info(
+      this.logger.mongoLogId(1_001_000_308),
+      'AtlasAIService',
+      'Running AI query generation request',
+      {
+        url,
         userInput: input.userInput,
         collectionName: input.collectionName,
         databaseName: input.databaseName,
-        schema: input.schema,
-        sampleDocuments: input.sampleDocuments?.slice(
-          0,
-          AI_MIN_SAMPLE_DOCUMENTS
-        ),
-      });
-      if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-        throw new Error(
-          'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
-        );
+        messageBodyLength: msgBody.length,
+        requestId,
       }
-    }
+    );
 
-    const url = this.atlasService.privateAtlasEndpoint(uri);
     const res = await this.atlasService.authenticatedFetch(url, {
       signal,
       method: 'POST',
@@ -168,7 +206,32 @@ export class AtlasAiService {
         Accept: 'application/json',
       },
     });
-    const data = await res.json();
+
+    // Sometimes the server will return empty response and calling res.json directly
+    // throws and user see "Unexpected end of JSON input" error, which is not helpful.
+    // So we will get the text from the response first and then try to parse it.
+    // If it fails, we will throw a more helpful error message.
+    const text = await res.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      this.logger.log.info(
+        this.logger.mongoLogId(1_001_000_310),
+        'AtlasAIService',
+        'Failed to parse the response from AI API',
+        {
+          text,
+          requestId,
+        }
+      );
+      throw new AtlasServiceError(
+        'ServerError',
+        500, // Not using res.status as its 200 in this case
+        'Internal server error',
+        'INTERNAL_SERVER_ERROR'
+      );
+    }
     validationFn(data);
     return data;
   };

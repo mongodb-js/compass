@@ -69,13 +69,6 @@ const queryBarFirstRowStyles = css({
   gap: spacing[2],
 });
 
-const moreOptionsContainerStyles = css({
-  // We explicitly offset this element so we can use
-  // `alignItems: 'flex-start'` on the first row of the query bar.
-  paddingTop: 2,
-  paddingBottom: 2,
-});
-
 const filterContainerStyles = css({
   display: 'flex',
   position: 'relative',
@@ -102,10 +95,6 @@ const queryAIContainerStyles = css({
   margin: `0px ${spacing[2]}px`,
 });
 
-const visibleAIContainerStyles = css({
-  marginTop: '2px',
-});
-
 const QueryOptionsToggle = connect(
   (state: RootState) => {
     return {
@@ -130,6 +119,10 @@ type QueryBarProps = {
   applyId: number;
   filterHasContent: boolean;
   showExplainButton?: boolean;
+  /**
+   * Used by Cloud only to hide the export to language functionality
+   * as it isn't supported.
+   */
   showExportToLanguageButton?: boolean;
   valid: boolean;
   expanded: boolean;
@@ -137,6 +130,7 @@ type QueryBarProps = {
   onExplain?: () => void;
   insights?: Signal | Signal[];
   isAIInputVisible?: boolean;
+  isAIFetching?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
 };
@@ -151,6 +145,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     'project',
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
+    'hint',
   ],
   queryChanged,
   resultId,
@@ -164,6 +159,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onExplain,
   insights,
   isAIInputVisible = false,
+  isAIFetching = false,
   onShowAIInputClick,
   onHideAIInputClick,
 }) => {
@@ -221,6 +217,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
       data-apply-id={applyId}
     >
+      {isAIFeatureEnabled && (
+        <div className={queryAIContainerStyles}>
+          <QueryAI
+            onClose={() => {
+              onHideAIInputClick?.();
+            }}
+            show={isAIInputVisible}
+          />
+        </div>
+      )}
       <div className={queryBarFirstRowStyles}>
         {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         <div className={filterContainerStyles}>
@@ -230,6 +236,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             onApply={onApply}
             placeholder={filterPlaceholder}
             insights={insights}
+            disabled={isAIFetching}
           />
           {showAIEntryButton && (
             <div className={aiEntryContainerStyles}>
@@ -247,7 +254,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             title="View the execution plan for the current query"
             data-testid="query-bar-explain-button"
             onClick={onExplain}
-            disabled={!isQueryValid}
+            disabled={!isQueryValid || isAIFetching}
             size="small"
             type="button"
           >
@@ -258,7 +265,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
           onClick={onReset}
-          disabled={!queryChanged}
+          disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
         >
@@ -266,7 +273,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         </Button>
         <Button
           data-testid="query-bar-apply-filter-button"
-          disabled={!isQueryValid}
+          disabled={!isQueryValid || isAIFetching}
           variant="primary"
           size="small"
           type="submit"
@@ -280,15 +287,15 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             title="Open export to language"
             aria-label="Open export to language"
             data-testid="query-bar-open-export-to-language-button"
+            disabled={isAIFetching}
             type="button"
             size="small"
           >
             <Icon glyph="Code" />
           </Button>
         )}
-
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
-          <div className={moreOptionsContainerStyles}>
+          <div>
             <QueryOptionsToggle
               aria-controls="additional-query-options-container"
               data-testid="query-bar-options-toggle"
@@ -308,26 +315,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
                 queryOptionsLayout={queryOptionRowLayout}
                 key={`query-bar-row-${rowIndex}`}
                 onApply={onApply}
+                disabled={isAIFetching}
                 placeholders={placeholders}
               />
             ))}
           </div>
         )}
-      {isAIFeatureEnabled && (
-        <div
-          className={cx(
-            queryAIContainerStyles,
-            isAIInputVisible && visibleAIContainerStyles
-          )}
-        >
-          <QueryAI
-            onClose={() => {
-              onHideAIInputClick?.();
-            }}
-            show={isAIInputVisible}
-          />
-        </div>
-      )}
     </form>
   );
 };
@@ -346,6 +339,7 @@ export default connect(
       valid: isQueryValid(fields),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
+      isAIFetching: aiQuery.status === 'fetching',
     };
   },
   (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {

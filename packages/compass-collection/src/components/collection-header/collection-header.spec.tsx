@@ -188,7 +188,7 @@ describe('CollectionHeader [Component]', function () {
         crumbs.push(item.textContent);
       });
       expect(crumbs.filter(Boolean).join('.').toLowerCase()).to.equal(
-        items.join('.').toLowerCase()
+        `localhost:27020.${items.join('.').toLowerCase()}`
       );
     }
 
@@ -247,9 +247,10 @@ describe('CollectionHeader [Component]', function () {
         expect(openCollectionsWorkspaceStub.called).to.be.false;
         userEvent.click(item);
         expect(openCollectionsWorkspaceStub.calledOnce).to.be.true;
-        expect(openCollectionsWorkspaceStub.firstCall.firstArg).to.deep.equal(
-          'db'
-        );
+        expect(openCollectionsWorkspaceStub.firstCall.args).to.deep.equal([
+          'TEST',
+          'db',
+        ]);
       });
 
       it('for a view, opens source collection', function () {
@@ -268,9 +269,10 @@ describe('CollectionHeader [Component]', function () {
         expect(openCollectionWorkspaceStub.called).to.be.false;
         userEvent.click(item);
         expect(openCollectionWorkspaceStub.calledOnce).to.be.true;
-        expect(openCollectionWorkspaceStub.firstCall.firstArg).to.deep.equal(
-          'db.coll2'
-        );
+        expect(openCollectionWorkspaceStub.firstCall.args).to.deep.equal([
+          'TEST',
+          'db.coll2',
+        ]);
       });
     });
   });

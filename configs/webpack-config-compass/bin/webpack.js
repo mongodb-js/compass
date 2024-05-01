@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 
 // XXX: This mimics (simplified) webpack behavior, but makes sure that we are
 // always resolving webpack-cli relative to the config. It is required to do, to

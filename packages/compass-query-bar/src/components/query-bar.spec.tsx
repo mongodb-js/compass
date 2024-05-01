@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -10,6 +10,7 @@ import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
 import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import { AIQueryActionTypes } from '../stores/ai-query-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { mapQueryToFormFields } from '../utils/query';
@@ -51,7 +52,7 @@ describe('QueryBar Component', function () {
     } as QueryBarExtraArgs);
     store.dispatch(toggleQueryOptions(expanded));
 
-    render(
+    const component = (
       <PreferencesProvider value={preferences}>
         <FavoriteQueryStorageProvider value={compassFavoriteQueryStorageAccess}>
           <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
@@ -60,8 +61,8 @@ describe('QueryBar Component', function () {
                 buttonLabel="Apply"
                 onApply={noop}
                 onReset={noop}
-                showExportToLanguageButton
                 resultId="123"
+                showExportToLanguageButton
                 {...props}
               />
             </Provider>
@@ -69,6 +70,16 @@ describe('QueryBar Component', function () {
         </FavoriteQueryStorageProvider>
       </PreferencesProvider>
     );
+
+    const result = render(component);
+
+    return {
+      ...result,
+      store,
+      rerender: () => {
+        result.rerender(component);
+      },
+    };
   };
 
   beforeEach(async function () {
@@ -122,27 +133,162 @@ describe('QueryBar Component', function () {
 
     it('renders the expanded inputs', function () {
       const queryInputs = screen.getAllByRole('textbox');
-      expect(queryInputs.length).to.equal(7);
+      expect(queryInputs.length).to.equal(8);
     });
   });
 
-  describe('with one query option', function () {
+  describe('when rendered', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptionsLayout: ['project'],
-        expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
       });
     });
 
-    it('renders the expanded inputs', function () {
+    it('renders the filter input', function () {
+      const filterInput = screen.getByTestId('query-bar-option-filter-input');
+      expect(filterInput).to.exist;
+      expect(filterInput).to.have.attribute(
+        'id',
+        'query-bar-option-input-filter'
+      );
+
       const queryInputs = screen.getAllByRole('textbox');
-      expect(queryInputs.length).to.equal(2);
+      expect(queryInputs.length).to.equal(1);
+    });
+
+    it('renders the query history button', function () {
+      const queryHistoryButton = screen.queryByTestId(queryHistoryButtonId);
+      expect(queryHistoryButton).to.be.visible;
+    });
+
+    it('does not render the query history popover', function () {
+      const queryHistory = screen.queryByTestId(queryHistoryComponentTestId);
+      expect(queryHistory).to.not.exist;
     });
   });
 
-  describe('with ai enabled', function () {
+  describe('when ai is ready', function () {
+    beforeEach(function () {
+      renderQueryBar(
+        {
+          queryOptionsLayout: ['project'],
+          expanded: true,
+          onApply: onApplySpy,
+          onReset: onResetSpy,
+        },
+        {}
+      );
+    });
+
+    it('query controls are enabled', function () {
+      expect(
+        screen
+          .getByTestId('query-bar-open-export-to-language-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
+      expect(
+        screen
+          .getByTestId('query-bar-apply-filter-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
+      expect(
+        screen
+          .getByTestId('query-bar-open-export-to-language-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
+      expect(
+        screen
+          .getByTestId('query-bar-open-export-to-language-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
+    });
+
+    it('editors are not readonly', function () {
+      expect(
+        within(screen.getByTestId('query-bar-option-filter-input'))
+          .getByRole('textbox')
+          .getAttribute('aria-readonly')
+      ).to.not.exist;
+      expect(
+        within(screen.getByTestId('query-bar-option-project-input'))
+          .getByRole('textbox')
+          .getAttribute('aria-readonly')
+      ).to.not.exist;
+    });
+  });
+
+  describe('while ai is fetching', function () {
+    it('query controls are disabled', function () {
+      const { store, rerender } = renderQueryBar(
+        {
+          queryOptionsLayout: ['project'],
+          expanded: true,
+          onApply: onApplySpy,
+          onReset: onResetSpy,
+        },
+        {}
+      );
+
+      store.dispatch({
+        type: AIQueryActionTypes.AIQueryStarted,
+        requestId: 'pineapples',
+      });
+      rerender();
+
+      expect(
+        screen
+          .getByTestId('query-bar-open-export-to-language-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        screen
+          .getByTestId('query-bar-apply-filter-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        screen
+          .getByTestId('query-bar-open-export-to-language-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        screen
+          .getByTestId('query-bar-open-export-to-language-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('editors are readonly', function () {
+      const store = configureStore({}, {
+        preferences,
+        logger: createNoopLoggerAndTelemetry(),
+      } as QueryBarExtraArgs);
+
+      store.dispatch({
+        type: AIQueryActionTypes.AIQueryStarted,
+        requestId: 'pineapples',
+      });
+
+      render(
+        <Provider store={store}>
+          <QueryBar
+            buttonLabel="Apply"
+            onApply={noop}
+            onReset={noop}
+            resultId="123"
+          />
+        </Provider>
+      );
+
+      expect(
+        within(screen.getByTestId('query-bar-option-filter-input'))
+          .getByRole('textbox')
+          .getAttribute('aria-readonly')
+      ).to.equal('true');
+    });
+  });
+
+  describe('with ai is enabled', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
         enableGenAIFeatures: true,

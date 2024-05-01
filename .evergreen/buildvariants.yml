@@ -150,8 +150,8 @@ buildvariants:
         depends_on: package-compass
 
   - name: rhel
-    display_name: RHEL 7.6 (Test and Package)
-    run_on: rhel76-large
+    display_name: RHEL 8.0 (Test and Package)
+    run_on: rhel80-large
     tasks:
       - name: check
 

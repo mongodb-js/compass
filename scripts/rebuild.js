@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Similar to electorn-rebuild this script will resolve modules that might need
  * a rebuild relative to cwd and rebuild them

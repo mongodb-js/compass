@@ -217,7 +217,11 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { logger: { track }, workspaces }) => {
+  (
+    _dispatch,
+    _getState,
+    { logger: { track }, workspaces, connectionInfoAccess }
+  ) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -228,15 +232,22 @@ const openItem =
       }
     );
 
-    workspaces.openCollectionWorkspace(`${database}.${collection}`, {
-      initialAggregation:
-        item.type === 'aggregation' ? item.aggregation : undefined,
-      initialQuery:
-        item.type === 'query' || item.type === 'updatemany'
-          ? item.query
-          : undefined,
-      newTab: true,
-    });
+    const { id: connectionId } =
+      connectionInfoAccess.getCurrentConnectionInfo();
+
+    workspaces.openCollectionWorkspace(
+      connectionId,
+      `${database}.${collection}`,
+      {
+        initialAggregation:
+          item.type === 'aggregation' ? item.aggregation : undefined,
+        initialQuery:
+          item.type === 'query' || item.type === 'updatemany'
+            ? item.query
+            : undefined,
+        newTab: true,
+      }
+    );
   };
 
 export const openSavedItem =

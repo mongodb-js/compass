@@ -3,10 +3,11 @@ import os from 'os';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { FeedURLOptions } from 'electron';
-import { app, dialog, BrowserWindow } from 'electron';
+import { app, dialog, BrowserWindow, autoUpdater, shell } from 'electron';
 import { setTimeout as wait } from 'timers/promises';
-import autoUpdater, { supportsAutoupdater } from './auto-updater';
 import fetch from 'node-fetch';
+import path from 'path';
+import fs from 'fs';
 import dl from 'electron-dl';
 import type { CompassApplication } from './application';
 import { ipcMain } from 'hadron-ipc';
@@ -17,6 +18,27 @@ import { getOsInfo } from '@mongodb-js/get-os-info';
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-AUTO-UPDATES'
 );
+
+function hasSquirrel() {
+  const updateExe = path.resolve(
+    path.dirname(process.execPath),
+    '..',
+    'Update.exe'
+  );
+  return fs.existsSync(updateExe);
+}
+
+function supportsAutoupdater() {
+  if (process.platform === 'linux') {
+    return false;
+  }
+
+  if (process.platform === 'win32') {
+    return hasSquirrel();
+  }
+
+  return true;
+}
 
 function getSystemArch() {
   return process.platform === 'darwin'
@@ -116,6 +138,7 @@ export const enum AutoUpdateManagerState {
   PromptForRestart = 'prompt-for-restart',
   Restarting = 'restarting',
   RestartDismissed = 'restart-dismissed',
+  PromptToUpdateExternally = 'prompt-to-update-externally',
 }
 
 type UpdateInfo = {
@@ -264,6 +287,7 @@ const STATE_UPDATE: Record<
       AutoUpdateManagerState.ManualDownload,
       AutoUpdateManagerState.UpdateDismissed,
       AutoUpdateManagerState.Disabled,
+      AutoUpdateManagerState.PromptToUpdateExternally,
     ],
     enter: async function (updateManager, fromState, updateInfo: UpdateInfo) {
       const automaticCheck =
@@ -275,6 +299,15 @@ const STATE_UPDATE: Record<
         'Update available',
         { automaticCheck }
       );
+
+      if (!supportsAutoupdater()) {
+        updateManager.setState(
+          AutoUpdateManagerState.PromptToUpdateExternally,
+          updateInfo,
+          !automaticCheck
+        );
+        return;
+      }
 
       let answer: PromptForUpdateResult;
       if (
@@ -358,9 +391,10 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      if (isDownloadForManualCheck) {
-        ipcMain?.broadcast('autoupdate:update-download-in-progress');
-      }
+      ipcMain?.broadcast('autoupdate:update-download-in-progress', {
+        newVersion: updateInfo.to,
+      });
+
       autoUpdater.checkForUpdates();
     },
   },
@@ -379,7 +413,9 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      ipcMain?.broadcast('autoupdate:update-download-success');
+      ipcMain?.broadcast('autoupdate:update-download-success', {
+        newVersion: updateInfo.to,
+      });
     },
   },
   [AutoUpdateManagerState.ManualDownload]: {
@@ -399,6 +435,12 @@ const STATE_UPDATE: Record<
       });
 
       this.maybeInterrupt();
+
+      if (!supportsAutoupdater()) {
+        return shell.openExternal(
+          'https://www.mongodb.com/try/download/compass'
+        );
+      }
 
       const url = `https://downloads.mongodb.com/compass/${
         process.env.HADRON_PRODUCT
@@ -456,6 +498,55 @@ const STATE_UPDATE: Record<
       this.maybeInterrupt();
 
       autoUpdater.quitAndInstall();
+    },
+  },
+  [AutoUpdateManagerState.PromptToUpdateExternally]: {
+    nextStates: [
+      AutoUpdateManagerState.UpdateDismissed,
+      AutoUpdateManagerState.ManualDownload,
+    ],
+    enter: async function (
+      updateManager,
+      _fromState,
+      updateInfo: UpdateInfo,
+      isDownloadForManualCheck: boolean
+    ) {
+      log.info(
+        mongoLogId(1_001_000_247),
+        'AutoUpdateManager',
+        'Prompting to download externally',
+        { releaseVersion: updateInfo.to, isDownloadForManualCheck }
+      );
+
+      if (!isDownloadForManualCheck) {
+        ipcMain?.broadcast('autoupdate:download-update-externally', {
+          currentVersion: updateInfo.from,
+          newVersion: updateInfo.to,
+        });
+        return;
+      }
+
+      const answer = await dialog.showMessageBox({
+        icon: COMPASS_ICON,
+        title: 'New version available',
+        message: `Compass ${updateInfo.to} is available`,
+        detail: `You are currently using ${updateInfo.from}. Update now for the latest Compass features.`,
+        buttons: ['Visit download center', 'Ask me later'],
+        cancelId: 1,
+      });
+
+      this.maybeInterrupt();
+
+      if (answer.response === 1) {
+        updateManager.setState(
+          AutoUpdateManagerState.UpdateDismissed,
+          updateInfo
+        );
+        return;
+      }
+
+      updateManager.setState(AutoUpdateManagerState.ManualDownload, updateInfo);
+      return;
     },
   },
 };
@@ -682,6 +773,11 @@ class CompassAutoUpdateManager {
       this.handleIpcUpdateDownloadRestartDismissed.bind(this)
     );
 
+    ipcMain?.on(
+      'autoupdate:download-update-dismissed',
+      this.setState.bind(this, AutoUpdateManagerState.UpdateDismissed)
+    );
+
     const { preferences } = compassApp;
     this.preferences = preferences;
     const supported = supportsAutoupdater();
@@ -693,13 +789,6 @@ class CompassAutoUpdateManager {
       'Setting up updateManager',
       { ...this.autoUpdateOptions, supported, enabled }
     );
-
-    if (!supported) {
-      this.setState(AutoUpdateManagerState.Disabled);
-      return;
-    }
-
-    // If autoupdate is supported, then enable/disable it depending on preferences
 
     preferences.onPreferenceValueChanged('autoUpdates', (enabled) => {
       log.info(

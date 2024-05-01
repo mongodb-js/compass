@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import type { ConnectionInfoAccess } from '@mongodb-js/connection-storage/provider';
+import type { ConnectionInfoAccess } from './connection-info-provider';
 import { ConnectionScopedAppRegistryImpl } from './connection-scoped-app-registry';
 
 const connectionInfoAccess: ConnectionInfoAccess = {
@@ -15,7 +15,7 @@ const connectionInfoAccess: ConnectionInfoAccess = {
 };
 
 describe('ConnectionScopedGlobalAppRegistry', function () {
-  it('should add sourceConnectionInfoId as extra args when payload is not provided', function () {
+  it('should add connectionId as extra args when payload is not provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
       new ConnectionScopedAppRegistryImpl<'schema-analyzed'>(
@@ -25,11 +25,11 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
 
     newAppRegistryEmitter.emit('schema-analyzed');
     expect(emitSpy).to.have.been.calledWith('schema-analyzed', {
-      sourceConnectionInfoId: '1234',
+      connectionId: '1234',
     });
   });
 
-  it('should add the sourceConnectionInfoId as extra args also when payload is provided', function () {
+  it('should add the connectionId as extra args also when payload is provided', function () {
     const emitSpy = spy();
     const newAppRegistryEmitter =
       new ConnectionScopedAppRegistryImpl<'schema-analyzed'>(
@@ -44,7 +44,7 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
         record: true,
       },
       {
-        sourceConnectionInfoId: '1234',
+        connectionId: '1234',
       }
     );
   });

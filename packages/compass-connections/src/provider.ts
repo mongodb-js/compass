@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import { useConnectionInfo } from '@mongodb-js/connection-storage/provider';
-
+import { useConnectionInfo } from './connection-info-provider';
+import { EventEmitter } from 'events';
 import type { DataService } from 'mongodb-data-service';
 import { ConnectionsManager } from './connections-manager';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -11,8 +11,16 @@ export * from './connections-manager';
 export { useConnections } from './stores/connections-store';
 export { useActiveConnections } from './hooks/use-active-connections';
 
+class TestConnectionsManager extends EventEmitter {
+  getDataServiceForConnection() {
+    return new EventEmitter() as unknown as DataService;
+  }
+}
+
 const ConnectionsManagerContext = createContext<ConnectionsManager | null>(
-  null
+  process.env.NODE_ENV === 'test'
+    ? (new TestConnectionsManager() as unknown as ConnectionsManager)
+    : null
 );
 export const ConnectionsManagerProvider = ConnectionsManagerContext.Provider;
 
@@ -79,3 +87,10 @@ export {
   type CanNotOpenConnectionReason,
   useCanOpenNewConnections,
 } from './hooks/use-can-open-new-connections';
+export {
+  type ConnectionRepository,
+  useConnectionRepository,
+} from './hooks/use-connection-repository';
+export * from './connection-info-provider';
+
+export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

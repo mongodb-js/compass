@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const os = require('os');
 const { promises: fs } = require('fs');

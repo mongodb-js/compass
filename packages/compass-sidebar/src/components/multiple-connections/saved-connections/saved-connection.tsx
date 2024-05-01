@@ -15,7 +15,6 @@ import {
   ItemActionControls,
   useHoverState,
   useToast,
-  useDarkMode,
   palette,
   Tooltip,
 } from '@mongodb-js/compass-components';
@@ -24,6 +23,7 @@ import type { ItemAction } from '@mongodb-js/compass-components';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { ItemSeparator } from '@mongodb-js/compass-components/lib/components/item-action-controls';
+import { ServerIcon } from '@mongodb-js/compass-components';
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 const iconStyles = css({
@@ -74,58 +74,6 @@ const WarningIcon = () => {
   );
 };
 
-const ServerIcon = () => {
-  const darkMode = useDarkMode();
-  const stroke = darkMode ? palette.white : palette.gray.dark2;
-
-  return (
-    <svg
-      className={iconStyles}
-      width={spacing[3]}
-      height={spacing[3]}
-      viewBox="0 0 14 14"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g clipPath="url(#clip0_842_15453)">
-        <path
-          d="M11.6665 1.1665H2.33317C1.68884 1.1665 1.1665 1.68884 1.1665 2.33317V4.6665C1.1665 5.31084 1.68884 5.83317 2.33317 5.83317H11.6665C12.3108 5.83317 12.8332 5.31084 12.8332 4.6665V2.33317C12.8332 1.68884 12.3108 1.1665 11.6665 1.1665Z"
-          stroke={stroke}
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M11.6665 8.1665H2.33317C1.68884 8.1665 1.1665 8.68884 1.1665 9.33317V11.6665C1.1665 12.3108 1.68884 12.8332 2.33317 12.8332H11.6665C12.3108 12.8332 12.8332 12.3108 12.8332 11.6665V9.33317C12.8332 8.68884 12.3108 8.1665 11.6665 8.1665Z"
-          stroke={stroke}
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M3.5 3.5H3.50667"
-          stroke={stroke}
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M3.5 10.5H3.50667"
-          stroke={stroke}
-          strokeWidth="1.25"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </g>
-      <defs>
-        <clipPath id="clip0_842_15453">
-          <rect width="14" height="14" fill="white" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-};
-
 type SavedConnectionProps = {
   canOpenNewConnection: boolean;
   canNotOpenReason?: CanNotOpenConnectionReason;
@@ -155,7 +103,7 @@ export function SavedConnection({
   const isLocalhost =
     connectionInfo.connectionOptions.connectionString.startsWith(
       'mongodb://localhost'
-    );
+    ); // TODO(COMPASS-7832)
 
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const [hoverProps, isHovered] = useHoverState();
@@ -275,6 +223,7 @@ export function SavedConnection({
       }}
       className={savedConnectionStyles}
       data-testid={`saved-connection-${connectionInfo.id}`}
+      onDoubleClick={() => onConnect(connectionInfo)}
     >
       {icon}{' '}
       <div className={savedConnectionNameStyles}>

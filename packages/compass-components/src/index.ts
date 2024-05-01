@@ -37,6 +37,7 @@ export {
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
+export { type TabTheme } from './components/workspace-tabs/tab';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar, {
   defaultSidebarWidth,
@@ -54,6 +55,7 @@ import {
 } from './components/item-action-controls';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
+export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
 export { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';

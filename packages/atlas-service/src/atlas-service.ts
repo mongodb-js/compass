@@ -26,8 +26,10 @@ export class AtlasService {
   privateUnAuthEndpoint(path: string): string {
     return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
   }
-  privateAtlasEndpoint(path: string): string {
-    return `${this.config.atlasApiBaseUrl}/${path}`;
+  privateAtlasEndpoint(path: string, requestId?: string): string {
+    return `${this.config.atlasApiBaseUrl}/${path}${
+      requestId ? `?request_id=${requestId}` : ''
+    }`;
   }
   async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
@@ -48,6 +50,16 @@ export class AtlasService {
           ...init?.headers,
         },
       });
+      this.logger.log.info(
+        this.logger.mongoLogId(1_001_000_309),
+        'AtlasService',
+        'Received API response',
+        {
+          url,
+          status: res.status,
+          statusText: res.statusText,
+        }
+      );
       await throwIfNotOk(res);
       return res;
     } catch (err) {

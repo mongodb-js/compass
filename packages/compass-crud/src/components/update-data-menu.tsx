@@ -6,7 +6,6 @@ import {
   css,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 
 type UpdateMenuButtonProps = {
   isWritable: boolean;
@@ -24,12 +23,6 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
   isWritable,
   onClick,
 }) => {
-  const isVisible = usePreference('enableBulkUpdateOperations');
-
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <Button
       disabled={!isWritable}

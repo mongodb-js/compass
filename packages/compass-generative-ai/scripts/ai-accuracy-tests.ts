@@ -61,7 +61,8 @@ const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
   ? +process.env.AI_TESTS_ATTEMPTS_PER_TEST
   : DEFAULT_ATTEMPTS_PER_TEST;
 
-const USE_SAMPLE_DOCS = process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
+const AI_TESTS_USE_SAMPLE_DOCS =
+  process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
 
 const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
 
@@ -112,6 +113,7 @@ type TestResult = {
   Namespace: string;
   Accuracy: number;
   Pass: '✗' | '✓';
+  'Time Elapsed (MS)': number;
 };
 
 async function fetchAtlasPrivateApi(
@@ -161,17 +163,23 @@ type QueryOptions = {
 };
 
 function generateFindQuery(options: QueryOptions) {
-  return fetchAtlasPrivateApi('/ai/api/v1/mql-query', {
-    method: 'POST',
-    body: JSON.stringify(options),
-  });
+  return fetchAtlasPrivateApi(
+    '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
+    {
+      method: 'POST',
+      body: JSON.stringify(options),
+    }
+  );
 }
 
 function generateAggregation(options: QueryOptions) {
-  return fetchAtlasPrivateApi('/ai/api/v1/mql-aggregation', {
-    method: 'POST',
-    body: JSON.stringify(options),
-  });
+  return fetchAtlasPrivateApi(
+    '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
+    {
+      method: 'POST',
+      body: JSON.stringify(options),
+    }
+  );
 }
 
 const parseShellString = (shellSyntaxString?: string) => {
@@ -196,11 +204,13 @@ const generateMQL = async ({
   databaseName,
   collectionName,
   userInput,
+  includeSampleDocuments,
 }: {
   type: string;
   databaseName: string;
   collectionName: string;
   userInput: string;
+  includeSampleDocuments?: boolean;
 }) => {
   const collection = mongoClient.db(databaseName).collection(collectionName);
   const schema = await getSimplifiedSchema(collection.find());
@@ -211,7 +221,8 @@ const generateMQL = async ({
       schema: schema,
       collectionName,
       databaseName,
-      sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
+      sampleDocuments:
+        includeSampleDocuments || AI_TESTS_USE_SAMPLE_DOCS ? sample : undefined,
       userInput,
     });
   }
@@ -220,7 +231,8 @@ const generateMQL = async ({
     schema: schema,
     collectionName,
     databaseName,
-    sampleDocuments: USE_SAMPLE_DOCS ? sample : undefined,
+    sampleDocuments:
+      includeSampleDocuments || AI_TESTS_USE_SAMPLE_DOCS ? sample : undefined,
     userInput,
   });
 };
@@ -231,7 +243,10 @@ type TestOptions = {
   type: string;
   databaseName: string;
   collectionName: string;
+  includeSampleDocuments?: boolean;
   userInput: string;
+  // When supplied, this overrides the general test accuracy requirement. (0-1)
+  minAccuracyForTest?: number;
   assertResponse?: (responseContent: unknown) => Promise<void>;
   assertResult?: (responseContent: Document[]) => Promise<void> | void;
   acceptAggregationResponse?: boolean;
@@ -244,6 +259,7 @@ const runOnce = async (
     databaseName,
     collectionName,
     userInput,
+    includeSampleDocuments,
     assertResponse,
     assertResult,
     acceptAggregationResponse,
@@ -255,6 +271,7 @@ const runOnce = async (
     databaseName,
     collectionName,
     userInput,
+    includeSampleDocuments,
   });
 
   usageStats.push({ promptTokens: 1, completionTokens: 1 });
@@ -322,6 +339,7 @@ const runTest = async (testOptions: TestOptions) => {
   let fails = 0;
   let timeouts = 0;
   let lastTestTimeMS = 0;
+  let totalTestTimeMS = 0;
 
   for (let i = 0; i < attempts; i++) {
     if (timeouts >= MAX_TIMEOUTS_PER_TEST) {
@@ -338,6 +356,8 @@ const runTest = async (testOptions: TestOptions) => {
       );
     }
 
+    const testStartTime = Date.now();
+
     try {
       console.info('---------------------------------------------------');
       console.info('Running', JSON.stringify(testOptions.userInput));
@@ -345,7 +365,9 @@ const runTest = async (testOptions: TestOptions) => {
       await runOnce(testOptions, usageStats);
 
       console.info('OK');
+      totalTestTimeMS += Date.now() - testStartTime;
     } catch (e: unknown) {
+      totalTestTimeMS += Date.now() - testStartTime;
       if ((e as AITestError).errorCode === 'GATEWAY_TIMEOUT') {
         i--;
         timeouts++;
@@ -362,7 +384,7 @@ const runTest = async (testOptions: TestOptions) => {
 
   const accuracy = (attempts - fails) / attempts;
 
-  return { accuracy, timeouts, usageStats };
+  return { accuracy, timeouts, totalTestTimeMS, usageStats };
 };
 
 const fixtures: {
@@ -443,11 +465,17 @@ const anyOf =
  * Insert the generative ai results to a db
  * so we can track how they perform overtime.
  */
-async function pushResultsToDB(
-  results: TestResult[],
-  anyFailed: boolean,
-  httpErrors: number
-) {
+async function pushResultsToDB({
+  results,
+  anyFailed,
+  runTimeMS,
+  httpErrors,
+}: {
+  results: TestResult[];
+  anyFailed: boolean;
+  runTimeMS: number;
+  httpErrors: number;
+}) {
   const client = new MongoClient(
     process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING || ''
   );
@@ -466,7 +494,15 @@ async function pushResultsToDB(
       attemptsPerTest: ATTEMPTS_PER_TEST,
       anyFailed,
       httpErrors,
-      results: results,
+      totalRunTimeMS: runTimeMS, // Total elapsed time including timeouts to avoid rate limit.
+      results: results.map((result) => {
+        const { 'Time Elapsed (MS)': runTimeMS, Pass, ...rest } = result;
+        return {
+          runTimeMS,
+          Pass: Pass === '✓',
+          ...rest,
+        };
+      }),
     };
 
     await collection.insertOne(doc);
@@ -475,7 +511,7 @@ async function pushResultsToDB(
   }
 }
 
-const tests = [
+const tests: TestOptions[] = [
   {
     type: 'query',
     databaseName: 'netflix',
@@ -625,6 +661,30 @@ const tests = [
     ]),
   },
   {
+    // Tests that sample documents work, as the field values are relevant
+    // for building the correct query.
+    type: 'query',
+    databaseName: 'NYC',
+    collectionName: 'parking_2015',
+    userInput: 'The Plate IDs of Acura vehicles registered in New York',
+    includeSampleDocuments: true,
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          _id: {
+            $oid: '5735040085629ed4fa839504',
+          },
+          'Plate ID': 'DRW5164',
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          'Plate ID': 'DRW5164',
+        },
+      ]),
+    ]),
+  },
+  {
     type: 'aggregation',
     databaseName: 'sample_airbnb',
     collectionName: 'listingsAndReviews',
@@ -692,12 +752,146 @@ const tests = [
       },
     ]),
   },
+  {
+    type: 'aggregation',
+    databaseName: 'netflix',
+    collectionName: 'movies',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy.
+    minAccuracyForTest: 0.4,
+    userInput:
+      'What are the 5 most frequent words used in movie titles in the 1980s and 1990s combined? Sorted first by frequency count then alphabetically. output fields count and word',
+    assertResult: isDeepStrictEqualTo([
+      {
+        count: 3,
+        word: 'Alien',
+      },
+      {
+        count: 2,
+        word: 'The',
+      },
+      {
+        count: 1,
+        word: '3',
+      },
+      {
+        count: 1,
+        word: '3:',
+      },
+      {
+        count: 1,
+        word: 'A',
+      },
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy. gpt-3.5-turbo usually tries to
+    // use $expr in a $project stage which is not valid syntax.
+    minAccuracyForTest: 0,
+    userInput:
+      'what percentage of listings have a "Washer" in their amenities? Only consider listings with more than 2 beds. Return is as a string named "washerPercentage" like "75%", rounded to the nearest whole number.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          washerPercentage: '67%',
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          washerPercentage: '67%',
+        },
+      ]),
+    ]),
+  },
+
+  {
+    type: 'query',
+    databaseName: 'NYC',
+    collectionName: 'parking_2015',
+    // TODO(COMPASS-7763): GPT-4 generates better results for this input.
+    // When we've swapped over we can increase the accuracy for this test.
+    // For now it will be giving low accuracy.
+    minAccuracyForTest: 0.5,
+    userInput:
+      'Write a query that does the following: "find all of the parking incidents that occurred on an ave (match all ways to write ave). Give me an array of all of the plate ids involved, in an object with their summons number and vehicle make and body type. Put the vehicle make and body type into lower case. No _id, sorted by the summons number lowest first.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          'Summons Number': {
+            $numberLong: '7093881087',
+          },
+          'Plate ID': 'FPG1269',
+          'Vehicle Make': 'gmc',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': {
+            $numberLong: '7623830399',
+          },
+          'Plate ID': 'T645263C',
+          'Vehicle Make': 'chevr',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': {
+            $numberLong: '7721537642',
+          },
+          'Plate ID': 'GMX1207',
+          'Vehicle Make': 'honda',
+          'Vehicle Body Type': '4dsd',
+        },
+        {
+          'Summons Number': {
+            $numberLong: '7784786281',
+          },
+          'Plate ID': 'DRW5164',
+          'Vehicle Make': 'acura',
+          'Vehicle Body Type': '4dsd',
+        },
+      ]),
+
+      isDeepStrictEqualTo([
+        {
+          'Summons Number': 7093881087,
+          'Plate ID': 'FPG1269',
+          'Vehicle Make': 'gmc',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': 7623830399,
+          'Plate ID': 'T645263C',
+          'Vehicle Make': 'chevr',
+          'Vehicle Body Type': 'subn',
+        },
+        {
+          'Summons Number': 7721537642,
+          'Plate ID': 'GMX1207',
+          'Vehicle Make': 'honda',
+          'Vehicle Body Type': '4dsd',
+        },
+        {
+          'Summons Number': 7784786281,
+          'Plate ID': 'DRW5164',
+          'Vehicle Make': 'acura',
+          'Vehicle Body Type': '4dsd',
+        },
+      ]),
+    ]),
+  },
 ];
 async function main() {
   try {
     await setup();
     const results: TestResult[] = [];
 
+    const startTime = Date.now();
     let anyFailed = false;
 
     const testPromiseQueue = new PQueue({
@@ -708,16 +902,18 @@ async function main() {
       testPromiseQueue.add(async () => {
         const {
           accuracy,
+          totalTestTimeMS,
           // usageStats
         } = await runTest(test);
         const minAccuracy = DEFAULT_MIN_ACCURACY;
-        const failed = accuracy < minAccuracy;
+        const failed = accuracy < (test.minAccuracyForTest ?? minAccuracy);
 
         results.push({
           Type: test.type.slice(0, 1).toUpperCase(),
           'User Input': test.userInput.slice(0, 50),
           Namespace: `${test.databaseName}.${test.collectionName}`,
           Accuracy: accuracy,
+          'Time Elapsed (MS)': totalTestTimeMS,
           // 'Prompt Tokens': usageStats[0]?.promptTokens,
           // 'Completion Tokens': usageStats[0]?.completionTokens,
           Pass: failed ? '✗' : '✓',
@@ -734,13 +930,19 @@ async function main() {
       'User Input',
       'Namespace',
       'Accuracy',
+      'Time Elapsed (MS)',
       // 'Prompt Tokens',
       // 'Completion Tokens',
       'Pass',
     ]);
 
     if (process.env.AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING) {
-      await pushResultsToDB(results, anyFailed, httpErrors);
+      await pushResultsToDB({
+        results,
+        anyFailed,
+        httpErrors,
+        runTimeMS: Date.now() - startTime,
+      });
     }
 
     console.log('\nTotal HTTP errors received', httpErrors);

@@ -1,3 +1,4 @@
+'use strict';
 /* eslint complexity:0 */
 const d3 = require('d3');
 const realTimeLegend = require('./real-time-legend');

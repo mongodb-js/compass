@@ -3,8 +3,10 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 import isEqual from 'lodash/isEqual';
-import { ConnectionStorageEvents } from '@mongodb-js/connection-storage/renderer';
-import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import {
+  ConnectionStorageEvents,
+  useConnectionStorageContext,
+} from '@mongodb-js/connection-storage/provider';
 import { useState, useEffect, useCallback } from 'react';
 import { BSON } from 'bson';
 
@@ -43,6 +45,9 @@ export type ConnectionRepository = {
   nonFavoriteConnections: ConnectionInfo[];
   saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
   deleteConnection: (info: ConnectionInfo) => Promise<void>;
+  getConnectionInfoById: (
+    id: ConnectionInfo['id']
+  ) => ConnectionInfo | undefined;
 };
 
 export function useConnectionRepository(): ConnectionRepository {
@@ -56,6 +61,10 @@ export function useConnectionRepository(): ConnectionRepository {
     ConnectionInfo[]
   >([]);
 
+  const [autoConnectInfo, setAutoConnectInfo] = useState<
+    ConnectionInfo | undefined
+  >(undefined);
+
   const persistOIDCTokens = usePreference('persistOIDCTokens');
 
   useEffect(() => {
@@ -66,8 +75,16 @@ export function useConnectionRepository(): ConnectionRepository {
         .sort(sortedAlphabetically);
 
       const nonFavoriteConnections = allConnections
-        .filter((connection) => connection.savedConnectionType !== 'favorite')
+        .filter(
+          ({ savedConnectionType }) =>
+            savedConnectionType !== 'favorite' &&
+            savedConnectionType !== 'autoConnectInfo'
+        )
         .sort(sortedAlphabetically);
+
+      const autoConnectInfo = allConnections.find(
+        ({ savedConnectionType }) => savedConnectionType === 'autoConnectInfo'
+      );
 
       setFavoriteConnections((prevList) => {
         if (areConnectionsEqual(prevList, favoriteConnections)) {
@@ -84,6 +101,16 @@ export function useConnectionRepository(): ConnectionRepository {
           return nonFavoriteConnections;
         }
       });
+
+      if (autoConnectInfo) {
+        setAutoConnectInfo((prevAutoConnectInfo) => {
+          if (prevAutoConnectInfo?.id !== autoConnectInfo.id) {
+            return autoConnectInfo;
+          } else {
+            return prevAutoConnectInfo;
+          }
+        });
+      }
     }
 
     void updateListsOfConnections();
@@ -92,13 +119,13 @@ export function useConnectionRepository(): ConnectionRepository {
       void updateListsOfConnections();
     }
 
-    storage.events.on(
+    storage.on(
       ConnectionStorageEvents.ConnectionsChanged,
       updateListsOfConnectionsSubscriber
     );
 
     return () => {
-      storage.events.off(
+      storage.off(
         ConnectionStorageEvents.ConnectionsChanged,
         updateListsOfConnectionsSubscriber
       );
@@ -122,7 +149,7 @@ export function useConnectionRepository(): ConnectionRepository {
         }
       }
 
-      await storage.save({ connectionInfo: infoToSave });
+      await storage.save?.({ connectionInfo: infoToSave });
       return infoToSave;
     },
     [storage, persistOIDCTokens]
@@ -130,12 +157,24 @@ export function useConnectionRepository(): ConnectionRepository {
 
   const deleteConnection = useCallback(
     async (info: ConnectionInfo) => {
-      await storage.delete(info);
+      await storage.delete?.(info);
     },
     [storage]
   );
 
+  const getConnectionInfoById = useCallback(
+    (connectionInfoId: ConnectionInfo['id']) => {
+      const allConnections = [
+        ...favoriteConnections,
+        ...nonFavoriteConnections,
+        ...(autoConnectInfo ? [autoConnectInfo] : []),
+      ];
+      return allConnections.find(({ id }) => id === connectionInfoId);
+    },
+    [favoriteConnections, nonFavoriteConnections, autoConnectInfo]
+  );
   return {
+    getConnectionInfoById,
     favoriteConnections,
     nonFavoriteConnections,
     saveConnection,

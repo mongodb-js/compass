@@ -287,7 +287,7 @@ export const loadStagePreview = (
         collationString,
         limit,
         largeLimit,
-        inputDocuments,
+        collectionStats,
       } = getState();
 
       const options: PreviewOptions = {
@@ -295,7 +295,7 @@ export const loadStagePreview = (
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count ?? undefined,
+        totalDocumentCount: collectionStats?.document_count,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForStage(

@@ -1,3 +1,4 @@
+'use strict';
 /**
  * Verify the distribution is passed as an argument.
  *

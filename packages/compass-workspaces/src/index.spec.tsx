@@ -7,6 +7,8 @@ import Sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
 import type { AnyWorkspaceComponent } from './components/workspaces-provider';
 import { useOpenWorkspace } from './provider';
+import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 function mockWorkspace(name: string) {
   return {
@@ -28,12 +30,16 @@ describe('WorkspacesPlugin', function () {
       return Promise.resolve(null);
     },
   } as any;
+  const instancesManager = new TestMongoDBInstanceManager();
+  const connectionsManager = new ConnectionsManager({
+    logger: (() => {}) as any,
+  });
   const dataService = {} as any;
   const Plugin = WorkspacesPlugin.withMockServices(
     {
       globalAppRegistry,
-      instance,
-      dataService,
+      instancesManager,
+      connectionsManager,
     },
     { disableChildPluginRendering: true }
   );
@@ -61,18 +67,28 @@ describe('WorkspacesPlugin', function () {
     );
   }
 
+  beforeEach(function () {
+    sandbox
+      .stub(connectionsManager, 'getDataServiceForConnection')
+      .returns(dataService);
+    sandbox
+      .stub(instancesManager, 'getMongoDBInstanceForConnection')
+      .returns(instance);
+  });
+
   afterEach(function () {
     (openFns as any) = null;
+    sandbox.restore();
     sandbox.resetHistory();
     cleanup();
   });
 
   const tabs = [
     ['My Queries', () => openFns.openMyQueriesWorkspace()],
-    ['Databases', () => openFns.openDatabasesWorkspace()],
-    ['Performance', () => openFns.openPerformanceWorkspace()],
-    ['db', () => openFns.openCollectionsWorkspace('db')],
-    ['db > coll', () => openFns.openCollectionWorkspace('db.coll')],
+    ['Databases', () => openFns.openDatabasesWorkspace('1')],
+    ['Performance', () => openFns.openPerformanceWorkspace('1')],
+    ['db', () => openFns.openCollectionsWorkspace('1', 'db')],
+    ['db > coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
   ] as const;
 
   for (const suite of tabs) {
@@ -89,9 +105,9 @@ describe('WorkspacesPlugin', function () {
 
     expect(onTabChangeSpy).to.have.been.calledWith(null);
 
-    openFns.openCollectionWorkspace('db.coll1', { newTab: true });
-    openFns.openCollectionWorkspace('db.coll2', { newTab: true });
-    openFns.openCollectionWorkspace('db.coll3', { newTab: true });
+    openFns.openCollectionWorkspace('1', 'db.coll1', { newTab: true });
+    openFns.openCollectionWorkspace('1', 'db.coll2', { newTab: true });
+    openFns.openCollectionWorkspace('1', 'db.coll3', { newTab: true });
 
     expect(screen.getByRole('tab', { name: 'db > coll3' })).to.have.attribute(
       'aria-selected',

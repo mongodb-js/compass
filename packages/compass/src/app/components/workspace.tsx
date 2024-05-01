@@ -35,6 +35,8 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
+import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -50,14 +52,17 @@ const shellContainerStyles = css({
 });
 
 export default function Workspace({
-  connectionInfo,
+  singleConnectionConnectionInfo,
   onActiveWorkspaceTabChange,
 }: {
-  connectionInfo: ConnectionInfo | null | undefined;
+  singleConnectionConnectionInfo?: ConnectionInfo;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   return (
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
@@ -87,31 +92,43 @@ export default function Workspace({
         >
           <WorkspacesPlugin
             initialWorkspaceTabs={[{ type: 'My Queries' }]}
+            singleConnectionConnectionInfo={singleConnectionConnectionInfo}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            renderSidebar={() => {
-              return (
-                <CompassSidebarPlugin
-                  initialConnectionInfo={connectionInfo ?? undefined}
-                />
-              );
-            }}
+            renderSidebar={() => (
+              <CompassSidebarPlugin
+                singleConnectionConnectionInfo={singleConnectionConnectionInfo}
+              />
+            )}
             renderModals={() => {
-              return (
+              return multiConnectionsEnabled ? (
                 <>
+                  <CreateViewPlugin></CreateViewPlugin>
+                  <CreateNamespacePlugin></CreateNamespacePlugin>
+                  <DropNamespacePlugin></DropNamespacePlugin>
+                  <RenameCollectionPlugin></RenameCollectionPlugin>
+                </>
+              ) : (
+                <ConnectionInfoProvider
+                  connectionInfoId={singleConnectionConnectionInfo?.id}
+                >
                   <ImportPlugin></ImportPlugin>
                   <ExportPlugin></ExportPlugin>
                   <CreateViewPlugin></CreateViewPlugin>
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
-                </>
+                </ConnectionInfoProvider>
               );
             }}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>
       <div className={shellContainerStyles}>
-        <CompassShellPlugin />
+        <ConnectionInfoProvider
+          connectionInfoId={singleConnectionConnectionInfo?.id}
+        >
+          <CompassShellPlugin />
+        </ConnectionInfoProvider>
       </div>
     </div>
   );

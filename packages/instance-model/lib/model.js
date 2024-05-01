@@ -1,3 +1,4 @@
+'use strict';
 const AmpersandModel = require('ampersand-model');
 const {
   Collection: MongoDbDatabaseCollection,

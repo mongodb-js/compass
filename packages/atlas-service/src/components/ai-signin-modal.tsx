@@ -1,9 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  Badge,
   Body,
-  Disclaimer,
   Icon,
   Link,
   MarketingModal,
@@ -32,16 +30,8 @@ const titleStyles = css({
   alignItems: 'center',
 });
 
-const paragraphStyles = css({
-  marginBottom: spacing[200],
-});
-
 const disclaimer = css({
-  marginTop: spacing[400],
-});
-
-const previewBadgeStyles = css({
-  marginBottom: spacing[400],
+  padding: `0 ${spacing[900]}px`,
 });
 
 const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
@@ -55,12 +45,19 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
   return (
     <MarketingModal
       darkMode={darkMode}
+      disclaimer={
+        <div className={disclaimer}>
+          This is a feature powered by generative AI, and may give inaccurate
+          responses. Please see our{' '}
+          <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
+            FAQ
+          </Link>{' '}
+          for more information.
+        </div>
+      }
       graphic={<AISignInImageBanner></AISignInImageBanner>}
       title={
         <div className={titleStyles}>
-          <Badge variant="blue" className={previewBadgeStyles}>
-            Preview
-          </Badge>
           Use natural language to generate queries and pipelines
         </div>
       }
@@ -93,21 +90,11 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
       linkText="Not now"
       onLinkClick={onSignInModalClose}
     >
-      <div>
-        <Body className={paragraphStyles}>
-          Atlas users can now quickly create queries and aggregations with
-          MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today
-          in Compass.
-        </Body>
-        <Disclaimer className={disclaimer}>
-          This is a feature powered by generative AI, and may give inaccurate
-          responses. Please see our{' '}
-          <Link hideExternalIcon={false} href={GEN_AI_FAQ_LINK} target="_blank">
-            FAQ
-          </Link>{' '}
-          for more information.
-        </Disclaimer>
-      </div>
+      <Body>
+        Atlas users can now quickly create queries and aggregations with
+        MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today in
+        Compass.
+      </Body>
     </MarketingModal>
   );
 };

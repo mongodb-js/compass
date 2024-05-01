@@ -1,6 +1,13 @@
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
+import {
+  ConnectionsManager,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
+import { changeViewName, createView } from '../modules/create-view';
+import Sinon from 'sinon';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 describe('CreateViewStore [Store]', function () {
   if (
@@ -14,49 +21,105 @@ describe('CreateViewStore [Store]', function () {
 
   let store: any;
   let deactivate: any;
-  const globalAppRegistry = new AppRegistry();
-  const ds = 'data-service' as any;
-  const logger = {} as any;
+  let globalAppRegistry: AppRegistry;
+  let appRegistryEmitSpy: Sinon.SinonSpy;
+  const logger = { track() {} } as any;
+  const createViewStub = Sinon.stub();
+  const dataService = {
+    createView: createViewStub,
+  } as unknown as DataService;
+  const connectionsManager = new ConnectionsManager({ logger });
+  const openCollectionWorkspaceStub = Sinon.stub();
+  const workspaces = {
+    openCollectionWorkspace: openCollectionWorkspaceStub,
+  } as unknown as WorkspacesService;
 
   beforeEach(function () {
+    globalAppRegistry = new AppRegistry();
+    appRegistryEmitSpy = Sinon.spy(globalAppRegistry, 'emit');
+    Sinon.stub(connectionsManager, 'getDataServiceForConnection').returns(
+      dataService
+    );
     ({ store, deactivate } = activateCreateViewPlugin(
       {},
       {
         globalAppRegistry,
-        dataService: ds,
+        connectionsManager,
         logger,
-        workspaces: {} as any,
-      }
+        workspaces,
+      },
+      createActivateHelpers()
     ));
   });
 
   afterEach(function () {
     store = null;
+    Sinon.restore();
     deactivate();
   });
 
   describe('#configureStore', function () {
     describe('when open create view is emitted', function () {
-      beforeEach(function () {
-        globalAppRegistry.emit('open-create-view', {
-          source: 'dataService.test',
-          pipeline: [{ $project: { a: 1 } }],
-        });
+      it('throws an error when the action is emitted without connection meta', function () {
+        expect(() => {
+          globalAppRegistry.emit('open-create-view', {
+            source: 'dataService.test',
+            pipeline: [{ $project: { a: 1 } }],
+          });
+        }).to.throw;
       });
-
-      it('dispatches the toggle action', function () {
+      it('dispatches the open action and sets the correct state', function () {
+        globalAppRegistry.emit(
+          'open-create-view',
+          {
+            source: 'dataService.test',
+            pipeline: [{ $project: { a: 1 } }],
+          },
+          {
+            connectionId: 'TEST',
+          }
+        );
         expect(store.getState().isVisible).to.equal(true);
-      });
-
-      it('sets the pipeline', function () {
         expect(store.getState().pipeline).to.deep.equal([
           { $project: { a: 1 } },
         ]);
-      });
-
-      it('sets the source', function () {
         expect(store.getState().source).to.equal('dataService.test');
+        expect(store.getState().connectionId).to.equal('TEST');
       });
+    });
+
+    it('handles createView action and notifies the rest of the app', async function () {
+      globalAppRegistry.emit(
+        'open-create-view',
+        {
+          source: 'dataService.test',
+          pipeline: [{ $project: { a: 1 } }],
+        },
+        {
+          connectionId: 'TEST',
+        }
+      );
+      store.dispatch(changeViewName('TestView'));
+      await store.dispatch(createView());
+
+      expect(createViewStub).to.be.calledWithExactly(
+        'TestView',
+        'dataService.test',
+        [{ $project: { a: 1 } }],
+        {}
+      );
+
+      expect(appRegistryEmitSpy.lastCall).to.be.calledWithExactly(
+        'view-created',
+        'dataService.TestView',
+        { connectionId: 'TEST' }
+      );
+
+      expect(openCollectionWorkspaceStub).to.be.calledWithExactly(
+        'TEST',
+        'dataService.TestView',
+        { newTab: true }
+      );
     });
   });
 });

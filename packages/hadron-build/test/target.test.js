@@ -1,3 +1,4 @@
+'use strict';
 const path = require('path');
 const { expect } = require('chai');
 const Target = require('../lib/target');

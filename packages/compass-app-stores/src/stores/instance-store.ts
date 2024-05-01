@@ -9,7 +9,7 @@ import {
   ConnectionsManagerEvents,
   type ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { MongoDBInstancesManager } from '../instances-manager';
 
 function serversArray(
   serversMap: NonNullable<
@@ -52,10 +52,19 @@ export function createInstancesStore(
   },
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
-  const instances: Record<ConnectionInfo['id'], MongoDBInstance> = {};
-  connectionsManager.on(
+  const instancesManager = new MongoDBInstancesManager();
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connectionInfoId: string) {
+      instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
+    }
+  );
+
+  on(
+    connectionsManager,
     ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    (connectionInfoId: string, dataService: DataService) => {
+    function (instanceConnectionId: string, dataService: DataService) {
       async function refreshInstance(
         refreshOptions: Omit<
           Parameters<MongoDBInstance['refresh']>[0],
@@ -187,10 +196,10 @@ export function createInstancesStore(
           dataService.getLastSeenTopology()
         ),
       };
-      const instance = new MongoDBInstance(
+      const instance = instancesManager.createMongoDBInstanceForConnection(
+        instanceConnectionId,
         initialInstanceProps as MongoDBInstanceProps
       );
-      instances[connectionInfoId] = instance;
 
       addCleanup(() => {
         instance.removeAllListeners();
@@ -229,43 +238,69 @@ export function createInstancesStore(
 
       on(globalAppRegistry, 'refresh-data', refreshInstance);
 
-      on(globalAppRegistry, 'database-dropped', (dbName: string) => {
-        const db = instance.databases.remove(dbName);
-        if (db) {
-          MongoDBInstance.removeAllListeners(db);
+      on(
+        globalAppRegistry,
+        'database-dropped',
+        (dbName: string, { connectionId }: { connectionId?: string } = {}) => {
+          if (connectionId !== instanceConnectionId) {
+            return;
+          }
+
+          const db = instance.databases.remove(dbName);
+          if (db) {
+            MongoDBInstance.removeAllListeners(db);
+          }
         }
-      });
+      );
 
-      on(globalAppRegistry, 'collection-dropped', (namespace: string) => {
-        const { database } = toNS(namespace);
-        const db = instance.databases.get(database);
-        const coll = db?.collections.get(namespace, '_id');
+      on(
+        globalAppRegistry,
+        'collection-dropped',
+        (
+          namespace: string,
+          { connectionId }: { connectionId?: string } = {}
+        ) => {
+          if (connectionId !== instanceConnectionId) {
+            return;
+          }
 
-        if (!db || !coll) {
-          return;
+          const { database } = toNS(namespace);
+          const db = instance.databases.get(database);
+          const coll = db?.collections.get(namespace, '_id');
+
+          if (!db || !coll) {
+            return;
+          }
+
+          const isLastCollection = db.collections.length === 1;
+
+          if (isLastCollection) {
+            instance.databases.remove(db);
+            MongoDBInstance.removeAllListeners(db);
+          } else {
+            db.collections.remove(coll);
+            MongoDBInstance.removeAllListeners(coll);
+            // Update db stats to account for db stats affected by collection stats
+            void db?.fetch({ dataService, force: true }).catch(() => {
+              // noop, we ignore stats fetching failures
+            });
+          }
         }
-
-        const isLastCollection = db.collections.length === 1;
-
-        if (isLastCollection) {
-          instance.databases.remove(db);
-          MongoDBInstance.removeAllListeners(db);
-        } else {
-          db.collections.remove(coll);
-          MongoDBInstance.removeAllListeners(coll);
-          // Update db stats to account for db stats affected by collection stats
-          void db?.fetch({ dataService, force: true }).catch(() => {
-            // noop, we ignore stats fetching failures
-          });
-        }
-      });
+      );
 
       on(globalAppRegistry, 'refresh-databases', refreshDatabases);
 
       on(
         globalAppRegistry,
         'collection-renamed',
-        ({ from, to }: { from: string; to: string }) => {
+        (
+          { from, to }: { from: string; to: string },
+          { connectionId }: { connectionId?: string } = {}
+        ) => {
+          if (connectionId !== instanceConnectionId) {
+            return;
+          }
+
           const { database, collection } = toNS(from);
           instance.databases
             .get(database)
@@ -281,10 +316,22 @@ export function createInstancesStore(
       on(
         globalAppRegistry,
         'collection-created',
-        maybeAddAndRefreshCollectionModel
+        (ns: string, { connectionId }: { connectionId?: string } = {}) => {
+          if (connectionId === instanceConnectionId) {
+            void maybeAddAndRefreshCollectionModel(ns);
+          }
+        }
       );
 
-      on(globalAppRegistry, 'view-created', maybeAddAndRefreshCollectionModel);
+      on(
+        globalAppRegistry,
+        'view-created',
+        (ns: string, { connectionId }: { connectionId?: string } = {}) => {
+          if (connectionId === instanceConnectionId) {
+            void maybeAddAndRefreshCollectionModel(ns);
+          }
+        }
+      );
 
       on(
         globalAppRegistry,
@@ -310,9 +357,9 @@ export function createInstancesStore(
   );
 
   return {
-    state: { instances }, // Using LegacyRefluxProvider here to pass state to provider
+    state: { instancesManager }, // Using LegacyRefluxProvider here to pass state to provider
     getState() {
-      return { instances };
+      return { instancesManager };
     },
     deactivate: cleanup,
   };

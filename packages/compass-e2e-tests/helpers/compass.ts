@@ -761,7 +761,7 @@ export async function startBrowser(
     ...webdriverOptions,
     ...wdioOptions,
   })) as CompassBrowser;
-  await browser.navigateTo('http://localhost:8080/');
+  await browser.navigateTo('http://localhost:7777/');
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
@@ -994,9 +994,19 @@ export async function init(
   const { browser } = compass;
 
   // larger window for more consistent results
-  await browser.execute(() => {
+  const [width, height] = await browser.execute(() => {
+    // in case setWindowSize() below doesn't work
     window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+
+    return [window.screen.availWidth, window.screen.availHeight];
   });
+  debug(`available width=${width}, height=${height}`);
+  try {
+    // window.resizeTo() doesn't work on firefox
+    await browser.setWindowSize(width, height);
+  } catch (err: any) {
+    console.error(err?.stack);
+  }
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();

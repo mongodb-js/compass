@@ -82,8 +82,11 @@ describe('databases and collections list', function () {
 
       render(
         <CollectionsList
+          connectionTitle="My Connection"
+          databaseName="My Database"
           collections={colls}
           onCollectionClick={clickSpy}
+          onClickConnectionBreadcrumb={() => {}}
         ></CollectionsList>
       );
 
@@ -98,6 +101,25 @@ describe('databases and collections list', function () {
       userEvent.click(screen.getByText('bar.bar'));
 
       expect(clickSpy).to.be.calledWith('bar.bar');
+    });
+
+    it('should notify when the connection name is clicked', function () {
+      const clickSpy = Sinon.spy();
+      const connectionClickSpy = Sinon.spy();
+
+      render(
+        <CollectionsList
+          connectionTitle="My Connection"
+          databaseName="My Database"
+          collections={colls}
+          onClickConnectionBreadcrumb={connectionClickSpy}
+          onCollectionClick={clickSpy}
+        ></CollectionsList>
+      );
+
+      userEvent.click(screen.getByText('My Connection'));
+
+      expect(connectionClickSpy).to.be.called;
     });
   });
 });

@@ -28,6 +28,7 @@ import countDocuments from './count-documents';
 import isDataLake from './is-datalake';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
+import collectionStats from './collection-stats';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
@@ -42,7 +43,9 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
-
+import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { DataService } from '../modules/data-service';
+import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 /**
  * The main application reducer.
  *
@@ -83,6 +86,7 @@ const rootReducer = combineReducers({
   collectionsFields,
   insights,
   searchIndexes,
+  collectionStats,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
@@ -97,6 +101,9 @@ export type PipelineBuilderExtraArgs = {
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
   atlasAiService: AtlasAiService;
+  instance: MongoDBInstance;
+  dataService: DataService;
+  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

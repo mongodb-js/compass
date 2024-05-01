@@ -20,7 +20,10 @@ import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import { ConnectionStorage } from '@mongodb-js/connection-storage/main';
+import {
+  initCompassMainConnectionStorage,
+  getCompassMainConnectionStorage,
+} from '@mongodb-js/connection-storage/main';
 
 const { debug, log, track, mongoLogId } =
   createLoggerAndTelemetry('COMPASS-MAIN');
@@ -109,10 +112,10 @@ class CompassApplication {
     );
 
     // ConnectionStorage offers import/export which is used via CLI as well.
-    ConnectionStorage.init();
+    const connectionStorage = initCompassMainConnectionStorage();
 
     try {
-      await ConnectionStorage.migrateToSafeStorage();
+      await connectionStorage.migrateToSafeStorage();
     } catch (e) {
       log.error(
         mongoLogId(1_001_000_275),
@@ -186,7 +189,8 @@ class CompassApplication {
       let hasLegacyConnections: boolean;
       try {
         hasLegacyConnections =
-          (await ConnectionStorage.getLegacyConnections()).length > 0;
+          (await getCompassMainConnectionStorage().getLegacyConnections())
+            .length > 0;
       } catch (e) {
         debug('Failed to check legacy connections', e);
         hasLegacyConnections = false;

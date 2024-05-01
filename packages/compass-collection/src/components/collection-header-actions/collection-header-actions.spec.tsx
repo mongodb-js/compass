@@ -83,6 +83,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
       button.click();
       expect(openEditViewWorkspaceStub).to.have.been.calledOnceWith(
+        'TEST',
         'db.coll2',
         {
           sourceName: 'db.someSource',
@@ -122,6 +123,7 @@ describe('CollectionHeaderActions [Component]', function () {
       );
       button.click();
       expect(openCollectionWorkspaceStub).to.have.been.calledOnceWith(
+        'TEST',
         'db.editing'
       );
     });

@@ -36,6 +36,12 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 import { maxTimeMSChanged } from '../modules/max-time-ms';
+import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import {
+  pickCollectionStats,
+  collectionStatsFetched,
+} from '../modules/collection-stats';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -72,6 +78,8 @@ export type AggregationsPluginServices = {
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorage;
+  connectionInfoAccess: ConnectionInfoAccess;
+  collection: Collection;
 };
 
 export function activateAggregationsPlugin(
@@ -87,6 +95,8 @@ export function activateAggregationsPlugin(
     atlasAiService,
     atlasAuthService,
     pipelineStorage,
+    connectionInfoAccess,
+    collection: collectionModel,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -158,6 +168,7 @@ export function activateAggregationsPlugin(
           // should be 'hidden'.
           localStorage.getItem(INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY) === 'true',
       },
+      collectionStats: pickCollectionStats(collectionModel),
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -171,6 +182,7 @@ export function activateAggregationsPlugin(
         preferences,
         logger,
         atlasAiService,
+        connectionInfoAccess,
       })
     )
   );
@@ -194,6 +206,12 @@ export function activateAggregationsPlugin(
     const { namespace } = store.getState();
     if (ns === namespace) {
       refreshInput();
+    }
+  });
+
+  on(collectionModel, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
     }
   });
 

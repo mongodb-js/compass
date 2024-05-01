@@ -1,3 +1,4 @@
+'use strict';
 const hadronBuild = require('../');
 const commands = hadronBuild;
 const fs = require('fs-extra');

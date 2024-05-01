@@ -25,12 +25,16 @@ export default function reducer(
 export const gotoOutResults = (
   namespace: string
 ): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState, { workspaces }) => {
+  return (_dispatch, getState, { workspaces, connectionInfoAccess }) => {
     const { outResultsFn } = getState();
+    const { id: connectionId } =
+      connectionInfoAccess.getCurrentConnectionInfo();
     if (outResultsFn) {
       outResultsFn(namespace);
     } else {
-      workspaces.openCollectionWorkspace(namespace, { newTab: true });
+      workspaces.openCollectionWorkspace(connectionId, namespace, {
+        newTab: true,
+      });
     }
   };
 };

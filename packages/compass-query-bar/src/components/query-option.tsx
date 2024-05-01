@@ -87,6 +87,7 @@ type QueryOptionProps = {
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
+  disabled?: boolean;
 };
 
 // Helper component to allow flexible computation of extra props for the TextInput
@@ -118,6 +119,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   value,
   onApply,
   insights,
+  disabled = false,
 }) => {
   const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
   const darkMode = useDarkMode();
@@ -169,13 +171,14 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
           <Label
             htmlFor={id}
             id={`query-bar-option-input-${name}-label`}
+            disabled={disabled}
             className={
               isDocumentEditor
                 ? documentEditorQueryOptionLabelStyles
                 : queryOptionLabelStyles
             }
           >
-            {name}
+            {optionDefinition.label ?? name}
           </Label>
         </div>
       )}
@@ -191,6 +194,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             insights={insights}
+            disabled={disabled}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
@@ -214,6 +218,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 }
                 onBlur={onBlurEditor}
                 placeholder={placeholder as string}
+                disabled={disabled}
                 {...props}
               />
             )}
