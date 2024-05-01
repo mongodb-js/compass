@@ -144,7 +144,14 @@ export function createInstancesStore(
         );
       }
 
-      async function refreshNamespaceStats({ ns }: { ns: string }) {
+      async function refreshNamespaceStats(
+        { ns }: { ns: string },
+        { connectionId }: { connectionId?: string } = {}
+      ) {
+        if (connectionId !== instanceConnectionId) {
+          return;
+        }
+
         const { database } = toNS(ns);
         const db = instance.databases.get(database);
         const coll = db?.collections.get(ns);
@@ -311,18 +318,7 @@ export function createInstancesStore(
 
       on(globalAppRegistry, 'document-deleted', refreshNamespaceStats);
       on(globalAppRegistry, 'document-inserted', refreshNamespaceStats);
-      on(
-        globalAppRegistry,
-        'import-finished',
-        (
-          { ns }: { ns: string },
-          { connectionId }: { connectionId?: string } = {}
-        ) => {
-          if (connectionId === instanceConnectionId) {
-            void refreshNamespaceStats({ ns });
-          }
-        }
-      );
+      on(globalAppRegistry, 'import-finished', refreshNamespaceStats);
 
       on(
         globalAppRegistry,
