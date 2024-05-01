@@ -16,7 +16,6 @@
 //     npm run ai-accuracy-tests
 
 import { MongoCluster } from 'mongodb-runner';
-import { promises as fs } from 'fs';
 import os from 'os';
 import assert from 'assert';
 import ejsonShellParser from 'ejson-shell-parser';
@@ -28,9 +27,11 @@ import type { SimplifiedSchema } from 'mongodb-schema';
 import path from 'path';
 import util from 'util';
 import { execFile as callbackExecFile } from 'child_process';
-import DigestClient from 'digest-fetch';
-import nodeFetch from 'node-fetch';
 import decomment from 'decomment';
+
+import { loadFixturesToDB } from './fixtures';
+import type { Fixtures } from './fixtures';
+import { AtlasAPI } from './ai-backend';
 
 const execFile = util.promisify(callbackExecFile);
 
@@ -64,8 +65,6 @@ const ATTEMPTS_PER_TEST = process.env.AI_TESTS_ATTEMPTS_PER_TEST
 const AI_TESTS_USE_SAMPLE_DOCS =
   process.env.AI_TESTS_USE_SAMPLE_DOCS === 'true';
 
-const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
-
 type AITestError = Error & {
   errorCode?: string;
   status?: number;
@@ -73,39 +72,6 @@ type AITestError = Error & {
   prompt?: string;
   causedBy?: Error;
 };
-
-if (!['atlas-dev', 'atlas-local', 'compass'].includes(BACKEND)) {
-  throw new Error('Unknown backend');
-}
-
-const fetch = (() => {
-  if (BACKEND === 'atlas-dev' || BACKEND === 'atlas-local') {
-    const ATLAS_PUBLIC_KEY = process.env.ATLAS_PUBLIC_KEY;
-    const ATLAS_PRIVATE_KEY = process.env.ATLAS_PRIVATE_KEY;
-
-    if (!(ATLAS_PUBLIC_KEY || ATLAS_PRIVATE_KEY)) {
-      throw new Error('ATLAS_PUBLIC_KEY and ATLAS_PRIVATE_KEY are required.');
-    }
-
-    const client = new DigestClient(ATLAS_PUBLIC_KEY, ATLAS_PRIVATE_KEY, {
-      algorithm: 'MD5',
-    });
-
-    return client.fetch.bind(client);
-  }
-
-  return nodeFetch;
-})() as typeof nodeFetch;
-
-const backendBaseUrl =
-  process.env.AI_TESTS_BACKEND_URL ||
-  (BACKEND === 'atlas-dev'
-    ? 'https://cloud-dev.mongodb.com/api/private'
-    : BACKEND === 'atlas-local'
-    ? 'http://localhost:8080/api/private'
-    : 'http://localhost:8080');
-
-let httpErrors = 0;
 
 type TestResult = {
   Type: string;
@@ -116,44 +82,6 @@ type TestResult = {
   'Time Elapsed (MS)': number;
 };
 
-async function fetchAtlasPrivateApi(
-  urlPath: string,
-  init: Partial<Parameters<typeof fetch>[1]> = {}
-) {
-  const url = `${backendBaseUrl}${
-    urlPath.startsWith('/') ? urlPath : `/${urlPath}`
-  }`;
-
-  return await fetch(url, {
-    ...init,
-    headers: {
-      ...init.headers,
-      'Content-Type': 'application/json',
-      'User-Agent': 'Compass AI Accuracy tests',
-    },
-  })
-    .then(async (res) => [res, await res.json()])
-    .then(([res, data]) => {
-      if (res.ok && data) {
-        console.info(data);
-        return data;
-      }
-
-      const errorCode = data?.errorCode || '-';
-
-      const error: AITestError = new Error(
-        `Request failed: ${res.status} - ${res.statusText}: ${errorCode}`
-      );
-
-      error.status = res.status;
-      error.errorCode = errorCode;
-
-      httpErrors++;
-
-      return Promise.reject(error);
-    });
-}
-
 type QueryOptions = {
   schema: SimplifiedSchema;
   collectionName: string;
@@ -162,8 +90,10 @@ type QueryOptions = {
   userInput: string;
 };
 
+const atlasBackend = new AtlasAPI();
+
 function generateFindQuery(options: QueryOptions) {
-  return fetchAtlasPrivateApi(
+  return atlasBackend.fetchAtlasPrivateApi(
     '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
     {
       method: 'POST',
@@ -173,7 +103,7 @@ function generateFindQuery(options: QueryOptions) {
 }
 
 function generateAggregation(options: QueryOptions) {
-  return fetchAtlasPrivateApi(
+  return atlasBackend.fetchAtlasPrivateApi(
     '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
     {
       method: 'POST',
@@ -237,6 +167,22 @@ const generateMQL = async ({
   });
 };
 
+function hasQueryFields(query?: {
+  filter?: string;
+  project?: string;
+  sort?: string;
+  limit?: string;
+  skip?: string;
+}) {
+  return (
+    query?.filter ||
+    query?.project ||
+    query?.sort ||
+    query?.limit ||
+    query?.skip
+  );
+}
+
 type UsageStats = { promptTokens: number; completionTokens: number };
 
 type TestOptions = {
@@ -247,7 +193,6 @@ type TestOptions = {
   userInput: string;
   // When supplied, this overrides the general test accuracy requirement. (0-1)
   minAccuracyForTest?: number;
-  assertResponse?: (responseContent: unknown) => Promise<void>;
   assertResult?: (responseContent: Document[]) => Promise<void> | void;
   acceptAggregationResponse?: boolean;
 };
@@ -260,7 +205,6 @@ const runOnce = async (
     collectionName,
     userInput,
     includeSampleDocuments,
-    assertResponse,
     assertResult,
     acceptAggregationResponse,
   }: TestOptions,
@@ -277,10 +221,6 @@ const runOnce = async (
   usageStats.push({ promptTokens: 1, completionTokens: 1 });
 
   try {
-    if (assertResponse) {
-      await assertResponse(response.content);
-    }
-
     const collection = mongoClient.db(databaseName).collection(collectionName);
 
     const aggregation = response?.content?.aggregation ?? {};
@@ -294,10 +234,18 @@ const runOnce = async (
         (type === 'query' &&
           acceptAggregationResponse &&
           aggregation.pipeline &&
-          aggregation.pipeline !== '[]')
+          aggregation.pipeline !== '[]' &&
+          // When we don't have a query, we use the aggregation pipeline.
+          !hasQueryFields(query))
       ) {
         cursor = collection.aggregate(parseShellString(aggregation?.pipeline));
       } else {
+        if (acceptAggregationResponse) {
+          throw new Error(
+            'Expected aggregation response but got query or no aggregation.'
+          );
+        }
+
         cursor = collection.find(parseShellString(query.filter));
 
         if (query.project) {
@@ -387,11 +335,7 @@ const runTest = async (testOptions: TestOptions) => {
   return { accuracy, timeouts, totalTestTimeMS, usageStats };
 };
 
-const fixtures: {
-  [dbName: string]: {
-    [colName: string]: Document;
-  };
-} = {};
+let fixtures: Fixtures = {};
 
 async function setup() {
   // p-queue is ESM-only in recent versions.
@@ -404,30 +348,9 @@ async function setup() {
 
   mongoClient = new MongoClient(cluster.connectionString);
 
-  const fixtureFiles = (
-    await fs.readdir(path.join(__dirname, 'fixtures'), 'utf-8')
-  ).filter((f) => f.endsWith('.json'));
-
-  for (const fixture of fixtureFiles) {
-    const fileContent = await fs.readFile(
-      path.join(__dirname, 'fixtures', fixture),
-      'utf-8'
-    );
-
-    const [db, coll] = fixture.split('.');
-
-    const ejson = EJSON.parse(fileContent);
-
-    fixtures[db] = { [coll]: EJSON.serialize(ejson.data) };
-
-    await mongoClient.db(db).collection(coll).insertMany(ejson.data);
-
-    if (ejson.indexes) {
-      for (const index of ejson.indexes) {
-        await mongoClient.db(db).collection(coll).createIndex(index);
-      }
-    }
-  }
+  fixtures = await loadFixturesToDB({
+    mongoClient,
+  });
 }
 
 async function teardown() {
@@ -616,12 +539,83 @@ const tests: TestOptions[] = [
     collectionName: 'listingsAndReviews',
     userInput:
       'what is the bed count that occurs the most? return it in a field called bedCount',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          bedCount: 1,
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: 1,
+          bedCount: 1,
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          bedCount: 1,
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'query',
+    acceptAggregationResponse: true,
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    includeSampleDocuments: true,
+    userInput:
+      'whats the total number of reviews across all listings? return it in a field called totalReviewsOverall',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          totalReviewsOverall: 319,
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          totalReviewsOverall: 319,
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'query',
+    acceptAggregationResponse: true,
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    // This currently fails with our method of formatting arrays with documents in our prompt,
+    // at least with gpt-3.5-turbo. So we set the min accuracy to 0.
+    minAccuracyForTest: 0,
+    userInput:
+      'which host id has the most reviews across all listings? return it in a field called hostId',
     assertResult: isDeepStrictEqualTo([
       {
-        bedCount: 1,
+        hostId: '16187044',
       },
     ]),
   },
+  {
+    // We pass the current date to the prompt, as the training data isn't always
+    // up to date. This test ensures we use that data.
+    type: 'query',
+    databaseName: 'UFO',
+    collectionName: 'sightings',
+    includeSampleDocuments: true,
+    userInput:
+      'Give me all of the documents of sightings that happened last year, no _id',
+    assertResult: isDeepStrictEqualTo([
+      {
+        description: 'Flying Saucer in the sky, numerous reports.',
+        where: 'Oklahoma',
+        // Last year.
+        year: `${new Date().getFullYear() - 1}`,
+      },
+    ]),
+  },
+
   {
     type: 'query',
     databaseName: 'delimiters',
@@ -749,6 +743,44 @@ const tests: TestOptions[] = [
         title: 'Smokey and the Bandit Part 3',
         year: '1983',
         id: '168',
+      },
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    // Test $unwind with array of documents.
+    // This currently fails a good amount with gpt-3.5-turbo. So we set the min accuracy to 0.
+    minAccuracyForTest: 0,
+    userInput:
+      'build an array called reviewComments of all of the review comments by reviewer id 72064521.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          reviewComments: [
+            'Our stay was fantastic. Mehmet was was excellent with communication and made us feel at home. His place is centrally located and the cafe downstairs as a nice welcoming vibe. Would recommend to stay here on a trip to Istanbul.',
+          ],
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          reviewComments: [
+            'Our stay was fantastic. Mehmet was was excellent with communication and made us feel at home. His place is centrally located and the cafe downstairs as a nice welcoming vibe. Would recommend to stay here on a trip to Istanbul.',
+          ],
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    userInput: 'which listing has the most amenities? return only the _id',
+    assertResult: isDeepStrictEqualTo([
+      {
+        _id: '10108388',
       },
     ]),
   },
@@ -941,12 +973,12 @@ async function main() {
         // TODO: URL
         results,
         anyFailed,
-        httpErrors,
+        httpErrors: atlasBackend.httpErrors,
         runTimeMS: Date.now() - startTime,
       });
     }
 
-    console.log('\nTotal HTTP errors received', httpErrors);
+    console.log('\nTotal HTTP errors received', atlasBackend.httpErrors);
 
     if (anyFailed) {
       process.exit(1);
