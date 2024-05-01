@@ -33,7 +33,6 @@ export type RootState = ReturnType<
 
 export function activatePlugin(_: unknown, services: WelcomeServices) {
   const store = configureStore(services);
-  console.log('welcome activatePlugin', { store });
   return {
     store,
     deactivate() {
