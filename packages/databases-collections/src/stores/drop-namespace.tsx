@@ -29,14 +29,20 @@ export function activatePlugin(
   { on, cleanup, signal }: ActivateHelpers
 ) {
   const onDropNamespace = async (
-    connectionId: string,
-    namespace: string | NS
+    namespace: string | NS,
+    { connectionId }: { connectionId?: string } = {}
   ) => {
     // `drop-collection` is emitted with NS, `drop-database` is emitted with a
     // string, we're keeping compat with both for now to avoid conflicts with
     // other refactoring
     if (typeof namespace === 'string') {
       namespace = toNS(namespace);
+    }
+
+    if (!connectionId) {
+      throw new Error(
+        'Cannot drop a namespace without specifying connectionId'
+      );
     }
 
     const {
@@ -72,7 +78,8 @@ export function activatePlugin(
         await dataService[method](ns);
         globalAppRegistry.emit(
           isCollection ? 'collection-dropped' : 'database-dropped',
-          ns
+          ns,
+          { connectionId }
         );
         openToast('drop-namespace-success', {
           variant: 'success',

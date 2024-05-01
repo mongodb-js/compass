@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -59,6 +59,18 @@ const animatedSubtitleStyles = css({
     pointerEvents: 'auto',
   },
 });
+
+export type TabTheme = {
+  '--workspace-tab-background-color': string;
+  '--workspace-tab-selected-background-color': string;
+  '--workspace-tab-border-color': string;
+  '--workspace-tab-color': string;
+  '--workspace-tab-selected-color': string;
+  '&:focus-visible': {
+    '--workspace-tab-selected-color': string;
+    '--workspace-tab-border-color': string;
+  };
+};
 
 const tabLightThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.light3,
@@ -164,6 +176,7 @@ type TabProps = {
   iconGlyph: IconGlyph;
   tabContentId: string;
   subtitle?: string;
+  tabTheme?: TabTheme;
 };
 
 function Tab({
@@ -175,6 +188,7 @@ function Tab({
   tabContentId,
   iconGlyph,
   subtitle,
+  tabTheme,
   ...props
 }: TabProps & React.HTMLProps<HTMLDivElement>) {
   const darkMode = useDarkMode();
@@ -188,6 +202,14 @@ function Tab({
     listeners ?? {},
     props
   );
+
+  const themeClass = useMemo(() => {
+    if (!tabTheme) {
+      return darkMode ? tabDarkThemeStyles : tabLightThemeStyles;
+    }
+
+    return css(tabTheme);
+  }, [tabTheme, darkMode]);
 
   const style = {
     transform: cssDndKit.Transform.toString(transform),
@@ -204,7 +226,7 @@ function Tab({
       style={style}
       className={cx(
         tabStyles,
-        darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
+        themeClass,
         isSelected && selectedTabStyles,
         isDragging && draggingTabStyles,
         subtitle && animatedSubtitleStyles

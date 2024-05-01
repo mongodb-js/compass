@@ -1,9 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { css, keyframes } from '@leafygreen-ui/emotion';
+import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { UUID } from 'bson';
+import { useDarkMode } from './use-theme';
 
-const fadeOutAnimation = keyframes({
+const ANIMATION_TIMEOUT_MS = 4000;
+
+const externalAppliedQueryStyles = css({
+  borderRadius: spacing[150],
+});
+
+const fadeOutAnimationDarkMode = keyframes({
   from: {
     background: 'rgba(223, 245, 253, 0.5)',
   },
@@ -12,12 +19,23 @@ const fadeOutAnimation = keyframes({
   },
 });
 
-const ANIMATION_TIMEOUT_MS = 3000;
-
-const externalAppliedQueryStyles = css({
+const externalAppliedQueryDarkModeStyles = css({
   backgroundColor: 'rgba(225, 247, 255, 0)',
-  borderRadius: spacing[150],
-  animation: `${fadeOutAnimation} ${ANIMATION_TIMEOUT_MS}ms ease-out`,
+  animation: `${fadeOutAnimationDarkMode} ${ANIMATION_TIMEOUT_MS}ms ease-out`,
+});
+
+const fadeOutAnimationLightMode = keyframes({
+  from: {
+    background: 'rgba(223, 245, 253, 1)',
+  },
+  to: {
+    opacity: 'rgba(225, 247, 255, 0)',
+  },
+});
+
+const externalAppliedQueryLightModeStyles = css({
+  backgroundColor: 'rgba(225, 247, 255, 0)',
+  animation: `${fadeOutAnimationLightMode} ${ANIMATION_TIMEOUT_MS}ms ease-out`,
 });
 
 // When the id changes and isApplied is true or has been set to true
@@ -28,6 +46,7 @@ export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
   const [hasBeenApplied, setHasBeenApplied] = useState(false);
   const hasStylesApplied = useRef<boolean>(isApplied);
   const [forceRefreshKey, setForceRefreshKey] = useState(key);
+  const darkMode = useDarkMode();
 
   useEffect(() => {
     if (isApplied) {
@@ -44,7 +63,14 @@ export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
   }, [isApplied, key]);
 
   return {
-    className: hasBeenApplied ? externalAppliedQueryStyles : undefined,
+    className: hasBeenApplied
+      ? cx(
+          externalAppliedQueryStyles,
+          darkMode
+            ? externalAppliedQueryDarkModeStyles
+            : externalAppliedQueryLightModeStyles
+        )
+      : undefined,
     key: hasBeenApplied ? forceRefreshKey : undefined,
   };
 };

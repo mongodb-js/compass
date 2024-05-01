@@ -21,8 +21,6 @@ const move = keyframes({
 });
 
 const placeholder = css({
-  '--gradient-start': palette.gray.light2,
-  '--gradient-end': palette.gray.light3,
   alignSelf: 'center',
   borderRadius: 3,
   maxWidth: '80%',
@@ -39,11 +37,6 @@ const placeholder = css({
   animation: `${move} ${scale}s infinite linear`,
 });
 
-const placeholderDarkMode = css({
-  '--gradient-start': palette.gray.dark2,
-  '--gradient-end': palette.gray.dark4,
-});
-
 function getBoundRandom(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
@@ -57,6 +50,9 @@ const Placeholder: React.FunctionComponent<
     maxChar?: number;
     width?: CSSProperties['width'];
     height?: CSSProperties['height'];
+    gradientStart?: CSSProperties['color'];
+    gradientEnd?: CSSProperties['color'];
+    style?: CSSProperties;
     'data-testid'?: string;
   }
 > = ({
@@ -65,6 +61,9 @@ const Placeholder: React.FunctionComponent<
   maxChar = 15,
   width: propsWidth,
   height: propsHeight = spacing[3],
+  gradientStart,
+  gradientEnd,
+  style: propsStyle,
   ...props
 }) => {
   const darkMode = useDarkMode();
@@ -73,13 +72,26 @@ const Placeholder: React.FunctionComponent<
     return propsWidth || `${Math.round(getBoundRandom(minChar, maxChar))}ch`;
   }, [minChar, maxChar, propsWidth]);
 
+  const style = useMemo(
+    () => ({
+      width,
+      height: propsHeight,
+      '--gradient-start':
+        gradientStart || (darkMode ? palette.gray.dark2 : palette.gray.light2),
+      '--gradient-end':
+        gradientEnd || (darkMode ? palette.gray.dark4 : palette.gray.light3),
+      ...propsStyle,
+    }),
+    [darkMode, width, propsHeight, gradientStart, gradientEnd, propsStyle]
+  );
+
   return (
     <div
       {...props}
       role="presentation"
       data-testid={props['data-testid'] ?? 'placeholder'}
-      className={cx(placeholder, className, darkMode && placeholderDarkMode)}
-      style={{ width, height: propsHeight }}
+      className={cx(placeholder, className)}
+      style={style}
     ></div>
   );
 };
