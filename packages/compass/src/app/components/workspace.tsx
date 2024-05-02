@@ -36,7 +36,6 @@ import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -60,9 +59,6 @@ export default function Workspace({
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
-  const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
   return (
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
@@ -99,28 +95,16 @@ export default function Workspace({
                 singleConnectionConnectionInfo={singleConnectionConnectionInfo}
               />
             )}
-            renderModals={() => {
-              return multiConnectionsEnabled ? (
-                <>
-                  <ImportPlugin></ImportPlugin>
-                  <CreateViewPlugin></CreateViewPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
-                  <DropNamespacePlugin></DropNamespacePlugin>
-                  <RenameCollectionPlugin></RenameCollectionPlugin>
-                </>
-              ) : (
-                <ConnectionInfoProvider
-                  connectionInfoId={singleConnectionConnectionInfo?.id}
-                >
-                  <ImportPlugin></ImportPlugin>
-                  <ExportPlugin></ExportPlugin>
-                  <CreateViewPlugin></CreateViewPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
-                  <DropNamespacePlugin></DropNamespacePlugin>
-                  <RenameCollectionPlugin></RenameCollectionPlugin>
-                </ConnectionInfoProvider>
-              );
-            }}
+            renderModals={() => (
+              <>
+                <ImportPlugin></ImportPlugin>
+                <ExportPlugin></ExportPlugin>
+                <CreateViewPlugin></CreateViewPlugin>
+                <CreateNamespacePlugin></CreateNamespacePlugin>
+                <DropNamespacePlugin></DropNamespacePlugin>
+                <RenameCollectionPlugin></RenameCollectionPlugin>
+              </>
+            )}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>
