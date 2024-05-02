@@ -49,7 +49,10 @@ export const ConnectionItem: React.FunctionComponent<
       isExpanded: boolean;
       onConnectionExpand(id: string, isExpanded: boolean): void;
       onConnectionSelect(id: string): void;
-    } & { connectionInfo: ConnectionInfo }
+    } & {
+      connectionInfo: ConnectionInfo;
+      isPerformanceTabSupported: boolean;
+    }
 > = ({
   id,
   name,
@@ -63,6 +66,7 @@ export const ConnectionItem: React.FunctionComponent<
   isTabbable,
   style,
   connectionInfo,
+  isPerformanceTabSupported,
   onNamespaceAction,
   onConnectionExpand,
   onConnectionSelect,
@@ -108,6 +112,8 @@ export const ConnectionItem: React.FunctionComponent<
         action: 'connection-performance-metrics',
         icon: 'Gauge',
         label: 'View performance metrics',
+        isDisabled: !isPerformanceTabSupported,
+        disabledDescription: 'Not supported',
       },
       {
         action: 'open-connection-info',
@@ -133,7 +139,7 @@ export const ConnectionItem: React.FunctionComponent<
     ];
 
     return actions;
-  }, [connectionInfo.savedConnectionType]);
+  }, [connectionInfo.savedConnectionType, isPerformanceTabSupported]);
 
   const connectionIcon = isLocalhost ? (
     <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />

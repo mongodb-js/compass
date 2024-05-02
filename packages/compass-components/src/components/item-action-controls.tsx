@@ -19,6 +19,8 @@ export type ItemAction<Action extends string> = {
   label: string;
   icon: React.ReactChild;
   variant?: 'default' | 'destructive';
+  isDisabled?: boolean;
+  disabledDescription?: string;
 };
 
 export type ItemSeparator = { separator: true };
@@ -29,12 +31,7 @@ export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
 };
 
 export type MenuAction<Action extends string> =
-  | {
-      action: Action;
-      label: string;
-      icon?: React.ReactChild;
-      variant?: 'default' | 'destructive';
-    }
+  | ItemAction<Action>
   | ItemSeparator;
 
 function isSeparatorMenuAction<T extends string, MA extends MenuAction<T>>(
@@ -240,7 +237,14 @@ export function ItemActionMenu<Action extends string>({
             return <MenuSeparator key={`separator-${idx}`} />;
           }
 
-          const { action, label, icon, variant } = menuAction;
+          const {
+            action,
+            label,
+            icon,
+            variant,
+            isDisabled,
+            disabledDescription,
+          } = menuAction;
 
           return (
             <MenuItem
@@ -251,6 +255,8 @@ export function ItemActionMenu<Action extends string>({
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
               variant={variant || 'default'}
+              disabled={isDisabled}
+              description={isDisabled ? disabledDescription : ''}
             >
               {label}
             </MenuItem>

@@ -74,6 +74,7 @@ type ConnectionTreeItem = {
   posInSet: number;
   colorCode?: string;
   connectionInfo: ConnectionInfo;
+  isPerformanceTabSupported: boolean;
 };
 
 type DatabaseTreeItem = {
@@ -140,6 +141,7 @@ const connectionToItems = ({
     databases,
     databasesStatus,
     databasesLength,
+    isPerformanceTabSupported,
   },
   connectionIndex,
   connectionsLength,
@@ -175,6 +177,7 @@ const connectionToItems = ({
     posInSet: connectionIndex + 1,
     connectionInfo,
     colorCode,
+    isPerformanceTabSupported,
   };
 
   if (!isExpanded) {

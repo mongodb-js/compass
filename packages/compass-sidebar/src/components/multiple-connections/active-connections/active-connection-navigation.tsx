@@ -285,7 +285,7 @@ function mapStateToProps(
     const isWritable = instance?.isWritable ?? false;
 
     const isPerformanceTabSupported =
-      !isDataLake && !!state.isPerformanceTabSupported;
+      !isDataLake && !!state.isPerformanceTabSupported[connectionId];
 
     connections.push({
       isReady,
