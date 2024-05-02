@@ -1,14 +1,23 @@
 import { expect } from 'chai';
 import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
-import { configureStore } from '../stores/import-store';
+import {
+  type ImportPluginServices,
+  configureStore,
+} from '../stores/import-store';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import { AppRegistry } from 'hadron-app-registry';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+
+const logger = createNoopLoggerAndTelemetry();
 
 const mockServices = {
-  globalAppRegistry: {},
-  dataService: {},
-  logger: createNoopLoggerAndTelemetry(),
-} as any;
+  globalAppRegistry: new AppRegistry(),
+  logger,
+  connectionsManager: new ConnectionsManager({ logger: logger.log.unbound }),
+  workspaces: {} as WorkspacesService,
+} as ImportPluginServices;
 
 describe('import [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
@@ -36,6 +45,7 @@ describe('import [module]', function () {
         openImport({
           namespace: 'test.test',
           origin: 'menu',
+          connectionId: 'TEST',
         }) as any
       );
 
@@ -58,10 +68,12 @@ describe('import [module]', function () {
         openImport({
           namespace: 'test.test',
           origin: 'menu',
+          connectionId: 'TEST',
         }) as any
       );
 
       expect(mockStore.getState().import.namespace).to.equal(testNS);
+      expect(mockStore.getState().import.connectionId).to.equal('TEST');
       expect(mockStore.getState().import.isInProgressMessageOpen).to.equal(
         false
       );

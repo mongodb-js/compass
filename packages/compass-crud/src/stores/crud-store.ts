@@ -60,10 +60,20 @@ import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
+import type {
+  ConnectionInfoAccess,
+  ConnectionScopedAppRegistry,
+} from '@mongodb-js/compass-connections/provider';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
+
+export type EmittedAppRegistryEvents =
+  | 'open-import'
+  | 'open-export'
+  | 'document-deleted'
+  | 'document-inserted';
 
 export type CrudActions = {
   drillDown(
@@ -391,12 +401,12 @@ class CrudStoreImpl
   dataService: DataService;
   preferences: PreferencesAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
   fieldStoreService: FieldStoreService;
   logger: LoggerAndTelemetry;
   instance: MongoDBInstance;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -405,10 +415,10 @@ class CrudStoreImpl
       | 'instance'
       | 'dataService'
       | 'localAppRegistry'
-      | 'globalAppRegistry'
       | 'preferences'
       | 'logger'
       | 'fieldStoreService'
+      | 'connectionScopedAppRegistry'
     > & {
       favoriteQueryStorage?: FavoriteQueryStorage;
       recentQueryStorage?: RecentQueryStorage;
@@ -420,11 +430,11 @@ class CrudStoreImpl
     this.recentQueriesStorage = services.recentQueryStorage;
     this.dataService = services.dataService;
     this.localAppRegistry = services.localAppRegistry;
-    this.globalAppRegistry = services.globalAppRegistry;
     this.preferences = services.preferences;
     this.logger = services.logger;
     this.instance = services.instance;
     this.fieldStoreService = services.fieldStoreService;
+    this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
   }
 
   getInitialState(): CrudState {
@@ -606,7 +616,7 @@ class CrudStoreImpl
         doc.emit('remove-success');
         const payload = { view: this.state.view, ns: this.state.ns };
         this.localAppRegistry.emit('document-deleted', payload);
-        this.globalAppRegistry.emit('document-deleted', payload);
+        this.connectionScopedAppRegistry.emit('document-deleted', payload);
         const index = this.findDocumentIndex(doc);
         this.state.docs?.splice(index, 1);
         this.setState({
@@ -1235,7 +1245,7 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openImportFileDialog() {
-    this.globalAppRegistry.emit('open-import', {
+    this.connectionScopedAppRegistry.emit('open-import', {
       namespace: this.state.ns,
       origin: 'empty-state',
     });
@@ -1248,7 +1258,7 @@ class CrudStoreImpl
   openExportFileDialog(exportFullCollection?: boolean) {
     const { filter, project, collation, limit, skip, sort } = this.state.query;
 
-    this.globalAppRegistry.emit('open-export', {
+    this.connectionScopedAppRegistry.emit('open-export', {
       namespace: this.state.ns,
       query: { filter, project, collation, limit, skip, sort },
       exportFullCollection,
@@ -1371,7 +1381,7 @@ class CrudStoreImpl
         docs
       );
       // TODO(COMPASS-7815): Remove this event and use AppStoreService
-      this.globalAppRegistry.emit('document-inserted', payload);
+      this.connectionScopedAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
@@ -1429,7 +1439,7 @@ class CrudStoreImpl
         doc,
       ]);
       // TODO(COMPASS-7815): Remove this event and use AppStoreService
-      this.globalAppRegistry.emit('document-inserted', payload);
+      this.connectionScopedAppRegistry.emit('document-inserted', payload);
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
@@ -1957,6 +1967,8 @@ export type DocumentsPluginServices = {
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
   fieldStoreService: FieldStoreService;
+  connectionInfoAccess: ConnectionInfoAccess;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1970,6 +1982,8 @@ export function activateDocumentsPlugin(
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
     fieldStoreService,
+    connectionInfoAccess,
+    connectionScopedAppRegistry,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1981,12 +1995,12 @@ export function activateDocumentsPlugin(
         instance,
         dataService,
         localAppRegistry,
-        globalAppRegistry,
         preferences,
         logger,
         favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
         recentQueryStorage: recentQueryStorageAccess?.getStorage(),
         fieldStoreService,
+        connectionScopedAppRegistry,
       }
     )
   ) as CrudStore;
@@ -2020,11 +2034,20 @@ export function activateDocumentsPlugin(
     void store.refreshDocuments();
   });
 
-  on(globalAppRegistry, 'import-finished', ({ ns }) => {
-    if (ns === store.state.ns) {
-      void store.refreshDocuments();
+  on(
+    globalAppRegistry,
+    'import-finished',
+    (
+      { ns }: { ns: string },
+      { connectionId }: { connectionId?: string } = {}
+    ) => {
+      const { id: currentConnectionId } =
+        connectionInfoAccess.getCurrentConnectionInfo();
+      if (currentConnectionId === connectionId && ns === store.state.ns) {
+        void store.refreshDocuments();
+      }
     }
-  });
+  );
 
   if (!options.noRefreshOnConfigure) {
     queueMicrotask(() => {
