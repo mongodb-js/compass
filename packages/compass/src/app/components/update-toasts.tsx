@@ -92,7 +92,6 @@ export function onAutoupdateExternally({
     onClose: onDismiss,
   });
 }
-
 export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
   openToast('compass-update-started', {
     variant: 'progress',
