@@ -1,5 +1,4 @@
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from 'mongodb-data-service';
 import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -8,6 +7,7 @@ import { closeExport, exportReducer, openExport } from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 export function configureStore(services: ExportPluginServices) {
   return createStore(
@@ -24,7 +24,7 @@ export type RootExportState = ReturnType<
 
 export type ExportPluginServices = {
   globalAppRegistry: AppRegistry;
-  dataService: Pick<DataService, 'findCursor' | 'aggregateCursor'>;
+  connectionsManager: ConnectionsManager;
   preferences: PreferencesAccess;
   logger: LoggerAndTelemetry;
 };
@@ -44,14 +44,23 @@ type OpenExportEvent = {
   origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
 };
 
+type ConnectionMeta = {
+  connectionId?: string;
+};
+
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, dataService, preferences, logger }: ExportPluginServices,
+  {
+    globalAppRegistry,
+    connectionsManager,
+    preferences,
+    logger,
+  }: ExportPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore({
     globalAppRegistry,
-    dataService,
+    connectionsManager,
     preferences,
     logger,
   });
@@ -59,15 +68,25 @@ export function activatePlugin(
   on(
     globalAppRegistry,
     'open-export',
-    function onOpenExport({
-      namespace,
-      query,
-      exportFullCollection,
-      aggregation,
-      origin,
-    }: OpenExportEvent) {
+    function onOpenExport(
+      {
+        namespace,
+        query,
+        exportFullCollection,
+        aggregation,
+        origin,
+      }: OpenExportEvent,
+      { connectionId }: ConnectionMeta = {}
+    ) {
+      if (!connectionId) {
+        throw new Error(
+          'Cannot open Export modal without specifying connectionId'
+        );
+      }
+
       store.dispatch(
         openExport({
+          connectionId,
           namespace,
           query: {
             // In the query bar we use `project` instead of `projection`.

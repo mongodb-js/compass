@@ -107,6 +107,7 @@ describe('ExportModal Component', function () {
     const { store } = renderModal();
 
     const openExportOptions = {
+      connectionId: 'TEST',
       namespace: 'test.test',
       query: { filter: {} },
       origin: 'empty-state' as const,
