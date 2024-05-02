@@ -393,7 +393,8 @@ const mapStateToProps = (
     showPerformanceItem: !isDataLake,
     showCreateDatabaseAction: !isDataLake && isWritable && !preferencesReadOnly,
     showTooManyCollectionsInsight: totalCollectionsCount > 10_000,
-    isPerformanceTabSupported: !isDataLake && !!state.isPerformanceTabSupported,
+    isPerformanceTabSupported:
+      !isDataLake && !!state.isPerformanceTabSupported[connectionId],
   };
 };
 
