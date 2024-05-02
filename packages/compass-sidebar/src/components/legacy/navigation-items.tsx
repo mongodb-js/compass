@@ -383,7 +383,7 @@ const mapStateToProps = (
   const isReady =
     ['ready', 'refreshing'].includes(
       state.instance[connectionId]?.status ?? ''
-    ) && state.isPerformanceTabSupported !== null;
+    ) && typeof state.isPerformanceTabSupported[connectionId] === 'boolean';
 
   const isDataLake = state.instance[connectionId]?.dataLake.isDataLake ?? false;
   const isWritable = state.instance[connectionId]?.isWritable ?? false;
