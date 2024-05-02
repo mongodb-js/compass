@@ -16,6 +16,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -216,8 +217,10 @@ function WelcomeImage() {
 }
 
 export default function WelcomeTab() {
+  const appRegistry = useGlobalAppRegistry();
+
   function onNewConnection() {
-    return;
+    appRegistry.emit('open-new-connection');
   }
 
   return (
