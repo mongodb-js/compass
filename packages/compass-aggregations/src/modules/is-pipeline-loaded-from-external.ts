@@ -33,6 +33,20 @@ export type IsPipelineLoadedFromExternal = {
   pipelineLoadedFromExternalId: number;
 };
 
+const enum PipelineLoadedFromExternalActionTypes {
+  ClearIsPipelineLoadedFromExternal = 'compass-aggregations/ClearIsPipelineLoadedFromExternal',
+}
+
+type ClearIsPipelineLoadedFromExternalAction = {
+  type: PipelineLoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternal;
+};
+
+export function clearIsPipelineLoadedFromExternal(): ClearIsPipelineLoadedFromExternalAction {
+  return {
+    type: PipelineLoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternal,
+  };
+}
+
 export const INITIAL_STATE: IsPipelineLoadedFromExternal = {
   isPipelineLoadedFromExternal: false,
   pipelineLoadedFromExternalId: 0,
@@ -73,6 +87,10 @@ const reducer: Reducer<IsPipelineLoadedFromExternal> = (
     isAction<NewPipelineConfirmedAction>(
       action,
       ConfirmNewPipelineActions.NewPipelineConfirmed
+    ) ||
+    isAction<ClearIsPipelineLoadedFromExternalAction>(
+      action,
+      PipelineLoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternal
     )
   ) {
     return {

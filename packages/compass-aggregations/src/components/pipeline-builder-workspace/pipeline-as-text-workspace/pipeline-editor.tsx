@@ -19,6 +19,7 @@ import type { Annotation } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
+import { clearIsPipelineLoadedFromExternal } from '../../../modules/is-pipeline-loaded-from-external';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
@@ -80,6 +81,7 @@ export type PipelineEditorProps = {
   serverError: MongoServerError | null;
   serverVersion: string;
   onChangePipelineText: (value: string) => void;
+  onClearIsPipelineLoadedFromExternal: () => void;
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
@@ -92,6 +94,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   syntaxErrors,
   serverVersion,
   onChangePipelineText,
+  onClearIsPipelineLoadedFromExternal,
 }) => {
   const fields = useAutocompleteFields(namespace);
   const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -144,7 +147,8 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const darkMode = useDarkMode();
   const inputAppliedVisualEffect = useVisuallyAppliedEffect(
     `${pipelineLoadedFromExternalKey}`,
-    isPipelineLoadedFromExternal
+    isPipelineLoadedFromExternal,
+    onClearIsPipelineLoadedFromExternal
   );
 
   const showErrorContainer = serverError || syntaxErrors.length > 0;
@@ -223,6 +227,7 @@ const mapState = ({
 
 const mapDispatch = {
   onChangePipelineText: changeEditorValue,
+  onClearIsPipelineLoadedFromExternal: clearIsPipelineLoadedFromExternal,
 };
 
 export default connect(mapState, mapDispatch)(PipelineEditor);

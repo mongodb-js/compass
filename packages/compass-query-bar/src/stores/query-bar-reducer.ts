@@ -67,6 +67,7 @@ export const INITIAL_STATE: QueryBarState = {
 
 export enum QueryBarActions {
   ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
+  ClearIsExternalAppliedQuery = 'compass-query-bar/ClearIsExternalAppliedQuery',
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
   ChangeField = 'compass-query-bar/ChangeField',
   SetQuery = 'compass-query-bar/SetQuery',
@@ -81,6 +82,15 @@ type ChangeReadonlyConnectionStatusAction = {
   type: QueryBarActions.ChangeReadonlyConnectionStatus;
   readonly: boolean;
 };
+
+type ClearIsExternalAppliedQueryAction = {
+  type: QueryBarActions.ClearIsExternalAppliedQuery;
+};
+
+export const clearIsExternalAppliedQuery =
+  (): ClearIsExternalAppliedQueryAction => ({
+    type: QueryBarActions.ClearIsExternalAppliedQuery,
+  });
 
 type ToggleQueryOptionsAction = {
   type: QueryBarActions.ToggleQueryOptions;
@@ -486,6 +496,18 @@ export const queryBarReducer: Reducer<QueryBarState> = (
     return {
       ...state,
       expanded: action.force ?? !state.expanded,
+    };
+  }
+
+  if (
+    isAction<ClearIsExternalAppliedQueryAction>(
+      action,
+      QueryBarActions.ClearIsExternalAppliedQuery
+    )
+  ) {
+    return {
+      ...state,
+      isQueryAppliedFromExternal: false,
     };
   }
 

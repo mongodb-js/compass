@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { useDarkMode } from './use-theme';
@@ -41,17 +41,43 @@ const externalAppliedQueryLightModeStyles = css({
 // recently, this hook will return styles that show a
 // fading-out blue background effect on the element.
 // The returned key updates as a way to refresh the effect.
-export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
+export const useVisuallyAppliedEffect = (
+  key: string,
+  isApplied: boolean,
+  onClearEffect: () => void
+) => {
   const [hasBeenApplied, setHasBeenApplied] = useState(false);
   const darkMode = useDarkMode();
+  const hideEffectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isApplied) {
       // When it's set to false we don't want the effect to immediately stop as the
       // it fades away. This may happen from asynchronous formatting.
       setHasBeenApplied(true);
+
+      if (hideEffectTimeout.current !== null) {
+        clearTimeout(hideEffectTimeout.current);
+        hideEffectTimeout.current = null;
+      }
+
+      hideEffectTimeout.current = setTimeout(() => {
+        setHasBeenApplied(false);
+        // When the effect has completed we want to clear any store of it. This is so that
+        // when a component using this is re-mounted it does not show the visual effect
+        // again.
+        onClearEffect();
+        hideEffectTimeout.current = null;
+      }, ANIMATION_TIMEOUT_MS);
     }
-  }, [isApplied]);
+
+    return () => {
+      if (hideEffectTimeout.current) {
+        clearTimeout(hideEffectTimeout.current);
+        hideEffectTimeout.current = null;
+      }
+    };
+  }, [isApplied, key, onClearEffect]);
 
   return {
     className: hasBeenApplied
@@ -62,6 +88,6 @@ export const useVisuallyAppliedEffect = (key: string, isApplied: boolean) => {
             : externalAppliedQueryLightModeStyles
         )
       : undefined,
-    key: hasBeenApplied ? key : undefined,
+    key,
   };
 };

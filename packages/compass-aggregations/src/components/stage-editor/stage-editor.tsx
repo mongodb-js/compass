@@ -22,6 +22,7 @@ import {
   pipelineFromStore,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { clearIsPipelineLoadedFromExternal } from '../../modules/is-pipeline-loaded-from-external';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
@@ -83,6 +84,7 @@ type StageEditorProps = {
   editor_view_type: string;
   className?: string;
   onChange: (index: number, value: string) => void;
+  onClearIsPipelineLoadedFromExternal: () => void;
   editorRef?: React.Ref<EditorRef>;
 };
 
@@ -93,6 +95,7 @@ export const StageEditor = ({
   index,
   isPipelineLoadedFromExternal,
   onChange,
+  onClearIsPipelineLoadedFromExternal,
   pipelineLoadedFromExternalKey,
   serverError,
   syntaxError,
@@ -155,7 +158,8 @@ export const StageEditor = ({
 
   const inputAppliedVisualEffect = useVisuallyAppliedEffect(
     `${pipelineLoadedFromExternalKey}`,
-    isPipelineLoadedFromExternal
+    isPipelineLoadedFromExternal,
+    onClearIsPipelineLoadedFromExternal
   );
 
   return (
@@ -237,5 +241,8 @@ export default connect(
       editor_view_type: mapPipelineModeToEditorViewType(state),
     };
   },
-  { onChange: changeStageValue }
+  {
+    onChange: changeStageValue,
+    onClearIsPipelineLoadedFromExternal: clearIsPipelineLoadedFromExternal,
+  }
 )(StageEditor);

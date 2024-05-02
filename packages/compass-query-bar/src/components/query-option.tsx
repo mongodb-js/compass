@@ -14,7 +14,10 @@ import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
-import { changeField } from '../stores/query-bar-reducer';
+import {
+  changeField,
+  clearIsExternalAppliedQuery,
+} from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -85,6 +88,7 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryBarProperty, value: string) => void;
+  onClearIsExternalAppliedQuery: () => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
@@ -116,6 +120,7 @@ const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
 const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
   onChange,
+  onClearIsExternalAppliedQuery,
   id,
   placeholder,
   name,
@@ -147,7 +152,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
 
   const inputAppliedVisualEffect = useVisuallyAppliedEffect(
     `${queryAppliedFromExternalKey}`,
-    isExternalAppliedQuery
+    isExternalAppliedQuery,
+    onClearIsExternalAppliedQuery
   );
 
   const onBlurEditor = useCallback(() => {
@@ -252,7 +258,10 @@ const ConnectedQueryOption = connect(
       hasError: !field.valid,
     };
   },
-  { onChange: changeField }
+  {
+    onChange: changeField,
+    onClearIsExternalAppliedQuery: clearIsExternalAppliedQuery,
+  }
 )(QueryOption);
 
 export default ConnectedQueryOption;
