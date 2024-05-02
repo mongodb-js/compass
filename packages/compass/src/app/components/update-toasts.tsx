@@ -93,9 +93,8 @@ export function onAutoupdateExternally({
   });
 }
 
-const updateDownloadingToastId = 'compass-update-started';
 export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
-  openToast(updateDownloadingToastId, {
+  openToast('compass-update-started', {
     variant: 'progress',
     title: `Compass ${newVersion} is downloading`,
   });
@@ -116,8 +115,6 @@ export function onAutoupdateSuccess({
   onUpdate: () => void;
   onDismiss: () => void;
 }) {
-  // Before showing this toast, if the user has not dismissed the downloading toast, close it
-  closeToast(updateDownloadingToastId);
   openToast('compass-update-succeeded', {
     variant: 'success',
     title: '',
