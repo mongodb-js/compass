@@ -75,9 +75,12 @@ describe('CompassWeb', function () {
         onAutoconnectInfoRequest={getAutoConnectInfo}
         onActiveWorkspaceTabChange={() => {}}
         renderConnecting={(connectionInfo) => {
-          const [host] = new ConnectionString(
-            connectionInfo.connectionOptions.connectionString
-          ).hosts;
+          let host = 'cluster';
+          if (connectionInfo) {
+            [host] = new ConnectionString(
+              connectionInfo.connectionOptions.connectionString
+            ).hosts;
+          }
           return <div>Connecting to {host}…</div>;
         }}
         {...props}
@@ -118,5 +121,26 @@ describe('CompassWeb', function () {
     // expect(screen.getByRole('treeitem', {name: 'foo'})).to.exist;
     // expect(screen.getByRole('treeitem', {name: 'bar'})).to.exist;
     // expect(screen.getByRole('treeitem', {name: 'buz'})).to.exist;
+  });
+
+  it('should render error state if connection fails', async function () {
+    renderCompassWeb(
+      {
+        renderError(_connectionInfo, err) {
+          return (
+            <>Failed to connect because of the following error: {err.message}</>
+          );
+        },
+      },
+      (() => {
+        return Promise.reject(new Error('Whoops!'));
+      }) as any
+    );
+
+    await waitFor(() => {
+      screen.getByText(
+        'Failed to connect because of the following error: Whoops!'
+      );
+    });
   });
 });

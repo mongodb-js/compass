@@ -9,11 +9,7 @@ import {
   spacing,
   TextInput,
 } from '@mongodb-js/compass-components';
-import {
-  createView,
-  changeViewName,
-  toggleIsVisible,
-} from '../../modules/create-view';
+import { createView, changeViewName, close } from '../../modules/create-view';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { CreateViewRootState } from '../../stores/create-view';
@@ -27,7 +23,7 @@ const progressContainerStyles = css({
 type CreateViewModalProps = {
   createView: () => void;
   isVisible?: boolean;
-  toggleIsVisible: (newVal: boolean) => void;
+  closeModal: () => void;
   name?: string;
   changeViewName: (name: string) => void;
   isDuplicating?: boolean;
@@ -63,7 +59,7 @@ class CreateViewModal extends PureComponent<CreateViewModalProps> {
   };
 
   onCancel = () => {
-    this.props.toggleIsVisible(false);
+    this.props.closeModal();
   };
 
   /**
@@ -121,7 +117,7 @@ const MappedCreateViewModal = withLoggerAndTelemetry(
   connect(mapStateToProps, {
     createView,
     changeViewName,
-    toggleIsVisible,
+    closeModal: close,
   })(CreateViewModal),
   'COMPASS-CREATE-VIEW-UI'
 );

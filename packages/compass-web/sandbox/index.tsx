@@ -70,10 +70,10 @@ const spinnerStyles = css({
   flex: 'none',
 });
 
-function LoadingScreen({ connectionString }: { connectionString: string }) {
+function LoadingScreen({ connectionString }: { connectionString?: string }) {
   const host = useMemo(() => {
     try {
-      const url = new ConnectionString(connectionString);
+      const url = new ConnectionString(connectionString ?? '');
       return url.hosts[0];
     } catch {
       return 'cluster';
@@ -201,7 +201,7 @@ const App = () => {
               return (
                 <LoadingScreen
                   connectionString={
-                    connectionInfo.connectionOptions.connectionString
+                    connectionInfo?.connectionOptions.connectionString
                   }
                 ></LoadingScreen>
               );

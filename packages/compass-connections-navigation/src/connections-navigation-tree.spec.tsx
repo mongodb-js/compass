@@ -174,7 +174,7 @@ describe('ConnectionsNavigationTree', function () {
       expanded: { connection_initial: {} },
     });
 
-    expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(2);
+    expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
   it('when database is expanded, it should render collections', async function () {

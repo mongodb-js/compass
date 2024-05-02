@@ -28,6 +28,10 @@ const navigationItem = css({
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
+  '&:hover': {
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+
   svg: {
     flexShrink: 0,
   },

@@ -106,9 +106,10 @@ export default function Workspace({
             renderModals={() => {
               return multiConnectionsEnabled ? (
                 <>
+                  <CreateViewPlugin></CreateViewPlugin>
+                  <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
                 </>
               ) : (
                 <ConnectionInfoProvider

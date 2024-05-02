@@ -12,6 +12,7 @@ import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
   MAX_DATABASE_PLACEHOLDER_ITEMS,
+  MIN_DATABASE_PLACEHOLDER_ITEMS,
   ROW_HEIGHT,
 } from './constants';
 import { DatabaseItem } from './database-item';
@@ -22,6 +23,7 @@ import type { NavigationTreeData } from './use-virtual-navigation-tree';
 import { TopPlaceholder } from './top-placeholder';
 import { ConnectionItem } from './connection-item';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import StyledNavigationItem from './styled-navigation-item';
 import { usePreference } from 'compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
@@ -57,6 +59,7 @@ type PlaceholderTreeItem = {
   type: 'placeholder';
   level: number;
   id?: string;
+  colorCode?: string;
 };
 
 type ConnectionTreeItem = {
@@ -68,6 +71,7 @@ type ConnectionTreeItem = {
   isExpanded: boolean;
   setSize: number;
   posInSet: number;
+  colorCode?: string;
   connectionInfo: ConnectionInfo;
 };
 
@@ -81,6 +85,7 @@ type DatabaseTreeItem = {
   isExpanded: boolean;
   setSize: number;
   posInSet: number;
+  colorCode?: string;
 };
 
 type CollectionTreeItem = {
@@ -92,9 +97,10 @@ type CollectionTreeItem = {
   name: string;
   setSize: number;
   posInSet: number;
+  colorCode?: string;
 };
 
-type TreeItem =
+export type TreeItem =
   | PlaceholderTreeItem
   | ConnectionTreeItem
   | DatabaseTreeItem
@@ -149,10 +155,13 @@ const connectionToItems = ({
     databasesStatus
   );
 
-  const placeholdersLength = Math.min(
-    databasesLength,
-    MAX_DATABASE_PLACEHOLDER_ITEMS
+  const placeholdersLength = Math.max(
+    Math.min(databasesLength, MAX_DATABASE_PLACEHOLDER_ITEMS),
+    // we are connecting and we don't have metadata on how many databases are in this cluster
+    MIN_DATABASE_PLACEHOLDER_ITEMS
   );
+
+  const colorCode = connectionInfo.favorite?.color;
 
   const connectionTI: ConnectionTreeItem = {
     key: String(connectionIndex),
@@ -164,6 +173,7 @@ const connectionToItems = ({
     setSize: connectionsLength,
     posInSet: connectionIndex + 1,
     connectionInfo,
+    colorCode,
   };
 
   if (!isExpanded) {
@@ -182,12 +192,14 @@ const connectionToItems = ({
             databasesLength: databases.length,
             expanded: dbExpanded,
             level: 2,
+            colorCode,
           });
         })
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: `${connectionIndex}-${index}`,
           level: 2,
           type: 'placeholder' as const,
+          colorCode,
         }))
   );
 };
@@ -206,6 +218,7 @@ const databaseToItems = ({
   databasesLength,
   expanded,
   level,
+  colorCode,
 }: {
   database: Database;
   connectionId: string;
@@ -214,6 +227,7 @@ const databaseToItems = ({
   databasesLength: number;
   expanded?: Record<string, boolean>;
   level: number;
+  colorCode?: string;
 }): TreeItem[] => {
   const isExpanded = expanded ? expanded[id] : false;
   const isInConnection = typeof connectionIndex !== undefined;
@@ -230,6 +244,7 @@ const databaseToItems = ({
     isExpanded,
     setSize: databasesLength,
     posInSet: databaseIndex + 1,
+    colorCode,
   };
 
   if (!isExpanded) {
@@ -258,6 +273,7 @@ const databaseToItems = ({
           type: type as 'collection' | 'view' | 'timeseries',
           setSize: collections.length,
           posInSet: index + 1,
+          colorCode,
         }))
       : Array.from({ length: placeholdersLength }, (_, index) => ({
           key: isInConnection
@@ -265,6 +281,7 @@ const databaseToItems = ({
             : `${databaseIndex}-${index}`,
           level: level + 1,
           type: 'placeholder' as const,
+          colorCode,
         }))
   );
 };
@@ -288,8 +305,10 @@ const NavigationItem = memo<{
 
   const itemData = items[index];
 
+  let Item: React.ReactElement;
+
   if (itemData.type === 'connection') {
-    return (
+    Item = (
       <ConnectionItem
         connectionId={itemData.connectionInfo.id}
         style={style}
@@ -306,10 +325,8 @@ const NavigationItem = memo<{
         {...itemData}
       ></ConnectionItem>
     );
-  }
-
-  if (itemData.type === 'database') {
-    return (
+  } else if (itemData.type === 'database') {
+    Item = (
       <DatabaseItem
         style={style}
         isReadOnly={isReadOnly}
@@ -325,40 +342,49 @@ const NavigationItem = memo<{
         {...itemData}
       ></DatabaseItem>
     );
+  } else {
+    Item = (
+      <div className={collectionItemContainer}>
+        <FadeInPlaceholder
+          isContentReady={itemData.type !== 'placeholder'}
+          contentContainerProps={{ style }}
+          fallbackContainerProps={{ style }}
+          content={() => {
+            return (
+              itemData.type !== 'placeholder' && (
+                <CollectionItem
+                  isReadOnly={isReadOnly}
+                  isSingleConnection={isSingleConnection}
+                  isActive={
+                    activeWorkspace?.type === 'Collection' &&
+                    activeWorkspace.connectionId === itemData.connectionId &&
+                    activeWorkspace.namespace === itemData.id
+                  }
+                  isTabbable={itemData.id === currentTabbable}
+                  onNamespaceAction={onNamespaceAction}
+                  {...itemData}
+                ></CollectionItem>
+              )
+            );
+          }}
+          fallback={() => (
+            <PlaceholderItem
+              level={itemData.level}
+              isSingleConnection={isSingleConnection}
+            ></PlaceholderItem>
+          )}
+        ></FadeInPlaceholder>
+      </div>
+    );
   }
 
   return (
-    <div className={collectionItemContainer}>
-      <FadeInPlaceholder
-        isContentReady={itemData.type !== 'placeholder'}
-        contentContainerProps={{ style }}
-        fallbackContainerProps={{ style }}
-        content={() => {
-          return (
-            itemData.type !== 'placeholder' && (
-              <CollectionItem
-                isReadOnly={isReadOnly}
-                isSingleConnection={isSingleConnection}
-                isActive={
-                  activeWorkspace?.type === 'Collection' &&
-                  activeWorkspace.connectionId === itemData.connectionId &&
-                  activeWorkspace.namespace === itemData.id
-                }
-                isTabbable={itemData.id === currentTabbable}
-                onNamespaceAction={onNamespaceAction}
-                {...itemData}
-              ></CollectionItem>
-            )
-          );
-        }}
-        fallback={() => (
-          <PlaceholderItem
-            level={itemData.level}
-            isSingleConnection={isSingleConnection}
-          ></PlaceholderItem>
-        )}
-      ></FadeInPlaceholder>
-    </div>
+    <StyledNavigationItem
+      isSingleConnection={isSingleConnection ?? false}
+      colorCode={itemData.colorCode}
+    >
+      {Item}
+    </StyledNavigationItem>
   );
 }, areEqual);
 

@@ -80,7 +80,10 @@ type WorkspaceTabProps =
   | (Omit<CollectionWorkspace, 'onSelectSubtab' | 'initialSubtab' | 'tabId'> & {
       subTab: CollectionSubtab;
     });
-export type WorkspaceTab = { id: string } & WorkspaceTabProps;
+
+export type WorkspaceTab = {
+  id: string;
+} & WorkspaceTabProps;
 
 export type CollectionTabInfo = {
   isTimeSeries: boolean;
