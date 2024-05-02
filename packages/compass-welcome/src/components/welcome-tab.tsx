@@ -220,6 +220,7 @@ export default function WelcomeTab() {
   const appRegistry = useGlobalAppRegistry();
 
   function onNewConnection() {
+    // TODO(COMPASS-7397): don't hack this via the app registry
     appRegistry.emit('open-new-connection');
   }
 

@@ -363,6 +363,7 @@ export function MultipleConnectionSidebar({
   const appRegistry = useGlobalAppRegistry();
 
   useEffect(() => {
+    // TODO(COMPASS-7397): don't hack this via the app registry
     appRegistry.on('open-new-connection', onNewConnectionOpen);
     return () => {
       appRegistry.removeListener('open-new-connection', onNewConnectionOpen);
