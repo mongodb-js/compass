@@ -83,6 +83,10 @@ describe('Aggregation Store', function () {
             },
             serverVersion: INITIAL_STATE.serverVersion,
             isModified: INITIAL_STATE.isModified,
+            isPipelineLoadedFromExternal: {
+              isPipelineLoadedFromExternal: false,
+              pipelineLoadedFromExternalId: 0,
+            },
             insights: {
               isCollectionScan: false,
             },
