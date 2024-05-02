@@ -316,7 +316,7 @@ describe('Instance my queries tab', function () {
       }
       beforeEach(setup);
 
-      it.only('users can permanently associate a new namespace for an aggregation/query', async function () {
+      it('users can permanently associate a new namespace for an aggregation/query', async function () {
         await browser.navigateToInstanceTab('My Queries');
         // browse to the query
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
