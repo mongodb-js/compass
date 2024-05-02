@@ -80,6 +80,7 @@ export const dataServiceLocator = createServiceLocator(
 export { useConnectionStatus } from './hooks/use-connection-status';
 export {
   connectionScopedAppRegistryLocator,
+  ConnectionScopedAppRegistryImpl,
   type ConnectionScopedAppRegistry,
   type ConnectionScopedAppRegistryLocator,
 } from './connection-scoped-app-registry';
