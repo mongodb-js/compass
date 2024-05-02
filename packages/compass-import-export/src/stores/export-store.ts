@@ -7,6 +7,7 @@ import thunk from 'redux-thunk';
 import { closeExport, exportReducer, openExport } from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export function configureStore(services: ExportPluginServices) {
   return createStore(
@@ -35,9 +36,18 @@ export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   A
 >;
 
+type OpenExportEvent = {
+  namespace: string;
+  query: any;
+  exportFullCollection: true;
+  aggregation: any;
+  origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
+};
+
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, dataService, preferences, logger }: ExportPluginServices
+  { globalAppRegistry, dataService, preferences, logger }: ExportPluginServices,
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore({
     globalAppRegistry,
@@ -46,43 +56,40 @@ export function activatePlugin(
     logger,
   });
 
-  const onOpenExport = ({
-    namespace,
-    query,
-    exportFullCollection,
-    aggregation,
-    origin,
-  }: {
-    namespace: string;
-    query: any;
-    exportFullCollection: true;
-    aggregation: any;
-    origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
-  }) => {
-    store.dispatch(
-      openExport({
-        namespace,
-        query: {
-          // In the query bar we use `project` instead of `projection`.
-          ...query,
-          ...(query?.project ? { projection: query.project } : {}),
-        },
-        exportFullCollection,
-        aggregation,
-        origin,
-      })
-    );
-  };
+  on(
+    globalAppRegistry,
+    'open-export',
+    function onOpenExport({
+      namespace,
+      query,
+      exportFullCollection,
+      aggregation,
+      origin,
+    }: OpenExportEvent) {
+      store.dispatch(
+        openExport({
+          namespace,
+          query: {
+            // In the query bar we use `project` instead of `projection`.
+            ...query,
+            ...(query?.project ? { projection: query.project } : {}),
+          },
+          exportFullCollection,
+          aggregation,
+          origin,
+        })
+      );
+    }
+  );
 
-  globalAppRegistry.on('open-export', onOpenExport);
+  addCleanup(() => {
+    // We use close and not cancel because cancel doesn't actually cancel
+    // everything
+    store.dispatch(closeExport());
+  });
 
   return {
     store,
-    deactivate() {
-      globalAppRegistry.removeListener('open-export', onOpenExport);
-      // We use close and not cancel because cancel doesn't actually cancel
-      // everything
-      store.dispatch(closeExport());
-    },
+    deactivate: cleanup,
   };
 }
