@@ -31,7 +31,14 @@ export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
 };
 
 export type MenuAction<Action extends string> =
-  | ItemAction<Action>
+  | {
+      action: Action;
+      label: string;
+      icon?: React.ReactChild;
+      variant?: 'default' | 'destructive';
+      isDisabled?: boolean;
+      disabledDescription?: string;
+    }
   | ItemSeparator;
 
 function isSeparatorMenuAction<T extends string, MA extends MenuAction<T>>(
