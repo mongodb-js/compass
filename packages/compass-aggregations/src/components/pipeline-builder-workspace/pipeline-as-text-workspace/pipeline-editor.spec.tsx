@@ -23,6 +23,9 @@ const renderPipelineEditor = (
         serverVersion="4.2"
         onChangePipelineText={() => {}}
         num_stages={1}
+        isPipelineLoadedFromExternal={false}
+        pipelineLoadedFromExternalKey={0}
+        onClearIsPipelineLoadedFromExternal={() => {}}
         {...props}
       />
     </Provider>
