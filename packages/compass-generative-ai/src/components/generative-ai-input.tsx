@@ -10,6 +10,7 @@ import {
   css,
   cx,
   focusRing,
+  keyframes,
   palette,
   spacing,
   useDarkMode,
@@ -40,6 +41,40 @@ const inputBarContainerStyles = css({
 const gradientWidth = spacing[50];
 const gradientOffset = spacing[25];
 
+const animateInputBorderGradient = keyframes({
+  '0%': {
+    backgroundPosition: '400% 400%',
+    backgroundImage: `linearGradient(
+      20deg,
+      ${palette.blue.light1} 0%,
+      ${palette.blue.light1} 30%,
+      #00ede0 45%,
+      #00ebc1 75%,
+      #0498ec
+    )`,
+  },
+  '100%': {
+    backgroundPosition: '0% 0%',
+    backgroundImage: `linearGradient(
+      20deg,
+      ${palette.blue.light1} 0%,
+      ${palette.blue.light1} 30%,
+      #00ede0 45%,
+      #00ebc1 75%,
+      #0498ec'
+    )`,
+  },
+});
+
+const animateShadow = keyframes({
+  '0%': {
+    opacity: 1,
+  },
+  '100%': {
+    opacity: 0,
+  },
+});
+
 const gradientAnimationStyles = css`
   &:before,
   &:after {
@@ -56,47 +91,14 @@ const gradientAnimationStyles = css`
   }
 
   &:after {
-    animation: 4s animateBg linear;
+    animation: 4s ${animateInputBorderGradient} linear;
   }
 
   &:before {
     filter: blur(4px) opacity(0.6);
-    animation: 4s animateBg, animateShadow linear infinite;
+    animation: 4s ${animateInputBorderGradient},
+      ${animateShadow} linear infinite;
     opacity: 0;
-  }
-
-  @keyframes animateBg {
-    0% {
-      background-position: 400% 400%;
-      background-image: linear-gradient(
-        20deg,
-        ${palette.blue.light1} 0%,
-        ${palette.blue.light1} 30%,
-        #00ede0 45%,
-        #00ebc1 75%,
-        #0498ec
-      );
-    }
-    100% {
-      background-position: 0% 0%;
-      background-image: linear-gradient(
-        20deg,
-        ${palette.blue.light1} 0%,
-        ${palette.blue.light1} 30%,
-        #00ede0 45%,
-        #00ebc1 75%,
-        #0498ec
-      );
-    }
-  }
-
-  @keyframes animateShadow {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
   }
 `;
 
@@ -331,6 +333,7 @@ function GenerativeAIInput({
       <div className={inputBarContainerStyles}>
         <div className={inputContainerStyles}>
           <div className={cx(isFetching ? gradientAnimationStyles : null)}>
+            {/* <div className={gradientAnimationStyles}> */}
             <div
               className={contentWrapperStyles}
               data-testid="ai-user-text-input-wrapper"
