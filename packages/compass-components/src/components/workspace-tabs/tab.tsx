@@ -1,4 +1,3 @@
-/* eslint-disable @mongodb-js/compass/no-leafygreen-outside-compass-components */
 import React, { useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';

@@ -1,4 +1,3 @@
-/* eslint-disable @mongodb-js/compass/no-leafygreen-outside-compass-components */
 import React, {
   useEffect,
   useCallback,
