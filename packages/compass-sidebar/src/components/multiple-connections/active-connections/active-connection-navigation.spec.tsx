@@ -161,6 +161,10 @@ describe('<ActiveConnectionNavigation />', function () {
           value={
             {
               openPerformanceWorkspace: openPerformanceWorkspaceStub,
+              openCollectionsWorkspace: sinon.stub(),
+              openCollectionWorkspace: sinon.stub(),
+              openDatabasesWorkspace: sinon.stub(),
+              openEditViewWorkspace: sinon.stub(),
             } as unknown as WorkspacesService
           }
         >
