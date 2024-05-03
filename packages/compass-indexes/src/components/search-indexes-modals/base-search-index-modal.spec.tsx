@@ -198,11 +198,15 @@ describe('Base Search Index Modal', function () {
             normalizedTemplateNamed('Dynamic field mappings')
           );
         });
-        // Ensure the state is updated when the ace snippet changes.
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        userEvent.click(
-          screen.getByRole('button', { name: 'Create Search Index' })
-        );
+        const submitButton = screen.getByRole('button', {
+          name: 'Create Search Index',
+        });
+        await waitFor(() => {
+          // Wait for the button to re-enable (base vector search index has submit disabled by default).
+          expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+        });
+        userEvent.click(submitButton);
+        // Ensure the state is updated when the index type and snippet change.
         expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
           name: 'default',
           definition: { mappings: { dynamic: true } },
