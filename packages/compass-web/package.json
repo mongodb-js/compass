@@ -26,19 +26,24 @@
   "main": "dist/index.js",
   "compass:main": "src/index.tsx",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   },
   "compass:exports": {
-    ".": "./src/index.tsx"
+    ".": "./src/index.tsx",
+    "./package.json": "./package.json"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "webpack": "webpack-compass",
-    "postcompile": "tsc -p tsconfig-build.json --emitDeclarationOnly",
+    "postcompile": "npm run typescript",
+    "typescript": "tsc -p tsconfig-build.json --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
+    "watch": "npm run webpack -- --mode development --watch",
+    "sync": "node scripts/sync-dist-to-mms.js",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -107,6 +112,7 @@
     "express-http-proxy": "^2.0.0",
     "hadron-app-registry": "^9.1.10",
     "is-ip": "^5.0.1",
+    "lodash": "^4.17.21",
     "mocha": "^10.2.0",
     "mongodb": "^6.5.0",
     "mongodb-connection-string-url": "^2.6.0",
