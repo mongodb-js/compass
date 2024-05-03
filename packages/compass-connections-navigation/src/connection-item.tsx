@@ -42,6 +42,10 @@ const connectionItemLabel = css({
   marginLeft: spacing[2],
 });
 
+const actionMenu = css({
+  width: '240px',
+});
+
 export const ConnectionItem: React.FunctionComponent<
   VirtualListItemProps &
     TreeItemProps &
@@ -185,6 +189,7 @@ export const ConnectionItem: React.FunctionComponent<
             data-testid="sidebar-connection-item-actions"
             iconSize="small"
             actions={actions}
+            menuClassName={actionMenu}
           ></ItemActionControls>
         )}
       </ItemWrapper>

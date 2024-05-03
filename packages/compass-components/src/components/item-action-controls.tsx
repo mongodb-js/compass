@@ -161,6 +161,7 @@ export function ItemActionMenu<Action extends string>({
   actions,
   onAction,
   className,
+  menuClassName,
   usePortal,
   iconClassName,
   iconStyle,
@@ -170,6 +171,7 @@ export function ItemActionMenu<Action extends string>({
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
   className?: string;
+  menuClassName?: string;
   usePortal?: boolean;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
@@ -205,6 +207,7 @@ export function ItemActionMenu<Action extends string>({
   return (
     <div className={cx(actionControlsStyle, className)}>
       <Menu
+        className={menuClassName}
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         refEl={menuTriggerRef}
@@ -361,6 +364,7 @@ export function ItemActionControls<Action extends string>({
   actions,
   onAction,
   className,
+  menuClassName,
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
@@ -372,6 +376,7 @@ export function ItemActionControls<Action extends string>({
   actions: (ItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
   className?: string;
+  menuClassName?: string;
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
@@ -390,6 +395,7 @@ export function ItemActionControls<Action extends string>({
       <ItemActionMenu
         actions={actions}
         className={cx('item-action-controls', className)}
+        menuClassName={menuClassName}
         data-testid={dataTestId}
         iconClassName={iconClassName}
         iconStyle={iconStyle}
