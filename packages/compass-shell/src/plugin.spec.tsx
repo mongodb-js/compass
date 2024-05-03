@@ -62,6 +62,7 @@ describe('CompassShellPlugin', function () {
     wrapper = null;
   });
   it('returns a renderable plugin', async function () {
+    (connectionsManager as any).connectionStatuses.set('1', 'connected');
     wrapper = mount(
       <AppRegistryProvider>
         {/* global */}
@@ -90,6 +91,7 @@ describe('CompassShellPlugin', function () {
     globalAppRegistry.on('compass:compass-shell:opened', () => {
       eventOccured = true;
     });
+    (connectionsManager as any).connectionStatuses.set('1', 'connected');
 
     wrapper = mount(
       <AppRegistryProvider>
