@@ -23,6 +23,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import NavigationItemsFilter from '../../navigation-items-filter';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -46,6 +47,7 @@ const activeConnectionListHeaderStyles = css({
   flexDirection: 'row',
   alignContent: 'center',
   justifyContent: 'space-between',
+  marginBottom: spacing[200],
 });
 
 const activeConnectionListHeaderTitleStyles = css({
@@ -232,6 +234,10 @@ export function ActiveConnectionNavigation({
           )}
         </Subtitle>
       </header>
+      <NavigationItemsFilter
+        placeholder="Search active connections"
+        onFilterChange={console.log}
+      />
       <ConnectionsNavigationTree
         isReady={true}
         connections={connections}
