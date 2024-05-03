@@ -14,7 +14,7 @@ import {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: spacing[100],
+  gap: spacing[400],
 });
 
 const textStyles = css({
