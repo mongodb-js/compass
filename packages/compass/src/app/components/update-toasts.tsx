@@ -24,8 +24,10 @@ const textStyles = css({
 const buttonStyles = css({
   background: 'none',
   border: 'none',
-  fontWeight: 'bold',
+  fontWeight: 600,
   color: palette.blue.base,
+  text-transform: uppercase,
+  padding: 0,
   '&:hover': {
     cursor: 'pointer',
   },
@@ -46,7 +48,7 @@ const RestartCompassToastContent = ({
   return (
     <div className={containerStyles}>
       <Body className={textStyles}>
-        Compass update {newVersion} has finished downloading
+        Compass is ready to update to {newVersion}!
       </Body>
       <button
         className={cx(buttonStyles, darkmode && buttonDarkStyles)}
