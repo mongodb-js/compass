@@ -364,7 +364,7 @@ export function NavigationItems({
         onFilterChange={onFilterChange}
         title="Databases and collections filter"
         ariaLabel="Databases and collections filter"
-        textInputClassName={databaseCollectionsFilter}
+        searchInputClassName={databaseCollectionsFilter}
       />
       <SidebarDatabasesNavigation
         connectionInfo={connectionInfo}

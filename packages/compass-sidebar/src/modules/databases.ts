@@ -98,6 +98,7 @@ export default function reducer(
       },
     };
   } else if (action.type === CHANGE_FILTER_REGEX) {
+    console.log({ action });
     const filterModeStatusChange =
       Boolean(state[action.connectionId]?.filterRegex && !action.filterRegex) ||
       Boolean(!state[action.connectionId]?.filterRegex && action.filterRegex);

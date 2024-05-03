@@ -13,6 +13,8 @@ import toNS from 'mongodb-ns';
 import {
   type Database,
   toggleDatabaseExpanded,
+  changeFilterRegex as changeDatabaseFilterRegex,
+  DatabasesAction,
 } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -24,6 +26,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
+import { filter } from 'lodash';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -50,6 +53,10 @@ const activeConnectionListHeaderStyles = css({
   marginBottom: spacing[200],
 });
 
+const searchInputStyles = css({
+  marginBottom: spacing[200],
+});
+
 const activeConnectionListHeaderTitleStyles = css({
   marginTop: 0,
   marginBottom: 0,
@@ -73,6 +80,7 @@ export function ActiveConnectionNavigation({
   onToggleFavoriteConnection,
   onDatabaseExpand,
   onDisconnect,
+  onDatabaseFilterChanged,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -93,11 +101,15 @@ export function ActiveConnectionNavigation({
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
   onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
   onDisconnect: (connectionId: ConnectionInfo['id']) => void;
+  onDatabaseFilterChanged: (
+    filterRegex: RegExp | null
+  ) => SidebarThunkAction<void, DatabasesAction>;
 }): React.ReactElement {
-  const [collapsed, setCollapsed] = useState<string[]>([]);
-  const [namedConnections, setNamedConnections] = useState<
-    { connectionInfo: ConnectionInfo; name: string }[]
-  >([]);
+  const [collapsed, setCollapsed] = useState<ConnectionInfo['id'][]>([]);
+  const [filteredConnections, setFilteredConnections] = useState<Connection[]>(
+    []
+  );
+  const [filterRegex, setFilterRegex] = useState<RegExp | null>(null); // TODO: unify all filterRegex -> in redux they are per connection atm
 
   const {
     openDatabasesWorkspace,
@@ -106,6 +118,35 @@ export function ActiveConnectionNavigation({
     openEditViewWorkspace,
     openPerformanceWorkspace,
   } = useOpenWorkspace();
+
+  useEffect(() => {
+    if (!filterRegex) {
+      setFilteredConnections(connections);
+    } else {
+      // TODO: anything that contains a match is a match AND should be expanded
+      const matches: Connection[] = [];
+      connections.forEach((connection) => {
+        console.log({ connection });
+        if (connection.databases.length || filterRegex?.test(connection.name)) {
+          matches.push(connection);
+        }
+        if (
+          connection.databases.length &&
+          collapsed.includes(connection.connectionInfo.id)
+        ) {
+          setCollapsed((collapsed) => {
+            const index = collapsed.indexOf(connection.connectionInfo.id);
+            return [
+              ...collapsed.slice(0, index),
+              ...collapsed.slice(index + 1),
+            ];
+          });
+        }
+      });
+      console.log({ matches, filterRegex });
+      setFilteredConnections(matches);
+    }
+  }, [filterRegex, connections, setFilteredConnections, setCollapsed]);
 
   const onConnectionToggle = useCallback(
     (connectionId: string, forceExpand: boolean) => {
@@ -124,19 +165,12 @@ export function ActiveConnectionNavigation({
   useEffect(() => {
     // cleanup connections that are no longer active
     // if the user connects again, the new connection should be expanded again
-    const newCollapsed = activeConnections
-      .filter(({ id }: ConnectionInfo) => collapsed.includes(id))
-      .map(({ id }: ConnectionInfo) => id);
-    setCollapsed(newCollapsed);
-
-    const newConnectionList = activeConnections
-      .map((connectionInfo) => ({
-        connectionInfo,
-        name: getConnectionTitle(connectionInfo),
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-    setNamedConnections(newConnectionList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setCollapsed((collapsed) => {
+      const newCollapsed = activeConnections
+        .filter(({ id }: ConnectionInfo) => collapsed.includes(id))
+        .map(({ id }: ConnectionInfo) => id);
+      return newCollapsed;
+    });
   }, [activeConnections]);
 
   const onConnectionToggleRef = useRef(onConnectionToggle);
@@ -222,6 +256,14 @@ export function ActiveConnectionNavigation({
     ]
   );
 
+  const onFilterChange = useCallback(
+    (filterRegex: RegExp | null) => {
+      setFilterRegex(filterRegex);
+      onDatabaseFilterChanged(filterRegex);
+    },
+    [onDatabaseFilterChanged]
+  );
+
   return (
     <div className={activeConnectionsContainerStyles}>
       <header className={activeConnectionListHeaderStyles}>
@@ -236,11 +278,12 @@ export function ActiveConnectionNavigation({
       </header>
       <NavigationItemsFilter
         placeholder="Search active connections"
-        onFilterChange={console.log}
+        searchInputClassName={searchInputStyles}
+        onFilterChange={onFilterChange}
       />
       <ConnectionsNavigationTree
         isReady={true}
-        connections={connections}
+        connections={filteredConnections}
         activeWorkspace={activeWorkspace}
         onNamespaceAction={onNamespaceAction}
         onConnectionSelect={(connectionId) =>
@@ -248,7 +291,7 @@ export function ActiveConnectionNavigation({
         }
         onConnectionExpand={onConnectionToggle}
         onDatabaseExpand={onDatabaseExpand}
-        expanded={namedConnections.reduce(
+        expanded={filteredConnections.reduce(
           (obj, { connectionInfo: { id: connectionId } }) => {
             obj[connectionId] = collapsed.includes(connectionId)
               ? false
@@ -380,5 +423,6 @@ const onNamespaceAction = (
 
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
+  onDatabaseFilterChanged: changeDatabaseFilterRegex,
   onNamespaceAction,
 })(ActiveConnectionNavigation);
