@@ -37,6 +37,7 @@ import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -60,6 +61,9 @@ export default function Workspace({
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   return (
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
