@@ -290,6 +290,10 @@ export const selectFieldsToExport = (): ExportThunkAction<
     let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
 
     try {
+      if (!connectionId) {
+        throw new Error('ConnectionId not provided');
+      }
+
       const dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
       if (!dataService) {
@@ -446,6 +450,10 @@ export const runExport = ({
 
     let exportResult: ExportResult | undefined;
     try {
+      if (!connectionId) {
+        throw new Error('ConnectionId not provided');
+      }
+
       const dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
       if (!dataService) {
