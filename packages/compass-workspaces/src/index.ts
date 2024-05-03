@@ -178,6 +178,7 @@ export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, WorkspaceTab };
 export type {
+  WelcomeWorkspace,
   MyQueriesWorkspace,
   ServerStatsWorkspace,
   DatabasesWorkspace,

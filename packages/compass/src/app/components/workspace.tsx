@@ -9,6 +9,7 @@ import {
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
+import { WorkspaceTab as WelcomeWorkspace } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
 import { WorkspaceTab as PerformanceWorkspace } from '@mongodb-js/compass-serverstats';
 import {
@@ -63,6 +64,7 @@ export default function Workspace({
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
         value={[
+          WelcomeWorkspace,
           MyQueriesWorkspace,
           PerformanceWorkspace,
           DatabasesWorkspaceTab,
@@ -87,7 +89,9 @@ export default function Workspace({
           ]}
         >
           <WorkspacesPlugin
-            initialWorkspaceTabs={[{ type: 'My Queries' }]}
+            initialWorkspaceTabs={[
+              { type: multiConnectionsEnabled ? 'Welcome' : 'My Queries' },
+            ]}
             singleConnectionConnectionInfo={singleConnectionConnectionInfo}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
             renderSidebar={() => (
