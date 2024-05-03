@@ -6,12 +6,12 @@ export default function NavigationItemsFilter({
   ariaLabel = 'Search',
   title = 'Search',
   onFilterChange,
-  textInputClassName,
+  searchInputClassName,
 }: {
   placeholder?: string;
   ariaLabel?: string;
   title?: string;
-  textInputClassName?: string;
+  searchInputClassName?: string;
   onFilterChange(regex: RegExp | null): void;
 }): React.ReactElement {
   const onChange = useCallback(
@@ -45,7 +45,7 @@ export default function NavigationItemsFilter({
         aria-label={ariaLabel}
         title={title}
         onChange={onChange}
-        className={textInputClassName}
+        className={searchInputClassName}
       />
     </form>
   );
