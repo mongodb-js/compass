@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   useActiveConnections,
@@ -27,6 +33,7 @@ import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -352,6 +359,16 @@ export function MultipleConnectionSidebar({
       protectConnectionStringsForNewConnections,
     ]
   );
+
+  const appRegistry = useGlobalAppRegistry();
+
+  useEffect(() => {
+    // TODO(COMPASS-7397): don't hack this via the app registry
+    appRegistry.on('open-new-connection', onNewConnectionOpen);
+    return () => {
+      appRegistry.removeListener('open-new-connection', onNewConnectionOpen);
+    };
+  }, [appRegistry, onNewConnectionOpen]);
 
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
