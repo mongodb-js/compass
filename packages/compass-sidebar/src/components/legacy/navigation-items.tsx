@@ -23,7 +23,7 @@ import {
   withPreferences,
 } from 'compass-preferences-model/provider';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import DatabaseCollectionFilter from '../database-collection-filter';
+import NavigationItemsFilter from '../navigation-items-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 import { changeFilterRegex } from '../../modules/databases';
 import type { RootState } from '../../modules';
@@ -138,6 +138,10 @@ const navigationItemDisabledLightModeStyles = css({
   '--item-color': palette.gray.base,
   '--item-color-active': palette.gray.base,
   '--item-bg-color-hover': 'var(--item-bg-color)',
+});
+
+const databaseCollectionsFilter = css({
+  margin: `${spacing[1]}px ${spacing[3]}px`,
 });
 
 const navigationItemActionIcons = css({ color: 'inherit' });
@@ -356,7 +360,12 @@ export function NavigationItems({
         }}
       ></ContentWithFallback>
 
-      <DatabaseCollectionFilter onFilterChange={onFilterChange} />
+      <NavigationItemsFilter
+        onFilterChange={onFilterChange}
+        title="Databases and collections filter"
+        ariaLabel="Databases and collections filter"
+        textInputClassName={databaseCollectionsFilter}
+      />
       <SidebarDatabasesNavigation
         connectionInfo={connectionInfo}
         activeWorkspace={activeWorkspace ?? undefined}
