@@ -24,39 +24,31 @@ import type {
 } from './pipeline-builder/stage-editor';
 import { StageEditorActionTypes } from './pipeline-builder/stage-editor';
 
-export type NameState = string;
+// Used to visually indicate when the pipeline has been loaded
+// from something like the ai generator or pipeline history.
+type LoadedFromExternalSourceState = number | null;
 
-export type IsPipelineLoadedFromExternal = {
-  // Used to visually indicate when the pipeline has been loaded
-  // from something like the ai generator or pipeline history.
-  isPipelineLoadedFromExternal: boolean;
-  pipelineLoadedFromExternalId: number;
-};
-
-const enum PipelineLoadedFromExternalActionTypes {
-  ClearIsPipelineLoadedFromExternal = 'compass-aggregations/ClearIsPipelineLoadedFromExternal',
+const enum LoadedFromExternalActionTypes {
+  ClearIsPipelineLoadedFromExternalSource = 'compass-aggregations/ClearIsPipelineLoadedFromExternalSource',
 }
 
-type ClearIsPipelineLoadedFromExternalAction = {
-  type: PipelineLoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternal;
+type ClearIsPipelineLoadedFromExternalSourceAction = {
+  type: LoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternalSource;
 };
 
-export function clearIsPipelineLoadedFromExternal(): ClearIsPipelineLoadedFromExternalAction {
+export function clearIsPipelineLoadedFromExternalSource(): ClearIsPipelineLoadedFromExternalSourceAction {
   return {
-    type: PipelineLoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternal,
+    type: LoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternalSource,
   };
 }
 
-export const INITIAL_STATE: IsPipelineLoadedFromExternal = {
-  isPipelineLoadedFromExternal: false,
-  pipelineLoadedFromExternalId: 0,
-};
+export const INITIAL_STATE: LoadedFromExternalSourceState = null;
 
 /**
  * Reducer function for handle state changes to if the pipeline was loaded
  * from an external source (ai generated or pipeline history).
  */
-const reducer: Reducer<IsPipelineLoadedFromExternal> = (
+const reducer: Reducer<LoadedFromExternalSourceState> = (
   state = INITIAL_STATE,
   action
 ) => {
@@ -88,15 +80,12 @@ const reducer: Reducer<IsPipelineLoadedFromExternal> = (
       action,
       ConfirmNewPipelineActions.NewPipelineConfirmed
     ) ||
-    isAction<ClearIsPipelineLoadedFromExternalAction>(
+    isAction<ClearIsPipelineLoadedFromExternalSourceAction>(
       action,
-      PipelineLoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternal
+      LoadedFromExternalActionTypes.ClearIsPipelineLoadedFromExternalSource
     )
   ) {
-    return {
-      ...state,
-      isPipelineLoadedFromExternal: false,
-    };
+    return null;
   }
   if (
     isAction<RestorePipelineAction>(action, RESTORE_PIPELINE) ||
@@ -109,11 +98,7 @@ const reducer: Reducer<IsPipelineLoadedFromExternal> = (
       AIPipelineActionTypes.PipelineGeneratedFromQuery
     )
   ) {
-    return {
-      isPipelineLoadedFromExternal: true,
-      pipelineLoadedFromExternalId:
-        (state.pipelineLoadedFromExternalId + 1) % Number.MAX_SAFE_INTEGER,
-    };
+    return (state === null ? 1 : state + 1) % Number.MAX_SAFE_INTEGER;
   }
   return state;
 };

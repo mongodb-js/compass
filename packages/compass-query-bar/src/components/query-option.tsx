@@ -8,7 +8,7 @@ import {
   spacing,
   palette,
   useDarkMode,
-  useVisuallyAppliedEffect,
+  useInputLoadedVisualEffect,
 } from '@mongodb-js/compass-components';
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
@@ -16,7 +16,7 @@ import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
 import {
   changeField,
-  clearIsExternalAppliedQuery,
+  clearIsLoadedFromExternalSource,
 } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
@@ -88,12 +88,11 @@ type QueryOptionProps = {
   value?: string;
   hasError: boolean;
   onChange: (name: QueryBarProperty, value: string) => void;
-  onClearIsExternalAppliedQuery: () => void;
+  onClearIsQueryLoadedFromExternalSource: () => void;
   placeholder?: string | HTMLElement;
   onApply?(): void;
   insights?: Signal | Signal[];
-  isExternalAppliedQuery: boolean;
-  queryAppliedFromExternalKey: number;
+  loadedFromExternalSourceId: number | null;
   disabled?: boolean;
 };
 
@@ -120,15 +119,14 @@ const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
 const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
   onChange,
-  onClearIsExternalAppliedQuery,
+  onClearIsQueryLoadedFromExternalSource,
   id,
   placeholder,
   name,
   value,
   onApply,
   insights,
-  isExternalAppliedQuery,
-  queryAppliedFromExternalKey,
+  loadedFromExternalSourceId,
   disabled = false,
 }) => {
   const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
@@ -150,11 +148,10 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     [name, onChange]
   );
 
-  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
-    `${queryAppliedFromExternalKey}`,
-    isExternalAppliedQuery,
-    onClearIsExternalAppliedQuery
-  );
+  const inputAppliedVisualEffect = useInputLoadedVisualEffect({
+    id: loadedFromExternalSourceId,
+    onClearEffect: onClearIsQueryLoadedFromExternalSource,
+  });
 
   const onBlurEditor = useCallback(() => {
     if (
@@ -252,15 +249,14 @@ const ConnectedQueryOption = connect(
   (state: RootState, ownProps: { name: QueryProperty }) => {
     const field = state.queryBar.fields[ownProps.name];
     return {
-      isExternalAppliedQuery: state.queryBar.isQueryAppliedFromExternal,
-      queryAppliedFromExternalKey: state.queryBar.queryAppliedFromExternalId,
+      loadedFromExternalSourceId: state.queryBar.loadedFromExternalSourceId,
       value: field.string,
       hasError: !field.valid,
     };
   },
   {
     onChange: changeField,
-    onClearIsExternalAppliedQuery: clearIsExternalAppliedQuery,
+    onClearIsQueryLoadedFromExternalSource: clearIsLoadedFromExternalSource,
   }
 )(QueryOption);
 

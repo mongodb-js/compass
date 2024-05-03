@@ -15,14 +15,14 @@ import {
   Banner,
   useDarkMode,
   useRequiredURLSearchParams,
-  useVisuallyAppliedEffect,
+  useInputLoadedVisualEffect,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
   pipelineFromStore,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
-import { clearIsPipelineLoadedFromExternal } from '../../modules/is-pipeline-loaded-from-external';
+import { clearIsPipelineLoadedFromExternalSource } from '../../modules/loaded-from-external-source-id';
 import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
@@ -71,10 +71,9 @@ const bannerStyles = css({
 });
 
 type StageEditorProps = {
+  loadedFromExternalSourceId: number | null;
   index: number;
-  isPipelineLoadedFromExternal: boolean;
   namespace: string;
-  pipelineLoadedFromExternalKey: number;
   stageOperator: string | null;
   stageValue: string | null;
   serverVersion: string;
@@ -84,7 +83,7 @@ type StageEditorProps = {
   editor_view_type: string;
   className?: string;
   onChange: (index: number, value: string) => void;
-  onClearIsPipelineLoadedFromExternal: () => void;
+  onClearIsPipelineLoadedFromExternalSource: () => void;
   editorRef?: React.Ref<EditorRef>;
 };
 
@@ -92,11 +91,10 @@ export const StageEditor = ({
   namespace,
   stageValue,
   stageOperator,
+  loadedFromExternalSourceId,
   index,
-  isPipelineLoadedFromExternal,
   onChange,
-  onClearIsPipelineLoadedFromExternal,
-  pipelineLoadedFromExternalKey,
+  onClearIsPipelineLoadedFromExternalSource,
   serverError,
   syntaxError,
   className,
@@ -156,11 +154,10 @@ export const StageEditor = ({
     }
   }, [track, num_stages, index, stageOperator, editor_view_type]);
 
-  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
-    `${pipelineLoadedFromExternalKey}`,
-    isPipelineLoadedFromExternal,
-    onClearIsPipelineLoadedFromExternal
-  );
+  const inputAppliedVisualEffect = useInputLoadedVisualEffect({
+    id: loadedFromExternalSourceId,
+    onClearEffect: onClearIsPipelineLoadedFromExternalSource,
+  });
 
   return (
     <div
@@ -228,10 +225,7 @@ export default connect(
     const num_stages = pipelineFromStore(stages).length;
     return {
       namespace: state.namespace,
-      isPipelineLoadedFromExternal:
-        state.isPipelineLoadedFromExternal.isPipelineLoadedFromExternal,
-      pipelineLoadedFromExternalKey:
-        state.isPipelineLoadedFromExternal.pipelineLoadedFromExternalId,
+      loadedFromExternalSourceId: state.loadedFromExternalSourceId,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
       syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
@@ -243,6 +237,7 @@ export default connect(
   },
   {
     onChange: changeStageValue,
-    onClearIsPipelineLoadedFromExternal: clearIsPipelineLoadedFromExternal,
+    onClearIsPipelineLoadedFromExternalSource:
+      clearIsPipelineLoadedFromExternalSource,
   }
 )(StageEditor);

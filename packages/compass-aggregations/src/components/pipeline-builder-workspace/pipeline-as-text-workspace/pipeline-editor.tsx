@@ -9,7 +9,7 @@ import {
   useDarkMode,
   cx,
   useRequiredURLSearchParams,
-  useVisuallyAppliedEffect,
+  useInputLoadedVisualEffect,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -19,7 +19,7 @@ import type { Annotation } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
-import { clearIsPipelineLoadedFromExternal } from '../../../modules/is-pipeline-loaded-from-external';
+import { clearIsPipelineLoadedFromExternalSource } from '../../../modules/loaded-from-external-source-id';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
@@ -72,29 +72,27 @@ const errorContainerStyles = css({
 });
 
 export type PipelineEditorProps = {
-  isPipelineLoadedFromExternal: boolean;
   namespace: string;
   num_stages: number;
-  pipelineLoadedFromExternalKey: number;
+  loadedFromExternalSourceId: number | null;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
   onChangePipelineText: (value: string) => void;
-  onClearIsPipelineLoadedFromExternal: () => void;
+  onClearIsPipelineLoadedFromExternalSource: () => void;
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
-  isPipelineLoadedFromExternal,
   namespace,
   num_stages,
-  pipelineLoadedFromExternalKey,
+  loadedFromExternalSourceId,
   pipelineText,
   serverError,
   syntaxErrors,
   serverVersion,
   onChangePipelineText,
-  onClearIsPipelineLoadedFromExternal,
+  onClearIsPipelineLoadedFromExternalSource,
 }) => {
   const fields = useAutocompleteFields(namespace);
   const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -145,11 +143,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   }, [syntaxErrors]);
 
   const darkMode = useDarkMode();
-  const inputAppliedVisualEffect = useVisuallyAppliedEffect(
-    `${pipelineLoadedFromExternalKey}`,
-    isPipelineLoadedFromExternal,
-    onClearIsPipelineLoadedFromExternal
-  );
+  const inputAppliedVisualEffect = useInputLoadedVisualEffect({
+    id: loadedFromExternalSourceId,
+    onClearEffect: onClearIsPipelineLoadedFromExternalSource,
+  });
 
   const showErrorContainer = serverError || syntaxErrors.length > 0;
 
@@ -198,10 +195,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
-  isPipelineLoadedFromExternal: {
-    isPipelineLoadedFromExternal,
-    pipelineLoadedFromExternalId,
-  },
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -213,12 +206,12 @@ const mapState = ({
       outputStage: { serverError: outputStageServerError },
     },
   },
+  loadedFromExternalSourceId,
   serverVersion,
 }: RootState) => ({
-  isPipelineLoadedFromExternal,
   namespace,
   num_stages: pipeline.length,
-  pipelineLoadedFromExternalKey: pipelineLoadedFromExternalId,
+  loadedFromExternalSourceId,
   pipelineText,
   serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,
@@ -227,7 +220,8 @@ const mapState = ({
 
 const mapDispatch = {
   onChangePipelineText: changeEditorValue,
-  onClearIsPipelineLoadedFromExternal: clearIsPipelineLoadedFromExternal,
+  onClearIsPipelineLoadedFromExternalSource:
+    clearIsPipelineLoadedFromExternalSource,
 };
 
 export default connect(mapState, mapDispatch)(PipelineEditor);

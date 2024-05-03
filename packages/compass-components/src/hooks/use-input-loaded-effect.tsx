@@ -37,21 +37,26 @@ const externalAppliedQueryLightModeStyles = css({
   animation: `${fadeOutAnimationLightMode} ${ANIMATION_TIMEOUT_MS}ms ease-out`,
 });
 
-// When the id changes and isApplied is true or has been set to true
-// recently, this hook will return styles that show a
-// fading-out blue background effect on the element.
+// When the id changes this hook will return styles that show
+// a fading-out blue background effect on the element.
+// When the fading out completes the clear effect function is
+// called so that re-mounts can avoid showing the same effect.
 // The returned key updates as a way to refresh the effect.
-export const useVisuallyAppliedEffect = (
-  key: string,
-  isApplied: boolean,
-  onClearEffect: () => void
-) => {
+export const useInputLoadedVisualEffect = ({
+  id,
+  onClearEffect,
+  timeout = ANIMATION_TIMEOUT_MS, // Exposed for testing.
+}: {
+  id: number | null;
+  onClearEffect: () => void;
+  timeout?: number;
+}) => {
   const [hasBeenApplied, setHasBeenApplied] = useState(false);
   const darkMode = useDarkMode();
   const hideEffectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (isApplied) {
+    if (id !== null) {
       // When it's set to false we don't want the effect to immediately stop as the
       // it fades away. This may happen from asynchronous formatting.
       setHasBeenApplied(true);
@@ -62,13 +67,13 @@ export const useVisuallyAppliedEffect = (
       }
 
       hideEffectTimeout.current = setTimeout(() => {
-        setHasBeenApplied(false);
         // When the effect has completed we want to clear any store of it. This is so that
         // when a component using this is re-mounted it does not show the visual effect
-        // again.
+        // This does force a re-render of the component as the key changes.
+        setHasBeenApplied(false);
         onClearEffect();
         hideEffectTimeout.current = null;
-      }, ANIMATION_TIMEOUT_MS);
+      }, timeout ?? ANIMATION_TIMEOUT_MS);
     }
 
     return () => {
@@ -77,7 +82,7 @@ export const useVisuallyAppliedEffect = (
         hideEffectTimeout.current = null;
       }
     };
-  }, [isApplied, key, onClearEffect]);
+  }, [id, onClearEffect, timeout]);
 
   return {
     className: hasBeenApplied
@@ -88,6 +93,6 @@ export const useVisuallyAppliedEffect = (
             : externalAppliedQueryLightModeStyles
         )
       : undefined,
-    key,
+    key: !hasBeenApplied || id === null ? 'no-effect' : `${id}`,
   };
 };

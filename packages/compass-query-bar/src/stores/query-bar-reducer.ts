@@ -33,8 +33,7 @@ import type {
 type QueryBarState = {
   // Used to visually indicate when a field has been applied from
   // something like the ai generator or query history.
-  isQueryAppliedFromExternal: boolean;
-  queryAppliedFromExternalId: number;
+  loadedFromExternalSourceId: number | null;
   isReadonlyConnection: boolean;
   fields: QueryFormFields;
   expanded: boolean;
@@ -52,8 +51,7 @@ type QueryBarState = {
 };
 
 export const INITIAL_STATE: QueryBarState = {
-  isQueryAppliedFromExternal: false,
-  queryAppliedFromExternalId: 0,
+  loadedFromExternalSourceId: null,
   isReadonlyConnection: false,
   fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
   expanded: false,
@@ -67,7 +65,7 @@ export const INITIAL_STATE: QueryBarState = {
 
 export enum QueryBarActions {
   ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
-  ClearIsExternalAppliedQuery = 'compass-query-bar/ClearIsExternalAppliedQuery',
+  ClearIsLoadedFromExternalSource = 'compass-query-bar/ClearIsLoadedFromExternalSource',
   ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
   ChangeField = 'compass-query-bar/ChangeField',
   SetQuery = 'compass-query-bar/SetQuery',
@@ -83,13 +81,13 @@ type ChangeReadonlyConnectionStatusAction = {
   readonly: boolean;
 };
 
-type ClearIsExternalAppliedQueryAction = {
-  type: QueryBarActions.ClearIsExternalAppliedQuery;
+type ClearIsLoadedFromExternalSourceAction = {
+  type: QueryBarActions.ClearIsLoadedFromExternalSource;
 };
 
-export const clearIsExternalAppliedQuery =
-  (): ClearIsExternalAppliedQueryAction => ({
-    type: QueryBarActions.ClearIsExternalAppliedQuery,
+export const clearIsLoadedFromExternalSource =
+  (): ClearIsLoadedFromExternalSourceAction => ({
+    type: QueryBarActions.ClearIsLoadedFromExternalSource,
   });
 
 type ToggleQueryOptionsAction = {
@@ -500,21 +498,21 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   }
 
   if (
-    isAction<ClearIsExternalAppliedQueryAction>(
+    isAction<ClearIsLoadedFromExternalSourceAction>(
       action,
-      QueryBarActions.ClearIsExternalAppliedQuery
+      QueryBarActions.ClearIsLoadedFromExternalSource
     )
   ) {
     return {
       ...state,
-      isQueryAppliedFromExternal: false,
+      loadedFromExternalSourceId: null,
     };
   }
 
   if (isAction<ChangeFieldAction>(action, QueryBarActions.ChangeField)) {
     return {
       ...state,
-      isQueryAppliedFromExternal: false,
+      loadedFromExternalSourceId: null,
       fields: {
         ...state.fields,
         [action.name]: action.value,
@@ -525,7 +523,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<SetQueryAction>(action, QueryBarActions.SetQuery)) {
     return {
       ...state,
-      isQueryAppliedFromExternal: false,
+      loadedFromExternalSourceId: null,
       fields: {
         ...state.fields,
         ...action.fields,
@@ -536,7 +534,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
-      isQueryAppliedFromExternal: false,
+      loadedFromExternalSourceId: null,
       lastAppliedQuery: action.query,
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
@@ -545,7 +543,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ResetQueryAction>(action, QueryBarActions.ResetQuery)) {
     return {
       ...state,
-      isQueryAppliedFromExternal: false,
+      loadedFromExternalSourceId: null,
       lastAppliedQuery: null,
       fields: action.fields,
     };
@@ -563,9 +561,10 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   ) {
     return {
       ...state,
-      isQueryAppliedFromExternal: true,
-      queryAppliedFromExternalId:
-        (state.queryAppliedFromExternalId + 1) % Number.MAX_SAFE_INTEGER,
+      loadedFromExternalSourceId:
+        (state.loadedFromExternalSourceId === null
+          ? 0
+          : state.loadedFromExternalSourceId + 1) % Number.MAX_SAFE_INTEGER,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
     };

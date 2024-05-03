@@ -23,9 +23,8 @@ describe('StageEditor [Component]', function () {
         syntaxError={null}
         serverError={null}
         num_stages={0}
-        isPipelineLoadedFromExternal={false}
-        pipelineLoadedFromExternalKey={0}
-        onClearIsPipelineLoadedFromExternal={() => {}}
+        loadedFromExternalSourceId={null}
+        onClearIsPipelineLoadedFromExternalSource={() => {}}
         editor_view_type=""
       />
     );
