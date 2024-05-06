@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
@@ -229,6 +229,13 @@ const CompassWeb = ({
       connectionInfo,
       connectionError: null,
     });
+  }, []);
+
+  useEffect(() => {
+    const cm = connectionsManager.current;
+    return () => {
+      void cm.closeAllConnections();
+    };
   }, []);
 
   const onConnectionFailed = useCallback(

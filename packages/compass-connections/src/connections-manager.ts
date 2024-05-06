@@ -307,6 +307,14 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
+  async closeAllConnections() {
+    return await Promise.allSettled(
+      Array.from(this.connectionStatuses.keys()).map((connectionId) => {
+        return this.closeConnection(connectionId);
+      })
+    );
+  }
+
   on<T extends ConnectionsManagerEvents>(
     eventName: T,
     listener: ConnectionManagerEventListeners[T]
