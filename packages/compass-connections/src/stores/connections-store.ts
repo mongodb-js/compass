@@ -177,8 +177,11 @@ export function useConnections({
   state: State;
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
-  cancelConnectionAttempt: (connectionInfoId: string) => Promise<void>;
+  cancelConnectionAttempt: (
+    connectionId: ConnectionInfo['id']
+  ) => Promise<void>;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
@@ -364,6 +367,28 @@ export function useConnections({
     };
   }, []);
 
+  const closeConnection = async (connectionId: string) => {
+    debug('closing connection with connectionId', connectionId);
+    log.info(
+      mongoLogId(1_001_000_313),
+      'Connection UI',
+      'Initiating disconnect attempt'
+    );
+    try {
+      await connectionsManager.closeConnection(connectionId);
+    } catch (error) {
+      log.error(
+        mongoLogId(1_001_000_314),
+        'Connection UI',
+        'Disconnect attempt failed',
+        {
+          error: (error as Error).message,
+        }
+      );
+    }
+    debug('connection closed', connectionId);
+  };
+
   const connect = async (
     connectionInfo: ConnectionInfo,
     shouldSaveConnectionInfo = true
@@ -469,6 +494,7 @@ export function useConnections({
       }
     },
     connect,
+    closeConnection,
     createNewConnection() {
       dispatch({
         type: 'new-connection',
