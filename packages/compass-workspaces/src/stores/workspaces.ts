@@ -451,7 +451,9 @@ const reducer: Reducer<WorkspacesState> = (
     )
   ) {
     const isToBeClosed = (tab: WorkspaceTab) =>
-      tab.type !== 'My Queries' && tab.connectionId === action.connectionId;
+      tab.type !== 'My Queries' &&
+      tab.type !== 'Welcome' &&
+      tab.connectionId === action.connectionId;
 
     return _bulkTabsClose({
       state,
