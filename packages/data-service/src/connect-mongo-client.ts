@@ -141,6 +141,10 @@ export async function connectMongoClientDataService({
     ...oidcOptions,
   };
 
+  if (connectionOptions.lookup) {
+    options.lookup = connectionOptions.lookup;
+  }
+
   if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
     options.autoEncryption = {
       ...options.autoEncryption,
