@@ -4,7 +4,11 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from 'hadron-app-registry';
-import { useConnectionRepository } from './provider';
+import {
+  ConnectionStatus,
+  connectionsManagerLocator,
+  useConnectionRepository,
+} from './provider';
 
 export type { ConnectionInfo };
 
@@ -44,7 +48,12 @@ export const ConnectionInfoProvider: React.FC<{
   const connectionInfo = connectionInfoId
     ? getConnectionInfoById(connectionInfoId)
     : undefined;
-  return connectionInfo ? (
+  const connectionsManager = connectionsManagerLocator();
+  const isConnected =
+    connectionInfo &&
+    connectionsManager.statusOf(connectionInfo.id) ===
+      ConnectionStatus.Connected;
+  return isConnected && connectionInfo ? (
     <ConnectionInfoContext.Provider value={connectionInfo}>
       {typeof children === 'function' ? children(connectionInfo) : children}
     </ConnectionInfoContext.Provider>

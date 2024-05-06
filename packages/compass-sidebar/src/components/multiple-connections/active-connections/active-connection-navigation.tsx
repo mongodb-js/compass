@@ -69,6 +69,7 @@ export function ActiveConnectionNavigation({
   onCopyConnectionString,
   onToggleFavoriteConnection,
   onDatabaseExpand,
+  onDisconnect,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -85,9 +86,10 @@ export function ActiveConnectionNavigation({
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace?: WorkspaceTab;
-  onOpenConnectionInfo: (connectionId: string) => void;
-  onCopyConnectionString: (connectionId: string) => void;
-  onToggleFavoriteConnection: (connectionId: string) => void;
+  onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
+  onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
+  onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
+  onDisconnect: (connectionId: ConnectionInfo['id']) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
@@ -99,6 +101,7 @@ export function ActiveConnectionNavigation({
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
+    openPerformanceWorkspace,
   } = useOpenWorkspace();
 
   const onConnectionToggle = useCallback(
@@ -158,6 +161,9 @@ export function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'connection-disconnect':
+          onDisconnect(connectionId);
+          return;
         case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
           return;
@@ -166,6 +172,9 @@ export function ActiveConnectionNavigation({
           return;
         case 'connection-toggle-favorite':
           onToggleFavoriteConnection(connectionId);
+          return;
+        case 'connection-performance-metrics':
+          openPerformanceWorkspace(connectionId);
           return;
         case 'select-database':
           openCollectionsWorkspace(connectionId, ns);
@@ -200,10 +209,12 @@ export function ActiveConnectionNavigation({
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
+      openPerformanceWorkspace,
       openEditViewWorkspace,
       onCopyConnectionString,
       onOpenConnectionInfo,
       onToggleFavoriteConnection,
+      onDisconnect,
       _onNamespaceAction,
     ]
   );
@@ -279,10 +290,14 @@ function mapStateToProps(
     const isDataLake = instance?.dataLake?.isDataLake ?? false;
     const isWritable = instance?.isWritable ?? false;
 
+    const isPerformanceTabSupported =
+      !isDataLake && !!state.isPerformanceTabSupported[connectionId];
+
     connections.push({
       isReady,
       isDataLake,
       isWritable,
+      isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
       databasesLength: filteredDatabases?.length ?? 0,

@@ -7,6 +7,7 @@ import StageEditor from './components/stage-editor';
 import CreateViewModal from './components/create-view-modal';
 import {
   connectionInfoAccessLocator,
+  connectionScopedAppRegistryLocator,
   connectionsManagerLocator,
   dataServiceLocator,
   type DataServiceLocator,
@@ -46,6 +47,8 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     pipelineStorage: pipelineStorageLocator,
     connectionInfoAccess: connectionInfoAccessLocator,
     collection: collectionModelLocator,
+    connectionScopedAppRegistry:
+      connectionScopedAppRegistryLocator<'open-export'>,
   }
 );
 

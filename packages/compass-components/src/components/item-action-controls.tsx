@@ -19,6 +19,8 @@ export type ItemAction<Action extends string> = {
   label: string;
   icon: React.ReactChild;
   variant?: 'default' | 'destructive';
+  isDisabled?: boolean;
+  disabledDescription?: string;
 };
 
 export type ItemSeparator = { separator: true };
@@ -34,6 +36,8 @@ export type MenuAction<Action extends string> =
       label: string;
       icon?: React.ReactChild;
       variant?: 'default' | 'destructive';
+      isDisabled?: boolean;
+      disabledDescription?: string;
     }
   | ItemSeparator;
 
@@ -157,6 +161,7 @@ export function ItemActionMenu<Action extends string>({
   actions,
   onAction,
   className,
+  menuClassName,
   usePortal,
   iconClassName,
   iconStyle,
@@ -166,6 +171,7 @@ export function ItemActionMenu<Action extends string>({
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
   className?: string;
+  menuClassName?: string;
   usePortal?: boolean;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
@@ -201,6 +207,7 @@ export function ItemActionMenu<Action extends string>({
   return (
     <div className={cx(actionControlsStyle, className)}>
       <Menu
+        className={menuClassName}
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         refEl={menuTriggerRef}
@@ -240,7 +247,14 @@ export function ItemActionMenu<Action extends string>({
             return <MenuSeparator key={`separator-${idx}`} />;
           }
 
-          const { action, label, icon, variant } = menuAction;
+          const {
+            action,
+            label,
+            icon,
+            variant,
+            isDisabled,
+            disabledDescription,
+          } = menuAction;
 
           return (
             <MenuItem
@@ -251,6 +265,8 @@ export function ItemActionMenu<Action extends string>({
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
               variant={variant || 'default'}
+              disabled={isDisabled}
+              description={isDisabled ? disabledDescription : ''}
             >
               {label}
             </MenuItem>
@@ -348,6 +364,7 @@ export function ItemActionControls<Action extends string>({
   actions,
   onAction,
   className,
+  menuClassName,
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
@@ -359,6 +376,7 @@ export function ItemActionControls<Action extends string>({
   actions: (ItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
   className?: string;
+  menuClassName?: string;
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
@@ -377,6 +395,7 @@ export function ItemActionControls<Action extends string>({
       <ItemActionMenu
         actions={actions}
         className={cx('item-action-controls', className)}
+        menuClassName={menuClassName}
         data-testid={dataTestId}
         iconClassName={iconClassName}
         iconStyle={iconStyle}

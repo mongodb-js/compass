@@ -70,6 +70,7 @@ export type FieldsToExportOption = 'all-fields' | 'select-fields';
 
 export type ExportState = {
   isOpen: boolean;
+  connectionId: string;
   isInProgressMessageOpen: boolean;
   status: ExportStatus;
   fieldsAddedCount: number; // For telemetry.
@@ -81,6 +82,7 @@ export type ExportState = {
 
 export const initialState: ExportState = {
   isOpen: false,
+  connectionId: '',
   isInProgressMessageOpen: false,
   status: undefined,
   namespace: '',
@@ -124,6 +126,7 @@ export const enum ExportActionTypes {
 
 type OpenExportAction = {
   type: ExportActionTypes.OpenExport;
+  connectionId: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state' | 'aggregations-toolbar';
 } & Omit<ExportOptions, 'fieldsToExport' | 'selectedFieldOption'>;
 
@@ -267,7 +270,7 @@ export const selectFieldsToExport = (): ExportThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, logger: { log, mongoLogId } }
+    { connectionsManager, logger: { log, mongoLogId } }
   ) => {
     dispatch({
       type: ExportActionTypes.SelectFieldsToExport,
@@ -281,12 +284,22 @@ export const selectFieldsToExport = (): ExportThunkAction<
     });
 
     const {
-      export: { query, namespace },
+      export: { query, namespace, connectionId },
     } = getState();
 
     let gatherFieldsResult: Awaited<ReturnType<typeof gatherFieldsFromQuery>>;
 
     try {
+      if (!connectionId) {
+        throw new Error('ConnectionId not provided');
+      }
+
+      const dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
+      if (!dataService) {
+        throw new Error(`DataService for connection ${connectionId} not found`);
+      }
+
       gatherFieldsResult = await gatherFieldsFromQuery({
         ns: namespace,
         abortSignal: fieldsToExportAbortController.signal,
@@ -340,7 +353,7 @@ export const runExport = ({
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger: { log, track, mongoLogId } }
+    { connectionsManager, preferences, logger: { log, track, mongoLogId } }
   ) => {
     let outputWriteStream: fs.WriteStream;
     try {
@@ -357,6 +370,7 @@ export const runExport = ({
 
     const {
       export: {
+        connectionId,
         query: _query,
         namespace,
         fieldsToExport,
@@ -434,48 +448,53 @@ export const runExport = ({
     },
     1000);
 
-    let promise: Promise<ExportResult>;
-
-    const baseExportOptions = {
-      ns: namespace,
-      abortSignal: exportAbortController.signal,
-      dataService,
-      preferences,
-      progressCallback,
-      output: outputWriteStream,
-    };
-
-    if (aggregation) {
-      if (fileType === 'csv') {
-        promise = exportCSVFromAggregation({
-          ...baseExportOptions,
-          aggregation,
-        });
-      } else {
-        promise = exportJSONFromAggregation({
-          ...baseExportOptions,
-          aggregation,
-          variant: jsonFormatVariant,
-        });
-      }
-    } else {
-      if (fileType === 'csv') {
-        promise = exportCSVFromQuery({
-          ...baseExportOptions,
-          query,
-        });
-      } else {
-        promise = exportJSONFromQuery({
-          ...baseExportOptions,
-          query,
-          variant: jsonFormatVariant,
-        });
-      }
-    }
-
     let exportResult: ExportResult | undefined;
     try {
-      exportResult = await promise;
+      if (!connectionId) {
+        throw new Error('ConnectionId not provided');
+      }
+
+      const dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
+      if (!dataService) {
+        throw new Error(`DataService for connection ${connectionId} not found`);
+      }
+
+      const baseExportOptions = {
+        ns: namespace,
+        abortSignal: exportAbortController.signal,
+        dataService,
+        preferences,
+        progressCallback,
+        output: outputWriteStream,
+      };
+      if (aggregation) {
+        if (fileType === 'csv') {
+          exportResult = await exportCSVFromAggregation({
+            ...baseExportOptions,
+            aggregation,
+          });
+        } else {
+          exportResult = await exportJSONFromAggregation({
+            ...baseExportOptions,
+            aggregation,
+            variant: jsonFormatVariant,
+          });
+        }
+      } else {
+        if (fileType === 'csv') {
+          exportResult = await exportCSVFromQuery({
+            ...baseExportOptions,
+            query,
+          });
+        } else {
+          exportResult = await exportJSONFromQuery({
+            ...baseExportOptions,
+            query,
+            variant: jsonFormatVariant,
+          });
+        }
+      }
 
       log.info(mongoLogId(1_001_000_186), 'Export', 'Finished export', {
         namespace,
@@ -571,6 +590,7 @@ export const exportReducer: Reducer<ExportState> = (
 
     return {
       ...initialState,
+      connectionId: action.connectionId,
       status:
         !!action.aggregation ||
         !!action.exportFullCollection ||

@@ -58,6 +58,10 @@ const RestartCompassToastContent = ({
   );
 };
 
+// We are using the same toast id for all the update toasts so that when we have
+// to show a new toast, the old one is be replaced and user only sees one.
+const updateToastId = 'compass-update';
+
 export function onAutoupdateExternally({
   currentVersion,
   newVersion,
@@ -67,8 +71,7 @@ export function onAutoupdateExternally({
   newVersion: string;
   onDismiss: () => void;
 }) {
-  const toastId = 'compass-update-externally';
-  openToast(toastId, {
+  openToast(updateToastId, {
     variant: 'note',
     title: `Compass ${newVersion} is available`,
     description: (
@@ -82,7 +85,7 @@ export function onAutoupdateExternally({
           target="_blank"
           href={'https://www.mongodb.com/try/download/compass'}
           onClick={() => {
-            closeToast(toastId);
+            closeToast(updateToastId);
           }}
         >
           Visit download center
@@ -93,13 +96,13 @@ export function onAutoupdateExternally({
   });
 }
 export function onAutoupdateStarted({ newVersion }: { newVersion: string }) {
-  openToast('compass-update-started', {
+  openToast(updateToastId, {
     variant: 'progress',
     title: `Compass ${newVersion} is downloading`,
   });
 }
 export function onAutoupdateFailed() {
-  openToast('compass-update-failed', {
+  openToast(updateToastId, {
     variant: 'warning',
     title: 'Failed to download Compass update',
     description: 'Downloading a newer Compass version failed',
@@ -114,7 +117,7 @@ export function onAutoupdateSuccess({
   onUpdate: () => void;
   onDismiss: () => void;
 }) {
-  openToast('compass-update-succeeded', {
+  openToast(updateToastId, {
     variant: 'success',
     title: '',
     description: (
@@ -127,8 +130,7 @@ export function onAutoupdateSuccess({
   });
 }
 export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
-  const toastId = 'compass-update-restarted';
-  openToast(toastId, {
+  openToast(updateToastId, {
     variant: 'success',
     title: `Compass ${newVersion} is installed successfully`,
     description: (
@@ -137,7 +139,7 @@ export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
         target="_blank"
         href={`https://github.com/mongodb-js/compass/releases/tag/v${newVersion}`}
         onClick={() => {
-          closeToast(toastId);
+          closeToast(updateToastId);
         }}
       >
         Release Notes

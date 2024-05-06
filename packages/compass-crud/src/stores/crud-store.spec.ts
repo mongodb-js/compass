@@ -28,8 +28,8 @@ import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import {
   type ConnectionInfoAccess,
   TEST_CONNECTION_INFO,
+  ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
-import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/dist/connection-scoped-app-registry';
 
 chai.use(chaiAsPromised);
 

@@ -488,7 +488,11 @@ const fetchAggregationData = (
 
 export const exportAggregationResults =
   (): PipelineBuilderThunkAction<void> => {
-    return (_dispatch, getState, { pipelineBuilder, globalAppRegistry }) => {
+    return (
+      _dispatch,
+      getState,
+      { pipelineBuilder, connectionScopedAppRegistry }
+    ) => {
       const {
         namespace,
         maxTimeMS,
@@ -504,7 +508,7 @@ export const exportAggregationResults =
         collation: collation ?? undefined,
       };
 
-      globalAppRegistry.emit('open-export', {
+      connectionScopedAppRegistry.emit('open-export', {
         namespace,
         aggregation: {
           stages: pipeline,

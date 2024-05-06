@@ -9,12 +9,14 @@ import type {
   DatabasesWorkspace,
   MyQueriesWorkspace,
   ServerStatsWorkspace,
+  WelcomeWorkspace,
   Workspace,
   WorkspacesServices,
   CollectionSubtab,
 } from '..';
 import { isEqual } from 'lodash';
 import { cleanupTabState } from '../components/workspace-tab-state-provider';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -59,6 +61,7 @@ export enum WorkspacesActions {
   CollectionRenamed = 'compass-workspaces/CollectionRenamed',
   CollectionRemoved = 'compass-workspaces/CollectionRemoved',
   DatabaseRemoved = 'compass-workspaces/DatabaseRemoved',
+  ConnectionDisconnected = 'compass-workspaces/ConnectionDisconnected',
   FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
   CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
 }
@@ -71,6 +74,7 @@ function isAction<A extends AnyAction>(
 }
 
 type WorkspaceTabProps =
+  | Omit<WelcomeWorkspace, 'tabId'>
   | Omit<MyQueriesWorkspace, 'tabId'>
   | Omit<ServerStatsWorkspace, 'tabId'>
   | Omit<DatabasesWorkspace, 'tabId'>
@@ -107,6 +111,89 @@ export type WorkspacesState = {
 
 const getTabId = () => {
   return new ObjectId().toString();
+};
+
+const filterTabs = ({
+  tabs,
+  isToBeClosed,
+}: {
+  tabs: WorkspaceTab[];
+  isToBeClosed: (tab: WorkspaceTab) => boolean;
+}): {
+  newTabs: WorkspaceTab[];
+  removedIndexes: number[];
+} => {
+  const newTabs: WorkspaceTab[] = [];
+  const removedIndexes: number[] = [];
+  tabs.forEach((tab, index) => {
+    if (isToBeClosed(tab)) {
+      removedIndexes.push(index);
+    } else {
+      newTabs.push(tab);
+    }
+  });
+  return { newTabs, removedIndexes };
+};
+
+const getNewActiveTabId = ({
+  state,
+  newTabs,
+  removedIndexes,
+}: {
+  state: WorkspacesState;
+  newTabs: WorkspaceTab[];
+  removedIndexes: number[];
+}) => {
+  // We follow standard browser behavior with tabs on how we handle
+  // which tab gets activated if we close the active tab. We
+  // activate the next tab that isn't being closed. If there is no next tab, we activate the last one.
+  let newActiveTabId = state.activeTabId;
+  let activeTabIndex = getActiveTabIndex(state);
+  while (removedIndexes.includes(activeTabIndex)) {
+    activeTabIndex++;
+  }
+  if (!newTabs.length) {
+    // no tabs left open
+    newActiveTabId = null;
+  } else if (activeTabIndex >= state.tabs.length) {
+    // the active tab and everything after it was closed
+    newActiveTabId = newTabs[newTabs.length - 1]?.id;
+  } else {
+    newActiveTabId = state.tabs[activeTabIndex]?.id;
+  }
+  return newActiveTabId;
+};
+
+/**
+ * only exported for tests
+ */
+export const _bulkTabsClose = ({
+  state,
+  isToBeClosed,
+}: {
+  state: WorkspacesState;
+  isToBeClosed: (tab: WorkspaceTab, index?: number) => boolean;
+}) => {
+  const { newTabs, removedIndexes } = filterTabs({
+    tabs: state.tabs,
+    isToBeClosed,
+  });
+
+  if (newTabs.length === state.tabs.length) {
+    return state;
+  }
+
+  const newActiveTabId = getNewActiveTabId({
+    state,
+    removedIndexes,
+    newTabs,
+  });
+
+  return {
+    ...state,
+    activeTabId: newActiveTabId,
+    tabs: newTabs,
+  };
 };
 
 export const getInitialTabState = (
@@ -334,55 +421,44 @@ const reducer: Reducer<WorkspacesState> = (
       WorkspacesActions.CollectionRemoved
     )
   ) {
-    const tabs = state.tabs.filter((tab) => {
-      switch (tab.type) {
-        case 'Collection':
-          return tab.namespace !== action.namespace;
-        default:
-          return true;
-      }
+    const isToBeClosed = (tab: WorkspaceTab) =>
+      tab.type === 'Collection' && tab.namespace === action.namespace;
+
+    return _bulkTabsClose({
+      state,
+      isToBeClosed,
     });
-    if (tabs.length === state.tabs.length) {
-      return state;
-    }
-    const activeTabRemoved = !tabs.some((tab) => {
-      return tab.id === state.activeTabId;
-    });
-    return {
-      ...state,
-      tabs,
-      activeTabId: activeTabRemoved
-        ? tabs[tabs.length - 1]?.id ?? null
-        : state.activeTabId,
-    };
   }
 
   if (
     isAction<DatabaseRemovedAction>(action, WorkspacesActions.DatabaseRemoved)
   ) {
-    const tabs = state.tabs.filter((tab) => {
-      switch (tab.type) {
-        case 'Collections':
-          return tab.namespace !== action.namespace;
-        case 'Collection':
-          return toNS(tab.namespace).database !== action.namespace;
-        default:
-          return true;
-      }
+    const isToBeClosed = (tab: WorkspaceTab) =>
+      (tab.type === 'Collections' && tab.namespace === action.namespace) ||
+      (tab.type === 'Collection' &&
+        toNS(tab.namespace).database === action.namespace);
+
+    return _bulkTabsClose({
+      state,
+      isToBeClosed,
     });
-    if (tabs.length === state.tabs.length) {
-      return state;
-    }
-    const activeTabRemoved = !tabs.some((tab) => {
-      return tab.id === state.activeTabId;
+  }
+
+  if (
+    isAction<ConnectionDisconnectedAction>(
+      action,
+      WorkspacesActions.ConnectionDisconnected
+    )
+  ) {
+    const isToBeClosed = (tab: WorkspaceTab) =>
+      tab.type !== 'My Queries' &&
+      tab.type !== 'Welcome' &&
+      tab.connectionId === action.connectionId;
+
+    return _bulkTabsClose({
+      state,
+      isToBeClosed,
     });
-    return {
-      ...state,
-      tabs,
-      activeTabId: activeTabRemoved
-        ? tabs[tabs.length - 1]?.id ?? null
-        : state.activeTabId,
-    };
   }
 
   if (
@@ -470,6 +546,7 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 };
 
 export type OpenWorkspaceOptions =
+  | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
   | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
@@ -697,6 +774,24 @@ export const databaseRemoved = (
     dispatch({
       type: WorkspacesActions.DatabaseRemoved,
       namespace,
+    });
+    cleanupRemovedTabs(oldTabs, getState().tabs);
+  };
+};
+
+type ConnectionDisconnectedAction = {
+  type: WorkspacesActions.ConnectionDisconnected;
+  connectionId: ConnectionInfo['id'];
+};
+
+export const connectionDisconnected = (
+  connectionId: ConnectionInfo['id']
+): WorkspacesThunkAction<void, ConnectionDisconnectedAction> => {
+  return (dispatch, getState) => {
+    const oldTabs = getState().tabs;
+    dispatch({
+      type: WorkspacesActions.ConnectionDisconnected,
+      connectionId,
     });
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
