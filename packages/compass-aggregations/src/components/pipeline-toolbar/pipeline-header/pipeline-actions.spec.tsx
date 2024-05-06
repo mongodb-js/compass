@@ -13,6 +13,7 @@ import {
   createSandboxFromDefaultPreferences,
 } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { AIPipelineActionTypes } from '../../../modules/pipeline-builder/pipeline-ai';
 
 describe('PipelineActions', function () {
   afterEach(cleanup);
@@ -255,6 +256,36 @@ describe('PipelineActions', function () {
 
     it('should disable actions when pipeline contains errors', function () {
       renderPipelineActions({ pipeline: [42] });
+
+      expect(
+        screen
+          .getByTestId('pipeline-toolbar-explain-aggregation-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+
+      expect(
+        screen
+          .getByTestId('pipeline-toolbar-export-aggregation-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+
+      expect(
+        screen
+          .getByTestId('pipeline-toolbar-run-button')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('should disable actions while ai is fetching', function () {
+      const { store, rerender } = renderPipelineActions({
+        pipeline: [{ $match: { _id: 1 } }],
+      });
+
+      store.dispatch({
+        type: AIPipelineActionTypes.AIPipelineStarted,
+        requestId: 'pineapples',
+      });
+      rerender();
 
       expect(
         screen

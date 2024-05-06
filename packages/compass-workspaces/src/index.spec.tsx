@@ -49,6 +49,7 @@ describe('WorkspacesPlugin', function () {
     return render(
       <WorkspacesProvider
         value={[
+          mockWorkspace('Welcome'),
           mockWorkspace('My Queries'),
           mockWorkspace('Databases'),
           mockWorkspace('Performance'),

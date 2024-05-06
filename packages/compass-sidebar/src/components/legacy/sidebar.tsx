@@ -35,8 +35,6 @@ const sidebarStyles = css({
   zIndex: 0,
 });
 
-const connectionInfoContainerStyles = css({});
-
 const connectionBadgesContainerStyles = css({
   display: 'grid',
   gridTemplateColumns: '100%',
@@ -179,7 +177,7 @@ export function Sidebar({
     >
       <>
         {showConnectionInfo && (
-          <div className={connectionInfoContainerStyles}>
+          <div>
             <SidebarTitle
               title={getConnectionTitle(initialConnectionInfo)}
               isFavorite={!!initialConnectionInfo.favorite}

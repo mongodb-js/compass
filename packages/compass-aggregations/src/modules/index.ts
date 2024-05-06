@@ -45,7 +45,10 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  ConnectionScopedAppRegistry,
+} from '@mongodb-js/compass-connections/provider';
 /**
  * The main application reducer.
  *
@@ -104,6 +107,7 @@ export type PipelineBuilderExtraArgs = {
   instance: MongoDBInstance;
   dataService: DataService;
   connectionInfoAccess: ConnectionInfoAccess;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

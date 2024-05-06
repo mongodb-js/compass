@@ -154,6 +154,8 @@ function mapStateToProps(
         databasesStatus: (status ??
           'fetching') as Connection['databasesStatus'],
         databases: filteredDatabases ?? [],
+        isPerformanceTabSupported:
+          !isDataLake && !!state.isPerformanceTabSupported[connectionId],
       },
     ],
     expanded: {
@@ -194,11 +196,17 @@ const onNamespaceAction = (
           getState().databases[connectionId].databases
         );
         if (coll && coll.sourceName) {
-          emit('open-create-view', {
-            source: coll.sourceName,
-            pipeline: coll.pipeline,
-            duplicate: true,
-          });
+          emit(
+            'open-create-view',
+            {
+              source: coll.sourceName,
+              pipeline: coll.pipeline,
+              duplicate: true,
+            },
+            {
+              connectionId,
+            }
+          );
         }
         return;
       }

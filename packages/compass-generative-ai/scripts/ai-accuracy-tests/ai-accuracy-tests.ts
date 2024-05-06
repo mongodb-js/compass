@@ -258,6 +258,22 @@ export const generateMQL = async ({
   });
 };
 
+function hasQueryFields(query?: {
+  filter?: string;
+  project?: string;
+  sort?: string;
+  limit?: string;
+  skip?: string;
+}) {
+  return (
+    query?.filter ||
+    query?.project ||
+    query?.sort ||
+    query?.limit ||
+    query?.skip
+  );
+}
+
 type TestOptions = {
   type: string;
   databaseName: string;
@@ -309,10 +325,18 @@ const runOnce = async (
         (type === 'query' &&
           acceptAggregationResponse &&
           aggregation &&
-          aggregation !== '[]')
+          aggregation !== '[]' &&
+          // When we don't have a query, we use the aggregation pipeline.
+          !hasQueryFields(query))
       ) {
         cursor = collection.aggregate(parseShellString(aggregation));
       } else {
+        if (acceptAggregationResponse) {
+          throw new Error(
+            'Expected aggregation response but got query or no aggregation.'
+          );
+        }
+
         cursor = collection.find(parseShellString(query.filter));
 
         if (query.project) {
@@ -615,12 +639,83 @@ const tests: TestOptions[] = [
     collectionName: 'listingsAndReviews',
     userInput:
       'what is the bed count that occurs the most? return it in a field called bedCount',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          bedCount: 1,
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: 1,
+          bedCount: 1,
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          bedCount: 1,
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'query',
+    acceptAggregationResponse: true,
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    includeSampleDocuments: true,
+    userInput:
+      'whats the total number of reviews across all listings? return it in a field called totalReviewsOverall',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          totalReviewsOverall: 319,
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          totalReviewsOverall: 319,
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'query',
+    acceptAggregationResponse: true,
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    // This currently fails with our method of formatting arrays with documents in our prompt,
+    // at least with gpt-3.5-turbo. So we set the min accuracy to 0.
+    minAccuracyForTest: 0,
+    userInput:
+      'which host id has the most reviews across all listings? return it in a field called hostId',
     assertResult: isDeepStrictEqualTo([
       {
-        bedCount: 1,
+        hostId: '16187044',
       },
     ]),
   },
+  {
+    // We pass the current date to the prompt, as the training data isn't always
+    // up to date. This test ensures we use that data.
+    type: 'query',
+    databaseName: 'UFO',
+    collectionName: 'sightings',
+    includeSampleDocuments: true,
+    userInput:
+      'Give me all of the documents of sightings that happened last year, no _id',
+    assertResult: isDeepStrictEqualTo([
+      {
+        description: 'Flying Saucer in the sky, numerous reports.',
+        where: 'Oklahoma',
+        // Last year.
+        year: `${new Date().getFullYear() - 1}`,
+      },
+    ]),
+  },
+
   {
     type: 'query',
     databaseName: 'delimiters',
@@ -748,6 +843,44 @@ const tests: TestOptions[] = [
         title: 'Smokey and the Bandit Part 3',
         year: '1983',
         id: '168',
+      },
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    // Test $unwind with array of documents.
+    // This currently fails a good amount with gpt-3.5-turbo. So we set the min accuracy to 0.
+    minAccuracyForTest: 0,
+    userInput:
+      'build an array called reviewComments of all of the review comments by reviewer id 72064521.',
+    assertResult: anyOf([
+      isDeepStrictEqualTo([
+        {
+          reviewComments: [
+            'Our stay was fantastic. Mehmet was was excellent with communication and made us feel at home. His place is centrally located and the cafe downstairs as a nice welcoming vibe. Would recommend to stay here on a trip to Istanbul.',
+          ],
+        },
+      ]),
+      isDeepStrictEqualTo([
+        {
+          _id: null,
+          reviewComments: [
+            'Our stay was fantastic. Mehmet was was excellent with communication and made us feel at home. His place is centrally located and the cafe downstairs as a nice welcoming vibe. Would recommend to stay here on a trip to Istanbul.',
+          ],
+        },
+      ]),
+    ]),
+  },
+  {
+    type: 'aggregation',
+    databaseName: 'sample_airbnb',
+    collectionName: 'listingsAndReviews',
+    userInput: 'which listing has the most amenities? return only the _id',
+    assertResult: isDeepStrictEqualTo([
+      {
+        _id: '10108388',
       },
     ]),
   },

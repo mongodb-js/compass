@@ -274,7 +274,62 @@ describe('InstanceStore [Store]', function () {
         });
       });
 
-      const createdEvents = ['view-created', 'agg-pipeline-out-executed'];
+      context(`on 'view-created' event`, function () {
+        it('should not respond when the connectionId does not matches the connectionId for the instance', function () {
+          // we only start with 2 collections;
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+
+          // emit the event without connectionId
+          globalAppRegistry.emit('view-created', 'foo.qux');
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+
+          // emit the event with a different connectionId
+          globalAppRegistry.emit('view-created', 'foo.qux', {
+            connectionId: '2',
+          });
+
+          // should still be 2
+          expect(
+            connectedInstance.databases.get('foo')?.collections.length
+          ).to.equal(2);
+        });
+
+        it('should add collection to the databases collections', function () {
+          globalAppRegistry.emit('view-created', 'foo.qux', {
+            connectionId: connectedConnectionInfoId,
+          });
+          expect(
+            connectedInstance.databases.get('foo')?.collections
+          ).to.have.lengthOf(3);
+          expect(
+            connectedInstance.databases
+              .get('foo')
+              ?.collections.get('foo.qux', '_id')
+          ).to.exist;
+        });
+
+        it("should add new database and add collection to its collections if database doesn't exist yet", function () {
+          globalAppRegistry.emit('view-created', 'bar.qux', {
+            connectionId: connectedConnectionInfoId,
+          });
+          expect(connectedInstance.databases).to.have.lengthOf(2);
+          expect(connectedInstance.databases.get('bar')).to.exist;
+          expect(
+            connectedInstance.databases.get('bar')?.collections
+          ).to.have.lengthOf(1);
+          expect(
+            connectedInstance.databases.get('bar')?.collections.get('bar.qux')
+          ).to.exist;
+        });
+      });
+
+      const createdEvents = ['agg-pipeline-out-executed'];
 
       for (const evt of createdEvents) {
         context(`on '${evt}' event`, function () {

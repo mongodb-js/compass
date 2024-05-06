@@ -34,6 +34,7 @@ import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
   type ConnectionInfo,
   ConnectionInfoProvider,
+  useTabConnectionTheme,
 } from '@mongodb-js/compass-connections/provider';
 
 const emptyWorkspaceStyles = css({
@@ -104,10 +105,17 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
+  const { getThemeOf } = useTabConnectionTheme();
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
       switch (tab.type) {
+        case 'Welcome':
+          return {
+            id: tab.id,
+            title: tab.type,
+            iconGlyph: 'Logo',
+          } as const;
         case 'My Queries':
           return {
             id: tab.id,
@@ -119,12 +127,14 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             title: tab.type,
             iconGlyph: 'Database',
+            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Performance':
           return {
             id: tab.id,
             title: tab.type,
             iconGlyph: 'Gauge',
+            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Collections':
           return {
@@ -132,6 +142,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             title: tab.namespace,
             iconGlyph: 'Database',
             'data-namespace': tab.namespace,
+            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Collection': {
           const { database, collection, ns } = toNS(tab.namespace);
@@ -161,16 +172,22 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
                 ? 'TimeSeries'
                 : 'Folder',
             'data-namespace': ns,
+            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
       }
     });
-  }, [tabs, collectionInfo]);
+  }, [tabs, collectionInfo, getThemeOf]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
+      case 'Welcome': {
+        const Component = getWorkspacePluginByName(activeTab.type);
+        return <Component></Component>;
+      }
+
       // TODO: Remove the ConnectionInfoProvider when we make My Queries
       // workspace work independently of a DataService
       case 'My Queries': {

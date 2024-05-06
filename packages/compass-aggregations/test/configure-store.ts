@@ -9,7 +9,10 @@ import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
-import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionScopedAppRegistryImpl,
+  TEST_CONNECTION_INFO,
+} from '@mongodb-js/compass-connections/provider';
 
 export class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {
@@ -48,6 +51,17 @@ export default function configureStore(
 
   const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();
+  const globalAppRegistry = new AppRegistry();
+  const connectionInfoAccess = {
+    getCurrentConnectionInfo() {
+      return TEST_CONNECTION_INFO;
+    },
+  };
+  const connectionScopedAppRegistry =
+    new ConnectionScopedAppRegistryImpl<'open-export'>(
+      globalAppRegistry.emit.bind(globalAppRegistry),
+      connectionInfoAccess
+    );
 
   return activateAggregationsPlugin(
     {
@@ -66,21 +80,18 @@ export default function configureStore(
       dataService,
       instance: {} as any,
       preferences,
-      globalAppRegistry: new AppRegistry(),
+      globalAppRegistry,
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
       logger,
       atlasAiService: atlasAiService as any,
       atlasAuthService,
-      connectionInfoAccess: {
-        getCurrentConnectionInfo() {
-          return TEST_CONNECTION_INFO;
-        },
-      },
+      connectionInfoAccess,
       collection: {
         toJSON: () => ({}),
         on: () => {},
       } as any,
+      connectionScopedAppRegistry,
       ...services,
     },
     createActivateHelpers()

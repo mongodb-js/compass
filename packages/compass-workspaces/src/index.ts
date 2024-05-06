@@ -10,6 +10,7 @@ import workspacesReducer, {
   getInitialTabState,
   getLocalAppRegistryForTab,
   cleanupLocalAppRegistries,
+  connectionDisconnected,
 } from './stores/workspaces';
 import Workspaces from './components';
 import { applyMiddleware, createStore } from 'redux';
@@ -22,6 +23,7 @@ import {
   connectionsManagerLocator,
   type ConnectionsManager,
   type ConnectionInfo,
+  ConnectionsManagerEvents,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
@@ -114,6 +116,14 @@ export function activateWorkspacePlugin(
     }
   );
 
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connectionId: ConnectionInfo['id']) {
+      store.dispatch(connectionDisconnected(connectionId));
+    }
+  );
+
   on(globalAppRegistry, 'menu-share-schema-json', () => {
     const activeTab = getActiveTab(store.getState());
     if (activeTab?.type === 'Collection') {
@@ -124,21 +134,33 @@ export function activateWorkspacePlugin(
   on(globalAppRegistry, 'open-active-namespace-export', function () {
     const activeTab = getActiveTab(store.getState());
     if (activeTab?.type === 'Collection') {
-      globalAppRegistry.emit('open-export', {
-        exportFullCollection: true,
-        namespace: activeTab.namespace,
-        origin: 'menu',
-      });
+      globalAppRegistry.emit(
+        'open-export',
+        {
+          exportFullCollection: true,
+          namespace: activeTab.namespace,
+          origin: 'menu',
+        },
+        {
+          connectionId: activeTab.connectionId,
+        }
+      );
     }
   });
 
   on(globalAppRegistry, 'open-active-namespace-import', function () {
     const activeTab = getActiveTab(store.getState());
     if (activeTab?.type === 'Collection') {
-      globalAppRegistry.emit('open-import', {
-        namespace: activeTab.namespace,
-        origin: 'menu',
-      });
+      globalAppRegistry.emit(
+        'open-import',
+        {
+          namespace: activeTab.namespace,
+          origin: 'menu',
+        },
+        {
+          connectionId: activeTab.connectionId,
+        }
+      );
     }
   });
 
@@ -166,6 +188,7 @@ export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, WorkspaceTab };
 export type {
+  WelcomeWorkspace,
   MyQueriesWorkspace,
   ServerStatsWorkspace,
   DatabasesWorkspace,

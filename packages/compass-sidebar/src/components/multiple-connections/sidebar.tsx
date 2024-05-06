@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   useActiveConnections,
@@ -27,6 +33,7 @@ import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -186,6 +193,7 @@ export function MultipleConnectionSidebar({
   const {
     setActiveConnectionById,
     connect,
+    closeConnection,
     favoriteConnections,
     recentConnections,
     cancelConnectionAttempt,
@@ -320,6 +328,13 @@ export function MultipleConnectionSidebar({
     [findActiveConnection, maybeProtectConnectionString]
   );
 
+  const onDisconnect = useCallback(
+    (connectionId: string) => {
+      void closeConnection(connectionId);
+    },
+    [closeConnection]
+  );
+
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
   const showKerberosPasswordField = usePreference('showKerberosPasswordField');
@@ -353,8 +368,18 @@ export function MultipleConnectionSidebar({
     ]
   );
 
+  const appRegistry = useGlobalAppRegistry();
+
+  useEffect(() => {
+    // TODO(COMPASS-7397): don't hack this via the app registry
+    appRegistry.on('open-new-connection', onNewConnectionOpen);
+    return () => {
+      appRegistry.removeListener('open-new-connection', onNewConnectionOpen);
+    };
+  }, [appRegistry, onNewConnectionOpen]);
+
   return (
-    <ResizableSidebar data-testid="navigation-sidebar">
+    <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
@@ -364,6 +389,7 @@ export function MultipleConnectionSidebar({
           onOpenConnectionInfo={onOpenConnectionInfo}
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
+          onDisconnect={onDisconnect}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}

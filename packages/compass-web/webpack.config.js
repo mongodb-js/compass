@@ -8,6 +8,10 @@ const {
 } = require('@mongodb-js/webpack-config-compass');
 const { startElectronProxy } = require('./scripts/start-electron-proxy');
 const { createWebSocketProxy } = require('./scripts/ws-proxy');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+
+const execFileAsync = promisify(execFile);
 
 function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
@@ -192,6 +196,24 @@ module.exports = async (env, args) => {
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify('production'),
       }),
+
+      // Only applied when running webpack in --watch mode. In this mode we want
+      // to constantly rebuild d.ts files when source changes, we also don't
+      // want to fail and stop compilation if we failed to generate definitions
+      // for whatever reason, we only print the error
+      function (compiler) {
+        compiler.hooks.watchRun.tapPromise('compile-ts', async function () {
+          const logger = compiler.getInfrastructureLogger('compile-ts');
+          try {
+            await execFileAsync('npm', ['run', 'typescript']);
+            logger.log('Compiled TypeScript definitions successfully');
+          } catch (err) {
+            logger.error('Failed to complie TypeScript definitions:');
+            logger.error();
+            logger.error(err.stdout);
+          }
+        });
+      },
     ],
   });
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -6,7 +6,7 @@ import type { glyphs } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import { useDarkMode } from '../../hooks/use-theme';
-import { Icon, IconButton } from '../leafygreen';
+import { Icon, IconButton, MongoDBLogoMark } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 
@@ -59,6 +59,18 @@ const animatedSubtitleStyles = css({
     pointerEvents: 'auto',
   },
 });
+
+export type TabTheme = {
+  '--workspace-tab-background-color': string;
+  '--workspace-tab-selected-background-color': string;
+  '--workspace-tab-border-color': string;
+  '--workspace-tab-color': string;
+  '--workspace-tab-selected-color': string;
+  '&:focus-visible': {
+    '--workspace-tab-selected-color': string;
+    '--workspace-tab-border-color': string;
+  };
+};
 
 const tabLightThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.light3,
@@ -161,9 +173,10 @@ type TabProps = {
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: IconGlyph;
+  iconGlyph: IconGlyph | 'Logo';
   tabContentId: string;
   subtitle?: string;
+  tabTheme?: TabTheme;
 };
 
 function Tab({
@@ -175,6 +188,7 @@ function Tab({
   tabContentId,
   iconGlyph,
   subtitle,
+  tabTheme,
   ...props
 }: TabProps & React.HTMLProps<HTMLDivElement>) {
   const darkMode = useDarkMode();
@@ -188,6 +202,14 @@ function Tab({
     listeners ?? {},
     props
   );
+
+  const themeClass = useMemo(() => {
+    if (!tabTheme) {
+      return darkMode ? tabDarkThemeStyles : tabLightThemeStyles;
+    }
+
+    return css(tabTheme);
+  }, [tabTheme, darkMode]);
 
   const style = {
     transform: cssDndKit.Transform.toString(transform),
@@ -204,7 +226,7 @@ function Tab({
       style={style}
       className={cx(
         tabStyles,
-        darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
+        themeClass,
         isSelected && selectedTabStyles,
         isDragging && draggingTabStyles,
         subtitle && animatedSubtitleStyles
@@ -218,13 +240,23 @@ function Tab({
       title={subtitle ? subtitle : title}
       {...tabProps}
     >
-      <Icon
-        size="small"
-        role="presentation"
-        className={tabIconStyles}
-        glyph={iconGlyph}
-        data-testid={`workspace-tab-icon-${iconGlyph}`}
-      />
+      {iconGlyph === 'Logo' && (
+        <MongoDBLogoMark
+          height={16}
+          role="presentation"
+          className={tabIconStyles}
+          data-testid={`workspace-tab-icon-${iconGlyph}`}
+        />
+      )}
+      {iconGlyph !== 'Logo' && (
+        <Icon
+          size="small"
+          role="presentation"
+          className={tabIconStyles}
+          glyph={iconGlyph}
+          data-testid={`workspace-tab-icon-${iconGlyph}`}
+        />
+      )}
 
       <div className={tabTitleContainerStyles}>
         <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>

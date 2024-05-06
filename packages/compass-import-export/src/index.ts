@@ -1,9 +1,5 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
-import {
-  connectionInfoAccessLocator,
-  dataServiceLocator,
-  type DataServiceLocator,
-} from '@mongodb-js/compass-connections/provider';
+import { connectionsManagerLocator } from '@mongodb-js/compass-connections/provider';
 import ImportPluginComponent from './import-plugin';
 import { activatePlugin as activateImportPlugin } from './stores/import-store';
 import ExportPluginComponent from './export-plugin';
@@ -22,13 +18,10 @@ export const ImportPlugin = registerHadronPlugin(
     activate: activateImportPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
-      'isConnected' | 'bulkWrite' | 'insertOne'
-    >,
+    connectionsManager: connectionsManagerLocator,
     workspaces: workspacesServiceLocator,
     preferences: preferencesLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-IMPORT-UI'),
-    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 
@@ -42,9 +35,7 @@ export const ExportPlugin = registerHadronPlugin(
     activate: activateExportPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
-      'findCursor' | 'aggregateCursor'
-    >,
+    connectionsManager: connectionsManagerLocator,
     preferences: preferencesLocator,
     logger: createLoggerAndTelemetryLocator('COMPASS-EXPORT-UI'),
   }

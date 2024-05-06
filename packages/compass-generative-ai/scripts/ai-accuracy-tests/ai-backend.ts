@@ -5,9 +5,22 @@ import DigestClient from 'digest-fetch';
 import nodeFetch from 'node-fetch';
 import type { ChatCompletionCreateParamsBase } from 'openai/resources/chat/completions';
 
-const openai = new OpenAI({
-  apiKey: process.env['OPENAI_API_KEY'],
-});
+let openai: OpenAI;
+if (process.env['OPENAI_API_KEY']) {
+  openai = new OpenAI({
+    apiKey: process.env['OPENAI_API_KEY'],
+  });
+}
+
+function getOpenAIClient() {
+  if (!openai) {
+    openai = new OpenAI({
+      apiKey: process.env['OPENAI_API_KEY'],
+    });
+  }
+  
+  return openai;
+}
 
 const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
 
@@ -99,6 +112,7 @@ export function createAIChatCompletion({
   user: string;
   model?: ChatCompletionCreateParamsBase['model'];
 }): Promise<OpenAI.Chat.Completions.ChatCompletion> {
+  const openai = getOpenAIClient();
   if (!system) {
     return openai.chat.completions.create({
       messages: [

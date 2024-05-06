@@ -144,10 +144,9 @@ Templates:
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
             flags = flags === '' ? '' : `(?${flags})`;
-            const escaped = pattern.replace(/\\(?!\/)/, '\\\\');
 
             // Double-quote stringify
-            const str = escaped + flags;
+            const str = pattern + flags;
             let newStr = str;
             if (
                 (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
