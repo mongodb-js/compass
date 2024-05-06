@@ -14,6 +14,8 @@ export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 export type State = {
   isModalOpen: boolean;
   selectedItem: Item | null;
+  activeConnections: string[];
+  selectedConnection: string | null;
   databases: string[];
   selectedDatabase: string | null;
   databasesStatus: Status;
@@ -26,6 +28,8 @@ export type State = {
 const INITIAL_STATE: State = {
   isModalOpen: false,
   selectedItem: null,
+  activeConnections: [],
+  selectedConnection: null,
   databases: [],
   selectedDatabase: null,
   databasesStatus: 'initial',
@@ -38,6 +42,9 @@ const INITIAL_STATE: State = {
 export enum ActionTypes {
   OpenModal = 'compass-saved-aggregations-queries/openModal',
   CloseModal = 'compass-saved-aggregations-queries/closeModal',
+  ConnectionConnected = 'compass-saved-aggregations-queries/connectionConnected',
+  ConnectionDisconnected = 'compass-saved-aggregations-queries/connectionDisconnected',
+  ConnectionSelected = 'compass-saved-aggregations-queries/connectionSelected',
   SelectDatabase = 'compass-saved-aggregations-queries/selectDatabase',
   LoadDatabases = 'compass-saved-aggregations-queries/loadDatabases',
   LoadDatabasesSuccess = 'compass-saved-aggregations-queries/loadDatabasesSuccess',
@@ -56,6 +63,21 @@ type OpenModalAction = {
 
 type CloseModalAction = {
   type: ActionTypes.CloseModal;
+};
+
+type ConnectionConnectedAction = {
+  type: ActionTypes.ConnectionConnected;
+  connection: string;
+};
+
+type ConnectionDisconnectedAction = {
+  type: ActionTypes.ConnectionDisconnected;
+  connection: string;
+};
+
+type ConnectionSelectedAction = {
+  type: ActionTypes.ConnectionSelected;
+  connection: string;
 };
 
 type SelectDatabaseAction = {
@@ -102,6 +124,9 @@ type UpdateNamespaceCheckedAction = {
 export type Actions =
   | OpenModalAction
   | CloseModalAction
+  | ConnectionConnectedAction
+  | ConnectionDisconnectedAction
+  | ConnectionSelectedAction
   | SelectDatabaseAction
   | LoadDatabasesAction
   | LoadDatabasesErrorAction
@@ -123,6 +148,48 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
 
   if (isAction<CloseModalAction>(action, ActionTypes.CloseModal)) {
     return { ...INITIAL_STATE };
+  }
+
+  if (
+    isAction<ConnectionConnectedAction>(action, ActionTypes.ConnectionConnected)
+  ) {
+    const activeConnections = new Set(state.activeConnections);
+    activeConnections.add(action.connection);
+
+    return {
+      ...state,
+      activeConnections: Array.from(activeConnections),
+    };
+  }
+
+  if (
+    isAction<ConnectionDisconnectedAction>(
+      action,
+      ActionTypes.ConnectionDisconnected
+    )
+  ) {
+    const activeConnections = new Set(state.activeConnections);
+    activeConnections.delete(action.connection);
+
+    return {
+      ...state,
+      activeConnections: Array.from(activeConnections),
+    };
+  }
+
+  if (
+    isAction<ConnectionSelectedAction>(action, ActionTypes.ConnectionSelected)
+  ) {
+    return {
+      ...state,
+      selectedConnection: action.connection,
+      selectedDatabase: null,
+      databases: [],
+      databasesStatus: 'initial',
+      collections: [],
+      collectionsStatus: 'initial',
+      selectedCollection: null,
+    };
   }
 
   if (isAction<SelectDatabaseAction>(action, ActionTypes.SelectDatabase)) {
