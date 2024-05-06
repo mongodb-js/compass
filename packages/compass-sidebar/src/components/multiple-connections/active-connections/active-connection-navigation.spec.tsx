@@ -254,7 +254,7 @@ describe('<ActiveConnectionNavigation />', function () {
 
       expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
     });
-    
+
     it('Calls onDisconnect', async () => {
       userEvent.hover(screen.getByText('turtle'));
 
