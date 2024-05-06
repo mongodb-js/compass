@@ -145,10 +145,16 @@ export function activateWorkspacePlugin(
   on(globalAppRegistry, 'open-active-namespace-import', function () {
     const activeTab = getActiveTab(store.getState());
     if (activeTab?.type === 'Collection') {
-      globalAppRegistry.emit('open-import', {
-        namespace: activeTab.namespace,
-        origin: 'menu',
-      });
+      globalAppRegistry.emit(
+        'open-import',
+        {
+          namespace: activeTab.namespace,
+          origin: 'menu',
+        },
+        {
+          connectionId: activeTab.connectionId,
+        }
+      );
     }
   });
 
@@ -176,6 +182,7 @@ export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
 export type { OpenWorkspaceOptions, WorkspaceTab };
 export type {
+  WelcomeWorkspace,
   MyQueriesWorkspace,
   ServerStatsWorkspace,
   DatabasesWorkspace,

@@ -101,6 +101,7 @@ export function ActiveConnectionNavigation({
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
+    openPerformanceWorkspace,
   } = useOpenWorkspace();
 
   const onConnectionToggle = useCallback(
@@ -172,6 +173,9 @@ export function ActiveConnectionNavigation({
         case 'connection-toggle-favorite':
           onToggleFavoriteConnection(connectionId);
           return;
+        case 'connection-performance-metrics':
+          openPerformanceWorkspace(connectionId);
+          return;
         case 'select-database':
           openCollectionsWorkspace(connectionId, ns);
           return;
@@ -205,6 +209,7 @@ export function ActiveConnectionNavigation({
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
+      openPerformanceWorkspace,
       openEditViewWorkspace,
       onCopyConnectionString,
       onOpenConnectionInfo,
@@ -285,10 +290,14 @@ function mapStateToProps(
     const isDataLake = instance?.dataLake?.isDataLake ?? false;
     const isWritable = instance?.isWritable ?? false;
 
+    const isPerformanceTabSupported =
+      !isDataLake && !!state.isPerformanceTabSupported[connectionId];
+
     connections.push({
       isReady,
       isDataLake,
       isWritable,
+      isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
       databasesLength: filteredDatabases?.length ?? 0,

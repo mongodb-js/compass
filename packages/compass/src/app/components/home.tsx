@@ -17,7 +17,7 @@ import Connections, {
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
-import Welcome from '@mongodb-js/compass-welcome';
+import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
@@ -376,7 +376,10 @@ function Home({
                   />
                 </div>
               )}
-              <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+              <WelcomeModal
+                isOpen={isWelcomeOpen}
+                closeModal={closeWelcomeModal}
+              />
               <CompassSettingsPlugin></CompassSettingsPlugin>
               <CompassFindInPagePlugin></CompassFindInPagePlugin>
               <AtlasAuthPlugin></AtlasAuthPlugin>

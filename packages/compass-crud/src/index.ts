@@ -4,8 +4,13 @@ import type { DocumentListProps } from './components/document-list';
 import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
 import { DocumentListWithReadonly } from './components/connected-document-list';
-import { activateDocumentsPlugin } from './stores/crud-store';
 import {
+  type EmittedAppRegistryEvents,
+  activateDocumentsPlugin,
+} from './stores/crud-store';
+import {
+  connectionInfoAccessLocator,
+  connectionScopedAppRegistryLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -40,6 +45,9 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
     fieldStoreService: fieldStoreServiceLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
+    connectionScopedAppRegistry:
+      connectionScopedAppRegistryLocator<EmittedAppRegistryEvents>,
   }
 );
 
