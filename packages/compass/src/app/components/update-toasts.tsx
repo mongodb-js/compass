@@ -26,7 +26,7 @@ const buttonStyles = css({
   border: 'none',
   fontWeight: 600,
   color: palette.blue.base,
-  text-transform: uppercase,
+  textTransform: 'uppercase',
   padding: 0,
   '&:hover': {
     cursor: 'pointer',
