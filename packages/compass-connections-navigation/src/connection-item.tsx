@@ -6,6 +6,7 @@ import {
   ItemActionControls,
   Icon,
   ServerIcon,
+  IconButton,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { ROW_HEIGHT } from './constants';
@@ -44,6 +45,11 @@ const connectionItemLabel = css({
 
 const actionMenu = css({
   width: '240px',
+});
+
+const actionContainerStyles = css({
+  display: 'flex',
+  gap: spacing[1],
 });
 
 export const ConnectionItem: React.FunctionComponent<
@@ -182,15 +188,27 @@ export const ConnectionItem: React.FunctionComponent<
             {name}
           </ItemLabel>
         </ItemButtonWrapper>
-        {!isReadOnly && (
-          <ItemActionControls<Actions>
-            onAction={onAction}
-            isVisible={isActive || isHovered}
-            data-testid="sidebar-connection-item-actions"
-            iconSize="small"
-            actions={actions}
-            menuClassName={actionMenu}
-          ></ItemActionControls>
+        {!isReadOnly && (isActive || isHovered) && (
+          <div className={actionContainerStyles}>
+            <IconButton
+              onClick={(evt: React.MouseEvent<HTMLButtonElement>) => {
+                evt.stopPropagation();
+                return onAction('create-database');
+              }}
+              data-testid="create-database-button"
+              aria-label="Create database"
+              title="Create database"
+            >
+              <Icon size="small" glyph="Plus" />
+            </IconButton>
+            <ItemActionControls<Actions>
+              onAction={onAction}
+              data-testid="sidebar-connection-item-actions"
+              iconSize="small"
+              actions={actions}
+              menuClassName={actionMenu}
+            ></ItemActionControls>
+          </div>
         )}
       </ItemWrapper>
     </ItemContainer>

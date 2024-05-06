@@ -320,6 +320,9 @@ const onNamespaceAction = (
     };
     const ns = toNS(namespace);
     switch (action) {
+      case 'create-database':
+        emit('open-create-database', { connectionId });
+        return;
       case 'drop-database':
         emit('open-drop-database', ns.database, { connectionId });
         return;
