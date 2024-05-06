@@ -124,11 +124,17 @@ export function activateWorkspacePlugin(
   on(globalAppRegistry, 'open-active-namespace-export', function () {
     const activeTab = getActiveTab(store.getState());
     if (activeTab?.type === 'Collection') {
-      globalAppRegistry.emit('open-export', {
-        exportFullCollection: true,
-        namespace: activeTab.namespace,
-        origin: 'menu',
-      });
+      globalAppRegistry.emit(
+        'open-export',
+        {
+          exportFullCollection: true,
+          namespace: activeTab.namespace,
+          origin: 'menu',
+        },
+        {
+          connectionId: activeTab.connectionId,
+        }
+      );
     }
   });
 
