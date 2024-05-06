@@ -7,7 +7,6 @@ export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 export type State = {
   isModalOpen: boolean;
   selectedItem: Item | null;
-  createCollectionStatus: Status;
   databases: string[];
   selectedDatabase: string | null;
   databasesStatus: Status;
@@ -20,7 +19,6 @@ export type State = {
 const INITIAL_STATE: State = {
   isModalOpen: false,
   selectedItem: null,
-  createCollectionStatus: 'initial',
   databases: [],
   selectedDatabase: null,
   databasesStatus: 'initial',
@@ -33,7 +31,6 @@ const INITIAL_STATE: State = {
 export enum ActionTypes {
   OpenModal = 'compass-saved-aggregations-queries/openModal',
   CloseModal = 'compass-saved-aggregations-queries/closeModal',
-  CreateNamespaceStatusChange = 'compass-saved-aggregations-queries/createNamespaceStatusChange',
   SelectDatabase = 'compass-saved-aggregations-queries/selectDatabase',
   LoadDatabases = 'compass-saved-aggregations-queries/loadDatabases',
   LoadDatabasesSuccess = 'compass-saved-aggregations-queries/loadDatabasesSuccess',
@@ -52,11 +49,6 @@ type OpenModalAction = {
 
 type CloseModalAction = {
   type: ActionTypes.CloseModal;
-};
-
-type CreateNamespaceStatusChangeAction = {
-  type: ActionTypes.CreateNamespaceStatusChange;
-  status: Status;
 };
 
 type SelectDatabaseAction = {
@@ -103,7 +95,6 @@ type UpdateNamespaceChecked = {
 export type Actions =
   | OpenModalAction
   | CloseModalAction
-  | CreateNamespaceStatusChangeAction
   | SelectDatabaseAction
   | LoadDatabasesAction
   | LoadDatabasesErrorAction
@@ -124,11 +115,6 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
       };
     case ActionTypes.CloseModal:
       return { ...INITIAL_STATE };
-    case ActionTypes.CreateNamespaceStatusChange:
-      return {
-        ...state,
-        createCollectionStatus: action.status,
-      };
     case ActionTypes.SelectDatabase:
       return {
         ...state,
