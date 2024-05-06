@@ -46,21 +46,23 @@ export type Database = Pick<
     '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
   >[];
 };
-export type AllDatabasesState = Record<
-  ConnectionInfo['id'],
-  ConnectionDatabasesState
->;
+export type AllDatabasesState = {
+  filterRegex: RegExp | null;
+  connectionDatabases: Record<ConnectionInfo['id'], ConnectionDatabasesState>;
+};
 export interface ConnectionDatabasesState {
   databases: Database[];
   filteredDatabases: Database[];
   expandedDbList: Record<string, boolean>;
-  filterRegex: null | RegExp;
 }
 
 /**
  * The initial state of the sidebar databases.
  */
-export const INITIAL_STATE: AllDatabasesState = {};
+export const INITIAL_STATE: AllDatabasesState = {
+  filterRegex: null,
+  connectionDatabases: {},
+};
 
 /**
  * Reducer function for handle state changes to sidebar databases.
@@ -75,12 +77,10 @@ export default function reducer(
   action: RootAction
 ): AllDatabasesState {
   if (action.type === TOGGLE_DATABASE) {
-    if (
-      state[action.connectionId] &&
-      state[action.connectionId].expandedDbList
-    ) {
-      const previousExpandedState =
-        state[action.connectionId]?.expandedDbList[action.database];
+    const { expandedDbList } =
+      state.connectionDatabases[action.connectionId] || {};
+    if (expandedDbList) {
+      const previousExpandedState = expandedDbList[action.database];
 
       if (previousExpandedState === action.expanded) {
         return state;
@@ -89,56 +89,45 @@ export default function reducer(
 
     return {
       ...state,
-      [action.connectionId]: {
-        ...state[action.connectionId],
-        expandedDbList: {
-          ...state[action.connectionId].expandedDbList,
-          [action.database]: action.expanded,
+      connectionDatabases: {
+        ...state.connectionDatabases,
+        [action.connectionId]: {
+          ...state.connectionDatabases[action.connectionId],
+          expandedDbList: {
+            ...expandedDbList,
+            [action.database]: action.expanded,
+          },
         },
       },
     };
   } else if (action.type === CHANGE_FILTER_REGEX) {
-    console.log({ action });
-    const filterModeStatusChange =
-      Boolean(state[action.connectionId]?.filterRegex && !action.filterRegex) ||
-      Boolean(!state[action.connectionId]?.filterRegex && action.filterRegex);
-
-    let expandedDbList = state[action.connectionId]?.expandedDbList ?? {};
-
-    // On filter mode status change (when either entering "filter mode" when no
-    // regex was in the search box before or exiting it) we want to filter out
-    // all the "collapsed" states so that default collapsed state that is based
-    // on the "filter mode" can take over. When user then collapses something in
-    // the navigation we want to preserve their choice until the "filter mode"
-    // is changed again
-    if (filterModeStatusChange) {
-      expandedDbList = Object.fromEntries(
-        Object.entries(expandedDbList).filter(([, val]) => val !== false)
-      );
-    }
-
     return {
       ...state,
-      [action.connectionId]: {
-        ...state[action.connectionId],
-        filterRegex: action.filterRegex,
-        filteredDatabases: filterDatabases(
-          state[action.connectionId]?.databases ?? [],
-          action.filterRegex
-        ),
-        expandedDbList,
+      filterRegex: action.filterRegex,
+      connectionDatabases: {
+        ...state.connectionDatabases,
+        [action.connectionId]: {
+          ...state.connectionDatabases[action.connectionId],
+          filteredDatabases: filterDatabases(
+            state.connectionDatabases[action.connectionId]?.databases ?? [],
+            action.filterRegex
+          ),
+        },
       },
     };
   } else if (action.type === CHANGE_DATABASES) {
     return {
       ...state,
-      [action.connectionId]: {
-        ...state[action.connectionId],
-        databases: action.databases,
-        filteredDatabases: filterDatabases(
-          action.databases,
-          state[action.connectionId]?.filterRegex
-        ),
+      connectionDatabases: {
+        ...state.connectionDatabases,
+        [action.connectionId]: {
+          ...state.connectionDatabases[action.connectionId],
+          databases: action.databases,
+          filteredDatabases: filterDatabases(
+            action.databases,
+            state.filterRegex
+          ),
+        },
       },
     };
   }
@@ -163,7 +152,8 @@ export const toggleDatabaseExpanded =
   ): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
     const { database } = toNS(databaseId);
-    const { expandedDbList } = getState().databases[connectionId];
+    const { expandedDbList } =
+      getState().databases.connectionDatabases[connectionId];
     const expanded = forceExpand ?? !expandedDbList[database];
 
     if (expanded) {
@@ -184,7 +174,9 @@ export const changeFilterRegex =
       globalAppRegistry.emit('sidebar-filter-navigation-list');
     }
 
-    for (const connectionId of Object.keys(getState().databases)) {
+    for (const connectionId of Object.keys(
+      getState().databases.connectionDatabases
+    )) {
       dispatch({
         type: CHANGE_FILTER_REGEX,
         connectionId,
@@ -214,5 +206,6 @@ const filterDatabases = (databases: Database[], re: RegExp | null) => {
       }
     }
   }
+
   return result;
 };

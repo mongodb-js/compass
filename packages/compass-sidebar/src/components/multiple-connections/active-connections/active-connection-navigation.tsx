@@ -10,11 +10,11 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
+import type { DatabasesAction } from '../../../modules/databases';
 import {
   type Database,
   toggleDatabaseExpanded,
   changeFilterRegex as changeDatabaseFilterRegex,
-  DatabasesAction,
 } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -71,7 +71,7 @@ const activeConnectionCountStyles = css({
 export function ActiveConnectionNavigation({
   activeConnections,
   connections,
-  expanded,
+  expandedDatabases,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
   onOpenConnectionInfo,
@@ -94,7 +94,10 @@ export function ActiveConnectionNavigation({
   connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
-  expanded: Record<string, Record<string, boolean> | false>;
+  expandedDatabases: Record<
+    ConnectionInfo['id'],
+    Record<string, boolean> | false
+  >;
   activeWorkspace?: WorkspaceTab;
   onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
@@ -104,7 +107,9 @@ export function ActiveConnectionNavigation({
     filterRegex: RegExp | null
   ) => SidebarThunkAction<void, DatabasesAction>;
 }): React.ReactElement {
-  const [collapsed, setCollapsed] = useState<ConnectionInfo['id'][]>([]);
+  const [expandedConnections, setExpandedConnections] = useState<
+    Record<ConnectionInfo['id'], 'collapsed' | 'tempExpanded' | undefined>
+  >({});
   const [filteredConnections, setFilteredConnections] = useState<
     Connection[] | undefined
   >(undefined);
@@ -118,9 +123,37 @@ export function ActiveConnectionNavigation({
     openPerformanceWorkspace,
   } = useOpenWorkspace();
 
+  const temporarilyExpand = useCallback(
+    (list: Connection[]) => {
+      setExpandedConnections((expandedConnections) => {
+        const newExpanded = { ...expandedConnections };
+        list.forEach(({ connectionInfo: { id: connectionId } }) => {
+          if (expandedConnections[connectionId] === 'collapsed') {
+            newExpanded[connectionId] = 'tempExpanded';
+          }
+        });
+        return newExpanded;
+      });
+    },
+    [setExpandedConnections]
+  );
+
+  const collapseAllTemporarilyExpanded = useCallback(() => {
+    setExpandedConnections((expandedConnections) => {
+      const newExpanded = Object.fromEntries(
+        Object.entries(expandedConnections).map(([connectionId, state]) => [
+          connectionId,
+          state === 'tempExpanded' ? 'collapsed' : state,
+        ])
+      );
+      return newExpanded;
+    });
+  }, [setExpandedConnections]);
+
   useEffect(() => {
     if (!filterRegex) {
       setFilteredConnections(undefined);
+      collapseAllTemporarilyExpanded();
     } else {
       const matches: Connection[] = [];
       connections.forEach((connection) => {
@@ -129,30 +162,40 @@ export function ActiveConnectionNavigation({
         }
       });
       setFilteredConnections(matches);
+      temporarilyExpand(matches);
     }
-  }, [filterRegex, connections, setFilteredConnections, setCollapsed]);
+  }, [
+    filterRegex,
+    connections,
+    setFilteredConnections,
+    temporarilyExpand,
+    collapseAllTemporarilyExpanded,
+  ]);
 
   const onConnectionToggle = useCallback(
     (connectionId: string, forceExpand: boolean) => {
-      if (!forceExpand && !collapsed.includes(connectionId))
-        setCollapsed((collapsed) => [...collapsed, connectionId]);
-      else if (forceExpand && collapsed.includes(connectionId)) {
-        setCollapsed((collapsed) => {
-          const index = collapsed.indexOf(connectionId);
-          return [...collapsed.slice(0, index), ...collapsed.slice(index + 1)];
-        });
+      if (!forceExpand && expandedConnections[connectionId] !== 'collapsed') {
+        setExpandedConnections((expandedConnections) => ({
+          ...expandedConnections,
+          [connectionId]: 'collapsed',
+        }));
+      } else if (forceExpand && expandedConnections[connectionId]) {
+        setExpandedConnections((expandedConnections) => ({
+          ...expandedConnections,
+          [connectionId]: undefined,
+        }));
       }
     },
-    [setCollapsed, collapsed]
+    [setExpandedConnections, expandedConnections]
   );
 
   const getExpanded = useCallback(
-    (list: Connection[], forceExpand?: boolean) => {
+    (list: Connection[]) => {
       const result = list.reduce(
         (obj, { connectionInfo: { id: connectionId } }) => {
           obj[connectionId] =
-            forceExpand || !collapsed.includes(connectionId)
-              ? expanded[connectionId]
+            expandedConnections[connectionId] !== 'collapsed'
+              ? expandedDatabases[connectionId]
               : false;
           return obj;
         },
@@ -160,17 +203,20 @@ export function ActiveConnectionNavigation({
       );
       return result;
     },
-    [collapsed, expanded]
+    [expandedConnections, expandedDatabases]
   );
 
   useEffect(() => {
     // cleanup connections that are no longer active
-    // if the user connects again, the new connection should be expanded again
-    setCollapsed((collapsed) => {
-      const newCollapsed = activeConnections
-        .filter(({ id }: ConnectionInfo) => collapsed.includes(id))
-        .map(({ id }: ConnectionInfo) => id);
-      return newCollapsed;
+    // if the user connects again, the new connection should start in the default state
+    setExpandedConnections((expandedConnections) => {
+      const newExpanded = Object.fromEntries(
+        activeConnections.map(({ connectionOptions: { id: connectionId } }) => [
+          connectionId,
+          expandedConnections[connectionId],
+        ])
+      );
+      return newExpanded;
     });
   }, [activeConnections]);
 
@@ -294,7 +340,7 @@ export function ActiveConnectionNavigation({
         onDatabaseExpand={onDatabaseExpand}
         expanded={
           filteredConnections
-            ? getExpanded(filteredConnections, true)
+            ? getExpanded(filteredConnections)
             : getExpanded(connections)
         }
         {...navigationProps}
@@ -309,7 +355,7 @@ function mapStateToProps(
 ): {
   isReady: boolean;
   connections: Connection[];
-  expanded: Record<string, Record<string, boolean> | false>;
+  expandedDatabases: Record<string, Record<string, boolean> | false>;
 } {
   const connections: Connection[] = [];
   const expandedResult: Record<string, any> = {};
@@ -317,13 +363,9 @@ function mapStateToProps(
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
     const instance = state.instance[connectionId];
-    const {
-      filterRegex,
-      filteredDatabases,
-      expandedDbList: initialExpandedDbList,
-    } = state.databases[connectionId] || {};
-
-    // console.log({ initialExpandedDbList });
+    const filterRegex = state.databases.filterRegex;
+    const { filteredDatabases, expandedDbList: initialExpandedDbList } =
+      state.databases.connectionDatabases[connectionId] || {};
 
     const status = instance?.databasesStatus;
     const isReady =
@@ -337,8 +379,6 @@ function mapStateToProps(
         expandedDbList[name] ?? defaultExpanded,
       ])
     );
-
-    // console.log({ expanded, defaultExpanded });
 
     const isDataLake = instance?.dataLake?.isDataLake ?? false;
     const isWritable = instance?.isWritable ?? false;
@@ -364,7 +404,7 @@ function mapStateToProps(
   return {
     isReady: true,
     connections,
-    expanded: expandedResult,
+    expandedDatabases: expandedResult,
   };
 }
 
@@ -399,7 +439,7 @@ const onNamespaceAction = (
       case 'duplicate-view': {
         const coll = findCollection(
           namespace,
-          getState().databases[connectionId].databases
+          getState().databases.connectionDatabases[connectionId].databases
         );
         if (coll && coll.sourceName) {
           emit(
