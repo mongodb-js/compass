@@ -26,7 +26,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
-import { filter } from 'lodash';
 
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
@@ -106,9 +105,9 @@ export function ActiveConnectionNavigation({
   ) => SidebarThunkAction<void, DatabasesAction>;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<ConnectionInfo['id'][]>([]);
-  const [filteredConnections, setFilteredConnections] = useState<Connection[]>(
-    []
-  );
+  const [filteredConnections, setFilteredConnections] = useState<
+    Connection[] | undefined
+  >(undefined);
   const [filterRegex, setFilterRegex] = useState<RegExp | null>(null); // TODO: unify all filterRegex -> in redux they are per connection atm
 
   const {
@@ -121,29 +120,14 @@ export function ActiveConnectionNavigation({
 
   useEffect(() => {
     if (!filterRegex) {
-      setFilteredConnections(connections);
+      setFilteredConnections(undefined);
     } else {
-      // TODO: anything that contains a match is a match AND should be expanded
       const matches: Connection[] = [];
       connections.forEach((connection) => {
-        console.log({ connection });
         if (connection.databases.length || filterRegex?.test(connection.name)) {
           matches.push(connection);
         }
-        if (
-          connection.databases.length &&
-          collapsed.includes(connection.connectionInfo.id)
-        ) {
-          setCollapsed((collapsed) => {
-            const index = collapsed.indexOf(connection.connectionInfo.id);
-            return [
-              ...collapsed.slice(0, index),
-              ...collapsed.slice(index + 1),
-            ];
-          });
-        }
       });
-      console.log({ matches, filterRegex });
       setFilteredConnections(matches);
     }
   }, [filterRegex, connections, setFilteredConnections, setCollapsed]);
@@ -160,6 +144,23 @@ export function ActiveConnectionNavigation({
       }
     },
     [setCollapsed, collapsed]
+  );
+
+  const getExpanded = useCallback(
+    (list: Connection[], forceExpand?: boolean) => {
+      const result = list.reduce(
+        (obj, { connectionInfo: { id: connectionId } }) => {
+          obj[connectionId] =
+            forceExpand || !collapsed.includes(connectionId)
+              ? expanded[connectionId]
+              : false;
+          return obj;
+        },
+        {} as Record<string, false | Record<string, boolean>>
+      );
+      return result;
+    },
+    [collapsed, expanded]
   );
 
   useEffect(() => {
@@ -283,7 +284,7 @@ export function ActiveConnectionNavigation({
       />
       <ConnectionsNavigationTree
         isReady={true}
-        connections={filteredConnections}
+        connections={filteredConnections || connections}
         activeWorkspace={activeWorkspace}
         onNamespaceAction={onNamespaceAction}
         onConnectionSelect={(connectionId) =>
@@ -291,15 +292,11 @@ export function ActiveConnectionNavigation({
         }
         onConnectionExpand={onConnectionToggle}
         onDatabaseExpand={onDatabaseExpand}
-        expanded={filteredConnections.reduce(
-          (obj, { connectionInfo: { id: connectionId } }) => {
-            obj[connectionId] = collapsed.includes(connectionId)
-              ? false
-              : expanded[connectionId];
-            return obj;
-          },
-          {} as Record<string, false | Record<string, boolean>>
-        )}
+        expanded={
+          filteredConnections
+            ? getExpanded(filteredConnections, true)
+            : getExpanded(connections)
+        }
         {...navigationProps}
       />
     </div>
@@ -326,6 +323,8 @@ function mapStateToProps(
       expandedDbList: initialExpandedDbList,
     } = state.databases[connectionId] || {};
 
+    // console.log({ initialExpandedDbList });
+
     const status = instance?.databasesStatus;
     const isReady =
       status !== undefined && !['initial', 'fetching'].includes(status);
@@ -338,6 +337,8 @@ function mapStateToProps(
         expandedDbList[name] ?? defaultExpanded,
       ])
     );
+
+    // console.log({ expanded, defaultExpanded });
 
     const isDataLake = instance?.dataLake?.isDataLake ?? false;
     const isWritable = instance?.isWritable ?? false;
