@@ -3,18 +3,17 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { DataService } from 'mongodb-data-service';
 import { cancelImport, importReducer, openImport } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type ImportPluginServices = {
   globalAppRegistry: AppRegistry;
-  dataService: Pick<DataService, 'isConnected' | 'bulkWrite' | 'insertOne'>;
   workspaces: WorkspacesService;
   logger: LoggerAndTelemetry;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionsManager: ConnectionsManager;
 };
 
 export function configureStore(services: ImportPluginServices) {
@@ -37,41 +36,53 @@ export type ImportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   A
 >;
 
+type OpenImportEvent = {
+  namespace: string;
+  origin: 'menu' | 'crud-toolbar' | 'empty-state';
+};
+
+type ConnectionMeta = {
+  connectionId?: string;
+};
+
 export function activatePlugin(
   _: unknown,
   {
     globalAppRegistry,
-    dataService,
+    connectionsManager,
     workspaces,
     logger,
-    connectionInfoAccess,
-  }: ImportPluginServices
+  }: ImportPluginServices,
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore({
     globalAppRegistry,
-    dataService,
     workspaces,
     logger,
-    connectionInfoAccess,
+    connectionsManager,
   });
 
-  const onOpenImport = ({
-    namespace,
-    origin,
-  }: {
-    namespace: string;
-    origin: 'menu' | 'crud-toolbar' | 'empty-state';
-  }) => {
-    store.dispatch(openImport({ namespace, origin }));
-  };
+  addCleanup(() => {
+    store.dispatch(cancelImport());
+  });
 
-  globalAppRegistry.on('open-import', onOpenImport);
+  on(
+    globalAppRegistry,
+    'open-import',
+    function onOpenImport(
+      { namespace, origin }: OpenImportEvent,
+      { connectionId }: ConnectionMeta = {}
+    ) {
+      if (!connectionId) {
+        throw new Error('Cannot open Import modal without a connectionId');
+      }
+
+      store.dispatch(openImport({ namespace, origin, connectionId }));
+    }
+  );
 
   return {
     store,
-    deactivate() {
-      store.dispatch(cancelImport());
-      globalAppRegistry.removeListener('open-import', onOpenImport);
-    },
+    deactivate: cleanup,
   };
 }

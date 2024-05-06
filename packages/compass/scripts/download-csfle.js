@@ -3,7 +3,9 @@
 const os = require('os');
 const path = require('path');
 const { promises: fs } = require('fs');
-const { downloadMongoDb } = require('@mongodb-js/mongodb-downloader');
+const {
+  downloadMongoDbWithVersionInfo,
+} = require('@mongodb-js/mongodb-downloader');
 
 const PACKAGE_ROOT = process.cwd();
 
@@ -43,17 +45,18 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
     downloadOptions.distro = 'rhel80';
   }
 
-  const downloaded = await downloadMongoDb(
+  const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo(
     CACHE_DIR,
     'continuous',
     downloadOptions
   );
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
-  await fs.cp(path.dirname(downloaded), CSFLE_DIRECTORY, {
+  await fs.cp(path.dirname(downloadedBinDir), CSFLE_DIRECTORY, {
     force: true,
     recursive: true,
     preserveTimestamps: true,
   });
+  await fs.writeFile(path.join(CSFLE_DIRECTORY, 'version'), version);
 })().catch((err) => {
   if (err) {
     console.error(err);

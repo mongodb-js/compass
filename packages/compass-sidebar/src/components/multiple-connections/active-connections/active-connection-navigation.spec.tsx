@@ -5,6 +5,7 @@ import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
+  type DataService,
   type ConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../../stores';
@@ -20,6 +21,10 @@ import {
 } from 'compass-preferences-model/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { EventEmitter } from 'events';
+import {
+  type WorkspacesService,
+  WorkspacesServiceProvider,
+} from '@mongodb-js/compass-workspaces/provider';
 
 class MockInstance extends EventEmitter {
   _id: string;
@@ -91,11 +96,14 @@ describe('<ActiveConnectionNavigation />', function () {
   let preferences: PreferencesAccess;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let turtleInstance: EventEmitter;
+  let dataService: DataService;
+  let dataServiceCurrentOp = sinon.stub().resolves();
   let deactivate: () => void;
   const globalAppRegistry = new AppRegistry();
   const onOpenConnectionInfoStub = sinon.stub();
   const onCopyConnectionStringStub = sinon.stub();
   const onToggleFavoriteConnectionStub = sinon.stub();
+  const openPerformanceWorkspaceStub = sinon.stub();
 
   const renderActiveConnectionsNavigation = async ({
     activeWorkspace = {
@@ -106,8 +114,25 @@ describe('<ActiveConnectionNavigation />', function () {
   }: {
     activeWorkspace?: WorkspaceTab;
   } = {}) => {
+    const dataServiceEmitter = new EventEmitter();
+    dataService = {
+      currentOp: dataServiceCurrentOp,
+      top: () => Promise.resolve(),
+      id: 'mockDataService',
+      disconnect() {},
+      addReauthenticationHandler() {},
+      getUpdatedSecrets() {
+        return Promise.resolve('mockDataService');
+      },
+      getConnectionOptions: () => ({
+        connectionString: 'mongodb://localhost',
+      }),
+      emit: dataServiceEmitter.emit.bind(dataServiceEmitter),
+      on: dataServiceEmitter.on.bind(dataServiceEmitter),
+    } as unknown as DataService;
     turtleInstance = new MockInstance();
     connectionsManager = new ConnectionsManager({} as any);
+    (connectionsManager as any).getDataServiceForConnection = () => dataService;
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
     (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
     ({ store, deactivate } = createSidebarStore(
@@ -132,17 +157,29 @@ describe('<ActiveConnectionNavigation />', function () {
 
     return render(
       <PreferencesProvider value={preferences}>
-        <ConnectionsManagerProvider value={connectionsManager}>
-          <Provider store={store}>
-            <ActiveConnectionNavigation
-              activeConnections={mockConnections}
-              activeWorkspace={activeWorkspace}
-              onOpenConnectionInfo={onOpenConnectionInfoStub}
-              onCopyConnectionString={onCopyConnectionStringStub}
-              onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
-            />
-          </Provider>
-        </ConnectionsManagerProvider>
+        <WorkspacesServiceProvider
+          value={
+            {
+              openPerformanceWorkspace: openPerformanceWorkspaceStub,
+              openCollectionsWorkspace: sinon.stub(),
+              openCollectionWorkspace: sinon.stub(),
+              openDatabasesWorkspace: sinon.stub(),
+              openEditViewWorkspace: sinon.stub(),
+            } as unknown as WorkspacesService
+          }
+        >
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <Provider store={store}>
+              <ActiveConnectionNavigation
+                activeConnections={mockConnections}
+                activeWorkspace={activeWorkspace}
+                onOpenConnectionInfo={onOpenConnectionInfoStub}
+                onCopyConnectionString={onCopyConnectionStringStub}
+                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+              />
+            </Provider>
+          </ConnectionsManagerProvider>
+        </WorkspacesServiceProvider>
       </PreferencesProvider>
     );
   };
@@ -214,6 +251,45 @@ describe('<ActiveConnectionNavigation />', function () {
       userEvent.click(favoriteBtn);
 
       expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
+    });
+
+    it('Calls openPerformanceWorkspace', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getByTitle('Show actions');
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const metricsBtn = await screen.findByText('View performance metrics');
+      expect(metricsBtn).to.be.visible;
+
+      userEvent.click(metricsBtn);
+
+      expect(openPerformanceWorkspaceStub).to.have.been.calledWith('turtle');
+    });
+  });
+
+  describe('Connection actions - when Performance is not available', () => {
+    beforeEach(async () => {
+      dataServiceCurrentOp = sinon.stub().rejects({ codeName: 'AtlasError' });
+      await renderActiveConnectionsNavigation();
+    });
+
+    it('Performance action is disabled', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getByTitle('Show actions');
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const metricsBtn = (
+        await screen.findByText('View performance metrics')
+      ).closest('button');
+      expect(metricsBtn).not.to.be.null;
+      expect(metricsBtn).to.be.visible;
+      expect(metricsBtn).to.have.attribute('disabled');
     });
   });
 

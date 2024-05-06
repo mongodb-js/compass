@@ -154,6 +154,8 @@ function mapStateToProps(
         databasesStatus: (status ??
           'fetching') as Connection['databasesStatus'],
         databases: filteredDatabases ?? [],
+        isPerformanceTabSupported:
+          !isDataLake && !!state.isPerformanceTabSupported[connectionId],
       },
     ],
     expanded: {
