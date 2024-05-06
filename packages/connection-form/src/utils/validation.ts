@@ -298,7 +298,7 @@ function validateCSFLEErrors(
   const kmsProviders = autoEncryptionOptions.kmsProviders ?? {};
   if (
     typeof kmsProviders.local?.key === 'string' &&
-    !/[a-zA-Z0-9+/-_=]{128}/.test(kmsProviders.local.key)
+    !/[a-zA-Z0-9+/_-]{128}/.test(kmsProviders.local.key)
   ) {
     errors.push({
       fieldTab: 'csfle',
