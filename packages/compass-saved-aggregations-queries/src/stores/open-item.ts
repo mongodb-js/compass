@@ -1,6 +1,13 @@
-import type { ActionCreator, Reducer } from 'redux';
+import type { ActionCreator, AnyAction, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
+
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
@@ -87,7 +94,7 @@ type LoadCollectionsErrorAction = {
   type: ActionTypes.LoadCollectionsError;
 };
 
-type UpdateNamespaceChecked = {
+type UpdateNamespaceCheckedAction = {
   type: ActionTypes.UpdateNamespaceChecked;
   updateItemNamespace: boolean;
 };
@@ -103,71 +110,112 @@ export type Actions =
   | LoadCollectionsAction
   | LoadCollectionsErrorAction
   | LoadCollectionsSuccessAction
-  | UpdateNamespaceChecked;
+  | UpdateNamespaceCheckedAction;
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ActionTypes.OpenModal:
-      return {
-        ...state,
-        selectedItem: action.selectedItem,
-        isModalOpen: true,
-      };
-    case ActionTypes.CloseModal:
-      return { ...INITIAL_STATE };
-    case ActionTypes.SelectDatabase:
-      return {
-        ...state,
-        selectedDatabase: action.database,
-        collections: [],
-        collectionsStatus: 'initial',
-        selectedCollection: null,
-      };
-    case ActionTypes.LoadDatabases:
-      return {
-        ...state,
-        databasesStatus: 'fetching',
-      };
-    case ActionTypes.LoadDatabasesError:
-      return {
-        ...state,
-        databasesStatus: 'error',
-      };
-    case ActionTypes.LoadDatabasesSuccess:
-      return {
-        ...state,
-        databases: action.databases,
-        databasesStatus: 'ready',
-      };
-    case ActionTypes.SelectCollection:
-      return {
-        ...state,
-        selectedCollection: action.collection,
-      };
-    case ActionTypes.LoadCollections:
-      return {
-        ...state,
-        collectionsStatus: 'fetching',
-      };
-    case ActionTypes.LoadCollectionsError:
-      return {
-        ...state,
-        collectionsStatus: 'error',
-      };
-    case ActionTypes.LoadCollectionsSuccess:
-      return {
-        ...state,
-        collections: action.collections,
-        collectionsStatus: 'ready',
-      };
-    case ActionTypes.UpdateNamespaceChecked:
-      return {
-        ...state,
-        updateItemNamespace: action.updateItemNamespace,
-      };
-    default:
-      return state;
+  if (isAction<OpenModalAction>(action, ActionTypes.OpenModal)) {
+    return {
+      ...state,
+      selectedItem: action.selectedItem,
+      isModalOpen: true,
+    };
   }
+
+  if (isAction<CloseModalAction>(action, ActionTypes.CloseModal)) {
+    return { ...INITIAL_STATE };
+  }
+
+  if (isAction<SelectDatabaseAction>(action, ActionTypes.SelectDatabase)) {
+    return {
+      ...state,
+      selectedDatabase: action.database,
+      collections: [],
+      collectionsStatus: 'initial',
+      selectedCollection: null,
+    };
+  }
+
+  if (isAction<LoadDatabasesAction>(action, ActionTypes.LoadDatabases)) {
+    return {
+      ...state,
+      databasesStatus: 'fetching',
+    };
+  }
+
+  if (
+    isAction<LoadDatabasesErrorAction>(action, ActionTypes.LoadDatabasesError)
+  ) {
+    return {
+      ...state,
+      databasesStatus: 'error',
+    };
+  }
+
+  if (
+    isAction<LoadDatabasesSuccessAction>(
+      action,
+      ActionTypes.LoadDatabasesSuccess
+    )
+  ) {
+    return {
+      ...state,
+      databases: action.databases,
+      databasesStatus: 'ready',
+    };
+  }
+
+  if (isAction<SelectCollectionAction>(action, ActionTypes.SelectCollection)) {
+    return {
+      ...state,
+      selectedCollection: action.collection,
+    };
+  }
+
+  if (isAction<LoadCollectionsAction>(action, ActionTypes.LoadCollections)) {
+    return {
+      ...state,
+      collectionsStatus: 'fetching',
+    };
+  }
+
+  if (
+    isAction<LoadCollectionsErrorAction>(
+      action,
+      ActionTypes.LoadCollectionsError
+    )
+  ) {
+    return {
+      ...state,
+      collectionsStatus: 'error',
+    };
+  }
+
+  if (
+    isAction<LoadCollectionsSuccessAction>(
+      action,
+      ActionTypes.LoadCollectionsSuccess
+    )
+  ) {
+    return {
+      ...state,
+      collections: action.collections,
+      collectionsStatus: 'ready',
+    };
+  }
+
+  if (
+    isAction<UpdateNamespaceCheckedAction>(
+      action,
+      ActionTypes.UpdateNamespaceChecked
+    )
+  ) {
+    return {
+      ...state,
+      updateItemNamespace: action.updateItemNamespace,
+    };
+  }
+
+  return state;
 };
 
 export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
