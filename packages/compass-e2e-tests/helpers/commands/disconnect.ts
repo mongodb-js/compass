@@ -8,7 +8,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     const url = new URL(await browser.getUrl());
     url.pathname = '/';
     await browser.navigateTo(url.toString());
-    const element = await browser.$('textarea[title="Connection string"]');
+    const element = await browser.$(Selectors.ConnectionStringInput);
     await element.waitForDisplayed();
     return;
   }

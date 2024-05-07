@@ -12,6 +12,33 @@ function serializeError(err) {
   }
 }
 
+const certsMap = new Map();
+
+const WEB_PROXY_PORT = process.env.COMPASS_WEB_HTTP_PROXY_PORT
+  ? Number(process.env.COMPASS_WEB_HTTP_PROXY_PORT)
+  : 7777;
+
+async function resolveX509Cert({ projectId, clusterName }) {
+  if (certsMap.has(projectId)) {
+    return certsMap.get(projectId);
+  }
+  try {
+    const certUrl = new URL(`http://localhost:${WEB_PROXY_PORT}/x509`);
+    certUrl.searchParams.set('projectId', projectId);
+    certUrl.searchParams.set('clusterName', clusterName);
+    const cert = await fetch(certUrl).then((res) => {
+      if (!res.ok) {
+        throw new Error('Failed to resolve x509 cert for the connection');
+      }
+      return res.text();
+    });
+    certsMap.set(projectId, cert);
+    return cert;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Creates a simple passthrough proxy that accepts a websocket connection and
  * establishes a corresponding socket connection to a server. The connection
@@ -42,6 +69,7 @@ function createWebSocketProxy(port = 1337, logger = console) {
         const {
           connectOptions: { tls: useSecureConnection, ...connectOptions },
           setOptions: { setKeepAlive, setTimeout, setNoDelay },
+          atlasOptions,
         } = JSON.parse(data.toString());
         logger.log(
           'setting up new%s connection to %s:%s',
@@ -49,8 +77,15 @@ function createWebSocketProxy(port = 1337, logger = console) {
           connectOptions.host,
           connectOptions.port
         );
+        let cert = null;
+        if (atlasOptions) {
+          cert = await resolveX509Cert(atlasOptions);
+        }
         socket = useSecureConnection
-          ? tls.connect(connectOptions)
+          ? tls.connect({
+              ...connectOptions,
+              ...(cert && { cert: cert, key: cert }),
+            })
           : net.createConnection(connectOptions);
         if (setKeepAlive) {
           socket.setKeepAlive(setKeepAlive.enabled, setKeepAlive.initialDelay);
