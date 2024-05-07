@@ -6,15 +6,6 @@ import { type ConnectionInfo } from '@mongodb-js/connection-info';
 /**
  * Databases actions.
  */
-export const CHANGE_FILTER_REGEX =
-  'sidebar/databases/CHANGE_FILTER_REGEX' as const;
-
-interface ChangeFilterRegexAction {
-  type: typeof CHANGE_FILTER_REGEX;
-  connectionId: ConnectionInfo['id'];
-  filterRegex: null | RegExp;
-}
-
 export const CHANGE_DATABASES = 'sidebar/databases/CHANGE_DATABASES' as const;
 interface ChangeDatabasesAction {
   type: typeof CHANGE_DATABASES;
@@ -30,10 +21,7 @@ interface ToggleDatabaseAction {
   expanded: boolean;
 }
 
-export type DatabasesAction =
-  | ChangeFilterRegexAction
-  | ChangeDatabasesAction
-  | ToggleDatabaseAction;
+export type DatabasesAction = ChangeDatabasesAction | ToggleDatabaseAction;
 
 type DatabaseRaw = MongoDBInstance['databases'][number];
 
@@ -46,23 +34,19 @@ export type Database = Pick<
     '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
   >[];
 };
-export type AllDatabasesState = {
-  filterRegex: RegExp | null;
-  connectionDatabases: Record<ConnectionInfo['id'], ConnectionDatabasesState>;
-};
+export type AllDatabasesState = Record<
+  ConnectionInfo['id'],
+  ConnectionDatabasesState
+>;
 export interface ConnectionDatabasesState {
   databases: Database[];
-  filteredDatabases: Database[];
   expandedDbList: Record<string, boolean>;
 }
 
 /**
  * The initial state of the sidebar databases.
  */
-export const INITIAL_STATE: AllDatabasesState = {
-  filterRegex: null,
-  connectionDatabases: {},
-};
+export const INITIAL_STATE: AllDatabasesState = {};
 
 /**
  * Reducer function for handle state changes to sidebar databases.
@@ -77,8 +61,7 @@ export default function reducer(
   action: RootAction
 ): AllDatabasesState {
   if (action.type === TOGGLE_DATABASE) {
-    const { expandedDbList } =
-      state.connectionDatabases[action.connectionId] || {};
+    const { expandedDbList } = state[action.connectionId] || {};
     if (expandedDbList) {
       const previousExpandedState = expandedDbList[action.database];
 
@@ -89,45 +72,20 @@ export default function reducer(
 
     return {
       ...state,
-      connectionDatabases: {
-        ...state.connectionDatabases,
-        [action.connectionId]: {
-          ...state.connectionDatabases[action.connectionId],
-          expandedDbList: {
-            ...expandedDbList,
-            [action.database]: action.expanded,
-          },
-        },
-      },
-    };
-  } else if (action.type === CHANGE_FILTER_REGEX) {
-    return {
-      ...state,
-      filterRegex: action.filterRegex,
-      connectionDatabases: {
-        ...state.connectionDatabases,
-        [action.connectionId]: {
-          ...state.connectionDatabases[action.connectionId],
-          filteredDatabases: filterDatabases(
-            state.connectionDatabases[action.connectionId]?.databases ?? [],
-            action.filterRegex
-          ),
+      [action.connectionId]: {
+        ...state[action.connectionId],
+        expandedDbList: {
+          ...expandedDbList,
+          [action.database]: action.expanded,
         },
       },
     };
   } else if (action.type === CHANGE_DATABASES) {
     return {
       ...state,
-      connectionDatabases: {
-        ...state.connectionDatabases,
-        [action.connectionId]: {
-          ...state.connectionDatabases[action.connectionId],
-          databases: action.databases,
-          filteredDatabases: filterDatabases(
-            action.databases,
-            state.filterRegex
-          ),
-        },
+      [action.connectionId]: {
+        ...state[action.connectionId],
+        databases: action.databases,
       },
     };
   }
@@ -152,8 +110,7 @@ export const toggleDatabaseExpanded =
   ): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
     const { database } = toNS(databaseId);
-    const { expandedDbList } =
-      getState().databases.connectionDatabases[connectionId];
+    const { expandedDbList } = getState().databases[connectionId];
     const expanded = forceExpand ?? !expandedDbList[database];
 
     if (expanded) {
@@ -164,28 +121,7 @@ export const toggleDatabaseExpanded =
     dispatch({ type: TOGGLE_DATABASE, connectionId, database, expanded });
   };
 
-export const changeFilterRegex =
-  (filterRegex: RegExp | null): SidebarThunkAction<void, DatabasesAction> =>
-  (dispatch, getState, { globalAppRegistry }) => {
-    if (filterRegex) {
-      // When filtering, emit an event so that we can fetch all collections. This
-      // is required as a workaround for the syncronous nature of the current
-      // filtering feature
-      globalAppRegistry.emit('sidebar-filter-navigation-list');
-    }
-
-    for (const connectionId of Object.keys(
-      getState().databases.connectionDatabases
-    )) {
-      dispatch({
-        type: CHANGE_FILTER_REGEX,
-        connectionId,
-        filterRegex,
-      });
-    }
-  };
-
-const filterDatabases = (databases: Database[], re: RegExp | null) => {
+export const filterDatabases = (databases: Database[], re: RegExp | null) => {
   if (!re) {
     return databases;
   }
