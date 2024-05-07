@@ -16,6 +16,7 @@ export type Actions =
   | 'connection-disconnect'
   | 'select-connection'
   | 'select-database'
+  | 'create-database'
   | 'drop-database'
   | 'select-collection'
   | 'create-collection'

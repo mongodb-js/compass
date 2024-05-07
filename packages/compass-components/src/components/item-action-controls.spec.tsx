@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, within } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -94,6 +94,35 @@ describe('item action controls components', function () {
       expect(onAction).have.been.calledOnceWith('copy');
       userEvent.click(screen.getByText('Delete'));
       expect(onAction).have.been.calledWith('delete');
+    });
+
+    it('renders action icons when collapseAfter is provided', function () {
+      render(
+        <ItemActionControls
+          actions={[
+            { action: 'connect', label: 'Connection', icon: 'Plus' },
+            { action: 'edit', label: 'Edit', icon: 'Edit' },
+            { action: 'delete', label: 'Delete', icon: 'Trash' },
+          ]}
+          onAction={() => {}}
+          data-testid="test-actions"
+          collapseAfter={1}
+        ></ItemActionControls>
+      );
+
+      expect(screen.queryByTestId('test-actions-connect-action')).to.exist;
+
+      // Now open the menu and check this icon is not there
+      userEvent.click(screen.getByTestId('test-actions-show-actions'));
+
+      const menuActions = screen.getByRole('menu');
+      expect(within(menuActions).queryByTestId('test-actions-connect-action'))
+        .to.not.exist;
+
+      expect(within(menuActions).queryByTestId('test-actions-edit-action')).to
+        .exist;
+      expect(within(menuActions).queryByTestId('test-actions-delete-action')).to
+        .exist;
     });
   });
 });
