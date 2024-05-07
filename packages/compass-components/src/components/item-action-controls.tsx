@@ -10,14 +10,14 @@ import {
 import { Tooltip } from './tooltip';
 import type { TooltipProps } from './tooltip';
 import type { ButtonProps } from '@leafygreen-ui/button';
-
+import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
 export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
-  icon: React.ReactChild;
+  icon: keyof typeof glyphs | React.ReactElement;
   variant?: 'default' | 'destructive';
   isDisabled?: boolean;
   disabledDescription?: string;
@@ -369,6 +369,7 @@ export function ItemActionControls<Action extends string>({
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
   usePortal,
+  collapseAfter = 0,
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
 }: {
@@ -380,12 +381,47 @@ export function ItemActionControls<Action extends string>({
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
+  // The number of actions to show before collapsing other actions into a menu
+  collapseAfter?: number;
+  // When using `collapseAfter`, this option is not used.
   collapseToMenuThreshold?: number;
   usePortal?: boolean;
   'data-testid'?: string;
 }) {
   if (actions.length === 0) {
     return null;
+  }
+
+  // When user wants to show a few actions and collapse the rest into a menu
+  if (collapseAfter > 0) {
+    const visibleActions = actions.slice(0, collapseAfter);
+    const collapsedActions = actions.slice(collapseAfter);
+    return (
+      <div className={actionControlsStyle}>
+        <ItemActionGroup
+          isVisible={isVisible}
+          actions={visibleActions}
+          onAction={onAction}
+          className={cx('item-action-controls', className)}
+          iconClassName={iconClassName}
+          iconStyle={iconStyle}
+          iconSize={iconSize}
+          data-testid={dataTestId}
+        ></ItemActionGroup>
+        <ItemActionMenu
+          isVisible={isVisible}
+          actions={collapsedActions}
+          onAction={onAction}
+          className={cx('item-action-controls', className)}
+          menuClassName={menuClassName}
+          iconClassName={iconClassName}
+          iconStyle={iconStyle}
+          iconSize={iconSize}
+          usePortal={usePortal}
+          data-testid={dataTestId}
+        ></ItemActionMenu>
+      </div>
+    );
   }
 
   const shouldShowMenu = actions.length >= collapseToMenuThreshold;

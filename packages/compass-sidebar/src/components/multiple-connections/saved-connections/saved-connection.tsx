@@ -14,9 +14,9 @@ import {
   IconButton,
   ItemActionControls,
   useHoverState,
-  useToast,
   palette,
   Tooltip,
+  openToast,
 } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from '../../with-status-marker';
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -41,6 +41,7 @@ const savedConnectionStyles = css({
   alignItems: 'center',
   cursor: 'pointer',
   marginTop: 'auto',
+  height: spacing[800],
 });
 
 const savedConnectionNameStyles = css({
@@ -49,14 +50,8 @@ const savedConnectionNameStyles = css({
   whiteSpace: 'nowrap',
 });
 
-const savedConnectionToolbarStyles = css({
-  marginLeft: 'auto',
-  paddingLeft: spacing[5],
-  display: 'flex',
-  flexDirection: 'row',
-});
-
 type Action =
+  | 'establish-connection'
   | 'edit-connection'
   | 'toggle-favorite'
   | 'copy-connection-string'
@@ -86,6 +81,65 @@ type SavedConnectionProps = {
   onToggleFavoriteConnection(connectionInfo: ConnectionInfo): void;
 };
 
+function ConnectIconButton({
+  canOpenNewConnection,
+  canNotOpenReason,
+  maximumNumberOfConnectionsOpen,
+}: {
+  canOpenNewConnection: boolean;
+  canNotOpenReason?: CanNotOpenConnectionReason;
+  maximumNumberOfConnectionsOpen: number;
+}) {
+  return (
+    <Tooltip
+      align="top"
+      justify="middle"
+      enabled={!canOpenNewConnection}
+      trigger={({ children, ...props }) => (
+        <IconButton
+          {...props}
+          disabled={!canOpenNewConnection}
+          data-testid="connect-button"
+          aria-label="Connect"
+          title="Connect"
+          onClick={() => {
+            // LG does not bubble up the click event to the parent component, so we
+            // add noop onClick and let it bubble up.
+          }}
+        >
+          <Icon size="small" glyph="Connect" />
+          {children}
+        </IconButton>
+      )}
+    >
+      {canNotOpenReason === 'maximum-number-exceeded' &&
+        `Only ${maximumNumberOfConnectionsOpen} connection${
+          maximumNumberOfConnectionsOpen > 1 ? 's' : ''
+        } can be open at the same time. First disconnect from another cluster.`}
+    </Tooltip>
+  );
+}
+
+async function copyConnectionString(connectionString: string) {
+  try {
+    await navigator.clipboard.writeText(connectionString);
+    openToast('copy-to-clipboard', {
+      title: 'Success',
+      description: 'Copied to clipboard.',
+      variant: 'success',
+      timeout: TOAST_TIMEOUT_MS,
+    });
+  } catch (err) {
+    openToast('copy-to-clipboard', {
+      title: 'Error',
+      description:
+        'An error occurred when copying to clipboard. Please try again.',
+      variant: 'warning',
+      timeout: TOAST_TIMEOUT_MS,
+    });
+  }
+}
+
 export function SavedConnection({
   canOpenNewConnection,
   canNotOpenReason,
@@ -108,7 +162,6 @@ export function SavedConnection({
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const [hoverProps, isHovered] = useHoverState();
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
-  const { openToast } = useToast('compass-connections');
 
   let icon: React.ReactElement;
   if (connectionStatus === 'failed') {
@@ -133,27 +186,18 @@ export function SavedConnection({
     );
   }
 
-  async function copyConnectionString(connectionString: string) {
-    try {
-      await navigator.clipboard.writeText(connectionString);
-      openToast('copy-to-clipboard', {
-        title: 'Success',
-        description: 'Copied to clipboard.',
-        variant: 'success',
-        timeout: TOAST_TIMEOUT_MS,
-      });
-    } catch (err) {
-      openToast('copy-to-clipboard', {
-        title: 'Error',
-        description:
-          'An error occurred when copying to clipboard. Please try again.',
-        variant: 'warning',
-        timeout: TOAST_TIMEOUT_MS,
-      });
-    }
-  }
-
   const actions: (ItemAction<Action> | ItemSeparator)[] = [
+    {
+      action: 'establish-connection',
+      label: 'Connect',
+      icon: (
+        <ConnectIconButton
+          canOpenNewConnection={canOpenNewConnection}
+          canNotOpenReason={canNotOpenReason}
+          maximumNumberOfConnectionsOpen={maximumNumberOfConnectionsOpen}
+        />
+      ),
+    },
     {
       action: 'edit-connection',
       label: 'Edit connection',
@@ -189,6 +233,8 @@ export function SavedConnection({
   const onAction = useCallback(
     (action: Action) => {
       switch (action) {
+        case 'establish-connection':
+          return onConnect(connectionInfo);
         case 'edit-connection':
           return onEditConnection(connectionInfo);
         case 'copy-connection-string':
@@ -207,8 +253,8 @@ export function SavedConnection({
     },
     [
       connectionInfo,
+      onConnect,
       onEditConnection,
-      copyConnectionString,
       maybeProtectConnectionString,
       onToggleFavoriteConnection,
       onDuplicateConnection,
@@ -229,41 +275,14 @@ export function SavedConnection({
       <div className={savedConnectionNameStyles}>
         {getConnectionTitle(connectionInfo)}
       </div>
-      <div
-        style={{ visibility: isHovered ? 'visible' : 'hidden' }}
-        className={savedConnectionToolbarStyles}
-      >
-        <Tooltip
-          align="top"
-          justify="middle"
-          enabled={!canOpenNewConnection}
-          trigger={({ children, ...props }) => (
-            <IconButton
-              {...props}
-              disabled={!canOpenNewConnection}
-              onClick={() => onConnect(connectionInfo)}
-              data-testid="connect-button"
-              aria-label="Connect"
-              title="Connect"
-            >
-              <Icon glyph="Connect" />
-              {children}
-            </IconButton>
-          )}
-        >
-          {canNotOpenReason === 'maximum-number-exceeded' &&
-            `Only ${maximumNumberOfConnectionsOpen} connection${
-              maximumNumberOfConnectionsOpen > 1 ? 's' : ''
-            } can be open at the same time. First disconnect from another cluster.`}
-        </Tooltip>
-        <ItemActionControls<Action>
-          data-testid="connection-menu"
-          onAction={onAction}
-          iconSize="small"
-          actions={actions}
-          isVisible={isHovered}
-        ></ItemActionControls>
-      </div>
+      <ItemActionControls<Action>
+        data-testid="connection-menu"
+        onAction={onAction}
+        iconSize="small"
+        actions={actions}
+        isVisible={isHovered}
+        collapseAfter={1}
+      ></ItemActionControls>
     </li>
   );
 }
