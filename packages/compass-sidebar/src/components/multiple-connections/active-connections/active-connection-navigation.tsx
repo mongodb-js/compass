@@ -57,6 +57,7 @@ const activeConnectionListHeaderTitleStyles = css({
 
 const activeConnectionCountStyles = css({
   fontWeight: 'normal',
+  marginLeft: spacing[100],
 });
 
 export function ActiveConnectionNavigation({
@@ -223,10 +224,12 @@ export function ActiveConnectionNavigation({
     <div className={activeConnectionsContainerStyles}>
       <header className={activeConnectionListHeaderStyles}>
         <Subtitle className={activeConnectionListHeaderTitleStyles}>
-          Active connections{' '}
-          <span className={activeConnectionCountStyles}>
-            ({activeConnections.length})
-          </span>
+          Active connections
+          {activeConnections.length !== 0 && (
+            <span className={activeConnectionCountStyles}>
+              ({activeConnections.length})
+            </span>
+          )}
         </Subtitle>
       </header>
       <ConnectionsNavigationTree
