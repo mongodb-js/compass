@@ -251,7 +251,7 @@ const mapStateToProps = (
   if (!connectionInfo) return { infos: [] };
 
   const instance = state.instance[connectionInfo.id];
-  const databases = state.databases.connectionDatabases[connectionInfo.id];
+  const databases = state.databases[connectionInfo.id];
   const connectionOptions = state.connectionOptions[connectionInfo.id];
 
   return {

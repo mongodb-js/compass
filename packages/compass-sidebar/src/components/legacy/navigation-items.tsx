@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   useHoverState,
@@ -25,7 +25,6 @@ import {
 import type { ItemAction } from '@mongodb-js/compass-components';
 import NavigationItemsFilter from '../navigation-items-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-import { changeFilterRegex } from '../../modules/databases';
 import type { RootState } from '../../modules';
 import {
   useOpenWorkspace,
@@ -33,6 +32,7 @@ import {
 } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -261,7 +261,6 @@ export function NavigationItems({
   connectionInfo,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
-  onFilterChange,
   onAction,
   activeWorkspace,
   showTooManyCollectionsInsight = false,
@@ -270,7 +269,6 @@ export function NavigationItems({
   connectionInfo: ConnectionInfo;
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
-  onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
   activeWorkspace?: WorkspaceTab;
   showTooManyCollectionsInsight?: boolean;
@@ -281,6 +279,22 @@ export function NavigationItems({
     openDatabasesWorkspace,
   } = useOpenWorkspace();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
+
+  const [databasesFilterRegex, setDatabasesFilterRegex] =
+    useState<RegExp | null>(null);
+
+  const onDatabasesFilterChange = useCallback(
+    (filterRegex: RegExp | null) => setDatabasesFilterRegex(filterRegex),
+    [setDatabasesFilterRegex]
+  );
+
+  // When filtering, emit an event so that we can fetch all collections. This
+  // is required as a workaround for the synchronous nature of the current
+  // filtering feature
+  const appRegistry = useGlobalAppRegistry();
+  useEffect(() => {
+    appRegistry.emit('sidebar-filter-navigation-list');
+  }, [databasesFilterRegex, appRegistry]);
 
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
@@ -361,7 +375,7 @@ export function NavigationItems({
       ></ContentWithFallback>
 
       <NavigationItemsFilter
-        onFilterChange={onFilterChange}
+        onFilterChange={onDatabasesFilterChange}
         title="Databases and collections filter"
         ariaLabel="Databases and collections filter"
         searchInputClassName={databaseCollectionsFilter}
@@ -369,6 +383,7 @@ export function NavigationItems({
       <SidebarDatabasesNavigation
         connectionInfo={connectionInfo}
         activeWorkspace={activeWorkspace ?? undefined}
+        filterRegex={databasesFilterRegex}
       />
     </>
   );
@@ -382,11 +397,12 @@ const mapStateToProps = (
   }: { connectionInfo: ConnectionInfo; readOnly: boolean }
 ) => {
   const connectionId = connectionInfo.id;
-  const totalCollectionsCount = state.databases.connectionDatabases[
-    connectionId
-  ].databases.reduce((acc: number, db: { collectionsLength: number }) => {
-    return acc + db.collectionsLength;
-  }, 0);
+  const totalCollectionsCount = state.databases[connectionId].databases.reduce(
+    (acc: number, db: { collectionsLength: number }) => {
+      return acc + db.collectionsLength;
+    },
+    0
+  );
 
   const isReady =
     ['ready', 'refreshing'].includes(
@@ -407,9 +423,7 @@ const mapStateToProps = (
 };
 
 const MappedNavigationItems = withPreferences(
-  connect(mapStateToProps, {
-    onFilterChange: changeFilterRegex,
-  })(NavigationItems),
+  connect(mapStateToProps)(NavigationItems),
   ['readOnly']
 );
 

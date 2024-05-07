@@ -129,6 +129,8 @@ export function MultipleConnectionSidebar({
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
   const activeConnections = useActiveConnections();
+  const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
+    useState<RegExp | null>(null);
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
@@ -150,6 +152,12 @@ export function MultipleConnectionSidebar({
       });
     },
     [openToast]
+  );
+
+  const onActiveConnectionFilterChange = useCallback(
+    (filterRegex: RegExp | null) =>
+      setActiveConnectionsFilterRegex(filterRegex),
+    [setActiveConnectionsFilterRegex]
   );
 
   const onConnectionAttemptStarted = useCallback(
@@ -390,6 +398,13 @@ export function MultipleConnectionSidebar({
     };
   }, [appRegistry, onNewConnectionOpen]);
 
+  // When filtering, emit an event so that we can fetch all collections. This
+  // is required as a workaround for the synchronous nature of the current
+  // filtering feature
+  useEffect(() => {
+    appRegistry.emit('sidebar-filter-navigation-list');
+  }, [activeConnectionsFilterRegex, appRegistry]);
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -402,6 +417,8 @@ export function MultipleConnectionSidebar({
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
           onDisconnect={onDisconnect}
+          filterRegex={activeConnectionsFilterRegex}
+          onFilterChange={onActiveConnectionFilterChange}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
