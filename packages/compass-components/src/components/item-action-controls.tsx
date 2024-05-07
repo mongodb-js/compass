@@ -1,4 +1,10 @@
-import React, { useRef, forwardRef, useCallback, useState } from 'react';
+import React, {
+  useRef,
+  forwardRef,
+  useCallback,
+  useState,
+  useMemo,
+} from 'react';
 import {
   Button,
   Icon,
@@ -388,6 +394,33 @@ export function ItemActionControls<Action extends string>({
   usePortal?: boolean;
   'data-testid'?: string;
 }) {
+  const sharedProps = useMemo(
+    () => ({
+      isVisible,
+      onAction,
+      className: cx('item-action-controls', className),
+      iconClassName,
+      iconStyle,
+      iconSize,
+      'data-testid': dataTestId,
+    }),
+    [
+      isVisible,
+      onAction,
+      className,
+      iconClassName,
+      iconStyle,
+      iconSize,
+      dataTestId,
+    ]
+  );
+  const sharedMenuProps = useMemo(
+    () => ({
+      menuClassName,
+      usePortal,
+    }),
+    [menuClassName, usePortal]
+  );
   if (actions.length === 0) {
     return null;
   }
@@ -399,26 +432,13 @@ export function ItemActionControls<Action extends string>({
     return (
       <div className={actionControlsStyle}>
         <ItemActionGroup
-          isVisible={isVisible}
           actions={visibleActions}
-          onAction={onAction}
-          className={cx('item-action-controls', className)}
-          iconClassName={iconClassName}
-          iconStyle={iconStyle}
-          iconSize={iconSize}
-          data-testid={dataTestId}
+          {...sharedProps}
         ></ItemActionGroup>
         <ItemActionMenu
-          isVisible={isVisible}
           actions={collapsedActions}
-          onAction={onAction}
-          className={cx('item-action-controls', className)}
-          menuClassName={menuClassName}
-          iconClassName={iconClassName}
-          iconStyle={iconStyle}
-          iconSize={iconSize}
-          usePortal={usePortal}
-          data-testid={dataTestId}
+          {...sharedProps}
+          {...sharedMenuProps}
         ></ItemActionMenu>
       </div>
     );
@@ -430,31 +450,13 @@ export function ItemActionControls<Action extends string>({
     return (
       <ItemActionMenu
         actions={actions}
-        className={cx('item-action-controls', className)}
-        menuClassName={menuClassName}
-        data-testid={dataTestId}
-        iconClassName={iconClassName}
-        iconStyle={iconStyle}
-        iconSize={iconSize}
-        isVisible={isVisible}
-        onAction={onAction}
-        usePortal={usePortal}
+        {...sharedProps}
+        {...sharedMenuProps}
       ></ItemActionMenu>
     );
   }
 
-  return (
-    <ItemActionGroup
-      isVisible={isVisible}
-      actions={actions}
-      onAction={onAction}
-      className={cx('item-action-controls', className)}
-      iconSize={iconSize}
-      data-testid={dataTestId}
-      iconClassName={iconClassName}
-      iconStyle={iconStyle}
-    ></ItemActionGroup>
-  );
+  return <ItemActionGroup actions={actions} {...sharedProps}></ItemActionGroup>;
 }
 
 export function DropdownMenuButton<Action extends string>({
