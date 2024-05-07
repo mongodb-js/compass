@@ -276,14 +276,15 @@ export function SavedConnection({
       <div className={savedConnectionNameStyles}>
         {getConnectionTitle(connectionInfo)}
       </div>
-      <ItemActionControls<Action>
-        data-testid="connection-menu"
-        onAction={onAction}
-        iconSize="small"
-        actions={actions}
-        isVisible={isHovered}
-        collapseAfter={1}
-      ></ItemActionControls>
+      {isHovered && (
+        <ItemActionControls<Action>
+          data-testid="connection-menu"
+          onAction={onAction}
+          iconSize="small"
+          actions={actions}
+          collapseAfter={1}
+        ></ItemActionControls>
+      )}
     </li>
   );
 }
