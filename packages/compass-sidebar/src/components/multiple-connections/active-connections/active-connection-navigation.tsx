@@ -100,7 +100,6 @@ export function ActiveConnectionNavigation({
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
   onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
   onDisconnect: (connectionId: ConnectionInfo['id']) => void;
-  onDatabaseFilterChanged: (filterRegex: RegExp | null) => void;
 }): React.ReactElement {
   const [expandedConnections, setExpandedConnections] = useState<
     Record<ConnectionInfo['id'], 'collapsed' | 'tempExpanded' | undefined>
