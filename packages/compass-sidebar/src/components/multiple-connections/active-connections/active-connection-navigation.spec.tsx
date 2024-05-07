@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionsManager,
@@ -59,6 +59,25 @@ class MockInstance extends EventEmitter {
           {
             _id: `${name}DB1Coll1`,
             name: `${name}DB1Coll1`,
+            type: 'collection',
+          },
+          {
+            _id: `${name}DB1Coll2`,
+            name: `${name}DB1Coll2`,
+            type: 'collection',
+          },
+        ],
+      },
+      {
+        _id: `${name}DB2`,
+        name: `${name}DB2`,
+        status: 'ready',
+        collectionsLength: 1,
+        collectionsStatus: 'ready',
+        collections: [
+          {
+            _id: `${name}DB2Coll`,
+            name: `${name}DB2Coll1`,
             type: 'collection',
           },
         ],
@@ -172,7 +191,7 @@ describe('<ActiveConnectionNavigation />', function () {
       filterRegex: filterRegex,
     };
 
-    const renderResult = render(
+    const wrapper = ({ children }) => (
       <PreferencesProvider value={preferences}>
         <WorkspacesServiceProvider
           value={
@@ -186,14 +205,20 @@ describe('<ActiveConnectionNavigation />', function () {
           }
         >
           <ConnectionsManagerProvider value={connectionsManager}>
-            <Provider store={store}>
-              <ActiveConnectionNavigation {...props} />
-            </Provider>
+            <Provider store={store}>{children}</Provider>
           </ConnectionsManagerProvider>
         </WorkspacesServiceProvider>
       </PreferencesProvider>
     );
-    return { renderResult, props };
+
+    const renderResult = render(<ActiveConnectionNavigation {...props} />, {
+      wrapper,
+    });
+    return {
+      rerender: (props) =>
+        renderResult.rerender(<ActiveConnectionNavigation {...props} />),
+      props,
+    };
   };
 
   afterEach(() => {
@@ -324,10 +349,7 @@ describe('<ActiveConnectionNavigation />', function () {
   describe('Collapse and Auto-expand', () => {
     it('should collapse a connection, and expand it automatically when a child workspace is entered', async function () {
       // step 1 - turtle connection is expanded at first
-      const {
-        renderResult: { rerender },
-        props,
-      } = await renderActiveConnectionsNavigation({
+      const { rerender, props } = await renderActiveConnectionsNavigation({
         activeWorkspace: { type: 'My Queries', id: 'abcd' },
       });
 
@@ -344,34 +366,21 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.queryByText('turtleDB1')).not.to.exist;
 
       // step 3 - user entered a workspace that belongs to the turtle connection
-      rerender(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <Provider store={store}>
-              <ActiveConnectionNavigation
-                {...props}
-                activeWorkspace={
-                  {
-                    type: 'Collections',
-                    connectionId: 'turtle',
-                    namespace: 'db1',
-                  } as WorkspaceTab
-                }
-              />
-            </Provider>
-          </ConnectionsManagerProvider>
-        </PreferencesProvider>
-      );
+      rerender({
+        ...props,
+        activeWorkspace: {
+          type: 'Collections',
+          connectionId: 'turtle',
+          namespace: 'db1',
+        } as WorkspaceTab,
+      });
 
       expect(screen.getByText('turtleDB1')).to.be.visible;
     });
 
     it('should expand a database when a child workspace is entered', async function () {
       // step 1 - turtleDB1 is collapsed at first
-      const {
-        renderResult: { rerender },
-        props,
-      } = await renderActiveConnectionsNavigation({
+      const { rerender, props } = await renderActiveConnectionsNavigation({
         activeWorkspace: { type: 'My Queries', id: 'abcd' },
       });
 
@@ -380,24 +389,14 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
 
       // step 2 - user entered a workspace that belongs to the turtleDB1 database
-      rerender(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <Provider store={store}>
-              <ActiveConnectionNavigation
-                {...props}
-                activeWorkspace={
-                  {
-                    type: 'Collection',
-                    connectionId: 'turtle',
-                    namespace: 'turtleDB1.turtleDB1Coll1',
-                  } as WorkspaceTab
-                }
-              />
-            </Provider>
-          </ConnectionsManagerProvider>
-        </PreferencesProvider>
-      );
+      rerender({
+        ...props,
+        activeWorkspace: {
+          type: 'Collection',
+          connectionId: 'turtle',
+          namespace: 'turtleDB1.turtleDB1Coll1',
+        } as WorkspaceTab,
+      });
 
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
@@ -429,11 +428,75 @@ describe('<ActiveConnectionNavigation />', function () {
   });
 
   describe('Filtering', () => {
-    it.only('Should filter the connections', async () => {
+    it('Should filter the connections', async () => {
       await renderActiveConnectionsNavigation({ filterRegex: /orange/i });
 
       expect(screen.queryByText('oranges')).to.be.visible;
       expect(screen.queryByText('turtle')).not.to.exist;
+    });
+
+    it('Should filter the databases', async () => {
+      await renderActiveConnectionsNavigation({ filterRegex: /orangeDB2/i });
+
+      expect(screen.queryByText('oranges')).to.be.visible;
+      expect(screen.queryByText('turtle')).not.to.exist;
+
+      expect(screen.queryByText('orangeDB2')).to.be.visible;
+      expect(screen.queryByText('orangeDB1')).not.to.exist;
+    });
+
+    it('Should filter the databases, expanding the connection (until the filter is cleared)', async () => {
+      // step 1 - connection is expanded at first
+      const { rerender, props } = await renderActiveConnectionsNavigation();
+
+      // step 2 - user collapses the turtle connection
+      const connectionItem = screen.getByText('oranges');
+
+      act(() => {
+        userEvent.click(connectionItem);
+        userEvent.keyboard('[ArrowLeft]');
+      });
+
+      expect(screen.queryByText('orangeDB2')).not.to.exist;
+
+      // step 3 - we filter for a database
+      rerender({
+        ...props,
+        filterRegex: /orangeDB2/,
+      });
+
+      expect(screen.queryByText('orangeDB2')).to.be.visible;
+
+      // step 4 - user clears the filter
+      rerender({
+        ...props,
+        filterRegex: null,
+      });
+
+      expect(screen.queryByText('orangeDB2')).not.to.exist;
+    });
+
+    it('Should filter the collections, expanding the database (until the filter is cleared)', async () => {
+      // step 1 - filtering for the collection expands the database
+      const { rerender, props } = await renderActiveConnectionsNavigation({
+        filterRegex: /orangeDB1Coll2/i,
+      });
+
+      expect(screen.queryByText('oranges')).to.be.visible;
+      expect(screen.queryByText('turtle')).not.to.exist;
+
+      expect(screen.queryByText('orangeDB1')).to.be.visible;
+      expect(screen.queryByText('orangeDB2')).not.to.exist;
+
+      expect(screen.queryByText('orangeDB1Coll2')).to.be.visible;
+      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
+
+      // step 2 - clearing the filter
+      rerender({
+        ...props,
+        filterRegex: null,
+      });
+      expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
     });
   });
 });
