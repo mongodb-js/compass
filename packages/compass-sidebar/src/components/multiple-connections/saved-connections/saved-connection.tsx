@@ -36,11 +36,10 @@ const savedConnectionStyles = css({
   flexDirection: 'row',
   gap: spacing[2],
   borderRadius: spacing[1],
-  padding: spacing[1],
+  paddingRight: spacing[1],
   paddingLeft: spacing[2],
   alignItems: 'center',
   cursor: 'pointer',
-  marginTop: 'auto',
   height: spacing[800],
 });
 
@@ -100,8 +99,10 @@ function ConnectIconButton({
           {...props}
           disabled={!canOpenNewConnection}
           data-testid="connect-button"
-          aria-label="Connect"
-          title="Connect"
+          aria-label={
+            canOpenNewConnection ? 'Connect' : 'Maximum connections open'
+          }
+          title={canOpenNewConnection ? 'Connect' : 'Maximum connections open'}
           onClick={() => {
             // LG does not bubble up the click event to the parent component, so we
             // add noop onClick and let it bubble up.
@@ -189,7 +190,7 @@ export function SavedConnection({
   const actions: (ItemAction<Action> | ItemSeparator)[] = [
     {
       action: 'establish-connection',
-      label: 'Connect',
+      label: canOpenNewConnection ? 'Connect' : 'Maximum connections open',
       icon: (
         <ConnectIconButton
           canOpenNewConnection={canOpenNewConnection}

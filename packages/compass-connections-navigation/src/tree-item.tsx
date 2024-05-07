@@ -123,7 +123,6 @@ const itemContainer = css({
 
   '& .item-action-controls': {
     marginLeft: 'auto',
-    marginRight: spacing[1],
   },
 
   '&:hover .item-background': {
@@ -180,6 +179,7 @@ const itemWrapper = css({
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
+  paddingRight: spacing[100],
 });
 
 const itemBackground = css({
