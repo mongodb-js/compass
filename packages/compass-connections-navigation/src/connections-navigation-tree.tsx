@@ -26,7 +26,7 @@ import {
   databaseItemActions,
 } from './item-actions';
 
-interface ConnectionsNavigationTreeProps {
+export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
   onConnectionExpand?(id: string, isExpanded: boolean): void;

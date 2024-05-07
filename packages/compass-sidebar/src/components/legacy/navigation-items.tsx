@@ -382,12 +382,11 @@ const mapStateToProps = (
   }: { connectionInfo: ConnectionInfo; readOnly: boolean }
 ) => {
   const connectionId = connectionInfo.id;
-  const totalCollectionsCount = state.databases[connectionId].databases.reduce(
-    (acc: number, db: { collectionsLength: number }) => {
-      return acc + db.collectionsLength;
-    },
-    0
-  );
+  const totalCollectionsCount = state.databases.connectionDatabases[
+    connectionId
+  ].databases.reduce((acc: number, db: { collectionsLength: number }) => {
+    return acc + db.collectionsLength;
+  }, 0);
 
   const isReady =
     ['ready', 'refreshing'].includes(
