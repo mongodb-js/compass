@@ -10,7 +10,6 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
-import type { DatabasesAction } from '../../../modules/databases';
 import {
   type Database,
   toggleDatabaseExpanded,
@@ -83,12 +82,7 @@ export function ActiveConnectionNavigation({
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
-  | 'isReadOnly'
-  | 'databases'
-  | 'connections'
-  | 'expanded'
-  | 'onConnectionExpand'
-  | 'isReady'
+  'isReadOnly' | 'isReady' | 'connections' | 'expanded' | 'onConnectionExpand'
 > & {
   activeConnections: ConnectionInfo[];
   connections: Connection[];
@@ -103,9 +97,7 @@ export function ActiveConnectionNavigation({
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
   onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
   onDisconnect: (connectionId: ConnectionInfo['id']) => void;
-  onDatabaseFilterChanged: (
-    filterRegex: RegExp | null
-  ) => SidebarThunkAction<void, DatabasesAction>;
+  onDatabaseFilterChanged: (filterRegex: RegExp | null) => void;
 }): React.ReactElement {
   const [expandedConnections, setExpandedConnections] = useState<
     Record<ConnectionInfo['id'], 'collapsed' | 'tempExpanded' | undefined>
@@ -211,7 +203,7 @@ export function ActiveConnectionNavigation({
     // if the user connects again, the new connection should start in the default state
     setExpandedConnections((expandedConnections) => {
       const newExpanded = Object.fromEntries(
-        activeConnections.map(({ connectionOptions: { id: connectionId } }) => [
+        activeConnections.map(({ id: connectionId }) => [
           connectionId,
           expandedConnections[connectionId],
         ])

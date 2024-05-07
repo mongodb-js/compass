@@ -119,11 +119,9 @@ function mapStateToProps(
 } {
   const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
-  const {
-    filterRegex,
-    filteredDatabases,
-    expandedDbList: initialExpandedDbList,
-  } = state.databases[connectionId] || {};
+  const { filteredDatabases, expandedDbList: initialExpandedDbList } =
+    state.databases.connectionDatabases[connectionId] || {};
+  const filterRegex = state.databases.filterRegex;
 
   const status = instance?.databasesStatus;
   const isReady =
@@ -165,7 +163,7 @@ function mapStateToProps(
 }
 
 const onNamespaceAction = (
-  connectionId: string,
+  connectionId: ConnectionInfo['id'],
   namespace: string,
   action: Actions
 ): SidebarThunkAction<void> => {
@@ -193,7 +191,7 @@ const onNamespaceAction = (
       case 'duplicate-view': {
         const coll = findCollection(
           namespace,
-          getState().databases[connectionId].databases
+          getState().databases.connectionDatabases[connectionId].databases
         );
         if (coll && coll.sourceName) {
           emit(
