@@ -163,17 +163,17 @@ export function useConnections({
   onConnectionAttemptStarted,
   __TEST_INITIAL_CONNECTION_INFO,
 }: {
-  onConnected: (
+  onConnected?: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
-  onConnectionFailed: (
+  onConnectionFailed?: (
     connectionInfo: ConnectionInfo | null,
     error: Error
   ) => void;
-  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
+  onConnectionAttemptStarted?: (connectionInfo: ConnectionInfo) => void;
   __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
-}): {
+} = {}): {
   state: State;
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
@@ -298,8 +298,7 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        onConnected(connectionInfo, dataService);
-
+        onConnected?.(connectionInfo, dataService);
         if (!shouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
@@ -321,43 +320,17 @@ export function useConnections({
         );
       }
     },
-    [onConnected, saveConnectionInfo, persistOIDCTokens]
+    [onConnected, persistOIDCTokens, saveConnectionInfo]
   );
 
   useEffect(() => {
-    void connectWithAutoConnectInfoIfAvailable();
-    async function connectWithAutoConnectInfoIfAvailable() {
-      let autoConnectInfo: ConnectionInfo | undefined;
-      try {
-        autoConnectInfo = await connectionStorage.getAutoConnectInfo?.();
-        if (autoConnectInfo) {
-          log.info(
-            mongoLogId(1_001_000_160),
-            'Connection Store',
-            'Performing automatic connection attempt'
-          );
-          dispatch({
-            type: 'set-active-connection',
-            connectionInfo: autoConnectInfo,
-          });
-          void connect(autoConnectInfo, false);
-        }
-      } catch (error) {
-        onConnectionFailed(autoConnectInfo ?? null, error as Error);
-        log.error(
-          mongoLogId(1_001_000_290),
-          'Connection Store',
-          'Error performing connection attempt using auto connect info',
-          {
-            error: (error as Error).message,
-          }
-        );
-
-        dispatch({
-          type: 'connection-attempt-errored',
-          connectionErrorMessage: (error as Error).message,
-        });
-      }
+    if (connectionStorage.getAutoConnectInfo) {
+      void connect(
+        connectionStorage.getAutoConnectInfo.bind(connectionStorage),
+        false
+      ).catch(() => {
+        // noop, we're already logging in the connect method
+      });
     }
 
     return () => {
@@ -365,7 +338,7 @@ export function useConnections({
       // not resolved.
       connectionsManager.cancelAllConnectionAttempts();
     };
-  }, []);
+  }, [connectionStorage, connectionsManager]);
 
   const closeConnection = async (connectionId: string) => {
     debug('closing connection with connectionId', connectionId);
@@ -390,14 +363,35 @@ export function useConnections({
   };
 
   const connect = async (
-    connectionInfo: ConnectionInfo,
+    _connectionInfo:
+      | ConnectionInfo
+      | (() => Promise<ConnectionInfo | undefined>),
     shouldSaveConnectionInfo = true
   ) => {
-    const isOIDCConnectionAttempt = isOIDCAuth(
-      connectionInfo.connectionOptions.connectionString
-    );
+    const isAutoconnectAttempt = typeof _connectionInfo === 'function';
+    let connectionInfo: ConnectionInfo;
 
     try {
+      if (typeof _connectionInfo === 'function') {
+        log.info(
+          mongoLogId(1_001_000_160),
+          'Connection Store',
+          'Performing automatic connection attempt'
+        );
+        const autoConnectInfo = await _connectionInfo();
+        if (!autoConnectInfo) {
+          return;
+        }
+        connectionInfo = autoConnectInfo;
+        dispatch({ type: 'set-active-connection', connectionInfo });
+      } else {
+        connectionInfo = _connectionInfo;
+      }
+
+      const isOIDCConnectionAttempt = isOIDCAuth(
+        connectionInfo.connectionOptions.connectionString
+      );
+
       dispatch({
         type: 'attempt-connect',
         connectingConnectionId: connectionInfo.id,
@@ -410,12 +404,13 @@ export function useConnections({
         }`,
       });
 
-      onConnectionAttemptStarted(connectionInfo);
+      onConnectionAttemptStarted?.(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
       log.info(
         mongoLogId(1001000004),
         'Connection UI',
-        'Initiating connection attempt'
+        'Initiating connection attempt',
+        { isAutoconnectAttempt }
       );
 
       const newConnectionDataService = await connectionsManager.connect(
@@ -450,23 +445,25 @@ export function useConnections({
         dispatch({
           type: 'cancel-connection-attempt',
         });
-        return;
+      } else {
+        onConnectionFailed?.(connectionInfo! ?? null, error as Error);
+
+        log.error(
+          mongoLogId(1_001_000_161),
+          'Connection Store',
+          'Error performing connection attempt',
+          {
+            error: (error as Error).message,
+            isAutoconnectAttempt,
+          }
+        );
+
+        dispatch({
+          type: 'connection-attempt-errored',
+          connectionErrorMessage: (error as Error).message,
+        });
       }
-
-      onConnectionFailed(connectionInfo, error as Error);
-      log.error(
-        mongoLogId(1_001_000_161),
-        'Connection Store',
-        'Error performing connection attempt',
-        {
-          error: (error as Error).message,
-        }
-      );
-
-      dispatch({
-        type: 'connection-attempt-errored',
-        connectionErrorMessage: (error as Error).message,
-      });
+      throw error;
     }
   };
 

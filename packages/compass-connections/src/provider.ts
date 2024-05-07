@@ -8,7 +8,7 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 
 export type { DataService };
 export * from './connections-manager';
-export { useConnections } from './stores/connections-store';
+export { useConnections } from './components/connections-provider';
 export { useActiveConnections } from './hooks/use-active-connections';
 
 class TestConnectionsManager extends EventEmitter {
