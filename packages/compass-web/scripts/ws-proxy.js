@@ -23,9 +23,10 @@ async function resolveX509Cert({ projectId, clusterName }) {
     return certsMap.get(projectId);
   }
   try {
-    const cert = await fetch(
-      `http://localhost:${WEB_PROXY_PORT}/x509?projectId=${projectId}&clusterName=${clusterName}`
-    ).then((res) => {
+    const certUrl = new URL(`http://localhost:${WEB_PROXY_PORT}/x509`);
+    certUrl.searchParams.set('projectId', projectId);
+    certUrl.searchParams.set('clusterName', clusterName);
+    const cert = await fetch(certUrl).then((res) => {
       if (!res.ok) {
         throw new Error('Failed to resolve x509 cert for the connection');
       }

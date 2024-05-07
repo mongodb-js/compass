@@ -339,7 +339,7 @@ proxyWebServer.use('/create-cluster', async (req, res) => {
 // Prefixed proxy to the cloud backend
 proxyWebServer.use(
   '/cloud-mongodb-com',
-  proxyMiddleware(`https://${CLOUD_HOST}`, {
+  proxyMiddleware(CLOUD_ORIGIN, {
     async proxyReqOptDecorator(req) {
       req.headers = {
         ...req.headers,

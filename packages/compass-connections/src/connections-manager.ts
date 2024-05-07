@@ -307,8 +307,14 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  async closeAllConnections() {
-    return await Promise.allSettled(
+  /**
+   * Try to close all currently existing connections and ignore all errors if
+   * they happen during that process. This is a clean-up method that is supposed
+   * to be used in cases where there is probably no way for us to react to those
+   * errors anyway and all the errors will be already logged elsewhere
+   */
+  async closeAllConnections(): Promise<void> {
+    await Promise.allSettled(
       Array.from(this.connectionStatuses.keys()).map((connectionId) => {
         return this.closeConnection(connectionId);
       })

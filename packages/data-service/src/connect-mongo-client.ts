@@ -142,7 +142,15 @@ export async function connectMongoClientDataService({
   };
 
   if (connectionOptions.lookup) {
-    options.lookup = connectionOptions.lookup;
+    // NB: This value is currently only passed through by compass-web in the
+    // browser environment as a custom way to pass extra metadata to the
+    // underlying socket implementation that works over the websocket protocol.
+    // Event though the type of `connectionOptions.lookup` is technically
+    // assignable to `options.lookup`, this method is not actually implementing
+    // the `dns.lookup` interface and lead to unexpected behavior if driver ever
+    // decides to use it before directly passing to the `socket.connect` method
+    // as an option.
+    options.lookup = connectionOptions.lookup as any;
   }
 
   if (options.autoEncryption && process.env.COMPASS_CRYPT_LIBRARY_PATH) {
