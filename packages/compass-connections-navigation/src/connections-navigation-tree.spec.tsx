@@ -348,6 +348,24 @@ describe('ConnectionsNavigationTree', function () {
       });
     });
 
+    it('should activate callback with `create-database` when add database is clicked', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        expanded: { connection_ready: { db_ready: true } },
+        onNamespaceAction: spy,
+      });
+
+      userEvent.hover(screen.getByText('turtles'));
+
+      userEvent.click(screen.getByLabelText('Create database'));
+
+      expect(spy).to.be.calledOnceWithExactly(
+        'connection_ready',
+        'connection_ready',
+        'create-database'
+      );
+    });
+
     it('should activate callback with `select-connection` when a connection is clicked', async function () {
       const spy = Sinon.spy();
       await renderConnectionsNavigationTree({
