@@ -193,9 +193,11 @@ function ConnectionStringConnectionForm({
       }}
     >
       <VisuallyHidden>
-        <Label htmlFor="connection-string-input-label">Connection String</Label>
+        <Label htmlFor="connection-string-input-label">Connection string</Label>
       </VisuallyHidden>
       <TextArea
+        // For testing purposes this should be exactly the same as the textarea
+        // test id in connection-form
         data-testid="connectionString"
         aria-labelledby="connection-string-input-label"
         placeholder="e.g mongodb+srv://username:password@cluster0-jtpxd.mongodb.net/admin"

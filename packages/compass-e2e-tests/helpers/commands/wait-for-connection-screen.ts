@@ -6,7 +6,7 @@ export async function waitForConnectionScreen(
   browser: CompassBrowser
 ): Promise<void> {
   const selector = TEST_COMPASS_WEB
-    ? 'textarea[title="Connection string"]'
+    ? Selectors.ConnectionStringInput
     : Selectors.ConnectSection;
   const connectScreenElement = await browser.$(selector);
   await connectScreenElement.waitForDisplayed();
