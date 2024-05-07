@@ -99,10 +99,8 @@ function ConnectIconButton({
           {...props}
           disabled={!canOpenNewConnection}
           data-testid="connect-button"
-          aria-label={
-            canOpenNewConnection ? 'Connect' : 'Maximum connections open'
-          }
-          title={canOpenNewConnection ? 'Connect' : 'Maximum connections open'}
+          aria-label={canOpenNewConnection ? 'Connect' : ''}
+          title={canOpenNewConnection ? 'Connect' : ''}
           onClick={() => {
             // LG does not bubble up the click event to the parent component, so we
             // add noop onClick and let it bubble up.
@@ -190,7 +188,7 @@ export function SavedConnection({
   const actions: (ItemAction<Action> | ItemSeparator)[] = [
     {
       action: 'establish-connection',
-      label: canOpenNewConnection ? 'Connect' : 'Maximum connections open',
+      label: canOpenNewConnection ? 'Connect' : '',
       icon: (
         <ConnectIconButton
           canOpenNewConnection={canOpenNewConnection}
