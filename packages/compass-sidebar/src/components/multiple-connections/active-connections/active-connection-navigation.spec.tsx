@@ -43,22 +43,22 @@ class MockInstance extends EventEmitter {
   genuineMongoDB: Record<string, never>;
   topologyDescription: Record<string, never>;
 
-  constructor() {
+  constructor(name = 'connection') {
     super();
-    this._id = 'turtle';
+    this._id = name;
     this.status = 'ready';
     this.databasesStatus = 'ready';
     this.databases = [
       {
-        _id: 'turtleDB1',
-        name: 'turtleDB1',
+        _id: `${name}DB1`,
+        name: `${name}DB1`,
         status: 'ready',
         collectionsLength: 1,
         collectionsStatus: 'ready',
         collections: [
           {
-            _id: 'turtleDB1Coll1',
-            name: 'turtleDB1Coll1',
+            _id: `${name}DB1Coll1`,
+            name: `${name}DB1Coll1`,
             type: 'collection',
           },
         ],
@@ -82,10 +82,7 @@ const mockConnections: ConnectionInfo[] = [
   {
     id: 'oranges',
     connectionOptions: {
-      connectionString: 'mongodb://peaches',
-    },
-    favorite: {
-      name: 'peaches',
+      connectionString: 'mongodb://oranges',
     },
     savedConnectionType: 'favorite',
   },
@@ -96,6 +93,7 @@ describe('<ActiveConnectionNavigation />', function () {
   let preferences: PreferencesAccess;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let turtleInstance: EventEmitter;
+  let orangeInstance: EventEmitter;
   let dataService: DataService;
   let dataServiceCurrentOp = sinon.stub().resolves();
   let deactivate: () => void;
@@ -105,6 +103,7 @@ describe('<ActiveConnectionNavigation />', function () {
   const onToggleFavoriteConnectionStub = sinon.stub();
   const onDisconnectStub = sinon.stub();
   const openPerformanceWorkspaceStub = sinon.stub();
+  const onFilterChangeStub = sinon.stub();
 
   const renderActiveConnectionsNavigation = async ({
     activeWorkspace = {
@@ -112,8 +111,10 @@ describe('<ActiveConnectionNavigation />', function () {
       connectionId: 'turtle',
       id: '12345',
     },
+    filterRegex = null,
   }: {
     activeWorkspace?: WorkspaceTab;
+    filterRegex?: RegExp | null;
   } = {}) => {
     const dataServiceEmitter = new EventEmitter();
     dataService = {
@@ -131,7 +132,8 @@ describe('<ActiveConnectionNavigation />', function () {
       emit: dataServiceEmitter.emit.bind(dataServiceEmitter),
       on: dataServiceEmitter.on.bind(dataServiceEmitter),
     } as unknown as DataService;
-    turtleInstance = new MockInstance();
+    turtleInstance = new MockInstance('turtle');
+    orangeInstance = new MockInstance('orange');
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).getDataServiceForConnection = () => dataService;
     (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
@@ -141,7 +143,10 @@ describe('<ActiveConnectionNavigation />', function () {
         globalAppRegistry,
         instancesManager: {
           listMongoDBInstances() {
-            return new Map([['turtle', turtleInstance]]);
+            return new Map([
+              ['turtle', turtleInstance],
+              ['oranges', orangeInstance],
+            ]);
           },
         } as any,
         connectionsManager,
@@ -156,7 +161,18 @@ describe('<ActiveConnectionNavigation />', function () {
       enableNewMultipleConnectionSystem: true,
     });
 
-    return render(
+    const props = {
+      activeConnections: mockConnections,
+      activeWorkspace: activeWorkspace,
+      onOpenConnectionInfo: onOpenConnectionInfoStub,
+      onCopyConnectionString: onCopyConnectionStringStub,
+      onDisconnect: onDisconnectStub,
+      onToggleFavoriteConnection: onToggleFavoriteConnectionStub,
+      onFilterChange: onFilterChangeStub,
+      filterRegex: filterRegex,
+    };
+
+    const renderResult = render(
       <PreferencesProvider value={preferences}>
         <WorkspacesServiceProvider
           value={
@@ -171,19 +187,13 @@ describe('<ActiveConnectionNavigation />', function () {
         >
           <ConnectionsManagerProvider value={connectionsManager}>
             <Provider store={store}>
-              <ActiveConnectionNavigation
-                activeConnections={mockConnections}
-                activeWorkspace={activeWorkspace}
-                onOpenConnectionInfo={onOpenConnectionInfoStub}
-                onCopyConnectionString={onCopyConnectionStringStub}
-                onDisconnect={onDisconnectStub}
-                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
-              />
+              <ActiveConnectionNavigation {...props} />
             </Provider>
           </ConnectionsManagerProvider>
         </WorkspacesServiceProvider>
       </PreferencesProvider>
     );
+    return { renderResult, props };
   };
 
   afterEach(() => {
@@ -314,7 +324,10 @@ describe('<ActiveConnectionNavigation />', function () {
   describe('Collapse and Auto-expand', () => {
     it('should collapse a connection, and expand it automatically when a child workspace is entered', async function () {
       // step 1 - turtle connection is expanded at first
-      const { rerender } = await renderActiveConnectionsNavigation({
+      const {
+        renderResult: { rerender },
+        props,
+      } = await renderActiveConnectionsNavigation({
         activeWorkspace: { type: 'My Queries', id: 'abcd' },
       });
 
@@ -336,7 +349,7 @@ describe('<ActiveConnectionNavigation />', function () {
           <ConnectionsManagerProvider value={connectionsManager}>
             <Provider store={store}>
               <ActiveConnectionNavigation
-                activeConnections={mockConnections}
+                {...props}
                 activeWorkspace={
                   {
                     type: 'Collections',
@@ -344,10 +357,6 @@ describe('<ActiveConnectionNavigation />', function () {
                     namespace: 'db1',
                   } as WorkspaceTab
                 }
-                onOpenConnectionInfo={onOpenConnectionInfoStub}
-                onCopyConnectionString={onCopyConnectionStringStub}
-                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
-                onDisconnect={onDisconnectStub}
               />
             </Provider>
           </ConnectionsManagerProvider>
@@ -359,7 +368,10 @@ describe('<ActiveConnectionNavigation />', function () {
 
     it('should expand a database when a child workspace is entered', async function () {
       // step 1 - turtleDB1 is collapsed at first
-      const { rerender } = await renderActiveConnectionsNavigation({
+      const {
+        renderResult: { rerender },
+        props,
+      } = await renderActiveConnectionsNavigation({
         activeWorkspace: { type: 'My Queries', id: 'abcd' },
       });
 
@@ -373,7 +385,7 @@ describe('<ActiveConnectionNavigation />', function () {
           <ConnectionsManagerProvider value={connectionsManager}>
             <Provider store={store}>
               <ActiveConnectionNavigation
-                activeConnections={mockConnections}
+                {...props}
                 activeWorkspace={
                   {
                     type: 'Collection',
@@ -381,10 +393,6 @@ describe('<ActiveConnectionNavigation />', function () {
                     namespace: 'turtleDB1.turtleDB1Coll1',
                   } as WorkspaceTab
                 }
-                onOpenConnectionInfo={onOpenConnectionInfoStub}
-                onCopyConnectionString={onCopyConnectionStringStub}
-                onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
-                onDisconnect={onDisconnectStub}
               />
             </Provider>
           </ConnectionsManagerProvider>
@@ -417,6 +425,15 @@ describe('<ActiveConnectionNavigation />', function () {
       userEvent.keyboard('[ArrowLeft]');
 
       expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
+    });
+  });
+
+  describe('Filtering', () => {
+    it.only('Should filter the connections', async () => {
+      await renderActiveConnectionsNavigation({ filterRegex: /orange/i });
+
+      expect(screen.queryByText('oranges')).to.be.visible;
+      expect(screen.queryByText('turtle')).not.to.exist;
     });
   });
 });
