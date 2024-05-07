@@ -6,7 +6,11 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
+import {
+  type Database,
+  toggleDatabaseExpanded,
+  filterDatabases,
+} from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -111,7 +115,10 @@ function SidebarDatabasesNavigation({
 
 function mapStateToProps(
   state: RootState,
-  { connectionInfo }: { connectionInfo: ConnectionInfo }
+  {
+    connectionInfo,
+    filterRegex,
+  }: { connectionInfo: ConnectionInfo; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
   connections: Connection[];
@@ -119,9 +126,11 @@ function mapStateToProps(
 } {
   const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
-  const { filteredDatabases, expandedDbList: initialExpandedDbList } =
-    state.databases.connectionDatabases[connectionId] || {};
-  const filterRegex = state.databases.filterRegex;
+  const { databases, expandedDbList: initialExpandedDbList } =
+    state.databases[connectionId] || {};
+  const filteredDatabases = filterRegex
+    ? filterDatabases(databases, filterRegex)
+    : databases;
 
   const status = instance?.databasesStatus;
   const isReady =
@@ -191,7 +200,7 @@ const onNamespaceAction = (
       case 'duplicate-view': {
         const coll = findCollection(
           namespace,
-          getState().databases.connectionDatabases[connectionId].databases
+          getState().databases[connectionId].databases
         );
         if (coll && coll.sourceName) {
           emit(

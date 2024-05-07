@@ -13,7 +13,7 @@ import toNS from 'mongodb-ns';
 import {
   type Database,
   toggleDatabaseExpanded,
-  changeFilterRegex as changeDatabaseFilterRegex,
+  filterDatabases,
 } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -69,6 +69,8 @@ const activeConnectionCountStyles = css({
 
 export function ActiveConnectionNavigation({
   activeConnections,
+  filterRegex,
+  onFilterChange,
   connections,
   expandedDatabases,
   activeWorkspace,
@@ -78,13 +80,14 @@ export function ActiveConnectionNavigation({
   onToggleFavoriteConnection,
   onDatabaseExpand,
   onDisconnect,
-  onDatabaseFilterChanged,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
   'isReadOnly' | 'isReady' | 'connections' | 'expanded' | 'onConnectionExpand'
 > & {
   activeConnections: ConnectionInfo[];
+  filterRegex: RegExp | null;
+  onFilterChange: (regex: RegExp | null) => void;
   connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
@@ -105,7 +108,6 @@ export function ActiveConnectionNavigation({
   const [filteredConnections, setFilteredConnections] = useState<
     Connection[] | undefined
   >(undefined);
-  const [filterRegex, setFilterRegex] = useState<RegExp | null>(null); // TODO: unify all filterRegex -> in redux they are per connection atm
 
   const {
     openDatabasesWorkspace,
@@ -295,14 +297,6 @@ export function ActiveConnectionNavigation({
     ]
   );
 
-  const onFilterChange = useCallback(
-    (filterRegex: RegExp | null) => {
-      setFilterRegex(filterRegex);
-      onDatabaseFilterChanged(filterRegex);
-    },
-    [onDatabaseFilterChanged]
-  );
-
   return (
     <div className={activeConnectionsContainerStyles}>
       <header className={activeConnectionListHeaderStyles}>
@@ -343,7 +337,10 @@ export function ActiveConnectionNavigation({
 
 function mapStateToProps(
   state: RootState,
-  { activeConnections }: { activeConnections: ConnectionInfo[] }
+  {
+    activeConnections,
+    filterRegex,
+  }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
   connections: Connection[];
@@ -355,9 +352,12 @@ function mapStateToProps(
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
     const instance = state.instance[connectionId];
-    const filterRegex = state.databases.filterRegex;
-    const { filteredDatabases, expandedDbList: initialExpandedDbList } =
-      state.databases.connectionDatabases[connectionId] || {};
+    const { databases, expandedDbList: initialExpandedDbList } =
+      state.databases[connectionId] || {};
+
+    const filteredDatabases = filterRegex
+      ? filterDatabases(databases, filterRegex)
+      : databases;
 
     const status = instance?.databasesStatus;
     const isReady =
@@ -366,7 +366,7 @@ function mapStateToProps(
 
     const expandedDbList = initialExpandedDbList ?? {};
     const expanded = Object.fromEntries(
-      ((filteredDatabases as any[]) || []).map(({ name }) => [
+      (filteredDatabases || []).map(({ name }) => [
         name,
         expandedDbList[name] ?? defaultExpanded,
       ])
@@ -431,7 +431,7 @@ const onNamespaceAction = (
       case 'duplicate-view': {
         const coll = findCollection(
           namespace,
-          getState().databases.connectionDatabases[connectionId].databases
+          getState().databases[connectionId].databases
         );
         if (coll && coll.sourceName) {
           emit(
@@ -456,6 +456,5 @@ const onNamespaceAction = (
 
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
-  onDatabaseFilterChanged: changeDatabaseFilterRegex,
   onNamespaceAction,
 })(ActiveConnectionNavigation);
