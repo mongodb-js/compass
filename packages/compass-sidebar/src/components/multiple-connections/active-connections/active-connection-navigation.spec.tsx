@@ -103,6 +103,7 @@ describe('<ActiveConnectionNavigation />', function () {
   const onOpenConnectionInfoStub = sinon.stub();
   const onCopyConnectionStringStub = sinon.stub();
   const onToggleFavoriteConnectionStub = sinon.stub();
+  const onDisconnectStub = sinon.stub();
   const openPerformanceWorkspaceStub = sinon.stub();
 
   const renderActiveConnectionsNavigation = async ({
@@ -175,6 +176,7 @@ describe('<ActiveConnectionNavigation />', function () {
                 activeWorkspace={activeWorkspace}
                 onOpenConnectionInfo={onOpenConnectionInfoStub}
                 onCopyConnectionString={onCopyConnectionStringStub}
+                onDisconnect={onDisconnectStub}
                 onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
               />
             </Provider>
@@ -253,6 +255,22 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
     });
 
+    it('Calls onDisconnect', async () => {
+      userEvent.hover(screen.getByText('turtle'));
+
+      const connectionActionsBtn = screen.getByTitle('Show actions');
+      expect(connectionActionsBtn).to.be.visible;
+
+      userEvent.click(connectionActionsBtn);
+
+      const disconnectBtn = await screen.findByText('Disconnect');
+      expect(disconnectBtn).to.be.visible;
+
+      userEvent.click(disconnectBtn);
+
+      expect(onDisconnectStub).to.have.been.calledWith('turtle');
+    });
+
     it('Calls openPerformanceWorkspace', async () => {
       userEvent.hover(screen.getByText('turtle'));
 
@@ -329,6 +347,7 @@ describe('<ActiveConnectionNavigation />', function () {
                 onOpenConnectionInfo={onOpenConnectionInfoStub}
                 onCopyConnectionString={onCopyConnectionStringStub}
                 onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+                onDisconnect={onDisconnectStub}
               />
             </Provider>
           </ConnectionsManagerProvider>
@@ -365,6 +384,7 @@ describe('<ActiveConnectionNavigation />', function () {
                 onOpenConnectionInfo={onOpenConnectionInfoStub}
                 onCopyConnectionString={onCopyConnectionStringStub}
                 onToggleFavoriteConnection={onToggleFavoriteConnectionStub}
+                onDisconnect={onDisconnectStub}
               />
             </Provider>
           </ConnectionsManagerProvider>
