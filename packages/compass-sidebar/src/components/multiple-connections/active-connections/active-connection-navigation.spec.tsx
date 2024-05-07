@@ -449,11 +449,9 @@ describe('<ActiveConnectionNavigation />', function () {
       // step 1 - connection is expanded at first
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
-      // step 2 - user collapses the turtle connection
-      const connectionItem = screen.getByText('oranges');
-
+      // step 2 - user collapses the connection
       act(() => {
-        userEvent.click(connectionItem);
+        userEvent.click(screen.getByText('oranges'));
         userEvent.keyboard('[ArrowLeft]');
       });
 
@@ -471,6 +469,35 @@ describe('<ActiveConnectionNavigation />', function () {
       rerender({
         ...props,
         filterRegex: null,
+      });
+
+      expect(screen.queryByText('orangeDB2')).not.to.exist;
+    });
+
+    it('Should filter the databases, expanding the connection (but the user can still collapse it)', async () => {
+      // step 1 - connection is expanded at first
+      const { rerender, props } = await renderActiveConnectionsNavigation();
+
+      // step 2 - user collapses the connection
+      act(() => {
+        userEvent.click(screen.getByText('oranges'));
+        userEvent.keyboard('[ArrowLeft]');
+      });
+
+      expect(screen.queryByText('orangeDB2')).not.to.exist;
+
+      // step 3 - we filter for a database
+      rerender({
+        ...props,
+        filterRegex: /orangeDB2/,
+      });
+
+      expect(screen.queryByText('orangeDB2')).to.be.visible;
+
+      // step 4 - user collapses the connection
+      act(() => {
+        userEvent.click(screen.getByText('oranges'));
+        userEvent.keyboard('[ArrowLeft]');
       });
 
       expect(screen.queryByText('orangeDB2')).not.to.exist;
@@ -495,6 +522,22 @@ describe('<ActiveConnectionNavigation />', function () {
       rerender({
         ...props,
         filterRegex: null,
+      });
+      expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
+    });
+
+    it('Should filter the collections, expanding the database (but the user can still collapse it)', async () => {
+      // step 1 - filtering for the collection expands the database
+      await renderActiveConnectionsNavigation({
+        filterRegex: /orangeDB1Coll2/i,
+      });
+
+      expect(screen.queryByText('orangeDB1Coll2')).to.be.visible;
+
+      // step 2 - user collapses the database
+      act(() => {
+        userEvent.click(screen.getByText('orangeDB1'));
+        userEvent.keyboard('[ArrowLeft]');
       });
       expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
     });
