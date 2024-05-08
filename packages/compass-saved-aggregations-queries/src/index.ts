@@ -1,11 +1,9 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   connectionInfoAccessLocator,
-  dataServiceLocator,
-  type DataService,
-  type DataServiceLocator,
+  connectionsManagerLocator,
 } from '@mongodb-js/compass-connections/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { activatePlugin } from './stores';
 import AggregationsQueriesList from './components/aggregations-queries-list';
@@ -15,14 +13,12 @@ import {
   pipelineStorageLocator,
   favoriteQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
+import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const serviceLocators = {
-  dataService: dataServiceLocator as DataServiceLocator<
-    // Getting passed to the mongodb instance so hard to be more explicit
-    // about used methods
-    keyof DataService
-  >,
-  instance: mongoDBInstanceLocator,
+  connectionsManager: connectionsManagerLocator,
+  instancesManager: mongoDBInstancesManagerLocator,
+  preferencesAccess: preferencesLocator,
   logger: createLoggerAndTelemetryLocator('COMPASS-MY-QUERIES-UI'),
   workspaces: workspacesServiceLocator,
   pipelineStorage: pipelineStorageLocator,

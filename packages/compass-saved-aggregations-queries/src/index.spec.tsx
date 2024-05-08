@@ -15,6 +15,10 @@ import type {
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 describe('AggregationsQueriesList', function () {
   const sandbox = Sinon.createSandbox();
@@ -29,19 +33,43 @@ describe('AggregationsQueriesList', function () {
     updateAttributes: sandbox.stub().resolves({}),
   };
 
-  const Plugin = MyQueriesPlugin.withMockServices({
-    dataService,
-    instance,
-    favoriteQueryStorageAccess: {
-      getStorage() {
-        return queryStorage as unknown as FavoriteQueryStorage;
-      },
+  const connectionsManager = new ConnectionsManager({
+    logger: createNoopLoggerAndTelemetry().log.unbound,
+  });
+
+  const instancesManager = new TestMongoDBInstanceManager();
+
+  const preferencesAccess = {
+    getPreferences() {
+      return {
+        enableNewMultipleConnectionSystem: false,
+      };
     },
-    pipelineStorage: pipelineStorage as unknown as PipelineStorage,
+  } as PreferencesAccess;
+  let Plugin: any;
+
+  beforeEach(function () {
+    sandbox
+      .stub(connectionsManager, 'getDataServiceForConnection')
+      .returns(dataService);
+    sandbox
+      .stub(instancesManager, 'getMongoDBInstanceForConnection')
+      .returns(instance);
+    Plugin = MyQueriesPlugin.withMockServices({
+      connectionsManager,
+      instancesManager,
+      preferencesAccess,
+      favoriteQueryStorageAccess: {
+        getStorage() {
+          return queryStorage as unknown as FavoriteQueryStorage;
+        },
+      },
+      pipelineStorage: pipelineStorage as unknown as PipelineStorage,
+    });
   });
 
   afterEach(function () {
-    sandbox.resetHistory();
+    sandbox.restore();
     cleanup();
   });
 

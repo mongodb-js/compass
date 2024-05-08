@@ -4,13 +4,17 @@ import type { AnyAction, Action } from 'redux';
 import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
-import openItemReducer from './open-item';
+import openItemReducer, {
+  connectionConnected,
+  connectionDisconnected,
+} from './open-item';
 import editItemReducer from './edit-item';
-import type {
-  ConnectionInfoAccess,
-  DataService,
+import {
+  ConnectionsManagerEvents,
+  type ConnectionInfoAccess,
+  type ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type {
@@ -18,10 +22,13 @@ import type {
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import type { ActivateHelpers } from 'hadron-app-registry';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 type MyQueriesServices = {
-  dataService: DataService;
-  instance: MongoDBInstance;
+  connectionsManager: ConnectionsManager;
+  instancesManager: MongoDBInstancesManager;
+  preferencesAccess: PreferencesAccess;
   globalAppRegistry: AppRegistry;
   logger: LoggerAndTelemetry;
   pipelineStorage?: PipelineStorage;
@@ -32,8 +39,9 @@ type MyQueriesServices = {
 
 export function configureStore({
   globalAppRegistry,
-  dataService,
-  instance,
+  connectionsManager,
+  instancesManager,
+  preferencesAccess,
   logger,
   workspaces,
   pipelineStorage,
@@ -49,8 +57,9 @@ export function configureStore({
     applyMiddleware(
       thunk.withExtraArgument({
         globalAppRegistry,
-        dataService,
-        instance,
+        connectionsManager,
+        instancesManager,
+        preferencesAccess,
         logger,
         pipelineStorage,
         queryStorage: favoriteQueryStorageAccess?.getStorage(),
@@ -79,13 +88,27 @@ export type SavedQueryAggregationThunkAction<
 
 export function activatePlugin(
   _: Record<string, never>,
-  services: MyQueriesServices
+  services: MyQueriesServices,
+  { on, cleanup }: ActivateHelpers
 ) {
   const store = configureStore(services);
+  on(
+    services.connectionsManager,
+    ConnectionsManagerEvents.ConnectionAttemptSuccessful,
+    function (connection: string) {
+      store.dispatch(connectionConnected(connection));
+    }
+  );
+
+  on(
+    services.connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connection: string) {
+      store.dispatch(connectionDisconnected(connection));
+    }
+  );
   return {
     store,
-    deactivate() {
-      // noop, no subscriptions in this plugin
-    },
+    deactivate: cleanup,
   };
 }
