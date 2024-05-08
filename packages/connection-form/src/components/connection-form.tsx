@@ -560,7 +560,7 @@ function ConnectionForm({
                 ? formContentStyles
                 : cx(formContentStyles, formContentLegacyStyles)
             }
-            style={formBodyStyles}
+            style={isMultiConnectionEnabled ? formBodyStyles : undefined}
           >
             <div className={formSettingsStyles}>
               <ConnectionStringInput
