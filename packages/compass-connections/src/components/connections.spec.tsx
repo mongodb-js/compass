@@ -55,19 +55,10 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 
 describe('Connections Component', function () {
   let preferences: PreferencesAccess;
-  let onConnectedSpy: sinon.SinonSpy;
-  let onConnectionFailedSpy: sinon.SinonSpy;
-  let onConnectionAttemptStartedSpy: sinon.SinonSpy;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({ persistOIDCTokens: false });
-  });
-
-  beforeEach(function () {
-    onConnectedSpy = sinon.spy();
-    onConnectionFailedSpy = sinon.spy();
-    onConnectionAttemptStartedSpy = sinon.spy();
   });
 
   afterEach(function () {
@@ -84,11 +75,7 @@ describe('Connections Component', function () {
         <PreferencesProvider value={preferences}>
           <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <Connections
-                onConnected={onConnectedSpy}
-                onConnectionFailed={onConnectionFailedSpy}
-                onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-              />
+              <Connections appRegistry={{} as any} />
             </ConnectionsManagerProvider>
           </ConnectionStorageProvider>
         </PreferencesProvider>
@@ -182,11 +169,7 @@ describe('Connections Component', function () {
           <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={connectionsManager}>
               <ToastArea>
-                <Connections
-                  onConnected={onConnectedSpy}
-                  onConnectionFailed={onConnectionFailedSpy}
-                  onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                />
+                <Connections appRegistry={{} as any} />
               </ToastArea>
             </ConnectionsManagerProvider>
           </ConnectionStorageProvider>
@@ -262,18 +245,6 @@ describe('Connections Component', function () {
           expect(
             saveConnectionSpy.firstCall.args[0].connectionInfo.lastUsed.getTime()
           ).to.equal(0);
-        });
-
-        it('should emit the connection configuration used to connect', function () {
-          expect(onConnectedSpy.firstCall.args[0].id).to.equal(
-            savedConnectionId
-          );
-          expect(
-            onConnectedSpy.firstCall.args[0].connectionOptions
-          ).to.deep.equal({
-            connectionString:
-              'mongodb://localhost:27018/?readPreference=primary&ssl=false',
-          });
         });
       }
     );
@@ -370,11 +341,7 @@ describe('Connections Component', function () {
             <ConnectionStorageProvider value={mockStorage}>
               <ConnectionsManagerProvider value={connectionsManager}>
                 <ToastArea>
-                  <Connections
-                    onConnected={onConnectedSpy}
-                    onConnectionFailed={onConnectionFailedSpy}
-                    onConnectionAttemptStarted={onConnectionAttemptStartedSpy}
-                  />
+                  <Connections appRegistry={{} as any} />
                 </ToastArea>
               </ConnectionsManagerProvider>
             </ConnectionStorageProvider>
@@ -429,10 +396,6 @@ describe('Connections Component', function () {
           expect(saveConnectionSpy.callCount).to.equal(0);
         });
 
-        it('should not emit connected', function () {
-          expect(onConnectedSpy.called).to.equal(false);
-        });
-
         it('should have the connections-wrapper test id', function () {
           expect(screen.getByTestId('connections-wrapper')).to.be.visible;
         });
@@ -457,24 +420,8 @@ describe('Connections Component', function () {
               );
             });
 
-            it('should call onConnected once', function () {
-              expect(onConnectedSpy.callCount).to.equal(1);
-            });
-
             it('should call to save the connection once', function () {
               expect(saveConnectionSpy.callCount).to.equal(1);
-            });
-
-            it('should emit the connection configuration used to connect', function () {
-              expect(onConnectedSpy.firstCall.args[0].id).to.equal(
-                savedConnectableId
-              );
-              expect(
-                onConnectedSpy.firstCall.args[0].connectionOptions
-              ).to.deep.equal({
-                connectionString:
-                  'mongodb://localhost:27018/?readPreference=primary&ssl=false',
-              });
             });
 
             it('should call the connect function with the connection options to connect', function () {
