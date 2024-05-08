@@ -191,7 +191,11 @@ describe('<ActiveConnectionNavigation />', function () {
       filterRegex: filterRegex,
     };
 
-    const wrapper = ({ children }) => (
+    const wrapper = ({
+      children,
+    }: {
+      children: React.ReactChild;
+    }): React.ReactElement => (
       <PreferencesProvider value={preferences}>
         <WorkspacesServiceProvider
           value={
@@ -215,7 +219,7 @@ describe('<ActiveConnectionNavigation />', function () {
       wrapper,
     });
     return {
-      rerender: (props) =>
+      rerender: (props: any) =>
         renderResult.rerender(<ActiveConnectionNavigation {...props} />),
       props,
     };
