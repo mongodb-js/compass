@@ -285,6 +285,27 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
+export const connectionConnected = (
+  connection: string
+): ConnectionConnectedAction => ({
+  type: ActionTypes.ConnectionConnected,
+  connection,
+});
+
+export const connectionDisconnected = (
+  connection: string
+): ConnectionDisconnectedAction => ({
+  type: ActionTypes.ConnectionDisconnected,
+  connection,
+});
+
+export const connectionSelected = (
+  connection: string
+): ConnectionSelectedAction => ({
+  type: ActionTypes.ConnectionSelected,
+  connection,
+});
+
 export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
   type: ActionTypes.UpdateNamespaceChecked,
   updateItemNamespace,
@@ -378,15 +399,6 @@ export const openSavedItem =
     }
 
     dispatch(openItem(item, database, collection));
-  };
-
-export const updateNamespaceChecked =
-  (updateNamespaceChecked: boolean): SavedQueryAggregationThunkAction<void> =>
-  (dispatch) => {
-    dispatch({
-      type: ActionTypes.UpdateNamespaceChecked,
-      updateNamespaceChecked,
-    });
   };
 
 export const openSelectedItem =
