@@ -2,6 +2,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import React, { useCallback } from 'react';
 import { SavedConnection } from './saved-connection';
 import {
+  Body,
   Button,
   Subtitle,
   Icon,
@@ -20,19 +21,20 @@ const savedConnectionListStyles = css({
   display: 'flex',
   flexDirection: 'column',
   marginTop: 'auto',
-  paddingTop: spacing[2],
+  paddingTop: spacing[200],
   borderTop: `1px solid ${palette.gray.light2}`,
 });
 
 const savedConnectionListPaddingStyles = css({
   overflowY: 'auto',
   flexGrow: 1,
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 const savedConnectionCountStyles = css({
   fontWeight: 'normal',
+  marginLeft: spacing[100],
 });
 
 const savedConnectionListHeaderStyles = css({
@@ -41,9 +43,9 @@ const savedConnectionListHeaderStyles = css({
   flexDirection: 'row',
   alignContent: 'center',
   justifyContent: 'space-between',
-  marginBottom: spacing[2],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  marginBottom: spacing[200],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 const savedConnectionListHeaderTitleStyles = css({
@@ -56,7 +58,12 @@ const savedConnectionListHeaderTitleStyles = css({
 
 const firstConnectionBtnStyles = css({
   width: '100%',
-  marginTop: spacing[3],
+  marginTop: spacing[400],
+});
+
+const newConnectionWrapperStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 type SavedConnectionListProps = {
@@ -102,10 +109,12 @@ export function SavedConnectionList({
     <div className={savedConnectionListStyles}>
       <header className={savedConnectionListHeaderStyles}>
         <Subtitle className={savedConnectionListHeaderTitleStyles}>
-          Connections{' '}
-          <span className={savedConnectionCountStyles}>
-            ({connectionCount})
-          </span>
+          Connections
+          {connectionCount !== 0 && (
+            <span className={savedConnectionCountStyles}>
+              ({connectionCount})
+            </span>
+          )}
         </Subtitle>
         <div>
           <IconButton
@@ -150,8 +159,8 @@ export function SavedConnectionList({
           ))}
         </ul>
       ) : (
-        <div>
-          You have not connected to any deployments
+        <div className={newConnectionWrapperStyles}>
+          <Body>You have not connected to any deployments.</Body>
           <Button
             className={firstConnectionBtnStyles}
             data-testid="save-connection-button"

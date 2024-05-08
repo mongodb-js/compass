@@ -113,8 +113,8 @@ describe('SavedConnectionList Component', function () {
     });
 
     it('should not show the empty connections message', function () {
-      expect(screen.queryByText('You have not connected to any deployments')).to
-        .be.null;
+      expect(screen.queryByText('You have not connected to any deployments.'))
+        .to.be.null;
     });
   });
 
@@ -128,8 +128,8 @@ describe('SavedConnectionList Component', function () {
     });
 
     it('should show the empty connections message', function () {
-      expect(screen.queryByText('You have not connected to any deployments')).to
-        .be.visible;
+      expect(screen.queryByText('You have not connected to any deployments.'))
+        .to.be.visible;
     });
   });
 });
