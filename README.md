@@ -22,15 +22,13 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-app-stores**](packages/compass-app-stores): The external stores repo for compass
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations
-- [**@mongodb-js/compass-database**](packages/compass-database): Compass Database Plugin
-- [**@mongodb-js/compass-databases-collections**](packages/databases-collections): View the list of, create, and drop databases and collections
+- [**@mongodb-js/compass-databases-collections**](packages/databases-collections): Plugin for viewing the list of, creating, and dropping databases and collections
 - [**@mongodb-js/compass-explain-plan**](packages/compass-explain-plan): Evaluate the performance of your query
 - [**@mongodb-js/compass-export-to-language**](packages/compass-export-to-language): Export MongoDB queries and aggregations to various languages
 - [**@mongodb-js/compass-field-store**](packages/compass-field-store): FieldStore keeps track of available fields in a collection
 - [**@mongodb-js/compass-find-in-page**](packages/compass-find-in-page): cmd-f UI for Compass
 - [**@mongodb-js/compass-import-export**](packages/compass-import-export): Import/Export feature for Compass
 - [**@mongodb-js/compass-indexes**](packages/compass-indexes): Collection index management for Compass
-- [**@mongodb-js/compass-instance**](packages/compass-instance): Compass instance plugin
 - [**@mongodb-js/compass-query-bar**](packages/compass-query-bar): Renders a component for executing MongoDB queries through a GUI
 - [**@mongodb-js/compass-saved-aggregations-queries**](packages/compass-saved-aggregations-queries): Instance tab plugin that shows saved queries and aggregations
 - [**@mongodb-js/compass-schema**](packages/compass-schema): Compass Schema Tab Plugin
@@ -41,29 +39,35 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 
 ### Shared Libraries and Build Tools
 
+- [**@mongodb-js/atlas-service**](packages/atlas-service): Service to handle Atlas sign in and API requests
 - [**@mongodb-js/compass-components**](packages/compass-components): React Components used in Compass
 - [**@mongodb-js/compass-connection-import-export**](packages/compass-connection-import-export): UI for Compass connection import/export
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Manage your MongoDB connections and connect in Compass
 - [**@mongodb-js/compass-connections-navigation**](packages/compass-connections-navigation): Databases and collections sidebar navigation tree
-- [**@mongodb-js/compass-editor**](packages/compass-editor): Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters
-- [**@mongodb-js/compass-generative-ai**](packages/compass-generative-ai): Shared components and helpers for the generative ai aspects of Compass
+- [**@mongodb-js/compass-editor**](packages/compass-editor): Reusable Compass editor component based on codemirror editor, themes, and autocompleters
+- [**@mongodb-js/compass-generative-ai**](packages/compass-generative-ai): Generative AI aspects for Compass
+- [**@mongodb-js/compass-intercom**](packages/compass-intercom): Intercom scripts and utils for Compass
 - [**@mongodb-js/compass-logging**](packages/compass-logging): Shared helpers for logging in Compass packages
 - [**@mongodb-js/compass-maybe-protect-connection-string**](packages/compass-maybe-protect-connection-string): Utility for protecting connection strings if requested
-- [**@mongodb-js/compass-settings**](packages/compass-settings): Settings for Compass
+- [**@mongodb-js/compass-settings**](packages/compass-settings): Settings for compass
+- [**@mongodb-js/compass-test-server**](packages/compass-test-server): Wrapper around mongodb-runner to manage test servers for Compass
+- [**@mongodb-js/compass-user-data**](packages/compass-user-data): undefined
 - [**@mongodb-js/compass-utils**](packages/compass-utils): Utilities for MongoDB Compass Development
+- [**@mongodb-js/compass-web**](packages/compass-web): Compass application packaged for the browser environment
 - [**@mongodb-js/compass-welcome**](packages/compass-welcome): The welcome modal
+- [**@mongodb-js/compass-workspaces**](packages/compass-workspaces): Compass plugin responsible for rendering and managing state of current namespace / workspace
 - [**@mongodb-js/connection-form**](packages/connection-form): A form for specifying information needed to connect to a MongoDB instance
+- [**@mongodb-js/connection-info**](packages/connection-info): Types and utilites for connections agnostic of backend
+- [**@mongodb-js/connection-storage**](packages/connection-storage): Compass connection storage
 - [**@mongodb-js/databases-collections-list**](packages/databases-collections-list): List view for the databases and collections
 - [**@mongodb-js/explain-plan-helper**](packages/explain-plan-helper): Explain plan utility methods for MongoDB Compass
-- [**@mongodb-js/hadron-plugin-manager**](packages/hadron-plugin-manager): Hadron Plugin Manager
+- [**@mongodb-js/my-queries-storage**](packages/my-queries-storage): Saved aggregations and queries storage
 - [**@mongodb-js/ssh-tunnel**](packages/ssh-tunnel): Yet another ssh tunnel based on ssh2
 - [**bson-transpilers**](packages/bson-transpilers): Source to source compilers using ANTLR
 - [**compass-e2e-tests**](packages/compass-e2e-tests): E2E test suite for Compass app that follows smoke tests / feature testing matrix
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model
-- [**electron-license**](packages/electron-license): Tools for electron apps to work with licenses
-- [**hadron-app**](packages/hadron-app): Hadron Application Singleton
 - [**hadron-app-registry**](packages/hadron-app-registry): Hadron App Registry
-- [**hadron-build**](packages/hadron-build): Tooling for Hadron apps
+- [**hadron-build**](packages/hadron-build): Tooling for Hadron apps like Compass
 - [**hadron-document**](packages/hadron-document): Hadron Document
 - [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
@@ -72,6 +76,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**mongodb-database-model**](packages/database-model): MongoDB database model
 - [**mongodb-explain-compat**](packages/mongodb-explain-compat): Convert mongodb SBE explain output to 4.4 explain output
 - [**mongodb-instance-model**](packages/instance-model): MongoDB instance model
+- [**mongodb-query-util**](packages/mongodb-query-util): Utilty Functions for MongoDB Query Functionality
 
 ### Shared Configuration Files
 
