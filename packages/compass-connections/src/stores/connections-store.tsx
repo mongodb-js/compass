@@ -12,7 +12,7 @@ import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useConnectionRepository } from '../hooks/use-connection-repository';
+import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 
 const { debug, mongoLogId, log } = createLoggerAndTelemetry(
@@ -332,13 +332,7 @@ export function useConnections({
         // noop, we're already logging in the connect method
       });
     }
-
-    return () => {
-      // When unmounting, clean up any current connection attempts that have
-      // not resolved.
-      connectionsManager.cancelAllConnectionAttempts();
-    };
-  }, [connectionStorage, connectionsManager]);
+  }, [connectionStorage]);
 
   const closeConnection = async (connectionId: string) => {
     debug('closing connection with connectionId', connectionId);

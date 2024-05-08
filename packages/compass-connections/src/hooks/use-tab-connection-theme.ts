@@ -1,6 +1,6 @@
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
-import { useConnectionRepository } from './use-connection-repository';
+import { useConnectionRepository } from '../provider';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { useCallback } from 'react';
