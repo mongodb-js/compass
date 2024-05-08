@@ -91,7 +91,8 @@ export {
 export {
   type ConnectionRepository,
   useConnectionRepository,
-} from './hooks/use-connection-repository';
+  areConnectionsEqual,
+} from './components/connections-provider';
 export * from './connection-info-provider';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
