@@ -40,12 +40,12 @@ const navigationItem = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
   border: 'none',
-  height: spacing[5],
+  height: spacing[800],
   position: 'relative',
 
   '& .item-action-controls': {
     marginLeft: 'auto',
-    marginRight: spacing[1],
+    marginRight: spacing[100],
   },
 
   '&:hover .item-background': {
@@ -88,16 +88,16 @@ const itemPlaceholderStyles = css({
   width: '100%',
   display: 'flex',
   alignItems: 'center',
-  paddingLeft: spacing[3],
-  height: spacing[5],
+  paddingLeft: spacing[400],
+  height: spacing[800],
 });
 
 const itemWrapper = css({
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
-  height: spacing[5],
-  gap: spacing[2],
+  height: spacing[800],
+  gap: spacing[200],
   zIndex: 1,
 });
 
@@ -114,7 +114,7 @@ const itemButtonWrapper = css({
   display: 'flex',
   alignItems: 'center',
   minWidth: 0,
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[400],
 });
 
 const signalContainerStyles = css({
@@ -125,7 +125,7 @@ const navigationItemLabel = css({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 const navigationItemDisabledDarkModeStyles = css({
@@ -141,7 +141,7 @@ const navigationItemDisabledLightModeStyles = css({
 });
 
 const databaseCollectionsFilter = css({
-  margin: `${spacing[1]}px ${spacing[3]}px`,
+  margin: `${spacing[100]}px ${spacing[400]}px`,
 });
 
 const navigationItemActionIcons = css({ color: 'inherit' });
@@ -203,7 +203,7 @@ export function NavigationItem<Actions extends string>({
   return (
     <Tooltip
       align="right"
-      spacing={spacing[3]}
+      spacing={spacing[400]}
       isDisabled={!isButtonDisabled || !buttonDisabledMessage}
       trigger={({ children: tooltip, ...triggerProps }) => {
         const props = mergeProps(triggerProps, navigationItemProps);

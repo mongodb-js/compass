@@ -31,9 +31,6 @@ function renderNavigationItems(
           }}
           showCreateDatabaseAction={true}
           isPerformanceTabSupported={true}
-          onFilterChange={() => {
-            /* noop */
-          }}
           {...props}
         />
       </WorkspacesProvider>
