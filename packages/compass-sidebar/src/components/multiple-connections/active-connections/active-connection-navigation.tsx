@@ -26,6 +26,18 @@ import {
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
 
+type ExpandedDatabases = Record<
+  Database['_id'],
+  'expanded' | 'tempExpanded' | undefined
+>;
+type ExpandedConnections = Record<
+  ConnectionInfo['id'],
+  {
+    state: 'collapsed' | 'tempExpanded' | undefined;
+    databases: ExpandedDatabases;
+  }
+>;
+
 function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);
 
@@ -72,7 +84,6 @@ export function ActiveConnectionNavigation({
   filterRegex,
   onFilterChange,
   connections,
-  expandedDatabases,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
   onOpenConnectionInfo,
@@ -91,19 +102,14 @@ export function ActiveConnectionNavigation({
   connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
-  expandedDatabases: Record<
-    ConnectionInfo['id'],
-    Record<string, boolean> | false
-  >;
   activeWorkspace?: WorkspaceTab;
   onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
   onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
   onDisconnect: (connectionId: ConnectionInfo['id']) => void;
 }): React.ReactElement {
-  const [expandedConnections, setExpandedConnections] = useState<
-    Record<ConnectionInfo['id'], 'collapsed' | 'tempExpanded' | undefined>
-  >({});
+  const [expandedConnections, setExpandedConnections] =
+    useState<ExpandedConnections>({});
   const [filteredConnections, setFilteredConnections] = useState<
     Connection[] | undefined
   >(undefined);
@@ -116,31 +122,66 @@ export function ActiveConnectionNavigation({
     openPerformanceWorkspace,
   } = useOpenWorkspace();
 
+  // TODO: if I match a connection, all the databases should be included
+
   const temporarilyExpand = useCallback(
     (list: Connection[]) => {
-      setExpandedConnections((expandedConnections) => {
-        const newExpanded = { ...expandedConnections };
-        list.forEach(({ connectionInfo: { id: connectionId } }) => {
-          if (expandedConnections[connectionId] === 'collapsed') {
-            newExpanded[connectionId] = 'tempExpanded';
-          }
+      try {
+        setExpandedConnections((expandedConnections) => {
+          const newExpanded = { ...expandedConnections };
+          list.forEach(
+            ({ connectionInfo: { id: connectionId }, databases }) => {
+              let connectionState = expandedConnections[connectionId]?.state;
+              if (connectionState === 'collapsed') {
+                connectionState = 'tempExpanded';
+              }
+              const connectionDbs = {
+                ...expandedConnections[connectionId]?.databases,
+              };
+              databases.forEach(({ _id }) => {
+                if (connectionDbs[_id] === undefined) {
+                  connectionDbs[_id] = 'tempExpanded';
+                }
+              });
+              newExpanded[connectionId] = {
+                state: connectionState,
+                databases: connectionDbs,
+              };
+            }
+          );
+          return newExpanded;
         });
-        return newExpanded;
-      });
+      } catch (error) {
+        console.error('expanding', error);
+      }
     },
     [setExpandedConnections]
   );
 
   const collapseAllTemporarilyExpanded = useCallback(() => {
-    setExpandedConnections((expandedConnections) => {
-      const newExpanded = Object.fromEntries(
-        Object.entries(expandedConnections).map(([connectionId, state]) => [
-          connectionId,
-          state === 'tempExpanded' ? 'collapsed' : state,
-        ])
-      );
-      return newExpanded;
-    });
+    try {
+      setExpandedConnections((expandedConnections) => {
+        const newExpanded = Object.fromEntries(
+          Object.entries(expandedConnections).map(
+            ([connectionId, { state, databases }]) => [
+              connectionId,
+              {
+                state: state === 'tempExpanded' ? 'collapsed' : state,
+                databases: Object.fromEntries(
+                  Object.entries(databases || []).map(([dbId, dbState]) => [
+                    dbId,
+                    dbState === 'tempExpanded' ? undefined : dbState,
+                  ])
+                ),
+              },
+            ]
+          )
+        );
+        return newExpanded;
+      });
+    } catch (error) {
+      console.error('collapsing', error);
+    }
   }, [setExpandedConnections]);
 
   useEffect(() => {
@@ -150,8 +191,17 @@ export function ActiveConnectionNavigation({
     } else {
       const matches: Connection[] = [];
       connections.forEach((connection) => {
-        if (connection.databases.length || filterRegex?.test(connection.name)) {
+        if (filterRegex?.test(connection.name)) {
           matches.push(connection);
+        } else {
+          const dbMatches = filterDatabases(connection?.databases, filterRegex);
+          if (dbMatches.length) {
+            matches.push({
+              ...connection,
+              databases: dbMatches,
+              databasesLength: dbMatches?.length ?? 0,
+            });
+          }
         }
       });
       setFilteredConnections(matches);
@@ -167,15 +217,24 @@ export function ActiveConnectionNavigation({
 
   const onConnectionToggle = useCallback(
     (connectionId: string, forceExpand: boolean) => {
-      if (!forceExpand && expandedConnections[connectionId] !== 'collapsed') {
+      if (
+        !forceExpand &&
+        expandedConnections[connectionId].state !== 'collapsed'
+      ) {
         setExpandedConnections((expandedConnections) => ({
           ...expandedConnections,
-          [connectionId]: 'collapsed',
+          [connectionId]: {
+            ...expandedConnections[connectionId],
+            state: 'collapsed',
+          },
         }));
       } else if (forceExpand && expandedConnections[connectionId]) {
         setExpandedConnections((expandedConnections) => ({
           ...expandedConnections,
-          [connectionId]: undefined,
+          [connectionId]: {
+            ...expandedConnections[connectionId],
+            state: undefined,
+          },
         }));
       }
     },
@@ -184,34 +243,40 @@ export function ActiveConnectionNavigation({
 
   const getExpanded = useCallback(
     (list: Connection[]) => {
+      console.log('getting expanded');
       const result = list.reduce(
         (obj, { connectionInfo: { id: connectionId } }) => {
           obj[connectionId] =
-            expandedConnections[connectionId] !== 'collapsed'
-              ? expandedDatabases[connectionId]
+            expandedConnections[connectionId]?.state !== 'collapsed'
+              ? Object.fromEntries(
+                  Object.entries(
+                    expandedConnections[connectionId]?.databases || {}
+                  ).map(([dbId, dbState]) => [dbId, !!dbState])
+                )
               : false;
           return obj;
         },
         {} as Record<string, false | Record<string, boolean>>
       );
+      console.log('getExpanded', result);
       return result;
     },
-    [expandedConnections, expandedDatabases]
+    [expandedConnections]
   );
 
-  useEffect(() => {
-    // cleanup connections that are no longer active
-    // if the user connects again, the new connection should start in the default state
-    setExpandedConnections((expandedConnections) => {
-      const newExpanded = Object.fromEntries(
-        activeConnections.map(({ id: connectionId }) => [
-          connectionId,
-          expandedConnections[connectionId],
-        ])
-      );
-      return newExpanded;
-    });
-  }, [activeConnections]);
+  // useEffect(() => {
+  //   // cleanup connections that are no longer active
+  //   // if the user connects again, the new connection should start in the default state
+  //   setExpandedConnections((expandedConnections) => {
+  //     const newExpanded = Object.fromEntries(
+  //       activeConnections.map(({ id: connectionId }) => [
+  //         connectionId,
+  //         expandedConnections[connectionId],
+  //       ])
+  //     );
+  //     return newExpanded;
+  //   });
+  // }, [activeConnections]);
 
   const onConnectionToggleRef = useRef(onConnectionToggle);
   onConnectionToggleRef.current = onConnectionToggle;
@@ -338,38 +403,21 @@ function mapStateToProps(
   state: RootState,
   {
     activeConnections,
-    filterRegex,
   }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
   connections: Connection[];
-  expandedDatabases: Record<string, Record<string, boolean> | false>;
 } {
   const connections: Connection[] = [];
-  const expandedResult: Record<string, any> = {};
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
     const instance = state.instance[connectionId];
-    const { databases, expandedDbList: initialExpandedDbList } =
-      state.databases[connectionId] || {};
-
-    const filteredDatabases = filterRegex
-      ? filterDatabases(databases, filterRegex)
-      : databases;
+    const { databases } = state.databases[connectionId] || {};
 
     const status = instance?.databasesStatus;
     const isReady =
       status !== undefined && !['initial', 'fetching'].includes(status);
-    const defaultExpanded = Boolean(filterRegex);
-
-    const expandedDbList = initialExpandedDbList ?? {};
-    const expanded = Object.fromEntries(
-      (filteredDatabases || []).map(({ name }) => [
-        name,
-        expandedDbList[name] ?? defaultExpanded,
-      ])
-    );
 
     const isDataLake = instance?.dataLake?.isDataLake ?? false;
     const isWritable = instance?.isWritable ?? false;
@@ -384,18 +432,15 @@ function mapStateToProps(
       isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesLength: filteredDatabases?.length ?? 0,
       databasesStatus: status as Connection['databasesStatus'],
-      databases: filteredDatabases ?? [],
+      databases,
+      databasesLength: databases.length,
     });
-
-    expandedResult[connectionId] = expanded;
   }
 
   return {
     isReady: true,
     connections,
-    expandedDatabases: expandedResult,
   };
 }
 
