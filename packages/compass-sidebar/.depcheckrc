@@ -9,6 +9,5 @@ ignores:
  - '@types/react-dom'
  - '@testing-library/react'
  - '@testing-library/user-event'
- - 'debug'
 ignore-patterns:
  - 'dist'
