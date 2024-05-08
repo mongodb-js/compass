@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -313,6 +319,41 @@ function ConnectionPersonalizationForm({
   );
 }
 
+function useFormBodyStyles() {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [styles, setStyles] = useState<React.CSSProperties>({
+    height: 'auto',
+  });
+
+  useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (headerRef.current && footerRef.current) {
+        // 128 is the modal top/bottom margins, 45 is the modal body paddings
+        const height =
+          headerRef.current.clientHeight +
+          footerRef.current.clientHeight +
+          128 +
+          45;
+        setStyles({
+          height: `calc(100vh - ${height}px)`,
+        });
+      }
+    });
+
+    if (headerRef.current && footerRef.current) {
+      observer.observe(headerRef.current);
+      observer.observe(footerRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [headerRef, footerRef]);
+
+  return { headerRef, footerRef, styles };
+}
+
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
   preferences?: Partial<ConnectionFormPreferences>;
 };
@@ -454,6 +495,8 @@ function ConnectionForm({
     'showFavoriteActions'
   );
 
+  const { headerRef, footerRef, styles: formBodyStyles } = useFormBodyStyles();
+
   return (
     <ConfirmationModalArea>
       <form
@@ -467,54 +510,57 @@ function ConnectionForm({
         noValidate
       >
         <div className={formContainerStyles}>
-          <H3 className={formHeaderStyles}>
-            {initialConnectionInfo.favorite?.name ?? 'New Connection'}
+          <div ref={headerRef}>
+            <H3 className={formHeaderStyles}>
+              {initialConnectionInfo.favorite?.name ?? 'New Connection'}
+              {!isMultiConnectionEnabled && showFavoriteActions && (
+                <IconButton
+                  type="button"
+                  aria-label="Save Connection"
+                  data-testid="edit-favorite-name-button"
+                  className={editFavoriteButtonStyles}
+                  onClick={() => {
+                    setSaveConnectionModal('save');
+                  }}
+                >
+                  <Icon glyph="Edit" />
+                </IconButton>
+              )}
+            </H3>
+            <Description className={descriptionStyles}>
+              {!isMultiConnectionEnabled && 'Connect to a MongoDB deployment'}
+              {isMultiConnectionEnabled && 'Manage your connection settings'}
+            </Description>
             {!isMultiConnectionEnabled && showFavoriteActions && (
               <IconButton
-                type="button"
                 aria-label="Save Connection"
-                data-testid="edit-favorite-name-button"
-                className={editFavoriteButtonStyles}
+                data-testid="edit-favorite-icon-button"
+                type="button"
+                className={favoriteButtonStyles}
+                size="large"
                 onClick={() => {
                   setSaveConnectionModal('save');
                 }}
               >
-                <Icon glyph="Edit" />
+                <div className={favoriteButtonContentStyles}>
+                  <FavoriteIcon
+                    isFavorite={!!initialConnectionInfo.favorite}
+                    size={spacing[5]}
+                  />
+                  <Overline className={favoriteButtonLabelStyles}>
+                    FAVORITE
+                  </Overline>
+                </div>
               </IconButton>
             )}
-          </H3>
-          <Description className={descriptionStyles}>
-            {!isMultiConnectionEnabled && 'Connect to a MongoDB deployment'}
-            {isMultiConnectionEnabled && 'Manage your connection settings'}
-          </Description>
-          {!isMultiConnectionEnabled && showFavoriteActions && (
-            <IconButton
-              aria-label="Save Connection"
-              data-testid="edit-favorite-icon-button"
-              type="button"
-              className={favoriteButtonStyles}
-              size="large"
-              onClick={() => {
-                setSaveConnectionModal('save');
-              }}
-            >
-              <div className={favoriteButtonContentStyles}>
-                <FavoriteIcon
-                  isFavorite={!!initialConnectionInfo.favorite}
-                  size={spacing[5]}
-                />
-                <Overline className={favoriteButtonLabelStyles}>
-                  FAVORITE
-                </Overline>
-              </div>
-            </IconButton>
-          )}
+          </div>
           <div
             className={
               isMultiConnectionEnabled
                 ? formContentStyles
                 : cx(formContentStyles, formContentLegacyStyles)
             }
+            style={formBodyStyles}
           >
             <div className={formSettingsStyles}>
               <ConnectionStringInput
@@ -554,6 +600,7 @@ function ConnectionForm({
           </div>
         </div>
         <div
+          ref={footerRef}
           className={
             isMultiConnectionEnabled
               ? cx(
