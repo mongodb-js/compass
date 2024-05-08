@@ -1,5 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { SavedConnection } from './saved-connection';
 import {
   Button,
@@ -73,7 +73,7 @@ type SavedConnectionListProps = {
 export function SavedConnectionList({
   favoriteConnections,
   nonFavoriteConnections,
-  onConnect,
+  onConnect: _onConnect,
   onNewConnection,
   onEditConnection,
   onDeleteConnection,
@@ -85,6 +85,15 @@ export function SavedConnectionList({
     canOpenNewConnection,
     canNotOpenReason,
   } = useCanOpenNewConnections();
+
+  const onConnect = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      if (canOpenNewConnection) {
+        _onConnect(connectionInfo);
+      }
+    },
+    [_onConnect, canOpenNewConnection]
+  );
 
   const connectionCount =
     favoriteConnections.length + nonFavoriteConnections.length;

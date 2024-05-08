@@ -10,6 +10,7 @@ import {
   css,
   cx,
   focusRing,
+  keyframes,
   palette,
   spacing,
   useDarkMode,
@@ -40,65 +41,74 @@ const inputBarContainerStyles = css({
 const gradientWidth = spacing[50];
 const gradientOffset = spacing[25];
 
-const gradientAnimationStyles = css`
-  &:before,
-  &:after {
-    content: '';
-    position: absolute;
-    top: -${gradientWidth + gradientOffset}px;
-    left: -${gradientWidth + gradientOffset}px;
-    width: calc(100% + ${(gradientWidth + gradientOffset) * 2}px);
-    height: calc(100% + ${(gradientWidth + gradientOffset) * 2}px);
-    border-radius: 12px;
-    background-color: ${palette.blue.light1};
-    background-size: 400% 400%;
-    background-position: 800% 800%;
-  }
+const animateInputBorderGradient = keyframes({
+  '0%': {
+    backgroundPosition: '400% 400%',
+    backgroundImage: `linear-gradient(
+      20deg,
+      ${palette.blue.light1} 0%,
+      ${palette.blue.light1} 30%,
+      #00ede0 45%,
+      #00ebc1 75%,
+      #0498ec
+    )`,
+  },
+  '100%': {
+    backgroundPosition: '0% 0%',
+    backgroundImage: `linear-gradient(
+      20deg,
+      ${palette.blue.light1} 0%,
+      ${palette.blue.light1} 30%,
+      #00ede0 45%,
+      #00ebc1 75%,
+      #0498ec
+    )`,
+  },
+});
 
-  &:after {
-    animation: 4s animateBg linear;
-  }
+const animateShadow = keyframes({
+  '0%': {
+    opacity: 1,
+  },
+  '100%': {
+    opacity: 0,
+  },
+});
 
-  &:before {
-    filter: blur(4px) opacity(0.6);
-    animation: 4s animateBg, animateShadow linear infinite;
-    opacity: 0;
-  }
+const ANIMATION_DURATION_MS = 4000;
 
-  @keyframes animateBg {
-    0% {
-      background-position: 400% 400%;
-      background-image: linear-gradient(
-        20deg,
-        ${palette.blue.light1} 0%,
-        ${palette.blue.light1} 30%,
-        #00ede0 45%,
-        #00ebc1 75%,
-        #0498ec
-      );
-    }
-    100% {
-      background-position: 0% 0%;
-      background-image: linear-gradient(
-        20deg,
-        ${palette.blue.light1} 0%,
-        ${palette.blue.light1} 30%,
-        #00ede0 45%,
-        #00ebc1 75%,
-        #0498ec
-      );
-    }
-  }
+const gradientAnimationStyles = css({
+  '&::before, &::after': {
+    content: '""',
+    position: 'absolute',
+    top: `-${gradientWidth + gradientOffset}px`,
+    left: `-${gradientWidth + gradientOffset}px`,
+    width: `calc(100% + ${(gradientWidth + gradientOffset) * 2}px)`,
+    height: `calc(100% + ${(gradientWidth + gradientOffset) * 2}px)`,
+    borderRadius: spacing[200],
+    backgroundColor: palette.blue.light1,
+    backgroundSize: '400% 400%',
+    backgroundPosition: '800% 800%',
+  },
 
-  @keyframes animateShadow {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-`;
+  '&::after': {
+    animation: `${ANIMATION_DURATION_MS}ms linear 0s infinite alternate ${animateInputBorderGradient}`,
+  },
+
+  '&::before': {
+    filter: 'blur(4px) opacity(0.6)',
+    animation: `${ANIMATION_DURATION_MS}ms linear 0s infinite alternate ${animateInputBorderGradient}, ${ANIMATION_DURATION_MS}ms linear 0s infinite alternate ${animateShadow}`,
+    opacity: 0,
+  },
+});
+
+const isFetchingOverrideTextInputStyles = css({
+  '> *': {
+    // Override LeafyGreen box shadow when the generative ai is fetching.
+    // Without this, the hover and focus state are still visible.
+    boxShadow: 'none !important',
+  },
+});
 
 const contentWrapperStyles = css({
   width: '100%',
@@ -330,13 +340,16 @@ function GenerativeAIInput({
     <div className={containerStyles}>
       <div className={inputBarContainerStyles}>
         <div className={inputContainerStyles}>
-          <div className={cx(isFetching ? gradientAnimationStyles : null)}>
+          <div className={isFetching ? gradientAnimationStyles : undefined}>
             <div
               className={contentWrapperStyles}
               data-testid="ai-user-text-input-wrapper"
             >
               <TextInput
-                className={textInputStyles}
+                className={cx(
+                  textInputStyles,
+                  isFetching && isFetchingOverrideTextInputStyles
+                )}
                 ref={promptTextInputRef}
                 sizeVariant="small"
                 data-testid="ai-user-text-input"

@@ -1,7 +1,8 @@
 import { ipVersion } from 'is-ip';
+import type { ConnectionOptions } from 'mongodb-data-service';
 import { Duplex } from 'stream';
 
-const PROXY_PORT = process.env.COMPASS_WEB_WS_PROXY_PORT
+const WS_PROXY_PORT = process.env.COMPASS_WEB_WS_PROXY_PORT
   ? Number(process.env.COMPASS_WEB_WS_PROXY_PORT)
   : 1337;
 
@@ -20,14 +21,25 @@ class Socket extends Duplex {
   constructor() {
     super();
   }
-  connect(options: { host: string; port: number; tls?: boolean }) {
-    this._ws = new WebSocket(`ws://localhost:${PROXY_PORT}`);
+  connect({
+    lookup,
+    ...options
+  }: {
+    host: string;
+    port: number;
+    lookup?: ConnectionOptions['lookup'];
+    tls?: boolean;
+  }) {
+    const { wsURL, ...atlasOptions } = lookup?.() ?? {};
+    this._ws = new WebSocket(wsURL ?? `ws://localhost:${WS_PROXY_PORT}`);
     this._ws.binaryType = 'arraybuffer';
     this._ws.addEventListener(
       'open',
       () => {
         const connectMsg = JSON.stringify({
           connectOptions: options,
+          atlasOptions:
+            Object.keys(atlasOptions).length > 0 ? atlasOptions : undefined,
           setOptions: this._setOptions,
         });
         setTimeout(() => {
