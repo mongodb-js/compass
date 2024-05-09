@@ -184,7 +184,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     <div
       className={cx(
         editorContainerStyles,
-        focusRingProps.className,
+        !disabled && focusRingProps.className,
         hasError && editorWithErrorStyles
       )}
       ref={editorContainerRef}
@@ -198,10 +198,10 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         completer={completer}
         commands={commands}
         data-testid={dataTestId}
+        disabled={disabled}
         onFocus={onFocus}
         onPaste={onPaste}
         onBlur={onBlur}
-        readOnly={disabled}
       />
       {showInsights && insights && (
         <div className={queryBarEditorOptionInsightsStyles}>

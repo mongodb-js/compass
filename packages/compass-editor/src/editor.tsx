@@ -79,6 +79,15 @@ const editorStyle = css({
   fontFamily: fontFamilies.code,
 });
 
+const disabledContainerStyles = css({
+  borderRadius: spacing[100],
+  boxShadow: `0 0 0 1px ${palette.gray.light1}`,
+});
+
+const disabledContainerDarkModeStyles = css({
+  boxShadow: `0 0 0 1px ${palette.gray.dark2}`,
+});
+
 const hiddenScrollStyle = css({
   '& .cm-scroller': {
     overflow: '-moz-scrollbars-none',
@@ -140,6 +149,9 @@ export const editorPalette = {
   light: {
     color: codePalette.light[3],
     backgroundColor: codePalette.light[0],
+    disabledColor: codePalette.light[2],
+    disabledBackgroundColor: codePalette.light[1],
+    disabledBorderColor: palette.gray.light1,
     gutterColor: codePalette.light[3],
     gutterBackgroundColor: codePalette.light[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.light2, 0.5),
@@ -163,6 +175,9 @@ export const editorPalette = {
   dark: {
     color: codePalette.dark[3],
     backgroundColor: codePalette.dark[0],
+    disabledColor: codePalette.dark[3],
+    disabledBackgroundColor: palette.gray.dark3,
+    disabledBorderColor: palette.gray.dark2,
     gutterColor: codePalette.dark[3],
     gutterBackgroundColor: codePalette.dark[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
@@ -206,6 +221,15 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         paddingTop: `${spacing[1]}px`,
         paddingBottom: `${spacing[1]}px`,
         caretColor: editorPalette[theme].cursorColor,
+      },
+      '[contenteditable="false"] ': {
+        borderRadius: `${spacing[100]}px`,
+      },
+      '.cm-content[contenteditable="false"] ': {
+        cursor: 'not-allowed',
+        color: editorPalette[theme].disabledColor,
+        backgroundColor: editorPalette[theme].disabledBackgroundColor,
+        // boxShadow: `0 0 0 1px inset ${editorPalette[theme].disabledBorderColor}`,
       },
       '& .cm-activeLine': {
         background: 'none',
@@ -430,6 +454,7 @@ type EditorProps = {
   onBlur?: (editor: React.FocusEvent<HTMLDivElement>) => void;
   onPaste?: (editor: React.ClipboardEvent<HTMLDivElement>) => void;
   darkMode?: boolean;
+  disabled?: boolean;
   showLineNumbers?: boolean;
   showFoldGutter?: boolean;
   showAnnotationsGutter?: boolean;
@@ -597,6 +622,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     annotations,
     completer,
     darkMode: _darkMode,
+    disabled = false,
     className,
     readOnly = false,
     onLoad = () => {
@@ -725,6 +751,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       return EditorState.readOnly.of(readOnly);
     },
     readOnly,
+    editorViewRef
+  );
+
+  const editableExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return EditorView.editable.of(!disabled);
+    },
+    disabled,
     editorViewRef
   );
 
@@ -896,6 +930,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         tooltips({
           parent: document.body,
         }),
+        editableExtension,
         readOnlyExtension,
         EditorView.updateListener.of((update) => {
           updateEditorContentHeight();
@@ -1064,7 +1099,11 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   return (
     <div
       ref={containerRef}
-      className={className}
+      className={cx(
+        disabled && disabledContainerStyles,
+        disabled && darkMode && disabledContainerDarkModeStyles,
+        className
+      )}
       style={{
         width: '100%',
         minHeight: Math.max(lineHeight, (minLines ?? 0) * lineHeight),
