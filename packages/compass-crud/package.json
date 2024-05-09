@@ -99,7 +99,7 @@
     "react": "^17.0.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
-    "semver": "^7.6.1"
+    "semver": "^7.6.2"
   },
   "is_compass_plugin": true
 }
