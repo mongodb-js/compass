@@ -7,7 +7,7 @@ import { Banner, Button } from './leafygreen';
 
 const bannerStyle = css({
   width: '100%',
-  overflowX: 'auto',
+  overflowWrap: 'anywhere',
 });
 
 const listStyle = css({
