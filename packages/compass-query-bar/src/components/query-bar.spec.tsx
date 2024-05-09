@@ -34,7 +34,7 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
 
-function testIsEditorDisabled(editorTestId, isDisabled) {
+function testIsEditorDisabled(editorTestId: string, isDisabled: boolean) {
   expect(
     within(screen.getByTestId(editorTestId))
       .getByRole('textbox')
