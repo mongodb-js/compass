@@ -151,7 +151,6 @@ export const editorPalette = {
     backgroundColor: codePalette.light[0],
     disabledColor: codePalette.light[2],
     disabledBackgroundColor: codePalette.light[1],
-    disabledBorderColor: palette.gray.light1,
     gutterColor: codePalette.light[3],
     gutterBackgroundColor: codePalette.light[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.light2, 0.5),
@@ -177,7 +176,6 @@ export const editorPalette = {
     backgroundColor: codePalette.dark[0],
     disabledColor: codePalette.dark[3],
     disabledBackgroundColor: palette.gray.dark3,
-    disabledBorderColor: palette.gray.dark2,
     gutterColor: codePalette.dark[3],
     gutterBackgroundColor: codePalette.dark[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
@@ -229,7 +227,6 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         cursor: 'not-allowed',
         color: editorPalette[theme].disabledColor,
         backgroundColor: editorPalette[theme].disabledBackgroundColor,
-        // boxShadow: `0 0 0 1px inset ${editorPalette[theme].disabledBorderColor}`,
       },
       '& .cm-activeLine': {
         background: 'none',
