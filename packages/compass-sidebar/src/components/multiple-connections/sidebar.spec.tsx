@@ -158,8 +158,8 @@ describe('Multiple Connections Sidebar Component', function () {
 
         userEvent.hover(parentSavedConnection);
 
-        const connectButton = within(parentSavedConnection).getByLabelText(
-          'Connect'
+        const connectButton = within(parentSavedConnection).getByTestId(
+          'connect-button'
         );
 
         userEvent.click(connectButton);
@@ -180,8 +180,8 @@ describe('Multiple Connections Sidebar Component', function () {
 
         userEvent.hover(parentSavedConnection);
 
-        const connectButton = within(parentSavedConnection).getByLabelText(
-          'Connect'
+        const connectButton = within(parentSavedConnection).getByTestId(
+          'connect-button'
         );
 
         userEvent.click(connectButton);

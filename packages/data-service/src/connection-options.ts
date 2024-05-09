@@ -40,6 +40,18 @@ export interface ConnectionOptions {
    * Options related to client-side field-level encryption.
    */
   fleOptions?: ConnectionFleOptions;
+
+  /**
+   * Optional, a real net / tls connection callback function option that is only
+   * used in Compass as a way to pass extra metadata about an Atlas cluster when
+   * connecting in the browser environment through the websocket
+   */
+  lookup?: () => {
+    wsURL: string;
+    projectId?: string;
+    clusterName?: string;
+    srvAddress?: string;
+  };
 }
 
 export interface ConnectionFleOptions {

@@ -11,7 +11,8 @@ import {
   showConfirmation,
   useEffectOnChange,
 } from '@mongodb-js/compass-components';
-import Connections, {
+import CompassConnections, {
+  SingleConnectionForm,
   LegacyConnectionsModal,
 } from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
@@ -334,60 +335,67 @@ function Home({
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionStorageProvider value={connectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager.current}>
-          <CompassInstanceStorePlugin>
-            <FieldStorePlugin>
-              {multiConnectionsEnabled ? (
-                <AppRegistryProvider scopeName="Multiple Connections">
-                  <Workspace
-                    // Workspace receives the singleConnectionConnectionInfo
-                    // to wrap the "My Queries" workspace with a
-                    // ConnectionInfoProvider. This makes sure that "My
-                    // Queries" can continue to work when FF for
-                    // multi-connection is not enabled.
-                    singleConnectionConnectionInfo={connectionInfo ?? undefined}
-                    onActiveWorkspaceTabChange={onWorkspaceChange}
-                  />
-                </AppRegistryProvider>
-              ) : isConnected ? (
-                <AppRegistryProvider scopeName="Single Connection">
-                  <Workspace
-                    // Workspace receives the singleConnectionConnectionInfo
-                    // to wrap the "My Queries" workspace with a
-                    // ConnectionInfoProvider. This makes sure that "My
-                    // Queries" can continue to work when FF for
-                    // multi-connection is not enabled.
-                    singleConnectionConnectionInfo={connectionInfo ?? undefined}
-                    onActiveWorkspaceTabChange={onWorkspaceChange}
-                  />
-                </AppRegistryProvider>
-              ) : (
-                <div className={homePageStyles}>
-                  <Connections
-                    appRegistry={appRegistry}
-                    onConnected={onConnected}
-                    onConnectionFailed={onConnectionFailed}
-                    onConnectionAttemptStarted={onConnectionAttemptStarted}
-                    openConnectionImportExportModal={
-                      openConnectionImportExportModal
-                    }
-                    __TEST_INITIAL_CONNECTION_INFO={
-                      __TEST_INITIAL_CONNECTION_INFO
-                    }
-                  />
-                </div>
-              )}
-              <WelcomeModal
-                isOpen={isWelcomeOpen}
-                closeModal={closeWelcomeModal}
-              />
-              <CompassSettingsPlugin></CompassSettingsPlugin>
-              <CompassFindInPagePlugin></CompassFindInPagePlugin>
-              <AtlasAuthPlugin></AtlasAuthPlugin>
-              <ConnectionImportModal />
-              <ConnectionExportModal />
-              <LegacyConnectionsModal />
-            </FieldStorePlugin>
-          </CompassInstanceStorePlugin>
+          <CompassConnections
+            onConnectionAttemptStarted={onConnectionAttemptStarted}
+            onConnectionFailed={onConnectionFailed}
+            onConnected={onConnected}
+            __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
+          >
+            <CompassInstanceStorePlugin>
+              <FieldStorePlugin>
+                {multiConnectionsEnabled && (
+                  <AppRegistryProvider scopeName="Multiple Connections">
+                    <Workspace
+                      // Workspace receives the singleConnectionConnectionInfo
+                      // to wrap the "My Queries" workspace with a
+                      // ConnectionInfoProvider. This makes sure that "My
+                      // Queries" can continue to work when FF for
+                      // multi-connection is not enabled.
+                      singleConnectionConnectionInfo={
+                        connectionInfo ?? undefined
+                      }
+                      onActiveWorkspaceTabChange={onWorkspaceChange}
+                    />
+                  </AppRegistryProvider>
+                )}
+                {!multiConnectionsEnabled &&
+                  (isConnected ? (
+                    <AppRegistryProvider scopeName="Single Connection">
+                      <Workspace
+                        // Workspace receives the singleConnectionConnectionInfo
+                        // to wrap the "My Queries" workspace with a
+                        // ConnectionInfoProvider. This makes sure that "My
+                        // Queries" can continue to work when FF for
+                        // multi-connection is not enabled.
+                        singleConnectionConnectionInfo={
+                          connectionInfo ?? undefined
+                        }
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                    </AppRegistryProvider>
+                  ) : (
+                    <div className={homePageStyles}>
+                      <SingleConnectionForm
+                        appRegistry={appRegistry}
+                        openConnectionImportExportModal={
+                          openConnectionImportExportModal
+                        }
+                      />
+                    </div>
+                  ))}
+                <WelcomeModal
+                  isOpen={isWelcomeOpen}
+                  closeModal={closeWelcomeModal}
+                />
+                <CompassSettingsPlugin></CompassSettingsPlugin>
+                <CompassFindInPagePlugin></CompassFindInPagePlugin>
+                <AtlasAuthPlugin></AtlasAuthPlugin>
+                <ConnectionImportModal />
+                <ConnectionExportModal />
+                <LegacyConnectionsModal />
+              </FieldStorePlugin>
+            </CompassInstanceStorePlugin>
+          </CompassConnections>
         </ConnectionsManagerProvider>
       </ConnectionStorageProvider>
     </FileInputBackendProvider>

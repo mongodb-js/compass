@@ -113,6 +113,11 @@ export const ConnectionItem: React.FunctionComponent<
 
     const actions: ItemAction<Actions>[] = [
       {
+        action: 'create-database',
+        icon: 'Plus',
+        label: 'Create database',
+      },
+      {
         action: 'connection-performance-metrics',
         icon: 'Gauge',
         label: 'View performance metrics',
@@ -189,6 +194,7 @@ export const ConnectionItem: React.FunctionComponent<
             data-testid="sidebar-connection-item-actions"
             iconSize="small"
             actions={actions}
+            collapseAfter={1}
             menuClassName={actionMenu}
           ></ItemActionControls>
         )}
