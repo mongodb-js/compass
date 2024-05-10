@@ -4,6 +4,26 @@ import OpenAI from 'openai';
 import DigestClient from 'digest-fetch';
 import nodeFetch from 'node-fetch';
 import type { ChatCompletionCreateParamsBase } from 'openai/resources/chat/completions';
+import Anthropic from '@anthropic-ai/sdk';
+
+import { extractDelimitedText } from './ai-response';
+
+let anthropic: Anthropic;
+if (process.env['ANTHROPIC_API_KEY']) {
+  anthropic = new Anthropic({
+    apiKey: process.env['ANTHROPIC_API_KEY'],
+  });
+}
+
+function getAnthropicClient() {
+  if (!anthropic) {
+    anthropic = new Anthropic({
+      apiKey: process.env['ANTHROPIC_API_KEY'],
+    });
+  }
+
+  return anthropic;
+}
 
 let openai: OpenAI;
 if (process.env['OPENAI_API_KEY']) {
@@ -18,18 +38,19 @@ function getOpenAIClient() {
       apiKey: process.env['OPENAI_API_KEY'],
     });
   }
-  
+
   return openai;
 }
 
-const BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
+// Only used when the backend is Atlas (not openai/anthropic/etc).
+const ATLAS_BACKEND = process.env.AI_TESTS_BACKEND || 'atlas-dev';
 
-if (!['atlas-dev', 'atlas-local', 'compass'].includes(BACKEND)) {
+if (!['atlas-dev', 'atlas-local', 'compass'].includes(ATLAS_BACKEND)) {
   throw new Error('Unknown backend');
 }
 
 const fetch = (() => {
-  if (BACKEND === 'atlas-dev' || BACKEND === 'atlas-local') {
+  if (ATLAS_BACKEND === 'atlas-dev' || ATLAS_BACKEND === 'atlas-local') {
     const ATLAS_PUBLIC_KEY = process.env.ATLAS_PUBLIC_KEY;
     const ATLAS_PRIVATE_KEY = process.env.ATLAS_PRIVATE_KEY;
 
@@ -49,9 +70,9 @@ const fetch = (() => {
 
 const backendBaseUrl =
   process.env.AI_TESTS_BACKEND_URL ||
-  (BACKEND === 'atlas-dev'
+  (ATLAS_BACKEND === 'atlas-dev'
     ? 'https://cloud-dev.mongodb.com/api/private'
-    : BACKEND === 'atlas-local'
+    : ATLAS_BACKEND === 'atlas-local'
     ? 'http://localhost:8080/api/private'
     : 'http://localhost:8080');
 
@@ -103,19 +124,89 @@ export class AtlasAPI {
   }
 }
 
-export function createAIChatCompletion({
+export type AIBackend = 'Atlas' | 'openai' | 'anthropic';
+
+type ChatCompletion = {
+  content: string;
+  usageStats: {
+    promptTokens: number;
+    completionTokens: number;
+  };
+};
+
+async function createAnthropicChatCompletion({
   system,
   user,
-  model = 'gpt-3.5-turbo', // 'gpt-4-turbo', //
+  model = 'claude-3-opus-20240229',
 }: {
   system?: string;
   user: string;
   model?: ChatCompletionCreateParamsBase['model'];
-}): Promise<OpenAI.Chat.Completions.ChatCompletion> {
-  const openai = getOpenAIClient();
+}): Promise<ChatCompletion> {
+  const anthropic = getAnthropicClient();
+  let completion: Anthropic.Messages.Message;
   if (!system) {
-    return openai.chat.completions.create({
+    completion = await anthropic.messages.create({
       messages: [
+        {
+          role: 'user',
+          content: user,
+        },
+      ],
+      model,
+      max_tokens: 1000,
+      temperature: 0,
+    });
+  } else {
+    completion = await anthropic.messages.create({
+      model: 'claude-3-opus-20240229',
+      max_tokens: 1000,
+      temperature: 0,
+      system,
+      messages: [
+        {
+          role: 'user',
+          content: user,
+        },
+      ],
+    });
+  }
+
+  return {
+    content: completion.content[0].text,
+    usageStats: {
+      promptTokens: completion.usage.input_tokens,
+      completionTokens: completion.usage.output_tokens,
+    },
+  };
+}
+
+async function createOpenAIChatCompletion({
+  system,
+  user,
+  model = 'gpt-4-turbo',
+}: {
+  system?: string;
+  user: string;
+  model?: ChatCompletionCreateParamsBase['model'];
+}): Promise<ChatCompletion> {
+  const openai = getOpenAIClient();
+
+  let completion: OpenAI.Chat.Completions.ChatCompletion;
+  if (!system) {
+    completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: user,
+        },
+      ],
+      model,
+    });
+  } else {
+    completion = await openai.chat.completions.create({
+      messages: [
+        { role: 'system', content: system },
         {
           role: 'user',
           content: user,
@@ -125,14 +216,113 @@ export function createAIChatCompletion({
     });
   }
 
-  return openai.chat.completions.create({
-    messages: [
-      { role: 'system', content: system },
-      {
-        role: 'user',
-        content: user,
-      },
-    ],
-    model,
-  });
+  return {
+    content: completion.choices[0].message.content || '',
+    usageStats: {
+      promptTokens: completion.usage?.prompt_tokens ?? NaN,
+      completionTokens: completion.usage?.completion_tokens ?? NaN,
+    },
+  };
+}
+
+export type UsageStats = { promptTokens: number; completionTokens: number };
+
+export type GenerationResponse = {
+  content: string;
+  query?: {
+    filter?: string;
+    project?: string;
+    sort?: string;
+    limit?: string;
+    skip?: string;
+  };
+  aggregation?: string;
+  usageStats?: UsageStats;
+};
+
+function getFieldsFromCompletionResponse({
+  completion,
+}: {
+  completion: ChatCompletion;
+}): GenerationResponse {
+  const content = completion.content;
+
+  return {
+    content,
+    query: Object.fromEntries(
+      ['filter', 'project', 'skip', 'limit', 'sort'].map((delimiter) => [
+        delimiter,
+        extractDelimitedText(content ?? '', delimiter),
+      ])
+    ),
+    aggregation: extractDelimitedText(content ?? '', 'aggregation'),
+    usageStats: completion.usageStats,
+  };
+}
+
+export function createAIChatCompletion({
+  system,
+  user,
+  backend,
+}: {
+  system?: string;
+  user: string;
+  backend: AIBackend;
+}): Promise<ChatCompletion> {
+  if (backend === 'openai') {
+    return createOpenAIChatCompletion({ system, user });
+  }
+
+  // Defaults to Anthropic for now.
+  return createAnthropicChatCompletion({ system, user });
+}
+
+export async function runAIChatCompletionGeneration({
+  system,
+  user,
+  backend,
+}: {
+  system?: string;
+  user: string;
+  backend: AIBackend;
+}): Promise<GenerationResponse> {
+  const completion = await createAIChatCompletion({ system, user, backend });
+  return getFieldsFromCompletionResponse({ completion });
+}
+
+// Hack, singleton export so that we can get the httpErrors elsewhere.
+export const atlasBackend = new AtlasAPI();
+
+export async function runAtlasFindQueryGeneration(
+  messageBody: string
+): Promise<GenerationResponse> {
+  const response = await atlasBackend.fetchAtlasPrivateApi(
+    '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
+    {
+      method: 'POST',
+      body: messageBody,
+    }
+  );
+  return {
+    content: response.content,
+    query: response?.content?.query,
+    aggregation: response?.content?.aggregation?.pipeline,
+  };
+}
+
+export async function runAtlasAggregationGeneration(
+  messageBody: string
+): Promise<GenerationResponse> {
+  const response = await atlasBackend.fetchAtlasPrivateApi(
+    '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
+    {
+      method: 'POST',
+      body: messageBody,
+    }
+  );
+  return {
+    content: response.content,
+    query: response?.content?.query,
+    aggregation: response?.content?.aggregation?.pipeline,
+  };
 }

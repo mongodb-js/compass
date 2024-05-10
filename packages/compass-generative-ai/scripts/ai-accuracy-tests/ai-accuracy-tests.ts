@@ -31,10 +31,16 @@ import path from 'path';
 import util from 'util';
 import { execFile as callbackExecFile } from 'child_process';
 
-import { AtlasAPI, createAIChatCompletion } from './ai-backend';
+import {
+  atlasBackend,
+  runAIChatCompletionGeneration,
+  runAtlasAggregationGeneration,
+  runAtlasFindQueryGeneration,
+} from './ai-backend';
+import type { AIBackend, GenerationResponse, UsageStats } from './ai-backend';
 import { loadFixturesToDB } from './fixtures';
 import type { Fixtures } from './fixtures';
-import { extractDelimitedText, parseShellString } from './ai-response';
+import { parseShellString } from './ai-response';
 import {
   getAggregationSystemPrompt,
   getAggregationUserPrompt,
@@ -100,118 +106,54 @@ type QueryOptions = {
   userInput: string;
 };
 
-const atlasBackend = new AtlasAPI();
+function getBackend(): AIBackend {
+  const aiBackend: string = process.env.AI_BACKEND || 'Atlas';
 
-const USE_ATLAS = !process.env['OPENAI_API_KEY'];
+  if (
+    aiBackend !== 'Atlas' &&
+    aiBackend !== 'anthropic' &&
+    aiBackend !== 'openai'
+  ) {
+    throw new Error('Invalid backend, use Atlas, anthropic, or openai');
+  }
 
-type UsageStats = { promptTokens: number; completionTokens: number };
-
-type GenerationResponse = {
-  prompt?: string;
-  content?: any;
-  query?: {
-    filter?: string;
-    project?: string;
-    sort?: string;
-    limit?: string;
-    skip?: string;
-  };
-  aggregation?: string;
-  usageStats?: UsageStats;
-};
-
-function getFieldsFromCompletionResponse({
-  completion,
-  userInput,
-}: {
-  completion: Awaited<ReturnType<typeof createAIChatCompletion>>;
-  userInput: string;
-}): GenerationResponse {
-  const content = completion.choices[0].message.content;
-
-  return {
-    content,
-    prompt: userInput,
-    query: Object.fromEntries(
-      ['filter', 'project', 'skip', 'limit', 'sort'].map((delimiter) => [
-        delimiter,
-        extractDelimitedText(content ?? '', delimiter),
-      ])
-    ),
-    aggregation: extractDelimitedText(content ?? '', 'aggregation'),
-    ...(completion.usage
-      ? {
-          usageStats: {
-            promptTokens: completion.usage?.prompt_tokens,
-            completionTokens: completion.usage?.completion_tokens,
-          },
-        }
-      : {}),
-  };
+  return aiBackend;
 }
+
+const backend = getBackend();
+console.log('\nUsing ai backend:', backend, '\n');
 
 export async function generateFindQuery(
   options: QueryOptions
 ): Promise<GenerationResponse> {
-  if (USE_ATLAS) {
-    const response = await atlasBackend.fetchAtlasPrivateApi(
-      '/ai/api/v1/mql-query?request_id=generative_ai_accuracy_test',
-      {
-        method: 'POST',
-        body: JSON.stringify(options),
-      }
-    );
-    return {
-      content: response.content,
-      prompt: response.prompt,
-      query: response?.content?.query,
-      aggregation: response?.content?.aggregation?.pipeline,
-    };
+  if (backend === 'Atlas') {
+    return runAtlasFindQueryGeneration(JSON.stringify(options));
   }
 
-  const completion = await createAIChatCompletion({
+  return await runAIChatCompletionGeneration({
+    backend,
     system: getQuerySystemPrompt(),
     user: getQueryUserPrompt({
       ...options,
       schema: new SchemaFormatter().format(options.schema),
     }),
   });
-  return getFieldsFromCompletionResponse({
-    userInput: options.userInput,
-    completion,
-  });
 }
 
 export async function generateAggregation(
   options: QueryOptions
 ): Promise<GenerationResponse> {
-  if (USE_ATLAS) {
-    const response = await atlasBackend.fetchAtlasPrivateApi(
-      '/ai/api/v1/mql-aggregation?request_id=generative_ai_accuracy_test',
-      {
-        method: 'POST',
-        body: JSON.stringify(options),
-      }
-    );
-    return {
-      content: response.content,
-      prompt: response.prompt,
-      query: response?.content?.query,
-      aggregation: response?.content?.aggregation?.pipeline,
-    };
+  if (backend === 'Atlas') {
+    return runAtlasAggregationGeneration(JSON.stringify(options));
   }
 
-  const completion = await createAIChatCompletion({
+  return await runAIChatCompletionGeneration({
+    backend,
     system: getAggregationSystemPrompt(),
     user: getAggregationUserPrompt({
       ...options,
       schema: new SchemaFormatter().format(options.schema),
     }),
-  });
-
-  return getFieldsFromCompletionResponse({
-    userInput: options.userInput,
-    completion,
   });
 }
 
@@ -366,7 +308,7 @@ const runOnce = async (
     const newError: AITestError = new Error('Inaccurate query generated');
     newError.errorCode = 'INACCURATE_QUERY_GENERATED';
     newError.query = (error as Error).message;
-    newError.prompt = response.prompt;
+    newError.prompt = userInput;
     newError.causedBy = error as Error;
     console.log('\n__\nIncorrect result. Response:');
     console.log(response?.content);

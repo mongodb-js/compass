@@ -82,15 +82,12 @@ async function createPromptQuestion({
 
     const response = await createAIChatCompletion({
       user: suggestPromptPrompt,
+      backend: 'openai',
     });
 
-    if (response.choices && response.choices.length > 0) {
-      return {
-        prompt:
-          response.choices[0].message.content?.trim() || 'No response from ai',
-      };
-    }
-    throw new Error('No valid prompt generated.');
+    return {
+      prompt: response.content.trim() || 'No response from ai',
+    };
   } catch (error) {
     console.error('Failed to generate prompt:', error);
     throw error;
@@ -123,12 +120,10 @@ async function generateAggregation({
       userInput,
       sampleDocuments: includeSampleDocuments ? sample : undefined,
     }),
+    backend: 'openai',
   });
 
-  return extractDelimitedText(
-    response.choices[0].message.content?.trim() || '',
-    'aggregation'
-  );
+  return extractDelimitedText(response.content?.trim() || '', 'aggregation');
 }
 
 async function main() {
