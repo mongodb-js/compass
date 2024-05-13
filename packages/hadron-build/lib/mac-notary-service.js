@@ -82,6 +82,7 @@ async function notarize(src, notarizeOptions) {
       maxArrayLength: Infinity,
       maxStringLength: Infinity
     }));
+    throw err;
   } finally {
     // cleanup - remove signedArchive and unsignedArchive
     debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
