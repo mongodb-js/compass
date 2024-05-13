@@ -1,8 +1,5 @@
 import { registerHadronPlugin } from 'hadron-app-registry';
-import {
-  connectionInfoAccessLocator,
-  connectionsManagerLocator,
-} from '@mongodb-js/compass-connections/provider';
+import { connectionsManagerLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
 import { activatePlugin } from './stores';
@@ -23,7 +20,6 @@ const serviceLocators = {
   workspaces: workspacesServiceLocator,
   pipelineStorage: pipelineStorageLocator,
   favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
-  connectionInfoAccess: connectionInfoAccessLocator,
 };
 
 export const MyQueriesPlugin = registerHadronPlugin<

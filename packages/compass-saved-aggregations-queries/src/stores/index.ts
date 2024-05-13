@@ -6,10 +6,7 @@ import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import {
-  type ConnectionInfoAccess,
-  type ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
+import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
@@ -29,7 +26,6 @@ type MyQueriesServices = {
   pipelineStorage?: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
-  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 export function configureStore({
@@ -41,7 +37,6 @@ export function configureStore({
   workspaces,
   pipelineStorage,
   favoriteQueryStorageAccess,
-  connectionInfoAccess,
 }: MyQueriesServices) {
   return createStore(
     combineReducers({
@@ -59,7 +54,6 @@ export function configureStore({
         pipelineStorage,
         queryStorage: favoriteQueryStorageAccess?.getStorage(),
         workspaces,
-        connectionInfoAccess,
       })
     )
   );
