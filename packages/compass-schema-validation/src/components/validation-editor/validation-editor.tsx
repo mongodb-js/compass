@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, ReactElement } from 'react';
 import { debounce } from 'lodash';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -37,10 +37,21 @@ const validationOptionsStyles = css({
   display: 'flex',
 });
 
-const actionsStyles = css({
+const editActionsStyles = css({
   display: 'flex',
   alignItems: 'center',
   marginTop: spacing[3],
+});
+
+const generateActionsStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  marginTop: spacing[3],
+});
+
+const panelStyles = css({
+  display: 'grid',
+  gridAutoFlow: 'row',
 });
 
 const editorStyles = css({
@@ -240,9 +251,44 @@ class ValidationEditor extends Component<ValidationEditorProps> {
    * Render actions pannel.
    */
   renderActionsPanel() {
-    if (!(this.props.validation.isChanged && this.props.isEditable)) {
-      return (
-        <div className={actionsStyles}>
+    const items: ReactElement[] = [];
+
+    if (this.props.validation.isChanged || !this.props.isEditable) {
+      items.push(
+        <div className={editActionsStyles}>
+          <Body
+            className={modifiedMessageStyles}
+            data-testid="validation-action-message"
+          >
+            Validation modified
+          </Body>
+          <Button
+            type="button"
+            className={buttonStyles}
+            variant="default"
+            data-testid="cancel-validation-button"
+            onClick={this.props.cancelValidation}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            className={buttonStyles}
+            variant="primary"
+            data-testid="update-validation-button"
+            onClick={this.onValidatorSave.bind(this)}
+            disabled={this.hasErrors()}
+          >
+            Update
+          </Button>
+        </div>
+      );
+    }
+
+    const validator = this.props.validation.validator;
+    if (!validator.length || validator === '{}') {
+      items.push(
+        <div className={generateActionsStyles}>
           <Button
             type="button"
             className={buttonStyles}
@@ -256,35 +302,11 @@ class ValidationEditor extends Component<ValidationEditorProps> {
       );
     }
 
-    return (
-      <div className={actionsStyles}>
-        <Body
-          className={modifiedMessageStyles}
-          data-testid="validation-action-message"
-        >
-          Validation modified
-        </Body>
-        <Button
-          type="button"
-          className={buttonStyles}
-          variant="default"
-          data-testid="cancel-validation-button"
-          onClick={this.props.cancelValidation}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          className={buttonStyles}
-          variant="primary"
-          data-testid="update-validation-button"
-          onClick={this.onValidatorSave.bind(this)}
-          disabled={this.hasErrors()}
-        >
-          Update
-        </Button>
-      </div>
-    );
+    if (!items.length) {
+      return undefined;
+    }
+
+    return <div className={panelStyles}>{items}</div>;
   }
 
   /**
