@@ -21,6 +21,10 @@ import { editItem } from '../stores/edit-item';
 import { confirmDeleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
 import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  type ConnectionInfo,
+  useActiveConnections,
+} from '@mongodb-js/compass-connections/provider';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -73,7 +77,7 @@ export type AggregationsQueriesListProps = {
   loading: boolean;
   items: Item[];
   onMount(): void;
-  onOpenItem(id: string): void;
+  onOpenItem(id: string, activeConnections: ConnectionInfo[]): void;
   onEditItem(id: string): void;
   onDeleteItem(id: string): void;
   onCopyToClipboard(id: string): void;
@@ -91,6 +95,8 @@ export const AggregationsQueriesList = ({
   useEffect(() => {
     void onMount();
   }, [onMount]);
+
+  const activeConnections = useActiveConnections();
 
   const {
     controls: filterControls,
@@ -155,7 +161,7 @@ export const AggregationsQueriesList = ({
     (id: string, actionName: Action) => {
       switch (actionName) {
         case 'open':
-          onOpenItem(id);
+          onOpenItem(id, activeConnections);
           return;
         case 'rename':
           onEditItem(id);
@@ -168,7 +174,7 @@ export const AggregationsQueriesList = ({
           return;
       }
     },
-    [onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
+    [activeConnections, onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =

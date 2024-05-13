@@ -1,7 +1,10 @@
 import type { ActionCreator, AnyAction, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfo,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 
 function isAction<A extends AnyAction>(
@@ -385,8 +388,11 @@ const openItem =
   };
 
 export const openSavedItem =
-  (id: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState, { preferencesAccess, connectionInfoAccess }) => {
+  (
+    id: string,
+    activeConnections: ConnectionInfo[]
+  ): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (dispatch, getState, { preferencesAccess }) => {
     const {
       savedItems: { items },
     } = getState();
@@ -402,10 +408,11 @@ export const openSavedItem =
       preferencesAccess.getPreferences().enableNewMultipleConnectionSystem;
 
     if (!multiConnectionsEnabled) {
-      const { id: singleConnectionId } =
-        connectionInfoAccess.getCurrentConnectionInfo();
+      // In single connections mode, we only expect one connections to be here
+      // in the list of active connections.
+      const [activeConnection] = activeConnections;
       const { error, dataService, instance } = dispatch(
-        getDataServiceAndInstanceForConnection(singleConnectionId)
+        getDataServiceAndInstanceForConnection(activeConnection.id)
       );
       if (error) {
         return;
@@ -418,11 +425,11 @@ export const openSavedItem =
       });
 
       if (!coll) {
-        dispatch(openModal(item, singleConnectionId));
+        dispatch(openModal(item, activeConnection.id));
         return;
       }
 
-      dispatch(openItem(item, singleConnectionId, database, collection));
+      dispatch(openItem(item, activeConnection.id, database, collection));
     } else {
       // TODO: COMPASS-7904
     }
