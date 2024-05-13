@@ -57,6 +57,7 @@ export enum ActionTypes {
 type OpenModalAction = {
   type: ActionTypes.OpenModal;
   selectedItem: Item;
+  selectedConnection?: string;
 };
 
 type CloseModalAction = {
@@ -128,6 +129,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       selectedItem: action.selectedItem,
+      selectedCollection: action.selectedConnection ?? state.selectedConnection,
       isModalOpen: true,
     };
   }
@@ -290,20 +292,13 @@ const getDataServiceAndInstanceForConnection =
     };
   };
 
-export const connectionSelected =
-  (
-    selectedConnection: string
-  ): SavedQueryAggregationThunkAction<Promise<void>> =>
+const loadDatabasesForConnection =
+  (connectionId: string): SavedQueryAggregationThunkAction<Promise<void>> =>
   async (dispatch) => {
-    dispatch({
-      type: ActionTypes.ConnectionSelected,
-      connection: selectedConnection,
-    });
-
     dispatch({ type: ActionTypes.LoadDatabases });
     try {
       const { error, instance, dataService } = dispatch(
-        getDataServiceAndInstanceForConnection(selectedConnection)
+        getDataServiceAndInstanceForConnection(connectionId)
       );
       if (error) {
         throw error;
@@ -319,15 +314,38 @@ export const connectionSelected =
     }
   };
 
+export const connectionSelected =
+  (selectedConnection: string): SavedQueryAggregationThunkAction<void> =>
+  (dispatch) => {
+    dispatch({
+      type: ActionTypes.ConnectionSelected,
+      connection: selectedConnection,
+    });
+
+    void dispatch(loadDatabasesForConnection(selectedConnection));
+  };
+
 export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
   type: ActionTypes.UpdateNamespaceChecked,
   updateItemNamespace,
 });
 
-const openModal = (selectedItem: Item): OpenModalAction => ({
-  type: ActionTypes.OpenModal,
-  selectedItem,
-});
+const openModal =
+  (
+    selectedItem: Item,
+    selectedConnection?: string
+  ): SavedQueryAggregationThunkAction<void> =>
+  (dispatch) => {
+    dispatch({
+      type: ActionTypes.OpenModal,
+      selectedItem,
+      selectedConnection,
+    });
+
+    if (selectedConnection) {
+      void dispatch(loadDatabasesForConnection(selectedConnection));
+    }
+  };
 
 export const closeModal = (): CloseModalAction => ({
   type: ActionTypes.CloseModal,
@@ -400,11 +418,7 @@ export const openSavedItem =
       });
 
       if (!coll) {
-        // There is no way for users to select a connection in single
-        // connections world but to keep the parity with the state we dispatch
-        // this selection explicitly
-        void dispatch(connectionSelected(singleConnectionId));
-        dispatch(openModal(item));
+        dispatch(openModal(item, singleConnectionId));
         return;
       }
 

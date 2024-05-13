@@ -88,7 +88,7 @@ export function activatePlugin(
   const store = configureStore(services);
   return {
     store,
-    deactivate: () => {
+    deactivate() {
       // noop, no subscriptions in this plugin
     },
   };
