@@ -206,13 +206,13 @@ function hasQueryFields(query?: {
   sort?: string;
   limit?: string;
   skip?: string;
-}) {
+}): boolean {
   return (
-    query?.filter ||
-    query?.project ||
-    query?.sort ||
-    query?.limit ||
-    query?.skip
+    (!!query?.filter && query.filter !== '{}') ||
+    (!!query?.project && query.project !== '{}') ||
+    (!!query?.sort && query.sort !== '{}') ||
+    (!!query?.limit && query.limit !== '0') ||
+    (!!query?.skip && query.skip !== '0')
   );
 }
 
@@ -275,7 +275,9 @@ const runOnce = async (
       } else {
         if (acceptAggregationResponse) {
           throw new Error(
-            'Expected aggregation response but got query or no aggregation.'
+            `Expected aggregation response but got query or no aggregation. hasQueryFields: ${hasQueryFields(
+              query
+            )}`
           );
         }
 
