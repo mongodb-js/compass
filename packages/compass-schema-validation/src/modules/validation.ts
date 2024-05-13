@@ -539,8 +539,9 @@ interface Rules {
   description?: string;
   required?: string[];
   properties?: Record<string, Rules>;
-  minLength?: number;
-  maxLength?: number;
+  minItems?: number;
+  maxItems?: number;
+  items?: Rules;
 }
 
 const AnalyzeTypesToBsonTypes: Record<string, string> = {
@@ -580,8 +581,10 @@ const getDescription = (
 ) => {
   const bits: string[] = [];
   if (rules.bsonType) bits.push(`must be a ${rules.bsonType}`);
-  if (rules.minLength) bits.push(`with a minLength of ${rules.minLength}`);
-  if (rules.maxLength) bits.push(`with a maxLength of ${rules.maxLength}`);
+  if (rules.items && rules.items.bsonType)
+    bits.push(`of ${rules.items.bsonType}'s`);
+  if (rules.minItems) bits.push(`with min ${rules.minItems} items`);
+  if (rules.maxItems) bits.push(`with max ${rules.maxItems} items`);
   if (isRequired) bits.push('is required');
   return bits.length ? `'${name}' ${naturalJoin(bits)}` : '';
 };
@@ -591,21 +594,26 @@ const getDocumentRules = (fields: SchemaField[]) => {
   return { properties, required };
 };
 
-const getArrayRules = ({ lengths }: ArraySchemaType): Partial<Rules> => {
+const getArrayRules = ({ lengths, types }: ArraySchemaType): Partial<Rules> => {
   if (!lengths.length) return {};
 
-  let minLength = lengths[0];
-  let maxLength = lengths[0];
+  const rules: Partial<Rules> & { minItems: number; maxItems: number } = {
+    minItems: lengths[0],
+    maxItems: lengths[0],
+  };
 
   for (const length of lengths) {
-    if (length < minLength) minLength = length;
-    if (length > maxLength) maxLength = length;
+    if (length < rules.minItems) rules.minItems = length;
+    if (length > rules.maxItems) rules.maxItems = length;
   }
 
-  return {
-    minLength,
-    maxLength,
-  };
+  if (types.length === 1) {
+    rules.items = {
+      bsonType: AnalyzeTypesToBsonTypes[types[0].bsonType],
+    };
+  }
+
+  return rules;
 };
 
 const parseRules = (fields: SchemaField[]) => {
