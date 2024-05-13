@@ -57,6 +57,7 @@ const activeConnectionListHeaderTitleStyles = css({
 
 const activeConnectionCountStyles = css({
   fontWeight: 'normal',
+  marginLeft: spacing[100],
 });
 
 export function ActiveConnectionNavigation({
@@ -69,6 +70,7 @@ export function ActiveConnectionNavigation({
   onCopyConnectionString,
   onToggleFavoriteConnection,
   onDatabaseExpand,
+  onDisconnect,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
@@ -85,9 +87,10 @@ export function ActiveConnectionNavigation({
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace?: WorkspaceTab;
-  onOpenConnectionInfo: (connectionId: string) => void;
-  onCopyConnectionString: (connectionId: string) => void;
-  onToggleFavoriteConnection: (connectionId: string) => void;
+  onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
+  onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
+  onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
+  onDisconnect: (connectionId: ConnectionInfo['id']) => void;
 }): React.ReactElement {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [namedConnections, setNamedConnections] = useState<
@@ -159,6 +162,9 @@ export function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'connection-disconnect':
+          onDisconnect(connectionId);
+          return;
         case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
           return;
@@ -209,6 +215,7 @@ export function ActiveConnectionNavigation({
       onCopyConnectionString,
       onOpenConnectionInfo,
       onToggleFavoriteConnection,
+      onDisconnect,
       _onNamespaceAction,
     ]
   );
@@ -217,10 +224,12 @@ export function ActiveConnectionNavigation({
     <div className={activeConnectionsContainerStyles}>
       <header className={activeConnectionListHeaderStyles}>
         <Subtitle className={activeConnectionListHeaderTitleStyles}>
-          Active connections{' '}
-          <span className={activeConnectionCountStyles}>
-            ({activeConnections.length})
-          </span>
+          Active connections
+          {activeConnections.length !== 0 && (
+            <span className={activeConnectionCountStyles}>
+              ({activeConnections.length})
+            </span>
+          )}
         </Subtitle>
       </header>
       <ConnectionsNavigationTree
@@ -320,6 +329,9 @@ const onNamespaceAction = (
     };
     const ns = toNS(namespace);
     switch (action) {
+      case 'create-database':
+        emit('open-create-database', { connectionId });
+        return;
       case 'drop-database':
         emit('open-drop-database', ns.database, { connectionId });
         return;

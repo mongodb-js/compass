@@ -58,6 +58,7 @@ document.addEventListener('drop', (evt) => evt.preventDefault());
  * The main entrypoint for the application!
  */
 const APP_VERSION = remote.app.getVersion() || '';
+const DEFAULT_APP_VERSION = '0.0.0';
 
 import View from 'ampersand-view';
 import * as webvitals from 'web-vitals';
@@ -142,7 +143,7 @@ const Application = View.extend({
      */
     previousVersion: {
       type: 'string',
-      default: '0.0.0',
+      default: DEFAULT_APP_VERSION,
     },
   },
   initialize: function () {
@@ -255,10 +256,12 @@ const Application = View.extend({
   updateAppVersion: async function () {
     const { lastKnownVersion, highestInstalledVersion } =
       defaultPreferencesInstance.getPreferences();
-    this.previousVersion = lastKnownVersion || '0.0.0';
+    this.previousVersion = lastKnownVersion || DEFAULT_APP_VERSION;
     this.highestInstalledVersion =
-      semver.sort([highestInstalledVersion || '0.0.0', APP_VERSION])?.[1] ??
-      APP_VERSION;
+      semver.sort([
+        highestInstalledVersion || DEFAULT_APP_VERSION,
+        APP_VERSION,
+      ])?.[1] ?? APP_VERSION;
     await defaultPreferencesInstance.savePreferences({
       lastKnownVersion: APP_VERSION,
       highestInstalledVersion: this.highestInstalledVersion,
@@ -355,7 +358,10 @@ const app = {
       });
     }
 
-    if (semver.gt(APP_VERSION, state.previousVersion)) {
+    if (
+      semver.gt(APP_VERSION, state.previousVersion) &&
+      state.previousVersion !== DEFAULT_APP_VERSION
+    ) {
       // Wait a bit before showing the update toast.
       setTimeout(() => {
         onAutoupdateInstalled({

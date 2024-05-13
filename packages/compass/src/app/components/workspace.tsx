@@ -103,28 +103,16 @@ export default function Workspace({
                 singleConnectionConnectionInfo={singleConnectionConnectionInfo}
               />
             )}
-            renderModals={() => {
-              return multiConnectionsEnabled ? (
-                <>
-                  <ImportPlugin></ImportPlugin>
-                  <CreateViewPlugin></CreateViewPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
-                  <DropNamespacePlugin></DropNamespacePlugin>
-                  <RenameCollectionPlugin></RenameCollectionPlugin>
-                </>
-              ) : (
-                <ConnectionInfoProvider
-                  connectionInfoId={singleConnectionConnectionInfo?.id}
-                >
-                  <ImportPlugin></ImportPlugin>
-                  <ExportPlugin></ExportPlugin>
-                  <CreateViewPlugin></CreateViewPlugin>
-                  <CreateNamespacePlugin></CreateNamespacePlugin>
-                  <DropNamespacePlugin></DropNamespacePlugin>
-                  <RenameCollectionPlugin></RenameCollectionPlugin>
-                </ConnectionInfoProvider>
-              );
-            }}
+            renderModals={() => (
+              <>
+                <ImportPlugin></ImportPlugin>
+                <ExportPlugin></ExportPlugin>
+                <CreateViewPlugin></CreateViewPlugin>
+                <CreateNamespacePlugin></CreateNamespacePlugin>
+                <DropNamespacePlugin></DropNamespacePlugin>
+                <RenameCollectionPlugin></RenameCollectionPlugin>
+              </>
+            )}
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>

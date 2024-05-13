@@ -10,13 +10,13 @@ import {
 } from '@mongodb-js/compass-components';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
-import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { connect, DataService } from 'mongodb-data-service';
+import type { connect } from 'mongodb-data-service';
 import React, { useMemo } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import { cloneDeep } from 'lodash';
-import { useConnections } from '../stores/connections-store';
+import type { ConnectionInfo } from '../provider';
+import { useConnections } from '../provider';
 import Connecting from './connecting/connecting';
 import ConnectionList from './connection-list/connection-list';
 import FormHelp from './form-help/form-help';
@@ -78,26 +78,12 @@ const formCardLightThemeStyles = css({
 
 function Connections({
   appRegistry,
-  onConnected,
-  onConnectionFailed,
-  onConnectionAttemptStarted,
   openConnectionImportExportModal,
-  __TEST_INITIAL_CONNECTION_INFO,
 }: {
   appRegistry: AppRegistry;
-  onConnected: (
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ) => void;
-  onConnectionFailed: (
-    connectionInfo: ConnectionInfo | null,
-    error: Error
-  ) => void;
-  onConnectionAttemptStarted: (connectionInfo: ConnectionInfo) => void;
   openConnectionImportExportModal?: (
     action: 'export-favorites' | 'import-favorites'
   ) => void;
-  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
 
@@ -113,12 +99,8 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
-  } = useConnections({
-    onConnected,
-    onConnectionFailed,
-    onConnectionAttemptStarted,
-    __TEST_INITIAL_CONNECTION_INFO,
-  });
+  } = useConnections();
+
   const {
     connectingConnectionId,
     activeConnectionId,
@@ -167,6 +149,12 @@ function Connections({
     ]
   );
 
+  const onConnectClick = (connectionInfo: ConnectionInfo) => {
+    void connect({ ...cloneDeep(connectionInfo) }).catch(() => {
+      // noop, we're logging in the connect method
+    });
+  };
+
   return (
     <div data-testid="connections-wrapper" className={connectStyles}>
       <ResizableSidebar>
@@ -177,9 +165,7 @@ function Connections({
           recentConnections={recentConnections}
           createNewConnection={createNewConnection}
           setActiveConnectionId={setActiveConnectionById}
-          onDoubleClick={(connectionInfo) => {
-            void connect(connectionInfo);
-          }}
+          onDoubleClick={onConnectClick}
           removeAllRecentsConnections={() => {
             void removeAllRecentsConnections();
           }}
@@ -211,11 +197,7 @@ function Connections({
                 )}
               >
                 <ConnectionForm
-                  onConnectClicked={(connectionInfo) =>
-                    void connect({
-                      ...cloneDeep(connectionInfo),
-                    })
-                  }
+                  onConnectClicked={onConnectClick}
                   key={activeConnectionId}
                   onSaveConnectionClicked={saveConnection}
                   initialConnectionInfo={activeConnectionInfo}

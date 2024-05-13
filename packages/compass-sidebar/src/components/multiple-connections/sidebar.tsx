@@ -143,9 +143,13 @@ export function MultipleConnectionSidebar({
 
   const onConnected = useCallback(
     (info: ConnectionInfo) => {
-      closeToast(`connection-status-${info.id}`);
+      openToast(`connection-status-${info.id}`, {
+        title: `Connected to ${getConnectionTitle(info)}`,
+        variant: 'success',
+        timeout: 3_000,
+      });
     },
-    [closeToast]
+    [openToast]
   );
 
   const onConnectionAttemptStarted = useCallback(
@@ -176,7 +180,7 @@ export function MultipleConnectionSidebar({
         setIsConnectionFormOpen(true);
       };
 
-      openToast(`connection-status-${info?.id}`, {
+      openToast(`connection-status-${info?.id ?? ''}`, {
         title: `${error.message}`,
         description: (
           <ConnectionErrorToastBody
@@ -193,6 +197,7 @@ export function MultipleConnectionSidebar({
   const {
     setActiveConnectionById,
     connect,
+    closeConnection,
     favoriteConnections,
     recentConnections,
     cancelConnectionAttempt,
@@ -201,13 +206,7 @@ export function MultipleConnectionSidebar({
     duplicateConnection,
     createNewConnection,
     state,
-  } = useConnections({
-    onConnected: onConnected,
-    onConnectionAttemptStarted: onConnectionAttemptStarted,
-    onConnectionFailed(info, error) {
-      void onConnectionFailed(info, error);
-    },
-  });
+  } = useConnections();
 
   const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
     state;
@@ -217,9 +216,23 @@ export function MultipleConnectionSidebar({
   const onConnect = useCallback(
     (info: ConnectionInfo) => {
       setActiveConnectionById(info.id);
-      void connect(info);
+      onConnectionAttemptStarted(info);
+      void connect(info).then(
+        () => {
+          onConnected(info);
+        },
+        (err: any) => {
+          void onConnectionFailed(info, err);
+        }
+      );
     },
-    [connect, setActiveConnectionById]
+    [
+      connect,
+      onConnected,
+      onConnectionAttemptStarted,
+      onConnectionFailed,
+      setActiveConnectionById,
+    ]
   );
 
   const onNewConnectionOpen = useCallback(() => {
@@ -236,7 +249,7 @@ export function MultipleConnectionSidebar({
   );
 
   const onNewConnectionConnect = useCallback(
-    (connectionInfo) => {
+    (connectionInfo: ConnectionInfo) => {
       void connect({
         ...cloneDeep(connectionInfo),
       }).then(() => setIsConnectionFormOpen(false));
@@ -245,7 +258,7 @@ export function MultipleConnectionSidebar({
   );
 
   const onSaveNewConnection = useCallback(
-    async (connectionInfo) => {
+    async (connectionInfo: ConnectionInfo) => {
       await saveConnection(connectionInfo);
       setIsConnectionFormOpen(false);
     },
@@ -327,6 +340,13 @@ export function MultipleConnectionSidebar({
     [findActiveConnection, maybeProtectConnectionString]
   );
 
+  const onDisconnect = useCallback(
+    (connectionId: string) => {
+      void closeConnection(connectionId);
+    },
+    [closeConnection]
+  );
+
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
   const showKerberosPasswordField = usePreference('showKerberosPasswordField');
@@ -381,6 +401,7 @@ export function MultipleConnectionSidebar({
           onOpenConnectionInfo={onOpenConnectionInfo}
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
+          onDisconnect={onDisconnect}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}

@@ -244,7 +244,6 @@ export class ConnectionsManager extends EventEmitter {
         dataService.addReauthenticationHandler(this.reAuthenticationHandler);
       }
 
-      this.connectionAttempts.delete(connectionId);
       this.dataServices.set(connectionId, dataService);
 
       this.updateAndNotifyConnectionStatus(
@@ -269,6 +268,8 @@ export class ConnectionsManager extends EventEmitter {
         );
       }
       throw error;
+    } finally {
+      this.connectionAttempts.delete(connectionId);
     }
   }
 
@@ -294,6 +295,8 @@ export class ConnectionsManager extends EventEmitter {
         ConnectionsManagerEvents.ConnectionDisconnected,
         [connectionInfoId]
       );
+      this.oidcState.delete(connectionInfoId);
+      this.connectionAttempts.delete(connectionInfoId);
     } else {
       this.logger.warn(
         'ConnectionsManager',
@@ -302,6 +305,20 @@ export class ConnectionsManager extends EventEmitter {
         `Attempting to close a connection that is neither being connected to, nor connected but the status is ${currentStatus}`
       );
     }
+  }
+
+  /**
+   * Try to close all currently existing connections and ignore all errors if
+   * they happen during that process. This is a clean-up method that is supposed
+   * to be used in cases where there is probably no way for us to react to those
+   * errors anyway and all the errors will be already logged elsewhere
+   */
+  async closeAllConnections(): Promise<void> {
+    await Promise.allSettled(
+      Array.from(this.connectionStatuses.keys()).map((connectionId) => {
+        return this.closeConnection(connectionId);
+      })
+    );
   }
 
   on<T extends ConnectionsManagerEvents>(

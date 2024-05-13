@@ -1,9 +1,13 @@
 import { expect } from 'chai';
 import { createSandbox } from 'sinon';
+import type { Workspace } from '../index';
 import { activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
+import { _bulkTabsClose } from './workspaces';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '../../../connection-info/dist';
+import type { WorkspaceTab } from '../../dist';
 
 describe('tabs behavior', function () {
   const instance = {
@@ -37,15 +41,22 @@ describe('tabs behavior', function () {
 
   function openTabs(
     store: ReturnType<typeof configureStore>,
-    namespaces: string[] = ['test.foo', 'test.bar', 'test.buz']
+    connectionNamespaces: Record<ConnectionInfo['id'], string[]> = {
+      connection1: ['test.foo', 'test.bar', 'test.buz'],
+    }
   ) {
-    namespaces.forEach((namespace) => {
-      store.dispatch(
-        openWorkspace({ type: 'Collection', namespace } as any, {
-          newTab: true,
-        })
-      );
-    });
+    for (const connectionId in connectionNamespaces) {
+      connectionNamespaces[connectionId].forEach((namespace) => {
+        store.dispatch(
+          openWorkspace(
+            { type: 'Collection', namespace, connectionId },
+            {
+              newTab: true,
+            }
+          )
+        );
+      });
+    }
   }
 
   const {
@@ -59,6 +70,7 @@ describe('tabs behavior', function () {
     collectionRenamed,
     collectionRemoved,
     databaseRemoved,
+    connectionDisconnected,
     collectionSubtabSelected,
     openFallbackTab,
     getActiveTab,
@@ -122,7 +134,11 @@ describe('tabs behavior', function () {
 
       // opening literally the same tab, state is not changed
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'test.buz' } as any)
+        openWorkspace({
+          type: 'Collection',
+          namespace: 'test.buz',
+          connectionId: 'connection1',
+        })
       );
       expect(store.getState()).to.eq(currentState1);
 
@@ -134,7 +150,11 @@ describe('tabs behavior', function () {
       // opening an existing tab changes the active id, but doesn't change the
       // tabs array
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'test.foo' } as any)
+        openWorkspace({
+          type: 'Collection',
+          namespace: 'test.foo',
+          connectionId: 'connection1',
+        })
       );
       expect(store.getState()).to.have.property('tabs', currentState2.tabs);
       expect(store.getState()).to.have.property(
@@ -145,10 +165,14 @@ describe('tabs behavior', function () {
 
     it('should not change any state when opening a workspace for the active tab even if other similar workspaces are open', function () {
       const store = configureStore();
-      openTabs(store, ['db.coll', 'db.coll', 'db.coll']);
+      openTabs(store, { connection1: ['db.coll', 'db.coll', 'db.coll'] });
       const currentState = store.getState();
       store.dispatch(
-        openWorkspace({ type: 'Collection', namespace: 'db.coll' } as any)
+        openWorkspace({
+          type: 'Collection',
+          namespace: 'db.coll',
+          connectionId: 'connection1',
+        })
       );
       expect(store.getState()).to.eq(currentState);
     });
@@ -316,7 +340,8 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       const state = store.getState();
-      store.dispatch(collectionRenamed('foo.bar', 'foo.buz'));
+
+      store.dispatch(databaseRemoved('blah'));
       expect(store.getState()).to.eq(state);
     });
 
@@ -342,6 +367,69 @@ describe('tabs behavior', function () {
       const store = configureStore();
       openTabs(store);
       store.dispatch(databaseRemoved('test'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(0);
+      expect(state).to.have.property('tabs').deep.eq([]);
+      expect(state).to.have.property('activeTabId', null);
+    });
+  });
+
+  describe('connectionDisconnected', function () {
+    it('should not change state if no tabs were removed', function () {
+      const store = configureStore();
+      openTabs(store);
+      const state = store.getState();
+      store.dispatch(connectionDisconnected('otherConnection'));
+      expect(store.getState()).to.eq(state);
+    });
+
+    it('should remove all tabs with matching connection', function () {
+      const store = configureStore();
+      openTabs(store, {
+        connectionA: ['dbA', 'dbA.coll'],
+        connectionB: ['dbB', 'dbB.coll'],
+      });
+      store.dispatch(connectionDisconnected('connectionA'));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(2);
+      expect(state).to.have.nested.property('tabs[0].namespace', 'dbB');
+      expect(state).to.have.nested.property('tabs[1].namespace', 'dbB.coll');
+    });
+
+    it('when the active tab is removed, it should make the next tab active', function () {
+      const store = configureStore();
+      const connectionId = 'connectionA';
+      const connectionTab: Pick<
+        Workspace<'Databases'>,
+        'type' | 'connectionId'
+      > = {
+        type: 'Databases',
+        connectionId,
+      };
+      openTabs(store, {});
+      store.dispatch(openWorkspace(connectionTab));
+      store.dispatch(openWorkspace({ type: 'My Queries' }));
+      store.dispatch(openWorkspace(connectionTab)); // this is to make the first tab active
+
+      expect(getActiveTab(store.getState())).to.have.property(
+        'type',
+        'Databases'
+      );
+      expect(getActiveTab(store.getState())).to.have.property(
+        'connectionId',
+        connectionId
+      );
+
+      store.dispatch(connectionDisconnected(connectionId));
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(1);
+      expect(getActiveTab(state)).to.have.property('type', 'My Queries');
+    });
+
+    it('should remove all tabs completely if all of them belong to the connection', function () {
+      const store = configureStore();
+      openTabs(store);
+      store.dispatch(connectionDisconnected('connection1'));
       const state = store.getState();
       expect(state).to.have.property('tabs').have.lengthOf(0);
       expect(state).to.have.property('tabs').deep.eq([]);
@@ -417,5 +505,108 @@ describe('tabs behavior', function () {
       );
       expect(getActiveTab(store.getState())).to.not.have.property('namespace');
     });
+  });
+});
+
+describe('_bulkTabsClose', function () {
+  it('Scenario 1: Active tab is not closed', function () {
+    const { tabs, activeTabId } = _bulkTabsClose({
+      state: {
+        tabs: [
+          { type: 'Databases', connectionId: 'abc', id: 'abc_dbs' },
+          { type: 'Databases', connectionId: 'bcd', id: 'bcd_dbs' },
+          { type: 'My Queries', id: 'active' },
+        ],
+        activeTabId: 'active',
+        collectionInfo: {},
+      },
+      isToBeClosed: (tab: WorkspaceTab) => tab.type === 'Databases',
+    });
+
+    expect(tabs).to.deep.equal([{ type: 'My Queries', id: 'active' }]);
+    expect(activeTabId).to.equal('active');
+  });
+
+  it('Scenario 2: Active tab is closed, the very next becomes active', function () {
+    const { tabs, activeTabId } = _bulkTabsClose({
+      state: {
+        tabs: [
+          {
+            type: 'Collections',
+            connectionId: 'abc',
+            id: 'abc_db_collections',
+            namespace: 'db',
+          },
+          { type: 'My Queries', id: 'active' },
+          { type: 'Databases', connectionId: 'abc', id: 'next_tab' },
+          { type: 'Databases', connectionId: 'bcd', id: 'bcd_dbs' },
+        ],
+        activeTabId: 'active',
+        collectionInfo: {},
+      },
+      isToBeClosed: (tab: WorkspaceTab) => tab.type === 'My Queries',
+    });
+
+    expect(tabs).to.deep.equal([
+      {
+        type: 'Collections',
+        connectionId: 'abc',
+        id: 'abc_db_collections',
+        namespace: 'db',
+      },
+      { type: 'Databases', connectionId: 'abc', id: 'next_tab' },
+      { type: 'Databases', connectionId: 'bcd', id: 'bcd_dbs' },
+    ]);
+    expect(activeTabId).to.equal('next_tab');
+  });
+
+  it('Scenario 3: Active tab is closed & all the tabs after it are closed', function () {
+    const { tabs, activeTabId } = _bulkTabsClose({
+      state: {
+        tabs: [
+          {
+            type: 'Collections',
+            connectionId: 'abc',
+            id: 'abc_db_collections',
+            namespace: 'db',
+          },
+          { type: 'My Queries', id: 'last_remaining' },
+          { type: 'Databases', connectionId: 'abc', id: 'active' },
+          { type: 'Databases', connectionId: 'bcd', id: 'bcd_dbs' },
+        ],
+        activeTabId: 'active',
+        collectionInfo: {},
+      },
+      isToBeClosed: (tab: WorkspaceTab) => tab.type === 'Databases',
+    });
+
+    expect(tabs).to.deep.equal([
+      {
+        type: 'Collections',
+        connectionId: 'abc',
+        id: 'abc_db_collections',
+        namespace: 'db',
+      },
+      { type: 'My Queries', id: 'last_remaining' },
+    ]);
+    expect(activeTabId).to.equal('last_remaining');
+  });
+
+  it('Scenario 4: All the tabs are closed', function () {
+    const { tabs, activeTabId } = _bulkTabsClose({
+      state: {
+        tabs: [
+          { type: 'My Queries', id: 'queries' },
+          { type: 'Databases', connectionId: 'abc', id: 'abc_dbs' },
+          { type: 'Databases', connectionId: 'bcd', id: 'bcd_dbs' },
+        ],
+        activeTabId: 'active',
+        collectionInfo: {},
+      },
+      isToBeClosed: () => true,
+    });
+
+    expect(tabs).to.have.length(0);
+    expect(activeTabId).to.equal(null);
   });
 });

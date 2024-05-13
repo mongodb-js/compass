@@ -37,7 +37,7 @@
     "@mongodb-js/compass-workspaces": "^0.7.0",
     "d3": "^3.5.17",
     "d3-timer": "^1.0.3",
-    "debug": "^4.2.0",
+    "debug": "^4.3.4",
     "hadron-app-registry": "^9.1.10",
     "lodash": "^4.17.21",
     "mongodb-ns": "^2.4.0",

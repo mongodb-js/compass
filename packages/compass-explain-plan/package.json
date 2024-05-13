@@ -52,7 +52,7 @@
     "@mongodb-js/mocha-config-compass": "^1.3.9",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
-    "@testing-library/react": "^12.1.4",
+    "@testing-library/react": "^12.1.5",
     "@types/d3": "^3.5.x",
     "@types/d3-flextree": "^2.1.0",
     "@types/d3-hierarchy": "^3.1.2",

@@ -291,49 +291,38 @@ const CompassWeb = ({
             <WithAtlasProviders>
               <ConnectionStorageProvider value={connectionStorage.current}>
                 <ConnectionsManagerProvider value={connectionsManager.current}>
-                  <CompassInstanceStorePlugin>
-                    <FieldStorePlugin>
-                      {isConnected && connectionInfo ? (
-                        <AppRegistryProvider
-                          key={connectionInfo.id}
-                          scopeName="Connected Application"
-                        >
-                          <ConnectionInfoProvider
-                            connectionInfoId={connectionInfo.id}
+                  <CompassConnections
+                    onConnectionAttemptStarted={onConnectionAttemptStarted}
+                    onConnectionFailed={onConnectionFailed}
+                    onConnected={onConnected}
+                  >
+                    <CompassInstanceStorePlugin>
+                      <FieldStorePlugin>
+                        {isConnected && connectionInfo ? (
+                          <AppRegistryProvider
+                            key={connectionInfo.id}
+                            scopeName="Connected Application"
                           >
-                            <CompassWorkspace
-                              connectionInfo={connectionInfo}
-                              initialWorkspaceTabs={initialWorkspaceTabs}
-                              onActiveWorkspaceTabChange={
-                                onActiveWorkspaceTabChange
-                              }
-                            />
-                          </ConnectionInfoProvider>
-                        </AppRegistryProvider>
-                      ) : connectionError ? (
-                        renderError(connectionInfo, connectionError)
-                      ) : (
-                        renderConnecting(connectionInfo)
-                      )}
-                      {/**
-                       * Compass connections is not only handling connection, but
-                       * actually renders connection UI, we need to use it for the
-                       * connection handling business logic, but hide it visually
-                       * because this is not something that we want to be visible
-                       * in DE
-                       */}
-                      <div style={{ display: 'none' }}>
-                        <CompassConnections
-                          appRegistry={appRegistry.current}
-                          onConnected={onConnected}
-                          onConnectionFailed={onConnectionFailed}
-                          onConnectionAttemptStarted={
-                            onConnectionAttemptStarted
-                          }
-                        ></CompassConnections>
-                      </div>
-                    </FieldStorePlugin>
-                  </CompassInstanceStorePlugin>
+                            <ConnectionInfoProvider
+                              connectionInfoId={connectionInfo.id}
+                            >
+                              <CompassWorkspace
+                                connectionInfo={connectionInfo}
+                                initialWorkspaceTabs={initialWorkspaceTabs}
+                                onActiveWorkspaceTabChange={
+                                  onActiveWorkspaceTabChange
+                                }
+                              />
+                            </ConnectionInfoProvider>
+                          </AppRegistryProvider>
+                        ) : connectionError ? (
+                          renderError(connectionInfo, connectionError)
+                        ) : (
+                          renderConnecting(connectionInfo)
+                        )}
+                      </FieldStorePlugin>
+                    </CompassInstanceStorePlugin>
+                  </CompassConnections>
                 </ConnectionsManagerProvider>
               </ConnectionStorageProvider>
             </WithAtlasProviders>

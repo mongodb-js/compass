@@ -36,7 +36,10 @@ import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider'
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 import { maxTimeMSChanged } from '../modules/max-time-ms';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  ConnectionScopedAppRegistry,
+} from '@mongodb-js/compass-connections/provider';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import {
   pickCollectionStats,
@@ -79,6 +82,7 @@ export type AggregationsPluginServices = {
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorage;
   connectionInfoAccess: ConnectionInfoAccess;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
   collection: Collection;
 };
 
@@ -96,6 +100,7 @@ export function activateAggregationsPlugin(
     atlasAuthService,
     pipelineStorage,
     connectionInfoAccess,
+    connectionScopedAppRegistry,
     collection: collectionModel,
   }: AggregationsPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
@@ -183,6 +188,7 @@ export function activateAggregationsPlugin(
         logger,
         atlasAiService,
         connectionInfoAccess,
+        connectionScopedAppRegistry,
       })
     )
   );

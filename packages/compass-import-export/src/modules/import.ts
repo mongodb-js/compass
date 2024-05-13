@@ -312,6 +312,10 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     let dataService: DataService | undefined;
     let result: ImportResult;
     try {
+      if (!connectionId) {
+        throw new Error('ConnectionId not provided');
+      }
+
       dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
       if (!dataService) {
