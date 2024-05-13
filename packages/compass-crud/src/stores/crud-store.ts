@@ -1443,12 +1443,22 @@ class CrudStoreImpl
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
+      let message = (error as Error).message;
+      if ((error as any).errInfo?.details?.schemaRulesNotSatisfied) {
+        message +=
+          `\n\n` +
+          JSON.stringify(
+            (error as any).errInfo?.details?.schemaRulesNotSatisfied,
+            null,
+            2
+          );
+      }
       this.setState({
         insert: {
           doc: this.state.insert.doc,
           jsonDoc: this.state.insert.jsonDoc,
           jsonView: this.state.insert.jsonView,
-          message: (error as Error).message,
+          message,
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
           isOpen: true,
