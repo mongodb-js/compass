@@ -159,6 +159,8 @@ const changeValidator = (
   state: ValidationState,
   action: ValidatorChangedAction
 ): ValidationState => {
+  console.log('changeValidator', action, state);
+
   const checkedValidator = checkValidator(action.validator);
   const newState = {
     ...state,
@@ -527,5 +529,26 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
     const namespace = state.namespace;
 
     dispatch(fetchValidation(namespace));
+  };
+};
+
+export const generateValidator = (): SchemaValidationThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch, getState, { globalAppRegistry }) => {
+    // const state = getState();
+
+    // const
+
+    const validator = {
+      $jsonSchema: {},
+    };
+
+    try {
+      dispatch(zeroStateChanged(false));
+      dispatch(validatorChanged(JSON.stringify(validator, null, 2)));
+    } catch (e) {
+      // TODO error toast
+    }
   };
 };

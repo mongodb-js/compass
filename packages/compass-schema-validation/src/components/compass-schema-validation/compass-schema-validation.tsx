@@ -7,6 +7,7 @@ import {
   saveValidation,
   validationActionChanged,
   validationLevelChanged,
+  generateValidator,
 } from '../../modules/validation';
 import { namespaceChanged } from '../../modules/namespace';
 import { clearSampleDocuments } from '../../modules/sample-documents';
@@ -71,6 +72,7 @@ const MappedCompassSchemaValidation: React.FunctionComponent<unknown> = connect(
     validationActionChanged,
     validationLevelChanged,
     changeZeroState,
+    generateValidator,
   }
 )(withPreferences(CompassSchemaValidation, ['readOnly']));
 

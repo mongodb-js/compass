@@ -100,6 +100,7 @@ export type ValidationEditorProps = {
   namespace: string;
   clearSampleDocuments: () => void;
   validatorChanged: (text: string) => void;
+  generateValidator: () => void;
   validationActionChanged: (action: ValidationServerAction) => void;
   validationLevelChanged: (level: ValidationLevel) => void;
   cancelValidation: () => void;
@@ -240,7 +241,19 @@ class ValidationEditor extends Component<ValidationEditorProps> {
    */
   renderActionsPanel() {
     if (!(this.props.validation.isChanged && this.props.isEditable)) {
-      return;
+      return (
+        <div className={actionsStyles}>
+          <Button
+            type="button"
+            className={buttonStyles}
+            variant="primary"
+            data-testid="generate-validation-rules-button"
+            onClick={this.props.generateValidator}
+          >
+            Generate rules based on Schema Analysis
+          </Button>
+        </div>
+      );
     }
 
     return (

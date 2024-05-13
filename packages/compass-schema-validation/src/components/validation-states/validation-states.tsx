@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   Banner,
@@ -47,6 +47,7 @@ export interface ValidationStatesProps
   isZeroState: boolean;
   isLoaded: boolean;
   changeZeroState: (value: boolean) => void;
+  generateValidator: () => void;
   editMode: {
     collectionTimeSeries?: boolean;
     collectionReadOnly?: boolean;
@@ -142,15 +143,27 @@ class ValidationStates extends Component<ValidationStatesProps> {
         title="Add validation rules"
         subTitle="Create rules to enforce data structure of documents on updates and inserts."
         callToAction={
-          <Button
-            data-testid="add-rule-button"
-            disabled={!this.isEditable()}
-            onClick={this.props.changeZeroState.bind(this, false)}
-            variant={ButtonVariant.Primary}
-            size="small"
-          >
-            Add Rule
-          </Button>
+          <>
+            <Button
+              data-testid="add-rule-button"
+              disabled={!this.isEditable()}
+              onClick={this.props.changeZeroState.bind(this, false)}
+              variant={ButtonVariant.Primary}
+              size="small"
+            >
+              Add Rule
+            </Button>
+            <Button
+              style={{ marginLeft: spacing[200] }}
+              data-testid="add-rule-button"
+              disabled={!this.isEditable()}
+              onClick={this.props.generateValidator.bind(this)}
+              variant={ButtonVariant.Primary}
+              size="small"
+            >
+              Generate rules based on Schema Analysis
+            </Button>
+          </>
         }
         callToActionLink={
           <Link href={DOC_SCHEMA_VALIDATION} target="_blank">
