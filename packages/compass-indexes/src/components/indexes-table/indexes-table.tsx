@@ -27,7 +27,6 @@ import { useDarkMode } from '@mongodb-js/compass-components';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 
 const tableWrapperStyles = css({
-  paddingTop: spacing[3],
   width: '100%',
   height: '100%',
 });
