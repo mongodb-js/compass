@@ -2,7 +2,7 @@ import decomment from 'decomment';
 import ejsonShellParser from 'ejson-shell-parser';
 
 export function extractDelimitedText(str: string, delimiter: string): string {
-  if (!str.includes(delimiter)) {
+  if (!str.includes(`<${delimiter}>`)) {
     return '';
   }
 
@@ -10,12 +10,7 @@ export function extractDelimitedText(str: string, delimiter: string): string {
   try {
     res = str.split(`<${delimiter}>`)[1].split(`</${delimiter}>`)[0];
   } catch (e) {
-    // in case the model returns unbalanced or redundant delimiters
-    // we strip everything that remains from the text:
-    return res
-      .replace(`<${delimiter}>`, '')
-      .replace(`</${delimiter}>`, '')
-      .replace(`${delimiter}`, '');
+    return '';
   }
 
   return res;
