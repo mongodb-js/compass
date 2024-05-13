@@ -61,7 +61,7 @@
     "compass-preferences-model": "^2.20.1",
     "hadron-app-registry": "^9.1.11",
     "mongodb": "^6.5.0",
-    "mongodb-schema": "^12.1.0",
+    "mongodb-schema": "^12.2.0",
     "react": "^17.0.2"
   },
   "devDependencies": {
@@ -87,7 +87,7 @@
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
-    "mongodb-runner": "^5.4.4",
+    "mongodb-runner": "^5.6.2",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "p-queue": "^7.4.1",

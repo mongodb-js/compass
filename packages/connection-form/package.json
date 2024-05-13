@@ -54,8 +54,8 @@
     "ejson-shell-parser": "^2.0.1",
     "lodash": "^4.17.21",
     "mongodb": "^6.5.0",
-    "mongodb-build-info": "^1.7.0",
-    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-build-info": "^1.7.2",
+    "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.19.2",
     "mongodb-query-parser": "^4.1.0",
     "react": "^17.0.2"
