@@ -1,5 +1,5 @@
 import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
-import { BSONType, Decimal128, EJSON } from 'bson';
+import { EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { clearSampleDocuments } from './sample-documents';
@@ -7,7 +7,10 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
-import mongodbSchema, { type SchemaField } from 'mongodb-schema';
+import mongodbSchema, {
+  type SchemaField,
+  type ArraySchemaType,
+} from 'mongodb-schema';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -536,6 +539,8 @@ interface Rules {
   description?: string;
   required?: string[];
   properties?: Record<string, Rules>;
+  minLength?: number;
+  maxLength?: number;
 }
 
 const AnalyzeTypesToBsonTypes: Record<string, string> = {
@@ -560,6 +565,14 @@ const AnalyzeTypesToBsonTypes: Record<string, string> = {
   MaxKey: 'maxKey',
 };
 
+const naturalJoin = (bits: string[]) => {
+  if (!bits.length) return '';
+  if (bits.length === 1) return bits[0];
+
+  const last = bits.pop() || '';
+  return `${bits.join(', ')} and ${last}`;
+};
+
 const getDescription = (
   name: string,
   rules: Omit<Rules, 'description'>,
@@ -567,15 +580,39 @@ const getDescription = (
 ) => {
   const bits: string[] = [];
   if (rules.bsonType) bits.push(`must be a ${rules.bsonType}`);
+  if (rules.minLength) bits.push(`with a minLength of ${rules.minLength}`);
+  if (rules.maxLength) bits.push(`with a maxLength of ${rules.maxLength}`);
   if (isRequired) bits.push('is required');
-  return bits.length ? `'${name}' ${bits.join(' and ')}` : '';
+  return bits.length ? `'${name}' ${naturalJoin(bits)}` : '';
+};
+
+const getDocumentRules = (fields: SchemaField[]) => {
+  const { properties, required } = parseRules(fields);
+  return { properties, required };
+};
+
+const getArrayRules = ({ lengths }: ArraySchemaType): Partial<Rules> => {
+  if (!lengths.length) return {};
+
+  let minLength = lengths[0];
+  let maxLength = lengths[0];
+
+  for (const length of lengths) {
+    if (length < minLength) minLength = length;
+    if (length > maxLength) maxLength = length;
+  }
+
+  return {
+    minLength,
+    maxLength,
+  };
 };
 
 const parseRules = (fields: SchemaField[]) => {
   const required: string[] = [];
   const properties: Record<string, Rules> = {};
 
-  fields.forEach(({ name, type, types, probability }) => {
+  fields.forEach(({ name, types, probability }) => {
     const rules: Rules = {};
 
     let isRequired = false;
@@ -584,18 +621,22 @@ const parseRules = (fields: SchemaField[]) => {
       required.push(name);
     }
 
-    if (type.length === 1) {
-      type = type[0];
-    }
-    if (typeof type === 'string' && AnalyzeTypesToBsonTypes[type]) {
-      rules.bsonType = AnalyzeTypesToBsonTypes[type];
+    types = types.filter(
+      ({ bsonType: analyzeType }) => analyzeType !== 'Undefined'
+    );
 
-      if (types[0].bsonType === 'Document') {
-        const nested = parseRules(
-          (types[0] as { fields: SchemaField[] }).fields
+    const bsonType =
+      types.length === 1 && AnalyzeTypesToBsonTypes[types[0].bsonType];
+    if (bsonType) {
+      rules.bsonType = bsonType;
+      if (bsonType === 'object') {
+        Object.assign(
+          rules,
+          getDocumentRules((types[0] as { fields: SchemaField[] }).fields)
         );
-        rules.required = nested.required;
-        rules.properties = nested.properties;
+      }
+      if (bsonType === 'array') {
+        Object.assign(rules, getArrayRules(types[0] as ArraySchemaType));
       }
     }
 
