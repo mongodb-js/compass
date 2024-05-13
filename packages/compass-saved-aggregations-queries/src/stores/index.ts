@@ -4,13 +4,9 @@ import type { AnyAction, Action } from 'redux';
 import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
-import openItemReducer, {
-  connectionConnected,
-  connectionDisconnected,
-} from './open-item';
+import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
 import {
-  ConnectionsManagerEvents,
   type ConnectionInfoAccess,
   type ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
@@ -22,7 +18,6 @@ import type {
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
-import type { ActivateHelpers } from 'hadron-app-registry';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
 type MyQueriesServices = {
@@ -88,27 +83,13 @@ export type SavedQueryAggregationThunkAction<
 
 export function activatePlugin(
   _: Record<string, never>,
-  services: MyQueriesServices,
-  { on, cleanup }: ActivateHelpers
+  services: MyQueriesServices
 ) {
   const store = configureStore(services);
-  on(
-    services.connectionsManager,
-    ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    function (connection: string) {
-      store.dispatch(connectionConnected(connection));
-    }
-  );
-
-  on(
-    services.connectionsManager,
-    ConnectionsManagerEvents.ConnectionDisconnected,
-    function (connection: string) {
-      store.dispatch(connectionDisconnected(connection));
-    }
-  );
   return {
     store,
-    deactivate: cleanup,
+    deactivate: () => {
+      // noop, no subscriptions in this plugin
+    },
   };
 }
