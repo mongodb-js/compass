@@ -132,7 +132,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       selectedItem: action.selectedItem,
-      selectedCollection: action.selectedConnection ?? state.selectedConnection,
+      selectedConnection: action.selectedConnection ?? state.selectedConnection,
       isModalOpen: true,
     };
   }
