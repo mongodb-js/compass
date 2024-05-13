@@ -7,6 +7,8 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
+import mongodbSchema from 'mongodb-schema';
+import toNS from 'mongodb-ns';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -159,8 +161,6 @@ const changeValidator = (
   state: ValidationState,
   action: ValidatorChangedAction
 ): ValidationState => {
-  console.log('changeValidator', action, state);
-
   const checkedValidator = checkValidator(action.validator);
   const newState = {
     ...state,
@@ -532,16 +532,68 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
   };
 };
 
+interface Rules {
+  bsonType?: string;
+}
+
+const AnalyzeTypesToBsonTypes: Record<string, string> = {
+  Double: 'double',
+  String: 'string',
+  Object: 'object',
+  Array: 'array',
+  Int32: 'int',
+  Int64: 'long',
+};
+
 export const generateValidator = (): SchemaValidationThunkAction<
   Promise<void>
 > => {
-  return async (dispatch, getState, { globalAppRegistry }) => {
-    // const state = getState();
+  return async (dispatch, getState, { dataService }) => {
+    const { namespace } = getState();
 
-    // const
+    const docs = await dataService.sample(
+      namespace.toString(),
+      undefined, // query
+      {
+        // aggregateOptions
+        promoteValues: false,
+      },
+      {
+        // abortSignal,
+      }
+    );
+    const { fields } = await mongodbSchema(docs);
+
+    console.log('fields', fields);
+
+    const required = fields
+      .filter(({ probability }) => probability === 1)
+      .map(({ name }) => name);
+
+    const properties = fields.reduce((obj, { name, type }) => {
+      const rules: Rules = {};
+
+      if (type.length === 1) {
+        type = type[0];
+      }
+      if (typeof type === 'string' && AnalyzeTypesToBsonTypes[type]) {
+        console.log({ name, type });
+        rules.bsonType = AnalyzeTypesToBsonTypes[type];
+      }
+
+      if (Object.keys(rules).length) {
+        obj[name] = rules;
+      }
+      return obj;
+    }, {} as Record<string, Rules>);
 
     const validator = {
-      $jsonSchema: {},
+      $jsonSchema: {
+        bsonType: 'object',
+        title: `${namespace.collection} validation`,
+        required,
+        properties,
+      },
     };
 
     try {

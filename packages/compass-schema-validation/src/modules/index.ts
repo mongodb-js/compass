@@ -58,7 +58,7 @@ export type RootAction =
 export type SchemaValidationExtraArgs = {
   dataService: Pick<
     DataService,
-    'aggregate' | 'collectionInfo' | 'updateCollection'
+    'aggregate' | 'collectionInfo' | 'updateCollection' | 'sample'
   >;
   preferences: PreferencesAccess;
   globalAppRegistry: AppRegistry;

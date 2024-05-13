@@ -22,7 +22,7 @@ type SchemaValidationServices = {
   globalAppRegistry: AppRegistry;
   dataService: Pick<
     DataService,
-    'aggregate' | 'collectionInfo' | 'updateCollection'
+    'aggregate' | 'collectionInfo' | 'updateCollection' | 'sample'
   >;
   preferences: PreferencesAccess;
   instance: MongoDBInstance;

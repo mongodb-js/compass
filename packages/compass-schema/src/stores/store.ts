@@ -171,7 +171,6 @@ export function activateSchemaPlugin(
       this.globalAppRegistry = globalAppRegistry;
       this.fieldStoreService = fieldStoreService;
     },
-
     handleSchemaShare(this: SchemaStore) {
       void navigator.clipboard.writeText(
         JSON.stringify(this.state.schema, null, '  ')
