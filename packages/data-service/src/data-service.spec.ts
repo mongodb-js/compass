@@ -832,7 +832,7 @@ describe('DataService', function () {
           {
             maxTimeMS: 123,
             session: undefined,
-            raw: true,
+            bsonRegExp: true,
           }
         );
 
@@ -840,7 +840,12 @@ describe('DataService', function () {
         expect(dataService.aggregate).to.have.been.calledWith(
           'db.coll',
           [{ $sample: { size: 1000 } }],
-          { allowDiskUse: true, maxTimeMS: 123, session: undefined, raw: true }
+          {
+            allowDiskUse: true,
+            maxTimeMS: 123,
+            session: undefined,
+            bsonRegExp: true,
+          }
         );
       });
 
