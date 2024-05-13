@@ -1,5 +1,5 @@
 import type { RootAction, RootState, SchemaValidationThunkAction } from '.';
-import { EJSON } from 'bson';
+import { BSONType, Decimal128, EJSON } from 'bson';
 import { parseFilter } from 'mongodb-query-parser';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import { clearSampleDocuments } from './sample-documents';
@@ -7,8 +7,7 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
-import mongodbSchema from 'mongodb-schema';
-import toNS from 'mongodb-ns';
+import mongodbSchema, { type SchemaField } from 'mongodb-schema';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -534,15 +533,83 @@ export const activateValidation = (): SchemaValidationThunkAction<void> => {
 
 interface Rules {
   bsonType?: string;
+  description?: string;
+  required?: string[];
+  properties?: Record<string, Rules>;
 }
 
 const AnalyzeTypesToBsonTypes: Record<string, string> = {
   Double: 'double',
   String: 'string',
-  Object: 'object',
+  Document: 'object',
   Array: 'array',
+  Binary: 'binData',
+  Undefined: 'undefined',
+  ObjectId: 'objectId',
+  Boolean: 'bool',
+  Date: 'date',
+  Null: 'null',
+  RegExp: 'regex',
+  Code: 'javascript',
+  BSONSymbol: 'symbol',
   Int32: 'int',
+  Timestamp: 'timestamp',
   Int64: 'long',
+  Decimal128: 'decimal',
+  MinKey: 'minKey',
+  MaxKey: 'maxKey',
+};
+
+const getDescription = (
+  name: string,
+  rules: Omit<Rules, 'description'>,
+  isRequired: boolean
+) => {
+  const bits: string[] = [];
+  if (rules.bsonType) bits.push(`must be a ${rules.bsonType}`);
+  if (isRequired) bits.push('is required');
+  return bits.length ? `'${name}' ${bits.join(' and ')}` : '';
+};
+
+const parseRules = (fields: SchemaField[]) => {
+  const required: string[] = [];
+  const properties: Record<string, Rules> = {};
+
+  fields.forEach(({ name, type, types, probability }) => {
+    const rules: Rules = {};
+
+    let isRequired = false;
+    if (probability === 1) {
+      isRequired = true;
+      required.push(name);
+    }
+
+    if (type.length === 1) {
+      type = type[0];
+    }
+    if (typeof type === 'string' && AnalyzeTypesToBsonTypes[type]) {
+      rules.bsonType = AnalyzeTypesToBsonTypes[type];
+
+      if (types[0].bsonType === 'Document') {
+        const nested = parseRules(
+          (types[0] as { fields: SchemaField[] }).fields
+        );
+        rules.required = nested.required;
+        rules.properties = nested.properties;
+      }
+    }
+
+    const description = getDescription(name, rules, isRequired);
+    if (description) {
+      rules.description = description;
+    }
+
+    if (Object.keys(rules).length) {
+      properties[name] = rules;
+    }
+  });
+
+  return { properties, required };
 };
 
 export const generateValidator = (): SchemaValidationThunkAction<
@@ -565,27 +632,7 @@ export const generateValidator = (): SchemaValidationThunkAction<
     const { fields } = await mongodbSchema(docs);
 
     console.log('fields', fields);
-
-    const required = fields
-      .filter(({ probability }) => probability === 1)
-      .map(({ name }) => name);
-
-    const properties = fields.reduce((obj, { name, type }) => {
-      const rules: Rules = {};
-
-      if (type.length === 1) {
-        type = type[0];
-      }
-      if (typeof type === 'string' && AnalyzeTypesToBsonTypes[type]) {
-        console.log({ name, type });
-        rules.bsonType = AnalyzeTypesToBsonTypes[type];
-      }
-
-      if (Object.keys(rules).length) {
-        obj[name] = rules;
-      }
-      return obj;
-    }, {} as Record<string, Rules>);
+    const { properties, required } = parseRules(fields);
 
     const validator = {
       $jsonSchema: {
