@@ -591,7 +591,7 @@ const getDescription = (
   const bits: string[] = [];
   if (rules.bsonType) bits.push(`must be ${withA(rules.bsonType)}`);
   if (rules.items && rules.items.bsonType)
-    bits.push(`of ${rules.items.bsonType}'s`);
+    bits.push(`of ${rules.items.bsonType}s`);
   if (rules.minItems) bits.push(`with min ${rules.minItems} items`);
   if (rules.maxItems) bits.push(`with max ${rules.maxItems} items`);
   if (rules.minimum && rules.maximum) {
@@ -602,10 +602,10 @@ const getDescription = (
     bits.push(`maximum ${rules.maximum}`);
   }
   if (rules.enum) {
-    bits.push(`must be one of [ '${rules.enum.join(`', '`)}' ]`);
+    bits.push(`must be one of [ "${rules.enum.join(`", "`)}" ]`);
   }
   if (isRequired) bits.push('is required');
-  return bits.length ? `'${name}' ${naturalJoin(bits)}` : '';
+  return bits.length ? `"${name}" ${naturalJoin(bits)}` : '';
 };
 
 const getDocumentRules = ({ fields }: DocumentSchemaType) => {
@@ -763,7 +763,15 @@ export const generateValidator = (): SchemaValidationThunkAction<
 
     try {
       dispatch(zeroStateChanged(false));
-      dispatch(validatorChanged(JSON.stringify(validator, null, 2)));
+      dispatch(
+        validatorChanged(
+          JSON.stringify(validator, null, 2)
+            .replace(/"([\w$]+)":/g, '$1:')
+            .replace(/(?<!\\)"/g, "'")
+            .replaceAll('\\"', '"')
+            .replaceAll('enum:', "'enum':")
+        )
+      );
     } catch (e) {
       // TODO error toast
     }
