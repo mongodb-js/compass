@@ -255,7 +255,7 @@ class ValidationEditor extends Component<ValidationEditorProps> {
 
     if (this.props.validation.isChanged || !this.props.isEditable) {
       items.push(
-        <div className={editActionsStyles}>
+        <div className={editActionsStyles} key="edit-validation-actions">
           <Body
             className={modifiedMessageStyles}
             data-testid="validation-action-message"
@@ -288,7 +288,10 @@ class ValidationEditor extends Component<ValidationEditorProps> {
     const validator = this.props.validation.validator;
     if (!validator.length || validator === '{}') {
       items.push(
-        <div className={generateActionsStyles}>
+        <div
+          className={generateActionsStyles}
+          key="generate-validation-rules-btn"
+        >
           <Button
             type="button"
             className={buttonStyles}

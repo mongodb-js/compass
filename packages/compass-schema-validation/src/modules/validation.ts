@@ -547,6 +547,7 @@ interface Rules {
   minimum?: number;
   maximum?: number;
   items?: Rules;
+  enum?: string[];
 }
 
 const AnalyzeTypesToBsonTypes: Record<string, string> = {
@@ -600,6 +601,9 @@ const getDescription = (
   } else if (rules.maximum) {
     bits.push(`maximum ${rules.maximum}`);
   }
+  if (rules.enum) {
+    bits.push(`must be one of [ '${rules.enum.join(`', '`)}' ]`);
+  }
   if (isRequired) bits.push('is required');
   return bits.length ? `'${name}' ${naturalJoin(bits)}` : '';
 };
@@ -652,6 +656,21 @@ const getNumericRules = ({ values }: { values: number[] }) => {
   };
 };
 
+const getStringRules = ({ values }: { values: string[] }) => {
+  if (!values.length) return {};
+
+  const maxEnumLength = Math.min(Math.round(values.length / 3), 10);
+  const distinctValues: Set<string> = new Set();
+  for (const value of values) {
+    if (!distinctValues.has(value)) distinctValues.add(value);
+    if (distinctValues.size > maxEnumLength) {
+      return {};
+    }
+  }
+
+  return { enum: Array.from(distinctValues) };
+};
+
 const getTypeSpecificRules = (
   bsonType: string,
   schema: SchemaType
@@ -666,6 +685,8 @@ const getTypeSpecificRules = (
     case 'long':
     case 'decimal':
       return getNumericRules(schema as unknown as { values: number[] });
+    case 'string':
+      return getStringRules(schema as unknown as { values: string[] });
     default:
       return {};
   }
@@ -719,7 +740,7 @@ export const generateValidator = (): SchemaValidationThunkAction<
       namespace.toString(),
       undefined, // query
       {
-        // aggregateOptions
+        maxTimeMS: 60000,
         promoteValues: false,
       },
       {
