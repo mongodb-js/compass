@@ -169,6 +169,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
         <QueryBar
+          source="crud"
           resultId={resultId}
           buttonLabel="Find"
           onApply={onApplyClicked}

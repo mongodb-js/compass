@@ -64,6 +64,7 @@ import type {
   ConnectionInfoAccess,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
+import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -104,32 +105,6 @@ const INITIAL_BULK_UPDATE_TEXT = `{
 
   },
 }`;
-
-function pickQueryProps({
-  filter,
-  sort,
-  limit,
-  skip,
-  maxTimeMS,
-  project,
-  collation,
-}: Partial<QueryState> = {}): Partial<QueryState> {
-  const query: Partial<QueryState> = {
-    filter,
-    sort,
-    limit,
-    skip,
-    maxTimeMS,
-    project,
-    collation,
-  };
-  for (const key of Object.keys(query) as (keyof QueryState)[]) {
-    if (query[key] === null || query[key] === undefined) {
-      delete query[key];
-    }
-  }
-  return query;
-}
 
 export const fetchDocuments: (
   dataService: DataService,
@@ -246,40 +221,7 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
  */
 const COUNT_MAX_TIME_MS_CAP = 5000;
 
-/**
- * Set the isEditable flag in the store.
- *
- * @param {Store} store - The store.
- */
-export const setIsEditable = (store: CrudStoreImpl, hasProjection: boolean) => {
-  const isEditable = isListEditable({
-    isDataLake: store.state.isDataLake,
-    isReadonly: store.state.isReadonly,
-    hasProjection,
-  });
-  store.setState({ isEditable });
-};
-
-/**
- * Determine if the document list is editable.
- *
- * @param {Object} opts - The options to determine if the list is editable.
- *
- * @returns {Boolean} If the list is editable.
- */
-export const isListEditable = ({
-  isDataLake,
-  isReadonly,
-  hasProjection,
-}: {
-  isDataLake: boolean;
-  isReadonly: boolean;
-  hasProjection: boolean;
-}) => {
-  return !hasProjection && !isDataLake && !isReadonly;
-};
-
-type CrudStoreOptions = Pick<
+export type CrudStoreOptions = Pick<
   CollectionTabPluginMetadata,
   | 'query'
   | 'isReadonly'
@@ -331,16 +273,6 @@ export type TableState = {
   };
 };
 
-export type QueryState = {
-  filter: BSONObject;
-  sort: null | BSONObject;
-  limit: number;
-  skip: number;
-  maxTimeMS: number;
-  project: null | BSONObject;
-  collation: null | BSONObject;
-};
-
 export type BulkDeleteState = {
   previews: Document[];
   status: 'open' | 'closed' | 'in-progress';
@@ -357,20 +289,17 @@ type CrudState = {
   end: number;
   page: number;
   version: string;
-  isEditable: boolean;
   view: DocumentView;
   count: number | null;
   insert: InsertState;
   bulkUpdate: BulkUpdateState;
   table: TableState;
-  query: QueryState;
   isDataLake: boolean;
   isReadonly: boolean;
   isTimeSeries: boolean;
   status: DOCUMENTS_STATUSES;
   debouncingLoad: boolean;
   loadingCount: boolean;
-  outdated: boolean;
   shardKeys: null | BSONObject;
   resultId: number;
   isWritable: boolean;
@@ -407,6 +336,7 @@ class CrudStoreImpl
   logger: LoggerAndTelemetry;
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
+  queryBar: QueryBarService;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -419,6 +349,7 @@ class CrudStoreImpl
       | 'logger'
       | 'fieldStoreService'
       | 'connectionScopedAppRegistry'
+      | 'queryBar'
     > & {
       favoriteQueryStorage?: FavoriteQueryStorage;
       recentQueryStorage?: RecentQueryStorage;
@@ -435,10 +366,10 @@ class CrudStoreImpl
     this.instance = services.instance;
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
+    this.queryBar = services.queryBar;
   }
 
   getInitialState(): CrudState {
-    const queryState = this.getInitialQueryState();
     const isDataLake = !!this.instance.dataLake.isDataLake;
     const isReadonly = !!this.options.isReadonly;
 
@@ -452,25 +383,18 @@ class CrudStoreImpl
       version: this.instance.build.version,
       end: 0,
       page: 0,
-      isEditable: isListEditable({
-        isDataLake,
-        isReadonly,
-        hasProjection: this.hasProjection(queryState),
-      }),
       view: LIST,
       count: 0,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
       bulkDelete: this.getInitialBulkDeleteState(),
       table: this.getInitialTableState(),
-      query: queryState,
       isDataLake,
       isReadonly,
       isTimeSeries: !!this.options.isTimeSeries,
       status: DOCUMENTS_STATUS_INITIAL,
       debouncingLoad: false,
       loadingCount: false,
-      outdated: false,
       shardKeys: null,
       resultId: resultId(),
       isWritable: this.instance.isWritable,
@@ -535,55 +459,12 @@ class CrudStoreImpl
   }
 
   /**
-   * Get the initial query state.
-   *
-   * @returns {Object} The initial query state.
-   */
-  getInitialQueryState(): QueryState {
-    return {
-      filter: {},
-      sort: null,
-      limit: 0,
-      skip: 0,
-      maxTimeMS: DEFAULT_INITIAL_MAX_TIME_MS,
-      project: null,
-      collation: null,
-      ...pickQueryProps(this.options.query ?? {}),
-    };
-  }
-
-  /**
    * Returns the current view in the format used for telemetry
    * ('list', 'json', 'table'). Grouped here so that this is easy
    * to update if the labels change at some point.
    */
   modeForTelemetry() {
     return this.state.view.toLowerCase();
-  }
-
-  /**
-   * Fires when the query is changed.
-   *
-   * @param {Object} state - The query state.
-   */
-  onQueryChanged(
-    state: Pick<Partial<QueryState>, 'filter' | 'skip'> &
-      Omit<QueryState, 'filter' | 'skip'>
-  ) {
-    this.state.query.filter = state.filter || {};
-    this.state.query.sort = state.sort;
-    this.state.query.limit = state.limit;
-    this.state.query.skip = state.skip || 0;
-    this.state.query.project = state.project;
-    this.state.query.collation = state.collation;
-    this.state.query.maxTimeMS = state.maxTimeMS;
-
-    if (
-      this.state.status === DOCUMENTS_STATUS_FETCHED_INITIAL ||
-      this.state.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
-    ) {
-      this.setState({ outdated: true });
-    }
   }
 
   /**
@@ -866,9 +747,10 @@ class CrudStoreImpl
       project: projection,
       collation,
       maxTimeMS,
-    } = this.state.query;
+      skip: _skip = 0,
+    } = this.queryBar.getLastAppliedQuery('crud');
 
-    const skip = this.state.query.skip + page * NUM_PAGE_DOCS;
+    const skip = _skip + page * NUM_PAGE_DOCS;
 
     // nextPageCount will be the number of docs to load
     let nextPageCount = NUM_PAGE_DOCS;
@@ -914,7 +796,7 @@ class CrudStoreImpl
         this.state.version,
         this.state.isDataLake,
         ns,
-        filter,
+        filter ?? {},
         opts as any,
         {
           abortSignal: signal,
@@ -974,7 +856,7 @@ class CrudStoreImpl
    * @param {Object} doc - The document to insert.
    * @param {Boolean} clone - Whether this is a clone operation.
    */
-  async openInsertDocumentDialog(doc: BSONObject, clone: boolean) {
+  async openInsertDocumentDialog(doc: BSONObject, clone = false) {
     const hadronDoc = new HadronDocument(doc);
 
     if (clone) {
@@ -1135,7 +1017,7 @@ class CrudStoreImpl
     }
 
     const { ns } = this.state;
-    const { filter } = this.state.query;
+    const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
 
     let preview;
     try {
@@ -1198,7 +1080,7 @@ class CrudStoreImpl
     });
 
     const { ns } = this.state;
-    const { filter } = this.state.query;
+    const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
@@ -1256,7 +1138,8 @@ class CrudStoreImpl
    * Emits a global app registry event the plugin listens to.
    */
   openExportFileDialog(exportFullCollection?: boolean) {
-    const { filter, project, collation, limit, skip, sort } = this.state.query;
+    const { filter, project, collation, limit, skip, sort } =
+      this.queryBar.getLastAppliedQuery('crud');
 
     this.connectionScopedAppRegistry.emit('open-export', {
       namespace: this.state.ns,
@@ -1513,16 +1396,15 @@ class CrudStoreImpl
    * Detect if it is safe to perform the count query optimisation where we
    * specify the _id_ index as the hint.
    */
-  isCountHintSafe() {
-    const { isTimeSeries, query } = this.state;
-    const { filter } = query;
+  isCountHintSafe(query: { filter?: unknown }) {
+    const { isTimeSeries } = this.state;
 
     if (isTimeSeries) {
       // timeseries collections don't have the _id_ filter, so we can't use the hint speedup
       return false;
     }
 
-    if (filter && Object.keys(filter).length) {
+    if (query.filter && Object.keys(query.filter).length) {
       // we can't safely use the hint speedup if there's a filter
       return false;
     }
@@ -1537,7 +1419,7 @@ class CrudStoreImpl
    *
    * @returns {Boolean}
    */
-  isInitialQuery(query: Partial<QueryState>): boolean {
+  isInitialQuery(query: Query = {}): boolean {
     return (
       isEmpty(query.filter) &&
       isEmpty(query.project) &&
@@ -1558,20 +1440,21 @@ class CrudStoreImpl
       return;
     }
 
-    const { ns, status, query } = this.state;
+    const { ns, status } = this.state;
+    const query = this.queryBar.getLastAppliedQuery('crud');
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
       return;
     }
 
     if (onApply) {
-      const { query, isTimeSeries, isReadonly } = this.state;
+      const { isTimeSeries, isReadonly } = this.state;
       this.logger.track('Query Executed', {
         has_projection:
           !!query.project && Object.keys(query.project).length > 0,
-        has_skip: query.skip > 0,
+        has_skip: (query.skip ?? 0) > 0,
         has_sort: !!query.sort && Object.keys(query.sort).length > 0,
-        has_limit: query.limit > 0,
+        has_limit: (query.limit ?? 0) > 0,
         has_collation: !!query.collation,
         changed_maxtimems: query.maxTimeMS !== DEFAULT_INITIAL_MAX_TIME_MS,
         collection_type: isTimeSeries
@@ -1579,7 +1462,7 @@ class CrudStoreImpl
           : isReadonly
           ? 'readonly'
           : 'collection',
-        used_regex: objectContainsRegularExpression(query.filter),
+        used_regex: objectContainsRegularExpression(query.filter ?? {}),
       });
     }
 
@@ -1600,14 +1483,14 @@ class CrudStoreImpl
       skip: query.skip,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
         this.preferences,
-        query.maxTimeMS > COUNT_MAX_TIME_MS_CAP
+        (query.maxTimeMS ?? 0) > COUNT_MAX_TIME_MS_CAP
           ? COUNT_MAX_TIME_MS_CAP
           : query.maxTimeMS
       ),
       signal,
     };
 
-    if (this.isCountHintSafe()) {
+    if (this.isCountHintSafe(query)) {
       countOptions.hint = '_id_';
     }
 
@@ -1626,7 +1509,7 @@ class CrudStoreImpl
     };
 
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
-    if (query.limit > 0) {
+    if (query.limit && query.limit > 0) {
       countOptions.limit = query.limit;
       findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
     }
@@ -1646,7 +1529,7 @@ class CrudStoreImpl
     // Only check if index was used if query filter or sort is not empty
     if (!isEmpty(query.filter) || !isEmpty(query.sort)) {
       void this.dataService
-        .explainFind(ns, query.filter, findOptions as any, {
+        .explainFind(ns, query.filter ?? {}, findOptions as any, {
           explainVerbosity: 'queryPlanner',
           abortSignal: signal,
         })
@@ -1670,7 +1553,7 @@ class CrudStoreImpl
       this.dataService,
       this.preferences,
       ns,
-      query.filter,
+      query.filter ?? {},
       countOptions,
       (err: any) => {
         this.logger.log.warn(
@@ -1711,7 +1594,7 @@ class CrudStoreImpl
         this.state.version,
         this.state.isDataLake,
         ns,
-        query.filter,
+        query.filter ?? {},
         findOptions as any,
         {
           abortSignal: signal,
@@ -1723,7 +1606,6 @@ class CrudStoreImpl
     this.setState({
       status: DOCUMENTS_STATUS_FETCHING,
       abortController,
-      outdated: false,
       error: null,
       count: null, // we don't know the new count yet
       loadingCount: true,
@@ -1736,8 +1618,6 @@ class CrudStoreImpl
 
     try {
       const [shardKeys, docs] = await Promise.all(promises);
-
-      setIsEditable(this, this.hasProjection(query));
 
       Object.assign(stateChanges, {
         status: this.isInitialQuery(query)
@@ -1902,11 +1782,9 @@ class CrudStoreImpl
 
     if (confirmation) {
       this.bulkDeleteInProgress();
+      const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
       try {
-        await this.dataService.deleteMany(
-          this.state.ns,
-          this.state.query.filter
-        );
+        await this.dataService.deleteMany(this.state.ns, filter);
         this.bulkDeleteSuccess();
       } catch (ex) {
         this.bulkDeleteFailed(ex as Error);
@@ -1915,10 +1793,11 @@ class CrudStoreImpl
   }
 
   openDeleteQueryExportToLanguageDialog(): void {
+    const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
     this.localAppRegistry.emit(
       'open-query-export-to-language',
       {
-        filter: toJSString(this.state.query.filter) || '{}',
+        filter: toJSString(filter) || '{}',
       },
       'Delete Query'
     );
@@ -1929,7 +1808,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
-    const { filter } = this.state.query;
+    const { filter } = this.queryBar.getLastAppliedQuery('crud');
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
@@ -1969,6 +1848,7 @@ export type DocumentsPluginServices = {
   fieldStoreService: FieldStoreService;
   connectionInfoAccess: ConnectionInfoAccess;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
+  queryBar: QueryBarService;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1984,6 +1864,7 @@ export function activateDocumentsPlugin(
     fieldStoreService,
     connectionInfoAccess,
     connectionScopedAppRegistry,
+    queryBar,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -2001,18 +1882,15 @@ export function activateDocumentsPlugin(
         recentQueryStorage: recentQueryStorageAccess?.getStorage(),
         fieldStoreService,
         connectionScopedAppRegistry,
+        queryBar,
       }
     )
   ) as CrudStore;
 
-  // TODO(COMPASS-7543): remove dependency on this event
-  on(localAppRegistry, 'query-changed', store.onQueryChanged.bind(store));
-
   on(
     localAppRegistry,
     'favorites-open-bulk-update-favorite',
-    (query: QueryState & { update: BSONObject }) => {
-      void store.onQueryChanged(query);
+    (query: { update: BSONObject }) => {
       void store.refreshDocuments();
       void store.openBulkUpdateModal();
       void store.updateBulkUpdatePreview(

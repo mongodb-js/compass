@@ -47,8 +47,8 @@ type EmptyContentProps = {
   icon: React.FunctionComponent;
   title: string;
   subTitle: string;
-  callToAction?: string | JSX.Element;
-  callToActionLink?: JSX.Element;
+  callToAction?: React.ReactNode;
+  callToActionLink?: React.ReactNode;
 };
 
 const EmptyContent: React.FunctionComponent<

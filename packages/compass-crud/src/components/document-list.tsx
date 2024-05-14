@@ -29,15 +29,19 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import type {
-  CrudStore,
-  BSONObject,
-  DocumentView,
-  QueryState,
+import {
+  type CrudStore,
+  type BSONObject,
+  type DocumentView,
 } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useIsLastAppliedQueryOutdated,
+  useLastAppliedQuery,
+} from '@mongodb-js/compass-query-bar';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
@@ -105,7 +109,6 @@ export type DocumentListProps = {
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
-  query: QueryState;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
   Omit<DocumentJsonViewProps, 'className'> &
@@ -133,16 +136,15 @@ export type DocumentListProps = {
     | 'getPage'
     | 'insertDataHandler'
     | 'openExportFileDialog'
-    | 'outdated'
     | 'isWritable'
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
   >;
 
-const DocumentViewComponent: React.FunctionComponent<DocumentListProps> = (
-  props
-) => {
+const DocumentViewComponent: React.FunctionComponent<
+  DocumentListProps & { isEditable: boolean; outdated: boolean; query: unknown }
+> = (props) => {
   if (props.docs?.length === 0) {
     return null;
   }
@@ -176,14 +178,11 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     getPage,
     store,
     openExportFileDialog,
-    outdated,
-    isEditable,
     viewChanged,
     isWritable,
     instanceDescription,
     refreshDocuments,
     resultId,
-    query,
     isCollectionScan,
     isSearchIndexesSupported,
     openInsertDocumentDialog,
@@ -259,6 +258,17 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     store.openDeleteQueryExportToLanguageDialog();
   }, [store]);
 
+  const query = useLastAppliedQuery('crud');
+  const outdated = useIsLastAppliedQueryOutdated('crud');
+  const preferencesReadOnly = usePreference('readOnly');
+  const isImportExportEnabled = usePreference('enableImportExport');
+
+  const isEditable =
+    !preferencesReadOnly &&
+    !store.state.isDataLake &&
+    !store.state.isReadonly &&
+    Object.keys(query.project ?? {}).length === 0;
+
   const isEmpty = docs.length === 0;
 
   const isInitialFetch = status === DOCUMENTS_STATUS_FETCHED_INITIAL;
@@ -290,17 +300,19 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               title="This collection has no data"
               subTitle="It only takes a few seconds to import data from a JSON or CSV file."
               callToAction={
-                <Button
-                  disabled={!isEditable}
-                  onClick={() => {
-                    openImportFileDialog?.('empty-state');
-                  }}
-                  data-testid="import-data-button"
-                  variant="primary"
-                  size="small"
-                >
-                  Import Data
-                </Button>
+                isImportExportEnabled && (
+                  <Button
+                    disabled={!isEditable}
+                    onClick={() => {
+                      openImportFileDialog?.('empty-state');
+                    }}
+                    data-testid="import-data-button"
+                    variant="primary"
+                    size="small"
+                  >
+                    Import Data
+                  </Button>
+                )
               }
             />
           </div>
@@ -317,7 +329,14 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
         );
       }
     } else {
-      content = <DocumentViewComponent {...props} />;
+      content = (
+        <DocumentViewComponent
+          {...props}
+          isEditable={isEditable}
+          outdated={outdated}
+          query={query}
+        />
+      );
     }
   }
 
@@ -366,10 +385,10 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             instanceDescription={instanceDescription}
             refreshDocuments={refreshDocuments}
             resultId={resultId}
-            querySkip={store.state.query.skip}
-            queryLimit={store.state.query.limit}
+            querySkip={query.skip}
+            queryLimit={query.limit}
             insights={getToolbarSignal(
-              JSON.stringify(query.filter),
+              JSON.stringify(query.filter ?? {}),
               Boolean(isCollectionScan),
               isSearchIndexesSupported,
               store.openCreateIndexModal.bind(store),
@@ -398,7 +417,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           />
           <BulkUpdateModal
             ns={ns}
-            filter={query.filter}
+            filter={query.filter ?? {}}
             count={count}
             enablePreview={isUpdatePreviewSupported}
             {...bulkUpdate}
@@ -411,7 +430,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             open={store.state.bulkDelete.status === 'open'}
             namespace={store.state.ns}
             documentCount={store.state.bulkDelete.affected}
-            filter={store.state.query.filter}
+            filter={query.filter ?? {}}
             onCancel={onCancelBulkDeleteDialog}
             onConfirmDeletion={onConfirmBulkDeleteDialog}
             sampleDocuments={store.state.bulkDelete.previews}
