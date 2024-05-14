@@ -331,7 +331,7 @@ class InsertDocumentDialog extends React.PureComponent<
             variant={variant}
             className={bannerStyles}
           >
-            <pre>{message}</pre>
+            <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{message}</pre>
           </Banner>
         )}
         <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
