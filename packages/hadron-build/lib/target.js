@@ -15,6 +15,20 @@ const plist = require('plist');
 const { sign, getSignedFilename } = require('./signtool');
 const tarGz = require('./tar-gz');
 const { notarize } = require('./mac-notary-service');
+const { validateBuildConfig } = require('./validate-build-config');
+
+// Returns current datetime in YYYYMMDDHHmm format.
+function getFormattedDate() {
+  const date = new Date();
+  function pad(n) {
+    return n < 10 ? '0' + n : n;
+  }
+  return date.getFullYear() +
+    pad(date.getMonth() + 1) +
+    pad(date.getDate()) +
+    pad(date.getHours()) +
+    pad(date.getMinutes());
+}
 
 function _canBuildInstaller(ext) {
   var bin = null;
@@ -156,19 +170,10 @@ class Target {
     this.rebuild = { ...pkg.config.hadron.rebuild };
     this.macosEntitlements = this.src(pkg.config.hadron.macosEntitlements);
 
-    if (this.channel === 'dev' && process.env.ALPHA) {
-      this.version = [
-        this.semver.major,
-        this.semver.minor,
-        this.semver.patch
-      ].join('.');
-
-      const moment = require('moment');
-      this.version += `-alpha.${moment().format('YYYYMMDDHHmm')}`;
-
+    if (this.channel === 'dev' && process.env.IS_BUILDING_FOR_MAIN === 'true') {
+      this.version = `0.0.0-dev.${getFormattedDate()}`;
       pkg.version = this.version;
       this.semver = new semver.SemVer(this.version);
-      this.channel = 'alpha';
 
       this.slug = [this.name, this.channel].join('-');
     }
@@ -199,6 +204,8 @@ class Target {
       sign: null,
       afterExtract: [ffmpegAfterExtract]
     };
+
+    validateBuildConfig(this.platform, this.pkg.config.hadron.build[this.platform]);
 
     if (this.platform === 'win32') {
       this.configureForWin32();
@@ -280,7 +287,8 @@ class Target {
    * Apply Windows specific configuration.
    */
   configureForWin32() {
-    const platformSettings = _.get(this.pkg, 'config.hadron.build.win32', {});
+    const platformSettings = this.pkg.config.hadron.build.win32;
+    platformSettings.icon = platformSettings.icon[this.channel];
 
     /**
      * TODO (imlucas) Delta support for Windows auto-update.
@@ -466,10 +474,8 @@ class Target {
    */
   configureForDarwin() {
     this.truncatedProductName = this.productName.substring(0, 25);
-    const platformSettings = _.get(this.pkg, 'config.hadron.build.darwin', {
-      app_category_type: 'public.app-category.productivity',
-      icon: `${this.id}.icns`
-    });
+    const platformSettings = this.pkg.config.hadron.build.darwin;
+    platformSettings.icon = platformSettings.icon[this.channel];
 
     const destDir = `${this.productName}-${this.platform}-${this.arch}`;
 
@@ -609,7 +615,8 @@ class Target {
    * Apply Linux specific configuration.
    */
   configureForLinux() {
-    const platformSettings = _.get(this.pkg, 'config.hadron.build.linux', {});
+    const platformSettings = this.pkg.config.hadron.build.linux;
+    platformSettings.icon = platformSettings.icon[this.channel];
 
     this.appPath = this.dest(
       `${this.productName}-${this.platform}-${this.arch}`

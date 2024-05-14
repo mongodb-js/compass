@@ -301,7 +301,10 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
+          # The artifact file names are generated (in target.js) and added to the expansions
+          if [[ "${project}" == "10gen-compass-main" && "${branch_name}" == "main"  ]]; then
+            export IS_BUILDING_FOR_MAIN=true
+          fi
           echo "Synchronizing evergreen environment from Compass build tools..."
 
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
@@ -411,8 +414,12 @@ functions:
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
         script: |
           set -e
-
+          # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          if [[ "${project}" == "10gen-compass-main" && "${branch_name}" == "main"  ]]; then
+            echo "Building for main branch"
+            export IS_BUILDING_FOR_MAIN=true
+          fi
           .evergreen/compass_package.sh
     - command: shell.exec
       params:

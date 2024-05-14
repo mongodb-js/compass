@@ -58,19 +58,31 @@
       },
       "build": {
         "win32": {
-          "icon": "app-icons/win32/mongodb-compass.ico",
+          "icon": {
+            "stable": "app-icons/win32/mongodb-compass.ico",
+            "beta": "app-icons/win32/mongodb-compass.ico",
+            "dev": "app-icons/win32/mongodb-compass.ico"
+          },
           "favicon_url": "https://compass.mongodb.com/favicon.ico",
           "loading_gif": "app-icons/win32/mongodb-compass-installer-loading.gif",
           "background": "app-icons/win32/background.jpg",
           "banner": "app-icons/win32/banner.jpg"
         },
         "darwin": {
-          "icon": "app-icons/darwin/mongodb-compass.icns",
+          "icon": {
+            "stable": "app-icons/darwin/mongodb-compass.icns",
+            "beta": "app-icons/darwin/mongodb-compass.icns",
+            "dev": "app-icons/darwin/mongodb-compass.icns"
+          },
           "dmg_background": "app-icons/darwin/background.png",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
-          "icon": "app-icons/linux/mongodb-compass.png",
+          "icon": {
+            "stable": "app-icons/linux/mongodb-compass.png",
+            "beta": "app-icons/linux/mongodb-compass.png",
+            "dev": "app-icons/linux/mongodb-compass.png"
+          },
           "deb_section": "Databases",
           "rpm_categories": [
             "Office",
