@@ -61,8 +61,8 @@
     "compass-preferences-model": "^2.20.1",
     "hadron-app-registry": "^9.1.11",
     "lodash": "^4.17.21",
-    "mongodb-build-info": "^1.7.0",
-    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-build-info": "^1.7.2",
+    "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.19.2",
     "react": "^17.0.2"
   },

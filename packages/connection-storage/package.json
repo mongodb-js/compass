@@ -67,7 +67,7 @@
     "hadron-ipc": "^3.2.14",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
-    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
