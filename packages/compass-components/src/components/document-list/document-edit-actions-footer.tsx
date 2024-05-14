@@ -303,7 +303,7 @@ const EditActionsFooter: React.FunctionComponent<{
       data-status={status}
     >
       <div className={message} data-testid="document-footer-message">
-        {errorMessage ?? statusMessage}
+        <pre>{errorMessage ?? statusMessage}</pre>
       </div>
       {!isSuccess(status) && (
         <div className={buttonGroup}>

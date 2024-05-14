@@ -13,7 +13,6 @@ import type {
   ArraySchemaType,
   DocumentSchemaType,
   SchemaType,
-  PrimitiveSchemaType,
 } from 'mongodb-schema';
 
 export type ValidationServerAction = 'error' | 'warn';
@@ -648,7 +647,7 @@ const getNumericRules = ({ values }: { values: number[] }) => {
   }
 
   return {
-    minimum: getRoundFloor(min),
+    minimum: min === 0 ? 0 : getRoundFloor(min),
     maximum: getRoundCeil(max),
   };
 };

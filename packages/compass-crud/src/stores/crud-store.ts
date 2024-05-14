@@ -105,6 +105,46 @@ const INITIAL_BULK_UPDATE_TEXT = `{
   },
 }`;
 
+const getServerErrorMessage = (error: Error): string => {
+  const message = error.message;
+  console.log({ error });
+  if ((error as any).errInfo?.details?.schemaRulesNotSatisfied) {
+    const validationInfo = (error as any).errInfo?.details
+      ?.schemaRulesNotSatisfied[0];
+
+    if (validationInfo.missingProperties) {
+      return (
+        message +
+        `\n\n` +
+        `Missing required properties: ${validationInfo.missingProperties.join(
+          ', '
+        )}`
+      );
+    }
+
+    if (validationInfo.propertiesNotSatisfied) {
+      const description = validationInfo.propertiesNotSatisfied
+        .map(({ description }: { description?: string }) => description)
+        .filter((description: string) => !!description)
+        .join('. ');
+      if (description) {
+        return `${message}\n\n${description}`;
+      }
+    }
+
+    return (
+      message +
+      `\n\n` +
+      JSON.stringify(
+        (error as any).errInfo?.details?.schemaRulesNotSatisfied,
+        null,
+        2
+      )
+    );
+  }
+  return message;
+};
+
 function pickQueryProps({
   filter,
   sort,
@@ -715,7 +755,7 @@ class CrudStoreImpl
           const nbsp = '\u00a0';
           error.message += ` (Updating fields whose names contain dots or start with $ require MongoDB${nbsp}5.0 or above.)`;
         }
-        doc.emit('update-error', error.message);
+        doc.emit('update-error', getServerErrorMessage(error as Error));
       } else if (d) {
         doc.emit('update-success', d);
         const index = this.findDocumentIndex(doc);
@@ -803,7 +843,7 @@ class CrudStoreImpl
         'replace'
       );
       if (error) {
-        doc.emit('update-error', error.message);
+        doc.emit('update-error', getServerErrorMessage(error as Error));
       } else {
         doc.emit('update-success', d);
         const index = this.findDocumentIndex(doc);
@@ -1443,16 +1483,7 @@ class CrudStoreImpl
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
-      let message = (error as Error).message;
-      if ((error as any).errInfo?.details?.schemaRulesNotSatisfied) {
-        message +=
-          `\n\n` +
-          JSON.stringify(
-            (error as any).errInfo?.details?.schemaRulesNotSatisfied,
-            null,
-            2
-          );
-      }
+      const message = getServerErrorMessage(error as Error);
       this.setState({
         insert: {
           doc: this.state.insert.doc,
