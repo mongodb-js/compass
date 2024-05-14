@@ -14,6 +14,7 @@ import type {
   DocumentSchemaType,
   SchemaType,
 } from 'mongodb-schema';
+import { isInternalFieldPath } from 'hadron-document';
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -594,9 +595,12 @@ const getDescription = (
     bits[0] += ` of ${rules.items.bsonType}s`;
   if (rules.minItems && rules.maxItems && rules.minItems === rules.maxItems) {
     bits.push(`have exactly ${rules.minItems} items`);
-  } else {
-    if (rules.minItems) bits.push(`with min ${rules.minItems} items`);
-    if (rules.maxItems) bits.push(`with max ${rules.maxItems} items`);
+  } else if (rules.minItems && rules.maxItems) {
+    bits.push(`with ${rules.minItems} to ${rules.maxItems} items`);
+  } else if (rules.minItems) {
+    bits.push(`with min ${rules.minItems} items`);
+  } else if (rules.maxItems) {
+    bits.push(`with max ${rules.maxItems} items`);
   }
   if (rules.minimum && rules.maximum) {
     const digitsMinimum = getDigits(rules.minimum);
@@ -756,10 +760,13 @@ export const generateValidator = (): SchemaValidationThunkAction<
         promoteValues: false,
       },
       {
-        // abortSignal,
+        // abortSignal, // TODO
       }
     );
-    const { fields } = await mongodbSchema(docs);
+    const schemaData = await mongodbSchema(docs);
+    const fields = schemaData.fields.filter(
+      ({ path, name }) => !isInternalFieldPath(path[0]) && name !== '_id'
+    );
 
     console.log('fields', fields);
     const { properties, required } = parseRules(fields);

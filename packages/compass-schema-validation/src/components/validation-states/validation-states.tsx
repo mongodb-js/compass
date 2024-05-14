@@ -166,8 +166,9 @@ class ValidationStates extends Component<ValidationStatesProps> {
               onClick={this.props.generateValidator.bind(this)}
               variant={ButtonVariant.Primary}
               size="small"
+              title="Suggest validation rules based on an analysis of a data sample"
             >
-              Generate rules based on Schema Analysis
+              Draft validation based on Schema Analysis
             </Button>
           </>
         }

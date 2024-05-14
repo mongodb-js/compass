@@ -298,8 +298,9 @@ class ValidationEditor extends Component<ValidationEditorProps> {
             variant="primary"
             data-testid="generate-validation-rules-button"
             onClick={this.props.generateValidator}
+            title="Analyze a data sample to propose validation rules"
           >
-            Generate rules based on Schema Analysis
+            Draft validation based on Schema Analysis
           </Button>
         </div>
       );
