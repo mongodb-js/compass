@@ -591,11 +591,21 @@ const getDescription = (
   const bits: string[] = [];
   if (rules.bsonType) bits.push(`must be ${withA(rules.bsonType)}`);
   if (rules.items && rules.items.bsonType)
-    bits.push(`of ${rules.items.bsonType}s`);
-  if (rules.minItems) bits.push(`with min ${rules.minItems} items`);
-  if (rules.maxItems) bits.push(`with max ${rules.maxItems} items`);
+    bits[0] += ` of ${rules.items.bsonType}s`;
+  if (rules.minItems && rules.maxItems && rules.minItems === rules.maxItems) {
+    bits.push(`have exactly ${rules.minItems} items`);
+  } else {
+    if (rules.minItems) bits.push(`with min ${rules.minItems} items`);
+    if (rules.maxItems) bits.push(`with max ${rules.maxItems} items`);
+  }
   if (rules.minimum && rules.maximum) {
-    bits.push(`between ${rules.minimum} and ${rules.maximum}`);
+    const digitsMinimum = getDigits(rules.minimum);
+    const digitsMaximum = getDigits(rules.maximum);
+    bits.push(
+      digitsMinimum === digitsMaximum
+        ? `have ${digitsMinimum} digits`
+        : `between ${rules.minimum} and ${rules.maximum}`
+    );
   } else if (rules.minimum) {
     bits.push(`minimum ${rules.minimum}`);
   } else if (rules.maximum) {
@@ -636,10 +646,10 @@ const getArrayRules = ({ lengths, types }: ArraySchemaType): Partial<Rules> => {
 };
 
 const getDigits = (number: number) => Math.round(number).toString().length;
-const getRoundFloor = (number: number) => Math.pow(10, getDigits(number) - 1);
-const getRoundCeil = (number: number) => Math.pow(10, getDigits(number));
+const getDigitsFloor = (number: number) => Math.pow(10, getDigits(number) - 1); // e.g. 1, 100
+const getDigitsCeil = (number: number) => Math.pow(10, getDigits(number)) - 1; // e.g. 9999
 
-const getNumericRules = ({ values }: { values: number[] }) => {
+const getNumericRules = ({ values }: { values: number[] }): Partial<Rules> => {
   if (!values.length) return {};
 
   let min: number = values[0];
@@ -650,10 +660,12 @@ const getNumericRules = ({ values }: { values: number[] }) => {
     if (num > max) max = num;
   }
 
-  return {
-    minimum: min === 0 ? 0 : getRoundFloor(min),
-    maximum: getRoundCeil(max),
+  const rules = {
+    minimum: min === 0 ? 0 : getDigitsFloor(min),
+    maximum: getDigitsCeil(max),
   };
+
+  return rules;
 };
 
 const getStringRules = ({ values }: { values: string[] }) => {
