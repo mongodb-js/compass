@@ -7,9 +7,13 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
-import mongodbSchema, {
-  type SchemaField,
-  type ArraySchemaType,
+import mongodbSchema from 'mongodb-schema';
+import type {
+  SchemaField,
+  ArraySchemaType,
+  DocumentSchemaType,
+  SchemaType,
+  PrimitiveSchemaType,
 } from 'mongodb-schema';
 
 export type ValidationServerAction = 'error' | 'warn';
@@ -541,6 +545,8 @@ interface Rules {
   properties?: Record<string, Rules>;
   minItems?: number;
   maxItems?: number;
+  minimum?: number;
+  maximum?: number;
   items?: Rules;
 }
 
@@ -574,22 +580,32 @@ const naturalJoin = (bits: string[]) => {
   return `${bits.join(', ')} and ${last}`;
 };
 
+const withA = (word: string) =>
+  ['a', 'e', 'i', 'o', 'u', 'y'].includes(word[0]) ? `an ${word}` : `a ${word}`;
+
 const getDescription = (
   name: string,
   rules: Omit<Rules, 'description'>,
   isRequired: boolean
 ) => {
   const bits: string[] = [];
-  if (rules.bsonType) bits.push(`must be a ${rules.bsonType}`);
+  if (rules.bsonType) bits.push(`must be ${withA(rules.bsonType)}`);
   if (rules.items && rules.items.bsonType)
     bits.push(`of ${rules.items.bsonType}'s`);
   if (rules.minItems) bits.push(`with min ${rules.minItems} items`);
   if (rules.maxItems) bits.push(`with max ${rules.maxItems} items`);
+  if (rules.minimum && rules.maximum) {
+    bits.push(`between ${rules.minimum} and ${rules.maximum}`);
+  } else if (rules.minimum) {
+    bits.push(`minimum ${rules.minimum}`);
+  } else if (rules.maximum) {
+    bits.push(`maximum ${rules.maximum}`);
+  }
   if (isRequired) bits.push('is required');
   return bits.length ? `'${name}' ${naturalJoin(bits)}` : '';
 };
 
-const getDocumentRules = (fields: SchemaField[]) => {
+const getDocumentRules = ({ fields }: DocumentSchemaType) => {
   const { properties, required } = parseRules(fields);
   return { properties, required };
 };
@@ -616,6 +632,46 @@ const getArrayRules = ({ lengths, types }: ArraySchemaType): Partial<Rules> => {
   return rules;
 };
 
+const getDigits = (number: number) => Math.round(number).toString().length;
+const getRoundFloor = (number: number) => Math.pow(10, getDigits(number) - 1);
+const getRoundCeil = (number: number) => Math.pow(10, getDigits(number));
+
+const getNumericRules = ({ values }: { values: number[] }) => {
+  if (!values.length) return {};
+
+  let min: number = values[0];
+  let max: number = values[0];
+
+  for (const num of values) {
+    if (num < min) min = num;
+    if (num > max) max = num;
+  }
+
+  return {
+    minimum: getRoundFloor(min),
+    maximum: getRoundCeil(max),
+  };
+};
+
+const getTypeSpecificRules = (
+  bsonType: string,
+  schema: SchemaType
+): Partial<Rules> => {
+  switch (bsonType) {
+    case 'object':
+      return getDocumentRules(schema as DocumentSchemaType);
+    case 'array':
+      return getArrayRules(schema as ArraySchemaType);
+    case 'double':
+    case 'int':
+    case 'long':
+    case 'decimal':
+      return getNumericRules(schema as unknown as { values: number[] });
+    default:
+      return {};
+  }
+};
+
 const parseRules = (fields: SchemaField[]) => {
   const required: string[] = [];
   const properties: Record<string, Rules> = {};
@@ -637,15 +693,8 @@ const parseRules = (fields: SchemaField[]) => {
       types.length === 1 && AnalyzeTypesToBsonTypes[types[0].bsonType];
     if (bsonType) {
       rules.bsonType = bsonType;
-      if (bsonType === 'object') {
-        Object.assign(
-          rules,
-          getDocumentRules((types[0] as { fields: SchemaField[] }).fields)
-        );
-      }
-      if (bsonType === 'array') {
-        Object.assign(rules, getArrayRules(types[0] as ArraySchemaType));
-      }
+      const typeSpecificRules = getTypeSpecificRules(bsonType, types[0]);
+      Object.assign(rules, typeSpecificRules);
     }
 
     const description = getDescription(name, rules, isRequired);
