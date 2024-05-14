@@ -72,6 +72,8 @@ type ConnectionTabConnectedProps = {
   stats: CollectionState['stats'];
   onTabClick: (tab: CollectionSubtab) => void;
 };
+
+// TODO(COMPASS-7937): Wrong place for these types and type descriptions
 // Props definition when using the component
 type ConnectionTabExpectedProps = {
   /**
@@ -129,8 +131,6 @@ const CollectionTabWithMetadata: React.FunctionComponent<
       });
     }
   }, [currentTab, track]);
-
-  const QueryBarPlugin = useCollectionQueryBar();
   const pluginTabs = useCollectionSubTabs();
   const pluginModals = useCollectionScopedModals();
 
@@ -157,77 +157,75 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   return (
-    <QueryBarPlugin {...pluginProps}>
-      <div className={collectionStyles} data-testid="collection">
-        <div className={collectionContainerStyles}>
-          <CollectionHeader
-            editViewName={editViewName}
-            {...collectionMetadata}
-          ></CollectionHeader>
-          <TabNavBar
-            data-testid="collection-tabs"
-            aria-label="Collection Tabs"
-            tabNames={tabs.map((tab) => tab.name)}
-            tabLabels={tabs.map((tab) => {
-              // We don't show stats, when the collection is a timeseries or a view
-              // or when the view is being edited
-              const hideStats =
-                collectionMetadata.isTimeSeries ||
-                collectionMetadata.sourceName ||
-                editViewName;
-              if (hideStats) {
-                return tab.name;
-              }
-              if (tab.name === 'Documents') {
-                return (
-                  <TabTitleWithStats
-                    data-testid="documents-tab-with-stats"
-                    title={tab.name}
-                    statsComponent={<CollectionDocumentsStats stats={stats} />}
-                  />
-                );
-              }
-              if (tab.name === 'Indexes') {
-                return (
-                  <TabTitleWithStats
-                    data-testid="indexes-tab-with-stats"
-                    title={tab.name}
-                    statsComponent={<CollectionIndexesStats stats={stats} />}
-                  />
-                );
-              }
+    <div className={collectionStyles} data-testid="collection">
+      <div className={collectionContainerStyles}>
+        <CollectionHeader
+          editViewName={editViewName}
+          {...collectionMetadata}
+        ></CollectionHeader>
+        <TabNavBar
+          data-testid="collection-tabs"
+          aria-label="Collection Tabs"
+          tabNames={tabs.map((tab) => tab.name)}
+          tabLabels={tabs.map((tab) => {
+            // We don't show stats, when the collection is a timeseries or a view
+            // or when the view is being edited
+            const hideStats =
+              collectionMetadata.isTimeSeries ||
+              collectionMetadata.sourceName ||
+              editViewName;
+            if (hideStats) {
               return tab.name;
-            })}
-            views={tabs.map((tab) => {
+            }
+            if (tab.name === 'Documents') {
               return (
-                <ErrorBoundary
-                  key={tab.name}
-                  onError={(error: Error, errorInfo: unknown) => {
-                    log.error(
-                      mongoLogId(1001000107),
-                      'Collection Workspace',
-                      'Rendering collection tab failed',
-                      { name: tab.name, error: error.stack, errorInfo }
-                    );
-                  }}
-                >
-                  {tab.component}
-                </ErrorBoundary>
+                <TabTitleWithStats
+                  data-testid="documents-tab-with-stats"
+                  title={tab.name}
+                  statsComponent={<CollectionDocumentsStats stats={stats} />}
+                />
               );
-            })}
-            activeTabIndex={activeTabIndex}
-            onTabClicked={(id) => {
-              onTabClick(tabs[id].name);
-            }}
-          />
-        </div>
-        <div className={collectionModalContainerStyles}>
-          {pluginModals.map((ModalPlugin, idx) => {
-            return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
+            }
+            if (tab.name === 'Indexes') {
+              return (
+                <TabTitleWithStats
+                  data-testid="indexes-tab-with-stats"
+                  title={tab.name}
+                  statsComponent={<CollectionIndexesStats stats={stats} />}
+                />
+              );
+            }
+            return tab.name;
           })}
-        </div>
+          views={tabs.map((tab) => {
+            return (
+              <ErrorBoundary
+                key={tab.name}
+                onError={(error: Error, errorInfo: unknown) => {
+                  log.error(
+                    mongoLogId(1001000107),
+                    'Collection Workspace',
+                    'Rendering collection tab failed',
+                    { name: tab.name, error: error.stack, errorInfo }
+                  );
+                }}
+              >
+                {tab.component}
+              </ErrorBoundary>
+            );
+          })}
+          activeTabIndex={activeTabIndex}
+          onTabClicked={(id) => {
+            onTabClick(tabs[id].name);
+          }}
+        />
       </div>
-    </QueryBarPlugin>
+      <div className={collectionModalContainerStyles}>
+        {pluginModals.map((ModalPlugin, idx) => {
+          return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
+        })}
+      </div>
+    </div>
   );
 };
 
@@ -237,15 +235,29 @@ const CollectionTab = ({
 }: Omit<CollectionTabProps, 'collectionMetadata'> & {
   collectionMetadata: CollectionMetadata | null;
 }) => {
+  const QueryBarPlugin = useCollectionQueryBar();
+
   if (!collectionMetadata) {
     return null;
   }
 
+  const pluginProps = {
+    ...collectionMetadata,
+    namespace: props.namespace,
+    aggregation: props.initialAggregation,
+    pipeline: props.initialPipeline,
+    pipelineText: props.initialPipelineText,
+    query: props.initialQuery,
+    editViewName: props.editViewName,
+  };
+
   return (
-    <CollectionTabWithMetadata
-      collectionMetadata={collectionMetadata}
-      {...props}
-    ></CollectionTabWithMetadata>
+    <QueryBarPlugin {...pluginProps}>
+      <CollectionTabWithMetadata
+        collectionMetadata={collectionMetadata}
+        {...props}
+      ></CollectionTabWithMetadata>
+    </QueryBarPlugin>
   );
 };
 
