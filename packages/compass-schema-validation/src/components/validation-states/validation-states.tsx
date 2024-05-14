@@ -18,6 +18,12 @@ import { ZeroGraphic } from '../zero-graphic';
 const validationStatesStyles = css({ padding: spacing[3] });
 const contentContainerStyles = css({ height: '100%' });
 
+const helpLinkContainerStyles = css({
+  marginTop: spacing[200],
+  marginBottom: spacing[400],
+  textAlign: 'center',
+});
+
 /**
  * Warnings for the banner.
  */
@@ -189,6 +195,11 @@ class ValidationStates extends Component<ValidationStatesProps> {
     return (
       <div className={contentContainerStyles}>
         <ValidationEditor {...this.props} isEditable={this.isEditable()} />
+        <div className={helpLinkContainerStyles}>
+          <Link href={DOC_SCHEMA_VALIDATION} target="_blank">
+            Learn more about validations
+          </Link>
+        </div>
         <SampleDocuments />
       </div>
     );
