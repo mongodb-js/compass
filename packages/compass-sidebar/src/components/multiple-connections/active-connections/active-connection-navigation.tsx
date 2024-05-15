@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
-  type Connection as ConnectionRepresentation,
+  type Connection,
   type Actions,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
@@ -10,10 +10,7 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
-import {
-  type Database,
-  toggleDatabaseExpanded,
-} from '../../../modules/databases';
+import { type Database } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -38,6 +35,13 @@ type ExpandedConnections = Record<
     databases: ExpandedDatabases;
   }
 >;
+
+interface ConnectionMatch extends Connection {
+  isMatch?: boolean;
+  databases: (Database & { isMatch?: boolean })[];
+}
+
+type FilterMatches = ConnectionMatch[];
 
 const activeConnectionsContainerStyles = css({
   height: '100%',
@@ -94,7 +98,7 @@ export function ActiveConnectionNavigation({
   activeConnections: ConnectionInfo[];
   filterRegex: RegExp | null;
   onFilterChange: (regex: RegExp | null) => void;
-  connections: ConnectionRepresentation[];
+  connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
   activeWorkspace?: WorkspaceTab;
@@ -106,7 +110,7 @@ export function ActiveConnectionNavigation({
   const [expandedConnections, setExpandedConnections] =
     useState<ExpandedConnections>({});
   const [filteredConnections, setFilteredConnections] = useState<
-    ConnectionRepresentation[] | undefined
+    Connection[] | undefined
   >(undefined);
 
   const {
@@ -117,10 +121,9 @@ export function ActiveConnectionNavigation({
     openPerformanceWorkspace,
   } = useOpenWorkspace();
 
-  // TODO: if I match a connection, all the databases should be included
-
+  // TODO: if I match a connection, all the databases should be included - but not expanded!
   const temporarilyExpand = useCallback(
-    (list: ConnectionRepresentation[]) => {
+    (list: FilterMatches) => {
       try {
         setExpandedConnections((expandedConnections) => {
           const newExpanded = { ...expandedConnections };
@@ -133,8 +136,8 @@ export function ActiveConnectionNavigation({
               const connectionDbs = {
                 ...expandedConnections[connectionId]?.databases,
               };
-              databases.forEach(({ _id }) => {
-                if (connectionDbs[_id] === undefined) {
+              databases.forEach(({ _id, isMatch }) => {
+                if (isMatch && connectionDbs[_id] === undefined) {
                   connectionDbs[_id] = 'tempExpanded';
                 }
               });
@@ -184,12 +187,18 @@ export function ActiveConnectionNavigation({
       setFilteredConnections(undefined);
       collapseAllTemporarilyExpanded();
     } else {
-      const matches: ConnectionRepresentation[] = [];
+      const matches: FilterMatches = [];
       connections.forEach((connection) => {
         if (filterRegex?.test(connection.name)) {
-          matches.push(connection);
+          matches.push({
+            ...connection,
+            isMatch: true,
+          });
         } else {
-          const dbMatches = filterDatabases(connection?.databases, filterRegex);
+          const dbMatches = filterDatabases(
+            connection?.databases,
+            filterRegex
+          ).map((database) => ({ ...database, isMatch: true }));
           if (dbMatches.length) {
             matches.push({
               ...connection,
@@ -273,7 +282,7 @@ export function ActiveConnectionNavigation({
   );
 
   const getExpanded = useCallback(
-    (list: ConnectionRepresentation[]) => {
+    (list: Connection[]) => {
       // console.log('getting expanded');
       const result = list.reduce(
         (obj, { connectionInfo: { id: connectionId } }) => {
@@ -289,7 +298,7 @@ export function ActiveConnectionNavigation({
         },
         {} as Record<string, false | Record<string, boolean>>
       );
-      console.log('getExpanded', result);
+      // console.log('getExpanded', result);
       return result;
     },
     [expandedConnections]
@@ -437,9 +446,9 @@ function mapStateToProps(
   }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
-  connections: ConnectionRepresentation[];
+  connections: Connection[];
 } {
-  const connections: ConnectionRepresentation[] = [];
+  const connections: Connection[] = [];
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
@@ -463,7 +472,7 @@ function mapStateToProps(
       isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesStatus: status as ConnectionRepresentation['databasesStatus'],
+      databasesStatus: status as Connection['databasesStatus'],
       databases,
       databasesLength: databases.length,
     });
