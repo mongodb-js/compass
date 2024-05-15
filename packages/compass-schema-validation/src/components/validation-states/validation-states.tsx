@@ -1,4 +1,4 @@
-import React, { Component, useCallback } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   Banner,
@@ -53,7 +53,7 @@ export interface ValidationStatesProps
   isZeroState: boolean;
   isLoaded: boolean;
   changeZeroState: (value: boolean) => void;
-  generateValidator: () => void;
+  openSchemaProposalModal: () => void;
   editMode: {
     collectionTimeSeries?: boolean;
     collectionReadOnly?: boolean;
@@ -163,7 +163,7 @@ class ValidationStates extends Component<ValidationStatesProps> {
               style={{ marginLeft: spacing[200] }}
               data-testid="add-rule-button"
               disabled={!this.isEditable()}
-              onClick={this.props.generateValidator.bind(this)}
+              onClick={this.props.openSchemaProposalModal}
               variant={ButtonVariant.Primary}
               size="small"
               title="Suggest validation rules based on an analysis of a data sample"
@@ -195,7 +195,11 @@ class ValidationStates extends Component<ValidationStatesProps> {
 
     return (
       <div className={contentContainerStyles}>
-        <ValidationEditor {...this.props} isEditable={this.isEditable()} />
+        <ValidationEditor
+          {...this.props}
+          isEditable={this.isEditable()}
+          openSchemaProposalModal={this.props.openSchemaProposalModal}
+        />
         <div className={helpLinkContainerStyles}>
           <Link href={DOC_SCHEMA_VALIDATION} target="_blank">
             Learn more about validations

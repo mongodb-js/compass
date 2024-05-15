@@ -1,4 +1,5 @@
-import React, { Component, ReactElement } from 'react';
+import type { ReactElement } from 'react';
+import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
@@ -111,11 +112,11 @@ export type ValidationEditorProps = {
   namespace: string;
   clearSampleDocuments: () => void;
   validatorChanged: (text: string) => void;
-  generateValidator: () => void;
   validationActionChanged: (action: ValidationServerAction) => void;
   validationLevelChanged: (level: ValidationLevel) => void;
   cancelValidation: () => void;
   saveValidation: (text: Validation) => void;
+  openSchemaProposalModal: () => void;
   serverVersion: string;
   validation: Pick<
     ValidationState,
@@ -297,10 +298,10 @@ class ValidationEditor extends Component<ValidationEditorProps> {
             className={buttonStyles}
             variant="primary"
             data-testid="generate-validation-rules-button"
-            onClick={this.props.generateValidator}
+            onClick={this.props.openSchemaProposalModal}
             title="Analyze a data sample to propose validation rules"
           >
-            Draft validation based on Schema Analysis
+            Draft validation based on document schema
           </Button>
         </div>
       );

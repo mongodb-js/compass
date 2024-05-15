@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { type FunctionComponent, useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import ValidationStates from '../validation-states';
 import {
@@ -16,6 +16,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 import { css } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import type { ValidationStatesProps } from '../validation-states/validation-states';
+import SchemaProposalModal from '../schema-proposal-modal/schema-proposal-modal';
 
 const styles = css({
   display: 'flex',
@@ -27,20 +28,34 @@ const styles = css({
 /**
  * The core schema validation component.
  */
-class CompassSchemaValidation extends Component<ValidationStatesProps> {
-  static displayName = 'CompassSchemaValidation';
-
-  /**
-   * Renders the CompassSchemaValidation component.
-   */
-  render() {
-    return (
-      <div className={styles} data-testid="compass-schema-validation">
-        <ValidationStates {...this.props} />
-      </div>
-    );
+const CompassSchemaValidation: FunctionComponent<
+  Omit<ValidationStatesProps, 'openSchemaProposalModal'> & {
+    generateValidator: () => void;
   }
-}
+> = ({ generateValidator, ...props }) => {
+  const [isSchemaProposalModalOpen, setIsSchemaProposalModalOpen] =
+    useState(false);
+
+  const openModal = useCallback(
+    () => setIsSchemaProposalModalOpen(true),
+    [setIsSchemaProposalModalOpen]
+  );
+  const closeModal = useCallback(
+    () => setIsSchemaProposalModalOpen(false),
+    [setIsSchemaProposalModalOpen]
+  );
+
+  return (
+    <div className={styles} data-testid="compass-schema-validation">
+      <ValidationStates {...props} openSchemaProposalModal={openModal} />
+      <SchemaProposalModal
+        generateValidator={generateValidator}
+        isVisible={isSchemaProposalModalOpen}
+        close={closeModal}
+      />
+    </div>
+  );
+};
 
 /**
  * Map the store state to properties to pass to the components.
