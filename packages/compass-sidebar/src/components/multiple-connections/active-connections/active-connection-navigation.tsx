@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
-  type Connection,
+  type Connection as ConnectionRepresentation,
   type Actions,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
@@ -13,7 +13,6 @@ import toNS from 'mongodb-ns';
 import {
   type Database,
   toggleDatabaseExpanded,
-  filterDatabases,
 } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -25,6 +24,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
+import { filterDatabases } from '../../../helpers/filter-databases';
+import { findCollection } from '../../../helpers/find-collection';
 
 type ExpandedDatabases = Record<
   Database['_id'],
@@ -37,16 +38,6 @@ type ExpandedConnections = Record<
     databases: ExpandedDatabases;
   }
 >;
-
-function findCollection(ns: string, databases: Database[]) {
-  const { database, collection } = toNS(ns);
-
-  return (
-    databases
-      .find((db) => db._id === database)
-      ?.collections.find((coll) => coll.name === collection) ?? null
-  );
-}
 
 const activeConnectionsContainerStyles = css({
   height: '100%',
@@ -89,17 +80,21 @@ export function ActiveConnectionNavigation({
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
-  onDatabaseExpand,
   onDisconnect,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'isReadOnly' | 'isReady' | 'connections' | 'expanded' | 'onConnectionExpand'
+  | 'isReadOnly'
+  | 'isReady'
+  | 'connections'
+  | 'expanded'
+  | 'onConnectionExpand'
+  | 'onDatabaseExpand'
 > & {
   activeConnections: ConnectionInfo[];
   filterRegex: RegExp | null;
   onFilterChange: (regex: RegExp | null) => void;
-  connections: Connection[];
+  connections: ConnectionRepresentation[];
   isDataLake?: boolean;
   isWritable?: boolean;
   activeWorkspace?: WorkspaceTab;
@@ -111,7 +106,7 @@ export function ActiveConnectionNavigation({
   const [expandedConnections, setExpandedConnections] =
     useState<ExpandedConnections>({});
   const [filteredConnections, setFilteredConnections] = useState<
-    Connection[] | undefined
+    ConnectionRepresentation[] | undefined
   >(undefined);
 
   const {
@@ -125,7 +120,7 @@ export function ActiveConnectionNavigation({
   // TODO: if I match a connection, all the databases should be included
 
   const temporarilyExpand = useCallback(
-    (list: Connection[]) => {
+    (list: ConnectionRepresentation[]) => {
       try {
         setExpandedConnections((expandedConnections) => {
           const newExpanded = { ...expandedConnections };
@@ -189,7 +184,7 @@ export function ActiveConnectionNavigation({
       setFilteredConnections(undefined);
       collapseAllTemporarilyExpanded();
     } else {
-      const matches: Connection[] = [];
+      const matches: ConnectionRepresentation[] = [];
       connections.forEach((connection) => {
         if (filterRegex?.test(connection.name)) {
           matches.push(connection);
@@ -241,9 +236,45 @@ export function ActiveConnectionNavigation({
     [setExpandedConnections, expandedConnections]
   );
 
+  const onDatabaseToggle = useCallback(
+    (connectionId: string, namespace: string, forceExpand: boolean) => {
+      const { database: databaseId } = toNS(namespace);
+      if (
+        !forceExpand &&
+        !!expandedConnections[connectionId]?.databases[databaseId]
+      ) {
+        setExpandedConnections((expandedConnections) => ({
+          ...expandedConnections,
+          [connectionId]: {
+            ...expandedConnections[connectionId],
+            databases: {
+              ...(expandedConnections[connectionId]?.databases || {}),
+              [databaseId]: undefined,
+            },
+          },
+        }));
+      } else if (
+        forceExpand &&
+        !expandedConnections[connectionId]?.databases[databaseId]
+      ) {
+        setExpandedConnections((expandedConnections) => ({
+          ...expandedConnections,
+          [connectionId]: {
+            ...expandedConnections[connectionId],
+            databases: {
+              ...(expandedConnections[connectionId]?.databases || {}),
+              [databaseId]: 'expanded',
+            },
+          },
+        }));
+      }
+    },
+    [setExpandedConnections, expandedConnections]
+  );
+
   const getExpanded = useCallback(
-    (list: Connection[]) => {
-      console.log('getting expanded');
+    (list: ConnectionRepresentation[]) => {
+      // console.log('getting expanded');
       const result = list.reduce(
         (obj, { connectionInfo: { id: connectionId } }) => {
           obj[connectionId] =
@@ -295,10 +326,10 @@ export function ActiveConnectionNavigation({
 
       if (activeWorkspace.type !== 'Databases') {
         const namespace: string = activeWorkspace.namespace;
-        onDatabaseExpand(connectionId, namespace, true);
+        onDatabaseToggle(connectionId, namespace, true);
       }
     }
-  }, [activeWorkspace, onDatabaseExpand]);
+  }, [activeWorkspace, onDatabaseToggle]);
 
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
@@ -330,8 +361,8 @@ export function ActiveConnectionNavigation({
         case 'modify-view': {
           const coll = findCollection(
             ns,
-            (connections.find((conn) => conn.connectionInfo.id === connectionId)
-              ?.databases as Database[]) ?? []
+            connections.find((conn) => conn.connectionInfo.id === connectionId)
+              ?.databases ?? []
           );
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(connectionId, coll._id, {
@@ -387,7 +418,7 @@ export function ActiveConnectionNavigation({
           openDatabasesWorkspace(connectionId)
         }
         onConnectionExpand={onConnectionToggle}
-        onDatabaseExpand={onDatabaseExpand}
+        onDatabaseExpand={onDatabaseToggle}
         expanded={
           filteredConnections
             ? getExpanded(filteredConnections)
@@ -406,9 +437,9 @@ function mapStateToProps(
   }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
-  connections: Connection[];
+  connections: ConnectionRepresentation[];
 } {
-  const connections: Connection[] = [];
+  const connections: ConnectionRepresentation[] = [];
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
@@ -432,7 +463,7 @@ function mapStateToProps(
       isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesStatus: status as Connection['databasesStatus'],
+      databasesStatus: status as ConnectionRepresentation['databasesStatus'],
       databases,
       databasesLength: databases.length,
     });
@@ -499,6 +530,5 @@ const onNamespaceAction = (
 };
 
 export default connect(mapStateToProps, {
-  onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
 })(ActiveConnectionNavigation);

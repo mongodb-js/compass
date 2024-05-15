@@ -6,25 +6,13 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import {
-  type Database,
-  toggleDatabaseExpanded,
-  filterDatabases,
-} from '../../modules/databases';
+import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-
-function findCollection(ns: string, databases: Database[]) {
-  const { database, collection } = toNS(ns);
-
-  return (
-    databases
-      .find((db) => db._id === database)
-      ?.collections.find((coll) => coll.name === collection) ?? null
-  );
-}
+import { filterDatabases } from '../../helpers/filter-databases';
+import { findCollection } from '../../helpers/find-collection';
 
 function SidebarDatabasesNavigation({
   connections,
@@ -61,10 +49,7 @@ function SidebarDatabasesNavigation({
           openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
-          const coll = findCollection(
-            ns,
-            (connection.databases as Database[]) || []
-          );
+          const coll = findCollection(ns, connection.databases || []);
 
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(connectionId, coll._id, {
