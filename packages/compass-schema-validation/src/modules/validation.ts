@@ -573,7 +573,24 @@ const AnalyzeTypesToBsonTypes: Record<string, string> = {
   MaxKey: 'maxKey',
 };
 
-const naturalJoin = (bits: string[]) => {
+const descriptiveBsonType = (bsonType: string): string => {
+  switch (bsonType) {
+    case 'binData':
+      return 'binary';
+    case 'regex':
+      return 'regular expression';
+    case 'bool':
+      return 'boolean';
+    case 'int':
+      return 'integer';
+    case 'long':
+      return 'long integer';
+    default:
+      return bsonType;
+  }
+};
+
+const naturalJoin = (bits: string[]): string => {
   if (!bits.length) return '';
   if (bits.length === 1) return bits[0];
 
@@ -594,7 +611,7 @@ const getDescription = ({
   rules: Omit<Rules, 'description'>;
   isRequired?: boolean;
   skipParentheses?: boolean;
-}) => {
+}): string => {
   const bits: string[] = [];
   let itemsBsonType: string | undefined;
   let itemsRest: Partial<Rules> | undefined;
@@ -604,9 +621,11 @@ const getDescription = ({
     itemsRest = rest;
   }
 
-  if (rules.bsonType) bits.push(`must be ${withA(rules.bsonType)}`);
+  if (isRequired) bits.push('is required');
+  if (rules.bsonType)
+    bits.push(`must be ${withA(descriptiveBsonType(rules.bsonType))}`);
   if (itemsBsonType) {
-    bits[0] += ` of ${itemsBsonType}s`;
+    bits[bits.length - 1] += ` of ${itemsBsonType}s`;
   }
   if (rules.minItems && rules.maxItems && rules.minItems === rules.maxItems) {
     bits.push(`have exactly ${rules.minItems} items`);
@@ -621,9 +640,10 @@ const getDescription = ({
     const digitsMinimum = getDigits(rules.minimum);
     const digitsMaximum = getDigits(rules.maximum);
     bits.push(
-      digitsMinimum === digitsMaximum
+      ['int', 'long'].includes(rules.bsonType || '') &&
+        digitsMinimum === digitsMaximum
         ? `have ${digitsMinimum} digits`
-        : `between ${rules.minimum} and ${rules.maximum}`
+        : `must be between ${rules.minimum} and ${rules.maximum}`
     );
   } else if (rules.minimum) {
     bits.push(`minimum ${rules.minimum}`);
@@ -633,7 +653,6 @@ const getDescription = ({
   if (rules.enum) {
     bits.push(`must be one of [ "${rules.enum.join(`", "`)}" ]`);
   }
-  if (isRequired) bits.push('is required');
 
   if (itemsRest) {
     bits.push(
@@ -645,7 +664,7 @@ const getDescription = ({
   return bits.length ? `${name} ${naturalJoin(bits)}` : '';
 };
 
-const getDocumentRules = ({ fields }: DocumentSchemaType) => {
+const getDocumentRules = ({ fields }: DocumentSchemaType): Partial<Rules> => {
   const { properties, required } = parseRules(fields);
   return { properties, required };
 };
@@ -679,9 +698,12 @@ const getArrayRules = ({ lengths, types }: ArraySchemaType): Partial<Rules> => {
   return rules;
 };
 
-const getDigits = (number: number) => Math.round(number).toString().length;
-const getDigitsFloor = (number: number) => Math.pow(10, getDigits(number) - 1); // e.g. 1, 100
-const getDigitsCeil = (number: number) => Math.pow(10, getDigits(number)) - 1; // e.g. 9999
+const getDigits = (number: number): number =>
+  Math.round(number).toString().length;
+const getDigitsFloor = (number: number): number =>
+  Math.pow(10, getDigits(number) - 1); // e.g. 1, 100
+const getDigitsCeil = (number: number): number =>
+  Math.pow(10, getDigits(number)) - 1; // e.g. 9999
 
 const getNumericRules = ({ values }: { values: number[] }): Partial<Rules> => {
   if (!values.length) return {};
@@ -703,7 +725,7 @@ const getNumericRules = ({ values }: { values: number[] }): Partial<Rules> => {
   return rules;
 };
 
-const getStringRules = ({ values }: { values: string[] }) => {
+const getStringRules = ({ values }: { values: string[] }): Partial<Rules> => {
   if (!values.length) return {};
 
   const maxEnumLength = Math.min(Math.round(values.length / 3), 30);
@@ -739,7 +761,7 @@ const getTypeSpecificRules = (
   }
 };
 
-const parseRules = (fields: SchemaField[]) => {
+const parseRules = (fields: SchemaField[]): Rules => {
   const required: string[] = [];
   const properties: Record<string, Rules> = {};
 
