@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   type Connection,
@@ -121,74 +127,67 @@ export function ActiveConnectionNavigation({
     openPerformanceWorkspace,
   } = useOpenWorkspace();
 
-  // TODO: if I match a connection, all the databases should be included - but not expanded!
   const temporarilyExpand = useCallback(
     (list: FilterMatches) => {
-      try {
-        setExpandedConnections((expandedConnections) => {
-          const newExpanded = { ...expandedConnections };
-          list.forEach(
-            ({ connectionInfo: { id: connectionId }, databases }) => {
-              let connectionState = expandedConnections[connectionId]?.state;
-              if (connectionState === 'collapsed') {
-                connectionState = 'tempExpanded';
-              }
-              const connectionDbs = {
-                ...expandedConnections[connectionId]?.databases,
-              };
-              databases.forEach(({ _id, isMatch }) => {
-                if (isMatch && connectionDbs[_id] === undefined) {
-                  connectionDbs[_id] = 'tempExpanded';
-                }
-              });
-              newExpanded[connectionId] = {
-                state: connectionState,
-                databases: connectionDbs,
-              };
+      setExpandedConnections((expandedConnections) => {
+        const newExpanded = { ...expandedConnections };
+        list.forEach(({ connectionInfo: { id: connectionId }, databases }) => {
+          let connectionState = expandedConnections[connectionId]?.state;
+          if (connectionState === 'collapsed') {
+            connectionState = 'tempExpanded';
+          }
+          const connectionDbs = {
+            ...expandedConnections[connectionId]?.databases,
+          };
+          databases.forEach(({ _id, isMatch }) => {
+            if (isMatch && connectionDbs[_id] === undefined) {
+              connectionDbs[_id] = 'tempExpanded';
             }
-          );
-          return newExpanded;
+          });
+          newExpanded[connectionId] = {
+            state: connectionState,
+            databases: connectionDbs,
+          };
         });
-      } catch (error) {
-        console.error('expanding', error);
-      }
+        return newExpanded;
+      });
     },
     [setExpandedConnections]
   );
 
   const collapseAllTemporarilyExpanded = useCallback(() => {
-    try {
-      setExpandedConnections((expandedConnections) => {
-        const newExpanded = Object.fromEntries(
-          Object.entries(expandedConnections).map(
-            ([connectionId, { state, databases }]) => [
-              connectionId,
-              {
-                state: state === 'tempExpanded' ? 'collapsed' : state,
-                databases: Object.fromEntries(
-                  Object.entries(databases || []).map(([dbId, dbState]) => [
-                    dbId,
-                    dbState === 'tempExpanded' ? undefined : dbState,
-                  ])
-                ),
-              },
-            ]
-          )
-        );
-        return newExpanded;
-      });
-    } catch (error) {
-      console.error('collapsing', error);
-    }
+    setExpandedConnections((expandedConnections) => {
+      const newExpanded = Object.fromEntries(
+        Object.entries(expandedConnections).map(
+          ([connectionId, { state, databases }]) => [
+            connectionId,
+            {
+              state: state === 'tempExpanded' ? 'collapsed' : state,
+              databases: Object.fromEntries(
+                Object.entries(databases || []).map(([dbId, dbState]) => [
+                  dbId,
+                  dbState === 'tempExpanded' ? undefined : dbState,
+                ])
+              ),
+            },
+          ]
+        )
+      );
+      return newExpanded;
+    });
   }, [setExpandedConnections]);
 
+  // filter updates
+  // connections change often, but the effect only uses connections if the filter is active
+  // so we use this conditional dependency to avoid too many calls
+  const connectionsButOnlyIfFilterIsActive = filterRegex && connections;
   useEffect(() => {
     if (!filterRegex) {
       setFilteredConnections(undefined);
       collapseAllTemporarilyExpanded();
     } else {
       const matches: FilterMatches = [];
-      connections.forEach((connection) => {
+      connectionsButOnlyIfFilterIsActive?.forEach((connection) => {
         if (filterRegex?.test(connection.name)) {
           matches.push({
             ...connection,
@@ -213,7 +212,7 @@ export function ActiveConnectionNavigation({
     }
   }, [
     filterRegex,
-    connections,
+    connectionsButOnlyIfFilterIsActive,
     setFilteredConnections,
     temporarilyExpand,
     collapseAllTemporarilyExpanded,
@@ -223,7 +222,7 @@ export function ActiveConnectionNavigation({
     (connectionId: string, forceExpand: boolean) => {
       if (
         !forceExpand &&
-        expandedConnections[connectionId].state !== 'collapsed'
+        expandedConnections[connectionId]?.state !== 'collapsed'
       ) {
         setExpandedConnections((expandedConnections) => ({
           ...expandedConnections,
@@ -304,22 +303,39 @@ export function ActiveConnectionNavigation({
     [expandedConnections]
   );
 
-  // useEffect(() => {
-  //   // cleanup connections that are no longer active
-  //   // if the user connects again, the new connection should start in the default state
-  //   setExpandedConnections((expandedConnections) => {
-  //     const newExpanded = Object.fromEntries(
-  //       activeConnections.map(({ id: connectionId }) => [
-  //         connectionId,
-  //         expandedConnections[connectionId],
-  //       ])
-  //     );
-  //     return newExpanded;
-  //   });
-  // }, [activeConnections]);
+  const expandedMemo = useMemo(
+    () =>
+      filteredConnections
+        ? getExpanded(filteredConnections)
+        : getExpanded(connections),
+    [getExpanded, filteredConnections, connections]
+  );
 
+  useEffect(() => {
+    // cleanup connections that are no longer active
+    // if the user connects again, the new connection should start in the default state
+    setExpandedConnections((expandedConnections) => {
+      const newExpanded = Object.fromEntries(
+        activeConnections.map(
+          ({ id: connectionId }): [string, ExpandedConnections[string]] => [
+            connectionId,
+            expandedConnections[connectionId] || {
+              state: undefined,
+              databases: {},
+            },
+          ]
+        )
+      );
+      return newExpanded;
+    });
+  }, [activeConnections]);
+
+  // we're using a ref for this toggle because collapsing depends on the collapsed state,
+  // but we don't want to auto-expand when collapsed state changes, only workspace
   const onConnectionToggleRef = useRef(onConnectionToggle);
   onConnectionToggleRef.current = onConnectionToggle;
+  const onDatabaseToggleRef = useRef(onDatabaseToggle);
+  onDatabaseToggleRef.current = onDatabaseToggle;
   // auto-expanding on a workspace change
   useEffect(() => {
     if (
@@ -329,16 +345,14 @@ export function ActiveConnectionNavigation({
         activeWorkspace.type === 'Collection')
     ) {
       const connectionId: string = activeWorkspace.connectionId;
-      // we're using a ref for this toggle because collapsing depends on the collapsed state,
-      // but we don't want to auto-expand when collapsed state changes, only workspace
       onConnectionToggleRef.current(connectionId, true);
 
       if (activeWorkspace.type !== 'Databases') {
         const namespace: string = activeWorkspace.namespace;
-        onDatabaseToggle(connectionId, namespace, true);
+        onDatabaseToggleRef.current(connectionId, namespace, true);
       }
     }
-  }, [activeWorkspace, onDatabaseToggle]);
+  }, [activeWorkspace]);
 
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
@@ -428,11 +442,7 @@ export function ActiveConnectionNavigation({
         }
         onConnectionExpand={onConnectionToggle}
         onDatabaseExpand={onDatabaseToggle}
-        expanded={
-          filteredConnections
-            ? getExpanded(filteredConnections)
-            : getExpanded(connections)
-        }
+        expanded={expandedMemo}
         {...navigationProps}
       />
     </div>

@@ -6,7 +6,7 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
+import { toggleDatabaseExpanded } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
