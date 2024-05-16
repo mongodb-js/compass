@@ -168,7 +168,7 @@ class ValidationStates extends Component<ValidationStatesProps> {
               size="small"
               title="Suggest validation rules based on an analysis of a data sample"
             >
-              Draft validation based on Schema Analysis
+              Draft validation based on schema analysis
             </Button>
           </>
         }

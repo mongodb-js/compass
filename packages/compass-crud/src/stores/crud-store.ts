@@ -126,7 +126,7 @@ const getServerErrorMessage = (error: Error): string => {
       const description = validationInfo.propertiesNotSatisfied
         .map(({ description }: { description?: string }) => description)
         .filter((description: string) => !!description)
-        .join('. ');
+        .join('.\n');
       if (description) {
         return `${message}\n\n${description}`;
       }

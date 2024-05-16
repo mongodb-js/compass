@@ -301,7 +301,7 @@ class ValidationEditor extends Component<ValidationEditorProps> {
             onClick={this.props.openSchemaProposalModal}
             title="Analyze a data sample to propose validation rules"
           >
-            Draft validation based on document schema
+            Draft validation based on schema analysis
           </Button>
         </div>
       );

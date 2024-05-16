@@ -18,13 +18,13 @@ export function SchemaProposalModal({
 
   return (
     <FormModal
-      title="Connection info"
+      title="Draft validation"
       open={isVisible}
       onCancel={close}
       onSubmit={handleSubmit}
       size="small"
       data-testid="connection-info-modal"
-      submitButtonText="Draft validation"
+      submitButtonText="Generate rules"
     >
       <Body>
         We will analyze a sample of the collection data, and propose validation
