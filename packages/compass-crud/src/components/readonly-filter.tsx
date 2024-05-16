@@ -57,7 +57,9 @@ export function ReadonlyFilter({
         data-testid="readonly-filter"
         className={readOnlyFilterStyles}
       >
-        <code className={codeStyles}>{filterQuery}</code>
+        <code className={codeStyles}>
+          {filterQuery === '{}' ? 'None' : filterQuery}
+        </code>
       </KeylineCard>
     </>
   );
