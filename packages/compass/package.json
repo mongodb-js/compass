@@ -59,9 +59,9 @@
       "build": {
         "win32": {
           "icon": {
-            "stable": "app-icons/win32/mongodb-compass.ico",
-            "beta": "app-icons/win32/mongodb-compass.ico",
-            "dev": "app-icons/win32/mongodb-compass.ico"
+            "stable": "app-icons/win32/mongodb-compass-logo-stable.ico",
+            "beta": "app-icons/win32/mongodb-compass-logo-beta.ico",
+            "dev": "app-icons/win32/mongodb-compass-logo-dev.ico"
           },
           "favicon_url": "https://compass.mongodb.com/favicon.ico",
           "loading_gif": "app-icons/win32/mongodb-compass-installer-loading.gif",
@@ -70,18 +70,18 @@
         },
         "darwin": {
           "icon": {
-            "stable": "app-icons/darwin/mongodb-compass.icns",
-            "beta": "app-icons/darwin/mongodb-compass.icns",
-            "dev": "app-icons/darwin/mongodb-compass.icns"
+            "stable": "app-icons/darwin/mongodb-compass-logo-stable.icns",
+            "beta": "app-icons/darwin/mongodb-compass-logo-beta.icns",
+            "dev": "app-icons/darwin/mongodb-compass-logo-dev.icns"
           },
           "dmg_background": "app-icons/darwin/background.png",
           "app_category_type": "public.app-category.productivity"
         },
         "linux": {
           "icon": {
-            "stable": "app-icons/linux/mongodb-compass.png",
-            "beta": "app-icons/linux/mongodb-compass.png",
-            "dev": "app-icons/linux/mongodb-compass.png"
+            "stable": "app-icons/linux/mongodb-compass-logo-stable.png",
+            "beta": "app-icons/linux/mongodb-compass-logo-beta.png",
+            "dev": "app-icons/linux/mongodb-compass-logo-dev.png"
           },
           "deb_section": "Databases",
           "rpm_categories": [
