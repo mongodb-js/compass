@@ -105,41 +105,50 @@ const INITIAL_BULK_UPDATE_TEXT = `{
   },
 }`;
 
+interface SchemaRulesViolation {
+  propertiesNotSatisfied?: {
+    propertyName?: string;
+    description?: string;
+    details?: SchemaRulesViolation[];
+  }[];
+  missingProperties?: string[];
+}
+
+const getSchemaViolationMessage = (
+  violations: SchemaRulesViolation[]
+): string => {
+  const message = violations
+    .map(({ missingProperties, propertiesNotSatisfied }) => {
+      if (missingProperties) {
+        return `Missing required properties: ${missingProperties.join(', ')}`;
+      }
+      if (propertiesNotSatisfied && propertiesNotSatisfied) {
+        return propertiesNotSatisfied
+          .map(({ description, details, propertyName }) => {
+            if (details) {
+              return (
+                `Property ${propertyName} is invalid. ` +
+                getSchemaViolationMessage(details)
+              );
+            }
+            return description;
+          })
+          .filter((description?: string) => !!description)
+          .join('.\n');
+      }
+    })
+    .join('.\n');
+
+  return message;
+};
+
 const getServerErrorMessage = (error: Error): string => {
   const message = error.message;
   console.log({ error });
   if ((error as any).errInfo?.details?.schemaRulesNotSatisfied) {
-    const validationInfo = (error as any).errInfo?.details
-      ?.schemaRulesNotSatisfied[0];
-
-    if (validationInfo.missingProperties) {
-      return (
-        message +
-        `\n\n` +
-        `Missing required properties: ${validationInfo.missingProperties.join(
-          ', '
-        )}`
-      );
-    }
-
-    if (validationInfo.propertiesNotSatisfied) {
-      const description = validationInfo.propertiesNotSatisfied
-        .map(({ description }: { description?: string }) => description)
-        .filter((description: string) => !!description)
-        .join('.\n');
-      if (description) {
-        return `${message}\n\n${description}`;
-      }
-    }
-
-    return (
-      message +
-      `\n\n` +
-      JSON.stringify(
-        (error as any).errInfo?.details?.schemaRulesNotSatisfied,
-        null,
-        2
-      )
+    return getSchemaViolationMessage(
+      (error as any).errInfo?.details
+        ?.schemaRulesNotSatisfied as SchemaRulesViolation[]
     );
   }
   return message;

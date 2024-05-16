@@ -661,23 +661,8 @@ const getDescription = ({
   }
 
   if (!skipParentheses) name = `"${name}"`;
-  let description = bits.length ? `${name} ${naturalJoin(bits)}` : '';
 
-  if (rules.properties) {
-    description +=
-      '.\n' +
-      Object.entries(rules.properties)
-        .map(([propertyName, rules]) =>
-          getDescription({
-            name: `Property ${propertyName}`,
-            rules,
-            skipParentheses: true,
-          })
-        )
-        .join('.\n');
-  }
-
-  return description;
+  return bits.length ? `${name} ${naturalJoin(bits)}` : '';
 };
 
 const getDocumentRules = ({ fields }: DocumentSchemaType): Partial<Rules> => {
