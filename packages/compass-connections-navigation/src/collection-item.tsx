@@ -22,6 +22,10 @@ import type {
 import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
 import { getItemPaddingStyles } from './utils';
+import {
+  ElectronMenu,
+  ElectronMenuItem,
+} from '@mongodb-js/react-electron-menu';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -156,37 +160,57 @@ export const CollectionItem: React.FunctionComponent<
   }, [type, isReadOnly, isRenameCollectionEnabled]);
 
   return (
-    <ItemContainer
-      id={id}
-      data-testid={`sidebar-collection-${id}`}
-      level={level}
-      setSize={setSize}
-      posInSet={posInSet}
-      isActive={isActive}
-      isTabbable={isTabbable}
-      onDefaultAction={onDefaultAction}
-      style={style}
-      className={collectionItem}
-      {...hoverProps}
+    <ElectronMenu
+      type="context"
+      trigger={(props: any) => {
+        return (
+          <ItemContainer
+            id={id}
+            data-testid={`sidebar-collection-${id}`}
+            level={level}
+            setSize={setSize}
+            posInSet={posInSet}
+            isActive={isActive}
+            isTabbable={isTabbable}
+            onDefaultAction={onDefaultAction}
+            style={style}
+            className={collectionItem}
+            {...hoverProps}
+            containerRef={props.ref}
+          >
+            <ItemWrapper>
+              <ItemButtonWrapper
+                style={itemPaddingStyles}
+                className={itemButtonWrapper}
+              >
+                <CollectionIcon type={type} />
+                <ItemLabel className={collectionItemLabel} title={name}>
+                  {name}
+                </ItemLabel>
+              </ItemButtonWrapper>
+              <ItemActionControls<Actions>
+                onAction={onAction}
+                data-testid="sidebar-collection-item-actions"
+                iconSize="small"
+                isVisible={isActive || isHovered}
+                actions={actions}
+              ></ItemActionControls>
+            </ItemWrapper>
+          </ItemContainer>
+        );
+      }}
     >
-      <ItemWrapper>
-        <ItemButtonWrapper
-          style={itemPaddingStyles}
-          className={itemButtonWrapper}
-        >
-          <CollectionIcon type={type} />
-          <ItemLabel className={collectionItemLabel} title={name}>
-            {name}
-          </ItemLabel>
-        </ItemButtonWrapper>
-        <ItemActionControls<Actions>
-          onAction={onAction}
-          data-testid="sidebar-collection-item-actions"
-          iconSize="small"
-          isVisible={isActive || isHovered}
-          actions={actions}
-        ></ItemActionControls>
-      </ItemWrapper>
-    </ItemContainer>
+      {actions.map((action) => {
+        return (
+          <ElectronMenuItem
+            key={action.label}
+            label={action.label}
+            onClick={() => {
+              onAction(action.action);
+            }}
+          ></ElectronMenuItem>
+        );
+      })}
+    </ElectronMenu>
   );
 };

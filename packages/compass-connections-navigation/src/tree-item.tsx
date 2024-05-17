@@ -217,6 +217,7 @@ export const ItemContainer: React.FunctionComponent<
         | React.KeyboardEvent<HTMLDivElement>
         | React.MouseEvent<HTMLDivElement>
     ): void;
+    containerRef?: React.LegacyRef<HTMLDivElement>;
   } & React.HTMLProps<HTMLDivElement>
 > = ({
   id,
@@ -229,6 +230,7 @@ export const ItemContainer: React.FunctionComponent<
   onDefaultAction,
   children,
   className,
+  containerRef,
   ...props
 }) => {
   const isMultipleConnection = usePreference(
@@ -258,7 +260,8 @@ export const ItemContainer: React.FunctionComponent<
     },
     props,
     defaultActionProps,
-    focusRingProps
+    focusRingProps,
+    { ref: containerRef }
   );
 
   return (
