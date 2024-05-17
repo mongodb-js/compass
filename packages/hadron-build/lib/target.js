@@ -17,19 +17,6 @@ const tarGz = require('./tar-gz');
 const { notarize } = require('./mac-notary-service');
 const { validateBuildConfig } = require('./validate-build-config');
 
-// Returns current datetime in YYYYMMDDHHmm format.
-function getFormattedDate() {
-  const date = new Date();
-  function pad(n) {
-    return n < 10 ? '0' + n : n;
-  }
-  return date.getFullYear() +
-    pad(date.getMonth() + 1) +
-    pad(date.getDate()) +
-    pad(date.getHours()) +
-    pad(date.getMinutes());
-}
-
 function _canBuildInstaller(ext) {
   var bin = null;
   var help = null;
@@ -170,8 +157,16 @@ class Target {
     this.rebuild = { ...pkg.config.hadron.rebuild };
     this.macosEntitlements = this.src(pkg.config.hadron.macosEntitlements);
 
-    if (this.channel === 'dev' && process.env.IS_BUILDING_FOR_MAIN === 'true') {
-      this.version = `0.0.0-dev.${getFormattedDate()}`;
+    // For building a dev building from main. In order to have a consistent version ID
+    // based on datetime, we pick it from the evergreen when it was triggered so that
+    // its consistent across various builds, irrespective of when each packaging happens.
+    if (
+      this.channel === 'dev' &&
+      process.env.DEV_VERSION_IDENTIFIER &&
+      process.env.DEV_VERSION_IDENTIFIER !== ''
+    ) {
+      const datetime = process.env.DEV_VERSION_IDENTIFIER.replaceAll('_', '');
+      this.version = `0.0.0-dev.${datetime}`;
       pkg.version = this.version;
       this.semver = new semver.SemVer(this.version);
 
@@ -812,13 +807,6 @@ class Target {
       return match[1].toLowerCase();
     }
     return 'stable';
-  }
-
-  static getDownloadLinkForAsset(version, asset) {
-    const channel = Target.getChannelFromVersion(version);
-    const prefix =
-      channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
-    return `https://downloads.mongodb.com/${prefix}/${asset.name}`;
   }
 }
 

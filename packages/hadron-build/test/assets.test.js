@@ -6,10 +6,10 @@ const {
   readableVersionName,
   readablePlatformName,
   generateVersionsForAssets
-} = require('../commands/upload');
+} = require('../lib/assets');
 const Target = require('../lib/target');
 
-describe('upload', function() {
+describe('[lib] assets', function() {
   describe('versionId', function() {
     it('returns a version number', function() {
       expect(versionId('1.2.3')).to.eq('1.2.3');
@@ -60,7 +60,7 @@ describe('upload', function() {
         path.resolve(__dirname, '..', '..', 'compass'),
         version
       );
-      const versions = generateVersionsForAssets(assets, version, 'stable');
+      const versions = generateVersionsForAssets(assets, version, 'https://downloads.mongodb.com/compass');
       expect(versions).to.deep.eq([
         {
           _id: '1.0.0',

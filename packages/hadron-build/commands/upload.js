@@ -16,11 +16,11 @@ const { diffString } = require('json-diff');
 const download = require('download');
 const Target = require('../lib/target');
 const {
-  getKeyPrefix,
   downloadManifest,
   uploadAsset,
   uploadManifest
 } = require('../lib/download-center');
+const { generateVersionsForAssets } = require('../lib/assets');
 
 const cli = require('mongodb-js-cli')('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
@@ -46,95 +46,9 @@ function isStable(id) {
   return !isBeta(id);
 }
 
-const distributionLabel = {
-  'compass-readonly': 'Readonly Edition',
-  'compass-isolated': 'Isolated Edition'
-};
-
-const channelLabel = {
-  stable: 'Stable',
-  beta: 'Beta'
-};
-
-function versionId(version, distribution = '') {
-  return [version, distribution.replace(/compass\-?/, '')]
-    .filter(Boolean)
-    .join('-');
-}
-
-function readableVersionName(version, channel, distribution) {
-  const desc = [distributionLabel[distribution], channelLabel[channel]]
-    .filter(Boolean)
-    .join(' ');
-  return `${version} ${desc ? `(${desc})` : ''}`.trim();
-}
-
-function readablePlatformName(arch, platform, fileName = '') {
-  let name = null;
-
-  switch (`${platform}-${arch}`) {
-    case 'darwin-x64':
-      name = 'macOS 64-bit (10.14+)';
-      break;
-    case 'darwin-arm64':
-      name = 'macOS arm64 (M1) (11.0+)';
-      break;
-    case 'win32-x64':
-      name = 'Windows 64-bit (10+)';
-      break;
-    case 'linux-x64':
-      name = fileName.endsWith('.rpm')
-        ? 'RedHat 64-bit (8+)'
-        : 'Ubuntu 64-bit (16.04+)';
-      break;
-    default:
-      throw new Error(
-        `Unexpected asset for the download center: ${platform} ${arch} ${fileName}`
-      );
-  }
-
-  if (fileName.endsWith('.zip')) {
-    name += ' (Zip)';
-  }
-
-  if (fileName.endsWith('.msi')) {
-    name += ' (MSI)';
-  }
-
-  return name;
-}
-
-function generateVersionsForAssets(assets, version, channel) {
-  return Target.supportedDistributions.map((distribution) => {
-    return {
-      _id: versionId(version, distribution),
-      version: readableVersionName(version, channel, distribution),
-      platform: assets
-        .filter((asset) => {
-          return asset.config.distribution === distribution;
-        })
-        // eslint-disable-next-line no-shadow
-        .flatMap(({ assets, config }) => {
-          return assets
-            .filter(({ downloadCenter }) => {
-              return downloadCenter;
-            })
-            .map((asset) => {
-              const link = Target.getDownloadLinkForAsset(version, asset);
-              return {
-                arch: config.arch,
-                os: config.platform,
-                name: readablePlatformName(
-                  config.arch,
-                  config.platform,
-                  asset.name
-                ),
-                download_link: link
-              };
-            });
-        })
-    };
-  });
+function getDownloadBaseUrl(channel) {
+  const prefix = channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
+  return `https://downloads.mongodb.com/${prefix}`;
 }
 
 async function publishGitHubRelease(assets, version, channel, dryRun) {
@@ -181,7 +95,11 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
     return item.assets;
   });
 
-  const versionManifest = generateVersionsForAssets(assets, version, channel);
+  const versionManifest = generateVersionsForAssets(
+    assets,
+    version,
+    getDownloadBaseUrl(channel)
+  );
 
   const versionManifestPath = path.join(
     os.tmpdir(),
@@ -453,9 +371,6 @@ module.exports = {
   describe,
   builder,
   handler,
-  versionId,
-  readableVersionName,
-  readablePlatformName,
   generateVersionsForAssets,
   publishGitHubRelease,
   uploadAssetsToDownloadCenter,
