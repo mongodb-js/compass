@@ -40,6 +40,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/lodash": "^4.14.188",
     "@types/semver": "^7.3.9",
+    "@types/babel__generator": "^7.6.8",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
