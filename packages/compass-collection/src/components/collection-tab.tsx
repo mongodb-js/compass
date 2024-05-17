@@ -21,6 +21,12 @@ import {
   CollectionIndexesStats,
 } from './collection-tab-stats';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import {
+  ElectronMenuItem,
+  ElectronMenuSeparator,
+  ElectronSubMenu,
+} from '@mongodb-js/react-electron-menu';
+import { globalAppRegistry } from 'hadron-app-registry';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -242,10 +248,38 @@ const CollectionTab = ({
   }
 
   return (
-    <CollectionTabWithMetadata
-      collectionMetadata={collectionMetadata}
-      {...props}
-    ></CollectionTabWithMetadata>
+    <>
+      <ElectronSubMenu label="&Collection">
+        <ElectronSubMenu label={collectionMetadata.namespace}>
+          <ElectronMenuItem
+            label="&Share Schema as JSON"
+            accelerator="Alt+CmdOrCtrl+S"
+            onClick={() => {
+              globalAppRegistry.emit('menu-share-schema-json');
+            }}
+          ></ElectronMenuItem>
+          <ElectronMenuSeparator></ElectronMenuSeparator>
+          {!collectionMetadata.isReadonly && (
+            <ElectronMenuItem
+              label="&Import Data"
+              onClick={() => {
+                globalAppRegistry.emit('open-active-namespace-import');
+              }}
+            ></ElectronMenuItem>
+          )}
+          <ElectronMenuItem
+            label="&Export Collection"
+            onClick={() => {
+              globalAppRegistry.emit('open-active-namespace-export');
+            }}
+          ></ElectronMenuItem>
+        </ElectronSubMenu>
+      </ElectronSubMenu>
+      <CollectionTabWithMetadata
+        collectionMetadata={collectionMetadata}
+        {...props}
+      ></CollectionTabWithMetadata>
+    </>
   );
 };
 
