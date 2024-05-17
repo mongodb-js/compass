@@ -57,6 +57,10 @@ import {
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
 import { usePreference } from 'compass-preferences-model/provider';
+import {
+  ElectronMenuItem,
+  ElectronSubMenu,
+} from '@mongodb-js/react-electron-menu';
 
 resetGlobalCSS();
 
@@ -332,35 +336,45 @@ function Home({
   );
 
   return (
-    <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
-      <ConnectionStorageProvider value={connectionStorage}>
-        <ConnectionsManagerProvider value={connectionsManager.current}>
-          <CompassConnections
-            onConnectionAttemptStarted={onConnectionAttemptStarted}
-            onConnectionFailed={onConnectionFailed}
-            onConnected={onConnected}
-            __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
-          >
-            <CompassInstanceStorePlugin>
-              <FieldStorePlugin>
-                {multiConnectionsEnabled && (
-                  <AppRegistryProvider scopeName="Multiple Connections">
-                    <Workspace
-                      // Workspace receives the singleConnectionConnectionInfo
-                      // to wrap the "My Queries" workspace with a
-                      // ConnectionInfoProvider. This makes sure that "My
-                      // Queries" can continue to work when FF for
-                      // multi-connection is not enabled.
-                      singleConnectionConnectionInfo={
-                        connectionInfo ?? undefined
-                      }
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
-                  </AppRegistryProvider>
-                )}
-                {!multiConnectionsEnabled &&
-                  (isConnected ? (
-                    <AppRegistryProvider scopeName="Single Connection">
+    <>
+      {isConnected && connectionInfo && (
+        <ElectronSubMenu label="&Connect">
+          <ElectronSubMenu label={getConnectionTitle(connectionInfo)}>
+            <ElectronMenuItem
+              label="Disconnect"
+              onClick={() => {
+                void connectionsManager.current
+                  .closeConnection(connectionInfo.id)
+                  .then(() => {
+                    dispatch({ type: 'disconnected' });
+                  });
+              }}
+            ></ElectronMenuItem>
+            <ElectronMenuItem
+              label="Copy Connection String"
+              onClick={() => {
+                void navigator.clipboard.writeText(
+                  connectionInfo.connectionOptions.connectionString
+                );
+              }}
+            ></ElectronMenuItem>
+          </ElectronSubMenu>
+        </ElectronSubMenu>
+      )}
+
+      <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
+        <ConnectionStorageProvider value={connectionStorage}>
+          <ConnectionsManagerProvider value={connectionsManager.current}>
+            <CompassConnections
+              onConnectionAttemptStarted={onConnectionAttemptStarted}
+              onConnectionFailed={onConnectionFailed}
+              onConnected={onConnected}
+              __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
+            >
+              <CompassInstanceStorePlugin>
+                <FieldStorePlugin>
+                  {multiConnectionsEnabled && (
+                    <AppRegistryProvider scopeName="Multiple Connections">
                       <Workspace
                         // Workspace receives the singleConnectionConnectionInfo
                         // to wrap the "My Queries" workspace with a
@@ -373,32 +387,49 @@ function Home({
                         onActiveWorkspaceTabChange={onWorkspaceChange}
                       />
                     </AppRegistryProvider>
-                  ) : (
-                    <div className={homePageStyles}>
-                      <SingleConnectionForm
-                        appRegistry={appRegistry}
-                        openConnectionImportExportModal={
-                          openConnectionImportExportModal
-                        }
-                      />
-                    </div>
-                  ))}
-                <WelcomeModal
-                  isOpen={isWelcomeOpen}
-                  closeModal={closeWelcomeModal}
-                />
-                <CompassSettingsPlugin></CompassSettingsPlugin>
-                <CompassFindInPagePlugin></CompassFindInPagePlugin>
-                <AtlasAuthPlugin></AtlasAuthPlugin>
-                <ConnectionImportModal />
-                <ConnectionExportModal />
-                <LegacyConnectionsModal />
-              </FieldStorePlugin>
-            </CompassInstanceStorePlugin>
-          </CompassConnections>
-        </ConnectionsManagerProvider>
-      </ConnectionStorageProvider>
-    </FileInputBackendProvider>
+                  )}
+                  {!multiConnectionsEnabled &&
+                    (isConnected ? (
+                      <AppRegistryProvider scopeName="Single Connection">
+                        <Workspace
+                          // Workspace receives the singleConnectionConnectionInfo
+                          // to wrap the "My Queries" workspace with a
+                          // ConnectionInfoProvider. This makes sure that "My
+                          // Queries" can continue to work when FF for
+                          // multi-connection is not enabled.
+                          singleConnectionConnectionInfo={
+                            connectionInfo ?? undefined
+                          }
+                          onActiveWorkspaceTabChange={onWorkspaceChange}
+                        />
+                      </AppRegistryProvider>
+                    ) : (
+                      <div className={homePageStyles}>
+                        <SingleConnectionForm
+                          appRegistry={appRegistry}
+                          openConnectionImportExportModal={
+                            openConnectionImportExportModal
+                          }
+                        />
+                      </div>
+                    ))}
+                  <WelcomeModal
+                    isOpen={isWelcomeOpen}
+                    closeModal={closeWelcomeModal}
+                  />
+                  <CompassSettingsPlugin></CompassSettingsPlugin>
+                  <CompassFindInPagePlugin></CompassFindInPagePlugin>
+                  <AtlasAuthPlugin></AtlasAuthPlugin>
+                  <ConnectionImportModal />
+                  <ConnectionExportModal />
+                  <LegacyConnectionsModal />
+                </FieldStorePlugin>
+              </CompassInstanceStorePlugin>
+            </CompassConnections>
+          </ConnectionsManagerProvider>
+        </ConnectionStorageProvider>
+      </FileInputBackendProvider>
+    </>
   );
 }
 
