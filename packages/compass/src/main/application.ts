@@ -24,6 +24,7 @@ import {
   initCompassMainConnectionStorage,
   getCompassMainConnectionStorage,
 } from '@mongodb-js/connection-storage/main';
+import { initialize as initializeReactElectronMenu } from '@mongodb-js/react-electron-menu/main';
 
 const { debug, log, track, mongoLogId } =
   createLoggerAndTelemetry('COMPASS-MAIN');
@@ -136,7 +137,7 @@ class CompassApplication {
     setupTheme(this);
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
-    this.setupApplicationMenu();
+    initializeReactElectronMenu();
     this.setupWindowManager();
     this.trackApplicationLaunched(globalPreferences);
   }

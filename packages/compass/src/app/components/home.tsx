@@ -57,6 +57,10 @@ import {
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
 import { usePreference } from 'compass-preferences-model/provider';
+import {
+  ElectronMenuItem,
+  ElectronSubMenu,
+} from '@mongodb-js/react-electron-menu';
 
 resetGlobalCSS();
 

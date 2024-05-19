@@ -9,6 +9,11 @@ import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
+import {
+  ElectronMenuIpcProvider,
+  ElectronMenu,
+  ElectronMenuItem,
+} from '@mongodb-js/react-electron-menu';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -83,6 +88,7 @@ import {
   CompassRendererConnectionStorage,
   type AutoConnectPreferences,
 } from '@mongodb-js/connection-storage/renderer';
+import Menu from './menu';
 const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
@@ -235,18 +241,36 @@ const Application = View.extend({
       await defaultPreferencesInstance.ensureDefaultConfigurableUserPreferences();
     }
 
+    const appName = remote.app.getName();
+
+    const openNewWindow = () => {
+      void ipcRenderer?.call('test:show-connect-window');
+    };
+
     ReactDOM.render(
       <React.StrictMode>
-        <CompassElectron
-          appName={remote.app.getName()}
-          showWelcomeModal={!wasNetworkOptInShown}
-          createFileInputBackend={createElectronFileInputBackend(remote)}
-          onDisconnect={notifyMainProcessOfDisconnect}
-          showCollectionSubMenu={showCollectionSubMenu}
-          hideCollectionSubMenu={hideCollectionSubMenu}
-          showSettings={showSettingsModal}
-          connectionStorage={connectionStorage}
-        />
+        <ElectronMenuIpcProvider value={ipcRenderer!}>
+          <ElectronMenu>
+            <Menu appName={appName} onNewWindowClick={openNewWindow}></Menu>
+            <CompassElectron
+              appName={appName}
+              showWelcomeModal={!wasNetworkOptInShown}
+              createFileInputBackend={createElectronFileInputBackend(remote)}
+              onDisconnect={notifyMainProcessOfDisconnect}
+              showCollectionSubMenu={showCollectionSubMenu}
+              hideCollectionSubMenu={hideCollectionSubMenu}
+              showSettings={showSettingsModal}
+              connectionStorage={connectionStorage}
+            />
+          </ElectronMenu>
+
+          <ElectronMenu type="dock">
+            <ElectronMenuItem
+              label="New Window"
+              onClick={openNewWindow}
+            ></ElectronMenuItem>
+          </ElectronMenu>
+        </ElectronMenuIpcProvider>
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );

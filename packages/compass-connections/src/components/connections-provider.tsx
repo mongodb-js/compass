@@ -1,7 +1,15 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useConnectionsManagerContext } from '../provider';
+import {
+  useActiveConnections,
+  useConnectionsManagerContext,
+} from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
 import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
+import {
+  ElectronMenuItem,
+  ElectronSubMenu,
+} from '@mongodb-js/react-electron-menu';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const ConnectionsStoreContext = React.createContext<ReturnType<
   typeof useConnectionsStore
@@ -17,10 +25,41 @@ const ConnectionsStoreProvider: React.FunctionComponent<
   UseConnectionsParams
 > = ({ children, ...useConnectionsParams }) => {
   const connectionsStore = useConnectionsStore(useConnectionsParams);
+  const activeConnections = useActiveConnections();
+
   return (
-    <ConnectionsStoreContext.Provider value={connectionsStore}>
-      {children}
-    </ConnectionsStoreContext.Provider>
+    <>
+      {activeConnections.length > 0 && (
+        <ElectronSubMenu label="&Connect">
+          {activeConnections.map((connectionInfo) => {
+            return (
+              <ElectronSubMenu
+                key={connectionInfo.id}
+                label={getConnectionTitle(connectionInfo)}
+              >
+                <ElectronMenuItem
+                  label="Disconnect"
+                  onClick={() => {
+                    void connectionsStore.closeConnection(connectionInfo.id);
+                  }}
+                ></ElectronMenuItem>
+                <ElectronMenuItem
+                  label="Copy Connection String"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(
+                      connectionInfo.connectionOptions.connectionString
+                    );
+                  }}
+                ></ElectronMenuItem>
+              </ElectronSubMenu>
+            );
+          })}
+        </ElectronSubMenu>
+      )}
+      <ConnectionsStoreContext.Provider value={connectionsStore}>
+        {children}
+      </ConnectionsStoreContext.Provider>
+    </>
   );
 };
 

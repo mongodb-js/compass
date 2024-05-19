@@ -6,6 +6,10 @@ import type { DocumentProps } from './document';
 import Document from './document';
 import type HadronDocument from 'hadron-document';
 import type { BSONObject } from '../stores/crud-store';
+import {
+  ElectronMenu,
+  ElectronMenuItem,
+} from '@mongodb-js/react-electron-menu';
 
 const listStyles = css({
   listStyle: 'none',
@@ -51,24 +55,45 @@ class DocumentListView extends React.Component<DocumentListViewProps> {
   renderDocuments() {
     return this.props.docs.map((doc, index) => {
       return (
-        <li
-          className={listItemStyles}
-          data-testid="document-list-item"
+        <ElectronMenu
           key={index}
+          type="context"
+          trigger={(props: any) => {
+            return (
+              <li
+                className={listItemStyles}
+                data-testid="document-list-item"
+                {...props}
+              >
+                <KeylineCard>
+                  <Document
+                    doc={doc}
+                    editable={this.props.isEditable}
+                    isTimeSeries={this.props.isTimeSeries}
+                    copyToClipboard={this.props.copyToClipboard}
+                    removeDocument={this.props.removeDocument}
+                    replaceDocument={this.props.replaceDocument}
+                    updateDocument={this.props.updateDocument}
+                    openInsertDocumentDialog={
+                      this.props.openInsertDocumentDialog
+                    }
+                  />
+                </KeylineCard>
+              </li>
+            );
+          }}
         >
-          <KeylineCard>
-            <Document
-              doc={doc}
-              editable={this.props.isEditable}
-              isTimeSeries={this.props.isTimeSeries}
-              copyToClipboard={this.props.copyToClipboard}
-              removeDocument={this.props.removeDocument}
-              replaceDocument={this.props.replaceDocument}
-              updateDocument={this.props.updateDocument}
-              openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-            />
-          </KeylineCard>
-        </li>
+          <ElectronMenuItem
+            label="Copy Document"
+            onClick={() => {
+              const str =
+                typeof doc.toEJSON === 'function'
+                  ? doc.toEJSON()
+                  : JSON.stringify(doc);
+              void navigator.clipboard.writeText(str);
+            }}
+          ></ElectronMenuItem>
+        </ElectronMenu>
       );
     });
   }
