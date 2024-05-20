@@ -4,7 +4,7 @@ const download = require('download');
 const path = require('path');
 const { promises: fs } = require('fs');
 const debug = require('debug')('hadron-build:macos-notarization');
-const { promisify } = require('util');
+const { promisify, inspect } = require('util');
 const childProcess = require('child_process');
 const execFile = promisify(childProcess.execFile);
 
@@ -77,6 +77,12 @@ async function notarize(src, notarizeOptions) {
     await execFile('rm', ['-r', fileName], execOpts);
     debug(`unzipping with "unzip -u ${signedArchive}"`);
     await execFile('unzip', ['-u', signedArchive], execOpts);
+  } catch (err) {
+    debug('full macnotary error output', inspect(err, {
+      maxArrayLength: Infinity,
+      maxStringLength: Infinity
+    }));
+    throw err;
   } finally {
     // cleanup - remove signedArchive and unsignedArchive
     debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
