@@ -65,7 +65,7 @@ const formContainerStyles = css({
 const formContentStyles = css({
   display: 'flex',
   columnGap: spacing[3],
-  maxHeight: `calc(100vh - 310px)`,
+  maxHeight: '720px',
   overflow: 'auto',
   scrollbarGutter: 'stable',
 });
