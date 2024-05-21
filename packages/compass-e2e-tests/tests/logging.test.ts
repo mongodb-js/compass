@@ -180,6 +180,9 @@ describe('Logging and Telemetry integration', function () {
           id: 1_001_000_004,
           ctx: 'Connection UI',
           msg: 'Initiating connection attempt',
+          attr: (actual: any) => {
+            expect(actual).to.have.property('isAutoconnectAttempt');
+          },
         },
         {
           s: 'I',

@@ -7,7 +7,7 @@
  */
 const path = require('path');
 
-const { getPackages } = require('@mongodb-js/monorepo-tools');
+const { runInDir } = require('@mongodb-js/monorepo-tools');
 
 const rootDir = path.resolve(__dirname, '..');
 
@@ -33,6 +33,14 @@ const pluginNames = [
   '@mongodb-js/compass-saved-aggregations-queries',
 ];
 
+const LERNA_BIN = path.resolve(
+  __dirname,
+  '..',
+  'node_modules',
+  '.bin',
+  'lerna'
+);
+
 function printPackageDescriptionLine(
   packageName,
   packageRelativePath,
@@ -46,7 +54,9 @@ function printPackageDescriptionLine(
 async function main() {
   console.log('\n## Packages Overview\n');
 
-  const packages = await getPackages();
+  const packages = JSON.parse(
+    (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
+  );
 
   const packageInfos = [];
   for (const { location } of packages) {

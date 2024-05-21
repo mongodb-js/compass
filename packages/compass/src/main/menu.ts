@@ -418,7 +418,7 @@ function windowSubMenu(): MenuItemConstructorOptions {
       },
       {
         label: 'Close',
-        accelerator: 'Command+W',
+        accelerator: 'Command+Shift+W',
         role: 'close' as const,
       },
       separator(),

@@ -14,7 +14,7 @@ import {
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'row',
-  gap: spacing[100],
+  gap: spacing[400],
 });
 
 const textStyles = css({
@@ -24,8 +24,10 @@ const textStyles = css({
 const buttonStyles = css({
   background: 'none',
   border: 'none',
-  fontWeight: 'bold',
+  fontWeight: 600,
   color: palette.blue.base,
+  textTransform: 'uppercase',
+  padding: 0,
   '&:hover': {
     cursor: 'pointer',
   },
@@ -46,7 +48,7 @@ const RestartCompassToastContent = ({
   return (
     <div className={containerStyles}>
       <Body className={textStyles}>
-        Compass update {newVersion} has finished downloading
+        Compass is ready to update to {newVersion}!
       </Body>
       <button
         className={cx(buttonStyles, darkmode && buttonDarkStyles)}
@@ -132,7 +134,7 @@ export function onAutoupdateSuccess({
 export function onAutoupdateInstalled({ newVersion }: { newVersion: string }) {
   openToast(updateToastId, {
     variant: 'success',
-    title: `Compass ${newVersion} is installed successfully`,
+    title: `Compass ${newVersion} installed successfully`,
     description: (
       <Link
         as="a"

@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "2.1.15",
+  "version": "2.1.16",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -56,7 +56,7 @@
     "@types/chai": "^4.2.21",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.0.0",
-    "@types/node-fetch": "^2.5.8",
+    "@types/node-fetch": "^2.6.11",
     "@types/sinon-chai": "^3.2.5",
     "@types/ssh2": "^1.11.8",
     "chai": "^4.3.4",
@@ -73,7 +73,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.2.16",
+    "@mongodb-js/compass-logging": "^1.2.17",
     "socksv5": "0.0.6",
     "ssh2": "^1.12.0"
   }

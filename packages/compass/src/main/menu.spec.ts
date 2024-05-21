@@ -354,7 +354,7 @@ describe('CompassMenu', function () {
           label: 'Window',
           submenu: [
             { label: 'Minimize', accelerator: 'Command+M', role: 'minimize' },
-            { label: 'Close', accelerator: 'Command+W', role: 'close' },
+            { label: 'Close', accelerator: 'Command+Shift+W', role: 'close' },
             { type: 'separator' },
             { label: 'Bring All to Front', role: 'front' },
           ],

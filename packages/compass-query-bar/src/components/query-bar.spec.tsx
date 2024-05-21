@@ -34,6 +34,14 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history';
 
+function testIsEditorDisabled(editorTestId: string, isDisabled: boolean) {
+  expect(
+    within(screen.getByTestId(editorTestId))
+      .getByRole('textbox')
+      .getAttribute('contenteditable')
+  ).to.equal(isDisabled ? 'false' : 'true');
+}
+
 describe('QueryBar Component', function () {
   let preferences: PreferencesAccess;
   let onApplySpy: SinonSpy;
@@ -58,6 +66,7 @@ describe('QueryBar Component', function () {
           <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
             <Provider store={store}>
               <QueryBar
+                source="test"
                 buttonLabel="Apply"
                 onApply={noop}
                 onReset={noop}
@@ -204,17 +213,9 @@ describe('QueryBar Component', function () {
       ).to.equal('false');
     });
 
-    it('editors are not readonly', function () {
-      expect(
-        within(screen.getByTestId('query-bar-option-filter-input'))
-          .getByRole('textbox')
-          .getAttribute('aria-readonly')
-      ).to.not.exist;
-      expect(
-        within(screen.getByTestId('query-bar-option-project-input'))
-          .getByRole('textbox')
-          .getAttribute('aria-readonly')
-      ).to.not.exist;
+    it('editors are not disabled', function () {
+      testIsEditorDisabled('query-bar-option-filter-input', false);
+      testIsEditorDisabled('query-bar-option-project-input', false);
     });
   });
 
@@ -258,7 +259,7 @@ describe('QueryBar Component', function () {
       ).to.equal('true');
     });
 
-    it('editors are readonly', function () {
+    it('editors are disabled', function () {
       const store = configureStore({}, {
         preferences,
         logger: createNoopLoggerAndTelemetry(),
@@ -272,6 +273,7 @@ describe('QueryBar Component', function () {
       render(
         <Provider store={store}>
           <QueryBar
+            source="test"
             buttonLabel="Apply"
             onApply={noop}
             onReset={noop}
@@ -280,11 +282,7 @@ describe('QueryBar Component', function () {
         </Provider>
       );
 
-      expect(
-        within(screen.getByTestId('query-bar-option-filter-input'))
-          .getByRole('textbox')
-          .getAttribute('aria-readonly')
-      ).to.equal('true');
+      testIsEditorDisabled('query-bar-option-filter-input', true);
     });
   });
 
@@ -306,7 +304,7 @@ describe('QueryBar Component', function () {
           },
           {
             fields: mapQueryToFormFields(
-              {},
+              { maxTimeMS: undefined },
               {
                 ...DEFAULT_FIELD_VALUES,
                 filter: { a: 2 },
