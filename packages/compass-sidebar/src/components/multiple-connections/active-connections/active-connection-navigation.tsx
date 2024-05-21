@@ -16,7 +16,6 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
-import { type Database } from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -27,7 +26,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
-import { filterDatabases } from '../../../helpers/filter-databases';
 import { findCollection } from '../../../helpers/find-collection';
 
 type ExpandedDatabases = Record<
@@ -42,12 +40,23 @@ type ExpandedConnections = Record<
   }
 >;
 
-interface ConnectionMatch extends Connection {
+interface Match {
   isMatch?: boolean;
-  databases: (Database & { isMatch?: boolean })[];
 }
 
-type FilterMatches = ConnectionMatch[];
+type Collection = Connection['databases'][number]['collections'][number];
+
+type Database = Connection['databases'][number];
+
+type FilteredCollection = Collection & Match;
+type FilteredDatabase = Database &
+  Match & {
+    collections: FilteredCollection[];
+  };
+type FilteredConnection = Connection &
+  Match & {
+    databases: FilteredDatabase[];
+  };
 
 const activeConnectionsContainerStyles = css({
   height: '100%',
@@ -79,6 +88,55 @@ const activeConnectionCountStyles = css({
   fontWeight: 'normal',
   marginLeft: spacing[100],
 });
+
+const filterConnections = (
+  connections: Connection[],
+  regex: RegExp
+): FilteredConnection[] => {
+  const results: FilteredConnection[] = [];
+  for (const connection of connections) {
+    const isMatch = regex.test(connection.name);
+    const childMatches = filterDatabases(connection.databases, regex);
+
+    if (isMatch || childMatches.length) {
+      results.push({
+        ...connection,
+        isMatch,
+        databases: childMatches.length ? childMatches : connection.databases,
+      });
+    }
+  }
+  return results;
+};
+
+const filterDatabases = (
+  databases: Database[],
+  regex: RegExp
+): FilteredDatabase[] => {
+  const results: FilteredDatabase[] = [];
+  for (const db of databases) {
+    const isMatch = regex.test(db.name);
+    const childMatches = filterCollections(db.collections, regex);
+
+    if (isMatch || childMatches.length) {
+      results.push({
+        ...db,
+        isMatch,
+        collections: childMatches.length ? childMatches : db.collections,
+      });
+    }
+  }
+  return results;
+};
+
+const filterCollections = (
+  collections: Collection[],
+  regex: RegExp
+): FilteredCollection[] => {
+  return collections
+    .filter(({ name }) => regex.test(name))
+    .map((collection) => ({ ...collection, isMatch: true }));
+};
 
 export function ActiveConnectionNavigation({
   activeConnections,
@@ -128,26 +186,44 @@ export function ActiveConnectionNavigation({
   } = useOpenWorkspace();
 
   const temporarilyExpand = useCallback(
-    (list: FilterMatches) => {
+    (list: FilteredConnection[]) => {
       setExpandedConnections((expandedConnections) => {
-        const newExpanded = { ...expandedConnections };
+        // first copy the list, but clearing the tempExpanded
+        const newExpanded: ExpandedConnections = Object.fromEntries(
+          Object.entries(expandedConnections).map(
+            ([connectionId, { state, databases }]) => [
+              connectionId,
+              {
+                state: state === 'tempExpanded' ? 'collapsed' : state,
+                databases: Object.fromEntries(
+                  Object.entries(databases).map(([databaseId, dbState]) => {
+                    return [
+                      databaseId,
+                      dbState === 'tempExpanded' ? undefined : dbState,
+                    ];
+                  })
+                ),
+              },
+            ]
+          )
+        );
+
+        // then make sure all the matches are at least temp expanded
         list.forEach(({ connectionInfo: { id: connectionId }, databases }) => {
-          let connectionState = expandedConnections[connectionId]?.state;
-          if (connectionState === 'collapsed') {
-            connectionState = 'tempExpanded';
+          if (newExpanded[connectionId].state === 'collapsed') {
+            newExpanded[connectionId].state = 'tempExpanded';
           }
-          const connectionDbs = {
-            ...expandedConnections[connectionId]?.databases,
-          };
-          databases.forEach(({ _id, isMatch }) => {
-            if (isMatch && connectionDbs[_id] === undefined) {
-              connectionDbs[_id] = 'tempExpanded';
+          databases.forEach(({ _id: databaseId, collections }) => {
+            if (collections.length) {
+              if (newExpanded[connectionId].state === 'collapsed') {
+                newExpanded[connectionId].state = 'tempExpanded';
+              }
+              if (!newExpanded[connectionId].databases[databaseId]) {
+                newExpanded[connectionId].databases[databaseId] =
+                  'tempExpanded';
+              }
             }
           });
-          newExpanded[connectionId] = {
-            state: connectionState,
-            databases: connectionDbs,
-          };
         });
         return newExpanded;
       });
@@ -157,7 +233,7 @@ export function ActiveConnectionNavigation({
 
   const collapseAllTemporarilyExpanded = useCallback(() => {
     setExpandedConnections((expandedConnections) => {
-      const newExpanded = Object.fromEntries(
+      const newExpanded: ExpandedConnections = Object.fromEntries(
         Object.entries(expandedConnections).map(
           ([connectionId, { state, databases }]) => [
             connectionId,
@@ -185,30 +261,15 @@ export function ActiveConnectionNavigation({
     if (!filterRegex) {
       setFilteredConnections(undefined);
       collapseAllTemporarilyExpanded();
-    } else {
-      const matches: FilterMatches = [];
-      connectionsButOnlyIfFilterIsActive?.forEach((connection) => {
-        if (filterRegex?.test(connection.name)) {
-          matches.push({
-            ...connection,
-            isMatch: true,
-          });
-        } else {
-          const dbMatches = filterDatabases(
-            connection?.databases,
-            filterRegex
-          ).map((database) => ({ ...database, isMatch: true }));
-          if (dbMatches.length) {
-            matches.push({
-              ...connection,
-              databases: dbMatches,
-              databasesLength: dbMatches?.length ?? 0,
-            });
-          }
-        }
-      });
-      setFilteredConnections(matches);
-      temporarilyExpand(matches);
+    } else if (connectionsButOnlyIfFilterIsActive) {
+      // this check is extra just to please TS
+      const results = filterConnections(
+        connectionsButOnlyIfFilterIsActive,
+        filterRegex
+      );
+      console.log({ results });
+      setFilteredConnections(results);
+      temporarilyExpand(results);
     }
   }, [
     filterRegex,
