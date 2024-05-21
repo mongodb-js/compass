@@ -83,6 +83,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
     <div className={schemaToolbarStyles}>
       <div className={schemaQueryBarStyles}>
         <QueryBar
+          source="schema"
           buttonLabel="Analyze"
           resultId={schemaResultId}
           onApply={onAnalyzeSchemaClicked}

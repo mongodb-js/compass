@@ -11,7 +11,11 @@ import {
   useQueryBarComponent,
   useChangeQueryBarQuery,
   useQueryBarQuery,
+  useLastAppliedQuery,
+  useIsLastAppliedQueryOutdated,
+  queryBarServiceLocator,
 } from './components/hooks';
+import type { QueryBarService } from './components/hooks';
 import QueryBarComponent from './components/query-bar';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
@@ -65,4 +69,12 @@ export const QueryBar: React.FunctionComponent<
 };
 
 export default QueryBarPlugin;
-export { useChangeQueryBarQuery, useQueryBarQuery };
+export {
+  useChangeQueryBarQuery,
+  useQueryBarQuery,
+  useLastAppliedQuery,
+  useIsLastAppliedQueryOutdated,
+  queryBarServiceLocator,
+};
+export type { QueryBarService };
+export type { BaseQuery as Query } from './constants/query-properties';

@@ -24,10 +24,10 @@ export type FormField<T> = {
 // All the possible form fields of a query
 export type QueryFormFields = {
   filter: FormField<Document>;
-  project: FormField<Document>;
-  collation: FormField<Document>;
-  sort: FormField<Document>;
-  hint: FormField<Document>;
+  project: FormField<Document | null>;
+  collation: FormField<Document | null>;
+  sort: FormField<Document | null>;
+  hint: FormField<Document | null>;
   skip: FormField<number>;
   limit: FormField<number>;
   maxTimeMS: FormField<number>;
