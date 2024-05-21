@@ -467,7 +467,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onExpandedChange = useCallback(
     ({ id, type, connectionId }, isExpanded: boolean) => {
-      console.log('onExpandedChange', { id, type, connectionId });
       if (type === 'database') onDatabaseExpand(connectionId, id, isExpanded);
       if (type === 'connection') onConnectionExpand(id, isExpanded);
     },
