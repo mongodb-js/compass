@@ -223,7 +223,10 @@ export function ActiveConnectionNavigation({
   return (
     <div className={activeConnectionsContainerStyles}>
       <header className={activeConnectionListHeaderStyles}>
-        <Subtitle className={activeConnectionListHeaderTitleStyles}>
+        <Subtitle
+          className={activeConnectionListHeaderTitleStyles}
+          data-testid="active-connections-title"
+        >
           Active connections
           {activeConnections.length !== 0 && (
             <span className={activeConnectionCountStyles}>

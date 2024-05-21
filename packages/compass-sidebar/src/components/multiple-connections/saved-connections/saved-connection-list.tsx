@@ -108,7 +108,10 @@ export function SavedConnectionList({
   return (
     <div className={savedConnectionListStyles}>
       <header className={savedConnectionListHeaderStyles}>
-        <Subtitle className={savedConnectionListHeaderTitleStyles}>
+        <Subtitle
+          className={savedConnectionListHeaderTitleStyles}
+          data-testid="saved-connections-title"
+        >
           Connections
           {connectionCount !== 0 && (
             <span className={savedConnectionCountStyles}>

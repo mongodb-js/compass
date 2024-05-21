@@ -220,6 +220,11 @@ export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-
 export const RecentConnectionsHeader = '[data-testid="recents-header"]';
 export const RecentConnections = '[data-testid="recent-connection"]';
 
+// Multiple Connections Sidebar
+export const ActiveConnectionsTitle =
+  '[data-testid="active-connections-title"]';
+export const SavedConnectionsTitle = '[data-testid="saved-connections-title"]';
+
 // Rename Collection Modal
 export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
 export const RenameCollectionModalInput =
