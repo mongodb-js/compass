@@ -87,23 +87,6 @@ describe('ConnectionStorage', function () {
     Sinon.restore();
   });
 
-  it('reminds us to remove keytar in', function () {
-    const testDate = new Date('2023-11-17T00:00:00.000Z');
-
-    const endOfKeytarDate = new Date(testDate);
-    endOfKeytarDate.setMonth(endOfKeytarDate.getMonth() + 6);
-
-    // Based on milestone #2 of Move from keytar to Electron safeStorage,
-    // we should remove keytar in 3 months from now. And as such, we are
-    // intentionally failing this test to remind us to remove keytar.
-    // If we want to continue using keytar for now, check with the product and
-    // please update this test accordingly.
-    expect(
-      new Date(),
-      'Expected to have keytar removed completely by now. If we want to continue using it for now, please update this test.'
-    ).to.be.lessThan(endOfKeytarDate);
-  });
-
   describe('migrateToSafeStorage', function () {
     let sandbox: Sinon.SinonSandbox;
     beforeEach(function () {

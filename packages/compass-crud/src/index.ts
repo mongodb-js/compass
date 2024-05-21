@@ -3,7 +3,6 @@ import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
 import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
-import { DocumentListWithReadonly } from './components/connected-document-list';
 import {
   type EmittedAppRegistryEvents,
   activateDocumentsPlugin,
@@ -27,11 +26,12 @@ import {
   recentQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
+import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 
 export const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassDocuments',
-    component: DocumentListWithReadonly as any, // as any because of reflux store
+    component: DocumentList as any, // as any because of reflux store
     activate: activateDocumentsPlugin,
   },
   {
@@ -48,6 +48,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     connectionInfoAccess: connectionInfoAccessLocator,
     connectionScopedAppRegistry:
       connectionScopedAppRegistryLocator<EmittedAppRegistryEvents>,
+    queryBar: queryBarServiceLocator,
   }
 );
 

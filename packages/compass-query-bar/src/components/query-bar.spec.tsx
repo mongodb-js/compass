@@ -66,6 +66,7 @@ describe('QueryBar Component', function () {
           <RecentQueryStorageProvider value={compassRecentQueryStorageAccess}>
             <Provider store={store}>
               <QueryBar
+                source="test"
                 buttonLabel="Apply"
                 onApply={noop}
                 onReset={noop}
@@ -272,6 +273,7 @@ describe('QueryBar Component', function () {
       render(
         <Provider store={store}>
           <QueryBar
+            source="test"
             buttonLabel="Apply"
             onApply={noop}
             onReset={noop}
@@ -302,7 +304,7 @@ describe('QueryBar Component', function () {
           },
           {
             fields: mapQueryToFormFields(
-              {},
+              { maxTimeMS: undefined },
               {
                 ...DEFAULT_FIELD_VALUES,
                 filter: { a: 2 },
