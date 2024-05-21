@@ -81,7 +81,8 @@ tasks:
         vars:
           scope: mongodb-compass
       - func: get-all-artifacts
-      - func: publish
+      # todo: this block normal publish
+      - func: publish-dev
 
   - name: publish-packages-next
     tags: []

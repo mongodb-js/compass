@@ -303,7 +303,9 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           # The artifact file names are generated (in target.js) and added to the expansions
           if [[ "${project}" == "10gen-compass-main" && "${branch_name}" == "main"  ]]; then
-            export IS_BUILDING_FOR_MAIN=true
+            # In order to correclty use dev version identifer based on datetime, we will use
+            # evergreen's created_at expansion which is formatted as: 24_05_16_14_52_37.
+            export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${created_at})
           fi
           echo "Synchronizing evergreen environment from Compass build tools..."
 
@@ -418,7 +420,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           if [[ "${project}" == "10gen-compass-main" && "${branch_name}" == "main"  ]]; then
             echo "Building for main branch"
-            export IS_BUILDING_FOR_MAIN=true
+            export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${created_at})
           fi
           .evergreen/compass_package.sh
     - command: shell.exec
@@ -454,6 +456,54 @@ functions:
           fi
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
+
+  publish-dev:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          set -e
+          set -x
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          
+          TMP_FILE=$(mktemp)
+          BUCKET_URL="https://mciuploads.s3.amazonaws.com/${project}/compass/dev"
+          FILE_NAME="release.json"
+          VERSION_ID=$(awk '{gsub("_", ""); print}' <<< ${created_at})
+
+          if [[ "${project}" != "10gen-compass-main" ]]; then
+            echo "Trying to publish main compass (dev build) from ${project} project";
+            exit 1;
+          fi
+
+          code=$(curl -sSf "$BUCKET_URL/$FILE_NAME" -o "$TMP_FILE" -w "%{http_code}" || true)
+          if [[ $code -eq 200 ]]; then
+            CURRENT_VERSION_ID=$(jq ".id" $TMP_FILE)
+            echo "Current published version: ${CURRENT_VERSION_ID}"
+
+            # Check if the current version is greater than the version we are trying to publish.
+            if [[ $VERSION_ID -le $CURRENT_VERSION_ID ]]; then
+              echo "Published version ${CURRENT_VERSION_ID} is greater than version ${VERSION_ID} trying to publish. Exiting..."
+              exit 1
+            fi
+          fi
+
+          VERSION="v0.0.0-dev.$VERSION_ID"
+          PUBLISHED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "{\"id\": $VERSION_ID, \"version\": \"v0.0.0-dev.$VERSION_ID\", \"published_at\": \"$PUBLISHED_AT\", \"draft\": true}" > $FILE_NAME
+
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/release.json
+        remote_file: ${project}/compass/dev/release.json
+        content_type: application/json
+        display_name: release.json
+        optional: true
 
   get-packaged-app:
     - command: s3.get
@@ -790,6 +840,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${created_at})
           echo "Downloading release assets from evergreen bucket..."
           npm run --workspace mongodb-compass download
 
