@@ -27,7 +27,7 @@ async function snykTest(dependency) {
 
       const response = await fetch(apiUrl, {
         headers: {
-          Authorization: `token ${process.env.SNYK_API_KEY}`,
+          Authorization: `token ${process.env.SNYK_TOKEN}`,
         },
         signal: abortController.signal,
       });
@@ -65,8 +65,8 @@ async function snykTest(dependency) {
 }
 
 async function main() {
-  if (!process.env.SNYK_API_KEY) {
-    throw new Error('process.env.SNYK_API_KEY is missing.');
+  if (!process.env.SNYK_TOKEN) {
+    throw new Error('process.env.SNYK_TOKEN is missing.');
   }
 
   const rootPath = path.resolve(__dirname, '..');
