@@ -1,67 +1,46 @@
 'use strict';
 const { promises: fs } = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = require('make-fetch-happen');
 
-const DEPENDENCY_TEST_RETRIES = 3;
-const DEPENDENCY_TEST_TIMEOUT = 10000;
+const MAKE_FETCH_HAPPEN_OPTIONS = {
+  timeout: 10000,
+  retry: {
+    retries: 3,
+    factor: 1,
+    minTimeout: 1000,
+    maxTimeout: 3000,
+    randomize: true,
+  },
+};
 
 async function snykTest(dependency) {
   const { name, version } = dependency;
-  const encodedName = encodeURIComponent(name);
-  const apiUrl = `https://api.snyk.io/v1/test/npm/${encodedName}/${version}`;
 
-  let attempts = 0;
+  process.stdout.write(`Testing ${name}@${version} ... `);
 
-  while (attempts < DEPENDENCY_TEST_RETRIES) {
-    attempts++;
-
-    try {
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(
-        () => abortController.abort(),
-        DEPENDENCY_TEST_TIMEOUT
-      );
-
-      process.stdout.write(`Testing ${name}@${version} ... `);
-
-      const response = await fetch(apiUrl, {
-        headers: {
-          Authorization: `token ${process.env.SNYK_TOKEN}`,
-        },
-        signal: abortController.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      process.stdout.write(`Done\n`);
-      return result.issues.vulnerabilities.map((v) => {
-        // for some reason the api doesn't add this property unlike `snyk test`
-        return { ...v, name: v.package, fixedIn: v.upgradePath ?? [] };
-      });
-    } catch (err) {
-      if (err.name === 'AbortError') {
-        console.error(
-          `Request timeout for ${name}@${version} (attempt ${attempts})`
-        );
-      } else {
-        console.error(
-          `Snyk API request failed for ${name}@${version} (attempt ${attempts}):`,
-          err
-        );
-      }
-
-      if (attempts === DEPENDENCY_TEST_RETRIES) {
-        console.error(`Max retries reached for ${name}@${version}`);
-        throw new Error(`Testing ${name}@${version} failed.`);
-      }
+  const response = await fetch(
+    `https://api.snyk.io/v1/test/npm/${encodeURIComponent(name)}/${version}`,
+    {
+      ...MAKE_FETCH_HAPPEN_OPTIONS,
+      headers: {
+        Authorization: `token ${process.env.SNYK_TOKEN}`,
+      },
     }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  const vulnerabilities = (await response.json()).issues?.vulnerabilities ?? [];
+
+  process.stdout.write(`Done\n`);
+
+  return vulnerabilities.map((v) => {
+    // for some reason the api doesn't add these properties unlike `snyk test`
+    return { ...v, name: v.package, fixedIn: v.upgradePath ?? [] };
+  });
 }
 
 async function main() {
@@ -70,18 +49,16 @@ async function main() {
   }
 
   const rootPath = path.resolve(__dirname, '..');
-  const dependenciesFiles = [path.join(rootPath, '.sbom', 'dependencies.json')];
+
+  const dependenciesFile = path.join(rootPath, '.sbom', 'dependencies.json');
+  const dependencies = JSON.parse(await fs.readFile(dependenciesFile, 'utf-8'));
 
   const results = [];
 
-  for (const file of dependenciesFiles) {
-    const dependencies = JSON.parse(await fs.readFile(file, 'utf-8'));
-
-    for (const dependency of dependencies) {
-      const vulnerabilities = await snykTest(dependency);
-      if (vulnerabilities && vulnerabilities.length) {
-        results.push({ vulnerabilities });
-      }
+  for (const dependency of dependencies) {
+    const vulnerabilities = await snykTest(dependency);
+    if (vulnerabilities && vulnerabilities.length) {
+      results.push({ vulnerabilities });
     }
   }
 

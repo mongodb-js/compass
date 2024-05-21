@@ -43,7 +43,6 @@
     "electron": "^29.4.0",
     "jsdom": "^21.1.0",
     "make-fetch-happen": "^8.0.14",
-    "node-fetch": "^3.3.2",
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "prompts": "^2.4.1",
