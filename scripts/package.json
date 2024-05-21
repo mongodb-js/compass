@@ -41,7 +41,6 @@
     "@mongodb-js/monorepo-tools": "^1.1.1",
     "commander": "^11.0.0",
     "electron": "^29.4.0",
-    "glob": "^10.2.5",
     "jsdom": "^21.1.0",
     "make-fetch-happen": "^8.0.14",
     "pacote": "^11.3.5",
