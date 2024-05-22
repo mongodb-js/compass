@@ -1,5 +1,5 @@
-import type { Database } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
 import toNS from 'mongodb-ns';
+import type { Database } from '../modules/databases';
 
 export function findCollection(ns: string, databases: Database[]) {
   const { database, collection } = toNS(ns);

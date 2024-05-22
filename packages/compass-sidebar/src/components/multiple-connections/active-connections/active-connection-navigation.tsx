@@ -156,6 +156,9 @@ const applyTempExpanded = (
   filterResults.forEach(
     ({ connectionInfo: { id: connectionId }, isMatch, databases }) => {
       const childrenDbsAreMatch = databases.length && databases[0].isMatch; // either all children or none are a match // TODO: check with Ben
+      if (!newExpanded[connectionId]) {
+        newExpanded[connectionId] = { state: undefined, databases: {} };
+      }
       if (
         (isMatch || childrenDbsAreMatch) &&
         newExpanded[connectionId].state === 'collapsed'
@@ -354,7 +357,6 @@ export function ActiveConnectionNavigation({
 
   const getExpanded = useCallback(
     (list: Connection[]) => {
-      // console.log('getting expanded');
       const result = list.reduce(
         (obj, { connectionInfo: { id: connectionId } }) => {
           obj[connectionId] =
@@ -369,7 +371,6 @@ export function ActiveConnectionNavigation({
         },
         {} as Record<string, false | Record<string, boolean>>
       );
-      // console.log('getExpanded', result);
       return result;
     },
     [expandedConnections]

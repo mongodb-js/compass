@@ -2,7 +2,6 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { RootAction, SidebarThunkAction } from '.';
 import toNS from 'mongodb-ns';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import type { Collection } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
 
 /**
  * Databases actions.
@@ -30,7 +29,10 @@ export type Database = Pick<
   DatabaseRaw,
   '_id' | 'name' | 'collectionsStatus' | 'collectionsLength'
 > & {
-  collections: Collection[];
+  collections: Pick<
+    DatabaseRaw['collections'][number],
+    '_id' | 'name' | 'type' | 'sourceName' | 'pipeline'
+  >[];
 };
 export type AllDatabasesState = Record<
   ConnectionInfo['id'],

@@ -229,7 +229,7 @@ export function MultipleConnectionSidebar({
         () => {
           onConnected(info);
         },
-        (err: any) => {
+        (err: Error) => {
           void onConnectionFailed(info, err);
         }
       );
