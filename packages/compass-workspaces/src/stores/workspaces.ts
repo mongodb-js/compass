@@ -613,11 +613,6 @@ export const openWorkspace = (
             const instance = instancesManager.getMongoDBInstanceForConnection(
               workspaceOptions.connectionId
             );
-            if (!instance) {
-              throw new Error(
-                `MongoDBInstance not available for connectionId=${workspaceOptions.connectionId}`
-              );
-            }
 
             const coll = await instance.getNamespace({
               dataService,
