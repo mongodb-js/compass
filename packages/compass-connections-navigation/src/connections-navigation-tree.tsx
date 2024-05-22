@@ -27,17 +27,17 @@ import StyledNavigationItem from './styled-navigation-item';
 import { usePreference } from 'compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 
-export type Collection = {
+type Collection = {
   _id: string;
   name: string;
-  type: string;
+  type: 'view' | 'collection' | 'timeseries';
   sourceName: string | null;
   pipeline: unknown[];
 };
 
 type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
 
-export type Database = {
+type Database = {
   _id: string;
   name: string;
   collectionsStatus: Status;
@@ -276,7 +276,7 @@ const databaseToItems = ({
           level: level + 1,
           id,
           name,
-          type: type as 'collection' | 'view' | 'timeseries',
+          type: type,
           setSize: collections.length,
           posInSet: index + 1,
           colorCode,

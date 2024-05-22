@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionsManager,
@@ -476,6 +476,44 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.queryByText('orangeDB1')).not.to.exist;
     });
 
+    it('Should filter the connections, expanding them (but the user can still collapse them)', async () => {
+      const { rerender, props } = await renderActiveConnectionsNavigation();
+
+      // step 1 - at first, the all the connections are visible and expanded
+      const orangeConnection = screen.getByText('oranges');
+
+      expect(orangeConnection).to.be.visible;
+      expect(screen.queryByText('turtle')).to.be.visible;
+
+      // step 2 - user collapses orange connection
+      userEvent.click(orangeConnection);
+      userEvent.keyboard('[ArrowLeft]');
+
+      expect(screen.queryByText('orangeDB1')).not.to.exist;
+
+      // step 3 - user searches for orange connection
+      rerender({
+        ...props,
+        filterRegex: /oranges/i,
+      });
+
+      // now we only see orange connection
+      expect(screen.queryByText('oranges')).to.be.visible;
+      expect(screen.queryByText('turtle')).not.to.exist;
+
+      // and the connection is expanded
+      expect(screen.queryByText('orangeDB1')).to.be.visible;
+      // but not the databases
+      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
+
+      // step 4 - user collapses the connection
+      userEvent.click(screen.getByText('oranges'));
+      userEvent.keyboard('[ArrowLeft]');
+
+      // connection reverts to it's collapsed state
+      expect(screen.queryByText('orangeDB1')).not.to.exist;
+    });
+
     it('Should filter the databases', async () => {
       await renderActiveConnectionsNavigation({ filterRegex: /orangeDB2/i });
 
@@ -486,15 +524,13 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.queryByText('orangeDB1')).not.to.exist;
     });
 
-    it('Should filter the databases, expanding the connection (until the filter is cleared)', async () => {
+    it('Should filter the databases, expanding the connection & the database (until the filter is cleared)', async () => {
       // step 1 - connection is expanded at first
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
       // step 2 - user collapses the connection
-      act(() => {
-        userEvent.click(screen.getByText('oranges'));
-        userEvent.keyboard('[ArrowLeft]');
-      });
+      userEvent.click(screen.getByText('oranges'));
+      userEvent.keyboard('[ArrowLeft]');
 
       expect(screen.queryByText('orangeDB2')).not.to.exist;
 
@@ -504,7 +540,9 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: /orangeDB2/,
       });
 
+      // both the parent connection and the db are expanded
       expect(screen.queryByText('orangeDB2')).to.be.visible;
+      expect(screen.queryByText('orangeDB2Coll1')).to.be.visible;
 
       // step 4 - user clears the filter
       rerender({
@@ -520,10 +558,8 @@ describe('<ActiveConnectionNavigation />', function () {
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
       // step 2 - user collapses the connection
-      act(() => {
-        userEvent.click(screen.getByText('oranges'));
-        userEvent.keyboard('[ArrowLeft]');
-      });
+      userEvent.click(screen.getByText('oranges'));
+      userEvent.keyboard('[ArrowLeft]');
 
       expect(screen.queryByText('orangeDB2')).not.to.exist;
 
@@ -533,20 +569,34 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: /orangeDB2/,
       });
 
+      // both the parent connection and the db are expanded
       expect(screen.queryByText('orangeDB2')).to.be.visible;
+      expect(screen.queryByText('orangeDB2Coll1')).to.be.visible;
 
       // step 4 - user collapses the connection
-      act(() => {
-        userEvent.click(screen.getByText('oranges'));
-        userEvent.keyboard('[ArrowLeft]');
-      });
+      userEvent.click(screen.getByText('oranges'));
+      userEvent.keyboard('[ArrowLeft]');
 
       expect(screen.queryByText('orangeDB2')).not.to.exist;
     });
 
-    it('Should filter the collections, expanding the database (until the filter is cleared)', async () => {
-      // step 1 - filtering for the collection expands the database
-      const { rerender, props } = await renderActiveConnectionsNavigation({
+    it('Should filter the collections, expanding the parent connection & database (until the filter is cleared)', async () => {
+      const { rerender, props } = await renderActiveConnectionsNavigation();
+      // step 1 - at first, the all the connections are visible and expanded
+      const orangeConnection = screen.getByText('oranges');
+
+      expect(orangeConnection).to.be.visible;
+      expect(screen.queryByText('turtle')).to.be.visible;
+
+      // step 2 - user collapses orange connection
+      userEvent.click(orangeConnection);
+      userEvent.keyboard('[ArrowLeft]');
+
+      expect(screen.queryByText('orangeDB1')).not.to.exist;
+
+      // step 3 - filtering for the collection expands the database
+      rerender({
+        ...props,
         filterRegex: /orangeDB1Coll2/i,
       });
 
@@ -559,7 +609,7 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.queryByText('orangeDB1Coll2')).to.be.visible;
       expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
 
-      // step 2 - clearing the filter
+      // step 4 - clearing the filter
       rerender({
         ...props,
         filterRegex: null,
@@ -567,19 +617,32 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
     });
 
-    it('Should filter the collections, expanding the database (but the user can still collapse it)', async () => {
-      // step 1 - filtering for the collection expands the database
-      await renderActiveConnectionsNavigation({
+    it('Should filter the collections, expanding the parent connection & database (but the user can still collapse it)', async () => {
+      const { rerender, props } = await renderActiveConnectionsNavigation();
+
+      // step 1 - at first, the all the connections are visible and expanded
+      const orangeConnection = screen.getByText('oranges');
+
+      expect(orangeConnection).to.be.visible;
+      expect(screen.queryByText('turtle')).to.be.visible;
+
+      // step 2 - user collapses orange connection
+      userEvent.click(orangeConnection);
+      userEvent.keyboard('[ArrowLeft]');
+
+      expect(screen.queryByText('orangeDB1')).not.to.exist;
+
+      // step 3 - filtering for the collection expands the database
+      rerender({
+        ...props,
         filterRegex: /orangeDB1Coll2/i,
       });
 
       expect(screen.queryByText('orangeDB1Coll2')).to.be.visible;
 
-      // step 2 - user collapses the database
-      act(() => {
-        userEvent.click(screen.getByText('orangeDB1'));
-        userEvent.keyboard('[ArrowLeft]');
-      });
+      // step 4 - user collapses the database
+      userEvent.click(screen.getByText('orangeDB1'));
+      userEvent.keyboard('[ArrowLeft]');
       expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
     });
   });
