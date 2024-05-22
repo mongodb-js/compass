@@ -98,7 +98,6 @@ const clearTempExpanded = (
 function SidebarDatabasesNavigation({
   connections,
   onNamespaceAction: _onNamespaceAction,
-  onDatabaseExpand,
   activeWorkspace,
   filterRegex,
   ...dbNavigationProps
@@ -126,6 +125,19 @@ function SidebarDatabasesNavigation({
   const [filteredDatabases, setFilteredDatabases] = useState<
     Database[] | undefined
   >(undefined);
+
+  const onDatabaseExpand = useCallback(
+    (connectionId: string, namespace: string, forceExpand: boolean) => {
+      setExpandedDatabases((expandedDatabases) => {
+        const { database: databaseId } = toNS(namespace);
+        return {
+          ...expandedDatabases,
+          [databaseId]: forceExpand ? 'expanded' : undefined,
+        };
+      });
+    },
+    [setExpandedDatabases]
+  );
 
   const connectionsButOnlyIfFilterIsActive = filteredDatabases && connections;
   const filteredConnections: Connection[] | undefined = useMemo(() => {
@@ -267,6 +279,8 @@ function mapStateToProps(
   const instance = state.instance[connectionId];
   const { databases } = state.databases[connectionId] || {};
 
+  // TODO: handle db toggle
+
   const status = instance?.databasesStatus;
   const isReady =
     status !== undefined && !['initial', 'fetching'].includes(status);
@@ -347,6 +361,5 @@ const onNamespaceAction = (
 };
 
 export default connect(mapStateToProps, {
-  onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
 })(SidebarDatabasesNavigation);

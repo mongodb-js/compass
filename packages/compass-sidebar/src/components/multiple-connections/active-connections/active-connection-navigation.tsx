@@ -110,9 +110,6 @@ const filterConnections = (
   return results;
 };
 
-/**
- *
- */
 const filterDatabases = (
   databases: Database[],
   regex: RegExp
@@ -146,7 +143,7 @@ const filterCollections = (
 /**
  * Take the starting expandedConnections, and add 'tempExpanded' to collapsed items that:
  * - are included in the filterResults
- * - they either are a direct match, or their children are a direct match
+ * - their children are a match
  */
 const applyTempExpanded = (
   expandedConnections: ExpandedConnections,
@@ -154,21 +151,21 @@ const applyTempExpanded = (
 ): ExpandedConnections => {
   const newExpanded = { ...expandedConnections };
   filterResults.forEach(
-    ({ connectionInfo: { id: connectionId }, isMatch, databases }) => {
-      const childrenDbsAreMatch = databases.length && databases[0].isMatch; // either all children or none are a match // TODO: check with Ben
+    ({ connectionInfo: { id: connectionId }, databases }) => {
+      const childrenDbsAreMatch = databases.length && databases[0].isMatch;
       if (!newExpanded[connectionId]) {
         newExpanded[connectionId] = { state: undefined, databases: {} };
       }
       if (
-        (isMatch || childrenDbsAreMatch) &&
+        childrenDbsAreMatch &&
         newExpanded[connectionId].state === 'collapsed'
       ) {
         newExpanded[connectionId].state = 'tempExpanded';
       }
-      databases.forEach(({ _id: databaseId, isMatch, collections }) => {
+      databases.forEach(({ _id: databaseId, collections }) => {
         const childrenCollsAreMatch =
           collections.length && collections[0].isMatch;
-        if ((isMatch || childrenCollsAreMatch) && collections.length) {
+        if (childrenCollsAreMatch && collections.length) {
           if (newExpanded[connectionId].state === 'collapsed') {
             newExpanded[connectionId].state = 'tempExpanded';
           }
@@ -246,6 +243,8 @@ export function ActiveConnectionNavigation({
     Connection[] | undefined
   >(undefined);
 
+  console.log(expandedConnections);
+
   const {
     openDatabasesWorkspace,
     openCollectionsWorkspace,
@@ -321,6 +320,7 @@ export function ActiveConnectionNavigation({
 
   const onDatabaseToggle = useCallback(
     (connectionId: string, namespace: string, forceExpand: boolean) => {
+      console.log({ namespace });
       const { database: databaseId } = toNS(namespace);
       if (
         !forceExpand &&
