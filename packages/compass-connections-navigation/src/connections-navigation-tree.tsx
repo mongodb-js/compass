@@ -276,7 +276,7 @@ const databaseToItems = ({
           level: level + 1,
           id,
           name,
-          type: type,
+          type,
           setSize: collections.length,
           posInSet: index + 1,
           colorCode,
@@ -398,7 +398,7 @@ const navigationTree = css({
   flex: '1 0 auto',
 });
 
-export interface ConnectionsNavigationTreeProps {
+interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
   onConnectionExpand?(id: string, isExpanded: boolean): void;
