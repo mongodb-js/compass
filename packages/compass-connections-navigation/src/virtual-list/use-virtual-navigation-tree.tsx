@@ -6,38 +6,40 @@ import {
   useFocusState,
 } from '@mongodb-js/compass-components';
 
-type TreeItem = {
+export type VirtualTreeItem = {
   id: string;
   name: string;
+  isExpanded?: boolean;
   level: number;
   setSize: number;
   posInSet: number;
-  isExpanded?: boolean;
-  type?: never;
 };
 
-type Placeholder = { type: 'placeholder' };
+export type VirtualPlaceholderItem = {
+  type: 'placeholder';
+  level: number;
+};
 
-type Item = TreeItem | Placeholder;
+export type VirtualItem = VirtualTreeItem | VirtualPlaceholderItem;
 
-export type NavigationTreeData = Item[];
+export type VirtualTreeData = VirtualItem[];
 
-function isTreeItem(item: Item): item is TreeItem {
-  return item.type !== 'placeholder';
+export function isTreeItem(item: VirtualItem): item is VirtualTreeItem {
+  return 'type' in item && item.type !== 'placeholder';
 }
 
 function isExpandable(
-  item: TreeItem
-): item is TreeItem & { isExpanded: boolean } {
+  item: VirtualTreeItem
+): item is VirtualTreeItem & { isExpanded: boolean } {
   return typeof item.isExpanded !== 'undefined';
 }
 
 function findNext(
   itemIndex: number,
-  items: NavigationTreeData,
-  fn?: (item: TreeItem) => boolean,
+  items: VirtualTreeData,
+  fn?: (item: VirtualTreeItem) => boolean,
   shift = 0
-): TreeItem | null {
+): VirtualTreeItem | null {
   for (let i = itemIndex + 1, len = items.length; i < len; i++) {
     const idx = (i + shift) % len;
     const item = items[idx];
@@ -50,10 +52,10 @@ function findNext(
 
 function findPrev(
   itemIndex: number,
-  items: NavigationTreeData,
-  fn?: (item: TreeItem) => boolean,
+  items: VirtualTreeData,
+  fn?: (item: VirtualTreeItem) => boolean,
   shift = 0
-): TreeItem | null {
+): VirtualTreeItem | null {
   const len = items.length;
   for (let i = itemIndex - 1; i >= 0; i--) {
     const idx = (i + shift) % len;
@@ -65,19 +67,19 @@ function findPrev(
   return null;
 }
 
-function findFirstItem(items: NavigationTreeData): TreeItem | null {
+function findFirstItem(items: VirtualTreeData): VirtualTreeItem | null {
   return findNext(-1, items);
 }
 
-function findLastItem(items: NavigationTreeData): TreeItem | null {
+function findLastItem(items: VirtualTreeData): VirtualTreeItem | null {
   return findPrev(items.length, items);
 }
 
 function findParentItem(
-  currentItem: TreeItem,
+  currentItem: VirtualTreeItem,
   currentItemIndex: number,
-  items: NavigationTreeData
-): TreeItem | null {
+  items: VirtualTreeData
+): VirtualTreeItem | null {
   return findPrev(
     currentItemIndex,
     items,
@@ -86,10 +88,10 @@ function findParentItem(
 }
 
 function findSiblings(
-  currentItem: TreeItem,
+  currentItem: VirtualTreeItem,
   currentItemIndex: number,
-  items: NavigationTreeData
-): TreeItem[] {
+  items: VirtualTreeData
+): VirtualTreeItem[] {
   const result = [currentItem];
   for (let i = currentItemIndex - 1; i >= 0; i--) {
     const item = items[i];
@@ -126,10 +128,10 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
     /* noop */
   },
 }: {
-  items: NavigationTreeData;
+  items: VirtualTreeData;
   activeItemId: string;
-  onExpandedChange(item: TreeItem, isExpanded: boolean): void;
-  onFocusMove?: (item: TreeItem) => void;
+  onExpandedChange(item: VirtualTreeItem, isExpanded: boolean): void;
+  onFocusMove?: (item: VirtualTreeItem) => void;
 }): [React.HTMLProps<T>, string | undefined] {
   const rootRef = useRef<T | null>(null);
   const activeId = activeItemId || findFirstItem(items)?.id;
@@ -150,6 +152,9 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
   );
 
   useEffect(() => {
+    // TODO: if any of the items (except for placeholders) has same id, throw
+    // items.filter(x => x.type !== 'placeholder')
+
     if (
       focusState === FocusState.FocusVisible ||
       focusState === FocusState.Focus
@@ -211,7 +216,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
 
       const currentItemIndex = items.indexOf(currentItem);
 
-      let nextItem: TreeItem | null = null;
+      let nextItem: VirtualTreeItem | null = null;
 
       if (evt.key === 'Home') {
         evt.stopPropagation();

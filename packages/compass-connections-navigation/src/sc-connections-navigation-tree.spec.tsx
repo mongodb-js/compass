@@ -10,10 +10,8 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import {
-  type Connection,
-  ConnectionsNavigationTree,
-} from './connections-navigation-tree';
+import { ConnectionsNavigationTree } from './connections-navigation-tree';
+import type { Connection } from './tree-data';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';

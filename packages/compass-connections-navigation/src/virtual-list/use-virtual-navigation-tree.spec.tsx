@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { useVirtualNavigationTree } from './use-virtual-navigation-tree';
 
-import type { NavigationTreeData } from './use-virtual-navigation-tree';
+import type { VirtualTreeData } from './use-virtual-navigation-tree';
 
 function NavigationTreeItem({
   id,
@@ -69,7 +69,7 @@ function normalizeItems(
   items: MockItem[],
   level = 1,
   expanded = []
-): NavigationTreeData {
+): VirtualTreeData {
   return items
     .map((item, index) =>
       [
@@ -99,7 +99,7 @@ function NavigationTree({
 }: {
   activeItemId?: string;
   defaultExpanded?: string[];
-  onFocusMove?: (item: NavigationTreeData[number]) => void;
+  onFocusMove?: (item: VirtualTreeData[number]) => void;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 

@@ -7,21 +7,17 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT, type Actions } from './constants';
 import {
   ItemContainer,
   ItemLabel,
   ItemWrapper,
   ItemButtonWrapper,
+  type NamespaceItemProps,
 } from './tree-item';
-import type {
-  VirtualListItemProps,
-  TreeItemProps,
-  NamespaceItemProps,
-} from './tree-item';
-import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
 import { getItemPaddingStyles } from './utils';
+import type { CollectionTreeItem } from './tree-data';
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -50,23 +46,18 @@ const collectionItemLabel = css({
   marginLeft: spacing[2],
 });
 
-export const CollectionItem: React.FunctionComponent<
-  VirtualListItemProps & TreeItemProps & NamespaceItemProps
-> = ({
+type CollectionItemProps = NamespaceItemProps & {
+  item: CollectionTreeItem;
+};
+
+export const CollectionItem = ({
   connectionId,
-  id,
-  name,
-  level,
-  type,
-  posInSet,
-  setSize,
+  item: { name, type, level, namespace },
   isActive,
   isReadOnly,
   isSingleConnection,
-  isTabbable,
-  style,
   onNamespaceAction,
-}) => {
+}: CollectionItemProps) => {
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
@@ -77,30 +68,11 @@ export const CollectionItem: React.FunctionComponent<
     [level, isSingleConnection]
   );
 
-  const onDefaultAction = useCallback(
-    (evt) => {
-      if (evt.metaKey || evt.ctrlKey) {
-        onNamespaceAction(
-          connectionId,
-          evt.currentTarget.dataset.id as string,
-          'open-in-new-tab'
-        );
-      } else {
-        onNamespaceAction(
-          connectionId,
-          evt.currentTarget.dataset.id as string,
-          'select-collection'
-        );
-      }
-    },
-    [connectionId, onNamespaceAction]
-  );
-
   const onAction = useCallback(
     (action: Actions) => {
-      onNamespaceAction(connectionId, id, action);
+      onNamespaceAction(connectionId, namespace, action);
     },
-    [connectionId, id, onNamespaceAction]
+    [connectionId, namespace, onNamespaceAction]
   );
 
   const actions = useMemo(() => {
@@ -157,15 +129,7 @@ export const CollectionItem: React.FunctionComponent<
 
   return (
     <ItemContainer
-      id={id}
-      data-testid={`sidebar-collection-${id}`}
-      level={level}
-      setSize={setSize}
-      posInSet={posInSet}
       isActive={isActive}
-      isTabbable={isTabbable}
-      onDefaultAction={onDefaultAction}
-      style={style}
       className={collectionItem}
       {...hoverProps}
     >

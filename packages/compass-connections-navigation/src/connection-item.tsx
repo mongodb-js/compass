@@ -8,22 +8,17 @@ import {
   ServerIcon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { ROW_HEIGHT } from './constants';
+import { ROW_HEIGHT, type Actions } from './constants';
 import {
   ItemContainer,
   ItemLabel,
   ItemWrapper,
   ItemButtonWrapper,
   ExpandButton,
+  type NamespaceItemProps,
 } from './tree-item';
-import type {
-  VirtualListItemProps,
-  TreeItemProps,
-  NamespaceItemProps,
-} from './tree-item';
-import type { Actions } from './constants';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getItemPaddingStyles } from './utils';
+import type { ConnectionTreeItem } from './tree-data';
 
 const iconStyles = css({
   flex: 'none',
@@ -46,35 +41,19 @@ const actionMenu = css({
   width: '240px',
 });
 
-export const ConnectionItem: React.FunctionComponent<
-  VirtualListItemProps &
-    TreeItemProps &
-    NamespaceItemProps & {
-      isExpanded: boolean;
-      onConnectionExpand(id: string, isExpanded: boolean): void;
-      onConnectionSelect(id: string): void;
-    } & {
-      connectionInfo: ConnectionInfo;
-      isPerformanceTabSupported: boolean;
-    }
-> = ({
-  id,
-  name,
-  level,
-  posInSet,
-  setSize,
-  isExpanded,
+type ConnectionItemProps = NamespaceItemProps & {
+  item: ConnectionTreeItem;
+  onConnectionExpand(): void;
+};
+
+export const ConnectionItem = ({
   isActive,
   isReadOnly,
   isSingleConnection,
-  isTabbable,
-  style,
-  connectionInfo,
-  isPerformanceTabSupported,
+  item: { name, connectionInfo, level, isExpanded, isPerformanceTabSupported },
   onNamespaceAction,
   onConnectionExpand,
-  onConnectionSelect,
-}) => {
+}: ConnectionItemProps) => {
   const [hoverProps, isHovered] = useHoverState();
 
   const isLocalhost =
@@ -91,21 +70,16 @@ export const ConnectionItem: React.FunctionComponent<
   const onExpandButtonClick = useCallback(
     (evt: React.MouseEvent<HTMLButtonElement>) => {
       evt.stopPropagation();
-      onConnectionExpand(connectionInfo.id, !isExpanded);
+      onConnectionExpand();
     },
-    [onConnectionExpand, connectionInfo.id, isExpanded]
-  );
-
-  const onDefaultAction = useCallback(
-    () => onConnectionSelect(connectionInfo.id),
-    [onConnectionSelect, connectionInfo.id]
+    [onConnectionExpand]
   );
 
   const onAction = useCallback(
     (action: Actions) => {
-      onNamespaceAction(id, id, action);
+      onNamespaceAction(connectionInfo.id, connectionInfo.id, action);
     },
-    [id, onNamespaceAction]
+    [connectionInfo.id, onNamespaceAction]
   );
 
   const actions: ItemAction<Actions>[] = useMemo(() => {
@@ -160,16 +134,7 @@ export const ConnectionItem: React.FunctionComponent<
 
   return (
     <ItemContainer
-      id={id}
-      data-testid={`sidebar-connection-${id}`}
-      level={level}
-      setSize={setSize}
-      posInSet={posInSet}
-      isExpanded={isExpanded}
       isActive={isActive}
-      isTabbable={isTabbable}
-      onDefaultAction={onDefaultAction}
-      style={style}
       className={connectionItem}
       {...hoverProps}
     >
