@@ -69,11 +69,6 @@ export function activatePlugin(
         const method = isCollection ? 'dropCollection' : 'dropDatabase';
         const dataService =
           connectionsManager.getDataServiceForConnection(connectionId);
-        if (!dataService) {
-          throw new Error(
-            'unreachable: only available when there is an open connection.'
-          );
-        }
 
         await dataService[method](ns);
         globalAppRegistry.emit(

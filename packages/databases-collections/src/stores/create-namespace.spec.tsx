@@ -75,6 +75,7 @@ describe('CreateNamespacePlugin', function () {
         } else if (id === '2') {
           return dataService2;
         }
+        throw new Error('unknown id provided');
       });
 
     const instancesManager = new TestMongoDBInstanceManager();

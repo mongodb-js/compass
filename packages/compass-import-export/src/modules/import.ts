@@ -318,11 +318,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
-      if (!dataService) {
-        throw new Error(
-          `DataService for connectionId ${connectionId} not found`
-        );
-      }
 
       if (fileType === 'csv') {
         result = await importCSV({

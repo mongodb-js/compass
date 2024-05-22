@@ -139,10 +139,14 @@ export class ConnectionsManager extends EventEmitter {
     this.__TEST_CONNECT_FN = __TEST_CONNECT_FN;
   }
 
-  getDataServiceForConnection(
-    connectionInfoId: ConnectionInfoId
-  ): DataService | undefined {
-    return this.dataServices.get(connectionInfoId);
+  getDataServiceForConnection(connectionInfoId: ConnectionInfoId): DataService {
+    const dataService = this.dataServices.get(connectionInfoId);
+    if (!dataService) {
+      throw new Error(
+        `DataService for connectionId - ${connectionInfoId} not present in ConnectionsManager.`
+      );
+    }
+    return dataService;
   }
 
   statusOf(connectionInfoId: ConnectionInfoId): ConnectionStatus {
@@ -172,8 +176,7 @@ export class ConnectionsManager extends EventEmitter {
     }: ConnectionConfiguration = {}
   ): Promise<DataService> {
     try {
-      const existingDataService =
-        this.getDataServiceForConnection(connectionId);
+      const existingDataService = this.dataServices.get(connectionId);
 
       if (
         existingDataService &&
