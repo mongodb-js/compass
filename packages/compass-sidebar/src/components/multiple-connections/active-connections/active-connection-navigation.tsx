@@ -49,11 +49,11 @@ type Collection = Connection['databases'][number]['collections'][number];
 type Database = Connection['databases'][number];
 
 type FilteredCollection = Collection & Match;
-type FilteredDatabase = Database &
+type FilteredDatabase = Omit<Database, 'collections'> &
   Match & {
     collections: FilteredCollection[];
   };
-type FilteredConnection = Connection &
+type FilteredConnection = Omit<Connection, 'databases'> &
   Match & {
     databases: FilteredDatabase[];
   };
@@ -103,12 +103,16 @@ const filterConnections = (
         ...connection,
         isMatch,
         databases: childMatches.length ? childMatches : connection.databases,
+        // databases: (!isMatch && childMatches.length) ? childMatches : connection.databases, // TODO: check with Ben
       });
     }
   }
   return results;
 };
 
+/**
+ *
+ */
 const filterDatabases = (
   databases: Database[],
   regex: RegExp
@@ -123,6 +127,7 @@ const filterDatabases = (
         ...db,
         isMatch,
         collections: childMatches.length ? childMatches : db.collections,
+        // collections: (!isMatch && childMatches.length) ? childMatches : db.collections, // TODO: check with Ben
       });
     }
   }
@@ -136,6 +141,67 @@ const filterCollections = (
   return collections
     .filter(({ name }) => regex.test(name))
     .map((collection) => ({ ...collection, isMatch: true }));
+};
+
+/**
+ * Take the starting expandedConnections, and add 'tempExpanded' to collapsed items that:
+ * - are included in the filterResults
+ * - they either are a direct match, or their children are a direct match
+ */
+const applyTempExpanded = (
+  expandedConnections: ExpandedConnections,
+  filterResults: FilteredConnection[]
+): ExpandedConnections => {
+  const newExpanded = { ...expandedConnections };
+  filterResults.forEach(
+    ({ connectionInfo: { id: connectionId }, isMatch, databases }) => {
+      const childrenDbsAreMatch = databases.length && databases[0].isMatch; // either all children or none are a match // TODO: check with Ben
+      if (
+        (isMatch || childrenDbsAreMatch) &&
+        newExpanded[connectionId].state === 'collapsed'
+      ) {
+        newExpanded[connectionId].state = 'tempExpanded';
+      }
+      databases.forEach(({ _id: databaseId, isMatch, collections }) => {
+        const childrenCollsAreMatch =
+          collections.length && collections[0].isMatch;
+        if ((isMatch || childrenCollsAreMatch) && collections.length) {
+          if (newExpanded[connectionId].state === 'collapsed') {
+            newExpanded[connectionId].state = 'tempExpanded';
+          }
+          if (!newExpanded[connectionId].databases[databaseId]) {
+            newExpanded[connectionId].databases[databaseId] = 'tempExpanded';
+          }
+        }
+      });
+    }
+  );
+  return newExpanded;
+};
+
+/**
+ * Reverts 'applyTempExpanded', bringing the items back to collapsed state
+ */
+const clearTempExpanded = (
+  expandedConnections: ExpandedConnections
+): ExpandedConnections => {
+  const cleared: ExpandedConnections = Object.fromEntries(
+    Object.entries(expandedConnections).map(
+      ([connectionId, { state, databases }]) => [
+        connectionId,
+        {
+          state: state === 'tempExpanded' ? 'collapsed' : state,
+          databases: Object.fromEntries(
+            Object.entries(databases || []).map(([dbId, dbState]) => [
+              dbId,
+              dbState === 'tempExpanded' ? undefined : dbState,
+            ])
+          ),
+        },
+      ]
+    )
+  );
+  return cleared;
 };
 
 export function ActiveConnectionNavigation({
@@ -186,71 +252,17 @@ export function ActiveConnectionNavigation({
   } = useOpenWorkspace();
 
   const temporarilyExpand = useCallback(
-    (list: FilteredConnection[]) => {
+    (filterResults: FilteredConnection[]) => {
       setExpandedConnections((expandedConnections) => {
-        // first copy the list, but clearing the tempExpanded
-        const newExpanded: ExpandedConnections = Object.fromEntries(
-          Object.entries(expandedConnections).map(
-            ([connectionId, { state, databases }]) => [
-              connectionId,
-              {
-                state: state === 'tempExpanded' ? 'collapsed' : state,
-                databases: Object.fromEntries(
-                  Object.entries(databases).map(([databaseId, dbState]) => {
-                    return [
-                      databaseId,
-                      dbState === 'tempExpanded' ? undefined : dbState,
-                    ];
-                  })
-                ),
-              },
-            ]
-          )
-        );
-
-        // then make sure all the matches are at least temp expanded
-        list.forEach(({ connectionInfo: { id: connectionId }, databases }) => {
-          if (newExpanded[connectionId].state === 'collapsed') {
-            newExpanded[connectionId].state = 'tempExpanded';
-          }
-          databases.forEach(({ _id: databaseId, collections }) => {
-            if (collections.length) {
-              if (newExpanded[connectionId].state === 'collapsed') {
-                newExpanded[connectionId].state = 'tempExpanded';
-              }
-              if (!newExpanded[connectionId].databases[databaseId]) {
-                newExpanded[connectionId].databases[databaseId] =
-                  'tempExpanded';
-              }
-            }
-          });
-        });
-        return newExpanded;
+        const expandedStart = clearTempExpanded(expandedConnections);
+        return applyTempExpanded(expandedStart, filterResults);
       });
     },
     [setExpandedConnections]
   );
 
   const collapseAllTemporarilyExpanded = useCallback(() => {
-    setExpandedConnections((expandedConnections) => {
-      const newExpanded: ExpandedConnections = Object.fromEntries(
-        Object.entries(expandedConnections).map(
-          ([connectionId, { state, databases }]) => [
-            connectionId,
-            {
-              state: state === 'tempExpanded' ? 'collapsed' : state,
-              databases: Object.fromEntries(
-                Object.entries(databases || []).map(([dbId, dbState]) => [
-                  dbId,
-                  dbState === 'tempExpanded' ? undefined : dbState,
-                ])
-              ),
-            },
-          ]
-        )
-      );
-      return newExpanded;
-    });
+    setExpandedConnections(clearTempExpanded);
   }, [setExpandedConnections]);
 
   // filter updates
@@ -267,7 +279,6 @@ export function ActiveConnectionNavigation({
         connectionsButOnlyIfFilterIsActive,
         filterRegex
       );
-      console.log({ results });
       setFilteredConnections(results);
       temporarilyExpand(results);
     }
