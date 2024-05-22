@@ -118,6 +118,8 @@ describe('OIDC integration', function () {
           'enableTestCommands=true',
           '--setParameter',
           `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
+          '--setParameter',
+          'JWKSMinimumQuiescePeriodSecs=0',
         ],
       });
 
