@@ -6,13 +6,33 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { toggleDatabaseExpanded } from '../../modules/databases';
+import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { filterDatabases } from '../../helpers/filter-databases';
 import { findCollection } from '../../helpers/find-collection';
+
+const filterDatabases = (databases: Database[], re: RegExp): Database[] => {
+  const result: Database[] = [];
+  for (const db of databases) {
+    const id = db._id;
+    if (re.test(id)) {
+      result.push(db);
+    } else {
+      const collections = db.collections.filter(({ name }) => re.test(name));
+
+      if (collections.length > 0) {
+        result.push({
+          ...db,
+          collections,
+        });
+      }
+    }
+  }
+
+  return result;
+};
 
 function SidebarDatabasesNavigation({
   connections,
