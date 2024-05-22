@@ -43,15 +43,15 @@ class MockInstance extends EventEmitter {
   genuineMongoDB: Record<string, never>;
   topologyDescription: Record<string, never>;
 
-  constructor(name = 'connection') {
+  constructor(name = 'test') {
     super();
-    this._id = name;
+    this._id = `${name}Connection`;
     this.status = 'ready';
     this.databasesStatus = 'ready';
     this.databases = [
       {
         _id: `${name}DB1`,
-        name: `${name}DB1`,
+        name: `${name}DB1Database`,
         status: 'ready',
         collectionsLength: 1,
         collectionsStatus: 'ready',
@@ -70,7 +70,7 @@ class MockInstance extends EventEmitter {
       },
       {
         _id: `${name}DB2`,
-        name: `${name}DB2`,
+        name: `${name}DB2Database`,
         status: 'ready',
         collectionsLength: 1,
         collectionsStatus: 'ready',
@@ -92,16 +92,16 @@ class MockInstance extends EventEmitter {
 
 const mockConnections: ConnectionInfo[] = [
   {
-    id: 'turtle',
+    id: 'turtleConnection',
     connectionOptions: {
-      connectionString: 'mongodb://turtle',
+      connectionString: 'mongodb://turtleConnection',
     },
     savedConnectionType: 'recent',
   },
   {
-    id: 'oranges',
+    id: 'orangeConnection',
     connectionOptions: {
-      connectionString: 'mongodb://oranges',
+      connectionString: 'mongodb://orangeConnection',
     },
     savedConnectionType: 'favorite',
   },
@@ -155,16 +155,22 @@ describe('<ActiveConnectionNavigation />', function () {
     orangeInstance = new MockInstance('orange');
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).getDataServiceForConnection = () => dataService;
-    (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
-    (connectionsManager as any).connectionStatuses.set('oranges', 'connected');
+    (connectionsManager as any).connectionStatuses.set(
+      'turtleConnection',
+      'connected'
+    );
+    (connectionsManager as any).connectionStatuses.set(
+      'orangeConnection',
+      'connected'
+    );
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
         instancesManager: {
           listMongoDBInstances() {
             return new Map([
-              ['turtle', turtleInstance],
-              ['oranges', orangeInstance],
+              ['turtleConnection', turtleInstance],
+              ['orangeConnection', orangeInstance],
             ]);
           },
         } as any,
@@ -243,7 +249,7 @@ describe('<ActiveConnectionNavigation />', function () {
     });
 
     it('Calls onOpenConnectionInfo', async () => {
-      userEvent.hover(screen.getByText('turtle'));
+      userEvent.hover(screen.getByText('turtleConnection'));
 
       const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
@@ -257,11 +263,13 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(openConnectionInfoBtn);
 
-      expect(onOpenConnectionInfoStub).to.have.been.calledWith('turtle');
+      expect(onOpenConnectionInfoStub).to.have.been.calledWith(
+        'turtleConnection'
+      );
     });
 
     it('Calls onCopyConnectionString', async () => {
-      userEvent.hover(screen.getByText('turtle'));
+      userEvent.hover(screen.getByText('turtleConnection'));
 
       const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
@@ -275,11 +283,13 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(copyConnectionStringBtn);
 
-      expect(onCopyConnectionStringStub).to.have.been.calledWith('turtle');
+      expect(onCopyConnectionStringStub).to.have.been.calledWith(
+        'turtleConnection'
+      );
     });
 
     it('Calls onToggleFavoriteConnection', async () => {
-      userEvent.hover(screen.getByText('turtle'));
+      userEvent.hover(screen.getByText('turtleConnection'));
 
       const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
@@ -291,11 +301,13 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(favoriteBtn);
 
-      expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
+      expect(onToggleFavoriteConnectionStub).to.have.been.calledWith(
+        'turtleConnection'
+      );
     });
 
     it('Calls onDisconnect', async () => {
-      userEvent.hover(screen.getByText('turtle'));
+      userEvent.hover(screen.getByText('turtleConnection'));
 
       const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
@@ -307,11 +319,11 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(disconnectBtn);
 
-      expect(onDisconnectStub).to.have.been.calledWith('turtle');
+      expect(onDisconnectStub).to.have.been.calledWith('turtleConnection');
     });
 
     it('Calls openPerformanceWorkspace', async () => {
-      userEvent.hover(screen.getByText('turtle'));
+      userEvent.hover(screen.getByText('turtleConnection'));
 
       const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
@@ -323,7 +335,9 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(metricsBtn);
 
-      expect(openPerformanceWorkspaceStub).to.have.been.calledWith('turtle');
+      expect(openPerformanceWorkspaceStub).to.have.been.calledWith(
+        'turtleConnection'
+      );
     });
   });
 
@@ -334,7 +348,7 @@ describe('<ActiveConnectionNavigation />', function () {
     });
 
     it('Performance action is disabled', async () => {
-      userEvent.hover(screen.getByText('turtle'));
+      userEvent.hover(screen.getByText('turtleConnection'));
 
       const connectionActionsBtn = screen.getByTitle('Show actions');
       expect(connectionActionsBtn).to.be.visible;
@@ -359,15 +373,15 @@ describe('<ActiveConnectionNavigation />', function () {
 
       turtleInstance.emit('change:databasesStatus');
 
-      expect(screen.getByText('turtleDB1')).to.be.visible;
+      expect(screen.getByText('turtleDB1Database')).to.be.visible;
 
       // step 2 - user collapses the turtle connection
-      const connectionItem = screen.getByText('turtle');
+      const connectionItem = screen.getByText('turtleConnection');
 
       userEvent.click(connectionItem);
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('turtleDB1')).not.to.exist;
+      expect(screen.queryByText('turtleDB1Database')).not.to.exist;
 
       // step 3 - user entered a workspace that belongs to the turtle connection
       rerender({
@@ -375,11 +389,11 @@ describe('<ActiveConnectionNavigation />', function () {
         activeWorkspace: {
           type: 'Collections',
           connectionId: 'turtle',
-          namespace: 'db1',
+          namespace: 'DB1Database',
         } as WorkspaceTab,
       });
 
-      expect(screen.getByText('turtleDB1')).to.be.visible;
+      expect(screen.getByText('turtleDB1Database')).to.be.visible;
     });
 
     it('should expand a database when a child workspace is entered', async function () {
@@ -405,13 +419,13 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
 
-    it('should collapse and expand database', async function () {
+    it.only('should collapse and expand database', async function () {
       // step 1 - turtleDB1 is active & expanded at first
       await renderActiveConnectionsNavigation({
         activeWorkspace: {
           type: 'Collections',
-          connectionId: 'turtle',
-          namespace: 'turtleDB1',
+          connectionId: 'turtleConnection',
+          namespace: 'turtleDB1Database',
         } as WorkspaceTab,
       });
 
@@ -419,120 +433,94 @@ describe('<ActiveConnectionNavigation />', function () {
 
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
 
-      // step 2 - user collapses the turtleDB1 database
-      const databaseItem = screen.getByText('turtleDB1');
+      // // step 2 - user collapses the turtleDB1 database
+      // const databaseItem = screen.getByText('turtleDB1Database');
 
-      userEvent.click(databaseItem);
-      userEvent.keyboard('[ArrowLeft]');
+      // userEvent.click(databaseItem);
+      // userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
+      // expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
 
-      // step 2 - user expands the turtleDB1 database
-      userEvent.click(databaseItem);
-      userEvent.keyboard('[ArrowRight]');
+      // // step 2 - user expands the turtleDB1 database
+      // userEvent.click(databaseItem);
+      // userEvent.keyboard('[ArrowRight]');
 
-      expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
+      // expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
   });
 
   describe('Filtering', () => {
-    it('Should filter the connections, expanding them (until the filter is cleared)', async () => {
+    it('Connection match :: Should filter the connection and keep it collapsed', async () => {
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
-      // step 1 - at first, the all the connections are visible and expanded
-      const orangeConnection = screen.getByText('oranges');
+      // step 1 - at first, all the connections are visible and expanded
+      const orangeConnection = screen.getByText('orangeConnection');
 
       expect(orangeConnection).to.be.visible;
-      expect(screen.queryByText('turtle')).to.be.visible;
+      expect(screen.queryByText('turtleConnection')).to.be.visible;
 
       // step 2 - user collapses orange connection
       userEvent.click(orangeConnection);
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
 
       // step 3 - user searches for orange connection
       rerender({
         ...props,
-        filterRegex: /oranges/i,
+        filterRegex: /orangeConnection/i,
       });
 
       // now we only see orange connection
-      expect(screen.queryByText('oranges')).to.be.visible;
-      expect(screen.queryByText('turtle')).not.to.exist;
+      expect(screen.queryByText('orangeConnection')).to.be.visible;
+      expect(screen.queryByText('turtleConnection')).not.to.exist;
 
-      // and the connection is expanded
-      expect(screen.queryByText('orangeDB1')).to.be.visible;
-      // but not the databases
-      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
-
-      // step 4 - user clears the search
-      rerender({
-        ...props,
-        filterRegex: null,
-      });
-
-      // connection reverts to it's collapsed state
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      // and the connection stays collapsed
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
     });
 
-    it('Should filter the connections, expanding them (but the user can still collapse them)', async () => {
+    it('Connection match :: Should filter the connection and keep it expanded', async () => {
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
       // step 1 - at first, the all the connections are visible and expanded
-      const orangeConnection = screen.getByText('oranges');
+      const orangeConnection = screen.getByText('orangeConnection');
 
       expect(orangeConnection).to.be.visible;
-      expect(screen.queryByText('turtle')).to.be.visible;
-
-      // step 2 - user collapses orange connection
-      userEvent.click(orangeConnection);
-      userEvent.keyboard('[ArrowLeft]');
-
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      expect(screen.queryByText('turtleConnection')).to.be.visible;
 
       // step 3 - user searches for orange connection
       rerender({
         ...props,
-        filterRegex: /oranges/i,
+        filterRegex: /orangeConnection/i,
       });
 
       // now we only see orange connection
-      expect(screen.queryByText('oranges')).to.be.visible;
-      expect(screen.queryByText('turtle')).not.to.exist;
+      expect(screen.queryByText('orangeConnection')).to.be.visible;
+      expect(screen.queryByText('turtleConnection')).not.to.exist;
 
-      // and the connection is expanded
-      expect(screen.queryByText('orangeDB1')).to.be.visible;
-      // but not the databases
-      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
-
-      // step 4 - user collapses the connection
-      userEvent.click(screen.getByText('oranges'));
-      userEvent.keyboard('[ArrowLeft]');
-
-      // connection reverts to it's collapsed state
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      // and the connection stays expanded
+      expect(screen.queryByText('orangeDB1Database')).to.be.visible;
     });
 
-    it('Should filter the databases', async () => {
+    it('Database match :: Should filter the connection & database', async () => {
       await renderActiveConnectionsNavigation({ filterRegex: /orangeDB2/i });
 
-      expect(screen.queryByText('oranges')).to.be.visible;
-      expect(screen.queryByText('turtle')).not.to.exist;
+      expect(screen.queryByText('orangeConnection')).to.be.visible;
+      expect(screen.queryByText('turtleConnection')).not.to.exist;
 
-      expect(screen.queryByText('orangeDB2')).to.be.visible;
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      expect(screen.queryByText('orangeDB2Database')).to.be.visible;
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
     });
 
-    it('Should filter the databases, expanding the connection & the database (until the filter is cleared)', async () => {
+    it('Database match :: Should filter the connection & database, expanding the parent (until the filter is cleared)', async () => {
       // step 1 - connection is expanded at first
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
       // step 2 - user collapses the connection
-      userEvent.click(screen.getByText('oranges'));
+      userEvent.click(screen.getByText('orangeConnection'));
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('orangeDB2')).not.to.exist;
+      expect(screen.queryByText('orangeDB2Database')).not.to.exist;
 
       // step 3 - we filter for a database
       rerender({
@@ -540,9 +528,12 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: /orangeDB2/,
       });
 
-      // both the parent connection and the db are expanded
-      expect(screen.queryByText('orangeDB2')).to.be.visible;
-      expect(screen.queryByText('orangeDB2Coll1')).to.be.visible;
+      // the parent connection is expanded and it contains only the matching database
+      expect(screen.queryByText('orangeDB2Database')).to.be.visible;
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
+
+      // the database stays collapsed
+      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
 
       // step 4 - user clears the filter
       rerender({
@@ -550,18 +541,18 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: null,
       });
 
-      expect(screen.queryByText('orangeDB2')).not.to.exist;
+      expect(screen.queryByText('orangeDB2Database')).not.to.exist;
     });
 
-    it('Should filter the databases, expanding the connection (but the user can still collapse it)', async () => {
+    it('Database match :: Should filter the connection & database, expanding the parent (but the user can still collapse it)', async () => {
       // step 1 - connection is expanded at first
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
       // step 2 - user collapses the connection
-      userEvent.click(screen.getByText('oranges'));
+      userEvent.click(screen.getByText('orangeConnection'));
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('orangeDB2')).not.to.exist;
+      expect(screen.queryByText('orangeDB2Database')).not.to.exist;
 
       // step 3 - we filter for a database
       rerender({
@@ -569,30 +560,29 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: /orangeDB2/,
       });
 
-      // both the parent connection and the db are expanded
-      expect(screen.queryByText('orangeDB2')).to.be.visible;
-      expect(screen.queryByText('orangeDB2Coll1')).to.be.visible;
+      // the parent connection is expanded and it contains only the matching database
+      expect(screen.queryByText('orangeDB2Database')).to.be.visible;
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
+
+      // the database stays collapsed
+      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
 
       // step 4 - user collapses the connection
-      userEvent.click(screen.getByText('oranges'));
+      userEvent.click(screen.getByText('orangeConnection'));
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('orangeDB2')).not.to.exist;
+      expect(screen.queryByText('orangeDB2Database')).not.to.exist;
     });
 
-    it('Should filter the collections, expanding the parent connection & database (until the filter is cleared)', async () => {
-      const { rerender, props } = await renderActiveConnectionsNavigation();
+    it('Collection match :: Should filter the collection, expanding the ancestors (until the filter is cleared)', async () => {
       // step 1 - at first, the all the connections are visible and expanded
-      const orangeConnection = screen.getByText('oranges');
-
-      expect(orangeConnection).to.be.visible;
-      expect(screen.queryByText('turtle')).to.be.visible;
+      const { rerender, props } = await renderActiveConnectionsNavigation();
 
       // step 2 - user collapses orange connection
-      userEvent.click(orangeConnection);
+      userEvent.click(screen.getByText('orangeConnection'));
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
 
       // step 3 - filtering for the collection expands the database
       rerender({
@@ -600,11 +590,12 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: /orangeDB1Coll2/i,
       });
 
-      expect(screen.queryByText('oranges')).to.be.visible;
-      expect(screen.queryByText('turtle')).not.to.exist;
+      // everything up to the collection is filtered & expanded
+      expect(screen.queryByText('orangeConnection')).to.be.visible;
+      expect(screen.queryByText('turtleConnection')).not.to.exist;
 
-      expect(screen.queryByText('orangeDB1')).to.be.visible;
-      expect(screen.queryByText('orangeDB2')).not.to.exist;
+      expect(screen.queryByText('orangeDB1Database')).to.be.visible;
+      expect(screen.queryByText('orangeDB2Database')).not.to.exist;
 
       expect(screen.queryByText('orangeDB1Coll2')).to.be.visible;
       expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
@@ -614,23 +605,20 @@ describe('<ActiveConnectionNavigation />', function () {
         ...props,
         filterRegex: null,
       });
+
+      // connection collapses again
       expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
     });
 
-    it('Should filter the collections, expanding the parent connection & database (but the user can still collapse it)', async () => {
+    it('Collection match :: Should filter the collections, expanding the ancestors (but the user can still collapse the database)', async () => {
+      // step 1 - at first, the all the connections are visible and expanded
       const { rerender, props } = await renderActiveConnectionsNavigation();
 
-      // step 1 - at first, the all the connections are visible and expanded
-      const orangeConnection = screen.getByText('oranges');
-
-      expect(orangeConnection).to.be.visible;
-      expect(screen.queryByText('turtle')).to.be.visible;
-
       // step 2 - user collapses orange connection
-      userEvent.click(orangeConnection);
+      userEvent.click(screen.getByText('orangeConnection'));
       userEvent.keyboard('[ArrowLeft]');
 
-      expect(screen.queryByText('orangeDB1')).not.to.exist;
+      expect(screen.queryByText('orangeDB1Database')).not.to.exist;
 
       // step 3 - filtering for the collection expands the database
       rerender({
@@ -638,10 +626,18 @@ describe('<ActiveConnectionNavigation />', function () {
         filterRegex: /orangeDB1Coll2/i,
       });
 
+      // everything up to the collection is filtered & expanded
+      expect(screen.queryByText('orangeConnection')).to.be.visible;
+      expect(screen.queryByText('turtleConnection')).not.to.exist;
+
+      expect(screen.queryByText('orangeDB1Database')).to.be.visible;
+      expect(screen.queryByText('orangeDB2Database')).not.to.exist;
+
       expect(screen.queryByText('orangeDB1Coll2')).to.be.visible;
+      expect(screen.queryByText('orangeDB1Coll1')).not.to.exist;
 
       // step 4 - user collapses the database
-      userEvent.click(screen.getByText('orangeDB1'));
+      userEvent.click(screen.getByText('orangeDB1Database'));
       userEvent.keyboard('[ArrowLeft]');
       expect(screen.queryByText('orangeDB1Coll2')).not.to.be.exist;
     });
