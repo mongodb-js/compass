@@ -4,7 +4,10 @@ import {
   useVirtualNavigationTree,
   type VirtualItem,
 } from './use-virtual-navigation-tree';
-import { FixedSizeList as List } from 'react-window';
+import {
+  FixedSizeList as List,
+  type ListChildComponentProps,
+} from 'react-window';
 import {
   css,
   mergeProps,
@@ -72,6 +75,14 @@ const navigationTree = css({
   flex: '1 0 auto',
 });
 
+function useAction<T>(fn: RenderItem<T>): RenderItem<T> {
+  const ref = useRef(fn);
+  ref.current = fn;
+  return useMemo(() => {
+    return (props) => ref.current(props);
+  }, []);
+}
+
 export function VirtualTree<T extends VirtualItem>({
   activeItemId,
   items,
@@ -79,11 +90,12 @@ export function VirtualTree<T extends VirtualItem>({
   height,
   itemHeight,
   getItemKey: _getItemKey,
-  renderItem,
+  renderItem: _renderItem,
   onDefaultAction,
   onExpandedChange,
 }: VirtualTreeProps<T>) {
   const listRef = useRef<List | null>(null);
+  const renderItem = useAction(_renderItem);
   const onFocusMove = useCallback(
     (item) => {
       const idx = items.indexOf(item);
@@ -115,7 +127,7 @@ export function VirtualTree<T extends VirtualItem>({
       renderItem,
       onDefaultAction,
     };
-  }, [items, currentTabbable, renderItem, onDefaultAction]);
+  }, [items, renderItem, currentTabbable, onDefaultAction]);
 
   const getItemKey = useCallback(
     (index: number, data: VirtualItemData<T>) => {
@@ -153,12 +165,11 @@ type VirtualItemData<T extends VirtualItem> = {
   renderItem: RenderItem<T>;
   onDefaultAction: OnDefaultAction<T>;
 };
-type VirtualItemProps<T extends VirtualItem> = {
-  index: number;
-  data: VirtualItemData<T>;
-};
-
-function TreeItem<T extends VirtualItem>({ index, data }: VirtualItemProps<T>) {
+function TreeItem<T extends VirtualItem>({
+  index,
+  data,
+  style,
+}: ListChildComponentProps<VirtualItemData<T>>) {
   const { renderItem, items } = data;
   const item = useMemo(() => items[index], [items, index]);
   const focusRingProps = useFocusRing();
@@ -171,7 +182,7 @@ function TreeItem<T extends VirtualItem>({ index, data }: VirtualItemProps<T>) {
 
   // Placeholder check
   if (!isTreeItem(item)) {
-    return <div>{Component}</div>;
+    return <div style={style}>{Component}</div>;
   }
 
   const treeItemProps = mergeProps(
@@ -184,7 +195,8 @@ function TreeItem<T extends VirtualItem>({ index, data }: VirtualItemProps<T>) {
       tabIndex: data.currentTabbable === item.id ? 0 : -1,
     },
     actionProps,
-    focusRingProps
+    focusRingProps,
+    { style }
   );
   return (
     <div data-id={item.id} data-testid={item.id} {...treeItemProps}>
