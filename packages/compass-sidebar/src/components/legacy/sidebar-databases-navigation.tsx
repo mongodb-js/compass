@@ -6,7 +6,11 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { type Database } from '../../modules/databases';
+import {
+  fetchAllCollections,
+  onDatabaseExpand,
+  type Database,
+} from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -98,6 +102,8 @@ const clearTempExpanded = (
 function SidebarDatabasesNavigation({
   connections,
   onNamespaceAction: _onNamespaceAction,
+  onDatabaseExpand: _onDatabaseExpand,
+  fetchAllCollections: _fetchAllCollections,
   activeWorkspace,
   filterRegex,
   ...dbNavigationProps
@@ -107,6 +113,11 @@ function SidebarDatabasesNavigation({
 > & {
   connections: Connection[];
   filterRegex: RegExp | null;
+  fetchAllCollections: () => void;
+  onDatabaseExpand: (
+    connectionId: ConnectionInfo['id'],
+    databaseId: string
+  ) => void;
 }) {
   const {
     openCollectionsWorkspace,
@@ -126,18 +137,19 @@ function SidebarDatabasesNavigation({
     Database[] | undefined
   >(undefined);
 
-  const onDatabaseExpand = useCallback(
+  const handleDatabaseExpand = useCallback(
     (actionConnectionId: string, namespace: string, forceExpand: boolean) => {
       if (actionConnectionId !== connectionId) return;
+      const { database: databaseId } = toNS(namespace);
       setExpandedDatabases((expandedDatabases) => {
-        const { database: databaseId } = toNS(namespace);
         return {
           ...expandedDatabases,
           [databaseId]: forceExpand ? 'expanded' : undefined,
         };
       });
+      _onDatabaseExpand(connectionId, databaseId);
     },
-    [setExpandedDatabases, connectionId]
+    [setExpandedDatabases, _onDatabaseExpand, connectionId]
   );
 
   const connectionsButOnlyIfFilterIsActive = filteredDatabases && connections;
@@ -188,7 +200,13 @@ function SidebarDatabasesNavigation({
       setFilteredDatabases(undefined);
       collapseAllTemporarilyExpanded();
     } else if (databasesButOnlyIfFilterIsActive) {
-      // this check is extra just to please TS
+      // the above check is extra just to please TS
+
+      // When filtering, emit an event so that we can fetch all collections. This
+      // is required as a workaround for the synchronous nature of the current
+      // filtering feature
+      _fetchAllCollections();
+
       const results = filterDatabases(
         databasesButOnlyIfFilterIsActive,
         filterRegex
@@ -202,6 +220,7 @@ function SidebarDatabasesNavigation({
     setFilteredDatabases,
     temporarilyExpand,
     collapseAllTemporarilyExpanded,
+    _fetchAllCollections,
   ]);
 
   const onNamespaceAction = useCallback(
@@ -250,9 +269,9 @@ function SidebarDatabasesNavigation({
         activeWorkspace.type === 'Collection')
     ) {
       const namespace: string = activeWorkspace.namespace;
-      onDatabaseExpand(connectionId, namespace, true);
+      handleDatabaseExpand(connectionId, namespace, true);
     }
-  }, [activeWorkspace, onDatabaseExpand, connectionId]);
+  }, [activeWorkspace, handleDatabaseExpand, connectionId]);
 
   return (
     <ConnectionsNavigationTree
@@ -260,7 +279,7 @@ function SidebarDatabasesNavigation({
       expanded={expandedMemo}
       {...dbNavigationProps}
       onNamespaceAction={onNamespaceAction}
-      onDatabaseExpand={onDatabaseExpand}
+      onDatabaseExpand={handleDatabaseExpand}
       activeWorkspace={activeWorkspace}
       isReadOnly={isReadOnly}
     />
@@ -361,4 +380,6 @@ const onNamespaceAction = (
 
 export default connect(mapStateToProps, {
   onNamespaceAction,
+  fetchAllCollections,
+  onDatabaseExpand,
 })(SidebarDatabasesNavigation);

@@ -1,5 +1,5 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { RootAction } from '.';
+import type { RootAction, SidebarThunkAction } from '.';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 /**
@@ -20,7 +20,24 @@ interface ToggleDatabaseAction {
   expanded: boolean;
 }
 
-export type DatabasesAction = ChangeDatabasesAction | ToggleDatabaseAction;
+export const FETCH_ALL_COLLECTIONS =
+  'sidebar/instance/FETCH_ALL_COLLECTIONS' as const;
+interface FetchAllCollectionsAction {
+  type: typeof FETCH_ALL_COLLECTIONS;
+}
+
+export const EXPAND_DATABASE = 'sidebar/instance/EXPAND_DATABASE' as const;
+interface ExpandDatabaseAction {
+  type: typeof EXPAND_DATABASE;
+  connectionId: ConnectionInfo['id'];
+  databaseId: string;
+}
+
+export type DatabasesAction =
+  | ChangeDatabasesAction
+  | ToggleDatabaseAction
+  | FetchAllCollectionsAction
+  | ExpandDatabaseAction;
 
 type DatabaseRaw = MongoDBInstance['databases'][number];
 
@@ -100,3 +117,20 @@ export const changeDatabases = (
   connectionId,
   databases,
 });
+
+export const fetchAllCollections =
+  (): SidebarThunkAction<void, DatabasesAction> =>
+  (dispatch, getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('sidebar-filter-navigation-list');
+    dispatch({ type: FETCH_ALL_COLLECTIONS });
+  };
+
+export const onDatabaseExpand =
+  (
+    connectionId: ConnectionInfo['id'],
+    databaseId: string
+  ): SidebarThunkAction<void, DatabasesAction> =>
+  (dispatch, getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('sidebar-expand-database', connectionId, databaseId);
+    dispatch({ type: EXPAND_DATABASE, connectionId, databaseId });
+  };
