@@ -15,7 +15,8 @@ export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
 export type OpenedModal =
   | 'namespace-not-found-modal'
-  | 'select-connection-modal';
+  | 'select-connection-modal'
+  | 'no-active-connections-modal';
 
 export type State = {
   openedModal: OpenedModal | null;
@@ -63,8 +64,8 @@ export enum ActionTypes {
 type OpenModalAction = {
   type: ActionTypes.OpenModal;
   modal: OpenedModal;
-  selectedItem: Item;
-  connections: State['connections'];
+  selectedItem?: Item;
+  connections?: State['connections'];
   selectedConnection?: string;
   selectedDatabase?: string;
   selectedCollection?: string;
@@ -141,8 +142,8 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       openedModal: action.modal,
-      selectedItem: action.selectedItem,
-      connections: action.connections,
+      selectedItem: action.selectedItem ?? state.selectedItem,
+      connections: action.connections ?? state.connections,
       selectedConnection: action.selectedConnection ?? state.selectedConnection,
       selectedDatabase: action.selectedDatabase ?? state.selectedDatabase,
       selectedCollection: action.selectedCollection ?? state.selectedCollection,
@@ -335,6 +336,11 @@ const openSelectConnectionsModal = (
   connections,
   selectedDatabase,
   selectedCollection,
+});
+
+export const openNoActiveConnectionsModal = (): OpenModalAction => ({
+  type: ActionTypes.OpenModal,
+  modal: 'no-active-connections-modal',
 });
 
 export const closeModal = (): CloseModalAction => ({

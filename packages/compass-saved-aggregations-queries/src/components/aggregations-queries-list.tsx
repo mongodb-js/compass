@@ -9,7 +9,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
-import { openSavedItem } from '../stores/open-item';
+import {
+  openNoActiveConnectionsModal,
+  openSavedItem,
+} from '../stores/open-item';
 import type { RootState } from '../stores';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { Action } from './saved-item-card';
@@ -26,6 +29,7 @@ import {
   useActiveConnections,
 } from '@mongodb-js/compass-connections/provider';
 import SelectConnectionModal from './select-connection-modal';
+import NoActiveConnectionsModal from './no-active-connections-modal';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -79,6 +83,7 @@ export type AggregationsQueriesListProps = {
   items: Item[];
   onMount(): void;
   onOpenItem(id: string, activeConnections: ConnectionInfo[]): void;
+  notifyNoActiveConnections(): void;
   onEditItem(id: string): void;
   onDeleteItem(id: string): void;
   onCopyToClipboard(id: string): void;
@@ -89,6 +94,7 @@ export const AggregationsQueriesList = ({
   items,
   onMount,
   onOpenItem,
+  notifyNoActiveConnections,
   onEditItem,
   onDeleteItem,
   onCopyToClipboard,
@@ -98,6 +104,18 @@ export const AggregationsQueriesList = ({
   }, [onMount]);
 
   const activeConnections = useActiveConnections();
+
+  const handleOpenItem = useCallback(
+    (id: string) => {
+      if (!activeConnections.length) {
+        notifyNoActiveConnections();
+        return;
+      }
+
+      onOpenItem(id, activeConnections);
+    },
+    [activeConnections, onOpenItem, notifyNoActiveConnections]
+  );
 
   const {
     controls: filterControls,
@@ -162,7 +180,7 @@ export const AggregationsQueriesList = ({
     (id: string, actionName: Action) => {
       switch (actionName) {
         case 'open':
-          onOpenItem(id, activeConnections);
+          handleOpenItem(id);
           return;
         case 'rename':
           onEditItem(id);
@@ -175,7 +193,7 @@ export const AggregationsQueriesList = ({
           return;
       }
     },
-    [activeConnections, onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
+    [handleOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
@@ -235,8 +253,9 @@ export const AggregationsQueriesList = ({
         classNames={{ row: rowStyles }}
         resetActiveItemOnBlur={false}
       ></VirtualGrid>
-      <NamespaceNotFoundModal></NamespaceNotFoundModal>
-      <SelectConnectionModal></SelectConnectionModal>
+      <NamespaceNotFoundModal />
+      <SelectConnectionModal />
+      <NoActiveConnectionsModal />
       <EditItemModal></EditItemModal>
     </ControlsContext.Provider>
   );
@@ -253,6 +272,7 @@ const mapDispatch = {
   onEditItem: editItem,
   onDeleteItem: confirmDeleteItem,
   onCopyToClipboard: copyToClipboard,
+  notifyNoActiveConnections: openNoActiveConnectionsModal,
 };
 
 export default connect(
