@@ -109,19 +109,22 @@ describe('OIDC integration', function () {
         authNamePrefix: 'dev',
       };
 
-      cluster = await startTestServer({
-        args: [
-          '--setParameter',
-          'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
-          // enableTestCommands allows using http:// issuers such as http://localhost
-          '--setParameter',
-          'enableTestCommands=true',
-          '--setParameter',
-          `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
-          '--setParameter',
-          'JWKSMinimumQuiescePeriodSecs=0',
-        ],
-      });
+      const args = [
+        '--setParameter',
+        'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
+        // enableTestCommands allows using http:// issuers such as http://localhost
+        '--setParameter',
+        'enableTestCommands=true',
+        '--setParameter',
+        `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
+      ];
+
+      if (serverSatisfies('>= 8.0.0-alpha0', true)) {
+        // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
+        args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
+      }
+
+      cluster = await startTestServer({ args });
 
       const cs = new ConnectionString(cluster.connectionString);
       cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
