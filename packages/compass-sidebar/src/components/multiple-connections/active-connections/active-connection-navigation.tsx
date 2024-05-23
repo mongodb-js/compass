@@ -243,8 +243,6 @@ export function ActiveConnectionNavigation({
     Connection[] | undefined
   >(undefined);
 
-  console.log(expandedConnections);
-
   const {
     openDatabasesWorkspace,
     openCollectionsWorkspace,
@@ -320,7 +318,6 @@ export function ActiveConnectionNavigation({
 
   const onDatabaseToggle = useCallback(
     (connectionId: string, namespace: string, forceExpand: boolean) => {
-      console.log({ namespace });
       const { database: databaseId } = toNS(namespace);
       if (
         !forceExpand &&

@@ -45,7 +45,7 @@ class MockInstance extends EventEmitter {
 
   constructor(name = 'test') {
     super();
-    this._id = `${name}Connection`;
+    this._id = `${name}`;
     this.status = 'ready';
     this.databasesStatus = 'ready';
     this.databases = [
@@ -92,14 +92,14 @@ class MockInstance extends EventEmitter {
 
 const mockConnections: ConnectionInfo[] = [
   {
-    id: 'turtleConnection',
+    id: 'turtle',
     connectionOptions: {
       connectionString: 'mongodb://turtleConnection',
     },
     savedConnectionType: 'recent',
   },
   {
-    id: 'orangeConnection',
+    id: 'orange',
     connectionOptions: {
       connectionString: 'mongodb://orangeConnection',
     },
@@ -155,22 +155,16 @@ describe('<ActiveConnectionNavigation />', function () {
     orangeInstance = new MockInstance('orange');
     connectionsManager = new ConnectionsManager({} as any);
     (connectionsManager as any).getDataServiceForConnection = () => dataService;
-    (connectionsManager as any).connectionStatuses.set(
-      'turtleConnection',
-      'connected'
-    );
-    (connectionsManager as any).connectionStatuses.set(
-      'orangeConnection',
-      'connected'
-    );
+    (connectionsManager as any).connectionStatuses.set('turtle', 'connected');
+    (connectionsManager as any).connectionStatuses.set('orange', 'connected');
     ({ store, deactivate } = createSidebarStore(
       {
         globalAppRegistry,
         instancesManager: {
           listMongoDBInstances() {
             return new Map([
-              ['turtleConnection', turtleInstance],
-              ['orangeConnection', orangeInstance],
+              ['turtle', turtleInstance],
+              ['orange', orangeInstance],
             ]);
           },
         } as any,
@@ -263,9 +257,7 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(openConnectionInfoBtn);
 
-      expect(onOpenConnectionInfoStub).to.have.been.calledWith(
-        'turtleConnection'
-      );
+      expect(onOpenConnectionInfoStub).to.have.been.calledWith('turtle');
     });
 
     it('Calls onCopyConnectionString', async () => {
@@ -283,9 +275,7 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(copyConnectionStringBtn);
 
-      expect(onCopyConnectionStringStub).to.have.been.calledWith(
-        'turtleConnection'
-      );
+      expect(onCopyConnectionStringStub).to.have.been.calledWith('turtle');
     });
 
     it('Calls onToggleFavoriteConnection', async () => {
@@ -301,9 +291,7 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(favoriteBtn);
 
-      expect(onToggleFavoriteConnectionStub).to.have.been.calledWith(
-        'turtleConnection'
-      );
+      expect(onToggleFavoriteConnectionStub).to.have.been.calledWith('turtle');
     });
 
     it('Calls onDisconnect', async () => {
@@ -319,7 +307,7 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(disconnectBtn);
 
-      expect(onDisconnectStub).to.have.been.calledWith('turtleConnection');
+      expect(onDisconnectStub).to.have.been.calledWith('turtle');
     });
 
     it('Calls openPerformanceWorkspace', async () => {
@@ -335,9 +323,7 @@ describe('<ActiveConnectionNavigation />', function () {
 
       userEvent.click(metricsBtn);
 
-      expect(openPerformanceWorkspaceStub).to.have.been.calledWith(
-        'turtleConnection'
-      );
+      expect(openPerformanceWorkspaceStub).to.have.been.calledWith('turtle');
     });
   });
 
@@ -419,13 +405,13 @@ describe('<ActiveConnectionNavigation />', function () {
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
 
-    it.only('should collapse and expand database', async function () {
+    it('should collapse and expand database', async function () {
       // step 1 - turtleDB1 is active & expanded at first
       await renderActiveConnectionsNavigation({
         activeWorkspace: {
           type: 'Collections',
-          connectionId: 'turtleConnection',
-          namespace: 'turtleDB1Database',
+          connectionId: 'turtle',
+          namespace: 'turtleDB1',
         } as WorkspaceTab,
       });
 
@@ -433,19 +419,19 @@ describe('<ActiveConnectionNavigation />', function () {
 
       expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
 
-      // // step 2 - user collapses the turtleDB1 database
-      // const databaseItem = screen.getByText('turtleDB1Database');
+      // step 2 - user collapses the turtleDB1 database
+      const databaseItem = screen.getByText('turtleDB1Database');
 
-      // userEvent.click(databaseItem);
-      // userEvent.keyboard('[ArrowLeft]');
+      userEvent.click(databaseItem);
+      userEvent.keyboard('[ArrowLeft]');
 
-      // expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
+      expect(screen.queryByText('turtleDB1Coll1')).not.to.exist;
 
-      // // step 2 - user expands the turtleDB1 database
-      // userEvent.click(databaseItem);
-      // userEvent.keyboard('[ArrowRight]');
+      // step 2 - user expands the turtleDB1 database
+      userEvent.click(databaseItem);
+      userEvent.keyboard('[ArrowRight]');
 
-      // expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
+      expect(screen.getByText('turtleDB1Coll1')).to.be.visible;
     });
   });
 
