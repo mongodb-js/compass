@@ -6,7 +6,7 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
+import { type Database } from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -103,7 +103,7 @@ function SidebarDatabasesNavigation({
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'isReadOnly' | 'databases'
+  'isReadOnly' | 'databases' | 'onDatabaseExpand'
 > & {
   connections: Connection[];
   filterRegex: RegExp | null;
@@ -127,7 +127,8 @@ function SidebarDatabasesNavigation({
   >(undefined);
 
   const onDatabaseExpand = useCallback(
-    (connectionId: string, namespace: string, forceExpand: boolean) => {
+    (actionConnectionId: string, namespace: string, forceExpand: boolean) => {
+      if (actionConnectionId !== connectionId) return;
       setExpandedDatabases((expandedDatabases) => {
         const { database: databaseId } = toNS(namespace);
         return {
@@ -136,7 +137,7 @@ function SidebarDatabasesNavigation({
         };
       });
     },
-    [setExpandedDatabases]
+    [setExpandedDatabases, connectionId]
   );
 
   const connectionsButOnlyIfFilterIsActive = filteredDatabases && connections;
@@ -279,8 +280,6 @@ function mapStateToProps(
   const instance = state.instance[connectionId];
   const { databases } = state.databases[connectionId] || {};
 
-  // TODO: handle db toggle
-
   const status = instance?.databasesStatus;
   const isReady =
     status !== undefined && !['initial', 'fetching'].includes(status);
@@ -297,7 +296,7 @@ function mapStateToProps(
         isWritable,
         name: '',
         connectionInfo,
-        databasesLength: databases.length || 0,
+        databasesLength: databases?.length || 0,
         databasesStatus: (status ??
           'fetching') as Connection['databasesStatus'],
         databases: databases ?? [],

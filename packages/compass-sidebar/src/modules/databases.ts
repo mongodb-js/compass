@@ -1,6 +1,5 @@
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { RootAction, SidebarThunkAction } from '.';
-import toNS from 'mongodb-ns';
+import type { RootAction } from '.';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
 /**
@@ -101,22 +100,3 @@ export const changeDatabases = (
   connectionId,
   databases,
 });
-
-export const toggleDatabaseExpanded =
-  (
-    connectionId: ConnectionInfo['id'],
-    databaseId: string,
-    forceExpand: boolean
-  ): SidebarThunkAction<void, DatabasesAction> =>
-  (dispatch, getState, { globalAppRegistry }) => {
-    const { database } = toNS(databaseId);
-    const { expandedDbList } = getState().databases[connectionId];
-    const expanded = forceExpand ?? !expandedDbList[database];
-
-    if (expanded) {
-      // Fetch collections list on expand if we haven't done it yet (this is
-      // relevant only for the code path that has global overlay disabled)
-      globalAppRegistry.emit('sidebar-expand-database', database);
-    }
-    dispatch({ type: TOGGLE_DATABASE, connectionId, database, expanded });
-  };
