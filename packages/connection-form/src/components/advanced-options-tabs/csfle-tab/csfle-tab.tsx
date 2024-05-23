@@ -71,10 +71,6 @@ const options: KMSProviderMetadata[] = [
   },
 ];
 
-const containerStyles = css({
-  marginTop: spacing[3],
-});
-
 const accordionContainerStyles = css({
   marginTop: spacing[3],
 });
@@ -127,14 +123,18 @@ function CSFLETab({
   );
 
   return (
-    <div className={containerStyles}>
-      <Banner>
-        In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
-        {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
-        <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
-          Learn More
-        </Link>
-      </Banner>
+    <>
+      <FormFieldContainer>
+        <Banner>
+          In-Use Encryption is an Enterprise/Atlas-only feature of
+          MongoDB.&nbsp;
+          {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
+          <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
+            Learn More
+          </Link>
+        </Banner>
+      </FormFieldContainer>
+
       <FormFieldContainer>
         <TextInput
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
@@ -244,7 +244,7 @@ function CSFLETab({
           />
         </FormFieldContainer>
       )}
-    </div>
+    </>
   );
 }
 
