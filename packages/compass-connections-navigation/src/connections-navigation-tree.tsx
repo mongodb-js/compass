@@ -154,6 +154,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarTreeItem> = useCallback(
     (item, evt) => {
+      if (item.type === 'placeholder') {
+        return;
+      }
       if (item.type === 'connection') {
         onNamespaceAction(
           item.connectionInfo.id,

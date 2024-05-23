@@ -48,7 +48,7 @@ function useDefaultAction<T>(
 type NotPlaceholderTreeItem<T> = T extends { type: 'placeholder' } ? never : T;
 type RenderItem<T> = (props: { index: number; item: T }) => React.ReactNode;
 export type OnDefaultAction<T> = (
-  item: NotPlaceholderTreeItem<T>,
+  item: T,
   evt: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
 ) => void;
 export type OnExpandedChange<T> = (
