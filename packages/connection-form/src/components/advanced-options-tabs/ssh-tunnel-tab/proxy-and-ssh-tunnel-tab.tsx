@@ -71,6 +71,10 @@ const contentStyles = css({
   marginTop: spacing[3],
 });
 
+const radioBoxGroupStyles = css({
+  paddingBottom: spacing[2], // don't cut off the focus ring in the modal
+});
+
 const getSelectedTunnelType = (
   connectionStringUrl: ConnectionStringUrl,
   connectionOptions?: ConnectionOptions
@@ -171,7 +175,7 @@ function ProxyAndSshTunnelTab({
         id="ssh-options-radio-box-group"
         onChange={optionSelected}
         size="compact"
-        className="radio-box-group-style"
+        className={radioBoxGroupStyles}
       >
         {options.map(({ title, id, type }) => {
           return (
