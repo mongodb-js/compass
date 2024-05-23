@@ -142,24 +142,23 @@ describe('queryBarReducer', function () {
   describe('applyQuery', function () {
     it('should "apply" query if query is valid', function () {
       store.dispatch(setQuery({ filter: { _id: '123' }, limit: 10 }));
-      const appliedQuery = store.dispatch(applyQuery() as any);
+      const appliedQuery = store.dispatch(applyQuery('test') as any);
       expect(appliedQuery).to.deep.eq({
         ...DEFAULT_QUERY_VALUES,
         filter: { _id: '123' },
         limit: 10,
       });
       expect(store.getState().queryBar)
-        .to.have.property('lastAppliedQuery')
+        .to.have.nested.property('lastAppliedQuery.query.test')
         .deep.eq(appliedQuery);
     });
 
     it('should not "apply" query if query is invalid', function () {
       store.dispatch(changeField('filter', '{ _id'));
-      const appliedQuery = store.dispatch(applyQuery() as any);
+      const appliedQuery = store.dispatch(applyQuery('test') as any);
       expect(appliedQuery).to.eq(false);
-      expect(store.getState().queryBar).to.have.property(
-        'lastAppliedQuery',
-        null
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
       );
     });
   });
@@ -168,35 +167,34 @@ describe('queryBarReducer', function () {
     it('should reset query form if last applied query is different from the default query', function () {
       const query = { filter: { _id: 1 } };
       store.dispatch(setQuery(query));
-      store.dispatch(applyQuery());
+      store.dispatch(applyQuery('test'));
       expect(store.getState().queryBar)
-        .to.have.property('lastAppliedQuery')
+        .to.have.nested.property('lastAppliedQuery.query.test')
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
           ...query,
         });
-      const wasReset = store.dispatch(resetQuery());
+      const wasReset = store.dispatch(resetQuery('test'));
       expect(wasReset).to.deep.eq(DEFAULT_QUERY_VALUES);
-      expect(store.getState().queryBar).to.have.property(
-        'lastAppliedQuery',
+      expect(store.getState().queryBar).to.have.nested.property(
+        'lastAppliedQuery.query.test',
         null
       );
     });
 
     it('should not reset query if last applied query is default query', function () {
       // Resetting without applying at all first
-      let wasReset = store.dispatch(resetQuery());
-      expect(store.getState().queryBar).to.have.property(
-        'lastAppliedQuery',
-        null
+      let wasReset = store.dispatch(resetQuery('test'));
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
       );
       expect(wasReset).to.eq(false);
       // Now apply default query and try to reset again
-      store.dispatch(applyQuery());
-      wasReset = store.dispatch(resetQuery());
+      store.dispatch(applyQuery('test'));
+      wasReset = store.dispatch(resetQuery('test'));
       expect(wasReset).to.eq(false);
       expect(store.getState().queryBar)
-        .to.have.property('lastAppliedQuery')
+        .to.have.nested.property('lastAppliedQuery.query.test')
         .deep.eq({
           ...DEFAULT_QUERY_VALUES,
         });
@@ -250,7 +248,7 @@ describe('queryBarReducer', function () {
       const store = createStore(
         {
           fields: mapQueryToFormFields(
-            {},
+            { maxTimeMS: undefined },
             {
               ...DEFAULT_FIELD_VALUES,
               filter: { _id: { $exists: true } },

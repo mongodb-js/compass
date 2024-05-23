@@ -18,5 +18,7 @@ export function isAction<A extends AnyAction>(
  * Same as _.isEqual, except it takes key order into account
  */
 export function isQueryEqual(value: Document, other: Document): boolean {
-  return isEqual(BSON.serialize(value), BSON.serialize(other));
+  return (
+    value === other || isEqual(BSON.serialize(value), BSON.serialize(other))
+  );
 }

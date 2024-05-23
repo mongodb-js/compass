@@ -35,7 +35,10 @@ type QueryBarState = {
   fields: QueryFormFields;
   expanded: boolean;
   serverVersion: string;
-  lastAppliedQuery: BaseQuery | null;
+  lastAppliedQuery: {
+    source: string | null;
+    query: Record<string, BaseQuery | null>;
+  };
   /**
    * For testing purposes only, allows to track whether or not apply button was
    * clicked or not
@@ -52,7 +55,7 @@ export const INITIAL_STATE: QueryBarState = {
   fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
   expanded: false,
   serverVersion: '3.6.0',
-  lastAppliedQuery: null,
+  lastAppliedQuery: { source: null, query: {} },
   applyId: 0,
   namespace: '',
   recentQueries: [],
@@ -93,23 +96,6 @@ type ChangeFieldAction<T = QueryProperty> = {
   value: FormField<T>;
 };
 
-/**
- * NB: this should only be called in apply or reset methods, doing this in any
- * other logical place will break a ton of logic in Compass that relies on this
- * not actually happening when query changed while user was typing
- */
-const emitOnQueryChange = (): QueryBarThunkAction<void> => {
-  return (dispatch, getState, { localAppRegistry }) => {
-    const {
-      queryBar: { lastAppliedQuery, fields },
-    } = getState();
-    const query = mapFormFieldsToQuery(fields);
-    if (lastAppliedQuery === null || !isQueryEqual(lastAppliedQuery, query)) {
-      localAppRegistry?.emit('query-changed', query);
-    }
-  };
-};
-
 export const changeField = (
   name: QueryProperty,
   stringValue: string
@@ -134,12 +120,12 @@ export const changeField = (
 type ApplyQueryAction = {
   type: QueryBarActions.ApplyQuery;
   query: BaseQuery;
+  source: string;
 };
 
-export const applyQuery = (): QueryBarThunkAction<
-  false | BaseQuery,
-  ApplyQueryAction
-> => {
+export const applyQuery = (
+  source: string
+): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
   return (dispatch, getState, { preferences }) => {
     const {
       queryBar: { fields },
@@ -148,8 +134,7 @@ export const applyQuery = (): QueryBarThunkAction<
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
-    dispatch(emitOnQueryChange());
-    dispatch({ type: QueryBarActions.ApplyQuery, query });
+    dispatch({ type: QueryBarActions.ApplyQuery, query, source });
 
     void dispatch(saveRecentQuery(query));
     return query;
@@ -159,12 +144,13 @@ export const applyQuery = (): QueryBarThunkAction<
 type ResetQueryAction = {
   type: QueryBarActions.ResetQuery;
   fields: QueryFormFields;
+  source: string;
 };
 
-export const resetQuery = (): QueryBarThunkAction<
-  false | Record<string, unknown>
-> => {
-  return (dispatch, getState, { localAppRegistry, preferences }) => {
+export const resetQuery = (
+  source: string
+): QueryBarThunkAction<false | Record<string, unknown>> => {
+  return (dispatch, getState, { preferences }) => {
     if (isEqualDefaultQuery(getState().queryBar.fields)) {
       return false;
     }
@@ -172,11 +158,8 @@ export const resetQuery = (): QueryBarThunkAction<
       { maxTimeMS: preferences.getPreferences().maxTimeMS },
       DEFAULT_FIELD_VALUES
     );
-    dispatch({ type: QueryBarActions.ResetQuery, fields });
-    dispatch(emitOnQueryChange());
-    const defaultQuery = cloneDeep(DEFAULT_QUERY_VALUES);
-    localAppRegistry?.emit('query-reset', defaultQuery);
-    return defaultQuery;
+    dispatch({ type: QueryBarActions.ResetQuery, fields, source });
+    return cloneDeep(DEFAULT_QUERY_VALUES);
   };
 };
 
@@ -506,7 +489,13 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ApplyQueryAction>(action, QueryBarActions.ApplyQuery)) {
     return {
       ...state,
-      lastAppliedQuery: action.query,
+      lastAppliedQuery: {
+        source: action.source,
+        query: {
+          ...state.lastAppliedQuery.query,
+          [action.source]: action.query,
+        },
+      },
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
     };
   }
@@ -514,8 +503,14 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   if (isAction<ResetQueryAction>(action, QueryBarActions.ResetQuery)) {
     return {
       ...state,
-      lastAppliedQuery: null,
       fields: action.fields,
+      lastAppliedQuery: {
+        source: action.source,
+        query: {
+          ...state.lastAppliedQuery.query,
+          [action.source]: null,
+        },
+      },
     };
   }
 
