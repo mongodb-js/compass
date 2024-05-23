@@ -57,10 +57,10 @@
     "@mongodb-js/compass-components": "^1.25.0",
     "@mongodb-js/compass-intercom": "^0.4.1",
     "@mongodb-js/compass-logging": "^1.2.17",
-    "bson": "^6.6.0",
+    "bson": "^6.7.0",
     "compass-preferences-model": "^2.20.1",
     "hadron-app-registry": "^9.1.11",
-    "mongodb": "^6.5.0",
+    "mongodb": "^6.6.2",
     "mongodb-schema": "^12.2.0",
     "react": "^17.0.2"
   },
