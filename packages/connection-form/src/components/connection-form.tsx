@@ -94,6 +94,13 @@ const formContentStyles = css({
 
   // To prevent input outline being cut by the overflow
   paddingLeft: spacing[100],
+
+  // Adds some scrollable spacing to the end of the form. Needs to be applied to
+  // the child so that the form is scrollable with the padding and not with
+  // padding cutting the form content at the end
+  '& > :last-child': {
+    marginBottom: spacing[600],
+  },
 });
 
 const formHelpConatinerStyles = css({
