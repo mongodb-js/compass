@@ -103,7 +103,7 @@ const formContentStyles = css({
   },
 });
 
-const formHelpConatinerStyles = css({
+const formHelpContainerStyles = css({
   position: 'sticky',
   top: 0,
 
@@ -599,7 +599,7 @@ function ConnectionForm({
           </div>
 
           {showHelpCardsInForm && (
-            <div className={formHelpConatinerStyles}>
+            <div className={formHelpContainerStyles}>
               <FormHelp />
             </div>
           )}
