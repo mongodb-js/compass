@@ -99,7 +99,7 @@ const formContentStyles = css({
   // the child so that the form is scrollable with the padding and not with
   // padding cutting the form content at the end
   '& > :last-child': {
-    marginBottom: spacing[600],
+    paddingBottom: spacing[600],
   },
 });
 
