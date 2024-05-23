@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -57,54 +51,77 @@ const descriptionStyles = css({
 });
 
 const formStyles = css({
-  display: 'contents',
+  display: 'grid',
+  gridTemplateAreas: `
+    "header"
+    "content"
+    "footer"
+  `,
+  gridTemplateRows: 'max-content 1fr max-content',
+
+  minHeight: 0,
+  height: '100%',
 });
 
-const formContainerStyles = css({
-  padding: spacing[4],
-  paddingRight: spacing[3], // this is to leave space for the scrollbarGutter
-  paddingBottom: spacing[1],
-  overflowY: 'auto',
+const formHeaderStyles = css({
+  gridArea: 'header',
+
+  paddingTop: spacing[600],
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
+});
+
+const formHeaderContentStyles = css({
   position: 'relative',
 });
 
-const formContentStyles = css({
+const formContentContainerStyles = css({
+  gridArea: 'content',
+
   display: 'flex',
-  columnGap: spacing[3],
-  maxHeight: '720px',
-  overflow: 'auto',
+  gap: spacing[400],
+
+  paddingLeft: spacing[600],
+  paddingRight: spacing[600],
+
+  overflowY: 'auto',
   scrollbarGutter: 'stable',
 });
 
-const formContentLegacyStyles = css({
-  height: 'auto',
+const formContentStyles = css({
+  minWidth: 0,
+  flex: '1 1 auto',
+
+  // To prevent input outline being cut by the overflow
+  paddingLeft: spacing[100],
 });
 
-const formSettingsStyles = css({
-  width: '100%',
-  paddingLeft: spacing[1],
-  paddingRight: spacing[1],
-});
+const formHelpConatinerStyles = css({
+  position: 'sticky',
+  top: 0,
 
-const formFooterDarkModeStyles = css({
-  borderTop: `1px solid ${palette.gray.dark2}`,
-});
-
-const formFooterLightModeStyles = css({
-  borderTop: `1px solid ${palette.gray.light2}`,
+  flex: '1 1 0px',
+  minWidth: spacing[1600] * 4,
+  maxWidth: spacing[1600] * 5,
 });
 
 const formFooterStyles = css({
-  marginTop: 'auto',
+  gridArea: 'footer',
+});
+
+const formFooterBorderDarkModeStyles = css({
+  borderTop: `1px solid ${palette.gray.dark2}`,
+});
+
+const formFooterBorderLightModeStyles = css({
+  borderTop: `1px solid ${palette.gray.light2}`,
 });
 
 const favoriteButtonStyles = css({
   position: 'absolute',
-  top: spacing[2],
-  right: spacing[2],
-  hover: {
-    cursor: 'pointer',
-  },
+  top: -spacing[400],
+  right: 0,
+  cursor: 'pointer',
   width: spacing[7],
   height: spacing[7],
 });
@@ -116,7 +133,7 @@ const favoriteButtonContentStyles = css({
   justifyContent: 'center',
 });
 
-const formHeaderStyles = css({
+const headingWithHiddenButtonStyles = css({
   button: {
     visibility: 'hidden',
   },
@@ -139,15 +156,6 @@ const connectionStringErrorStyles = css({
   marginBottom: spacing[3],
 });
 
-type ConnectionFormPropsWithoutPreferences = {
-  darkMode?: boolean;
-  initialConnectionInfo: ConnectionInfo;
-  connectionErrorMessage?: string | null;
-  onCancel?: () => void;
-  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
-};
-
 const colorPreviewStyles = css({
   height: spacing[3],
   width: spacing[3],
@@ -155,6 +163,7 @@ const colorPreviewStyles = css({
 });
 
 type ColorCircleGlyphProps = { hexColor?: string };
+
 const ColorCircleGlyph = createGlyphComponent(
   'ColorCircle',
   ({ hexColor, ...props }: any & ColorCircleGlyphProps) => (
@@ -319,40 +328,15 @@ function ConnectionPersonalizationForm({
   );
 }
 
-function useFormBodyStyles() {
-  const headerRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
-  const [styles, setStyles] = useState<React.CSSProperties>({
-    height: 'auto',
-  });
-
-  useEffect(() => {
-    const observer = new ResizeObserver(() => {
-      if (headerRef.current && footerRef.current) {
-        // 128 is the modal top/bottom margins, 45 is the modal body paddings
-        const height =
-          headerRef.current.clientHeight +
-          footerRef.current.clientHeight +
-          128 +
-          45;
-        setStyles({
-          height: `calc(100vh - ${height}px)`,
-        });
-      }
-    });
-
-    if (headerRef.current && footerRef.current) {
-      observer.observe(headerRef.current);
-      observer.observe(footerRef.current);
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [headerRef, footerRef]);
-
-  return { headerRef, footerRef, styles };
-}
+type ConnectionFormPropsWithoutPreferences = {
+  darkMode?: boolean;
+  initialConnectionInfo: ConnectionInfo;
+  connectionErrorMessage?: string | null;
+  onCancel?: () => void;
+  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
+  onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
+  onAdvancedOptionsToggle?: (newState: boolean) => void;
+};
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
   preferences?: Partial<ConnectionFormPreferences>;
@@ -366,10 +350,20 @@ function ConnectionForm({
   // the connection info can be saved.
   onSaveConnectionClicked,
   onCancel,
+  onAdvancedOptionsToggle,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
+  );
+
+  const onAdvancedChange = useCallback(
+    (newState: boolean) => {
+      setAdvancedOpen(newState);
+      onAdvancedOptionsToggle?.(newState);
+    },
+    [onAdvancedOptionsToggle]
   );
 
   const [
@@ -495,7 +489,9 @@ function ConnectionForm({
     'showFavoriteActions'
   );
 
-  const { headerRef, footerRef, styles: formBodyStyles } = useFormBodyStyles();
+  const showFooterBorder = !!isMultiConnectionEnabled;
+
+  const showHelpCardsInForm = !!isMultiConnectionEnabled;
 
   return (
     <ConfirmationModalArea>
@@ -509,9 +505,9 @@ function ConnectionForm({
         // Prevent default html tooltip popups.
         noValidate
       >
-        <div className={formContainerStyles}>
-          <div ref={headerRef}>
-            <H3 className={formHeaderStyles}>
+        <div className={formHeaderStyles}>
+          <div className={formHeaderContentStyles}>
+            <H3 className={headingWithHiddenButtonStyles}>
               {initialConnectionInfo.favorite?.name ?? 'New Connection'}
               {!isMultiConnectionEnabled && showFavoriteActions && (
                 <IconButton
@@ -531,6 +527,7 @@ function ConnectionForm({
               {!isMultiConnectionEnabled && 'Connect to a MongoDB deployment'}
               {isMultiConnectionEnabled && 'Manage your connection settings'}
             </Description>
+
             {!isMultiConnectionEnabled && showFavoriteActions && (
               <IconButton
                 aria-label="Save Connection"
@@ -554,63 +551,59 @@ function ConnectionForm({
               </IconButton>
             )}
           </div>
-          <div
-            className={
-              isMultiConnectionEnabled
-                ? formContentStyles
-                : cx(formContentStyles, formContentLegacyStyles)
-            }
-            style={isMultiConnectionEnabled ? formBodyStyles : undefined}
-          >
-            <div className={formSettingsStyles}>
-              <ConnectionStringInput
-                connectionString={connectionOptions.connectionString}
-                enableEditingConnectionString={enableEditingConnectionString}
-                setEnableEditingConnectionString={
-                  setEnableEditingConnectionString
-                }
-                onSubmit={() => onSubmitForm()}
-                updateConnectionFormField={updateConnectionFormField}
-                protectConnectionStrings={protectConnectionStrings}
-              />
-              {connectionStringInvalidError && (
-                <Banner
-                  className={connectionStringErrorStyles}
-                  variant={BannerVariant.Danger}
-                >
-                  {connectionStringInvalidError.message}
-                </Banner>
-              )}
-              {isMultiConnectionEnabled && (
-                <ConnectionPersonalizationForm
-                  personalizationOptions={personalizationOptions}
-                  updateConnectionFormField={updateConnectionFormField}
-                />
-              )}
-              {!protectConnectionStrings && (
-                <AdvancedConnectionOptions
-                  errors={connectionStringInvalidError ? [] : errors}
-                  disabled={!!connectionStringInvalidError}
-                  updateConnectionFormField={updateConnectionFormField}
-                  connectionOptions={connectionOptions}
-                />
-              )}
-            </div>
-            {isMultiConnectionEnabled && <FormHelp />}
-          </div>
         </div>
+
+        <div className={formContentContainerStyles}>
+          <div className={formContentStyles}>
+            <ConnectionStringInput
+              connectionString={connectionOptions.connectionString}
+              enableEditingConnectionString={enableEditingConnectionString}
+              setEnableEditingConnectionString={
+                setEnableEditingConnectionString
+              }
+              onSubmit={() => onSubmitForm()}
+              updateConnectionFormField={updateConnectionFormField}
+              protectConnectionStrings={protectConnectionStrings}
+            />
+            {connectionStringInvalidError && (
+              <Banner
+                className={connectionStringErrorStyles}
+                variant={BannerVariant.Danger}
+              >
+                {connectionStringInvalidError.message}
+              </Banner>
+            )}
+            {isMultiConnectionEnabled && (
+              <ConnectionPersonalizationForm
+                personalizationOptions={personalizationOptions}
+                updateConnectionFormField={updateConnectionFormField}
+              />
+            )}
+            {!protectConnectionStrings && (
+              <AdvancedConnectionOptions
+                open={advancedOpen}
+                setOpen={onAdvancedChange}
+                errors={connectionStringInvalidError ? [] : errors}
+                disabled={!!connectionStringInvalidError}
+                updateConnectionFormField={updateConnectionFormField}
+                connectionOptions={connectionOptions}
+              />
+            )}
+          </div>
+
+          {showHelpCardsInForm && (
+            <div className={formHelpConatinerStyles}>
+              <FormHelp />
+            </div>
+          )}
+        </div>
+
         <div
-          ref={footerRef}
-          className={
-            isMultiConnectionEnabled
-              ? cx(
-                  formFooterStyles,
-                  isDarkMode
-                    ? formFooterDarkModeStyles
-                    : formFooterLightModeStyles
-                )
-              : formFooterStyles
-          }
+          className={cx(formFooterStyles, {
+            [isDarkMode
+              ? formFooterBorderDarkModeStyles
+              : formFooterBorderLightModeStyles]: showFooterBorder,
+          })}
         >
           {isMultiConnectionEnabled && (
             <ConnectionFormModalActions
@@ -660,6 +653,7 @@ function ConnectionForm({
           )}
         </div>
       </form>
+
       {showFavoriteActions && (
         <SaveConnectionModal
           open={saveConnectionModal !== 'hidden'}
