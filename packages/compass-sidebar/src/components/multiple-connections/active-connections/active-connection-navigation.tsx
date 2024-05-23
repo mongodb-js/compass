@@ -27,6 +27,10 @@ import {
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
 import { findCollection } from '../../../helpers/find-collection';
+import {
+  fetchAllCollections,
+  onDatabaseExpand,
+} from '../../../modules/databases';
 
 type ExpandedDatabases = Record<
   Database['_id'],
@@ -103,7 +107,6 @@ const filterConnections = (
         ...connection,
         isMatch,
         databases: childMatches.length ? childMatches : connection.databases,
-        // databases: (!isMatch && childMatches.length) ? childMatches : connection.databases, // TODO: check with Ben
       });
     }
   }
@@ -124,7 +127,6 @@ const filterDatabases = (
         ...db,
         isMatch,
         collections: childMatches.length ? childMatches : db.collections,
-        // collections: (!isMatch && childMatches.length) ? childMatches : db.collections, // TODO: check with Ben
       });
     }
   }
@@ -211,6 +213,8 @@ export function ActiveConnectionNavigation({
   connections,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
+  fetchAllCollections: _fetchAllCollections,
+  onDatabaseExpand: _onDatabaseExpand,
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
@@ -235,7 +239,12 @@ export function ActiveConnectionNavigation({
   onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
   onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
+  onDatabaseExpand: (
+    connectionId: ConnectionInfo['id'],
+    databaseId: string
+  ) => void;
   onDisconnect: (connectionId: ConnectionInfo['id']) => void;
+  fetchAllCollections: () => void;
 }): React.ReactElement {
   const [expandedConnections, setExpandedConnections] =
     useState<ExpandedConnections>({});
@@ -274,7 +283,13 @@ export function ActiveConnectionNavigation({
       setFilteredConnections(undefined);
       collapseAllTemporarilyExpanded();
     } else if (connectionsButOnlyIfFilterIsActive) {
-      // this check is extra just to please TS
+      // the above check is extra just to please TS
+
+      // When filtering, emit an event so that we can fetch all collections. This
+      // is required as a workaround for the synchronous nature of the current
+      // filtering feature
+      _fetchAllCollections();
+
       const results = filterConnections(
         connectionsButOnlyIfFilterIsActive,
         filterRegex
@@ -288,6 +303,7 @@ export function ActiveConnectionNavigation({
     setFilteredConnections,
     temporarilyExpand,
     collapseAllTemporarilyExpanded,
+    _fetchAllCollections,
   ]);
 
   const onConnectionToggle = useCallback(
@@ -347,9 +363,10 @@ export function ActiveConnectionNavigation({
             },
           },
         }));
+        _onDatabaseExpand(connectionId, databaseId);
       }
     },
-    [setExpandedConnections, expandedConnections]
+    [setExpandedConnections, expandedConnections, _onDatabaseExpand]
   );
 
   const getExpanded = useCallback(
@@ -620,4 +637,6 @@ const onNamespaceAction = (
 
 export default connect(mapStateToProps, {
   onNamespaceAction,
+  fetchAllCollections,
+  onDatabaseExpand,
 })(ActiveConnectionNavigation);

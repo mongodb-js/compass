@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   useHoverState,
@@ -32,7 +32,6 @@ import {
 } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 type DatabasesActions = 'open-create-database' | 'refresh-databases';
 
@@ -287,14 +286,6 @@ export function NavigationItems({
     (filterRegex: RegExp | null) => setDatabasesFilterRegex(filterRegex),
     [setDatabasesFilterRegex]
   );
-
-  // When filtering, emit an event so that we can fetch all collections. This
-  // is required as a workaround for the synchronous nature of the current
-  // filtering feature
-  const appRegistry = useGlobalAppRegistry();
-  useEffect(() => {
-    appRegistry.emit('sidebar-filter-navigation-list');
-  }, [databasesFilterRegex, appRegistry]);
 
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [

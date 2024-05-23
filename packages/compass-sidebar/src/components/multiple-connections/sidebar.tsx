@@ -398,13 +398,6 @@ export function MultipleConnectionSidebar({
     };
   }, [appRegistry, onNewConnectionOpen]);
 
-  // When filtering, emit an event so that we can fetch all collections. This
-  // is required as a workaround for the synchronous nature of the current
-  // filtering feature
-  useEffect(() => {
-    appRegistry.emit('sidebar-filter-navigation-list');
-  }, [activeConnectionsFilterRegex, appRegistry]);
-
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
