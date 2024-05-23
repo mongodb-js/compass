@@ -39,9 +39,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     // For multiple connections we're making the assumption that there should be
     // no active connections left. Use a different command if you expect to
     // disconnect just one connection and still keep others around.
-    await browser
-      .$(Selectors.SidebarDatabaseAndCollectionList)
-      .waitForExist({ reverse: true });
+    await browser.$(Selectors.SidebarTreeItems).waitForExist({ reverse: true });
 
     // TODO: should we open the New Connection modal to mirror the single connection flow or do that separately?
   } else {

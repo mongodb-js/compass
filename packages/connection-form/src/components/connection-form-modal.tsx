@@ -22,6 +22,7 @@ export default function ConnectionFormModal({
       open={isOpen}
       setOpen={setOpen}
       contentClassName={modalContentStyles}
+      data-testid="connection-form-modal"
     >
       <ConnectionForm {...rest} />
     </Modal>
