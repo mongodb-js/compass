@@ -5,6 +5,7 @@ import {
   Option,
   Select,
   css,
+  cx,
   spacing,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
@@ -12,19 +13,30 @@ import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
 import {
   closeModal,
+  connectionSelected,
   openSelectedItem,
   selectCollection,
   selectDatabase,
   updateItemNamespaceChecked,
 } from '../stores/open-item';
 
-type AsyncItemsSelectProps = {
+type SelectProps = {
   name: string;
   label: string;
-  items: string[];
   selectedItem: string | null;
-  isLoading: boolean;
   onChange(item: string): void;
+};
+
+type AsyncItemsSelectProps = SelectProps & {
+  items: string[];
+  isLoading: boolean;
+};
+
+type ConnectionSelectProps = SelectProps & {
+  items: {
+    id: string;
+    name: string;
+  }[];
 };
 
 const select = css({
@@ -62,6 +74,38 @@ const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
   );
 };
 
+const mapConnectionState: MapStateToProps<
+  Pick<ConnectionSelectProps, 'selectedItem' | 'items'>,
+  Pick<ConnectionSelectProps, 'name' | 'label'>,
+  RootState
+> = ({ openItem: { selectedConnection, connections } }) => {
+  return {
+    items: connections,
+    selectedItem: selectedConnection,
+  };
+};
+
+const ConnectionSelect = connect(mapConnectionState, {
+  onChange: connectionSelected,
+})(({ name, label, items, selectedItem, onChange }: ConnectionSelectProps) => {
+  return (
+    <Select
+      name={name}
+      label={label}
+      value={selectedItem ?? ''}
+      onChange={onChange}
+      usePortal={false}
+      className={select}
+    >
+      {items.map(({ id, name }) => (
+        <Option key={id} value={id}>
+          {name}
+        </Option>
+      ))}
+    </Select>
+  );
+});
+
 const mapDatabaseState: MapStateToProps<
   Pick<AsyncItemsSelectProps, 'items' | 'selectedItem' | 'isLoading'>,
   Pick<AsyncItemsSelectProps, 'name' | 'label'>,
@@ -94,13 +138,14 @@ const CollectionSelect = connect(mapCollectionState, {
   onChange: selectCollection,
 })(AsyncItemsSelect);
 
-type OpenItemModalProps = {
+type NamespaceNotFoundModalProps = {
   namespace: string;
   itemType: string;
   itemName: string;
   isModalOpen: boolean;
   isSubmitDisabled: boolean;
   updateItemNamespace: boolean;
+  connections: { id: string; name: string }[];
   onSubmit(): void;
   onClose(): void;
   onUpdateNamespaceChecked(checked: boolean): void;
@@ -108,18 +153,39 @@ type OpenItemModalProps = {
 
 const modalContent = css({
   display: 'grid',
-  gridTemplateAreas: `
-    'description description'
-    'database collection'
-    'checkbox checkbox'
-  `,
   gridAutoColumns: '1fr',
   rowGap: spacing[4],
   columnGap: spacing[3],
 });
 
+const contentWithoutConnectionSelect = cx(
+  modalContent,
+  css({
+    gridTemplateAreas: `
+    'description description'
+    'database collection'
+    'checkbox checkbox'
+  `,
+  })
+);
+
+const contentWithConnectionSelect = cx(
+  modalContent,
+  css({
+    gridTemplateAreas: `
+    'description description description'
+    'connection database collection'
+    'checkbox checkbox checkbox'
+  `,
+  })
+);
+
 const description = css({
   gridArea: 'description',
+});
+
+const connectionSelect = css({
+  gridArea: 'connection',
 });
 
 const databaseSelect = css({
@@ -134,35 +200,72 @@ const checkbox = css({
   gridArea: 'checkbox',
 });
 
-const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
+const NamespaceNotFoundModal: React.FunctionComponent<
+  NamespaceNotFoundModalProps
+> = ({
   namespace,
   itemType,
   itemName,
   isModalOpen,
   isSubmitDisabled,
   updateItemNamespace,
+  connections,
   onClose,
   onSubmit,
   onUpdateNamespaceChecked,
 }) => {
+  const showConnectionSelect = connections.length > 1;
+
   return (
     <FormModal
       open={isModalOpen}
       onCancel={onClose}
       onSubmit={() => onSubmit()}
-      title="Select a Namespace"
+      title={
+        showConnectionSelect
+          ? 'Select a Connection and Namespace'
+          : 'Select a Namespace'
+      }
       submitButtonText="Open"
       submitDisabled={isSubmitDisabled}
       scroll={false} // this is so that the selects can hang over the footer and out of the modal
       data-testid="open-item-modal"
     >
-      <div className={modalContent}>
+      <div
+        className={
+          showConnectionSelect
+            ? contentWithConnectionSelect
+            : contentWithoutConnectionSelect
+        }
+      >
         <div className={description}>
-          The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
-          <strong>{itemName}</strong> doesn&rsquo;t exist in&nbsp;the current
-          cluster. Please select another namespace to&nbsp;open saved {itemType}
-          .
+          {showConnectionSelect ? (
+            <>
+              The namespace <strong>{namespace}</strong> for the saved{' '}
+              {itemType} <strong>{itemName}</strong> doesn&rsquo;t exist
+              in&nbsp;any of the active connections. Please select another
+              target to&nbsp;open saved {itemType}
+            </>
+          ) : (
+            <>
+              The namespace <strong>{namespace}</strong> for the saved{' '}
+              {itemType} <strong>{itemName}</strong> doesn&rsquo;t exist
+              in&nbsp;the current connection. Please select another namespace
+              to&nbsp;open saved {itemType}.
+            </>
+          )}
         </div>
+        {showConnectionSelect && (
+          <div
+            className={connectionSelect}
+            data-testid="connection-select-field"
+          >
+            <ConnectionSelect
+              name="connection"
+              label="Connection"
+            ></ConnectionSelect>
+          </div>
+        )}
         <div className={databaseSelect} data-testid="database-select-field">
           <DatabaseSelect name="database" label="Database"></DatabaseSelect>
         </div>
@@ -188,37 +291,43 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
 
 const mapState: MapStateToProps<
   Pick<
-    OpenItemModalProps,
+    NamespaceNotFoundModalProps,
     | 'isModalOpen'
     | 'isSubmitDisabled'
     | 'namespace'
     | 'itemType'
     | 'itemName'
     | 'updateItemNamespace'
+    | 'connections'
   >,
   Record<string, never>,
   RootState
 > = ({
   openItem: {
-    isModalOpen,
+    openedModal,
     selectedDatabase,
     selectedCollection,
     selectedItem: item,
     updateItemNamespace,
+    connections,
   },
 }) => {
   return {
-    isModalOpen,
+    isModalOpen: openedModal === 'namespace-not-found-modal',
     isSubmitDisabled: !(selectedDatabase && selectedCollection),
     namespace: `${item?.database ?? ''}.${item?.collection ?? ''}`,
     itemName: item?.name ?? '',
     itemType: item?.type ?? '',
     updateItemNamespace,
+    connections,
   };
 };
 
 const mapDispatch: MapDispatchToProps<
-  Pick<OpenItemModalProps, 'onSubmit' | 'onClose' | 'onUpdateNamespaceChecked'>,
+  Pick<
+    NamespaceNotFoundModalProps,
+    'onSubmit' | 'onClose' | 'onUpdateNamespaceChecked'
+  >,
   Record<string, never>
 > = {
   onSubmit: openSelectedItem,
@@ -226,4 +335,4 @@ const mapDispatch: MapDispatchToProps<
   onUpdateNamespaceChecked: updateItemNamespaceChecked,
 };
 
-export default connect(mapState, mapDispatch)(OpenItemModal);
+export default connect(mapState, mapDispatch)(NamespaceNotFoundModal);

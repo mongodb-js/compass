@@ -53,6 +53,7 @@
     "@mongodb-js/compass-connections": "^1.30.1",
     "@mongodb-js/compass-logging": "^1.2.18",
     "@mongodb-js/compass-workspaces": "^0.11.0",
+    "@mongodb-js/connection-info": "^0.3.1",
     "@mongodb-js/my-queries-storage": "^0.8.1",
     "bson": "^6.7.0",
     "compass-preferences-model": "^2.20.0",

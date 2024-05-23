@@ -1,11 +1,8 @@
 import type { ActionCreator, AnyAction, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
-import type {
-  ConnectionInfo,
-  DataService,
-} from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -16,9 +13,14 @@ function isAction<A extends AnyAction>(
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
+export type OpenedModal =
+  | 'namespace-not-found-modal'
+  | 'select-connection-modal';
+
 export type State = {
-  isModalOpen: boolean;
+  openedModal: OpenedModal | null;
   selectedItem: Item | null;
+  connections: { id: string; name: string }[];
   selectedConnection: string | null;
   databases: string[];
   selectedDatabase: string | null;
@@ -30,8 +32,9 @@ export type State = {
 };
 
 const INITIAL_STATE: State = {
-  isModalOpen: false,
+  openedModal: null,
   selectedItem: null,
+  connections: [],
   selectedConnection: null,
   databases: [],
   selectedDatabase: null,
@@ -59,8 +62,12 @@ export enum ActionTypes {
 
 type OpenModalAction = {
   type: ActionTypes.OpenModal;
+  modal: OpenedModal;
   selectedItem: Item;
+  connections: State['connections'];
   selectedConnection?: string;
+  selectedDatabase?: string;
+  selectedCollection?: string;
 };
 
 type CloseModalAction = {
@@ -69,7 +76,9 @@ type CloseModalAction = {
 
 type ConnectionSelectedAction = {
   type: ActionTypes.ConnectionSelected;
-  connection: string;
+  selectedConnection: string;
+  selectedDatabase?: string;
+  selectedCollection?: string;
 };
 
 type SelectDatabaseAction = {
@@ -131,9 +140,12 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   if (isAction<OpenModalAction>(action, ActionTypes.OpenModal)) {
     return {
       ...state,
+      openedModal: action.modal,
       selectedItem: action.selectedItem,
+      connections: action.connections,
       selectedConnection: action.selectedConnection ?? state.selectedConnection,
-      isModalOpen: true,
+      selectedDatabase: action.selectedDatabase ?? state.selectedDatabase,
+      selectedCollection: action.selectedCollection ?? state.selectedCollection,
     };
   }
 
@@ -146,13 +158,13 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      selectedConnection: action.connection,
-      selectedDatabase: null,
+      selectedConnection: action.selectedConnection,
+      selectedDatabase: action.selectedDatabase ?? null,
       databases: [],
       databasesStatus: 'initial',
       collections: [],
       collectionsStatus: 'initial',
-      selectedCollection: null,
+      selectedCollection: action.selectedCollection ?? null,
     };
   }
 
@@ -249,63 +261,15 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const getDataServiceAndInstanceForConnection =
-  (
-    connection: string | null
-  ): SavedQueryAggregationThunkAction<
-    | {
-        dataService?: never;
-        instance?: never;
-        error: Error;
-      }
-    | {
-        dataService: DataService;
-        instance: MongoDBInstance;
-        error?: never;
-      }
-  > =>
-  (_dispatch, _getState, { connectionsManager, instancesManager }) => {
-    if (!connection) {
-      return {
-        error: new Error('Connection not provided'),
-      };
-    }
-
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connection);
-    if (!dataService) {
-      return {
-        error: new Error(
-          `DataService for connection - ${connection} not found`
-        ),
-      };
-    }
-
-    const instance =
-      instancesManager.getMongoDBInstanceForConnection(connection);
-    if (!instance) {
-      return {
-        error: new Error(`Instance for connection - ${connection} not found`),
-      };
-    }
-
-    return {
-      dataService,
-      instance,
-    };
-  };
-
 const loadDatabasesForConnection =
   (connectionId: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch) => {
+  async (dispatch, _getState, { connectionsManager, instancesManager }) => {
     dispatch({ type: ActionTypes.LoadDatabases });
     try {
-      const { error, instance, dataService } = dispatch(
-        getDataServiceAndInstanceForConnection(connectionId)
-      );
-      if (error) {
-        throw error;
-      }
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(connectionId);
+      const dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
 
       await instance.fetchDatabases({ dataService });
       dispatch({
@@ -318,11 +282,17 @@ const loadDatabasesForConnection =
   };
 
 export const connectionSelected =
-  (selectedConnection: string): SavedQueryAggregationThunkAction<void> =>
+  (
+    selectedConnection: string,
+    selectedDatabase?: string | null,
+    selectedCollection?: string | null
+  ): SavedQueryAggregationThunkAction<void> =>
   (dispatch) => {
     dispatch({
       type: ActionTypes.ConnectionSelected,
-      connection: selectedConnection,
+      selectedConnection,
+      selectedDatabase,
+      selectedCollection,
     });
 
     void dispatch(loadDatabasesForConnection(selectedConnection));
@@ -333,15 +303,18 @@ export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
   updateItemNamespace,
 });
 
-const openModal =
+const openNamespaceNotFoundModal =
   (
+    connections: State['connections'],
     selectedItem: Item,
     selectedConnection?: string
-  ): SavedQueryAggregationThunkAction<void> =>
+  ): SavedQueryAggregationThunkAction<void, OpenModalAction> =>
   (dispatch) => {
     dispatch({
       type: ActionTypes.OpenModal,
+      modal: 'namespace-not-found-modal',
       selectedItem,
+      connections,
       selectedConnection,
     });
 
@@ -349,6 +322,20 @@ const openModal =
       void dispatch(loadDatabasesForConnection(selectedConnection));
     }
   };
+
+const openSelectConnectionsModal = (
+  connections: State['connections'],
+  selectedItem: Item,
+  selectedDatabase: string,
+  selectedCollection: string
+): OpenModalAction => ({
+  type: ActionTypes.OpenModal,
+  modal: 'select-connection-modal',
+  selectedItem,
+  connections,
+  selectedDatabase,
+  selectedCollection,
+});
 
 export const closeModal = (): CloseModalAction => ({
   type: ActionTypes.CloseModal,
@@ -392,7 +379,11 @@ export const openSavedItem =
     id: string,
     activeConnections: ConnectionInfo[]
   ): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState, { preferencesAccess }) => {
+  async (
+    dispatch,
+    getState,
+    { instancesManager, connectionsManager, logger: { log, mongoLogId } }
+  ) => {
     const {
       savedItems: { items },
     } = getState();
@@ -404,34 +395,72 @@ export const openSavedItem =
     }
 
     const { database, collection } = item;
-    const multiConnectionsEnabled =
-      preferencesAccess.getPreferences().enableNewMultipleConnectionSystem;
 
-    if (!multiConnectionsEnabled) {
-      // In single connections mode, we only expect one connections to be here
-      // in the list of active connections.
-      const [activeConnection] = activeConnections;
-      const { error, dataService, instance } = dispatch(
-        getDataServiceAndInstanceForConnection(activeConnection.id)
+    const connectionsWithError: { connectionId: string; error: Error }[] = [];
+    const connectionsWithNamespace: ConnectionInfo[] = [];
+    for (const connectionInfo of activeConnections) {
+      try {
+        const dataService = connectionsManager.getDataServiceForConnection(
+          connectionInfo.id
+        );
+        const instance = instancesManager.getMongoDBInstanceForConnection(
+          connectionInfo.id
+        );
+        const coll = await instance.getNamespace({
+          dataService,
+          database,
+          collection,
+        });
+
+        if (coll) {
+          connectionsWithNamespace.push(connectionInfo);
+        }
+      } catch (error) {
+        connectionsWithError.push({
+          connectionId: connectionInfo.id,
+          error: error as Error,
+        });
+      }
+    }
+
+    if (connectionsWithError.length) {
+      log.info(
+        mongoLogId(1_001_000_308),
+        'Saved Aggregations Queries',
+        'Failed to lookup namespace in some connections',
+        connectionsWithError
       );
-      if (error) {
-        return;
-      }
+    }
 
-      const coll = await instance.getNamespace({
-        dataService,
-        database,
-        collection,
-      });
-
-      if (!coll) {
-        dispatch(openModal(item, activeConnection.id));
-        return;
-      }
-
-      dispatch(openItem(item, activeConnection.id, database, collection));
+    if (connectionsWithNamespace.length === 0) {
+      // If we only have one active connection then we have it selected by
+      // default
+      const selectedConnection =
+        activeConnections.length === 1 ? activeConnections[0] : undefined;
+      const connections = activeConnections.map<State['connections'][number]>(
+        (connectionInfo) => ({
+          id: connectionInfo.id,
+          name: getConnectionTitle(connectionInfo),
+        })
+      );
+      dispatch(
+        openNamespaceNotFoundModal(connections, item, selectedConnection?.id)
+      );
+    } else if (connectionsWithNamespace.length === 1) {
+      dispatch(
+        openItem(item, connectionsWithNamespace[0].id, database, collection)
+      );
     } else {
-      // TODO: COMPASS-7904
+      // For SelectConnectionsModal we only show the connections that have the namespace
+      const connections = connectionsWithNamespace.map<
+        State['connections'][number]
+      >((connectionInfo) => ({
+        id: connectionInfo.id,
+        name: getConnectionTitle(connectionInfo),
+      }));
+      dispatch(
+        openSelectConnectionsModal(connections, item, database, collection)
+      );
     }
   };
 
@@ -483,7 +512,7 @@ export const openSelectedItem =
 
 export const selectDatabase =
   (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState) => {
+  async (dispatch, getState, { instancesManager, connectionsManager }) => {
     const {
       openItem: { selectedDatabase, selectedConnection },
     } = getState();
@@ -496,12 +525,14 @@ export const selectDatabase =
 
     dispatch({ type: ActionTypes.LoadCollections });
     try {
-      const { error, instance, dataService } = dispatch(
-        getDataServiceAndInstanceForConnection(selectedConnection)
-      );
-      if (error) {
-        throw error;
+      if (!selectedConnection) {
+        throw new Error('Select a connection first');
       }
+
+      const dataService =
+        connectionsManager.getDataServiceForConnection(selectedConnection);
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(selectedConnection);
 
       const db = instance.databases.get(database);
       if (!db) {

@@ -14,7 +14,7 @@ import type { RootState } from '../stores';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { Action } from './saved-item-card';
 import { NoSavedItems, NoSearchResults } from './empty-list-items';
-import OpenItemModal from './open-item-modal';
+import NamespaceNotFoundModal from './namespace-not-found-modal';
 import EditItemModal from './edit-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 import { editItem } from '../stores/edit-item';
@@ -25,6 +25,7 @@ import {
   type ConnectionInfo,
   useActiveConnections,
 } from '@mongodb-js/compass-connections/provider';
+import SelectConnectionModal from './select-connection-modal';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -234,7 +235,8 @@ export const AggregationsQueriesList = ({
         classNames={{ row: rowStyles }}
         resetActiveItemOnBlur={false}
       ></VirtualGrid>
-      <OpenItemModal></OpenItemModal>
+      <NamespaceNotFoundModal></NamespaceNotFoundModal>
+      <SelectConnectionModal></SelectConnectionModal>
       <EditItemModal></EditItemModal>
     </ControlsContext.Provider>
   );
