@@ -30,7 +30,9 @@ import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 type Collection = {
   _id: string;
   name: string;
-  type: string;
+  type: 'view' | 'collection' | 'timeseries';
+  sourceName: string | null;
+  pipeline: unknown[];
 };
 
 type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
@@ -274,7 +276,7 @@ const databaseToItems = ({
           level: level + 1,
           id,
           name,
-          type: type as 'collection' | 'view' | 'timeseries',
+          type,
           setSize: collections.length,
           posInSet: index + 1,
           colorCode,
@@ -561,7 +563,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 const MCContainer = css({
   display: 'flex',
   flex: '1 0 auto',
-  height: `calc(100% - ${spacing[3]}px)`,
+  height: `calc(100% - ${spacing[1600]}px - ${spacing[200]}px)`,
 });
 
 const SCContainer = css({

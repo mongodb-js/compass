@@ -218,11 +218,6 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
     try {
       const dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
-      if (!dataService) {
-        throw new Error(
-          `DataService for connectionId ${connectionId} not found`
-        );
-      }
 
       dispatch(toggleIsRunning(true));
       await dataService.createView(
