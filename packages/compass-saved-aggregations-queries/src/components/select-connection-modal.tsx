@@ -112,7 +112,7 @@ const SelectConnectionModal: React.FunctionComponent<
             value={selectedConnection ?? ''}
           >
             {connections.map(({ id, name }) => (
-              <Radio key={id} value={id}>
+              <Radio key={id} value={id} data-testid={`connection-item-${id}`}>
                 {name}
               </Radio>
             ))}
