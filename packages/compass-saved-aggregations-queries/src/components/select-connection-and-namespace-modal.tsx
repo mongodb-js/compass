@@ -291,10 +291,16 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
             <ConnectionSelect />
           </div>
         )}
-        <div className={databaseSelectStyles}>
+        <div
+          className={databaseSelectStyles}
+          data-testid="database-select-field"
+        >
           <DatabaseSelect name="database" label="Database"></DatabaseSelect>
         </div>
-        <div className={collectionSelectStyles}>
+        <div
+          className={collectionSelectStyles}
+          data-testid="collection-select-field"
+        >
           <CollectionSelect
             name="collection"
             label="Collection"
