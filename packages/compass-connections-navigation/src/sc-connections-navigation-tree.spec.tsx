@@ -46,6 +46,7 @@ const connections: Connection[] = [
     isReady: true,
     isWritable: true,
     name: 'test',
+    isPerformanceTabSupported: false,
   },
 ];
 
@@ -88,7 +89,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         </PreferencesProvider>
       );
 
-      const collection = screen.getByTestId('sidebar-collection-bar.meow');
+      const collection = screen.getByTestId('connectionId.bar.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
@@ -113,7 +114,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         </PreferencesProvider>
       );
 
-      const collection = screen.getByTestId('sidebar-collection-bar.meow');
+      const collection = screen.getByTestId('connectionId.bar.meow');
 
       userEvent.click(within(collection).getByTitle('Show actions'));
       userEvent.click(screen.getByText('Rename collection'));
@@ -193,7 +194,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       // Virtual list will be the one to grab the focus first, but will
       // immediately forward it to the element and mocking raf here breaks
       // virtual list implementatin, waitFor is to accomodate for that
-      expect(document.querySelector('[data-id="bar"]')).to.eq(
+      expect(document.querySelector('[data-id="connectionId.bar"]')).to.eq(
         document.activeElement
       );
       return true;
@@ -213,7 +214,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
       userEvent.hover(screen.getByText('foo'));
 
-      const database = screen.getByTestId('sidebar-database-foo');
+      const database = screen.getByTestId('connectionId.foo');
 
       expect(within(database).getByTitle('Create collection')).to.exist;
       expect(within(database).getByTitle('Drop database')).to.exist;
@@ -236,7 +237,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         ></ConnectionsNavigationTree>
       );
 
-      const database = screen.getByTestId('sidebar-database-bar');
+      const database = screen.getByTestId('connectionId.bar');
 
       expect(within(database).getByTitle('Create collection')).to.exist;
       expect(within(database).getByTitle('Drop database')).to.exist;
@@ -254,7 +255,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         ></ConnectionsNavigationTree>
       );
 
-      const collection = screen.getByTestId('sidebar-collection-bar.meow');
+      const collection = screen.getByTestId('connectionId.bar.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
@@ -283,7 +284,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         ></ConnectionsNavigationTree>
       );
 
-      const collection = screen.getByTestId('sidebar-collection-bar.bwok');
+      const collection = screen.getByTestId('connectionId.bar.bwok');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
@@ -319,7 +320,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         ></ConnectionsNavigationTree>
       );
 
-      const database = screen.getByTestId('sidebar-database-bar');
+      const database = screen.getByTestId('connectionId.bar');
 
       expect(() => within(database).getByTitle('Create collection')).to.throw;
       expect(() => within(database).getByTitle('Drop database')).to.throw;
@@ -343,7 +344,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         ></ConnectionsNavigationTree>
       );
 
-      const collection = screen.getByTestId('sidebar-collection-bar.bwok');
+      const collection = screen.getByTestId('connectionId.bar.bwok');
 
       expect(within(collection).getByTitle('Open in new tab')).to.exist;
     });
@@ -461,7 +462,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           ></ConnectionsNavigationTree>
         );
 
-        const collection = screen.getByTestId('sidebar-collection-bar.meow');
+        const collection = screen.getByTestId('connectionId.bar.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Open in new tab'));
@@ -486,7 +487,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           ></ConnectionsNavigationTree>
         );
 
-        const collection = screen.getByTestId('sidebar-collection-bar.meow');
+        const collection = screen.getByTestId('connectionId.bar.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Drop collection'));
@@ -519,7 +520,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           ></ConnectionsNavigationTree>
         );
 
-        const view = screen.getByTestId('sidebar-collection-bar.bwok');
+        const view = screen.getByTestId('connectionId.bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Duplicate view'));
@@ -550,7 +551,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           ></ConnectionsNavigationTree>
         );
 
-        const view = screen.getByTestId('sidebar-collection-bar.bwok');
+        const view = screen.getByTestId('connectionId.bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify view'));
