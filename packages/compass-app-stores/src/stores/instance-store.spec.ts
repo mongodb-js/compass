@@ -108,12 +108,12 @@ describe('InstanceStore [Store]', function () {
       );
     }
 
-    expect(instancesManager.getMongoDBInstanceForConnection('1')).to.not.be
-      .undefined;
-    expect(instancesManager.getMongoDBInstanceForConnection('2')).to.not.be
-      .undefined;
-    expect(instancesManager.getMongoDBInstanceForConnection('3')).to.not.be
-      .undefined;
+    expect(() => instancesManager.getMongoDBInstanceForConnection('1')).to.not
+      .throw;
+    expect(() => instancesManager.getMongoDBInstanceForConnection('2')).to.not
+      .throw;
+    expect(() => instancesManager.getMongoDBInstanceForConnection('3')).to.not
+      .throw;
   });
 
   context('when connected', function () {
@@ -129,7 +129,7 @@ describe('InstanceStore [Store]', function () {
         connectedConnectionInfoId
       );
       expect(instance).to.not.be.undefined;
-      connectedInstance = instance as MongoDBInstance;
+      connectedInstance = instance;
       initialInstanceRefreshedPromise =
         waitForInstanceRefresh(connectedInstance);
     });
@@ -145,7 +145,7 @@ describe('InstanceStore [Store]', function () {
         );
         expect(instance).to.have.nested.property('build.version', '1.2.3');
         globalAppRegistry.emit('refresh-data');
-        await waitForInstanceRefresh(instance as MongoDBInstance);
+        await waitForInstanceRefresh(instance);
       });
 
       it('calls instance model fetch', function () {
