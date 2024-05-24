@@ -376,9 +376,6 @@ export const createNamespace = (
     try {
       dispatch(toggleIsRunning(true));
       const ds = connectionsManager.getDataServiceForConnection(connectionId);
-      if (!ds) {
-        throw new Error('DataService not available for connection');
-      }
 
       const options = await handleFLE2Options(ds, data.options);
 

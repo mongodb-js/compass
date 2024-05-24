@@ -73,11 +73,6 @@ export function activateRenameCollectionPlugin(
 
       const instance =
         instancesManager.getMongoDBInstanceForConnection(connectionId);
-      if (!instance) {
-        throw new Error(
-          'unreachable: this modal is only shown when the connection is open.'
-        );
-      }
 
       const collections: { name: string }[] =
         instance.databases.get(ns.database)?.collections ?? [];

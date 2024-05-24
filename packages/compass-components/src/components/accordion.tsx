@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -50,16 +50,30 @@ const buttonHintStyles = css({
 interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   text: string | React.ReactNode;
   hintText?: string;
+  open?: boolean;
+  setOpen?: (newValue: boolean) => void;
 }
 function Accordion({
   text,
   hintText,
+  open: _open,
+  setOpen: _setOpen,
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
-  const [open, setOpen] = useState(false);
-  const regionId = useId('region-');
-  const labelId = useId('label-');
+  const [localOpen, setLocalOpen] = useState(_open ?? false);
+  const setOpenRef = useRef(_setOpen);
+  setOpenRef.current = _setOpen;
+  const onOpenChange = useCallback(() => {
+    setLocalOpen((prevValue) => {
+      const newValue = !prevValue;
+      setOpenRef.current?.(newValue);
+      return newValue;
+    });
+  }, []);
+  const regionId = useId();
+  const labelId = useId();
+  const open = typeof _open !== 'undefined' ? _open : localOpen;
   return (
     <>
       <button
@@ -72,9 +86,7 @@ function Accordion({
         type="button"
         aria-expanded={open ? 'true' : 'false'}
         aria-controls={regionId}
-        onClick={() => {
-          setOpen((currentOpen) => !currentOpen);
-        }}
+        onClick={onOpenChange}
       >
         <span className={buttonIconContainerStyles}>
           <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
