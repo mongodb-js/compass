@@ -59,6 +59,7 @@ const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
       disabled={isLoading}
       usePortal={false}
       className={selectStyles}
+      data-testid={`${name}-select`}
     >
       {items.map((item) => (
         <Option key={item} value={item}>
@@ -103,6 +104,7 @@ const ConnectionSelect = connect(mapConnectionState, {
       usePortal={false}
       className={selectStyles}
       dropdownWidthBasis="option"
+      data-testid="connection-select"
     >
       {items.map(({ id, name, color }) => {
         const glyph =
@@ -276,7 +278,11 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
             : contentWithoutConnectionSelect
         }
       >
-        {description && <div className={descriptionStyles}>{description}</div>}
+        {description && (
+          <div data-testid="description" className={descriptionStyles}>
+            {description}
+          </div>
+        )}
         {showConnectionSelect && (
           <div
             className={connectionSelectStyles}
@@ -285,16 +291,10 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
             <ConnectionSelect />
           </div>
         )}
-        <div
-          className={databaseSelectStyles}
-          data-testid="database-select-field"
-        >
+        <div className={databaseSelectStyles}>
           <DatabaseSelect name="database" label="Database"></DatabaseSelect>
         </div>
-        <div
-          className={collectionSelectStyles}
-          data-testid="collection-select-field"
-        >
+        <div className={collectionSelectStyles}>
           <CollectionSelect
             name="collection"
             label="Collection"
