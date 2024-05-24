@@ -9,10 +9,10 @@ import {
 export type VirtualTreeItem = {
   id: string;
   name: string;
-  isExpanded?: boolean;
   level: number;
   setSize: number;
   posInSet: number;
+  isExpanded?: boolean;
 };
 
 export type VirtualPlaceholderItem = {
@@ -152,9 +152,6 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
   );
 
   useEffect(() => {
-    // TODO: if any of the items (except for placeholders) has same id, throw
-    // items.filter(x => x.type !== 'placeholder')
-
     if (
       focusState === FocusState.FocusVisible ||
       focusState === FocusState.Focus
