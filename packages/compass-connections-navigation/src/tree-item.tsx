@@ -7,7 +7,6 @@ import {
   spacing,
   Icon,
 } from '@mongodb-js/compass-components';
-import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const buttonReset = css({
@@ -22,7 +21,7 @@ const expandButton = css({
   // Not using leafygreen spacing here because none of them allow to align the
   // button with the search bar content. This probably can go away when we are
   // rebuilding the search also
-  padding: 7,
+  padding: 6,
   transition: 'transform .16s linear',
   transform: 'rotate(0deg)',
   '&:hover': {
@@ -36,18 +35,6 @@ const expanded = css({
 
 export type VirtualListItemProps = {
   style?: CSSProperties;
-};
-
-export type NamespaceItemProps = {
-  connectionId: string;
-  isActive: boolean;
-  isReadOnly: boolean;
-  isSingleConnection?: boolean;
-  onNamespaceAction(
-    connectionId: string,
-    namespace: string,
-    action: Actions
-  ): void;
 };
 
 export const ExpandButton: React.FunctionComponent<{

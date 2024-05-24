@@ -1,0 +1,92 @@
+import React, { useCallback, useMemo } from 'react';
+import { Icon, ServerIcon } from '@mongodb-js/compass-components';
+import { PlaceholderItem } from './placeholder';
+import StyledNavigationItem from './styled-navigation-item';
+import { NavigationBaseItem } from './base-navigation-item';
+import type { NavigationItemActions } from './item-actions';
+import type { OnExpandedChange } from './virtual-list/virtual-list';
+import type { SidebarTreeItem } from './tree-data';
+import { getTreeItemStyles } from './utils';
+
+type NavigationItemProps = {
+  item: SidebarTreeItem;
+  activeItemId: string;
+  getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
+  onItemAction: (
+    item: SidebarTreeItem,
+    action: NavigationItemActions[number]['action']
+  ) => void;
+  onItemExpand: OnExpandedChange<SidebarTreeItem>;
+};
+
+export function NavigationItem({
+  item,
+  activeItemId,
+  onItemAction,
+  onItemExpand,
+  getItemActions,
+}: NavigationItemProps) {
+  const itemIcon = useMemo(() => {
+    if (item.type === 'database') {
+      return <Icon glyph="Database" />;
+    }
+    if (item.type === 'collection') {
+      return <Icon glyph="Folder" />;
+    }
+    if (item.type === 'view') {
+      return <Icon glyph="Visibility" />;
+    }
+    if (item.type === 'timeseries') {
+      return <Icon glyph="TimeSeries" />;
+    }
+    if (item.type === 'connection') {
+      const isLocalhost =
+        item.connectionInfo.connectionOptions.connectionString.startsWith(
+          'mongodb://localhost'
+        ); // TODO(COMPASS-7832)
+      const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
+      if (isLocalhost) {
+        return <Icon glyph="Laptop" />;
+      }
+      if (isFavorite) {
+        return <Icon glyph="Favorite" />;
+      }
+      return <ServerIcon />;
+    }
+  }, [item]);
+
+  const onAction = useCallback(
+    (action: NavigationItemActions[number]['action']) => {
+      onItemAction(item, action);
+    },
+    [item, onItemAction]
+  );
+
+  const style = useMemo(() => getTreeItemStyles(item), [item]);
+
+  return (
+    <StyledNavigationItem colorCode={item.colorCode}>
+      {item.type === 'placeholder' ? (
+        <PlaceholderItem
+          level={item.level}
+          maxNestingLevel={item.maxNestingLevel}
+        />
+      ) : (
+        <NavigationBaseItem
+          isActive={item.id === activeItemId}
+          isExpanded={!!item.isExpanded}
+          icon={itemIcon}
+          numVisibleActions={3}
+          name={item.name}
+          actions={getItemActions(item)}
+          style={style}
+          onAction={onAction}
+          canExpand={item.level < item.maxNestingLevel}
+          onExpand={(isExpanded: boolean) => {
+            onItemExpand(item, isExpanded);
+          }}
+        ></NavigationBaseItem>
+      )}
+    </StyledNavigationItem>
+  );
+}

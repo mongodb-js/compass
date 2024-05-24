@@ -38,38 +38,38 @@ export type Connection = {
 };
 
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
-  key: string;
   colorCode?: string;
+  maxNestingLevel: number;
 };
 
 export type ConnectionTreeItem = VirtualTreeItem & {
   name: string;
-  key: string;
   type: 'connection';
   colorCode?: string;
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
   isPerformanceTabSupported: boolean;
+  maxNestingLevel: number;
 };
 
 export type DatabaseTreeItem = VirtualTreeItem & {
   name: string;
-  key: string;
   type: 'database';
   colorCode?: string;
   isExpanded: boolean;
   connectionId: string;
   dbName: string;
+  maxNestingLevel: number;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
   id: string;
-  key: string;
   name: string;
   type: 'collection' | 'view' | 'timeseries';
   colorCode?: string;
   connectionId: string;
   namespace: string;
+  maxNestingLevel: number;
 };
 
 export type SidebarTreeItem =
@@ -87,11 +87,11 @@ const connectionToItems = ({
     databasesLength,
     isPerformanceTabSupported,
   },
-  connectionIndex,
+  maxNestingLevel,
   expandedItems = {},
 }: {
   connection: Connection;
-  connectionIndex: number;
+  maxNestingLevel: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
@@ -99,7 +99,6 @@ const connectionToItems = ({
   const connectionTI: ConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,
-    key: String(connectionIndex),
     name,
     type: 'connection' as const,
     setSize: 0,
@@ -108,6 +107,7 @@ const connectionToItems = ({
     colorCode,
     connectionInfo,
     isPerformanceTabSupported,
+    maxNestingLevel,
   };
 
   const sidebarData: SidebarTreeItem[] = [connectionTI];
@@ -126,25 +126,24 @@ const connectionToItems = ({
 
   if (!areDatabasesReady) {
     return sidebarData.concat(
-      Array.from({ length: placeholdersLength }, (_, index) => ({
+      Array.from({ length: placeholdersLength }, () => ({
         level: 2,
         type: 'placeholder' as const,
         colorCode,
-        key: `${connectionIndex}-${index}`,
+        maxNestingLevel,
       }))
     );
   }
 
   return sidebarData.concat(
-    databases.flatMap((database, databaseIndex) => {
+    databases.flatMap((database) => {
       return databaseToItems({
         connectionId: connectionInfo.id,
         database,
         expandedItems: expandedItems[connectionInfo.id] || {},
         level: 2,
         colorCode,
-        databaseIndex,
-        connectionIndex,
+        maxNestingLevel,
       });
     })
   );
@@ -162,21 +161,18 @@ const databaseToItems = ({
   expandedItems = {},
   level,
   colorCode,
-  connectionIndex,
-  databaseIndex,
+  maxNestingLevel,
 }: {
   database: Database;
   connectionId: string;
   expandedItems?: Record<string, boolean>;
   level: number;
   colorCode?: string;
-  connectionIndex: number;
-  databaseIndex: number;
+  maxNestingLevel: number;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
     id: `${connectionId}.${id}`,
-    key: `${connectionIndex}-${databaseIndex}`,
     level,
     name,
     type: 'database' as const,
@@ -186,6 +182,7 @@ const databaseToItems = ({
     colorCode,
     connectionId,
     dbName: name,
+    maxNestingLevel,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -203,19 +200,18 @@ const databaseToItems = ({
 
   if (!areCollectionsReady) {
     return sidebarData.concat(
-      Array.from({ length: placeholdersLength }, (_, index) => ({
+      Array.from({ length: placeholdersLength }, () => ({
         level: level + 1,
         type: 'placeholder' as const,
         colorCode,
-        key: `${connectionIndex}-${databaseIndex}-${index}`,
+        maxNestingLevel,
       }))
     );
   }
 
   return sidebarData.concat(
-    collections.map(({ _id: id, name, type }, collectionIndex) => ({
+    collections.map(({ _id: id, name, type }) => ({
       id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
-      key: `${connectionIndex}-${databaseIndex}-${collectionIndex}`,
       level: level + 1,
       name,
       type: type as 'collection' | 'view' | 'timeseries',
@@ -224,9 +220,14 @@ const databaseToItems = ({
       colorCode,
       connectionId,
       namespace: id,
+      maxNestingLevel,
     }))
   );
 };
+
+export function getMaxNestingLevel(isSingleConnection: boolean): number {
+  return isSingleConnection ? 2 : 3;
+}
 
 /**
  * Converts a list connections to virtual tree items.
@@ -248,24 +249,23 @@ export function getVirtualTreeItems(
 ): SidebarTreeItem[] {
   let treeList: SidebarTreeItem[] = [];
   if (!isSingleConnection) {
-    treeList = connections.flatMap((connection, connectionIndex) =>
+    treeList = connections.flatMap((connection) =>
       connectionToItems({
         connection,
         expandedItems,
-        connectionIndex,
+        maxNestingLevel: getMaxNestingLevel(isSingleConnection),
       })
     );
   } else {
     const connection = connections[0];
     const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
-    treeList = connection.databases.flatMap((database, databaseIndex) => {
+    treeList = connection.databases.flatMap((database) => {
       return databaseToItems({
         connectionId: connection.connectionInfo.id,
         database,
         expandedItems: dbExpandedItems,
         level: 1,
-        databaseIndex,
-        connectionIndex: 0,
+        maxNestingLevel: getMaxNestingLevel(isSingleConnection),
       });
     });
   }

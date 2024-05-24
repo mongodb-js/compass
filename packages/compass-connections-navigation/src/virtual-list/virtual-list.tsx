@@ -15,7 +15,7 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 
-function useDefaultAction<T>(
+function useDefaultAction<T extends VirtualItem>(
   item: T,
   onDefaultAction: (
     item: T,
@@ -51,7 +51,7 @@ function useDefaultAction<T>(
 type NotPlaceholderTreeItem<T> = T extends { type: 'placeholder' } ? never : T;
 type RenderItem<T> = (props: { index: number; item: T }) => React.ReactNode;
 export type OnDefaultAction<T> = (
-  item: T,
+  item: NotPlaceholderTreeItem<T>,
   evt: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
 ) => void;
 export type OnExpandedChange<T> = (
@@ -66,7 +66,7 @@ type VirtualTreeProps<T extends VirtualItem> = {
   height: number | string;
   itemHeight: number;
   renderItem: RenderItem<T>;
-  getItemKey: (item: T) => string;
+  getItemKey?: (item: T) => string;
   onDefaultAction: OnDefaultAction<T>;
   onExpandedChange: OnExpandedChange<T>;
 };
@@ -131,6 +131,9 @@ export function VirtualTree<T extends VirtualItem>({
 
   const getItemKey = useCallback(
     (index: number, data: VirtualItemData<T>) => {
+      if (!_getItemKey) {
+        return index;
+      }
       return _getItemKey(data.items[index]);
     },
     [_getItemKey]
@@ -178,6 +181,7 @@ function TreeItem<T extends VirtualItem>({
     return renderItem({ index, item });
   }, [renderItem, index, item]);
 
+  // todo: type check
   const actionProps = useDefaultAction<T>(item, data.onDefaultAction);
 
   // Placeholder check

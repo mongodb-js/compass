@@ -8,13 +8,8 @@ import type {
   OnDefaultAction,
   OnExpandedChange,
 } from './virtual-list/virtual-list';
-
-import { CollectionItem } from './collection-item';
-import { ConnectionItem } from './connection-item';
-import { DatabaseItem } from './database-item';
-import { PlaceholderItem } from './placeholder-item';
+import { NavigationItem } from './navigation-item';
 import type { SidebarTreeItem } from './tree-data';
-import StyledNavigationItem from './styled-navigation-item';
 import {
   FadeInPlaceholder,
   VisuallyHidden,
@@ -24,102 +19,18 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
-import { TopPlaceholder } from './top-placeholder';
-
-const collectionItemContainer = css({
-  position: 'relative',
-});
-
-type NavigationItemProps = {
-  item: SidebarTreeItem;
-  onExpandItem: OnExpandedChange<SidebarTreeItem>;
-} & Pick<
-  ConnectionsNavigationTreeProps,
-  'activeWorkspace' | 'isSingleConnection' | 'isReadOnly' | 'onNamespaceAction'
->;
-
-function NavigationItem({
-  item,
-  activeWorkspace,
-  isSingleConnection,
-  isReadOnly,
-  onExpandItem,
-  onNamespaceAction,
-}: NavigationItemProps) {
-  const namespaceProps = useMemo(
-    () => ({
-      isReadOnly: !!isReadOnly,
-      isSingleConnection,
-      onNamespaceAction,
-    }),
-    [isReadOnly, isSingleConnection, onNamespaceAction]
-  );
-  let Item: React.ReactElement;
-  if (item.type === 'placeholder') {
-    Item = (
-      <PlaceholderItem
-        level={item.level}
-        isSingleConnection={isSingleConnection}
-      ></PlaceholderItem>
-    );
-  } else if (item.type === 'connection') {
-    Item = (
-      <ConnectionItem
-        item={item}
-        connectionId={item.connectionInfo.id}
-        isActive={
-          activeWorkspace?.type === 'Databases' &&
-          activeWorkspace.connectionId === item.connectionInfo.id
-        }
-        onConnectionExpand={() => onExpandItem(item, !item.isExpanded)}
-        {...namespaceProps}
-      />
-    );
-  } else if (item.type === 'database') {
-    Item = (
-      <DatabaseItem
-        item={item}
-        connectionId={item.connectionId}
-        isActive={
-          activeWorkspace?.type === 'Collections' &&
-          activeWorkspace.connectionId === item.connectionId &&
-          activeWorkspace.namespace === item.dbName
-        }
-        onDatabaseExpand={() => onExpandItem(item, !item.isExpanded)}
-        {...namespaceProps}
-      />
-    );
-  } else {
-    Item = (
-      <div className={collectionItemContainer}>
-        <CollectionItem
-          connectionId={item.connectionId}
-          isActive={
-            activeWorkspace?.type === 'Collection' &&
-            activeWorkspace.connectionId === item.connectionId &&
-            activeWorkspace.namespace === item.namespace
-          }
-          item={item}
-          {...namespaceProps}
-        ></CollectionItem>
-      </div>
-    );
-  }
-  return (
-    <StyledNavigationItem
-      isSingleConnection={isSingleConnection ?? false}
-      colorCode={item.colorCode}
-    >
-      {Item}
-    </StyledNavigationItem>
-  );
-}
+import { TopPlaceholder } from './placeholder';
+import {
+  collectionItemActions,
+  connectionItemActions,
+  databaseItemActions,
+} from './item-actions';
 
 interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
-  isSingleConnection: boolean;
   onConnectionExpand?(id: string, isExpanded: boolean): void;
+  onConnectionSelect?(id: string): void;
   onDatabaseExpand(connectionId: string, id: string, isExpanded: boolean): void;
   onNamespaceAction(
     connectionId: string,
@@ -127,7 +38,7 @@ interface ConnectionsNavigationTreeProps {
     action: Actions
   ): void;
   activeWorkspace?: WorkspaceTab;
-  isReadOnly?: boolean;
+  isReadOnly: boolean;
 }
 
 const ConnectionsNavigationTree: React.FunctionComponent<
@@ -135,16 +46,21 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 > = ({
   connections,
   expanded,
-  isReadOnly,
+  isReadOnly = false,
   activeWorkspace,
+  onDatabaseExpand,
+  onNamespaceAction,
   // onConnectionExpand and onConnectionSelect only has a default to support single-connection usage
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   onConnectionExpand = () => {},
-  onDatabaseExpand,
-  onNamespaceAction,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onConnectionSelect = () => {},
 }) => {
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
+  );
+  const isRenameCollectionEnabled = usePreference(
+    'enableRenameCollectionModal'
   );
   const id = useId();
 
@@ -154,15 +70,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarTreeItem> = useCallback(
     (item, evt) => {
-      if (item.type === 'placeholder') {
-        return;
-      }
       if (item.type === 'connection') {
-        onNamespaceAction(
-          item.connectionInfo.id,
-          item.connectionInfo.id,
-          'select-connection'
-        );
+        onConnectionSelect(item.connectionInfo.id);
       } else if (item.type === 'database') {
         onNamespaceAction(item.connectionId, item.dbName, 'select-database');
       } else {
@@ -173,13 +82,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         );
       }
     },
-    [onNamespaceAction]
+    [onNamespaceAction, onConnectionSelect]
   );
 
-  const onExpandItem: OnExpandedChange<SidebarTreeItem> = useCallback(
+  const onItemExpand: OnExpandedChange<SidebarTreeItem> = useCallback(
     (item, expanded) => {
       if (item.type === 'connection') {
-        onConnectionExpand?.(item.connectionInfo.id, expanded);
+        onConnectionExpand(item.connectionInfo.id, expanded);
       } else if (item.type === 'database') {
         onDatabaseExpand(item.connectionId, item.dbName, expanded);
       }
@@ -187,18 +96,65 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     [onConnectionExpand, onDatabaseExpand]
   );
 
+  const onItemAction = useCallback(
+    // todo: type check
+    (item: any, action: Actions) => {
+      const args =
+        item.type === 'connection'
+          ? [item.connectionInfo.id, item.connectionInfo.id, action]
+          : item.type === 'database'
+          ? [item.connectionId, item.dbName, action]
+          : [item.connectionId, item.namespace, action];
+      onNamespaceAction(...args);
+    },
+    [onNamespaceAction]
+  );
+
   const activeItemId = useMemo(() => {
     if (!activeWorkspace) {
       return '';
     }
-    if (activeWorkspace.type === 'Collection') {
+    // Collection or Collections List (of a database)
+    if (
+      activeWorkspace.type === 'Collection' ||
+      activeWorkspace.type === 'Collections'
+    ) {
       return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
     }
-    if (activeWorkspace.type === 'Collections') {
-      return `${activeWorkspace.connectionId}.${activeWorkspace.id}`;
+    // Database List (of a connection)
+    if (activeWorkspace.type === 'Databases') {
+      return activeWorkspace.connectionId;
     }
+    // Everything else is not part of sidebar navigation
     return activeWorkspace.id;
   }, [activeWorkspace]);
+
+  const getItemActions = useCallback(
+    (item: SidebarTreeItem) => {
+      switch (item.type) {
+        case 'placeholder':
+          return [];
+        case 'connection': {
+          const isFavorite =
+            item.connectionInfo?.savedConnectionType === 'favorite';
+          return connectionItemActions({
+            isReadOnly,
+            isFavorite,
+            isPerformanceTabSupported: item.isPerformanceTabSupported,
+          });
+        }
+        case 'database':
+          return databaseItemActions({ isReadOnly });
+        default:
+          return collectionItemActions({
+            isReadOnly,
+            type: item.type,
+            isRenameCollectionEnabled,
+          });
+      }
+    },
+    [isReadOnly, isRenameCollectionEnabled]
+  );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -214,16 +170,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             height={height}
             itemHeight={ROW_HEIGHT}
             onDefaultAction={onDefaultAction}
-            onExpandedChange={onExpandItem}
-            getItemKey={(item) => item.key}
+            onExpandedChange={onItemExpand}
             renderItem={({ item }) => (
               <NavigationItem
                 item={item}
-                isSingleConnection={isSingleConnection}
-                onExpandItem={onExpandItem}
-                onNamespaceAction={onNamespaceAction}
-                activeWorkspace={activeWorkspace}
-                isReadOnly={isReadOnly}
+                activeItemId={activeItemId}
+                getItemActions={getItemActions}
+                onItemExpand={onItemExpand}
+                onItemAction={onItemAction}
               />
             )}
           />
@@ -268,11 +222,7 @@ const NavigationWithPlaceholder: React.FunctionComponent<
         );
       }}
       fallback={() => {
-        return (
-          <TopPlaceholder
-            isSingleConnection={isSingleConnection}
-          ></TopPlaceholder>
-        );
+        return <TopPlaceholder />;
       }}
     ></FadeInPlaceholder>
   );
