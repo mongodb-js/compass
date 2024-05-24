@@ -144,7 +144,7 @@ function TLSTab({
   );
 
   return (
-    <div>
+    <>
       <FormFieldContainer>
         <Label htmlFor="tls-radio-box-group">SSL/TLS Connection</Label>
         <InlineInfoLink
@@ -217,7 +217,7 @@ function TLSTab({
           />
         </FormFieldContainer>
       ))}
-    </div>
+    </>
   );
 }
 

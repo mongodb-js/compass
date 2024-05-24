@@ -4,8 +4,8 @@ import {
   Label,
   RadioBox,
   RadioBoxGroup,
-  spacing,
   css,
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { AuthMechanism } from 'mongodb';
@@ -66,12 +66,8 @@ const options: TabOption[] = [
   },
 ];
 
-const containerStyles = css({
-  marginTop: spacing[3],
-});
-
 const contentStyles = css({
-  marginTop: spacing[3],
+  display: 'contents',
 });
 
 function getSelectedAuthTabForConnectionString(
@@ -141,31 +137,33 @@ function AuthenticationTab({
   const AuthOptionContent = selectedAuthTab.component;
 
   return (
-    <div className={containerStyles}>
-      <Label htmlFor="authentication-method-radio-box-group">
-        Authentication Method
-      </Label>
-      <RadioBoxGroup
-        id="authentication-method-radio-box-group"
-        data-testid="authentication-method-radio-box-group"
-        onChange={optionSelected}
-        value={selectedAuthTab.id}
-        size="compact"
-      >
-        {enabledAuthOptions.map(({ title, id }) => {
-          return (
-            <RadioBox
-              id={`connection-authentication-method-${id}-button`}
-              data-testid={`connection-authentication-method-${id}-button`}
-              checked={selectedAuthTab.id === id}
-              value={id}
-              key={id}
-            >
-              {title}
-            </RadioBox>
-          );
-        })}
-      </RadioBoxGroup>
+    <>
+      <FormFieldContainer>
+        <Label htmlFor="authentication-method-radio-box-group">
+          Authentication Method
+        </Label>
+        <RadioBoxGroup
+          id="authentication-method-radio-box-group"
+          data-testid="authentication-method-radio-box-group"
+          onChange={optionSelected}
+          value={selectedAuthTab.id}
+          size="compact"
+        >
+          {enabledAuthOptions.map(({ title, id }) => {
+            return (
+              <RadioBox
+                id={`connection-authentication-method-${id}-button`}
+                data-testid={`connection-authentication-method-${id}-button`}
+                checked={selectedAuthTab.id === id}
+                value={id}
+                key={id}
+              >
+                {title}
+              </RadioBox>
+            );
+          })}
+        </RadioBoxGroup>
+      </FormFieldContainer>
       <div
         className={contentStyles}
         data-testid={`${selectedAuthTab.id}-tab-content`}
@@ -177,7 +175,7 @@ function AuthenticationTab({
           connectionOptions={connectionOptions}
         />
       </div>
-    </div>
+    </>
   );
 }
 

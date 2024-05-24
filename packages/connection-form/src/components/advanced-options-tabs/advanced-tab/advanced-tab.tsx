@@ -7,8 +7,6 @@ import {
   RadioBox,
   RadioBoxGroup,
   TextInput,
-  css,
-  spacing,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions, ReadPreferenceMode } from 'mongodb';
@@ -47,10 +45,6 @@ export const readPreferences: ReadPreference[] = [
     id: 'nearest',
   },
 ];
-
-const containerStyles = css({
-  marginTop: spacing[3],
-});
 
 function AdvancedTab({
   updateConnectionFormField,
@@ -96,45 +90,48 @@ function AdvancedTab({
   );
 
   return (
-    <div className={containerStyles}>
+    <>
       {/* Read Preferences */}
-      <Label htmlFor="read-preferences">Read Preference</Label>
-      <RadioBoxGroup
-        onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-          handleFieldChanged(
-            'readPreference',
-            // Unset the read preference when default is selected.
-            value === defaultReadPreference ? undefined : value
-          );
-        }}
-        value={readPreference ?? defaultReadPreference}
-        data-testid="read-preferences"
-        id="read-preferences"
-        size="compact"
-      >
-        <RadioBox
-          id="default-preference-button"
-          data-testid="default-preference-button"
-          key="defaultReadPreference"
-          value={defaultReadPreference}
-          checked={!readPreference}
+      <FormFieldContainer>
+        <Label htmlFor="read-preferences">Read Preference</Label>
+        <RadioBoxGroup
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+            handleFieldChanged(
+              'readPreference',
+              // Unset the read preference when default is selected.
+              value === defaultReadPreference ? undefined : value
+            );
+          }}
+          value={readPreference ?? defaultReadPreference}
+          data-testid="read-preferences"
+          id="read-preferences"
+          size="compact"
         >
-          Default
-        </RadioBox>
-        {readPreferences.map(({ title, id }) => {
-          return (
-            <RadioBox
-              id={`${id}-preference-button`}
-              data-testid={`${id}-preference-button`}
-              checked={readPreference === id}
-              value={id}
-              key={id}
-            >
-              {title}
-            </RadioBox>
-          );
-        })}
-      </RadioBoxGroup>
+          <RadioBox
+            id="default-preference-button"
+            data-testid="default-preference-button"
+            key="defaultReadPreference"
+            value={defaultReadPreference}
+            checked={!readPreference}
+          >
+            Default
+          </RadioBox>
+          {readPreferences.map(({ title, id }) => {
+            return (
+              <RadioBox
+                id={`${id}-preference-button`}
+                data-testid={`${id}-preference-button`}
+                checked={readPreference === id}
+                value={id}
+                key={id}
+              >
+                {title}
+              </RadioBox>
+            );
+          })}
+        </RadioBoxGroup>
+      </FormFieldContainer>
+
       {/* Replica Set */}
       <FormFieldContainer>
         <TextInput
@@ -169,11 +166,13 @@ function AdvancedTab({
           }
         />
       </FormFieldContainer>
-      <UrlOptions
-        connectionStringUrl={connectionStringUrl}
-        updateConnectionFormField={updateConnectionFormField}
-      />
-    </div>
+      <FormFieldContainer>
+        <UrlOptions
+          connectionStringUrl={connectionStringUrl}
+          updateConnectionFormField={updateConnectionFormField}
+        />
+      </FormFieldContainer>
+    </>
   );
 }
 

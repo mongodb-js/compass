@@ -26,6 +26,14 @@ const tabsStyles = css({
   marginTop: spacing[2],
 });
 
+const tabContentStyles = css({
+  // Remove margin from the last form element so that we can consistently apply
+  // the same padding for the whole connection form content
+  '& > :last-child': {
+    marginBottom: 0,
+  },
+});
+
 const tabWithErrorIndicatorStyles = css({
   position: 'relative',
   '&::after': {
@@ -131,12 +139,14 @@ function AdvancedOptionsTabs({
             data-testid={`connection-${tabObject.id}-tab`}
             data-has-error={showTabErrorIndicator}
           >
-            <TabComponent
-              errors={errors}
-              connectionStringUrl={connectionStringUrl}
-              updateConnectionFormField={updateConnectionFormField}
-              connectionOptions={connectionOptions}
-            />
+            <div className={tabContentStyles}>
+              <TabComponent
+                errors={errors}
+                connectionStringUrl={connectionStringUrl}
+                updateConnectionFormField={updateConnectionFormField}
+                connectionOptions={connectionOptions}
+              />
+            </div>
           </Tab>
         );
       })}
