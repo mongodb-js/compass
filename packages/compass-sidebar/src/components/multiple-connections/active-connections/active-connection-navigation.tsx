@@ -31,6 +31,7 @@ import {
   fetchAllCollections,
   onDatabaseExpand,
 } from '../../../modules/databases';
+import type { ConnectionsNavigationTreeProps } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
 
 type ExpandedDatabases = Record<
   Database['_id'],
@@ -143,11 +144,11 @@ const filterCollections = (
 };
 
 /**
- * Take the starting expandedConnections, and add 'tempExpanded' to collapsed items that:
+ * Take the starting expandedConnections, and temporarily expand items that:
  * - are included in the filterResults
  * - their children are a match
  */
-const applyTempExpanded = (
+const temporarilyExpand = (
   expandedConnections: ExpandedConnections,
   filterResults: FilteredConnection[]
 ): ExpandedConnections => {
@@ -182,9 +183,9 @@ const applyTempExpanded = (
 };
 
 /**
- * Reverts 'applyTempExpanded', bringing the items back to collapsed state
+ * Reverts 'temporarilyExpand', bringing the items back to collapsed state
  */
-const clearTempExpanded = (
+const revertTemporaryExpanded = (
   expandedConnections: ExpandedConnections
 ): ExpandedConnections => {
   const cleared: ExpandedConnections = Object.fromEntries(
@@ -264,22 +265,22 @@ const connectionsReducer = (
         action.connections,
         action.filterRegex
       );
-      const persistingExpanded = clearTempExpanded(state.expanded);
+      const persistingExpanded = revertTemporaryExpanded(state.expanded);
       return {
         ...state,
         filtered,
-        expanded: applyTempExpanded(persistingExpanded, filtered),
+        expanded: temporarilyExpand(persistingExpanded, filtered),
       };
     }
     case CLEAR_FILTER:
       return {
         ...state,
         filtered: undefined,
-        expanded: clearTempExpanded(state.expanded),
+        expanded: revertTemporaryExpanded(state.expanded),
       };
     case CONNECTION_TOGGLE: {
       const { connectionId, expand } = action;
-      const currentState = state.expanded[connectionId].state;
+      const currentState = state.expanded[connectionId]?.state;
       if (
         (currentState === 'collapsed' && !expand) ||
         (!currentState && expand)
@@ -319,7 +320,7 @@ const connectionsReducer = (
     }
     case CONNECTIONS_CHANGED: {
       const { connections } = action;
-
+      // this is to get rid of stale connections. if the user connects again, they will start in the default state
       return {
         ...state,
         expanded: Object.fromEntries(
@@ -429,9 +430,9 @@ export function ActiveConnectionNavigation({
     [_onDatabaseExpand, expanded]
   );
 
-  const getExpanded = useCallback(
-    (list: Connection[]) => {
-      const result = list.reduce(
+  const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
+    useMemo(() => {
+      const result = connections.reduce(
         (obj, { connectionInfo: { id: connectionId } }) => {
           obj[connectionId] =
             expanded[connectionId]?.state !== 'collapsed'
@@ -446,14 +447,7 @@ export function ActiveConnectionNavigation({
         {} as Record<string, false | Record<string, boolean>>
       );
       return result;
-    },
-    [expanded]
-  );
-
-  const expandedMemo = useMemo(
-    () => (filtered ? getExpanded(filtered) : getExpanded(connections)),
-    [getExpanded, filtered, connections]
-  );
+    }, [expanded, connections]);
 
   useEffect(() => {
     dispatch({ type: CONNECTIONS_CHANGED, connections: activeConnections });
