@@ -14,6 +14,7 @@ function isAction<A extends AnyAction>(
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
 export type OpenedModal =
+  | 'select-connection-and-namespace-modal'
   | 'namespace-not-found-modal'
   | 'select-connection-modal'
   | 'no-active-connections-modal';
@@ -262,6 +263,16 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
+const connectionInfoToStateConnections = (
+  connectionInfo: ConnectionInfo
+): State['connections'][number] => {
+  return {
+    id: connectionInfo.id,
+    name: getConnectionTitle(connectionInfo),
+    color: connectionInfo.favorite?.color,
+  };
+};
+
 const loadDatabasesForConnection =
   (connectionId: string): SavedQueryAggregationThunkAction<Promise<void>> =>
   async (dispatch, _getState, { connectionsManager, instancesManager }) => {
@@ -306,8 +317,8 @@ export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
 
 const openNamespaceNotFoundModal =
   (
-    connections: State['connections'],
     selectedItem: Item,
+    connections: State['connections'],
     selectedConnection?: string
   ): SavedQueryAggregationThunkAction<void, OpenModalAction> =>
   (dispatch) => {
@@ -325,8 +336,8 @@ const openNamespaceNotFoundModal =
   };
 
 const openSelectConnectionsModal = (
-  connections: State['connections'],
   selectedItem: Item,
+  connections: State['connections'],
   selectedDatabase: string,
   selectedCollection: string
 ): OpenModalAction => ({
@@ -337,6 +348,39 @@ const openSelectConnectionsModal = (
   selectedDatabase,
   selectedCollection,
 });
+
+export const openSelectConnectionAndNamespaceModal =
+  (
+    id: string,
+    activeConnections: ConnectionInfo[]
+  ): SavedQueryAggregationThunkAction<void, OpenModalAction> =>
+  (dispatch, getState) => {
+    const {
+      savedItems: { items },
+    } = getState();
+
+    const selectedItem = items.find((item) => item.id === id);
+
+    if (!selectedItem) {
+      return;
+    }
+
+    const connections = activeConnections.map(connectionInfoToStateConnections);
+    const selectedConnection =
+      connections.length === 1 ? connections[0].id : undefined;
+
+    dispatch({
+      type: ActionTypes.OpenModal,
+      modal: 'select-connection-and-namespace-modal',
+      selectedItem,
+      connections,
+      selectedConnection,
+    });
+
+    if (selectedConnection) {
+      void dispatch(loadDatabasesForConnection(selectedConnection));
+    }
+  };
 
 export const openNoActiveConnectionsModal = (): OpenModalAction => ({
   type: ActionTypes.OpenModal,
@@ -443,15 +487,11 @@ export const openSavedItem =
       // default
       const selectedConnection =
         activeConnections.length === 1 ? activeConnections[0] : undefined;
-      const connections = activeConnections.map<State['connections'][number]>(
-        (connectionInfo) => ({
-          id: connectionInfo.id,
-          name: getConnectionTitle(connectionInfo),
-          color: connectionInfo.favorite?.color,
-        })
+      const connections = activeConnections.map(
+        connectionInfoToStateConnections
       );
       dispatch(
-        openNamespaceNotFoundModal(connections, item, selectedConnection?.id)
+        openNamespaceNotFoundModal(item, connections, selectedConnection?.id)
       );
     } else if (connectionsWithNamespace.length === 1) {
       dispatch(
@@ -459,15 +499,11 @@ export const openSavedItem =
       );
     } else {
       // For SelectConnectionsModal we only show the connections that have the namespace
-      const connections = connectionsWithNamespace.map<
-        State['connections'][number]
-      >((connectionInfo) => ({
-        id: connectionInfo.id,
-        name: getConnectionTitle(connectionInfo),
-        color: connectionInfo.favorite?.color,
-      }));
+      const connections = connectionsWithNamespace.map(
+        connectionInfoToStateConnections
+      );
       dispatch(
-        openSelectConnectionsModal(connections, item, database, collection)
+        openSelectConnectionsModal(item, connections, database, collection)
       );
     }
   };

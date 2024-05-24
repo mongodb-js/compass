@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Checkbox,
   FormModal,
@@ -25,29 +25,22 @@ import {
   updateItemNamespaceChecked,
 } from '../stores/open-item';
 
-type SelectProps = {
-  name: string;
-  label: string;
-  selectedItem: string | null;
-  onChange(item: string): void;
-};
-
-type AsyncItemsSelectProps = SelectProps & {
-  items: string[];
-  isLoading: boolean;
-};
-
-type ConnectionSelectProps = SelectProps & {
-  items: OpenItemState['connections'];
-};
-
-const select = css({
+const selectStyles = css({
   // Working around leafygreen Select issues
   // See https://jira.mongodb.org/browse/PD-1677 and https://jira.mongodb.org/browse/PD-1764
   button: {
     zIndex: 999,
   },
 });
+
+type AsyncItemsSelectProps = {
+  name: string;
+  label: string;
+  items: string[];
+  isLoading: boolean;
+  selectedItem: string | null;
+  onChange(item: string): void;
+};
 
 const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
   name,
@@ -65,7 +58,7 @@ const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
       onChange={onChange}
       disabled={isLoading}
       usePortal={false}
-      className={select}
+      className={selectStyles}
     >
       {items.map((item) => (
         <Option key={item} value={item}>
@@ -76,9 +69,15 @@ const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
   );
 };
 
+type ConnectionSelectProps = {
+  items: OpenItemState['connections'];
+  selectedItem: string | null;
+  onChange(item: string): void;
+};
+
 const mapConnectionState: MapStateToProps<
   Pick<ConnectionSelectProps, 'selectedItem' | 'items'>,
-  Pick<ConnectionSelectProps, 'name' | 'label'>,
+  Record<string, never>,
   RootState
 > = ({ openItem: { selectedConnection, connections } }) => {
   return {
@@ -89,44 +88,36 @@ const mapConnectionState: MapStateToProps<
 
 const ConnectionSelect = connect(mapConnectionState, {
   onChange: connectionSelected,
-})(
-  ({
-    name,
-    label,
-    items,
-    selectedItem,
-    onChange: _onChange,
-  }: ConnectionSelectProps) => {
-    const { connectionColorToHex } = useConnectionColor();
-    const onChange = useCallback(
-      (connectionId: string) => _onChange(connectionId),
-      [_onChange]
-    );
-    return (
-      <Select
-        name={name}
-        label={label}
-        value={selectedItem ?? ''}
-        onChange={onChange}
-        usePortal={false}
-        className={select}
-        dropdownWidthBasis="option"
-      >
-        {items.map(({ id, name, color }) => {
-          const glyph =
-            color && color !== 'no-color' ? (
-              <ColorCircleGlyph hexColor={connectionColorToHex(color)} />
-            ) : undefined;
-          return (
-            <Option key={id} value={id} glyph={glyph}>
-              {name}
-            </Option>
-          );
-        })}
-      </Select>
-    );
-  }
-);
+})(({ items, selectedItem, onChange: _onChange }: ConnectionSelectProps) => {
+  const { connectionColorToHex } = useConnectionColor();
+  const onChange = useCallback(
+    (connectionId: string) => _onChange(connectionId),
+    [_onChange]
+  );
+  return (
+    <Select
+      name="connection"
+      label="Connection"
+      value={selectedItem ?? ''}
+      onChange={onChange}
+      usePortal={false}
+      className={selectStyles}
+      dropdownWidthBasis="option"
+    >
+      {items.map(({ id, name, color }) => {
+        const glyph =
+          color && color !== 'no-color' ? (
+            <ColorCircleGlyph hexColor={connectionColorToHex(color)} />
+          ) : undefined;
+        return (
+          <Option key={id} value={id} glyph={glyph}>
+            {name}
+          </Option>
+        );
+      })}
+    </Select>
+  );
+});
 
 const mapDatabaseState: MapStateToProps<
   Pick<AsyncItemsSelectProps, 'items' | 'selectedItem' | 'isLoading'>,
@@ -160,19 +151,6 @@ const CollectionSelect = connect(mapCollectionState, {
   onChange: selectCollection,
 })(AsyncItemsSelect);
 
-type NamespaceNotFoundModalProps = {
-  namespace: string;
-  itemType: string;
-  itemName: string;
-  isModalOpen: boolean;
-  isSubmitDisabled: boolean;
-  updateItemNamespace: boolean;
-  connections: { id: string; name: string }[];
-  onSubmit(): void;
-  onClose(): void;
-  onUpdateNamespaceChecked(checked: boolean): void;
-};
-
 const modalContent = css({
   display: 'grid',
   gridAutoColumns: '1fr',
@@ -202,53 +180,91 @@ const contentWithConnectionSelect = cx(
   })
 );
 
-const description = css({
+const descriptionStyles = css({
   gridArea: 'description',
 });
 
-const connectionSelect = css({
+const connectionSelectStyles = css({
   gridArea: 'connection',
 });
 
-const databaseSelect = css({
+const databaseSelectStyles = css({
   gridArea: 'database',
 });
 
-const collectionSelect = css({
+const collectionSelectStyles = css({
   gridArea: 'collection',
 });
 
-const checkbox = css({
+const checkboxStyles = css({
   gridArea: 'checkbox',
 });
 
-const NamespaceNotFoundModal: React.FunctionComponent<
-  NamespaceNotFoundModalProps
+type SelectConnectionAndNamespaceModal = {
+  openedModal: OpenItemState['openedModal'];
+  namespace: string;
+  itemName: string;
+  itemType: string;
+  showConnectionSelect: boolean;
+  isSubmitDisabled: boolean;
+  updateItemNamespace: boolean;
+  onSubmit(): void;
+  onClose(): void;
+  onUpdateNamespaceChecked(checked: boolean): void;
+};
+
+const SelectConnectionAndNamespaceModal: React.FunctionComponent<
+  SelectConnectionAndNamespaceModal
 > = ({
+  openedModal,
   namespace,
-  itemType,
   itemName,
-  isModalOpen,
+  itemType,
+  showConnectionSelect,
   isSubmitDisabled,
   updateItemNamespace,
-  connections,
-  onClose,
   onSubmit,
+  onClose,
   onUpdateNamespaceChecked,
 }) => {
-  const showConnectionSelect = connections.length > 1;
+  const { isOpened, title, description } = useMemo(() => {
+    const namespaceNotFoundDescription = showConnectionSelect ? (
+      <>
+        The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
+        <strong>{itemName}</strong> doesn&rsquo;t exist in&nbsp;any of the
+        active connections. Please select another target to&nbsp;open saved{' '}
+        {itemType}
+      </>
+    ) : (
+      <>
+        The namespace <strong>{namespace}</strong> for the saved {itemType}{' '}
+        <strong>{itemName}</strong> doesn&rsquo;t exist in&nbsp;the current
+        connection. Please select another namespace to&nbsp;open saved{' '}
+        {itemType}.
+      </>
+    );
+
+    return {
+      isOpened:
+        openedModal === 'namespace-not-found-modal' ||
+        openedModal === 'select-connection-and-namespace-modal',
+      title: showConnectionSelect
+        ? 'Select a Connection and Namespace'
+        : 'Select a Namespace',
+      description:
+        openedModal === 'namespace-not-found-modal'
+          ? namespaceNotFoundDescription
+          : null,
+    };
+  }, [showConnectionSelect, openedModal, itemName, itemType, namespace]);
 
   return (
     <FormModal
-      open={isModalOpen}
+      open={isOpened}
       onCancel={onClose}
       onSubmit={() => onSubmit()}
-      title={
-        showConnectionSelect
-          ? 'Select a Connection and Namespace'
-          : 'Select a Namespace'
-      }
-      submitButtonText="Open"
+      title={title}
+      submitButtonText="Run Query"
       submitDisabled={isSubmitDisabled}
       scroll={false} // this is so that the selects can hang over the footer and out of the modal
       data-testid="open-item-modal"
@@ -260,45 +276,32 @@ const NamespaceNotFoundModal: React.FunctionComponent<
             : contentWithoutConnectionSelect
         }
       >
-        <div className={description}>
-          {showConnectionSelect ? (
-            <>
-              The namespace <strong>{namespace}</strong> for the saved{' '}
-              {itemType} <strong>{itemName}</strong> doesn&rsquo;t exist
-              in&nbsp;any of the active connections. Please select another
-              target to&nbsp;open saved {itemType}
-            </>
-          ) : (
-            <>
-              The namespace <strong>{namespace}</strong> for the saved{' '}
-              {itemType} <strong>{itemName}</strong> doesn&rsquo;t exist
-              in&nbsp;the current connection. Please select another namespace
-              to&nbsp;open saved {itemType}.
-            </>
-          )}
-        </div>
+        {description && <div className={descriptionStyles}>{description}</div>}
         {showConnectionSelect && (
           <div
-            className={connectionSelect}
+            className={connectionSelectStyles}
             data-testid="connection-select-field"
           >
-            <ConnectionSelect
-              name="connection"
-              label="Connection"
-            ></ConnectionSelect>
+            <ConnectionSelect />
           </div>
         )}
-        <div className={databaseSelect} data-testid="database-select-field">
+        <div
+          className={databaseSelectStyles}
+          data-testid="database-select-field"
+        >
           <DatabaseSelect name="database" label="Database"></DatabaseSelect>
         </div>
-        <div className={collectionSelect} data-testid="collection-select-field">
+        <div
+          className={collectionSelectStyles}
+          data-testid="collection-select-field"
+        >
           <CollectionSelect
             name="collection"
             label="Collection"
           ></CollectionSelect>
         </div>
         <Checkbox
-          className={checkbox}
+          className={checkboxStyles}
           checked={updateItemNamespace}
           onChange={(event) => {
             onUpdateNamespaceChecked(event.target.checked);
@@ -313,20 +316,21 @@ const NamespaceNotFoundModal: React.FunctionComponent<
 
 const mapState: MapStateToProps<
   Pick<
-    NamespaceNotFoundModalProps,
-    | 'isModalOpen'
-    | 'isSubmitDisabled'
+    SelectConnectionAndNamespaceModal,
+    | 'openedModal'
     | 'namespace'
-    | 'itemType'
     | 'itemName'
+    | 'itemType'
+    | 'showConnectionSelect'
+    | 'isSubmitDisabled'
     | 'updateItemNamespace'
-    | 'connections'
   >,
   Record<string, never>,
   RootState
 > = ({
   openItem: {
     openedModal,
+    selectedConnection,
     selectedDatabase,
     selectedCollection,
     selectedItem: item,
@@ -335,19 +339,23 @@ const mapState: MapStateToProps<
   },
 }) => {
   return {
-    isModalOpen: openedModal === 'namespace-not-found-modal',
-    isSubmitDisabled: !(selectedDatabase && selectedCollection),
+    openedModal,
     namespace: `${item?.database ?? ''}.${item?.collection ?? ''}`,
     itemName: item?.name ?? '',
     itemType: item?.type ?? '',
+    showConnectionSelect: connections.length > 1,
+    isSubmitDisabled: !(
+      selectedConnection &&
+      selectedDatabase &&
+      selectedCollection
+    ),
     updateItemNamespace,
-    connections,
   };
 };
 
 const mapDispatch: MapDispatchToProps<
   Pick<
-    NamespaceNotFoundModalProps,
+    SelectConnectionAndNamespaceModal,
     'onSubmit' | 'onClose' | 'onUpdateNamespaceChecked'
   >,
   Record<string, never>
@@ -357,4 +365,7 @@ const mapDispatch: MapDispatchToProps<
   onUpdateNamespaceChecked: updateItemNamespaceChecked,
 };
 
-export default connect(mapState, mapDispatch)(NamespaceNotFoundModal);
+export default connect(
+  mapState,
+  mapDispatch
+)(SelectConnectionAndNamespaceModal);
