@@ -38,7 +38,7 @@ interface ConnectionsNavigationTreeProps {
     action: Actions
   ): void;
   activeWorkspace?: WorkspaceTab;
-  isReadOnly: boolean;
+  isReadOnly?: boolean;
 }
 
 const ConnectionsNavigationTree: React.FunctionComponent<

@@ -181,7 +181,7 @@ const databaseToItems = ({
     isExpanded,
     colorCode,
     connectionId,
-    dbName: name,
+    dbName: id,
     maxNestingLevel,
   };
 

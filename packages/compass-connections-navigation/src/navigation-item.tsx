@@ -64,6 +64,20 @@ export function NavigationItem({
 
   const style = useMemo(() => getTreeItemStyles(item), [item]);
 
+  const actionProps = useMemo(
+    () => ({
+      actions: getItemActions(item),
+      onAction: onAction,
+      ...(item.type === 'connection' && {
+        collapseAfter: 1,
+      }),
+      ...(item.type === 'database' && {
+        collapseToMenuThreshold: 3,
+      }),
+    }),
+    [getItemActions, item, onAction]
+  );
+
   return (
     <StyledNavigationItem colorCode={item.colorCode}>
       {item.type === 'placeholder' ? (
@@ -76,15 +90,13 @@ export function NavigationItem({
           isActive={item.id === activeItemId}
           isExpanded={!!item.isExpanded}
           icon={itemIcon}
-          numVisibleActions={3}
           name={item.name}
-          actions={getItemActions(item)}
           style={style}
-          onAction={onAction}
           canExpand={item.level < item.maxNestingLevel}
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);
           }}
+          actionProps={actionProps}
         ></NavigationBaseItem>
       )}
     </StyledNavigationItem>

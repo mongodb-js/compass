@@ -22,13 +22,16 @@ type NavigationBaseItemProps = {
   name: string;
   icon: React.ReactNode;
 
-  numVisibleActions: number;
-  actions: NavigationItemActions;
-  onAction: (action: Actions) => void;
-
   canExpand: boolean;
   isExpanded: boolean;
   onExpand: (toggle: boolean) => void;
+
+  actionProps: {
+    collapseAfter?: number;
+    collapseToMenuThreshold?: number;
+    actions: NavigationItemActions;
+    onAction: (action: Actions) => void;
+  };
 };
 
 const baseItemContainerStyles = css({
@@ -46,14 +49,12 @@ const baseItemLabelStyles = css({
 
 export const NavigationBaseItem = ({
   isActive,
-  actions,
+  actionProps,
   name,
   style,
   icon,
   canExpand,
   isExpanded,
-  numVisibleActions,
-  onAction,
   onExpand,
 }: NavigationBaseItemProps) => {
   const [hoverProps, isHovered] = useHoverState();
@@ -80,12 +81,10 @@ export const NavigationBaseItem = ({
           </ItemLabel>
         </ItemButtonWrapper>
         <ItemActionControls<Actions>
-          onAction={onAction}
           isVisible={isActive || isHovered}
           data-testid="sidebar-navigation-item-actions"
-          collapseToMenuThreshold={numVisibleActions}
           iconSize="small"
-          actions={actions}
+          {...actionProps}
         ></ItemActionControls>
       </ItemWrapper>
     </ItemContainer>
