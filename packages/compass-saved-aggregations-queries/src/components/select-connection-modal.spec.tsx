@@ -109,14 +109,6 @@ describe('SelectConnectionModal', function () {
       getNamespace() {
         return null;
       },
-      fetchDatabases() {
-        return [];
-      },
-      databases: {
-        get() {
-          return null;
-        },
-      },
     } as unknown as MongoDBInstance;
     sandbox
       .stub(connectionsManager, 'getDataServiceForConnection')
@@ -141,10 +133,6 @@ describe('SelectConnectionModal', function () {
   });
 
   it('opens the modal when there are multiple connections having the namespace', async function () {
-    // const openCollectionWorkspaceSpy = sandbox.spy(
-    //   workspaces,
-    //   'openCollectionWorkspace'
-    // );
     sandbox.stub(instance, 'getNamespace').resolves({} as any);
 
     await renderModal();

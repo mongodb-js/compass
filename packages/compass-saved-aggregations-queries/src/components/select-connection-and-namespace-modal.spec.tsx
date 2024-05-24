@@ -110,14 +110,6 @@ describe('SelectConnectionAndNamespaceModal', function () {
       getNamespace() {
         return null;
       },
-      fetchDatabases() {
-        return [];
-      },
-      databases: {
-        get() {
-          return null;
-        },
-      },
     } as unknown as MongoDBInstance;
     sandbox
       .stub(connectionsManager, 'getDataServiceForConnection')
