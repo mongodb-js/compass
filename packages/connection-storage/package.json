@@ -60,14 +60,14 @@
     "@mongodb-js/compass-user-data": "^0.1.20",
     "@mongodb-js/compass-utils": "^0.6.3",
     "@mongodb-js/connection-info": "^0.2.2",
-    "bson": "^6.6.0",
+    "bson": "^6.7.0",
     "compass-preferences-model": "^2.20.1",
-    "electron": "^29.3.1",
+    "electron": "^29.4.0",
     "hadron-app-registry": "^9.1.11",
     "hadron-ipc": "^3.2.14",
     "keytar": "^7.9.0",
     "lodash": "^4.17.21",
-    "mongodb-connection-string-url": "^2.6.0",
+    "mongodb-connection-string-url": "^3.0.1",
     "react": "^17.0.2"
   },
   "devDependencies": {

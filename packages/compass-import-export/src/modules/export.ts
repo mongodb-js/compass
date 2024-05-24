@@ -296,9 +296,6 @@ export const selectFieldsToExport = (): ExportThunkAction<
 
       const dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
-      if (!dataService) {
-        throw new Error(`DataService for connection ${connectionId} not found`);
-      }
 
       gatherFieldsResult = await gatherFieldsFromQuery({
         ns: namespace,
@@ -456,9 +453,6 @@ export const runExport = ({
 
       const dataService =
         connectionsManager.getDataServiceForConnection(connectionId);
-      if (!dataService) {
-        throw new Error(`DataService for connection ${connectionId} not found`);
-      }
 
       const baseExportOptions = {
         ns: namespace,

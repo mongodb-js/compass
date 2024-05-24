@@ -1,106 +1,70 @@
 'use strict';
-const childProcess = require('child_process');
-const path = require('path');
 const { promises: fs } = require('fs');
-const os = require('os');
-const { glob } = require('glob');
-const { promisify } = require('util');
-const execFile = promisify(childProcess.execFile);
+const path = require('path');
+const fetch = require('make-fetch-happen');
 
-async function fileExists(filePath) {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
+const MAKE_FETCH_HAPPEN_OPTIONS = {
+  timeout: 10000,
+  retry: {
+    retries: 3,
+    factor: 1,
+    minTimeout: 1000,
+    maxTimeout: 3000,
+    randomize: true,
+  },
+};
+
+async function snykTest(dependency) {
+  const { name, version } = dependency;
+
+  process.stdout.write(`Testing ${name}@${version} ... `);
+
+  const response = await fetch(
+    `https://api.snyk.io/v1/test/npm/${encodeURIComponent(name)}/${version}`,
+    {
+      ...MAKE_FETCH_HAPPEN_OPTIONS,
+      headers: {
+        Authorization: `token ${process.env.SNYK_TOKEN}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
-}
 
-async function snykTest(cwd) {
-  const tmpPath = path.join(os.tmpdir(), 'tempfile-' + Date.now());
+  const vulnerabilities = (await response.json()).issues?.vulnerabilities ?? [];
 
-  let execErr;
+  process.stdout.write(`Done\n`);
 
-  try {
-    if (!(await fileExists(path.join(cwd, `package.json`)))) {
-      return;
-    }
-
-    console.info(`testing ${cwd} ...`);
-    await fs.mkdir(path.join(cwd, `node_modules`), { recursive: true });
-
-    try {
-      await execFile(
-        'npx',
-        [
-          'snyk@latest',
-          'test',
-          '--all-projects',
-          '--severity-threshold=low',
-          '--dev',
-          `--json-file-output=${tmpPath}`,
-        ],
-        {
-          cwd,
-          maxBuffer: 50 /* MB */ * 1024 * 1024, // default is 1 MB
-        }
-      );
-    } catch (err) {
-      execErr = err;
-    }
-
-    const res = JSON.parse(await fs.readFile(tmpPath));
-    console.info(`testing ${cwd} done.`);
-    return res;
-  } catch (err) {
-    console.error(`Snyk failed to create a json report for ${cwd}:`, execErr);
-    throw new Error(`Testing ${cwd} failed.`);
-  } finally {
-    try {
-      await fs.rm(tmpPath);
-    } catch (error) {
-      //
-    }
-  }
+  return vulnerabilities.map((v) => {
+    // for some reason the api doesn't add these properties unlike `snyk test`
+    return { ...v, name: v.package, fixedIn: v.upgradePath ?? [] };
+  });
 }
 
 async function main() {
+  if (!process.env.SNYK_TOKEN) {
+    throw new Error('process.env.SNYK_TOKEN is missing.');
+  }
+
   const rootPath = path.resolve(__dirname, '..');
 
-  const { workspaces } = JSON.parse(
-    await fs.readFile(path.join(rootPath, 'package.json'))
-  );
-
-  const packages = (await Promise.all(workspaces.map((w) => glob(w)))).flat();
+  const dependenciesFile = path.join(rootPath, '.sbom', 'dependencies.json');
+  const dependencies = JSON.parse(await fs.readFile(dependenciesFile, 'utf-8'));
 
   const results = [];
 
-  results.push(await snykTest(rootPath));
-
-  for (const location of packages) {
-    const result = await snykTest(location);
-    if (result) {
-      results.push(result);
+  for (const dependency of dependencies) {
+    const vulnerabilities = await snykTest(dependency);
+    if (vulnerabilities && vulnerabilities.length) {
+      results.push({ vulnerabilities });
     }
   }
 
-  await fs.mkdir(path.join(rootPath, `.sbom`), { recursive: true });
-
   await fs.writeFile(
     path.join(rootPath, `.sbom/snyk-test-result.json`),
-    JSON.stringify(results.flat(), null, 2)
-  );
-
-  await execFile(
-    'npx',
-    [
-      'snyk-to-html',
-      '-i',
-      path.join(rootPath, '.sbom/snyk-test-result.json'),
-      '-o',
-      path.join(rootPath, `.sbom/snyk-test-result.html`),
-    ],
-    { cwd: rootPath }
+    JSON.stringify(results, null, 2)
   );
 }
 

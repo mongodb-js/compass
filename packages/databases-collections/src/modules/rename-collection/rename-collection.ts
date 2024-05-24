@@ -152,12 +152,6 @@ export const renameCollection = (
     const dataService =
       connectionsManager.getDataServiceForConnection(connectionId);
 
-    if (!dataService) {
-      throw new Error(
-        'unreachable: The modal is only shown when the connection is active.'
-      );
-    }
-
     dispatch(renameRequestInProgress());
     const oldNamespace = `${databaseName}.${initialCollectionName}`;
     const newNamespace = `${databaseName}.${newCollectionName}`;

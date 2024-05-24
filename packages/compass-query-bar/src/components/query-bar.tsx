@@ -328,6 +328,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 type OwnProps = {
   onApply?(query: unknown): void;
   onReset?(query: unknown): void;
+  source: string;
 };
 
 export default connect(
@@ -351,14 +352,14 @@ export default connect(
         dispatch(openExportToLanguage());
       },
       onApply: () => {
-        const applied = dispatch(applyQuery());
+        const applied = dispatch(applyQuery(ownProps.source));
         if (applied === false) {
           return;
         }
         ownProps.onApply?.(applied);
       },
       onReset: () => {
-        const reset = dispatch(resetQuery());
+        const reset = dispatch(resetQuery(ownProps.source));
         if (reset === false) {
           return;
         }

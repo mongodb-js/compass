@@ -117,8 +117,6 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 
 - **'import-finished'**: received when import in the import-export plugin is
   finished. Refreshes documents.
-- **'query-changed'**: received when query was changed in the query bar. Handles updates to crud plugin's query
-  state, and refreshes documents.
 - **'refresh-data'**: received when other plugins need documents refreshed.
   Refreshes documents.
 
