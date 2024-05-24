@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Checkbox,
   FormModal,
@@ -8,10 +8,15 @@ import {
   cx,
   spacing,
 } from '@mongodb-js/compass-components';
+import {
+  ColorCircleGlyph,
+  useConnectionColor,
+} from '@mongodb-js/connection-form';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
 import {
+  type State as OpenItemState,
   closeModal,
   connectionSelected,
   openSelectedItem,
@@ -33,10 +38,7 @@ type AsyncItemsSelectProps = SelectProps & {
 };
 
 type ConnectionSelectProps = SelectProps & {
-  items: {
-    id: string;
-    name: string;
-  }[];
+  items: OpenItemState['connections'];
 };
 
 const select = css({
@@ -87,24 +89,44 @@ const mapConnectionState: MapStateToProps<
 
 const ConnectionSelect = connect(mapConnectionState, {
   onChange: connectionSelected,
-})(({ name, label, items, selectedItem, onChange }: ConnectionSelectProps) => {
-  return (
-    <Select
-      name={name}
-      label={label}
-      value={selectedItem ?? ''}
-      onChange={onChange}
-      usePortal={false}
-      className={select}
-    >
-      {items.map(({ id, name }) => (
-        <Option key={id} value={id}>
-          {name}
-        </Option>
-      ))}
-    </Select>
-  );
-});
+})(
+  ({
+    name,
+    label,
+    items,
+    selectedItem,
+    onChange: _onChange,
+  }: ConnectionSelectProps) => {
+    const { connectionColorToHex } = useConnectionColor();
+    const onChange = useCallback(
+      (connectionId: string) => _onChange(connectionId),
+      [_onChange]
+    );
+    return (
+      <Select
+        name={name}
+        label={label}
+        value={selectedItem ?? ''}
+        onChange={onChange}
+        usePortal={false}
+        className={select}
+        dropdownWidthBasis="option"
+      >
+        {items.map(({ id, name, color }) => {
+          const glyph =
+            color && color !== 'no-color' ? (
+              <ColorCircleGlyph hexColor={connectionColorToHex(color)} />
+            ) : undefined;
+          return (
+            <Option key={id} value={id} glyph={glyph}>
+              {name}
+            </Option>
+          );
+        })}
+      </Select>
+    );
+  }
+);
 
 const mapDatabaseState: MapStateToProps<
   Pick<AsyncItemsSelectProps, 'items' | 'selectedItem' | 'isLoading'>,

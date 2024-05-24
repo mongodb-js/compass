@@ -21,7 +21,7 @@ export type OpenedModal =
 export type State = {
   openedModal: OpenedModal | null;
   selectedItem: Item | null;
-  connections: { id: string; name: string }[];
+  connections: { id: string; name: string; color?: string }[];
   selectedConnection: string | null;
   databases: string[];
   selectedDatabase: string | null;
@@ -447,6 +447,7 @@ export const openSavedItem =
         (connectionInfo) => ({
           id: connectionInfo.id,
           name: getConnectionTitle(connectionInfo),
+          color: connectionInfo.favorite?.color,
         })
       );
       dispatch(
@@ -463,6 +464,7 @@ export const openSavedItem =
       >((connectionInfo) => ({
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),
+        color: connectionInfo.favorite?.color,
       }));
       dispatch(
         openSelectConnectionsModal(connections, item, database, collection)
