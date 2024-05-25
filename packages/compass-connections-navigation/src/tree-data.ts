@@ -39,6 +39,7 @@ export type Connection = {
 
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
   colorCode?: string;
+  id: string;
   maxNestingLevel: number;
 };
 
@@ -126,11 +127,12 @@ const connectionToItems = ({
 
   if (!areDatabasesReady) {
     return sidebarData.concat(
-      Array.from({ length: placeholdersLength }, () => ({
+      Array.from({ length: placeholdersLength }, (_, index) => ({
         level: 2,
         type: 'placeholder' as const,
         colorCode,
         maxNestingLevel,
+        id: `${connectionInfo.id}.placeholder.${index}`,
       }))
     );
   }
@@ -200,11 +202,12 @@ const databaseToItems = ({
 
   if (!areCollectionsReady) {
     return sidebarData.concat(
-      Array.from({ length: placeholdersLength }, () => ({
+      Array.from({ length: placeholdersLength }, (_, index) => ({
         level: level + 1,
         type: 'placeholder' as const,
         colorCode,
         maxNestingLevel,
+        id: `${connectionId}.${id}.placeholder.${index}`,
       }))
     );
   }

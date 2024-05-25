@@ -171,6 +171,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             itemHeight={ROW_HEIGHT}
             onDefaultAction={onDefaultAction}
             onExpandedChange={onItemExpand}
+            getItemKey={(item) => item.id}
             renderItem={({ item }) => (
               <NavigationItem
                 item={item}

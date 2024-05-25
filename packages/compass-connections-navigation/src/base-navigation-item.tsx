@@ -71,7 +71,10 @@ export const NavigationBaseItem = ({
         >
           {canExpand && (
             <ExpandButton
-              onClick={() => onExpand(!isExpanded)}
+              onClick={(evt) => {
+                evt.stopPropagation();
+                onExpand(!isExpanded);
+              }}
               isExpanded={isExpanded}
             ></ExpandButton>
           )}
