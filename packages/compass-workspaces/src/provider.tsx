@@ -39,6 +39,15 @@ export type WorkspacesService = {
    * saved by the user
    */
   openMyQueriesWorkspace(this: void, tabOptions?: TabOptions): void;
+
+  /**
+   * Open "Shell" workspace
+   */
+  openShellWorkspace(
+    this: void,
+    connectionId: string,
+    tabOptions?: TabOptions
+  ): void;
   /**
    * Open "Databases" workspace showing list of all databases in the cluster
    */
@@ -120,6 +129,7 @@ const noopWorkspacesService = {
     return null;
   },
   openMyQueriesWorkspace: throwIfNotTestEnv,
+  openShellWorkspace: throwIfNotTestEnv,
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
   openCollectionsWorkspace: throwIfNotTestEnv,
@@ -154,6 +164,11 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       openMyQueriesWorkspace: (tabOptions) => {
         return store.dispatch(
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
+        );
+      },
+      openShellWorkspace(connectionId, tabOptions) {
+        return store.dispatch(
+          openWorkspaceAction({ type: 'Shell', connectionId }, tabOptions)
         );
       },
       openDatabasesWorkspace: (connectionId, tabOptions) => {
@@ -231,6 +246,7 @@ function useWorkspacesService() {
 
 export function useOpenWorkspace() {
   const {
+    openShellWorkspace,
     openCollectionWorkspace,
     openCollectionsWorkspace,
     openDatabasesWorkspace,
@@ -240,6 +256,7 @@ export function useOpenWorkspace() {
   } = useWorkspacesService();
 
   const openFns = useRef({
+    openShellWorkspace,
     openCollectionWorkspace,
     openCollectionsWorkspace,
     openDatabasesWorkspace,

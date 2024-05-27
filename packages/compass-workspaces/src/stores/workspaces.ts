@@ -8,6 +8,7 @@ import type {
   CollectionsWorkspace,
   DatabasesWorkspace,
   MyQueriesWorkspace,
+  ShellWorkspace,
   ServerStatsWorkspace,
   WelcomeWorkspace,
   Workspace,
@@ -76,6 +77,7 @@ function isAction<A extends AnyAction>(
 type WorkspaceTabProps =
   | Omit<WelcomeWorkspace, 'tabId'>
   | Omit<MyQueriesWorkspace, 'tabId'>
+  | Omit<ShellWorkspace, 'tabId'>
   | Omit<ServerStatsWorkspace, 'tabId'>
   | Omit<DatabasesWorkspace, 'tabId'>
   | Omit<CollectionsWorkspace, 'tabId'>
@@ -548,6 +550,7 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
+  | Pick<Workspace<'Shell'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>
