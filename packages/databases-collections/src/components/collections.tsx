@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { CollectionsList } from '@mongodb-js/databases-collections-list';
 import {
@@ -19,6 +19,7 @@ import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 
@@ -42,11 +43,15 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   collections,
   collectionsLoadingStatus,
   collectionsLoadingError,
-  isEditable,
+  isEditable: isInstanceWritable,
   onDeleteCollectionClick: _onDeleteCollectionClick,
   onCreateCollectionClick: _onCreateCollectionClick,
   onRefreshClick,
 }) => {
+  const isCompassInWritableMode = !usePreference('readOnly');
+  const isEditable = useMemo(() => {
+    return isCompassInWritableMode && isInstanceWritable;
+  }, [isCompassInWritableMode, isInstanceWritable]);
   const connectionInfo = useConnectionInfo();
   const { id: connectionId } = connectionInfo;
   const { openDatabasesWorkspace, openCollectionWorkspace } =
