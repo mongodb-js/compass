@@ -111,22 +111,19 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 
   const activeItemId = useMemo(() => {
-    if (!activeWorkspace) {
-      return '';
+    if (activeWorkspace) {
+      // Collection or Collections List (of a database)
+      if (
+        activeWorkspace.type === 'Collection' ||
+        activeWorkspace.type === 'Collections'
+      ) {
+        return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
+      }
+      // Database List (of a connection)
+      if (activeWorkspace.type === 'Databases') {
+        return activeWorkspace.connectionId;
+      }
     }
-    // Collection or Collections List (of a database)
-    if (
-      activeWorkspace.type === 'Collection' ||
-      activeWorkspace.type === 'Collections'
-    ) {
-      return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
-    }
-    // Database List (of a connection)
-    if (activeWorkspace.type === 'Databases') {
-      return activeWorkspace.connectionId;
-    }
-    // Everything else is not part of sidebar navigation
-    return activeWorkspace.id;
   }, [activeWorkspace]);
 
   const getItemActions = useCallback(

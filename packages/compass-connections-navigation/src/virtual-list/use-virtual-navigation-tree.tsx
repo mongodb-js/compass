@@ -129,7 +129,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
   },
 }: {
   items: VirtualTreeData;
-  activeItemId: string;
+  activeItemId?: string;
   onExpandedChange(item: VirtualTreeItem, isExpanded: boolean): void;
   onFocusMove?: (item: VirtualTreeItem) => void;
 }): [React.HTMLProps<T>, string | undefined] {

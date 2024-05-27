@@ -60,7 +60,7 @@ export type OnExpandedChange<T> = (
 ) => void;
 
 type VirtualTreeProps<T extends VirtualItem> = {
-  activeItemId: string;
+  activeItemId?: string;
   items: T[];
   width: number | string;
   height: number | string;

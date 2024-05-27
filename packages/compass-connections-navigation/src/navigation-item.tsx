@@ -10,7 +10,7 @@ import { getTreeItemStyles } from './utils';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
-  activeItemId: string;
+  activeItemId?: string;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
   onItemAction: (
     item: SidebarTreeItem,
