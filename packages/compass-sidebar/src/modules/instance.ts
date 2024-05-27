@@ -184,11 +184,6 @@ export const setupInstance =
 
     const dataService =
       connectionsManager.getDataServiceForConnection(connectionId);
-    if (!dataService) {
-      // This should be unreachable, because the instance state is only available
-      // whenever we have a Data Service connected, as it reads server metadata.
-      return;
-    }
 
     const connectionOptions = dataService.getConnectionOptions();
     dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status

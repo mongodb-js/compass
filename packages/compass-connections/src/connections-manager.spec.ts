@@ -185,16 +185,16 @@ describe('ConnectionsManager', function () {
             getConnectionConfigurationOptions()
           ),
         ]);
-        expect(
+        expect(() =>
           connectionsManager.getDataServiceForConnection(
             connectedConnectionInfo1.id
           )
-        ).to.be.undefined;
-        expect(
+        ).to.throw;
+        expect(() =>
           connectionsManager.getDataServiceForConnection(
             connectedConnectionInfo2.id
           )
-        ).to.be.undefined;
+        ).to.throw;
       });
 
       context('when all connection attempts are cancelled', function () {
@@ -279,16 +279,16 @@ describe('ConnectionsManager', function () {
           });
           connectionsManager.cancelAllConnectionAttempts();
           await canceledPromise;
-          expect(
+          expect(() =>
             connectionsManager.getDataServiceForConnection(
               connectedConnectionInfo1.id
             )
-          ).to.be.undefined;
-          expect(
+          ).to.throw;
+          expect(() =>
             connectionsManager.getDataServiceForConnection(
               connectedConnectionInfo2.id
             )
-          ).to.be.undefined;
+          ).to.throw;
         });
       });
     }
@@ -370,11 +370,11 @@ describe('ConnectionsManager', function () {
         });
       void connectionsManager.closeConnection(connectedConnectionInfo1.id);
       await canceledPromise;
-      expect(
+      expect(() =>
         connectionsManager.getDataServiceForConnection(
           connectedConnectionInfo1.id
         )
-      ).to.be.undefined;
+      ).to.throw;
     });
 
     context(
@@ -573,9 +573,9 @@ describe('ConnectionsManager', function () {
       } catch (error) {
         // nothing
       }
-      expect(
+      expect(() =>
         connectionsManager.getDataServiceForConnection(failedConnectionInfo.id)
-      ).to.be.undefined;
+      ).to.throw;
     });
   });
 
@@ -638,9 +638,9 @@ describe('ConnectionsManager', function () {
         getConnectionConfigurationOptions()
       );
       await connectionsManager.closeConnection(activeConnectionInfo.id);
-      expect(
+      expect(() =>
         connectionsManager.getDataServiceForConnection(activeConnectionInfo.id)
-      ).to.be.undefined;
+      ).to.throw;
     });
   });
 

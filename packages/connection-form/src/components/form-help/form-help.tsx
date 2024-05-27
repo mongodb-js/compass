@@ -5,17 +5,9 @@ import {
   Link,
   spacing,
   css,
-  cx,
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-
-const formHelpContainerStyles = css({
-  position: 'relative',
-  margin: 0,
-  width: spacing[5] * 10,
-  display: 'inline-block',
-});
 
 const sectionContainerStyles = css({
   backgroundColor: 'var(--theme-background-color)',
@@ -51,7 +43,7 @@ function FormHelp(): React.ReactElement {
   const themeStyles = darkMode ? sectionDarkModeStyles : sectionLightModeStyles;
 
   return (
-    <div className={cx(formHelpContainerStyles, themeStyles)}>
+    <div className={themeStyles}>
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?

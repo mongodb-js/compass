@@ -75,7 +75,7 @@
     "@mongodb-js/compass-editor": "^0.24.0",
     "@mongodb-js/compass-field-store": "^9.3.0",
     "@mongodb-js/compass-logging": "^1.2.17",
-    "bson": "^6.6.0",
+    "bson": "^6.7.0",
     "compass-preferences-model": "^2.20.1",
     "hadron-app-registry": "^9.1.11",
     "javascript-stringify": "^2.0.1",

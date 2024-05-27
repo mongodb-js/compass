@@ -9,12 +9,6 @@ export const setConnectionIsCSFLEEnabled = (
     const dataService =
       connectionsManager.getDataServiceForConnection(connectionId);
 
-    if (!dataService) {
-      throw new Error(
-        'unreachable: This is only visible when we are connected.'
-      );
-    }
-
     dataService.setCSFLEEnabled(enable);
     queueMicrotask(() => {
       globalAppRegistry?.emit('refresh-data');

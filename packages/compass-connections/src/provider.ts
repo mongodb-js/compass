@@ -70,9 +70,6 @@ export const dataServiceLocator = createServiceLocator(
     const ds = connectionsManager.getDataServiceForConnection(
       connectionInfo.id
     );
-    if (!ds) {
-      throw new Error('DataService is not available for the active connection');
-    }
     return ds;
   }
 );
