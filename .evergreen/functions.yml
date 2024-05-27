@@ -38,6 +38,7 @@ variables:
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
+    EVERGREEN_CREATED_AT: ${created_at}
     # WARN: This version is behind our electron runtime, but updating it will
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
@@ -301,14 +302,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          # The artifact file names are generated (in target.js) and added to the expansions
-          if [[ "${project}" == "10gen-compass-main" && "${branch_name}" == "main"  ]]; then
-            # In order to correclty use dev version identifer based on datetime, we will use
-            # evergreen's created_at expansion which is formatted as: 24_05_16_14_52_37.
-            export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${created_at})
-          fi
-          echo "Synchronizing evergreen environment from Compass build tools..."
-
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
           npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.yml
     - command: expansions.update
@@ -418,10 +411,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          if [[ "${project}" == "10gen-compass-main" && "${branch_name}" == "main"  ]]; then
-            echo "Building for main branch"
-            export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${created_at})
-          fi
           .evergreen/compass_package.sh
     - command: shell.exec
       params:
@@ -451,13 +440,10 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          if [[ "${project}" == "10gen-compass-main" ]]; then
-            export npm_config_dry_run=true
-          fi
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
 
-  publish-dev:
+  publish-dev-release:
     - command: shell.exec
       params:
         working_dir: src
@@ -467,42 +453,49 @@ functions:
         script: |
           set -e
           set -x
+          if [[ "${EVERGREEN_PROJECT}" != "10gen-compass-main" ]]; then
+            echo "Trying to publish main compass (dev build) from ${EVERGREEN_PROJECT} project";
+            exit 1;
+          fi
+
+          if [[ "${EVERGREEN_BRANCH_NAME}" != "main" ]]; then
+            echo "Trying to publish main compass (dev build) from ${EVERGREEN_BRANCH_NAME} branch";
+            exit 1;
+          fi
+
+          # Check if the commit was on main branch and not a bot commit.
+
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           
           TMP_FILE=$(mktemp)
-          BUCKET_URL="https://mciuploads.s3.amazonaws.com/${project}/compass/dev"
-          FILE_NAME="release.json"
-          VERSION_ID=$(awk '{gsub("_", ""); print}' <<< ${created_at})
+          BUCKET_URL="https://mciuploads.s3.amazonaws.com/${EVERGREEN_PROJECT}/compass/dev"
+          FILE_NAME="LATEST"
+          CREATED_AT=$(awk '{gsub("_", ""); print}' <<< ${EVERGREEN_CREATED_AT} | cut -c 1-9)
 
-          if [[ "${project}" != "10gen-compass-main" ]]; then
-            echo "Trying to publish main compass (dev build) from ${project} project";
-            exit 1;
-          fi
 
           code=$(curl -sSf "$BUCKET_URL/$FILE_NAME" -o "$TMP_FILE" -w "%{http_code}" || true)
           if [[ $code -eq 200 ]]; then
-            CURRENT_VERSION_ID=$(jq ".id" $TMP_FILE)
-            echo "Current published version: ${CURRENT_VERSION_ID}"
+            PUBLISHED_VERSION=$(cat $TMP_FILE)
+            echo "Current published version: ${PUBLISHED_VERSION}"
+            PUBLISHED_VERSION_CREATED_AT=$(awk '{gsub("v0.0.0-dev.", ""); print}' <<< $PUBLISHED_VERSION)
 
             # Check if the current version is greater than the version we are trying to publish.
-            if [[ $VERSION_ID -le $CURRENT_VERSION_ID ]]; then
-              echo "Published version ${CURRENT_VERSION_ID} is greater than version ${VERSION_ID} trying to publish. Exiting..."
+            if [[ $CREATED_AT -le $PUBLISHED_VERSION_CREATED_AT ]]; then
+              echo "Published version ${PUBLISHED_VERSION} is greater than version 0.0.0-dev.${VERSION_ID} trying to publish. Exiting..."
               exit 1
             fi
           fi
 
-          VERSION="v0.0.0-dev.$VERSION_ID"
-          PUBLISHED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "{\"id\": $VERSION_ID, \"version\": \"v0.0.0-dev.$VERSION_ID\", \"published_at\": \"$PUBLISHED_AT\", \"draft\": true}" > $FILE_NAME
+          echo "$DEV_VERSION_IDENTIFIER" > $FILE_NAME
 
     - command: s3.put
       params:
         <<: *save-artifact-params-public
-        local_file: src/release.json
-        remote_file: ${project}/compass/dev/release.json
-        content_type: application/json
-        display_name: release.json
+        local_file: src/LATEST
+        remote_file: ${project}/compass/dev/LATEST
+        content_type: text/plain
+        display_name: LATEST
         optional: true
 
   get-packaged-app:
@@ -840,7 +833,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${created_at})
+          export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${EVERGREEN_CREATED_AT})
           echo "Downloading release assets from evergreen bucket..."
           npm run --workspace mongodb-compass download
 

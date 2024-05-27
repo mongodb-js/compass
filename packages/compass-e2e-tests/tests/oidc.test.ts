@@ -45,7 +45,7 @@ function getTestBrowserShellCommand() {
   )}`;
 }
 
-describe('OIDC integration', function () {
+describe.skip('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 

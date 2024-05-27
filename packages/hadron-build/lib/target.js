@@ -165,7 +165,7 @@ class Target {
       process.env.DEV_VERSION_IDENTIFIER &&
       process.env.DEV_VERSION_IDENTIFIER !== ''
     ) {
-      this.version = `0.0.0-dev.${process.env.DEV_VERSION_IDENTIFIER}`;
+      this.version = process.env.DEV_VERSION_IDENTIFIER;
       pkg.version = this.version;
       this.semver = new semver.SemVer(this.version);
 

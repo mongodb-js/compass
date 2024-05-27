@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 set -e
+set -x
 
 export MONGODB_DEFAULT_VERSION=6.0.x
 
@@ -29,5 +30,17 @@ fi
 
 export BASHPATH="$PATH"
 export OSTYPE="$OSTYPE"
+
+if [[ "${EVERGREEN_PROJECT}" == "10gen-compass-main" ]]; then
+    # We do not publish anything from the 10gen-compass-main project.
+    export npm_config_dry_run=true 
+    # When packaging Compass from main, we want to use the dev version identifier
+    # based on the created_at (when evergreen was triggered - formatted as 24_05_16_14_52_37).
+    if [[ "${EVERGREEN_BRANCH_NAME}" == "main" ]]; then
+        VERSION_DATETIME=$(awk '{gsub("_", ""); print}' <<< "${EVERGREEN_CREATED_AT}" | cut -c 1-9)
+        export DEV_VERSION_IDENTIFIER="0.0.0-dev.${VERSION_DATETIME}"
+    fi
+fi
+
 
 .evergreen/print-compass-env.js
