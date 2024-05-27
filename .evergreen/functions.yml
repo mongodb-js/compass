@@ -833,7 +833,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          export DEV_VERSION_IDENTIFIER=$(awk '{gsub("_", ""); print}' <<< ${EVERGREEN_CREATED_AT})
           echo "Downloading release assets from evergreen bucket..."
           npm run --workspace mongodb-compass download
 
