@@ -119,7 +119,7 @@ describe('OIDC integration', function () {
         `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
       ];
 
-      if (serverSatisfies('>= 8.0.0-alpha0', true)) {
+      if (serverSatisfies('>= 8.1.0-rc0', true)) {
         // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
         args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
       }
