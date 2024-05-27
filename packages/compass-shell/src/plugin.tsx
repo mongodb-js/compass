@@ -9,8 +9,12 @@ import {
 } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import { usePreference } from 'compass-preferences-model/provider';
 
 export function ShellPlugin() {
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   const [ShellComponent, setShellComponent] = useState<
     typeof CompassShellComponentType | null
   >(null);
@@ -22,19 +26,30 @@ export function ShellPlugin() {
 
   useEffect(() => {
     let mounted = true;
-
-    void import(/* webpackPreload: true */ './components/compass-shell').then(
-      ({ default: Component }) => {
+    async function importShellComponent() {
+      let component: typeof CompassShellComponentType | null = null;
+      try {
+        if (multiConnectionsEnabled) {
+          component = (
+            await import('./components/compass-shell/tab-compass-shell')
+          ).default;
+        } else {
+          component = (await import('./components/compass-shell/compass-shell'))
+            .default;
+        }
+      } finally {
         if (mounted) {
-          setShellComponent(Component);
+          setShellComponent(component);
         }
       }
-    );
+    }
+
+    void importShellComponent();
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [multiConnectionsEnabled]);
 
   if (ShellComponent) {
     return <ShellComponent historyStorage={historyStorage.current} />;
