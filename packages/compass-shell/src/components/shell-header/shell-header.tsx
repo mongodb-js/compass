@@ -66,9 +66,9 @@ const operationInProgressStyles = css({
 });
 
 export interface ShellHeaderProps {
-  isExpanded: boolean;
+  isExpanded?: boolean;
+  onShellToggleClicked?: () => void;
   isOperationInProgress: boolean;
-  onShellToggleClicked: () => void;
   showInfoModal: () => void;
 }
 
@@ -81,7 +81,15 @@ export const ShellHeader = ({
 }: {
   darkMode: boolean | undefined;
 } & ShellHeaderProps) => {
-  useHotkeys('ctrl + `', onShellToggleClicked);
+  useHotkeys(
+    'ctrl + `',
+    onShellToggleClicked ??
+      (() => {
+        // noop
+      })
+  );
+
+  const showCollapseExpandChevron = !!onShellToggleClicked;
 
   return (
     <div
@@ -117,13 +125,18 @@ export const ShellHeader = ({
             <Icon glyph="InfoWithCircle" size="small" />
           </IconButton>
         )}
-        <IconButton
-          aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
-          onClick={onShellToggleClicked}
-          aria-pressed={isExpanded}
-        >
-          <Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronUp'} size="small" />
-        </IconButton>
+        {showCollapseExpandChevron && (
+          <IconButton
+            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+            onClick={onShellToggleClicked}
+            aria-pressed={isExpanded}
+          >
+            <Icon
+              glyph={isExpanded ? 'ChevronDown' : 'ChevronUp'}
+              size="small"
+            />
+          </IconButton>
+        )}
       </div>
     </div>
   );

@@ -182,9 +182,6 @@ const CompassShell: React.FC<CompassShellProps> = ({
       >
         <ShellHeader
           isExpanded={true}
-          onShellToggleClicked={() => {
-            // noop
-          }}
           isOperationInProgress={isOperationInProgress}
           showInfoModal={showInfoModal}
         />
