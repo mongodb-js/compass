@@ -71,7 +71,12 @@ describe('OIDC integration', function () {
       return this.skip();
     }
 
-    if (!serverSatisfies('> 7.0.0-alpha0', true)) {
+    // TODO(COMPASS-7966): Enable OIDC tests on 8.0.x when server fix is backported.
+    if (
+      serverSatisfies('< 7.0.0-alpha0', true) ||
+      (serverSatisfies('>= 8.0.0-alpha0', true) &&
+        serverSatisfies('< 8.1.0-rc0', true))
+    ) {
       return this.skip();
     }
 
