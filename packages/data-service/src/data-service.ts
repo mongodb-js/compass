@@ -2278,7 +2278,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       });
 
       client.on('close', () => {
-        this._logger.info(mongoLogId(1_001_000_288), 'Client is closed');
+        this._logger.info(mongoLogId(1_001_000_315), 'Client is closed');
         void this.disconnect();
         this._emitter.emit('close');
       });
