@@ -1,3 +1,4 @@
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -9,7 +10,11 @@ export async function selectFavoritesMenuItem(
   await browser.$(selector).waitForDisplayed();
 
   // workaround for weirdness in the ItemActionControls menu opener icon
-  await browser.clickVisible(Selectors.ConnectionsTitle);
+  await browser.clickVisible(
+    TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.SidebarHeader
+      : Selectors.ConnectionsTitle
+  );
 
   // Hover over an arbitrary other element to ensure that the second hover will
   // actually be a fresh one. This otherwise breaks if this function is called

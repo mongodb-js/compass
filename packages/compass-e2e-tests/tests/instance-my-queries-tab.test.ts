@@ -151,9 +151,12 @@ describe('Instance my queries tab', function () {
     // the open item modal - select a new collection
     const openModal = await browser.$(Selectors.OpenSavedItemModal);
     await openModal.waitForDisplayed();
-    await browser.selectOption(Selectors.OpenSavedItemDatabaseField, 'test');
     await browser.selectOption(
-      Selectors.OpenSavedItemCollectionField,
+      `${Selectors.OpenSavedItemDatabaseField} button`,
+      'test'
+    );
+    await browser.selectOption(
+      `${Selectors.OpenSavedItemCollectionField} button`,
       'numbers-renamed'
     );
     const confirmOpenButton = await browser.$(
@@ -325,11 +328,11 @@ describe('Instance my queries tab', function () {
         const openModal = await browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
         await browser.selectOption(
-          Selectors.OpenSavedItemDatabaseField,
+          `${Selectors.OpenSavedItemDatabaseField} button`,
           'test'
         );
         await browser.selectOption(
-          Selectors.OpenSavedItemCollectionField,
+          `${Selectors.OpenSavedItemCollectionField} button`,
           newCollectionName
         );
 

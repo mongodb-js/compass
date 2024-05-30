@@ -13,7 +13,7 @@ export async function connectWithConnectionString(
 ): Promise<void> {
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-    await browser.$(Selectors.ConnectionFormModal).waitForDisplayed();
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
   } else {
     const sidebar = await browser.$(Selectors.Sidebar);
     if (await sidebar.isDisplayed()) {

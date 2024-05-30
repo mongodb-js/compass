@@ -1594,7 +1594,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.selectOption(
-        Selectors.AggregationWizardSortFormDirectionSelect(0),
+        `${Selectors.AggregationWizardSortFormDirectionSelect(0)} button`,
         'Ascending'
       );
 

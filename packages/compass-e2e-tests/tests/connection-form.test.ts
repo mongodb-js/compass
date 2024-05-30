@@ -8,6 +8,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -586,7 +587,10 @@ describe('Connection form', function () {
     const newFavoriteName = 'My Favorite (edited)';
 
     // save
-    await browser.saveFavorite(favoriteName, 'color1');
+    await browser.saveFavorite(
+      favoriteName,
+      TEST_MULTIPLE_CONNECTIONS ? 'Red' : 'color1'
+    );
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
       // copy the connection string
@@ -616,7 +620,10 @@ describe('Connection form', function () {
 
     // edit the original
     await browser.selectFavorite(favoriteName);
-    await browser.saveFavorite(newFavoriteName, 'color2');
+    await browser.saveFavorite(
+      newFavoriteName,
+      TEST_MULTIPLE_CONNECTIONS ? 'Pink' : 'color2'
+    );
 
     // it should now be updated in the sidebar
     await browser

@@ -1,6 +1,10 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { screenshotIfFailed, skipForWeb } from '../helpers/compass';
+import {
+  TEST_MULTIPLE_CONNECTIONS,
+  screenshotIfFailed,
+  skipForWeb,
+} from '../helpers/compass';
 import {
   init,
   cleanup,
@@ -137,7 +141,10 @@ describe('Connection Import / Export', function () {
           );
 
           await waitForConnections();
-          await browser.saveFavorite(favoriteName, 'color3');
+          await browser.saveFavorite(
+            favoriteName,
+            TEST_MULTIPLE_CONNECTIONS ? 'Orange' : 'color3'
+          );
           await waitForConnections();
         } finally {
           await cleanup(compass);
@@ -234,7 +241,10 @@ describe('Connection Import / Export', function () {
 
       await waitForConnections();
 
-      await browser.saveFavorite(favoriteName, 'color3');
+      await browser.saveFavorite(
+        favoriteName,
+        TEST_MULTIPLE_CONNECTIONS ? 'Orange' : 'color3'
+      );
 
       // again: make sure the new favourite is there
       await waitForConnections();

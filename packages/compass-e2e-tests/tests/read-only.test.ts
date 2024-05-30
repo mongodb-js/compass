@@ -3,6 +3,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -18,6 +19,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   before(function () {
     skipForWeb(this, 'settings modal not available on compass-web');
+    // TODO
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   beforeEach(async function () {

@@ -6,6 +6,7 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -126,7 +127,10 @@ describe('CSFLE / QE', function () {
 
       await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
       await browser.waitUntil(async () => {
-        const text = await browser.$(Selectors.ConnectionTitle).getText();
+        const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
+          ? Selectors.ConnectionModalTitle
+          : Selectors.ConnectionTitle;
+        const text = await browser.$(connectionTitleSelector).getText();
         return text === favoriteName;
       });
 
