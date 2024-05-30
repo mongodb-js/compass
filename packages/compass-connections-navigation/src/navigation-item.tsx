@@ -5,7 +5,7 @@ import StyledNavigationItem from './styled-navigation-item';
 import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
 import type { OnExpandedChange } from './virtual-list/virtual-list';
-import type { SidebarTreeItem } from './tree-data';
+import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 
 type NavigationItemProps = {
@@ -13,10 +13,10 @@ type NavigationItemProps = {
   activeItemId?: string;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
   onItemAction: (
-    item: SidebarTreeItem,
+    item: SidebarActionableItem,
     action: NavigationItemActions[number]['action']
   ) => void;
-  onItemExpand: OnExpandedChange<SidebarTreeItem>;
+  onItemExpand: OnExpandedChange<SidebarActionableItem>;
 };
 
 export function NavigationItem({
@@ -57,7 +57,9 @@ export function NavigationItem({
 
   const onAction = useCallback(
     (action: NavigationItemActions[number]['action']) => {
-      onItemAction(item, action);
+      if (item.type !== 'placeholder') {
+        onItemAction(item, action);
+      }
     },
     [item, onItemAction]
   );

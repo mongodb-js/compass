@@ -73,11 +73,12 @@ export type CollectionTreeItem = VirtualTreeItem & {
   maxNestingLevel: number;
 };
 
-export type SidebarTreeItem =
-  | PlaceholderTreeItem
+export type SidebarActionableItem =
   | ConnectionTreeItem
   | DatabaseTreeItem
   | CollectionTreeItem;
+
+export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
 const connectionToItems = ({
   connection: {

@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import {
-  isTreeItem,
+  isPlaceholderItem,
   useVirtualNavigationTree,
+  type VirtualTreeItem,
   type VirtualItem,
 } from './use-virtual-navigation-tree';
 import {
@@ -15,7 +16,7 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 
-function useDefaultAction<T extends VirtualItem>(
+function useDefaultAction<T extends VirtualTreeItem>(
   item: T,
   onDefaultAction: (
     item: T,
@@ -51,13 +52,10 @@ function useDefaultAction<T extends VirtualItem>(
 type NotPlaceholderTreeItem<T> = T extends { type: 'placeholder' } ? never : T;
 type RenderItem<T> = (props: { index: number; item: T }) => React.ReactNode;
 export type OnDefaultAction<T> = (
-  item: NotPlaceholderTreeItem<T>,
+  item: T,
   evt: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
 ) => void;
-export type OnExpandedChange<T> = (
-  item: NotPlaceholderTreeItem<T>,
-  expanded: boolean
-) => void;
+export type OnExpandedChange<T> = (item: T, expanded: boolean) => void;
 
 type VirtualTreeProps<T extends VirtualItem> = {
   activeItemId?: string;
@@ -67,8 +65,8 @@ type VirtualTreeProps<T extends VirtualItem> = {
   itemHeight: number;
   renderItem: RenderItem<T>;
   getItemKey?: (item: T) => string;
-  onDefaultAction: OnDefaultAction<T>;
-  onExpandedChange: OnExpandedChange<T>;
+  onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
+  onExpandedChange: OnExpandedChange<NotPlaceholderTreeItem<T>>;
 };
 
 const navigationTree = css({
@@ -166,7 +164,7 @@ type VirtualItemData<T extends VirtualItem> = {
   items: T[];
   currentTabbable?: string;
   renderItem: RenderItem<T>;
-  onDefaultAction: OnDefaultAction<T>;
+  onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
 };
 function TreeItem<T extends VirtualItem>({
   index,
@@ -181,11 +179,13 @@ function TreeItem<T extends VirtualItem>({
     return renderItem({ index, item });
   }, [renderItem, index, item]);
 
-  // todo: type check
-  const actionProps = useDefaultAction<T>(item, data.onDefaultAction);
+  const actionProps = useDefaultAction(
+    item as NotPlaceholderTreeItem<T>,
+    data.onDefaultAction
+  );
 
   // Placeholder check
-  if (!isTreeItem(item)) {
+  if (isPlaceholderItem(item)) {
     return <div style={style}>{Component}</div>;
   }
 

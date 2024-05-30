@@ -24,8 +24,10 @@ export type VirtualItem = VirtualTreeItem | VirtualPlaceholderItem;
 
 export type VirtualTreeData = VirtualItem[];
 
-export function isTreeItem(item: VirtualItem): item is VirtualTreeItem {
-  return 'type' in item && item.type !== 'placeholder';
+export function isPlaceholderItem(
+  item: VirtualItem
+): item is VirtualPlaceholderItem {
+  return 'type' in item && item.type === 'placeholder';
 }
 
 function isExpandable(
@@ -43,7 +45,7 @@ function findNext(
   for (let i = itemIndex + 1, len = items.length; i < len; i++) {
     const idx = (i + shift) % len;
     const item = items[idx];
-    if (isTreeItem(item) && (!fn || fn(item))) {
+    if (!isPlaceholderItem(item) && (!fn || fn(item))) {
       return item;
     }
   }
@@ -60,7 +62,7 @@ function findPrev(
   for (let i = itemIndex - 1; i >= 0; i--) {
     const idx = (i + shift) % len;
     const item = items[idx];
-    if (isTreeItem(item) && (!fn || fn(item))) {
+    if (!isPlaceholderItem(item) && (!fn || fn(item))) {
       return item;
     }
   }
@@ -95,7 +97,7 @@ function findSiblings(
   const result = [currentItem];
   for (let i = currentItemIndex - 1; i >= 0; i--) {
     const item = items[i];
-    if (isTreeItem(item)) {
+    if (!isPlaceholderItem(item)) {
       if (item.level === currentItem.level) {
         result.push(item);
       }
@@ -107,7 +109,7 @@ function findSiblings(
   }
   for (let i = currentItemIndex + 1, len = items.length; i < len; i++) {
     const item = items[i];
-    if (isTreeItem(item)) {
+    if (!isPlaceholderItem(item)) {
       if (item.level === currentItem.level) {
         result.push(item);
       }

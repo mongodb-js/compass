@@ -9,7 +9,7 @@ import type {
   OnExpandedChange,
 } from './virtual-list/virtual-list';
 import { NavigationItem } from './navigation-item';
-import type { SidebarTreeItem } from './tree-data';
+import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import {
   FadeInPlaceholder,
   VisuallyHidden,
@@ -68,7 +68,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     return getVirtualTreeItems(connections, isSingleConnection, expanded);
   }, [connections, isSingleConnection, expanded]);
 
-  const onDefaultAction: OnDefaultAction<SidebarTreeItem> = useCallback(
+  const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
         onConnectionSelect(item.connectionInfo.id);
@@ -85,7 +85,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     [onNamespaceAction, onConnectionSelect]
   );
 
-  const onItemExpand: OnExpandedChange<SidebarTreeItem> = useCallback(
+  const onItemExpand: OnExpandedChange<SidebarActionableItem> = useCallback(
     (item, expanded) => {
       if (item.type === 'connection') {
         onConnectionExpand(item.connectionInfo.id, expanded);
@@ -97,14 +97,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   );
 
   const onItemAction = useCallback(
-    // todo: type check
-    (item: any, action: Actions) => {
+    (item: SidebarActionableItem, action: Actions) => {
       const args =
         item.type === 'connection'
-          ? [item.connectionInfo.id, item.connectionInfo.id, action]
+          ? ([item.connectionInfo.id, item.connectionInfo.id, action] as const)
           : item.type === 'database'
-          ? [item.connectionId, item.dbName, action]
-          : [item.connectionId, item.namespace, action];
+          ? ([item.connectionId, item.dbName, action] as const)
+          : ([item.connectionId, item.namespace, action] as const);
       onNamespaceAction(...args);
     },
     [onNamespaceAction]
