@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 
 set -e
-set -x
 
 export MONGODB_DEFAULT_VERSION=6.0.x
 
