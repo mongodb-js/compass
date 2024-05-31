@@ -451,44 +451,8 @@ functions:
         env:
           <<: *compass-env
         script: |
-          set -e
-          set -x
-          if [[ "${EVERGREEN_PROJECT}" != "10gen-compass-main" ]]; then
-            echo "Trying to publish main compass (dev build) from ${EVERGREEN_PROJECT} project";
-            exit 1;
-          fi
-
-          if [[ "${EVERGREEN_BRANCH_NAME}" != "main" ]]; then
-            echo "Trying to publish main compass (dev build) from ${EVERGREEN_BRANCH_NAME} branch";
-            exit 1;
-          fi
-
-          # Check if the commit was on main branch and not a bot commit.
-
-          # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          
-          TMP_FILE=$(mktemp)
-          BUCKET_URL="https://mciuploads.s3.amazonaws.com/${EVERGREEN_PROJECT}/compass/dev"
-          FILE_NAME="LATEST"
-          CREATED_AT=$(awk '{gsub("_", ""); print}' <<< ${EVERGREEN_CREATED_AT} | cut -c 1-9)
-
-
-          code=$(curl -sSf "$BUCKET_URL/$FILE_NAME" -o "$TMP_FILE" -w "%{http_code}" || true)
-          if [[ $code -eq 200 ]]; then
-            PUBLISHED_VERSION=$(cat $TMP_FILE)
-            echo "Current published version: ${PUBLISHED_VERSION}"
-            PUBLISHED_VERSION_CREATED_AT=$(awk '{gsub("v0.0.0-dev.", ""); print}' <<< $PUBLISHED_VERSION)
-
-            # Check if the current version is greater than the version we are trying to publish.
-            if [[ $CREATED_AT -le $PUBLISHED_VERSION_CREATED_AT ]]; then
-              echo "Published version ${PUBLISHED_VERSION} is greater than version 0.0.0-dev.${VERSION_ID} trying to publish. Exiting..."
-              exit 1
-            fi
-          fi
-
-          echo "$DEV_VERSION_IDENTIFIER" > $FILE_NAME
-
+          .evergreen/publish-dev-release.sh LATEST
     - command: s3.put
       params:
         <<: *save-artifact-params-public
