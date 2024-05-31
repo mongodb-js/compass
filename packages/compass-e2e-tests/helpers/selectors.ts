@@ -253,7 +253,7 @@ export const SidebarNavigationItemShowActionsButton =
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const RenameCollectionButton =
-  '[data-testid="sidebar-collection-item-actions-rename-collection-action"]';
+  '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
