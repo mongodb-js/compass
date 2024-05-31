@@ -142,7 +142,7 @@ async function deleteStage(
   await browser.clickVisible(Selectors.StageDelete);
 }
 
-describe.only('Collection aggregations tab', function () {
+describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
