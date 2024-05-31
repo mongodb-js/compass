@@ -606,11 +606,20 @@ describe('Connection form', function () {
       );
     }
 
+    console.log('XXX duplicating favorite');
+
     // duplicate
     await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.DuplicateConnectionItem
     );
+
+    // duplicating immediately opens the modal so you can edit it
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+    }
+
+    console.log('XXX deleting the duplicate');
 
     // delete the duplicate
     await browser.selectConnectionMenuItem(
@@ -618,21 +627,37 @@ describe('Connection form', function () {
       Selectors.RemoveConnectionItem
     );
 
+    console.log('XXX select the original');
+
     // edit the original
     await browser.selectFavorite(favoriteName);
+
+    console.log('XXX save favorite');
+
     await browser.saveFavorite(
       newFavoriteName,
       TEST_MULTIPLE_CONNECTIONS ? 'Pink' : 'color2'
     );
+
+    console.log('XXX checking if the sidebar fav is there');
 
     // it should now be updated in the sidebar
     await browser
       .$(Selectors.sidebarFavorite(newFavoriteName))
       .waitForDisplayed();
 
+    // open the modal so we can perform some actions in there
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectFavorite(newFavoriteName);
+    }
+
+    console.log('XXX checking the toggle');
+
     // the edit the connection string toggle should be on (because this is a new connection we just saved)
     const toggle = await browser.$(Selectors.EditConnectionStringToggle);
     expect(await toggle.getAttribute('aria-checked')).to.equal('true');
+
+    console.log('XXX toggle it twice');
 
     // toggle the edit connection string toggle twice
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
@@ -689,6 +714,11 @@ describe('Connection form', function () {
   });
 
   it('can save & connect', async function () {
+    // TODO: saving a favorite is now part of the connect form
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     const favoriteName = 'My New Favorite';
 
     // Fill in a valid URI

@@ -28,6 +28,7 @@ export const ConnectButton = '[data-testid="connect-button"]';
 export const ConnectionFormSaveButton = '[data-testid="save-button"]';
 export const ConnectionFormSaveAndConnectButton =
   '[data-testid="save-and-connect-button"]';
+export const ConnectionFormConnectButton = '[data-testid="connect-button"]';
 export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
 export const ConnectionFormEditFavouriteButton =
   '[data-testid="edit-favorite-icon-button"]';
