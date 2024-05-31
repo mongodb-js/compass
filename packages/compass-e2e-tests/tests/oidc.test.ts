@@ -66,16 +66,16 @@ describe('OIDC integration', function () {
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
+    // OIDC is only supported on Linux in the 7.0+ enterprise server.
     if (
       process.platform !== 'linux' ||
       !serverSatisfies('> 7.0.0-alpha0', true)
     ) {
-      // OIDC is only supported on Linux in the 7.0+ enterprise server.
       return this.skip();
     }
 
     // TODO(COMPASS-7966): Enable OIDC tests on 8.0.x when server fix is backported.
-    if (!serverSatisfies('> 8.1.0-rc0', true)) {
+    if (serverSatisfies('>= 8.0.0-alpha0 <8.1.0-rc0')) {
       return this.skip();
     }
 
