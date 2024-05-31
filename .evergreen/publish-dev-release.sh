@@ -18,7 +18,11 @@ TMP_FILE=$(mktemp)
 CURRENT_VERSION="0.0.0-dev.0"
 
 if [ "$(curl -s -w "%{http_code}" -o "$TMP_FILE" "$URL" | tail -n1)" -eq 200 ]; then
-  CURRENT_VERSION=$TMP_FILE
+  CURRENT_VERSION=$(xargs < "$TMP_FILE")
 fi
+
+npm install -g semver
+
+echo "Comparing versions: $CURRENT_VERSION and $DEV_VERSION_IDENTIFIER"
 PUBLISH_VERSION=$(npx semver "$CURRENT_VERSION" "$DEV_VERSION_IDENTIFIER" | tail -n1 | xargs)
 echo "$PUBLISH_VERSION" > "$1"
