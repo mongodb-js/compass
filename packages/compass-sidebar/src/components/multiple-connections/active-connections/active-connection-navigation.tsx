@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   type Connection,
@@ -35,7 +41,6 @@ function findCollection(ns: string, databases: Database[]) {
 }
 
 const activeConnectionsContainerStyles = css({
-  height: '100%',
   padding: `${spacing[2]}px ${spacing[3]}px`,
   borderTop: `1px solid ${palette.gray.light2}`,
 });
@@ -46,13 +51,15 @@ const activeConnectionListHeaderStyles = css({
   flexDirection: 'row',
   alignContent: 'center',
   justifyContent: 'space-between',
+  marginBottom: spacing[200],
 });
 
 const activeConnectionListHeaderTitleStyles = css({
   marginTop: 0,
   marginBottom: 0,
   textTransform: 'uppercase',
-  fontSize: '12px',
+  fontSize: `${spacing[300]}px`,
+  lineHeight: `${spacing[800]}px`,
 });
 
 const activeConnectionCountStyles = css({
@@ -65,6 +72,7 @@ export function ActiveConnectionNavigation({
   connections,
   expanded,
   activeWorkspace,
+  height,
   onNamespaceAction: _onNamespaceAction,
   onOpenConnectionInfo,
   onCopyConnectionString,
@@ -87,6 +95,7 @@ export function ActiveConnectionNavigation({
   isWritable?: boolean;
   expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace?: WorkspaceTab;
+  height: CSSProperties['height'];
   onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
   onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
   onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
@@ -221,7 +230,7 @@ export function ActiveConnectionNavigation({
   );
 
   return (
-    <div className={activeConnectionsContainerStyles}>
+    <div className={activeConnectionsContainerStyles} style={{ height }}>
       <header className={activeConnectionListHeaderStyles}>
         <Subtitle className={activeConnectionListHeaderTitleStyles}>
           Active connections

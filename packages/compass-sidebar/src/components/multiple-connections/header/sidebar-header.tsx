@@ -8,8 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 
 const sidebarHeaderStyles = css({
-  height: spacing[6],
-  padding: spacing[3],
+  height: spacing[1600],
+  minHeight: spacing[1600],
+  padding: spacing[400],
   display: 'flex',
 });
 

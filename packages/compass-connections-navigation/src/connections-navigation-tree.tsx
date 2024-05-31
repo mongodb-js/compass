@@ -561,7 +561,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 const MCContainer = css({
   display: 'flex',
   flex: '1 0 auto',
-  height: `calc(100% - ${spacing[3]}px)`,
+  height: `calc(100% - ${spacing[1000]}px)`,
 });
 
 const SCContainer = css({

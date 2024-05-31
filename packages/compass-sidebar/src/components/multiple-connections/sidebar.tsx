@@ -22,6 +22,8 @@ import {
   useToast,
   spacing,
   openToast,
+  ResizeHandle,
+  ResizeDirection,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
@@ -36,6 +38,13 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
+
+const SIDEBAR_MENU_ITEM_HEIGHT = spacing[1200];
+const SIDEBAR_HEADER_HEIGHT = spacing[1600];
+const COLLAPSED_LIST_HEIGHT = SIDEBAR_MENU_ITEM_HEIGHT;
+const MAX_EXPANDED_LIST_HEIGHT =
+  window.outerHeight - SIDEBAR_HEADER_HEIGHT - 2 * SIDEBAR_MENU_ITEM_HEIGHT;
+const DEFAULT_SAVED_CONNECTIONS_HEIGHT = 320;
 
 type MultipleConnectionSidebarProps = {
   activeWorkspace: WorkspaceTab | null;
@@ -60,11 +69,11 @@ type ConnectionErrorToastBodyProps = {
 const connectionErrorToastBodyStyles = css({
   display: 'flex',
   alignItems: 'start',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 const connectionErrorToastActionMessageStyles = css({
-  marginTop: spacing[1],
+  marginTop: spacing[100],
   flexGrow: 0,
 });
 
@@ -122,6 +131,9 @@ async function copyConnectionString(connectionString: string) {
   }
 }
 
+const getActiveConnectionsHeight = (savedConnectionsHeight: number): number =>
+  MAX_EXPANDED_LIST_HEIGHT + COLLAPSED_LIST_HEIGHT - savedConnectionsHeight;
+
 export function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
@@ -134,6 +146,16 @@ export function MultipleConnectionSidebar({
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
+
+  const [heights, setHeights] = useState<{
+    activeConnections: number;
+    savedConnections: number;
+  }>({
+    activeConnections: getActiveConnectionsHeight(
+      DEFAULT_SAVED_CONNECTIONS_HEIGHT
+    ),
+    savedConnections: DEFAULT_SAVED_CONNECTIONS_HEIGHT,
+  });
 
   const findActiveConnection = useCallback(
     (connectionId: string) =>
@@ -390,6 +412,16 @@ export function MultipleConnectionSidebar({
     };
   }, [appRegistry, onNewConnectionOpen]);
 
+  const onResize = useCallback(
+    (savedConnectionsHeight: number) => {
+      setHeights({
+        activeConnections: getActiveConnectionsHeight(savedConnectionsHeight),
+        savedConnections: savedConnectionsHeight,
+      });
+    },
+    [setHeights]
+  );
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -398,14 +430,26 @@ export function MultipleConnectionSidebar({
         <ActiveConnectionNavigation
           activeConnections={activeConnections}
           activeWorkspace={activeWorkspace ?? undefined}
+          height={heights.activeConnections}
           onOpenConnectionInfo={onOpenConnectionInfo}
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
           onDisconnect={onDisconnect}
         />
+        <div style={{ position: 'relative' }}>
+          <ResizeHandle
+            onChange={onResize}
+            value={heights.savedConnections}
+            minValue={COLLAPSED_LIST_HEIGHT}
+            maxValue={MAX_EXPANDED_LIST_HEIGHT}
+            title="separator"
+            direction={ResizeDirection.TOP}
+          />
+        </div>
         <SavedConnectionList
           favoriteConnections={favoriteConnections}
           nonFavoriteConnections={recentConnections}
+          height={heights.savedConnections}
           onConnect={onConnect}
           onNewConnection={onNewConnectionOpen}
           onEditConnection={onEditConnection}

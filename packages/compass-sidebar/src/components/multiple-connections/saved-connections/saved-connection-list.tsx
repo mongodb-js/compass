@@ -1,5 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import React, { useCallback } from 'react';
+import React, { type CSSProperties, useCallback } from 'react';
 import { SavedConnection } from './saved-connection';
 import {
   Body,
@@ -16,7 +16,6 @@ import { useCanOpenNewConnections } from '@mongodb-js/compass-connections/provid
 
 const savedConnectionListStyles = css({
   width: '100%',
-  height: '320px',
   flex: 'none',
   display: 'flex',
   flexDirection: 'column',
@@ -69,6 +68,7 @@ const newConnectionWrapperStyles = css({
 type SavedConnectionListProps = {
   favoriteConnections: ConnectionInfo[];
   nonFavoriteConnections: ConnectionInfo[];
+  height?: CSSProperties['height'];
   onConnect(connectionInfo: ConnectionInfo): void;
   onNewConnection(): void;
   onEditConnection(connectionInfo: ConnectionInfo): void;
@@ -86,6 +86,7 @@ export function SavedConnectionList({
   onDeleteConnection,
   onDuplicateConnection,
   onToggleFavoriteConnection,
+  height = '320px',
 }: SavedConnectionListProps): React.ReactElement {
   const {
     maximumNumberOfConnectionsOpen,
@@ -106,7 +107,7 @@ export function SavedConnectionList({
     favoriteConnections.length + nonFavoriteConnections.length;
 
   return (
-    <div className={savedConnectionListStyles}>
+    <div className={savedConnectionListStyles} style={{ height }}>
       <header className={savedConnectionListHeaderStyles}>
         <Subtitle className={savedConnectionListHeaderTitleStyles}>
           Connections
