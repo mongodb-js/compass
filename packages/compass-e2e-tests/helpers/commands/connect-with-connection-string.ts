@@ -11,15 +11,17 @@ export async function connectWithConnectionString(
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {
+  await browser.disconnect();
+
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
-  } else {
+  } /* else {
     const sidebar = await browser.$(Selectors.Sidebar);
     if (await sidebar.isDisplayed()) {
       await browser.disconnect();
     }
-  }
+  }*/
 
   await browser.setValueVisible(
     Selectors.ConnectionStringInput,

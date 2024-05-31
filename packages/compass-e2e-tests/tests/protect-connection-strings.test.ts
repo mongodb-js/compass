@@ -35,7 +35,7 @@ async function expectCopyConnectionStringToClipboard(
   }
 }
 
-describe.only('protectConnectionStrings', function () {
+describe('protectConnectionStrings', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
