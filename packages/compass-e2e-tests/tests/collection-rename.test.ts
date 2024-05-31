@@ -58,7 +58,7 @@ class RenameCollectionModal {
 }
 
 async function navigateToCollectionInSidebar(browser: CompassBrowser) {
-  const sidebar = await browser.$(Selectors.SidebarDatabaseAndCollectionList);
+  const sidebar = await browser.$(Selectors.SidebarNavigationTree);
   await sidebar.waitForDisplayed();
 
   // open the database in the sidebar
@@ -75,7 +75,7 @@ async function navigateToCollectionInSidebar(browser: CompassBrowser) {
     initialName
   );
   await browser.scrollToVirtualItem(
-    Selectors.SidebarDatabaseAndCollectionList,
+    Selectors.SidebarNavigationTree,
     collectionSelector,
     'tree'
   );
@@ -147,7 +147,9 @@ describe('Collection Rename Modal', () => {
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
       );
-      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(
+        Selectors.SidebarNavigationItemShowActionsButton
+      );
       await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // go through
@@ -176,7 +178,9 @@ describe('Collection Rename Modal', () => {
 
       // open the rename collection flow from the sidebar
       await browser.hover(collectionSelector);
-      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(
+        Selectors.SidebarNavigationItemShowActionsButton
+      );
       await browser.clickVisible(Selectors.RenameCollectionButton);
       await renameCollectionSuccessFlow(browser, newName);
 
@@ -199,7 +203,9 @@ describe('Collection Rename Modal', () => {
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
       );
-      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(
+        Selectors.SidebarNavigationItemShowActionsButton
+      );
       await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // wait for the collection modal to appear
@@ -235,7 +241,9 @@ describe('Collection Rename Modal', () => {
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
       );
-      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(
+        Selectors.SidebarNavigationItemShowActionsButton
+      );
       await browser.clickVisible(Selectors.RenameCollectionButton);
       // wait for the collection modal to appear
       const modal = new RenameCollectionModal(browser);
@@ -251,7 +259,9 @@ describe('Collection Rename Modal', () => {
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
       );
-      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(
+        Selectors.SidebarNavigationItemShowActionsButton
+      );
       await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // wait for the collection modal to appear
@@ -268,7 +278,9 @@ describe('Collection Rename Modal', () => {
       await browser.hover(
         Selectors.sidebarCollection(databaseName, initialName)
       );
-      await browser.clickVisible(Selectors.CollectionShowActionsButton);
+      await browser.clickVisible(
+        Selectors.SidebarNavigationItemShowActionsButton
+      );
       await browser.clickVisible(Selectors.RenameCollectionButton);
 
       // assert that the form state has reset

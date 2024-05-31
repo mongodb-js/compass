@@ -58,6 +58,7 @@ export type OnDefaultAction<T> = (
 export type OnExpandedChange<T> = (item: T, expanded: boolean) => void;
 
 type VirtualTreeProps<T extends VirtualItem> = {
+  dataTestId?: string;
   activeItemId?: string;
   items: T[];
   width: number | string;
@@ -82,6 +83,7 @@ function useAction<T>(fn: RenderItem<T>): RenderItem<T> {
 }
 
 export function VirtualTree<T extends VirtualItem>({
+  dataTestId,
   activeItemId,
   items,
   width,
@@ -139,6 +141,7 @@ export function VirtualTree<T extends VirtualItem>({
 
   return (
     <div
+      data-testid={dataTestId}
       role="tree"
       aria-labelledby={id}
       className={navigationTree}

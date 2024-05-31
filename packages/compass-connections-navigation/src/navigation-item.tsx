@@ -80,6 +80,28 @@ export function NavigationItem({
     [getItemActions, item, onAction]
   );
 
+  const itemDataProps = useMemo(() => {
+    if (item.type === 'placeholder') {
+      return {};
+    }
+    if (item.type === 'connection') {
+      return {
+        'data-connection-id': item.connectionInfo.id,
+        'data-connection-name': item.connectionInfo.favorite?.name,
+      };
+    }
+    if (item.type === 'database') {
+      return {
+        'data-connection-id': item.connectionId,
+        'data-database-name': item.dbName,
+      };
+    }
+    return {
+      'data-connection-id': item.connectionId,
+      'data-namespace': item.namespace,
+    };
+  }, [item]);
+
   return (
     <StyledNavigationItem colorCode={item.colorCode}>
       {item.type === 'placeholder' ? (
@@ -94,6 +116,7 @@ export function NavigationItem({
           icon={itemIcon}
           name={item.name}
           style={style}
+          dataAttributes={itemDataProps}
           canExpand={item.level < item.maxNestingLevel}
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);

@@ -160,6 +160,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
         {({ width = isTestEnv ? 1024 : '', height = isTestEnv ? 768 : '' }) => (
           <VirtualTree<SidebarTreeItem>
+            dataTestId="sidebar-navigation-tree"
             activeItemId={activeItemId}
             items={treeData}
             width={width}

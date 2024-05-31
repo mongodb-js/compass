@@ -22,6 +22,8 @@ type NavigationBaseItemProps = {
   name: string;
   icon: React.ReactNode;
 
+  dataAttributes?: Record<string, string | undefined>;
+
   canExpand: boolean;
   isExpanded: boolean;
   onExpand: (toggle: boolean) => void;
@@ -53,6 +55,7 @@ export const NavigationBaseItem = ({
   name,
   style,
   icon,
+  dataAttributes,
   canExpand,
   isExpanded,
   onExpand,
@@ -63,6 +66,7 @@ export const NavigationBaseItem = ({
       isActive={isActive}
       className={baseItemContainerStyles}
       {...hoverProps}
+      {...dataAttributes}
     >
       <ItemWrapper>
         <ItemButtonWrapper
