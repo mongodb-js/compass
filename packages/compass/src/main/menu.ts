@@ -103,7 +103,7 @@ function darwinCompassSubMenu(
   };
 }
 
-function connectItem(
+function newWindowItem(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
   return {
@@ -128,10 +128,17 @@ function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const subMenu: MenuTemplate = [
-    connectItem(app),
+  const { enableNewMultipleConnectionSystem: isMultiConnectionsEnabled } =
+    app.preferences.getPreferences();
+
+  const singleConnectionItems: MenuTemplate = [
+    newWindowItem(app),
     disconnectItem(),
     separator(),
+  ];
+
+  const subMenu: MenuTemplate = [
+    ...(!isMultiConnectionsEnabled ? singleConnectionItems : []),
     {
       label: '&Import Saved Connections',
       click() {
@@ -407,26 +414,35 @@ function viewSubMenu(
   };
 }
 
-function windowSubMenu(): MenuItemConstructorOptions {
+function windowSubMenu(
+  app: typeof CompassApplication
+): MenuItemConstructorOptions {
+  const { enableNewMultipleConnectionSystem: isMultiConnectionsEnabled } =
+    app.preferences.getPreferences();
+
+  const submenu: MenuTemplate = [
+    {
+      label: 'Minimize',
+      accelerator: 'Command+M',
+      role: 'minimize' as const,
+    },
+    {
+      label: 'Close',
+      accelerator: 'Command+Shift+W',
+      role: 'close' as const,
+    },
+    separator(),
+    {
+      label: 'Bring All to Front',
+      role: 'front',
+    },
+  ];
+
+  if (isMultiConnectionsEnabled) submenu.unshift(newWindowItem(app));
+
   return {
     label: 'Window',
-    submenu: [
-      {
-        label: 'Minimize',
-        accelerator: 'Command+M',
-        role: 'minimize' as const,
-      },
-      {
-        label: 'Close',
-        accelerator: 'Command+Shift+W',
-        role: 'close' as const,
-      },
-      separator(),
-      {
-        label: 'Bring All to Front',
-        role: 'front',
-      },
-    ],
+    submenu,
   };
 }
 
@@ -445,7 +461,7 @@ function darwinMenu(
     menu.push(collectionSubMenu(menuState.isReadOnly, app));
   }
 
-  menu.push(windowSubMenu());
+  menu.push(windowSubMenu(app));
   menu.push(helpSubMenu(menuState, app));
 
   return menu;

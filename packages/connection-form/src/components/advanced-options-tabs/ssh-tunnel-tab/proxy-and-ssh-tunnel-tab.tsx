@@ -5,8 +5,8 @@ import {
   Label,
   RadioBox,
   RadioBoxGroup,
-  spacing,
   css,
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -63,12 +63,8 @@ const options: TabOption[] = [
   },
 ];
 
-const containerStyles = css({
-  marginTop: spacing[3],
-});
-
 const contentStyles = css({
-  marginTop: spacing[3],
+  display: 'contents',
 });
 
 const getSelectedTunnelType = (
@@ -163,30 +159,32 @@ function ProxyAndSshTunnelTab({
   const TunnelContent = selectedOption.component;
 
   return (
-    <div className={containerStyles}>
-      <Label htmlFor="ssh-options-radio-box-group">
-        SSH Tunnel/Proxy Method
-      </Label>
-      <RadioBoxGroup
-        id="ssh-options-radio-box-group"
-        onChange={optionSelected}
-        size="compact"
-        className="radio-box-group-style"
-      >
-        {options.map(({ title, id, type }) => {
-          return (
-            <RadioBox
-              id={`${type}-tab-button`}
-              data-testid={`${type}-tab-button`}
-              checked={selectedOption.id === id}
-              value={id}
-              key={id}
-            >
-              {title}
-            </RadioBox>
-          );
-        })}
-      </RadioBoxGroup>
+    <>
+      <FormFieldContainer>
+        <Label htmlFor="ssh-options-radio-box-group">
+          SSH Tunnel/Proxy Method
+        </Label>
+        <RadioBoxGroup
+          id="ssh-options-radio-box-group"
+          onChange={optionSelected}
+          size="compact"
+          className="radio-box-group-style"
+        >
+          {options.map(({ title, id, type }) => {
+            return (
+              <RadioBox
+                id={`${type}-tab-button`}
+                data-testid={`${type}-tab-button`}
+                checked={selectedOption.id === id}
+                value={id}
+                key={id}
+              >
+                {title}
+              </RadioBox>
+            );
+          })}
+        </RadioBoxGroup>
+      </FormFieldContainer>
       {connectionOptions && (
         <div
           className={contentStyles}
@@ -200,7 +198,7 @@ function ProxyAndSshTunnelTab({
           />
         </div>
       )}
-    </div>
+    </>
   );
 }
 

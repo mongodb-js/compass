@@ -480,7 +480,7 @@ export class ObjectGenerator {
    *
    * NOTE: `alwaysIncludeKeys` is currently used for sharding, since
    * updates on sharded setups need to include the shard key in their
-   * find part. https://jira.mongodb.org/browse/PM-1632 will make
+   * find part. https://jira.mongodb.org/browse/SPM-1632 will make
    * this requirement go away for future MongoDB versions!
    *
    * @param target The target (sub-)document.

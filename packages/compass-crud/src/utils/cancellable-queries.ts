@@ -83,7 +83,7 @@ export async function fetchShardingKeys(
       'config.collections',
       {
         _id: ns as any,
-        // unsplittable introduced in PM-3364 to mark unsharded collections
+        // unsplittable introduced in SPM-3364 to mark unsharded collections
         // that are still being tracked in the catalog
         unsplittable: { $ne: true },
       },
