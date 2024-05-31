@@ -35,6 +35,7 @@ import {
   type ConnectionInfo,
   ConnectionInfoProvider,
   useTabConnectionTheme,
+  useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 
 const emptyWorkspaceStyles = css({
@@ -106,6 +107,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
+  const { getConnectionTitleById } = useConnectionRepository();
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -125,7 +127,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         case 'Shell':
           return {
             id: tab.id,
-            title: 'MongoDB Shell',
+            title: getConnectionTitleById(tab.connectionId) ?? 'MongoDB Shell',
             iconGlyph: 'Shell',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
@@ -184,7 +186,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [tabs, collectionInfo, getThemeOf]);
+  }, [tabs, collectionInfo, getThemeOf, getConnectionTitleById]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
