@@ -17,7 +17,7 @@ function GeneralTab({
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   return (
-    <div>
+    <>
       <FormFieldContainer>
         <SchemeInput
           errors={errors}
@@ -30,7 +30,7 @@ function GeneralTab({
         connectionStringUrl={connectionStringUrl}
         updateConnectionFormField={updateConnectionFormField}
       />
-    </div>
+    </>
   );
 }
 

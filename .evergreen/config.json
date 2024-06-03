@@ -132,6 +132,18 @@
           }
         },
         {
+          "name": "80x-community",
+          "vars": {
+            "mongodb_version": ">= 8.0.0-rc4"
+          }
+        },
+        {
+          "name": "80x-enterprise",
+          "vars": {
+            "mongodb_version": ">= 8.0.0-rc4-enterprise"
+          }
+        },
+        {
           "name": "latest",
           "vars": {
             "mongodb_version": "latest-alpha-enterprise"
