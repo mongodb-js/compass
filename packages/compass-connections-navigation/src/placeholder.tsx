@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import type { CSSProperties } from 'react';
-import { Placeholder, css, cx } from '@mongodb-js/compass-components';
+import { Placeholder, css } from '@mongodb-js/compass-components';
 import { ROW_HEIGHT } from './constants';
 import { getTreeItemStyles } from './utils';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -34,10 +34,7 @@ export const PlaceholderItem: React.FunctionComponent<{
   );
 
   return (
-    <div
-      className={cx(placeholderItem)}
-      style={{ ...style, ...itemPaddingStyles }}
-    >
+    <div className={placeholderItem} style={{ ...style, ...itemPaddingStyles }}>
       <Placeholder {...(isSingleConnection ? {} : MULTIPLE_CONNECTION_PROPS)} />
     </div>
   );

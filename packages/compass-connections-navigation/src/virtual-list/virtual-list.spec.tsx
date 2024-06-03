@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import type { VirtualItem } from './use-virtual-navigation-tree';
@@ -87,28 +87,18 @@ function NavigationTree({
     <VirtualTree<MockTreeItem>
       activeItemId={activeItemId}
       items={listItems}
-      height={1000}
+      height={400}
       itemHeight={30}
       onDefaultAction={() => {}}
       onExpandedChange={onExpandedChange}
-      width={1000}
+      width={100}
       renderItem={({ item }) => item.name}
+      __TEST_OVER_SCAN_COUNT={Infinity}
     />
   );
 }
 
 describe('virtual-list', function () {
-  let originalRequestAnimationFrame;
-
-  before(function () {
-    originalRequestAnimationFrame = globalThis.requestAnimationFrame;
-    (globalThis as any).requestAnimationFrame = (fn) => fn();
-  });
-
-  after(function () {
-    (globalThis as any).requestAnimationFrame = originalRequestAnimationFrame;
-  });
-
   afterEach(cleanup);
 
   it('should make first element tabbable when no tabbableSelector provided', function () {
@@ -125,42 +115,67 @@ describe('virtual-list', function () {
   });
 
   describe('keyboard list navigation', function () {
-    it('should move focus to the next element on ArrowDown', function () {
+    it('should move focus to the next element on ArrowDown', async function () {
       render(<NavigationTree></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{arrowdown}');
-      expect(screen.getByText('Vegetables')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Vegetables')).to.eq(document.activeElement);
+      });
     });
 
-    it('should move focus to the previous element on ArrowUp', function () {
+    it('should move focus to the previous element on ArrowUp', async function () {
       render(<NavigationTree activeItemId="Vegetables"></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Vegetables')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{arrowup}');
-      expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
     });
 
-    it('should move focus to the last element on End', function () {
+    it('should move focus to the last element on End', async function () {
       render(<NavigationTree></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{end}');
-      expect(screen.getByText('Vegetables')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Vegetables')).to.eq(document.activeElement);
+      });
     });
 
-    it('should move focus to the first element on Home', function () {
+    it('should move focus to the first element on Home', async function () {
       render(<NavigationTree activeItemId="Vegetables"></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Vegetables')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{home}');
-      expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
     });
 
-    it('should move focus to the child treeitem on ArrowRight when expandable treeitem is expanded', function () {
+    it('should move focus to the child treeitem on ArrowRight when expandable treeitem is expanded', async function () {
       render(<NavigationTree defaultExpanded={['Fruits']}></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{arrowright}');
-      expect(screen.getByText('Oranges')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Oranges')).to.eq(document.activeElement);
+      });
     });
 
-    it('should move focus to the parent treeitem on ArrowLeft when expandable treeitem is collapsed', function () {
+    it('should move focus to the parent treeitem on ArrowLeft when expandable treeitem is collapsed', async function () {
       render(
         <NavigationTree
           activeItemId="Bananas"
@@ -168,46 +183,64 @@ describe('virtual-list', function () {
         ></NavigationTree>
       );
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Bananas')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{arrowleft}');
-      expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
     });
 
-    it('should move focus to the next item that starts with the pressed letter', function () {
+    it('should move focus to the next item that starts with the pressed letter', async function () {
       render(
         <NavigationTree
           defaultExpanded={['Vegetables', 'Podded Vegetables']}
         ></NavigationTree>
       );
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
       userEvent.keyboard('{p}');
-      expect(screen.getByText('Podded Vegetables')).to.eq(
-        document.activeElement
-      );
+      await waitFor(() => {
+        expect(screen.getByText('Podded Vegetables')).to.eq(
+          document.activeElement
+        );
+      });
       userEvent.keyboard('{p}');
-      expect(screen.getByText('Pea')).to.eq(document.activeElement);
+      await waitFor(() => {
+        expect(screen.getByText('Pea')).to.eq(document.activeElement);
+      });
     });
   });
 
   describe('keyboard expand / collapse', function () {
-    it('should expand collapsed treeitem on ArrowRight and keep the focus on the item', function () {
+    it('should expand collapsed treeitem on ArrowRight and keep the focus on the item', async function () {
       render(<NavigationTree></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
       expect(screen.getByText('Fruits')).to.have.attr('aria-expanded', 'false');
       userEvent.keyboard('{arrowright}');
       expect(screen.getByText('Fruits')).to.eq(document.activeElement);
       expect(screen.getByText('Fruits')).to.have.attr('aria-expanded', 'true');
     });
 
-    it('should collapse expanded treeitem on ArrowLeft and keep the focus on the item', function () {
+    it('should collapse expanded treeitem on ArrowLeft and keep the focus on the item', async function () {
       render(<NavigationTree defaultExpanded={['Fruits']}></NavigationTree>);
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Fruits')).to.eq(document.activeElement);
+      });
       expect(screen.getByText('Fruits')).to.have.attr('aria-expanded', 'true');
       userEvent.keyboard('{arrowleft}');
       expect(screen.getByText('Fruits')).to.eq(document.activeElement);
       expect(screen.getByText('Fruits')).to.have.attr('aria-expanded', 'false');
     });
 
-    it('should expand all set siblings of a focused element on * press', function () {
+    it('should expand all set siblings of a focused element on * press', async function () {
       render(
         <NavigationTree
           activeItemId="Podded Vegetables"
@@ -215,6 +248,11 @@ describe('virtual-list', function () {
         ></NavigationTree>
       );
       userEvent.tab();
+      await waitFor(() => {
+        expect(screen.getByText('Podded Vegetables')).to.eq(
+          document.activeElement
+        );
+      });
       expect(screen.getByText('Podded Vegetables')).to.have.attr(
         'aria-expanded',
         'false'

@@ -68,6 +68,8 @@ type VirtualTreeProps<T extends VirtualItem> = {
   getItemKey?: (item: T) => string;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
   onExpandedChange: OnExpandedChange<NotPlaceholderTreeItem<T>>;
+
+  __TEST_OVER_SCAN_COUNT?: number;
 };
 
 const navigationTree = css({
@@ -93,12 +95,15 @@ export function VirtualTree<T extends VirtualItem>({
   renderItem: _renderItem,
   onDefaultAction,
   onExpandedChange,
+  __TEST_OVER_SCAN_COUNT,
 }: VirtualTreeProps<T>) {
   const listRef = useRef<List | null>(null);
   const renderItem = useAction(_renderItem);
   const onFocusMove = useCallback(
-    (item) => {
-      const idx = items.indexOf(item);
+    (item: VirtualTreeItem) => {
+      const idx = items.findIndex(
+        (i) => !isPlaceholderItem(i) && i.id === item.id
+      );
       if (idx >= 0) {
         // It is possible that the item we are trying to move the focus to is
         // not rendered currently. Scroll it into view so that it's rendered and
@@ -117,7 +122,6 @@ export function VirtualTree<T extends VirtualItem>({
     }
   );
 
-  const isTestEnv = process.env.NODE_ENV === 'test';
   const id = useId();
 
   const itemData = useMemo(() => {
@@ -155,7 +159,7 @@ export function VirtualTree<T extends VirtualItem>({
         itemCount={items.length}
         itemSize={itemHeight}
         itemKey={getItemKey}
-        overscanCount={isTestEnv ? Infinity : 5}
+        overscanCount={__TEST_OVER_SCAN_COUNT ?? 5}
       >
         {TreeItem}
       </List>
@@ -198,7 +202,7 @@ function TreeItem<T extends VirtualItem>({
       'aria-level': item.level,
       'aria-setsize': item.setSize,
       'aria-posinset': item.posInSet,
-      'aria-expanded': 'isExpanded' in item && item.isExpanded,
+      'aria-expanded': !!item.isExpanded,
       tabIndex: data.currentTabbable === item.id ? 0 : -1,
     },
     actionProps,

@@ -12,15 +12,15 @@ export const connectionItemActions = ({
   isFavorite: boolean;
   isPerformanceTabSupported: boolean;
 }): NavigationItemActions => {
-  if (isReadOnly) {
-    return [];
-  }
-  return [
-    {
+  const actions: NavigationItemActions = [];
+  if (!isReadOnly) {
+    actions.push({
       action: 'create-database',
       icon: 'Plus',
       label: 'Create database',
-    },
+    });
+  }
+  actions.push(
     {
       action: 'connection-performance-metrics',
       icon: 'Gauge',
@@ -48,8 +48,9 @@ export const connectionItemActions = ({
       icon: 'Disconnect',
       label: 'Disconnect',
       variant: 'destructive',
-    },
-  ];
+    }
+  );
+  return actions;
 };
 
 export const databaseItemActions = ({
@@ -83,7 +84,7 @@ export const collectionItemActions = ({
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
-  const actions: ItemAction<Actions>[] = [
+  const actions: NavigationItemActions = [
     {
       action: 'open-in-new-tab',
       label: 'Open in new tab',
