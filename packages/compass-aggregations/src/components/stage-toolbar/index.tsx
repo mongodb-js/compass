@@ -38,6 +38,9 @@ const toolbarStyles = css({
   flexDirection: 'row',
   justifyContent: 'space-between',
   cursor: 'grab',
+  '&:active': {
+    cursor: 'grabbing',
+  },
 });
 
 const collapsedToolbarStyles = css({

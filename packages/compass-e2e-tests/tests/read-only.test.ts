@@ -182,7 +182,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed({ reverse: true });
 
       databaseCreateCollectionButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
+        Selectors.DatabaseCreateCollectionButton
       );
       isDatabaseCreateCollectionButtonExisting =
         await databaseCreateCollectionButton.isExisting();
@@ -218,7 +218,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       // wait for the modal to go away
       await settingsModal.waitForDisplayed({ reverse: true });
 
-      addDataButton = await browser.$(Selectors.SidebarCreateDatabaseButton);
+      addDataButton = await browser.$(Selectors.AddDataButton);
       isAddDataButtonExisting = await addDataButton.isExisting();
       expect(isAddDataButtonExisting).to.be.equal(false);
     } finally {
