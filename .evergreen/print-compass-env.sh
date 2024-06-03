@@ -30,14 +30,24 @@ fi
 export BASHPATH="$PATH"
 export OSTYPE="$OSTYPE"
 
+escapeLeadingZero() {
+    echo "$1" | sed 's/^0*//'
+}
+
 if [[ "${EVERGREEN_PROJECT}" == "10gen-compass-main" ]]; then
     # We do not publish anything from the 10gen-compass-main project.
     export npm_config_dry_run=true 
     # When packaging Compass from main, we want to use the dev version identifier
     # based on the created_at (when evergreen was triggered - formatted as 24_05_16_14_52_37).
     if [[ "${EVERGREEN_BRANCH_NAME}" == "main" ]]; then
-        VERSION_DATETIME=$(awk '{gsub("_", ""); print}' <<< "${EVERGREEN_CREATED_AT}" | cut -c 1-9)
-        export DEV_VERSION_IDENTIFIER="0.0.0-dev.${VERSION_DATETIME}"
+        ts=($(echo "$EVERGREEN_CREATED_AT" | tr "_" " "))
+        year=$(escapeLeadingZero "${ts[0]}")
+        month=$(escapeLeadingZero "${ts[1]}")
+        day=$(escapeLeadingZero "${ts[2]}")
+        hour=$(escapeLeadingZero "${ts[3]}")
+        minute="${ts[4]}"
+        second="${ts[5]}"
+        export DEV_VERSION_IDENTIFIER="${year}.${month}.${day}-dev.${hour}${minute}${second}"
     fi
 fi
 
