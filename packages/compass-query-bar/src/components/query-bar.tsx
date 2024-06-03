@@ -91,10 +91,6 @@ const queryOptionsContainerStyles = css({
   gap: spacing[2],
 });
 
-const queryAIContainerStyles = css({
-  margin: `0px ${spacing[2]}px`,
-});
-
 const QueryOptionsToggle = connect(
   (state: RootState) => {
     return {
@@ -218,14 +214,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-apply-id={applyId}
     >
       {isAIFeatureEnabled && (
-        <div className={queryAIContainerStyles}>
-          <QueryAI
-            onClose={() => {
-              onHideAIInputClick?.();
-            }}
-            show={isAIInputVisible}
-          />
-        </div>
+        <QueryAI
+          onClose={() => {
+            onHideAIInputClick?.();
+          }}
+          show={isAIInputVisible}
+        />
       )}
       <div className={queryBarFirstRowStyles}>
         {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}

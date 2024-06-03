@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Banner,
   BannerVariant,
@@ -6,7 +12,6 @@ import {
   Icon,
   IconButton,
   SpinLoader,
-  TextInput,
   css,
   cx,
   focusRing,
@@ -14,11 +19,14 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useFocusRing,
 } from '@mongodb-js/compass-components';
 import {
   IntercomTrackingEvent,
   intercomTrack,
 } from '@mongodb-js/compass-intercom';
+import type { Command, EditorRef } from '@mongodb-js/compass-editor';
+import { CodemirrorInlineEditor as InlineEditor } from '@mongodb-js/compass-editor';
 
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
@@ -28,6 +36,7 @@ const containerStyles = css({
   width: '100%',
   flexDirection: 'column',
   gap: spacing[25],
+  padding: `0px ${spacing[100]}px`,
   marginBottom: spacing[300],
 });
 
@@ -102,14 +111,6 @@ const gradientAnimationStyles = css({
   },
 });
 
-const isFetchingOverrideTextInputStyles = css({
-  '> *': {
-    // Override LeafyGreen box shadow when the generative ai is fetching.
-    // Without this, the hover and focus state are still visible.
-    boxShadow: 'none !important',
-  },
-});
-
 const contentWrapperStyles = css({
   width: '100%',
   display: 'flex',
@@ -118,17 +119,30 @@ const contentWrapperStyles = css({
   zIndex: 2,
 });
 
+const editorWrapperStyles = css({
+  // Match codemirror editor with LeafyGreen inputs.
+  padding: 0,
+  paddingTop: 1,
+  paddingBottom: 1,
+  borderRadius: spacing[150],
+  border: `1px solid ${palette.gray.base}`,
+  backgroundColor: palette.white,
+});
+
+const editorWrapperDarkModeStyles = css({
+  backgroundColor: palette.black,
+});
+
 const inputContainerStyles = css({
   width: '100%',
   position: 'relative',
 });
 
-const textInputStyles = css({
-  flexGrow: 1,
-  input: {
-    paddingLeft: spacing[800],
-    paddingRight: spacing[1600] * 2 + spacing[200],
-  },
+const inputSize = 14;
+
+const editorStyles = css({
+  paddingLeft: spacing[800],
+  paddingRight: spacing[1600] * 2 + spacing[200],
 });
 
 const errorSummaryContainer = css({
@@ -169,12 +183,10 @@ const generateButtonLightModeStyles = css({
   backgroundColor: palette.gray.light2,
 });
 
-const highlightSize = 14;
-
 const buttonHighlightStyles = css({
   // Custom button styles.
-  height: `${highlightSize}px`,
-  lineHeight: `${highlightSize}px`,
+  height: `${inputSize}px`,
+  lineHeight: `${inputSize}px`,
   padding: `0px ${spacing[100]}px`,
   borderRadius: '2px',
 });
@@ -220,8 +232,8 @@ const closeText = 'Close AI Helper';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
-    width={highlightSize}
-    height={highlightSize}
+    width={inputSize}
+    height={inputSize}
     viewBox="0 0 14 14"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -278,10 +290,11 @@ function GenerativeAIInput({
   isAggregationGeneratedFromQuery = false,
   onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
-  const promptTextInputRef = useRef<HTMLInputElement>(null);
+  // const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
+  const promptTextInputRef = useRef<EditorRef>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
-  const guideCueRef = useRef<HTMLInputElement>(null);
+  const guideCueRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = useCallback(
     (aiPromptText: string) => {
@@ -291,20 +304,21 @@ function GenerativeAIInput({
     [onSubmitText]
   );
 
-  const onTextInputKeyDown = useCallback(
-    (evt: React.KeyboardEvent<HTMLInputElement>) => {
-      if (evt.key === 'Enter') {
-        evt.preventDefault();
-        if (!aiPromptText) {
-          return;
-        }
-        handleSubmit(aiPromptText);
-      } else if (evt.key === 'Escape') {
-        isFetching ? onCancelRequest() : onClose();
-      }
-    },
-    [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
-  );
+  // const onTextInputKeyDown = useCallback(
+  //   (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  //     console.log('aaaa key down!', evt.key, evt.shiftKey);
+  //     if (evt.key === 'Enter' && !evt.shiftKey) {
+  //       evt.preventDefault();
+  //       if (!aiPromptText) {
+  //         return;
+  //       }
+  //       handleSubmit(aiPromptText);
+  //     } else if (evt.key === 'Escape') {
+  //       isFetching ? onCancelRequest() : onClose();
+  //     }
+  //   },
+  //   [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
+  // );
 
   useEffect(() => {
     if (didSucceed) {
@@ -332,6 +346,52 @@ function GenerativeAIInput({
     return () => onCancelRequestRef.current?.();
   }, []);
 
+  const focusRingProps = useFocusRing({
+    outer: true,
+    focusWithin: true,
+    hover: true,
+  });
+
+  const isDarkMode = useDarkMode();
+
+  // Use handler refs so that the command handlers
+  // for the editor use up to date values.
+  const onSubmit = useCallback(() => {
+    if (!aiPromptText) {
+      return;
+    }
+    handleSubmit(aiPromptText);
+  }, [aiPromptText, handleSubmit]);
+  const onSubmitHandler = useRef(onSubmit);
+  onSubmitHandler.current = onSubmit;
+
+  const onEscape = useCallback(() => {
+    isFetching ? onCancelRequest() : onClose();
+  }, [isFetching, onCancelRequest, onClose]);
+  const onEscapeHandler = useRef(onEscape);
+  onEscapeHandler.current = onEscape;
+
+  const commands = useMemo<Command[]>(() => {
+    return [
+      {
+        key: 'Enter',
+        run() {
+          onSubmitHandler.current?.();
+          return true;
+        },
+        preventDefault: true,
+      },
+      {
+        key: 'Escape',
+        run() {
+          onEscapeHandler.current?.();
+          return true;
+        },
+        preventDefault: true,
+      },
+    ];
+  }, []);
+
   if (!show) {
     return null;
   }
@@ -341,26 +401,25 @@ function GenerativeAIInput({
       <div className={inputBarContainerStyles}>
         <div className={inputContainerStyles}>
           <div className={isFetching ? gradientAnimationStyles : undefined}>
-            <div
-              className={contentWrapperStyles}
-              data-testid="ai-user-text-input-wrapper"
-            >
-              <TextInput
+            <div className={contentWrapperStyles}>
+              <div
                 className={cx(
-                  textInputStyles,
-                  isFetching && isFetchingOverrideTextInputStyles
+                  editorWrapperStyles,
+                  isDarkMode ? editorWrapperDarkModeStyles : undefined,
+                  !isFetching && focusRingProps.className
                 )}
-                ref={promptTextInputRef}
-                sizeVariant="small"
-                data-testid="ai-user-text-input"
-                aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-                placeholder={placeholder}
-                value={aiPromptText}
-                onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-                  onChangeAIPromptText(evt.currentTarget.value)
-                }
-                onKeyDown={onTextInputKeyDown}
-              />
+              >
+                <InlineEditor
+                  className={cx(editorStyles)}
+                  ref={promptTextInputRef}
+                  text={aiPromptText}
+                  onChangeText={onChangeAIPromptText}
+                  aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
+                  placeholder={placeholder}
+                  commands={commands}
+                  data-testid="ai-user-text-input"
+                />
+              </div>
               <div className={floatingButtonsContainerStyles}>
                 {isFetching ? (
                   <div className={loaderContainerStyles}>
