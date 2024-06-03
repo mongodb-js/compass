@@ -12,7 +12,8 @@ const atlasSettingsContainerStyles = css({
 
 export const GenAISettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
-}> = ({ isAIFeatureEnabled }) => {
+  showGenAIPassSampleDocumentsSetting: boolean;
+}> = ({ isAIFeatureEnabled, showGenAIPassSampleDocumentsSetting }) => {
   return (
     <div data-testid="gen-ai-settings">
       <div>
@@ -27,11 +28,9 @@ export const GenAISettings: React.FunctionComponent<{
           <div className={atlasSettingsContainerStyles}>
             <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
           </div>
-          {/* TODO(COMPASS-7865): We're currently sending our sample field values to the server
-            and into the ai prompt as regular JSON. This means the AI isn't generating good
-            results with certain bson types. It'll take a bit of work server
-            side for us to do this. In the meantime we are hiding this setting. */}
-          {/* <SettingsList fields={['enableGenAISampleDocumentPassing']} /> */}
+          {showGenAIPassSampleDocumentsSetting && (
+            <SettingsList fields={['enableGenAISampleDocumentPassing']} />
+          )}
         </>
       )}
     </div>
@@ -40,6 +39,8 @@ export const GenAISettings: React.FunctionComponent<{
 
 const mapState = (state: RootState) => ({
   isAIFeatureEnabled: !!state.settings.settings.enableGenAIFeatures,
+  showGenAIPassSampleDocumentsSetting:
+    !!state.settings.settings.showGenAIPassSampleDocumentsSetting,
 });
 
 export default connect(mapState, null)(GenAISettings);
