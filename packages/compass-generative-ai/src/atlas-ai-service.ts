@@ -267,7 +267,13 @@ export class AtlasAiService {
 
     const { query, aggregation } = content;
 
-    if (typeof query !== 'object' || query === null) {
+    if (!query && !aggregation) {
+      throw new Error(
+        'Unexpected response: expected query or aggregation, got none'
+      );
+    }
+
+    if (query && typeof query !== 'object') {
       throw new Error('Unexpected response: expected query to be an object');
     }
 
