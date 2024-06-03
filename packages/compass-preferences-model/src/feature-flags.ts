@@ -81,7 +81,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-7584
    */
   showGenAIPassSampleDocumentsSetting: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enable showing the sample document gen ai setting.',
       long: 'Allows users to show a setting to enable the passing of sample field values with our query and aggregation generation requests.',
