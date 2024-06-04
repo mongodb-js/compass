@@ -10,6 +10,7 @@ import {
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
+import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
@@ -49,45 +50,20 @@ import {
 } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
-import {
-  AtlasAuthService,
-  AtlasAuthServiceProvider,
-  AtlasServiceProvider,
-} from '@mongodb-js/atlas-service/provider';
-import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
+import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
-import { CompassWebConnectionStorage } from './compass-web-connection-storage';
-
-class CloudAtlasAuthService extends AtlasAuthService {
-  signIn() {
-    return this.getUserInfo();
-  }
-  signOut() {
-    return Promise.resolve();
-  }
-  isAuthenticated() {
-    return Promise.resolve(true);
-  }
-  getUserInfo(): Promise<AtlasUserInfo> {
-    throw new Error('CloudAtlasAuthService.getUserInfo not implemented');
-  }
-  getAuthHeaders() {
-    return Promise.resolve({});
-  }
-}
-
-const atlasAuthService = new CloudAtlasAuthService();
+import { AtlasCloudConnectionStorageProvider } from './connection-storage';
+import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
-    <AtlasAuthServiceProvider value={atlasAuthService}>
+    <AtlasCloudAuthServiceProvider>
       <AtlasServiceProvider>
         <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
       </AtlasServiceProvider>
-    </AtlasAuthServiceProvider>
+    </AtlasCloudAuthServiceProvider>
   );
 };
 
@@ -98,19 +74,28 @@ type CompassWorkspaceProps = Pick<
 
 type CompassWebProps = {
   appName?: string;
+
+  orgId: string;
+  projectId: string;
+
   darkMode?: boolean;
-  stackedElementsZIndex?: number;
-  onAutoconnectInfoRequest: () => Promise<ConnectionInfo>;
+
   renderConnecting?: (connectionInfo: ConnectionInfo | null) => React.ReactNode;
   renderError?: (
     connectionInfo: ConnectionInfo | null,
     err: any
   ) => React.ReactNode;
+
+  initialWorkspace: Extract<
+    OpenWorkspaceOptions,
+    { type: 'Databases' | 'Collections' | 'Collection' }
+  >;
+  onActiveWorkspaceTabChange: React.ComponentProps<
+    typeof WorkspacesPlugin
+  >['onActiveWorkspaceTabChange'];
+
   initialPreferences?: Partial<AllPreferences>;
-} & Pick<
-  CompassWorkspaceProps,
-  'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
->;
+};
 
 function CompassWorkspace({
   initialWorkspaceTabs,
@@ -190,21 +175,18 @@ const connectedContainerStyles = css({
 
 const CompassWeb = ({
   appName,
+  orgId,
+  projectId,
   darkMode,
-  initialWorkspaceTabs,
+  initialWorkspace,
   onActiveWorkspaceTabChange,
   initialPreferences,
-  stackedElementsZIndex,
-  onAutoconnectInfoRequest,
   renderConnecting = () => null,
   renderError = () => null,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
-  // It's imperative that this method doesn't change during render otherwise the
-  // application will be stuck in a neverending re-connect loop
-  const onAutoconnectInfoRequestRef = useRef(onAutoconnectInfoRequest);
   const appRegistry = useRef(new AppRegistry());
   const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-WEB-UI');
 
@@ -255,22 +237,16 @@ const CompassWeb = ({
     []
   );
 
-  const connectionStorage = useRef(
-    new CompassWebConnectionStorage(onAutoconnectInfoRequestRef.current)
-  );
-
   const preferencesAccess = useRef(
     new ReadOnlyPreferenceAccess({
       maxTimeMS: 10_000,
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
-      enableAtlasSearchIndexes: false,
       enableImportExport: false,
       enableGenAIFeatures: false,
       enableNewMultipleConnectionSystem: false,
       enableHackoladeBanner: false,
-      enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
       },
@@ -278,18 +254,29 @@ const CompassWeb = ({
       ...initialPreferences,
     })
   );
+  const initialWorkspaceRef = useRef(initialWorkspace);
+  const initialWorkspaceTabsRef = useRef(
+    initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
+  );
+  const autoConnectConnectionId = initialWorkspaceRef.current?.connectionId;
 
   return (
     <GlobalAppRegistryProvider value={appRegistry.current}>
       <AppRegistryProvider scopeName="Compass Web Root">
         <CompassComponentsProvider
           darkMode={darkMode}
-          stackedElementsZIndex={stackedElementsZIndex}
+          // Making sure that compass-web modals and tooltips are definitely not
+          // hidden by Cloud UI sidebar and page header
+          stackedElementsZIndex={10_000}
           {...LINK_PROPS}
         >
           <PreferencesProvider value={preferencesAccess.current}>
             <WithAtlasProviders>
-              <ConnectionStorageProvider value={connectionStorage.current}>
+              <AtlasCloudConnectionStorageProvider
+                orgId={orgId}
+                projectId={projectId}
+                autoConnectConnectionId={autoConnectConnectionId}
+              >
                 <ConnectionsManagerProvider value={connectionsManager.current}>
                   <CompassConnections
                     onConnectionAttemptStarted={onConnectionAttemptStarted}
@@ -308,7 +295,9 @@ const CompassWeb = ({
                             >
                               <CompassWorkspace
                                 connectionInfo={connectionInfo}
-                                initialWorkspaceTabs={initialWorkspaceTabs}
+                                initialWorkspaceTabs={
+                                  initialWorkspaceTabsRef.current
+                                }
                                 onActiveWorkspaceTabChange={
                                   onActiveWorkspaceTabChange
                                 }
@@ -324,7 +313,7 @@ const CompassWeb = ({
                     </CompassInstanceStorePlugin>
                   </CompassConnections>
                 </ConnectionsManagerProvider>
-              </ConnectionStorageProvider>
+              </AtlasCloudConnectionStorageProvider>
             </WithAtlasProviders>
           </PreferencesProvider>
         </CompassComponentsProvider>

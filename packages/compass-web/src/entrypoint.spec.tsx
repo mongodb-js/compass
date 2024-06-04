@@ -6,6 +6,7 @@ import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
+import { SandboxAutoconnectProvider } from './connection-storage';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -62,31 +63,31 @@ describe('CompassWeb', function () {
     props: Partial<React.ComponentProps<typeof CompassWeb>> = {},
     connectFn = mockConnectFn
   ) {
-    const getAutoConnectInfo = () => {
-      return Promise.resolve({
-        id: 'foo',
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-        },
-      });
-    };
     return render(
-      <CompassWeb
-        onAutoconnectInfoRequest={getAutoConnectInfo}
-        onActiveWorkspaceTabChange={() => {}}
-        renderConnecting={(connectionInfo) => {
-          let host = 'cluster';
-          if (connectionInfo) {
-            [host] = new ConnectionString(
-              connectionInfo.connectionOptions.connectionString
-            ).hosts;
-          }
-          return <div>Connecting to {host}…</div>;
+      <SandboxAutoconnectProvider
+        value={{
+          id: 'foo',
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017',
+          },
         }}
-        {...props}
-        // @ts-expect-error see component props description
-        __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
-      ></CompassWeb>
+      >
+        <CompassWeb
+          onActiveWorkspaceTabChange={() => {}}
+          renderConnecting={(connectionInfo) => {
+            let host = 'cluster';
+            if (connectionInfo) {
+              [host] = new ConnectionString(
+                connectionInfo.connectionOptions.connectionString
+              ).hosts;
+            }
+            return <div>Connecting to {host}…</div>;
+          }}
+          {...props}
+          // @ts-expect-error see component props description
+          __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
+        ></CompassWeb>
+      </SandboxAutoconnectProvider>
     );
   }
 

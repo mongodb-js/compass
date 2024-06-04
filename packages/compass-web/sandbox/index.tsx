@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import {
   TextArea,
@@ -33,6 +33,7 @@ import {
   AtlasClusterConnectionsList,
   useAtlasClusterConnectionsList,
 } from './atlas-cluster-connections';
+import { SandboxAutoconnectProvider } from '../src/connection-storage';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -241,46 +242,65 @@ function ConnectionStringConnectionForm({
 
 function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
   const isAtlasConnection = !!connectionInfo.atlasMetadata;
-  const [initialCurrentTab, updateCurrentTab] = useWorkspaceTabRouter(
-    connectionInfo?.id
+  const [currentTab, updateCurrentTab] = useWorkspaceTabRouter(
+    connectionInfo.id
+  );
+  const initialCurrentTabRef = useRef(
+    currentTab ?? {
+      type: 'Databases' as const,
+      connectionId: connectionInfo.id,
+    }
   );
 
+  const atlasServiceSandboxBackendVariant =
+    process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'local'
+      ? 'web-sandbox-atlas-local'
+      : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'dev' ||
+        process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'qa'
+      ? 'web-sandbox-atlas-dev'
+      : 'web-sandbox-atlas';
+
   return (
-    <Body as="div" className={sandboxContainerStyles}>
-      <LoggerAndTelemetryProvider value={sandboxLogger}>
-        <CompassWeb
-          onAutoconnectInfoRequest={() => {
-            return Promise.resolve(connectionInfo);
-          }}
-          initialWorkspaceTabs={
-            initialCurrentTab ? [initialCurrentTab] : undefined
-          }
-          onActiveWorkspaceTabChange={updateCurrentTab}
-          initialPreferences={{
-            enablePerformanceAdvisorBanner: isAtlasConnection,
-            enableAtlasSearchIndexes: !isAtlasConnection,
-            maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
-          }}
-          stackedElementsZIndex={5}
-          renderConnecting={(connectionInfo) => {
-            return (
-              <LoadingScreen
-                connectionString={
-                  connectionInfo?.connectionOptions.connectionString
-                }
-              ></LoadingScreen>
-            );
-          }}
-          renderError={(_connectionInfo, err) => {
-            return (
-              <ErrorScreen
-                error={err.message ?? 'Error occured when connecting'}
-              ></ErrorScreen>
-            );
-          }}
-        ></CompassWeb>
-      </LoggerAndTelemetryProvider>
-    </Body>
+    <SandboxAutoconnectProvider
+      // Even for the sanbos we only pass the connection info here when not
+      // connecting to atlas cluster as atlas connection should resolve the
+      // connection info automatically through the new connection storage
+      value={!isAtlasConnection ? connectionInfo : null}
+    >
+      <Body as="div" className={sandboxContainerStyles}>
+        <LoggerAndTelemetryProvider value={sandboxLogger}>
+          <CompassWeb
+            orgId={connectionInfo.atlasMetadata?.orgId ?? ''}
+            projectId={connectionInfo.atlasMetadata?.projectId ?? ''}
+            initialWorkspace={initialCurrentTabRef.current}
+            onActiveWorkspaceTabChange={updateCurrentTab}
+            initialPreferences={{
+              enablePerformanceAdvisorBanner: isAtlasConnection,
+              enableAtlasSearchIndexes: !isAtlasConnection,
+              maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
+              atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
+            }}
+            renderConnecting={(connectionInfo) => {
+              return (
+                <LoadingScreen
+                  connectionString={
+                    connectionInfo?.atlasMetadata?.clusterName ??
+                    connectionInfo?.connectionOptions.connectionString
+                  }
+                ></LoadingScreen>
+              );
+            }}
+            renderError={(_connectionInfo, err) => {
+              return (
+                <ErrorScreen
+                  error={err.message ?? 'Error occured when connecting'}
+                ></ErrorScreen>
+              );
+            }}
+          ></CompassWeb>
+        </LoggerAndTelemetryProvider>
+      </Body>
+    </SandboxAutoconnectProvider>
   );
 }
 
