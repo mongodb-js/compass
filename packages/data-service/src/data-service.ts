@@ -138,6 +138,7 @@ export type ExplainExecuteOptions = ExecutionOptions & {
 export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   connectionInfoSecretsChanged: () => void;
+  close: () => void;
 }
 
 export type UpdatePreviewChange = {
@@ -1017,7 +1018,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   once(...args: Parameters<DataService['on']>) {
-    this._emitter.on(...args);
+    this._emitter.once(...args);
     return this;
   }
 
@@ -2274,6 +2275,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._logger.info(mongoLogId(1_001_000_019), 'Server opening', {
           address: evt.address,
         });
+      });
+
+      client.on('close', () => {
+        this._logger.info(mongoLogId(1_001_000_315), 'Client is closed');
+        this._emitter.emit('close');
       });
 
       client.on('serverClosed', (evt: ServerClosedEvent) => {
