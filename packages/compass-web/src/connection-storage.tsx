@@ -6,6 +6,7 @@ import type {
 import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
+  ConnectionStorageEvents,
 } from '@mongodb-js/connection-storage/provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { createServiceProvider } from 'hadron-app-registry';
@@ -229,8 +230,10 @@ class AtlasCloudConnectionStorage
     clearInterval(this.pollingInterval);
     this.pollingInterval = setInterval(() => {
       delete this.loadAllPromise;
-      void this.loadAll();
-    }, 60_000);
+      void this.loadAll().then(() => {
+        this.emit(ConnectionStorageEvents.ConnectionsChanged);
+      });
+    }, /* Matches default polling intervals in mms codebase */ 60_000);
     return () => {
       clearInterval(this.pollingInterval);
     };
