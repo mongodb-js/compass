@@ -19,6 +19,7 @@ export type FeatureFlags = {
   showInsights: boolean;
   enableRenameCollectionModal: boolean;
   enableNewMultipleConnectionSystem: boolean;
+  showGenAIPassSampleDocumentsSetting: boolean;
 };
 
 export const featureFlags: Required<{
@@ -71,6 +72,19 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables support for multiple connections.',
       long: 'Allows users to open multiple connections in the same window.',
+    },
+  },
+
+  /**
+   * Feature flag for showing the option to pass sample documents with our query and aggregation generation requests.
+   * Enables showing the `enableGenAISampleDocumentPassing` setting in the settings UI so folks can turn it on.
+   * Epic: COMPASS-7584
+   */
+  showGenAIPassSampleDocumentsSetting: {
+    stage: 'development',
+    description: {
+      short: 'Enable showing the sample document gen ai setting.',
+      long: 'Allows users to show a setting to enable the passing of sample field values with our query and aggregation generation requests.',
     },
   },
 };

@@ -93,6 +93,14 @@ tasks:
       - func: install
       - func: bootstrap
       - func: publish-packages-next
+  - name: publish-dev-release
+    tags: []
+    depends_on:
+      - name: 'publish'
+        variant: '*'
+    commands:
+      - func: prepare
+      - func: publish-dev-release
 
   - name: package-compass
     tags: ['required-for-publish', 'run-on-pr']

@@ -66,12 +66,16 @@ describe('OIDC integration', function () {
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
-    if (process.platform !== 'linux') {
-      // OIDC is only supported on Linux in the 7.0+ enterprise server.
+    // OIDC is only supported on Linux in the 7.0+ enterprise server.
+    if (
+      process.platform !== 'linux' ||
+      !serverSatisfies('> 7.0.0-alpha0', true)
+    ) {
       return this.skip();
     }
 
-    if (!serverSatisfies('> 7.0.0-alpha0', true)) {
+    // TODO(COMPASS-7966): Enable OIDC tests on 8.0.x when server fix is backported.
+    if (serverSatisfies('>= 8.0.0-alpha0 <8.1.0-rc0')) {
       return this.skip();
     }
 
@@ -109,17 +113,22 @@ describe('OIDC integration', function () {
         authNamePrefix: 'dev',
       };
 
-      cluster = await startTestServer({
-        args: [
-          '--setParameter',
-          'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
-          // enableTestCommands allows using http:// issuers such as http://localhost
-          '--setParameter',
-          'enableTestCommands=true',
-          '--setParameter',
-          `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
-        ],
-      });
+      const args = [
+        '--setParameter',
+        'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
+        // enableTestCommands allows using http:// issuers such as http://localhost
+        '--setParameter',
+        'enableTestCommands=true',
+        '--setParameter',
+        `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
+      ];
+
+      if (serverSatisfies('>= 8.1.0-rc0', true)) {
+        // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
+        args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
+      }
+
+      cluster = await startTestServer({ args });
 
       const cs = new ConnectionString(cluster.connectionString);
       cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
