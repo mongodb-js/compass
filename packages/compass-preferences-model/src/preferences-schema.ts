@@ -55,7 +55,6 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
-    enableHackoladeBanner: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
   };
@@ -718,19 +717,6 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(false),
     type: 'boolean',
-  },
-
-  enableHackoladeBanner: {
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short:
-        'Show Hackolade banner to users for data modeling and schema design',
-    },
-    validator: z.boolean().default(false),
-    type: 'boolean',
-    deriveValue: () => ({ value: false, state: 'hardcoded' }),
   },
 
   enablePerformanceAdvisorBanner: {

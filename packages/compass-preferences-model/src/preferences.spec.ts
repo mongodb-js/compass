@@ -132,7 +132,6 @@ describe('Preferences class', function () {
     expect(states).to.deep.equal({
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
-      enableHackoladeBanner: 'hardcoded',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -168,7 +167,6 @@ describe('Preferences class', function () {
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
       readOnly: 'set-global',
-      enableHackoladeBanner: 'hardcoded',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -187,7 +185,6 @@ describe('Preferences class', function () {
 
     expect(states).to.deep.equal({
       readOnly: 'set-global',
-      enableHackoladeBanner: 'hardcoded',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -270,7 +267,6 @@ describe('Preferences class', function () {
       autoUpdates: 'hardcoded',
       networkTraffic: 'hardcoded',
       trackUsageStatistics: 'hardcoded',
-      enableHackoladeBanner: 'hardcoded',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -299,7 +295,6 @@ describe('Preferences class', function () {
     expect(mainPreferencesStates).to.deep.equal({
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
-      enableHackoladeBanner: 'hardcoded',
       ...expectedReleasedFeatureFlagsStates,
     });
 
@@ -309,7 +304,6 @@ describe('Preferences class', function () {
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'derived',
-      enableHackoladeBanner: 'hardcoded',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
