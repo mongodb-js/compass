@@ -728,8 +728,9 @@ export const storedUserPreferencesProps: Required<{
       short:
         'Show Hackolade banner to users for data modeling and schema design',
     },
-    validator: z.boolean().default(true),
+    validator: z.boolean().default(false),
     type: 'boolean',
+    deriveValue: () => ({ value: false, state: 'hardcoded' }),
   },
 
   enablePerformanceAdvisorBanner: {
