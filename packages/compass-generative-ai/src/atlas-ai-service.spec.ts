@@ -43,8 +43,7 @@ class MockAtlasAuthService extends AtlasAuthService {
 
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
-  privateUnAuthEndpoint = (url: string) => [BASE_URL, url].join('/');
-  privateAtlasEndpoint = (url: string, requestId?: string) =>
+  adminApiEndpoint = (url: string, requestId?: string) =>
     `${[BASE_URL, url].join('/')}${
       requestId ? `?request_id=${requestId}` : ''
     }`;
