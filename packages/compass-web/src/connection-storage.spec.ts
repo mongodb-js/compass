@@ -76,7 +76,7 @@ describe('buildConnectionInfoFromClusterDescription', function () {
   ] as const;
 
   for (const [type, clusterDescription, connectionString] of tests) {
-    it.only(`should build connection info for ${type} cluster`, function () {
+    it(`should build connection info for ${type} cluster`, function () {
       const connectionInfo = buildConnectionInfoFromClusterDescription(
         'ws://test',
         '123',
