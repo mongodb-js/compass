@@ -475,7 +475,7 @@ export const openSavedItem =
 
     if (connectionsWithError.length) {
       log.info(
-        mongoLogId(1_001_000_315),
+        mongoLogId(1_001_000_316),
         'Saved Aggregations Queries',
         'Failed to lookup namespace in some connections',
         connectionsWithError
