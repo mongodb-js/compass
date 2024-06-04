@@ -90,10 +90,14 @@ const connectionToItems = ({
     isPerformanceTabSupported,
   },
   maxNestingLevel,
+  connectionIndex,
+  connectionsLength,
   expandedItems = {},
 }: {
   connection: Connection;
   maxNestingLevel: number;
+  connectionIndex: number;
+  connectionsLength: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
@@ -103,8 +107,8 @@ const connectionToItems = ({
     level: 1,
     name,
     type: 'connection' as const,
-    setSize: 0,
-    posInSet: 0,
+    setSize: connectionsLength,
+    posInSet: connectionIndex + 1,
     isExpanded,
     colorCode,
     connectionInfo,
@@ -139,7 +143,7 @@ const connectionToItems = ({
   }
 
   return sidebarData.concat(
-    databases.flatMap((database) => {
+    databases.flatMap((database, databaseIndex) => {
       return databaseToItems({
         connectionId: connectionInfo.id,
         database,
@@ -147,6 +151,8 @@ const connectionToItems = ({
         level: 2,
         colorCode,
         maxNestingLevel,
+        databasesLength,
+        databaseIndex,
       });
     })
   );
@@ -165,6 +171,8 @@ const databaseToItems = ({
   level,
   colorCode,
   maxNestingLevel,
+  databaseIndex,
+  databasesLength,
 }: {
   database: Database;
   connectionId: string;
@@ -172,6 +180,8 @@ const databaseToItems = ({
   level: number;
   colorCode?: string;
   maxNestingLevel: number;
+  databaseIndex: number;
+  databasesLength: number;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
@@ -179,8 +189,8 @@ const databaseToItems = ({
     level,
     name,
     type: 'database' as const,
-    setSize: 0,
-    posInSet: 0,
+    setSize: databasesLength,
+    posInSet: databaseIndex + 1,
     isExpanded,
     colorCode,
     connectionId,
@@ -214,13 +224,13 @@ const databaseToItems = ({
   }
 
   return sidebarData.concat(
-    collections.map(({ _id: id, name, type }) => ({
+    collections.map(({ _id: id, name, type }, collectionIndex) => ({
       id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
       level: level + 1,
       name,
       type: type as 'collection' | 'view' | 'timeseries',
-      setSize: 0,
-      posInSet: 0,
+      setSize: collectionsLength,
+      posInSet: collectionIndex + 1,
       colorCode,
       connectionId,
       namespace: id,
@@ -251,38 +261,29 @@ export function getVirtualTreeItems(
   isSingleConnection: boolean,
   expandedItems: Record<string, false | Record<string, boolean>> = {}
 ): SidebarTreeItem[] {
-  let treeList: SidebarTreeItem[] = [];
   if (!isSingleConnection) {
-    treeList = connections.flatMap((connection) =>
+    return connections.flatMap((connection, connectionIndex) =>
       connectionToItems({
         connection,
         expandedItems,
         maxNestingLevel: getMaxNestingLevel(isSingleConnection),
+        connectionIndex,
+        connectionsLength: connections.length,
       })
     );
-  } else {
-    const connection = connections[0];
-    const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
-    treeList = connection.databases.flatMap((database) => {
-      return databaseToItems({
-        connectionId: connection.connectionInfo.id,
-        database,
-        expandedItems: dbExpandedItems,
-        level: 1,
-        maxNestingLevel: getMaxNestingLevel(isSingleConnection),
-      });
-    });
   }
 
-  // While generating a flat list of tree items, its is not possible to know the exact number
-  // of items in the list. So we will generate the list first and then map it to have correct setSize and posInSet.
-  const setSize = treeList.length;
-  return treeList.map((item, index) => {
-    const posInSet = index + 1;
-    return {
-      ...item,
-      setSize,
-      posInSet,
-    };
+  const connection = connections[0];
+  const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
+  return connection.databases.flatMap((database, databaseIndex) => {
+    return databaseToItems({
+      connectionId: connection.connectionInfo.id,
+      database,
+      expandedItems: dbExpandedItems,
+      level: 1,
+      maxNestingLevel: getMaxNestingLevel(isSingleConnection),
+      databasesLength: connection.databasesLength,
+      databaseIndex,
+    });
   });
 }
