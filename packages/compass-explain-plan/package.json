@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "6.27.0",
+  "version": "6.28.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -69,13 +69,13 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-collection": "^4.26.0",
-    "@mongodb-js/compass-components": "^1.25.0",
-    "@mongodb-js/compass-connections": "^1.28.0",
-    "@mongodb-js/compass-editor": "^0.24.0",
-    "@mongodb-js/compass-logging": "^1.2.17",
+    "@mongodb-js/compass-collection": "^4.27.0",
+    "@mongodb-js/compass-components": "^1.25.1",
+    "@mongodb-js/compass-connections": "^1.29.0",
+    "@mongodb-js/compass-editor": "^0.24.1",
+    "@mongodb-js/compass-logging": "^1.2.18",
     "@mongodb-js/explain-plan-helper": "^1.1.12",
-    "compass-preferences-model": "^2.20.1",
+    "compass-preferences-model": "^2.20.2",
     "d3": "^3.5.17",
     "d3-flextree": "^2.1.2",
     "d3-hierarchy": "^3.1.2",
