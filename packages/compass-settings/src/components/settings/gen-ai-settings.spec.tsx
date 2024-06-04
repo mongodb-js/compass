@@ -16,11 +16,7 @@ function renderGenAiSettings({
 }) {
   return render(
     <Provider store={store}>
-      <GenAISettings
-        isAIFeatureEnabled
-        showGenAIPassSampleDocumentsSetting={false}
-        {...props}
-      />
+      <GenAISettings isAIFeatureEnabled {...props} />
     </Provider>
   );
 }
@@ -55,43 +51,18 @@ describe('GenAISettings', function () {
     beforeEach(async function () {
       store = configureStore();
       await store.dispatch(fetchSettings());
-    });
-
-    it('shows the atlas login setting', function () {
       renderGenAiSettings({
         store,
       });
       container = screen.getByTestId('gen-ai-settings');
+    });
+
+    it('shows the atlas login setting', function () {
       expect(container).to.include.text(atlasLoginSettingText);
     });
 
-    describe('when the showGenAIPassSampleDocumentsSetting feature flag is disabled', function () {
-      beforeEach(function () {
-        renderGenAiSettings({
-          store,
-        });
-        container = screen.getByTestId('gen-ai-settings');
-      });
-
-      it('does not show the enableGenAISampleDocumentPassing setting', function () {
-        expect(container).to.not.include.text(sampleDocsSettingText);
-      });
-    });
-
-    describe('when the showGenAIPassSampleDocumentsSetting feature flag is enabled', function () {
-      beforeEach(function () {
-        renderGenAiSettings({
-          store,
-          props: {
-            showGenAIPassSampleDocumentsSetting: true,
-          },
-        });
-        container = screen.getByTestId('gen-ai-settings');
-      });
-
-      it('does not show the enableGenAISampleDocumentPassing setting', function () {
-        expect(container).to.include.text(sampleDocsSettingText);
-      });
+    it('shows the enableGenAISampleDocumentPassing setting', function () {
+      expect(container).to.include.text(sampleDocsSettingText);
     });
   });
 });

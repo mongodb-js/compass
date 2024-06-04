@@ -12,8 +12,7 @@ const atlasSettingsContainerStyles = css({
 
 export const GenAISettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
-  showGenAIPassSampleDocumentsSetting: boolean;
-}> = ({ isAIFeatureEnabled, showGenAIPassSampleDocumentsSetting }) => {
+}> = ({ isAIFeatureEnabled }) => {
   return (
     <div data-testid="gen-ai-settings">
       <div>
@@ -28,9 +27,7 @@ export const GenAISettings: React.FunctionComponent<{
           <div className={atlasSettingsContainerStyles}>
             <ConnectedAtlasLoginSettings></ConnectedAtlasLoginSettings>
           </div>
-          {showGenAIPassSampleDocumentsSetting && (
-            <SettingsList fields={['enableGenAISampleDocumentPassing']} />
-          )}
+          <SettingsList fields={['enableGenAISampleDocumentPassing']} />
         </>
       )}
     </div>
@@ -39,8 +36,6 @@ export const GenAISettings: React.FunctionComponent<{
 
 const mapState = (state: RootState) => ({
   isAIFeatureEnabled: !!state.settings.settings.enableGenAIFeatures,
-  showGenAIPassSampleDocumentsSetting:
-    !!state.settings.settings.showGenAIPassSampleDocumentsSetting,
 });
 
 export default connect(mapState, null)(GenAISettings);
