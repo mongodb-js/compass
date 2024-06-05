@@ -246,7 +246,7 @@ const CompassWeb = ({
       enableImportExport: false,
       enableGenAIFeatures: false,
       enableNewMultipleConnectionSystem: false,
-      enableHackoladeBanner: false,
+      enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
       },

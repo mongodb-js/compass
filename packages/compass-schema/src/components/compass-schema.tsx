@@ -29,7 +29,6 @@ import {
   Badge,
   Icon,
 } from '@mongodb-js/compass-components';
-import { HackoladePromoBanner } from './promo-banner';
 import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -65,6 +64,7 @@ const contentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+  height: '100%',
 });
 
 const insightsBadgeStyles = css({
@@ -386,7 +386,6 @@ const Schema: React.FunctionComponent<{
 
   const outdated = useIsLastAppliedQueryOutdated('schema');
 
-  const enableHackoladeBanner = usePreference('enableHackoladeBanner');
   const enablePerformanceAdvisorBanner = usePreference(
     'enablePerformanceAdvisorBanner'
   );
@@ -408,7 +407,6 @@ const Schema: React.FunctionComponent<{
       >
         <div className={contentStyles}>
           {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
-          {enableHackoladeBanner && <HackoladePromoBanner />}
           {analysisState === ANALYSIS_STATE_INITIAL && (
             <InitialScreen onApplyClicked={onApplyClicked} />
           )}
