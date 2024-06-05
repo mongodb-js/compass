@@ -33,6 +33,7 @@ variables:
     EVERGREEN_IS_PATCH: ${is_patch}
     EVERGREEN_PROJECT: ${project}
     EVERGREEN_REVISION: ${revision}
+    EVERGREEN_REVISION_ORDER_ID: ${revision_order_id}
     EVERGREEN_TASK_ID: ${task_id}
     EVERGREEN_TASK_NAME: ${task_name}
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}

@@ -15,7 +15,7 @@ fi
 
 JSON_CONTENT=$( jq -n \
   --arg id "$DEV_VERSION_IDENTIFIER" \
-  --arg key "${EVERGREEN_BUCKET_KEY_PREFIX}" \
+  --arg key "${EVERGREEN_REVISION}_${EVERGREEN_REVISION_ORDER_ID}" \
   '{version: $id, bucket_key_prefix: $key}'
 )
 
