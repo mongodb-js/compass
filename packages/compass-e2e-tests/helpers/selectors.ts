@@ -236,9 +236,8 @@ export const RenameCollectionModalCloseButton = `${RenameCollectionModal} [aria-
 
 // Database-Collection Sidebar
 export const Sidebar = '[data-testid="navigation-sidebar"]';
-export const SidebarDatabaseAndCollectionList =
-  '[data-testid="databases-and-collections"]';
-export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
+export const SidebarNavigationTree = '[data-testid="sidebar-navigation-tree"]';
+export const SidebarTreeItems = `${SidebarNavigationTree} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
 export const SidebarShowActions =
@@ -249,12 +248,12 @@ export const SidebarCreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const SidebarRefreshDatabasesButton =
   '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
-export const CollectionShowActionsButton =
-  '[data-testid="sidebar-collection-item-actions-show-actions"]';
+export const SidebarNavigationItemShowActionsButton =
+  '[data-testid="sidebar-navigation-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const RenameCollectionButton =
-  '[data-testid="sidebar-collection-item-actions-rename-collection-action"]';
+  '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
@@ -265,18 +264,18 @@ export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
 export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
-  return `[data-testid="sidebar-database-${dbName}"]`;
+  return `${Sidebar} [data-database-name="${dbName}"]`;
 };
 
 export const sidebarDatabaseToggle = (dbName: string): string => {
-  return `[data-testid="sidebar-database-${dbName}"] button[type=button]`;
+  return `${sidebarDatabase(dbName)} button[type=button]`;
 };
 
 export const sidebarCollection = (
   dbName: string,
   collectionName: string
 ): string => {
-  return `[data-testid="sidebar-collection-${dbName}.${collectionName}"]`;
+  return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
 };
 
 export const sidebarFavorite = (favoriteName: string): string => {
@@ -1103,7 +1102,7 @@ export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 export const sidebarInstanceNavigationItem = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ) => {
-  return `[data-testid="navigation-sidebar"] [aria-label="${tabName}"]`;
+  return `${Sidebar} [aria-label="${tabName}"]`;
 };
 export const workspaceTab = (
   title: string | null,

@@ -3,18 +3,20 @@ import {
   useConnectionColor,
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
+import { usePreference } from 'compass-preferences-model/provider';
 
 export default function StyledNavigationItem({
   colorCode,
-  isSingleConnection,
   children,
 }: {
   colorCode?: string;
-  isSingleConnection: boolean;
   children: React.ReactChild;
 }): React.ReactElement {
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
+  const isSingleConnection = !usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
 
   const style: React.CSSProperties & {
     '--item-bg-color'?: string;

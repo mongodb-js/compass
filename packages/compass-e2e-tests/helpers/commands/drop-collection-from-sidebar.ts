@@ -18,7 +18,7 @@ export async function dropCollectionFromSidebar(
     collectionName
   );
   await browser.scrollToVirtualItem(
-    Selectors.SidebarDatabaseAndCollectionList,
+    Selectors.SidebarNavigationTree,
     collectionSelector,
     'tree'
   );
@@ -32,7 +32,7 @@ export async function dropCollectionFromSidebar(
   // confusing. Also this selector is just for the actions button and it is
   // assumed that at this point it is the only one. But the drop confirmation
   // usually catches that.
-  await browser.clickVisible(Selectors.CollectionShowActionsButton);
+  await browser.clickVisible(Selectors.SidebarNavigationItemShowActionsButton);
   await browser.clickVisible(Selectors.DropCollectionButton);
 
   await browser.dropNamespace(collectionName);
