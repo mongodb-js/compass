@@ -1,14 +1,11 @@
 import os from 'os';
 import { expect } from 'chai';
-import temp from 'temp';
 import fs from 'fs';
 import path from 'path';
 import Sinon from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
-
-temp.track();
 
 import {
   openExport,
