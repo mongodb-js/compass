@@ -17,7 +17,7 @@ buildvariants:
     tasks:
       - name: publish
       - name: publish-packages-next
-      - name: publish-dev-release
+      - name: publish-dev-release-info
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests

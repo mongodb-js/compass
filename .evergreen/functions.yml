@@ -444,7 +444,7 @@ functions:
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
 
-  publish-dev-release:
+  publish-dev-release-info:
     - command: shell.exec
       params:
         working_dir: src
@@ -453,7 +453,7 @@ functions:
           <<: *compass-env
         script: |
           eval $(.evergreen/print-compass-env.sh)
-          .evergreen/publish-dev-release.sh release.json
+          .evergreen/build-dev-release-info.sh release.json
     - command: s3.put
       params:
         <<: *save-artifact-params-public
