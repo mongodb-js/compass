@@ -38,6 +38,7 @@ variables:
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
+    EVERGREEN_CREATED_AT: ${created_at}
     # WARN: This version is behind our electron runtime, but updating it will
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
@@ -301,9 +302,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
-          echo "Synchronizing evergreen environment from Compass build tools..."
-
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
           npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.yml
     - command: expansions.update
@@ -411,7 +409,7 @@ functions:
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
         script: |
           set -e
-
+          # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           .evergreen/compass_package.sh
     - command: shell.exec
@@ -442,11 +440,27 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          if [[ "${project}" == "10gen-compass-main" ]]; then
-            export npm_config_dry_run=true
-          fi
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
+
+  publish-dev-release:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/publish-dev-release.sh LATEST
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/LATEST
+        remote_file: ${project}/compass/dev/LATEST
+        content_type: text/plain
+        display_name: LATEST
+        optional: true
 
   get-packaged-app:
     - command: s3.get

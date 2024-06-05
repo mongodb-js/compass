@@ -17,6 +17,7 @@ buildvariants:
     tasks:
       - name: publish
       - name: publish-packages-next
+      - name: publish-dev-release
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests
@@ -87,6 +88,12 @@ buildvariants:
       - name: test-packaged-app-70x-enterprise
         depends_on: package-compass
 
+      - name: test-packaged-app-80x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-latest
         depends_on: package-compass
 
@@ -149,6 +156,12 @@ buildvariants:
       - name: test-packaged-app-70x-enterprise
         depends_on: package-compass
 
+      - name: test-packaged-app-80x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-latest
         depends_on: package-compass
 
@@ -204,6 +217,12 @@ buildvariants:
       - name: test-packaged-app-70x-enterprise
         depends_on: package-compass
 
+      - name: test-packaged-app-80x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
+        depends_on: package-compass
+
   - name: macos
     display_name: MacOS x64 11.00 (Test and Package)
     run_on: macos-1100
@@ -237,6 +256,14 @@ buildvariants:
         run_on: macos-1100-gui
         depends_on: package-compass
 
+      - name: test-packaged-app-80x-community
+        run_on: macos-1100-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
+        run_on: macos-1100-gui
+        depends_on: package-compass
+
   - name: macos-arm
     display_name: MacOS arm64 11.00 (Test and Package)
     run_on: macos-1100-arm64
@@ -267,5 +294,13 @@ buildvariants:
         depends_on: package-compass
 
       - name: test-packaged-app-70x-enterprise
+        run_on: macos-1100-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-community
+        run_on: macos-1100-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
         run_on: macos-1100-arm64-gui
         depends_on: package-compass

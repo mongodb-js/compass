@@ -20,10 +20,15 @@ function getCollectionSubTabFromRoute(subTab?: string): CollectionSubtab {
   }
 }
 
+type AllowedInitialWorkspaceTabs = Extract<
+  OpenWorkspaceOptions,
+  { type: 'Databases' | 'Collections' | 'Collection' }
+>;
+
 function getWorkspaceTabFromRoute(
   route: string,
   connectionId: string | undefined
-): OpenWorkspaceOptions | null {
+): AllowedInitialWorkspaceTabs | null {
   const [, tab, namespace = '', subTab] = decodeURIComponent(route).split('/');
   if (!connectionId) {
     return null;
@@ -46,11 +51,10 @@ function getWorkspaceTabFromRoute(
 }
 
 export function useWorkspaceTabRouter(connectionId: string | undefined) {
-  const [currentTab, setCurrentTab] = useState<OpenWorkspaceOptions | null>(
-    () => {
+  const [currentTab, setCurrentTab] =
+    useState<AllowedInitialWorkspaceTabs | null>(() => {
       return getWorkspaceTabFromRoute(window.location.pathname, connectionId);
-    }
-  );
+    });
 
   useEffect(() => {
     setCurrentTab(
@@ -76,7 +80,7 @@ export function useWorkspaceTabRouter(connectionId: string | undefined) {
         newPath = '/';
     }
     window.history.replaceState(null, '', newPath);
-    setCurrentTab(tab);
+    setCurrentTab(tab as any);
   }, []);
   return [currentTab, updateCurrentTab] as const;
 }
