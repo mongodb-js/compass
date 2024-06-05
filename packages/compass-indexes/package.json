@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "5.27.0",
+  "version": "5.28.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -67,18 +67,18 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-app-stores": "^7.14.0",
-    "@mongodb-js/compass-collection": "^4.27.0",
+    "@mongodb-js/compass-app-stores": "^7.15.0",
+    "@mongodb-js/compass-collection": "^4.28.0",
     "@mongodb-js/compass-components": "^1.25.1",
-    "@mongodb-js/compass-connections": "^1.29.0",
+    "@mongodb-js/compass-connections": "^1.30.0",
     "@mongodb-js/compass-editor": "^0.24.1",
-    "@mongodb-js/compass-field-store": "^9.4.0",
+    "@mongodb-js/compass-field-store": "^9.5.0",
     "@mongodb-js/compass-logging": "^1.2.18",
-    "@mongodb-js/compass-workspaces": "^0.9.0",
-    "@mongodb-js/connection-storage": "^0.11.0",
+    "@mongodb-js/compass-workspaces": "^0.10.0",
+    "@mongodb-js/connection-storage": "^0.12.0",
     "@mongodb-js/mongodb-constants": "^0.10.0",
     "bson": "^6.7.0",
-    "compass-preferences-model": "^2.20.2",
+    "compass-preferences-model": "^2.21.0",
     "ejson-shell-parser": "^2.0.1",
     "hadron-app-registry": "^9.1.11",
     "lodash": "^4.17.21",
