@@ -237,6 +237,10 @@ export const ActiveConnectionsTitle =
   '[data-testid="active-connections-title"]';
 export const SavedConnectionsTitle = '[data-testid="saved-connections-title"]';
 
+export const sidebarActiveConnection = (connectionName: string): string => {
+  return `[data-testid="databases-and-collections"] [data-connectionName="${connectionName}"]`;
+};
+
 // Multiple Connections Modal
 export const ConnectionModal = '[data-testid="connection-form-modal"]';
 export const ConnectionModalTitle = `${ConnectionModal} h3`;
@@ -303,7 +307,7 @@ export const sidebarCollection = (
 
 export const sidebarFavorite = (favoriteName: string): string => {
   if (TEST_MULTIPLE_CONNECTIONS) {
-    return `[data-connectionName="${favoriteName}"]`;
+    return `[data-testid="saved-connections"] [data-connectionName="${favoriteName}"]`;
   }
   return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
@@ -1128,6 +1132,8 @@ export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
+// TODO: My Queries isn't an instance level nav item and you get to Performance
+// and Databases in very different ways.
 export const sidebarInstanceNavigationItem = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ) => {
@@ -1146,6 +1152,7 @@ export const workspaceTab = (
       : `[data-namespace="${title}"]`;
   return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
 };
+// TODO: My Queries isn't really an instance level tab
 export const instanceWorkspaceTab = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
   active: boolean | null = null

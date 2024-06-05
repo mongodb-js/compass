@@ -260,6 +260,7 @@ export function SavedConnection({
       onDeleteConnection,
     ]
   );
+  const name = getConnectionTitle(connectionInfo);
   return (
     <li
       {...hoverProps}
@@ -267,14 +268,11 @@ export function SavedConnection({
         backgroundColor: connectionColorToHex(connectionInfo.favorite?.color),
       }}
       className={savedConnectionStyles}
-      data-connectionName={connectionInfo.favorite?.name}
+      data-connectionName={name}
       data-testid={`saved-connection-${connectionInfo.id}`}
       onDoubleClick={() => onConnect(connectionInfo)}
     >
-      {icon}{' '}
-      <div className={savedConnectionNameStyles}>
-        {getConnectionTitle(connectionInfo)}
-      </div>
+      {icon} <div className={savedConnectionNameStyles}>{name}</div>
       {isHovered && (
         <ItemActionControls<Action>
           data-testid="connection-menu"

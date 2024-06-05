@@ -162,6 +162,7 @@ export const ConnectionItem: React.FunctionComponent<
     <ItemContainer
       id={id}
       data-testid={`sidebar-connection-${id}`}
+      data-connectionName={name}
       level={level}
       setSize={setSize}
       posInSet={posInSet}

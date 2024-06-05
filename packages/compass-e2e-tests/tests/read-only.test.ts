@@ -4,6 +4,8 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -166,7 +168,10 @@ describe('readOnly: true / Read-Only Edition', function () {
       await createNumbersCollection();
       await browser.connectWithConnectionString();
 
-      await browser.navigateToDatabaseCollectionsTab('test');
+      await browser.navigateToConnectionCollectionsTab(
+        connectionNameFromString(DEFAULT_CONNECTION_STRING),
+        'test'
+      );
 
       let databaseCreateCollectionButton = await browser.$(
         Selectors.DatabaseCreateCollectionButton

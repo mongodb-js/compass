@@ -16,7 +16,9 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
-import { redactConnectionString } from 'mongodb-connection-string-url';
+import ConnectionStringUrl, {
+  redactConnectionString,
+} from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
@@ -1172,4 +1174,11 @@ export function positionalArgs(positionalArgs: string[]) {
 
     return wrapperPath;
   };
+}
+
+export function connectionNameFromString(connectionString: string) {
+  const url = new ConnectionStringUrl(connectionString);
+
+  // TODO: this is going to require work sooner or later. Do we reuse the same code we have in connection form?
+  return `${url.hosts.join(',')}`;
 }

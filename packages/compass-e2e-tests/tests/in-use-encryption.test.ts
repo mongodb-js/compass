@@ -7,6 +7,8 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -189,7 +191,10 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
 
         // open the create collection modal from the button at the top
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
@@ -208,7 +213,10 @@ describe('CSFLE / QE', function () {
           'add-collection-modal-encryptedfields.png'
         );
 
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
 
         const collectionListFLE2BadgeElement = await browser.$(
           Selectors.CollectionListFLE2Badge
@@ -324,11 +332,17 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection without encryptedFields', async function () {
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
         await browser.addCollection(collectionName);
 
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
 
         const selector = Selectors.collectionCard(databaseName, collectionName);
         await browser.scrollToVirtualItem(
