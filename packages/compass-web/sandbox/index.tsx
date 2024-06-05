@@ -240,8 +240,14 @@ function ConnectionStringConnectionForm({
   );
 }
 
+function isAtlasConnection(
+  connectionInfo: ConnectionInfo
+): connectionInfo is ConnectionInfo &
+  Required<Pick<ConnectionInfo, 'atlasMetadata'>> {
+  return 'atlasMetadata' in connectionInfo;
+}
+
 function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
-  const isAtlasConnection = !!connectionInfo.atlasMetadata;
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter(
     connectionInfo.id
   );
@@ -251,6 +257,8 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
       connectionId: connectionInfo.id,
     }
   );
+
+  const isAtlas = isAtlasConnection(connectionInfo);
 
   const atlasServiceSandboxBackendVariant =
     process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'local'
@@ -262,22 +270,35 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
 
   return (
     <SandboxAutoconnectProvider
-      // Even for the sanbos we only pass the connection info here when not
+      // Even for the sandbox we only pass the connection info here when not
       // connecting to atlas cluster as atlas connection should resolve the
-      // connection info automatically through the new connection storage
-      value={!isAtlasConnection ? connectionInfo : null}
+      // connection info automatically through the connection storage
+      value={!isAtlas ? connectionInfo : null}
     >
       <Body as="div" className={sandboxContainerStyles}>
         <LoggerAndTelemetryProvider value={sandboxLogger}>
           <CompassWeb
-            orgId={connectionInfo.atlasMetadata?.orgId ?? ''}
-            projectId={connectionInfo.atlasMetadata?.projectId ?? ''}
+            {...(isAtlas
+              ? {
+                  orgId: connectionInfo.atlasMetadata.orgId,
+                  projectId: connectionInfo.atlasMetadata.projectId,
+                }
+              : {
+                  // We don't want to make those props optional as they are
+                  // always required in DE, at the same time we still want to
+                  // support non-Atlas connections in sandbox. For that purpose
+                  // we pass empty strings when connecting here. If those values
+                  // are empty AND sandbox autoconnect provider didn't get the
+                  // value, sandbox will fail to connect
+                  orgId: '',
+                  projectId: '',
+                })}
             initialWorkspace={initialCurrentTabRef.current}
             onActiveWorkspaceTabChange={updateCurrentTab}
             initialPreferences={{
-              enablePerformanceAdvisorBanner: isAtlasConnection,
-              enableAtlasSearchIndexes: !isAtlasConnection,
-              maximumNumberOfActiveConnections: isAtlasConnection ? 1 : 10,
+              enablePerformanceAdvisorBanner: isAtlas,
+              enableAtlasSearchIndexes: !isAtlas,
+              maximumNumberOfActiveConnections: isAtlas ? 1 : 10,
               atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
             }}
             renderConnecting={(connectionInfo) => {
