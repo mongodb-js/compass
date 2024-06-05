@@ -131,8 +131,6 @@ const inputContainerStyles = css({
   position: 'relative',
 });
 
-const inputSize = 14;
-
 const defaultTextAreaSize = spacing[400] + spacing[300];
 const textInputStyles = css({
   flexGrow: 1,
@@ -185,10 +183,12 @@ const generateButtonLightModeStyles = css({
   backgroundColor: palette.gray.light2,
 });
 
+const highlightSize = 14;
+
 const buttonHighlightStyles = css({
   // Custom button styles.
-  height: `${inputSize}px`,
-  lineHeight: `${inputSize}px`,
+  height: `${highlightSize}px`,
+  lineHeight: `${highlightSize}px`,
   padding: `0px ${spacing[100]}px`,
   borderRadius: '2px',
 });
@@ -276,8 +276,8 @@ const closeText = 'Close AI Helper';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
   <svg
-    width={inputSize}
-    height={inputSize}
+    width={highlightSize}
+    height={highlightSize}
     viewBox="0 0 14 14"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
