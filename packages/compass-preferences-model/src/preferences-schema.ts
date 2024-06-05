@@ -42,11 +42,12 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
     atlasServiceBackendPreset:
-      | 'compass-dev'
-      | 'compass'
       | 'atlas-local'
       | 'atlas-dev'
-      | 'atlas';
+      | 'atlas'
+      | 'web-sandbox-atlas-local'
+      | 'web-sandbox-atlas-dev'
+      | 'web-sandbox-atlas';
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -631,8 +632,6 @@ export const storedUserPreferencesProps: Required<{
 
   /**
    * Chooses atlas service backend configuration from preset
-   *  - compass-dev: locally running compass kanopy backend (localhost)
-   *  - compass:    compass kanopy backend (compass.mongodb.com)
    *  - atlas-local: local mms backend (http://localhost:8080)
    *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
    *  - atlas:       mms backend (cloud.mongodb.com)
@@ -645,7 +644,14 @@ export const storedUserPreferencesProps: Required<{
       short: 'Configuration used by atlas service',
     },
     validator: z
-      .enum(['compass-dev', 'compass', 'atlas-dev', 'atlas-local', 'atlas'])
+      .enum([
+        'atlas-dev',
+        'atlas-local',
+        'atlas',
+        'web-sandbox-atlas-dev',
+        'web-sandbox-atlas-local',
+        'web-sandbox-atlas',
+      ])
       .default('atlas'),
     type: 'string',
   },

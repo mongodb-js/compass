@@ -26,7 +26,7 @@ type GenerativeAiInput = {
 // want to ensure we're not uploading massive documents (some folks have documents > 1mb).
 const AI_MAX_REQUEST_SIZE = 100000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
-const USER_AI_URI = (userId: string) => `ai/api/v1/hello/${userId}`;
+const USER_AI_URI = (userId: string) => `unauth/ai/api/v1/hello/${userId}`;
 const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';
 const QUERY_URI = 'ai/api/v1/mql-query';
 
@@ -227,7 +227,7 @@ export class AtlasAiService {
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const userId = this.preferences.getPreferencesUser().id;
-    const url = this.atlasService.privateUnAuthEndpoint(USER_AI_URI(userId));
+    const url = this.atlasService.adminApiEndpoint(USER_AI_URI(userId));
     const res = await this.atlasService.fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -282,7 +282,7 @@ export class AtlasAiService {
     const { signal, requestId, ...rest } = input;
     const msgBody = buildQueryOrAggregationMessageBody(rest);
 
-    const url = this.atlasService.privateAtlasEndpoint(uri, requestId);
+    const url = this.atlasService.adminApiEndpoint(uri, requestId);
 
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_308),

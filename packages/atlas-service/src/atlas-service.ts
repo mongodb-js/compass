@@ -23,13 +23,20 @@ export class AtlasService {
   ) {
     this.config = getAtlasConfig(preferences);
   }
-  privateUnAuthEndpoint(path: string): string {
-    return `${this.config.atlasApiUnauthBaseUrl}/${path}`;
+  adminApiEndpoint(path?: string, requestId?: string): string {
+    const uri = encodeURI(
+      `${this.config.atlasApiBaseUrl}${path ? `/${path}` : ''}`
+    );
+    const query = requestId
+      ? `?request_id=${encodeURIComponent(requestId)}`
+      : '';
+    return `${uri}${query}`;
   }
-  privateAtlasEndpoint(path: string, requestId?: string): string {
-    return `${this.config.atlasApiBaseUrl}/${path}${
-      requestId ? `?request_id=${requestId}` : ''
-    }`;
+  cloudEndpoint(path?: string): string {
+    return encodeURI(`${this.config.cloudBaseUrl}${path ? `/${path}` : ''}`);
+  }
+  driverProxyEndpoint(path?: string): string {
+    return encodeURI(`${this.config.wsBaseUrl}${path ? `/${path}` : ''}`);
   }
   async fetch(url: RequestInfo, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
@@ -75,7 +82,6 @@ export class AtlasService {
       throw err;
     }
   }
-
   async authenticatedFetch(
     url: RequestInfo,
     init?: RequestInit

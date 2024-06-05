@@ -53,8 +53,9 @@ describe('CompassAuthServiceMain', function () {
   };
 
   const defaultConfig = {
-    atlasApiBaseUrl: 'http://example.com',
-    atlasApiUnauthBaseUrl: 'http://example.com/unauth',
+    wsBaseUrl: 'ws://example.com',
+    cloudBaseUrl: 'ws://example.com/cloud',
+    atlasApiBaseUrl: 'http://example.com/api',
     atlasLogin: {
       issuer: 'http://example.com',
       clientId: '1234abcd',

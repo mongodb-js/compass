@@ -348,6 +348,12 @@ proxyWebServer.use(
       return req;
     },
     userResHeaderDecorator(headers, _req, res) {
+      // Cloud backend will try to always set auth cookies on requests, but we
+      // can't really meaningfully store those in the browser (__secure- ones
+      // would be ignored anyways), so to avoid polluting storage, we just not
+      // allow the set-cookie header to propagate
+      delete headers['set-cookie'];
+
       if (isSignedOutRedirect(headers.location)) {
         res.statusCode = 403;
         return {};
