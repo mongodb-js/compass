@@ -7,6 +7,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -19,6 +20,11 @@ describe('Shell', function () {
 
   before(async function () {
     skipForWeb(this, 'shell not available on compass-web');
+
+    // TODO: best to just port this once the shell works with multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
 
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
