@@ -32,6 +32,16 @@ async function refresh(browser: CompassBrowser) {
 describe('CSFLE / QE', function () {
   before(function () {
     skipForWeb(this, 'not available in compass-web');
+
+    // TODO: This will have to be refactored for multiple connections because
+    // saving a favorite is now part of the connect modal and there is no
+    // favorite modal anymore. Many of these tests also use shellEval() which is
+    // better to port once we have the shell working properly in multiple
+    // connections and they also use a refresh databases&collections button that
+    // doesn't exist yet.
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   describe('server version gte 4.2.20 and not a linux platform', function () {
@@ -95,7 +105,11 @@ describe('CSFLE / QE', function () {
       await browser.setConnectFormState(options);
 
       // Save & Connect
-      await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
+      await browser.clickVisible(
+        TEST_MULTIPLE_CONNECTIONS
+          ? Selectors.ConnectionFormConnectButton
+          : Selectors.ConnectionFormSaveAndConnectButton
+      );
       await browser.$(Selectors.FavoriteModal).waitForDisplayed();
       await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
       await browser.clickVisible(
