@@ -78,45 +78,45 @@ export async function throwIfNotOk(
 }
 
 export type AtlasServiceConfig = {
+  /**
+   * MongoDB Driver WebSocket proxy base url
+   */
+  wsBaseUrl: string;
+  /**
+   * Cloud UI backend base url
+   */
+  cloudBaseUrl: string;
+  /**
+   * Atlas admin API base url
+   */
   atlasApiBaseUrl: string;
-  atlasApiUnauthBaseUrl: string;
+  /**
+   * Atlas OIDC config
+   */
   atlasLogin: {
     clientId: string;
     issuer: string;
   };
+  /**
+   * Atlas Account Portal UI base url
+   */
   authPortalUrl: string;
 };
 
 /**
  * Atlas service backend configurations.
- *  - compass-dev: locally running compass kanopy backend (localhost)
- *  - compass:    compass kanopy backend (compass.mongodb.com)
- *  - atlas-local: local mms backend (localhost)
- *  - atlas-dev:  dev mms backend (cloud-dev.mongodb.com)
- *  - atlas:      mms backend (cloud.mongodb.com)
+ *  - atlas-local:             local mms backend         (localhost)
+ *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
+ *  - atlas:                   mms backend               (cloud.mongodb.com)
+ *  - web-sandbox-atlas-local: local mms backend + proxy (localhost / proxy prefix)
+ *  - web-sandbox-atlas-dev:   dev mms backend + proxy   (cloud-dev.mongodb.com / proxy prefix)
+ *  - web-sandbox-atlas:       mms backend + proxy       (cloud.mongodb.com / proxy prefix)
  */
 const config = {
-  'compass-dev': {
-    atlasApiBaseUrl: 'http://localhost:8080',
-    atlasApiUnauthBaseUrl: 'http://localhost:8080',
-    atlasLogin: {
-      clientId: '0oajzdcznmE8GEyio297',
-      issuer: 'https://auth.mongodb.com/oauth2/default',
-    },
-    authPortalUrl: 'https://account.mongodb.com/account/login',
-  },
-  compass: {
-    atlasApiBaseUrl: 'https://compass.mongodb.com',
-    atlasApiUnauthBaseUrl: 'https://compass.mongodb.com',
-    atlasLogin: {
-      clientId: '0oajzdcznmE8GEyio297',
-      issuer: 'https://auth.mongodb.com/oauth2/default',
-    },
-    authPortalUrl: 'https://account.mongodb.com/account/login',
-  },
   'atlas-local': {
+    wsBaseUrl: 'ws://localhost:61001/ws',
+    cloudBaseUrl: '',
     atlasApiBaseUrl: 'http://localhost:8080/api/private',
-    atlasApiUnauthBaseUrl: 'http://localhost:8080/api/private/unauth',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -124,8 +124,9 @@ const config = {
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
   },
   'atlas-dev': {
+    wsBaseUrl: '',
+    cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
-    atlasApiUnauthBaseUrl: 'https://cloud-dev.mongodb.com/api/private/unauth',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -133,8 +134,39 @@ const config = {
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
   },
   atlas: {
+    wsBaseUrl: '',
+    cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
-    atlasApiUnauthBaseUrl: 'https://cloud.mongodb.com/api/private/unauth',
+    atlasLogin: {
+      clientId: '0oajzdcznmE8GEyio297',
+      issuer: 'https://auth.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account.mongodb.com/account/login',
+  },
+  'web-sandbox-atlas-local': {
+    wsBaseUrl: 'ws://localhost:1337',
+    cloudBaseUrl: '/cloud-mongodb-com',
+    atlasApiBaseUrl: 'http://localhost:8080/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+  },
+  'web-sandbox-atlas-dev': {
+    wsBaseUrl: 'ws://localhost:1337',
+    cloudBaseUrl: '/cloud-mongodb-com',
+    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+  },
+  'web-sandbox-atlas': {
+    wsBaseUrl: 'ws://localhost:1337',
+    cloudBaseUrl: '/cloud-mongodb-com',
+    atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oajzdcznmE8GEyio297',
       issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -148,9 +180,7 @@ export function getAtlasConfig(
 ) {
   const { atlasServiceBackendPreset } = preferences.getPreferences();
   const envConfig = {
-    atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_BASE_URL_OVERRIDE,
-    atlasApiUnauthBaseUrl:
-      process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+    atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
     atlasLogin: {
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
@@ -160,7 +190,7 @@ export function getAtlasConfig(
   return defaultsDeep(
     envConfig,
     config[atlasServiceBackendPreset]
-  ) as typeof envConfig & typeof config[keyof typeof config];
+  ) as AtlasServiceConfig;
 }
 
 export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
