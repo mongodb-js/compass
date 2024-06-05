@@ -1,7 +1,8 @@
 import React, {
+  forwardRef,
   useCallback,
   useEffect,
-  useMemo,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -12,6 +13,7 @@ import {
   Icon,
   IconButton,
   SpinLoader,
+  TextArea,
   css,
   cx,
   focusRing,
@@ -19,14 +21,11 @@ import {
   palette,
   spacing,
   useDarkMode,
-  useFocusRing,
 } from '@mongodb-js/compass-components';
 import {
   IntercomTrackingEvent,
   intercomTrack,
 } from '@mongodb-js/compass-intercom';
-import type { Command, EditorRef } from '@mongodb-js/compass-editor';
-import { CodemirrorInlineEditor as InlineEditor } from '@mongodb-js/compass-editor';
 
 import { DEFAULT_AI_ENTRY_SIZE } from './ai-entry-svg';
 import { AIFeedback } from './ai-feedback';
@@ -111,26 +110,20 @@ const gradientAnimationStyles = css({
   },
 });
 
+const isFetchingOverrideTextInputStyles = css({
+  '> *': {
+    // Override LeafyGreen box shadow when the generative ai is fetching.
+    // Without this, the hover and focus state are still visible.
+    boxShadow: 'none !important',
+  },
+});
+
 const contentWrapperStyles = css({
   width: '100%',
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
   zIndex: 2,
-});
-
-const editorWrapperStyles = css({
-  // Match codemirror editor with LeafyGreen inputs.
-  padding: 0,
-  paddingTop: 1,
-  paddingBottom: 1,
-  borderRadius: spacing[150],
-  border: `1px solid ${palette.gray.base}`,
-  backgroundColor: palette.white,
-});
-
-const editorWrapperDarkModeStyles = css({
-  backgroundColor: palette.black,
 });
 
 const inputContainerStyles = css({
@@ -140,9 +133,18 @@ const inputContainerStyles = css({
 
 const inputSize = 14;
 
-const editorStyles = css({
-  paddingLeft: spacing[800],
-  paddingRight: spacing[1600] * 2 + spacing[200],
+const defaultTextAreaSize = spacing[400] + spacing[300];
+const textInputStyles = css({
+  flexGrow: 1,
+  textarea: {
+    margin: 0,
+    padding: spacing[50] + spacing[25],
+    paddingLeft: spacing[800],
+    paddingRight: spacing[1600] * 2 + spacing[200],
+    height: defaultTextAreaSize, // Default height, overridden runtime.
+    minHeight: `${defaultTextAreaSize}px`,
+    maxHeight: spacing[1600] * 2,
+  },
 });
 
 const errorSummaryContainer = css({
@@ -228,6 +230,48 @@ const aiEntryContainerStyles = css({
   display: 'flex',
 });
 
+function adjustHeight(elementRef: React.RefObject<HTMLTextAreaElement>) {
+  if (elementRef.current) {
+    // Dynamically set the text area height based on the scroll height.
+    // We first set it to 0 so the correct scroll height is used.
+    elementRef.current.style.height = '0px';
+    let adjustedHeight = elementRef.current.scrollHeight;
+    if (adjustedHeight > defaultTextAreaSize) {
+      // When it's greater than one line, we add pixels so that
+      // we don't show a scrollbar when it's still under the maxHeight.
+      adjustedHeight += spacing[50];
+    }
+    elementRef.current.style.height = `${adjustedHeight}px`;
+  }
+}
+
+const VerticallyResizingTextArea = forwardRef(
+  function VerticallyResizingTextArea(
+    { value, ...props }: React.ComponentProps<typeof TextArea>,
+    forwardedRef: React.ForwardedRef<HTMLTextAreaElement>
+  ) {
+    const ref = useRef<HTMLTextAreaElement | null>(null);
+
+    useLayoutEffect(() => adjustHeight(ref), []);
+    useEffect(() => adjustHeight(ref), [value]);
+
+    return (
+      <TextArea
+        ref={(node) => {
+          ref.current = node;
+          if (typeof forwardedRef === 'function') {
+            forwardedRef(node);
+          } else if (forwardedRef) {
+            forwardedRef.current = node;
+          }
+        }}
+        value={value}
+        {...props}
+      />
+    );
+  }
+);
+
 const closeText = 'Close AI Helper';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
@@ -290,8 +334,7 @@ function GenerativeAIInput({
   isAggregationGeneratedFromQuery = false,
   onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
-  // const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
-  const promptTextInputRef = useRef<EditorRef>(null);
+  const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
   const guideCueRef = useRef<HTMLTextAreaElement>(null);
@@ -304,21 +347,20 @@ function GenerativeAIInput({
     [onSubmitText]
   );
 
-  // const onTextInputKeyDown = useCallback(
-  //   (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {
-  //     console.log('aaaa key down!', evt.key, evt.shiftKey);
-  //     if (evt.key === 'Enter' && !evt.shiftKey) {
-  //       evt.preventDefault();
-  //       if (!aiPromptText) {
-  //         return;
-  //       }
-  //       handleSubmit(aiPromptText);
-  //     } else if (evt.key === 'Escape') {
-  //       isFetching ? onCancelRequest() : onClose();
-  //     }
-  //   },
-  //   [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
-  // );
+  const onTextInputKeyDown = useCallback(
+    (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (evt.key === 'Enter' && !evt.shiftKey) {
+        evt.preventDefault();
+        if (!aiPromptText) {
+          return;
+        }
+        handleSubmit(aiPromptText);
+      } else if (evt.key === 'Escape') {
+        isFetching ? onCancelRequest() : onClose();
+      }
+    },
+    [aiPromptText, onClose, handleSubmit, isFetching, onCancelRequest]
+  );
 
   useEffect(() => {
     if (didSucceed) {
@@ -346,52 +388,6 @@ function GenerativeAIInput({
     return () => onCancelRequestRef.current?.();
   }, []);
 
-  const focusRingProps = useFocusRing({
-    outer: true,
-    focusWithin: true,
-    hover: true,
-  });
-
-  const isDarkMode = useDarkMode();
-
-  // Use handler refs so that the command handlers
-  // for the editor use up to date values.
-  const onSubmit = useCallback(() => {
-    if (!aiPromptText) {
-      return;
-    }
-    handleSubmit(aiPromptText);
-  }, [aiPromptText, handleSubmit]);
-  const onSubmitHandler = useRef(onSubmit);
-  onSubmitHandler.current = onSubmit;
-
-  const onEscape = useCallback(() => {
-    isFetching ? onCancelRequest() : onClose();
-  }, [isFetching, onCancelRequest, onClose]);
-  const onEscapeHandler = useRef(onEscape);
-  onEscapeHandler.current = onEscape;
-
-  const commands = useMemo<Command[]>(() => {
-    return [
-      {
-        key: 'Enter',
-        run() {
-          onSubmitHandler.current?.();
-          return true;
-        },
-        preventDefault: true,
-      },
-      {
-        key: 'Escape',
-        run() {
-          onEscapeHandler.current?.();
-          return true;
-        },
-        preventDefault: true,
-      },
-    ];
-  }, []);
-
   if (!show) {
     return null;
   }
@@ -402,24 +398,39 @@ function GenerativeAIInput({
         <div className={inputContainerStyles}>
           <div className={isFetching ? gradientAnimationStyles : undefined}>
             <div className={contentWrapperStyles}>
-              <div
-                className={cx(
-                  editorWrapperStyles,
-                  isDarkMode ? editorWrapperDarkModeStyles : undefined,
-                  !isFetching && focusRingProps.className
-                )}
+              <button
+                className={closeAIButtonStyles}
+                data-testid="close-ai-button"
+                aria-label={closeText}
+                title={closeText}
+                onClick={() => onClose()}
               >
-                <InlineEditor
-                  className={cx(editorStyles)}
-                  ref={promptTextInputRef}
-                  text={aiPromptText}
-                  onChangeText={onChangeAIPromptText}
-                  aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
-                  placeholder={placeholder}
-                  commands={commands}
-                  data-testid="ai-user-text-input"
+                <AIGuideCue
+                  showGuideCue={isAggregationGeneratedFromQuery}
+                  onCloseGuideCue={() => {
+                    onResetIsAggregationGeneratedFromQuery?.();
+                  }}
+                  refEl={guideCueRef}
+                  title="Aggregation generated"
+                  description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
                 />
-              </div>
+                <span className={aiEntryContainerStyles} ref={guideCueRef}>
+                  <Icon glyph="Sparkle" />
+                </span>
+              </button>
+              <VerticallyResizingTextArea
+                className={cx(
+                  textInputStyles,
+                  isFetching && isFetchingOverrideTextInputStyles
+                )}
+                ref={promptTextInputRef}
+                data-testid="ai-user-text-input"
+                aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
+                placeholder={placeholder}
+                value={aiPromptText}
+                onChange={(evt) => onChangeAIPromptText(evt.target.value)}
+                onKeyDown={onTextInputKeyDown}
+              />
               <div className={floatingButtonsContainerStyles}>
                 {isFetching ? (
                   <div className={loaderContainerStyles}>
@@ -483,26 +494,6 @@ function GenerativeAIInput({
                   )}
                 </Button>
               </div>
-              <button
-                className={closeAIButtonStyles}
-                data-testid="close-ai-button"
-                aria-label={closeText}
-                title={closeText}
-                onClick={() => onClose()}
-              >
-                <AIGuideCue
-                  showGuideCue={isAggregationGeneratedFromQuery}
-                  onCloseGuideCue={() => {
-                    onResetIsAggregationGeneratedFromQuery?.();
-                  }}
-                  refEl={guideCueRef}
-                  title="Aggregation generated"
-                  description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
-                />
-                <span className={aiEntryContainerStyles} ref={guideCueRef}>
-                  <Icon glyph="Sparkle" />
-                </span>
-              </button>
             </div>
           </div>
         </div>
