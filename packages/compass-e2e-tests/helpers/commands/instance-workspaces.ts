@@ -51,6 +51,8 @@ export async function navigateToConnectionTab(
     );
   } else {
     // TODO: click the three dots menu then the relevant option. (View performance metrics)
+    // (This will be easier to do if we merge the active and saved connectins
+    // because selectConnectionMenuItem() acts on the saved connection, not the active connection)
     throw new Error('unimplemented');
   }
 

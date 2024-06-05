@@ -128,7 +128,10 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.setFeature('readOnly', false);
       await browser.connectWithConnectionString();
 
-      await browser.navigateToInstanceTab('Databases');
+      await browser.navigateToConnectionTab(
+        connectionNameFromString(DEFAULT_CONNECTION_STRING),
+        'Databases'
+      );
 
       let instanceCreateDatabaseButton = await browser.$(
         Selectors.InstanceCreateDatabaseButton
