@@ -13,9 +13,22 @@ if [[ "${EVERGREEN_BRANCH_NAME}" != "main" ]]; then
   exit 0;
 fi
 
+JSON_CONTENT=$( jq -n \
+  --arg id "$DEV_VERSION_IDENTIFIER" \
+  --arg key "${EVERGREEN_BUCKET_KEY_PREFIX}" \
+  '{version: $id, bucket_key_prefix: $key}'
+)
+
 URL="https://mciuploads.s3.amazonaws.com/${EVERGREEN_PROJECT}/compass/dev/$1"
-CURRENT_VERSION=$(curl -sf "${URL}" || echo "0.0.0-dev.0")
+DATA=$(curl -sf "${URL}" || echo "$JSON_CONTENT")
+CURRENT_VERSION=$(echo "$DATA" | jq -r '.version')
 
 echo "Comparing versions: $CURRENT_VERSION and $DEV_VERSION_IDENTIFIER"
-PUBLISH_VERSION=$(npx semver "$CURRENT_VERSION" "$DEV_VERSION_IDENTIFIER" | tail -n1 | xargs)
-echo "$PUBLISH_VERSION" > "$1"
+LATEST_VERSION=$(npx semver "$CURRENT_VERSION" "$DEV_VERSION_IDENTIFIER" | tail -n1 | xargs)
+
+if [[ "$LATEST_VERSION" == "$CURRENT_VERSION" ]]; then
+  echo "Skipping publishing dev release, version $DEV_VERSION_IDENTIFIER is not newer than $CURRENT_VERSION"
+  exit 0
+fi
+
+echo "$JSON_CONTENT" > "$1"
