@@ -29,6 +29,10 @@ import util from 'util';
 import { execFile as callbackExecFile } from 'child_process';
 import decomment from 'decomment';
 
+import {
+  validateAIQueryResponse,
+  validateAIAggregationResponse,
+} from '../../src/atlas-ai-service';
 import { loadFixturesToDB } from './fixtures';
 import type { Fixtures } from './fixtures';
 import { AtlasAPI } from './ai-backend';
@@ -228,6 +232,10 @@ const runOnce = async (
 
     if (assertResult) {
       let cursor;
+
+      type === 'query'
+        ? validateAIQueryResponse(response)
+        : validateAIAggregationResponse(response);
 
       if (
         type === 'aggregation' ||

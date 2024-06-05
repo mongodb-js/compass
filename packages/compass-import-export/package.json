@@ -74,8 +74,7 @@
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
     "stream-json": "^1.7.5",
-    "strip-bom-stream": "^4.0.0",
-    "temp": "^0.9.4"
+    "strip-bom-stream": "^4.0.0"
   },
   "devDependencies": {
     "@mongodb-js/compass-test-server": "^0.1.16",
@@ -106,6 +105,7 @@
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",
     "sinon-chai": "^3.7.0",
+    "temp": "^0.9.4",
     "typescript": "^5.0.4",
     "xvfb-maybe": "^0.2.1"
   },
