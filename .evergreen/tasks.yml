@@ -454,3 +454,21 @@ tasks:
           browser_name: 'firefox'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+
+  - name: test-multiple-connections-multiple-connections
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: test-multiple-connections
+        vars: 
+          mongodb_version: 'latest-alpha-enterprise'
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'

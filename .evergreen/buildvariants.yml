@@ -94,6 +94,9 @@ buildvariants:
 
       - name: test-web-sandbox-firefox
 
+      - name: test-multiple-connections-multiple-connections
+        depends_on: package-compass
+
   - name: windows
     display_name: Windows 10 (Test and Package)
     run_on: windows-vsCurrent-large

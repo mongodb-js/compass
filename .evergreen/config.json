@@ -13,7 +13,8 @@
       ["test-electron", { "gui": true }],
       "package",
       ["test-packaged-app", { "gui": true, "depends_on": "package-compass" }],
-      ["test-web-sandbox", { "gui": true }]
+      ["test-web-sandbox", { "gui": true }],
+      ["test-multiple-connections", { "gui": true, "depends_on": "package-compass" }]
     ]
   },
   "tasks": {
@@ -153,6 +154,15 @@
           "vars": {
             "mongodb_version": "latest-alpha-enterprise",
             "browser_name": "firefox"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64", "rhel80-large", "windows-vsCurrent-large"]
+        }
+      ],
+      "test-multiple-connections": [
+        {
+          "name": "multiple-connections",
+          "vars": {
+            "mongodb_version": "latest-alpha-enterprise"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64", "rhel80-large", "windows-vsCurrent-large"]
         }
