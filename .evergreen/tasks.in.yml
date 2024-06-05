@@ -93,14 +93,14 @@ tasks:
       - func: install
       - func: bootstrap
       - func: publish-packages-next
-  - name: publish-dev-release
+  - name: publish-dev-release-info
     tags: []
     depends_on:
       - name: 'publish'
         variant: '*'
     commands:
       - func: prepare
-      - func: publish-dev-release
+      - func: publish-dev-release-info
 <% for (const packageTask of tasks.package) { %>
   - name: <% out(packageTask.name) %>
     tags: ['required-for-publish', 'run-on-pr']
