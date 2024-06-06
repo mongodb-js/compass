@@ -65,6 +65,10 @@ describe('Instance my queries tab', function () {
       return;
     }
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      return;
+    }
+
     await cleanup(compass);
   });
   afterEach(async function () {

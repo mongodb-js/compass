@@ -36,6 +36,10 @@ describe('Shell', function () {
       return;
     }
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      return;
+    }
+
     await cleanup(compass);
     await telemetry.stop();
   });

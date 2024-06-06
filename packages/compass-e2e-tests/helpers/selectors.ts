@@ -238,7 +238,7 @@ export const ActiveConnectionsTitle =
 export const SavedConnectionsTitle = '[data-testid="saved-connections-title"]';
 
 export const sidebarActiveConnection = (connectionName: string): string => {
-  return `[data-testid="databases-and-collections"] [data-connection-name="${connectionName}"]`;
+  return `[data-testid="sidebar-navigation-tree"] [data-connection-name="${connectionName}"]`;
 };
 
 // Multiple Connections Modal
