@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
-// @ts-expect-error no types available
-import StateMixin from 'reflux-state-mixin';
+import type { StoreWithStateMixin } from '@mongodb-js/reflux-state-mixin';
+import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { InternalLayer } from '../modules/geo';
 import { addLayer, generateGeoQuery } from '../modules/geo';
@@ -65,8 +65,6 @@ export type SchemaPluginServices = {
 };
 
 type SchemaState = {
-  localAppRegistry: SchemaPluginServices['localAppRegistry'];
-  globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
@@ -74,10 +72,7 @@ type SchemaState = {
   abortController: undefined | AbortController;
 };
 
-export type SchemaStore = Reflux.Store & {
-  state: Readonly<SchemaState>;
-  setState(state: Partial<SchemaState>): void;
-
+export type SchemaStore = StoreWithStateMixin<SchemaState> & {
   localAppRegistry: SchemaPluginServices['localAppRegistry'];
   globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
   fieldStoreService: SchemaPluginServices['fieldStoreService'];
@@ -139,7 +134,7 @@ export function activateSchemaPlugin(
    * The reflux store for the schema.
    */
   const store: SchemaStore = Reflux.createStore({
-    mixins: [StateMixin.store],
+    mixins: [StateMixin.store<SchemaState>()],
     listenables: actions,
 
     /**
@@ -185,8 +180,6 @@ export function activateSchemaPlugin(
      */
     getInitialState(this: SchemaStore): SchemaState {
       return {
-        localAppRegistry,
-        globalAppRegistry,
         analysisState: ANALYSIS_STATE_INITIAL,
         errorMessage: '',
         schema: null,

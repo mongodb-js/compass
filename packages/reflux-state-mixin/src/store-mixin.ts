@@ -1,36 +1,44 @@
-//var Reflux = require('reflux');
-//var utils = require('./utils.js');
 import Reflux from 'reflux';
-import { extend, isFunction, setProp } from './utils.js';
 
-function attachAction(actionName) {
+export type StoreWithStateMixin<T extends Record<string, unknown>> =
+  Reflux.Store & {
+    readonly state: Readonly<T>;
+    setState(newState: Partial<T>): void;
+    storeDidUpdate?(prevState: T): void;
+    getInitialState(): T;
+  } & {
+    [k in keyof T]: { trigger(value: T[k]): void };
+  };
+
+function attachAction<T extends Record<string, unknown>>(
+  this: StoreWithStateMixin<T>,
+  actionName: string & keyof T
+) {
   if (this[actionName]) {
+    // eslint-disable-next-line no-console
     console.warn('Not attaching event ' + actionName + '; key already exists');
     return;
   }
   this[actionName] = Reflux.createAction();
 }
 
-export default {
-  setState: function (state) {
-    var changed = false;
-    var prevState = extend({}, this.state);
+export default <T extends Record<string, unknown>>() => ({
+  setState: function (this: StoreWithStateMixin<T>, state: Partial<T>) {
+    let changed = false;
+    const prevState = { ...this.state };
 
-    for (var key in state) {
-      if (state.hasOwnProperty(key)) {
-        if (this.state[key] !== state[key]) {
-          this.state = setProp(this.state, state, key);
-          //this.state[key] = state[key];
-          this[key].trigger(state[key]);
-          changed = true;
-        }
+    for (const key of Object.keys(state) as (keyof T)[]) {
+      if (this.state[key] !== state[key]) {
+        this.state[key] = state[key]!;
+        this[key].trigger(state[key] as any);
+        changed = true;
       }
     }
 
     if (changed) {
       //this.state = extend(this.state, state);
 
-      if (isFunction(this.storeDidUpdate)) {
+      if (typeof this.storeDidUpdate === 'function') {
         this.storeDidUpdate(prevState);
       }
 
@@ -38,14 +46,12 @@ export default {
     }
   },
 
-  init: function () {
-    if (isFunction(this.getInitialState)) {
+  init: function (this: StoreWithStateMixin<T>) {
+    if (typeof this.getInitialState === 'function') {
       this.state = this.getInitialState();
-      for (var key in this.state) {
-        if (this.state.hasOwnProperty(key)) {
-          attachAction.call(this, key);
-        }
+      for (const key of Object.keys(this.state)) {
+        attachAction.call(this, key);
       }
     }
   },
-};
+});

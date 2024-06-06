@@ -4,5 +4,6 @@ ignores:
  - '@types/chai'
  - '@types/sinon-chai'
  - 'sinon'
+ - 'reflux'
 ignore-patterns:
  - 'dist'
