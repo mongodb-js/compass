@@ -238,7 +238,7 @@ export const ActiveConnectionsTitle =
 export const SavedConnectionsTitle = '[data-testid="saved-connections-title"]';
 
 export const sidebarActiveConnection = (connectionName: string): string => {
-  return `[data-testid="databases-and-collections"] [data-connectionName="${connectionName}"]`;
+  return `[data-testid="databases-and-collections"] [data-connection-name="${connectionName}"]`;
 };
 
 // Multiple Connections Modal
@@ -306,7 +306,7 @@ export const sidebarCollection = (
 
 export const sidebarFavorite = (favoriteName: string): string => {
   if (TEST_MULTIPLE_CONNECTIONS) {
-    return `[data-testid="saved-connections"] [data-connectionName="${favoriteName}"]`;
+    return `[data-testid="saved-connections"] [data-connection-name="${favoriteName}"]`;
   }
   return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };

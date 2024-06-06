@@ -268,7 +268,7 @@ export function SavedConnection({
         backgroundColor: connectionColorToHex(connectionInfo.favorite?.color),
       }}
       className={savedConnectionStyles}
-      data-connectionName={name}
+      data-connection-name={name}
       data-testid={`saved-connection-${connectionInfo.id}`}
       onDoubleClick={() => onConnect(connectionInfo)}
     >
