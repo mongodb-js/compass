@@ -425,6 +425,8 @@ functions:
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+          GITHUB_TOKEN: ${devtoolsbot_github_token}
+          GITHUB_PR_NUMBER: ${github_pr_number}
         script: |
           set -e
 
@@ -784,6 +786,13 @@ functions:
         local_file: src/.sbom/sbom.json
         remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom.json
         content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-private
+        local_file: src/static-analysis-report.tgz
+        remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/static-analysis-report.tgz
+        content_type: application/x-gzip
         optional: true
 
   get-all-artifacts:
