@@ -48,7 +48,6 @@ const filterDatabases = (
         ...db,
         isMatch,
         collections: childMatches.length ? childMatches : db.collections,
-        // collections: (!isMatch && childMatches.length) ? childMatches : db.collections, // TODO: check with Ben
       });
     }
   }
