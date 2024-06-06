@@ -3,8 +3,7 @@ import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
-// @ts-expect-error no types available
-import StateMixin from 'reflux-state-mixin';
+import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
@@ -320,7 +319,7 @@ class CrudStoreImpl
   extends BaseRefluxStore<CrudStoreOptions & CrudStoreActionsOptions>
   implements CrudActions
 {
-  mixins = [StateMixin.store];
+  mixins = [StateMixin.store<CrudState>()];
   listenables: unknown[];
 
   // Should this be readonly? The existence of setState would imply that...
