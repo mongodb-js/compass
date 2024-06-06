@@ -105,6 +105,8 @@ function printCompassEnv() {
   printVar('DEBUG', process.env.DEBUG);
   printVar('MONGODB_VERSION', process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION);
   printVar('DEV_VERSION_IDENTIFIER', process.env.DEV_VERSION_IDENTIFIER);
+  printVar('EVERGREEN_REVISION', process.env.EVERGREEN_REVISION);
+  printVar('EVERGREEN_REVISION_ORDER_ID', process.env.EVERGREEN_REVISION_ORDER_ID);
 }
 
 printCompassEnv();

@@ -33,6 +33,7 @@ variables:
     EVERGREEN_IS_PATCH: ${is_patch}
     EVERGREEN_PROJECT: ${project}
     EVERGREEN_REVISION: ${revision}
+    EVERGREEN_REVISION_ORDER_ID: ${revision_order_id}
     EVERGREEN_TASK_ID: ${task_id}
     EVERGREEN_TASK_NAME: ${task_name}
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
@@ -443,7 +444,7 @@ functions:
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
 
-  publish-dev-release:
+  publish-dev-release-info:
     - command: shell.exec
       params:
         working_dir: src
@@ -452,14 +453,14 @@ functions:
           <<: *compass-env
         script: |
           eval $(.evergreen/print-compass-env.sh)
-          .evergreen/publish-dev-release.sh LATEST
+          .evergreen/build-dev-release-info.sh release.json
     - command: s3.put
       params:
         <<: *save-artifact-params-public
-        local_file: src/LATEST
-        remote_file: ${project}/compass/dev/LATEST
-        content_type: text/plain
-        display_name: LATEST
+        local_file: src/release.json
+        remote_file: ${project}/compass/dev/release.json
+        content_type: application/json
+        display_name: release.json
         optional: true
 
   get-packaged-app:

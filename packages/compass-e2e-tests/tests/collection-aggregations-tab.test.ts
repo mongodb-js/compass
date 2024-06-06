@@ -86,7 +86,7 @@ async function chooseCollectionAction(
 
   // scroll to the collection if necessary
   await browser.scrollToVirtualItem(
-    Selectors.SidebarDatabaseAndCollectionList,
+    Selectors.SidebarNavigationTree,
     collectionSelector,
     'tree'
   );
@@ -99,7 +99,7 @@ async function chooseCollectionAction(
 
   // click the show collections button
   // NOTE: This assumes it is currently closed
-  await browser.clickVisible(Selectors.CollectionShowActionsButton);
+  await browser.clickVisible(Selectors.SidebarNavigationItemShowActionsButton);
 
   const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
 

@@ -1,44 +1,12 @@
-import { spacing } from '@mongodb-js/compass-components';
+import type { SidebarTreeItem } from './tree-data';
 
-export const getItemPaddingStyles = ({
+export const getTreeItemStyles = ({
   level,
-  isPlaceholder,
-  isSingleConnection,
-}: {
-  level: number;
-  isPlaceholder?: boolean;
-  isSingleConnection?: boolean;
-}) => {
-  let paddingLeft = 0;
-  if (isSingleConnection) {
-    /** SC version */
-    switch (level) {
-      case 1:
-        paddingLeft = spacing[2];
-        break;
-      case 2:
-        paddingLeft = spacing[6];
-        break;
-    }
-
-    if (isPlaceholder && level === 1) {
-      paddingLeft += spacing[2];
-    }
-  } else {
-    /** MC version */
-    switch (level) {
-      case 2:
-        paddingLeft = spacing[3] + spacing[1] + spacing[50];
-        break;
-      case 3:
-        paddingLeft = spacing[6] + spacing[2];
-        break;
-    }
-
-    if (isPlaceholder && (level === 1 || level === 2)) {
-      paddingLeft += spacing[2];
-    }
-  }
-
-  return { paddingLeft };
+  maxNestingLevel,
+}: Pick<SidebarTreeItem, 'level' | 'maxNestingLevel'>): React.CSSProperties => {
+  const isExpandable = level < maxNestingLevel;
+  const defaultPadding = 20;
+  return {
+    paddingLeft: (level - 1) * defaultPadding + (!isExpandable ? 30 : 0),
+  };
 };

@@ -71,7 +71,7 @@ describe('Instance sidebar', function () {
       collectionName
     );
     await browser.scrollToVirtualItem(
-      Selectors.SidebarDatabaseAndCollectionList,
+      Selectors.SidebarNavigationTree,
       collectionSelector,
       'tree'
     );
@@ -116,7 +116,7 @@ describe('Instance sidebar', function () {
 
     const collectionSelector = Selectors.sidebarCollection('test', 'numbers');
     await browser.scrollToVirtualItem(
-      Selectors.SidebarDatabaseAndCollectionList,
+      Selectors.SidebarNavigationTree,
       collectionSelector,
       'tree'
     );

@@ -1,14 +1,12 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import type { CSSProperties } from 'react';
 import {
-  useFocusRing,
   css,
   cx,
   mergeProps,
   spacing,
   Icon,
 } from '@mongodb-js/compass-components';
-import type { Actions } from './constants';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const buttonReset = css({
@@ -23,7 +21,7 @@ const expandButton = css({
   // Not using leafygreen spacing here because none of them allow to align the
   // button with the search bar content. This probably can go away when we are
   // rebuilding the search also
-  padding: 7,
+  padding: 6,
   transition: 'transform .16s linear',
   transform: 'rotate(0deg)',
   '&:hover': {
@@ -37,28 +35,6 @@ const expanded = css({
 
 export type VirtualListItemProps = {
   style?: CSSProperties;
-};
-
-export type TreeItemProps = {
-  id: string;
-  level: number;
-  posInSet: number;
-  setSize: number;
-  isTabbable: boolean;
-};
-
-export type NamespaceItemProps = {
-  connectionId: string;
-  name: string;
-  type: string;
-  isActive: boolean;
-  isReadOnly: boolean;
-  isSingleConnection?: boolean;
-  onNamespaceAction(
-    connectionId: string,
-    namespace: string,
-    action: Actions
-  ): void;
 };
 
 export const ExpandButton: React.FunctionComponent<{
@@ -81,35 +57,6 @@ export const ExpandButton: React.FunctionComponent<{
     </button>
   );
 };
-
-export function useDefaultAction<T>(
-  onDefaultAction: (evt: React.KeyboardEvent<T> | React.MouseEvent<T>) => void
-): React.HTMLAttributes<T> {
-  const onClick = useCallback(
-    (evt: React.MouseEvent<T>) => {
-      evt.stopPropagation();
-      onDefaultAction(evt);
-    },
-    [onDefaultAction]
-  );
-
-  const onKeyDown = useCallback(
-    (evt: React.KeyboardEvent<T>) => {
-      if (
-        // Only handle keyboard events if they originated on the element
-        evt.target === evt.currentTarget &&
-        [' ', 'Enter'].includes(evt.key)
-      ) {
-        evt.preventDefault();
-        evt.stopPropagation();
-        onDefaultAction(evt);
-      }
-    },
-    [onDefaultAction]
-  );
-
-  return { onClick, onKeyDown };
-}
 
 const itemContainer = css({
   cursor: 'pointer',
@@ -205,38 +152,12 @@ const itemLabel = css({
 
 export const ItemContainer: React.FunctionComponent<
   {
-    id: string;
-    level: number;
-    setSize: number;
-    posInSet: number;
-    isExpanded?: boolean;
     isActive?: boolean;
-    isTabbable?: boolean;
-    onDefaultAction(
-      evt:
-        | React.KeyboardEvent<HTMLDivElement>
-        | React.MouseEvent<HTMLDivElement>
-    ): void;
   } & React.HTMLProps<HTMLDivElement>
-> = ({
-  id,
-  level,
-  setSize,
-  posInSet,
-  isExpanded,
-  isActive,
-  isTabbable,
-  onDefaultAction,
-  children,
-  className,
-  ...props
-}) => {
+> = ({ isActive, children, className, ...props }) => {
   const isMultipleConnection = usePreference(
     'enableNewMultipleConnectionSystem'
   );
-  const focusRingProps = useFocusRing();
-  const defaultActionProps = useDefaultAction(onDefaultAction);
-
   const extraCSS = [];
   if (isActive) {
     if (isMultipleConnection) {
@@ -246,26 +167,11 @@ export const ItemContainer: React.FunctionComponent<
     }
   }
 
-  const treeItemProps = mergeProps(
-    {
-      role: 'treeitem',
-      'aria-level': level,
-      'aria-setsize': setSize,
-      'aria-posinset': posInSet,
-      'aria-expanded': isExpanded,
-      tabIndex: isTabbable ? 0 : -1,
-      className: cx(itemContainer, ...extraCSS, className),
-    },
-    props,
-    defaultActionProps,
-    focusRingProps
-  );
+  const allProps = mergeProps(props, {
+    className: cx(itemContainer, ...extraCSS, className),
+  });
 
-  return (
-    <div data-id={id} data-testid={`sidebar-database-${id}`} {...treeItemProps}>
-      {children}
-    </div>
-  );
+  return <div {...allProps}>{children}</div>;
 };
 
 export const ItemWrapper: React.FunctionComponent<
