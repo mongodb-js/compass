@@ -93,6 +93,7 @@ export function Sidebar({
       return saveConnection({
         ...cloneDeep(initialConnectionInfo),
         favorite: newFavoriteInfo,
+        savedConnectionType: 'favorite',
       }) as Promise<any> as Promise<void>;
     },
     [initialConnectionInfo, saveConnection, setIsFavoriteModalVisible]
