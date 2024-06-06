@@ -35,7 +35,7 @@ const shellHeaderToggleStyles = css({
   border: 'none',
   cursor: 'pointer',
   color: shellHeaderDefaultColor,
-  padding: `0px ${spacing[2]}px`,
+  padding: `0px ${spacing[200]}px`,
   height: '100%',
   display: 'flex',
   verticalAlign: 'middle',
@@ -43,14 +43,22 @@ const shellHeaderToggleStyles = css({
   alignItems: 'center',
   margin: 'auto 0',
   fontWeight: 'bold',
-  fontSize: spacing[2] * 1.5,
-  lineHeight: `${spacing[5]}px`,
+  fontSize: spacing[200] * 1.5,
+  lineHeight: `${spacing[800]}px`,
   transition: 'all 200ms',
   userSelect: 'none',
   textTransform: 'uppercase',
   '&:hover': {
     color: palette.gray.light3,
   },
+});
+
+const plainShellHeaderStyles = css({
+  color: shellHeaderDefaultColor,
+  fontSize: spacing[200] * 1.5,
+  fontWeight: 'bold',
+  textTransform: 'uppercase',
+  padding: `0px ${spacing[200]}px`,
 });
 
 const shellHeaderRightStyles = css({
@@ -90,29 +98,36 @@ export const ShellHeader = ({
   );
 
   const showCollapseExpandChevron = !!onShellToggleClicked;
+  const renderPlainHeaderText = !onShellToggleClicked;
 
   return (
     <div
       className={cx(shellHeaderStyles, darkMode && shellHeaderDarkModeStyles)}
     >
       <div className={shellHeaderLeftStyles}>
-        <button
-          type="button"
-          data-testid="shell-expand-button"
-          className={shellHeaderToggleStyles}
-          aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
-          onClick={onShellToggleClicked}
-          aria-pressed={isExpanded}
-        >
-          <span>&gt;_MONGOSH</span>
+        {renderPlainHeaderText ? (
+          <div className={plainShellHeaderStyles}>
+            <span>&gt;_MONGOSH</span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            data-testid="shell-expand-button"
+            className={shellHeaderToggleStyles}
+            aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
+            onClick={onShellToggleClicked}
+            aria-pressed={isExpanded}
+          >
+            <span>&gt;_MONGOSH</span>
 
-          {!isExpanded && isOperationInProgress && (
-            <span className={operationInProgressStyles}>
-              <SpinLoader darkMode={true} />
-              &nbsp;Command in progress&hellip;
-            </span>
-          )}
-        </button>
+            {!isExpanded && isOperationInProgress && (
+              <span className={operationInProgressStyles}>
+                <SpinLoader darkMode={true} />
+                &nbsp;Command in progress&hellip;
+              </span>
+            )}
+          </button>
+        )}
       </div>
       <div className={shellHeaderRightStyles}>
         {isExpanded && (
