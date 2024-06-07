@@ -98,6 +98,7 @@ export function ActiveConnectionNavigation({
   >([]);
 
   const {
+    openShellWorkspace,
     openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
@@ -162,6 +163,9 @@ export function ActiveConnectionNavigation({
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'open-shell':
+          openShellWorkspace(connectionId, { newTab: true });
+          return;
         case 'connection-disconnect':
           onDisconnect(connectionId);
           return;
@@ -208,6 +212,7 @@ export function ActiveConnectionNavigation({
     },
     [
       connections,
+      openShellWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openPerformanceWorkspace,

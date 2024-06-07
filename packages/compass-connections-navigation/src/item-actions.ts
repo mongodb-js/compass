@@ -22,6 +22,11 @@ export const connectionItemActions = ({
   }
   actions.push(
     {
+      action: 'open-shell',
+      icon: 'Shell',
+      label: 'Open MongoDB shell',
+    },
+    {
       action: 'connection-performance-metrics',
       icon: 'Gauge',
       label: 'View performance metrics',
