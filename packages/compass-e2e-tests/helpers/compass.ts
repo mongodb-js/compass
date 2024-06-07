@@ -1013,10 +1013,12 @@ export async function init(
     console.error(err?.stack);
   }
 
-  await browser.setFeature(
-    'enableNewMultipleConnectionSystem',
-    TEST_MULTIPLE_CONNECTIONS
-  );
+  if (!TEST_COMPASS_WEB) {
+    await browser.setFeature(
+      'enableNewMultipleConnectionSystem',
+      TEST_MULTIPLE_CONNECTIONS
+    );
+  }
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
