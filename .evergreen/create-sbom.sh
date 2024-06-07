@@ -24,5 +24,13 @@ ssh -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -p "$SIGNING_SERVER_PORT" "$SIGNING
     --purls /tmp/purls.txt --sbom_out /tmp/sbom.json"
 scp -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/{sbom.json,purls.txt} .sbom/
 
+echo "debug..."
+npm -v
+echo "root package.json" 
+cat package.json
+echo "compass package.json"
+cat packages/compass/package.json
+echo "/debug..."
+
 npm run create-static-analysis-report
 (cd .sbom && tar czvf ../static-analysis-report.tgz codeql.md codeql.sarif.json)
