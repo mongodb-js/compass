@@ -11,7 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { Connection } from './tree-data';
+import type { ConnectedConnection } from './tree-data';
 import type {
   AllPreferences,
   PreferencesAccess,
@@ -19,8 +19,9 @@ import type {
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const connections: Connection[] = [
+const connections: ConnectedConnection[] = [
   {
     connectionInfo: {
       id: 'connection_ready',
@@ -59,6 +60,7 @@ const connections: Connection[] = [
     isDataLake: false,
     isWritable: true,
     isPerformanceTabSupported: true,
+    connectionStatus: ConnectionStatus.Connected,
   },
   {
     connectionInfo: {
@@ -79,6 +81,7 @@ const connections: Connection[] = [
     isDataLake: false,
     isWritable: false,
     isPerformanceTabSupported: false,
+    connectionStatus: ConnectionStatus.Connected,
   },
 ];
 
@@ -318,7 +321,7 @@ describe('ConnectionsNavigationTree', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: Connection[] = [
+        const readonlyConnections: ConnectedConnection[] = [
           {
             ...connections[0],
             isWritable: false,
@@ -340,7 +343,7 @@ describe('ConnectionsNavigationTree', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: Connection[] = [
+        const readonlyConnections: ConnectedConnection[] = [
           {
             ...connections[0],
             isDataLake: true,
@@ -362,7 +365,7 @@ describe('ConnectionsNavigationTree', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: Connection[] = [...connections];
+        const readonlyConnections: ConnectedConnection[] = [...connections];
         await renderConnectionsNavigationTree(
           {
             ...props,

@@ -8,6 +8,7 @@ import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { isExpandable } from './virtual-list/use-virtual-navigation-tree';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
@@ -67,22 +68,33 @@ export function NavigationItem({
 
   const style = useMemo(() => getTreeItemStyles(item), [item]);
 
-  const actionProps = useMemo(
-    () => ({
-      actions: getItemActions(item),
-      onAction: onAction,
-      ...(item.type === 'connection' && {
+  const actionProps = useMemo(() => {
+    const collapseAfter = (() => {
+      if (item.type === 'connection') {
+        if (
+          item.connectionStatus !== ConnectionStatus.Connected ||
+          !item.isConnectionReadOnly
+        ) {
+          return 1;
+        }
         // when connection is not readonly we have create-database as first
         // action which is why we would like to collapse entire actions when the
         // connection is readonly to avoid showing any other items from the menu
-        collapseAfter: item.isConnectionReadOnly ? 0 : 1,
+        return 0;
+      }
+    })();
+
+    return {
+      actions: getItemActions(item),
+      onAction: onAction,
+      ...(typeof collapseAfter === 'number' && {
+        collapseAfter,
       }),
       ...(item.type === 'database' && {
         collapseToMenuThreshold: 3,
       }),
-    }),
-    [getItemActions, item, onAction]
-  );
+    };
+  }, [getItemActions, item, onAction]);
 
   const itemDataProps = useMemo(() => {
     if (item.type === 'placeholder') {

@@ -1,12 +1,16 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { getVirtualTreeItems, type Connection } from './tree-data';
+import { getVirtualTreeItems } from './tree-data';
 import { ROW_HEIGHT } from './constants';
 import type { Actions } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
 import type { OnDefaultAction } from './virtual-list/virtual-list';
 import { NavigationItem } from './navigation-item';
-import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
+import type {
+  SidebarTreeItem,
+  SidebarActionableItem,
+  Connection,
+} from './tree-data';
 import {
   VisuallyHidden,
   css,
@@ -17,9 +21,11 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
   collectionItemActions,
-  connectionItemActions,
+  connectedConnectionItemActions,
   databaseItemActions,
+  notConnectedConnectionItemActions,
 } from './item-actions';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 const MCContainer = css({
   display: 'flex',
@@ -104,11 +110,17 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'connection': {
           const isFavorite =
             item.connectionInfo?.savedConnectionType === 'favorite';
-          return connectionItemActions({
-            isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
-            isFavorite,
-            isPerformanceTabSupported: item.isPerformanceTabSupported,
-          });
+          if (item.connectionStatus === ConnectionStatus.Connected) {
+            return connectedConnectionItemActions({
+              isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
+              isFavorite,
+              isPerformanceTabSupported: item.isPerformanceTabSupported,
+            });
+          } else {
+            return notConnectedConnectionItemActions({
+              connectionInfo: item.connectionInfo,
+            });
+          }
         }
         case 'database':
           return databaseItemActions({

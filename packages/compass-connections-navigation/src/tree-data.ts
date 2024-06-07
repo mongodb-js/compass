@@ -8,16 +8,35 @@ import type {
   VirtualPlaceholderItem,
   VirtualTreeItem,
 } from './virtual-list/use-virtual-navigation-tree';
-
-type Collection = {
-  _id: string;
-  name: string;
-  type: 'view' | 'collection' | 'timeseries';
-  sourceName: string | null;
-  pipeline: unknown[];
-};
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
+
+export type NotConnectedConnectionStatus =
+  | ConnectionStatus.Connecting
+  | ConnectionStatus.Disconnected
+  | ConnectionStatus.Failed;
+
+export type NotConnectedConnection = {
+  name: string;
+  connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
+};
+
+export type ConnectedConnection = {
+  name: string;
+  connectionInfo: ConnectionInfo;
+  connectionStatus: ConnectionStatus.Connected;
+  isReady: boolean;
+  isDataLake: boolean;
+  isWritable: boolean;
+  isPerformanceTabSupported: boolean;
+  databasesStatus: Status;
+  databasesLength: number;
+  databases: Database[];
+};
+
+export type Connection = ConnectedConnection | NotConnectedConnection;
 
 type Database = {
   _id: string;
@@ -27,29 +46,34 @@ type Database = {
   collections: Collection[];
 };
 
-export type Connection = {
-  connectionInfo: ConnectionInfo;
-  name: string;
-  databasesStatus: Status;
-  databasesLength: number;
-  databases: Database[];
-  isReady: boolean;
-  isDataLake: boolean;
-  isWritable: boolean;
-  isPerformanceTabSupported: boolean;
-};
-
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
   colorCode?: string;
   id: string;
 };
 
-export type ConnectionTreeItem = VirtualTreeItem & {
+type Collection = {
+  _id: string;
+  name: string;
+  type: 'view' | 'collection' | 'timeseries';
+  sourceName: string | null;
+  pipeline: unknown[];
+};
+
+export type NotConnectedConnectionTreeItem = VirtualTreeItem & {
+  name: string;
+  type: 'connection';
+  colorCode?: string;
+  connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
+};
+
+export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   name: string;
   type: 'connection';
   colorCode?: string;
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
+  connectionStatus: ConnectionStatus.Connected;
   isPerformanceTabSupported: boolean;
   isConnectionReadOnly: boolean;
 };
@@ -75,15 +99,43 @@ export type CollectionTreeItem = VirtualTreeItem & {
 };
 
 export type SidebarActionableItem =
-  | ConnectionTreeItem
+  | NotConnectedConnectionTreeItem
+  | ConnectedConnectionTreeItem
   | DatabaseTreeItem
   | CollectionTreeItem;
 
 export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
-const connectionToItems = ({
+const notConnectedConnectionToItems = ({
+  connection: { name, connectionInfo, connectionStatus },
+  connectionIndex,
+  connectionsLength,
+}: {
+  connection: NotConnectedConnection;
+  connectionIndex: number;
+  connectionsLength: number;
+}): SidebarTreeItem[] => {
+  return [
+    {
+      id: connectionInfo.id,
+      level: 1,
+      name,
+      type: 'connection' as const,
+      setSize: connectionsLength,
+      posInSet: connectionIndex + 1,
+      connectionInfo,
+      connectionStatus,
+      // Setting this to 2 here because we would like to show the expand icon on
+      // the non-connected connection as well
+      maxNestingLevel: 2,
+    },
+  ];
+};
+
+const connectedConnectionToItems = ({
   connection: {
     connectionInfo,
+    connectionStatus,
     name,
     databases,
     databasesStatus,
@@ -97,7 +149,7 @@ const connectionToItems = ({
   connectionsLength,
   expandedItems = {},
 }: {
-  connection: Connection;
+  connection: ConnectedConnection;
   maxNestingLevel: number;
   connectionIndex: number;
   connectionsLength: number;
@@ -106,7 +158,7 @@ const connectionToItems = ({
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
   const isConnectionReadOnly = isDataLake || !isWritable;
-  const connectionTI: ConnectionTreeItem = {
+  const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,
     name,
@@ -116,6 +168,7 @@ const connectionToItems = ({
     isExpanded,
     colorCode,
     connectionInfo,
+    connectionStatus,
     isPerformanceTabSupported,
     maxNestingLevel,
     isConnectionReadOnly,
@@ -267,23 +320,36 @@ export function getMaxNestingLevel(isSingleConnection: boolean): number {
  * @param expandedItems - The expanded items.
  */
 export function getVirtualTreeItems(
-  connections: Connection[],
+  connections: (NotConnectedConnection | ConnectedConnection)[],
   isSingleConnection: boolean,
   expandedItems: Record<string, false | Record<string, boolean>> = {}
 ): SidebarTreeItem[] {
   if (!isSingleConnection) {
-    return connections.flatMap((connection, connectionIndex) =>
-      connectionToItems({
-        connection,
-        expandedItems,
-        maxNestingLevel: getMaxNestingLevel(isSingleConnection),
-        connectionIndex,
-        connectionsLength: connections.length,
-      })
-    );
+    return connections.flatMap((connection, connectionIndex) => {
+      if (connection.connectionStatus === ConnectionStatus.Connected) {
+        return connectedConnectionToItems({
+          connection,
+          expandedItems,
+          maxNestingLevel: getMaxNestingLevel(isSingleConnection),
+          connectionIndex,
+          connectionsLength: connections.length,
+        });
+      } else {
+        return notConnectedConnectionToItems({
+          connection,
+          connectionsLength: connections.length,
+          connectionIndex,
+        });
+      }
+    });
   }
 
   const connection = connections[0];
+  // In single connection mode we expect the only connection to be connected
+  if (connection.connectionStatus !== ConnectionStatus.Connected) {
+    return [];
+  }
+
   const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
   const isConnectionReadOnly = connection.isDataLake || !connection.isWritable;
   return connection.databases.flatMap((database, databaseIndex) => {

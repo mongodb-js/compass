@@ -11,15 +11,17 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { Connection } from './tree-data';
+import type { ConnectedConnection } from './tree-data';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const connections: Connection[] = [
+const connections: ConnectedConnection[] = [
   {
     connectionInfo: { id: 'connectionId' } as any,
+    connectionStatus: ConnectionStatus.Connected,
     databases: [
       {
         _id: 'foo',
@@ -276,10 +278,10 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: Connection[] = [
+        const readonlyConnections: ConnectedConnection[] = [
           {
             ...connections[0],
-            ...props.connections?.[0],
+            ...(props.connections as ConnectedConnection[])?.[0],
             isWritable: false,
           },
         ];
@@ -297,10 +299,10 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: Connection[] = [
+        const readonlyConnections: ConnectedConnection[] = [
           {
             ...connections[0],
-            ...props.connections?.[0],
+            ...(props.connections as ConnectedConnection[])?.[0],
             isDataLake: true,
           },
         ];
@@ -320,10 +322,10 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
         await preferences.savePreferences({
           readOnly: true,
         });
-        const readonlyConnections: Connection[] = [
+        const readonlyConnections: ConnectedConnection[] = [
           {
             ...connections[0],
-            ...props.connections?.[0],
+            ...(props.connections as ConnectedConnection[])?.[0],
           },
         ];
         renderComponent(

@@ -34,7 +34,7 @@ export function isPlaceholderItem(
 
 export function isExpandable(
   item: Pick<VirtualTreeItem, 'level' | 'maxNestingLevel'>
-) {
+): boolean {
   return item.level < item.maxNestingLevel;
 }
 
