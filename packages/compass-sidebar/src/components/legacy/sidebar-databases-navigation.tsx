@@ -7,7 +7,7 @@ import {
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type {
   Actions,
-  Connection,
+  ConnectedConnection,
   SidebarActionableItem,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
@@ -20,6 +20,7 @@ import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { findCollection } from '../../helpers/find-collection';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type ExpandedDatabases = Record<
   Database['_id'],
@@ -109,10 +110,9 @@ type SidebarDatabasesNavigationComponentProps = Pick<
   filterRegex: RegExp | null;
 };
 
-type MapStateProps = Pick<
-  React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'connections'
->;
+type MapStateProps = {
+  connections: ConnectedConnection[];
+};
 
 type MapDispatchProps = {
   fetchAllCollections(): void;
@@ -169,7 +169,7 @@ function SidebarDatabasesNavigation({
   );
 
   const connectionsButOnlyIfFilterIsActive = filteredDatabases && connections;
-  const filteredConnections: Connection[] | undefined = useMemo(() => {
+  const filteredConnections: ConnectedConnection[] | undefined = useMemo(() => {
     if (filteredDatabases && connectionsButOnlyIfFilterIsActive) {
       return [
         {
@@ -312,9 +312,6 @@ function SidebarDatabasesNavigation({
     <ConnectionsNavigationTree
       connections={filteredConnections || connections}
       expanded={expandedMemo}
-      // {...dbNavigationProps}
-      // onNamespaceAction={onNamespaceAction}
-      // onDatabaseExpand={handleDatabaseExpand}
       activeWorkspace={activeWorkspace}
       onItemExpand={onItemExpand}
       onItemAction={onItemAction}
@@ -351,8 +348,9 @@ const mapStateToProps: MapStateToProps<
         connectionInfo,
         databasesLength: databases?.length || 0,
         databasesStatus: (status ??
-          'fetching') as Connection['databasesStatus'],
+          'fetching') as ConnectedConnection['databasesStatus'],
         databases: databases ?? [],
+        connectionStatus: ConnectionStatus.Connected,
         isPerformanceTabSupported:
           !isDataLake && !!state.isPerformanceTabSupported[connectionId],
       },

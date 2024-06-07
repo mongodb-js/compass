@@ -11,9 +11,9 @@ import {
   connect,
 } from 'react-redux';
 import {
-  type Connection,
   type Actions,
   type SidebarActionableItem,
+  type ConnectedConnection,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
 import {
@@ -36,6 +36,7 @@ import {
   onDatabaseExpand,
 } from '../../../modules/databases';
 import type { ConnectionsNavigationTreeProps } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type ExpandedDatabases = Record<
   Database['_id'],
@@ -53,16 +54,16 @@ interface Match {
   isMatch?: boolean;
 }
 
-type Collection = Connection['databases'][number]['collections'][number];
+type Collection = ConnectedConnection['databases'][number]['collections'][number];
 
-type Database = Connection['databases'][number];
+type Database = ConnectedConnection['databases'][number];
 
 type FilteredCollection = Collection & Match;
 type FilteredDatabase = Omit<Database, 'collections'> &
   Match & {
     collections: FilteredCollection[];
   };
-type FilteredConnection = Omit<Connection, 'databases'> &
+type FilteredConnection = Omit<ConnectedConnection, 'databases'> &
   Match & {
     databases: FilteredDatabase[];
   };
@@ -99,7 +100,7 @@ const activeConnectionCountStyles = css({
 });
 
 const filterConnections = (
-  connections: Connection[],
+  connections: ConnectedConnection[],
   regex: RegExp
 ): FilteredConnection[] => {
   const results: FilteredConnection[] = [];
@@ -213,14 +214,14 @@ const revertTemporaryExpanded = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
-  filtered: Connection[] | undefined;
+  filtered: ConnectedConnection[] | undefined;
 }
 
 const FILTER_CONNECTIONS =
   'sidebar/active-connections/FILTER_CONNECTIONS' as const;
 interface FilterConnectionsAction {
   type: typeof FILTER_CONNECTIONS;
-  connections: Connection[];
+  connections: ConnectedConnection[];
   filterRegex: RegExp;
 }
 
@@ -353,10 +354,9 @@ type ActiveConnectionNavigationComponentProps = Pick<
   onDisconnect(connectionId: ConnectionInfo['id']): void;
 };
 
-type MapStateProps = Pick<
-  React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'connections'
->;
+type MapStateProps = {
+  connections: ConnectedConnection[];
+};
 
 type MapDispatchProps = {
   fetchAllCollections(): void;
@@ -624,7 +624,7 @@ const mapStateToProps: MapStateToProps<
   state: RootState,
   { activeConnections }
 ) => {
-  const connections: Connection[] = [];
+  const connections: ConnectedConnection[] = [];
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
@@ -648,9 +648,10 @@ const mapStateToProps: MapStateToProps<
       isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesStatus: status as Connection['databasesStatus'],
       databases,
       databasesLength: databases.length,
+      databasesStatus: status as ConnectedConnection['databasesStatus'],
+      connectionStatus: ConnectionStatus.Connected,
     });
   }
 
