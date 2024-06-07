@@ -34,6 +34,7 @@ import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { useGlobalAppRegistry } from 'hadron-app-registry';
+import UnifiedConnectionsNavigation from './unified-connections-navigation';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -403,7 +404,31 @@ export function MultipleConnectionSidebar({
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
-        <ActiveConnectionNavigation
+        <UnifiedConnectionsNavigation
+          activeWorkspace={activeWorkspace}
+          connections={[...favoriteConnections, ...recentConnections]}
+          onConnect={onConnect}
+          onEditConnection={onEditConnection}
+          onRemoveConnection={onDeleteConnection}
+          onDuplicateConnection={onDuplicateConnection}
+          onCopyConnectionString={(info, isActive) => {
+            if (isActive) {
+              onCopyActiveConnectionString(info.id);
+            } else {
+              // what?
+            }
+          }}
+          onToggleFavoriteConnectionInfo={(info, isActive) => {
+            if (isActive) {
+              onToggleFavoriteActiveConnection(info.id);
+            } else {
+              onToggleFavoriteConnectionInfo(info);
+            }
+          }}
+          onOpenConnectionInfo={onOpenConnectionInfo}
+          onDisconnect={onDisconnect}
+        />
+        {/* <ActiveConnectionNavigation
           activeConnections={activeConnections}
           activeWorkspace={activeWorkspace}
           onOpenConnectionInfo={onOpenConnectionInfo}
@@ -422,7 +447,7 @@ export function MultipleConnectionSidebar({
           onDeleteConnection={onDeleteConnection}
           onDuplicateConnection={onDuplicateConnection}
           onToggleFavoriteConnection={onToggleFavoriteConnectionInfo}
-        />
+        /> */}
         <ConnectionFormModal
           isOpen={isConnectionFormOpen}
           setOpen={onNewConnectionToggle}
