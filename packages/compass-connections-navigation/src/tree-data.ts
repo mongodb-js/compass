@@ -129,6 +129,7 @@ const notConnectedConnectionToItems = ({
       type: 'connection' as const,
       setSize: connectionsLength,
       posInSet: connectionIndex + 1,
+      colorCode: connectionInfo.favorite?.color,
       connectionInfo,
       connectionStatus,
       isExpandable: false,

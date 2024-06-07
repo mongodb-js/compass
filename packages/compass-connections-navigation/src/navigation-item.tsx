@@ -9,6 +9,7 @@ import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
+import { WithStatusMarker } from './with-status-marker';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
@@ -46,12 +47,24 @@ export function NavigationItem({
     if (item.type === 'connection') {
       const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
       if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
-        return <Icon glyph="Laptop" />;
+        return (
+          <WithStatusMarker status={item.connectionStatus}>
+            <Icon glyph="Laptop" />
+          </WithStatusMarker>
+        );
       }
       if (isFavorite) {
-        return <Icon glyph="Favorite" />;
+        return (
+          <WithStatusMarker status={item.connectionStatus}>
+            <Icon glyph="Favorite" />
+          </WithStatusMarker>
+        );
       }
-      return <ServerIcon />;
+      return (
+        <WithStatusMarker status={item.connectionStatus}>
+          <ServerIcon />
+        </WithStatusMarker>
+      );
     }
   }, [item]);
 

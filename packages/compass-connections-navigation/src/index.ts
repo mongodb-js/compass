@@ -6,6 +6,10 @@ export type {
   Database as SidebarDatabase,
   Collection as SidebarCollection,
   SidebarActionableItem as SidebarItem,
+  ConnectedConnectionTreeItem as SidebarConnectedConnectionTreeItem,
+  NotConnectedConnectionTreeItem as SidebarNotConnectedConnectionTreeItem,
+  DatabaseTreeItem as SidebarDatabaseTreeItem,
+  CollectionTreeItem as SidebarCollectionTreeItem,
 } from './tree-data';
 export {
   ConnectionsNavigationTree,

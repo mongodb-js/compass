@@ -77,7 +77,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        onItemAction(item, 'select-connection');
+        if (item.connectionStatus === ConnectionStatus.Connected) {
+          onItemAction(item, 'select-connection');
+        } else if (
+          item.connectionStatus === ConnectionStatus.Disconnected ||
+          item.connectionStatus === ConnectionStatus.Failed
+        ) {
+          onItemAction(item, 'connection-connect');
+        }
       } else if (item.type === 'database') {
         onItemAction(item, 'select-database');
       } else {
