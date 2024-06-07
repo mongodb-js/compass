@@ -39,12 +39,7 @@ describe('CompassAuthServiceMain', function () {
   const mockOidcPlugin = {
     mongoClientOptions: {
       authMechanismProperties: {
-        REQUEST_TOKEN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken: '1234' }),
-        REFRESH_TOKEN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken: '4321' }),
+        OIDC_HUMAN_CALLBACK: sandbox.stub().resolves({ accessToken: '1234' }),
       },
     },
     logger: CompassAuthService['oidcPluginLogger'],
@@ -126,7 +121,7 @@ describe('CompassAuthServiceMain', function () {
       const userInfo = await CompassAuthService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
+          .OIDC_HUMAN_CALLBACK
         // two times because we need to explicitly request token first to show a
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
@@ -146,7 +141,7 @@ describe('CompassAuthServiceMain', function () {
 
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
+          .OIDC_HUMAN_CALLBACK
         // two times because we need to explicitly request token first to show a
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
@@ -162,14 +157,13 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['plugin'] = {
         mongoClientOptions: {
           authMechanismProperties: {
-            REQUEST_TOKEN_CALLBACK: sandbox
+            OIDC_HUMAN_CALLBACK: sandbox
               .stub()
               .rejects(
                 new Error(
                   'Failed to request token for some specific plugin reason'
                 )
               ),
-            REFRESH_TOKEN_CALLBACK: sandbox.stub().rejects(),
           },
         },
       } as any;
