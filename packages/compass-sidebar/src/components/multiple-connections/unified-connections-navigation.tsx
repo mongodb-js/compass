@@ -1,5 +1,5 @@
 import toNS from 'mongodb-ns';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Subtitle,
@@ -206,11 +206,27 @@ const UnifiedConnectionsNavigation: React.FC<
     openEditViewWorkspace,
   } = useOpenWorkspace();
 
+  const onConnectionToggle = useCallback(
+    (connectionId: string, isExpanded: boolean) => {
+      setCollapsed((previousCollapsed) => {
+        const newCollapsed = new Set(previousCollapsed);
+        if (isExpanded) {
+          newCollapsed.delete(connectionId);
+        } else {
+          newCollapsed.add(connectionId);
+        }
+        return Array.from(newCollapsed);
+      });
+    },
+    [setCollapsed]
+  );
+
   const onNotConnectedConnectionItemAction = useCallback(
     (item: NotConnectedConnectionTreeItem, action: Actions) => {
       switch (action) {
         case 'connection-connect':
           onConnect(item.connectionInfo);
+          onConnectionToggle(item.connectionInfo.id, true);
           return;
         case 'edit-connection':
           onEditConnection(item.connectionInfo);
@@ -231,6 +247,7 @@ const UnifiedConnectionsNavigation: React.FC<
     },
     [
       onConnect,
+      onConnectionToggle,
       onEditConnection,
       onCopyConnectionString,
       onToggleFavoriteConnectionInfo,
@@ -346,21 +363,6 @@ const UnifiedConnectionsNavigation: React.FC<
     ]
   );
 
-  const onConnectionToggle = useCallback(
-    (connectionId: string, isExpanded: boolean) => {
-      setCollapsed((previousCollapsed) => {
-        const newCollapsed = new Set(previousCollapsed);
-        if (isExpanded) {
-          newCollapsed.delete(connectionId);
-        } else {
-          newCollapsed.add(connectionId);
-        }
-        return Array.from(newCollapsed);
-      });
-    },
-    [setCollapsed]
-  );
-
   const onItemExpand = useCallback(
     (item: SidebarActionableItem, isExpanded: boolean) => {
       if (item.type === 'connection') {
@@ -371,6 +373,24 @@ const UnifiedConnectionsNavigation: React.FC<
     },
     [onConnectionToggle, onDatabaseExpand]
   );
+
+  // auto-expanding on a workspace change
+  useEffect(() => {
+    if (
+      activeWorkspace &&
+      (activeWorkspace.type === 'Databases' ||
+        activeWorkspace.type === 'Collections' ||
+        activeWorkspace.type === 'Collection')
+    ) {
+      const connectionId: string = activeWorkspace.connectionId;
+      onConnectionToggle(connectionId, true);
+
+      if (activeWorkspace.type !== 'Databases') {
+        const namespace: string = activeWorkspace.namespace;
+        onDatabaseExpand(connectionId, namespace, true);
+      }
+    }
+  }, [activeWorkspace, onDatabaseExpand, onConnectionToggle]);
 
   return (
     <div className={activeConnectionsContainerStyles}>
