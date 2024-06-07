@@ -12,7 +12,9 @@ import type {
 type Collection = {
   _id: string;
   name: string;
-  type: string;
+  type: 'view' | 'collection' | 'timeseries';
+  sourceName: string | null;
+  pipeline: unknown[];
 };
 
 type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
@@ -228,7 +230,7 @@ const databaseToItems = ({
       id: `${connectionId}.${id}`, // id is the namespace of the collection, so includes db as well
       level: level + 1,
       name,
-      type: type as 'collection' | 'view' | 'timeseries',
+      type,
       setSize: collectionsLength,
       posInSet: collectionIndex + 1,
       colorCode,

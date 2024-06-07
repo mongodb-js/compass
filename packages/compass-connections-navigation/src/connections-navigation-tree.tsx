@@ -26,7 +26,7 @@ import {
   databaseItemActions,
 } from './item-actions';
 
-interface ConnectionsNavigationTreeProps {
+export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
   onConnectionExpand?(id: string, isExpanded: boolean): void;
@@ -188,7 +188,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 const MCContainer = css({
   display: 'flex',
   flex: '1 0 auto',
-  height: `calc(100% - ${spacing[3]}px)`,
+  height: `calc(100% - ${spacing[1600]}px - ${spacing[200]}px)`,
 });
 
 const SCContainer = css({

@@ -129,6 +129,8 @@ export function MultipleConnectionSidebar({
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
   const activeConnections = useActiveConnections();
+  const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
+    useState<RegExp | null>(null);
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
@@ -150,6 +152,12 @@ export function MultipleConnectionSidebar({
       });
     },
     [openToast]
+  );
+
+  const onActiveConnectionFilterChange = useCallback(
+    (filterRegex: RegExp | null) =>
+      setActiveConnectionsFilterRegex(filterRegex),
+    [setActiveConnectionsFilterRegex]
   );
 
   const onConnectionAttemptStarted = useCallback(
@@ -221,7 +229,7 @@ export function MultipleConnectionSidebar({
         () => {
           onConnected(info);
         },
-        (err: any) => {
+        (err: Error) => {
           void onConnectionFailed(info, err);
         }
       );
@@ -402,6 +410,8 @@ export function MultipleConnectionSidebar({
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
           onDisconnect={onDisconnect}
+          filterRegex={activeConnectionsFilterRegex}
+          onFilterChange={onActiveConnectionFilterChange}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}

@@ -233,9 +233,18 @@ export function createInstancesStore(
         onTopologyDescriptionChanged
       );
 
-      on(globalAppRegistry, 'sidebar-expand-database', (dbName: string) => {
-        void instance.databases.get(dbName)?.fetchCollections({ dataService });
-      });
+      on(
+        globalAppRegistry,
+        'sidebar-expand-database',
+        (connectionId: string, databaseId: string) => {
+          if (connectionId !== instanceConnectionId) {
+            return;
+          }
+          void instance.databases
+            .get(databaseId)
+            ?.fetchCollections({ dataService });
+        }
+      );
 
       on(
         globalAppRegistry,
