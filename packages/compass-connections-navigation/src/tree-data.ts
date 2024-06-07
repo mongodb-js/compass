@@ -42,7 +42,6 @@ export type Connection = {
 type PlaceholderTreeItem = VirtualPlaceholderItem & {
   colorCode?: string;
   id: string;
-  maxNestingLevel: number;
 };
 
 export type ConnectionTreeItem = VirtualTreeItem & {
@@ -52,7 +51,7 @@ export type ConnectionTreeItem = VirtualTreeItem & {
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
   isPerformanceTabSupported: boolean;
-  maxNestingLevel: number;
+  isConnectionReadOnly: boolean;
 };
 
 export type DatabaseTreeItem = VirtualTreeItem & {
@@ -62,7 +61,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   isExpanded: boolean;
   connectionId: string;
   dbName: string;
-  maxNestingLevel: number;
+  isConnectionReadOnly: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -72,7 +71,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   colorCode?: string;
   connectionId: string;
   namespace: string;
-  maxNestingLevel: number;
+  isConnectionReadOnly: boolean;
 };
 
 export type SidebarActionableItem =
@@ -90,6 +89,8 @@ const connectionToItems = ({
     databasesStatus,
     databasesLength,
     isPerformanceTabSupported,
+    isDataLake,
+    isWritable,
   },
   maxNestingLevel,
   connectionIndex,
@@ -104,6 +105,7 @@ const connectionToItems = ({
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
+  const isConnectionReadOnly = isDataLake || !isWritable;
   const connectionTI: ConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,
@@ -116,6 +118,7 @@ const connectionToItems = ({
     connectionInfo,
     isPerformanceTabSupported,
     maxNestingLevel,
+    isConnectionReadOnly,
   };
 
   const sidebarData: SidebarTreeItem[] = [connectionTI];
@@ -155,6 +158,7 @@ const connectionToItems = ({
         maxNestingLevel,
         databasesLength,
         databaseIndex,
+        isConnectionReadOnly,
       });
     })
   );
@@ -175,6 +179,7 @@ const databaseToItems = ({
   maxNestingLevel,
   databaseIndex,
   databasesLength,
+  isConnectionReadOnly,
 }: {
   database: Database;
   connectionId: string;
@@ -184,6 +189,7 @@ const databaseToItems = ({
   maxNestingLevel: number;
   databaseIndex: number;
   databasesLength: number;
+  isConnectionReadOnly: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
@@ -198,6 +204,7 @@ const databaseToItems = ({
     connectionId,
     dbName: id,
     maxNestingLevel,
+    isConnectionReadOnly,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -237,6 +244,7 @@ const databaseToItems = ({
       connectionId,
       namespace: id,
       maxNestingLevel,
+      isConnectionReadOnly,
     }))
   );
 };
@@ -277,6 +285,7 @@ export function getVirtualTreeItems(
 
   const connection = connections[0];
   const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
+  const isConnectionReadOnly = connection.isDataLake || !connection.isWritable;
   return connection.databases.flatMap((database, databaseIndex) => {
     return databaseToItems({
       connectionId: connection.connectionInfo.id,
@@ -286,6 +295,7 @@ export function getVirtualTreeItems(
       maxNestingLevel: getMaxNestingLevel(isSingleConnection),
       databasesLength: connection.databasesLength,
       databaseIndex,
+      isConnectionReadOnly,
     });
   });
 }

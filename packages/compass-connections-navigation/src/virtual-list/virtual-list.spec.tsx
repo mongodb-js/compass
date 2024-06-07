@@ -31,30 +31,44 @@ const items = [
   },
 ];
 
+function getMaxNestingLevelForItem(item: MockItem, level = 1): number {
+  if (!item.items) {
+    return level;
+  }
+
+  return Math.max(
+    ...item.items.map((item) => getMaxNestingLevelForItem(item, level + 1))
+  );
+}
+
 function normalizeItems(
   items: MockItem[],
   level = 1,
-  expanded: string[] = []
+  expanded: string[] = [],
+  parentMaxNestingLevel?: number
 ): MockTreeItem[] {
   const data = items
-    .map((item, index) =>
-      [
+    .map((item, index) => {
+      const itemMaxNestingLevel =
+        parentMaxNestingLevel ?? getMaxNestingLevelForItem(item);
+      return [
         {
           id: item.id,
           name: item.id,
           level,
           setSize: items.length,
           posInSet: index + 1,
+          maxNestingLevel: itemMaxNestingLevel,
           ...(item.items && { isExpanded: expanded.includes(item.id) }),
         },
       ].concat(
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-expect-error
         item.items && expanded.includes(item.id)
-          ? normalizeItems(item.items, level + 1, expanded)
+          ? normalizeItems(item.items, level + 1, expanded, itemMaxNestingLevel)
           : []
-      )
-    )
+      );
+    })
     .flat();
 
   return data.map((item, index) => ({
@@ -73,7 +87,7 @@ function NavigationTree({
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const onExpandedChange = useCallback(({ id }, isExpanded) => {
+  const onExpandedChange = useCallback(({ id }: { id: string }, isExpanded) => {
     setExpanded((expanded) =>
       isExpanded ? expanded.concat(id) : expanded.filter((_id) => _id !== id)
     );

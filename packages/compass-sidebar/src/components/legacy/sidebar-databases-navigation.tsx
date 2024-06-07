@@ -1,9 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { connect } from 'react-redux';
+import {
+  type MapDispatchToProps,
+  type MapStateToProps,
+  connect,
+} from 'react-redux';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type {
   Actions,
   Connection,
+  SidebarActionableItem,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
 import {
@@ -11,7 +16,6 @@ import {
   onDatabaseExpand,
   type Database,
 } from '../../modules/databases';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
@@ -97,6 +101,34 @@ const clearTempExpanded = (
   );
   return cleared;
 };
+type SidebarDatabasesNavigationComponentProps = Pick<
+  React.ComponentProps<typeof ConnectionsNavigationTree>,
+  'activeWorkspace'
+> & {
+  connectionInfo: ConnectionInfo;
+  filterRegex: RegExp | null;
+};
+
+type MapStateProps = Pick<
+  React.ComponentProps<typeof ConnectionsNavigationTree>,
+  'connections'
+>;
+
+type MapDispatchProps = {
+  fetchAllCollections(): void;
+  onNamespaceAction(
+    connectionId: string,
+    namespace: string,
+    action: Actions
+  ): void;
+  onDatabaseExpand(
+    connectionId: string,
+    databaseId: string,
+  ): void;
+};
+
+type SidebarDatabasesNavigationProps =
+  SidebarDatabasesNavigationComponentProps & MapStateProps & MapDispatchProps;
 
 function SidebarDatabasesNavigation({
   connections,
@@ -105,29 +137,14 @@ function SidebarDatabasesNavigation({
   fetchAllCollections: _fetchAllCollections,
   activeWorkspace,
   filterRegex,
-  ...dbNavigationProps
-}: Omit<
-  React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'isReadOnly' | 'databases' | 'onDatabaseExpand'
-> & {
-  connections: Connection[];
-  filterRegex: RegExp | null;
-  fetchAllCollections: () => void;
-  onDatabaseExpand: (
-    connectionId: ConnectionInfo['id'],
-    databaseId: string
-  ) => void;
-}) {
+}: SidebarDatabasesNavigationProps) {
   const {
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
-  const preferencesReadOnly = usePreference('readOnly');
   const connection = connections[0];
   const connectionId = connection.connectionInfo.id;
-  const isReadOnly =
-    preferencesReadOnly || connection.isDataLake || !connection.isWritable;
 
   const [expandedDatabases, setExpandedDatabases] = useState<ExpandedDatabases>(
     {}
@@ -137,13 +154,13 @@ function SidebarDatabasesNavigation({
   >(undefined);
 
   const handleDatabaseExpand = useCallback(
-    (actionConnectionId: string, namespace: string, forceExpand: boolean) => {
+    (actionConnectionId: string, namespace: string, isExpanded: boolean) => {
       if (actionConnectionId !== connectionId) return;
       const { database: databaseId } = toNS(namespace);
       setExpandedDatabases((expandedDatabases) => {
         return {
           ...expandedDatabases,
-          [databaseId]: forceExpand ? 'expanded' : undefined,
+          [databaseId]: isExpanded ? 'expanded' : undefined,
         };
       });
       _onDatabaseExpand(connectionId, databaseId);
@@ -272,28 +289,47 @@ function SidebarDatabasesNavigation({
     }
   }, [activeWorkspace, handleDatabaseExpand, connectionId]);
 
+  const onItemAction = useCallback(
+    (item: SidebarActionableItem, action: Actions) => {
+      if (item.type !== 'connection') {
+        const ns = item.type === 'database' ? item.dbName : item.namespace;
+        onNamespaceAction(item.connectionId, ns, action);
+      }
+    },
+    [onNamespaceAction]
+  );
+
+  const onItemExpand = useCallback(
+    (item: SidebarActionableItem, isExpanded: boolean) => {
+      if (item.type === 'database') {
+        handleDatabaseExpand(item.connectionId, item.dbName, isExpanded);
+      }
+    },
+    [handleDatabaseExpand]
+  );
+
   return (
     <ConnectionsNavigationTree
       connections={filteredConnections || connections}
       expanded={expandedMemo}
-      {...dbNavigationProps}
-      onNamespaceAction={onNamespaceAction}
-      onDatabaseExpand={handleDatabaseExpand}
+      // {...dbNavigationProps}
+      // onNamespaceAction={onNamespaceAction}
+      // onDatabaseExpand={handleDatabaseExpand}
       activeWorkspace={activeWorkspace}
-      isReadOnly={isReadOnly}
+      onItemExpand={onItemExpand}
+      onItemAction={onItemAction}
     />
   );
 }
 
-function mapStateToProps(
+const mapStateToProps: MapStateToProps<
+  MapStateProps,
+  SidebarDatabasesNavigationComponentProps,
+  RootState
+> = (
   state: RootState,
-  {
-    connectionInfo,
-  }: { connectionInfo: ConnectionInfo; filterRegex: RegExp | null }
-): {
-  isReady: boolean;
-  connections: Connection[];
-} {
+  { connectionInfo }
+) => {
   const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
   const { databases } = state.databases[connectionId] || {};
@@ -306,7 +342,6 @@ function mapStateToProps(
   const isWritable = instance?.isWritable ?? false;
 
   return {
-    isReady: true,
     connections: [
       {
         isReady,
@@ -323,7 +358,7 @@ function mapStateToProps(
       },
     ],
   };
-}
+};
 
 const onNamespaceAction = (
   connectionId: ConnectionInfo['id'],
@@ -377,8 +412,16 @@ const onNamespaceAction = (
   };
 };
 
-export default connect(mapStateToProps, {
+const mapDispatchToProps: MapDispatchToProps<
+  MapDispatchProps,
+  SidebarDatabasesNavigationComponentProps
+> = {
   onNamespaceAction,
   fetchAllCollections,
   onDatabaseExpand,
-})(SidebarDatabasesNavigation);
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(SidebarDatabasesNavigation);

@@ -7,6 +7,7 @@ import type { NavigationItemActions } from './item-actions';
 import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
+import { isExpandable } from './virtual-list/use-virtual-navigation-tree';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
@@ -71,7 +72,10 @@ export function NavigationItem({
       actions: getItemActions(item),
       onAction: onAction,
       ...(item.type === 'connection' && {
-        collapseAfter: 1,
+        // when connection is not readonly we have create-database as first
+        // action which is why we would like to collapse entire actions when the
+        // connection is readonly to avoid showing any other items from the menu
+        collapseAfter: item.isConnectionReadOnly ? 0 : 1,
       }),
       ...(item.type === 'database' && {
         collapseToMenuThreshold: 3,
@@ -117,7 +121,7 @@ export function NavigationItem({
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}
-          canExpand={item.level < item.maxNestingLevel}
+          canExpand={isExpandable(item)}
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);
           }}

@@ -12,12 +12,14 @@ export type VirtualTreeItem = {
   level: number;
   setSize: number;
   posInSet: number;
+  maxNestingLevel: number;
   isExpanded?: boolean;
 };
 
 export type VirtualPlaceholderItem = {
   type: 'placeholder';
   level: number;
+  maxNestingLevel: number;
 };
 
 export type VirtualItem = VirtualTreeItem | VirtualPlaceholderItem;
@@ -30,10 +32,10 @@ export function isPlaceholderItem(
   return 'type' in item && item.type === 'placeholder';
 }
 
-function isExpandable(
-  item: VirtualTreeItem
-): item is VirtualTreeItem & { isExpanded: boolean } {
-  return typeof item.isExpanded !== 'undefined';
+export function isExpandable(
+  item: Pick<VirtualTreeItem, 'level' | 'maxNestingLevel'>
+) {
+  return item.level < item.maxNestingLevel;
 }
 
 function findNext(

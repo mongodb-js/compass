@@ -1,3 +1,3 @@
 export type { Actions } from './constants';
-export { type Connection } from './tree-data';
-export { NavigationWithPlaceholder as ConnectionsNavigationTree } from './connections-navigation-tree';
+export { type Connection, type SidebarActionableItem } from './tree-data';
+export { ConnectionsNavigationTree } from './connections-navigation-tree';

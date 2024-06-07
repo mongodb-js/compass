@@ -1,12 +1,14 @@
 import type { SidebarTreeItem } from './tree-data';
+import { isExpandable } from './virtual-list/use-virtual-navigation-tree';
 
 export const getTreeItemStyles = ({
   level,
   maxNestingLevel,
 }: Pick<SidebarTreeItem, 'level' | 'maxNestingLevel'>): React.CSSProperties => {
-  const isExpandable = level < maxNestingLevel;
+  const _isExpandable = isExpandable({ level, maxNestingLevel });
   const defaultPadding = 20;
+  const paddingLeft = (level - 1) * defaultPadding + (!_isExpandable ? 30 : 0);
   return {
-    paddingLeft: (level - 1) * defaultPadding + (!isExpandable ? 30 : 0),
+    paddingLeft,
   };
 };
