@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -114,6 +115,10 @@ describe('Logging and Telemetry integration', function () {
       });
 
       it('tracks an event for screens that were accessed', function () {
+        // TODO: no screens accessed for multiple connections by default
+        if (TEST_MULTIPLE_CONNECTIONS) {
+          this.skip();
+        }
         expect(telemetry.screens()).to.include('my_queries');
       });
     });
@@ -459,7 +464,7 @@ describe('Logging and Telemetry integration', function () {
       }
 
       uncaughtEntry.attr.stack = uncaughtEntry.attr.stack
-        .replace(/file:\/\/\/.+:\d+:\d+/g, '<filename>')
+        .replace(/(file|eval \(webpack):\/\/\/?.+:\d+:\d+\)?/g, '<filename>')
         .split('\n')
         .slice(0, 2)
         .join('\n');

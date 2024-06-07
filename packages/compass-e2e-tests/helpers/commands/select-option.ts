@@ -8,7 +8,7 @@ export async function selectOption(
   optionText: string
 ): Promise<void> {
   // click the field's button
-  const selectButton = await browser.$(`${selector} button`);
+  const selectButton = await browser.$(selector);
   await selectButton.waitForDisplayed();
   await selectButton.click();
 

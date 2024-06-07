@@ -29,7 +29,7 @@ export function SidebarHeader({
   onAction(actionName: Action): void;
 }): React.ReactElement {
   return (
-    <div className={sidebarHeaderStyles}>
+    <div className={sidebarHeaderStyles} data-testid="sidebar-header">
       <Subtitle>Compass</Subtitle>
       <ItemActionControls<Action>
         onAction={onAction}

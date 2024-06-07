@@ -13,6 +13,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -764,6 +765,11 @@ describe('SRV connectivity', function () {
   });
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // TODO: we have to add support in custom commands for when connections fail
+      this.skip();
+    }
+
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 

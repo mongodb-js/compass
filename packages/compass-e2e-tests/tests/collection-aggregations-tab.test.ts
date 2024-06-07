@@ -153,6 +153,7 @@ describe('Collection aggregations tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await createNestedDocumentsCollection('nestedDocs', 10);
     await browser.connectWithConnectionString();
     // set guide cue to not show up
     await browser.execute((key) => {
@@ -1594,7 +1595,7 @@ describe('Collection aggregations tab', function () {
       );
 
       await browser.selectOption(
-        Selectors.AggregationWizardSortFormDirectionSelect(0),
+        `${Selectors.AggregationWizardSortFormDirectionSelect(0)} button`,
         'Ascending'
       );
 
@@ -1614,8 +1615,6 @@ describe('Collection aggregations tab', function () {
 
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
-      await createNestedDocumentsCollection('nestedDocs', 10);
-      await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
       await browser.navigateToCollectionTab(
         'test',
         'nestedDocs',

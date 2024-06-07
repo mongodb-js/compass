@@ -1,6 +1,10 @@
 import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
-import { screenshotIfFailed, skipForWeb } from '../helpers/compass';
+import {
+  TEST_MULTIPLE_CONNECTIONS,
+  screenshotIfFailed,
+  skipForWeb,
+} from '../helpers/compass';
 import {
   init,
   cleanup,
@@ -38,6 +42,11 @@ describe('Connection Import / Export', function () {
 
   before(function () {
     skipForWeb(this, 'export connections not available in compass-web');
+
+    // TODO: port this test file to multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   beforeEach(async function () {
@@ -104,7 +113,14 @@ describe('Connection Import / Export', function () {
         ? connectionStringWithoutCredentials
         : connectionString;
     expect(cs).to.equal(expected);
-    await browser.selectFavorite(favoriteName);
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // close the modal again so connectWithConnectionString sees the expected state
+      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+    } else {
+      await browser.selectFavorite(favoriteName);
+    }
+
     await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.RemoveConnectionItem
@@ -129,15 +145,25 @@ describe('Connection Import / Export', function () {
         const compass = await init(
           subtestTitle(this.test, 'Favoriting connection')
         );
+
         try {
           const { browser } = compass;
+
+          if (TEST_MULTIPLE_CONNECTIONS) {
+            // open the connection modal so we can fill in the connection string
+            await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+          }
+
           await browser.setValueVisible(
             Selectors.ConnectionStringInput,
             connectionString
           );
 
           await waitForConnections();
-          await browser.saveFavorite(favoriteName, 'color3');
+          await browser.saveFavorite(
+            favoriteName,
+            TEST_MULTIPLE_CONNECTIONS ? 'Orange' : 'color3'
+          );
           await waitForConnections();
         } finally {
           await cleanup(compass);
@@ -173,7 +199,9 @@ describe('Connection Import / Export', function () {
         );
         try {
           const { browser } = compass;
-          await browser.selectFavorite(favoriteName);
+          if (!TEST_MULTIPLE_CONNECTIONS) {
+            await browser.selectFavorite(favoriteName);
+          }
           await browser.selectConnectionMenuItem(
             favoriteName,
             Selectors.RemoveConnectionItem
@@ -227,6 +255,12 @@ describe('Connection Import / Export', function () {
       // Open compass, create and save favorite
       compass = await init(this.test?.fullTitle());
       browser = compass.browser;
+
+      if (TEST_MULTIPLE_CONNECTIONS) {
+        // open the connection modal so we can fill in the connection string
+        await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+      }
+
       await browser.setValueVisible(
         Selectors.ConnectionStringInput,
         connectionString
@@ -234,7 +268,10 @@ describe('Connection Import / Export', function () {
 
       await waitForConnections();
 
-      await browser.saveFavorite(favoriteName, 'color3');
+      await browser.saveFavorite(
+        favoriteName,
+        TEST_MULTIPLE_CONNECTIONS ? 'Orange' : 'color3'
+      );
 
       // again: make sure the new favourite is there
       await waitForConnections();
@@ -261,6 +298,8 @@ describe('Connection Import / Export', function () {
 
         // Open export modal
         {
+          // TODO: this has to use the app menu or some workaround because there
+          // are no buttons for exporting connections in the UI
           await browser.selectFavoritesMenuItem(
             Selectors.ExportConnectionsModalOpen
           );
@@ -323,6 +362,8 @@ describe('Connection Import / Export', function () {
 
         // Open import modal
         {
+          // TODO: this has to use the app menu or some workaround because there
+          // are no buttons for importing connections in the UI
           await browser.selectFavoritesMenuItem(
             Selectors.ImportConnectionsModalOpen
           );

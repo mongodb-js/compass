@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import { init, cleanup, positionalArgs, skipForWeb } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  positionalArgs,
+  skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
+} from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
@@ -16,6 +22,9 @@ describe('Automatically connecting from the command line', function () {
 
   before(function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   beforeEach(async function () {

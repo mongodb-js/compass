@@ -1,4 +1,4 @@
-import { TEST_COMPASS_WEB } from '../compass';
+import { TEST_COMPASS_WEB, TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -18,6 +18,8 @@ export async function waitForConnectionResult(
     // indicator that we are connected to the server
     selector = TEST_COMPASS_WEB
       ? '[data-testid="workspace-tab-button"][title=Databases]'
+      : TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.SidebarTreeItems
       : Selectors.MyQueriesList;
   } else {
     // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't

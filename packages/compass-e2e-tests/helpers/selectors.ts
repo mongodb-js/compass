@@ -1,3 +1,5 @@
+import { TEST_MULTIPLE_CONNECTIONS } from './compass';
+
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
@@ -23,11 +25,18 @@ export const CloseWelcomeModalButton =
 // Connection screen
 export const ConnectSection = '[data-testid="connections-wrapper"]';
 export const ConnectButton = '[data-testid="connect-button"]';
+export const ConnectionFormSaveButton = '[data-testid="save-button"]';
 export const ConnectionFormSaveAndConnectButton =
   '[data-testid="save-and-connect-button"]';
+export const ConnectionFormConnectButton = '[data-testid="connect-button"]';
 export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
 export const ConnectionFormEditFavouriteButton =
   '[data-testid="edit-favorite-icon-button"]';
+export const ConnectionFormName = '[data-testid="personalization-name-input"]';
+export const ConnectionFormColor =
+  '[data-testid="personalization-color-input"]';
+export const ConnectionFormFavoriteCheckbox =
+  '[data-testid="personalization-favorite-checkbox"]';
 export const ConnectionTitle = '[data-testid="connection-form"] h3';
 export const CancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
@@ -215,10 +224,27 @@ export const FavoriteConnectionsMenuButton = `${FavoriteConnectionsHeader} butto
 export const FavoriteConnectionsMenu = '[data-testid="favorites-menu"]';
 export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="connection-menu-copy-connection-string-action"]`;
+export const EditConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-edit-connection-action"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-duplicate-connection-action"]`;
 export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-remove-connection-action"]`;
 export const RecentConnectionsHeader = '[data-testid="recents-header"]';
 export const RecentConnections = '[data-testid="recent-connection"]';
+
+// Multiple Connections Sidebar
+
+export const SidebarHeader = '[data-testid="sidebar-header"]';
+export const ActiveConnectionsTitle =
+  '[data-testid="active-connections-title"]';
+export const SavedConnectionsTitle = '[data-testid="saved-connections-title"]';
+
+export const sidebarActiveConnection = (connectionName: string): string => {
+  return `[data-testid="sidebar-navigation-tree"] [data-connection-name="${connectionName}"]`;
+};
+
+// Multiple Connections Modal
+export const ConnectionModal = '[data-testid="connection-form-modal"]';
+export const ConnectionModalTitle = `${ConnectionModal} h3`;
+export const ConnectionnModalCloseButton = `${ConnectionModal} [aria-label="Close modal"]`;
 
 // Rename Collection Modal
 export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
@@ -279,10 +305,16 @@ export const sidebarCollection = (
 };
 
 export const sidebarFavorite = (favoriteName: string): string => {
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    return `[data-testid="saved-connections"] [data-connection-name="${favoriteName}"]`;
+  }
   return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 export const sidebarFavoriteButton = (favoriteName: string): string => {
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    return sidebarFavorite(favoriteName);
+  }
   return `${sidebarFavorite(favoriteName)} > div > button`;
 };
 
@@ -1099,6 +1131,8 @@ export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
+// TODO: My Queries isn't an instance level nav item and you get to Performance
+// and Databases in very different ways.
 export const sidebarInstanceNavigationItem = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ) => {
@@ -1117,6 +1151,7 @@ export const workspaceTab = (
       : `[data-namespace="${title}"]`;
   return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
 };
+// TODO: My Queries isn't really an instance level tab
 export const instanceWorkspaceTab = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
   active: boolean | null = null

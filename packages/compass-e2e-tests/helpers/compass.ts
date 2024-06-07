@@ -16,7 +16,9 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
-import { redactConnectionString } from 'mongodb-connection-string-url';
+import ConnectionStringUrl, {
+  redactConnectionString,
+} from 'mongodb-connection-string-url';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
@@ -49,6 +51,9 @@ let MONGODB_USE_ENTERPRISE =
 
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+export const TEST_MULTIPLE_CONNECTIONS = process.argv.includes(
+  '--test-multiple-connections'
+);
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
@@ -1008,6 +1013,11 @@ export async function init(
     console.error(err?.stack);
   }
 
+  await browser.setFeature(
+    'enableNewMultipleConnectionSystem',
+    TEST_MULTIPLE_CONNECTIONS
+  );
+
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
   }
@@ -1164,4 +1174,11 @@ export function positionalArgs(positionalArgs: string[]) {
 
     return wrapperPath;
   };
+}
+
+export function connectionNameFromString(connectionString: string) {
+  const url = new ConnectionStringUrl(connectionString);
+
+  // TODO: this is going to require work sooner or later. Do we reuse the same code we have in connection form?
+  return `${url.hosts.join(',')}`;
 }

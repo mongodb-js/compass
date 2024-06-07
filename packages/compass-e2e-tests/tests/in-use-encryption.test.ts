@@ -6,6 +6,9 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -29,6 +32,16 @@ async function refresh(browser: CompassBrowser) {
 describe('CSFLE / QE', function () {
   before(function () {
     skipForWeb(this, 'not available in compass-web');
+
+    // TODO: This will have to be refactored for multiple connections because
+    // saving a favorite is now part of the connect modal and there is no
+    // favorite modal anymore. Many of these tests also use shellEval() which is
+    // better to port once we have the shell working properly in multiple
+    // connections and they also use a refresh databases&collections button that
+    // doesn't exist yet.
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   describe('server version gte 4.2.20 and not a linux platform', function () {
@@ -92,7 +105,11 @@ describe('CSFLE / QE', function () {
       await browser.setConnectFormState(options);
 
       // Save & Connect
-      await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
+      await browser.clickVisible(
+        TEST_MULTIPLE_CONNECTIONS
+          ? Selectors.ConnectionFormConnectButton
+          : Selectors.ConnectionFormSaveAndConnectButton
+      );
       await browser.$(Selectors.FavoriteModal).waitForDisplayed();
       await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
       await browser.clickVisible(
@@ -126,7 +143,10 @@ describe('CSFLE / QE', function () {
 
       await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
       await browser.waitUntil(async () => {
-        const text = await browser.$(Selectors.ConnectionTitle).getText();
+        const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
+          ? Selectors.ConnectionModalTitle
+          : Selectors.ConnectionTitle;
+        const text = await browser.$(connectionTitleSelector).getText();
         return text === favoriteName;
       });
 
@@ -185,7 +205,10 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
 
         // open the create collection modal from the button at the top
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
@@ -204,7 +227,10 @@ describe('CSFLE / QE', function () {
           'add-collection-modal-encryptedfields.png'
         );
 
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
 
         const collectionListFLE2BadgeElement = await browser.$(
           Selectors.CollectionListFLE2Badge
@@ -320,11 +346,17 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection without encryptedFields', async function () {
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
         await browser.addCollection(collectionName);
 
-        await browser.navigateToDatabaseCollectionsTab(databaseName);
+        await browser.navigateToConnectionCollectionsTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          databaseName
+        );
 
         const selector = Selectors.collectionCard(databaseName, collectionName);
         await browser.scrollToVirtualItem(

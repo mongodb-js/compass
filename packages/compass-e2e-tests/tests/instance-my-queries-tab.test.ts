@@ -7,6 +7,9 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -45,6 +48,11 @@ describe('Instance my queries tab', function () {
   before(async function () {
     skipForWeb(this, 'saved queries not yet available in compass-web');
 
+    // TODO: best to only skip this once the My Queries tab is ported
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -54,6 +62,10 @@ describe('Instance my queries tab', function () {
   });
   after(async function () {
     if (TEST_COMPASS_WEB) {
+      return;
+    }
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
       return;
     }
 
@@ -92,7 +104,10 @@ describe('Instance my queries tab', function () {
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
     await browser.navigateToInstanceTab('My Queries');
 
     // open the menu
@@ -151,9 +166,12 @@ describe('Instance my queries tab', function () {
     // the open item modal - select a new collection
     const openModal = await browser.$(Selectors.OpenSavedItemModal);
     await openModal.waitForDisplayed();
-    await browser.selectOption(Selectors.OpenSavedItemDatabaseField, 'test');
     await browser.selectOption(
-      Selectors.OpenSavedItemCollectionField,
+      `${Selectors.OpenSavedItemDatabaseField} button`,
+      'test'
+    );
+    await browser.selectOption(
+      `${Selectors.OpenSavedItemCollectionField} button`,
       'numbers-renamed'
     );
     const confirmOpenButton = await browser.$(
@@ -172,7 +190,10 @@ describe('Instance my queries tab', function () {
 
     // back to my queries
     await browser.closeWorkspaceTabs();
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
     await browser.navigateToInstanceTab('My Queries');
 
     // open the menu
@@ -280,7 +301,10 @@ describe('Instance my queries tab', function () {
         );
 
         await browser.closeWorkspaceTabs();
-        await browser.navigateToInstanceTab('Databases');
+        await browser.navigateToConnectionTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          'Databases'
+        );
         await browser.navigateToInstanceTab('My Queries');
 
         // open the menu
@@ -325,11 +349,11 @@ describe('Instance my queries tab', function () {
         const openModal = await browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
         await browser.selectOption(
-          Selectors.OpenSavedItemDatabaseField,
+          `${Selectors.OpenSavedItemDatabaseField} button`,
           'test'
         );
         await browser.selectOption(
-          Selectors.OpenSavedItemCollectionField,
+          `${Selectors.OpenSavedItemCollectionField} button`,
           newCollectionName
         );
 
