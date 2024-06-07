@@ -235,7 +235,6 @@ export const RecentConnections = '[data-testid="recent-connection"]';
 export const SidebarHeader = '[data-testid="sidebar-header"]';
 export const ActiveConnectionsTitle =
   '[data-testid="active-connections-title"]';
-export const SavedConnectionsTitle = '[data-testid="saved-connections-title"]';
 
 export const sidebarActiveConnection = (connectionName: string): string => {
   return `[data-testid="sidebar-navigation-tree"] [data-connection-name="${connectionName}"]`;
