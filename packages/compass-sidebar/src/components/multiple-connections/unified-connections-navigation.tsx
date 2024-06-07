@@ -1,4 +1,5 @@
 import toNS from 'mongodb-ns';
+import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
@@ -67,7 +68,8 @@ function findCollection(ns: string, databases: Database[]) {
 }
 
 type UnifiedConnectionsNavigationComponentProps = {
-  connections: ConnectionInfo[];
+  favoriteConnections: ConnectionInfo[];
+  recentConnections: ConnectionInfo[];
   activeWorkspace: WorkspaceTab | null;
   onConnect(info: ConnectionInfo): void;
   onEditConnection(info: ConnectionInfo): void;
@@ -105,7 +107,8 @@ type UnifiedConnectionsNavigationProps =
 const UnifiedConnectionsNavigation: React.FC<
   UnifiedConnectionsNavigationProps
 > = ({
-  connections,
+  favoriteConnections,
+  recentConnections,
   activeWorkspace,
   instances,
   databases,
@@ -124,9 +127,16 @@ const UnifiedConnectionsNavigation: React.FC<
 }) => {
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const connectionsManager = useConnectionsManagerContext();
-  const { connectionsData, expandedResult } = useMemo(() => {
+  const { connectionsData, expandedResult, connections } = useMemo(() => {
     const connectionsData: Connection[] = [];
     const expandedResult: Record<string, any> = {};
+    const sortedFavoriteConnections = _.sortBy(favoriteConnections, 'name');
+    const sortedRecentConnections = _.sortBy(recentConnections, 'name');
+    const connections = [
+      ...sortedFavoriteConnections,
+      ...sortedRecentConnections,
+    ];
+
     for (const connection of connections) {
       const connectionStatus = connectionsManager.statusOf(connection.id);
       if (connectionStatus !== ConnectionStatus.Connected) {
@@ -176,12 +186,14 @@ const UnifiedConnectionsNavigation: React.FC<
       }
     }
     return {
+      connections,
       connectionsData,
       expandedResult,
     };
   }, [
     connectionsManager,
-    connections,
+    favoriteConnections,
+    recentConnections,
     instances,
     databases,
     isPerformanceTabSupported,

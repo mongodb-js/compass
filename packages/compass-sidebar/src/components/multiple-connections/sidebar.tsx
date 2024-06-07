@@ -406,7 +406,8 @@ export function MultipleConnectionSidebar({
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
         <UnifiedConnectionsNavigation
           activeWorkspace={activeWorkspace}
-          connections={[...favoriteConnections, ...recentConnections]}
+          favoriteConnections={favoriteConnections}
+          recentConnections={recentConnections}
           onConnect={onConnect}
           onEditConnection={onEditConnection}
           onRemoveConnection={onDeleteConnection}
