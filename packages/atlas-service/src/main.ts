@@ -188,9 +188,7 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
-  private static async requestOAuthToken({
-    signal,
-  }: { signal?: AbortSignal } = {}) {
+  private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
@@ -200,14 +198,14 @@ export class CompassAuthService {
       );
     }
 
-    return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
+    return this.plugin.mongoClientOptions.authMechanismProperties.OIDC_HUMAN_CALLBACK(
       {
-        clientId: this.config.atlasLogin.clientId,
-        issuer: this.config.atlasLogin.issuer,
-      },
-      {
+        idpInfo: {
+          clientId: this.config.atlasLogin.clientId,
+          issuer: this.config.atlasLogin.issuer,
+        },
         // Required driver specific stuff
-        version: 0,
+        version: 1,
         // While called timeoutContext, this is actually an abort signal that
         // plugin will listen to, not a timeout
         timeoutContext: signal,
