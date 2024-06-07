@@ -52,6 +52,7 @@
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md",
     "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --create-jira-issues",
+    "precreate-static-analysis-report": "npm run compile -w packages/compass",
     "create-static-analysis-report": "mongodb-sbom-tools fetch-codeql-results --sarif-dest=.sbom/codeql.sarif.json --dependencies=.sbom/dependencies.json --exclude-repos=mongodb-js/kerberos",
     "postcreate-static-analysis-report": "mongodb-sbom-tools sarif-to-markdown --sarif=.sbom/codeql.sarif.json --md=.sbom/codeql.md",
     "precommit": "precommit"

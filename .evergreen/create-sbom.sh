@@ -23,6 +23,3 @@ ssh -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -p "$SIGNING_SERVER_PORT" "$SIGNING
   docker run --rm -v /tmp:/tmp artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 update \
     --purls /tmp/purls.txt --sbom_out /tmp/sbom.json"
 scp -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/{sbom.json,purls.txt} .sbom/
-
-npm run create-static-analysis-report
-(cd .sbom && tar czvf ../static-analysis-report.tgz codeql.md codeql.sarif.json)
