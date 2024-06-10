@@ -121,10 +121,7 @@ type MapDispatchProps = {
     namespace: string,
     action: Actions
   ): void;
-  onDatabaseExpand(
-    connectionId: string,
-    databaseId: string,
-  ): void;
+  onDatabaseExpand(connectionId: string, databaseId: string): void;
 };
 
 type SidebarDatabasesNavigationProps =
@@ -323,10 +320,7 @@ const mapStateToProps: MapStateToProps<
   MapStateProps,
   SidebarDatabasesNavigationComponentProps,
   RootState
-> = (
-  state: RootState,
-  { connectionInfo }
-) => {
+> = (state: RootState, { connectionInfo }) => {
   const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
   const { databases } = state.databases[connectionId] || {};

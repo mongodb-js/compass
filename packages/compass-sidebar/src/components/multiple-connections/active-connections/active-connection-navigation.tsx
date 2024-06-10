@@ -54,7 +54,8 @@ interface Match {
   isMatch?: boolean;
 }
 
-type Collection = ConnectedConnection['databases'][number]['collections'][number];
+type Collection =
+  ConnectedConnection['databases'][number]['collections'][number];
 
 type Database = ConnectedConnection['databases'][number];
 
@@ -367,7 +368,7 @@ type MapDispatchProps = {
   ): void;
   onDatabaseExpand(
     connectionId: ConnectionInfo['id'],
-    databaseId: string,
+    databaseId: string
   ): void;
 };
 
@@ -620,10 +621,7 @@ const mapStateToProps: MapStateToProps<
   MapStateProps,
   ActiveConnectionNavigationComponentProps,
   RootState
-> = (
-  state: RootState,
-  { activeConnections }
-) => {
+> = (state: RootState, { activeConnections }) => {
   const connections: ConnectedConnection[] = [];
 
   for (const connectionInfo of activeConnections) {
