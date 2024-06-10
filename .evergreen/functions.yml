@@ -429,6 +429,21 @@ functions:
           set -e
 
           .evergreen/create-sbom.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          npm_config_loglevel: ${npm_loglevel}
+          GITHUB_TOKEN: ${devtoolsbot_github_token}
+          GITHUB_PR_NUMBER: ${github_pr_number}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/create-static-analysis-report.sh
 
   publish:
     - command: shell.exec
@@ -784,6 +799,13 @@ functions:
         local_file: src/.sbom/sbom.json
         remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom.json
         content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-private
+        local_file: src/static-analysis-report.tgz
+        remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/static-analysis-report.tgz
+        content_type: application/x-gzip
         optional: true
 
   get-all-artifacts:
