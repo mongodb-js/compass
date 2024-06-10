@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Fri Jun 07 2024.
+This document was automatically generated on Mon Jun 10 2024.
 
 ## List of dependencies
 
@@ -459,7 +459,7 @@ This document was automatically generated on Fri Jun 07 2024.
 | **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**                                           | 3.1.1        | MIT                                 |
 | **[path-key](#8e0734b8abb76579df2174822606e692914e985fc58363a78e6ad4b2a4a5831f)**                                           | 4.0.0        | MIT                                 |
 | **[path-to-regexp](#4db5679c99a0dc8ff8ccdf6366c06b318a3e81ee0a4c2f4958ac2327f96d0d44)**                                     | 0.1.7        | MIT                                 |
-| **[picocolors](#990b3f27d922745f1d3503b8f3cf9cb5d20f553c2f4c1168abe2a411b8cd5da0)**                                         | 1.0.0        | ISC                                 |
+| **[picocolors](#87994c8f4d800603a2cf449baca40fcaf984088237be5cebbfbc79de0d95da98)**                                         | 1.0.1        | ISC                                 |
 | **[polished](#a7a5d1244e48a082dbc54de31b5309caf950b12aa6bd9fefbba39e362e705f06)**                                           | 4.2.2        | MIT                                 |
 | **[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**                                   | 7.1.1        | MIT                                 |
 | **[prettier](#2e1e2077936be4bb5f075fd4d279f9ece641322ccd12a8116edb3f99f08f7411)**                                           | 2.7.1        | MIT                                 |
@@ -29186,9 +29186,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="990b3f27d922745f1d3503b8f3cf9cb5d20f553c2f4c1168abe2a411b8cd5da0"></a>
+<a id="87994c8f4d800603a2cf449baca40fcaf984088237be5cebbfbc79de0d95da98"></a>
 
-### [picocolors](https://www.npmjs.com/package/picocolors) (version 1.0.0)
+### [picocolors](https://www.npmjs.com/package/picocolors) (version 1.0.1)
 
 License tags: ISC
 
