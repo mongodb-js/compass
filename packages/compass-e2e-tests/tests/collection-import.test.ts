@@ -297,11 +297,12 @@ describe('Collection import', function () {
     await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
 
     // confirm
-    const insertConfirm = await browser.$(Selectors.InsertConfirm);
     // this selector is very brittle, so just make sure it works
-    expect(await insertConfirm.isDisplayed()).to.be.true;
-    expect(await insertConfirm.getText()).to.equal('Insert');
-    await insertConfirm.waitForEnabled();
+    expect(await browser.$(Selectors.InsertConfirm).isDisplayed()).to.be.true;
+    expect(await browser.$(Selectors.InsertConfirm).getText()).to.equal(
+      'Insert'
+    );
+    await browser.$(Selectors.InsertConfirm).waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
 
     // wait for the modal to go away
