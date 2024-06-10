@@ -7,7 +7,6 @@ import type { NavigationItemActions } from './item-actions';
 import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
-import { isExpandable } from './virtual-list/use-virtual-navigation-tree';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type NavigationItemProps = {
@@ -121,10 +120,7 @@ export function NavigationItem({
   return (
     <StyledNavigationItem colorCode={item.colorCode}>
       {item.type === 'placeholder' ? (
-        <PlaceholderItem
-          level={item.level}
-          maxNestingLevel={item.maxNestingLevel}
-        />
+        <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
           isActive={item.id === activeItemId}
@@ -133,7 +129,7 @@ export function NavigationItem({
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}
-          canExpand={isExpandable(item)}
+          canExpand={item.isExpandable}
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);
           }}

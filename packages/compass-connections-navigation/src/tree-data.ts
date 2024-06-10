@@ -125,9 +125,7 @@ const notConnectedConnectionToItems = ({
       posInSet: connectionIndex + 1,
       connectionInfo,
       connectionStatus,
-      // Setting this to 2 here because we would like to show the expand icon on
-      // the non-connected connection as well
-      maxNestingLevel: 2,
+      isExpandable: false,
     },
   ];
 };
@@ -144,13 +142,11 @@ const connectedConnectionToItems = ({
     isDataLake,
     isWritable,
   },
-  maxNestingLevel,
   connectionIndex,
   connectionsLength,
   expandedItems = {},
 }: {
   connection: ConnectedConnection;
-  maxNestingLevel: number;
   connectionIndex: number;
   connectionsLength: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
@@ -166,11 +162,11 @@ const connectedConnectionToItems = ({
     setSize: connectionsLength,
     posInSet: connectionIndex + 1,
     isExpanded,
+    isExpandable: true,
     colorCode,
     connectionInfo,
     connectionStatus,
     isPerformanceTabSupported,
-    maxNestingLevel,
     isConnectionReadOnly,
   };
 
@@ -194,7 +190,6 @@ const connectedConnectionToItems = ({
         level: 2,
         type: 'placeholder' as const,
         colorCode,
-        maxNestingLevel,
         id: `${connectionInfo.id}.placeholder.${index}`,
       }))
     );
@@ -208,7 +203,6 @@ const connectedConnectionToItems = ({
         expandedItems: expandedItems[connectionInfo.id] || {},
         level: 2,
         colorCode,
-        maxNestingLevel,
         databasesLength,
         databaseIndex,
         isConnectionReadOnly,
@@ -229,7 +223,6 @@ const databaseToItems = ({
   expandedItems = {},
   level,
   colorCode,
-  maxNestingLevel,
   databaseIndex,
   databasesLength,
   isConnectionReadOnly,
@@ -239,7 +232,6 @@ const databaseToItems = ({
   expandedItems?: Record<string, boolean>;
   level: number;
   colorCode?: string;
-  maxNestingLevel: number;
   databaseIndex: number;
   databasesLength: number;
   isConnectionReadOnly: boolean;
@@ -256,7 +248,7 @@ const databaseToItems = ({
     colorCode,
     connectionId,
     dbName: id,
-    maxNestingLevel,
+    isExpandable: true,
     isConnectionReadOnly,
   };
 
@@ -279,7 +271,6 @@ const databaseToItems = ({
         level: level + 1,
         type: 'placeholder' as const,
         colorCode,
-        maxNestingLevel,
         id: `${connectionId}.${id}.placeholder.${index}`,
       }))
     );
@@ -296,15 +287,11 @@ const databaseToItems = ({
       colorCode,
       connectionId,
       namespace: id,
-      maxNestingLevel,
       isConnectionReadOnly,
+      isExpandable: false,
     }))
   );
 };
-
-export function getMaxNestingLevel(isSingleConnection: boolean): number {
-  return isSingleConnection ? 2 : 3;
-}
 
 /**
  * Converts a list connections to virtual tree items.
@@ -330,7 +317,6 @@ export function getVirtualTreeItems(
         return connectedConnectionToItems({
           connection,
           expandedItems,
-          maxNestingLevel: getMaxNestingLevel(isSingleConnection),
           connectionIndex,
           connectionsLength: connections.length,
         });
@@ -358,7 +344,6 @@ export function getVirtualTreeItems(
       database,
       expandedItems: dbExpandedItems,
       level: 1,
-      maxNestingLevel: getMaxNestingLevel(isSingleConnection),
       databasesLength: connection.databasesLength,
       databaseIndex,
       isConnectionReadOnly,
