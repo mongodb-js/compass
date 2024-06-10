@@ -10,10 +10,8 @@ import {
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import {
-  type Connection,
-  ConnectionsNavigationTree,
-} from './connections-navigation-tree';
+import { ConnectionsNavigationTree } from './connections-navigation-tree';
+import type { Connection } from './tree-data';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
@@ -57,6 +55,7 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: false,
+    isPerformanceTabSupported: true,
   },
   {
     connectionInfo: {
@@ -76,6 +75,7 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: false,
+    isPerformanceTabSupported: false,
   },
 ];
 
@@ -116,7 +116,7 @@ describe('ConnectionsNavigationTree', function () {
         expanded: { connection_ready: { db_ready: true } },
       });
 
-      const collection = screen.getByTestId('sidebar-collection-db_ready.meow');
+      const collection = screen.getByTestId('connection_ready.db_ready.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
@@ -133,7 +133,7 @@ describe('ConnectionsNavigationTree', function () {
         onNamespaceAction: spy,
       });
 
-      const collection = screen.getByTestId('sidebar-collection-db_ready.meow');
+      const collection = screen.getByTestId('connection_ready.db_ready.meow');
 
       userEvent.click(within(collection).getByTitle('Show actions'));
       userEvent.click(screen.getByText('Rename collection'));
@@ -213,9 +213,9 @@ describe('ConnectionsNavigationTree', function () {
       // Virtual list will be the one to grab the focus first, but will
       // immediately forward it to the element and mocking raf here breaks
       // virtual list implementatin, waitFor is to accomodate for that
-      expect(document.querySelector('[data-id="db_ready"]')).to.eq(
-        document.activeElement
-      );
+      expect(
+        document.querySelector('[data-id="connection_ready.db_ready"]')
+      ).to.eq(document.activeElement);
       return true;
     });
   });
@@ -228,7 +228,7 @@ describe('ConnectionsNavigationTree', function () {
 
       userEvent.hover(screen.getByText('foo'));
 
-      const database = screen.getByTestId('sidebar-database-db_initial');
+      const database = screen.getByTestId('connection_ready.db_initial');
 
       expect(within(database).getByTitle('Create collection')).to.exist;
       expect(within(database).getByTitle('Drop database')).to.exist;
@@ -246,7 +246,7 @@ describe('ConnectionsNavigationTree', function () {
         } as WorkspaceTab,
       });
 
-      const database = screen.getByTestId('sidebar-database-db_ready');
+      const database = screen.getByTestId('connection_ready.db_ready');
 
       expect(within(database).getByTitle('Create collection')).to.exist;
       expect(within(database).getByTitle('Drop database')).to.exist;
@@ -259,7 +259,7 @@ describe('ConnectionsNavigationTree', function () {
         },
       });
 
-      const collection = screen.getByTestId('sidebar-collection-db_ready.meow');
+      const collection = screen.getByTestId('connection_ready.db_ready.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
@@ -282,7 +282,7 @@ describe('ConnectionsNavigationTree', function () {
         } as WorkspaceTab,
       });
 
-      const collection = screen.getByTestId('sidebar-collection-db_ready.bwok');
+      const collection = screen.getByTestId('connection_ready.db_ready.bwok');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
@@ -313,7 +313,7 @@ describe('ConnectionsNavigationTree', function () {
         isReadOnly: true,
       });
 
-      const database = screen.getByTestId('sidebar-database-db_ready');
+      const database = screen.getByTestId('connection_ready.db_ready');
 
       expect(() => within(database).getByTitle('Create collection')).to.throw;
       expect(() => within(database).getByTitle('Drop database')).to.throw;
@@ -332,7 +332,7 @@ describe('ConnectionsNavigationTree', function () {
         isReadOnly: true,
       });
 
-      const collection = screen.getByTestId('sidebar-collection-db_ready.bwok');
+      const collection = screen.getByTestId('connection_ready.db_ready.bwok');
 
       expect(within(collection).getByTitle('Open in new tab')).to.exist;
     });
@@ -348,65 +348,69 @@ describe('ConnectionsNavigationTree', function () {
       });
     });
 
-    it('should activate callback with `create-database` when add database is clicked', async function () {
-      const spy = Sinon.spy();
-      await renderConnectionsNavigationTree({
-        expanded: { connection_ready: { db_ready: true } },
-        onNamespaceAction: spy,
+    describe('when selecting a tree item', function () {
+      it('should activate callback with `select-connection` when a connection is clicked', async function () {
+        const spy = Sinon.spy();
+        await renderConnectionsNavigationTree({
+          onConnectionSelect: spy,
+        });
+
+        userEvent.click(screen.getByText('turtles'));
+
+        expect(spy).to.be.calledOnceWithExactly('connection_ready');
       });
 
-      userEvent.hover(screen.getByText('turtles'));
+      it('should activate callback with `select-database` when database is clicked', async function () {
+        const spy = Sinon.spy();
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: {} },
+          onNamespaceAction: spy,
+        });
 
-      userEvent.click(screen.getByLabelText('Create database'));
+        userEvent.click(screen.getByText('foo'));
 
-      expect(spy).to.be.calledOnceWithExactly(
-        'connection_ready',
-        'connection_ready',
-        'create-database'
-      );
+        expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
+          'db_initial',
+          'select-database'
+        );
+      });
+
+      it('should activate callback with `select-collection` when collection is clicked', async function () {
+        const spy = Sinon.spy();
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          onNamespaceAction: spy,
+        });
+
+        userEvent.click(screen.getByText('meow'));
+
+        expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
+          'db_ready.meow',
+          'select-collection'
+        );
+      });
     });
 
-    it('should activate callback with `select-connection` when a connection is clicked', async function () {
-      const spy = Sinon.spy();
-      await renderConnectionsNavigationTree({
-        onConnectionSelect: spy,
+    describe('connection actions', function () {
+      it('should activate callback with `create-database` when add database is clicked', async function () {
+        const spy = Sinon.spy();
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          onNamespaceAction: spy,
+        });
+
+        userEvent.hover(screen.getByText('turtles'));
+
+        userEvent.click(screen.getByLabelText('Create database'));
+
+        expect(spy).to.be.calledOnceWithExactly(
+          'connection_ready',
+          'connection_ready',
+          'create-database'
+        );
       });
-
-      userEvent.click(screen.getByText('turtles'));
-
-      expect(spy).to.be.calledOnceWithExactly('connection_ready');
-    });
-
-    it('should activate callback with `select-database` when database is clicked', async function () {
-      const spy = Sinon.spy();
-      await renderConnectionsNavigationTree({
-        expanded: { connection_ready: {} },
-        onNamespaceAction: spy,
-      });
-
-      userEvent.click(screen.getByText('foo'));
-
-      expect(spy).to.be.calledOnceWithExactly(
-        'connection_ready',
-        'db_initial',
-        'select-database'
-      );
-    });
-
-    it('should activate callback with `select-collection` when collection is clicked', async function () {
-      const spy = Sinon.spy();
-      await renderConnectionsNavigationTree({
-        expanded: { connection_ready: { db_ready: true } },
-        onNamespaceAction: spy,
-      });
-
-      userEvent.click(screen.getByText('meow'));
-
-      expect(spy).to.be.calledOnceWithExactly(
-        'connection_ready',
-        'db_ready.meow',
-        'select-collection'
-      );
     });
 
     describe('database actions', function () {
@@ -461,9 +465,7 @@ describe('ConnectionsNavigationTree', function () {
           onNamespaceAction: spy,
         });
 
-        const collection = screen.getByTestId(
-          'sidebar-collection-db_ready.meow'
-        );
+        const collection = screen.getByTestId('connection_ready.db_ready.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Open in new tab'));
@@ -482,9 +484,7 @@ describe('ConnectionsNavigationTree', function () {
           onNamespaceAction: spy,
         });
 
-        const collection = screen.getByTestId(
-          'sidebar-collection-db_ready.meow'
-        );
+        const collection = screen.getByTestId('connection_ready.db_ready.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Drop collection'));
@@ -509,7 +509,7 @@ describe('ConnectionsNavigationTree', function () {
           onNamespaceAction: spy,
         });
 
-        const view = screen.getByTestId('sidebar-collection-db_ready.bwok');
+        const view = screen.getByTestId('connection_ready.db_ready.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Duplicate view'));
@@ -532,7 +532,7 @@ describe('ConnectionsNavigationTree', function () {
           onNamespaceAction: spy,
         });
 
-        const view = screen.getByTestId('sidebar-collection-db_ready.bwok');
+        const view = screen.getByTestId('connection_ready.db_ready.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify view'));

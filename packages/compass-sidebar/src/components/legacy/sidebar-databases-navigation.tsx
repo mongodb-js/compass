@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type {
@@ -6,34 +6,117 @@ import type {
   Connection,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
-import { type Database, toggleDatabaseExpanded } from '../../modules/databases';
+import {
+  fetchAllCollections,
+  onDatabaseExpand,
+  type Database,
+} from '../../modules/databases';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import { findCollection } from '../../helpers/find-collection';
 
-function findCollection(ns: string, databases: Database[]) {
-  const { database, collection } = toNS(ns);
+type ExpandedDatabases = Record<
+  Database['_id'],
+  'expanded' | 'tempExpanded' | undefined
+>;
 
-  return (
-    databases
-      .find((db) => db._id === database)
-      ?.collections.find((coll) => coll.name === collection) ?? null
-  );
+interface Match {
+  isMatch?: boolean;
 }
+
+type Collection = Database['collections'][number];
+
+type FilteredCollection = Collection & Match;
+type FilteredDatabase = Omit<Database, 'collections'> &
+  Match & {
+    collections: FilteredCollection[];
+  };
+
+const filterDatabases = (
+  databases: Database[],
+  regex: RegExp
+): FilteredDatabase[] => {
+  const results: FilteredDatabase[] = [];
+  for (const db of databases) {
+    const isMatch = regex.test(db.name);
+    const childMatches = filterCollections(db.collections, regex);
+
+    if (isMatch || childMatches.length) {
+      results.push({
+        ...db,
+        isMatch,
+        collections: childMatches.length ? childMatches : db.collections,
+      });
+    }
+  }
+  return results;
+};
+
+const filterCollections = (
+  collections: Collection[],
+  regex: RegExp
+): FilteredCollection[] => {
+  return collections
+    .filter(({ name }) => regex.test(name))
+    .map((collection) => ({ ...collection, isMatch: true }));
+};
+
+/**
+ * Take the starting expandedDatabase, and add 'tempExpanded' to collapsed items that:
+ * - are included in the filterResults
+ * - they either are a direct match, or their children are a direct match
+ */
+const applyTempExpanded = (
+  expandedDatabases: ExpandedDatabases,
+  filterResults: FilteredDatabase[]
+): ExpandedDatabases => {
+  const newExpanded = { ...expandedDatabases };
+
+  filterResults.forEach(({ _id: databaseId, isMatch, collections }) => {
+    const childrenCollsAreMatch = collections.length && collections[0].isMatch;
+    if ((isMatch || childrenCollsAreMatch) && !newExpanded[databaseId]) {
+      newExpanded[databaseId] = 'tempExpanded';
+    }
+  });
+  return newExpanded;
+};
+
+/**
+ * Reverts 'applyTempExpanded', bringing the items back to collapsed state
+ */
+const clearTempExpanded = (
+  expandedDatabases: ExpandedDatabases
+): ExpandedDatabases => {
+  const cleared: ExpandedDatabases = Object.fromEntries(
+    Object.entries(expandedDatabases || []).map(([dbId, dbState]) => [
+      dbId,
+      dbState === 'tempExpanded' ? undefined : dbState,
+    ])
+  );
+  return cleared;
+};
 
 function SidebarDatabasesNavigation({
   connections,
   onNamespaceAction: _onNamespaceAction,
-  onDatabaseExpand,
+  onDatabaseExpand: _onDatabaseExpand,
+  fetchAllCollections: _fetchAllCollections,
   activeWorkspace,
+  filterRegex,
   ...dbNavigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
-  'isReadOnly' | 'databases'
+  'isReadOnly' | 'databases' | 'onDatabaseExpand'
 > & {
   connections: Connection[];
-  expanded?: Record<string, Record<string, boolean> | false>;
+  filterRegex: RegExp | null;
+  fetchAllCollections: () => void;
+  onDatabaseExpand: (
+    connectionId: ConnectionInfo['id'],
+    databaseId: string
+  ) => void;
 }) {
   const {
     openCollectionsWorkspace,
@@ -42,8 +125,103 @@ function SidebarDatabasesNavigation({
   } = useOpenWorkspace();
   const preferencesReadOnly = usePreference('readOnly');
   const connection = connections[0];
+  const connectionId = connection.connectionInfo.id;
   const isReadOnly =
     preferencesReadOnly || connection.isDataLake || !connection.isWritable;
+
+  const [expandedDatabases, setExpandedDatabases] = useState<ExpandedDatabases>(
+    {}
+  );
+  const [filteredDatabases, setFilteredDatabases] = useState<
+    Database[] | undefined
+  >(undefined);
+
+  const handleDatabaseExpand = useCallback(
+    (actionConnectionId: string, namespace: string, forceExpand: boolean) => {
+      if (actionConnectionId !== connectionId) return;
+      const { database: databaseId } = toNS(namespace);
+      setExpandedDatabases((expandedDatabases) => {
+        return {
+          ...expandedDatabases,
+          [databaseId]: forceExpand ? 'expanded' : undefined,
+        };
+      });
+      _onDatabaseExpand(connectionId, databaseId);
+    },
+    [setExpandedDatabases, _onDatabaseExpand, connectionId]
+  );
+
+  const connectionsButOnlyIfFilterIsActive = filteredDatabases && connections;
+  const filteredConnections: Connection[] | undefined = useMemo(() => {
+    if (filteredDatabases && connectionsButOnlyIfFilterIsActive) {
+      return [
+        {
+          ...connectionsButOnlyIfFilterIsActive[0],
+          databases: filteredDatabases,
+        },
+      ];
+    }
+  }, [filteredDatabases, connectionsButOnlyIfFilterIsActive]);
+
+  const expandedMemo: Record<string, Record<string, boolean>> = useMemo(
+    () => ({
+      [connectionId]: Object.fromEntries(
+        Object.entries(expandedDatabases || {}).map(([dbId, dbState]) => [
+          dbId,
+          !!dbState,
+        ])
+      ),
+    }),
+    [expandedDatabases, connectionId]
+  );
+
+  const temporarilyExpand = useCallback(
+    (filterResults: FilteredDatabase[]) => {
+      setExpandedDatabases((expandedDatabases: ExpandedDatabases) => {
+        const expandedStart = clearTempExpanded(expandedDatabases);
+        return applyTempExpanded(expandedStart, filterResults);
+      });
+    },
+    [setExpandedDatabases]
+  );
+
+  const collapseAllTemporarilyExpanded = useCallback(() => {
+    setExpandedDatabases(clearTempExpanded);
+  }, [setExpandedDatabases]);
+
+  // filter updates
+  // databases change often, but the effect only uses databases if the filter is active
+  // so we use this conditional dependency to avoid too many calls
+  const databasesButOnlyIfFilterIsActive =
+    filterRegex && connections[0].databases;
+  useEffect(() => {
+    if (!filterRegex) {
+      setFilteredDatabases(undefined);
+      collapseAllTemporarilyExpanded();
+    } else if (databasesButOnlyIfFilterIsActive) {
+      // the above check is extra just to please TS
+
+      // When filtering, emit an event so that we can fetch all collections. This
+      // is required as a workaround for the synchronous nature of the current
+      // filtering feature
+      _fetchAllCollections();
+
+      const results = filterDatabases(
+        databasesButOnlyIfFilterIsActive,
+        filterRegex
+      );
+      setFilteredDatabases(results);
+      temporarilyExpand(results);
+    }
+  }, [
+    filterRegex,
+    databasesButOnlyIfFilterIsActive,
+    setFilteredDatabases,
+    temporarilyExpand,
+    collapseAllTemporarilyExpanded,
+    _fetchAllCollections,
+  ]);
+
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
@@ -57,10 +235,7 @@ function SidebarDatabasesNavigation({
           openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
-          const coll = findCollection(
-            ns,
-            (connection.databases as Database[]) || []
-          );
+          const coll = findCollection(ns, connection.databases || []);
 
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(connectionId, coll._id, {
@@ -93,16 +268,17 @@ function SidebarDatabasesNavigation({
         activeWorkspace.type === 'Collection')
     ) {
       const namespace: string = activeWorkspace.namespace;
-      onDatabaseExpand(connection.connectionInfo.id, namespace, true);
+      handleDatabaseExpand(connectionId, namespace, true);
     }
-  }, [activeWorkspace, onDatabaseExpand, connection.connectionInfo.id]);
+  }, [activeWorkspace, handleDatabaseExpand, connectionId]);
 
   return (
     <ConnectionsNavigationTree
-      connections={connections}
+      connections={filteredConnections || connections}
+      expanded={expandedMemo}
       {...dbNavigationProps}
       onNamespaceAction={onNamespaceAction}
-      onDatabaseExpand={onDatabaseExpand}
+      onDatabaseExpand={handleDatabaseExpand}
       activeWorkspace={activeWorkspace}
       isReadOnly={isReadOnly}
     />
@@ -111,32 +287,20 @@ function SidebarDatabasesNavigation({
 
 function mapStateToProps(
   state: RootState,
-  { connectionInfo }: { connectionInfo: ConnectionInfo }
+  {
+    connectionInfo,
+  }: { connectionInfo: ConnectionInfo; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
   connections: Connection[];
-  expanded: Record<string, Record<string, boolean> | false>;
 } {
   const connectionId = connectionInfo.id;
   const instance = state.instance[connectionId];
-  const {
-    filterRegex,
-    filteredDatabases,
-    expandedDbList: initialExpandedDbList,
-  } = state.databases[connectionId] || {};
+  const { databases } = state.databases[connectionId] || {};
 
   const status = instance?.databasesStatus;
   const isReady =
     status !== undefined && !['initial', 'fetching'].includes(status);
-  const defaultExpanded = Boolean(filterRegex);
-
-  const expandedDbList = initialExpandedDbList ?? {};
-  const expanded = Object.fromEntries(
-    ((filteredDatabases as any[]) || []).map(({ name }) => [
-      name,
-      expandedDbList[name] ?? defaultExpanded,
-    ])
-  );
 
   const isDataLake = instance?.dataLake?.isDataLake ?? false;
   const isWritable = instance?.isWritable ?? false;
@@ -150,22 +314,19 @@ function mapStateToProps(
         isWritable,
         name: '',
         connectionInfo,
-        databasesLength: filteredDatabases?.length || 0,
+        databasesLength: databases?.length || 0,
         databasesStatus: (status ??
           'fetching') as Connection['databasesStatus'],
-        databases: filteredDatabases ?? [],
+        databases: databases ?? [],
         isPerformanceTabSupported:
           !isDataLake && !!state.isPerformanceTabSupported[connectionId],
       },
     ],
-    expanded: {
-      [connectionId]: expanded,
-    },
   };
 }
 
 const onNamespaceAction = (
-  connectionId: string,
+  connectionId: ConnectionInfo['id'],
   namespace: string,
   action: Actions
 ): SidebarThunkAction<void> => {
@@ -217,6 +378,7 @@ const onNamespaceAction = (
 };
 
 export default connect(mapStateToProps, {
-  onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
+  fetchAllCollections,
+  onDatabaseExpand,
 })(SidebarDatabasesNavigation);

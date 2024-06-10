@@ -1,5 +1,8 @@
 import { usePreference } from 'compass-preferences-model/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import { merge } from 'lodash';
 import isEqual from 'lodash/isEqual';
@@ -48,6 +51,7 @@ export type ConnectionRepository = {
   getConnectionInfoById: (
     id: ConnectionInfo['id']
   ) => ConnectionInfo | undefined;
+  getConnectionTitleById: (id: ConnectionInfo['id']) => string | undefined;
 };
 
 export function useConnectionRepository(): ConnectionRepository {
@@ -173,8 +177,19 @@ export function useConnectionRepository(): ConnectionRepository {
     },
     [favoriteConnections, nonFavoriteConnections, autoConnectInfo]
   );
+
+  const getConnectionTitleById = useCallback(
+    (connectionId: ConnectionInfo['id']) => {
+      const connectionInfo = getConnectionInfoById(connectionId);
+      if (connectionInfo) {
+        return getConnectionTitle(connectionInfo);
+      }
+    },
+    [getConnectionInfoById]
+  );
   return {
     getConnectionInfoById,
+    getConnectionTitleById,
     favoriteConnections,
     nonFavoriteConnections,
     saveConnection,
