@@ -11,6 +11,7 @@ import {
   runAIQuery,
 } from '../stores/ai-query-reducer';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { isEqualDefaultQuery } from '../utils/query';
 
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLoggerAndTelemetry('AI-QUERY-UI');
@@ -65,6 +66,9 @@ const ConnectedQueryAI = connect(
       aiPromptText: state.aiQuery.aiPromptText,
       isFetching: state.aiQuery.status === 'fetching',
       lastAIQueryRequestId: state.aiQuery.lastAIQueryRequestId,
+      didGenerateEmptyResults:
+        state.aiQuery.status === 'success' &&
+        isEqualDefaultQuery(state.queryBar.fields),
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
       errorCode: state.aiQuery.errorCode,
