@@ -51,6 +51,7 @@ export enum ActionTypes {
   OpenModal = 'compass-saved-aggregations-queries/openModal',
   CloseModal = 'compass-saved-aggregations-queries/closeModal',
   ConnectionSelected = 'compass-saved-aggregations-queries/connectionSelected',
+  ConnectionSelectedForPreSelectedNamespace = 'compass-saved-aggregations-queries/connectionSelectedForPreSelectedNamespace',
   DatabaseSelected = 'compass-saved-aggregations-queries/DatabaseSelected',
   LoadDatabases = 'compass-saved-aggregations-queries/loadDatabases',
   LoadDatabasesSuccess = 'compass-saved-aggregations-queries/loadDatabasesSuccess',
@@ -79,8 +80,13 @@ type CloseModalAction = {
 type ConnectionSelectedAction = {
   type: ActionTypes.ConnectionSelected;
   selectedConnection: string;
-  selectedDatabase?: string;
-  selectedCollection?: string;
+};
+
+// Supposed to happen when a connection is selected without destroying the
+// pre-selected namespace(database / collection) state in the store
+type ConnectionSelectedForPreSelectedNamespaceAction = {
+  type: ActionTypes.ConnectionSelectedForPreSelectedNamespace;
+  selectedConnection: string;
 };
 
 type DatabaseSelectedAction = {
@@ -128,6 +134,7 @@ export type Actions =
   | OpenModalAction
   | CloseModalAction
   | ConnectionSelectedAction
+  | ConnectionSelectedForPreSelectedNamespaceAction
   | DatabaseSelectedAction
   | LoadDatabasesAction
   | LoadDatabasesErrorAction
@@ -161,12 +168,24 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       selectedConnection: action.selectedConnection,
-      selectedDatabase: action.selectedDatabase ?? null,
+      selectedDatabase: null,
       databases: [],
       databasesStatus: 'initial',
       collections: [],
       collectionsStatus: 'initial',
-      selectedCollection: action.selectedCollection ?? null,
+      selectedCollection: null,
+    };
+  }
+
+  if (
+    isAction<ConnectionSelectedForPreSelectedNamespaceAction>(
+      action,
+      ActionTypes.ConnectionSelectedForPreSelectedNamespace
+    )
+  ) {
+    return {
+      ...state,
+      selectedConnection: action.selectedConnection,
     };
   }
 
@@ -296,21 +315,22 @@ const loadDatabasesForConnection =
   };
 
 export const connectionSelected =
-  (
-    selectedConnection: string,
-    selectedDatabase?: string | null,
-    selectedCollection?: string | null
-  ): SavedQueryAggregationThunkAction<void> =>
+  (selectedConnection: string): SavedQueryAggregationThunkAction<void> =>
   (dispatch) => {
     dispatch({
       type: ActionTypes.ConnectionSelected,
       selectedConnection,
-      selectedDatabase,
-      selectedCollection,
     });
 
     void dispatch(loadDatabasesForConnection(selectedConnection));
   };
+
+export const connectionSelectedForPreSelectedNamespace = (
+  selectedConnection: string
+): ConnectionSelectedForPreSelectedNamespaceAction => ({
+  type: ActionTypes.ConnectionSelectedForPreSelectedNamespace,
+  selectedConnection,
+});
 
 export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
   type: ActionTypes.UpdateNamespaceChecked,

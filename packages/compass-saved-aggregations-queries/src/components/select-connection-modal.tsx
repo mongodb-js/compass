@@ -14,7 +14,7 @@ import {
 import { type RootState } from '../stores';
 import {
   closeModal,
-  connectionSelected,
+  connectionSelectedForPreSelectedNamespace,
   openSelectedItem,
 } from '../stores/open-item';
 
@@ -45,13 +45,7 @@ type SelectConnectionModalProps = {
   isSubmitDisabled: boolean;
   connections: { id: string; name: string }[];
   selectedConnection: string | null;
-  selectedDatabase: string | null;
-  selectedCollection: string | null;
-  onSelectConnection(
-    connectionId: string,
-    database: string | null,
-    collection: string | null
-  ): void;
+  onSelectConnection(connectionId: string): void;
   onSubmit(): void;
   onClose(): void;
 };
@@ -66,8 +60,6 @@ const SelectConnectionModal: React.FunctionComponent<
   isSubmitDisabled,
   connections,
   selectedConnection,
-  selectedDatabase,
-  selectedCollection,
   onSelectConnection,
   onSubmit,
   onClose,
@@ -75,13 +67,9 @@ const SelectConnectionModal: React.FunctionComponent<
   const handleConnectionSelect: React.ChangeEventHandler<HTMLInputElement> =
     useCallback(
       (event) => {
-        onSelectConnection(
-          event.target.value,
-          selectedDatabase,
-          selectedCollection
-        );
+        onSelectConnection(event.target.value);
       },
-      [onSelectConnection, selectedDatabase, selectedCollection]
+      [onSelectConnection]
     );
   return (
     <FormModal
@@ -133,8 +121,6 @@ const mapState: MapStateToProps<
     | 'itemName'
     | 'connections'
     | 'selectedConnection'
-    | 'selectedDatabase'
-    | 'selectedCollection'
   >,
   Record<string, never>,
   RootState
@@ -142,8 +128,6 @@ const mapState: MapStateToProps<
   openItem: {
     openedModal,
     selectedConnection,
-    selectedDatabase,
-    selectedCollection,
     selectedItem: item,
     connections,
   },
@@ -156,8 +140,6 @@ const mapState: MapStateToProps<
     itemName: item?.name ?? '',
     connections,
     selectedConnection,
-    selectedDatabase,
-    selectedCollection,
   };
 };
 
@@ -170,7 +152,7 @@ const mapDispatch: MapDispatchToProps<
 > = {
   onSubmit: openSelectedItem,
   onClose: closeModal,
-  onSelectConnection: connectionSelected,
+  onSelectConnection: connectionSelectedForPreSelectedNamespace,
 };
 
 export default connect(mapState, mapDispatch)(SelectConnectionModal);
