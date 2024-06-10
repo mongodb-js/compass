@@ -639,7 +639,7 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          npm run --unsafe-perm --workspace compass-e2e-tests test -- --test-multiple-connections
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-packaged-app --test-multiple-connections
 
   test-connectivity:
     - command: shell.exec
