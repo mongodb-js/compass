@@ -18,10 +18,10 @@ import type { RootState } from '../stores';
 import {
   type State as OpenItemState,
   closeModal,
-  connectionSelected,
   openSelectedItem,
-  selectCollection,
-  selectDatabase,
+  connectionSelected,
+  databaseSelected,
+  collectionSelected,
   updateItemNamespaceChecked,
 } from '../stores/open-item';
 
@@ -133,9 +133,9 @@ const mapDatabaseState: MapStateToProps<
   };
 };
 
-const DatabaseSelect = connect(mapDatabaseState, { onChange: selectDatabase })(
-  AsyncItemsSelect
-);
+const DatabaseSelect = connect(mapDatabaseState, {
+  onChange: databaseSelected,
+})(AsyncItemsSelect);
 
 const mapCollectionState: MapStateToProps<
   Pick<AsyncItemsSelectProps, 'items' | 'selectedItem' | 'isLoading'>,
@@ -150,7 +150,7 @@ const mapCollectionState: MapStateToProps<
 };
 
 const CollectionSelect = connect(mapCollectionState, {
-  onChange: selectCollection,
+  onChange: collectionSelected,
 })(AsyncItemsSelect);
 
 const modalContent = css({

@@ -51,11 +51,11 @@ export enum ActionTypes {
   OpenModal = 'compass-saved-aggregations-queries/openModal',
   CloseModal = 'compass-saved-aggregations-queries/closeModal',
   ConnectionSelected = 'compass-saved-aggregations-queries/connectionSelected',
-  SelectDatabase = 'compass-saved-aggregations-queries/selectDatabase',
+  DatabaseSelected = 'compass-saved-aggregations-queries/DatabaseSelected',
   LoadDatabases = 'compass-saved-aggregations-queries/loadDatabases',
   LoadDatabasesSuccess = 'compass-saved-aggregations-queries/loadDatabasesSuccess',
   LoadDatabasesError = 'compass-saved-aggregations-queries/loadDatabasesError',
-  SelectCollection = 'compass-saved-aggregations-queries/selectCollection',
+  CollectionSelected = 'compass-saved-aggregations-queries/collectionSelected',
   LoadCollections = 'compass-saved-aggregations-queries/loadCollections',
   LoadCollectionsSuccess = 'compass-saved-aggregations-queries/loadCollectionsSuccess',
   LoadCollectionsError = 'compass-saved-aggregations-queries/loadCollectionsError',
@@ -83,8 +83,8 @@ type ConnectionSelectedAction = {
   selectedCollection?: string;
 };
 
-type SelectDatabaseAction = {
-  type: ActionTypes.SelectDatabase;
+type DatabaseSelectedAction = {
+  type: ActionTypes.DatabaseSelected;
   database: string;
 };
 
@@ -101,8 +101,8 @@ type LoadDatabasesErrorAction = {
   type: ActionTypes.LoadDatabasesError;
 };
 
-type SelectCollectionAction = {
-  type: ActionTypes.SelectCollection;
+type CollectionSelectedAction = {
+  type: ActionTypes.CollectionSelected;
   collection: string;
 };
 
@@ -128,11 +128,11 @@ export type Actions =
   | OpenModalAction
   | CloseModalAction
   | ConnectionSelectedAction
-  | SelectDatabaseAction
+  | DatabaseSelectedAction
   | LoadDatabasesAction
   | LoadDatabasesErrorAction
   | LoadDatabasesSuccessAction
-  | SelectCollectionAction
+  | CollectionSelectedAction
   | LoadCollectionsAction
   | LoadCollectionsErrorAction
   | LoadCollectionsSuccessAction
@@ -170,7 +170,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     };
   }
 
-  if (isAction<SelectDatabaseAction>(action, ActionTypes.SelectDatabase)) {
+  if (isAction<DatabaseSelectedAction>(action, ActionTypes.DatabaseSelected)) {
     return {
       ...state,
       selectedDatabase: action.database,
@@ -209,7 +209,9 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     };
   }
 
-  if (isAction<SelectCollectionAction>(action, ActionTypes.SelectCollection)) {
+  if (
+    isAction<CollectionSelectedAction>(action, ActionTypes.CollectionSelected)
+  ) {
     return {
       ...state,
       selectedCollection: action.collection,
@@ -565,7 +567,7 @@ export const openSelectedItem =
     );
   };
 
-export const selectDatabase =
+export const databaseSelected =
   (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
   async (dispatch, getState, { instancesManager, connectionsManager }) => {
     const {
@@ -576,7 +578,7 @@ export const selectDatabase =
       return;
     }
 
-    dispatch({ type: ActionTypes.SelectDatabase, database });
+    dispatch({ type: ActionTypes.DatabaseSelected, database });
 
     dispatch({ type: ActionTypes.LoadCollections });
     try {
@@ -612,10 +614,10 @@ export const selectDatabase =
     }
   };
 
-export const selectCollection: ActionCreator<SelectCollectionAction> = (
+export const collectionSelected: ActionCreator<CollectionSelectedAction> = (
   collection: string
 ) => {
-  return { type: ActionTypes.SelectCollection, collection };
+  return { type: ActionTypes.CollectionSelected, collection };
 };
 
 export default reducer;
