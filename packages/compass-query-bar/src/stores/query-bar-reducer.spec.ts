@@ -226,6 +226,21 @@ describe('queryBarReducer', function () {
         '{ _id: -1 }'
       );
     });
+
+    it('should auto expand when the query contains extra options', function () {
+      const queryNoExtraOptions = {
+        filter: { _id: 2 },
+      };
+      store.dispatch(applyFromHistory(queryNoExtraOptions));
+      expect(store.getState().queryBar.expanded).to.be.false;
+
+      const queryWithExtraOptions = {
+        filter: { _id: 2 },
+        sort: { _id: -1 },
+      };
+      store.dispatch(applyFromHistory(queryWithExtraOptions));
+      expect(store.getState().queryBar.expanded).to.be.true;
+    });
   });
 
   describe('isReadonlyConnection', function () {
