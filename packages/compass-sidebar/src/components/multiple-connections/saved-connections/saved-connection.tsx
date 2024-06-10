@@ -7,6 +7,7 @@ import {
   useConnectionStatus,
 } from '@mongodb-js/compass-connections/provider';
 import React, { useCallback } from 'react';
+import { isLocalhost } from 'mongodb-build-info';
 import {
   css,
   spacing,
@@ -153,11 +154,6 @@ export function SavedConnection({
   const { connectionColorToHex } = useConnectionColor();
   const { status: connectionStatus } = useConnectionStatus(connectionInfo.id);
 
-  const isLocalhost =
-    connectionInfo.connectionOptions.connectionString.startsWith(
-      'mongodb://localhost'
-    ); // TODO(COMPASS-7832)
-
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const [hoverProps, isHovered] = useHoverState();
   const isFavorite = connectionInfo.savedConnectionType === 'favorite';
@@ -165,7 +161,7 @@ export function SavedConnection({
   let icon: React.ReactElement;
   if (connectionStatus === 'failed') {
     icon = <WarningIcon />;
-  } else if (isLocalhost) {
+  } else if (isLocalhost(connectionInfo.connectionOptions.connectionString)) {
     icon = (
       <WithStatusMarker status={connectionStatus}>
         <Icon size={spacing[3]} className={iconStyles} glyph="Laptop" />
