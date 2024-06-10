@@ -1,6 +1,5 @@
 import React from 'react';
 import { css } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import {
   CompassShellPlugin,
   WorkspaceTab as ShellWorkspace,
@@ -119,9 +118,7 @@ export default function Workspace({
       </WorkspacesProvider>
       {!multiConnectionsEnabled && (
         <div className={shellContainerStyles}>
-          <ConnectionInfoProvider
-            connectionInfoId={activeConnection?.id}
-          >
+          <ConnectionInfoProvider connectionInfoId={activeConnection?.id}>
             <CompassShellPlugin />
           </ConnectionInfoProvider>
         </div>
