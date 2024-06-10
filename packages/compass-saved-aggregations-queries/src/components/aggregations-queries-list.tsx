@@ -10,7 +10,6 @@ import {
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
 import {
-  openNoActiveConnectionsModal,
   openSavedItem,
   openSelectConnectionAndNamespaceModal,
 } from '../stores/open-item';
@@ -88,7 +87,6 @@ export type AggregationsQueriesListProps = {
     id: string,
     activeConnections: ConnectionInfo[]
   ): void;
-  notifyNoActiveConnections(): void;
   onEditItem(id: string): void;
   onDeleteItem(id: string): void;
   onCopyToClipboard(id: string): void;
@@ -100,7 +98,6 @@ export const AggregationsQueriesList = ({
   onMount,
   onOpenItem,
   onOpenItemForDiffTarget,
-  notifyNoActiveConnections,
   onEditItem,
   onDeleteItem,
   onCopyToClipboard,
@@ -113,26 +110,16 @@ export const AggregationsQueriesList = ({
 
   const handleOpenItem = useCallback(
     (id: string) => {
-      if (!activeConnections.length) {
-        notifyNoActiveConnections();
-        return;
-      }
-
       onOpenItem(id, activeConnections);
     },
-    [activeConnections, onOpenItem, notifyNoActiveConnections]
+    [activeConnections, onOpenItem]
   );
 
   const handleOpenItemForDiffTarget = useCallback(
     (id: string) => {
-      if (!activeConnections.length) {
-        notifyNoActiveConnections();
-        return;
-      }
-
       onOpenItemForDiffTarget(id, activeConnections);
     },
-    [activeConnections, onOpenItemForDiffTarget, notifyNoActiveConnections]
+    [activeConnections, onOpenItemForDiffTarget]
   );
 
   const {
@@ -300,7 +287,6 @@ const mapDispatch = {
   onEditItem: editItem,
   onDeleteItem: confirmDeleteItem,
   onCopyToClipboard: copyToClipboard,
-  notifyNoActiveConnections: openNoActiveConnectionsModal,
 };
 
 export default connect(

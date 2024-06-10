@@ -359,6 +359,11 @@ export const openSelectConnectionAndNamespaceModal =
       savedItems: { items },
     } = getState();
 
+    if (!activeConnections.length) {
+      dispatch(openNoActiveConnectionsModal());
+      return;
+    }
+
     const selectedItem = items.find((item) => item.id === id);
 
     if (!selectedItem) {
@@ -382,7 +387,7 @@ export const openSelectConnectionAndNamespaceModal =
     }
   };
 
-export const openNoActiveConnectionsModal = (): OpenModalAction => ({
+const openNoActiveConnectionsModal = (): OpenModalAction => ({
   type: ActionTypes.OpenModal,
   modal: 'no-active-connections-modal',
 });
@@ -437,6 +442,11 @@ export const openSavedItem =
     const {
       savedItems: { items },
     } = getState();
+
+    if (!activeConnections.length) {
+      dispatch(openNoActiveConnectionsModal());
+      return;
+    }
 
     const item = items.find((item) => item.id === id);
 
