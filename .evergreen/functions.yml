@@ -626,6 +626,19 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           source .evergreen/start-docker-envs.sh
+
+          if [[ "$IS_WINDOWS" == "true" ]]; then
+            export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
+          else
+            export COMPASS_APP_PATH="$PWD/../tmp/from-packaged/$(basename "$COMPASS_APP_PATH_ORIGINAL")"
+          fi
+          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION..."
+
+          if [[ "$IS_OSX" == "true" ]]; then
+            echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
+            export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
+          fi
+
           npm run --unsafe-perm --workspace compass-e2e-tests test -- --test-multiple-connections
 
   test-connectivity:
