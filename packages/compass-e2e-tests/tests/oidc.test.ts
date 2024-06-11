@@ -7,6 +7,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -65,6 +66,11 @@ describe('OIDC integration', function () {
 
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
+
+    // TODO: skipping for multiple connections due to the use of shellEval for now
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
 
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
     if (

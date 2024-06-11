@@ -13,6 +13,11 @@ import type { Telemetry, LogEntry } from '../helpers/telemetry';
 describe('Logging and Telemetry integration', function () {
   before(function () {
     skipForWeb(this, 'telemetry not yet available in compass-web');
+
+    // TODO: skipping for multiple connections due to the use of shellEval for now
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   describe('after running an example path through Compass', function () {

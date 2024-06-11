@@ -61,9 +61,12 @@ describe('forceConnectionOptions', function () {
     await browser.connectWithConnectionString(
       'mongodb://127.0.0.1:27091/?appName=userSpecifiedAppName'
     );
-    const result = await browser.shellEval('db.getMongo()._uri', true);
-    expect(new ConnectionString(result).searchParams.get('appName')).to.equal(
-      'testAppName'
-    );
+
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      const result = await browser.shellEval('db.getMongo()._uri', true);
+      expect(new ConnectionString(result).searchParams.get('appName')).to.equal(
+        'testAppName'
+      );
+    }
   });
 });
