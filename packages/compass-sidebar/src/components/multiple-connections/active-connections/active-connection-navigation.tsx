@@ -31,7 +31,10 @@ import {
   fetchAllCollections,
   onDatabaseExpand,
 } from '../../../modules/databases';
-import type { ConnectionsNavigationTreeProps } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
+import type {
+  ConnectionsNavigationTreeProps,
+  ReadOnlyConnections,
+} from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
 
 type ExpandedDatabases = Record<
   Database['_id'],
@@ -581,12 +584,17 @@ function mapStateToProps(
   state: RootState,
   {
     activeConnections,
-  }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
+    isReadOnly: isPreferencesReadOnly,
+  }: {
+    activeConnections: ConnectionInfo[];
+    isReadOnly: boolean;
+  }
 ): {
-  isReady: boolean;
   connections: Connection[];
+  readOnly: ReadOnlyConnections;
 } {
   const connections: Connection[] = [];
+  const readOnly: ReadOnlyConnections = {};
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
@@ -614,11 +622,13 @@ function mapStateToProps(
       databases,
       databasesLength: databases.length,
     });
+
+    readOnly[connectionId] = isPreferencesReadOnly || isDataLake || !isWritable;
   }
 
   return {
-    isReady: true,
     connections,
+    readOnly,
   };
 }
 

@@ -366,6 +366,7 @@ export function MultipleConnectionSidebar({
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
   );
+  const isReadOnly = usePreference('readOnly');
 
   const preferences = useMemo(
     () => ({
@@ -376,6 +377,7 @@ export function MultipleConnectionSidebar({
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      isReadOnly,
     }),
     [
       protectConnectionStrings,
@@ -385,6 +387,7 @@ export function MultipleConnectionSidebar({
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      isReadOnly,
     ]
   );
 
@@ -412,6 +415,7 @@ export function MultipleConnectionSidebar({
           onDisconnect={onDisconnect}
           filterRegex={activeConnectionsFilterRegex}
           onFilterChange={onActiveConnectionFilterChange}
+          isReadOnly={isReadOnly}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}

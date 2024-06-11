@@ -26,9 +26,12 @@ import {
   databaseItemActions,
 } from './item-actions';
 
+export type ReadOnlyConnections = Record<string, boolean>;
+
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   expanded?: Record<string, false | Record<string, boolean>>;
+  readOnly: ReadOnlyConnections;
   onConnectionExpand?(id: string, isExpanded: boolean): void;
   onConnectionSelect?(id: string): void;
   onDatabaseExpand(connectionId: string, id: string, isExpanded: boolean): void;
@@ -38,7 +41,6 @@ export interface ConnectionsNavigationTreeProps {
     action: Actions
   ): void;
   activeWorkspace?: WorkspaceTab;
-  isReadOnly?: boolean;
 }
 
 const ConnectionsNavigationTree: React.FunctionComponent<
@@ -46,7 +48,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 > = ({
   connections,
   expanded,
-  isReadOnly = false,
+  readOnly,
   activeWorkspace,
   onDatabaseExpand,
   onNamespaceAction,
@@ -67,6 +69,15 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const treeData = useMemo(() => {
     return getVirtualTreeItems(connections, isSingleConnection, expanded);
   }, [connections, isSingleConnection, expanded]);
+
+  const isItemReadOnly = useCallback(
+    (item: SidebarTreeItem) => {
+      if (item.type === 'connection') return readOnly[item.connectionInfo.id];
+      if (item.type !== 'placeholder') return readOnly[item.connectionId];
+      return false;
+    },
+    [readOnly]
+  );
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
@@ -134,22 +145,22 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           const isFavorite =
             item.connectionInfo?.savedConnectionType === 'favorite';
           return connectionItemActions({
-            isReadOnly,
+            isReadOnly: isItemReadOnly(item),
             isFavorite,
             isPerformanceTabSupported: item.isPerformanceTabSupported,
           });
         }
         case 'database':
-          return databaseItemActions({ isReadOnly });
+          return databaseItemActions({ isReadOnly: isItemReadOnly(item) });
         default:
           return collectionItemActions({
-            isReadOnly,
+            isReadOnly: isItemReadOnly(item),
             type: item.type,
             isRenameCollectionEnabled,
           });
       }
     },
-    [isReadOnly, isRenameCollectionEnabled]
+    [isItemReadOnly, isRenameCollectionEnabled]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
@@ -172,6 +183,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             renderItem={({ item }) => (
               <NavigationItem
                 item={item}
+                isReadOnly={isItemReadOnly(item)}
                 activeItemId={activeItemId}
                 getItemActions={getItemActions}
                 onItemExpand={onItemExpand}

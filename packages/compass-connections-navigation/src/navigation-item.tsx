@@ -12,6 +12,7 @@ import { getTreeItemStyles } from './utils';
 type NavigationItemProps = {
   item: SidebarTreeItem;
   activeItemId?: string;
+  isReadOnly?: boolean;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
   onItemAction: (
     item: SidebarActionableItem,
@@ -22,6 +23,7 @@ type NavigationItemProps = {
 
 export function NavigationItem({
   item,
+  isReadOnly,
   activeItemId,
   onItemAction,
   onItemExpand,
@@ -67,14 +69,15 @@ export function NavigationItem({
     () => ({
       actions: getItemActions(item),
       onAction: onAction,
-      ...(item.type === 'connection' && {
-        collapseAfter: 1,
-      }),
+      ...(item.type === 'connection' &&
+        !isReadOnly && {
+          collapseAfter: 1,
+        }),
       ...(item.type === 'database' && {
         collapseToMenuThreshold: 3,
       }),
     }),
-    [getItemActions, item, onAction]
+    [getItemActions, isReadOnly, item, onAction]
   );
 
   const itemDataProps = useMemo(() => {
