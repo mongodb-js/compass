@@ -84,7 +84,7 @@
     "lodash": "^4.17.21",
     "mongodb": "^6.6.2",
     "mongodb-data-service": "^22.20.0",
-    "mongodb-query-parser": "^4.1.0",
+    "mongodb-query-parser": "^4.1.2",
     "numeral": "^2.0.6",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
