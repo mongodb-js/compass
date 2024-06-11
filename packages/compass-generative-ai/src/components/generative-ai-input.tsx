@@ -428,8 +428,8 @@ function GenerativeAIInput({
                   showGuideCue={showEmptyResultsDisclaimer}
                   onCloseGuideCue={() => setShowEmptyResultsDisclaimer(false)}
                   refEl={guideCueRef}
-                  title="No content generated"
-                  description="Your query was generated without specific content, consider changing your prompt to describe your query in more detail."
+                  title="Empty query generated"
+                  description="The query generated returns all of the documents in your collection. Consider adjusting and resubmitting your prompt to narrow down the results."
                 />
                 <span className={aiEntryContainerStyles} ref={guideCueRef}>
                   <Icon glyph="Sparkle" />

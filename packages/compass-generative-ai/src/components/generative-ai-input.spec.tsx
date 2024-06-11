@@ -236,4 +236,30 @@ describe('GenerativeAIInput Component', function () {
       });
     });
   });
+
+  describe('Empty results guide cue', function () {
+    const emptyResultsText = 'Empty query generated';
+
+    describe('Empty results guide cue', function () {
+      it('should not show the guide cue when didGenerateEmptyResults is false', function () {
+        renderGenerativeAIInput({
+          didGenerateEmptyResults: false,
+        });
+        expect(screen.queryByText(emptyResultsText)).to.not.exist;
+      });
+
+      it('should show the guide cue when didGenerateEmptyResults is true', async function () {
+        renderGenerativeAIInput({
+          didGenerateEmptyResults: true,
+        });
+
+        expect(screen.getByText(emptyResultsText)).to.be.visible;
+        expect(screen.getByTestId(aiGuideCueDescriptionSpanId)).to.be.visible;
+        userEvent.click(screen.getByRole('button', { name: 'Got it' }));
+        await waitFor(function () {
+          expect(screen.queryByText(emptyResultsText)).to.not.exist;
+        });
+      });
+    });
+  });
 });
