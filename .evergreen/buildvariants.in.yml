@@ -11,6 +11,15 @@ buildvariants:
     tasks:
       - name: e2e-coverage
 
+  - name: multiple-connections
+    display_name: Multiple Connections
+    run_on: ubuntu2004-large
+    tasks:
+      - name: package-compass
+        run_on: ubuntu1604-large
+      - name: e2e-multiple-connections
+        depends_on: package-compass
+
   - name: ubuntu_publish
     display_name: Publish Artifacts
     run_on: ubuntu2004-large

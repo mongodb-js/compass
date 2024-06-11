@@ -55,6 +55,26 @@ tasks:
         vars:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
+  - name: e2e-multiple-connections
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-multiple-connections
+        vars:
+          mongodb_version: latest-alpha-enterprise
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
   - name: generate-vulnerability-report
     tags: ['required-for-publish', 'run-on-pr']
     commands:
@@ -101,6 +121,7 @@ tasks:
     commands:
       - func: prepare
       - func: publish-dev-release-info
+
 
   - name: package-compass
     tags: ['required-for-publish', 'run-on-pr']
@@ -500,26 +521,5 @@ tasks:
         vars: 
           mongodb_version: 'latest-alpha-enterprise'
           browser_name: 'firefox'
-          compass_distribution: compass
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-
-
-  - name: test-multiple-connections-multiple-connections
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: 'compass-e2e-tests'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-multiple-connections
-        vars: 
-          mongodb_version: 'latest-alpha-enterprise'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
