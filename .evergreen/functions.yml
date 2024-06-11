@@ -443,12 +443,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
-          # Do not run static analysis report generation on patches to reduce
-          # the load on GitHub API that is used in the process
-          if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then
-            .evergreen/create-static-analysis-report.sh
-          fi
+          .evergreen/create-static-analysis-report.sh
 
   publish:
     - command: shell.exec
