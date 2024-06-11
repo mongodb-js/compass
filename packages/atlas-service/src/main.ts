@@ -5,6 +5,7 @@ import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
   getTrackingUserInfo,
+  getSystemCA,
 } from './util';
 import {
   createMongoDBOIDCPlugin,
@@ -129,7 +130,7 @@ export class CompassAuthService {
 
   private static createMongoDBOIDCPlugin = createMongoDBOIDCPlugin;
 
-  private static setupPlugin(serializedState?: string) {
+  private static async setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
       redirectServerRequestHandler: (data) => {
         if (data.result === 'redirecting') {
@@ -150,6 +151,9 @@ export class CompassAuthService {
       allowedFlows: this.getAllowedAuthFlows.bind(this),
       logger: this.oidcPluginLogger,
       serializedState,
+      customHttpOptions: {
+        ca: await getSystemCA(),
+      },
     });
     oidcPluginHookLoggerToMongoLogWriter(
       this.oidcPluginLogger,
@@ -180,7 +184,7 @@ export class CompassAuthService {
         { config: this.config }
       );
       const serializedState = await this.secretStore.getState();
-      this.setupPlugin(serializedState);
+      await this.setupPlugin(serializedState);
     })());
   }
 
@@ -301,7 +305,7 @@ export class CompassAuthService {
     this.attachOidcPluginLoggerEvents();
     // Destroy old plugin and setup new one
     await this.plugin?.destroy();
-    this.setupPlugin();
+    await this.setupPlugin();
     // Revoke tokens. Revoking refresh token will also revoke associated access
     // tokens
     // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
