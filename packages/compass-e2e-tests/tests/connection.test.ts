@@ -182,6 +182,7 @@ async function assertCannotCreateDb(
   collectionName: string
 ): Promise<void> {
   // open the create database modal from the sidebar
+  // TODO: add support for multiple connections
   await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
@@ -458,7 +459,12 @@ describe('Connection string', function () {
 
     await assertCanReadData(browser, 'compass_e2e', 'companies_info');
     await assertCannotInsertData(browser, 'compass_e2e', 'companies_info');
-    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    // TODO: we need to click the active connection's add database button and
+    // therefore might as well wait for the active&saved connections to be
+    // unified
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    }
     await assertCannotCreateCollection(
       browser,
       'compass_e2e',
@@ -485,7 +491,12 @@ describe('Connection string', function () {
     }
 
     await assertCanReadData(browser, 'test', 'users');
-    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    // TODO: we need to click the active connection's add database button and
+    // therefore might as well wait for the active&saved connections to be
+    // unified
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    }
     await assertCannotCreateCollection(browser, 'test', 'new-collection');
   });
 
@@ -509,7 +520,12 @@ describe('Connection string', function () {
 
     await assertCanReadData(browser, 'test', 'users');
     await assertCannotInsertData(browser, 'test', 'users');
-    await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    // TODO: we need to click the active connection's add database button and
+    // therefore might as well wait for the active&saved connections to be
+    // unified
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      await assertCannotCreateDb(browser, 'new-db', 'new-collection');
+    }
     await assertCannotCreateCollection(browser, 'test', 'new-collection');
   });
 });
@@ -855,6 +871,11 @@ describe('System CA access', function () {
   });
 
   it('allows using the system certificate store for connections', async function () {
+    // TODO: this uses shellEval and that's not working in multiple connections yet
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
@@ -864,14 +885,12 @@ describe('System CA access', function () {
         sslConnection: 'DEFAULT',
         useSystemCA: true,
       });
-      if (!TEST_MULTIPLE_CONNECTIONS) {
-        const result = await browser.shellEval(
-          'db.runCommand({ connectionStatus: 1 })',
-          true
-        );
-        assertNotError(result);
-        expect(result).to.have.property('ok', 1);
-      }
+      const result = await browser.shellEval(
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
     } finally {
       // make sure the browser gets closed otherwise if this fails the process won't exit
       await cleanup(compass);
