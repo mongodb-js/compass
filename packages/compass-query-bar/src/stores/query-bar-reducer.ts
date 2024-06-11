@@ -519,6 +519,7 @@ export const queryBarReducer: Reducer<QueryBarState> = (
   ) {
     return {
       ...state,
+      expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
     };
   }
