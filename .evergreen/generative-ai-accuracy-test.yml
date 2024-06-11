@@ -1,6 +1,6 @@
 # This evergreen .yml is only used in periodic builds.
-# We don't want it to run on every patch as that would be too many
-# requests to our ai model (expensive).
+# We don't want it to run on every commit as that would be
+# too many requests to our ai model (expensive).
 
 unset_function_vars: true
 stepback: false

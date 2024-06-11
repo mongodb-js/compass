@@ -8,7 +8,7 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 
 export type { DataService };
 export * from './connections-manager';
-export { useConnections } from './stores/connections-store';
+export { useConnections } from './components/connections-provider';
 export { useActiveConnections } from './hooks/use-active-connections';
 
 class TestConnectionsManager extends EventEmitter {
@@ -70,9 +70,6 @@ export const dataServiceLocator = createServiceLocator(
     const ds = connectionsManager.getDataServiceForConnection(
       connectionInfo.id
     );
-    if (!ds) {
-      throw new Error('DataService is not available for the active connection');
-    }
     return ds;
   }
 );
@@ -80,6 +77,7 @@ export const dataServiceLocator = createServiceLocator(
 export { useConnectionStatus } from './hooks/use-connection-status';
 export {
   connectionScopedAppRegistryLocator,
+  ConnectionScopedAppRegistryImpl,
   type ConnectionScopedAppRegistry,
   type ConnectionScopedAppRegistryLocator,
 } from './connection-scoped-app-registry';
@@ -90,7 +88,8 @@ export {
 export {
   type ConnectionRepository,
   useConnectionRepository,
-} from './hooks/use-connection-repository';
+  areConnectionsEqual,
+} from './components/connections-provider';
 export * from './connection-info-provider';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

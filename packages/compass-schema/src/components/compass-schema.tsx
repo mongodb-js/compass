@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 
 import type { AnalysisState } from '../constants/analysis-states';
 import {
@@ -29,12 +29,12 @@ import {
   Badge,
   Icon,
 } from '@mongodb-js/compass-components';
-import { HackoladePromoBanner } from './promo-banner';
 import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
 
 const rootStyles = css({
   width: '100%',
@@ -64,6 +64,7 @@ const contentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[3],
+  height: '100%',
 });
 
 const insightsBadgeStyles = css({
@@ -84,166 +85,166 @@ const minichartStyles = (darkMode: boolean) => {
   const fewRectStroke = darkMode ? palette.black : palette.white;
 
   return css`
-div.minichart.unique {
-  font-size: 12px;
-  dl.dl-horizontal {
-    margin-left: -32px;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: 36px auto;
-    grid-template-areas: 'sidebar content';
-    dt {
-      color: ${palette.gray.base};
-    }
-    dd {
-      overflow: auto;
-      max-height: 112px;
-      ul li {
-        margin: 5px;
-        margin-top: 0;
-        display: inline-block;
+    div.minichart.unique {
+      font-size: 12px;
+      dl.dl-horizontal {
+        margin-left: -32px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 36px auto;
+        grid-template-areas: 'sidebar content';
+        dt {
+          color: ${palette.gray.base};
+        }
+        dd {
+          overflow: auto;
+          max-height: 112px;
+          ul li {
+            margin: 5px;
+            margin-top: 0;
+            display: inline-block;
+          }
+        }
       }
     }
-  }
-}
-.minichart-wrapper {
-  svg.minichart {
-    margin-left: -40px;
-  }
-}
-.layer,
-.layer svg {
-  position: absolute;
-}
-.layer svg.marker {
-  width: 20px;
-  height: 20px;
-  circle {
-    fill: ${mcFg};
-    stroke: ${palette.white};
-    stroke-width: 1.5px;
-    &.selected {
-      fill: ${mcFgSelected};
+    .minichart-wrapper {
+      svg.minichart {
+        margin-left: -40px;
+      }
     }
-  }
-}
-.layer svg.selection {
-  visibility: hidden;
-  circle {
-    fill: ${mcFgSelected};
-    fill-opacity: 0.2;
-    stroke: ${mcFgSelected};
-    stroke-width: 2px;
-  }
-}
-svg.minichart {
-  font-size: 10px;
-  text {
-    fill: ${palette.gray.base};
-    font-weight: bold;
-  }
-  .glass {
-    opacity: 0;
-  }
-  g.brush rect.extent {
-    fill: ${mcFgSelected};
-    fill-opacity: 0.2;
-  }
-  .hour,
-  .weekday {
-    .bar {
-      cursor: default !important;
+    .layer,
+    .layer svg {
+      position: absolute;
     }
-  }
-  .bar {
-    shape-rendering: crispEdges;
-    cursor: crosshair;
-    rect.bg {
-      fill: ${mcBg};
+    .layer svg.marker {
+      width: 20px;
+      height: 20px;
+      circle {
+        fill: ${mcFg};
+        stroke: ${palette.white};
+        stroke-width: 1.5px;
+        &.selected {
+          fill: ${mcFgSelected};
+        }
+      }
     }
-    rect.fg {
-      fill: ${mcFg};
-      &.selected {
+    .layer svg.selection {
+      visibility: hidden;
+      circle {
         fill: ${mcFgSelected};
-      }
-      &.half-selected {
-        fill: ${mcFgSelected};
-        mask: url(#mask-stripe);
-      }
-      &.unselected {
-        fill: ${mcFgUnselected};
-      }
-    }
-    &.few {
-      rect {
-        stroke: ${fewRectStroke};
+        fill-opacity: 0.2;
+        stroke: ${mcFgSelected};
         stroke-width: 2px;
       }
-      rect.fg-0 {
-        fill: ${mcBlue0};
-      }
-      rect.fg-1 {
-        fill: ${mcBlue1};
-      }
-      rect.fg-2 {
-        fill: ${mcBlue2};
-      }
-      rect.fg-3 {
-        fill: ${mcBlue3};
-      }
-      rect.fg-4 {
-        fill: ${mcBlue4};
-      }
-      rect.fg-5 {
-        fill: ${mcBlue5};
-      }
-      rect.fg.selected {
-        fill: ${mcFgSelected};
-      }
-      rect.fg.unselected {
-        fill: ${mcFgUnselected};
-      }
+    }
+    svg.minichart {
+      font-size: 10px;
       text {
-        fill: ${palette.white};
-        font-size: 12px;
+        fill: ${palette.gray.base};
+        font-weight: bold;
+      }
+      .glass {
+        opacity: 0;
+      }
+      g.brush rect.extent {
+        fill: ${mcFgSelected};
+        fill-opacity: 0.2;
+      }
+      .hour,
+      .weekday {
+        .bar {
+          cursor: default !important;
+        }
+      }
+      .bar {
+        shape-rendering: crispEdges;
+        cursor: crosshair;
+        rect.bg {
+          fill: ${mcBg};
+        }
+        rect.fg {
+          fill: ${mcFg};
+          &.selected {
+            fill: ${mcFgSelected};
+          }
+          &.half-selected {
+            fill: ${mcFgSelected};
+            mask: url(#mask-stripe);
+          }
+          &.unselected {
+            fill: ${mcFgUnselected};
+          }
+        }
+        &.few {
+          rect {
+            stroke: ${fewRectStroke};
+            stroke-width: 2px;
+          }
+          rect.fg-0 {
+            fill: ${mcBlue0};
+          }
+          rect.fg-1 {
+            fill: ${mcBlue1};
+          }
+          rect.fg-2 {
+            fill: ${mcBlue2};
+          }
+          rect.fg-3 {
+            fill: ${mcBlue3};
+          }
+          rect.fg-4 {
+            fill: ${mcBlue4};
+          }
+          rect.fg-5 {
+            fill: ${mcBlue5};
+          }
+          rect.fg.selected {
+            fill: ${mcFgSelected};
+          }
+          rect.fg.unselected {
+            fill: ${mcFgUnselected};
+          }
+          text {
+            fill: ${palette.white};
+            font-size: 12px;
+          }
+        }
+      }
+      .line {
+        stroke: ${mcFg};
+        &.selected {
+          stroke: ${mcFgSelected};
+        }
+      }
+      .legend {
+        text {
+          fill: ${palette.gray.light1};
+        }
+        line {
+          stroke: ${palette.gray.light2};
+        }
+        shape-rendering: crispEdges;
+      }
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: ${palette.gray.light2};
+        shape-rendering: crispEdges;
+      }
+      .circle {
+        fill: ${mcFg};
+        stroke: ${palette.white};
+        stroke-width: 1.5px;
+        &.selected {
+          fill: ${mcFgSelected};
+        }
       }
     }
-  }
-  .line {
-    stroke: ${mcFg};
-    &.selected {
-      stroke: ${mcFgSelected};
+    .tooltip-wrapper {
+      line-height: 120%;
+      max-width: 400px;
     }
-  }
-  .legend {
-    text {
-      fill: ${palette.gray.light1};
-    }
-    line {
-      stroke: ${palette.gray.light2};
-    }
-    shape-rendering: crispEdges;
-  }
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: ${palette.gray.light2};
-    shape-rendering: crispEdges;
-  }
-  .circle {
-    fill: ${mcFg};
-    stroke: ${palette.white}
-    stroke-width: 1.5px;
-    &.selected {
-      fill: ${mcFgSelected};
-    }
-  }
-}
-.tooltip-wrapper {
-  line-height: 120%;
-  max-width: 400px;
-}
-`;
+  `;
 };
 
 const minichartStylesLight = minichartStyles(false);
@@ -365,28 +366,12 @@ const PerformanceAdvisorBanner = () => {
 const Schema: React.FunctionComponent<{
   actions: ReturnType<typeof configureActions>;
   analysisState: AnalysisState;
-  outdated?: boolean;
-  isActiveTab?: boolean;
   errorMessage?: string;
   maxTimeMS?: number;
   schema?: any;
   count?: number;
   resultId?: string;
-}> = ({
-  actions,
-  analysisState,
-  outdated,
-  isActiveTab,
-  errorMessage,
-  schema,
-  resultId,
-}) => {
-  useEffect(() => {
-    if (isActiveTab) {
-      actions.resizeMiniCharts();
-    }
-  }, [isActiveTab, actions]);
-
+}> = ({ actions, analysisState, errorMessage, schema, resultId }) => {
   const onApplyClicked = useCallback(() => {
     actions.startAnalysis();
   }, [actions]);
@@ -399,7 +384,8 @@ const Schema: React.FunctionComponent<{
     actions.startAnalysis();
   }, [actions]);
 
-  const enableHackoladeBanner = usePreference('enableHackoladeBanner');
+  const outdated = useIsLastAppliedQueryOutdated('schema');
+
   const enablePerformanceAdvisorBanner = usePreference(
     'enablePerformanceAdvisorBanner'
   );
@@ -421,7 +407,6 @@ const Schema: React.FunctionComponent<{
       >
         <div className={contentStyles}>
           {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
-          {enableHackoladeBanner && <HackoladePromoBanner />}
           {analysisState === ANALYSIS_STATE_INITIAL && (
             <InitialScreen onApplyClicked={onApplyClicked} />
           )}

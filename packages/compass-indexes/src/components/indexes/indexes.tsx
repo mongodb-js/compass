@@ -83,6 +83,13 @@ function isRefreshingStatus(status: SearchIndexesStatus) {
   );
 }
 
+const indexesContainersStyles = css({
+  paddingTop: spacing[3],
+  display: 'grid',
+  gridTemplateColumns: '100%',
+  gap: spacing[2],
+});
+
 export function Indexes({
   isReadonlyView,
   regularIndexes,
@@ -136,13 +143,17 @@ export function Indexes({
           />
         }
       >
-        {!isReadonlyView && !enableAtlasSearchIndexes && <AtlasIndexesBanner />}
-        {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
-          <RegularIndexesTable />
-        )}
-        {!isReadonlyView && currentIndexesView === 'search-indexes' && (
-          <SearchIndexesTable />
-        )}
+        <div className={indexesContainersStyles}>
+          {!isReadonlyView && !enableAtlasSearchIndexes && (
+            <AtlasIndexesBanner />
+          )}
+          {!isReadonlyView && currentIndexesView === 'regular-indexes' && (
+            <RegularIndexesTable />
+          )}
+          {!isReadonlyView && currentIndexesView === 'search-indexes' && (
+            <SearchIndexesTable />
+          )}
+        </div>
       </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />

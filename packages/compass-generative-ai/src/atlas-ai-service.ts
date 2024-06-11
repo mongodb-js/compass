@@ -26,7 +26,7 @@ type GenerativeAiInput = {
 // want to ensure we're not uploading massive documents (some folks have documents > 1mb).
 const AI_MAX_REQUEST_SIZE = 100000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
-const USER_AI_URI = (userId: string) => `ai/api/v1/hello/${userId}`;
+const USER_AI_URI = (userId: string) => `unauth/ai/api/v1/hello/${userId}`;
 const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';
 const QUERY_URI = 'ai/api/v1/mql-query';
 
@@ -94,6 +94,107 @@ function buildQueryOrAggregationMessageBody(
   return msgBody;
 }
 
+function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
+  return Object.keys(obj).some((key) => !expectedKeys.includes(key));
+}
+
+export function validateAIQueryResponse(
+  response: any
+): asserts response is AIQuery {
+  const { content } = response ?? {};
+
+  if (typeof content !== 'object' || content === null) {
+    throw new Error('Unexpected response: expected content to be an object');
+  }
+
+  if (hasExtraneousKeys(content, ['query', 'aggregation'])) {
+    throw new Error(
+      'Unexpected keys in response: expected query and aggregation'
+    );
+  }
+
+  const { query, aggregation } = content;
+
+  if (!query && !aggregation) {
+    throw new Error(
+      'Unexpected response: expected query or aggregation, got none'
+    );
+  }
+
+  if (query && typeof query !== 'object') {
+    throw new Error('Unexpected response: expected query to be an object');
+  }
+
+  if (
+    hasExtraneousKeys(query, [
+      'filter',
+      'project',
+      'collation',
+      'sort',
+      'skip',
+      'limit',
+    ])
+  ) {
+    throw new Error(
+      'Unexpected keys in response: expected filter, project, collation, sort, skip, limit, aggregation'
+    );
+  }
+
+  for (const field of [
+    'filter',
+    'project',
+    'collation',
+    'sort',
+    'skip',
+    'limit',
+  ]) {
+    if (query[field] && typeof query[field] !== 'string') {
+      throw new Error(
+        `Unexpected response: expected field ${field} to be a string, got ${JSON.stringify(
+          query[field],
+          null,
+          2
+        )}`
+      );
+    }
+  }
+
+  if (aggregation && typeof aggregation.pipeline !== 'string') {
+    throw new Error(
+      `Unexpected response: expected aggregation pipeline to be a string, got ${JSON.stringify(
+        aggregation,
+        null,
+        2
+      )}`
+    );
+  }
+}
+
+export function validateAIAggregationResponse(
+  response: any
+): asserts response is AIAggregation {
+  const { content } = response;
+
+  if (typeof content !== 'object' || content === null) {
+    throw new Error('Unexpected response: expected content to be an object');
+  }
+
+  if (hasExtraneousKeys(content, ['aggregation'])) {
+    throw new Error('Unexpected keys in response: expected aggregation');
+  }
+
+  if (content.aggregation && typeof content.aggregation.pipeline !== 'string') {
+    // Compared to queries where we will always get the `query` field, for
+    // aggregations backend deletes the whole `aggregation` key if pipeline is
+    // empty, so we only validate `pipeline` key if `aggregation` key is present
+    throw new Error(
+      `Unexpected response: expected aggregation to be a string, got ${String(
+        content.aggregation.pipeline
+      )}`
+    );
+  }
+}
+
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
 
@@ -126,7 +227,7 @@ export class AtlasAiService {
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const userId = this.preferences.getPreferencesUser().id;
-    const url = this.atlasService.privateUnAuthEndpoint(USER_AI_URI(userId));
+    const url = this.atlasService.adminApiEndpoint(USER_AI_URI(userId));
     const res = await this.atlasService.fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -181,7 +282,7 @@ export class AtlasAiService {
     const { signal, requestId, ...rest } = input;
     const msgBody = buildQueryOrAggregationMessageBody(rest);
 
-    const url = this.atlasService.privateAtlasEndpoint(uri, requestId);
+    const url = this.atlasService.adminApiEndpoint(uri, requestId);
 
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_308),
@@ -240,7 +341,7 @@ export class AtlasAiService {
     return this.getQueryOrAggregationFromUserInput(
       AGGREGATION_URI,
       input,
-      this.validateAIAggregationResponse.bind(this)
+      validateAIAggregationResponse
     );
   }
 
@@ -248,100 +349,8 @@ export class AtlasAiService {
     return this.getQueryOrAggregationFromUserInput(
       QUERY_URI,
       input,
-      this.validateAIQueryResponse.bind(this)
+      validateAIQueryResponse
     );
-  }
-
-  private validateAIQueryResponse(response: any): asserts response is AIQuery {
-    const { content } = response ?? {};
-
-    if (typeof content !== 'object' || content === null) {
-      throw new Error('Unexpected response: expected content to be an object');
-    }
-
-    if (this.hasExtraneousKeys(content, ['query', 'aggregation'])) {
-      throw new Error(
-        'Unexpected keys in response: expected query and aggregation'
-      );
-    }
-
-    const { query, aggregation } = content;
-
-    if (typeof query !== 'object' || query === null) {
-      throw new Error('Unexpected response: expected query to be an object');
-    }
-
-    if (
-      this.hasExtraneousKeys(query, [
-        'filter',
-        'project',
-        'collation',
-        'sort',
-        'skip',
-        'limit',
-      ])
-    ) {
-      throw new Error(
-        'Unexpected keys in response: expected filter, project, collation, sort, skip, limit, aggregation'
-      );
-    }
-
-    for (const field of [
-      'filter',
-      'project',
-      'collation',
-      'sort',
-      'skip',
-      'limit',
-    ]) {
-      if (query[field] && typeof query[field] !== 'string') {
-        throw new Error(
-          `Unexpected response: expected field ${field} to be a string, got ${JSON.stringify(
-            query[field],
-            null,
-            2
-          )}`
-        );
-      }
-    }
-
-    if (aggregation && typeof aggregation.pipeline !== 'string') {
-      throw new Error(
-        `Unexpected response: expected aggregation pipeline to be a string, got ${JSON.stringify(
-          aggregation,
-          null,
-          2
-        )}`
-      );
-    }
-  }
-
-  private validateAIAggregationResponse(
-    response: any
-  ): asserts response is AIAggregation {
-    const { content } = response;
-
-    if (typeof content !== 'object' || content === null) {
-      throw new Error('Unexpected response: expected content to be an object');
-    }
-
-    if (this.hasExtraneousKeys(content, ['aggregation'])) {
-      throw new Error('Unexpected keys in response: expected aggregation');
-    }
-
-    if (
-      content.aggregation &&
-      typeof content.aggregation.pipeline !== 'string'
-    ) {
-      // Compared to queries where we will always get the `query` field, for
-      // aggregations backend deletes the whole `aggregation` key if pipeline is
-      // empty, so we only validate `pipeline` key if `aggregation` key is present
-      throw new Error(
-        `Unexpected response: expected aggregation to be a string, got ${String(
-          content.aggregation.pipeline
-        )}`
-      );
-    }
   }
 
   private validateAIFeatureEnablementResponse(
@@ -351,9 +360,5 @@ export class AtlasAiService {
     if (typeof features !== 'object') {
       throw new Error('Unexpected response: expected features to be an object');
     }
-  }
-
-  private hasExtraneousKeys(obj: any, expectedKeys: string[]) {
-    return Object.keys(obj).some((key) => !expectedKeys.includes(key));
   }
 }

@@ -7,8 +7,9 @@ import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provid
 import { CompassAtlasAuthService } from './compass-atlas-auth-service';
 
 const ATLAS_CONFIG = {
-  atlasApiBaseUrl: 'http://example.com/api/private',
-  atlasApiUnauthBaseUrl: 'http://api.example.com',
+  wsBaseUrl: 'ws://example.com',
+  cloudBaseUrl: 'ws://example.com/cloud',
+  atlasApiBaseUrl: 'http://example.com/api',
   atlasLogin: {
     clientId: 'some-client-id',
     issuer: 'http://example.com/oauth2/default',

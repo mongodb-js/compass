@@ -144,7 +144,14 @@ export function createInstancesStore(
         );
       }
 
-      async function refreshNamespaceStats({ ns }: { ns: string }) {
+      async function refreshNamespaceStats(
+        { ns }: { ns: string },
+        { connectionId }: { connectionId?: string } = {}
+      ) {
+        if (connectionId !== instanceConnectionId) {
+          return;
+        }
+
         const { database } = toNS(ns);
         const db = instance.databases.get(database);
         const coll = db?.collections.get(ns);
@@ -226,9 +233,18 @@ export function createInstancesStore(
         onTopologyDescriptionChanged
       );
 
-      on(globalAppRegistry, 'sidebar-expand-database', (dbName: string) => {
-        void instance.databases.get(dbName)?.fetchCollections({ dataService });
-      });
+      on(
+        globalAppRegistry,
+        'sidebar-expand-database',
+        (connectionId: string, databaseId: string) => {
+          if (connectionId !== instanceConnectionId) {
+            return;
+          }
+          void instance.databases
+            .get(databaseId)
+            ?.fetchCollections({ dataService });
+        }
+      );
 
       on(
         globalAppRegistry,

@@ -91,10 +91,6 @@ const queryOptionsContainerStyles = css({
   gap: spacing[2],
 });
 
-const queryAIContainerStyles = css({
-  margin: `0px ${spacing[2]}px`,
-});
-
 const QueryOptionsToggle = connect(
   (state: RootState) => {
     return {
@@ -218,14 +214,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-apply-id={applyId}
     >
       {isAIFeatureEnabled && (
-        <div className={queryAIContainerStyles}>
-          <QueryAI
-            onClose={() => {
-              onHideAIInputClick?.();
-            }}
-            show={isAIInputVisible}
-          />
-        </div>
+        <QueryAI
+          onClose={() => {
+            onHideAIInputClick?.();
+          }}
+          show={isAIInputVisible}
+        />
       )}
       <div className={queryBarFirstRowStyles}>
         {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
@@ -328,6 +322,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 type OwnProps = {
   onApply?(query: unknown): void;
   onReset?(query: unknown): void;
+  source: string;
 };
 
 export default connect(
@@ -351,14 +346,14 @@ export default connect(
         dispatch(openExportToLanguage());
       },
       onApply: () => {
-        const applied = dispatch(applyQuery());
+        const applied = dispatch(applyQuery(ownProps.source));
         if (applied === false) {
           return;
         }
         ownProps.onApply?.(applied);
       },
       onReset: () => {
-        const reset = dispatch(resetQuery());
+        const reset = dispatch(resetQuery(ownProps.source));
         if (reset === false) {
           return;
         }

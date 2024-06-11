@@ -35,6 +35,7 @@ import {
   type ConnectionInfo,
   ConnectionInfoProvider,
   useTabConnectionTheme,
+  useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 
 const emptyWorkspaceStyles = css({
@@ -106,15 +107,29 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
+  const { getConnectionTitleById } = useConnectionRepository();
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
       switch (tab.type) {
+        case 'Welcome':
+          return {
+            id: tab.id,
+            title: tab.type,
+            iconGlyph: 'Logo',
+          } as const;
         case 'My Queries':
           return {
             id: tab.id,
             title: tab.type,
             iconGlyph: 'CurlyBraces',
+          } as const;
+        case 'Shell':
+          return {
+            id: tab.id,
+            title: getConnectionTitleById(tab.connectionId) ?? 'MongoDB Shell',
+            iconGlyph: 'Shell',
+            tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Databases':
           return {
@@ -171,12 +186,17 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [tabs, collectionInfo, getThemeOf]);
+  }, [tabs, collectionInfo, getThemeOf, getConnectionTitleById]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
+      case 'Welcome': {
+        const Component = getWorkspacePluginByName(activeTab.type);
+        return <Component></Component>;
+      }
+
       // TODO: Remove the ConnectionInfoProvider when we make My Queries
       // workspace work independently of a DataService
       case 'My Queries': {
@@ -189,6 +209,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           </ConnectionInfoProvider>
         );
       }
+      case 'Shell':
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);

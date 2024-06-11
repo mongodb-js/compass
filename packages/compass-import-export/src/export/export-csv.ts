@@ -2,7 +2,6 @@ import fs from 'fs';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
 import { pipeline } from 'stream/promises';
-import temp from 'temp';
 import { Transform } from 'stream';
 import type { Readable, Writable } from 'stream';
 import toNS from 'mongodb-ns';
@@ -11,6 +10,8 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
+import path from 'path';
+import os from 'os';
 
 import { lookupValueForPath, ColumnRecorder } from './export-utils';
 import {
@@ -30,6 +31,12 @@ import { createDebug } from '../utils/logger';
 import type { AggregationCursor, FindCursor } from 'mongodb';
 
 const debug = createDebug('export-csv');
+
+const generateTempFilename = (suffix: string) => {
+  const randomString = Math.random().toString(36).substring(2, 15);
+  const filename = `temp-${randomString}${suffix}`;
+  return path.join(os.tmpdir(), filename);
+};
 
 // First we download all the docs for the query/aggregation to a temporary file
 // while determining the unique set of columns we'll need and their order
@@ -223,7 +230,7 @@ async function loadEJSONFileAndColumns({
   // while simultaneously determining the unique set of columns in the order
   // we'll have to write to the file.
   const inputStream = cursor.stream();
-  const filename = temp.path({ suffix: '.jsonl' });
+  const filename = generateTempFilename('.jsonl');
   const output = fs.createWriteStream(filename);
 
   const columnStream = new ColumnStream(progressCallback);

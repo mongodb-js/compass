@@ -1,15 +1,19 @@
 import React, { useCallback } from 'react';
-import { spacing, css, TextInput } from '@mongodb-js/compass-components';
+import { TextInput } from '@mongodb-js/compass-components';
 
-const databaseCollectionsFilter = css({
-  margin: `${spacing[1]}px ${spacing[3]}px`,
-});
-
-export default function DatabaseCollectionFilter({
+export default function NavigationItemsFilter({
+  placeholder = 'Search',
+  ariaLabel = 'Search',
+  title = 'Search',
   onFilterChange,
+  searchInputClassName,
 }: {
+  placeholder?: string;
+  ariaLabel?: string;
+  title?: string;
+  searchInputClassName?: string;
   onFilterChange(regex: RegExp | null): void;
-}) {
+}): React.ReactElement {
   const onChange = useCallback(
     (event) => {
       const searchString: string = event.target.value;
@@ -36,12 +40,12 @@ export default function DatabaseCollectionFilter({
     <form noValidate onSubmit={onSubmit}>
       <TextInput
         data-testid="sidebar-filter-input"
-        placeholder="Search"
+        placeholder={placeholder}
         type="search"
-        aria-label="Databases and collections filter"
-        title="Databases and collections filter"
+        aria-label={ariaLabel}
+        title={title}
         onChange={onChange}
-        className={databaseCollectionsFilter}
+        className={searchInputClassName}
       />
     </form>
   );

@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  useEffect,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   useActiveConnections,
@@ -27,6 +33,7 @@ import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -122,6 +129,8 @@ export function MultipleConnectionSidebar({
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
   const activeConnections = useActiveConnections();
+  const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
+    useState<RegExp | null>(null);
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
 
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
@@ -136,9 +145,19 @@ export function MultipleConnectionSidebar({
 
   const onConnected = useCallback(
     (info: ConnectionInfo) => {
-      closeToast(`connection-status-${info.id}`);
+      openToast(`connection-status-${info.id}`, {
+        title: `Connected to ${getConnectionTitle(info)}`,
+        variant: 'success',
+        timeout: 3_000,
+      });
     },
-    [closeToast]
+    [openToast]
+  );
+
+  const onActiveConnectionFilterChange = useCallback(
+    (filterRegex: RegExp | null) =>
+      setActiveConnectionsFilterRegex(filterRegex),
+    [setActiveConnectionsFilterRegex]
   );
 
   const onConnectionAttemptStarted = useCallback(
@@ -169,7 +188,7 @@ export function MultipleConnectionSidebar({
         setIsConnectionFormOpen(true);
       };
 
-      openToast(`connection-status-${info?.id}`, {
+      openToast(`connection-status-${info?.id ?? ''}`, {
         title: `${error.message}`,
         description: (
           <ConnectionErrorToastBody
@@ -186,6 +205,7 @@ export function MultipleConnectionSidebar({
   const {
     setActiveConnectionById,
     connect,
+    closeConnection,
     favoriteConnections,
     recentConnections,
     cancelConnectionAttempt,
@@ -194,13 +214,7 @@ export function MultipleConnectionSidebar({
     duplicateConnection,
     createNewConnection,
     state,
-  } = useConnections({
-    onConnected: onConnected,
-    onConnectionAttemptStarted: onConnectionAttemptStarted,
-    onConnectionFailed(info, error) {
-      void onConnectionFailed(info, error);
-    },
-  });
+  } = useConnections();
 
   const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
     state;
@@ -210,9 +224,23 @@ export function MultipleConnectionSidebar({
   const onConnect = useCallback(
     (info: ConnectionInfo) => {
       setActiveConnectionById(info.id);
-      void connect(info);
+      onConnectionAttemptStarted(info);
+      void connect(info).then(
+        () => {
+          onConnected(info);
+        },
+        (err: Error) => {
+          void onConnectionFailed(info, err);
+        }
+      );
     },
-    [connect, setActiveConnectionById]
+    [
+      connect,
+      onConnected,
+      onConnectionAttemptStarted,
+      onConnectionFailed,
+      setActiveConnectionById,
+    ]
   );
 
   const onNewConnectionOpen = useCallback(() => {
@@ -229,7 +257,7 @@ export function MultipleConnectionSidebar({
   );
 
   const onNewConnectionConnect = useCallback(
-    (connectionInfo) => {
+    (connectionInfo: ConnectionInfo) => {
       void connect({
         ...cloneDeep(connectionInfo),
       }).then(() => setIsConnectionFormOpen(false));
@@ -238,7 +266,7 @@ export function MultipleConnectionSidebar({
   );
 
   const onSaveNewConnection = useCallback(
-    async (connectionInfo) => {
+    async (connectionInfo: ConnectionInfo) => {
       await saveConnection(connectionInfo);
       setIsConnectionFormOpen(false);
     },
@@ -320,6 +348,13 @@ export function MultipleConnectionSidebar({
     [findActiveConnection, maybeProtectConnectionString]
   );
 
+  const onDisconnect = useCallback(
+    (connectionId: string) => {
+      void closeConnection(connectionId);
+    },
+    [closeConnection]
+  );
+
   const protectConnectionStrings = usePreference('protectConnectionStrings');
   const forceConnectionOptions = usePreference('forceConnectionOptions');
   const showKerberosPasswordField = usePreference('showKerberosPasswordField');
@@ -353,6 +388,16 @@ export function MultipleConnectionSidebar({
     ]
   );
 
+  const appRegistry = useGlobalAppRegistry();
+
+  useEffect(() => {
+    // TODO(COMPASS-7397): don't hack this via the app registry
+    appRegistry.on('open-new-connection', onNewConnectionOpen);
+    return () => {
+      appRegistry.removeListener('open-new-connection', onNewConnectionOpen);
+    };
+  }, [appRegistry, onNewConnectionOpen]);
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -364,6 +409,9 @@ export function MultipleConnectionSidebar({
           onOpenConnectionInfo={onOpenConnectionInfo}
           onCopyConnectionString={onCopyActiveConnectionString}
           onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
+          onDisconnect={onDisconnect}
+          filterRegex={activeConnectionsFilterRegex}
+          onFilterChange={onActiveConnectionFilterChange}
         />
         <SavedConnectionList
           favoriteConnections={favoriteConnections}

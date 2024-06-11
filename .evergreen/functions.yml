@@ -33,11 +33,13 @@ variables:
     EVERGREEN_IS_PATCH: ${is_patch}
     EVERGREEN_PROJECT: ${project}
     EVERGREEN_REVISION: ${revision}
+    EVERGREEN_REVISION_ORDER_ID: ${revision_order_id}
     EVERGREEN_TASK_ID: ${task_id}
     EVERGREEN_TASK_NAME: ${task_name}
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
+    EVERGREEN_CREATED_AT: ${created_at}
     # WARN: This version is behind our electron runtime, but updating it will
     # drop support for some older linux platforms, so we are keeping them out of
     # sync for now
@@ -301,9 +303,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
-          echo "Synchronizing evergreen environment from Compass build tools..."
-
           # Generates and expansion file with build target metadata in packages/compass/expansions.yml
           npm run --workspace mongodb-compass build-info -- ${target_platform} ${target_arch} --format=yaml --flatten ${compass_distribution} --out expansions.yml
     - command: expansions.update
@@ -378,13 +377,14 @@ functions:
 
           # Write the host info so that it can be used by the signing tool
           if [[ $OSTYPE == "cygwin" ]]; then
-            identity_file=$(cygpath -wa "$identity_file")
+            identity_file_ospath=$(cygpath -wa "$identity_file")
           else
-            identity_file=$(eval echo "$identity_file")
+            identity_file_ospath=$(eval echo "$identity_file")
           fi
           cat <<EOL > signing_host_info.yml
           SIGNING_SERVER_HOSTNAME: $hostname
-          SIGNING_SERVER_PRIVATE_KEY: $identity_file
+          SIGNING_SERVER_PRIVATE_KEY: $identity_file_ospath
+          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: $identity_file
           SIGNING_SERVER_USERNAME: $user
           SIGNING_SERVER_PORT: 22
           EOL
@@ -405,13 +405,30 @@ functions:
           COMPASS_DISTRIBUTION: ${compass_distribution}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
+          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
+          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
+          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/compass_package.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          ARTIFACTORY_USERNAME: ${artifactory_username}
+          ARTIFACTORY_PASSWORD: ${artifactory_password}
+          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
+          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
+          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
         script: |
           set -e
 
-          eval $(.evergreen/print-compass-env.sh)
-          .evergreen/compass_package.sh
+          .evergreen/create-sbom.sh
 
   publish:
     - command: shell.exec
@@ -424,11 +441,27 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          if [[ "${project}" == "10gen-compass-main" ]]; then
-            export npm_config_dry_run=true
-          fi
           echo "Uploading release assets to S3 and GitHub if needed..."
           npm run --workspace mongodb-compass upload
+
+  publish-dev-release-info:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+        script: |
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/build-dev-release-info.sh release.json
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/release.json
+        remote_file: ${project}/compass/dev/release.json
+        content_type: application/json
+        display_name: release.json
+        optional: true
 
   get-packaged-app:
     - command: s3.get
@@ -737,6 +770,20 @@ functions:
         local_file: src/packages/compass/dist/${linux_tar_sign_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_sign_filename}
         content_type: application/pgp-signature
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/.sbom/purls.txt
+        remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/purls.txt
+        content_type: text/plain
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/.sbom/sbom.json
+        remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom.json
+        content_type: application/json
         optional: true
 
   get-all-artifacts:

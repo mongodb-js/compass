@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -68,7 +68,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "bson": "^6.6.0",
+    "bson": "^6.7.0",
     "lodash": "^4.17.21"
   }
 }

@@ -34,6 +34,7 @@ import {
 } from '../components/import-toast';
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
+import type { DataService } from 'mongodb-data-service';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
@@ -111,6 +112,7 @@ type ImportState = {
   analyzeStatus: ProcessStatus;
   analyzeError?: Error;
 
+  connectionId: string;
   namespace: string;
 };
 
@@ -138,6 +140,7 @@ export const INITIAL_STATE: ImportState = {
   fileType: '',
   analyzeStatus: PROCESS_STATUS.UNSPECIFIED,
   namespace: '',
+  connectionId: '',
 };
 
 export const onStarted = ({
@@ -187,11 +190,10 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     dispatch,
     getState,
     {
-      dataService,
+      connectionsManager,
       globalAppRegistry: appRegistry,
       workspaces,
       logger: { log, mongoLogId, track, debug },
-      connectionInfoAccess,
     }
   ) => {
     const startTime = Date.now();
@@ -209,6 +211,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         exclude,
         transform,
         namespace: ns,
+        connectionId,
       },
     } = getState();
 
@@ -273,8 +276,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       fileName,
     });
 
-    let promise: Promise<ImportResult>;
-
     let numErrors = 0;
     const errorCallback = (err: ErrorJSON) => {
       // For bulk write errors we'll get one callback for the whole batch and
@@ -308,38 +309,44 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     },
     1000);
 
-    if (fileType === 'csv') {
-      promise = importCSV({
-        dataService,
-        ns,
-        input,
-        output: errorLogWriteStream,
-        delimiter,
-        newline,
-        fields,
-        abortSignal,
-        progressCallback,
-        errorCallback,
-        stopOnErrors,
-        ignoreEmptyStrings: ignoreBlanks,
-      });
-    } else {
-      promise = importJSON({
-        dataService,
-        ns,
-        input,
-        output: errorLogWriteStream,
-        abortSignal,
-        stopOnErrors,
-        jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
-        progressCallback,
-        errorCallback,
-      });
-    }
-
+    let dataService: DataService | undefined;
     let result: ImportResult;
     try {
-      result = await promise;
+      if (!connectionId) {
+        throw new Error('ConnectionId not provided');
+      }
+
+      dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
+
+      if (fileType === 'csv') {
+        result = await importCSV({
+          dataService,
+          ns,
+          input,
+          output: errorLogWriteStream,
+          delimiter,
+          newline,
+          fields,
+          abortSignal,
+          progressCallback,
+          errorCallback,
+          stopOnErrors,
+          ignoreEmptyStrings: ignoreBlanks,
+        });
+      } else {
+        result = await importJSON({
+          dataService,
+          ns,
+          input,
+          output: errorLogWriteStream,
+          abortSignal,
+          stopOnErrors,
+          jsonVariant: fileIsMultilineJSON ? 'jsonl' : 'json',
+          progressCallback,
+          errorCallback,
+        });
+      }
 
       progressCallback.flush();
     } catch (err: any) {
@@ -411,8 +418,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     } else {
       const onReviewDocumentsClick = appRegistry
         ? () => {
-            const { id: connectionId } =
-              connectionInfoAccess.getCurrentConnectionInfo();
             workspaces.openCollectionWorkspace(connectionId, ns, {
               newTab: true,
             });
@@ -462,8 +467,10 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     };
 
     // Don't emit when the data service is disconnected
-    if (dataService.isConnected()) {
-      appRegistry.emit('import-finished', payload);
+    if (dataService?.isConnected()) {
+      appRegistry.emit('import-finished', payload, {
+        connectionId,
+      });
     }
   };
 };
@@ -839,8 +846,11 @@ export const setIgnoreBlanks = (ignoreBlanks: boolean) => ({
  * Open the import modal.
  */
 export const openImport = ({
+  connectionId,
   namespace,
+  origin,
 }: {
+  connectionId: string;
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
@@ -855,7 +865,7 @@ export const openImport = ({
     track('Import Opened', {
       origin,
     });
-    dispatch({ type: OPEN, namespace });
+    dispatch({ type: OPEN, namespace, connectionId });
   };
 };
 
@@ -1063,6 +1073,7 @@ export const importReducer: Reducer<ImportState> = (
     return {
       ...INITIAL_STATE,
       namespace: action.namespace,
+      connectionId: action.connectionId,
       isOpen: true,
     };
   }

@@ -2,8 +2,12 @@ import ConnectionString from 'mongodb-connection-string-url';
 import type { ConnectionInfo } from './connection-info';
 
 export function getConnectionTitle(
-  info: Pick<ConnectionInfo, 'favorite' | 'connectionOptions'>
+  info: Pick<ConnectionInfo, 'favorite' | 'connectionOptions' | 'atlasMetadata'>
 ): string {
+  if (info.atlasMetadata?.clusterName) {
+    return info.atlasMetadata.clusterName;
+  }
+
   if (info.favorite?.name) {
     return info.favorite.name;
   }

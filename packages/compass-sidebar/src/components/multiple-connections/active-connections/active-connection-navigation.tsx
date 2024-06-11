@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
 import { connect } from 'react-redux';
 import {
   type Connection,
@@ -10,10 +16,6 @@ import {
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
-import {
-  type Database,
-  toggleDatabaseExpanded,
-} from '../../../modules/databases';
 import type { RootState, SidebarThunkAction } from '../../../modules';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -23,16 +25,43 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import NavigationItemsFilter from '../../navigation-items-filter';
+import { findCollection } from '../../../helpers/find-collection';
+import {
+  fetchAllCollections,
+  onDatabaseExpand,
+} from '../../../modules/databases';
+import type { ConnectionsNavigationTreeProps } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
 
-function findCollection(ns: string, databases: Database[]) {
-  const { database, collection } = toNS(ns);
+type ExpandedDatabases = Record<
+  Database['_id'],
+  'expanded' | 'tempExpanded' | undefined
+>;
+type ExpandedConnections = Record<
+  ConnectionInfo['id'],
+  {
+    state: 'collapsed' | 'tempExpanded' | undefined;
+    databases: ExpandedDatabases;
+  }
+>;
 
-  return (
-    databases
-      .find((db) => db._id === database)
-      ?.collections.find((coll) => coll.name === collection) ?? null
-  );
+interface Match {
+  isMatch?: boolean;
 }
+
+type Collection = Connection['databases'][number]['collections'][number];
+
+type Database = Connection['databases'][number];
+
+type FilteredCollection = Collection & Match;
+type FilteredDatabase = Omit<Database, 'collections'> &
+  Match & {
+    collections: FilteredCollection[];
+  };
+type FilteredConnection = Omit<Connection, 'databases'> &
+  Match & {
+    databases: FilteredDatabase[];
+  };
 
 const activeConnectionsContainerStyles = css({
   height: '100%',
@@ -46,6 +75,11 @@ const activeConnectionListHeaderStyles = css({
   flexDirection: 'row',
   alignContent: 'center',
   justifyContent: 'space-between',
+  marginBottom: spacing[200],
+});
+
+const searchInputStyles = css({
+  marginBottom: spacing[200],
 });
 
 const activeConnectionListHeaderTitleStyles = css({
@@ -57,84 +91,375 @@ const activeConnectionListHeaderTitleStyles = css({
 
 const activeConnectionCountStyles = css({
   fontWeight: 'normal',
+  marginLeft: spacing[100],
 });
+
+const filterConnections = (
+  connections: Connection[],
+  regex: RegExp
+): FilteredConnection[] => {
+  const results: FilteredConnection[] = [];
+  for (const connection of connections) {
+    const isMatch = regex.test(connection.name);
+    const childMatches = filterDatabases(connection.databases, regex);
+
+    if (isMatch || childMatches.length) {
+      results.push({
+        ...connection,
+        isMatch,
+        databases: childMatches.length ? childMatches : connection.databases,
+      });
+    }
+  }
+  return results;
+};
+
+const filterDatabases = (
+  databases: Database[],
+  regex: RegExp
+): FilteredDatabase[] => {
+  const results: FilteredDatabase[] = [];
+  for (const db of databases) {
+    const isMatch = regex.test(db.name);
+    const childMatches = filterCollections(db.collections, regex);
+
+    if (isMatch || childMatches.length) {
+      results.push({
+        ...db,
+        isMatch,
+        collections: childMatches.length ? childMatches : db.collections,
+      });
+    }
+  }
+  return results;
+};
+
+const filterCollections = (
+  collections: Collection[],
+  regex: RegExp
+): FilteredCollection[] => {
+  return collections
+    .filter(({ name }) => regex.test(name))
+    .map((collection) => ({ ...collection, isMatch: true }));
+};
+
+/**
+ * Take the starting expandedConnections, and temporarily expand items that:
+ * - are included in the filterResults
+ * - their children are a match
+ */
+const temporarilyExpand = (
+  expandedConnections: ExpandedConnections,
+  filterResults: FilteredConnection[]
+): ExpandedConnections => {
+  const newExpanded = { ...expandedConnections };
+  filterResults.forEach(
+    ({ connectionInfo: { id: connectionId }, databases }) => {
+      const childrenDbsAreMatch = databases.length && databases[0].isMatch;
+      if (!newExpanded[connectionId]) {
+        newExpanded[connectionId] = { state: undefined, databases: {} };
+      }
+      if (
+        childrenDbsAreMatch &&
+        newExpanded[connectionId].state === 'collapsed'
+      ) {
+        newExpanded[connectionId].state = 'tempExpanded';
+      }
+      databases.forEach(({ _id: databaseId, collections }) => {
+        const childrenCollsAreMatch =
+          collections.length && collections[0].isMatch;
+        if (childrenCollsAreMatch && collections.length) {
+          if (newExpanded[connectionId].state === 'collapsed') {
+            newExpanded[connectionId].state = 'tempExpanded';
+          }
+          if (!newExpanded[connectionId].databases[databaseId]) {
+            newExpanded[connectionId].databases[databaseId] = 'tempExpanded';
+          }
+        }
+      });
+    }
+  );
+  return newExpanded;
+};
+
+/**
+ * Reverts 'temporarilyExpand', bringing the items back to collapsed state
+ */
+const revertTemporaryExpanded = (
+  expandedConnections: ExpandedConnections
+): ExpandedConnections => {
+  const cleared: ExpandedConnections = Object.fromEntries(
+    Object.entries(expandedConnections).map(
+      ([connectionId, { state, databases }]) => [
+        connectionId,
+        {
+          state: state === 'tempExpanded' ? 'collapsed' : state,
+          databases: Object.fromEntries(
+            Object.entries(databases || []).map(([dbId, dbState]) => [
+              dbId,
+              dbState === 'tempExpanded' ? undefined : dbState,
+            ])
+          ),
+        },
+      ]
+    )
+  );
+  return cleared;
+};
+
+interface ConnectionsState {
+  expanded: ExpandedConnections;
+  filtered: Connection[] | undefined;
+}
+
+const FILTER_CONNECTIONS =
+  'sidebar/active-connections/FILTER_CONNECTIONS' as const;
+interface FilterConnectionsAction {
+  type: typeof FILTER_CONNECTIONS;
+  connections: Connection[];
+  filterRegex: RegExp;
+}
+
+const CLEAR_FILTER = 'sidebar/active-connections/CLEAR_FILTER' as const;
+interface ClearConnectionsFilterAction {
+  type: typeof CLEAR_FILTER;
+}
+
+const CONNECTION_TOGGLE =
+  'sidebar/active-connections/CONNECTION_TOGGLE' as const;
+interface ToggleConnectionAction {
+  type: typeof CONNECTION_TOGGLE;
+  connectionId: ConnectionInfo['id'];
+  expand: boolean;
+}
+
+const DATABASE_TOGGLE = 'sidebar/active-connections/DATABASE_TOGGLE' as const;
+interface ToggleDatabaseAction {
+  type: typeof DATABASE_TOGGLE;
+  connectionId: ConnectionInfo['id'];
+  databaseId: string;
+  expand: boolean;
+}
+
+const CONNECTIONS_CHANGED =
+  'sidebar/active-connections/CONNECTIONS_CHANGED' as const;
+interface ConnectionsChangedAction {
+  type: typeof CONNECTIONS_CHANGED;
+  connections: ConnectionInfo[];
+}
+
+type ConnectionsAction =
+  | FilterConnectionsAction
+  | ClearConnectionsFilterAction
+  | ToggleConnectionAction
+  | ToggleDatabaseAction
+  | ConnectionsChangedAction;
+
+const connectionsReducer = (
+  state: ConnectionsState,
+  action: ConnectionsAction
+): ConnectionsState => {
+  switch (action.type) {
+    case FILTER_CONNECTIONS: {
+      const filtered = filterConnections(
+        action.connections,
+        action.filterRegex
+      );
+      const persistingExpanded = revertTemporaryExpanded(state.expanded);
+      return {
+        ...state,
+        filtered,
+        expanded: temporarilyExpand(persistingExpanded, filtered),
+      };
+    }
+    case CLEAR_FILTER:
+      return {
+        ...state,
+        filtered: undefined,
+        expanded: revertTemporaryExpanded(state.expanded),
+      };
+    case CONNECTION_TOGGLE: {
+      const { connectionId, expand } = action;
+      const currentState = state.expanded[connectionId]?.state;
+      if (
+        (currentState === 'collapsed' && !expand) ||
+        (!currentState && expand)
+      )
+        return state;
+
+      return {
+        ...state,
+        expanded: {
+          ...state.expanded,
+          [connectionId]: {
+            ...state.expanded[connectionId],
+            state: expand ? undefined : 'collapsed',
+          },
+        },
+      };
+    }
+    case DATABASE_TOGGLE: {
+      const { connectionId, databaseId, expand } = action;
+      const currentState = state.expanded[connectionId]?.databases[databaseId];
+      if ((!currentState && !expand) || (currentState === 'expanded' && expand))
+        return state;
+
+      return {
+        ...state,
+        expanded: {
+          ...state.expanded,
+          [connectionId]: {
+            ...state.expanded[connectionId],
+            databases: {
+              ...state.expanded[connectionId].databases,
+              [databaseId]: expand ? 'expanded' : undefined,
+            },
+          },
+        },
+      };
+    }
+    case CONNECTIONS_CHANGED: {
+      const { connections } = action;
+      // this is to get rid of stale connections. if the user connects again, they will start in the default state
+      return {
+        ...state,
+        expanded: Object.fromEntries(
+          connections.map(({ id: connectionId }) => [
+            connectionId,
+            state.expanded[connectionId] || { state: undefined, databases: {} },
+          ])
+        ),
+      };
+    }
+    default:
+      return state;
+  }
+};
 
 export function ActiveConnectionNavigation({
   activeConnections,
+  filterRegex,
+  onFilterChange,
   connections,
-  expanded,
   activeWorkspace,
   onNamespaceAction: _onNamespaceAction,
+  fetchAllCollections: _fetchAllCollections,
+  onDatabaseExpand: _onDatabaseExpand,
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
-  onDatabaseExpand,
+  onDisconnect,
   ...navigationProps
 }: Omit<
   React.ComponentProps<typeof ConnectionsNavigationTree>,
   | 'isReadOnly'
-  | 'databases'
+  | 'isReady'
   | 'connections'
   | 'expanded'
   | 'onConnectionExpand'
-  | 'isReady'
+  | 'onDatabaseExpand'
 > & {
   activeConnections: ConnectionInfo[];
+  filterRegex: RegExp | null;
+  onFilterChange: (regex: RegExp | null) => void;
   connections: Connection[];
   isDataLake?: boolean;
   isWritable?: boolean;
-  expanded: Record<string, Record<string, boolean> | false>;
   activeWorkspace?: WorkspaceTab;
-  onOpenConnectionInfo: (connectionId: string) => void;
-  onCopyConnectionString: (connectionId: string) => void;
-  onToggleFavoriteConnection: (connectionId: string) => void;
+  onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
+  onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
+  onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
+  onDatabaseExpand: (
+    connectionId: ConnectionInfo['id'],
+    databaseId: string
+  ) => void;
+  onDisconnect: (connectionId: ConnectionInfo['id']) => void;
+  fetchAllCollections: () => void;
 }): React.ReactElement {
-  const [collapsed, setCollapsed] = useState<string[]>([]);
-  const [namedConnections, setNamedConnections] = useState<
-    { connectionInfo: ConnectionInfo; name: string }[]
-  >([]);
-
   const {
+    openShellWorkspace,
     openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
+    openPerformanceWorkspace,
   } = useOpenWorkspace();
 
+  const [{ filtered, expanded }, dispatch] = useReducer(connectionsReducer, {
+    filtered: undefined,
+    expanded: {},
+  });
+
+  // filter updates
+  // connections change often, but the effect only uses connections if the filter is active
+  // so we use this conditional dependency to avoid too many calls
+  const connectionsButOnlyIfFilterIsActive = filterRegex && connections;
+  useEffect(() => {
+    if (!filterRegex) {
+      dispatch({ type: CLEAR_FILTER });
+    } else if (connectionsButOnlyIfFilterIsActive) {
+      // the above check is extra just to please TS
+
+      // When filtering, emit an event so that we can fetch all collections. This
+      // is required as a workaround for the synchronous nature of the current
+      // filtering feature
+      _fetchAllCollections();
+
+      dispatch({
+        type: FILTER_CONNECTIONS,
+        connections: connectionsButOnlyIfFilterIsActive,
+        filterRegex,
+      });
+    }
+  }, [filterRegex, connectionsButOnlyIfFilterIsActive, _fetchAllCollections]);
+
   const onConnectionToggle = useCallback(
-    (connectionId: string, forceExpand: boolean) => {
-      if (!forceExpand && !collapsed.includes(connectionId))
-        setCollapsed((collapsed) => [...collapsed, connectionId]);
-      else if (forceExpand && collapsed.includes(connectionId)) {
-        setCollapsed((collapsed) => {
-          const index = collapsed.indexOf(connectionId);
-          return [...collapsed.slice(0, index), ...collapsed.slice(index + 1)];
-        });
-      }
-    },
-    [setCollapsed, collapsed]
+    (connectionId: string, expand: boolean) =>
+      dispatch({ type: CONNECTION_TOGGLE, connectionId, expand }),
+    []
   );
 
-  useEffect(() => {
-    // cleanup connections that are no longer active
-    // if the user connects again, the new connection should be expanded again
-    const newCollapsed = activeConnections
-      .filter(({ id }: ConnectionInfo) => collapsed.includes(id))
-      .map(({ id }: ConnectionInfo) => id);
-    setCollapsed(newCollapsed);
+  const onDatabaseToggle = useCallback(
+    (connectionId: string, namespace: string, expand: boolean) => {
+      const { database: databaseId } = toNS(namespace);
+      if (expand && !expanded[connectionId]?.databases[databaseId]) {
+        // side effect -> we need this to load collections
+        _onDatabaseExpand(connectionId, databaseId);
+      }
+      dispatch({ type: DATABASE_TOGGLE, connectionId, databaseId, expand });
+    },
+    [_onDatabaseExpand, expanded]
+  );
 
-    const newConnectionList = activeConnections
-      .map((connectionInfo) => ({
-        connectionInfo,
-        name: getConnectionTitle(connectionInfo),
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-    setNamedConnections(newConnectionList);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
+    useMemo(() => {
+      const result = connections.reduce(
+        (obj, { connectionInfo: { id: connectionId } }) => {
+          obj[connectionId] =
+            expanded[connectionId]?.state !== 'collapsed'
+              ? Object.fromEntries(
+                  Object.entries(expanded[connectionId]?.databases || {}).map(
+                    ([dbId, dbState]) => [dbId, !!dbState]
+                  )
+                )
+              : false;
+          return obj;
+        },
+        {} as Record<string, false | Record<string, boolean>>
+      );
+      return result;
+    }, [expanded, connections]);
+
+  useEffect(() => {
+    dispatch({ type: CONNECTIONS_CHANGED, connections: activeConnections });
   }, [activeConnections]);
 
+  // we're using a ref for this toggle because collapsing depends on the collapsed state,
+  // but we don't want to auto-expand when collapsed state changes, only workspace
   const onConnectionToggleRef = useRef(onConnectionToggle);
   onConnectionToggleRef.current = onConnectionToggle;
+  const onDatabaseToggleRef = useRef(onDatabaseToggle);
+  onDatabaseToggleRef.current = onDatabaseToggle;
   // auto-expanding on a workspace change
   useEffect(() => {
     if (
@@ -144,20 +469,24 @@ export function ActiveConnectionNavigation({
         activeWorkspace.type === 'Collection')
     ) {
       const connectionId: string = activeWorkspace.connectionId;
-      // we're using a ref for this toggle because collapsing depends on the collapsed state,
-      // but we don't want to auto-expand when collapsed state changes, only workspace
       onConnectionToggleRef.current(connectionId, true);
 
       if (activeWorkspace.type !== 'Databases') {
         const namespace: string = activeWorkspace.namespace;
-        onDatabaseExpand(connectionId, namespace, true);
+        onDatabaseToggleRef.current(connectionId, namespace, true);
       }
     }
-  }, [activeWorkspace, onDatabaseExpand]);
+  }, [activeWorkspace]);
 
   const onNamespaceAction = useCallback(
     (connectionId: string, ns: string, action: Actions) => {
       switch (action) {
+        case 'open-shell':
+          openShellWorkspace(connectionId, { newTab: true });
+          return;
+        case 'connection-disconnect':
+          onDisconnect(connectionId);
+          return;
         case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
           return;
@@ -166,6 +495,9 @@ export function ActiveConnectionNavigation({
           return;
         case 'connection-toggle-favorite':
           onToggleFavoriteConnection(connectionId);
+          return;
+        case 'connection-performance-metrics':
+          openPerformanceWorkspace(connectionId);
           return;
         case 'select-database':
           openCollectionsWorkspace(connectionId, ns);
@@ -179,8 +511,8 @@ export function ActiveConnectionNavigation({
         case 'modify-view': {
           const coll = findCollection(
             ns,
-            (connections.find((conn) => conn.connectionInfo.id === connectionId)
-              ?.databases as Database[]) ?? []
+            connections.find((conn) => conn.connectionInfo.id === connectionId)
+              ?.databases ?? []
           );
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(connectionId, coll._id, {
@@ -198,12 +530,15 @@ export function ActiveConnectionNavigation({
     },
     [
       connections,
+      openShellWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
+      openPerformanceWorkspace,
       openEditViewWorkspace,
       onCopyConnectionString,
       onOpenConnectionInfo,
       onToggleFavoriteConnection,
+      onDisconnect,
       _onNamespaceAction,
     ]
   );
@@ -212,31 +547,30 @@ export function ActiveConnectionNavigation({
     <div className={activeConnectionsContainerStyles}>
       <header className={activeConnectionListHeaderStyles}>
         <Subtitle className={activeConnectionListHeaderTitleStyles}>
-          Active connections{' '}
-          <span className={activeConnectionCountStyles}>
-            ({activeConnections.length})
-          </span>
+          Active connections
+          {activeConnections.length !== 0 && (
+            <span className={activeConnectionCountStyles}>
+              ({activeConnections.length})
+            </span>
+          )}
         </Subtitle>
       </header>
+      <NavigationItemsFilter
+        placeholder="Search active connections"
+        searchInputClassName={searchInputStyles}
+        onFilterChange={onFilterChange}
+      />
       <ConnectionsNavigationTree
         isReady={true}
-        connections={connections}
+        connections={filtered || connections}
         activeWorkspace={activeWorkspace}
         onNamespaceAction={onNamespaceAction}
         onConnectionSelect={(connectionId) =>
           openDatabasesWorkspace(connectionId)
         }
         onConnectionExpand={onConnectionToggle}
-        onDatabaseExpand={onDatabaseExpand}
-        expanded={namedConnections.reduce(
-          (obj, { connectionInfo: { id: connectionId } }) => {
-            obj[connectionId] = collapsed.includes(connectionId)
-              ? false
-              : expanded[connectionId];
-            return obj;
-          },
-          {} as Record<string, false | Record<string, boolean>>
-        )}
+        onDatabaseExpand={onDatabaseToggle}
+        expanded={expandedMemo}
         {...navigationProps}
       />
     </div>
@@ -245,58 +579,46 @@ export function ActiveConnectionNavigation({
 
 function mapStateToProps(
   state: RootState,
-  { activeConnections }: { activeConnections: ConnectionInfo[] }
+  {
+    activeConnections,
+  }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
 ): {
   isReady: boolean;
   connections: Connection[];
-  expanded: Record<string, Record<string, boolean> | false>;
 } {
   const connections: Connection[] = [];
-  const expandedResult: Record<string, any> = {};
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
     const instance = state.instance[connectionId];
-    const {
-      filterRegex,
-      filteredDatabases,
-      expandedDbList: initialExpandedDbList,
-    } = state.databases[connectionId] || {};
+    const { databases } = state.databases[connectionId] || {};
 
     const status = instance?.databasesStatus;
     const isReady =
       status !== undefined && !['initial', 'fetching'].includes(status);
-    const defaultExpanded = Boolean(filterRegex);
-
-    const expandedDbList = initialExpandedDbList ?? {};
-    const expanded = Object.fromEntries(
-      ((filteredDatabases as any[]) || []).map(({ name }) => [
-        name,
-        expandedDbList[name] ?? defaultExpanded,
-      ])
-    );
 
     const isDataLake = instance?.dataLake?.isDataLake ?? false;
     const isWritable = instance?.isWritable ?? false;
+
+    const isPerformanceTabSupported =
+      !isDataLake && !!state.isPerformanceTabSupported[connectionId];
 
     connections.push({
       isReady,
       isDataLake,
       isWritable,
+      isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesLength: filteredDatabases?.length ?? 0,
       databasesStatus: status as Connection['databasesStatus'],
-      databases: filteredDatabases ?? [],
+      databases,
+      databasesLength: databases.length,
     });
-
-    expandedResult[connectionId] = expanded;
   }
 
   return {
     isReady: true,
     connections,
-    expanded: expandedResult,
   };
 }
 
@@ -311,6 +633,9 @@ const onNamespaceAction = (
     };
     const ns = toNS(namespace);
     switch (action) {
+      case 'create-database':
+        emit('open-create-database', { connectionId });
+        return;
       case 'drop-database':
         emit('open-drop-database', ns.database, { connectionId });
         return;
@@ -352,6 +677,7 @@ const onNamespaceAction = (
 };
 
 export default connect(mapStateToProps, {
-  onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
+  fetchAllCollections,
+  onDatabaseExpand,
 })(ActiveConnectionNavigation);

@@ -1,7 +1,14 @@
-import { Banner, Button, Label } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  Button,
+  Label,
+  Link,
+  VisuallyHidden,
+} from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import React, { useCallback, useState } from 'react';
 import { ConnectionsList } from './connections-list';
+import { ConnectionString } from 'mongodb-connection-string-url';
 
 type NdsCluster = {
   uniqueId: string;
@@ -12,14 +19,14 @@ type NdsCluster = {
 type SignInStatus = 'initial' | 'fetching' | 'updating' | 'success' | 'error';
 
 type AtlasClusterConnectionsListReturnValue = (
-  | { signInStatus: 'initial'; signInError: null; groupId: null }
+  | { signInStatus: 'initial'; signInError: null; projectId: null }
   | {
       signInStatus: 'fetching' | 'updating';
       signInError: string | null;
-      groupId: string | null;
+      projectId: string | null;
     }
-  | { signInStatus: 'success'; signInError: null; groupId: string }
-  | { signInStatus: 'error'; signInError: string; groupId: null }
+  | { signInStatus: 'success'; signInError: null; projectId: string }
+  | { signInStatus: 'error'; signInError: string; projectId: null }
 ) & {
   connections: ConnectionInfo[];
   signIn(this: void): Promise<void>;
@@ -28,8 +35,7 @@ type AtlasClusterConnectionsListReturnValue = (
 export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListReturnValue {
   const [signInStatus, setSignInStatus] = useState<SignInStatus>('initial');
   const [signInError, setSignInError] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [groupId, setGroupId] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
   const [connections, setConnections] = useState<ConnectionInfo[]>([]);
 
   const signIn = useCallback(async () => {
@@ -37,27 +43,34 @@ export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListRet
       setSignInStatus((status) => {
         return status === 'initial' ? 'fetching' : 'updating';
       });
-      const { groupId } = await fetch('/authenticate', { method: 'POST' }).then(
-        (res) => {
-          return res.json() as Promise<{ groupId: string }>;
-        }
-      );
-      setGroupId(groupId);
+      const { projectId } = await fetch('/authenticate', {
+        method: 'POST',
+      }).then((res) => {
+        return res.json() as Promise<{ projectId: string }>;
+      });
+      setProjectId(projectId);
       const clusters = await fetch(
-        `/cloud-mongodb-com/nds/clusters/${groupId}`
+        `/cloud-mongodb-com/nds/clusters/${projectId}`
       ).then((res) => {
         return res.json() as Promise<NdsCluster[]>;
       });
       setConnections(
         clusters.map((cluster: NdsCluster): ConnectionInfo => {
+          const connectionString = new ConnectionString(
+            `mongodb+srv://${cluster.srvAddress}`
+          );
+          connectionString.searchParams.set('tls', 'true');
+          connectionString.searchParams.set('maxPoolSize', '3');
+          connectionString.searchParams.set('authMechanism', 'MONGODB-X509');
+          connectionString.searchParams.set('authSource', '$external');
           return {
             id: cluster.uniqueId,
             connectionOptions: {
-              connectionString: `mongodb+srv://<username>:<password>@${cluster.srvAddress}`,
+              connectionString: connectionString.toString(),
             },
             atlasMetadata: {
               orgId: '',
-              projectId: groupId,
+              projectId: projectId,
               clusterId: cluster.uniqueId,
               clusterName: cluster.name,
               clusterType: 'replicaSet',
@@ -79,21 +92,21 @@ export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListRet
       signIn,
       signInStatus,
       signInError: null,
-      groupId: null,
+      projectId: null,
       connections,
     };
   }
 
   if (signInStatus === 'fetching' || signInStatus === 'updating') {
-    return { signIn, signInStatus, signInError, groupId, connections };
+    return { signIn, signInStatus, signInError, projectId, connections };
   }
 
   if (signInStatus === 'error' && signInError) {
-    return { signIn, signInStatus, signInError, groupId: null, connections };
+    return { signIn, signInStatus, signInError, projectId: null, connections };
   }
 
-  if (signInStatus === 'success' && groupId) {
-    return { signIn, signInStatus, signInError: null, groupId, connections };
+  if (signInStatus === 'success' && projectId) {
+    return { signIn, signInStatus, signInError: null, projectId, connections };
   }
 
   throw new Error('Weird state, ask for help in Compass dev channel');
@@ -132,9 +145,22 @@ export function AtlasClusterConnectionsList({
     return <Banner variant="danger">{signInError}</Banner>;
   }
 
+  if (connections.length === 0) {
+    return (
+      <div>
+        You do not have any clusters in this project.{' '}
+        <Link target="_blank" href={`/create-cluster`}>
+          Create cluster
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Label htmlFor="atlas-connection-list">Atlas clusters</Label>
+      <VisuallyHidden>
+        <Label htmlFor="atlas-connection-list">Atlas clusters</Label>
+      </VisuallyHidden>
       <ConnectionsList
         id="atlas-connection-list"
         connections={connections}

@@ -1,4 +1,10 @@
-import React, { useRef, forwardRef, useCallback, useState } from 'react';
+import React, {
+  useRef,
+  forwardRef,
+  useCallback,
+  useState,
+  useMemo,
+} from 'react';
 import {
   Button,
   Icon,
@@ -10,15 +16,17 @@ import {
 import { Tooltip } from './tooltip';
 import type { TooltipProps } from './tooltip';
 import type { ButtonProps } from '@leafygreen-ui/button';
-
+import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
 export type ItemAction<Action extends string> = {
   action: Action;
   label: string;
-  icon: React.ReactChild;
+  icon: keyof typeof glyphs | React.ReactElement;
   variant?: 'default' | 'destructive';
+  isDisabled?: boolean;
+  disabledDescription?: string;
 };
 
 export type ItemSeparator = { separator: true };
@@ -34,6 +42,8 @@ export type MenuAction<Action extends string> =
       label: string;
       icon?: React.ReactChild;
       variant?: 'default' | 'destructive';
+      isDisabled?: boolean;
+      disabledDescription?: string;
     }
   | ItemSeparator;
 
@@ -157,6 +167,7 @@ export function ItemActionMenu<Action extends string>({
   actions,
   onAction,
   className,
+  menuClassName,
   usePortal,
   iconClassName,
   iconStyle,
@@ -166,6 +177,7 @@ export function ItemActionMenu<Action extends string>({
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
   className?: string;
+  menuClassName?: string;
   usePortal?: boolean;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
@@ -201,6 +213,7 @@ export function ItemActionMenu<Action extends string>({
   return (
     <div className={cx(actionControlsStyle, className)}>
       <Menu
+        className={menuClassName}
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         refEl={menuTriggerRef}
@@ -240,7 +253,14 @@ export function ItemActionMenu<Action extends string>({
             return <MenuSeparator key={`separator-${idx}`} />;
           }
 
-          const { action, label, icon, variant } = menuAction;
+          const {
+            action,
+            label,
+            icon,
+            variant,
+            isDisabled,
+            disabledDescription,
+          } = menuAction;
 
           return (
             <MenuItem
@@ -251,6 +271,8 @@ export function ItemActionMenu<Action extends string>({
               glyph={<ActionGlyph glyph={icon} size={iconSize} />}
               onClick={onClick}
               variant={variant || 'default'}
+              disabled={isDisabled}
+              description={isDisabled ? disabledDescription : ''}
             >
               {label}
             </MenuItem>
@@ -348,10 +370,12 @@ export function ItemActionControls<Action extends string>({
   actions,
   onAction,
   className,
+  menuClassName,
   iconClassName,
   iconStyle,
   iconSize = ItemActionButtonSize.Default,
   usePortal,
+  collapseAfter = 0,
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
 }: {
@@ -359,15 +383,65 @@ export function ItemActionControls<Action extends string>({
   actions: (ItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
   className?: string;
+  menuClassName?: string;
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
   iconStyle?: React.CSSProperties;
+  // The number of actions to show before collapsing other actions into a menu
+  collapseAfter?: number;
+  // When using `collapseAfter`, this option is not used.
   collapseToMenuThreshold?: number;
   usePortal?: boolean;
   'data-testid'?: string;
 }) {
+  const sharedProps = useMemo(
+    () => ({
+      isVisible,
+      onAction,
+      className: cx('item-action-controls', className),
+      iconClassName,
+      iconStyle,
+      iconSize,
+      'data-testid': dataTestId,
+    }),
+    [
+      isVisible,
+      onAction,
+      className,
+      iconClassName,
+      iconStyle,
+      iconSize,
+      dataTestId,
+    ]
+  );
+  const sharedMenuProps = useMemo(
+    () => ({
+      menuClassName,
+      usePortal,
+    }),
+    [menuClassName, usePortal]
+  );
   if (actions.length === 0) {
     return null;
+  }
+
+  // When user wants to show a few actions and collapse the rest into a menu
+  if (collapseAfter > 0) {
+    const visibleActions = actions.slice(0, collapseAfter);
+    const collapsedActions = actions.slice(collapseAfter);
+    return (
+      <div className={actionControlsStyle}>
+        <ItemActionGroup
+          actions={visibleActions}
+          {...sharedProps}
+        ></ItemActionGroup>
+        <ItemActionMenu
+          actions={collapsedActions}
+          {...sharedProps}
+          {...sharedMenuProps}
+        ></ItemActionMenu>
+      </div>
+    );
   }
 
   const shouldShowMenu = actions.length >= collapseToMenuThreshold;
@@ -376,30 +450,13 @@ export function ItemActionControls<Action extends string>({
     return (
       <ItemActionMenu
         actions={actions}
-        className={cx('item-action-controls', className)}
-        data-testid={dataTestId}
-        iconClassName={iconClassName}
-        iconStyle={iconStyle}
-        iconSize={iconSize}
-        isVisible={isVisible}
-        onAction={onAction}
-        usePortal={usePortal}
+        {...sharedProps}
+        {...sharedMenuProps}
       ></ItemActionMenu>
     );
   }
 
-  return (
-    <ItemActionGroup
-      isVisible={isVisible}
-      actions={actions}
-      onAction={onAction}
-      className={cx('item-action-controls', className)}
-      iconSize={iconSize}
-      data-testid={dataTestId}
-      iconClassName={iconClassName}
-      iconStyle={iconStyle}
-    ></ItemActionGroup>
-  );
+  return <ItemActionGroup actions={actions} {...sharedProps}></ItemActionGroup>;
 }
 
 export function DropdownMenuButton<Action extends string>({

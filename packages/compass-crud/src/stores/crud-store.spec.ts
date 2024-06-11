@@ -8,11 +8,15 @@ import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import type { CrudStore } from './crud-store';
+import type {
+  CrudStore,
+  CrudStoreOptions,
+  DocumentsPluginServices,
+} from './crud-store';
 import {
   findAndModifyWithFLEFallback,
   fetchDocuments,
-  activateDocumentsPlugin,
+  activateDocumentsPlugin as _activate,
 } from './crud-store';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
@@ -25,6 +29,12 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
+import {
+  type ConnectionInfoAccess,
+  TEST_CONNECTION_INFO,
+  ConnectionScopedAppRegistryImpl,
+} from '@mongodb-js/compass-connections/provider';
+import type { TableHeaderType } from './grid-store';
 
 chai.use(chaiAsPromised);
 
@@ -98,9 +108,13 @@ const mockFieldStoreService = {
   updateFieldsFromSchema() {},
 } as unknown as FieldStoreService;
 
-describe('store', function () {
-  this.timeout(5000);
+const mockQueryBar = {
+  getLastAppliedQuery: sinon.stub(),
+  getCurrentQuery: sinon.stub(),
+  changeQuery: sinon.stub(),
+};
 
+describe('store', function () {
   const cluster = mochaTestServer({
     topology: 'replset',
     secondaries: 0,
@@ -112,6 +126,47 @@ describe('store', function () {
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
+  const connectionInfoAccess = {
+    getCurrentConnectionInfo() {
+      return TEST_CONNECTION_INFO;
+    },
+  } as ConnectionInfoAccess;
+  const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
+    globalAppRegistry.emit.bind(globalAppRegistry),
+    connectionInfoAccess
+  );
+
+  function activatePlugin(
+    options: Partial<CrudStoreOptions> = {},
+    services: Partial<DocumentsPluginServices> = {}
+  ) {
+    return _activate(
+      {
+        isSearchIndexesSupported: true,
+        isReadonly: false,
+        isTimeSeries: false,
+        namespace: 'compass-crud.test',
+        noRefreshOnConfigure: true, // so it won't start loading before we can check the initial state
+        ...options,
+      },
+      {
+        dataService,
+        localAppRegistry,
+        globalAppRegistry,
+        instance,
+        preferences,
+        logger: createNoopLoggerAndTelemetry(),
+        favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
+        recentQueryStorageAccess: compassRecentQueryStorageAccess,
+        fieldStoreService: mockFieldStoreService,
+        connectionInfoAccess,
+        connectionScopedAppRegistry,
+        queryBar: mockQueryBar,
+        ...services,
+      },
+      createActivateHelpers()
+    );
+  }
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
@@ -167,6 +222,8 @@ describe('store', function () {
     } as any);
 
     sinon.restore();
+
+    mockQueryBar.getLastAppliedQuery.returns({});
   });
 
   afterEach(function () {
@@ -179,34 +236,14 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'db.col',
-          noRefreshOnConfigure: true, // so it won't start loading before we can check the initial state
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
 
     it('sets the initial state', function () {
       expect(store.state.resultId).to.be.a('number');
-      delete store.state.resultId; // always different
+      delete (store.state as any).resultId; // always different
 
       expect(store.state).to.deep.equal({
         abortController: null,
@@ -217,7 +254,7 @@ describe('store', function () {
         },
         debouncingLoad: false,
         loadingCount: false,
-        collection: 'col',
+        collection: 'test',
         count: 0,
         docs: [],
         end: 0,
@@ -243,24 +280,13 @@ describe('store', function () {
         },
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
-        isEditable: true,
         isReadonly: false,
         isSearchIndexesSupported: true,
         isTimeSeries: false,
         isUpdatePreviewSupported: true,
         isWritable: false,
-        ns: 'db.col',
-        outdated: false,
+        ns: 'compass-crud.test',
         page: 0,
-        query: {
-          collation: null,
-          filter: {},
-          limit: 0,
-          maxTimeMS: 60000,
-          project: null,
-          skip: 0,
-          sort: null,
-        },
         shardKeys: null,
         start: 0,
         status: 'initial',
@@ -282,40 +308,21 @@ describe('store', function () {
     let mockCopyToClipboard: any;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'db.col',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
 
       mockCopyToClipboard = sinon.fake.resolves(null);
 
       try {
-        sinon.replace(global, 'navigator', {
+        sinon.replace(global as any, 'navigator', {
           clipboard: {
             writeText: mockCopyToClipboard,
           },
         });
       } catch (e) {
         // Electron has the global navigator as a getter.
-        sinon.replaceGetter(global, 'navigator', () => ({
+        sinon.replaceGetter(global as any, 'navigator', () => ({
           clipboard: {
             writeText: mockCopyToClipboard,
           },
@@ -340,26 +347,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(async function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'db.col',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
 
@@ -387,80 +375,11 @@ describe('store', function () {
     });
   });
 
-  describe('#onQueryChanged', function () {
-    let store: CrudStore;
-
-    beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
-      store = plugin.store;
-      deactivate = () => plugin.deactivate();
-    });
-
-    const query = {
-      filter: { name: 'test' },
-      sort: { name: 1 },
-      collation: { locale: 'simple' },
-      limit: 10,
-      skip: 5,
-    };
-
-    it('resets the state', async function () {
-      const listener = waitForState(store, (state) => {
-        expect(state.error).to.equal(null);
-        expect(state.docs).to.deep.equal([]);
-        expect(state.count).to.equal(0);
-      });
-
-      store.onQueryChanged(query);
-
-      await listener;
-    });
-  });
-
   describe('#removeDocument', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -559,26 +478,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(async function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
       await dataService.insertOne('compass-crud.test', {
@@ -606,7 +506,7 @@ describe('store', function () {
           expect(state.docs[0].elements.at(1).key === 'new name');
           unsubscribe();
           done();
-        });
+        }, store);
 
         hadronDoc.on('update-blocked', () => {
           done(new Error("Didn't expect update to be blocked."));
@@ -631,7 +531,7 @@ describe('store', function () {
       beforeEach(function () {
         store.state.docs = [hadronDoc];
         hadronDoc.insertAfter(
-          hadronDoc.elements.at(1),
+          hadronDoc.elements.at(1)!,
           'new field',
           'new field value'
         );
@@ -645,7 +545,7 @@ describe('store', function () {
           unsubscribe();
           // Ensure we have enough time for update-blocked or update-error to be called.
           setTimeout(() => done(), 100);
-        });
+        }, store);
 
         hadronDoc.on('update-blocked', () => {
           done(new Error("Didn't expect update to be blocked."));
@@ -787,7 +687,7 @@ describe('store', function () {
       it('should emit an error to the state', function (done) {
         const doc = { _id: 'testing', name: 'Beach Sand' };
         const invalidHadronDoc = new HadronDocument(doc);
-        invalidHadronDoc.getId = null;
+        (invalidHadronDoc as any).getId = null;
 
         invalidHadronDoc.on('update-error', (message) => {
           expect(message).to.equal(
@@ -846,26 +746,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(async function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
       await dataService.insertOne('compass-crud.test', { name: 'testing' });
@@ -949,33 +830,15 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-          query: {
-            update: {
-              $set: {
-                foo: 1,
-              },
+      const plugin = activatePlugin({
+        query: {
+          update: {
+            $set: {
+              foo: 1,
             },
           },
         },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      });
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -996,26 +859,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -1061,7 +905,7 @@ describe('store', function () {
     });
 
     it('triggers code export', function (done) {
-      store.state.query.filter = { query: 1 };
+      mockQueryBar.getLastAppliedQuery.returns({ filter: { query: 1 } });
       store.localAppRegistry.on(
         'open-query-export-to-language',
         (options, exportMode) => {
@@ -1080,26 +924,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -1241,27 +1066,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -1298,7 +1103,9 @@ describe('store', function () {
 
         beforeEach(function () {
           store.state.insert.doc = doc;
-          store.state.query.filter = { name: 'something' };
+          mockQueryBar.getLastAppliedQuery.returns({
+            filter: { name: 'something' },
+          });
         });
 
         it('inserts the document but does not add to the list', async function () {
@@ -1321,10 +1128,11 @@ describe('store', function () {
       context('when the document has invalid bson', function () {
         // this is invalid ObjectId
         const jsonDoc = '{"_id": {"$oid": ""}}';
+        const hadronDoc = new HadronDocument({});
 
         beforeEach(function () {
           store.state.insert.jsonView = true;
-          store.state.insert.doc = {};
+          store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
         });
 
@@ -1332,7 +1140,7 @@ describe('store', function () {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
-            expect(state.insert.doc).to.deep.equal({});
+            expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
@@ -1349,13 +1157,13 @@ describe('store', function () {
 
     context('when there is an error', function () {
       context('when it is a json mode', function () {
-        const doc = {};
+        const hadronDoc = new HadronDocument({});
         // this should be invalid according to the validation rules
         const jsonDoc = '{ "status": "testing" }';
 
         beforeEach(function () {
           store.state.insert.jsonView = true;
-          store.state.insert.doc = doc;
+          store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
         });
 
@@ -1367,7 +1175,7 @@ describe('store', function () {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
             expect(state.count).to.equal(0);
-            expect(state.insert.doc).to.deep.equal(doc);
+            expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
@@ -1417,27 +1225,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -1466,7 +1254,6 @@ describe('store', function () {
 
               expect(state.status).to.equal('fetching');
               expect(state.abortController).to.not.be.null;
-              expect(state.outdated).to.be.false;
               expect(state.error).to.be.null;
             },
             (state) => {
@@ -1478,7 +1265,6 @@ describe('store', function () {
 
               // this is fetchedInitial because there's no filter/projection/collation
               expect(state.status).to.equal('fetchedInitial');
-              expect(state.isEditable).to.equal(true);
               expect(state.error).to.be.null;
               expect(state.docs).to.have.lengthOf(2);
               expect(state.count).to.equal(2);
@@ -1510,7 +1296,9 @@ describe('store', function () {
           '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
         beforeEach(function () {
-          store.state.query.filter = { name: 'something' };
+          mockQueryBar.getLastAppliedQuery.returns({
+            filter: { name: 'something' },
+          });
         });
 
         it('inserts both documents but does not add to the list', async function () {
@@ -1537,7 +1325,7 @@ describe('store', function () {
           '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
         beforeEach(function () {
-          store.state.query.filter = { name: 'Rey' };
+          mockQueryBar.getLastAppliedQuery.returns({ filter: { name: 'Rey' } });
         });
 
         it('inserts both documents but only adds the matching one to the list', async function () {
@@ -1594,26 +1382,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -1782,31 +1551,12 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
 
-    const doc = { field4: 'value' };
+    const doc = new HadronDocument({ field4: 'value' });
     const element = new Element('field3', 'value');
     const editParams = { colId: 1, rowIndex: 0 };
 
@@ -1828,32 +1578,13 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
 
     const path = ['field1', 'field2'];
-    const types = ['Object', 'Array'];
+    const types: TableHeaderType[] = ['Object', 'Array'];
 
     it('sets the path and types state', async function () {
       const listener = waitForState(store, (state) => {
@@ -1871,26 +1602,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
@@ -1911,27 +1623,7 @@ describe('store', function () {
       let store: CrudStore;
 
       beforeEach(async function () {
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.test',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
+        const plugin = activatePlugin();
         store = plugin.store;
         deactivate = () => plugin.deactivate();
         await dataService.insertOne('compass-crud.test', { name: 'testing' });
@@ -1967,11 +1659,13 @@ describe('store', function () {
 
       context('when there is an error', function () {
         beforeEach(function () {
-          store.state.query.filter = { $iamnotanoperator: 1 };
+          mockQueryBar.getLastAppliedQuery.returns({
+            filter: { $iamnotanoperator: 1 },
+          });
         });
 
         afterEach(function () {
-          store.state.query.filter = {};
+          mockQueryBar.getLastAppliedQuery.returns({ filter: {} });
         });
 
         it('resets the documents to the first page', async function () {
@@ -1992,27 +1686,7 @@ describe('store', function () {
     context('when there is a shard key', function () {
       let store: CrudStore;
       beforeEach(async function () {
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.test',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
+        const plugin = activatePlugin();
         store = plugin.store;
         deactivate = () => plugin.deactivate();
         await dataService.insertOne('config.collections', {
@@ -2024,105 +1698,13 @@ describe('store', function () {
       afterEach(function () {
         return dataService.deleteMany('config.collections', {
           _id: 'compass-crud.test',
-        });
+        } as any);
       });
 
       it('looks up the shard keys', async function () {
         const listener = waitForState(store, (state) => {
           expect(state.error).to.equal(null);
           expect(state.shardKeys).to.deep.equal({ a: 1 });
-        });
-
-        void store.refreshDocuments();
-
-        await listener;
-      });
-    });
-
-    context('with a projection', function () {
-      let store: CrudStore;
-      beforeEach(async function () {
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.test',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
-        store = plugin.store;
-        deactivate = () => plugin.deactivate();
-
-        store.setState({ query: { project: { _id: 0 } } });
-        await dataService.insertOne('compass-crud.test', { name: 'testing' });
-      });
-
-      afterEach(function () {
-        return dataService.deleteMany('compass-crud.test', {});
-      });
-
-      it('sets the state as not editable', async function () {
-        const listener = waitForState(store, (state) => {
-          expect(state.isEditable).to.equal(false);
-        });
-
-        void store.refreshDocuments();
-
-        await listener;
-      });
-    });
-
-    context('without a projection', function () {
-      let store: CrudStore;
-
-      beforeEach(async function () {
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.test',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
-        store = plugin.store;
-        deactivate = () => plugin.deactivate();
-        store.setState({ isEditable: false });
-        await dataService.insertOne('compass-crud.test', { name: 'testing' });
-      });
-
-      afterEach(function () {
-        return dataService.deleteMany('compass-crud.test', {});
-      });
-
-      it('resets the state as editable', async function () {
-        const listener = waitForState(store, (state) => {
-          expect(state.isEditable).to.equal(true);
         });
 
         void store.refreshDocuments();
@@ -2138,27 +1720,7 @@ describe('store', function () {
         if (!satisfies(cluster().serverVersion, '>= 5.0.0')) {
           return this.skip();
         }
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: true,
-            namespace: 'compass-crud.timeseries',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
+        const plugin = activatePlugin({ isTimeSeries: true });
         store = plugin.store;
         deactivate = () => plugin.deactivate();
 
@@ -2194,27 +1756,7 @@ describe('store', function () {
       let store: CrudStore;
 
       beforeEach(function () {
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.test',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
+        const plugin = activatePlugin();
         store = plugin.store;
         deactivate = () => plugin.deactivate();
       });
@@ -2265,27 +1807,7 @@ describe('store', function () {
     let findSpy;
 
     beforeEach(async function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.test',
-          noRefreshOnConfigure: true,
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
 
@@ -2311,13 +1833,13 @@ describe('store', function () {
     });
 
     it('does nothing if the page being requested is past the end', async function () {
-      store.state.query.limit = 20;
+      mockQueryBar.getLastAppliedQuery.returns({ limit: 20 });
       await store.getPage(1); // there is only one page of 20
       expect(findSpy.called).to.be.false;
     });
 
     it('does not ask for documents past the end', async function () {
-      store.state.query.limit = 21;
+      mockQueryBar.getLastAppliedQuery.returns({ limit: 21 });
       await store.getPage(1); // there is only one page of 20
       expect(findSpy.called).to.be.true;
       const opts = findSpy.args[0][2];
@@ -2332,7 +1854,7 @@ describe('store', function () {
     });
 
     it('sets status fetchedPagination if it succeeds with a filter', async function () {
-      store.state.query.filter = { i: { $gt: 1 } };
+      mockQueryBar.getLastAppliedQuery.returns({ filter: { i: { $gt: 1 } } });
       await store.getPage(1); // there is only one page of 20
       expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
@@ -2351,7 +1873,10 @@ describe('store', function () {
       expect(store.state.abortController).to.not.be.null;
 
       await promise;
-      expect(store.state.error.message).to.equal('This is a fake error.');
+      expect(store.state.error).to.have.property(
+        'message',
+        'This is a fake error.'
+      );
 
       expect(findStub.called).to.be.true;
     });
@@ -2367,7 +1892,10 @@ describe('store', function () {
       expect(store.state.error).to.be.null;
 
       await promise;
-      expect(store.state.error.message).to.equal('This operation was aborted');
+      expect(store.state.error).to.have.property(
+        'message',
+        'This operation was aborted'
+      );
 
       expect(findSpy.called).to.be.true;
     });
@@ -2377,27 +1905,7 @@ describe('store', function () {
     let store: CrudStore;
 
     beforeEach(async function () {
-      const plugin = activateDocumentsPlugin(
-        {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.testview',
-          noRefreshOnConfigure: true,
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
-      );
+      const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
       await dataService.insertMany('compass-crud.test', [
@@ -2471,7 +1979,7 @@ describe('store', function () {
       findOneAndUpdateFake.resolves(updatedDocument);
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'update'
@@ -2480,7 +1988,9 @@ describe('store', function () {
       expect(d).to.equal(updatedDocument);
       expect(findOneAndReplaceFake).to.have.callCount(0);
       expect(findOneAndUpdateFake).to.have.callCount(1);
-      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal(
+        'compass-crud.test'
+      );
       expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
       });
@@ -2499,7 +2009,7 @@ describe('store', function () {
       findOneAndUpdateFake.resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'replace'
@@ -2508,7 +2018,9 @@ describe('store', function () {
       expect(d).to.equal(updatedDocument);
       expect(findOneAndUpdateFake).to.have.callCount(0);
       expect(findOneAndReplaceFake).to.have.callCount(1);
-      expect(findOneAndReplaceFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndReplaceFake.firstCall.args[0]).to.equal(
+        'compass-crud.test'
+      );
       expect(findOneAndReplaceFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
       });
@@ -2528,7 +2040,7 @@ describe('store', function () {
       findOneAndUpdateFake.rejects(err);
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'update'
@@ -2536,7 +2048,9 @@ describe('store', function () {
       expect(error).to.equal(err);
       expect(d).to.equal(undefined);
       expect(findOneAndUpdateFake).to.have.callCount(1);
-      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal(
+        'compass-crud.test'
+      );
       expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
       });
@@ -2557,7 +2071,7 @@ describe('store', function () {
       updateOneFake.onCall(0).resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'update'
@@ -2566,7 +2080,9 @@ describe('store', function () {
       expect(d).to.deep.equal(updatedDocument);
       expect(findOneAndUpdateFake).to.have.callCount(1);
 
-      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findOneAndUpdateFake.firstCall.args[0]).to.equal(
+        'compass-crud.test'
+      );
       expect(findOneAndUpdateFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
       });
@@ -2578,7 +2094,7 @@ describe('store', function () {
         promoteValues: false,
       });
 
-      expect(updateOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(updateOneFake.firstCall.args[0]).to.equal('compass-crud.test');
       expect(updateOneFake.firstCall.args[1]).to.deep.equal({
         _id: 1234,
       });
@@ -2587,7 +2103,7 @@ describe('store', function () {
       });
 
       expect(findFake).to.have.callCount(1);
-      expect(findFake.firstCall.args[0]).to.equal('db.coll');
+      expect(findFake.firstCall.args[0]).to.equal('compass-crud.test');
       expect(findFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
       expect(findFake.firstCall.args[2]).to.deep.equal({
         promoteValues: false,
@@ -2602,7 +2118,7 @@ describe('store', function () {
       updateOneFake.onCall(0).resolves({});
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'update'
@@ -2625,7 +2141,7 @@ describe('store', function () {
       updateOneFake.resolves(updatedDocument);
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'update'
@@ -2634,7 +2150,7 @@ describe('store', function () {
       expect(d).to.equal(updatedDocument);
       expect(findOneAndUpdateFake).to.have.callCount(1);
       expect(updateOneFake).to.have.callCount(1);
-      expect(updateOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(updateOneFake.firstCall.args[0]).to.equal('compass-crud.test');
       expect(updateOneFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
       expect(updateOneFake.firstCall.args[2]).to.deep.equal({
         name: 'document_12345',
@@ -2652,7 +2168,7 @@ describe('store', function () {
       replaceOneFake.resolves(updatedDocument);
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
-        'db.coll',
+        'compass-crud.test',
         { _id: 1234 } as any,
         { name: 'document_12345' },
         'replace'
@@ -2661,7 +2177,7 @@ describe('store', function () {
       expect(d).to.equal(updatedDocument);
       expect(findOneAndReplaceFake).to.have.callCount(1);
       expect(replaceOneFake).to.have.callCount(1);
-      expect(replaceOneFake.firstCall.args[0]).to.equal('db.coll');
+      expect(replaceOneFake.firstCall.args[0]).to.equal('compass-crud.test');
       expect(replaceOneFake.firstCall.args[1]).to.deep.equal({ _id: 1234 });
       expect(replaceOneFake.firstCall.args[2]).to.deep.equal({
         name: 'document_12345',
@@ -2824,38 +2340,24 @@ describe('store', function () {
     beforeEach(function () {
       saveQueryStub = sinon.stub().resolves();
       favoriteQueriesStorage.saveQuery = saveQueryStub;
-
-      const plugin = activateDocumentsPlugin(
+      const plugin = activatePlugin(
         {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
           namespace: 'compass-crud.testview',
-          noRefreshOnConfigure: true,
         },
         {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
           favoriteQueryStorageAccess: {
             getStorage() {
               return favoriteQueriesStorage;
             },
           },
-          recentQueryStorageAccess: compassRecentQueryStorageAccess,
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
+        }
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
 
     it('should save the query once is submitted to save', async function () {
-      store.onQueryChanged({ filter: { field: 1 } });
+      mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
       await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
       await store.saveUpdateQuery('my-query');
 
@@ -2889,34 +2391,14 @@ describe('store', function () {
         dataService.previewUpdate = previewUpdateStub;
         instance.topologyDescription.type = 'Single';
 
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.testview',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
+        const plugin = activatePlugin({ namespace: 'compass-crud.testview' });
         store = plugin.store;
         deactivate = () => plugin.deactivate();
       });
 
       it('never calls dataService.previewUpdate()', async function () {
         void store.openBulkUpdateModal();
-        store.onQueryChanged({ filter: { field: 1 } });
+        mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
         expect(previewUpdateStub.called).to.be.false;
@@ -2935,7 +2417,7 @@ describe('store', function () {
 
       it('resets syntaxError when there is no syntax error', async function () {
         void store.openBulkUpdateModal();
-        store.onQueryChanged({ filter: { field: 1 } });
+        mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField:  } }'); // syntax error
 
         expect(previewUpdateStub.called).to.be.false;
@@ -2979,34 +2461,14 @@ describe('store', function () {
         });
         dataService.previewUpdate = previewUpdateStub;
         instance.topologyDescription.type = 'Unknown'; // anything not 'Single'
-        const plugin = activateDocumentsPlugin(
-          {
-            isSearchIndexesSupported: true,
-            isReadonly: false,
-            isTimeSeries: false,
-            namespace: 'compass-crud.testview',
-            noRefreshOnConfigure: true,
-          },
-          {
-            dataService,
-            localAppRegistry,
-            globalAppRegistry,
-            instance,
-            preferences,
-            logger: createNoopLoggerAndTelemetry(),
-            favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-            recentQueryStorageAccess: compassRecentQueryStorageAccess,
-            fieldStoreService: mockFieldStoreService,
-          },
-          createActivateHelpers()
-        );
+        const plugin = activatePlugin({ namespace: 'compass-crud.testview' });
         store = plugin.store;
         deactivate = () => plugin.deactivate();
       });
 
       it('calls dataService.previewUpdate()', async function () {
         void store.openBulkUpdateModal();
-        store.onQueryChanged({ filter: { field: 1 } });
+        mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
         await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
 
         // why two? because it also gets called when the dialog opens
@@ -3041,37 +2503,22 @@ describe('store', function () {
       saveQueryStub = sinon.stub().resolves();
       recentQueriesStorage.saveQuery = saveQueryStub;
 
-      const plugin = activateDocumentsPlugin(
+      const plugin = activatePlugin(
+        { namespace: 'compass-crud.testview' },
         {
-          isSearchIndexesSupported: true,
-          isReadonly: false,
-          isTimeSeries: false,
-          namespace: 'compass-crud.testview',
-          noRefreshOnConfigure: true,
-        },
-        {
-          dataService,
-          localAppRegistry,
-          globalAppRegistry,
-          instance,
-          preferences,
-          logger: createNoopLoggerAndTelemetry(),
-          favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
           recentQueryStorageAccess: {
             getStorage() {
               return recentQueriesStorage;
             },
           },
-          fieldStoreService: mockFieldStoreService,
-        },
-        createActivateHelpers()
+        }
       );
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
 
     it('should save the query once is run', async function () {
-      store.onQueryChanged({ filter: { field: 1 } });
+      mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
       await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
       await store.runBulkUpdate();
 

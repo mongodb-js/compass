@@ -1,5 +1,3 @@
 export type { Actions } from './constants';
-export {
-  type Connection,
-  NavigationWithPlaceholder as ConnectionsNavigationTree,
-} from './connections-navigation-tree';
+export { type Connection } from './tree-data';
+export { NavigationWithPlaceholder as ConnectionsNavigationTree } from './connections-navigation-tree';

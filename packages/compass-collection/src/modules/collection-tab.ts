@@ -99,8 +99,7 @@ export const collectionMetadataFetched = (metadata: CollectionMetadata) => {
 export const selectTab = (
   tabName: CollectionSubtab
 ): CollectionThunkAction<void> => {
-  return (_dispatch, getState, { localAppRegistry, workspaces }) => {
-    localAppRegistry.emit('subtab-changed', tabName);
+  return (_dispatch, getState, { workspaces }) => {
     workspaces.openCollectionWorkspaceSubtab(
       getState().workspaceTabId,
       tabName

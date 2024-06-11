@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
-// @ts-expect-error no types available
-import StateMixin from 'reflux-state-mixin';
+import type { StoreWithStateMixin } from '@mongodb-js/reflux-state-mixin';
+import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { InternalLayer } from '../modules/geo';
 import { addLayer, generateGeoQuery } from '../modules/geo';
@@ -28,8 +28,8 @@ import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
 import type { Schema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
+import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
 
-const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
 
 const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
@@ -61,44 +61,26 @@ export type SchemaPluginServices = {
   loggerAndTelemetry: LoggerAndTelemetry;
   preferences: PreferencesAccess;
   fieldStoreService: FieldStoreService;
+  queryBar: QueryBarService;
 };
 
 type SchemaState = {
-  localAppRegistry: SchemaPluginServices['localAppRegistry'];
-  globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
   analysisState: AnalysisState;
   errorMessage: string;
   schema: Schema | null;
-  outdated: boolean;
-  isActiveTab: boolean;
   resultId: number;
   abortController: undefined | AbortController;
 };
 
-type QueryState = {
-  filter: Record<string, unknown>;
-  limit: number;
-  maxTimeMS: number;
-  project: null | Record<string, unknown>;
-};
-
-export type SchemaStore = Reflux.Store & {
-  state: Readonly<SchemaState>;
-  setState(state: Partial<SchemaState>): void;
-
+export type SchemaStore = StoreWithStateMixin<SchemaState> & {
   localAppRegistry: SchemaPluginServices['localAppRegistry'];
   globalAppRegistry: SchemaPluginServices['globalAppRegistry'];
   fieldStoreService: SchemaPluginServices['fieldStoreService'];
-  // TODO(COMPASS-6847): We don't really need this state in store, but it's hard
-  // to factor away while the store is reflux
-  query: QueryState;
   ns: string;
   geoLayers: Record<string, InternalLayer>;
   dataService: DataService;
 
   handleSchemaShare(): void;
-  onQueryChanged(state: QueryState): void;
-  onSubTabChanged(name: string): void;
   onSchemaSampled(): void;
   geoLayerAdded(
     field: string,
@@ -141,6 +123,7 @@ export function activateSchemaPlugin(
     loggerAndTelemetry,
     preferences,
     fieldStoreService,
+    queryBar,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -151,19 +134,13 @@ export function activateSchemaPlugin(
    * The reflux store for the schema.
    */
   const store: SchemaStore = Reflux.createStore({
-    mixins: [StateMixin.store],
+    mixins: [StateMixin.store<SchemaState>()],
     listenables: actions,
 
     /**
      * Initialize the document list store.
      */
     init: function (this: SchemaStore) {
-      this.query = {
-        filter: {},
-        project: null,
-        limit: DEFAULT_SAMPLE_SIZE,
-        maxTimeMS: DEFAULT_MAX_TIME_MS,
-      };
       this.ns = options.namespace;
       this.geoLayers = {};
       this.dataService = dataService;
@@ -203,38 +180,12 @@ export function activateSchemaPlugin(
      */
     getInitialState(this: SchemaStore): SchemaState {
       return {
-        localAppRegistry,
-        globalAppRegistry,
         analysisState: ANALYSIS_STATE_INITIAL,
         errorMessage: '',
         schema: null,
-        outdated: false,
-        isActiveTab: false,
         resultId: resultId(),
         abortController: undefined,
       };
-    },
-
-    onQueryChanged(this: SchemaStore, state: QueryState) {
-      this.query.filter = state.filter;
-      this.query.limit = state.limit;
-      this.query.project = state.project;
-      this.query.maxTimeMS = state.maxTimeMS;
-
-      if (
-        this.state.analysisState === ANALYSIS_STATE_COMPLETE &&
-        !this.state.isActiveTab
-      ) {
-        this.setState({
-          outdated: true,
-        });
-      }
-    },
-
-    onSubTabChanged(this: SchemaStore, name: string) {
-      this.setState({
-        isActiveTab: name === 'Schema',
-      });
     },
 
     onSchemaSampled(this: SchemaStore) {
@@ -290,14 +241,18 @@ export function activateSchemaPlugin(
       this.state.abortController?.abort();
     },
 
-    _trackSchemaAnalyzed(this: SchemaStore, analysisTimeMS: number) {
+    _trackSchemaAnalyzed(
+      this: SchemaStore,
+      analysisTimeMS: number,
+      query: Query
+    ) {
       const { schema } = this.state;
       // Use a function here to a) ensure that the calculations here
       // are only made when telemetry is enabled and b) that errors from
       // those calculations are caught and logged rather than displayed to
       // users as errors from the core schema analysis logic.
       const trackEvent = () => ({
-        with_filter: Object.entries(this.query.filter).length > 0,
+        with_filter: Object.entries(query.filter ?? {}).length > 0,
         schema_width: schema?.fields?.length ?? 0,
         schema_depth: schema ? calculateSchemaDepth(schema) : 0,
         geo_data: schema ? schemaContainsGeoData(schema) : false,
@@ -307,14 +262,14 @@ export function activateSchemaPlugin(
     },
 
     startAnalysis: async function (this: SchemaStore) {
-      const query = this.query || {};
+      const query = queryBar.getLastAppliedQuery('schema');
 
       const sampleSize = query.limit
         ? Math.min(DEFAULT_SAMPLE_SIZE, query.limit)
         : DEFAULT_SAMPLE_SIZE;
 
       const samplingOptions = {
-        query: query.filter,
+        query: query.filter ?? {},
         size: sampleSize,
         fields: query.project ?? undefined,
       };
@@ -332,7 +287,6 @@ export function activateSchemaPlugin(
         this.setState({
           analysisState: ANALYSIS_STATE_ANALYZING,
           errorMessage: '',
-          outdated: false,
           schema: null,
           abortController,
         });
@@ -382,16 +336,6 @@ export function activateSchemaPlugin(
       debug('schema store changed from', prevState, 'to', this.state);
     },
   }) as SchemaStore;
-
-  // TODO(COMPASS-7544): remove dependency on this event
-  on(localAppRegistry, 'subtab-changed', (name) => {
-    store.onSubTabChanged(name);
-  });
-
-  // TODO(COMPASS-7543): remove dependency on this event
-  on(localAppRegistry, 'query-changed', (state) => {
-    store.onQueryChanged(state);
-  });
 
   /**
    * When `Share Schema as JSON` clicked in menu show a dialog message.

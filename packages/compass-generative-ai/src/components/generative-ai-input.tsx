@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Banner,
   BannerVariant,
@@ -6,10 +13,11 @@ import {
   Icon,
   IconButton,
   SpinLoader,
-  TextInput,
+  TextArea,
   css,
   cx,
   focusRing,
+  keyframes,
   palette,
   spacing,
   useDarkMode,
@@ -27,6 +35,7 @@ const containerStyles = css({
   width: '100%',
   flexDirection: 'column',
   gap: spacing[25],
+  padding: `0px ${spacing[100]}px`,
   marginBottom: spacing[300],
 });
 
@@ -40,65 +49,74 @@ const inputBarContainerStyles = css({
 const gradientWidth = spacing[50];
 const gradientOffset = spacing[25];
 
-const gradientAnimationStyles = css`
-  &:before,
-  &:after {
-    content: '';
-    position: absolute;
-    top: -${gradientWidth + gradientOffset}px;
-    left: -${gradientWidth + gradientOffset}px;
-    width: calc(100% + ${(gradientWidth + gradientOffset) * 2}px);
-    height: calc(100% + ${(gradientWidth + gradientOffset) * 2}px);
-    border-radius: 12px;
-    background-color: ${palette.blue.light1};
-    background-size: 400% 400%;
-    background-position: 800% 800%;
-  }
+const animateInputBorderGradient = keyframes({
+  '0%': {
+    backgroundPosition: '400% 400%',
+    backgroundImage: `linear-gradient(
+      20deg,
+      ${palette.blue.light1} 0%,
+      ${palette.blue.light1} 30%,
+      #00ede0 45%,
+      #00ebc1 75%,
+      #0498ec
+    )`,
+  },
+  '100%': {
+    backgroundPosition: '0% 0%',
+    backgroundImage: `linear-gradient(
+      20deg,
+      ${palette.blue.light1} 0%,
+      ${palette.blue.light1} 30%,
+      #00ede0 45%,
+      #00ebc1 75%,
+      #0498ec
+    )`,
+  },
+});
 
-  &:after {
-    animation: 4s animateBg linear;
-  }
+const animateShadow = keyframes({
+  '0%': {
+    opacity: 1,
+  },
+  '100%': {
+    opacity: 0,
+  },
+});
 
-  &:before {
-    filter: blur(4px) opacity(0.6);
-    animation: 4s animateBg, animateShadow linear infinite;
-    opacity: 0;
-  }
+const ANIMATION_DURATION_MS = 4000;
 
-  @keyframes animateBg {
-    0% {
-      background-position: 400% 400%;
-      background-image: linear-gradient(
-        20deg,
-        ${palette.blue.light1} 0%,
-        ${palette.blue.light1} 30%,
-        #00ede0 45%,
-        #00ebc1 75%,
-        #0498ec
-      );
-    }
-    100% {
-      background-position: 0% 0%;
-      background-image: linear-gradient(
-        20deg,
-        ${palette.blue.light1} 0%,
-        ${palette.blue.light1} 30%,
-        #00ede0 45%,
-        #00ebc1 75%,
-        #0498ec
-      );
-    }
-  }
+const gradientAnimationStyles = css({
+  '&::before, &::after': {
+    content: '""',
+    position: 'absolute',
+    top: `-${gradientWidth + gradientOffset}px`,
+    left: `-${gradientWidth + gradientOffset}px`,
+    width: `calc(100% + ${(gradientWidth + gradientOffset) * 2}px)`,
+    height: `calc(100% + ${(gradientWidth + gradientOffset) * 2}px)`,
+    borderRadius: spacing[200],
+    backgroundColor: palette.blue.light1,
+    backgroundSize: '400% 400%',
+    backgroundPosition: '800% 800%',
+  },
 
-  @keyframes animateShadow {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-`;
+  '&::after': {
+    animation: `${ANIMATION_DURATION_MS}ms linear 0s infinite alternate ${animateInputBorderGradient}`,
+  },
+
+  '&::before': {
+    filter: 'blur(4px) opacity(0.6)',
+    animation: `${ANIMATION_DURATION_MS}ms linear 0s infinite alternate ${animateInputBorderGradient}, ${ANIMATION_DURATION_MS}ms linear 0s infinite alternate ${animateShadow}`,
+    opacity: 0,
+  },
+});
+
+const isFetchingOverrideTextInputStyles = css({
+  '> *': {
+    // Override LeafyGreen box shadow when the generative ai is fetching.
+    // Without this, the hover and focus state are still visible.
+    boxShadow: 'none !important',
+  },
+});
 
 const contentWrapperStyles = css({
   width: '100%',
@@ -113,11 +131,17 @@ const inputContainerStyles = css({
   position: 'relative',
 });
 
+const defaultTextAreaSize = spacing[400] + spacing[300];
 const textInputStyles = css({
   flexGrow: 1,
-  input: {
+  textarea: {
+    margin: 0,
+    padding: spacing[50] + spacing[25],
     paddingLeft: spacing[800],
     paddingRight: spacing[1600] * 2 + spacing[200],
+    height: defaultTextAreaSize, // Default height, overridden runtime.
+    minHeight: `${defaultTextAreaSize}px`,
+    maxHeight: spacing[1600] * 2,
   },
 });
 
@@ -206,6 +230,48 @@ const aiEntryContainerStyles = css({
   display: 'flex',
 });
 
+function adjustHeight(elementRef: React.RefObject<HTMLTextAreaElement>) {
+  if (elementRef.current) {
+    // Dynamically set the text area height based on the scroll height.
+    // We first set it to 0 so the correct scroll height is used.
+    elementRef.current.style.height = '0px';
+    let adjustedHeight = elementRef.current.scrollHeight;
+    if (adjustedHeight > defaultTextAreaSize) {
+      // When it's greater than one line, we add pixels so that
+      // we don't show a scrollbar when it's still under the maxHeight.
+      adjustedHeight += spacing[50];
+    }
+    elementRef.current.style.height = `${adjustedHeight}px`;
+  }
+}
+
+const VerticallyResizingTextArea = forwardRef(
+  function VerticallyResizingTextArea(
+    { value, ...props }: React.ComponentProps<typeof TextArea>,
+    forwardedRef: React.ForwardedRef<HTMLTextAreaElement>
+  ) {
+    const ref = useRef<HTMLTextAreaElement | null>(null);
+
+    useLayoutEffect(() => adjustHeight(ref), []);
+    useEffect(() => adjustHeight(ref), [value]);
+
+    return (
+      <TextArea
+        ref={(node) => {
+          ref.current = node;
+          if (typeof forwardedRef === 'function') {
+            forwardedRef(node);
+          } else if (forwardedRef) {
+            forwardedRef.current = node;
+          }
+        }}
+        value={value}
+        {...props}
+      />
+    );
+  }
+);
+
 const closeText = 'Close AI Helper';
 
 const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
@@ -268,10 +334,10 @@ function GenerativeAIInput({
   isAggregationGeneratedFromQuery = false,
   onResetIsAggregationGeneratedFromQuery,
 }: GenerativeAIInputProps) {
-  const promptTextInputRef = useRef<HTMLInputElement>(null);
+  const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const darkMode = useDarkMode();
-  const guideCueRef = useRef<HTMLInputElement>(null);
+  const guideCueRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = useCallback(
     (aiPromptText: string) => {
@@ -282,8 +348,8 @@ function GenerativeAIInput({
   );
 
   const onTextInputKeyDown = useCallback(
-    (evt: React.KeyboardEvent<HTMLInputElement>) => {
-      if (evt.key === 'Enter') {
+    (evt: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (evt.key === 'Enter' && !evt.shiftKey) {
         evt.preventDefault();
         if (!aiPromptText) {
           return;
@@ -330,22 +396,39 @@ function GenerativeAIInput({
     <div className={containerStyles}>
       <div className={inputBarContainerStyles}>
         <div className={inputContainerStyles}>
-          <div className={cx(isFetching ? gradientAnimationStyles : null)}>
-            <div
-              className={contentWrapperStyles}
-              data-testid="ai-user-text-input-wrapper"
-            >
-              <TextInput
-                className={textInputStyles}
+          <div className={isFetching ? gradientAnimationStyles : undefined}>
+            <div className={contentWrapperStyles}>
+              <button
+                className={closeAIButtonStyles}
+                data-testid="close-ai-button"
+                aria-label={closeText}
+                title={closeText}
+                onClick={() => onClose()}
+              >
+                <AIGuideCue
+                  showGuideCue={isAggregationGeneratedFromQuery}
+                  onCloseGuideCue={() => {
+                    onResetIsAggregationGeneratedFromQuery?.();
+                  }}
+                  refEl={guideCueRef}
+                  title="Aggregation generated"
+                  description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+                />
+                <span className={aiEntryContainerStyles} ref={guideCueRef}>
+                  <Icon glyph="Sparkle" />
+                </span>
+              </button>
+              <VerticallyResizingTextArea
+                className={cx(
+                  textInputStyles,
+                  isFetching && isFetchingOverrideTextInputStyles
+                )}
                 ref={promptTextInputRef}
-                sizeVariant="small"
                 data-testid="ai-user-text-input"
                 aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
                 placeholder={placeholder}
                 value={aiPromptText}
-                onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-                  onChangeAIPromptText(evt.currentTarget.value)
-                }
+                onChange={(evt) => onChangeAIPromptText(evt.target.value)}
                 onKeyDown={onTextInputKeyDown}
               />
               <div className={floatingButtonsContainerStyles}>
@@ -411,26 +494,6 @@ function GenerativeAIInput({
                   )}
                 </Button>
               </div>
-              <button
-                className={closeAIButtonStyles}
-                data-testid="close-ai-button"
-                aria-label={closeText}
-                title={closeText}
-                onClick={() => onClose()}
-              >
-                <AIGuideCue
-                  showGuideCue={isAggregationGeneratedFromQuery}
-                  onCloseGuideCue={() => {
-                    onResetIsAggregationGeneratedFromQuery?.();
-                  }}
-                  refEl={guideCueRef}
-                  title="Aggregation generated"
-                  description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
-                />
-                <span className={aiEntryContainerStyles} ref={guideCueRef}>
-                  <Icon glyph="Sparkle" />
-                </span>
-              </button>
             </div>
           </div>
         </div>

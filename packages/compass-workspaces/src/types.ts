@@ -5,8 +5,17 @@ export type CollectionSubtab =
   | 'Indexes'
   | 'Validation';
 
+export type WelcomeWorkspace = {
+  type: 'Welcome';
+};
+
 export type MyQueriesWorkspace = {
   type: 'My Queries';
+};
+
+export type ShellWorkspace = {
+  type: 'Shell';
+  connectionId: string;
 };
 
 export type ServerStatsWorkspace = {
@@ -43,7 +52,9 @@ export type CollectionWorkspace = {
 };
 
 export type AnyWorkspace =
+  | WelcomeWorkspace
   | MyQueriesWorkspace
+  | ShellWorkspace
   | ServerStatsWorkspace
   | DatabasesWorkspace
   | CollectionsWorkspace

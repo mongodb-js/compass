@@ -1,13 +1,11 @@
 import os from 'os';
 import { expect } from 'chai';
-import temp from 'temp';
 import fs from 'fs';
 import path from 'path';
+import Sinon from 'sinon';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
-
-temp.track();
 
 import {
   openExport,
@@ -21,22 +19,43 @@ import {
   runExport,
 } from './export';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
-import { configureStore } from '../stores/export-store';
+import {
+  type ExportPluginServices,
+  configureStore,
+} from '../stores/export-store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import { type PreferencesAccess } from 'compass-preferences-model/provider';
 
-const mockServices = {
-  dataService: { findCursor() {}, aggregateCursor() {} },
+const logger = createNoopLoggerAndTelemetry();
+const dataService = {
+  findCursor() {},
+  aggregateCursor() {},
+} as unknown as DataService;
+const connectionsManager = new ConnectionsManager({
+  logger: logger.log.unbound,
+});
+const mockServices: ExportPluginServices = {
+  connectionsManager,
   globalAppRegistry: new AppRegistry(),
   logger: createNoopLoggerAndTelemetry(),
-} as any;
+  preferences: {} as PreferencesAccess,
+};
 
 describe('export [module]', function () {
   // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
   let testStore = configureStore(mockServices);
 
   beforeEach(function () {
+    Sinon.stub(connectionsManager, 'getDataServiceForConnection').returns(
+      dataService
+    );
     testStore = configureStore(mockServices);
+  });
+
+  afterEach(function () {
+    Sinon.restore();
   });
 
   describe('#openExport', function () {
@@ -44,7 +63,7 @@ describe('export [module]', function () {
       // TODO(COMPASS-6580)
     });
 
-    it('opens and sets the namespace', function () {
+    it('opens and sets the namespace and connectionId', function () {
       const testNS = 'test.123';
       expect(testStore.getState().export.status).to.equal(undefined);
       expect(testStore.getState().export.namespace).to.not.equal(testNS);
@@ -58,6 +77,7 @@ describe('export [module]', function () {
 
       testStore.dispatch(
         openExport({
+          connectionId: 'TEST',
           namespace: 'test.123',
           query: {
             filter: {},
@@ -68,6 +88,7 @@ describe('export [module]', function () {
       );
 
       expect(testStore.getState().export.namespace).to.equal(testNS);
+      expect(testStore.getState().export.connectionId).to.equal('TEST');
       expect(testStore.getState().export.isInProgressMessageOpen).to.equal(
         false
       );
@@ -307,12 +328,20 @@ describe('export [module]', function () {
       });
 
       appRegistry = new AppRegistry();
+      const logger = createNoopLoggerAndTelemetry();
+      const connectionsManager = new ConnectionsManager({
+        logger: logger.log.unbound,
+      });
+
+      Sinon.stub(connectionsManager, 'getDataServiceForConnection').returns(
+        dataService
+      );
 
       testStore = configureStore({
-        dataService,
         globalAppRegistry: appRegistry,
         preferences: await createSandboxFromDefaultPreferences(),
-        logger: createNoopLoggerAndTelemetry(),
+        logger,
+        connectionsManager,
       });
     });
 
@@ -325,6 +354,7 @@ describe('export [module]', function () {
     it('runs an export', async function () {
       testStore.dispatch(
         openExport({
+          connectionId: 'TEST',
           namespace: testNS,
           query: {
             filter: {},
@@ -363,6 +393,7 @@ describe('export [module]', function () {
     it('runs an aggregation export', async function () {
       testStore.dispatch(
         openExport({
+          connectionId: 'TEST',
           namespace: testNS,
           origin: 'aggregations-toolbar',
           query: {

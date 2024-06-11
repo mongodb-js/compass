@@ -10,6 +10,7 @@ import {
   preferencesLocator,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
+import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 
 export const CompassShellPlugin = registerHadronPlugin<
   unknown,
@@ -30,3 +31,8 @@ export const CompassShellPlugin = registerHadronPlugin<
     preferences: preferencesLocator,
   }
 );
+
+export const WorkspaceTab: WorkspaceComponent<'Shell'> = {
+  name: 'Shell' as const,
+  component: CompassShellPlugin,
+};
