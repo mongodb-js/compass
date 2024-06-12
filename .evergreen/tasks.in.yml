@@ -1,6 +1,3 @@
-#
-# Tasks
-#
 tasks:
   - name: check
     tags: ['required-for-publish', 'run-on-pr']
