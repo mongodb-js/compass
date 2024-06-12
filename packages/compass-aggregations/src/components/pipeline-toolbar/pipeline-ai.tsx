@@ -13,6 +13,7 @@ import {
 } from '../../modules/pipeline-builder/pipeline-ai';
 import type { RootState } from '../../modules';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
 
 const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLoggerAndTelemetry('AI-PIPELINE-UI');
@@ -52,6 +53,7 @@ type PipelineAIProps = {
   aiPromptText: string;
   onChangeAIPromptText(val: string): void;
   onSubmitText(val: string): void;
+  didGenerateEmptyResults: boolean;
   didSucceed: boolean;
   isFetching: boolean;
   errorMessage?: string;
@@ -69,6 +71,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   onChangeAIPromptText,
   onSubmitText,
   isFetching,
+  didGenerateEmptyResults,
   didSucceed,
   onCancelRequest,
   errorMessage,
@@ -98,6 +101,7 @@ export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
       onChangeAIPromptText={onChangeAIPromptText}
       onSubmitText={onSubmitText}
       isFetching={isFetching}
+      didGenerateEmptyResults={didGenerateEmptyResults}
       didSucceed={didSucceed}
       onCancelRequest={onCancelRequest}
       errorMessage={errorMessage}
@@ -122,6 +126,9 @@ const ConnectedPipelineAI = connect(
         state.pipelineBuilder.aiPipeline.lastAIPipelineRequestId,
       aiPromptText: state.pipelineBuilder.aiPipeline.aiPromptText,
       isFetching: state.pipelineBuilder.aiPipeline.status === 'fetching',
+      didGenerateEmptyResults:
+        state.pipelineBuilder.aiPipeline.status === 'success' &&
+        getPipelineStageOperatorsFromBuilderState(state, false).length === 0,
       didSucceed: state.pipelineBuilder.aiPipeline.status === 'success',
       errorMessage: state.pipelineBuilder.aiPipeline.errorMessage,
       errorCode: state.pipelineBuilder.aiPipeline.errorCode,

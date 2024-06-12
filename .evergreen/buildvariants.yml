@@ -210,3 +210,4 @@ buildvariants:
       - name: publish
       - name: publish-packages-next
       - name: publish-dev-release-info
+      - name: create_static_analysis_report

@@ -130,7 +130,7 @@ const testPackagedAppBuildVariants = [
     display_name: 'MacOS arm64 14',
     run_on: 'macos-14-arm64-gui',
     depends_on: 'test-and-package-macos-arm'
-  },
+  }
 ];
 
 for (const buildVariant of testPackagedAppBuildVariants) { %>
@@ -170,3 +170,4 @@ for (const buildVariant of testPackagedAppBuildVariants) { %>
       - name: publish
       - name: publish-packages-next
       - name: publish-dev-release-info
+      - name: create_static_analysis_report

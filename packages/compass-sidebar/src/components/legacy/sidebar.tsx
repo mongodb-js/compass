@@ -201,7 +201,7 @@ export function Sidebar({
         <div className={navigationItemsContainerStyles}>
           <NavigationItems
             connectionInfo={initialConnectionInfo}
-            activeWorkspace={activeWorkspace ?? undefined}
+            activeWorkspace={activeWorkspace}
             onAction={onAction}
           />
         </div>

@@ -153,6 +153,18 @@ const CollectionsList: React.FunctionComponent<{
           const data =
             coll.type === 'view'
               ? [{ label: 'View on', value: coll.source?.name }]
+              : coll.type === 'timeseries'
+              ? [
+                  {
+                    label: 'Storage size',
+                    value: compactBytes(
+                      coll.storage_size - coll.free_storage_size
+                    ),
+                    hint: `Uncompressed data size: ${compactBytes(
+                      coll.document_size
+                    )}`,
+                  },
+                ]
               : [
                   {
                     label: 'Storage size',

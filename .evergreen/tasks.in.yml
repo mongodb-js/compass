@@ -144,7 +144,7 @@ tasks:
 
 <% for (const distribution of ["compass", "compass-isolated", "compass-readonly"]) { %>
   - name: package-<%= distribution %>
-    tags: ['required-for-publish', 'run-on-pr']
+    tags: ['required-for-publish', 'run-on-pr', 'package-task']
     commands:
       - func: prepare
       - func: install
@@ -205,3 +205,29 @@ for (const serverVersion of serverVersions) { %>
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 <% } %>
+  - name: create_static_analysis_report
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: ".package-task"
+        variant: "*"
+    commands:
+      - func: prepare
+      - func: install
+<%
+let firstPartyDepsFilenames = [];
+for (const compassDistribution of ["compass", "compass-readonly", "compass-isolated"]) {
+  const filenames = [
+    'first-party-deps-' + compassDistribution + '-ubuntu.json',
+    'first-party-deps-' + compassDistribution + '-windows.json',
+    'first-party-deps-' + compassDistribution + '-macos.json',
+    'first-party-deps-' + compassDistribution + '-macos-arm.json'
+  ];
+  for (const filename of filenames) {
+    firstPartyDepsFilenames.push(filename); %>
+      - func: get_first_party_dependency_list
+        vars:
+          filename: <%= filename %>
+<%  } } %>
+      - func: create_static_analysis_report
+        vars:
+          first_party_dependency_filenames: <%= firstPartyDepsFilenames.map(f => '.sbom/' + f).join(',') %>
