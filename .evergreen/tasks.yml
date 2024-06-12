@@ -103,7 +103,7 @@ tasks:
       - func: publish-dev-release-info
 
   - name: package-compass
-    tags: ['required-for-publish', 'run-on-pr']
+    tags: ['required-for-publish', 'run-on-pr', 'package-task']
     commands:
       - func: prepare
       - func: install
@@ -124,7 +124,7 @@ tasks:
           compass_distribution: compass
 
   - name: package-compass-readonly
-    tags: ['required-for-publish', 'run-on-pr']
+    tags: ['required-for-publish', 'run-on-pr', 'package-task']
     commands:
       - func: prepare
       - func: install
@@ -145,7 +145,7 @@ tasks:
           compass_distribution: compass-readonly
 
   - name: package-compass-isolated
-    tags: ['required-for-publish', 'run-on-pr']
+    tags: ['required-for-publish', 'run-on-pr', 'package-task']
     commands:
       - func: prepare
       - func: install
@@ -502,3 +502,64 @@ tasks:
           browser_name: 'firefox'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
+  - name: create_static_analysis_report
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: ".package-task"
+        variant: "*"
+    commands:
+      - func: prepare
+      - func: install
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-ubuntu.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-windows.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-macos.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-macos-arm.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-readonly-ubuntu.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-readonly-windows.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-readonly-macos.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-readonly-macos-arm.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-isolated-ubuntu.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-isolated-windows.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-isolated-macos.json
+
+      - func: get_first_party_dependency_list
+        vars:
+          filename: first-party-deps-compass-isolated-macos-arm.json
+
+      - func: create_static_analysis_report
+        vars:
+          first_party_dependency_filenames: .sbom/first-party-deps-compass-ubuntu.json,.sbom/first-party-deps-compass-windows.json,.sbom/first-party-deps-compass-macos.json,.sbom/first-party-deps-compass-macos-arm.json,.sbom/first-party-deps-compass-readonly-ubuntu.json,.sbom/first-party-deps-compass-readonly-windows.json,.sbom/first-party-deps-compass-readonly-macos.json,.sbom/first-party-deps-compass-readonly-macos-arm.json,.sbom/first-party-deps-compass-isolated-ubuntu.json,.sbom/first-party-deps-compass-isolated-windows.json,.sbom/first-party-deps-compass-isolated-macos.json,.sbom/first-party-deps-compass-isolated-macos-arm.json
