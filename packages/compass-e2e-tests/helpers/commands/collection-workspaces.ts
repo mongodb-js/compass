@@ -3,7 +3,7 @@ import * as Selectors from '../selectors';
 
 async function navigateToCollection(
   browser: CompassBrowser,
-  // TODO: take connectionName into account
+  // TODO(COMPASS-8002): take connectionName into account
   dbName: string,
   collectionName: string
 ): Promise<void> {
@@ -31,7 +31,7 @@ async function navigateToCollection(
 
 export async function navigateToCollectionTab(
   browser: CompassBrowser,
-  // TODO: take connectionName into account
+  // TODO(COMPASS-8002): take connectionName into account
   dbName: string,
   collectionName: string,
   tabName:
@@ -47,7 +47,7 @@ export async function navigateToCollectionTab(
 
 export async function navigateWithinCurrentCollectionTabs(
   browser: CompassBrowser,
-  // TODO: take connectionName into account
+  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'
@@ -69,7 +69,7 @@ export async function navigateWithinCurrentCollectionTabs(
 
 export async function waitUntilActiveCollectionTab(
   browser: CompassBrowser,
-  // TODO: take connectionName into account
+  // TODO(COMPASS-8002): take connectionName into account
   dbName: string,
   collectionName: string,
   tabName:
@@ -90,7 +90,7 @@ export async function waitUntilActiveCollectionTab(
 
 export async function waitUntilActiveCollectionSubTab(
   browser: CompassBrowser,
-  // TODO: take connectionName into account
+  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'

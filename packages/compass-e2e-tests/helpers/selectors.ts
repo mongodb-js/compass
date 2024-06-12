@@ -1130,8 +1130,8 @@ export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
-// TODO: My Queries isn't an instance level nav item and you get to Performance
-// and Databases in very different ways.
+// TODO(COMPASS-8006): My Queries isn't an instance level nav item and you get
+// to Performance and Databases in very different ways.
 export const sidebarInstanceNavigationItem = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ) => {
@@ -1150,7 +1150,7 @@ export const workspaceTab = (
       : `[data-namespace="${title}"]`;
   return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
 };
-// TODO: My Queries isn't really an instance level tab
+// TODO(COMPASS-8006): My Queries isn't really an instance level tab
 export const instanceWorkspaceTab = (
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
   active: boolean | null = null

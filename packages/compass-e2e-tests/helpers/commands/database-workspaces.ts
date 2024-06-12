@@ -2,7 +2,7 @@ import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-// TODO: remove in favour of navigateToConnectionCollectionsTab
+// TODO(COMPASS-8002): remove in favour of navigateToConnectionCollectionsTab
 export async function navigateToDatabaseCollectionsTab(
   browser: CompassBrowser,
   dbName: string
@@ -18,7 +18,7 @@ export async function navigateToDatabaseCollectionsTab(
   await waitUntilActiveDatabaseTab(browser, dbName);
 }
 
-// TODO: remove in favour of waitUntilActiveConnectionDatabaseTab
+// TODO(COMPASS-8002): remove in favour of waitUntilActiveConnectionDatabaseTab
 export async function waitUntilActiveDatabaseTab(
   browser: CompassBrowser,
   dbName: string
@@ -53,7 +53,7 @@ export async function waitUntilActiveConnectionDatabaseTab(
   connectionName: string,
   dbName: string
 ) {
-  // TODO: take into account connectionName
+  // TODO(COMPASS-8002): take into account connectionName
   await browser
     .$(Selectors.databaseWorkspaceTab(dbName, true))
     .waitForDisplayed();

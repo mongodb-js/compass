@@ -2,10 +2,10 @@ import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-// TODO: remove this in favor of navigateToConnectionTab once we're in a multi-connection only world
+// TODO(COMPASS-8002): remove this in favor of navigateToConnectionTab once we're in a multi-connection only world
 export async function navigateToInstanceTab(
   browser: CompassBrowser,
-  // TODO: we need to move My Queries somewhere else
+  // TODO(COMPASS-8006): we need to move My Queries somewhere else
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ): Promise<void> {
   if (TEST_MULTIPLE_CONNECTIONS && tabName !== 'My Queries') {
@@ -19,10 +19,10 @@ export async function navigateToInstanceTab(
   await waitUntilActiveInstanceTab(browser, tabName);
 }
 
-// TODO: remove this in favor of waitUntilActiveConnectionTab once we're in a multi-connection only world
+// TODO(COMPASS-8002): remove this in favor of waitUntilActiveConnectionTab once we're in a multi-connection only world
 export async function waitUntilActiveInstanceTab(
   browser: CompassBrowser,
-  // TODO: we need to move My Queries somewhere else
+  // TODO(COMPASS-8006): we need to move My Queries somewhere else
   tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
 ) {
   if (TEST_MULTIPLE_CONNECTIONS && tabName !== 'My Queries') {
@@ -50,7 +50,7 @@ export async function navigateToConnectionTab(
       Selectors.sidebarActiveConnection(connectionName)
     );
   } else {
-    // TODO: click the three dots menu then the relevant option. (View performance metrics)
+    // TODO(COMPASS-8002): click the three dots menu then the relevant option. (View performance metrics)
     // (This will be easier to do if we merge the active and saved connectins
     // because selectConnectionMenuItem() acts on the saved connection, not the active connection)
     throw new Error('unimplemented');
@@ -64,7 +64,7 @@ export async function waitUntilActiveConnectionTab(
   connectionName: string,
   tabName: 'Performance' | 'Databases' = 'Databases'
 ) {
-  // TODO: we should differentiate by connectionName somehow
+  // TODO(COMPASS-8002): we should differentiate by connectionName somehow
   await browser
     .$(Selectors.instanceWorkspaceTab(tabName, true))
     .waitForDisplayed();
