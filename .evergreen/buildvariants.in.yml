@@ -86,20 +86,23 @@ const testPackagedAppBuildVariants = [
     display_name: 'Ubuntu 20.04',
     run_on: 'ubuntu1604-large',
     depends_on: 'test-and-package-ubuntu',
-    test_latest_alpha: true
+    test_latest_alpha: true,
+    test_eol_servers: true
   },
   {
     name: 'test-packaged-app-windows',
     display_name: 'Windows 10',
     run_on: 'windows-vsCurrent-large',
     depends_on: 'test-and-package-windows',
-    test_latest_alpha: true
+    test_latest_alpha: true,
+    test_eol_servers: true
   },
   {
     name: 'test-packaged-app-rhel',
     display_name: 'RHEL 8.0',
     run_on: 'rhel80-large',
-    depends_on: 'test-and-package-rhel'
+    depends_on: 'test-and-package-rhel',
+    test_eol_servers: true
   },
   {
     name: 'test-packaged-app-macos-11-x64',
@@ -139,6 +142,16 @@ for (const buildVariant of testPackagedAppBuildVariants) { %>
       - name: package-compass
         variant: <%= buildVariant.depends_on %>
     tasks:
+       <% if (buildVariant.test_eol_servers) { %>
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
+      <% } %>
       - name: test-packaged-app-60x-community
       - name: test-packaged-app-60x-enterprise
       - name: test-packaged-app-70x-community
@@ -153,9 +166,6 @@ for (const buildVariant of testPackagedAppBuildVariants) { %>
   - name: publish
     display_name: Publish Artifacts
     run_on: ubuntu2004-large
-    depends_on:
-      - name: '.required-for-publish'
-        variant: '*'
     tasks:
       - name: publish
       - name: publish-packages-next

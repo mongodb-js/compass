@@ -87,6 +87,14 @@ buildvariants:
       - name: package-compass
         variant: test-and-package-ubuntu
     tasks:
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
       - name: test-packaged-app-60x-community
       - name: test-packaged-app-60x-enterprise
       - name: test-packaged-app-70x-community
@@ -102,6 +110,14 @@ buildvariants:
       - name: package-compass
         variant: test-and-package-windows
     tasks:
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
       - name: test-packaged-app-60x-community
       - name: test-packaged-app-60x-enterprise
       - name: test-packaged-app-70x-community
@@ -117,6 +133,14 @@ buildvariants:
       - name: package-compass
         variant: test-and-package-rhel
     tasks:
+      - name: test-packaged-app-40x-community
+      - name: test-packaged-app-40x-enterprise
+      - name: test-packaged-app-42x-community
+      - name: test-packaged-app-42x-enterprise
+      - name: test-packaged-app-44x-community
+      - name: test-packaged-app-44x-enterprise
+      - name: test-packaged-app-5x-community
+      - name: test-packaged-app-5x-enterprise
       - name: test-packaged-app-60x-community
       - name: test-packaged-app-60x-enterprise
       - name: test-packaged-app-70x-community
@@ -182,9 +206,6 @@ buildvariants:
   - name: publish
     display_name: Publish Artifacts
     run_on: ubuntu2004-large
-    depends_on:
-      - name: .required-for-publish
-        variant: '*'
     tasks:
       - name: publish
       - name: publish-packages-next
