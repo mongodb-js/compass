@@ -30,6 +30,7 @@
             "default": true
           }
         },
+        "additionalProperties": false,
         "required": ["name", "display_name", "run_on"]
       }
     },
@@ -102,10 +103,12 @@
                   }
                 }
               },
+              "additionalProperties": false,
               "required": ["name", "vars"]
             }
           }
         },
+        "additionalProperties": false,
         "required": ["name"]
       }
     }
