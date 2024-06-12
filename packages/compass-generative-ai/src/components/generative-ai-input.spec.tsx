@@ -238,7 +238,7 @@ describe('GenerativeAIInput Component', function () {
   });
 
   describe('Empty results guide cue', function () {
-    const emptyResultsText = 'Empty query generated';
+    const emptyResultsText = 'No content generated';
 
     describe('Empty results guide cue', function () {
       it('should not show the guide cue when didGenerateEmptyResults is false', function () {
