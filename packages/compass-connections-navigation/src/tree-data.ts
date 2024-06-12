@@ -10,7 +10,12 @@ import type {
 } from './virtual-list/use-virtual-navigation-tree';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
+type DatabaseOrCollectionStatus =
+  | 'initial'
+  | 'fetching'
+  | 'refreshing'
+  | 'ready'
+  | 'error';
 
 export type NotConnectedConnectionStatus =
   | ConnectionStatus.Connecting
@@ -31,7 +36,7 @@ export type ConnectedConnection = {
   isDataLake: boolean;
   isWritable: boolean;
   isPerformanceTabSupported: boolean;
-  databasesStatus: Status;
+  databasesStatus: DatabaseOrCollectionStatus;
   databasesLength: number;
   databases: Database[];
 };
@@ -41,7 +46,7 @@ export type Connection = ConnectedConnection | NotConnectedConnection;
 type Database = {
   _id: string;
   name: string;
-  collectionsStatus: Status;
+  collectionsStatus: DatabaseOrCollectionStatus;
   collectionsLength: number;
   collections: Collection[];
 };
