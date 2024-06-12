@@ -12,7 +12,7 @@ import {
 } from 'react-redux';
 import {
   type Actions,
-  type SidebarActionableItem,
+  type SidebarItem,
   type ConnectedConnection,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
@@ -581,7 +581,7 @@ export function ActiveConnectionNavigation({
   );
 
   const onItemAction = useCallback(
-    (item: SidebarActionableItem, action: Actions) => {
+    (item: SidebarItem, action: Actions) => {
       if (item.type === 'connection') {
         onConnectionAction(item.connectionInfo, action);
       } else {
@@ -594,7 +594,7 @@ export function ActiveConnectionNavigation({
   );
 
   const onItemExpand = useCallback(
-    (item: SidebarActionableItem, isExpanded: boolean) => {
+    (item: SidebarItem, isExpanded: boolean) => {
       if (item.type === 'connection') {
         onConnectionToggle(item.connectionInfo.id, isExpanded);
       } else if (item.type === 'database') {

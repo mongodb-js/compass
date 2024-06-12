@@ -8,7 +8,7 @@ import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navig
 import type {
   Actions,
   ConnectedConnection,
-  SidebarActionableItem,
+  SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
 import {
@@ -287,7 +287,7 @@ function SidebarDatabasesNavigation({
   }, [activeWorkspace, handleDatabaseExpand, connectionId]);
 
   const onItemAction = useCallback(
-    (item: SidebarActionableItem, action: Actions) => {
+    (item: SidebarItem, action: Actions) => {
       if (item.type !== 'connection') {
         const ns = item.type === 'database' ? item.dbName : item.namespace;
         onNamespaceAction(item.connectionId, ns, action);
@@ -297,7 +297,7 @@ function SidebarDatabasesNavigation({
   );
 
   const onItemExpand = useCallback(
-    (item: SidebarActionableItem, isExpanded: boolean) => {
+    (item: SidebarItem, isExpanded: boolean) => {
       if (item.type === 'database') {
         handleDatabaseExpand(item.connectionId, item.dbName, isExpanded);
       }
