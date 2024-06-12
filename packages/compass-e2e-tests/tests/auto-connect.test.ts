@@ -5,6 +5,7 @@ import {
   positionalArgs,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
+  screenshotPathName,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import os from 'os';
@@ -164,6 +165,11 @@ describe('Automatically connecting from the command line', function () {
       const connectFormState = await compass.browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
       expect(connectFormState.defaultPassword).to.equal('asdf/');
+    } catch (err: any) {
+      await compass.browser.screenshot(
+        screenshotPathName('fails with invalid auth')
+      );
+      throw err;
     } finally {
       await cleanup(compass);
     }
@@ -219,6 +225,13 @@ describe('Automatically connecting from the command line', function () {
         location.reload();
       });
       await browser.waitForConnectionScreen();
+    } catch (err: any) {
+      await compass.browser.screenshot(
+        screenshotPathName(
+          'enters auto-connect mode again if the window is hard reloaded'
+        )
+      );
+      throw err;
     } finally {
       await cleanup(compass);
     }

@@ -1082,7 +1082,7 @@ function pathName(text: string) {
     .replace(/[^a-z0-9-_]/gi, ''); // strip everything non-ascii (for now)
 }
 
-function screenshotPathName(text: string) {
+export function screenshotPathName(text: string) {
   return `screenshot-${pathName(text)}.png`;
 }
 
