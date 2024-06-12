@@ -492,7 +492,8 @@ export function ActiveConnectionNavigation({
   }, [activeWorkspace]);
 
   const onConnectionAction = useCallback(
-    (connectionId: string, action: Actions) => {
+    (connectionInfo: ConnectionInfo, action: Actions) => {
+      const connectionId = connectionInfo.id;
       switch (action) {
         case 'open-shell':
           openShellWorkspace(connectionId, { newTab: true });
@@ -500,8 +501,11 @@ export function ActiveConnectionNavigation({
         case 'select-connection':
           openDatabasesWorkspace(connectionId);
           return;
-        case 'connection-disconnect':
-          onDisconnect(connectionId);
+        case 'create-database':
+          _onNamespaceAction(connectionId, '', action);
+          return;
+        case 'connection-performance-metrics':
+          openPerformanceWorkspace(connectionId);
           return;
         case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
@@ -512,70 +516,81 @@ export function ActiveConnectionNavigation({
         case 'connection-toggle-favorite':
           onToggleFavoriteConnection(connectionId);
           return;
-        case 'connection-performance-metrics':
-          openPerformanceWorkspace(connectionId);
+        case 'connection-disconnect':
+          onDisconnect(connectionId);
           return;
       }
     },
     [
-      onDisconnect,
+      openShellWorkspace,
+      openDatabasesWorkspace,
+      _onNamespaceAction,
+      openPerformanceWorkspace,
       onOpenConnectionInfo,
       onCopyConnectionString,
       onToggleFavoriteConnection,
-      openPerformanceWorkspace,
-      openDatabasesWorkspace,
-      openShellWorkspace,
+      onDisconnect,
     ]
   );
 
-  const onItemAction = useCallback(
-    (item: SidebarActionableItem, action: Actions) => {
-      if (item.type === 'connection') {
-        onConnectionAction(item.connectionInfo.id, action);
-        return;
-      } else {
-        const { connectionId } = item;
-        const ns = item.type === 'database' ? item.dbName : item.namespace;
-        switch (action) {
-          case 'select-database':
-            openCollectionsWorkspace(connectionId, ns);
-            return;
-          case 'select-collection':
-            openCollectionWorkspace(connectionId, ns);
-            return;
-          case 'open-in-new-tab':
-            openCollectionWorkspace(connectionId, ns, { newTab: true });
-            return;
-          case 'modify-view': {
-            const coll = findCollection(
-              ns,
-              (connections.find(
-                (conn) => conn.connectionInfo.id === connectionId
-              )?.databases as Database[]) ?? []
-            );
-            if (coll && coll.sourceName && coll.pipeline) {
-              openEditViewWorkspace(connectionId, coll._id, {
-                sourceName: coll.sourceName,
-                sourcePipeline: coll.pipeline,
-                newTab: true,
-              });
+  const onNamespaceAction = useCallback(
+    (connectionId: string, ns: string, action: Actions) => {
+      switch (action) {
+        case 'select-database':
+          openCollectionsWorkspace(connectionId, ns);
+          return;
+        case 'select-collection':
+          openCollectionWorkspace(connectionId, ns);
+          return;
+        case 'open-in-new-tab':
+          openCollectionWorkspace(connectionId, ns, { newTab: true });
+          return;
+        case 'modify-view': {
+          const connection = connections.find(
+            (conn): conn is ConnectedConnection => {
+              return (
+                conn.connectionStatus === ConnectionStatus.Connected &&
+                conn.connectionInfo.id === connectionId
+              );
             }
-            return;
+          );
+          const databases = connection?.databases ?? [];
+          const coll = findCollection(ns, databases);
+
+          if (coll && coll.sourceName && coll.pipeline) {
+            openEditViewWorkspace(connectionId, coll._id, {
+              sourceName: coll.sourceName,
+              sourcePipeline: coll.pipeline,
+              newTab: true,
+            });
           }
-          default:
-            _onNamespaceAction(connectionId, ns, action);
-            return;
+          return;
         }
+        default:
+          _onNamespaceAction(connectionId, ns, action);
+          return;
       }
     },
     [
-      onConnectionAction,
       connections,
       openCollectionsWorkspace,
       openCollectionWorkspace,
       openEditViewWorkspace,
       _onNamespaceAction,
     ]
+  );
+
+  const onItemAction = useCallback(
+    (item: SidebarActionableItem, action: Actions) => {
+      if (item.type === 'connection') {
+        onConnectionAction(item.connectionInfo, action);
+      } else {
+        const namespace =
+          item.type === 'database' ? item.dbName : item.namespace;
+        onNamespaceAction(item.connectionId, namespace, action);
+      }
+    },
+    [onConnectionAction, onNamespaceAction]
   );
 
   const onItemExpand = useCallback(
