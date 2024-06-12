@@ -4,7 +4,6 @@ import { Placeholder, css } from '@mongodb-js/compass-components';
 import { ROW_HEIGHT } from './constants';
 import { getTreeItemStyles } from './utils';
 import { usePreference } from 'compass-preferences-model/provider';
-import { getMaxNestingLevel } from './tree-data';
 
 const placeholderItem = css({
   display: 'flex',
@@ -22,15 +21,14 @@ const MULTIPLE_CONNECTION_PROPS = {
 
 export const PlaceholderItem: React.FunctionComponent<{
   level: number;
-  maxNestingLevel: number;
   style?: CSSProperties;
-}> = ({ level, maxNestingLevel, style }) => {
+}> = ({ level, style }) => {
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
   );
   const itemPaddingStyles = useMemo(
-    () => getTreeItemStyles({ level, maxNestingLevel }),
-    [level, maxNestingLevel]
+    () => getTreeItemStyles({ level, isExpandable: false }),
+    [level]
   );
 
   return (
@@ -44,17 +42,10 @@ const topPlaceholderStyles = css({
   maskImage: 'linear-gradient(to bottom, black 30%, transparent 95%)',
 });
 export const TopPlaceholder = () => {
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
   const items = useMemo(() => {
     return Array.from({ length: 10 }, (_, idx) => (
-      <PlaceholderItem
-        key={idx}
-        level={1}
-        maxNestingLevel={getMaxNestingLevel(isSingleConnection)}
-      ></PlaceholderItem>
+      <PlaceholderItem key={idx} level={1}></PlaceholderItem>
     ));
-  }, [isSingleConnection]);
+  }, []);
   return <div className={topPlaceholderStyles}>{items}</div>;
 };

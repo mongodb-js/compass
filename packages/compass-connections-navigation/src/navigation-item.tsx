@@ -8,6 +8,7 @@ import type { NavigationItemActions } from './item-actions';
 import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
@@ -63,19 +64,33 @@ export function NavigationItem({
 
   const style = useMemo(() => getTreeItemStyles(item), [item]);
 
-  const actionProps = useMemo(
-    () => ({
+  const actionProps = useMemo(() => {
+    const collapseAfter = (() => {
+      if (item.type === 'connection') {
+        if (
+          item.connectionStatus !== ConnectionStatus.Connected ||
+          !item.isConnectionReadOnly
+        ) {
+          return 1;
+        }
+        // when connection is not readonly we have create-database as first
+        // action which is why we would like to collapse entire actions when the
+        // connection is readonly to avoid showing any other items from the menu
+        return 0;
+      }
+    })();
+
+    return {
       actions: getItemActions(item),
       onAction: onAction,
-      ...(item.type === 'connection' && {
-        collapseAfter: 1,
+      ...(typeof collapseAfter === 'number' && {
+        collapseAfter,
       }),
       ...(item.type === 'database' && {
         collapseToMenuThreshold: 3,
       }),
-    }),
-    [getItemActions, item, onAction]
-  );
+    };
+  }, [getItemActions, item, onAction]);
 
   const itemDataProps = useMemo(() => {
     if (item.type === 'placeholder') {
@@ -102,10 +117,7 @@ export function NavigationItem({
   return (
     <StyledNavigationItem colorCode={item.colorCode}>
       {item.type === 'placeholder' ? (
-        <PlaceholderItem
-          level={item.level}
-          maxNestingLevel={item.maxNestingLevel}
-        />
+        <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
           isActive={item.id === activeItemId}
@@ -114,7 +126,7 @@ export function NavigationItem({
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}
-          canExpand={item.level < item.maxNestingLevel}
+          canExpand={item.isExpandable}
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);
           }}

@@ -5,10 +5,18 @@ import React, {
   useReducer,
   useRef,
 } from 'react';
-import { connect } from 'react-redux';
 import {
-  type Connection,
+  type MapDispatchToProps,
+  type MapStateToProps,
+  connect,
+} from 'react-redux';
+import {
   type Actions,
+  type SidebarItem,
+  type SidebarConnectedConnection,
+  type SidebarDatabase,
+  type SidebarCollection,
+  type ConnectionsNavigationTreeProps,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
 import {
@@ -24,17 +32,16 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import NavigationItemsFilter from '../../navigation-items-filter';
 import { findCollection } from '../../../helpers/find-collection';
 import {
   fetchAllCollections,
   onDatabaseExpand,
 } from '../../../modules/databases';
-import type { ConnectionsNavigationTreeProps } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type ExpandedDatabases = Record<
-  Database['_id'],
+  SidebarDatabase['_id'],
   'expanded' | 'tempExpanded' | undefined
 >;
 type ExpandedConnections = Record<
@@ -49,16 +56,12 @@ interface Match {
   isMatch?: boolean;
 }
 
-type Collection = Connection['databases'][number]['collections'][number];
-
-type Database = Connection['databases'][number];
-
-type FilteredCollection = Collection & Match;
-type FilteredDatabase = Omit<Database, 'collections'> &
+type FilteredCollection = SidebarCollection & Match;
+type FilteredDatabase = Omit<SidebarDatabase, 'collections'> &
   Match & {
     collections: FilteredCollection[];
   };
-type FilteredConnection = Omit<Connection, 'databases'> &
+type FilteredConnection = Omit<SidebarConnectedConnection, 'databases'> &
   Match & {
     databases: FilteredDatabase[];
   };
@@ -95,7 +98,7 @@ const activeConnectionCountStyles = css({
 });
 
 const filterConnections = (
-  connections: Connection[],
+  connections: SidebarConnectedConnection[],
   regex: RegExp
 ): FilteredConnection[] => {
   const results: FilteredConnection[] = [];
@@ -115,7 +118,7 @@ const filterConnections = (
 };
 
 const filterDatabases = (
-  databases: Database[],
+  databases: SidebarDatabase[],
   regex: RegExp
 ): FilteredDatabase[] => {
   const results: FilteredDatabase[] = [];
@@ -135,7 +138,7 @@ const filterDatabases = (
 };
 
 const filterCollections = (
-  collections: Collection[],
+  collections: SidebarCollection[],
   regex: RegExp
 ): FilteredCollection[] => {
   return collections
@@ -209,14 +212,14 @@ const revertTemporaryExpanded = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
-  filtered: Connection[] | undefined;
+  filtered: SidebarConnectedConnection[] | undefined;
 }
 
 const FILTER_CONNECTIONS =
   'sidebar/active-connections/FILTER_CONNECTIONS' as const;
 interface FilterConnectionsAction {
   type: typeof FILTER_CONNECTIONS;
-  connections: Connection[];
+  connections: SidebarConnectedConnection[];
   filterRegex: RegExp;
 }
 
@@ -336,46 +339,53 @@ const connectionsReducer = (
   }
 };
 
+type ActiveConnectionNavigationComponentProps = Pick<
+  React.ComponentProps<typeof ConnectionsNavigationTree>,
+  'activeWorkspace'
+> & {
+  activeConnections: ConnectionInfo[];
+  filterRegex: RegExp | null;
+  onFilterChange(regex: RegExp | null): void;
+  onOpenConnectionInfo(connectionId: ConnectionInfo['id']): void;
+  onCopyConnectionString(connectionId: ConnectionInfo['id']): void;
+  onToggleFavoriteConnection(connectionId: ConnectionInfo['id']): void;
+  onDisconnect(connectionId: ConnectionInfo['id']): void;
+};
+
+type MapStateProps = {
+  connections: SidebarConnectedConnection[];
+};
+
+type MapDispatchProps = {
+  fetchAllCollections(): void;
+  onNamespaceAction(
+    connectionId: ConnectionInfo['id'],
+    namespace: string,
+    action: Actions
+  ): void;
+  onDatabaseExpand(
+    connectionId: ConnectionInfo['id'],
+    databaseId: string
+  ): void;
+};
+
+type ActiveConnectionNavigationProps =
+  ActiveConnectionNavigationComponentProps & MapStateProps & MapDispatchProps;
+
 export function ActiveConnectionNavigation({
-  activeConnections,
-  filterRegex,
-  onFilterChange,
   connections,
   activeWorkspace,
-  onNamespaceAction: _onNamespaceAction,
-  fetchAllCollections: _fetchAllCollections,
-  onDatabaseExpand: _onDatabaseExpand,
+  activeConnections,
   onOpenConnectionInfo,
   onCopyConnectionString,
   onToggleFavoriteConnection,
   onDisconnect,
-  ...navigationProps
-}: Omit<
-  React.ComponentProps<typeof ConnectionsNavigationTree>,
-  | 'isReadOnly'
-  | 'isReady'
-  | 'connections'
-  | 'expanded'
-  | 'onConnectionExpand'
-  | 'onDatabaseExpand'
-> & {
-  activeConnections: ConnectionInfo[];
-  filterRegex: RegExp | null;
-  onFilterChange: (regex: RegExp | null) => void;
-  connections: Connection[];
-  isDataLake?: boolean;
-  isWritable?: boolean;
-  activeWorkspace?: WorkspaceTab;
-  onOpenConnectionInfo: (connectionId: ConnectionInfo['id']) => void;
-  onCopyConnectionString: (connectionId: ConnectionInfo['id']) => void;
-  onToggleFavoriteConnection: (connectionId: ConnectionInfo['id']) => void;
-  onDatabaseExpand: (
-    connectionId: ConnectionInfo['id'],
-    databaseId: string
-  ) => void;
-  onDisconnect: (connectionId: ConnectionInfo['id']) => void;
-  fetchAllCollections: () => void;
-}): React.ReactElement {
+  filterRegex,
+  onFilterChange,
+  onNamespaceAction: _onNamespaceAction,
+  fetchAllCollections: _fetchAllCollections,
+  onDatabaseExpand: _onDatabaseExpand,
+}: ActiveConnectionNavigationProps): React.ReactElement {
   const {
     openShellWorkspace,
     openDatabasesWorkspace,
@@ -478,14 +488,21 @@ export function ActiveConnectionNavigation({
     }
   }, [activeWorkspace]);
 
-  const onNamespaceAction = useCallback(
-    (connectionId: string, ns: string, action: Actions) => {
+  const onConnectionAction = useCallback(
+    (connectionInfo: ConnectionInfo, action: Actions) => {
+      const connectionId = connectionInfo.id;
       switch (action) {
         case 'open-shell':
           openShellWorkspace(connectionId, { newTab: true });
           return;
-        case 'connection-disconnect':
-          onDisconnect(connectionId);
+        case 'select-connection':
+          openDatabasesWorkspace(connectionId);
+          return;
+        case 'create-database':
+          _onNamespaceAction(connectionId, '', action);
+          return;
+        case 'connection-performance-metrics':
+          openPerformanceWorkspace(connectionId);
           return;
         case 'open-connection-info':
           onOpenConnectionInfo(connectionId);
@@ -496,9 +513,26 @@ export function ActiveConnectionNavigation({
         case 'connection-toggle-favorite':
           onToggleFavoriteConnection(connectionId);
           return;
-        case 'connection-performance-metrics':
-          openPerformanceWorkspace(connectionId);
+        case 'connection-disconnect':
+          onDisconnect(connectionId);
           return;
+      }
+    },
+    [
+      openShellWorkspace,
+      openDatabasesWorkspace,
+      _onNamespaceAction,
+      openPerformanceWorkspace,
+      onOpenConnectionInfo,
+      onCopyConnectionString,
+      onToggleFavoriteConnection,
+      onDisconnect,
+    ]
+  );
+
+  const onNamespaceAction = useCallback(
+    (connectionId: string, ns: string, action: Actions) => {
+      switch (action) {
         case 'select-database':
           openCollectionsWorkspace(connectionId, ns);
           return;
@@ -509,11 +543,17 @@ export function ActiveConnectionNavigation({
           openCollectionWorkspace(connectionId, ns, { newTab: true });
           return;
         case 'modify-view': {
-          const coll = findCollection(
-            ns,
-            connections.find((conn) => conn.connectionInfo.id === connectionId)
-              ?.databases ?? []
+          const connection = connections.find(
+            (conn): conn is SidebarConnectedConnection => {
+              return (
+                conn.connectionStatus === ConnectionStatus.Connected &&
+                conn.connectionInfo.id === connectionId
+              );
+            }
           );
+          const databases = connection?.databases ?? [];
+          const coll = findCollection(ns, databases);
+
           if (coll && coll.sourceName && coll.pipeline) {
             openEditViewWorkspace(connectionId, coll._id, {
               sourceName: coll.sourceName,
@@ -530,17 +570,35 @@ export function ActiveConnectionNavigation({
     },
     [
       connections,
-      openShellWorkspace,
       openCollectionsWorkspace,
       openCollectionWorkspace,
-      openPerformanceWorkspace,
       openEditViewWorkspace,
-      onCopyConnectionString,
-      onOpenConnectionInfo,
-      onToggleFavoriteConnection,
-      onDisconnect,
       _onNamespaceAction,
     ]
+  );
+
+  const onItemAction = useCallback(
+    (item: SidebarItem, action: Actions) => {
+      if (item.type === 'connection') {
+        onConnectionAction(item.connectionInfo, action);
+      } else {
+        const namespace =
+          item.type === 'database' ? item.dbName : item.namespace;
+        onNamespaceAction(item.connectionId, namespace, action);
+      }
+    },
+    [onConnectionAction, onNamespaceAction]
+  );
+
+  const onItemExpand = useCallback(
+    (item: SidebarItem, isExpanded: boolean) => {
+      if (item.type === 'connection') {
+        onConnectionToggle(item.connectionInfo.id, isExpanded);
+      } else if (item.type === 'database') {
+        onDatabaseToggle(item.connectionId, item.dbName, isExpanded);
+      }
+    },
+    [onConnectionToggle, onDatabaseToggle]
   );
 
   return (
@@ -548,9 +606,9 @@ export function ActiveConnectionNavigation({
       <header className={activeConnectionListHeaderStyles}>
         <Subtitle className={activeConnectionListHeaderTitleStyles}>
           Active connections
-          {activeConnections.length !== 0 && (
+          {connections.length !== 0 && (
             <span className={activeConnectionCountStyles}>
-              ({activeConnections.length})
+              ({connections.length})
             </span>
           )}
         </Subtitle>
@@ -561,32 +619,22 @@ export function ActiveConnectionNavigation({
         onFilterChange={onFilterChange}
       />
       <ConnectionsNavigationTree
-        isReady={true}
         connections={filtered || connections}
         activeWorkspace={activeWorkspace}
-        onNamespaceAction={onNamespaceAction}
-        onConnectionSelect={(connectionId) =>
-          openDatabasesWorkspace(connectionId)
-        }
-        onConnectionExpand={onConnectionToggle}
-        onDatabaseExpand={onDatabaseToggle}
         expanded={expandedMemo}
-        {...navigationProps}
+        onItemAction={onItemAction}
+        onItemExpand={onItemExpand}
       />
     </div>
   );
 }
 
-function mapStateToProps(
-  state: RootState,
-  {
-    activeConnections,
-  }: { activeConnections: ConnectionInfo[]; filterRegex: RegExp | null }
-): {
-  isReady: boolean;
-  connections: Connection[];
-} {
-  const connections: Connection[] = [];
+const mapStateToProps: MapStateToProps<
+  MapStateProps,
+  ActiveConnectionNavigationComponentProps,
+  RootState
+> = (state: RootState, { activeConnections }) => {
+  const connections: SidebarConnectedConnection[] = [];
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
@@ -610,17 +658,17 @@ function mapStateToProps(
       isPerformanceTabSupported,
       name: getConnectionTitle(connectionInfo),
       connectionInfo,
-      databasesStatus: status as Connection['databasesStatus'],
       databases,
       databasesLength: databases.length,
+      databasesStatus: status as SidebarConnectedConnection['databasesStatus'],
+      connectionStatus: ConnectionStatus.Connected,
     });
   }
 
   return {
-    isReady: true,
     connections,
   };
-}
+};
 
 const onNamespaceAction = (
   connectionId: string,
@@ -676,8 +724,16 @@ const onNamespaceAction = (
   };
 };
 
-export default connect(mapStateToProps, {
-  onNamespaceAction,
-  fetchAllCollections,
+const mapDispatchToProps: MapDispatchToProps<
+  MapDispatchProps,
+  ActiveConnectionNavigationComponentProps
+> = {
   onDatabaseExpand,
-})(ActiveConnectionNavigation);
+  fetchAllCollections,
+  onNamespaceAction,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ActiveConnectionNavigation);
