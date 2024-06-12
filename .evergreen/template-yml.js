@@ -40,7 +40,7 @@ function generateBuildVariantTask(
   runOnOptions
 ) {
   const task = { name: taskName };
-  const guiMachine = runOnOptions.gui ?? defaultRunOn;
+  const guiMachine = runOnOptions.run_on_gui ?? defaultRunOn;
   if (taskOptions.depends_on) {
     task.depends_on = taskOptions.depends_on;
   }
@@ -56,46 +56,48 @@ function generateBuildVariantTask(
 function generateBuildVariants() {
   const variants = [];
 
-  for (const runOn of config.variants.run_on) {
-    const [runOnName, runOnOptions = {}] = Array.isArray(runOn)
-      ? runOn
-      : [runOn];
+  for (const variantConfig of config.buildVariants) {
+    const {run_on: runOn, name: variantName, ...variantOptions} = variantConfig;
 
     const variant = {
-      name: config.run_on_alias.short[runOnName],
-      display_name: config.run_on_alias.long[runOnName],
-      run_on: runOnName,
-      tasks: config.variants.tasks.flatMap((task) => {
-        const [taskName, taskOptions = {}] = Array.isArray(task)
-          ? task
-          : [task];
-
-        if (taskOptions.skip_on && taskOptions.skip_on.includes(runOnName)) {
+      name: variantName,
+      display_name: variantOptions.display_name,
+      patchable: variantOptions.patchable ?? true,
+      run_on: runOn,
+      tasks: Object.entries(config.tasks).flatMap(([taskId, taskOptions]) => {
+        if (taskOptions.skip_on && taskOptions.skip_on.includes(variantName)) {
           return [];
         }
 
-        if (config.tasks.variants[taskName]) {
-          return config.tasks.variants[taskName]
+        if (taskOptions.only_on && !taskOptions.only_on.includes(variantName)) {
+          return [];
+        }
+
+
+        if (taskOptions.variants) {
+        return taskOptions.variants
             .filter((variantOptions) => {
-              return !variantOptions.skip_on?.includes(runOnName);
+              return !variantOptions.skip_on?.includes(variantName);
+            })
+            .filter((variantOptions) => {
+              return (!variantOptions.only_on) || variantOptions.only_on.includes(variantName);
             })
             .map((variantOptions) => {
               return generateBuildVariantTask(
-                `${taskName}-${variantOptions.name}`,
+                `${taskOptions.name}-${variantOptions.name}`,
                 taskOptions,
                 variantOptions,
-                runOnName,
-                runOnOptions
+                runOn,
+                variantConfig
               );
             });
         }
-
         return generateBuildVariantTask(
-          taskName,
+          taskId,
           taskOptions,
           {},
-          runOnName,
-          runOnOptions
+          runOn,
+          variantOptions
         );
       })
     };
@@ -109,10 +111,10 @@ function generateBuildVariants() {
 function generateTasks() {
   const tasks = {};
 
-  for (const [taskName, taskVariants] of Object.entries(
-    config.tasks.variants
+  for (const [taskName, taskConfig] of Object.entries(
+    config.tasks
   )) {
-    for (const taskVariant of taskVariants) {
+    for (const taskVariant of (taskConfig.variants ?? [])) {
       const task = {
         name: `${taskName}-${taskVariant.name}`,
         vars: taskVariant.vars

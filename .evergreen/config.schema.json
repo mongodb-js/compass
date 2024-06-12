@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "buildVariants": {
+      "type": "array",
+      "description": "Configuration for build variants.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Short name of the variant."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable display name of the variant."
+          },
+          "run_on": {
+            "type": "string",
+            "description": "The base distro to run on."
+          },
+          "run_on_gui": {
+            "type": "string",
+            "description": "The GUI distro to run on, if different from the base."
+          },
+          "patchable": {
+            "type": "boolean",
+            "description": "Indicates if the variant should run on patches.",
+            "default": true
+          }
+        },
+        "required": ["name", "display_name", "run_on"]
+      }
+    },
+    "tasks": {
+      "type": "object",
+      "description": "Configuration for tasks.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the task."
+          },
+          "gui": {
+            "type": "boolean",
+            "description": "Indicates if the task requires a GUI.",
+            "default": false
+          },
+          "depends_on": {
+            "type": "string",
+            "description": "Name of the task this task depends on."
+          },
+          "skip_on": {
+            "type": "array",
+            "description": "List of build variants to skip this task on.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "only_on": {
+            "type": "array",
+            "description": "List of build variants to run this task, the task won't run on other variants.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "variants": {
+            "type": "array",
+            "description": "List of variants for the task.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the task variant."
+                },
+                "vars": {
+                  "type": "object",
+                  "description": "Variables specific to the task variant."
+                },
+                "skip_on": {
+                  "type": "array",
+                  "description": "List of build variants to skip this task on.",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "only_on": {
+                  "type": "array",
+                  "description": "List of build variants to run this task, the task variant won't run on other build variants.",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "run_on_override": {
+                  "type": "object",
+                  "description": "Map of overrides, allow to use a different distro for a specific task variant.",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": ["name", "vars"]
+            }
+          }
+        },
+        "required": ["name"]
+      }
+    }
+  },
+  "required": ["variants", "tasks"]
+}

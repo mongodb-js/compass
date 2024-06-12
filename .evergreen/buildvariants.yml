@@ -34,6 +34,7 @@ buildvariants:
   - name: ubuntu
     display_name: Ubuntu 20.04 (Test and Package)
     run_on: ubuntu2004-large
+    patchable: true
     tasks:
       - name: check
 
@@ -104,6 +105,7 @@ buildvariants:
   - name: windows
     display_name: Windows 10 (Test and Package)
     run_on: windows-vsCurrent-large
+    patchable: true
     tasks:
       - name: check
 
@@ -165,6 +167,7 @@ buildvariants:
   - name: rhel
     display_name: RHEL 8.0 (Test and Package)
     run_on: rhel80-large
+    patchable: true
     tasks:
       - name: check
 
@@ -220,9 +223,10 @@ buildvariants:
       - name: test-packaged-app-80x-enterprise
         depends_on: package-compass
 
-  - name: macos
-    display_name: MacOS x64 11.00 (Test and Package)
+  - name: macos-11-x64
+    display_name: MacOS x64 11 (Test and Package)
     run_on: macos-1100
+    patchable: false
     tasks:
       - name: check
 
@@ -261,9 +265,10 @@ buildvariants:
         run_on: macos-1100-gui
         depends_on: package-compass
 
-  - name: macos-arm
-    display_name: MacOS arm64 11.00 (Test and Package)
+  - name: macos-11-arm
+    display_name: MacOS arm64 11 (Test and Package)
     run_on: macos-1100-arm64
+    patchable: false
     tasks:
       - name: check
 
@@ -300,4 +305,88 @@ buildvariants:
 
       - name: test-packaged-app-80x-enterprise
         run_on: macos-1100-arm64-gui
+        depends_on: package-compass
+
+  - name: macos-14-x64
+    display_name: MacOS x64 14 (Test and Package)
+    run_on: macos-14-x64
+    patchable: false
+    tasks:
+      - name: check
+
+      - name: test
+
+      - name: test-electron
+        run_on: macos-14-gui
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
+      - name: test-packaged-app-60x-community
+        run_on: macos-14-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-60x-enterprise
+        run_on: macos-14-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-70x-community
+        run_on: macos-14-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-70x-enterprise
+        run_on: macos-14-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-community
+        run_on: macos-14-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
+        run_on: macos-14-gui
+        depends_on: package-compass
+
+  - name: macos-14-arm
+    display_name: MacOS arm64 14 (Test and Package)
+    run_on: macos-14-arm64
+    patchable: true
+    tasks:
+      - name: check
+
+      - name: test
+
+      - name: test-electron
+        run_on: macos-14-arm64-gui
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
+      - name: test-packaged-app-60x-community
+        run_on: macos-14-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-60x-enterprise
+        run_on: macos-14-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-70x-community
+        run_on: macos-14-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-70x-enterprise
+        run_on: macos-14-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-community
+        run_on: macos-14-arm64-gui
+        depends_on: package-compass
+
+      - name: test-packaged-app-80x-enterprise
+        run_on: macos-14-arm64-gui
         depends_on: package-compass

@@ -34,6 +34,7 @@ buildvariants:
   - name: <% out(buildVariant.name) %>
     display_name: <% out(buildVariant.display_name) %> (Test and Package)
     run_on: <% out(buildVariant.run_on) %>
+    patchable: <% out(buildVariant.patchable) %>
     tasks:<% for (const task of buildVariant.tasks) { %>
       - name: <% out(task.name); task.run_on && out(`\n        run_on: ${task.run_on}`); task.depends_on && out(`\n        depends_on: ${task.depends_on}`); %>
 <% }} %>
