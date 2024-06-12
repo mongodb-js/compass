@@ -5,6 +5,12 @@ import type { ConnectionSecrets } from './connection-secrets';
 import { mergeSecrets, extractSecrets } from './connection-secrets';
 import { UUID } from 'bson';
 
+/**
+ * @securityTest Secure Credential Storage
+ *
+ * We ensure that when sensitive information is persisted, in particular database access credentials,
+ * it is cryptographically protected through an OS keychain encryption integration.
+ */
 describe('connection secrets', function () {
   describe('mergeSecrets', function () {
     it('does not modify the original object', function () {

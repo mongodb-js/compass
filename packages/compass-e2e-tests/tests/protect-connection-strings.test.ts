@@ -34,6 +34,13 @@ async function expectCopyConnectionStringToClipboard(
   }
 }
 
+/**
+ * @securityTest Connection String Credential Protection Tests
+ *
+ * Compass provides a user- or administrator-configurable setting that prevents the application
+ * from displaying credentials to avoid accidental leakage. Our tests verify that features
+ * which expose connection information honor this setting.
+ */
 describe('protectConnectionStrings', function () {
   let compass: Compass;
   let browser: CompassBrowser;
