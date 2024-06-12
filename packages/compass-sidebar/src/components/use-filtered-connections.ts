@@ -1,9 +1,12 @@
-import {
-  type SidebarCollection,
-  type SidebarConnectedConnection,
-  type SidebarDatabase,
-  type ConnectionsNavigationTreeProps,
+import type {
+  SidebarCollection,
+  SidebarConnectedConnection,
+  SidebarDatabase,
+  ConnectionsNavigationTreeProps,
+  SidebarConnection,
+  SidebarNotConnectedConnection,
 } from '@mongodb-js/compass-connections-navigation';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
@@ -29,25 +32,37 @@ type FilteredDatabase = Omit<SidebarDatabase, 'collections'> &
   Match & {
     collections: FilteredCollection[];
   };
-type FilteredConnection = Omit<SidebarConnectedConnection, 'databases'> &
-  Match & {
-    databases: FilteredDatabase[];
-  };
+type FilteredConnection = (
+  | SidebarNotConnectedConnection
+  | (Omit<SidebarConnectedConnection, 'databases'> & {
+      databases: FilteredDatabase[];
+    })
+) &
+  Match;
 
 const filterConnections = (
-  connections: SidebarConnectedConnection[],
+  connections: SidebarConnection[],
   regex: RegExp
 ): FilteredConnection[] => {
   const results: FilteredConnection[] = [];
   for (const connection of connections) {
     const isMatch = regex.test(connection.name);
-    const childMatches = filterDatabases(connection.databases, regex);
+    let childMatches: FilteredDatabase[] = [];
+    if (connection.connectionStatus === ConnectionStatus.Connected) {
+      childMatches = filterDatabases(connection.databases, regex);
+    }
 
     if (isMatch || childMatches.length) {
       results.push({
         ...connection,
         isMatch,
-        databases: childMatches.length ? childMatches : connection.databases,
+        ...(connection.connectionStatus === ConnectionStatus.Connected
+          ? {
+              databases: childMatches.length
+                ? childMatches
+                : connection.databases,
+            }
+          : {}),
       });
     }
   }
@@ -93,8 +108,12 @@ const temporarilyExpand = (
   filterResults: FilteredConnection[]
 ): ExpandedConnections => {
   const newExpanded = { ...expandedConnections };
-  filterResults.forEach(
-    ({ connectionInfo: { id: connectionId }, databases }) => {
+  filterResults.forEach((connection) => {
+    if (connection.connectionStatus === ConnectionStatus.Connected) {
+      const {
+        connectionInfo: { id: connectionId },
+        databases,
+      } = connection;
       const childrenDbsAreMatch = databases.length && databases[0].isMatch;
       if (!newExpanded[connectionId]) {
         newExpanded[connectionId] = { state: undefined, databases: {} };
@@ -118,7 +137,7 @@ const temporarilyExpand = (
         }
       });
     }
-  );
+  });
   return newExpanded;
 };
 
@@ -149,14 +168,14 @@ const revertTemporaryExpanded = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
-  filtered: SidebarConnectedConnection[] | undefined;
+  filtered: SidebarConnection[] | undefined;
 }
 
 const FILTER_CONNECTIONS =
   'sidebar/active-connections/FILTER_CONNECTIONS' as const;
 interface FilterConnectionsAction {
   type: typeof FILTER_CONNECTIONS;
-  connections: SidebarConnectedConnection[];
+  connections: SidebarConnection[];
   filterRegex: RegExp;
 }
 
@@ -276,12 +295,29 @@ const connectionsReducer = (
   }
 };
 
+type UseFilteredConnectionsHookResult = {
+  filtered: SidebarConnection[] | undefined;
+  expanded: ConnectionsNavigationTreeProps['expanded'];
+  onConnectionToggle(
+    this: void,
+    connectionId: string,
+    isExpanded: boolean
+  ): void;
+  onDatabaseToggle(
+    this: void,
+    connectionId: string,
+    databaseId: string,
+    isExpanded: boolean
+  ): void;
+  onConnectionsChanged(this: void, newConnections: ConnectionInfo[]): void;
+};
+
 export const useFilteredConnections = (
-  connections: SidebarConnectedConnection[],
+  connections: SidebarConnection[],
   filterRegex: RegExp | null,
   _fetchAllCollections: () => void,
   _onDatabaseExpand: (connectionId: string, databaseId: string) => void
-) => {
+): UseFilteredConnectionsHookResult => {
   const [{ filtered, expanded }, dispatch] = useReducer(connectionsReducer, {
     filtered: undefined,
     expanded: {},
