@@ -408,6 +408,8 @@ export function MultipleConnectionSidebar({
           activeWorkspace={activeWorkspace}
           favoriteConnections={favoriteConnections}
           recentConnections={recentConnections}
+          filterRegex={activeConnectionsFilterRegex}
+          onFilterChange={onActiveConnectionFilterChange}
           onConnect={onConnect}
           onEditConnection={onEditConnection}
           onRemoveConnection={onDeleteConnection}
