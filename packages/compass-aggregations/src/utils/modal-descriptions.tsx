@@ -16,15 +16,15 @@ export const runPipelineConfirmationDescription = ({
       <Link hideExternalIcon={false} href={stage.link} target="_blank">
         {stage.name}
       </Link>{' '}
-      operation, {typeOfWrite}{' '}
+      operation,{' '}
       {ns ? (
         <>
           {typeOfWrite} &quot;<b>{ns}</b>&quot;
         </>
       ) : (
-        <>that may alter or overwrite a collectio</>
-      )}{' '}
-      &quot;<b>{ns}</b>&quot;. Do you wish to proceed?
+        <>that may alter or overwrite a collection</>
+      )}
+      . Do you wish to proceed?
     </div>
   );
 };

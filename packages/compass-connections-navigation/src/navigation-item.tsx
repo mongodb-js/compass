@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { isLocalhost } from 'mongodb-build-info';
 import { Icon, ServerIcon } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
@@ -41,12 +42,8 @@ export function NavigationItem({
       return <Icon glyph="TimeSeries" />;
     }
     if (item.type === 'connection') {
-      const isLocalhost =
-        item.connectionInfo.connectionOptions.connectionString.startsWith(
-          'mongodb://localhost'
-        ); // TODO(COMPASS-7832)
       const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
-      if (isLocalhost) {
+      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
         return <Icon glyph="Laptop" />;
       }
       if (isFavorite) {

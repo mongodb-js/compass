@@ -2,7 +2,6 @@
 # We don't want it to run on every commit as that would be
 # too many requests to our ai model (expensive).
 
-unset_function_vars: true
 stepback: false
 exec_timeout_secs: 5400
 ignore:
