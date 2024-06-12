@@ -1,9 +1,55 @@
 import type { ItemAction } from '@mongodb-js/compass-components';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type Actions } from './constants';
 
 export type NavigationItemActions = ItemAction<Actions>[];
 
-export const connectionItemActions = ({
+export const notConnectedConnectionItemActions = ({
+  connectionInfo,
+}: {
+  connectionInfo: ConnectionInfo;
+  activeConnectionsCount?: number;
+  maxOpenConnectionsAllowed?: number;
+}): NavigationItemActions => {
+  return [
+    {
+      action: 'connection-connect',
+      icon: 'Connect',
+      label: 'Connect',
+    },
+    {
+      action: 'edit-connection',
+      label: 'Edit connection',
+      icon: 'Edit',
+    },
+    {
+      action: 'copy-connection-string',
+      label: 'Copy connection string',
+      icon: 'Copy',
+    },
+    {
+      action: 'connection-toggle-favorite',
+      label:
+        connectionInfo.savedConnectionType === 'favorite'
+          ? 'Unfavorite'
+          : 'Favorite',
+      icon: 'Favorite',
+    },
+    {
+      action: 'duplicate-connection',
+      label: 'Duplicate',
+      icon: 'Clone',
+    },
+    {
+      action: 'remove-connection',
+      label: 'Remove',
+      icon: 'Trash',
+      variant: 'destructive',
+    },
+  ];
+};
+
+export const connectedConnectionItemActions = ({
   isReadOnly,
   isFavorite,
   isPerformanceTabSupported,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, cleanup } from '@testing-library/react';
 import ActiveConnectionNavigation from './active-connection-navigation';
 import {
   ConnectionsManager,
@@ -135,6 +135,7 @@ describe('<ActiveConnectionNavigation />', function () {
     activeWorkspace?: WorkspaceTab;
     filterRegex?: RegExp | null;
   } = {}) => {
+    cleanup();
     const dataServiceEmitter = new EventEmitter();
     dataService = {
       currentOp: dataServiceCurrentOp,
@@ -226,6 +227,7 @@ describe('<ActiveConnectionNavigation />', function () {
   };
 
   afterEach(() => {
+    cleanup();
     deactivate();
     sinon.resetHistory();
   });

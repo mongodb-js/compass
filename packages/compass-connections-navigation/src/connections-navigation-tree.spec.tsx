@@ -11,13 +11,17 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { Connection } from './tree-data';
-import type { PreferencesAccess } from 'compass-preferences-model';
+import type { ConnectedConnection } from './tree-data';
+import type {
+  AllPreferences,
+  PreferencesAccess,
+} from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const connections: Connection[] = [
+const connections: ConnectedConnection[] = [
   {
     connectionInfo: {
       id: 'connection_ready',
@@ -54,8 +58,9 @@ const connections: Connection[] = [
     ],
     isReady: true,
     isDataLake: false,
-    isWritable: false,
+    isWritable: true,
     isPerformanceTabSupported: true,
+    connectionStatus: ConnectionStatus.Connected,
   },
   {
     connectionInfo: {
@@ -76,10 +81,11 @@ const connections: Connection[] = [
     isDataLake: false,
     isWritable: false,
     isPerformanceTabSupported: false,
+    connectionStatus: ConnectionStatus.Connected,
   },
 ];
 
-const props = {
+const props: React.ComponentProps<typeof ConnectionsNavigationTree> = {
   connections,
   expanded: { turtles: { bar: true } },
   activeWorkspace: {
@@ -87,19 +93,24 @@ const props = {
     namespace: 'db_ready.meow',
     type: 'Collection',
   } as WorkspaceTab,
-  onConnectionExpand: () => {},
-  onDatabaseExpand: () => {},
-  onNamespaceAction: () => {},
+  onItemExpand: () => {},
+  onItemAction: () => {},
 };
 
 describe('ConnectionsNavigationTree', function () {
   let preferences: PreferencesAccess;
 
-  async function renderConnectionsNavigationTree(customProps = {}) {
+  async function renderConnectionsNavigationTree(
+    customProps: Partial<
+      React.ComponentProps<typeof ConnectionsNavigationTree>
+    > = {},
+    preferencesOverrides: Partial<AllPreferences> = {}
+  ) {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableRenameCollectionModal: true,
       enableNewMultipleConnectionSystem: true,
+      ...preferencesOverrides,
     });
     return render(
       <PreferencesProvider value={preferences}>
@@ -117,7 +128,9 @@ describe('ConnectionsNavigationTree', function () {
       });
 
       const collection = screen.getByTestId('connection_ready.db_ready.meow');
-      const showActionsButton = within(collection).getByTitle('Show actions');
+      const showActionsButton = await waitFor(() =>
+        within(collection).getByTitle('Show actions')
+      );
 
       expect(within(collection).getByTitle('Show actions')).to.exist;
 
@@ -130,7 +143,7 @@ describe('ConnectionsNavigationTree', function () {
       const spy = Sinon.spy();
       await renderConnectionsNavigationTree({
         expanded: { connection_ready: { db_ready: true } },
-        onNamespaceAction: spy,
+        onItemAction: spy,
       });
 
       const collection = screen.getByTestId('connection_ready.db_ready.meow');
@@ -138,11 +151,12 @@ describe('ConnectionsNavigationTree', function () {
       userEvent.click(within(collection).getByTitle('Show actions'));
       userEvent.click(screen.getByText('Rename collection'));
 
-      expect(spy).to.be.calledOnceWithExactly(
-        'connection_ready',
-        'db_ready.meow',
-        'rename-collection'
-      );
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('collection');
+      expect(item.connectionId).to.equal('connection_ready');
+      expect(item.namespace).to.equal('db_ready.meow');
+      expect(action).to.equal('rename-collection');
     });
   });
 
@@ -220,7 +234,7 @@ describe('ConnectionsNavigationTree', function () {
     });
   });
 
-  describe('when isReadOnly is false or undefined', function () {
+  describe('when connection is writable', function () {
     it('should show all database actions on hover', async function () {
       await renderConnectionsNavigationTree({
         expanded: { connection_ready: {} },
@@ -299,46 +313,110 @@ describe('ConnectionsNavigationTree', function () {
     });
   });
 
-  describe('when isReadOnly is true', function () {
-    it('should not show database actions', async function () {
-      await renderConnectionsNavigationTree({
-        expanded: {
-          connection_ready: { db_ready: true },
-        },
-        activeWorkspace: {
-          ...props.activeWorkspace,
-          namespace: 'db_ready',
-          type: 'Collections',
-        } as WorkspaceTab,
-        isReadOnly: true,
+  [
+    {
+      name: 'when connection is not writable',
+      async renderReadonlyComponent(
+        props: Partial<
+          React.ComponentProps<typeof ConnectionsNavigationTree>
+        > = {}
+      ) {
+        const readonlyConnections: ConnectedConnection[] = [
+          {
+            ...connections[0],
+            isWritable: false,
+          },
+          {
+            ...connections[1],
+          },
+        ];
+        await renderConnectionsNavigationTree({
+          ...props,
+          connections: readonlyConnections,
+        });
+      },
+    },
+    {
+      name: 'when connection is datalake',
+      async renderReadonlyComponent(
+        props: Partial<
+          React.ComponentProps<typeof ConnectionsNavigationTree>
+        > = {}
+      ) {
+        const readonlyConnections: ConnectedConnection[] = [
+          {
+            ...connections[0],
+            isDataLake: true,
+          },
+          {
+            ...connections[1],
+          },
+        ];
+        await renderConnectionsNavigationTree({
+          ...props,
+          connections: readonlyConnections,
+        });
+      },
+    },
+    {
+      name: 'when preferences is readonly',
+      async renderReadonlyComponent(
+        props: Partial<
+          React.ComponentProps<typeof ConnectionsNavigationTree>
+        > = {}
+      ) {
+        const readonlyConnections: ConnectedConnection[] = [...connections];
+        await renderConnectionsNavigationTree(
+          {
+            ...props,
+            connections: readonlyConnections,
+          },
+          {
+            readOnly: true,
+          }
+        );
+      },
+    },
+  ].forEach(function ({ name, renderReadonlyComponent }) {
+    describe(name, function () {
+      it('should not show database actions', async function () {
+        await renderReadonlyComponent({
+          expanded: {
+            connection_ready: { db_ready: true },
+          },
+          activeWorkspace: {
+            ...props.activeWorkspace,
+            namespace: 'db_ready',
+            type: 'Collections',
+          } as WorkspaceTab,
+        });
+
+        const database = screen.getByTestId('connection_ready.db_ready');
+
+        expect(() => within(database).getByTitle('Create collection')).to.throw;
+        expect(() => within(database).getByTitle('Drop database')).to.throw;
       });
 
-      const database = screen.getByTestId('connection_ready.db_ready');
+      it('should show only one collection action', async function () {
+        await renderReadonlyComponent({
+          expanded: {
+            connection_ready: { db_ready: true },
+          },
+          activeWorkspace: {
+            ...props.activeWorkspace,
+            namespace: 'db_ready.bwok',
+            type: 'Collection',
+          } as WorkspaceTab,
+        });
 
-      expect(() => within(database).getByTitle('Create collection')).to.throw;
-      expect(() => within(database).getByTitle('Drop database')).to.throw;
-    });
+        const collection = screen.getByTestId('connection_ready.db_ready.bwok');
 
-    it('should show only one collection action', async function () {
-      await renderConnectionsNavigationTree({
-        expanded: {
-          connection_ready: { db_ready: true },
-        },
-        activeWorkspace: {
-          ...props.activeWorkspace,
-          namespace: 'db_ready.bwok',
-          type: 'Collection',
-        } as WorkspaceTab,
-        isReadOnly: true,
+        expect(within(collection).getByTitle('Open in new tab')).to.exist;
       });
-
-      const collection = screen.getByTestId('connection_ready.db_ready.bwok');
-
-      expect(within(collection).getByTitle('Open in new tab')).to.exist;
     });
   });
 
-  describe('onNamespaceAction', function () {
+  describe('onItemAction', function () {
     let preferences: PreferencesAccess;
     beforeEach(async function () {
       preferences = await createSandboxFromDefaultPreferences();
@@ -352,44 +430,50 @@ describe('ConnectionsNavigationTree', function () {
       it('should activate callback with `select-connection` when a connection is clicked', async function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
-          onConnectionSelect: spy,
+          onItemAction: spy,
         });
 
         userEvent.click(screen.getByText('turtles'));
 
-        expect(spy).to.be.calledOnceWithExactly('connection_ready');
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('connection');
+        expect(item.connectionInfo.id).to.equal('connection_ready');
+        expect(action).to.equal('select-connection');
       });
 
       it('should activate callback with `select-database` when database is clicked', async function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: {} },
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         userEvent.click(screen.getByText('foo'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_initial',
-          'select-database'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('database');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.dbName).to.equal('db_initial');
+        expect(action).to.equal('select-database');
       });
 
       it('should activate callback with `select-collection` when collection is clicked', async function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: { db_ready: true } },
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         userEvent.click(screen.getByText('meow'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_ready.meow',
-          'select-collection'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('collection');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.namespace).to.equal('db_ready.meow');
+        expect(action).to.equal('select-collection');
       });
     });
 
@@ -398,18 +482,73 @@ describe('ConnectionsNavigationTree', function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: { db_ready: true } },
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         userEvent.hover(screen.getByText('turtles'));
 
         userEvent.click(screen.getByLabelText('Create database'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'connection_ready',
-          'create-database'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('connection');
+        expect(item.connectionInfo.id).to.equal('connection_ready');
+        expect(action).to.equal('create-database');
+      });
+
+      context('when performance tab is supported', function () {
+        it('should show performance action for connection item and activate callback with `connection-performance-metrics` when clicked', async function () {
+          const spy = Sinon.spy();
+          await renderConnectionsNavigationTree({
+            onItemAction: spy,
+          });
+          userEvent.hover(screen.getByText('turtles'));
+          const connection = screen.getByTestId('connection_ready');
+          userEvent.click(within(connection).getByTitle('Show actions'));
+          userEvent.click(screen.getByText('View performance metrics'));
+
+          expect(spy).to.be.calledOnce;
+          const [[item, action]] = spy.args;
+          expect(item.type).to.equal('connection');
+          expect(item.connectionInfo.id).to.equal('connection_ready');
+          expect(action).to.equal('connection-performance-metrics');
+        });
+      });
+
+      context('when performance tab is not supported', function () {
+        it('should show a disabled `show performance action` for connection item', async function () {
+          const spy = Sinon.spy();
+          await renderConnectionsNavigationTree({
+            onItemAction: spy,
+            connections: [
+              { ...connections[0], isPerformanceTabSupported: false },
+              { ...connections[1] },
+            ],
+          });
+          userEvent.hover(screen.getByText('turtles'));
+          const connection = screen.getByTestId('connection_ready');
+          userEvent.click(within(connection).getByTitle('Show actions'));
+
+          const menuItem = screen.getByText('View performance metrics');
+          expect(menuItem.closest('button')).to.have.attribute(
+            'aria-disabled',
+            'true'
+          );
+
+          userEvent.click(menuItem);
+          expect(spy).to.not.be.called;
+        });
+      });
+
+      context('when connection is not ready', function () {
+        it('should not show `show performance action` at all', async function () {
+          await renderConnectionsNavigationTree();
+          // peaches connection is not ready
+          userEvent.hover(screen.getByText('peaches'));
+          const connection = screen.getByTestId('connection_initial');
+          userEvent.click(within(connection).getByTitle('Show actions'));
+          expect(() => screen.getByText('View performance metrics')).to.throw;
+        });
       });
     });
 
@@ -418,7 +557,7 @@ describe('ConnectionsNavigationTree', function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: {} },
-          onNamespaceAction: spy,
+          onItemAction: spy,
           activeWorkspace: {
             ...props.activeWorkspace,
             namespace: 'db_initial',
@@ -428,18 +567,19 @@ describe('ConnectionsNavigationTree', function () {
 
         userEvent.click(screen.getByTitle('Drop database'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_initial',
-          'drop-database'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('database');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.dbName).to.equal('db_initial');
+        expect(action).to.equal('drop-database');
       });
 
       it('should activate callback with `create-collection` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: {} },
-          onNamespaceAction: spy,
+          onItemAction: spy,
           activeWorkspace: {
             ...props.activeWorkspace,
             namespace: 'db_initial',
@@ -449,11 +589,12 @@ describe('ConnectionsNavigationTree', function () {
 
         userEvent.click(screen.getByTitle('Create collection'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_initial',
-          'create-collection'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('database');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.dbName).to.equal('db_initial');
+        expect(action).to.equal('create-collection');
       });
     });
 
@@ -462,7 +603,7 @@ describe('ConnectionsNavigationTree', function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: { db_ready: true } },
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         const collection = screen.getByTestId('connection_ready.db_ready.meow');
@@ -470,18 +611,19 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Open in new tab'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_ready.meow',
-          'open-in-new-tab'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('collection');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.namespace).to.equal('db_ready.meow');
+        expect(action).to.equal('open-in-new-tab');
       });
 
       it('should activate callback with `drop-collection` when corresponding action is clicked', async function () {
         const spy = Sinon.spy();
         await renderConnectionsNavigationTree({
           expanded: { connection_ready: { db_ready: true } },
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         const collection = screen.getByTestId('connection_ready.db_ready.meow');
@@ -489,11 +631,12 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Drop collection'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_ready.meow',
-          'drop-collection'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('collection');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.namespace).to.equal('db_ready.meow');
+        expect(action).to.equal('drop-collection');
       });
     });
 
@@ -506,7 +649,7 @@ describe('ConnectionsNavigationTree', function () {
             ...props.activeWorkspace,
             namespace: 'db_ready.bwok',
           } as WorkspaceTab,
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         const view = screen.getByTestId('connection_ready.db_ready.bwok');
@@ -514,11 +657,12 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Duplicate view'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_ready.bwok',
-          'duplicate-view'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('view');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.namespace).to.equal('db_ready.bwok');
+        expect(action).to.equal('duplicate-view');
       });
 
       it('should activate callback with `modify-view` when corresponding action is clicked', async function () {
@@ -529,7 +673,7 @@ describe('ConnectionsNavigationTree', function () {
             ...props.activeWorkspace,
             namespace: 'db_ready.bwok',
           } as WorkspaceTab,
-          onNamespaceAction: spy,
+          onItemAction: spy,
         });
 
         const view = screen.getByTestId('connection_ready.db_ready.bwok');
@@ -537,11 +681,12 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify view'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connection_ready',
-          'db_ready.bwok',
-          'modify-view'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('view');
+        expect(item.connectionId).to.equal('connection_ready');
+        expect(item.namespace).to.equal('db_ready.bwok');
+        expect(action).to.equal('modify-view');
       });
     });
   });
