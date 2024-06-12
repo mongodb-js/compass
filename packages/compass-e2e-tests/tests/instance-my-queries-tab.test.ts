@@ -48,7 +48,7 @@ describe('Instance my queries tab', function () {
   before(async function () {
     skipForWeb(this, 'saved queries not yet available in compass-web');
 
-    // TODO: best to only skip this once the My Queries tab is ported
+    // TODO(COMPASS-8006): best to only skip this until the My Queries tab is ported
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
@@ -255,8 +255,6 @@ describe('Instance my queries tab', function () {
       .$('button=Save');
 
     await createButton.click();
-
-    // TODO: open the saved item again
 
     await browser.closeWorkspaceTabs();
     await browser.navigateToInstanceTab('My Queries');

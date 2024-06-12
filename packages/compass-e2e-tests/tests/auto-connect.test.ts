@@ -22,6 +22,7 @@ describe('Automatically connecting from the command line', function () {
 
   before(function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
+    // TODO(COMPASS-8010): pory these tests
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

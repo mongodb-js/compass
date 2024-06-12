@@ -14,7 +14,7 @@ describe('Logging and Telemetry integration', function () {
   before(function () {
     skipForWeb(this, 'telemetry not yet available in compass-web');
 
-    // TODO: skipping for multiple connections due to the use of shellEval for now
+    // TODO(COMPASS-8004): skipping for multiple connections due to the use of shellEval for now
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
@@ -120,10 +120,6 @@ describe('Logging and Telemetry integration', function () {
       });
 
       it('tracks an event for screens that were accessed', function () {
-        // TODO: no screens accessed for multiple connections by default
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          this.skip();
-        }
         expect(telemetry.screens()).to.include('my_queries');
       });
     });

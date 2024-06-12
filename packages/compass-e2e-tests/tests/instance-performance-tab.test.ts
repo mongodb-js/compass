@@ -19,9 +19,9 @@ describe('Instance performance tab', function () {
   before(async function () {
     skipForWeb(this, 'performance tab not yet available in compass-web');
 
-    // TODO: this requires being able to click the View performance metrics menu
-    // item. active connections and saved connections are separate lists and
-    // right now we only have browser.selectConnectionMenuItem() which
+    // TODO(COMPASS-8002: this requires being able to click the View performance
+    // metrics menu item. active connections and saved connections are separate
+    // lists and right now we only have browser.selectConnectionMenuItem() which
     // arbitrarily works with saved connections only.
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();

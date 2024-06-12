@@ -21,7 +21,7 @@ describe('Shell', function () {
   before(async function () {
     skipForWeb(this, 'shell not available on compass-web');
 
-    // TODO: best to just port this once the shell works with multiple connections
+    // TODO(COMPASS-8004): best to just port this once the shell works with multiple connections
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

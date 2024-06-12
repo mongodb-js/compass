@@ -1181,6 +1181,6 @@ export function positionalArgs(positionalArgs: string[]) {
 export function connectionNameFromString(connectionString: string) {
   const url = new ConnectionStringUrl(connectionString);
 
-  // TODO: this is going to require work sooner or later. Do we reuse the same code we have in connection form?
+  // TODO: import { getConnectionTitle } from '@mongodb-js/connection-info';
   return `${url.hosts.join(',')}`;
 }

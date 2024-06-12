@@ -43,7 +43,7 @@ describe('Connection Import / Export', function () {
   before(function () {
     skipForWeb(this, 'export connections not available in compass-web');
 
-    // TODO: port this test file to multiple connections
+    // TODO(COMPASS-8007): port this test file to multiple connections
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
@@ -298,8 +298,6 @@ describe('Connection Import / Export', function () {
 
         // Open export modal
         {
-          // TODO: this has to use the app menu or some workaround because there
-          // are no buttons for exporting connections in the UI
           await browser.selectFavoritesMenuItem(
             Selectors.ExportConnectionsModalOpen
           );
@@ -362,8 +360,6 @@ describe('Connection Import / Export', function () {
 
         // Open import modal
         {
-          // TODO: this has to use the app menu or some workaround because there
-          // are no buttons for importing connections in the UI
           await browser.selectFavoritesMenuItem(
             Selectors.ImportConnectionsModalOpen
           );

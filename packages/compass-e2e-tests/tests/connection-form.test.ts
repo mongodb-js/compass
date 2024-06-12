@@ -714,7 +714,7 @@ describe('Connection form', function () {
   });
 
   it('can save & connect', async function () {
-    // TODO: saving a favorite is now part of the connect form
+    // TODO(COMPASS-8003): saving a favorite is now part of the connect form
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

@@ -40,12 +40,12 @@ describe('Instance sidebar', function () {
   it('has a connection info modal with connection info', async function () {
     skipForWeb(this, "these actions don't exist in compass-web");
 
-    // TODO
+    // TODO(COMPASS-8002: this has to click the active connection's actions in
+    // multiple connections
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
 
-    // TODO: this has to click the active connection's actions in multiple connections
     await browser.clickVisible(Selectors.SidebarShowActions);
     await browser.clickVisible(Selectors.SidebarActionClusterInfo);
 
@@ -133,7 +133,8 @@ describe('Instance sidebar', function () {
   });
 
   it('can create a database and drop it', async function () {
-    // TODO: we have to click the button for the specific connection
+    // TODO(COMPASS-8002): we have to click the button for the specific
+    // connection
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
@@ -195,7 +196,7 @@ describe('Instance sidebar', function () {
   });
 
   it('can refresh the databases', async function () {
-    // TODO: it isn't currently possible to refresh for multiple connections
+    // TODO(COMPASS-8002): it isn't currently possible to refresh for multiple connections
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

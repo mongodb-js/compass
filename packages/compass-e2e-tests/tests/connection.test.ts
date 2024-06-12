@@ -182,7 +182,7 @@ async function assertCannotCreateDb(
   collectionName: string
 ): Promise<void> {
   // open the create database modal from the sidebar
-  // TODO: add support for multiple connections
+  // TODO(COMPASS-8002): add support for multiple connections
   await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
@@ -459,9 +459,9 @@ describe('Connection string', function () {
 
     await assertCanReadData(browser, 'compass_e2e', 'companies_info');
     await assertCannotInsertData(browser, 'compass_e2e', 'companies_info');
-    // TODO: we need to click the active connection's add database button and
-    // therefore might as well wait for the active&saved connections to be
-    // unified
+    // TODO(COMPASS-8002: we need to click the active connection's add database
+    // button and therefore might as well wait for the active&saved connections
+    // to be unified
     if (!TEST_MULTIPLE_CONNECTIONS) {
       await assertCannotCreateDb(browser, 'new-db', 'new-collection');
     }
@@ -491,9 +491,9 @@ describe('Connection string', function () {
     }
 
     await assertCanReadData(browser, 'test', 'users');
-    // TODO: we need to click the active connection's add database button and
-    // therefore might as well wait for the active&saved connections to be
-    // unified
+    // TODO(COMPASS-8002: we need to click the active connection's add database
+    // button and therefore might as well wait for the active&saved connections
+    // to be unified
     if (!TEST_MULTIPLE_CONNECTIONS) {
       await assertCannotCreateDb(browser, 'new-db', 'new-collection');
     }
@@ -520,9 +520,9 @@ describe('Connection string', function () {
 
     await assertCanReadData(browser, 'test', 'users');
     await assertCannotInsertData(browser, 'test', 'users');
-    // TODO: we need to click the active connection's add database button and
-    // therefore might as well wait for the active&saved connections to be
-    // unified
+    // TODO(COMPASS-8002: we need to click the active connection's add database
+    // button and therefore might as well wait for the active&saved connections
+    // to be unified
     if (!TEST_MULTIPLE_CONNECTIONS) {
       await assertCannotCreateDb(browser, 'new-db', 'new-collection');
     }
@@ -802,7 +802,7 @@ describe('SRV connectivity', function () {
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
-      // TODO: we have to add support in custom commands for when connections fail
+      // TODO(COMPAS-8009): we have to add support in custom commands for when connections fail
       this.skip();
     }
 
@@ -871,7 +871,7 @@ describe('System CA access', function () {
   });
 
   it('allows using the system certificate store for connections', async function () {
-    // TODO: this uses shellEval and that's not working in multiple connections yet
+    // TODO(COMPASS-8004): this uses shellEval and that's not working in multiple connections yet
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

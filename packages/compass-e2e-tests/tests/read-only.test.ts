@@ -21,7 +21,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   before(function () {
     skipForWeb(this, 'settings modal not available on compass-web');
-    // TODO
+    // TODO(COMPASS-8005): port these once implemented
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

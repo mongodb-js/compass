@@ -16,12 +16,7 @@ export async function connectWithConnectionString(
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.clickVisible(Selectors.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
-  } /* else {
-    const sidebar = await browser.$(Selectors.Sidebar);
-    if (await sidebar.isDisplayed()) {
-      await browser.disconnect();
-    }
-  }*/
+  }
 
   await browser.setValueVisible(
     Selectors.ConnectionStringInput,

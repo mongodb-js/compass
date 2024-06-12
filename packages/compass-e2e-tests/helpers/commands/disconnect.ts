@@ -41,7 +41,8 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     // disconnect just one connection and still keep others around.
     await browser.$(Selectors.SidebarTreeItems).waitForExist({ reverse: true });
 
-    // TODO: should we open the New Connection modal to mirror the single connection flow or do that separately?
+    // NOTE: unlike the single connection flow this doesn't make sure the New
+    // Connection modal is open after disconnecting.
   } else {
     // for single connections we expect the connect screen to re-appear
     await browser.$(Selectors.ConnectSection).waitForDisplayed();

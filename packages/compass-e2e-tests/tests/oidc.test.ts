@@ -67,7 +67,7 @@ describe('OIDC integration', function () {
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
-    // TODO: skipping for multiple connections due to the use of shellEval for now
+    // TODO(COMPASS-8004): skipping for multiple connections due to the use of shellEval for now
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

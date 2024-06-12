@@ -1333,7 +1333,7 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      // TODO: same thing as for aborting an export when disconnected
+      // TODO(COMPASS-8008): same thing as for aborting an export when disconnected
       if (TEST_MULTIPLE_CONNECTIONS) {
         this.skip();
       }
