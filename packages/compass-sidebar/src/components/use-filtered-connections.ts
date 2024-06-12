@@ -270,7 +270,7 @@ const connectionsReducer = (
           [connectionId]: {
             ...state.expanded[connectionId],
             databases: {
-              ...state.expanded[connectionId].databases,
+              ...state.expanded[connectionId]?.databases,
               [databaseId]: expand ? 'expanded' : undefined,
             },
           },
