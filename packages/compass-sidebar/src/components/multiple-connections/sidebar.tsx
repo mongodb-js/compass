@@ -22,6 +22,7 @@ import {
   useToast,
   spacing,
   openToast,
+  HorizontalRule,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
@@ -51,6 +52,8 @@ const sidebarStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
+  paddingTop: spacing[400],
+  gap: spacing[200],
 });
 
 type ConnectionErrorToastBodyProps = {
@@ -404,6 +407,7 @@ export function MultipleConnectionSidebar({
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
+        <HorizontalRule />
         <UnifiedConnectionsNavigation
           activeWorkspace={activeWorkspace}
           favoriteConnections={favoriteConnections}

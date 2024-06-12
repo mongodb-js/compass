@@ -34,7 +34,7 @@ const items = [
 function normalizeItems(
   items: MockItem[],
   level = 1,
-  expanded: string[] = [],
+  expanded: string[] = []
 ): MockTreeItem[] {
   const data = items
     .map((item, index) => {

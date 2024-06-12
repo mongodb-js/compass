@@ -2,12 +2,7 @@ import toNS from 'mongodb-ns';
 import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import {
-  Subtitle,
-  css,
-  palette,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Subtitle, css, spacing } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
@@ -37,18 +32,14 @@ import {
 import { useFilteredConnections } from '../use-filtered-connections';
 import NavigationItemsFilter from '../navigation-items-filter';
 
-const activeConnectionsContainerStyles = css({
+const connectionsContainerStyles = css({
   height: '100%',
-  padding: `${spacing[2]}px ${spacing[3]}px`,
-  borderTop: `1px solid ${palette.gray.light2}`,
-});
-
-const activeConnectionListHeaderStyles = css({
-  flexGrow: 0,
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingBottom: spacing[400],
   display: 'flex',
-  flexDirection: 'row',
-  alignContent: 'center',
-  justifyContent: 'space-between',
+  flexDirection: 'column',
+  gap: spacing[200],
 });
 
 const activeConnectionListHeaderTitleStyles = css({
@@ -56,15 +47,12 @@ const activeConnectionListHeaderTitleStyles = css({
   marginBottom: 0,
   textTransform: 'uppercase',
   fontSize: '12px',
+  lineHeight: `${spacing[800]}px`,
 });
 
 const activeConnectionCountStyles = css({
   fontWeight: 'normal',
   marginLeft: spacing[100],
-});
-
-const searchInputStyles = css({
-  marginBottom: spacing[200],
 });
 
 function findCollection(ns: string, databases: Database[]) {
@@ -384,20 +372,17 @@ const UnifiedConnectionsNavigation: React.FC<
   }, [connectionsManager]);
 
   return (
-    <div className={activeConnectionsContainerStyles}>
-      <header className={activeConnectionListHeaderStyles}>
-        <Subtitle className={activeConnectionListHeaderTitleStyles}>
-          Active connections
-          {connections.length !== 0 && (
-            <span className={activeConnectionCountStyles}>
-              ({connections.length})
-            </span>
-          )}
-        </Subtitle>
-      </header>
+    <div className={connectionsContainerStyles}>
+      <Subtitle className={activeConnectionListHeaderTitleStyles}>
+        Connections
+        {connections.length !== 0 && (
+          <span className={activeConnectionCountStyles}>
+            ({connections.length})
+          </span>
+        )}
+      </Subtitle>
       <NavigationItemsFilter
-        placeholder="Search active connections"
-        searchInputClassName={searchInputStyles}
+        placeholder="Search connections"
         onFilterChange={onFilterChange}
       />
       <ConnectionsNavigationTree

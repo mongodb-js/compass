@@ -4,6 +4,18 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { usePreference } from 'compass-preferences-model/provider';
+import { css, spacing } from '@mongodb-js/compass-components';
+
+type AcceptedStyles = {
+  '--item-bg-color'?: string;
+  '--item-bg-color-hover'?: string;
+  '--item-bg-color-active'?: string;
+  'border-radius'?: string;
+};
+
+const styledStyles = css({
+  overflow: 'hidden',
+});
 
 export default function StyledNavigationItem({
   colorCode,
@@ -18,18 +30,11 @@ export default function StyledNavigationItem({
     'enableNewMultipleConnectionSystem'
   );
 
-  const style: React.CSSProperties & {
-    '--item-bg-color'?: string;
-    '--item-bg-color-hover'?: string;
-    '--item-bg-color-active'?: string;
-  } = useMemo(() => {
-    const style: {
-      '--item-bg-color'?: string;
-      '--item-bg-color-hover'?: string;
-      '--item-bg-color-active'?: string;
-    } = {};
+  const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
+    const style: AcceptedStyles = {};
 
     if (!isSingleConnection) {
+      style['border-radius'] = `${spacing[100]}px`;
       if (colorCode && colorCode !== DefaultColorCode) {
         style['--item-bg-color'] = connectionColorToHex(colorCode);
         style['--item-bg-color-hover'] = connectionColorToHexActive(colorCode);
@@ -44,5 +49,9 @@ export default function StyledNavigationItem({
     connectionColorToHexActive,
   ]);
 
-  return <div style={style}>{children}</div>;
+  return (
+    <div className={styledStyles} style={style}>
+      {children}
+    </div>
+  );
 }
