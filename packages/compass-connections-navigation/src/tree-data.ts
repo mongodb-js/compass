@@ -43,7 +43,7 @@ export type ConnectedConnection = {
 
 export type Connection = ConnectedConnection | NotConnectedConnection;
 
-type Database = {
+export type Database = {
   _id: string;
   name: string;
   collectionsStatus: DatabaseOrCollectionStatus;
@@ -56,7 +56,7 @@ type PlaceholderTreeItem = VirtualPlaceholderItem & {
   id: string;
 };
 
-type Collection = {
+export type Collection = {
   _id: string;
   name: string;
   type: 'view' | 'collection' | 'timeseries';

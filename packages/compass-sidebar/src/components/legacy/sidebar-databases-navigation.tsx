@@ -7,7 +7,7 @@ import {
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type {
   Actions,
-  ConnectedConnection,
+  SidebarConnectedConnection,
   SidebarItem,
 } from '@mongodb-js/compass-connections-navigation';
 import toNS from 'mongodb-ns';
@@ -111,7 +111,7 @@ type SidebarDatabasesNavigationComponentProps = Pick<
 };
 
 type MapStateProps = {
-  connections: ConnectedConnection[];
+  connections: SidebarConnectedConnection[];
 };
 
 type MapDispatchProps = {
@@ -166,16 +166,17 @@ function SidebarDatabasesNavigation({
   );
 
   const connectionsButOnlyIfFilterIsActive = filteredDatabases && connections;
-  const filteredConnections: ConnectedConnection[] | undefined = useMemo(() => {
-    if (filteredDatabases && connectionsButOnlyIfFilterIsActive) {
-      return [
-        {
-          ...connectionsButOnlyIfFilterIsActive[0],
-          databases: filteredDatabases,
-        },
-      ];
-    }
-  }, [filteredDatabases, connectionsButOnlyIfFilterIsActive]);
+  const filteredConnections: SidebarConnectedConnection[] | undefined =
+    useMemo(() => {
+      if (filteredDatabases && connectionsButOnlyIfFilterIsActive) {
+        return [
+          {
+            ...connectionsButOnlyIfFilterIsActive[0],
+            databases: filteredDatabases,
+          },
+        ];
+      }
+    }, [filteredDatabases, connectionsButOnlyIfFilterIsActive]);
 
   const expandedMemo: Record<string, Record<string, boolean>> = useMemo(
     () => ({
@@ -342,7 +343,7 @@ const mapStateToProps: MapStateToProps<
         connectionInfo,
         databasesLength: databases?.length || 0,
         databasesStatus: (status ??
-          'fetching') as ConnectedConnection['databasesStatus'],
+          'fetching') as SidebarConnectedConnection['databasesStatus'],
         databases: databases ?? [],
         connectionStatus: ConnectionStatus.Connected,
         isPerformanceTabSupported:

@@ -13,7 +13,10 @@ import {
 import {
   type Actions,
   type SidebarItem,
-  type ConnectedConnection,
+  type SidebarConnectedConnection,
+  type SidebarDatabase,
+  type SidebarCollection,
+  type ConnectionsNavigationTreeProps,
   ConnectionsNavigationTree,
 } from '@mongodb-js/compass-connections-navigation';
 import {
@@ -35,11 +38,10 @@ import {
   fetchAllCollections,
   onDatabaseExpand,
 } from '../../../modules/databases';
-import type { ConnectionsNavigationTreeProps } from '@mongodb-js/compass-connections-navigation/dist/connections-navigation-tree';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type ExpandedDatabases = Record<
-  Database['_id'],
+  SidebarDatabase['_id'],
   'expanded' | 'tempExpanded' | undefined
 >;
 type ExpandedConnections = Record<
@@ -54,17 +56,12 @@ interface Match {
   isMatch?: boolean;
 }
 
-type Collection =
-  ConnectedConnection['databases'][number]['collections'][number];
-
-type Database = ConnectedConnection['databases'][number];
-
-type FilteredCollection = Collection & Match;
-type FilteredDatabase = Omit<Database, 'collections'> &
+type FilteredCollection = SidebarCollection & Match;
+type FilteredDatabase = Omit<SidebarDatabase, 'collections'> &
   Match & {
     collections: FilteredCollection[];
   };
-type FilteredConnection = Omit<ConnectedConnection, 'databases'> &
+type FilteredConnection = Omit<SidebarConnectedConnection, 'databases'> &
   Match & {
     databases: FilteredDatabase[];
   };
@@ -101,7 +98,7 @@ const activeConnectionCountStyles = css({
 });
 
 const filterConnections = (
-  connections: ConnectedConnection[],
+  connections: SidebarConnectedConnection[],
   regex: RegExp
 ): FilteredConnection[] => {
   const results: FilteredConnection[] = [];
@@ -121,7 +118,7 @@ const filterConnections = (
 };
 
 const filterDatabases = (
-  databases: Database[],
+  databases: SidebarDatabase[],
   regex: RegExp
 ): FilteredDatabase[] => {
   const results: FilteredDatabase[] = [];
@@ -141,7 +138,7 @@ const filterDatabases = (
 };
 
 const filterCollections = (
-  collections: Collection[],
+  collections: SidebarCollection[],
   regex: RegExp
 ): FilteredCollection[] => {
   return collections
@@ -215,14 +212,14 @@ const revertTemporaryExpanded = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
-  filtered: ConnectedConnection[] | undefined;
+  filtered: SidebarConnectedConnection[] | undefined;
 }
 
 const FILTER_CONNECTIONS =
   'sidebar/active-connections/FILTER_CONNECTIONS' as const;
 interface FilterConnectionsAction {
   type: typeof FILTER_CONNECTIONS;
-  connections: ConnectedConnection[];
+  connections: SidebarConnectedConnection[];
   filterRegex: RegExp;
 }
 
@@ -356,7 +353,7 @@ type ActiveConnectionNavigationComponentProps = Pick<
 };
 
 type MapStateProps = {
-  connections: ConnectedConnection[];
+  connections: SidebarConnectedConnection[];
 };
 
 type MapDispatchProps = {
@@ -547,7 +544,7 @@ export function ActiveConnectionNavigation({
           return;
         case 'modify-view': {
           const connection = connections.find(
-            (conn): conn is ConnectedConnection => {
+            (conn): conn is SidebarConnectedConnection => {
               return (
                 conn.connectionStatus === ConnectionStatus.Connected &&
                 conn.connectionInfo.id === connectionId
@@ -637,7 +634,7 @@ const mapStateToProps: MapStateToProps<
   ActiveConnectionNavigationComponentProps,
   RootState
 > = (state: RootState, { activeConnections }) => {
-  const connections: ConnectedConnection[] = [];
+  const connections: SidebarConnectedConnection[] = [];
 
   for (const connectionInfo of activeConnections) {
     const connectionId = connectionInfo.id;
@@ -663,7 +660,7 @@ const mapStateToProps: MapStateToProps<
       connectionInfo,
       databases,
       databasesLength: databases.length,
-      databasesStatus: status as ConnectedConnection['databasesStatus'],
+      databasesStatus: status as SidebarConnectedConnection['databasesStatus'],
       connectionStatus: ConnectionStatus.Connected,
     });
   }
