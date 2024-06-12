@@ -120,13 +120,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'placeholder':
           return [];
         case 'connection': {
-          const isFavorite =
-            item.connectionInfo?.savedConnectionType === 'favorite';
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
               hasWriteActionsEnabled: item.hasWriteActionsEnabled,
               isShellEnabled: item.isShellEnabled,
-              isFavorite,
+              connectionInfo: item.connectionInfo,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
           } else {

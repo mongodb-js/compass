@@ -46,6 +46,7 @@ import type {
   ItemAction,
   GroupedItemAction,
   MenuAction,
+  ItemSeparator,
 } from './components/item-action-controls';
 import {
   ItemActionControls,
@@ -94,6 +95,7 @@ export type {
   ItemAction,
   GroupedItemAction,
   MenuAction,
+  ItemSeparator,
   ElectronFileDialogOptions,
   ElectronShowFileDialogProvider,
 };

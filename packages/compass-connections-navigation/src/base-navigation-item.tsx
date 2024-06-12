@@ -50,6 +50,11 @@ const baseItemLabelStyles = css({
   marginLeft: spacing[200],
 });
 
+const menuStyles = css({
+  width: '240px',
+  maxHeight: 'unset',
+});
+
 export const NavigationBaseItem = ({
   isActive,
   actionProps,
@@ -90,6 +95,7 @@ export const NavigationBaseItem = ({
           </ItemLabel>
         </ItemButtonWrapper>
         <ItemActionControls<Actions>
+          menuClassName={menuStyles}
           isVisible={isActive || isHovered || isFocused}
           data-testid="sidebar-navigation-item-actions"
           iconSize="small"

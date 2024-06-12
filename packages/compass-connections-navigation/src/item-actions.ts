@@ -1,8 +1,9 @@
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type Actions } from './constants';
+import { type ItemSeparator } from '@mongodb-js/compass-components';
 
-export type NavigationItemActions = ItemAction<Actions>[];
+export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
@@ -51,24 +52,24 @@ export const notConnectedConnectionItemActions = ({
 
 export const connectedConnectionItemActions = ({
   hasWriteActionsEnabled,
-  isFavorite,
+  connectionInfo,
   isPerformanceTabSupported,
   isShellEnabled,
 }: {
   hasWriteActionsEnabled: boolean;
-  isFavorite: boolean;
+  connectionInfo: ConnectionInfo;
   isPerformanceTabSupported: boolean;
   isShellEnabled: boolean;
 }): NavigationItemActions => {
-  const actions: NavigationItemActions = [];
-  if (!hasWriteActionsEnabled) {
-    actions.push({
+  const connectionManagementActions = notConnectedConnectionItemActions({
+    connectionInfo,
+  }).slice(1); // first item is connect hence we slice it out
+  const actions: NavigationItemActions = [
+    {
       action: 'create-database',
       icon: 'Plus',
       label: 'Create database',
-    });
-  }
-  actions.push(
+    },
     {
       action: 'open-shell',
       icon: 'Shell',
@@ -89,22 +90,18 @@ export const connectedConnectionItemActions = ({
       label: 'Show connection info',
     },
     {
-      action: 'copy-connection-string',
-      icon: 'Copy',
-      label: 'Copy connection string',
-    },
-    {
-      action: 'connection-toggle-favorite',
-      icon: 'Favorite',
-      label: isFavorite ? 'Unfavorite' : 'Favorite',
-    },
-    {
       action: 'connection-disconnect',
       icon: 'Disconnect',
       label: 'Disconnect',
       variant: 'destructive',
-    }
-  );
+    },
+    { separator: true },
+    ...connectionManagementActions,
+  ];
+
+  if (!hasWriteActionsEnabled) {
+    actions.splice(0, 1);
+  }
   return actions;
 };
 
