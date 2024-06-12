@@ -16,9 +16,8 @@ import {
   run as packageCompass,
   compileAssets,
 } from 'hadron-build/commands/release';
-import ConnectionStringUrl, {
-  redactConnectionString,
-} from 'mongodb-connection-string-url';
+import { redactConnectionString } from 'mongodb-connection-string-url';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
 import * as Commands from './commands';
@@ -1179,8 +1178,5 @@ export function positionalArgs(positionalArgs: string[]) {
 }
 
 export function connectionNameFromString(connectionString: string) {
-  const url = new ConnectionStringUrl(connectionString);
-
-  // TODO: import { getConnectionTitle } from '@mongodb-js/connection-info';
-  return `${url.hosts.join(',')}`;
+  return getConnectionTitle({ connectionOptions: { connectionString } });
 }
