@@ -21,7 +21,7 @@ const URI_WITH_ALLOWED_SERVICE_HOST_AUTH_MECHANISM_PROP =
   'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Aforward';
 
 /**
- * @securityTests Automatic Connection Establishment Tests
+ * @securityTest Automatic Connection Establishment Tests
  *
  * Since this application accepts remote host connection information on the command line,
  * we thoroughly check such arguments to verify that they do not result in surprising
