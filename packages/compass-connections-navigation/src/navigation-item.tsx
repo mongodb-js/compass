@@ -44,17 +44,17 @@ export function NavigationItem({
     }
     if (item.type === 'connection') {
       const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
-      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Laptop" />
-          </WithStatusMarker>
-        );
-      }
       if (isFavorite) {
         return (
           <WithStatusMarker status={item.connectionStatus}>
             <Icon glyph="Favorite" />
+          </WithStatusMarker>
+        );
+      }
+      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
+        return (
+          <WithStatusMarker status={item.connectionStatus}>
+            <Icon glyph="Laptop" />
           </WithStatusMarker>
         );
       }
