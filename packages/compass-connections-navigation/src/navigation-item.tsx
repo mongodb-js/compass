@@ -69,7 +69,7 @@ export function NavigationItem({
       if (item.type === 'connection') {
         if (
           item.connectionStatus !== ConnectionStatus.Connected ||
-          !item.isReadOnly
+          !item.hasWriteActionsEnabled
         ) {
           return 1;
         }

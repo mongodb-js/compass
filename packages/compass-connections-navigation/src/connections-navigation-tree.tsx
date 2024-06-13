@@ -117,7 +117,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             item.connectionInfo?.savedConnectionType === 'favorite';
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
-              isReadOnly: item.isReadOnly,
+              hasWriteActionsEnabled: item.hasWriteActionsEnabled,
               isShellEnabled: item.isShellEnabled,
               isFavorite,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
@@ -130,11 +130,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
         case 'database':
           return databaseItemActions({
-            isReadOnly: item.isReadOnly,
+            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
           });
         default:
           return collectionItemActions({
-            isReadOnly: item.isReadOnly,
+            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
             type: item.type,
             isRenameCollectionEnabled,
           });

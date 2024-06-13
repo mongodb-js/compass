@@ -80,7 +80,7 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   connectionInfo: ConnectionInfo;
   connectionStatus: ConnectionStatus.Connected;
   isPerformanceTabSupported: boolean;
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
   isShellEnabled: boolean;
 };
 
@@ -91,7 +91,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   isExpanded: boolean;
   connectionId: string;
   dbName: string;
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -101,7 +101,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   colorCode?: string;
   connectionId: string;
   namespace: string;
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
 };
 
 export type SidebarActionableItem =
@@ -161,7 +161,8 @@ const connectedConnectionToItems = ({
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
-  const isReadOnly = preferencesReadOnly || isDataLake || !isWritable;
+  const hasWriteActionsEnabled =
+    preferencesReadOnly || isDataLake || !isWritable;
   const isShellEnabled = !preferencesReadOnly && isWritable;
   const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
@@ -176,7 +177,7 @@ const connectedConnectionToItems = ({
     connectionInfo,
     connectionStatus,
     isPerformanceTabSupported,
-    isReadOnly,
+    hasWriteActionsEnabled,
     isShellEnabled,
   };
 
@@ -215,7 +216,7 @@ const connectedConnectionToItems = ({
         colorCode,
         databasesLength,
         databaseIndex,
-        isReadOnly,
+        hasWriteActionsEnabled,
       });
     })
   );
@@ -235,7 +236,7 @@ const databaseToItems = ({
   colorCode,
   databaseIndex,
   databasesLength,
-  isReadOnly,
+  hasWriteActionsEnabled,
 }: {
   database: Database;
   connectionId: string;
@@ -244,7 +245,7 @@ const databaseToItems = ({
   colorCode?: string;
   databaseIndex: number;
   databasesLength: number;
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
@@ -259,7 +260,7 @@ const databaseToItems = ({
     connectionId,
     dbName: id,
     isExpandable: true,
-    isReadOnly,
+    hasWriteActionsEnabled,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -297,7 +298,7 @@ const databaseToItems = ({
       colorCode,
       connectionId,
       namespace: id,
-      isReadOnly,
+      hasWriteActionsEnabled,
       isExpandable: false,
     }))
   );
@@ -354,7 +355,7 @@ export function getVirtualTreeItems({
   }
 
   const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
-  const isReadOnly =
+  const hasWriteActionsEnabled =
     preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   return connection.databases.flatMap((database, databaseIndex) => {
     return databaseToItems({
@@ -364,7 +365,7 @@ export function getVirtualTreeItems({
       level: 1,
       databasesLength: connection.databasesLength,
       databaseIndex,
-      isReadOnly,
+      hasWriteActionsEnabled,
     });
   });
 }
