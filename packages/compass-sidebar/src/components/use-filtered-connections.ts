@@ -9,7 +9,7 @@ import type {
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
-import { useCallback, useEffect, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 
 type ExpandedDatabases = Record<
   SidebarDatabase['_id'],
@@ -352,16 +352,23 @@ export const useFilteredConnections = (
     []
   );
 
+  // We are creating a ref for expanded and _onDatabaseExpand because we would
+  // like to keep a stable reference of onDatabaseToggle
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
+  const onDatabaseExpandRef = useRef(_onDatabaseExpand);
+  onDatabaseExpandRef.current = _onDatabaseExpand;
+
   const onDatabaseToggle = useCallback(
     (connectionId: string, namespace: string, expand: boolean) => {
       const { database: databaseId } = toNS(namespace);
-      if (expand && !expanded[connectionId]?.databases[databaseId]) {
+      if (expand && !expandedRef.current[connectionId]?.databases[databaseId]) {
         // side effect -> we need this to load collections
-        _onDatabaseExpand(connectionId, databaseId);
+        onDatabaseExpandRef.current(connectionId, databaseId);
       }
       dispatch({ type: DATABASE_TOGGLE, connectionId, databaseId, expand });
     },
-    [_onDatabaseExpand, expanded]
+    []
   );
 
   const onConnectionsChanged = useCallback((connections: ConnectionInfo[]) => {

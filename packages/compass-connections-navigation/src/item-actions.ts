@@ -7,8 +7,12 @@ export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
+  isEditDisabled,
+  editDisabledDescription,
 }: {
   connectionInfo: ConnectionInfo;
+  isEditDisabled?: boolean;
+  editDisabledDescription?: string;
   activeConnectionsCount?: number;
   maxOpenConnectionsAllowed?: number;
 }): NavigationItemActions => {
@@ -22,6 +26,8 @@ export const notConnectedConnectionItemActions = ({
       action: 'edit-connection',
       label: 'Edit connection',
       icon: 'Edit',
+      isDisabled: isEditDisabled,
+      disabledDescription: editDisabledDescription,
     },
     {
       action: 'copy-connection-string',
@@ -63,7 +69,9 @@ export const connectedConnectionItemActions = ({
 }): NavigationItemActions => {
   const connectionManagementActions = notConnectedConnectionItemActions({
     connectionInfo,
-  }).slice(1); // first item is connect hence we slice it out
+    isEditDisabled: true,
+    editDisabledDescription: 'Cannot edit an active connection',
+  }).slice(1); // for connected connections we don't show connect action
   const actions: NavigationItemActions = [
     {
       action: 'create-database',

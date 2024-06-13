@@ -20,7 +20,7 @@ import {
 import type { RootState, SidebarThunkAction } from '../../modules';
 import {
   ConnectionStatus,
-  useConnectionsWithStatus,
+  type useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -65,6 +65,7 @@ function findCollection(ns: string, databases: Database[]) {
 }
 
 type UnifiedConnectionsNavigationComponentProps = {
+  connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
   activeWorkspace: WorkspaceTab | null;
   filterRegex: RegExp | null;
   onFilterChange(regex: RegExp | null): void;
@@ -72,8 +73,8 @@ type UnifiedConnectionsNavigationComponentProps = {
   onEditConnection(info: ConnectionInfo): void;
   onRemoveConnection(info: ConnectionInfo): void;
   onDuplicateConnection(info: ConnectionInfo): void;
-  onCopyConnectionString(info: ConnectionInfo, isActive: boolean): void;
-  onToggleFavoriteConnectionInfo(info: ConnectionInfo, isActive: boolean): void;
+  onCopyConnectionString(info: ConnectionInfo): void;
+  onToggleFavoriteConnectionInfo(info: ConnectionInfo): void;
 
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
@@ -101,6 +102,7 @@ type UnifiedConnectionsNavigationProps =
 const UnifiedConnectionsNavigation: React.FC<
   UnifiedConnectionsNavigationProps
 > = ({
+  connectionsWithStatus,
   activeWorkspace,
   filterRegex,
   instances,
@@ -121,13 +123,13 @@ const UnifiedConnectionsNavigation: React.FC<
   onNamespaceAction: _onNamespaceAction,
 }) => {
   const {
+    openShellWorkspace,
     openPerformanceWorkspace,
     openDatabasesWorkspace,
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
-  const connectionsWithStatus = useConnectionsWithStatus();
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
 
@@ -180,9 +182,32 @@ const UnifiedConnectionsNavigation: React.FC<
       onDatabaseExpand
     );
 
-  const onNotConnectedConnectionItemAction = useCallback(
-    (item: SidebarNotConnectedConnectionTreeItem, action: Actions) => {
+  const onConnectionItemAction = useCallback(
+    (
+      item:
+        | SidebarConnectedConnectionTreeItem
+        | SidebarNotConnectedConnectionTreeItem,
+      action: Actions
+    ) => {
       switch (action) {
+        case 'select-connection':
+          openDatabasesWorkspace(item.connectionInfo.id);
+          return;
+        case 'create-database':
+          _onNamespaceAction(item.connectionInfo.id, '', action);
+          return;
+        case 'open-shell':
+          openShellWorkspace(item.connectionInfo.id);
+          return;
+        case 'connection-performance-metrics':
+          openPerformanceWorkspace(item.connectionInfo.id);
+          return;
+        case 'open-connection-info':
+          onOpenConnectionInfo(item.connectionInfo.id);
+          return;
+        case 'connection-disconnect':
+          onDisconnect(item.connectionInfo.id);
+          return;
         case 'connection-connect':
           onConnect(item.connectionInfo);
           onConnectionToggle(item.connectionInfo.id, true);
@@ -191,20 +216,29 @@ const UnifiedConnectionsNavigation: React.FC<
           onEditConnection(item.connectionInfo);
           return;
         case 'copy-connection-string':
-          onCopyConnectionString(item.connectionInfo, false);
+          onCopyConnectionString(item.connectionInfo);
           return;
         case 'connection-toggle-favorite':
-          onToggleFavoriteConnectionInfo(item.connectionInfo, false);
+          onToggleFavoriteConnectionInfo(item.connectionInfo);
           return;
         case 'duplicate-connection':
           onDuplicateConnection(item.connectionInfo);
           return;
         case 'remove-connection':
+          if (item.connectionStatus === ConnectionStatus.Connected) {
+            onDisconnect(item.connectionInfo.id);
+          }
           onRemoveConnection(item.connectionInfo);
           return;
       }
     },
     [
+      _onNamespaceAction,
+      openShellWorkspace,
+      openDatabasesWorkspace,
+      openPerformanceWorkspace,
+      onOpenConnectionInfo,
+      onDisconnect,
       onConnect,
       onConnectionToggle,
       onEditConnection,
@@ -212,43 +246,6 @@ const UnifiedConnectionsNavigation: React.FC<
       onToggleFavoriteConnectionInfo,
       onDuplicateConnection,
       onRemoveConnection,
-    ]
-  );
-
-  const onConnectedConnectionItemAction = useCallback(
-    (item: SidebarConnectedConnectionTreeItem, action: Actions) => {
-      switch (action) {
-        case 'select-connection':
-          openDatabasesWorkspace(item.connectionInfo.id);
-          return;
-        case 'create-database':
-          _onNamespaceAction(item.connectionInfo.id, '', action);
-          return;
-        case 'connection-performance-metrics':
-          openPerformanceWorkspace(item.connectionInfo.id);
-          return;
-        case 'open-connection-info':
-          onOpenConnectionInfo(item.connectionInfo.id);
-          return;
-        case 'copy-connection-string':
-          onCopyConnectionString(item.connectionInfo, true);
-          return;
-        case 'connection-toggle-favorite':
-          onToggleFavoriteConnectionInfo(item.connectionInfo, true);
-          return;
-        case 'connection-disconnect':
-          onDisconnect(item.connectionInfo.id);
-          return;
-      }
-    },
-    [
-      _onNamespaceAction,
-      openDatabasesWorkspace,
-      openPerformanceWorkspace,
-      onOpenConnectionInfo,
-      onCopyConnectionString,
-      onToggleFavoriteConnectionInfo,
-      onDisconnect,
     ]
   );
 
@@ -298,28 +295,15 @@ const UnifiedConnectionsNavigation: React.FC<
 
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
-      if (
-        item.type === 'connection' &&
-        item.connectionStatus !== ConnectionStatus.Connected
-      ) {
-        onNotConnectedConnectionItemAction(item, action);
-        return;
-      } else if (
-        item.type === 'connection' &&
-        item.connectionStatus === ConnectionStatus.Connected
-      ) {
-        onConnectedConnectionItemAction(item, action);
+      if (item.type === 'connection') {
+        onConnectionItemAction(item, action);
       } else {
         const namespace =
           item.type === 'database' ? item.dbName : item.namespace;
         onNamespaceAction(item.connectionId, namespace, action);
       }
     },
-    [
-      onNotConnectedConnectionItemAction,
-      onConnectedConnectionItemAction,
-      onNamespaceAction,
-    ]
+    [onConnectionItemAction, onNamespaceAction]
   );
 
   const onItemExpand = useCallback(

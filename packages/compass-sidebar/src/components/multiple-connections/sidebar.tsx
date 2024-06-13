@@ -7,14 +7,14 @@ import React, {
 } from 'react';
 import { connect } from 'react-redux';
 import {
-  useActiveConnections,
+  ConnectionStatus,
   useConnections,
+  useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
   getConnectionTitle,
 } from '@mongodb-js/connection-info';
-// import { SavedConnectionList } from './saved-connections/saved-connection-list';
 import {
   ResizableSidebar,
   css,
@@ -28,7 +28,6 @@ import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
-// import ActiveConnectionNavigation from './active-connections/active-connection-navigation';
 import type { SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
@@ -95,17 +94,6 @@ function ConnectionErrorToastBody({
   );
 }
 
-function activeConnectionNotFoundError(
-  description = 'Connection not found. Please try again'
-) {
-  openToast('active-connection-not-found', {
-    title: 'Error',
-    description,
-    variant: 'warning',
-    timeout: TOAST_TIMEOUT_MS,
-  });
-}
-
 async function copyConnectionString(connectionString: string) {
   try {
     await navigator.clipboard.writeText(connectionString);
@@ -126,25 +114,86 @@ async function copyConnectionString(connectionString: string) {
   }
 }
 
+function useMemoisedFormPreferences() {
+  const protectConnectionStrings = usePreference('protectConnectionStrings');
+  const forceConnectionOptions = usePreference('forceConnectionOptions');
+  const showKerberosPasswordField = usePreference('showKerberosPasswordField');
+  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow');
+  const enableOidc = usePreference('enableOidc');
+  const enableDebugUseCsfleSchemaMap = usePreference(
+    'enableDebugUseCsfleSchemaMap'
+  );
+  const protectConnectionStringsForNewConnections = usePreference(
+    'protectConnectionStringsForNewConnections'
+  );
+
+  return useMemo(
+    () => ({
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    }),
+    [
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+    ]
+  );
+}
+
 export function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
 }: MultipleConnectionSidebarProps) {
-  const { openToast, closeToast } = useToast('multiple-connection-status');
-  const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
-  const activeConnections = useActiveConnections();
   const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
     useState<RegExp | null>(null);
-  const maybeProtectConnectionString = useMaybeProtectConnectionString();
-
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
-  const findActiveConnection = useCallback(
-    (connectionId: string) =>
-      activeConnections.find(({ id }) => id === connectionId),
-    [activeConnections]
+  const appRegistry = useGlobalAppRegistry();
+  const formPreferences = useMemoisedFormPreferences();
+  const { openToast, closeToast } = useToast('multiple-connection-status');
+  const maybeProtectConnectionString = useMaybeProtectConnectionString();
+  const connectionsWithStatus = useConnectionsWithStatus();
+  const {
+    setActiveConnectionById,
+    connect,
+    closeConnection,
+    cancelConnectionAttempt,
+    removeConnection,
+    saveConnection,
+    duplicateConnection,
+    createNewConnection,
+    state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
+  } = useConnections();
+
+  const findActiveConnection = (id: string) => {
+    return connectionsWithStatus.find(
+      ({ connectionInfo, connectionStatus }) => {
+        return (
+          connectionInfo.id === id &&
+          connectionStatus === ConnectionStatus.Connected
+        );
+      }
+    )?.connectionInfo;
+  };
+
+  const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
+  cancelCurrentConnectionRef.current = cancelConnectionAttempt;
+
+  const onActiveConnectionFilterChange = useCallback(
+    (filterRegex: RegExp | null) =>
+      setActiveConnectionsFilterRegex(filterRegex),
+    [setActiveConnectionsFilterRegex]
   );
 
   const onConnected = useCallback(
@@ -156,12 +205,6 @@ export function MultipleConnectionSidebar({
       });
     },
     [openToast]
-  );
-
-  const onActiveConnectionFilterChange = useCallback(
-    (filterRegex: RegExp | null) =>
-      setActiveConnectionsFilterRegex(filterRegex),
-    [setActiveConnectionsFilterRegex]
   );
 
   const onConnectionAttemptStarted = useCallback(
@@ -182,7 +225,7 @@ export function MultipleConnectionSidebar({
         ),
       });
     },
-    [openToast, closeToast, cancelCurrentConnectionRef]
+    [openToast, closeToast]
   );
 
   const onConnectionFailed = useCallback(
@@ -205,25 +248,6 @@ export function MultipleConnectionSidebar({
     },
     [openToast, closeToast, setIsConnectionFormOpen]
   );
-
-  const {
-    setActiveConnectionById,
-    connect,
-    closeConnection,
-    // favoriteConnections,
-    // recentConnections,
-    cancelConnectionAttempt,
-    removeConnection,
-    saveConnection,
-    duplicateConnection,
-    createNewConnection,
-    state,
-  } = useConnections();
-
-  const { activeConnectionId, activeConnectionInfo, connectionErrorMessage } =
-    state;
-
-  cancelCurrentConnectionRef.current = cancelConnectionAttempt;
 
   const onConnect = useCallback(
     (info: ConnectionInfo) => {
@@ -251,10 +275,12 @@ export function MultipleConnectionSidebar({
     createNewConnection();
     setIsConnectionFormOpen(true);
   }, [createNewConnection]);
+
   const onNewConnectionClose = useCallback(
     () => setIsConnectionFormOpen(false),
     []
   );
+
   const onNewConnectionToggle = useCallback(
     (open: boolean) => setIsConnectionFormOpen(open),
     []
@@ -277,7 +303,7 @@ export function MultipleConnectionSidebar({
     [saveConnection]
   );
 
-  const onDeleteConnection = useCallback(
+  const onRemoveConnection = useCallback(
     (info: ConnectionInfo) => {
       void removeConnection(info);
     },
@@ -310,20 +336,6 @@ export function MultipleConnectionSidebar({
     [saveConnection]
   );
 
-  const onToggleFavoriteActiveConnection = useCallback(
-    (connectionId: ConnectionInfo['id']) => {
-      const connectionInfo = findActiveConnection(connectionId);
-      if (!connectionInfo) {
-        activeConnectionNotFoundError(
-          'Favorite/Unfavorite action failed - Connection not found. Please try again.'
-        );
-        return;
-      }
-      onToggleFavoriteConnectionInfo(connectionInfo);
-    },
-    [onToggleFavoriteConnectionInfo, findActiveConnection]
-  );
-
   const onOpenConnectionInfo = useCallback(
     (connectionId: string) => setConnectionInfoModalConnectionId(connectionId),
     []
@@ -334,22 +346,15 @@ export function MultipleConnectionSidebar({
     []
   );
 
-  const onCopyActiveConnectionString = useCallback(
-    (connectionId: string) => {
-      const connectionInfo = findActiveConnection(connectionId);
-      if (!connectionInfo) {
-        activeConnectionNotFoundError(
-          'Copying to clipboard failed - Connection not found. Please try again.'
-        );
-        return;
-      }
+  const onCopyConnectionString = useCallback(
+    (connectionInfo: ConnectionInfo) => {
       void copyConnectionString(
         maybeProtectConnectionString(
           connectionInfo?.connectionOptions.connectionString
         )
       );
     },
-    [findActiveConnection, maybeProtectConnectionString]
+    [maybeProtectConnectionString]
   );
 
   const onDisconnect = useCallback(
@@ -358,41 +363,6 @@ export function MultipleConnectionSidebar({
     },
     [closeConnection]
   );
-
-  const protectConnectionStrings = usePreference('protectConnectionStrings');
-  const forceConnectionOptions = usePreference('forceConnectionOptions');
-  const showKerberosPasswordField = usePreference('showKerberosPasswordField');
-  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow');
-  const enableOidc = usePreference('enableOidc');
-  const enableDebugUseCsfleSchemaMap = usePreference(
-    'enableDebugUseCsfleSchemaMap'
-  );
-  const protectConnectionStringsForNewConnections = usePreference(
-    'protectConnectionStringsForNewConnections'
-  );
-
-  const preferences = useMemo(
-    () => ({
-      protectConnectionStrings,
-      forceConnectionOptions,
-      showKerberosPasswordField,
-      showOIDCDeviceAuthFlow,
-      enableOidc,
-      enableDebugUseCsfleSchemaMap,
-      protectConnectionStringsForNewConnections,
-    }),
-    [
-      protectConnectionStrings,
-      forceConnectionOptions,
-      showKerberosPasswordField,
-      showOIDCDeviceAuthFlow,
-      enableOidc,
-      enableDebugUseCsfleSchemaMap,
-      protectConnectionStringsForNewConnections,
-    ]
-  );
-
-  const appRegistry = useGlobalAppRegistry();
 
   useEffect(() => {
     // TODO(COMPASS-7397): don't hack this via the app registry
@@ -409,50 +379,19 @@ export function MultipleConnectionSidebar({
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
         <HorizontalRule />
         <UnifiedConnectionsNavigation
+          connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
           filterRegex={activeConnectionsFilterRegex}
           onFilterChange={onActiveConnectionFilterChange}
           onConnect={onConnect}
           onEditConnection={onEditConnection}
-          onRemoveConnection={onDeleteConnection}
+          onRemoveConnection={onRemoveConnection}
           onDuplicateConnection={onDuplicateConnection}
-          onCopyConnectionString={(info, isActive) => {
-            if (isActive) {
-              onCopyActiveConnectionString(info.id);
-            } else {
-              // what?
-            }
-          }}
-          onToggleFavoriteConnectionInfo={(info, isActive) => {
-            if (isActive) {
-              onToggleFavoriteActiveConnection(info.id);
-            } else {
-              onToggleFavoriteConnectionInfo(info);
-            }
-          }}
+          onCopyConnectionString={onCopyConnectionString}
+          onToggleFavoriteConnectionInfo={onToggleFavoriteConnectionInfo}
           onOpenConnectionInfo={onOpenConnectionInfo}
           onDisconnect={onDisconnect}
         />
-        {/* <ActiveConnectionNavigation
-          activeConnections={activeConnections}
-          activeWorkspace={activeWorkspace}
-          onOpenConnectionInfo={onOpenConnectionInfo}
-          onCopyConnectionString={onCopyActiveConnectionString}
-          onToggleFavoriteConnection={onToggleFavoriteActiveConnection}
-          onDisconnect={onDisconnect}
-          filterRegex={activeConnectionsFilterRegex}
-          onFilterChange={onActiveConnectionFilterChange}
-        />
-        <SavedConnectionList
-          favoriteConnections={favoriteConnections}
-          nonFavoriteConnections={recentConnections}
-          onConnect={onConnect}
-          onNewConnection={onNewConnectionOpen}
-          onEditConnection={onEditConnection}
-          onDeleteConnection={onDeleteConnection}
-          onDuplicateConnection={onDuplicateConnection}
-          onToggleFavoriteConnection={onToggleFavoriteConnectionInfo}
-        /> */}
         <ConnectionFormModal
           isOpen={isConnectionFormOpen}
           setOpen={onNewConnectionToggle}
@@ -462,7 +401,7 @@ export function MultipleConnectionSidebar({
           onSaveConnectionClicked={onSaveNewConnection}
           initialConnectionInfo={activeConnectionInfo}
           connectionErrorMessage={connectionErrorMessage}
-          preferences={preferences}
+          preferences={formPreferences}
         />
         <ConnectionInfoModal
           connectionInfo={
