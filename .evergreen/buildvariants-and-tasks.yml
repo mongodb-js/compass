@@ -60,9 +60,6 @@ buildvariants:
     display_name: Package Ubuntu 16.04
     run_on: ubuntu1604-large
     tasks:
-      - name: check
-      - name: test
-      - name: test-electron
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
@@ -70,9 +67,6 @@ buildvariants:
     display_name: Package Windows 10
     run_on: windows-vsCurrent-large
     tasks:
-      - name: check
-      - name: test
-      - name: test-electron
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
@@ -80,9 +74,6 @@ buildvariants:
     display_name: Package RHEL 8.0
     run_on: rhel80-large
     tasks:
-      - name: check
-      - name: test
-      - name: test-electron
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
@@ -90,9 +81,6 @@ buildvariants:
     display_name: Package MacOS x64 11
     run_on: macos-1100
     tasks:
-      - name: check
-      - name: test
-      - name: test-electron
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
@@ -100,9 +88,6 @@ buildvariants:
     display_name: Package MacOS arm64 11
     run_on: macos-1100-arm64
     tasks:
-      - name: check
-      - name: test
-      - name: test-electron
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
