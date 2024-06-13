@@ -23,10 +23,7 @@ export type PartialConnectionInfo = DeepPartial<ConnectionInfo> &
 /**
  * Same as _.isEqual but taking into consideration BSON values.
  */
-export function areConnectionsEqual(
-  listA: ConnectionInfo[],
-  listB: ConnectionInfo[]
-): boolean {
+export function areConnectionsEqual<T>(listA: T[], listB: T[]): boolean {
   return isEqual(
     listA.map((a: any) => BSON.serialize(a)),
     listB.map((b: any) => BSON.serialize(b))

@@ -1,5 +1,4 @@
 import toNS from 'mongodb-ns';
-import _ from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { Subtitle, css, spacing } from '@mongodb-js/compass-components';
@@ -21,7 +20,7 @@ import {
 import type { RootState, SidebarThunkAction } from '../../modules';
 import {
   ConnectionStatus,
-  useConnectionsManagerContext,
+  useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -66,8 +65,6 @@ function findCollection(ns: string, databases: Database[]) {
 }
 
 type UnifiedConnectionsNavigationComponentProps = {
-  favoriteConnections: ConnectionInfo[];
-  recentConnections: ConnectionInfo[];
   activeWorkspace: WorkspaceTab | null;
   filterRegex: RegExp | null;
   onFilterChange(regex: RegExp | null): void;
@@ -104,8 +101,6 @@ type UnifiedConnectionsNavigationProps =
 const UnifiedConnectionsNavigation: React.FC<
   UnifiedConnectionsNavigationProps
 > = ({
-  favoriteConnections,
-  recentConnections,
   activeWorkspace,
   filterRegex,
   instances,
@@ -132,17 +127,14 @@ const UnifiedConnectionsNavigation: React.FC<
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
-  const connectionsManager = useConnectionsManagerContext();
+  const connectionsWithStatus = useConnectionsWithStatus();
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
-    const sortedFavoriteConnections = _.sortBy(favoriteConnections, 'name');
-    const sortedRecentConnections = _.sortBy(recentConnections, 'name');
 
-    for (const connection of [
-      ...sortedFavoriteConnections,
-      ...sortedRecentConnections,
-    ]) {
-      const connectionStatus = connectionsManager.statusOf(connection.id);
+    for (const {
+      connectionInfo: connection,
+      connectionStatus,
+    } of connectionsWithStatus) {
       if (connectionStatus !== ConnectionStatus.Connected) {
         connections.push({
           name: getConnectionTitle(connection),
@@ -178,14 +170,7 @@ const UnifiedConnectionsNavigation: React.FC<
       }
     }
     return connections;
-  }, [
-    connectionsManager,
-    favoriteConnections,
-    recentConnections,
-    instances,
-    databases,
-    isPerformanceTabSupported,
-  ]);
+  }, [connectionsWithStatus, instances, databases, isPerformanceTabSupported]);
 
   const { filtered, expanded, onConnectionToggle, onDatabaseToggle } =
     useFilteredConnections(
@@ -365,11 +350,6 @@ const UnifiedConnectionsNavigation: React.FC<
       }
     }
   }, [activeWorkspace, onDatabaseToggle, onConnectionToggle]);
-
-  // listening on connections change
-  useEffect(() => {
-    // todo
-  }, [connectionsManager]);
 
   return (
     <div className={connectionsContainerStyles}>

@@ -10,16 +10,14 @@ import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { WithStatusMarker } from './with-status-marker';
+import type { Actions } from './constants';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
   isActive: boolean;
   isFocused: boolean;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
-  onItemAction: (
-    item: SidebarActionableItem,
-    action: NavigationItemActions[number]['action']
-  ) => void;
+  onItemAction: (item: SidebarActionableItem, action: Actions) => void;
   onItemExpand: OnExpandedChange<SidebarActionableItem>;
 };
 
@@ -69,7 +67,7 @@ export function NavigationItem({
   }, [item]);
 
   const onAction = useCallback(
-    (action: NavigationItemActions[number]['action']) => {
+    (action: Actions) => {
       if (item.type !== 'placeholder') {
         onItemAction(item, action);
       }

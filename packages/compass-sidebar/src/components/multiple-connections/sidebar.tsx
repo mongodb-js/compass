@@ -210,8 +210,8 @@ export function MultipleConnectionSidebar({
     setActiveConnectionById,
     connect,
     closeConnection,
-    favoriteConnections,
-    recentConnections,
+    // favoriteConnections,
+    // recentConnections,
     cancelConnectionAttempt,
     removeConnection,
     saveConnection,
@@ -410,8 +410,6 @@ export function MultipleConnectionSidebar({
         <HorizontalRule />
         <UnifiedConnectionsNavigation
           activeWorkspace={activeWorkspace}
-          favoriteConnections={favoriteConnections}
-          recentConnections={recentConnections}
           filterRegex={activeConnectionsFilterRegex}
           onFilterChange={onActiveConnectionFilterChange}
           onConnect={onConnect}
