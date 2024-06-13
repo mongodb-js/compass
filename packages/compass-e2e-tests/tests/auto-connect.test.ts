@@ -21,12 +21,18 @@ describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
-  before(function () {
+  before(async function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
     // TODO(COMPASS-8010): pory these tests
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
+
+    // make sure it gets the welcome page and closes it so that it doesn't mess
+    // up the tests below depending on whether some previous test left things in
+    // a first run state or not
+    const compass = await init(this.test?.fullTitle(), { firstRun: true });
+    await cleanup(compass);
   });
 
   beforeEach(async function () {
