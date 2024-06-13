@@ -18,7 +18,7 @@ trap_handler() {
 }
 trap trap_handler ERR EXIT
 
-scp -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" .sbom/dependencies.json /tmp/artifactory_password "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/
+scp -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" .sbom/dependencies.json /tmp/silkbomb.env /tmp/artifactory_password "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/
 ssh -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -p "$SIGNING_SERVER_PORT" "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME" \
   "(cat /tmp/dependencies.json | jq -r '.[] | "'"pkg:npm/" + .name + "@" + .version'"' > /tmp/purls.txt) && \
   echo "pkg:generic/mongo_crypt_shared@${CRYPT_SHARED_VERSION}" >> /tmp/purls.txt && \
