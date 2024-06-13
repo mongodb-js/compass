@@ -109,7 +109,7 @@ buildvariants:
       - name: test-packaged-app-5x-enterprise
   - name: test-maintained-servers
     display_name: Test Maintained Servers
-    run_on: ubuntu2404-large
+    run_on: ubuntu2004-large
     patchable: true
     depends_on:
       - name: package-compass
@@ -123,7 +123,7 @@ buildvariants:
       - name: test-packaged-app-80x-enterprise
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2404-large
+    run_on: ubuntu2004-large
     patchable: false
     depends_on:
       - name: package-compass
