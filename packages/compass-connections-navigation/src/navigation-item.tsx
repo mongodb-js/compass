@@ -68,8 +68,8 @@ export function NavigationItem({
     const collapseAfter = (() => {
       if (item.type === 'connection') {
         if (
-          item.connectionStatus !== ConnectionStatus.Connected ||
-          !item.isConnectionReadOnly
+          item.connectionStatus === ConnectionStatus.Connected &&
+          !item.isReadOnly
         ) {
           return 1;
         }

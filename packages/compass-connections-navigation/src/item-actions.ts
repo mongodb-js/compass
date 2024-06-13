@@ -53,10 +53,12 @@ export const connectedConnectionItemActions = ({
   isReadOnly,
   isFavorite,
   isPerformanceTabSupported,
+  isShellEnabled,
 }: {
   isReadOnly: boolean;
   isFavorite: boolean;
   isPerformanceTabSupported: boolean;
+  isShellEnabled: boolean;
 }): NavigationItemActions => {
   const actions: NavigationItemActions = [];
   if (!isReadOnly) {
@@ -71,6 +73,7 @@ export const connectedConnectionItemActions = ({
       action: 'open-shell',
       icon: 'Shell',
       label: 'Open MongoDB shell',
+      isDisabled: !isShellEnabled,
     },
     {
       action: 'connection-performance-metrics',
