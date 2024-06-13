@@ -56,7 +56,7 @@ const securityTestTag = '@securityTest';
   }
 
   process.stdout.write(
-    template.replace(/__SUMMARY__/, [...comments].join('\n\n'))
+    template.replace(/__SUMMARY__|\*\*SUMMARY\*\*/, [...comments].join('\n\n'))
   );
 })().catch((err) => {
   queueMicrotask(() => {
