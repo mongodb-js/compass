@@ -28,28 +28,28 @@ buildvariants:
       - name: test-web-sandbox-chrome
       - name: test-web-sandbox-firefox
   - name: check-and-test-ubuntu
-    display_name: Check and Test Ubuntu 20.04
+    display_name: Check and Test Ubuntu
     run_on: ubuntu2004-large
     tasks:
       - name: check
       - name: test
       - name: test-electron
   - name: check-and-test-windows
-    display_name: Check and Test Windows 10
+    display_name: Check and Test Windows
     run_on: windows-vsCurrent-large
     tasks:
       - name: check
       - name: test
       - name: test-electron
   - name: check-and-test-rhel
-    display_name: Check and Test RHEL 8.0
+    display_name: Check and Test RHEL
     run_on: rhel80-large
     tasks:
       - name: check
       - name: test
       - name: test-electron
   - name: check-and-test-macos
-    display_name: Check and Test MacOS x64 14
+    display_name: Check and Test MacOS
     run_on: macos-14-arm64
     tasks:
       - name: check
@@ -57,35 +57,35 @@ buildvariants:
       - name: test-electron
         run_on: macos-14-arm64-gui
   - name: package-ubuntu
-    display_name: Package Ubuntu 16.04
+    display_name: Package Ubuntu
     run_on: ubuntu1604-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-windows
-    display_name: Package Windows 10
+    display_name: Package Windows
     run_on: windows-vsCurrent-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-rhel
-    display_name: Package RHEL 8.0
+    display_name: Package RHEL
     run_on: rhel80-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-macos-x64
-    display_name: Package MacOS x64 11
+    display_name: Package MacOS Intel
     run_on: macos-1100
     tasks:
       - name: package-compass
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-macos-arm
-    display_name: Package MacOS arm64 11
+    display_name: Package MacOS Arm64
     run_on: macos-1100-arm64
     tasks:
       - name: package-compass

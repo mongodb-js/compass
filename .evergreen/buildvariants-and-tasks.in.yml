@@ -2,22 +2,22 @@
 const CHECK_AND_TEST_BUILD_VARIANTS = [
   {
     name: 'check-and-test-ubuntu',
-    display_name: 'Ubuntu 20.04',
+    display_name: 'Check and Test Ubuntu',
     run_on: 'ubuntu2004-large',
   },
   {
     name: 'check-and-test-windows',
-    display_name: 'Windows 10',
+    display_name: 'Check and Test Windows',
     run_on: 'windows-vsCurrent-large',
   },
   {
     name: 'check-and-test-rhel',
-    display_name: 'RHEL 8.0',
+    display_name: 'Check and Test RHEL',
     run_on: 'rhel80-large',
   },
   {
     name: 'check-and-test-macos',
-    display_name: 'MacOS x64 14',
+    display_name: 'Check and Test MacOS',
     run_on: 'macos-14-arm64',
     run_on_gui: 'macos-14-arm64-gui'
   }
@@ -26,27 +26,27 @@ const CHECK_AND_TEST_BUILD_VARIANTS = [
 const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-ubuntu',
-    display_name: 'Ubuntu 16.04',
+    display_name: 'Package Ubuntu',
     run_on: 'ubuntu1604-large',
   },
   {
     name: 'package-windows',
-    display_name: 'Windows 10',
+    display_name: 'Package Windows',
     run_on: 'windows-vsCurrent-large',
   },
   {
     name: 'package-rhel',
-    display_name: 'RHEL 8.0',
+    display_name: 'Package RHEL',
     run_on: 'rhel80-large',
   },
   {
     name: 'package-macos-x64',
-    display_name: 'MacOS x64 11',
+    display_name: 'Package MacOS Intel',
     run_on: 'macos-1100'
   },
   {
     name: 'package-macos-arm',
-    display_name: 'MacOS arm64 11',
+    display_name: 'Package MacOS Arm64',
     run_on: 'macos-1100-arm64'
   }
 ];
@@ -179,7 +179,7 @@ buildvariants:
 <% for (const buildVariant of CHECK_AND_TEST_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
 
-    display_name: Check and Test <%= buildVariant.display_name %>
+    display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
     - name: check
@@ -194,7 +194,7 @@ buildvariants:
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
 
-    display_name: Package <%= buildVariant.display_name %>
+    display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
     <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
