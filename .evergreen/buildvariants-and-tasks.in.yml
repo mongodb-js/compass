@@ -167,7 +167,6 @@ buildvariants:
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
-    - name: check
     - name: test
     - name: test-electron
       <% if (buildVariant.run_on_gui) { %>

@@ -36,28 +36,24 @@ buildvariants:
     display_name: Unit Tests Ubuntu
     run_on: ubuntu2004-large
     tasks:
-      - name: check
       - name: test
       - name: test-electron
   - name: unit-tests-windows
     display_name: Unit Tests Windows
     run_on: windows-vsCurrent-large
     tasks:
-      - name: check
       - name: test
       - name: test-electron
   - name: unit-tests-rhel
     display_name: Unit Tests RHEL
     run_on: rhel80-large
     tasks:
-      - name: check
       - name: test
       - name: test-electron
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
     run_on: macos-14-arm64
     tasks:
-      - name: check
       - name: test
       - name: test-electron
         run_on: macos-14-arm64-gui
