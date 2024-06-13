@@ -58,6 +58,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableGenAISampleDocumentPassing: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
+    enableDoNotShowAgainOnQuit: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -745,6 +746,18 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().default(10),
     type: 'number',
+  },
+
+  enableDoNotShowAgainOnQuit: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Toggle whether confirmation dialogue when closing compass is shown on cmd/ctrl-Q (default) or not',
+    },
+    validator: z.boolean().default(false),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,

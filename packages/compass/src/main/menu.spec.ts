@@ -1,12 +1,13 @@
 import EventEmitter from 'events';
 import type { MenuItemConstructorOptions } from 'electron';
-import { BrowserWindow, ipcMain, Menu, app } from 'electron';
+import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
+import { quitItem } from './menu';
 import { AutoUpdateManagerState } from './auto-update-manager';
 
 function serializable<T>(obj: T): T {
@@ -32,6 +33,7 @@ describe('CompassMenu', function () {
   afterEach(function () {
     App.removeAllListeners();
     ipcMain.removeAllListeners();
+    sinon.restore();
   });
 
   it('should create an instance of Compass menu handler with initial state where no window is loaded', function () {
@@ -131,10 +133,6 @@ describe('CompassMenu', function () {
   });
 
   describe('getTemplate', function () {
-    afterEach(function () {
-      sinon.restore();
-    });
-
     it('should generate a menu template that can be passed to the Electron Menu without errors', function () {
       expect(() => {
         const template = CompassMenu.getTemplate(0);
@@ -673,6 +671,59 @@ describe('CompassMenu', function () {
         accelerator: 'Alt+CmdOrCtrl+I',
         label: '&Toggle DevTools',
       });
+    });
+  });
+
+  describe('quitItem', () => {
+    it('should show box if enableDoNotShowAgainOnQuit is false, then cancels', async function () {
+      await App.preferences.savePreferences({
+        enableDoNotShowAgainOnQuit: false,
+      });
+      const showMessageBoxStub = sinon
+        .stub(dialog, 'showMessageBox')
+        .resolves({ response: 1, checkboxChecked: true });
+      const quitStub = sinon.stub(app, 'quit');
+      const item = quitItem('Quit', App);
+      await (item as any).click();
+
+      expect(showMessageBoxStub).to.have.been.called;
+      expect(quitStub).not.to.have.been.called;
+      expect(App.preferences.getPreferences().enableDoNotShowAgainOnQuit).to.be
+        .false;
+    });
+
+    it('should show box if enableDoNotShowAgainOnQuit is false, then quits app', async function () {
+      await App.preferences.savePreferences({
+        enableDoNotShowAgainOnQuit: false,
+      });
+      const showMessageBoxStub = sinon
+        .stub(dialog, 'showMessageBox')
+        .resolves({ response: 0, checkboxChecked: true });
+      const quitStub = sinon.stub(app, 'quit');
+      const item = quitItem('Quit', App);
+      await (item as any).click();
+
+      expect(showMessageBoxStub).to.have.been.called;
+      expect(quitStub).to.have.been.called;
+      expect(App.preferences.getPreferences().enableDoNotShowAgainOnQuit).to.be
+        .true;
+    });
+
+    it('should quit the app immediately if enableDoNotShowAgainOnQuit is true', async function () {
+      await App.preferences.savePreferences({
+        enableDoNotShowAgainOnQuit: true,
+      });
+      const showMessageBoxStub = sinon
+        .stub(dialog, 'showMessageBox')
+        .resolves({ response: 0, checkboxChecked: true });
+      const quitStub = sinon.stub(app, 'quit');
+      const item = quitItem('Quit', App);
+      (item as any).click();
+
+      expect(showMessageBoxStub).not.to.have.been.called;
+      expect(quitStub).to.have.been.called;
+      expect(App.preferences.getPreferences().enableDoNotShowAgainOnQuit).to.be
+        .true;
     });
   });
 });
