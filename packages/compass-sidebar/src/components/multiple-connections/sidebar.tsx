@@ -34,7 +34,7 @@ import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { useGlobalAppRegistry } from 'hadron-app-registry';
-import UnifiedConnectionsNavigation from './unified-connections-navigation';
+import ConnectionsNavigation from './connections-navigation';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -378,7 +378,7 @@ export function MultipleConnectionSidebar({
         <SidebarHeader onAction={onSidebarAction} />
         <Navigation currentLocation={activeWorkspace?.type ?? null} />
         <HorizontalRule />
-        <UnifiedConnectionsNavigation
+        <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
           filterRegex={activeConnectionsFilterRegex}

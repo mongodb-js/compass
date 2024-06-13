@@ -76,7 +76,7 @@ function findCollection(ns: string, databases: Database[]) {
   );
 }
 
-type UnifiedConnectionsNavigationComponentProps = {
+type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
   activeWorkspace: WorkspaceTab | null;
   filterRegex: RegExp | null;
@@ -108,12 +108,11 @@ type MapDispatchProps = {
   ): void;
 };
 
-type UnifiedConnectionsNavigationProps =
-  UnifiedConnectionsNavigationComponentProps & MapStateProps & MapDispatchProps;
+type ConnectionsNavigationProps = ConnectionsNavigationComponentProps &
+  MapStateProps &
+  MapDispatchProps;
 
-const UnifiedConnectionsNavigation: React.FC<
-  UnifiedConnectionsNavigationProps
-> = ({
+const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   connectionsWithStatus,
   activeWorkspace,
   filterRegex,
@@ -442,7 +441,7 @@ const onNamespaceAction = (
 
 const mapStateToProps: MapStateToProps<
   MapStateProps,
-  UnifiedConnectionsNavigationComponentProps,
+  ConnectionsNavigationComponentProps,
   RootState
 > = (_rootState) => {
   return {
@@ -454,7 +453,7 @@ const mapStateToProps: MapStateToProps<
 
 const mapDispatchToProps: MapDispatchToProps<
   MapDispatchProps,
-  UnifiedConnectionsNavigationComponentProps
+  ConnectionsNavigationComponentProps
 > = {
   onNamespaceAction,
   onDatabaseExpand,
@@ -464,4 +463,4 @@ const mapDispatchToProps: MapDispatchToProps<
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(UnifiedConnectionsNavigation);
+)(ConnectionsNavigation);
