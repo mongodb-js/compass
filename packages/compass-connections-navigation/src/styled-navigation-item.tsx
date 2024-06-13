@@ -10,7 +10,7 @@ type AcceptedStyles = {
   '--item-bg-color'?: string;
   '--item-bg-color-hover'?: string;
   '--item-bg-color-active'?: string;
-  'border-radius'?: string;
+  borderRadius?: string;
 };
 
 const styledStyles = css({
@@ -34,7 +34,7 @@ export default function StyledNavigationItem({
     const style: AcceptedStyles = {};
 
     if (!isSingleConnection) {
-      style['border-radius'] = `${spacing[100]}px`;
+      style['borderRadius'] = `${spacing[100]}px`;
       if (colorCode && colorCode !== DefaultColorCode) {
         style['--item-bg-color'] = connectionColorToHex(colorCode);
         style['--item-bg-color-hover'] = connectionColorToHexActive(colorCode);

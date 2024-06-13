@@ -154,17 +154,16 @@ describe('Multiple Connections Sidebar Component', function () {
     describe('when successfully connected', function () {
       it('calls the connection function and renders the progress toast', async function () {
         connectFn.returns(slowConnection(andSucceed()));
-        parentSavedConnection = screen.getByTestId('saved-connection-12345');
+        parentSavedConnection = screen.getByTestId('12345');
 
         userEvent.hover(parentSavedConnection);
 
-        const connectButton = within(parentSavedConnection).getByTestId(
-          'connect-button'
+        const connectButton = within(parentSavedConnection).getByLabelText(
+          'Connect'
         );
 
         userEvent.click(connectButton);
-        const connectingToast = screen.getByText('Connecting to localhost');
-        expect(connectingToast).to.exist;
+        expect(screen.getByText('Connecting to localhost')).to.exist;
         expect(connectFn).to.have.been.called;
 
         await waitFor(() => {
@@ -176,12 +175,12 @@ describe('Multiple Connections Sidebar Component', function () {
     describe('when failing to connect', function () {
       it('calls the connection function and renders the error toast', async function () {
         connectFn.returns(slowConnection(andFail('Expected failure')));
-        parentSavedConnection = screen.getByTestId('saved-connection-12345');
+        parentSavedConnection = screen.getByTestId('12345');
 
         userEvent.hover(parentSavedConnection);
 
-        const connectButton = within(parentSavedConnection).getByTestId(
-          'connect-button'
+        const connectButton = within(parentSavedConnection).getByLabelText(
+          'Connect'
         );
 
         userEvent.click(connectButton);
@@ -196,7 +195,7 @@ describe('Multiple Connections Sidebar Component', function () {
     });
   });
 
-  describe('actions', () => {
+  describe('sidebar navigation', () => {
     it('when clicking on the Settings btn, it emits open-compass-settings', () => {
       const settingsBtn = screen.getByTitle('Compass Settings');
       expect(settingsBtn).to.be.visible;
