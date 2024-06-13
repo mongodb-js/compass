@@ -107,6 +107,8 @@ export const connectedConnectionItemActions = ({
     ...connectionManagementActions,
   ];
 
+  // when connection is readonly we don't want to show create-database action
+  // and hence we splice it out here
   if (!hasWriteActionsEnabled) {
     actions.splice(0, 1);
   }
