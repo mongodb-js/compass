@@ -166,6 +166,23 @@ const revertTemporaryExpanded = (
   return cleared;
 };
 
+const collapseAll = (
+  expandedConnections: ExpandedConnections
+): ExpandedConnections => {
+  const collapsedConnections: ExpandedConnections = Object.fromEntries(
+    Object.entries(expandedConnections).map(([connectionId, { databases }]) => [
+      connectionId,
+      {
+        state: 'collapsed',
+        databases: Object.fromEntries(
+          Object.entries(databases || []).map(([dbId]) => [dbId, undefined])
+        ),
+      },
+    ])
+  );
+  return collapsedConnections;
+};
+
 interface ConnectionsState {
   expanded: ExpandedConnections;
   filtered: SidebarConnection[] | undefined;
@@ -207,18 +224,31 @@ interface ConnectionsChangedAction {
   connections: ConnectionInfo[];
 }
 
+const COLLAPSE_ALL = 'sidebar/active-connections/COLLAPSE_ALL' as const;
+
+interface CollapseAllAction {
+  type: typeof COLLAPSE_ALL;
+}
+
 type ConnectionsAction =
   | FilterConnectionsAction
   | ClearConnectionsFilterAction
   | ToggleConnectionAction
   | ToggleDatabaseAction
-  | ConnectionsChangedAction;
+  | ConnectionsChangedAction
+  | CollapseAllAction;
 
 const connectionsReducer = (
   state: ConnectionsState,
   action: ConnectionsAction
 ): ConnectionsState => {
   switch (action.type) {
+    case COLLAPSE_ALL: {
+      return {
+        ...state,
+        expanded: collapseAll(state.expanded),
+      };
+    }
     case FILTER_CONNECTIONS: {
       const filtered = filterConnections(
         action.connections,
@@ -298,6 +328,7 @@ const connectionsReducer = (
 type UseFilteredConnectionsHookResult = {
   filtered: SidebarConnection[] | undefined;
   expanded: ConnectionsNavigationTreeProps['expanded'];
+  onCollapseAll(this: void): void;
   onConnectionToggle(
     this: void,
     connectionId: string,
@@ -371,6 +402,10 @@ export const useFilteredConnections = (
     []
   );
 
+  const onCollapseAll = useCallback(() => {
+    dispatch({ type: COLLAPSE_ALL });
+  }, []);
+
   const onConnectionsChanged = useCallback((connections: ConnectionInfo[]) => {
     dispatch({ type: CONNECTIONS_CHANGED, connections: connections });
   }, []);
@@ -397,6 +432,7 @@ export const useFilteredConnections = (
   return {
     filtered,
     expanded: expandedMemo,
+    onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
     onConnectionsChanged,

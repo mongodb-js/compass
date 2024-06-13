@@ -1,7 +1,13 @@
 import toNS from 'mongodb-ns';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { Subtitle, css, spacing } from '@mongodb-js/compass-components';
+import {
+  ChevronCollapse,
+  IconButton,
+  Subtitle,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type {
@@ -41,7 +47,13 @@ const connectionsContainerStyles = css({
   gap: spacing[200],
 });
 
-const activeConnectionListHeaderTitleStyles = css({
+const connectionListHeaderStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
+
+const connectionListHeaderTitleStyles = css({
   marginTop: 0,
   marginBottom: 0,
   textTransform: 'uppercase',
@@ -49,7 +61,7 @@ const activeConnectionListHeaderTitleStyles = css({
   lineHeight: `${spacing[800]}px`,
 });
 
-const activeConnectionCountStyles = css({
+const connectionCountStyles = css({
   fontWeight: 'normal',
   marginLeft: spacing[100],
 });
@@ -174,13 +186,18 @@ const UnifiedConnectionsNavigation: React.FC<
     return connections;
   }, [connectionsWithStatus, instances, databases, isPerformanceTabSupported]);
 
-  const { filtered, expanded, onConnectionToggle, onDatabaseToggle } =
-    useFilteredConnections(
-      connections,
-      filterRegex,
-      fetchAllCollections,
-      onDatabaseExpand
-    );
+  const {
+    filtered,
+    expanded,
+    onCollapseAll,
+    onConnectionToggle,
+    onDatabaseToggle,
+  } = useFilteredConnections(
+    connections,
+    filterRegex,
+    fetchAllCollections,
+    onDatabaseExpand
+  );
 
   const onConnectionItemAction = useCallback(
     (
@@ -337,14 +354,23 @@ const UnifiedConnectionsNavigation: React.FC<
 
   return (
     <div className={connectionsContainerStyles}>
-      <Subtitle className={activeConnectionListHeaderTitleStyles}>
-        Connections
-        {connections.length !== 0 && (
-          <span className={activeConnectionCountStyles}>
-            ({connections.length})
-          </span>
-        )}
-      </Subtitle>
+      <div className={connectionListHeaderStyles}>
+        <Subtitle className={connectionListHeaderTitleStyles}>
+          Connections
+          {connections.length !== 0 && (
+            <span className={connectionCountStyles}>
+              ({connections.length})
+            </span>
+          )}
+        </Subtitle>
+        <IconButton
+          onClick={onCollapseAll}
+          title="Collapse all connections"
+          aria-label="Collapse all connections"
+        >
+          <ChevronCollapse />
+        </IconButton>
+      </div>
       <NavigationItemsFilter
         placeholder="Search connections"
         onFilterChange={onFilterChange}

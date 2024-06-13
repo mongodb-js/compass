@@ -198,3 +198,4 @@ export {
   RequiredURLSearchParamsProvider,
   useRequiredURLSearchParams,
 } from './components/links/link';
+export { ChevronCollapse } from './components/chevron-collapse-icon';
