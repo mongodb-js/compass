@@ -21,18 +21,12 @@ describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
-  before(async function () {
+  before(function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
     // TODO(COMPASS-8010): pory these tests
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
-
-    // make sure it gets the welcome page and closes it so that it doesn't mess
-    // up the tests below depending on whether some previous test left things in
-    // a first run state or not
-    const compass = await init(this.test?.fullTitle(), { firstRun: true });
-    await cleanup(compass);
   });
 
   beforeEach(async function () {
@@ -91,6 +85,7 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
+      firstRun: true,
     });
     try {
       await compass.browser.waitForConnectionResult('success');
@@ -109,6 +104,7 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
       noWaitForConnectionScreen: true,
+      firstRun: true,
     });
     try {
       await compass.browser.waitForConnectionResult('success');
@@ -143,6 +139,7 @@ describe('Automatically connecting from the command line', function () {
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
+      firstRun: true,
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -164,17 +161,17 @@ describe('Automatically connecting from the command line', function () {
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
+      firstRun: true,
     });
+    const { browser } = compass;
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await browser.waitForConnectionResult('failure');
       expect(error).to.include('Authentication failed');
-      const connectFormState = await compass.browser.getConnectFormState();
+      const connectFormState = await browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
       expect(connectFormState.defaultPassword).to.equal('asdf/');
     } catch (err: any) {
-      await compass.browser.screenshot(
-        screenshotPathName('fails with invalid auth')
-      );
+      await browser.screenshot(screenshotPathName('fails with invalid auth'));
       throw err;
     } finally {
       await cleanup(compass);
@@ -188,6 +185,7 @@ describe('Automatically connecting from the command line', function () {
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
+      firstRun: true,
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -202,6 +200,7 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs([
         `--file=${path.join(tmpdir, 'doesnotexist.json')}`,
       ]),
+      firstRun: true,
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -218,6 +217,7 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
+      firstRun: true,
     });
     try {
       const { browser } = compass;
@@ -247,6 +247,7 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
+      firstRun: true,
     });
     try {
       const { browser } = compass;
