@@ -35,9 +35,9 @@ function ensureWellFormedConnectionString(connectionString: string) {
 }
 
 function sortedAlphabetically(a: ConnectionInfo, b: ConnectionInfo): number {
-  const aName = a.favorite?.name?.toLocaleLowerCase() || '';
-  const bName = b.favorite?.name?.toLocaleLowerCase() || '';
-  return aName.localeCompare(bName);
+  const aTitle = getConnectionTitle(a).toLocaleLowerCase();
+  const bTitle = getConnectionTitle(b).toLocaleLowerCase();
+  return aTitle.localeCompare(bTitle);
 }
 
 export type ConnectionRepository = {
