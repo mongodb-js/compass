@@ -1,23 +1,23 @@
 <%
-const CHECK_AND_TEST_BUILD_VARIANTS = [
+const UNIT_TESTS_BUILD_VARIANTS = [
   {
-    name: 'check-and-test-ubuntu',
-    display_name: 'Check and Test Ubuntu',
+    name: 'unit-tests-ubuntu',
+    display_name: 'Unit Tests Ubuntu',
     run_on: 'ubuntu2004-large',
   },
   {
-    name: 'check-and-test-windows',
-    display_name: 'Check and Test Windows',
+    name: 'unit-tests-windows',
+    display_name: 'Unit Tests Windows',
     run_on: 'windows-vsCurrent-large',
   },
   {
-    name: 'check-and-test-rhel',
-    display_name: 'Check and Test RHEL',
+    name: 'unit-tests-rhel',
+    display_name: 'Unit Tests RHEL',
     run_on: 'rhel80-large',
   },
   {
-    name: 'check-and-test-macos',
-    display_name: 'Check and Test MacOS',
+    name: 'unit-tests-macos',
+    display_name: 'Unit Tests MacOS',
     run_on: 'macos-14-arm64',
     run_on_gui: 'macos-14-arm64-gui'
   }
@@ -53,17 +53,10 @@ const PACKAGE_BUILD_VARIANTS = [
 
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
-    name: 'test-packaged-app-ubuntu-24',
-    display_name: 'Ubuntu 24.04',
-    run_on: 'ubuntu2404-large',
-    depends_on: 'package-ubuntu',
-  },
-  {
-    name: 'test-packaged-app-ubuntu-20',
+    name: 'test-packaged-app-ubuntu',
     display_name: 'Ubuntu 20.04',
     run_on: 'ubuntu2004-large',
     depends_on: 'package-ubuntu',
-    patchable: false,
   },
   {
     name: 'test-packaged-app-windows',
@@ -78,31 +71,17 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-rhel',
   },
   {
+    name: 'test-packaged-app-macos-11-arm',
+    display_name: 'MacOS arm64 11',
+    run_on: 'macos-1100-arm64-gui',
+    depends_on: 'package-macos-arm'
+  },
+  {
     name: 'test-packaged-app-macos-11-x64',
     display_name: 'MacOS x64 11',
     run_on: 'macos-1100-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
-  },
-  {
-    name: 'test-packaged-app-macos-11-arm',
-    display_name: 'MacOS arm64 11',
-    run_on: 'macos-1100-arm64-gui',
-    patchable: false,
-    depends_on: 'package-macos-arm'
-  },
-  {
-    name: 'test-packaged-app-macos-14-x64',
-    display_name: 'MacOS x64 14',
-    run_on: 'macos-14-gui',
-    patchable: false,
-    depends_on: 'package-macos-x64'
-  },
-  {
-    name: 'test-packaged-app-macos-14-arm',
-    display_name: 'MacOS arm64 14',
-    run_on: 'macos-14-arm64-gui',
-    depends_on: 'package-macos-arm'
   }
 ];
 
@@ -175,8 +154,14 @@ buildvariants:
       - name: test-web-sandbox-chrome
       - name: test-web-sandbox-firefox
 
-  # check-and-test
-<% for (const buildVariant of CHECK_AND_TEST_BUILD_VARIANTS) { %>
+  - name: check
+    display_name: Check
+    run_on: ubuntu2004-large
+    tasks:
+      - name: check
+
+  # unit-tests
+<% for (const buildVariant of UNIT_TESTS_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
 
     display_name: <%= buildVariant.display_name %>

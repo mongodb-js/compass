@@ -27,29 +27,34 @@ buildvariants:
     tasks:
       - name: test-web-sandbox-chrome
       - name: test-web-sandbox-firefox
-  - name: check-and-test-ubuntu
-    display_name: Check and Test Ubuntu
+  - name: check
+    display_name: Check
+    run_on: ubuntu2004-large
+    tasks:
+      - name: check
+  - name: unit-tests-ubuntu
+    display_name: Unit Tests Ubuntu
     run_on: ubuntu2004-large
     tasks:
       - name: check
       - name: test
       - name: test-electron
-  - name: check-and-test-windows
-    display_name: Check and Test Windows
+  - name: unit-tests-windows
+    display_name: Unit Tests Windows
     run_on: windows-vsCurrent-large
     tasks:
       - name: check
       - name: test
       - name: test-electron
-  - name: check-and-test-rhel
-    display_name: Check and Test RHEL
+  - name: unit-tests-rhel
+    display_name: Unit Tests RHEL
     run_on: rhel80-large
     tasks:
       - name: check
       - name: test
       - name: test-electron
-  - name: check-and-test-macos
-    display_name: Check and Test MacOS
+  - name: unit-tests-macos
+    display_name: Unit Tests MacOS
     run_on: macos-14-arm64
     tasks:
       - name: check
@@ -130,19 +135,10 @@ buildvariants:
         variant: package-ubuntu
     tasks:
       - name: test-packaged-app-latest-alpha
-  - name: test-packaged-app-ubuntu-24
-    display_name: Test Packaged App Ubuntu 24.04
-    run_on: ubuntu2404-large
-    patchable: true
-    depends_on:
-      - name: package-compass
-        variant: package-ubuntu
-    tasks:
-      - name: test-packaged-app-80x-enterprise
-  - name: test-packaged-app-ubuntu-20
+  - name: test-packaged-app-ubuntu
     display_name: Test Packaged App Ubuntu 20.04
     run_on: ubuntu2004-large
-    patchable: false
+    patchable: true
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -166,6 +162,15 @@ buildvariants:
         variant: package-rhel
     tasks:
       - name: test-packaged-app-80x-enterprise
+  - name: test-packaged-app-macos-11-arm
+    display_name: Test Packaged App MacOS arm64 11
+    run_on: macos-1100-arm64-gui
+    patchable: true
+    depends_on:
+      - name: package-compass
+        variant: package-macos-arm
+    tasks:
+      - name: test-packaged-app-80x-enterprise
   - name: test-packaged-app-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
     run_on: macos-1100-gui
@@ -173,33 +178,6 @@ buildvariants:
     depends_on:
       - name: package-compass
         variant: package-macos-x64
-    tasks:
-      - name: test-packaged-app-80x-enterprise
-  - name: test-packaged-app-macos-11-arm
-    display_name: Test Packaged App MacOS arm64 11
-    run_on: macos-1100-arm64-gui
-    patchable: false
-    depends_on:
-      - name: package-compass
-        variant: package-macos-arm
-    tasks:
-      - name: test-packaged-app-80x-enterprise
-  - name: test-packaged-app-macos-14-x64
-    display_name: Test Packaged App MacOS x64 14
-    run_on: macos-14-gui
-    patchable: false
-    depends_on:
-      - name: package-compass
-        variant: package-macos-x64
-    tasks:
-      - name: test-packaged-app-80x-enterprise
-  - name: test-packaged-app-macos-14-arm
-    display_name: Test Packaged App MacOS arm64 14
-    run_on: macos-14-arm64-gui
-    patchable: true
-    depends_on:
-      - name: package-compass
-        variant: package-macos-arm
     tasks:
       - name: test-packaged-app-80x-enterprise
   - name: publish
