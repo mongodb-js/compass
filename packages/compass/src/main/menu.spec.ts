@@ -692,7 +692,7 @@ describe('CompassMenu', function () {
         .false;
     });
 
-    it('should show box if enableDoNotShowAgainOnQuit is false, then quits app', async function () {
+    it('should show box if enableDoNotShowAgainOnQuit is false then quits app', async function () {
       await App.preferences.savePreferences({
         enableDoNotShowAgainOnQuit: false,
       });
