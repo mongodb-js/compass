@@ -8,6 +8,15 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 
+/**
+ * @securityTest Enhanced Network Isolation Tests
+ *
+ * Compass allows users to specify that the application should not perform any
+ * network calls that are not necessary for interacting with MongoDB clusters,
+ * partially because users may consider this deployment more more secure, even
+ * if it comes with a reduced feature set.
+ * We ensure that no such network calls happen when this setting is enabled.
+ */
 describe('networkTraffic: false / Isolated Edition', function () {
   let tmpdir: string;
   let i = 0;
