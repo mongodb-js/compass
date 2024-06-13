@@ -13,10 +13,6 @@ ${yaml.dump(yaml.load(compile({})))}`;
   fs.writeFileSync(destFile, result);
 }
 
-const buildVariantsIn = path.join(__dirname, 'buildvariants.in.yml');
-const buildVariantsOut = path.join(__dirname, 'buildvariants.yml');
-const tasksIn = path.join(__dirname, 'tasks.in.yml');
-const tasksOut = path.join(__dirname, 'tasks.yml');
-
-renderTemplate(buildVariantsIn, buildVariantsOut);
-renderTemplate(tasksIn, tasksOut);
+const templateFile = path.join(__dirname, 'buildvariants-and-tasks.in.yml');
+const destFile = path.join(__dirname, 'buildvariants-and-tasks.yml');
+renderTemplate(templateFile, destFile);
