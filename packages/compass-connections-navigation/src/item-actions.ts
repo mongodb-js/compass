@@ -74,6 +74,7 @@ export const connectedConnectionItemActions = ({
       icon: 'Shell',
       label: 'Open MongoDB shell',
       isDisabled: !isShellEnabled,
+      disabledDescription: 'Not available',
     },
     {
       action: 'connection-performance-metrics',
