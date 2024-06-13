@@ -449,6 +449,7 @@ for (const serverVersion of SERVER_VERSIONS) { %>
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 <% } %>
+
   - name: create_static_analysis_report
     tags: ['required-for-publish', 'run-on-pr']
     depends_on:
@@ -460,12 +461,10 @@ for (const serverVersion of SERVER_VERSIONS) { %>
 <%
 let firstPartyDepsFilenames = [];
 for (const compassDistribution of COMPASS_DISTRIBUTIONS) {
-  const filenames = [
-    'first-party-deps-' + compassDistribution + '-ubuntu.json',
-    'first-party-deps-' + compassDistribution + '-windows.json',
-    'first-party-deps-' + compassDistribution + '-macos.json',
-    'first-party-deps-' + compassDistribution + '-macos-arm.json'
-  ];
+  const filenames = PACKAGE_BUILD_VARIANTS.map(
+    (variant) => `first-party-deps-${compassDistribution}-${variant.name}.json`
+  );
+
   for (const filename of filenames) {
     firstPartyDepsFilenames.push(filename); %>
       - func: get_first_party_dependency_list
