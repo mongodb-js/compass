@@ -26,8 +26,8 @@ ssh -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -p "$SIGNING_SERVER_PORT" "$SIGNING
   docker pull artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 && \
   docker run --rm -v /tmp:/tmp artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 update \
     --purls /tmp/purls.txt --sbom_out /tmp/sbom-lite.json && \
-  docker run --env-file silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 upload \
+  docker run --env-file /tmp/silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 upload \
     --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-in /tmp/sbom-lite.json && \
-  docker run --env-file silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 download \
+  docker run --env-file /tmp/silkbomb.env --rm -v ${PWD}:/pwd artifactory.corp.mongodb.com/release-tools-container-registry-public-local/silkbomb:1.0 download \
     --silk-asset-group "${SILK_ASSET_GROUP}" --sbom-out /tmp/sbom.json"
 scp -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/{sbom-lite.json,sbom.json,purls.txt} .sbom/
