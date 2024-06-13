@@ -50,9 +50,27 @@ const connections: ConnectedConnection[] = [
         collectionsStatus: 'ready',
         collectionsLength: 3,
         collections: [
-          { _id: 'db_ready.meow', name: 'meow', type: 'collection' },
-          { _id: 'db_ready.woof', name: 'woof', type: 'timeseries' },
-          { _id: 'db_ready.bwok', name: 'bwok', type: 'view' },
+          {
+            _id: 'db_ready.meow',
+            name: 'meow',
+            type: 'collection',
+            sourceName: '',
+            pipeline: [],
+          },
+          {
+            _id: 'db_ready.woof',
+            name: 'woof',
+            type: 'timeseries',
+            sourceName: '',
+            pipeline: [],
+          },
+          {
+            _id: 'db_ready.bwok',
+            name: 'bwok',
+            type: 'view',
+            sourceName: '',
+            pipeline: [],
+          },
         ],
       },
     ],
@@ -235,6 +253,31 @@ describe('ConnectionsNavigationTree', function () {
   });
 
   describe('when connection is writable', function () {
+    it('should show all connection actions', async function () {
+      await renderConnectionsNavigationTree();
+
+      userEvent.hover(screen.getByText('turtles'));
+
+      const connection = screen.getByTestId('connection_ready');
+
+      expect(within(connection).getByTitle('Create database')).to.be.visible;
+
+      const otherActions = within(connection).getByTitle('Show actions');
+      expect(otherActions).to.exist;
+
+      userEvent.click(otherActions);
+
+      expect(screen.getByText('Open MongoDB shell')).to.be.visible;
+      expect(
+        screen.getByTestId('sidebar-navigation-item-actions-open-shell-action')
+      ).not.to.have.attribute('disabled');
+      expect(screen.getByText('View performance metrics')).to.be.visible;
+      expect(screen.getByText('Show connection info')).to.be.visible;
+      expect(screen.getByText('Copy connection string')).to.be.visible;
+      expect(screen.getByText('Unfavorite')).to.be.visible;
+      expect(screen.getByText('Disconnect')).to.be.visible;
+    });
+
     it('should show all database actions on hover', async function () {
       await renderConnectionsNavigationTree({
         expanded: { connection_ready: {} },
@@ -379,6 +422,41 @@ describe('ConnectionsNavigationTree', function () {
     },
   ].forEach(function ({ name, renderReadonlyComponent }) {
     describe(name, function () {
+      it('should show reduced connection actions', async function () {
+        await renderReadonlyComponent();
+
+        userEvent.hover(screen.getByText('turtles'));
+
+        const connection = screen.getByTestId('connection_ready');
+
+        expect(within(connection).queryByTitle('Create database')).not.to.exist;
+
+        const otherActions = within(connection).getByTitle('Show actions');
+        expect(otherActions).to.exist;
+
+        userEvent.click(otherActions);
+
+        expect(screen.getByText('Open MongoDB shell')).to.be.visible;
+        if (name !== 'when connection is datalake') {
+          expect(
+            screen.getByTestId(
+              'sidebar-navigation-item-actions-open-shell-action'
+            )
+          ).to.have.attribute('disabled');
+        } else {
+          expect(
+            screen.getByTestId(
+              'sidebar-navigation-item-actions-open-shell-action'
+            )
+          ).not.to.have.attribute('disabled');
+        }
+        expect(screen.getByText('View performance metrics')).to.be.visible;
+        expect(screen.getByText('Show connection info')).to.be.visible;
+        expect(screen.getByText('Copy connection string')).to.be.visible;
+        expect(screen.getByText('Unfavorite')).to.be.visible;
+        expect(screen.getByText('Disconnect')).to.be.visible;
+      });
+
       it('should not show database actions', async function () {
         await renderReadonlyComponent({
           expanded: {

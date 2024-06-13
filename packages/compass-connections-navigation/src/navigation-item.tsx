@@ -68,12 +68,12 @@ export function NavigationItem({
     const collapseAfter = (() => {
       if (item.type === 'connection') {
         if (
-          item.connectionStatus === ConnectionStatus.Connected &&
+          item.connectionStatus !== ConnectionStatus.Connected ||
           !item.isReadOnly
         ) {
           return 1;
         }
-        // when connection is readonly we don't show the create-database action
+        // when connected connection is readonly we don't show the create-database action
         // so the whole action menu is collapsed
         return 0;
       }
