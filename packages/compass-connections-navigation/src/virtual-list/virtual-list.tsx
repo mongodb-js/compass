@@ -52,7 +52,8 @@ function useDefaultAction<T extends VirtualTreeItem>(
 type NotPlaceholderTreeItem<T> = T extends { type: 'placeholder' } ? never : T;
 type RenderItem<T> = (props: {
   index: number;
-  activeItemId?: string;
+  isActive: boolean;
+  isFocused: boolean;
   item: T;
 }) => React.ReactNode;
 export type OnDefaultAction<T> = (
@@ -117,14 +118,13 @@ export function VirtualTree<T extends VirtualItem>({
     },
     [items]
   );
-  const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
-    {
+  const [rootProps, currentTabbable, isTreeFocused] =
+    useVirtualNavigationTree<HTMLDivElement>({
       items,
       activeItemId,
       onExpandedChange,
       onFocusMove,
-    }
-  );
+    });
 
   const id = useId();
 
@@ -132,11 +132,19 @@ export function VirtualTree<T extends VirtualItem>({
     return {
       items,
       currentTabbable,
+      isTreeFocused,
       activeItemId,
       renderItem,
       onDefaultAction,
     };
-  }, [items, renderItem, currentTabbable, onDefaultAction, activeItemId]);
+  }, [
+    items,
+    renderItem,
+    currentTabbable,
+    onDefaultAction,
+    activeItemId,
+    isTreeFocused,
+  ]);
 
   const getItemKey = useCallback(
     (index: number, data: VirtualItemData<T>) => {
@@ -174,6 +182,7 @@ export function VirtualTree<T extends VirtualItem>({
 
 type VirtualItemData<T extends VirtualItem> = {
   items: T[];
+  isTreeFocused: boolean;
   currentTabbable?: string;
   activeItemId?: string;
   renderItem: RenderItem<T>;
@@ -192,9 +201,20 @@ function TreeItem<T extends VirtualItem>({
     return renderItem({
       index,
       item,
-      activeItemId,
+      isActive: !isPlaceholderItem(item) && item.id === activeItemId,
+      isFocused:
+        data.isTreeFocused &&
+        !isPlaceholderItem(item) &&
+        item.id === data.currentTabbable,
     });
-  }, [renderItem, index, item, activeItemId]);
+  }, [
+    renderItem,
+    index,
+    item,
+    activeItemId,
+    data.currentTabbable,
+    data.isTreeFocused,
+  ]);
 
   const actionProps = useDefaultAction(
     item as NotPlaceholderTreeItem<T>,

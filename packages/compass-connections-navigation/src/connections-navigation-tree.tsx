@@ -160,11 +160,12 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onDefaultAction={onDefaultAction}
             onExpandedChange={onItemExpand}
             getItemKey={(item) => item.id}
-            renderItem={({ item, activeItemId }) => {
+            renderItem={({ item, isActive, isFocused }) => {
               return (
                 <NavigationItem
                   item={item}
-                  isActive={item.id === activeItemId}
+                  isActive={isActive}
+                  isFocused={isFocused}
                   getItemActions={getItemActions}
                   onItemExpand={onItemExpand}
                   onItemAction={onItemAction}
