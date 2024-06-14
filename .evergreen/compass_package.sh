@@ -24,10 +24,13 @@ papertrail() {
   set -x
 
   version=$(jq -r '.version' < packages/compass/package.json)
-  if echo $version | grep -q -- -dev. ; then
-    version+="${EVERGREEN_REVISION}_${EVERGREEN_REVISION_ORDER_ID}"
-  fi
   product="compass"
+  if echo "$version" | grep -q -- -dev. ; then
+    version+="${EVERGREEN_REVISION}_${EVERGREEN_REVISION_ORDER_ID}"
+    product+="-dev"
+  elif echo "$version" | grep -q -- -beta. ; then
+    product+="-beta"
+  fi
   build="${EVERGREEN_TASK_ID}_${EVERGREEN_EXECUTION}"
   platform="evergreen"
   submitter=$(jq -r '.releasePublisher' < packages/compass/package.json)
@@ -39,9 +42,15 @@ papertrail() {
     if [ -f "$file" ]; then
       filename=$(basename "$file")
       checksum=$(shasum -a 256 "$file" | cut -f1 -d' ')
-      params="version=${version}&product=${product}&sha256=${checksum}&filename=${filename}&build=${build}&platform=${platform}&submitter=${submitter}"
 
-      curl -X POST -H @.papertrail.headers "https://papertrail.devprod-infra.prod.corp.mongodb.com/trace?${params}"
+      curl -G -X POST -H @.papertrail.headers "https://papertrail.devprod-infra.prod.corp.mongodb.com/trace" \
+        --data-urlencode "version=${version}" \
+        --data-urlencode "product=${product}" \
+        --data-urlencode "sha256=${checksum}" \
+        --data-urlencode "filename=${filename}" \
+        --data-urlencode "build=${build}" \
+        --data-urlencode "platform=${platform}" \
+        --data-urlencode "submitter=${submitter}"
     fi
   done
 
