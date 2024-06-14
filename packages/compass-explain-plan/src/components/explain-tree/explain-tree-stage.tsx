@@ -211,6 +211,12 @@ const shardViewTextStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const overflowTextStyles = css({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
 const StatsBadge: React.FunctionComponent<{
   stats: number | string;
 }> = ({ stats }) => {
@@ -237,18 +243,29 @@ const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
   );
 };
 
+const Highlight: React.FunctionComponent<{
+  value: string;
+  field: string;
+}> = ({ field, value }) => {
+  return (
+    <li className={overflowTextStyles}>
+      <span>{field}: </span>
+      <strong title={value}>{value}</strong>
+    </li>
+  );
+};
+
 const Highlights: React.FunctionComponent<{
   highlights: Record<string, boolean | string>;
 }> = ({ highlights }) => {
   return (
     <ul>
       {Object.entries(highlights).map(([key, value], index) => (
-        <li key={index}>
-          <span>{key}: </span>
-          <strong>
-            {typeof value === 'boolean' ? (value ? 'yes' : 'no') : value}
-          </strong>
-        </li>
+        <Highlight
+          key={index}
+          field={key}
+          value={typeof value === 'boolean' ? (value ? 'yes' : 'no') : value}
+        />
       ))}
     </ul>
   );

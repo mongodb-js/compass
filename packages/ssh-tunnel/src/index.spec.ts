@@ -168,6 +168,13 @@ async function httpFetchWithSocks5(
   return await fetch(httpUrl, { agent });
 }
 
+/**
+ * @securityTest SSH Tunnel Support Testing
+ *
+ * We ensure that, when the application opens an SSH Tunnel in response to a user
+ * request to do so, it does so securely. For example, we verify that no other application
+ * is able to use the same tunnel.
+ */
 describe('SSHTunnel', function () {
   beforeEach(async function () {
     await createTestSshServer();

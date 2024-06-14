@@ -11,15 +11,17 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { Connection } from './tree-data';
+import type { ConnectedConnection } from './tree-data';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const connections: Connection[] = [
+const connections: ConnectedConnection[] = [
   {
     connectionInfo: { id: 'connectionId' } as any,
+    connectionStatus: ConnectionStatus.Connected,
     databases: [
       {
         _id: 'foo',
@@ -62,33 +64,61 @@ const activeWorkspace = {
   type: 'Collection',
 };
 
+const dummyPreferences = {
+  getPreferences() {
+    return {
+      enableNewMultipleConnectionSystem: false,
+    };
+  },
+  onPreferenceValueChanged() {},
+} as unknown as PreferencesAccess;
+
+function renderComponent(
+  props: Partial<React.ComponentProps<typeof ConnectionsNavigationTree>> = {},
+  preferences: PreferencesAccess = dummyPreferences
+) {
+  cleanup();
+  return render(
+    <PreferencesProvider value={preferences}>
+      <ConnectionsNavigationTree
+        connections={connections}
+        expanded={{}}
+        activeWorkspace={null}
+        onItemAction={() => {}}
+        onItemExpand={() => {}}
+        {...TEST_VIRTUAL_PROPS}
+        {...props}
+      />
+    </PreferencesProvider>
+  );
+}
+
 describe('ConnectionsNavigationTree -- Single connection usage', function () {
+  let preferences: PreferencesAccess;
   afterEach(cleanup);
 
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
+    renderComponent({});
+  });
+
   context('when the rename collection feature flag is enabled', () => {
-    let preferences: PreferencesAccess;
     beforeEach(async function () {
-      preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
         enableRenameCollectionModal: true,
         enableNewMultipleConnectionSystem: false,
       });
+
+      renderComponent(
+        {
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: activeWorkspace as WorkspaceTab,
+        },
+        preferences
+      );
     });
 
     it('shows the Rename Collection action', function () {
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsNavigationTree
-            connections={connections}
-            expanded={{ connectionId: { bar: true } }}
-            activeWorkspace={activeWorkspace as WorkspaceTab}
-            onDatabaseExpand={() => {}}
-            onNamespaceAction={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          />
-        </PreferencesProvider>
-      );
-
       const collection = screen.getByTestId('connectionId.bar.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
 
@@ -101,17 +131,14 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
 
     it('should activate callback with `rename-collection` when corresponding action is clicked', function () {
       const spy = Sinon.spy();
-      render(
-        <PreferencesProvider value={preferences}>
-          <ConnectionsNavigationTree
-            connections={connections}
-            expanded={{ connectionId: { bar: true } }}
-            activeWorkspace={activeWorkspace as WorkspaceTab}
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          />
-        </PreferencesProvider>
+
+      renderComponent(
+        {
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: activeWorkspace as WorkspaceTab,
+          onItemAction: spy,
+        },
+        preferences
       );
 
       const collection = screen.getByTestId('connectionId.bar.meow');
@@ -119,38 +146,24 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
       userEvent.click(within(collection).getByTitle('Show actions'));
       userEvent.click(screen.getByText('Rename collection'));
 
-      expect(spy).to.be.calledOnceWithExactly(
-        'connectionId',
-        'bar.meow',
-        'rename-collection'
-      );
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('collection');
+      expect(item.connectionId).to.equal('connectionId');
+      expect(item.namespace).to.equal('bar.meow');
+      expect(action).to.equal('rename-collection');
     });
   });
 
   it('should render databases', function () {
-    render(
-      <ConnectionsNavigationTree
-        connections={connections}
-        onDatabaseExpand={() => {}}
-        onNamespaceAction={() => {}}
-        {...TEST_VIRTUAL_PROPS}
-      ></ConnectionsNavigationTree>
-    );
-
     expect(screen.getByText('foo')).to.exist;
     expect(screen.getByText('bar')).to.exist;
   });
 
   it('should render collections when database is expanded', function () {
-    render(
-      <ConnectionsNavigationTree
-        connections={connections}
-        expanded={{ connectionId: { bar: true } }}
-        onDatabaseExpand={() => {}}
-        onNamespaceAction={() => {}}
-        {...TEST_VIRTUAL_PROPS}
-      ></ConnectionsNavigationTree>
-    );
+    renderComponent({
+      expanded: { connectionId: { bar: true } },
+    });
 
     expect(screen.getByText('meow')).to.exist;
     expect(screen.getByText('woof')).to.exist;
@@ -158,35 +171,21 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
   });
 
   it('should render collection placeholders when database is expanded but collections are not ready', function () {
-    render(
-      <ConnectionsNavigationTree
-        connections={connections}
-        expanded={{ connectionId: { foo: true } }}
-        onDatabaseExpand={() => {}}
-        onNamespaceAction={() => {}}
-        {...TEST_VIRTUAL_PROPS}
-      ></ConnectionsNavigationTree>
-    );
+    renderComponent({
+      expanded: { connectionId: { foo: true } },
+    });
 
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
   it('should make current active namespace tabbable', async function () {
-    render(
-      <ConnectionsNavigationTree
-        connections={connections}
-        activeWorkspace={
-          {
-            ...activeWorkspace,
-            namespace: 'bar',
-            type: 'Collections',
-          } as WorkspaceTab
-        }
-        onDatabaseExpand={() => {}}
-        onNamespaceAction={() => {}}
-        {...TEST_VIRTUAL_PROPS}
-      ></ConnectionsNavigationTree>
-    );
+    renderComponent({
+      activeWorkspace: {
+        ...activeWorkspace,
+        namespace: 'bar',
+        type: 'Collections',
+      } as WorkspaceTab,
+    });
 
     userEvent.tab();
 
@@ -201,17 +200,8 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     });
   });
 
-  describe('when isReadOnly is false or undefined', function () {
+  describe('when connection is writable', function () {
     it('should show all database actions on hover', function () {
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
-
       userEvent.hover(screen.getByText('foo'));
 
       const database = screen.getByTestId('connectionId.foo');
@@ -221,21 +211,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     });
 
     it('should show all database actions for active namespace', function () {
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          activeWorkspace={
-            {
-              ...activeWorkspace,
-              namespace: 'bar',
-              type: 'Collections',
-            } as WorkspaceTab
-          }
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+      renderComponent({
+        activeWorkspace: {
+          ...activeWorkspace,
+          namespace: 'bar',
+          type: 'Collections',
+        } as WorkspaceTab,
+      });
 
       const database = screen.getByTestId('connectionId.bar');
 
@@ -244,16 +226,10 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     });
 
     it('should show all collection actions', function () {
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          expanded={{ connectionId: { bar: true } }}
-          activeWorkspace={activeWorkspace as WorkspaceTab}
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+      renderComponent({
+        expanded: { connectionId: { bar: true } },
+        activeWorkspace: activeWorkspace as WorkspaceTab,
+      });
 
       const collection = screen.getByTestId('connectionId.bar.meow');
       const showActionsButton = within(collection).getByTitle('Show actions');
@@ -268,21 +244,13 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     });
 
     it('should show all view actions', function () {
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          expanded={{ connectionId: { bar: true } }}
-          activeWorkspace={
-            {
-              ...activeWorkspace,
-              namespace: 'bar.bwok',
-            } as WorkspaceTab
-          }
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+      renderComponent({
+        expanded: { connectionId: { bar: true } },
+        activeWorkspace: {
+          ...activeWorkspace,
+          namespace: 'bar.bwok',
+        } as WorkspaceTab,
+      });
 
       const collection = screen.getByTestId('connectionId.bar.bwok');
       const showActionsButton = within(collection).getByTitle('Show actions');
@@ -301,266 +269,278 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     });
   });
 
-  describe('when isReadOnly is true', function () {
-    it('should not show database actions', function () {
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          activeWorkspace={
-            {
-              ...activeWorkspace,
-              namespace: 'bar',
-              type: 'Collections',
-            } as WorkspaceTab
-          }
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          isReadOnly
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+  [
+    {
+      name: 'when connection is not writable',
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async renderReadonlyComponent(
+        props: Partial<
+          React.ComponentProps<typeof ConnectionsNavigationTree>
+        > = {}
+      ) {
+        const readonlyConnections: ConnectedConnection[] = [
+          {
+            ...connections[0],
+            ...(props.connections as ConnectedConnection[])?.[0],
+            isWritable: false,
+          },
+        ];
+        renderComponent({
+          ...props,
+          connections: readonlyConnections,
+        });
+      },
+    },
+    {
+      name: 'when connection is datalake',
+      // eslint-disable-next-line @typescript-eslint/require-await
+      async renderReadonlyComponent(
+        props: Partial<
+          React.ComponentProps<typeof ConnectionsNavigationTree>
+        > = {}
+      ) {
+        const readonlyConnections: ConnectedConnection[] = [
+          {
+            ...connections[0],
+            ...(props.connections as ConnectedConnection[])?.[0],
+            isDataLake: true,
+          },
+        ];
+        renderComponent({
+          ...props,
+          connections: readonlyConnections,
+        });
+      },
+    },
+    {
+      name: 'when preferences is readonly',
+      async renderReadonlyComponent(
+        props: Partial<
+          React.ComponentProps<typeof ConnectionsNavigationTree>
+        > = {}
+      ) {
+        await preferences.savePreferences({
+          readOnly: true,
+        });
+        const readonlyConnections: ConnectedConnection[] = [
+          {
+            ...connections[0],
+            ...(props.connections as ConnectedConnection[])?.[0],
+          },
+        ];
+        renderComponent(
+          {
+            ...props,
+            connections: readonlyConnections,
+          },
+          preferences
+        );
+      },
+    },
+  ].forEach(function ({ name, renderReadonlyComponent }) {
+    describe(name, function () {
+      it('should not show database actions', async function () {
+        await renderReadonlyComponent({
+          activeWorkspace: {
+            ...activeWorkspace,
+            namespace: 'bar',
+            type: 'Collections',
+          } as WorkspaceTab,
+        });
 
-      const database = screen.getByTestId('connectionId.bar');
+        const database = screen.getByTestId('connectionId.bar');
 
-      expect(() => within(database).getByTitle('Create collection')).to.throw;
-      expect(() => within(database).getByTitle('Drop database')).to.throw;
-    });
+        expect(() => within(database).getByTitle('Create collection')).to.throw;
+        expect(() => within(database).getByTitle('Drop database')).to.throw;
+      });
 
-    it('should show only one collection action', function () {
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          expanded={{ connectionId: { bar: true } }}
-          activeWorkspace={
-            {
-              ...activeWorkspace,
-              namespace: 'bar.bwok',
-            } as WorkspaceTab
-          }
-          onDatabaseExpand={() => {}}
-          onNamespaceAction={() => {}}
-          isReadOnly
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+      it('should show only one collection action', async function () {
+        await renderReadonlyComponent({
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: {
+            ...activeWorkspace,
+            namespace: 'bar.bwok',
+          } as WorkspaceTab,
+        });
 
-      const collection = screen.getByTestId('connectionId.bar.bwok');
+        const collection = screen.getByTestId('connectionId.bar.bwok');
 
-      expect(within(collection).getByTitle('Open in new tab')).to.exist;
+        await waitFor(() => {
+          expect(within(collection).getByTitle('Open in new tab')).to.exist;
+        });
+      });
     });
   });
 
-  describe('onNamespaceAction', function () {
+  describe('onItemAction', function () {
     it('should activate callback with `select-database` when database is clicked', function () {
       const spy = Sinon.spy();
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          onNamespaceAction={spy}
-          onDatabaseExpand={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+      renderComponent({
+        onItemAction: spy,
+      });
 
       userEvent.click(screen.getByText('foo'));
 
-      expect(spy).to.be.calledOnceWithExactly(
-        'connectionId',
-        'foo',
-        'select-database'
-      );
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('database');
+      expect(item.connectionId).to.equal('connectionId');
+      expect(item.dbName).to.equal('foo');
+      expect(action).to.equal('select-database');
     });
 
     it('should activate callback with `select-collection` when collection is clicked', function () {
       const spy = Sinon.spy();
-      render(
-        <ConnectionsNavigationTree
-          connections={connections}
-          expanded={{ connectionId: { bar: true } }}
-          onNamespaceAction={spy}
-          onDatabaseExpand={() => {}}
-          {...TEST_VIRTUAL_PROPS}
-        ></ConnectionsNavigationTree>
-      );
+      renderComponent({
+        onItemAction: spy,
+        expanded: { connectionId: { bar: true } },
+      });
 
       userEvent.click(screen.getByText('meow'));
 
-      expect(spy).to.be.calledOnceWithExactly(
-        'connectionId',
-        'bar.meow',
-        'select-collection'
-      );
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('collection');
+      expect(item.connectionId).to.equal('connectionId');
+      expect(item.namespace).to.equal('bar.meow');
+      expect(action).to.equal('select-collection');
     });
 
     describe('database actions', function () {
       it('should activate callback with `drop-database` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            connections={connections}
-            activeWorkspace={
-              {
-                ...activeWorkspace,
-                namespace: 'foo',
-                type: 'Collections',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          ></ConnectionsNavigationTree>
-        );
+        renderComponent({
+          onItemAction: spy,
+          activeWorkspace: {
+            ...activeWorkspace,
+            namespace: 'foo',
+            type: 'Collections',
+          } as WorkspaceTab,
+        });
 
         userEvent.click(screen.getByTitle('Drop database'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connectionId',
-          'foo',
-          'drop-database'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('database');
+        expect(item.connectionId).to.equal('connectionId');
+        expect(item.dbName).to.equal('foo');
+        expect(action).to.equal('drop-database');
       });
 
       it('should activate callback with `create-collection` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            connections={connections}
-            activeWorkspace={
-              {
-                ...activeWorkspace,
-                namespace: 'foo',
-                type: 'Collections',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          ></ConnectionsNavigationTree>
-        );
+        renderComponent({
+          onItemAction: spy,
+          activeWorkspace: {
+            ...activeWorkspace,
+            namespace: 'foo',
+            type: 'Collections',
+          } as WorkspaceTab,
+        });
 
         userEvent.click(screen.getByTitle('Create collection'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connectionId',
-          'foo',
-          'create-collection'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('database');
+        expect(item.connectionId).to.equal('connectionId');
+        expect(item.dbName).to.equal('foo');
+        expect(action).to.equal('create-collection');
       });
     });
 
     describe('collection actions', function () {
       it('should activate callback with `open-in-new-tab` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            connections={connections}
-            expanded={{ connectionId: { bar: true } }}
-            activeWorkspace={activeWorkspace as WorkspaceTab}
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          ></ConnectionsNavigationTree>
-        );
+        renderComponent({
+          onItemAction: spy,
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: activeWorkspace as WorkspaceTab,
+        });
 
         const collection = screen.getByTestId('connectionId.bar.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Open in new tab'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connectionId',
-          'bar.meow',
-          'open-in-new-tab'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('collection');
+        expect(item.connectionId).to.equal('connectionId');
+        expect(item.namespace).to.equal('bar.meow');
+        expect(action).to.equal('open-in-new-tab');
       });
 
       it('should activate callback with `drop-collection` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
-        render(
-          <ConnectionsNavigationTree
-            connections={connections}
-            expanded={{ connectionId: { bar: true } }}
-            activeWorkspace={activeWorkspace as WorkspaceTab}
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          ></ConnectionsNavigationTree>
-        );
+        renderComponent({
+          onItemAction: spy,
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: activeWorkspace as WorkspaceTab,
+        });
 
         const collection = screen.getByTestId('connectionId.bar.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Drop collection'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connectionId',
-          'bar.meow',
-          'drop-collection'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('collection');
+        expect(item.connectionId).to.equal('connectionId');
+        expect(item.namespace).to.equal('bar.meow');
+        expect(action).to.equal('drop-collection');
       });
     });
 
     describe('view actions', function () {
       it('should activate callback with `duplicate-view` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
-
-        render(
-          <ConnectionsNavigationTree
-            connections={connections}
-            expanded={{ connectionId: { bar: true } }}
-            activeWorkspace={
-              {
-                ...activeWorkspace,
-                namespace: 'bar.bwok',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          ></ConnectionsNavigationTree>
-        );
+        renderComponent({
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: {
+            ...activeWorkspace,
+            namespace: 'bar.bwok',
+          } as WorkspaceTab,
+          onItemAction: spy,
+        });
 
         const view = screen.getByTestId('connectionId.bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Duplicate view'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connectionId',
-          'bar.bwok',
-          'duplicate-view'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('view');
+        expect(item.connectionId).to.equal('connectionId');
+        expect(item.namespace).to.equal('bar.bwok');
+        expect(action).to.equal('duplicate-view');
       });
 
       it('should activate callback with `modify-view` when corresponding action is clicked', function () {
         const spy = Sinon.spy();
-
-        render(
-          <ConnectionsNavigationTree
-            connections={connections}
-            expanded={{ connectionId: { bar: true } }}
-            activeWorkspace={
-              {
-                ...activeWorkspace,
-                namespace: 'bar.bwok',
-              } as WorkspaceTab
-            }
-            onNamespaceAction={spy}
-            onDatabaseExpand={() => {}}
-            {...TEST_VIRTUAL_PROPS}
-          ></ConnectionsNavigationTree>
-        );
+        renderComponent({
+          expanded: { connectionId: { bar: true } },
+          activeWorkspace: {
+            ...activeWorkspace,
+            namespace: 'bar.bwok',
+          } as WorkspaceTab,
+          onItemAction: spy,
+        });
 
         const view = screen.getByTestId('connectionId.bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
         userEvent.click(screen.getByText('Modify view'));
 
-        expect(spy).to.be.calledOnceWithExactly(
-          'connectionId',
-          'bar.bwok',
-          'modify-view'
-        );
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('view');
+        expect(item.connectionId).to.equal('connectionId');
+        expect(item.namespace).to.equal('bar.bwok');
+        expect(action).to.equal('modify-view');
       });
     });
   });

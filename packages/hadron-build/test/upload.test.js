@@ -43,7 +43,7 @@ describe('upload', function() {
   describe('readablePlatformName', function() {
     it('returns a pretty-printed platform / arch label', function() {
       expect(readablePlatformName('x64', 'darwin')).to.eq(
-        'macOS 64-bit (10.14+)'
+        'macOS 64-bit (10.15+)'
       );
     });
 
@@ -69,7 +69,7 @@ describe('upload', function() {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-1.0.0-darwin-x64.dmg',
-              name: 'macOS 64-bit (10.14+)',
+              name: 'macOS 64-bit (10.15+)',
               os: 'darwin'
             },
             {
@@ -124,7 +124,7 @@ describe('upload', function() {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-readonly-1.0.0-darwin-x64.dmg',
-              name: 'macOS 64-bit (10.14+)',
+              name: 'macOS 64-bit (10.15+)',
               os: 'darwin'
             },
             {
@@ -179,7 +179,7 @@ describe('upload', function() {
               arch: 'x64',
               download_link:
                 'https://downloads.mongodb.com/compass/mongodb-compass-isolated-1.0.0-darwin-x64.dmg',
-              name: 'macOS 64-bit (10.14+)',
+              name: 'macOS 64-bit (10.15+)',
               os: 'darwin'
             },
             {

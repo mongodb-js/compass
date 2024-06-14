@@ -331,7 +331,6 @@ functions:
         wait: true
     # copy ssh key (this key will be used to connect to ssh server)
     - command: shell.exec
-      silent: true
       params:
         working_dir: src
         shell: bash
@@ -408,6 +407,7 @@ functions:
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+          GITHUB_PR_NUMBER: ${github_pr_number}
         script: |
           set -e
           # Load environment variables
@@ -429,6 +429,36 @@ functions:
           set -e
 
           .evergreen/create-sbom.sh
+
+  get_first_party_dependency_list:
+    - command: s3.get
+      params:
+        <<: *get-artifact-params
+        local_file: src/.sbom/${filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${filename}
+  create_static_analysis_report:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          npm_config_loglevel: ${npm_loglevel}
+          GITHUB_TOKEN: ${devtoolsbot_github_token}
+          GITHUB_PR_NUMBER: ${github_pr_number}
+          FIRST_PARTY_DEPENDENCY_FILENAMES: ${first_party_dependency_filenames}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/create-static-analysis-report.sh 
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-private
+        local_file: src/static-analysis-report.tgz
+        remote_file: ${project}/${revision}_${revision_order_id}/static-analysis-report.tgz
+        content_type: application/x-gzip
 
   publish:
     - command: shell.exec
@@ -783,6 +813,13 @@ functions:
         <<: *save-artifact-params-public
         local_file: src/.sbom/sbom.json
         remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom.json
+        content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/.sbom/first-party-deps.json
+        remote_file: ${project}/${revision}_${revision_order_id}/first-party-deps-${compass_distribution}-${build_variant}.json
         content_type: application/json
         optional: true
 
