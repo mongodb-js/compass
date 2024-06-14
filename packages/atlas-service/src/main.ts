@@ -1,4 +1,4 @@
-import { shell, app } from 'electron';
+import { shell, app, net } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 import {
@@ -12,11 +12,6 @@ import {
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
-// TODO(https://github.com/node-fetch/node-fetch/issues/1652): Remove this when
-// node-fetch types match the built in AbortSignal from node.
-import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
-import type { RequestInfo, RequestInit, Response } from 'node-fetch';
-import nodeFetch from 'node-fetch';
 import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
@@ -64,7 +59,7 @@ export class CompassAuthService {
   ): Promise<Response> => {
     await this.initPromise;
     this.throwIfNetworkTrafficDisabled();
-    throwIfAborted(init.signal as AbortSignal);
+    throwIfAborted(init.signal ?? undefined);
     log.info(
       mongoLogId(1_001_000_299),
       'AtlasService',
@@ -72,7 +67,7 @@ export class CompassAuthService {
       { url }
     );
     try {
-      const res = await nodeFetch(url, {
+      const res = await net.fetch(url, {
         ...init,
         headers: {
           ...init.headers,
@@ -366,7 +361,7 @@ export class CompassAuthService {
             Authorization: `Bearer ${token ?? ''}`,
             Accept: 'application/json',
           },
-          signal: signal as NodeFetchAbortSignal | undefined,
+          signal: signal,
         }
       );
 
@@ -407,7 +402,7 @@ export class CompassAuthService {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      signal: signal as NodeFetchAbortSignal | undefined,
+      signal: signal,
     });
 
     await throwIfNotOk(res);
@@ -442,7 +437,7 @@ export class CompassAuthService {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      signal: signal as NodeFetchAbortSignal | undefined,
+      signal: signal,
     });
 
     await throwIfNotOk(res);

@@ -32,6 +32,14 @@ module.exports = {
         message: 'Using electron modules in plugins is not allowed.',
         allowTypeImports: false,
       },
+      {
+        paths: ['node-fetch'],
+        // Use `fetch` or electron's `net.fetch` so we don't only use the CAs
+        // that are bundled with the application. COMPASS-7950
+        message:
+          '"fetch" or "electron.net.fetch", depending on the environment, should be used instead.',
+        allowTypeImports: false,
+      },
     ],
   },
 };
