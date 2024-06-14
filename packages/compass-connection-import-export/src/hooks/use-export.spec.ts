@@ -89,6 +89,7 @@ describe('useExportConnections', function () {
     await fs.rm(tmpdir, { recursive: true });
   });
 
+  // Security-relevant test -- description is in the protect-connection-strings e2e test.
   it('sets removeSecrets if protectConnectionStrings is set', async function () {
     expect(result.current.exportConnections.state.removeSecrets).to.equal(
       false

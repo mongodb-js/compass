@@ -142,6 +142,21 @@ async function deleteStage(
   await browser.clickVisible(Selectors.StageDelete);
 }
 
+function getStageContainers(browser: CompassBrowser) {
+  return browser.$$(Selectors.StageCard);
+}
+
+async function addStage(browser: CompassBrowser, expectedStages: number) {
+  expect(await getStageContainers(browser)).to.have.lengthOf(
+    expectedStages - 1
+  );
+
+  await browser.clickVisible(Selectors.AddStageButton);
+  await browser.$(Selectors.stageEditor(expectedStages - 1)).waitForDisplayed();
+
+  expect(await getStageContainers(browser)).to.have.lengthOf(expectedStages);
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -165,11 +180,10 @@ describe('Collection aggregations tab', function () {
     // Pipeline flow while at it.
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
 
-    await browser.clickVisible(Selectors.AddStageButton);
-    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
-    // sanity check to make sure there's only one stage
-    const stageContainers = await browser.$$(Selectors.StageCard);
-    expect(stageContainers).to.have.lengthOf(1);
+    // This is kinda superfluous for the nested beforeEach hooks below where we
+    // immediately navigate away anyway, but most tests expect there to already
+    // be one stage.
+    await addStage(browser, 1);
   });
 
   after(async function () {
@@ -358,14 +372,14 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationSettingsApplyButton);
 
     // add a $project
-    await browser.clickVisible(Selectors.AddStageButton);
+    await addStage(browser, 2);
     await browser.selectStageOperator(1, '$project');
 
     // delete it
     await deleteStage(browser, 1);
 
     // add a $project
-    await browser.clickVisible(Selectors.AddStageButton);
+    await addStage(browser, 2);
     await browser.selectStageOperator(1, '$project');
 
     // check that it has no comment
@@ -603,7 +617,7 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
 
-    await browser.clickVisible(Selectors.AddStageButton);
+    await addStage(browser, 2);
 
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
@@ -667,7 +681,7 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(0)));
 
-    await browser.clickVisible(Selectors.AddStageButton);
+    await addStage(browser, 2);
 
     await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
@@ -1033,8 +1047,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
-    await browser.clickVisible(Selectors.AddStageButton);
-    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
     await browser.selectStageOperator(0, '$match');
 
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
@@ -1271,8 +1283,7 @@ describe('Collection aggregations tab', function () {
     });
 
     it('opens an aggregation with confirmation when its modified', async function () {
-      await browser.clickVisible(Selectors.AddStageButton);
-      await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+      await addStage(browser, 1);
       await browser.selectStageOperator(0, '$match');
 
       await browser.waitForAnimations(
@@ -1621,13 +1632,12 @@ describe('Collection aggregations tab', function () {
         'nestedDocs',
         'Aggregations'
       );
+
+      await addStage(browser, 1);
     });
 
     context('when on stage builder mode', function () {
       it('should expand/collapse all the docs for a stage when "Expand documents" / "Collapse documents" menu option is clicked', async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
-
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
@@ -1663,9 +1673,6 @@ describe('Collection aggregations tab', function () {
       });
 
       it('should retain the docs expanded / collapsed state even after switching tabs', async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
-
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
@@ -1744,7 +1751,6 @@ describe('Collection aggregations tab', function () {
 
     context('when in focus mode', function () {
       beforeEach(async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
         await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
@@ -1752,8 +1758,7 @@ describe('Collection aggregations tab', function () {
           '{ "names.firstName": "1-firstName" }'
         );
 
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(1)).waitForDisplayed();
+        await addStage(browser, 2);
         await browser.selectStageOperator(1, '$limit');
         await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '1');
 
@@ -1820,8 +1825,7 @@ describe('Collection aggregations tab', function () {
 
     context('when on pipeline results', function () {
       beforeEach(async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+        expect(await getStageContainers(browser)).to.have.lengthOf(1);
 
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(

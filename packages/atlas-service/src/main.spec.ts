@@ -13,6 +13,12 @@ function getListenerCount(emitter: EventEmitter) {
   }, 0);
 }
 
+/**
+ * @securityTest Atlas Login Integration Tests
+ *
+ * The Atlas Login feature is thoroughly tested, including proper authentication token
+ * handling and credential revocation upon signout.
+ */
 describe('CompassAuthServiceMain', function () {
   const sandbox = Sinon.createSandbox();
 

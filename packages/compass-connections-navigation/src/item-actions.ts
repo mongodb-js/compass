@@ -1,19 +1,67 @@
 import type { ItemAction } from '@mongodb-js/compass-components';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type Actions } from './constants';
 
 export type NavigationItemActions = ItemAction<Actions>[];
 
-export const connectionItemActions = ({
-  isReadOnly,
+export const notConnectedConnectionItemActions = ({
+  connectionInfo,
+}: {
+  connectionInfo: ConnectionInfo;
+  activeConnectionsCount?: number;
+  maxOpenConnectionsAllowed?: number;
+}): NavigationItemActions => {
+  return [
+    {
+      action: 'connection-connect',
+      icon: 'Connect',
+      label: 'Connect',
+    },
+    {
+      action: 'edit-connection',
+      label: 'Edit connection',
+      icon: 'Edit',
+    },
+    {
+      action: 'copy-connection-string',
+      label: 'Copy connection string',
+      icon: 'Copy',
+    },
+    {
+      action: 'connection-toggle-favorite',
+      label:
+        connectionInfo.savedConnectionType === 'favorite'
+          ? 'Unfavorite'
+          : 'Favorite',
+      icon: 'Favorite',
+    },
+    {
+      action: 'duplicate-connection',
+      label: 'Duplicate',
+      icon: 'Clone',
+    },
+    {
+      action: 'remove-connection',
+      label: 'Remove',
+      icon: 'Trash',
+      variant: 'destructive',
+    },
+  ];
+};
+
+export const connectedConnectionItemActions = ({
+  hasWriteActionsEnabled,
   isFavorite,
   isPerformanceTabSupported,
+  isShellEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
   isFavorite: boolean;
   isPerformanceTabSupported: boolean;
+  isShellEnabled: boolean;
 }): NavigationItemActions => {
   const actions: NavigationItemActions = [];
-  if (!isReadOnly) {
+  if (!hasWriteActionsEnabled) {
     actions.push({
       action: 'create-database',
       icon: 'Plus',
@@ -25,6 +73,8 @@ export const connectionItemActions = ({
       action: 'open-shell',
       icon: 'Shell',
       label: 'Open MongoDB shell',
+      isDisabled: !isShellEnabled,
+      disabledDescription: 'Not available',
     },
     {
       action: 'connection-performance-metrics',
@@ -59,11 +109,11 @@ export const connectionItemActions = ({
 };
 
 export const databaseItemActions = ({
-  isReadOnly,
+  hasWriteActionsEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
 }): NavigationItemActions => {
-  if (isReadOnly) {
+  if (hasWriteActionsEnabled) {
     return [];
   }
   return [
@@ -81,11 +131,11 @@ export const databaseItemActions = ({
 };
 
 export const collectionItemActions = ({
-  isReadOnly,
+  hasWriteActionsEnabled,
   type,
   isRenameCollectionEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
@@ -97,7 +147,7 @@ export const collectionItemActions = ({
     },
   ];
 
-  if (isReadOnly) {
+  if (hasWriteActionsEnabled) {
     return actions;
   }
 
