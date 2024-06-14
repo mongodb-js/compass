@@ -240,7 +240,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           _onNamespaceAction(item.connectionInfo.id, '', action);
           return;
         case 'open-shell':
-          openShellWorkspace(item.connectionInfo.id);
+          openShellWorkspace(item.connectionInfo.id, { newTab: true });
           return;
         case 'connection-performance-metrics':
           openPerformanceWorkspace(item.connectionInfo.id);
