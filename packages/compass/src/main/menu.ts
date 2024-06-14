@@ -37,7 +37,7 @@ function quitItem(
         : void dialog
             .showMessageBox({
               type: 'warning',
-              title: 'Quit ' + app.getName(),
+              title: `Quit ${app.getName()}`,
               icon: COMPASS_ICON,
               message: 'Are you sure you want to quit?',
               buttons: ['Quit', 'Cancel'],
