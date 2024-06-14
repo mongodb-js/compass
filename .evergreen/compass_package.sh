@@ -30,6 +30,10 @@ papertrail() {
   product="compass"
   build="${EVERGREEN_TASK_ID}_${EVERGREEN_EXECUTION}"
   platform="evergreen"
+  submitter=$(jq -r '.releasePublisher' < packages/compass/package.json)
+  if [ $submitter = "null" ]; then
+    submitter="${EVERGREEN_AUTHOR}"
+  fi
 
   for file in packages/compass/dist/* ; do
     if [ -f "$file" ]; then
