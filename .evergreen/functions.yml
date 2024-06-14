@@ -408,6 +408,8 @@ functions:
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
           GITHUB_PR_NUMBER: ${github_pr_number}
+          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
+          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
         script: |
           set -e
           # Load environment variables
