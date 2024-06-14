@@ -39,11 +39,6 @@ import React, {
 } from 'react';
 import updateTitle from '../utils/update-title';
 import Workspace from './workspace';
-import {
-  trackConnectionAttemptEvent,
-  trackNewConnectionEvent,
-  trackConnectionFailedEvent,
-} from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
@@ -234,27 +229,9 @@ function Home({
     ...initialState,
   });
 
-  const onConnected = useCallback(
-    (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
-      dispatch({ type: 'connected', connectionInfo: connectionInfo });
-    },
-    [loggerAndTelemetry]
-  );
-
-  const onConnectionFailed = useCallback(
-    (connectionInfo: ConnectionInfo | null, error: Error) => {
-      trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
-    },
-    [loggerAndTelemetry]
-  );
-
-  const onConnectionAttemptStarted = useCallback(
-    (connectionInfo: ConnectionInfo) => {
-      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
-    },
-    [loggerAndTelemetry]
-  );
+  const onConnected = useCallback((connectionInfo: ConnectionInfo) => {
+    dispatch({ type: 'connected', connectionInfo: connectionInfo });
+  }, []);
 
   useEffect(() => {
     async function handleDisconnectClicked() {
@@ -336,8 +313,6 @@ function Home({
       <ConnectionStorageProvider value={connectionStorage}>
         <ConnectionsManagerProvider value={connectionsManager.current}>
           <CompassConnections
-            onConnectionAttemptStarted={onConnectionAttemptStarted}
-            onConnectionFailed={onConnectionFailed}
             onConnected={onConnected}
             __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
           >

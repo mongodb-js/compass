@@ -14,10 +14,13 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import {
+  trackConnectionFailedEvent,
+  trackNewConnectionEvent,
+} from '../utils/telemetry';
 
-const { debug, mongoLogId, log } = createLoggerAndTelemetry(
-  'COMPASS-CONNECTIONS'
-);
+const loggerAndTelemetry = createLoggerAndTelemetry('COMPASS-CONNECTIONS');
+const { debug, mongoLogId, log } = loggerAndTelemetry;
 
 function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
@@ -298,7 +301,12 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        onConnected?.(connectionInfo, dataService);
+        trackNewConnectionEvent(
+          connectionInfo,
+          dataService,
+          loggerAndTelemetry
+        );
+        onConnected?.(connectionInfo);
         if (!shouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
@@ -440,6 +448,11 @@ export function useConnections({
           type: 'cancel-connection-attempt',
         });
       } else {
+        trackConnectionFailedEvent(
+          connectionInfo! ?? null,
+          error as Error,
+          loggerAndTelemetry
+        );
         onConnectionFailed?.(connectionInfo! ?? null, error as Error);
 
         log.error(
