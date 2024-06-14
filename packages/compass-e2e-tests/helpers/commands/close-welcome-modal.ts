@@ -17,4 +17,11 @@ export async function closeWelcomeModal(
   await welcomeModalElement.waitForDisplayed({
     reverse: true,
   });
+
+  // Make sure it was saved to disk before proceeding so we can't close compass
+  // or reload the page too quickly.
+  await browser.waitUntil(async function () {
+    const { showedNetworkOptIn } = await browser.loadPreferences();
+    return showedNetworkOptIn === true;
+  });
 }
