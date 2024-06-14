@@ -384,6 +384,7 @@ export function MultipleConnectionSidebar({
           filterRegex={activeConnectionsFilterRegex}
           onFilterChange={onActiveConnectionFilterChange}
           onConnect={onConnect}
+          onNewConnection={onNewConnectionOpen}
           onEditConnection={onEditConnection}
           onRemoveConnection={onRemoveConnection}
           onDuplicateConnection={onDuplicateConnection}

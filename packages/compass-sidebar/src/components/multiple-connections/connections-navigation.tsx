@@ -3,10 +3,15 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   ChevronCollapse,
-  IconButton,
+  type ItemAction,
+  ItemActionControls,
   Subtitle,
   css,
   spacing,
+  Body,
+  Button,
+  Icon,
+  ButtonVariant,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -76,12 +81,17 @@ function findCollection(ns: string, databases: Database[]) {
   );
 }
 
+type ConnectionListTitleActions =
+  | 'collapse-all-connections'
+  | 'add-new-connection';
+
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
   activeWorkspace: WorkspaceTab | null;
   filterRegex: RegExp | null;
   onFilterChange(regex: RegExp | null): void;
   onConnect(info: ConnectionInfo): void;
+  onNewConnection(): void;
   onEditConnection(info: ConnectionInfo): void;
   onRemoveConnection(info: ConnectionInfo): void;
   onDuplicateConnection(info: ConnectionInfo): void;
@@ -121,6 +131,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   isPerformanceTabSupported,
   onFilterChange,
   onConnect,
+  onNewConnection,
   onEditConnection,
   onRemoveConnection,
   onDuplicateConnection,
@@ -197,6 +208,22 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     fetchAllCollections,
     onDatabaseExpand
   );
+
+  const connectionListTitleActions =
+    useMemo((): ItemAction<ConnectionListTitleActions>[] => {
+      return [
+        {
+          action: 'collapse-all-connections',
+          label: 'Collapse all connections',
+          icon: <ChevronCollapse width={14} height={14} />,
+        },
+        {
+          action: 'add-new-connection',
+          label: 'Add new connection',
+          icon: 'Plus',
+        },
+      ];
+    }, []);
 
   const onConnectionItemAction = useCallback(
     (
@@ -351,6 +378,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }
   }, [activeWorkspace, onDatabaseToggle, onConnectionToggle]);
 
+  const onConnectionListTitleAction = useCallback(
+    (action: ConnectionListTitleActions) => {
+      if (action === 'collapse-all-connections') {
+        onCollapseAll();
+      } else if (action === 'add-new-connection') {
+        onNewConnection();
+      }
+    },
+    [onCollapseAll, onNewConnection]
+  );
+
   return (
     <div className={connectionsContainerStyles}>
       <div className={connectionListHeaderStyles}>
@@ -362,25 +400,41 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             </span>
           )}
         </Subtitle>
-        <IconButton
-          onClick={onCollapseAll}
-          title="Collapse all connections"
-          aria-label="Collapse all connections"
-        >
-          <ChevronCollapse />
-        </IconButton>
+        <ItemActionControls<ConnectionListTitleActions>
+          iconSize="small"
+          actions={connectionListTitleActions}
+          onAction={onConnectionListTitleAction}
+          data-testid="connections-list-title-actions"
+          collapseToMenuThreshold={3}
+        ></ItemActionControls>
       </div>
-      <NavigationItemsFilter
-        placeholder="Search connections"
-        onFilterChange={onFilterChange}
-      />
-      <ConnectionsNavigationTree
-        connections={filtered || connections}
-        activeWorkspace={activeWorkspace}
-        onItemAction={onItemAction}
-        onItemExpand={onItemExpand}
-        expanded={expanded}
-      />
+      {connections.length ? (
+        <>
+          <NavigationItemsFilter
+            placeholder="Search connections"
+            onFilterChange={onFilterChange}
+          />
+          <ConnectionsNavigationTree
+            connections={filtered || connections}
+            activeWorkspace={activeWorkspace}
+            onItemAction={onItemAction}
+            onItemExpand={onItemExpand}
+            expanded={expanded}
+          />
+        </>
+      ) : (
+        <>
+          <Body>You have not connected to any deployments.</Body>
+          <Button
+            data-testid="add-new-connection-button"
+            variant={ButtonVariant.Primary}
+            leftGlyph={<Icon glyph="Plus" />}
+            onClick={onNewConnection}
+          >
+            Add new connection
+          </Button>
+        </>
+      )}
     </div>
   );
 };
