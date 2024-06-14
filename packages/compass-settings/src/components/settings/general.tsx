@@ -11,6 +11,7 @@ const generalFields = [
   ...(['darwin', 'win32'].includes(process.platform)
     ? (['installURLHandlers'] as const)
     : []),
+  'enableShowDialogOnQuit',
 ] as const;
 
 export const GeneralSettings: React.FunctionComponent = () => {

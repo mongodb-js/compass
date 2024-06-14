@@ -32,7 +32,7 @@ function quitItem(
     label: label,
     accelerator: 'CmdOrCtrl+Q',
     click() {
-      compassApp.preferences.getPreferences().enableDoNotShowAgainOnQuit
+      !compassApp.preferences.getPreferences().enableShowDialogOnQuit
         ? app.quit()
         : void dialog
             .showMessageBox({
@@ -47,7 +47,7 @@ function quitItem(
               if (result.response === 0) {
                 if (result.checkboxChecked)
                   void compassApp.preferences.savePreferences({
-                    enableDoNotShowAgainOnQuit: true,
+                    enableShowDialogOnQuit: false,
                   });
                 app.quit();
               }

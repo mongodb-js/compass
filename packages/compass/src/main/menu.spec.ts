@@ -675,9 +675,9 @@ describe('CompassMenu', function () {
   });
 
   describe('quitItem', () => {
-    it('should show box if enableDoNotShowAgainOnQuit is false, then cancels', async function () {
+    it('should show box if enableShowDialogOnQuit is true, then cancels and does not save changes', async function () {
       await App.preferences.savePreferences({
-        enableDoNotShowAgainOnQuit: false,
+        enableShowDialogOnQuit: true,
       });
       const showMessageBoxStub = sinon
         .stub(dialog, 'showMessageBox')
@@ -688,13 +688,13 @@ describe('CompassMenu', function () {
 
       expect(showMessageBoxStub).to.have.been.called;
       expect(quitStub).not.to.have.been.called;
-      expect(App.preferences.getPreferences().enableDoNotShowAgainOnQuit).to.be
-        .false;
+      expect(App.preferences.getPreferences().enableShowDialogOnQuit).to.be
+        .true;
     });
 
-    it('should show box if enableDoNotShowAgainOnQuit is false then quits app', async function () {
+    it('should show box if enableShowDialogOnQuit is true, then quits app and saves changes', async function () {
       await App.preferences.savePreferences({
-        enableDoNotShowAgainOnQuit: false,
+        enableShowDialogOnQuit: true,
       });
       const showMessageBoxStub = sinon
         .stub(dialog, 'showMessageBox')
@@ -705,13 +705,13 @@ describe('CompassMenu', function () {
 
       expect(showMessageBoxStub).to.have.been.called;
       expect(quitStub).to.have.been.called;
-      expect(App.preferences.getPreferences().enableDoNotShowAgainOnQuit).to.be
-        .true;
+      expect(App.preferences.getPreferences().enableShowDialogOnQuit).to.be
+        .false;
     });
 
-    it('should quit the app immediately if enableDoNotShowAgainOnQuit is true', async function () {
+    it('should quit app immediately if enableShowDialogOnQuit is false and keeps changes', async function () {
       await App.preferences.savePreferences({
-        enableDoNotShowAgainOnQuit: true,
+        enableShowDialogOnQuit: false,
       });
       const showMessageBoxStub = sinon
         .stub(dialog, 'showMessageBox')
@@ -722,8 +722,8 @@ describe('CompassMenu', function () {
 
       expect(showMessageBoxStub).not.to.have.been.called;
       expect(quitStub).to.have.been.called;
-      expect(App.preferences.getPreferences().enableDoNotShowAgainOnQuit).to.be
-        .true;
+      expect(App.preferences.getPreferences().enableShowDialogOnQuit).to.be
+        .false;
     });
   });
 });
