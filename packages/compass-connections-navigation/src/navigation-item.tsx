@@ -127,7 +127,7 @@ export function NavigationItem({
   }, [item]);
 
   return (
-    <StyledNavigationItem colorCode={item.colorCode}>
+    <StyledNavigationItem item={item}>
       {item.type === 'placeholder' ? (
         <PlaceholderItem level={item.level} />
       ) : (

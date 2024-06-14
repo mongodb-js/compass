@@ -4,12 +4,20 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { usePreference } from 'compass-preferences-model/provider';
-import { css, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
+import type { SidebarTreeItem } from './tree-data';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type AcceptedStyles = {
   '--item-bg-color'?: string;
   '--item-bg-color-hover'?: string;
   '--item-bg-color-active'?: string;
+  '--item-color'?: string;
   borderRadius?: string;
 };
 
@@ -18,17 +26,22 @@ const styledStyles = css({
 });
 
 export default function StyledNavigationItem({
-  colorCode,
+  item,
   children,
 }: {
-  colorCode?: string;
+  item: SidebarTreeItem;
   children: React.ReactChild;
 }): React.ReactElement {
+  const isDarkMode = useDarkMode();
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
   );
+  const { colorCode } = item;
+  const isDisconnectedConnection =
+    item.type === 'connection' &&
+    item.connectionStatus !== ConnectionStatus.Connected;
 
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
@@ -40,10 +53,18 @@ export default function StyledNavigationItem({
         style['--item-bg-color-hover'] = connectionColorToHexActive(colorCode);
         style['--item-bg-color-active'] = connectionColorToHexActive(colorCode);
       }
+
+      if (isDisconnectedConnection) {
+        style['--item-color'] = isDarkMode
+          ? palette.gray.light1
+          : palette.gray.dark1;
+      }
     }
     return style;
   }, [
+    isDarkMode,
     isSingleConnection,
+    isDisconnectedConnection,
     colorCode,
     connectionColorToHex,
     connectionColorToHexActive,
