@@ -122,7 +122,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'connection': {
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
-              hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
@@ -135,11 +135,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
         case 'database':
           return databaseItemActions({
-            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
           });
         default:
           return collectionItemActions({
-            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
             type: item.type,
             isRenameCollectionEnabled,
           });

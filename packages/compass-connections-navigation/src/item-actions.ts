@@ -57,12 +57,12 @@ export const notConnectedConnectionItemActions = ({
 };
 
 export const connectedConnectionItemActions = ({
-  hasWriteActionsEnabled,
+  hasWriteActionsDisabled,
   connectionInfo,
   isPerformanceTabSupported,
   isShellEnabled,
 }: {
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
   connectionInfo: ConnectionInfo;
   isPerformanceTabSupported: boolean;
   isShellEnabled: boolean;
@@ -109,18 +109,18 @@ export const connectedConnectionItemActions = ({
 
   // when connection is readonly we don't want to show create-database action
   // and hence we splice it out here
-  if (!hasWriteActionsEnabled) {
+  if (hasWriteActionsDisabled) {
     actions.splice(0, 1);
   }
   return actions;
 };
 
 export const databaseItemActions = ({
-  hasWriteActionsEnabled,
+  hasWriteActionsDisabled,
 }: {
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
 }): NavigationItemActions => {
-  if (hasWriteActionsEnabled) {
+  if (hasWriteActionsDisabled) {
     return [];
   }
   return [
@@ -138,11 +138,11 @@ export const databaseItemActions = ({
 };
 
 export const collectionItemActions = ({
-  hasWriteActionsEnabled,
+  hasWriteActionsDisabled,
   type,
   isRenameCollectionEnabled,
 }: {
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
@@ -154,7 +154,7 @@ export const collectionItemActions = ({
     },
   ];
 
-  if (hasWriteActionsEnabled) {
+  if (hasWriteActionsDisabled) {
     return actions;
   }
 

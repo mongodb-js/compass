@@ -82,7 +82,7 @@ export function NavigationItem({
       if (item.type === 'connection') {
         if (
           item.connectionStatus !== ConnectionStatus.Connected ||
-          !item.hasWriteActionsEnabled
+          !item.hasWriteActionsDisabled
         ) {
           return 1;
         }
