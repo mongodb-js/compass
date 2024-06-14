@@ -118,7 +118,7 @@ export function VirtualTree<T extends VirtualItem>({
     },
     [items]
   );
-  const [rootProps, currentTabbable, isTreeFocused] =
+  const [rootProps, currentTabbable, isTreeItemFocused] =
     useVirtualNavigationTree<HTMLDivElement>({
       items,
       activeItemId,
@@ -132,7 +132,7 @@ export function VirtualTree<T extends VirtualItem>({
     return {
       items,
       currentTabbable,
-      isTreeFocused,
+      isTreeItemFocused,
       activeItemId,
       renderItem,
       onDefaultAction,
@@ -143,7 +143,7 @@ export function VirtualTree<T extends VirtualItem>({
     currentTabbable,
     onDefaultAction,
     activeItemId,
-    isTreeFocused,
+    isTreeItemFocused,
   ]);
 
   const getItemKey = useCallback(
@@ -182,7 +182,7 @@ export function VirtualTree<T extends VirtualItem>({
 
 type VirtualItemData<T extends VirtualItem> = {
   items: T[];
-  isTreeFocused: boolean;
+  isTreeItemFocused: boolean;
   currentTabbable?: string;
   activeItemId?: string;
   renderItem: RenderItem<T>;
@@ -203,7 +203,7 @@ function TreeItem<T extends VirtualItem>({
       item,
       isActive: !isPlaceholderItem(item) && item.id === activeItemId,
       isFocused:
-        data.isTreeFocused &&
+        data.isTreeItemFocused &&
         !isPlaceholderItem(item) &&
         item.id === data.currentTabbable,
     });
@@ -213,7 +213,7 @@ function TreeItem<T extends VirtualItem>({
     item,
     activeItemId,
     data.currentTabbable,
-    data.isTreeFocused,
+    data.isTreeItemFocused,
   ]);
 
   const actionProps = useDefaultAction(
