@@ -50,16 +50,18 @@ export const notConnectedConnectionItemActions = ({
 };
 
 export const connectedConnectionItemActions = ({
-  isReadOnly,
+  hasWriteActionsEnabled,
   isFavorite,
   isPerformanceTabSupported,
+  isShellEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
   isFavorite: boolean;
   isPerformanceTabSupported: boolean;
+  isShellEnabled: boolean;
 }): NavigationItemActions => {
   const actions: NavigationItemActions = [];
-  if (!isReadOnly) {
+  if (!hasWriteActionsEnabled) {
     actions.push({
       action: 'create-database',
       icon: 'Plus',
@@ -71,6 +73,8 @@ export const connectedConnectionItemActions = ({
       action: 'open-shell',
       icon: 'Shell',
       label: 'Open MongoDB shell',
+      isDisabled: !isShellEnabled,
+      disabledDescription: 'Not available',
     },
     {
       action: 'connection-performance-metrics',
@@ -105,11 +109,11 @@ export const connectedConnectionItemActions = ({
 };
 
 export const databaseItemActions = ({
-  isReadOnly,
+  hasWriteActionsEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
 }): NavigationItemActions => {
-  if (isReadOnly) {
+  if (hasWriteActionsEnabled) {
     return [];
   }
   return [
@@ -127,11 +131,11 @@ export const databaseItemActions = ({
 };
 
 export const collectionItemActions = ({
-  isReadOnly,
+  hasWriteActionsEnabled,
   type,
   isRenameCollectionEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsEnabled: boolean;
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
@@ -143,7 +147,7 @@ export const collectionItemActions = ({
     },
   ];
 
-  if (isReadOnly) {
+  if (hasWriteActionsEnabled) {
     return actions;
   }
 
