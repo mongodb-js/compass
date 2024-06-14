@@ -47,4 +47,5 @@ jobs:
         run: |
           node scripts/release.js ga \
             --release-ticket="${{ github.event.inputs.releaseTicket }}" \
-            --merge-branch="${{ github.event.inputs.mergeBranch || 'beta-releases' }}"
+            --merge-branch="${{ github.event.inputs.mergeBranch || 'beta-releases' }}" \
+            --submitter="${{ github.actor }}"

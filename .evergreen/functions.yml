@@ -452,7 +452,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          .evergreen/create-static-analysis-report.sh 
+          .evergreen/create-static-analysis-report.sh
     - command: s3.put
       params:
         <<: *save-artifact-params-private
