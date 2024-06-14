@@ -1033,8 +1033,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
-    await browser.clickVisible(Selectors.AddStageButton);
-    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
     await browser.selectStageOperator(0, '$match');
 
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
@@ -1271,8 +1269,6 @@ describe('Collection aggregations tab', function () {
     });
 
     it('opens an aggregation with confirmation when its modified', async function () {
-      await browser.clickVisible(Selectors.AddStageButton);
-      await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
       await browser.selectStageOperator(0, '$match');
 
       await browser.waitForAnimations(
@@ -1625,9 +1621,6 @@ describe('Collection aggregations tab', function () {
 
     context('when on stage builder mode', function () {
       it('should expand/collapse all the docs for a stage when "Expand documents" / "Collapse documents" menu option is clicked', async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
-
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
@@ -1663,9 +1656,6 @@ describe('Collection aggregations tab', function () {
       });
 
       it('should retain the docs expanded / collapsed state even after switching tabs', async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
-
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
@@ -1744,8 +1734,6 @@ describe('Collection aggregations tab', function () {
 
     context('when in focus mode', function () {
       beforeEach(async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
@@ -1820,9 +1808,6 @@ describe('Collection aggregations tab', function () {
 
     context('when on pipeline results', function () {
       beforeEach(async function () {
-        await browser.clickVisible(Selectors.AddStageButton);
-        await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
-
         await browser.selectStageOperator(0, '$match');
         await browser.setCodemirrorEditorValue(
           Selectors.stageEditor(0),
