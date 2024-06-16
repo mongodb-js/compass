@@ -17,13 +17,17 @@ npm run generate-first-party-deps-json
 ls -la packages/compass/dist
 ls -la .sbom
 
+get_compass_package_json_field() {
+  node -p 'JSON.parse(fs.readFileSync("packages/compass/package.json"))['"'$1'"']'
+}
+
 papertrail() {
   set +x
   echo "X-PAPERTRAIL-KEY-ID: ${PAPERTRAIL_KEY_ID}" > .papertrail.headers
   echo "X-PAPERTRAIL-SECRET-KEY: ${PAPERTRAIL_SECRET_KEY}" >> .papertrail.headers
   set -x
 
-  version=$(jq -r '.version' < packages/compass/package.json)
+  version=$(get_compass_package_json_field version)
   product="compass"
   if echo "$version" | grep -q -- -dev. ; then
     version+="${EVERGREEN_REVISION}_${EVERGREEN_REVISION_ORDER_ID}"
@@ -33,7 +37,7 @@ papertrail() {
   fi
   build="${EVERGREEN_TASK_ID}_${EVERGREEN_EXECUTION}"
   platform="evergreen"
-  submitter=$(jq -r '.releasePublisher' < packages/compass/package.json)
+  submitter=$(get_compass_package_json_field releasePublisher)
   if [ $submitter = "null" ]; then
     submitter="${EVERGREEN_AUTHOR}"
   fi
