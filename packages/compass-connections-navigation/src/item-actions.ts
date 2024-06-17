@@ -8,26 +8,30 @@ export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
   isEditDisabled,
-  editDisabledDescription,
+  isConnectDisabled,
+  connectDisabledTooltip,
 }: {
   connectionInfo: ConnectionInfo;
   isEditDisabled?: boolean;
-  editDisabledDescription?: string;
-  activeConnectionsCount?: number;
-  maxOpenConnectionsAllowed?: number;
+  isConnectDisabled?: boolean;
+  connectDisabledTooltip?: string;
 }): NavigationItemActions => {
   return [
     {
       action: 'connection-connect',
       icon: 'Connect',
       label: 'Connect',
+      isDisabled: isConnectDisabled,
+      // we surface disabled description via the tooltip hence we would like to
+      // have tooltip rendered only if this action is disabled
+      tooltip: isConnectDisabled ? connectDisabledTooltip : undefined,
     },
     {
       action: 'edit-connection',
       label: 'Edit connection',
       icon: 'Edit',
       isDisabled: isEditDisabled,
-      disabledDescription: editDisabledDescription,
+      disabledDescription: 'Cannot edit an active connection',
     },
     {
       action: 'copy-connection-string',
@@ -70,7 +74,6 @@ export const connectedConnectionItemActions = ({
   const connectionManagementActions = notConnectedConnectionItemActions({
     connectionInfo,
     isEditDisabled: true,
-    editDisabledDescription: 'Cannot edit an active connection',
   }).slice(1); // for connected connections we don't show connect action
   const actions: NavigationItemActions = [
     {
