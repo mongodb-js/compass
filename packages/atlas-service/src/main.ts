@@ -81,9 +81,14 @@ export class CompassAuthService {
     );
     try {
       const res = await nodeFetch(url, {
-        agent: new https.Agent({
-          ca: await getSystemCA(),
-        }),
+        // Tests use 'http'.
+        ...(url.toString().includes('https')
+          ? {
+              agent: new https.Agent({
+                ca: await getSystemCA(),
+              }),
+            }
+          : {}),
         ...init,
         headers: {
           ...init.headers,
