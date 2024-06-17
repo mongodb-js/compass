@@ -66,8 +66,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const id = useId();
 
   const treeData = useMemo(() => {
-    return getVirtualTreeItems(connections, isSingleConnection, expanded);
-  }, [connections, isSingleConnection, expanded]);
+    return getVirtualTreeItems({
+      connections,
+      isSingleConnection,
+      expandedItems: expanded,
+      preferencesReadOnly,
+    });
+  }, [connections, isSingleConnection, expanded, preferencesReadOnly]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
@@ -96,11 +101,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
       }
       // Database List (of a connection)
-      if (activeWorkspace.type === 'Databases') {
+      if (activeWorkspace.type === 'Databases' && !isSingleConnection) {
         return activeWorkspace.connectionId;
       }
     }
-  }, [activeWorkspace]);
+  }, [activeWorkspace, isSingleConnection]);
 
   const getItemActions = useCallback(
     (item: SidebarTreeItem) => {
@@ -112,7 +117,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             item.connectionInfo?.savedConnectionType === 'favorite';
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
-              isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
+              hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+              isShellEnabled: item.isShellEnabled,
               isFavorite,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
@@ -124,17 +130,17 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
         case 'database':
           return databaseItemActions({
-            isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
+            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
           });
         default:
           return collectionItemActions({
-            isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
+            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
             type: item.type,
             isRenameCollectionEnabled,
           });
       }
     },
-    [preferencesReadOnly, isRenameCollectionEnabled]
+    [isRenameCollectionEnabled]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';

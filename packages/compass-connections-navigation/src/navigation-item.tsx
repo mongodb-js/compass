@@ -69,13 +69,12 @@ export function NavigationItem({
       if (item.type === 'connection') {
         if (
           item.connectionStatus !== ConnectionStatus.Connected ||
-          !item.isConnectionReadOnly
+          !item.hasWriteActionsEnabled
         ) {
           return 1;
         }
-        // when connection is not readonly we have create-database as first
-        // action which is why we would like to collapse entire actions when the
-        // connection is readonly to avoid showing any other items from the menu
+        // when connected connection is readonly we don't show the create-database action
+        // so the whole action menu is collapsed
         return 0;
       }
     })();
