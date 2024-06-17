@@ -202,7 +202,7 @@ async function bumpAndPush(nextVersion, releaseBranch, publisher) {
       },
       null,
       2
-    )
+    ) + '\n'
   );
   await execFile('git', ['add', compassPackageJsonPath, `package-lock.json`], {
     cwd: monorepoRoot,
