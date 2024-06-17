@@ -117,7 +117,6 @@
     "mongodb": "^6.6.2",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.20.1",
-    "mongodb-log-writer": "^1.4.2",
     "nyc": "^15.1.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
