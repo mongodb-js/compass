@@ -86,7 +86,7 @@ const tabLightThemeStyles = css({
   '--workspace-tab-selected-background-color': palette.white,
   '--workspace-tab-border-color': palette.gray.light2,
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.black,
+  '--workspace-tab-selected-color': palette.green.dark2,
   '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.base,
@@ -99,7 +99,7 @@ const tabDarkThemeStyles = css({
   '--workspace-tab-selected-background-color': palette.black,
   '--workspace-tab-border-color': palette.gray.dark2,
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.gray.light2,
+  '--workspace-tab-selected-color': palette.green.base,
   '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.light1,
