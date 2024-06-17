@@ -23,6 +23,7 @@ program
   .command('beta')
   .description('Starts a new beta')
   .option('--merge-branch <mergeBranch>', 'branch to merge', 'main')
+  .option('--submitter <name>', 'github username of the releaser', '')
   .option(
     '--next-ga [nextGa]',
     'next ga version, default to the next GA version in Jira'
@@ -32,6 +33,10 @@ program
     if (!options.mergeBranch) {
       throw new Error('mergeBranch is required');
     }
+    if (!options.submitter) {
+      throw new Error('submitter is required');
+    }
+    const publisher = await getReleasePublisher(options.submitter);
 
     const nextGa = options.nextGa || (await getNextGaVersionInJira());
 
@@ -62,13 +67,14 @@ program
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextBeta}`);
 
     await syncWithBranch(options.mergeBranch);
-    await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH);
+    await bumpAndPush(nextBeta, BETA_RELEASE_BRANCH, publisher);
   });
 
 program
   .command('ga')
   .description('Starts a new GA')
   .option('--release-ticket <releaseTicket>')
+  .option('--submitter <name>', 'github username of the releaser', '')
   .option(
     '--merge-branch <mergeBranch>',
     'branch to merge',
@@ -83,6 +89,10 @@ program
     if (!options.mergeBranch) {
       throw new Error('mergeBranch is required');
     }
+    if (!options.submitter) {
+      throw new Error('submitter is required');
+    }
+    const publisher = await getReleasePublisher(options.submitter);
 
     const nextGa = await getReleaseVersionFromTicket(options.releaseTicket);
 
@@ -104,7 +114,7 @@ program
     }
 
     console.info(`Promoting ${currentCompassPackageVersion} to ${nextGa}`);
-    await bumpAndPush(nextGa, GA_RELEASE_BRANCH);
+    await bumpAndPush(nextGa, GA_RELEASE_BRANCH, publisher);
   });
 
 program.parseAsync();
@@ -159,8 +169,41 @@ async function gitCheckout(branchName) {
   });
 }
 
-async function bumpAndPush(nextVersion, releaseBranch) {
-  await execFile('npm', ['version', nextVersion], { cwd: compassPackagePath });
+async function getReleasePublisher(submitter) {
+  const publisherData = (
+    await execFile(
+      'git',
+      ['check-mailmap', `<${submitter}@users.noreply.github.com>`],
+      {
+        cwd: monorepoRoot,
+        encoding: 'utf8',
+      }
+    )
+  ).stdout.trim();
+
+  if (!publisherData.match(/^[^<]+<[^@>]+@mongodb.com>/)) {
+    throw new Error(
+      `Could not translate username ${submitter} to recognized authorized email (${publisherData})`
+    );
+  }
+  return publisherData;
+}
+
+async function bumpAndPush(nextVersion, releaseBranch, publisher) {
+  await execFile('npm', ['version', '--no-git-tag-version', nextVersion], {
+    cwd: compassPackagePath,
+  });
+  await fs.writeFile(
+    compassPackageJsonPath,
+    JSON.stringify(
+      {
+        ...JSON.parse(await fs.readFile(compassPackageJsonPath, 'utf8')),
+        releasePublisher: publisher,
+      },
+      null,
+      2
+    ) + '\n'
+  );
   await execFile('git', ['add', compassPackageJsonPath, `package-lock.json`], {
     cwd: monorepoRoot,
   });
@@ -174,6 +217,26 @@ async function bumpAndPush(nextVersion, releaseBranch) {
     cwd: monorepoRoot,
   });
   await execFile('git', ['push', '--tags'], { cwd: monorepoRoot });
+
+  const currentBranch = (
+    await execFile('git', ['branch', '--show-current'], {
+      cwd: monorepoRoot,
+      encoding: 'utf8',
+    })
+  ).stdout.trim();
+  await execFile(
+    'gh',
+    [
+      'workflow',
+      'run',
+      'codeql.yml',
+      '-R',
+      'mongodb-js/compass',
+      '-r',
+      currentBranch,
+    ],
+    { cwd: monorepoRoot }
+  );
 }
 
 // NOTE: if there are more "unreleased" versions it will

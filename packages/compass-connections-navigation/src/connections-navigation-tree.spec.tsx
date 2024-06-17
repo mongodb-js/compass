@@ -252,6 +252,39 @@ describe('ConnectionsNavigationTree', function () {
     });
   });
 
+  it('should render the action items for the tabbed navigation item', async function () {
+    await renderConnectionsNavigationTree({
+      expanded: {},
+      activeWorkspace: null,
+    });
+
+    // Tab to the first element
+    userEvent.tab();
+    await waitFor(() => {
+      // Virtual list will be the one to grab the focus first, but will
+      // immediately forward it to the element and mocking raf here breaks
+      // virtual list implementatin, waitFor is to accomodate for that
+      expect(document.querySelector('[data-id="connection_ready"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+    let tabbedItem = screen.getByTestId('connection_ready');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
+
+    // Go down to the second element
+    userEvent.keyboard('{arrowdown}');
+    await waitFor(() => {
+      expect(document.querySelector('[data-id="connection_initial"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+
+    tabbedItem = screen.getByTestId('connection_initial');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
+  });
+
   describe('when connection is writable', function () {
     it('should show all connection actions', async function () {
       await renderConnectionsNavigationTree();
