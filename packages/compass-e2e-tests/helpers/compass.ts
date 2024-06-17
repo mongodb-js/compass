@@ -1014,6 +1014,7 @@ export async function init(
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
   }
+
   if (!opts.noWaitForConnectionScreen) {
     await browser.waitForConnectionScreen();
   }
