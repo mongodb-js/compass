@@ -9,9 +9,7 @@ import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type DropIndexInitialProps = Pick<CollectionTabPluginMetadata, 'namespace'>;
 
@@ -19,11 +17,12 @@ type DropIndexServices = {
   localAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'dropIndex'>;
   logger: Logger;
+  track: TrackFunction;
 };
 
 export function activatePlugin(
   { namespace }: DropIndexInitialProps,
-  { localAppRegistry, dataService }: DropIndexServices,
+  { localAppRegistry, dataService, track }: DropIndexServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   on(localAppRegistry, 'open-drop-index-modal', async (indexName: string) => {

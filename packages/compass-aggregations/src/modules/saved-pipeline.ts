@@ -14,11 +14,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { AnyAction } from 'redux';
-import { createTrack } from '@mongodb-js/compass-telemetry';
 
 const PREFIX = 'aggregations/saved-pipeline';
-
-const track = createTrack();
 
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD` as const;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE` as const;
@@ -167,7 +164,7 @@ export const openStoredPipeline = (
  */
 export const saveCurrentPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
+  async (dispatch, getState, { pipelineBuilder, pipelineStorage, track }) => {
     if (getState().id === '') {
       dispatch(createId());
     }
@@ -219,7 +216,7 @@ export const saveCurrentPipeline =
 
 export const confirmOpenPipeline =
   (pipelineData: SavedPipeline): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState) => {
+  async (dispatch, getState, { track }) => {
     const isModified = getState().isModified;
     if (isModified) {
       track('Screen', { name: 'restore_pipeline_modal' });
@@ -243,7 +240,7 @@ export const confirmOpenPipeline =
 
 export const confirmDeletePipeline =
   (pipelineId: string): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineStorage }) => {
+  async (dispatch, getState, { pipelineStorage, track }) => {
     track('Screen', { name: 'delete_pipeline_modal' });
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this pipeline?',

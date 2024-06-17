@@ -3,6 +3,7 @@ import AppRegistry from 'hadron-app-registry';
 import { activatePlugin } from './export-store';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { expect } from 'chai';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
 
@@ -15,6 +16,7 @@ describe('ExportStore [Store]', function () {
 
   beforeEach(function () {
     const logger = createNoopLogger();
+    const track = createNoopTrack();
     globalAppRegistry = new AppRegistry();
     connectionsManager = new ConnectionsManager({
       logger: logger.log.unbound,
@@ -26,6 +28,7 @@ describe('ExportStore [Store]', function () {
         globalAppRegistry,
         connectionsManager,
         logger,
+        track,
         preferences,
       },
       createActivateHelpers()

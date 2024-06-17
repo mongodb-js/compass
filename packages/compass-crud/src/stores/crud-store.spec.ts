@@ -27,6 +27,7 @@ import {
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import {

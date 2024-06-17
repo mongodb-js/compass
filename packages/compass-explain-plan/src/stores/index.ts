@@ -13,6 +13,7 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type OpenExplainPlanModalEvent =
   | {
@@ -42,6 +43,7 @@ export type ExplainPlanModalServices = {
     'explainFind' | 'explainAggregate' | 'isCancelError'
   >;
   logger: Logger;
+  track: TrackFunction;
   preferences: PreferencesAccess;
   localAppRegistry: AppRegistry;
 };

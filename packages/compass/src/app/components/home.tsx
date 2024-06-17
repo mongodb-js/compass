@@ -57,9 +57,7 @@ import {
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
 import { usePreference } from 'compass-preferences-model/provider';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import { useTracking } from '@mongodb-js/compass-telemetry/provider';
 
 resetGlobalCSS();
 
@@ -223,6 +221,7 @@ function Home({
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const logger = useLogger('COMPASS-CONNECT-UI');
+  const track = useTracking();
 
   const connectionsManager = useRef(
     new ConnectionsManager({

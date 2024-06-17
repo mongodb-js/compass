@@ -35,12 +35,9 @@ import {
 import type { ImportThunkAction } from '../stores/import-store';
 import { openFile } from '../utils/open-file';
 import type { DataService } from 'mongodb-data-service';
-import { createTrack } from '@mongodb-js/compass-telemetry';
 
 const checkFileExists = promisify(fs.exists);
 const getFileStats = promisify(fs.stat);
-
-const track = createTrack();
 
 /**
  * ## Action names
@@ -196,6 +193,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       connectionsManager,
       globalAppRegistry: appRegistry,
       workspaces,
+      track,
       logger: { log, mongoLogId, debug },
     }
   ) => {
@@ -857,7 +855,7 @@ export const openImport = ({
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({

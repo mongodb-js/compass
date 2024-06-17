@@ -3,9 +3,6 @@ import parseNs from 'mongodb-ns';
 import type { Document } from 'bson';
 import type { CreateViewThunkAction } from '../../stores/create-view';
 import { isAction } from '../../utils/is-action';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 export type CreateViewState = {
   connectionId: string;
@@ -205,7 +202,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { globalAppRegistry, connectionsManager, workspaces }
+    { globalAppRegistry, connectionsManager, track, workspaces }
   ) => {
     const {
       name: viewName,

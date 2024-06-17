@@ -12,6 +12,7 @@ import serverVersion from './server-version';
 import namespace from './namespace';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const reducer = combineReducers({
   isWritable,
@@ -32,6 +33,7 @@ export type IndexesExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   logger: Logger;
+  track: TrackFunction;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

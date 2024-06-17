@@ -3,6 +3,7 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { createInstancesStore } from './instance-store';
 import sinon from 'sinon';
 import { expect } from 'chai';
+
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import {

@@ -34,9 +34,6 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -537,7 +534,7 @@ export const changeStageOperator = (
   string | undefined,
   ChangeStageOperatorAction
 > => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       env,
       comments,
@@ -646,7 +643,7 @@ export const changeStageCollapsed = (
 export const addStage = (
   after?: number
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -677,7 +674,7 @@ export const addStage = (
 export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -709,7 +706,7 @@ export const moveStage = (
   from: number,
   to: number
 ): PipelineBuilderThunkAction<void, StageMoveAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     if (from === to) {
       return;
     }
@@ -875,7 +872,7 @@ export const convertWizardToStage = (
   void,
   WizardChangeAction | WizardToStageAction
 > => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },

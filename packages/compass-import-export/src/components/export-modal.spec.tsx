@@ -6,6 +6,7 @@ import { configureStore } from '../stores/export-store';
 import { ExportModal } from './export-modal';
 import { Provider } from 'react-redux';
 import { closeExport, openExport } from '../modules/export';
+
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 function renderModal(exportState: any = {}) {

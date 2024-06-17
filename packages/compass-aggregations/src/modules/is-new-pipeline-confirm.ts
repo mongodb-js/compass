@@ -4,9 +4,6 @@ import { showConfirmation } from '@mongodb-js/compass-components';
 import type Stage from './pipeline-builder/stage';
 import type { Document } from 'bson';
 import type { PipelineParserError } from './pipeline-builder/pipeline-parser/utils';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 export enum ActionTypes {
   NewPipelineConfirmed = 'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
@@ -25,7 +22,7 @@ export type NewPipelineConfirmedAction = {
  */
 export const confirmNewPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder }) => {
+  async (dispatch, getState, { pipelineBuilder, track }) => {
     const isModified = getState().isModified;
     if (isModified) {
       track('Screen', { name: 'confirm_new_pipeline_modal' });

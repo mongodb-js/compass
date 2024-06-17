@@ -18,9 +18,7 @@ import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 /**
  * The insert invalid message.
@@ -62,6 +60,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   isCommentNeeded: boolean;
   updateComment: (isCommentNeeded: boolean) => void;
   logger?: Logger;
+  track?: TrackFunction;
 };
 
 type InsertDocumentDialogState = {

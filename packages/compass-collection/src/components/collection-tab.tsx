@@ -23,8 +23,6 @@ import {
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import { createTrack } from '@mongodb-js/compass-telemetry';
 
-const track = createTrack();
-
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
 }
@@ -121,6 +119,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   stats,
 }) => {
   const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
+  const track = createTrack();
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)

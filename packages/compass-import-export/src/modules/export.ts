@@ -30,9 +30,6 @@ import {
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
 import type { ExportThunkAction } from '../stores/export-store';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 export type FieldsToExport = {
   [fieldId: string]: {
@@ -136,7 +133,7 @@ type OpenExportAction = {
 export const openExport = (
   exportOptions: Omit<OpenExportAction, 'type'>
 ): ExportThunkAction<void, OpenExportAction> => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     track('Export Opened', {
       type: exportOptions.aggregation ? 'aggregation' : 'query',
       origin: exportOptions.origin,
@@ -353,7 +350,7 @@ export const runExport = ({
   return async (
     dispatch,
     getState,
-    { connectionsManager, preferences, logger: { log, mongoLogId } }
+    { connectionsManager, preferences, track, logger: { log, mongoLogId } }
   ) => {
     let outputWriteStream: fs.WriteStream;
     try {

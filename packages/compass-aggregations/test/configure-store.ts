@@ -8,6 +8,7 @@ import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import {
   ConnectionScopedAppRegistryImpl,
@@ -48,6 +49,7 @@ export default function configureStore(
 ) {
   const preferences = new ReadOnlyPreferenceAccess();
   const logger = createNoopLogger();
+  const track = createNoopTrack();
 
   const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();
@@ -84,6 +86,7 @@ export default function configureStore(
       localAppRegistry: new AppRegistry(),
       workspaces: {} as any,
       logger,
+      track,
       atlasAiService: atlasAiService as any,
       atlasAuthService,
       connectionInfoAccess,

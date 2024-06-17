@@ -20,9 +20,7 @@ import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import { useTracking } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   position: 'relative',
@@ -81,6 +79,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   onChangePipelineText,
 }) => {
   const fields = useAutocompleteFields(namespace);
+  const track = useTracking();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useRef<string>(pipelineText);
   editorCurrentValueRef.current = pipelineText;

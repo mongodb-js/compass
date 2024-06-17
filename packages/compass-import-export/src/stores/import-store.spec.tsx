@@ -4,6 +4,7 @@ import { activatePlugin } from './import-store';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { expect } from 'chai';
 
 describe('ImportStore [Store]', function () {
@@ -15,6 +16,7 @@ describe('ImportStore [Store]', function () {
 
   beforeEach(function () {
     const logger = createNoopLogger();
+    const track = createNoopTrack();
     globalAppRegistry = new AppRegistry();
     connectionsManager = new ConnectionsManager({
       logger: logger.log.unbound,
@@ -26,6 +28,7 @@ describe('ImportStore [Store]', function () {
         globalAppRegistry,
         connectionsManager,
         logger,
+        track,
         workspaces,
       },
       createActivateHelpers()

@@ -24,9 +24,7 @@ import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import { useTracking } from '@mongodb-js/compass-telemetry/provider';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -98,6 +96,7 @@ export const StageEditor = ({
   editor_view_type,
   editorRef,
 }: StageEditorProps) => {
+  const track = useTracking();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
   const editorCurrentValueRef = useRef<string | null>(stageValue);

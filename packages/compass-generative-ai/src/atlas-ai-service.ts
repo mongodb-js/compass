@@ -9,7 +9,7 @@ import type {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Document } from 'mongodb';
-import type { Logger } from '@mongodb-js/compass-logging';
+import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
 
 type GenerativeAiInput = {
@@ -202,7 +202,7 @@ export class AtlasAiService {
     private atlasService: AtlasService,
     private atlasAuthService: AtlasAuthService,
     private preferences: PreferencesAccess,
-    private logger: Logger
+    private logger: LoggerAndTelemetry
   ) {
     this.initPromise = this.setupAIAccess();
   }

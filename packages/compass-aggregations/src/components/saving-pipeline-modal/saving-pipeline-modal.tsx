@@ -2,9 +2,8 @@ import type { ChangeEvent } from 'react';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormModal, TextInput } from '@mongodb-js/compass-components';
-import type { Logger } from '@mongodb-js/compass-logging/provider';
-import { withLogger } from '@mongodb-js/compass-logging/provider';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { withTrack } from '@mongodb-js/compass-telemetry/provider';
 
 export interface SavingPipelineModalProps {
   isOpen: boolean;
@@ -15,10 +14,8 @@ export interface SavingPipelineModalProps {
   savingPipelineNameChanged: (v: string) => void;
   saveCurrentPipeline: () => void;
   clonePipeline: () => void;
-  logger: Logger;
+  track: TrackFunction;
 }
-
-const track = createTrack();
 
 /**
  * Saving pipeline modal.
@@ -39,7 +36,7 @@ class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
 
   componentDidUpdate(prevProps: SavingPipelineModalProps) {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-      track('Screen', { name: 'save_pipeline_modal' });
+      this.props.track('Screen', { name: 'save_pipeline_modal' });
     }
   }
 
@@ -97,4 +94,4 @@ class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
   }
 }
 
-export default withLogger(SavingPipelineModal, 'COMPASS-AGGREGATIONS-UI');
+export default withTrack(SavingPipelineModal);

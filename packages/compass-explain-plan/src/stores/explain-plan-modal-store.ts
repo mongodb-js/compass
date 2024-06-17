@@ -4,9 +4,6 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { ExplainPlanModalServices, OpenExplainPlanModalEvent } from '.';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -179,7 +176,7 @@ export const openExplainPlanModal = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger: { log, mongoLogId } }
+    { dataService, preferences, track, logger: { log, mongoLogId } }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
 
