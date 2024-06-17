@@ -85,7 +85,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     isAIFeatureEnabled
   ) {
     settings.push({
-      name: 'OIDC (Preview)',
+      name: 'OIDC',
       component: OIDCSettings,
     });
   }
