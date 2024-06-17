@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { stub, spy, type SinonStub } from 'sinon';
+import { stub, spy, restore } from 'sinon';
 import {
   render,
   screen,
@@ -15,6 +15,7 @@ import { ToastArea } from '@mongodb-js/compass-components';
 import {
   InMemoryConnectionStorage,
   ConnectionStorageProvider,
+  type ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import type { DataService } from 'mongodb-data-service';
 import {
@@ -23,7 +24,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { createSidebarStore } from '../../stores';
 import { Provider } from 'react-redux';
-import AppRegistry from 'hadron-app-registry';
+import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import {
   type PreferencesAccess,
   createSandboxFromDefaultPreferences,
@@ -35,6 +36,11 @@ import {
 } from '@mongodb-js/compass-workspaces/provider';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
+import {
+  type MongoDBInstancesManager,
+  TestMongoDBInstanceManager,
+} from '@mongodb-js/compass-app-stores/provider';
+import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -47,15 +53,11 @@ function slowConnection(response: PromiseFunction): Promise<DataService> {
   });
 }
 
-function andFail(message: string): PromiseFunction {
-  return (resolve, reject) => reject({ message });
-}
-
 function andSucceed(): PromiseFunction {
   return (resolve) => resolve({} as DataService);
 }
 
-const savedConnection: ConnectionInfo = {
+const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
@@ -67,61 +69,55 @@ const savedConnection: ConnectionInfo = {
   savedConnectionType: 'favorite',
 };
 
+const savedRecentConnection: ConnectionInfo = {
+  id: '54321',
+  connectionOptions: {
+    connectionString: 'mongodb://localhost:27020',
+  },
+};
+
 describe('Multiple Connections Sidebar Component', function () {
   let preferences: PreferencesAccess;
 
-  const connectionStorage = new InMemoryConnectionStorage([savedConnection]);
   const globalAppRegistry = new AppRegistry();
   const emitSpy = spy(globalAppRegistry, 'emit');
+  const activeWorkspace = {
+    type: 'Databases',
+    connectionId: savedFavoriteConnection.id,
+  } as WorkspaceTab;
+  const workspaceService: WorkspacesService = {
+    openCollectionsWorkspace: stub(),
+    openCollectionWorkspace: stub(),
+    openCollectionWorkspaceSubtab: stub(),
+    openDatabasesWorkspace: stub(),
+    openEditViewWorkspace: stub(),
+    openMyQueriesWorkspace: stub(),
+    openPerformanceWorkspace: stub(),
+    openShellWorkspace: stub(),
+    getActiveWorkspace() {
+      return activeWorkspace;
+    },
+  };
+
+  let connectionStorage: ConnectionStorage;
+  let connectionsManager: ConnectionsManager;
+  let instancesManager: MongoDBInstancesManager;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  let openMyQueriesWorkspaceStub: SinonStub;
-
-  const connectFn = stub();
+  let connectFn = stub();
 
   function doRender() {
-    const connectionManager = new ConnectionsManager({
-      logger: { debug: stub() } as any,
-      __TEST_CONNECT_FN: connectFn,
-    });
-    ({ store, deactivate } = createSidebarStore(
-      {
-        globalAppRegistry,
-        instancesManager: {
-          listMongoDBInstances() {
-            return [];
-          },
-        },
-        logger: { log: { warn() {} }, mongoLogId() {} },
-      } as any,
-      { on() {}, cleanup() {}, addCleanup() {} } as any
-    ));
-    openMyQueriesWorkspaceStub = stub();
-
     return render(
       <ToastArea>
         <PreferencesProvider value={preferences}>
-          <WorkspacesServiceProvider
-            value={
-              {
-                openMyQueriesWorkspace: openMyQueriesWorkspaceStub,
-              } as unknown as WorkspacesService
-            }
-          >
+          <WorkspacesServiceProvider value={workspaceService}>
             <WorkspacesProvider
               value={[{ name: 'My Queries', component: () => null }]}
             >
               <ConnectionStorageProvider value={connectionStorage}>
-                <ConnectionsManagerProvider value={connectionManager}>
+                <ConnectionsManagerProvider value={connectionsManager}>
                   <Provider store={store}>
-                    <MultipleConnectionSidebar
-                      activeWorkspace={
-                        {
-                          type: 'Databases',
-                          connectionId: savedConnection.id,
-                        } as WorkspaceTab
-                      }
-                    />
+                    <MultipleConnectionSidebar activeWorkspace={null} />
                   </Provider>
                 </ConnectionsManagerProvider>
               </ConnectionStorageProvider>
@@ -133,70 +129,42 @@ describe('Multiple Connections Sidebar Component', function () {
   }
 
   beforeEach(async function () {
+    connectFn = stub();
+    instancesManager = new TestMongoDBInstanceManager();
+    connectionsManager = new ConnectionsManager({
+      logger: { debug: stub() } as any,
+      __TEST_CONNECT_FN: connectFn,
+    });
+    connectionStorage = new InMemoryConnectionStorage([
+      savedFavoriteConnection,
+      savedRecentConnection,
+    ]);
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableNewMultipleConnectionSystem: true,
     });
-
-    doRender();
+    ({ store, deactivate } = createSidebarStore(
+      {
+        globalAppRegistry,
+        instancesManager,
+        logger: createNoopLoggerAndTelemetry(),
+        connectionsManager,
+      },
+      createActivateHelpers()
+    ));
   });
 
   afterEach(function () {
     deactivate();
     cleanup();
-    emitSpy.resetHistory();
-    openMyQueriesWorkspaceStub.resetHistory();
+    restore();
   });
 
-  describe('opening a new connection', function () {
-    let parentSavedConnection: HTMLElement;
-
-    describe('when successfully connected', function () {
-      it('calls the connection function and renders the progress toast', async function () {
-        connectFn.returns(slowConnection(andSucceed()));
-        parentSavedConnection = screen.getByTestId('12345');
-
-        userEvent.hover(parentSavedConnection);
-
-        const connectButton = within(parentSavedConnection).getByLabelText(
-          'Connect'
-        );
-
-        userEvent.click(connectButton);
-        expect(screen.getByText('Connecting to localhost')).to.exist;
-        expect(connectFn).to.have.been.called;
-
-        await waitFor(() => {
-          expect(screen.queryByText('Connecting to localhost')).to.not.exist;
-        });
-      });
+  describe('top level general navigation', function () {
+    beforeEach(function () {
+      doRender();
     });
-
-    describe('when failing to connect', function () {
-      it('calls the connection function and renders the error toast', async function () {
-        connectFn.returns(slowConnection(andFail('Expected failure')));
-        parentSavedConnection = screen.getByTestId('12345');
-
-        userEvent.hover(parentSavedConnection);
-
-        const connectButton = within(parentSavedConnection).getByLabelText(
-          'Connect'
-        );
-
-        userEvent.click(connectButton);
-        const connectingToast = screen.getByText('Connecting to localhost');
-        expect(connectingToast).to.exist;
-        expect(connectFn).to.have.been.called;
-
-        await waitFor(() => {
-          expect(screen.queryByText('Expected failure')).to.exist;
-        });
-      });
-    });
-  });
-
-  describe('sidebar navigation', () => {
-    it('when clicking on the Settings btn, it emits open-compass-settings', () => {
+    it('should have settings button and it emits open-compass-settings on click', () => {
       const settingsBtn = screen.getByTitle('Compass Settings');
       expect(settingsBtn).to.be.visible;
 
@@ -205,13 +173,197 @@ describe('Multiple Connections Sidebar Component', function () {
       expect(emitSpy).to.have.been.calledWith('open-compass-settings');
     });
 
-    it('when clicking on "My Queries", it opens the workspace', () => {
+    it('should have "My Queries" navigation item and it should the workspace on click', () => {
       const navItem = screen.getByText('My Queries');
       expect(navItem).to.be.visible;
 
       userEvent.click(navItem);
 
-      expect(openMyQueriesWorkspaceStub).to.have.been.called;
+      expect(workspaceService.openMyQueriesWorkspace).to.have.been.called;
+    });
+
+    it('should have a connections list with connection related actions', function () {
+      const listHeader = screen.getByText('Connections');
+      expect(listHeader).to.be.visible;
+
+      const collapseAllConnectionsBtn = screen.getByLabelText(
+        'Collapse all connections'
+      );
+      expect(collapseAllConnectionsBtn).to.be.visible;
+
+      const addNewConnectionsBtn = screen.getByLabelText('Add new connection');
+      expect(addNewConnectionsBtn).to.be.visible;
+    });
+  });
+
+  describe('connections list', function () {
+    context('when there are no connections', function () {
+      it('should display an empty state with a CTA to add new connection', function () {
+        connectionStorage = new InMemoryConnectionStorage([]);
+        doRender();
+
+        expect(() => screen.getByRole('tree')).to.throw;
+
+        const ctaText = screen.getByText(
+          'You have not connected to any deployments.'
+        );
+        expect(ctaText).to.be.visible;
+
+        const addNewConnectionBtn = screen.getByTestId(
+          'add-new-connection-button'
+        );
+        expect(addNewConnectionBtn).to.be.visible;
+
+        userEvent.click(addNewConnectionBtn);
+        // Connect button in the form modal
+        expect(screen.getByTestId('connect-button')).to.be.visible;
+      });
+    });
+
+    context('when there are some connections', function () {
+      async function renderWithConnections(
+        connections: ConnectionInfo[] = [
+          savedFavoriteConnection,
+          savedRecentConnection,
+        ]
+      ) {
+        connectionStorage = new InMemoryConnectionStorage(connections);
+        doRender();
+        return await waitFor(() => screen.getByRole('tree'));
+      }
+
+      it('should not render the empty CTA and instead render the connections tree', async function () {
+        const navigationTree = await renderWithConnections();
+        expect(navigationTree).to.be.visible;
+
+        const connectionNavigationItems = screen.getAllByRole('treeitem');
+        expect(connectionNavigationItems).to.have.lengthOf(2);
+        expect(connectionNavigationItems[0]).to.have.attribute(
+          'data-id',
+          savedFavoriteConnection.id
+        );
+        expect(connectionNavigationItems[1]).to.have.attribute(
+          'data-id',
+          savedRecentConnection.id
+        );
+      });
+
+      context('on hover of connection navigation item', function () {
+        it('should display actions for favorite item', async function () {
+          await renderWithConnections();
+          const favoriteItem = screen.getByTestId(savedFavoriteConnection.id);
+          expect(favoriteItem).to.be.visible;
+
+          userEvent.hover(
+            within(favoriteItem).getByTestId('base-navigation-item')
+          );
+
+          const connectAction = within(favoriteItem).getByLabelText('Connect');
+          expect(connectAction).to.be.visible;
+
+          const moreActions =
+            within(favoriteItem).getByLabelText('Show actions');
+          expect(moreActions).to.be.visible;
+
+          userEvent.click(moreActions);
+          const editAction = screen.getByText('Edit connection');
+          expect(editAction).to.be.visible;
+
+          const copyAction = screen.getByText('Copy connection string');
+          expect(copyAction).to.be.visible;
+
+          // Unfavorite because the connection is already a favorite
+          const favAction = screen.getByText('Unfavorite');
+          expect(favAction).to.be.visible;
+
+          const duplicateAction = screen.getByText('Duplicate');
+          expect(duplicateAction).to.be.visible;
+
+          const removeAction = screen.getByText('Remove');
+          expect(removeAction).to.be.visible;
+        });
+
+        it('should display actions for non-favorite item', async function () {
+          await renderWithConnections();
+          const nonFavoriteItem = screen.getByTestId(savedRecentConnection.id);
+          expect(nonFavoriteItem).to.be.visible;
+
+          userEvent.hover(
+            within(nonFavoriteItem).getByTestId('base-navigation-item')
+          );
+
+          const connectAction =
+            within(nonFavoriteItem).getByLabelText('Connect');
+          expect(connectAction).to.be.visible;
+
+          const moreActions =
+            within(nonFavoriteItem).getByLabelText('Show actions');
+          expect(moreActions).to.be.visible;
+
+          userEvent.click(moreActions);
+          const editAction = screen.getByText('Edit connection');
+          expect(editAction).to.be.visible;
+
+          const copyAction = screen.getByText('Copy connection string');
+          expect(copyAction).to.be.visible;
+
+          // Favorite because the connection is not yet a favorite
+          const favAction = screen.getByText('Favorite');
+          expect(favAction).to.be.visible;
+
+          const duplicateAction = screen.getByText('Duplicate');
+          expect(duplicateAction).to.be.visible;
+
+          const removeAction = screen.getByText('Remove');
+          expect(removeAction).to.be.visible;
+        });
+      });
+
+      context('when trying to connect', function () {
+        it('(successful connection) calls the connection function and renders the progress toast', async function () {
+          connectFn.returns(slowConnection(andSucceed()));
+          await renderWithConnections();
+          const connectionItem = screen.getByTestId('12345');
+
+          userEvent.hover(
+            within(connectionItem).getByTestId('base-navigation-item')
+          );
+
+          const connectButton =
+            within(connectionItem).getByLabelText('Connect');
+
+          userEvent.click(connectButton);
+          expect(screen.getByText('Connecting to localhost')).to.exist;
+          expect(connectFn).to.have.been.called;
+
+          await waitFor(() => {
+            expect(screen.queryByText('Connecting to localhost')).to.not.exist;
+          });
+        });
+
+        it('(failed connection) calls the connection function and renders the error toast', async function () {
+          connectFn.callsFake(() => {
+            return Promise.reject(new Error('Expected failure'));
+          });
+          await renderWithConnections();
+          const connectionItem = screen.getByTestId('12345');
+
+          userEvent.hover(
+            within(connectionItem).getByTestId('base-navigation-item')
+          );
+
+          const connectButton =
+            within(connectionItem).getByLabelText('Connect');
+
+          userEvent.click(connectButton);
+          expect(screen.getByText('Connecting to localhost')).to.exist;
+          expect(connectFn).to.have.been.called;
+
+          await waitFor(() => {
+            expect(() => screen.getByText('Expected failure')).to.not.throw;
+          });
+        });
+      });
     });
   });
 });

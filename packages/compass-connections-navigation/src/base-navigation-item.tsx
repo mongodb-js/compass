@@ -70,6 +70,7 @@ export const NavigationBaseItem = ({
   const [hoverProps, isHovered] = useHoverState();
   return (
     <ItemContainer
+      data-testid="base-navigation-item"
       isActive={isActive}
       className={baseItemContainerStyles}
       {...hoverProps}
