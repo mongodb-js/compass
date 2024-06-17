@@ -24,11 +24,20 @@ const tabStyles = css({
   paddingRight: spacing[1],
   gap: spacing[2],
 
+  // same as the border at the top
+  paddingBottom: '4px',
+
   maxWidth: spacing[6] * 4,
   minWidth: spacing[6] * 2,
   height: 36,
   position: 'relative',
   outline: 'none',
+
+  // hide the close button until it animates in
+  overflow: 'hidden',
+
+  // leave space so the active and other tabs line up
+  borderTop: '4px solid transparent',
 
   backgroundColor: 'var(--workspace-tab-background-color)',
   color: 'var(--workspace-tab-color)',
@@ -77,7 +86,8 @@ const tabLightThemeStyles = css({
   '--workspace-tab-selected-background-color': palette.white,
   '--workspace-tab-border-color': palette.gray.light2,
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.green.dark2,
+  '--workspace-tab-selected-color': palette.black,
+  '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.base,
     '--workspace-tab-border-color': palette.blue.base,
@@ -89,7 +99,8 @@ const tabDarkThemeStyles = css({
   '--workspace-tab-selected-background-color': palette.black,
   '--workspace-tab-border-color': palette.gray.dark2,
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.green.base,
+  '--workspace-tab-selected-color': palette.gray.light2,
+  '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.light1,
     '--workspace-tab-border-color': palette.blue.light1,
@@ -99,6 +110,7 @@ const tabDarkThemeStyles = css({
 const selectedTabStyles = css({
   color: 'var(--workspace-tab-selected-color)',
   backgroundColor: 'var(--workspace-tab-selected-background-color)',
+  borderTopColor: 'var(--workspace-tab-selected-border-color)',
   boxShadow: 'inset -1px 0 0 0 var(--workspace-tab-border-color)',
 
   '&:hover': {
@@ -158,11 +170,15 @@ const tabSubtitleStyles = css({
 });
 
 const closeButtonStyles = css({
-  visibility: 'hidden',
+  transition: tabTransition,
+  transitionProperty: 'opacity, transform',
+  transform: 'translateY(44px)',
+  opacity: 0,
 });
 
 const selectedCloseButtonStyles = css({
-  visibility: 'visible',
+  transform: 'translateY(0)',
+  opacity: 1,
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
