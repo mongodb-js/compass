@@ -1,20 +1,15 @@
 import React from 'react';
-import type {
-  LoggerAndTelemetry,
-  LoggingAndTelemetryPreferences,
-} from './logger';
+import type { Logger } from './logger';
 import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
 import { createServiceLocator } from 'hadron-app-registry';
 
-export type { LoggerAndTelemetry } from './logger';
+export type { Logger } from './logger';
 
 const noop = () => {
   // noop
 };
 
-export function createNoopLoggerAndTelemetry(
-  component = 'NOOP-LOGGER'
-): LoggerAndTelemetry {
+export function createNoopLogger(component = 'NOOP-LOGGER'): Logger {
   return {
     log: {
       component,
@@ -28,19 +23,14 @@ export function createNoopLoggerAndTelemetry(
       fatal: noop,
       debug: noop,
     },
-    debug: noop as unknown as LoggerAndTelemetry['debug'],
-    track: noop,
+    debug: noop as unknown as Logger['debug'],
     mongoLogId,
   };
 }
 
 const LoggerAndTelemetryContext = React.createContext<{
-  createLogger(
-    component: string,
-    preferences: LoggingAndTelemetryPreferences
-  ): LoggerAndTelemetry;
-  preferences?: LoggingAndTelemetryPreferences;
-}>({ createLogger: createNoopLoggerAndTelemetry });
+  createLogger(component: string): Logger;
+}>({ createLogger: createNoopLogger });
 
 export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
 
@@ -51,42 +41,16 @@ export function createLoggerAndTelemetryLocator(component: string) {
   );
 }
 
-export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
+export function useLoggerAndTelemetry(component: string): Logger {
   const context = React.useContext(LoggerAndTelemetryContext);
   if (!context) {
-    throw new Error('LoggerAndTelemetry service is missing from React context');
+    throw new Error('Logger service is missing from React context');
   }
-  const loggerRef = React.createRef<LoggerAndTelemetry>();
+  const loggerRef = React.createRef<Logger>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = context.createLogger(
-      component,
-      context.preferences ?? {
-        getPreferences() {
-          return { trackUsageStatistics: true };
-        },
-      }
-    );
+    (loggerRef as any).current = context.createLogger(component);
   }
   return loggerRef.current!;
-}
-
-export function useTrackOnChange(
-  component: string,
-  onChange: (track: LoggerAndTelemetry['track']) => void,
-  dependencies: unknown[],
-  options: { skipOnMount: boolean } = { skipOnMount: false }
-) {
-  const onChangeRef = React.useRef(onChange);
-  onChangeRef.current = onChange;
-  const { track } = useLoggerAndTelemetry(component);
-  let initial = true;
-  React.useEffect(() => {
-    if (options.skipOnMount && initial) {
-      initial = false;
-      return;
-    }
-    onChangeRef.current(track);
-  }, [...dependencies, track]);
 }
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any

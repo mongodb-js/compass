@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 describe('createLoggerAndTelemetry', function () {
   it('creates a logger that forwards log lines as events', async function () {
-    const { log, mongoLogId } = createLoggerAndTelemetry('COMPONENT');
+    const { log, mongoLogId } = createLogger('COMPONENT');
     const logevent = once(process, 'compass:log');
 
     log.info(mongoLogId(12345), 'ctx', 'message', { attr: 42 });
@@ -19,8 +19,8 @@ describe('createLoggerAndTelemetry', function () {
   });
 
   it('logs events from the same tick from multiple loggers in-order', function () {
-    const log1 = createLoggerAndTelemetry('C1');
-    const log2 = createLoggerAndTelemetry('C1');
+    const log1 = createLogger('C1');
+    const log2 = createLogger('C1');
 
     const log: any[] = [];
     process.on('compass:log', ({ line }) => log.push(JSON.parse(line).msg));
@@ -32,7 +32,7 @@ describe('createLoggerAndTelemetry', function () {
   });
 
   it('sends track events over ipc', async function () {
-    const { track } = createLoggerAndTelemetry('TEST');
+    const { track } = createLogger('TEST');
 
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
@@ -54,7 +54,7 @@ describe('createLoggerAndTelemetry', function () {
   });
 
   it('resolves track event attributes', async function () {
-    const { track } = createLoggerAndTelemetry('TEST');
+    const { track } = createLogger('TEST');
 
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
@@ -81,7 +81,7 @@ describe('createLoggerAndTelemetry', function () {
   });
 
   it('tracks events even when fetching the attributes fails', async function () {
-    const { track } = createLoggerAndTelemetry('TEST');
+    const { track } = createLogger('TEST');
 
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
