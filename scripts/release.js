@@ -36,7 +36,7 @@ program
     if (!options.submitter) {
       throw new Error('submitter is required');
     }
-    const publisher = getReleasePublisher(options.submitter);
+    const publisher = await getReleasePublisher(options.submitter);
 
     const nextGa = options.nextGa || (await getNextGaVersionInJira());
 
@@ -92,7 +92,7 @@ program
     if (!options.submitter) {
       throw new Error('submitter is required');
     }
-    const publisher = getReleasePublisher(options.submitter);
+    const publisher = await getReleasePublisher(options.submitter);
 
     const nextGa = await getReleaseVersionFromTicket(options.releaseTicket);
 
@@ -195,10 +195,14 @@ async function bumpAndPush(nextVersion, releaseBranch, publisher) {
   });
   await fs.writeFile(
     compassPackageJsonPath,
-    JSON.stringify({
-      ...JSON.parse(await fs.readFile(compassPackageJsonPath, 'utf8')),
-      releasePublisher: publisher,
-    })
+    JSON.stringify(
+      {
+        ...JSON.parse(await fs.readFile(compassPackageJsonPath, 'utf8')),
+        releasePublisher: publisher,
+      },
+      null,
+      2
+    )
   );
   await execFile('git', ['add', compassPackageJsonPath, `package-lock.json`], {
     cwd: monorepoRoot,
