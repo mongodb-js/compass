@@ -1,7 +1,10 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { useConnectionsManagerContext } from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
-import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
+import {
+  ConnectionRepositoryArgs,
+  useConnectionRepository as useConnectionsRepositoryState,
+} from '../hooks/use-connection-repository';
 
 const ConnectionsStoreContext = React.createContext<ReturnType<
   typeof useConnectionsStore
@@ -61,13 +64,13 @@ export function useConnections() {
   return store;
 }
 
-export function useConnectionRepository() {
+export function useConnectionRepository(args: ConnectionRepositoryArgs) {
   const repository = useContext(ConnectionsRepositoryStateContext);
   if (!repository) {
     // TODO(COMPASS-7879): implement a default provider in test methods
     if (process.env.NODE_ENV === 'test') {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useConnectionsRepositoryState();
+      return useConnectionsRepositoryState(args);
     }
     throw new Error(
       'Can not use useConnectionRepository outside of ConnectionsProvider component'

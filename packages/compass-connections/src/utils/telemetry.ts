@@ -165,7 +165,8 @@ export function trackConnectionAttemptEvent(
   }
 }
 
-export function trackNewConnectionEvent(
+// TODO: add the number of open & closed connections
+export function trackConnectionSuccessEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
   { track, debug }: LoggerAndTelemetry
@@ -187,6 +188,47 @@ export function trackNewConnectionEvent(
         server_arch: host.arch,
         server_os_family: host.os_family,
         topology_type: dataService.getCurrentTopologyType(),
+      };
+      return trackEvent;
+    };
+    track('New Connection', callback);
+  } catch (error) {
+    debug('trackConnectionSuccess failed', error);
+  }
+}
+
+// TODO: add the number of open & closed connections
+export function trackNewConnectionAdded(
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions' | 'favorite'>,
+  { track, debug }: LoggerAndTelemetry
+): void {
+  try {
+    const callback = async () => {
+      const connectionData = await getConnectionData(connectionInfo);
+      const trackEvent = {
+        ...connectionData,
+        is_atlas: isAtlas(connectionInfo?.connectionOptions.connectionString),
+        color: connectionInfo?.favorite?.color,
+      };
+      return trackEvent;
+    };
+    track('New Connection added', callback);
+  } catch (error) {
+    debug('trackNewConnectionAdded failed', error);
+  }
+}
+
+// TODO: add the number of open & closed connections
+export function trackSavedConnectionRemoved(
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions' | 'favorite'>,
+  { track, debug }: LoggerAndTelemetry
+): void {
+  try {
+    const callback = async () => {
+      const connectionData = await getConnectionData(connectionInfo);
+      const trackEvent = {
+        ...connectionData,
+        is_atlas: isAtlas(connectionInfo?.connectionOptions.connectionString),
       };
       return trackEvent;
     };

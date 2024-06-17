@@ -39,9 +39,10 @@ export function createGenericLoggerAndTelemetry(
   const log = writer.bindComponent(component);
 
   const track = (...args: [string, TrackProps?]) => {
-    void Promise.resolve()
-      .then(() => trackAsync(...args))
-      .catch((error) => debug('track failed', error));
+    console.log('TRACK', args);
+    // void Promise.resolve()
+    //   .then(() => trackAsync(...args))
+    //   .catch((error) => debug('track failed', error));
   };
 
   const trackAsync = async (

@@ -54,7 +54,13 @@ export type ConnectionRepository = {
   getConnectionTitleById: (id: ConnectionInfo['id']) => string | undefined;
 };
 
-export function useConnectionRepository(): ConnectionRepository {
+export type ConnectionRepositoryArgs = {
+  onNewConnectionAdded?: (connectionInfo: ConnectionInfo) => void;
+};
+
+export function useConnectionRepository({
+  onNewConnectionAdded,
+}: ConnectionRepositoryArgs = {}): ConnectionRepository {
   const storage = useConnectionStorageContext();
 
   const [favoriteConnections, setFavoriteConnections] = useState<
@@ -154,6 +160,11 @@ export function useConnectionRepository(): ConnectionRepository {
       }
 
       await storage.save?.({ connectionInfo: infoToSave });
+      console.log('is this new?', oldConnectionInfo, onNewConnectionAdded);
+      if (!oldConnectionInfo && onNewConnectionAdded) {
+        console.log('this is new');
+        onNewConnectionAdded(infoToSave);
+      }
       return infoToSave;
     },
     [storage, persistOIDCTokens]

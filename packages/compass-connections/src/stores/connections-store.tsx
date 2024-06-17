@@ -15,8 +15,10 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 import {
+  trackConnectionAttemptEvent,
   trackConnectionFailedEvent,
-  trackNewConnectionEvent,
+  trackConnectionSuccessEvent,
+  trackNewConnectionAdded,
 } from '../utils/telemetry';
 
 const loggerAndTelemetry = createLoggerAndTelemetry('COMPASS-CONNECTIONS');
@@ -184,14 +186,18 @@ export function useConnections({
     connectionId: ConnectionInfo['id']
   ) => Promise<void>;
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
-  closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
+  closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>; // TODO: add new event
   createNewConnection: () => void;
-  saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
+  saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>; // TODO: add new event
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
-  removeConnection: (connectionInfo: ConnectionInfo) => void;
+  removeConnection: (connectionInfo: ConnectionInfo) => void; // TODO: add new event
 } {
+  const onNewConnectionAdded = useCallback((connectionInfo: ConnectionInfo) => {
+    trackNewConnectionAdded(connectionInfo, loggerAndTelemetry);
+  }, []);
+
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
@@ -202,7 +208,7 @@ export function useConnections({
     nonFavoriteConnections: recentConnections,
     saveConnection,
     deleteConnection,
-  } = useConnectionRepository();
+  } = useConnectionRepository({ onNewConnectionAdded });
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -221,6 +227,7 @@ export function useConnections({
         Pick<ConnectionInfo, 'id'>
     ) => {
       try {
+        console.log('saving connection');
         await saveConnection(connectionInfo);
         return true;
       } catch (err) {
@@ -301,7 +308,7 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        trackNewConnectionEvent(
+        trackConnectionSuccessEvent(
           connectionInfo,
           dataService,
           loggerAndTelemetry
@@ -406,6 +413,7 @@ export function useConnections({
         }`,
       });
 
+      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
       onConnectionAttemptStarted?.(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
       log.info(
