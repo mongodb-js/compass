@@ -101,11 +101,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
       }
       // Database List (of a connection)
-      if (activeWorkspace.type === 'Databases') {
+      if (activeWorkspace.type === 'Databases' && !isSingleConnection) {
         return activeWorkspace.connectionId;
       }
     }
-  }, [activeWorkspace]);
+  }, [activeWorkspace, isSingleConnection]);
 
   const getItemActions = useCallback(
     (item: SidebarTreeItem) => {
