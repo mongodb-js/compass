@@ -345,31 +345,13 @@ function Home({
               <FieldStorePlugin>
                 {multiConnectionsEnabled && (
                   <AppRegistryProvider scopeName="Multiple Connections">
-                    <Workspace
-                      // Workspace receives the singleConnectionConnectionInfo
-                      // to wrap the "My Queries" workspace with a
-                      // ConnectionInfoProvider. This makes sure that "My
-                      // Queries" can continue to work when FF for
-                      // multi-connection is not enabled.
-                      singleConnectionConnectionInfo={
-                        connectionInfo ?? undefined
-                      }
-                      onActiveWorkspaceTabChange={onWorkspaceChange}
-                    />
+                    <Workspace onActiveWorkspaceTabChange={onWorkspaceChange} />
                   </AppRegistryProvider>
                 )}
                 {!multiConnectionsEnabled &&
                   (isConnected ? (
                     <AppRegistryProvider scopeName="Single Connection">
                       <Workspace
-                        // Workspace receives the singleConnectionConnectionInfo
-                        // to wrap the "My Queries" workspace with a
-                        // ConnectionInfoProvider. This makes sure that "My
-                        // Queries" can continue to work when FF for
-                        // multi-connection is not enabled.
-                        singleConnectionConnectionInfo={
-                          connectionInfo ?? undefined
-                        }
                         onActiveWorkspaceTabChange={onWorkspaceChange}
                       />
                     </AppRegistryProvider>
