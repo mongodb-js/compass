@@ -67,4 +67,3 @@ export * from './drop-index';
 export * from './hide-index';
 export * from './unhide-index';
 export * from './hide-visible-toasts';
-export * from './load-preferences';
