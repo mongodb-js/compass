@@ -28,26 +28,36 @@ type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
   dataProcessingRegion: { regionalUrl: string };
 };
 
-type DeploymentItem = {
+type ReplicaSetDeploymentItem = {
   _id: string;
   state: {
     clusterId: string;
   };
 };
 
+type ShardingDeploymentItem = {
+  name: string;
+  state: {
+    clusterId: string;
+  };
+};
+
 type Deployment = {
-  replicaSets?: DeploymentItem[];
-  clusters?: DeploymentItem[];
+  replicaSets?: ReplicaSetDeploymentItem[];
+  sharding?: ShardingDeploymentItem[];
 };
 
 function findDeploymentItemByClusterName(
   description: ClusterDescription,
   deployment: Deployment
-): DeploymentItem | undefined {
-  return (
-    (isSharded(description) ? deployment.clusters : deployment.replicaSets) ??
-    []
-  ).find((item) => {
+): ReplicaSetDeploymentItem | ShardingDeploymentItem | undefined {
+  if (isSharded(description)) {
+    return (deployment.sharding ?? []).find((item) => {
+      return item.name === description.deploymentItemName;
+    });
+  }
+
+  return (deployment.replicaSets ?? []).find((item) => {
     return item._id === description.deploymentItemName;
   });
 }
@@ -66,7 +76,7 @@ function isSharded(clusterDescription: ClusterDescription) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getMetricsIdAndType(
   clusterDescription: ClusterDescription,
-  deploymentItem?: DeploymentItem
+  deploymentItem?: ReplicaSetDeploymentItem | ShardingDeploymentItem
 ): {
   clusterId: string;
   clusterType: 'serverless' | 'replicaSet' | 'cluster';

@@ -12,12 +12,14 @@ export type VirtualTreeItem = {
   level: number;
   setSize: number;
   posInSet: number;
+  isExpandable: boolean;
   isExpanded?: boolean;
 };
 
 export type VirtualPlaceholderItem = {
   type: 'placeholder';
   level: number;
+  isExpandable?: never;
 };
 
 export type VirtualItem = VirtualTreeItem | VirtualPlaceholderItem;
@@ -28,12 +30,6 @@ export function isPlaceholderItem(
   item: VirtualItem
 ): item is VirtualPlaceholderItem {
   return 'type' in item && item.type === 'placeholder';
-}
-
-function isExpandable(
-  item: VirtualTreeItem
-): item is VirtualTreeItem & { isExpanded: boolean } {
-  return typeof item.isExpanded !== 'undefined';
 }
 
 function findNext(
@@ -242,11 +238,11 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
       if (evt.key === 'ArrowRight') {
         evt.stopPropagation();
 
-        if (isExpandable(currentItem) && currentItem.isExpanded === false) {
+        if (currentItem.isExpandable && currentItem.isExpanded === false) {
           onExpandedChange(currentItem, true);
         }
 
-        if (isExpandable(currentItem) && currentItem.isExpanded === true) {
+        if (currentItem.isExpandable && currentItem.isExpanded === true) {
           const maybeNextItem = findNext(currentItemIndex, items);
           if (maybeNextItem?.level === currentItem.level + 1) {
             nextItem = maybeNextItem;
@@ -257,7 +253,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
       if (evt.key === 'ArrowLeft') {
         evt.stopPropagation();
 
-        if (isExpandable(currentItem) && currentItem.isExpanded === true) {
+        if (currentItem.isExpandable && currentItem.isExpanded === true) {
           onExpandedChange(currentItem, false);
         } else {
           nextItem = findParentItem(currentItem, currentItemIndex, items);
@@ -268,7 +264,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
         evt.stopPropagation();
         const siblings = findSiblings(currentItem, currentItemIndex, items);
         for (const item of siblings) {
-          if (isExpandable(currentItem) && item.isExpanded === false) {
+          if (currentItem.isExpandable && item.isExpanded === false) {
             onExpandedChange(item, true);
           }
         }

@@ -26,6 +26,19 @@ async function refresh(browser: CompassBrowser) {
   await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
 }
 
+/**
+ * @securityTest In-Use Encryption Testing
+ *
+ * MongoDB supports a set of features referred to as "In-Use Encryption".
+ * The most sensitive data handled as part of these features are Key Management System
+ * credentials -- our tests verify that these are not stored, unless the user explicitly
+ * requests that behavior.
+ *
+ * Additionally, the application provides a layer of protection for users against
+ * accidental misconfiguration: When updating decrypted data coming from the server,
+ * we ensure that when writing back into the database, it is always encrypted again,
+ * and never sent in plaintext.
+ */
 describe('CSFLE / QE', function () {
   before(function () {
     skipForWeb(this, 'not available in compass-web');

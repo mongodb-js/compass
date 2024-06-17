@@ -49,10 +49,7 @@ describe('hadron-build::signtool', () => {
       });
 
       it('signs windows exe remotely using jsign', async() => {
-        const initialPlatform = process.env.EVERGREEN_BUILD_VARIANT;
-        process.env.EVERGREEN_BUILD_VARIANT = 'windows';
         await sign('test/fixtures/foo.exe', garasign);
-
         expect(garasign.calledOnce).to.be.true;
         expect(garasign.firstCall.args).to.deep.equal(['test/fixtures/foo.exe', {
           client: 'remote',
@@ -63,11 +60,9 @@ describe('hadron-build::signtool', () => {
           privateKey: undefined,
           username: undefined,
         }]);
-        setEnvVars({EVERGREEN_BUILD_VARIANT: initialPlatform});
       });
 
       it('signs windows msi remotely using jsign', async() => {
-        process.env.EVERGREEN_BUILD_VARIANT = 'windows';
         await sign('test/fixtures/foo.msi', garasign);
 
         expect(garasign.calledOnce).to.be.true;

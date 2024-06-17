@@ -46,6 +46,10 @@ describe('WorkspacesPlugin', function () {
   const onTabChangeSpy = sandbox.spy();
 
   function renderPlugin() {
+    const Modals: React.FC = () => {
+      openFns = useOpenWorkspace();
+      return null;
+    };
     return render(
       <WorkspacesProvider
         value={[
@@ -60,8 +64,7 @@ describe('WorkspacesPlugin', function () {
         <Plugin
           onActiveWorkspaceTabChange={onTabChangeSpy}
           renderModals={() => {
-            openFns = useOpenWorkspace();
-            return null;
+            return <Modals />;
           }}
         ></Plugin>
       </WorkspacesProvider>
