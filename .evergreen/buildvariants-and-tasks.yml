@@ -86,7 +86,7 @@ buildvariants:
       - name: package-compass-readonly
   - name: package-macos-x64
     expansions:
-      silk_asset_group: compass-macos-x64
+      silk_asset_group: compass-macos
     display_name: Package MacOS Intel
     run_on: macos-1100
     tasks:

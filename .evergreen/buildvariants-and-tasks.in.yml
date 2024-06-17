@@ -178,7 +178,8 @@ buildvariants:
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
     expansions:
-      silk_asset_group: compass-<%= buildVariant.name.replace('package-', '') %>
+      # macos instead of macos-x64 since asset groups were created before build variant renaming
+      silk_asset_group: compass-<%= buildVariant.name.replace('package-', '').replace('macos-x64', 'macos') %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
