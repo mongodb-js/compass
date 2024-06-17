@@ -21,7 +21,7 @@ import {
 } from 'mongodb-connection-string-url';
 
 import { CompassWeb } from '../src/index';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { sandboxLogger } from './sandbox-logger';
 import { useWorkspaceTabRouter } from './use-workspace-tab-router';
@@ -276,7 +276,7 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
       value={!isAtlas ? connectionInfo : null}
     >
       <Body as="div" className={sandboxContainerStyles}>
-        <LoggerAndTelemetryProvider value={sandboxLogger}>
+        <LoggerProvider value={sandboxLogger}>
           <CompassWeb
             {...(isAtlas
               ? {
@@ -319,7 +319,7 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
               );
             }}
           ></CompassWeb>
-        </LoggerAndTelemetryProvider>
+        </LoggerProvider>
       </Body>
     </SandboxAutoconnectProvider>
   );

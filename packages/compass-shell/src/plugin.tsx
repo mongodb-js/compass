@@ -4,8 +4,8 @@ import { HistoryStorage } from './modules/history-storage';
 import type CompassShellComponentType from './components/compass-shell';
 import type AppRegistry from 'hadron-app-registry';
 import {
-  createLoggerAndTelemetryLocator,
-  type LoggerAndTelemetry,
+  createLoggerLocator,
+  type Logger,
 } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -67,7 +67,7 @@ export function onActivated(
     preferences,
   }: {
     globalAppRegistry: AppRegistry;
-    logger: LoggerAndTelemetry;
+    logger: Logger;
     dataService: DataService;
     preferences: PreferencesAccess;
   }
@@ -82,6 +82,6 @@ export function onActivated(
   return {
     store: store.reduxStore,
     deactivate,
-    logger: createLoggerAndTelemetryLocator('COMPASS-SHELL'),
+    logger: createLoggerLocator('COMPASS-SHELL'),
   };
 }

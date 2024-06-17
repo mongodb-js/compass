@@ -10,9 +10,12 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 import { createView, changeViewName, close } from '../../modules/create-view';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { CreateViewRootState } from '../../stores/create-view';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -31,7 +34,7 @@ type CreateViewModalProps = {
   pipeline?: unknown[];
   isRunning?: boolean;
   error: Error | null;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
 };
 
 class CreateViewModal extends PureComponent<CreateViewModalProps> {
@@ -46,7 +49,7 @@ class CreateViewModal extends PureComponent<CreateViewModalProps> {
 
   componentDidUpdate(prevProps: CreateViewModalProps) {
     if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
-      this.props.logger.track('Screen', { name: 'create_view_modal' });
+      track('Screen', { name: 'create_view_modal' });
     }
   }
 
@@ -113,7 +116,7 @@ const mapStateToProps = (state: CreateViewRootState) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateViewModal = withLoggerAndTelemetry(
+const MappedCreateViewModal = withLogger(
   connect(mapStateToProps, {
     createView,
     changeViewName,

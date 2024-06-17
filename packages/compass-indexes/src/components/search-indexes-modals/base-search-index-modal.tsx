@@ -34,7 +34,6 @@ import {
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
   ATLAS_SEARCH_TEMPLATES,
@@ -42,6 +41,10 @@ import {
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -185,8 +188,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   }, [parsingError]);
 
   useTrackOnChange(
-    'COMPASS-SEARCH-INDEXES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (isModalOpen) {
         track('Screen', { name: `${mode}_search_index_modal` });
         if (mode === 'create') {

@@ -10,6 +10,9 @@ import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from './../utils/is-action';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -387,7 +390,7 @@ export const createIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { logger: { track } }) {
+  return async function (dispatch, getState) {
     const { namespace, dataService } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
@@ -445,7 +448,7 @@ export const updateIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { logger: { track } }) {
+  return async function (dispatch, getState) {
     const {
       namespace,
       dataService,
@@ -563,7 +566,7 @@ export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { logger: { track } }) {
+  return async function (dispatch, getState) {
     const { namespace, dataService } = getState();
     if (!dataService) {
       return;

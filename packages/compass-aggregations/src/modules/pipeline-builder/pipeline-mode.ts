@@ -16,6 +16,9 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -65,7 +68,7 @@ const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
 export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     if (newMode === getState().pipelineBuilder.pipelineMode) {
       return;
     }

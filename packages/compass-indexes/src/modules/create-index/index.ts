@@ -16,6 +16,9 @@ import options from './options';
 import { hasColumnstoreIndex } from '../../utils/columnstore-indexes';
 import type { ThunkAction } from 'redux-thunk';
 import type { CreateIndexPluginServices } from '../../stores/create-index';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 type CreateIndexThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
@@ -103,11 +106,7 @@ const prepareIndex = ({
  * @returns {Function} The thunk function.
  */
 export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
-  return async (
-    dispatch,
-    getState,
-    { dataService, localAppRegistry, logger: { track } }
-  ) => {
+  return async (dispatch, getState, { dataService, localAppRegistry }) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
 

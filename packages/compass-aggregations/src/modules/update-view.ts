@@ -8,6 +8,9 @@ import {
 import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import type { AnyAction } from 'redux';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 export type UpdateViewState = null | string;
 
@@ -85,7 +88,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     {
       pipelineBuilder,
       workspaces,
-      logger: { track, debug },
+      logger: { debug },
       globalAppRegistry,
       connectionInfoAccess,
     }

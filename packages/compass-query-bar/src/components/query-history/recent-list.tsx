@@ -21,8 +21,10 @@ import { OpenBulkUpdateActionButton } from './query-item/query-item-action-butto
 import { usePreference } from 'compass-preferences-model/provider';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
@@ -42,7 +44,6 @@ const RecentItem = ({
   query: RecentQuery;
   isReadonly: boolean;
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);

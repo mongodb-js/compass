@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 
 import { createConnectionAttempt } from './connection-attempt';
 import type { UnboundDataServiceImplLogger } from './logger';
 
-const { mongoLogId } = createLoggerAndTelemetry('CONNECTION-ATTEMPT-TEST');
+const { mongoLogId } = createLogger('CONNECTION-ATTEMPT-TEST');
 
 describe('ConnectionAttempt Module', function () {
   let logger: UnboundDataServiceImplLogger;

@@ -7,7 +7,7 @@ import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
 import type { DataService } from '../src/modules/data-service';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import {
   ConnectionScopedAppRegistryImpl,
@@ -47,7 +47,7 @@ export default function configureStore(
   services: Partial<AggregationsPluginServices> = {}
 ) {
   const preferences = new ReadOnlyPreferenceAccess();
-  const logger = createNoopLoggerAndTelemetry();
+  const logger = createNoopLogger();
 
   const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();

@@ -16,7 +16,7 @@ import CompassConnections, {
   LegacyConnectionsModal,
 } from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
@@ -57,6 +57,9 @@ import {
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
 import { usePreference } from 'compass-preferences-model/provider';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 resetGlobalCSS();
 
@@ -219,12 +222,12 @@ function Home({
   __TEST_INITIAL_CONNECTION_INFO,
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
-  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
+  const logger = useLogger('COMPASS-CONNECT-UI');
 
   const connectionsManager = useRef(
     new ConnectionsManager({
       appName,
-      logger: loggerAndTelemetry.log.unbound,
+      logger: logger.log.unbound,
       reAuthenticationHandler: reauthenticationHandler,
       __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
     })
@@ -236,24 +239,24 @@ function Home({
 
   const onConnected = useCallback(
     (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+      trackNewConnectionEvent(connectionInfo, dataService, logger, track);
       dispatch({ type: 'connected', connectionInfo: connectionInfo });
     },
-    [loggerAndTelemetry]
+    [logger, track]
   );
 
   const onConnectionFailed = useCallback(
     (connectionInfo: ConnectionInfo | null, error: Error) => {
-      trackConnectionFailedEvent(connectionInfo, error, loggerAndTelemetry);
+      trackConnectionFailedEvent(connectionInfo, error, logger, track);
     },
-    [loggerAndTelemetry]
+    [logger, track]
   );
 
   const onConnectionAttemptStarted = useCallback(
     (connectionInfo: ConnectionInfo) => {
-      trackConnectionAttemptEvent(connectionInfo, loggerAndTelemetry);
+      trackConnectionAttemptEvent(connectionInfo, logger, track);
     },
-    [loggerAndTelemetry]
+    [logger, track]
   );
 
   useEffect(() => {
@@ -385,8 +388,6 @@ function Home({
 }
 
 function ThemedHome(props: HomeProps): ReturnType<typeof Home> {
-  const { track } = useLoggerAndTelemetry('COMPASS-UI');
-
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {

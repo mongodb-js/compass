@@ -1,6 +1,9 @@
 import type { SavedQueryAggregationThunkAction } from './index';
 import { EJSON } from 'bson';
 import type { FavoriteQuery } from '@mongodb-js/my-queries-storage';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 function formatQuery(query: FavoriteQuery) {
   const { collation, filter, limit, project, skip, sort } = query;
@@ -21,7 +24,7 @@ function formatQuery(query: FavoriteQuery) {
 export function copyToClipboard(
   id: string
 ): SavedQueryAggregationThunkAction<Promise<void>> {
-  return async (_dispatch, getState, { logger: { track } }) => {
+  return async (_dispatch, getState) => {
     const {
       savedItems: { items },
     } = getState();

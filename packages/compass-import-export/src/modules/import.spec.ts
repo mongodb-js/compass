@@ -5,12 +5,12 @@ import {
   type ImportPluginServices,
   configureStore,
 } from '../stores/import-store';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import { AppRegistry } from 'hadron-app-registry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
-const logger = createNoopLoggerAndTelemetry();
+const logger = createNoopLogger();
 
 const mockServices = {
   globalAppRegistry: new AppRegistry(),

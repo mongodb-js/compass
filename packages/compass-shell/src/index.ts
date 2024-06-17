@@ -1,5 +1,5 @@
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
@@ -15,7 +15,7 @@ import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 export const CompassShellPlugin = registerHadronPlugin<
   unknown,
   {
-    logger: () => LoggerAndTelemetry;
+    logger: () => Logger;
     dataService: () => DataService;
     preferences: () => PreferencesAccess;
   }
@@ -26,7 +26,7 @@ export const CompassShellPlugin = registerHadronPlugin<
     activate: onActivated,
   },
   {
-    logger: createLoggerAndTelemetryLocator('COMPASS-SHELL'),
+    logger: createLoggerLocator('COMPASS-SHELL'),
     dataService: dataServiceLocator,
     preferences: preferencesLocator,
   }

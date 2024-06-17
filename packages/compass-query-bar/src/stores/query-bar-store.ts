@@ -22,7 +22,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
@@ -41,7 +41,7 @@ type QueryBarServices = {
   localAppRegistry: AppRegistry;
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
@@ -73,7 +73,7 @@ export type QueryBarExtraArgs = {
   preferences: PreferencesAccess;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   atlasAiService: AtlasAiService;
 };
 

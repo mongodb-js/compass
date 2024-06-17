@@ -8,7 +8,7 @@ import type {
 } from '../src/stores/store';
 import { activateIndexesPlugin } from '../src/stores/store';
 import { createActivateHelpers } from 'hadron-app-registry';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -91,7 +91,7 @@ export const setupStore = (
       globalAppRegistry,
       localAppRegistry,
       instance: fakeInstance as any,
-      logger: createNoopLoggerAndTelemetry('TEST'),
+      logger: createNoopLogger('TEST'),
       ...services,
     },
     createActivateHelpers()

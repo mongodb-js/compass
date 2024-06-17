@@ -28,21 +28,21 @@ export function createNoopLogger(component = 'NOOP-LOGGER'): Logger {
   };
 }
 
-const LoggerAndTelemetryContext = React.createContext<{
+const LoggerContext = React.createContext<{
   createLogger(component: string): Logger;
 }>({ createLogger: createNoopLogger });
 
-export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
+export const LoggerProvider = LoggerContext.Provider;
 
-export function createLoggerAndTelemetryLocator(component: string) {
+export function createLoggerLocator(component: string) {
   return createServiceLocator(
-    useLoggerAndTelemetry.bind(null, component),
-    'createLoggerAndTelemetryLocator'
+    useLogger.bind(null, component),
+    'createLoggerLocator'
   );
 }
 
-export function useLoggerAndTelemetry(component: string): Logger {
-  const context = React.useContext(LoggerAndTelemetryContext);
+export function useLogger(component: string): Logger {
+  const context = React.useContext(LoggerContext);
   if (!context) {
     throw new Error('Logger service is missing from React context');
   }
@@ -59,19 +59,19 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
-export function withLoggerAndTelemetry<
+export function withLogger<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(
   ReactComponent: T,
   component: string
 ): React.FunctionComponent<Omit<FirstArgument<T>, 'logger'>> {
-  const WithLoggerAndTelemetry = (
+  const WithLogger = (
     props: Omit<FirstArgument<T>, 'logger'> & React.Attributes
   ) => {
-    const logger = useLoggerAndTelemetry(component);
+    const logger = useLogger(component);
     return React.createElement(ReactComponent, { ...props, logger });
   };
-  return WithLoggerAndTelemetry;
+  return WithLogger;
 }
 
 // To avoid dependency on mongodb-log-writer that will pull in a lot of Node.js

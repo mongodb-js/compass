@@ -7,7 +7,6 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import {
   refreshCollections,
   type CollectionsState,
@@ -20,6 +19,10 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 
@@ -59,13 +62,9 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 
   const parsedNS = toNS(namespace);
 
-  useTrackOnChange(
-    'COMPASS-COLLECTIONS-UI',
-    (track) => {
-      track('Screen', { name: 'collections' });
-    },
-    []
-  );
+  useTrackOnChange((track: TrackFunction) => {
+    track('Screen', { name: 'collections' });
+  }, []);
 
   const onCollectionClick = useCallback(
     (ns: string) => {

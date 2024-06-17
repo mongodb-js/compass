@@ -1,7 +1,7 @@
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { ERROR_UPDATING_VIEW, updateView } from './update-view';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import AppRegistry from 'hadron-app-registry';
 import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
@@ -20,7 +20,7 @@ describe('update-view module', function () {
     workspaces: {
       openCollectionWorkspace() {},
     },
-    logger: createNoopLoggerAndTelemetry(),
+    logger: createNoopLogger(),
     connectionInfoAccess: {
       getCurrentConnectionInfo() {
         return TEST_CONNECTION_INFO;

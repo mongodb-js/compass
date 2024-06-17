@@ -20,17 +20,16 @@ import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
-import {
-  createLoggerAndTelemetry,
-  mongoLogId,
-} from '@mongodb-js/compass-logging';
+import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { SecretStore } from './secret-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
+import { createTrack } from '@mongodb-js/compass-telemetry';
 
-const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
+const { log } = createLogger('COMPASS-ATLAS-SERVICE');
+const track = createTrack();
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',

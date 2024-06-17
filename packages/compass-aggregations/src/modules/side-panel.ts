@@ -2,6 +2,9 @@ import { isAction } from '../utils/is-action';
 import { type PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { AnyAction } from 'redux';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 enum ActionTypes {
   SidePanelToggled = 'compass-aggregations/sidePanelToggled',
@@ -37,7 +40,7 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
   void,
   SidePanelToggledAction
 > => {
-  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const {
       sidePanel: { isPanelOpen },
     } = getState();

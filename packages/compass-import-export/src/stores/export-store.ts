@@ -5,7 +5,7 @@ import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import { closeExport, exportReducer, openExport } from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
@@ -26,7 +26,7 @@ export type ExportPluginServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
 };
 
 export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<

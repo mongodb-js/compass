@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { MongoLogWriter } from 'mongodb-log-writer';
 
 const tracking: { event: string; properties: any }[] = ((
@@ -12,7 +12,7 @@ const logging: { name: string; component: string; args: any[] }[] = ((
 ).logging = []);
 
 export const sandboxLogger = {
-  createLogger: (component = 'SANDBOX-LOGGER'): LoggerAndTelemetry => {
+  createLogger: (component = 'SANDBOX-LOGGER'): Logger => {
     const logger = (name: 'debug' | 'info' | 'warn' | 'error' | 'fatal') => {
       return (...args: any[]) => {
         logging.push({ name, component, args });

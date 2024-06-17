@@ -12,7 +12,9 @@ import {
   cx,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -56,7 +58,6 @@ const createClusterButtonLightModeStyles = css({
 });
 
 export function AtlasHelpSection(): React.ReactElement {
-  const { track } = useLoggerAndTelemetry('COMPASS-CONNECT-UI');
   const darkMode = useDarkMode();
 
   return (

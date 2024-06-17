@@ -3,6 +3,9 @@ import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -426,7 +429,7 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { logger: { track }, workspaces }) => {
+  (_dispatch, _getState, { workspaces }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'

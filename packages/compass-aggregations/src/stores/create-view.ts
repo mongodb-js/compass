@@ -5,7 +5,7 @@ import thunk from 'redux-thunk';
 import type { CreateViewAction } from '../modules/create-view';
 import reducer, { open } from '../modules/create-view';
 import type AppRegistry from 'hadron-app-registry';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
@@ -13,7 +13,7 @@ import type { ActivateHelpers } from 'hadron-app-registry';
 type CreateViewServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   workspaces: WorkspacesService;
 };
 

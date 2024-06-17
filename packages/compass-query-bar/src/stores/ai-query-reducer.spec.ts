@@ -13,7 +13,7 @@ import {
 } from './ai-query-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 describe('aiQueryReducer', function () {
   let preferences: PreferencesAccess;
@@ -56,7 +56,7 @@ describe('aiQueryReducer', function () {
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
           } as any
         );
 
@@ -103,7 +103,7 @@ describe('aiQueryReducer', function () {
             },
           },
           preferences,
-          logger: createNoopLoggerAndTelemetry(),
+          logger: createNoopLogger(),
         } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
@@ -129,7 +129,7 @@ describe('aiQueryReducer', function () {
             },
           },
           preferences,
-          logger: createNoopLoggerAndTelemetry(),
+          logger: createNoopLogger(),
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState()).to.have.property('aiQuery').deep.eq({
@@ -171,7 +171,7 @@ describe('aiQueryReducer', function () {
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
           } as any
         );
 
@@ -210,7 +210,7 @@ describe('aiQueryReducer', function () {
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
           } as any
         );
 

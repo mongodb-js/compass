@@ -74,6 +74,7 @@
     "@mongodb-js/compass-editor": "^0.24.1",
     "@mongodb-js/compass-field-store": "^9.5.1",
     "@mongodb-js/compass-logging": "^1.2.18",
+    "@mongodb-js/compass-telemetry": "^1.0.0",
     "@mongodb-js/compass-workspaces": "^0.11.0",
     "@mongodb-js/connection-storage": "^0.12.1",
     "@mongodb-js/mongodb-constants": "^0.10.0",

@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import Sinon from 'sinon';
 
 const allTypesStr = `{
@@ -119,16 +119,7 @@ result = client['db']['coll'].find(
   describe('on "Copy" button clicked', function () {
     it('should emit telemetry event', function () {
       const track = Sinon.stub();
-      const logger = {
-        createLogger() {
-          return { track };
-        },
-      };
-      render(
-        <LoggerAndTelemetryProvider value={logger as any}>
-          <Plugin namespace="db.coll"></Plugin>
-        </LoggerAndTelemetryProvider>
-      );
+      render(<Plugin namespace="db.coll"></Plugin>);
       appRegistry.emit('open-aggregation-export-to-language', '[]');
 
       track.resetHistory();

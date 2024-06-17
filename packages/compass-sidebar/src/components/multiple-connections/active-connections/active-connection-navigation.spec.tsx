@@ -11,7 +11,7 @@ import {
 import { createSidebarStore } from '../../../stores';
 import { Provider } from 'react-redux';
 import AppRegistry from 'hadron-app-registry';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import userEvent from '@testing-library/user-event';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -170,7 +170,7 @@ describe('<ActiveConnectionNavigation />', function () {
           },
         } as any,
         connectionsManager,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
       },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));

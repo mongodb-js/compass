@@ -20,21 +20,21 @@ import {
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import Home, { type HomeProps } from './home';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
-    createLogger: createLoggerAndTelemetry,
+    createLogger,
     preferences: defaultPreferencesInstance,
   });
   return (
     <PreferencesProvider value={loggerProviderValue.current.preferences}>
-      <LoggerAndTelemetryProvider value={loggerProviderValue.current}>
+      <LoggerProvider value={loggerProviderValue.current}>
         {children}
-      </LoggerAndTelemetryProvider>
+      </LoggerProvider>
     </PreferencesProvider>
   );
 };

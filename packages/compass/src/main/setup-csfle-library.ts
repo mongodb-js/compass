@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import path from 'path';
 import { promises as fs } from 'fs';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-MAIN');
+const { log, mongoLogId } = createLogger('COMPASS-MAIN');
 
 function processPath(p: string): string {
   // path.resolve(__dirname, ...) is required for webpack to turn

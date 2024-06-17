@@ -2,6 +2,9 @@ import type { AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 /**
  * No dots in DB name error message.
@@ -99,7 +102,7 @@ export const open = (
   connectionId: string,
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
-  return (dispatch, _getState, { logger: { track } }) => {
+  return (dispatch) => {
     track('Screen', {
       name: dbName ? 'create_collection_modal' : 'create_database_modal',
     });
@@ -354,12 +357,7 @@ export const createNamespace = (
   return async (
     dispatch,
     getState,
-    {
-      globalAppRegistry,
-      connectionsManager,
-      logger: { track, debug },
-      workspaces,
-    }
+    { globalAppRegistry, connectionsManager, logger: { debug }, workspaces }
   ) => {
     const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';

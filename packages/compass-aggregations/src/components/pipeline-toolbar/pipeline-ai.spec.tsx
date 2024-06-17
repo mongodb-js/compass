@@ -15,7 +15,7 @@ import {
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
@@ -40,11 +40,11 @@ describe('PipelineAI Component', function () {
     render(
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>
-        <LoggerAndTelemetryProvider
+        <LoggerProvider
           value={
             {
               createLogger() {
-                return { track, log: { info() {} }, mongoLogId() {} };
+                return { log: { info() {} }, mongoLogId() {} };
               },
             } as any
           }
@@ -52,7 +52,7 @@ describe('PipelineAI Component', function () {
           <Provider store={store}>
             <PipelineAI />
           </Provider>
-        </LoggerAndTelemetryProvider>
+        </LoggerProvider>
       </PreferencesProvider>
     );
     return store;

@@ -5,14 +5,14 @@ import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
 import { cancelImport, importReducer, openImport } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
 export type ImportPluginServices = {
   globalAppRegistry: AppRegistry;
   workspaces: WorkspacesService;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   connectionsManager: ConnectionsManager;
 };
 

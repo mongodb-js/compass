@@ -8,7 +8,7 @@ import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
 import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type {
   FavoriteQueryStorageAccess,
@@ -22,7 +22,7 @@ type MyQueriesServices = {
   instancesManager: MongoDBInstancesManager;
   preferencesAccess: PreferencesAccess;
   globalAppRegistry: AppRegistry;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   pipelineStorage?: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;

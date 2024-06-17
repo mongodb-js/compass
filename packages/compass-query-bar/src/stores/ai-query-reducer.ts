@@ -13,8 +13,11 @@ import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import { createTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createTrack();
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -111,8 +114,7 @@ type FailedResponseTrackMessage = {
   errorCode?: string;
   errorName: string;
   errorMessage: string;
-  log: LoggerAndTelemetry['log'];
-  track: LoggerAndTelemetry['track'];
+  log: Logger['log'];
   requestId: string;
 };
 
@@ -122,7 +124,6 @@ function trackAndLogFailed({
   errorName,
   errorMessage,
   log,
-  track,
   requestId,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
@@ -155,7 +156,7 @@ export const runAIQuery = (
       localAppRegistry,
       preferences,
       atlasAiService,
-      logger: { log, track },
+      logger: { log },
     }
   ) => {
     const provideSampleDocuments =
@@ -230,7 +231,6 @@ export const runAIQuery = (
         errorCode: (err as AtlasServiceError).errorCode || err?.name,
         errorMessage: (err as AtlasServiceError).message,
         log,
-        track,
         requestId,
       });
       // We're going to reset input state with this error, show the error in the
@@ -282,7 +282,6 @@ export const runAIQuery = (
         statusCode: (err as AtlasServiceError).statusCode,
         errorMessage: err?.message,
         log,
-        track,
         requestId,
       });
       dispatch({
@@ -310,7 +309,6 @@ export const runAIQuery = (
           errorName: 'ai_generated_aggregation_instead_of_query',
           errorMessage: msg,
           log,
-          track,
           requestId,
         });
         return;
@@ -322,7 +320,6 @@ export const runAIQuery = (
         errorName: 'no_usable_query_from_ai',
         errorMessage: msg,
         log,
-        track,
         requestId,
       });
       dispatch({

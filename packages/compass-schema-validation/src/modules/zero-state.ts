@@ -1,4 +1,7 @@
+import { createTrack } from '@mongodb-js/compass-telemetry';
 import type { RootAction, SchemaValidationThunkAction } from '.';
+
+const track = createTrack();
 
 /**
  * Zero state changed action.
@@ -48,7 +51,7 @@ export const zeroStateChanged = (
 export const changeZeroState = (
   isZeroState: boolean
 ): SchemaValidationThunkAction<void> => {
-  return (dispatch, _getState, { logger: { track } }) => {
+  return (dispatch) => {
     if (isZeroState === false) {
       track('Schema Validation Added');
     }

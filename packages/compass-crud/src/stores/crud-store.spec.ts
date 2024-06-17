@@ -27,7 +27,7 @@ import {
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import {
   type ConnectionInfoAccess,
@@ -155,7 +155,7 @@ describe('store', function () {
         globalAppRegistry,
         instance,
         preferences,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
         favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
         recentQueryStorageAccess: compassRecentQueryStorageAccess,
         fieldStoreService: mockFieldStoreService,

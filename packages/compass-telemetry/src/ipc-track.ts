@@ -1,6 +1,10 @@
 import isElectronRenderer from 'is-electron-renderer';
 import type { HadronIpcRenderer } from 'hadron-ipc';
-import { type TelemetryPreferences, createGenericTrack } from './track';
+import {
+  type TelemetryPreferences,
+  createGenericTrack,
+  type TrackFunction,
+} from './track';
 
 function emit(
   ipc: HadronIpcRenderer | null | undefined,
@@ -15,7 +19,9 @@ function emit(
   }
 }
 
-export function createTrack(preferencesService?: TelemetryPreferences) {
+export function createTrack(
+  preferencesService?: TelemetryPreferences
+): TrackFunction {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer
     ? // eslint-disable-next-line @typescript-eslint/no-var-requires

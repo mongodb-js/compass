@@ -52,7 +52,7 @@ import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
@@ -187,12 +187,12 @@ const CompassWeb = ({
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
-  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-WEB-UI');
+  const Logger = useLogger('COMPASS-WEB-UI');
 
   const connectionsManager = useRef(
     new ConnectionsManager({
       appName,
-      logger: loggerAndTelemetry.log.unbound,
+      logger: Logger.log.unbound,
       __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
     })
   );

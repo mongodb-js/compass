@@ -1,7 +1,7 @@
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
-type TrackFunction = (event: string, properties?: TrackProps) => void;
+export type TrackFunction = (event: string, properties?: TrackProps) => void;
 
 const { log, debug } = createLogger('COMPASS-TELEMETRY');
 
@@ -69,23 +69,3 @@ export const createGenericTrack = (
 
   return track;
 };
-
-export function useTrackOnChange(
-  component: string,
-  onChange: (track: TrackFunction) => void,
-  dependencies: unknown[],
-  options: { skipOnMount: boolean } = { skipOnMount: false }
-) {
-  // const onChangeRef = React.useRef(onChange);
-  // onChangeRef.current = onChange;
-  // const { track } = useLoggerAndTelemetry(component);
-  // let initial = true;
-  // React.useEffect(() => {
-  //   if (options.skipOnMount && initial) {
-  //     initial = false;
-  //     return;
-  //   }
-  //   onChangeRef.current(track);
-  // }, [...dependencies, track]);
-  // TODO
-}

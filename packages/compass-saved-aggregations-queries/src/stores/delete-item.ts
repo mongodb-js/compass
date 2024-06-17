@@ -1,8 +1,11 @@
+import { createTrack } from '@mongodb-js/compass-telemetry';
 import type { SavedQueryAggregationThunkAction } from '.';
 import {
   showConfirmation,
   ConfirmationModalVariant,
 } from '@mongodb-js/compass-components';
+
+const track = createTrack();
 
 export enum ActionTypes {
   DeleteItemConfirm = 'compass-saved-aggregations-queries/deleteItemConfirm',
@@ -18,11 +21,7 @@ export type Actions = DeleteItemConfirmAction;
 export const confirmDeleteItem = (
   id: string
 ): SavedQueryAggregationThunkAction<Promise<void>, DeleteItemConfirmAction> => {
-  return async (
-    dispatch,
-    getState,
-    { pipelineStorage, queryStorage, logger: { track } }
-  ) => {
+  return async (dispatch, getState, { pipelineStorage, queryStorage }) => {
     const {
       savedItems: { items },
     } = getState();

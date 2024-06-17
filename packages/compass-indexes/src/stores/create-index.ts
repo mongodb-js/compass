@@ -6,7 +6,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import { type ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 
 type CreateIndexPluginOptions = Pick<
   CollectionTabPluginMetadata,
@@ -17,7 +17,7 @@ export type CreateIndexPluginServices = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'createIndex'>;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
 };
 
 export function activatePlugin(
