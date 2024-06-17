@@ -131,7 +131,11 @@ const temporarilyExpand = (
           if (newExpanded[connectionId].state === 'collapsed') {
             newExpanded[connectionId].state = 'tempExpanded';
           }
-          if (!newExpanded[connectionId].databases[databaseId]) {
+          if (!newExpanded[connectionId].databases) {
+            newExpanded[connectionId].databases = {
+              [databaseId]: 'tempExpanded',
+            };
+          } else {
             newExpanded[connectionId].databases[databaseId] = 'tempExpanded';
           }
         }
@@ -270,11 +274,7 @@ const connectionsReducer = (
     case CONNECTION_TOGGLE: {
       const { connectionId, expand } = action;
       const currentState = state.expanded[connectionId]?.state;
-      if (
-        (currentState === 'collapsed' && !expand) ||
-        (!currentState && expand)
-      )
-        return state;
+      if (currentState === 'collapsed' && !expand) return state;
 
       return {
         ...state,
@@ -289,7 +289,8 @@ const connectionsReducer = (
     }
     case DATABASE_TOGGLE: {
       const { connectionId, databaseId, expand } = action;
-      const currentState = state.expanded[connectionId]?.databases[databaseId];
+      const currentState =
+        state.expanded[connectionId]?.databases?.[databaseId];
       if ((!currentState && !expand) || (currentState === 'expanded' && expand))
         return state;
 
@@ -393,7 +394,10 @@ export const useFilteredConnections = (
   const onDatabaseToggle = useCallback(
     (connectionId: string, namespace: string, expand: boolean) => {
       const { database: databaseId } = toNS(namespace);
-      if (expand && !expandedRef.current[connectionId]?.databases[databaseId]) {
+      if (
+        expand &&
+        !expandedRef.current[connectionId]?.databases?.[databaseId]
+      ) {
         // side effect -> we need this to load collections
         onDatabaseExpandRef.current(connectionId, databaseId);
       }
