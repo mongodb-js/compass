@@ -505,7 +505,12 @@ describe('Multiple Connections Sidebar Component', function () {
             } as WorkspaceTab);
           });
 
-          it('should open create database modal when clicked on create database action', function () {
+          it('should open create database modal when clicked on create database action', async function () {
+            const emitSpy = sinon.stub(globalAppRegistry, 'emit');
+            await renderWithConnections(storedConnections, {
+              type: 'Databases',
+              connectionId: savedFavoriteConnection.id,
+            } as WorkspaceTab);
             const connectionItem = screen.getByTestId(
               savedFavoriteConnection.id
             );
@@ -513,7 +518,9 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByTestId('base-navigation-item')
             );
 
-            userEvent.click(screen.getByLabelText('Create database'));
+            userEvent.click(
+              within(connectionItem).getByLabelText('Create database')
+            );
 
             expect(emitSpy).to.have.been.calledWith('open-create-database', {
               connectionId: savedFavoriteConnection.id,
