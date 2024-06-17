@@ -1,17 +1,21 @@
-import { shell, app, net } from 'electron';
+import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
   getTrackingUserInfo,
-  getSystemCA,
 } from './util';
 import {
   createMongoDBOIDCPlugin,
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
+import { systemCertsAsync } from 'system-ca';
+import type { Options as SystemCAOptions } from 'system-ca';
+import type { RequestInfo, RequestInit, Response } from 'node-fetch';
+import https from 'https';
+import nodeFetch from 'node-fetch';
 import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
@@ -32,6 +36,15 @@ const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',
   productDocsLink: 'https://www.mongodb.com/docs/compass',
 });
+
+async function getSystemCA() {
+  // It is possible for OIDC login flow to fail if system CA certs are different from
+  // the ones packaged with the application. To avoid this, we include the system CA
+  // certs in the OIDC plugin options. See COMPASS-7950 for more details.
+  const systemCAOpts: SystemCAOptions = { includeNodeCertificates: true };
+  const ca = await systemCertsAsync(systemCAOpts);
+  return ca.join('\n');
+}
 
 const TOKEN_TYPE_TO_HINT = {
   accessToken: 'access_token',
@@ -67,7 +80,10 @@ export class CompassAuthService {
       { url }
     );
     try {
-      const res = await net.fetch(url, {
+      const res = await nodeFetch(url, {
+        agent: new https.Agent({
+          ca: await getSystemCA(),
+        }),
         ...init,
         headers: {
           ...init.headers,

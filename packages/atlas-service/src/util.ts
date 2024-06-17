@@ -2,8 +2,6 @@ import type * as plugin from '@mongodb-js/oidc-plugin';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { defaultsDeep } from 'lodash';
 import { createHash } from 'crypto';
-import { systemCertsAsync } from 'system-ca';
-import type { Options as SystemCAOptions } from 'system-ca';
 
 export type AtlasUserInfo = {
   sub: string;
@@ -201,13 +199,4 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
     // various MongoDB properties
     auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
   };
-}
-
-export async function getSystemCA() {
-  // It is possible for OIDC login flow to fail if system CA certs are different from
-  // the ones packaged with the application. To avoid this, we include the system CA
-  // certs in the OIDC plugin options. See COMPASS-7950 for more details.
-  const systemCAOpts: SystemCAOptions = { includeNodeCertificates: true };
-  const ca = await systemCertsAsync(systemCAOpts);
-  return ca.join('\n');
 }
