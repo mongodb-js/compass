@@ -131,7 +131,11 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
-    this.setupAutoUpdate();
+    // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
+    // toasts will obscure other things which we don't expect yet.
+    if (!process.env.CI) {
+      this.setupAutoUpdate();
+    }
     await setupCSFLELibrary();
     setupTheme(this);
     this.setupJavaScriptArguments();

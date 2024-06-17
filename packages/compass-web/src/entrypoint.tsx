@@ -141,7 +141,6 @@ function CompassWorkspace({
               return (
                 <CompassSidebarPlugin
                   showConnectionInfo={false}
-                  singleConnectionConnectionInfo={connectionInfo}
                 ></CompassSidebarPlugin>
               );
             }}
