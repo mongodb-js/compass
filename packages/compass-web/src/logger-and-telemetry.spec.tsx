@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  mongoLogId,
   LoggerAndTelemetryProvider,
   useLoggerAndTelemetry,
 } from '@mongodb-js/compass-logging/provider';
@@ -13,7 +14,7 @@ import { renderHook, cleanup } from '@testing-library/react-hooks';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 
-describe.only('useCompassWebLoggerAndTelemetry', function () {
+describe('useCompassWebLoggerAndTelemetry', function () {
   function renderLoggerAndTelemetryHook({
     onTrack,
     onDebug,
@@ -23,7 +24,7 @@ describe.only('useCompassWebLoggerAndTelemetry', function () {
     onDebug?: DebugFunction;
     onLog?: LogFunction;
   } = {}) {
-    const Wrapper = ({ children }) => {
+    const Wrapper: React.FunctionComponent = ({ children }) => {
       const loggerAndTelemetry = useCompassWebLoggerAndTelemetry({
         onTrack,
         onDebug,
@@ -56,14 +57,14 @@ describe.only('useCompassWebLoggerAndTelemetry', function () {
 
     loggerAndTelemetry.debug('foo bar');
     loggerAndTelemetry.track('Tracking Event', { param: 1 });
-    loggerAndTelemetry.log.info(123, 'Ctx', 'msg', { attr: 1 });
+    loggerAndTelemetry.log.info(mongoLogId(123), 'Ctx', 'msg', { attr: 1 });
 
     expect(onDebug).to.have.been.calledOnceWith('TEST', 'foo bar');
     expect(onTrack).to.have.been.calledOnceWith('Tracking Event', { param: 1 });
     expect(onLog).to.have.been.calledOnceWith(
       'info',
       'TEST',
-      123,
+      mongoLogId(123),
       'Ctx',
       'msg',
       { attr: 1 }
