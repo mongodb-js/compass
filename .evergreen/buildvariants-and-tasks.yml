@@ -58,6 +58,8 @@ buildvariants:
       - name: test-electron
         run_on: macos-14-arm64-gui
   - name: package-ubuntu
+    expansions:
+      silk_asset_group: compass-ubuntu
     display_name: Package Ubuntu
     run_on: ubuntu1604-large
     tasks:
@@ -65,6 +67,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-windows
+    expansions:
+      silk_asset_group: compass-windows
     display_name: Package Windows
     run_on: windows-vsCurrent-large
     tasks:
@@ -72,6 +76,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-rhel
+    expansions:
+      silk_asset_group: compass-rhel
     display_name: Package RHEL
     run_on: rhel80-large
     tasks:
@@ -79,6 +85,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-macos-x64
+    expansions:
+      silk_asset_group: compass-macos-x64
     display_name: Package MacOS Intel
     run_on: macos-1100
     tasks:
@@ -86,6 +94,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-macos-arm
+    expansions:
+      silk_asset_group: compass-macos-arm
     display_name: Package MacOS Arm64
     run_on: macos-1100-arm64
     tasks:

@@ -177,7 +177,8 @@ buildvariants:
   # package
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
-
+    expansions:
+      silk_asset_group: compass-<%= buildVariant.name.replace('package-', '') %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:

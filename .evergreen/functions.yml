@@ -426,7 +426,7 @@ functions:
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
           # for Silk SBOM integration
-          SILK_ASSET_GROUP: compass-${build_variant}
+          SILK_ASSET_GROUP: ${silk_asset_group}
           SILK_CLIENT_ID: ${silk_client_id}
           SILK_CLIENT_SECRET: ${silk_client_secret}
         script: |
