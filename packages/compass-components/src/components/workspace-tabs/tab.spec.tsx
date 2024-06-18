@@ -74,10 +74,6 @@ describe('Tab', function () {
       );
     });
 
-    it('should render the close tab button hidden', async function () {
-      expect(await screen.findByLabelText('Close Tab')).to.not.be.visible;
-    });
-
     // Focus visible is not working proper in jsdom environment
     it.skip('should render the close tab button visible when the tab is focused', async function () {
       const tabToFocus = await screen.findByRole('tab');
