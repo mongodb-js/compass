@@ -12,7 +12,8 @@ import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
-  activeItemId?: string;
+  isActive: boolean;
+  isFocused: boolean;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
   onItemAction: (
     item: SidebarActionableItem,
@@ -23,7 +24,8 @@ type NavigationItemProps = {
 
 export function NavigationItem({
   item,
-  activeItemId,
+  isActive,
+  isFocused,
   onItemAction,
   onItemExpand,
   getItemActions,
@@ -119,7 +121,8 @@ export function NavigationItem({
         <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
-          isActive={item.id === activeItemId}
+          isActive={isActive}
+          isFocused={isFocused}
           isExpanded={!!item.isExpanded}
           icon={itemIcon}
           name={item.name}
