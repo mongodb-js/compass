@@ -9,6 +9,7 @@ import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const CONNECTION_ID = 'webscale';
 const ALL_EVENTS = [

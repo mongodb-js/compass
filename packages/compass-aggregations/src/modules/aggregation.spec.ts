@@ -22,6 +22,7 @@ import { omit } from 'lodash';
 import { EJSON } from 'bson';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const getMockedStore = (
   aggregation: AggregateState,
@@ -39,6 +40,7 @@ const getMockedStore = (
       thunk.withExtraArgument({
         preferences: defaultPreferencesInstance,
         logger: createNoopLogger(),
+        track: createNoopTrack(),
       })
     )
   );

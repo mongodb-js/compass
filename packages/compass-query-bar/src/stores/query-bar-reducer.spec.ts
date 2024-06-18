@@ -21,6 +21,7 @@ import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},
@@ -38,6 +39,7 @@ describe('queryBarReducer', function () {
     store = createStore({}, {
       preferences,
       logger: createNoopLogger(),
+      track: createNoopTrack(),
     } as QueryBarExtraArgs);
   });
 

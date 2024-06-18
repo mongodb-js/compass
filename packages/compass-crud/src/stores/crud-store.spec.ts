@@ -36,6 +36,7 @@ import {
   ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
 import type { TableHeaderType } from './grid-store';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 chai.use(chaiAsPromised);
 
@@ -157,6 +158,7 @@ describe('store', function () {
         instance,
         preferences,
         logger: createNoopLogger(),
+        track: createNoopTrack(),
         favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
         recentQueryStorageAccess: compassRecentQueryStorageAccess,
         fieldStoreService: mockFieldStoreService,

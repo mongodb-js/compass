@@ -21,6 +21,7 @@ import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -65,6 +66,7 @@ function createStore(basepath: string) {
         },
       },
       logger: createNoopLogger(),
+      track: createNoopTrack(),
     } as any
   );
 

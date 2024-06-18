@@ -25,6 +25,7 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* no op */
@@ -57,6 +58,7 @@ describe('QueryBar Component', function () {
     const store = configureStore(storeOptions, {
       preferences,
       logger: createNoopLogger(),
+      track: createNoopTrack(),
     } as QueryBarExtraArgs);
     store.dispatch(toggleQueryOptions(expanded));
 
@@ -263,6 +265,7 @@ describe('QueryBar Component', function () {
       const store = configureStore({}, {
         preferences,
         logger: createNoopLogger(),
+        track: createNoopTrack(),
       } as QueryBarExtraArgs);
 
       store.dispatch({
