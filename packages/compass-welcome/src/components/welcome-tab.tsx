@@ -15,10 +15,8 @@ import {
   useDarkMode,
   Icon,
 } from '@mongodb-js/compass-components';
+import { useTracking } from '@mongodb-js/compass-telemetry/provider';
 import { useGlobalAppRegistry } from 'hadron-app-registry';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -66,6 +64,7 @@ const createClusterButtonLightModeStyles = css({
 });
 
 function AtlasHelpSection(): React.ReactElement {
+  const track = useTracking();
   const darkMode = useDarkMode();
 
   return (

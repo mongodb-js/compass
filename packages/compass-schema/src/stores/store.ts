@@ -29,9 +29,7 @@ import type { Schema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -61,7 +59,8 @@ export type SchemaPluginServices = {
   dataService: DataService;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  Logger: Logger;
+  logger: Logger;
+  track: TrackFunction;
   preferences: PreferencesAccess;
   fieldStoreService: FieldStoreService;
   queryBar: QueryBarService;
@@ -123,14 +122,15 @@ export function activateSchemaPlugin(
     dataService,
     localAppRegistry,
     globalAppRegistry,
-    Logger,
+    logger,
+    track,
     preferences,
     fieldStoreService,
     queryBar,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const { debug, log, mongoLogId } = Logger;
+  const { debug, log, mongoLogId } = logger;
   const actions = configureActions();
 
   /**
@@ -301,7 +301,7 @@ export function activateSchemaPlugin(
           this.ns,
           samplingOptions,
           driverOptions,
-          Logger
+          logger
         );
         const analysisTime = Date.now() - analysisStartTime;
 

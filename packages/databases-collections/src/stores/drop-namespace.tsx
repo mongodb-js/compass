@@ -10,9 +10,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -20,11 +18,12 @@ type DropNamespaceServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
   logger: Logger;
+  track: TrackFunction;
 };
 
 export function activatePlugin(
   _: unknown,
-  { globalAppRegistry, connectionsManager }: DropNamespaceServices,
+  { globalAppRegistry, connectionsManager, track }: DropNamespaceServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   const onDropNamespace = async (

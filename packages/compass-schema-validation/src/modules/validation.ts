@@ -7,9 +7,6 @@ import { zeroStateChanged } from './zero-state';
 import { isLoadedChanged } from './is-loaded';
 import { isEqual, pick } from 'lodash';
 import type { ThunkDispatch } from 'redux-thunk';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 export type ValidationServerAction = 'error' | 'warn';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
@@ -459,7 +456,7 @@ export function validationFromCollection(
 export const saveValidation = (
   validation: Validation
 ): SchemaValidationThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (dispatch, getState, { dataService, track }) => {
     const state = getState();
     const namespace = state.namespace;
     const checkedValidator = checkValidator(validation.validator);

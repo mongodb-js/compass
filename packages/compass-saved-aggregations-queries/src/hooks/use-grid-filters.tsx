@@ -10,9 +10,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { Item } from '../stores/aggregations-queries-items';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import { useTracking } from '@mongodb-js/compass-telemetry/provider';
 
-const track = createTrack();
 interface SelectState {
   database?: string;
   collection?: string;
@@ -73,6 +72,7 @@ const FilterSelect: React.FunctionComponent<{
 };
 
 function useSearchFilter(): [React.ReactElement, string] {
+  const track = useTracking();
   const [search, setSearch] = useState('');
   const searchControls = useMemo(() => {
     return (

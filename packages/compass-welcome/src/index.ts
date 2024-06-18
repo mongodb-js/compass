@@ -4,9 +4,11 @@ import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provide
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import { WelcomeModal, WelcomeTab } from './components';
 import { activatePlugin } from './stores';
+import { createTrackingLocator } from '@mongodb-js/compass-telemetry/provider';
 
 const serviceLocators = {
   logger: createLoggerLocator('COMPASS-MY-QUERIES-UI'),
+  track: createTrackingLocator(),
   workspaces: workspacesServiceLocator,
 };
 

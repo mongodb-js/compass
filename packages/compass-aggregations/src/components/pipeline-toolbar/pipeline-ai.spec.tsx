@@ -50,7 +50,7 @@ describe('PipelineAI Component', function () {
             } as any
           }
         >
-          <TrackingProvider value={track}>
+          <TrackingProvider value={{ createTrack: () => track }}>
             <Provider store={store}>
               <PipelineAI />
             </Provider>

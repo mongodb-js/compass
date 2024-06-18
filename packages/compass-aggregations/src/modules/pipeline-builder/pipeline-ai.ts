@@ -13,7 +13,7 @@ import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';

@@ -16,6 +16,7 @@ import type {
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type MyQueriesServices = {
   connectionsManager: ConnectionsManager;
@@ -23,6 +24,7 @@ type MyQueriesServices = {
   preferencesAccess: PreferencesAccess;
   globalAppRegistry: AppRegistry;
   logger: Logger;
+  track: TrackFunction;
   pipelineStorage?: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
@@ -34,6 +36,7 @@ export function configureStore({
   instancesManager,
   preferencesAccess,
   logger,
+  track,
   workspaces,
   pipelineStorage,
   favoriteQueryStorageAccess,
@@ -51,6 +54,7 @@ export function configureStore({
         instancesManager,
         preferencesAccess,
         logger,
+        track,
         pipelineStorage,
         queryStorage: favoriteQueryStorageAccess?.getStorage(),
         workspaces,

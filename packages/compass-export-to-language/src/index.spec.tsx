@@ -127,7 +127,7 @@ result = client['db']['coll'].find(
       };
       render(
         <LoggerProvider value={logger as any}>
-          <TrackingProvider value={() => track}>
+          <TrackingProvider value={{ createTrack: () => track }}>
             <Plugin namespace="db.coll"></Plugin>
           </TrackingProvider>
         </LoggerProvider>

@@ -1,8 +1,6 @@
 import React from 'react';
 import type { TrackFunction } from './track';
-import { createTrack } from './ipc-track';
-
-const track = createTrack();
+import { useTracking } from './provider';
 
 export function useTrackOnChange(
   onChange: (track: TrackFunction) => void,
@@ -11,6 +9,7 @@ export function useTrackOnChange(
 ) {
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
+  const track = useTracking();
   let initial = true;
   React.useEffect(() => {
     if (options.skipOnMount && initial) {

@@ -8,9 +8,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export default class CompassShellStore {
   reduxStore: Store<RootState, RootAction>;
@@ -25,11 +23,13 @@ export default class CompassShellStore {
   onActivated({
     globalAppRegistry,
     logger: { log, debug },
+    track,
     dataService,
     preferences,
   }: {
     globalAppRegistry: AppRegistry;
     logger: Logger;
+    track: TrackFunction;
     dataService: DataService;
     preferences: PreferencesAccess;
   }): () => void {

@@ -23,6 +23,7 @@ import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -31,6 +32,7 @@ export type CreateNamespaceServices = {
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
   logger: Logger;
+  track: TrackFunction;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 

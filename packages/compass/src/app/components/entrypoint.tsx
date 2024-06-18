@@ -30,13 +30,15 @@ import { createTrack } from '@mongodb-js/compass-telemetry';
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
     createLogger,
-    createTrack,
     preferences: defaultPreferencesInstance,
+  });
+  const trackingProviderValue = useRef({
+    createTrack,
   });
   return (
     <PreferencesProvider value={loggerProviderValue.current.preferences}>
       <LoggerProvider value={loggerProviderValue.current}>
-        <TrackingProvider value={loggerProviderValue.current}>
+        <TrackingProvider value={trackingProviderValue.current}>
           {children}
         </TrackingProvider>
       </LoggerProvider>
