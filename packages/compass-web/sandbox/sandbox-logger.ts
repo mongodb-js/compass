@@ -3,10 +3,6 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { MongoLogWriter } from 'mongodb-log-writer';
 
-const tracking: { event: string; properties: any }[] = ((
-  globalThis as any
-).tracking = []);
-
 const logging: { name: string; component: string; args: any[] }[] = ((
   globalThis as any
 ).logging = []);
@@ -17,10 +13,6 @@ export const sandboxLogger = {
       return (...args: any[]) => {
         logging.push({ name, component, args });
       };
-    };
-
-    const track = (event: string, properties: any) => {
-      tracking.push({ event, properties });
     };
 
     const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
@@ -39,7 +31,6 @@ export const sandboxLogger = {
         fatal: logger('fatal'),
       },
       debug,
-      track,
       mongoLogId,
     };
   },

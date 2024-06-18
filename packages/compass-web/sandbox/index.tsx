@@ -34,6 +34,8 @@ import {
   useAtlasClusterConnectionsList,
 } from './atlas-cluster-connections';
 import { SandboxAutoconnectProvider } from '../src/connection-storage';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
+import { sandBoxTelemetry } from './sandbox-telemetry';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -277,48 +279,50 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
     >
       <Body as="div" className={sandboxContainerStyles}>
         <LoggerProvider value={sandboxLogger}>
-          <CompassWeb
-            {...(isAtlas
-              ? {
-                  orgId: connectionInfo.atlasMetadata.orgId,
-                  projectId: connectionInfo.atlasMetadata.projectId,
-                }
-              : {
-                  // We don't want to make those props optional as they are
-                  // always required in DE, at the same time we still want to
-                  // support non-Atlas connections in sandbox. For that purpose
-                  // we pass empty strings when connecting here. If those values
-                  // are empty AND sandbox autoconnect provider didn't get the
-                  // value, sandbox will fail to connect
-                  orgId: '',
-                  projectId: '',
-                })}
-            initialWorkspace={initialCurrentTabRef.current}
-            onActiveWorkspaceTabChange={updateCurrentTab}
-            initialPreferences={{
-              enablePerformanceAdvisorBanner: isAtlas,
-              enableAtlasSearchIndexes: !isAtlas,
-              maximumNumberOfActiveConnections: isAtlas ? 1 : 10,
-              atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
-            }}
-            renderConnecting={(connectionInfo) => {
-              return (
-                <LoadingScreen
-                  connectionString={
-                    connectionInfo?.atlasMetadata?.clusterName ??
-                    connectionInfo?.connectionOptions.connectionString
+          <TelemetryProvider value={sandBoxTelemetry}>
+            <CompassWeb
+              {...(isAtlas
+                ? {
+                    orgId: connectionInfo.atlasMetadata.orgId,
+                    projectId: connectionInfo.atlasMetadata.projectId,
                   }
-                ></LoadingScreen>
-              );
-            }}
-            renderError={(_connectionInfo, err) => {
-              return (
-                <ErrorScreen
-                  error={err.message ?? 'Error occured when connecting'}
-                ></ErrorScreen>
-              );
-            }}
-          ></CompassWeb>
+                : {
+                    // We don't want to make those props optional as they are
+                    // always required in DE, at the same time we still want to
+                    // support non-Atlas connections in sandbox. For that purpose
+                    // we pass empty strings when connecting here. If those values
+                    // are empty AND sandbox autoconnect provider didn't get the
+                    // value, sandbox will fail to connect
+                    orgId: '',
+                    projectId: '',
+                  })}
+              initialWorkspace={initialCurrentTabRef.current}
+              onActiveWorkspaceTabChange={updateCurrentTab}
+              initialPreferences={{
+                enablePerformanceAdvisorBanner: isAtlas,
+                enableAtlasSearchIndexes: !isAtlas,
+                maximumNumberOfActiveConnections: isAtlas ? 1 : 10,
+                atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
+              }}
+              renderConnecting={(connectionInfo) => {
+                return (
+                  <LoadingScreen
+                    connectionString={
+                      connectionInfo?.atlasMetadata?.clusterName ??
+                      connectionInfo?.connectionOptions.connectionString
+                    }
+                  ></LoadingScreen>
+                );
+              }}
+              renderError={(_connectionInfo, err) => {
+                return (
+                  <ErrorScreen
+                    error={err.message ?? 'Error occured when connecting'}
+                  ></ErrorScreen>
+                );
+              }}
+            ></CompassWeb>
+          </TelemetryProvider>
         </LoggerProvider>
       </Body>
     </SandboxAutoconnectProvider>

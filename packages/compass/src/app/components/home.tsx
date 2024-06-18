@@ -387,6 +387,7 @@ function Home({
 }
 
 function ThemedHome(props: HomeProps): ReturnType<typeof Home> {
+  const track = useTelemetry();
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {

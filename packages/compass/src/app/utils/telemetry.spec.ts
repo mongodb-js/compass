@@ -8,7 +8,7 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { Logger, createLogger } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { createTrack } from '@mongodb-js/compass-telemetry';
 
 const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
