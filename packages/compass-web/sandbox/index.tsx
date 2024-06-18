@@ -33,7 +33,7 @@ import {
   useAtlasClusterConnectionsList,
 } from './atlas-cluster-connections';
 import { SandboxAutoconnectProvider } from '../src/connection-storage';
-import { sandBoxTelemetry } from './sandbox-telemetry';
+import { sandboxTelemetry } from './sandbox-telemetry';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -317,7 +317,7 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
               ></ErrorScreen>
             );
           }}
-          onTrack={sandBoxTelemetry.track}
+          onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}
           onLog={sandboxLogger.log}
         ></CompassWeb>

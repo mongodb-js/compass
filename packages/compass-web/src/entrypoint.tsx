@@ -203,7 +203,6 @@ const CompassWeb = ({
   const appRegistry = useRef(new AppRegistry());
   const logger = useCompassWebLoggerAndTelemetry({
     onLog,
-    onTrack,
     onDebug,
   });
 
@@ -277,6 +276,18 @@ const CompassWeb = ({
   );
   const autoConnectConnectionId = initialWorkspaceRef.current?.connectionId;
 
+  const telemetry = useRef({
+    createTrack:
+      () =>
+      async (event: string, properties: Record<string, any> | undefined) => {
+        onTrack &&
+          void onTrack(
+            event,
+            typeof properties === 'function' ? await properties() : properties
+          );
+      },
+  });
+
   return (
     <GlobalAppRegistryProvider value={appRegistry.current}>
       <AppRegistryProvider scopeName="Compass Web Root">
@@ -289,7 +300,7 @@ const CompassWeb = ({
         >
           <PreferencesProvider value={preferencesAccess.current}>
             <LoggerProvider value={logger}>
-              <TelemetryProvider value={{ createTrack: () => logger.track }}>
+              <TelemetryProvider value={telemetry.current}>
                 <WithAtlasProviders>
                   <AtlasCloudConnectionStorageProvider
                     orgId={orgId}

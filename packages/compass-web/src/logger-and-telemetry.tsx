@@ -128,7 +128,6 @@ export class CompassWebLoggerAndTelemetry implements Logger {
     private component: string,
     private callbackRef: {
       current: {
-        onTrack?: TrackFunction;
         onLog?: LogFunction;
         onDebug?: DebugFunction;
       };
@@ -141,23 +140,6 @@ export class CompassWebLoggerAndTelemetry implements Logger {
     this.debug = createCompassWebDebugger(this.component, this.callbackRef);
   }
 
-  track = (
-    event: string,
-    properties: Record<string, any> | (() => Record<string, any>) = {}
-  ) => {
-    void (async () => {
-      try {
-        this.callbackRef.current.onTrack?.(
-          event,
-          typeof properties === 'function' ? await properties() : properties
-        );
-      } catch {
-        // noop
-      }
-    })();
-    return;
-  };
-
   mongoLogId = mongoLogId;
 
   createLogger = (component: string): Logger => {
@@ -168,7 +150,6 @@ export class CompassWebLoggerAndTelemetry implements Logger {
 export function useCompassWebLoggerAndTelemetry(callbacks: {
   onLog?: LogFunction;
   onDebug?: DebugFunction;
-  onTrack?: TrackFunction;
 }): CompassWebLoggerAndTelemetry {
   const callbackRef = useRef(callbacks);
   callbackRef.current = callbacks;
