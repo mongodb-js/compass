@@ -43,9 +43,7 @@ class CompassWebLogWriter extends Writable implements MongoLogWriter {
   ) => {
     this.callbackRef?.current.onLog?.(type, ...args);
   };
-  get mongoLogId() {
-    return mongoLogId;
-  }
+  mongoLogId = mongoLogId;
   flush = () => {
     return Promise.resolve();
   };
@@ -160,9 +158,7 @@ export class CompassWebLoggerAndTelemetry implements LoggerAndTelemetry {
     return;
   };
 
-  get mongoLogId() {
-    return mongoLogId;
-  }
+  mongoLogId = mongoLogId;
 
   createLogger = (component: string): LoggerAndTelemetry => {
     return new CompassWebLoggerAndTelemetry(component, this.callbackRef);

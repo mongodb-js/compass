@@ -994,7 +994,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       },
     };
     if (logger) {
-      this._unboundLogger = Object.assign({}, logger, { mongoLogId });
+      this._unboundLogger = Object.assign(logger, { mongoLogId });
     }
   }
 
