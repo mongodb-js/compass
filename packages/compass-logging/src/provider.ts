@@ -83,3 +83,5 @@ export function withLogger<
 export function mongoLogId(id: number): MongoLogId { // !dupedLogId
   return { __value: id };
 }
+
+export type { MongoLogWriter } from 'mongodb-log-writer';

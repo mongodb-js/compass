@@ -96,12 +96,15 @@ const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
 
 const withStatusMarkerStyles = css({
   position: 'relative',
+  display: 'flex',
+  minWidth: spacing[400],
 });
 
 const withStatusMarkerMarkerStyles = css({
   position: 'absolute',
-  right: `-${spacing[1] / 2}px`,
-  bottom: `-${spacing[1] / 2}px`,
+  display: 'flex',
+  right: `-${spacing[50]}px`,
+  bottom: `-${spacing[50]}px`,
 });
 
 export function WithStatusMarker({

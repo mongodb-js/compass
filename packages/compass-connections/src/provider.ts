@@ -9,6 +9,7 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 export type { DataService };
 export * from './connections-manager';
 export { useConnections } from './components/connections-provider';
+export { useConnectionsWithStatus } from './hooks/use-connections-with-status';
 export { useActiveConnections } from './hooks/use-active-connections';
 
 class TestConnectionsManager extends EventEmitter {
