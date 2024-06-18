@@ -252,8 +252,8 @@ async function main() {
     }
   }
 
-  const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS ?? '1');
-  const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP ?? '1');
+  const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS || '1');
+  const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
 
   const rawTests = (
     await glob('tests/**/*.{test,spec}.ts', {
@@ -266,6 +266,8 @@ async function main() {
 
     return index >= minGroupIndex && index <= maxGroupIndex;
   });
+
+  console.log(rawTests);
 
   // The only test file that's interested in the first-run experience (at the
   // time of writing) is time-to-first-query.ts and that happens to be
