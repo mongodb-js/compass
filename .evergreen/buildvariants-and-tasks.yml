@@ -453,6 +453,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-2
     tags:
@@ -474,6 +476,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-community-3
     tags:
@@ -495,6 +499,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-enterprise-1
     tags:
@@ -516,6 +522,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-enterprise-2
     tags:
@@ -537,6 +545,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-40x-enterprise-3
     tags:
@@ -558,6 +568,8 @@ tasks:
         vars:
           mongodb_version: 4.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-community-1
     tags:
@@ -579,6 +591,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-community-2
     tags:
@@ -600,6 +614,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-community-3
     tags:
@@ -621,6 +637,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-enterprise-1
     tags:
@@ -642,6 +660,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-enterprise-2
     tags:
@@ -663,6 +683,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-42x-enterprise-3
     tags:
@@ -684,6 +706,8 @@ tasks:
         vars:
           mongodb_version: 4.2.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-community-1
     tags:
@@ -705,6 +729,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-community-2
     tags:
@@ -726,6 +752,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-community-3
     tags:
@@ -747,6 +775,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-enterprise-1
     tags:
@@ -768,6 +798,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-enterprise-2
     tags:
@@ -789,6 +821,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-44x-enterprise-3
     tags:
@@ -810,6 +844,8 @@ tasks:
         vars:
           mongodb_version: 4.4.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-community-1
     tags:
@@ -831,6 +867,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-community-2
     tags:
@@ -852,6 +890,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-community-3
     tags:
@@ -873,6 +913,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-enterprise-1
     tags:
@@ -894,6 +936,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-enterprise-2
     tags:
@@ -915,6 +959,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-5x-enterprise-3
     tags:
@@ -936,6 +982,8 @@ tasks:
         vars:
           mongodb_version: 5.x.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-1
     tags:
@@ -957,6 +1005,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-2
     tags:
@@ -978,6 +1028,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-3
     tags:
@@ -999,6 +1051,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-1
     tags:
@@ -1020,6 +1074,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-2
     tags:
@@ -1041,6 +1097,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-3
     tags:
@@ -1062,6 +1120,8 @@ tasks:
         vars:
           mongodb_version: 6.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-1
     tags:
@@ -1083,6 +1143,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-2
     tags:
@@ -1104,6 +1166,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-3
     tags:
@@ -1125,6 +1189,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-1
     tags:
@@ -1146,6 +1212,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-2
     tags:
@@ -1167,6 +1235,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-3
     tags:
@@ -1188,6 +1258,8 @@ tasks:
         vars:
           mongodb_version: 7.0.x-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-1
     tags:
@@ -1209,6 +1281,8 @@ tasks:
         vars:
           mongodb_version: '>= 8.0.0-rc4'
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-2
     tags:
@@ -1230,6 +1304,8 @@ tasks:
         vars:
           mongodb_version: '>= 8.0.0-rc4'
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-3
     tags:
@@ -1251,6 +1327,8 @@ tasks:
         vars:
           mongodb_version: '>= 8.0.0-rc4'
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-1
     tags:
@@ -1272,6 +1350,8 @@ tasks:
         vars:
           mongodb_version: '>= 8.0.0-rc4-enterprise'
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-2
     tags:
@@ -1293,6 +1373,8 @@ tasks:
         vars:
           mongodb_version: '>= 8.0.0-rc4-enterprise'
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-3
     tags:
@@ -1314,6 +1396,8 @@ tasks:
         vars:
           mongodb_version: '>= 8.0.0-rc4-enterprise'
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-1
     tags:
@@ -1335,6 +1419,8 @@ tasks:
         vars:
           mongodb_version: latest-alpha-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-2
     tags:
@@ -1356,6 +1442,8 @@ tasks:
         vars:
           mongodb_version: latest-alpha-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-3
     tags:
@@ -1377,6 +1465,8 @@ tasks:
         vars:
           mongodb_version: latest-alpha-enterprise
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-1
     tags:

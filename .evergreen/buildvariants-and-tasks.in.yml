@@ -419,6 +419,8 @@ tasks:
         vars:
           mongodb_version: '<%= serverVersion.version %>'
           compass_distribution: compass
+          e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
+          e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   <% } %>
 <% } %>
