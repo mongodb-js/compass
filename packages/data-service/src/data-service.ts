@@ -1717,8 +1717,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return coll.dropSearchIndex(name);
   }
 
-  @op(mongoLogId(1_001_000_041), ([ns, pipeline]) => {
-    return { ns, stages: pipeline.map((stage) => Object.keys(stage)[0]) };
+  @op(mongoLogId(1_001_000_041), ([ns, pipeline, options]) => {
+    return {
+      ns,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+      maxTimeMS: options?.maxTimeMS,
+    };
   })
   aggregateCursor(
     ns: string,

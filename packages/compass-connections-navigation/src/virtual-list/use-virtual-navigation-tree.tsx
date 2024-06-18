@@ -130,7 +130,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
   activeItemId?: string;
   onExpandedChange(item: VirtualTreeItem, isExpanded: boolean): void;
   onFocusMove?: (item: VirtualTreeItem) => void;
-}): [React.HTMLProps<T>, string | undefined] {
+}): [React.HTMLProps<T>, string | undefined, boolean] {
   const rootRef = useRef<T | null>(null);
   const activeId = activeItemId || findFirstItem(items)?.id;
   const [currentTabbable, setCurrentTabbable] = useState(activeId);
@@ -303,5 +303,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
     ...focusProps,
   };
 
-  return [rootProps, currentTabbable];
+  const isTreeItemFocused = focusState === FocusState.FocusWithinVisible;
+
+  return [rootProps, currentTabbable, isTreeItemFocused];
 }

@@ -26,6 +26,7 @@ type NavigationBaseItemProps = {
 
   canExpand: boolean;
   isExpanded: boolean;
+  isFocused: boolean;
   onExpand: (toggle: boolean) => void;
 
   actionProps: {
@@ -58,6 +59,7 @@ export const NavigationBaseItem = ({
   dataAttributes,
   canExpand,
   isExpanded,
+  isFocused,
   onExpand,
 }: NavigationBaseItemProps) => {
   const [hoverProps, isHovered] = useHoverState();
@@ -88,7 +90,7 @@ export const NavigationBaseItem = ({
           </ItemLabel>
         </ItemButtonWrapper>
         <ItemActionControls<Actions>
-          isVisible={isActive || isHovered}
+          isVisible={isActive || isHovered || isFocused}
           data-testid="sidebar-navigation-item-actions"
           iconSize="small"
           {...actionProps}
