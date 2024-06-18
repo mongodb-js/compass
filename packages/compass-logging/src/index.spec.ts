@@ -2,7 +2,7 @@ import { createLogger } from './';
 import { once } from 'events';
 import { expect } from 'chai';
 
-describe('createLoggerAndTelemetry', function () {
+describe('createLogger', function () {
   it('creates a logger that forwards log lines as events', async function () {
     const { log, mongoLogId } = createLogger('COMPONENT');
     const logevent = once(process, 'compass:log');

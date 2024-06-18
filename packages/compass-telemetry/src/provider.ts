@@ -43,11 +43,9 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
 
 export function withTelemetry<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
->(
-  ReactComponent: T
-): React.FunctionComponent<Omit<FirstArgument<T>, 'tracking'>> {
+>(ReactComponent: T): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {
   const WithTelemetry = (
-    props: Omit<FirstArgument<T>, 'tracking'> & React.Attributes
+    props: Omit<FirstArgument<T>, 'track'> & React.Attributes
   ) => {
     const track = useTelemetry();
     return React.createElement(ReactComponent, { ...props, track });

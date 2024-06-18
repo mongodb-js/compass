@@ -10,6 +10,7 @@ import {
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export function ShellPlugin() {
   const multiConnectionsEnabled = usePreference(
@@ -63,11 +64,13 @@ export function onActivated(
   {
     globalAppRegistry,
     logger,
+    track,
     dataService,
     preferences,
   }: {
     globalAppRegistry: AppRegistry;
     logger: Logger;
+    track: TrackFunction;
     dataService: DataService;
     preferences: PreferencesAccess;
   }
@@ -76,6 +79,7 @@ export function onActivated(
   const deactivate = store.onActivated({
     globalAppRegistry,
     logger,
+    track,
     dataService,
     preferences,
   });

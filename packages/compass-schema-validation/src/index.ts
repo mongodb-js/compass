@@ -8,6 +8,7 @@ import {
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 
 export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   {
@@ -22,6 +23,7 @@ export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-SCHEMA-VALIDATION-UI'),
+    track: createTelemetryLocator(),
   }
 );
 export const CompassSchemaValidationPlugin = {

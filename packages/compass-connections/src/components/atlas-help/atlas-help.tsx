@@ -12,7 +12,7 @@ import {
   cx,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useTelemetry } from '@mongodb-js/compass-tracking/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const sectionContainerStyles = css({
   margin: 0,

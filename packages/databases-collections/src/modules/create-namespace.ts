@@ -357,7 +357,8 @@ export const createNamespace = (
     {
       globalAppRegistry,
       connectionsManager,
-      logger: { track, debug },
+      logger: { debug },
+      track,
       workspaces,
     }
   ) => {
