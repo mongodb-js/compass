@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { TrackFunction } from './track';
 import { useTelemetry } from './provider';
 
@@ -23,12 +23,12 @@ export function useTrackOnChange(
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
   const track = useTelemetry();
-  let initial = true;
+  const initialRef = useRef<boolean>(true);
   React.useEffect(() => {
-    if (options.skipOnMount && initial) {
-      initial = false;
+    if (options.skipOnMount && initialRef.current) {
+      initialRef.current = false;
       return;
     }
     onChangeRef.current(track);
-  }, [...dependencies, track]);
+  }, [...dependencies, track, options.skipOnMount]);
 }
