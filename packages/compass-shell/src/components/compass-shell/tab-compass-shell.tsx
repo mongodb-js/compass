@@ -1,11 +1,5 @@
 import { connect } from 'react-redux';
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  createRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 import {
   Banner,
@@ -67,7 +61,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
   emitShellPluginOpened,
 }) => {
   const enableShell = usePreference('enableShell');
-  const shellRef = createRef<ShellType>();
+  const shellRef = useRef<ShellType>(null);
   const emitShellPluginOpenedRef = useRef(emitShellPluginOpened);
   emitShellPluginOpenedRef.current =
     emitShellPluginOpened ??
@@ -112,8 +106,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
 
   const focusEditor = useCallback(() => {
     if (shellRef.current && window.getSelection()?.type !== 'Range') {
-      (shellRef.current as any) /* private ... */
-        .focusEditor();
+      shellRef.current['focusEditor']();
     }
   }, [shellRef]);
 

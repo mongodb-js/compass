@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { Logger } from './logger';
 import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
 import { createServiceLocator } from 'hadron-app-registry';
@@ -46,11 +46,11 @@ export function useLogger(component: string): Logger {
   if (!context) {
     throw new Error('Logger service is missing from React context');
   }
-  const loggerRef = React.createRef<Logger>();
+  const loggerRef = useRef<Logger>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = context.createLogger(component);
+    loggerRef.current = context.createLogger(component);
   }
-  return loggerRef.current!;
+  return loggerRef.current;
 }
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
