@@ -14,6 +14,7 @@ import {
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 describe('aiQueryReducer', function () {
   let preferences: PreferencesAccess;
@@ -57,6 +58,7 @@ describe('aiQueryReducer', function () {
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
+            track: createNoopTrack(),
           } as any
         );
 
@@ -104,6 +106,7 @@ describe('aiQueryReducer', function () {
           },
           preferences,
           logger: createNoopLogger(),
+          track: createNoopTrack(),
         } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
@@ -130,6 +133,7 @@ describe('aiQueryReducer', function () {
           },
           preferences,
           logger: createNoopLogger(),
+          track: createNoopTrack(),
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState()).to.have.property('aiQuery').deep.eq({
@@ -172,6 +176,7 @@ describe('aiQueryReducer', function () {
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
+            track: createNoopTrack(),
           } as any
         );
 
@@ -211,6 +216,7 @@ describe('aiQueryReducer', function () {
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
+            track: createNoopTrack(),
           } as any
         );
 
