@@ -52,10 +52,16 @@ import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
+import type {
+  TrackFunction,
+  LogFunction,
+  DebugFunction,
+} from './logger-and-telemetry';
+import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -95,6 +101,10 @@ type CompassWebProps = {
   >['onActiveWorkspaceTabChange'];
 
   initialPreferences?: Partial<AllPreferences>;
+
+  onLog?: LogFunction;
+  onDebug?: DebugFunction;
+  onTrack?: TrackFunction;
 };
 
 function CompassWorkspace({
@@ -182,12 +192,19 @@ const CompassWeb = ({
   initialPreferences,
   renderConnecting = () => null,
   renderError = () => null,
+  onLog,
+  onDebug,
+  onTrack,
   // @ts-expect-error not an interface we want to expose in any way, only for
   // testing purposes, should never be used otherwise
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
-  const loggerAndTelemetry = useLoggerAndTelemetry('COMPASS-WEB-UI');
+  const loggerAndTelemetry = useCompassWebLoggerAndTelemetry({
+    onLog,
+    onTrack,
+    onDebug,
+  });
 
   const connectionsManager = useRef(
     new ConnectionsManager({
@@ -270,50 +287,54 @@ const CompassWeb = ({
           {...LINK_PROPS}
         >
           <PreferencesProvider value={preferencesAccess.current}>
-            <WithAtlasProviders>
-              <AtlasCloudConnectionStorageProvider
-                orgId={orgId}
-                projectId={projectId}
-                autoConnectConnectionId={autoConnectConnectionId}
-              >
-                <ConnectionsManagerProvider value={connectionsManager.current}>
-                  <CompassConnections
-                    onConnectionAttemptStarted={onConnectionAttemptStarted}
-                    onConnectionFailed={onConnectionFailed}
-                    onConnected={onConnected}
+            <LoggerAndTelemetryProvider value={loggerAndTelemetry}>
+              <WithAtlasProviders>
+                <AtlasCloudConnectionStorageProvider
+                  orgId={orgId}
+                  projectId={projectId}
+                  autoConnectConnectionId={autoConnectConnectionId}
+                >
+                  <ConnectionsManagerProvider
+                    value={connectionsManager.current}
                   >
-                    <CompassInstanceStorePlugin>
-                      <FieldStorePlugin>
-                        {isConnected && connectionInfo ? (
-                          <AppRegistryProvider
-                            key={connectionInfo.id}
-                            scopeName="Connected Application"
-                          >
-                            <ConnectionInfoProvider
-                              connectionInfoId={connectionInfo.id}
+                    <CompassConnections
+                      onConnectionAttemptStarted={onConnectionAttemptStarted}
+                      onConnectionFailed={onConnectionFailed}
+                      onConnected={onConnected}
+                    >
+                      <CompassInstanceStorePlugin>
+                        <FieldStorePlugin>
+                          {isConnected && connectionInfo ? (
+                            <AppRegistryProvider
+                              key={connectionInfo.id}
+                              scopeName="Connected Application"
                             >
-                              <CompassWorkspace
-                                connectionInfo={connectionInfo}
-                                initialWorkspaceTabs={
-                                  initialWorkspaceTabsRef.current
-                                }
-                                onActiveWorkspaceTabChange={
-                                  onActiveWorkspaceTabChange
-                                }
-                              />
-                            </ConnectionInfoProvider>
-                          </AppRegistryProvider>
-                        ) : connectionError ? (
-                          renderError(connectionInfo, connectionError)
-                        ) : (
-                          renderConnecting(connectionInfo)
-                        )}
-                      </FieldStorePlugin>
-                    </CompassInstanceStorePlugin>
-                  </CompassConnections>
-                </ConnectionsManagerProvider>
-              </AtlasCloudConnectionStorageProvider>
-            </WithAtlasProviders>
+                              <ConnectionInfoProvider
+                                connectionInfoId={connectionInfo.id}
+                              >
+                                <CompassWorkspace
+                                  connectionInfo={connectionInfo}
+                                  initialWorkspaceTabs={
+                                    initialWorkspaceTabsRef.current
+                                  }
+                                  onActiveWorkspaceTabChange={
+                                    onActiveWorkspaceTabChange
+                                  }
+                                />
+                              </ConnectionInfoProvider>
+                            </AppRegistryProvider>
+                          ) : connectionError ? (
+                            renderError(connectionInfo, connectionError)
+                          ) : (
+                            renderConnecting(connectionInfo)
+                          )}
+                        </FieldStorePlugin>
+                      </CompassInstanceStorePlugin>
+                    </CompassConnections>
+                  </ConnectionsManagerProvider>
+                </AtlasCloudConnectionStorageProvider>
+              </WithAtlasProviders>
+            </LoggerAndTelemetryProvider>
           </PreferencesProvider>
         </CompassComponentsProvider>
       </AppRegistryProvider>

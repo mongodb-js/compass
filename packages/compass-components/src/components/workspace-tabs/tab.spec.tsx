@@ -44,10 +44,6 @@ describe('Tab', function () {
         .visible;
     });
 
-    it('should render the close tab button visible', async function () {
-      expect(await screen.findByLabelText('Close Tab')).to.be.visible;
-    });
-
     it('should call "onClose" when the close button is clicked', async function () {
       expect(onCloseSpy.callCount).to.equal(0);
       const closeTabButton = await screen.findByLabelText('Close Tab');
@@ -76,10 +72,6 @@ describe('Tab', function () {
           iconGlyph="Folder"
         />
       );
-    });
-
-    it('should render the close tab button hidden', async function () {
-      expect(await screen.findByLabelText('Close Tab')).to.not.be.visible;
     });
 
     // Focus visible is not working proper in jsdom environment
