@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { withTrack } from '@mongodb-js/compass-telemetry/provider';
+import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
@@ -312,4 +312,6 @@ class ValidationEditor extends Component<ValidationEditorProps> {
   }
 }
 
-export default withTrack(withDarkMode<ValidationEditorProps>(ValidationEditor));
+export default withTelemetry(
+  withDarkMode<ValidationEditorProps>(ValidationEditor)
+);

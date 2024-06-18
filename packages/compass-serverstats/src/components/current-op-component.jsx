@@ -3,7 +3,7 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const Actions = require('../actions');
 const DBErrorStore = require('../stores/dberror-store');
-const { withTrack } = require('@mongodb-js/compass-telemetry/provider');
+const { withTelemetry } = require('@mongodb-js/compass-telemetry/provider');
 
 // const debug = require('debug')('mongodb-compass:server-stats:current-op-component');
 
@@ -191,4 +191,4 @@ CurrentOpComponent.propTypes = {
 
 CurrentOpComponent.displayName = 'CurrentOpComponent';
 
-module.exports = withTrack(CurrentOpComponent);
+module.exports = withTelemetry(CurrentOpComponent);

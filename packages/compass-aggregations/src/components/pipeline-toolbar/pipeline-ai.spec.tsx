@@ -16,7 +16,7 @@ import {
 } from '../../modules/pipeline-builder/pipeline-ai';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
-import { TrackingProvider } from '@mongodb-js/compass-telemetry/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
@@ -50,11 +50,11 @@ describe('PipelineAI Component', function () {
             } as any
           }
         >
-          <TrackingProvider value={{ createTrack: () => track }}>
+          <TelemetryProvider value={{ createTrack: () => track }}>
             <Provider store={store}>
               <PipelineAI />
             </Provider>
-          </TrackingProvider>
+          </TelemetryProvider>
         </LoggerProvider>
       </PreferencesProvider>
     );

@@ -6,7 +6,7 @@ import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
-import { TrackingProvider } from '@mongodb-js/compass-telemetry/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import Sinon from 'sinon';
 
 const allTypesStr = `{
@@ -127,9 +127,9 @@ result = client['db']['coll'].find(
       };
       render(
         <LoggerProvider value={logger as any}>
-          <TrackingProvider value={{ createTrack: () => track }}>
+          <TelemetryProvider value={{ createTrack: () => track }}>
             <Plugin namespace="db.coll"></Plugin>
-          </TrackingProvider>
+          </TelemetryProvider>
         </LoggerProvider>
       );
       appRegistry.emit('open-aggregation-export-to-language', '[]');

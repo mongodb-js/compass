@@ -20,7 +20,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
-import { TrackingProvider } from '@mongodb-js/compass-telemetry/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* no op */
@@ -61,11 +61,11 @@ describe('QueryAI Component', function () {
             } as any
           }
         >
-          <TrackingProvider value={{ createTrack: () => track }}>
+          <TelemetryProvider value={{ createTrack: () => track }}>
             <Provider store={store}>
               <QueryAI onClose={noop} show {...props} />
             </Provider>
-          </TrackingProvider>
+          </TelemetryProvider>
         </LoggerProvider>
       </PreferencesProvider>
     );

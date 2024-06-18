@@ -22,7 +22,7 @@ import {
 } from '@mongodb-js/my-queries-storage/provider';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
-import { TrackingProvider } from '@mongodb-js/compass-telemetry/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import Home, { type HomeProps } from './home';
 import { createTrack } from '@mongodb-js/compass-telemetry';
@@ -38,9 +38,9 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   return (
     <PreferencesProvider value={loggerProviderValue.current.preferences}>
       <LoggerProvider value={loggerProviderValue.current}>
-        <TrackingProvider value={trackingProviderValue.current}>
+        <TelemetryProvider value={trackingProviderValue.current}>
           {children}
-        </TrackingProvider>
+        </TelemetryProvider>
       </LoggerProvider>
     </PreferencesProvider>
   );

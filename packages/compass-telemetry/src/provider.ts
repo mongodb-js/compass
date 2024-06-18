@@ -10,18 +10,21 @@ export function createNoopTrack(): TrackFunction {
   return noop;
 }
 
-const TrackingContext = React.createContext<{
+const TelemetryContext = React.createContext<{
   createTrack(): TrackFunction;
 }>({ createTrack: createNoopTrack });
 
-export const TrackingProvider = TrackingContext.Provider;
+export const TelemetryProvider = TelemetryContext.Provider;
 
-export function createTrackingLocator() {
-  return createServiceLocator(useTracking.bind(null), 'createTrackingLocator');
+export function createTelemetryLocator() {
+  return createServiceLocator(
+    useTelemetry.bind(null),
+    'createTelemetryLocator'
+  );
 }
 
-export function useTracking(): TrackFunction {
-  const context = React.useContext(TrackingContext);
+export function useTelemetry(): TrackFunction {
+  const context = React.useContext(TelemetryContext);
   if (!context) {
     throw new Error('Tracking service is missing from React context');
   }
@@ -38,16 +41,16 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
-export function withTrack<
+export function withTelemetry<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(
   ReactComponent: T
 ): React.FunctionComponent<Omit<FirstArgument<T>, 'tracking'>> {
-  const WithTrack = (
+  const WithTelemetry = (
     props: Omit<FirstArgument<T>, 'tracking'> & React.Attributes
   ) => {
-    const track = useTracking();
+    const track = useTelemetry();
     return React.createElement(ReactComponent, { ...props, track });
   };
-  return WithTrack;
+  return WithTelemetry;
 }

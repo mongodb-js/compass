@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormModal, TextInput } from '@mongodb-js/compass-components';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { withTrack } from '@mongodb-js/compass-telemetry/provider';
+import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 export interface SavingPipelineModalProps {
   isOpen: boolean;
@@ -94,4 +94,4 @@ class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
   }
 }
 
-export default withTrack(SavingPipelineModal);
+export default withTelemetry(SavingPipelineModal);

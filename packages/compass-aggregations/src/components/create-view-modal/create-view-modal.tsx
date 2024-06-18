@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { createView, changeViewName, close } from '../../modules/create-view';
 import type { CreateViewRootState } from '../../stores/create-view';
-import { withTrack } from '@mongodb-js/compass-telemetry/provider';
+import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const progressContainerStyles = css({
@@ -113,7 +113,7 @@ const mapStateToProps = (state: CreateViewRootState) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateViewModal = withTrack(
+const MappedCreateViewModal = withTelemetry(
   connect(mapStateToProps, {
     createView,
     changeViewName,

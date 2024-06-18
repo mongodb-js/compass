@@ -11,12 +11,12 @@ import {
   runAIQuery,
 } from '../stores/ai-query-reducer';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import { useTracking } from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isEqualDefaultQuery } from '../utils/query';
 
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLogger('AI-QUERY-UI');
-  const track = useTracking();
+  const track = useTelemetry();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
       const { log, mongoLogId } = logger;
