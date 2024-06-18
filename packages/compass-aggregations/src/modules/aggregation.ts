@@ -27,9 +27,6 @@ import { runPipelineConfirmationDescription } from '../utils/modal-descriptions'
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import toNS from 'mongodb-ns';
-import { createTrack } from '@mongodb-js/compass-telemetry';
-
-const track = createTrack();
 
 const WRITE_STAGE_LINK = {
   $merge:
@@ -292,7 +289,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, instance, dataService }
+    { pipelineBuilder, instance, dataService, track }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
@@ -366,7 +363,7 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     track('Aggregation Canceled');
     const {
       aggregation: { abortController },
@@ -390,7 +387,7 @@ const fetchAggregationData = (
   return async (
     dispatch,
     getState,
-    { preferences, logger: { log, mongoLogId }, globalAppRegistry }
+    { preferences, logger: { log, mongoLogId }, track, globalAppRegistry }
   ) => {
     const {
       namespace,

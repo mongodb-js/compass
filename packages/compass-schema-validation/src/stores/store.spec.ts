@@ -19,6 +19,7 @@ import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -54,6 +55,7 @@ describe('Schema Validation Store', function () {
         instance: fakeInstance,
         preferences: await createSandboxFromDefaultPreferences(),
         logger: createNoopLogger(),
+        track: createNoopTrack(),
       },
       createActivateHelpers()
     );

@@ -1,7 +1,7 @@
 import { createTrack } from './';
 import { expect } from 'chai';
 
-describe('', () => {
+describe('Telemetry', () => {
   it('sends track events over ipc', async function () {
     const track = createTrack();
 
