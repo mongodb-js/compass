@@ -566,7 +566,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           echo "Running E2E tests while collecting coverage..."
 
@@ -594,7 +593,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
@@ -631,7 +629,6 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
           npm run --unsafe-perm --workspace compass-e2e-tests test-web
 
   test-connectivity:
