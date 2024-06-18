@@ -6,7 +6,10 @@ import type {
   SidebarConnection,
   SidebarNotConnectedConnection,
 } from '@mongodb-js/compass-connections-navigation';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionStatus,
+  useActiveConnections,
+} from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import toNS from 'mongodb-ns';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
@@ -341,7 +344,6 @@ type UseFilteredConnectionsHookResult = {
     databaseId: string,
     isExpanded: boolean
   ): void;
-  onConnectionsChanged(this: void, newConnections: ConnectionInfo[]): void;
 };
 
 export const useFilteredConnections = (
@@ -354,6 +356,13 @@ export const useFilteredConnections = (
     filtered: undefined,
     expanded: {},
   });
+
+  const activeConnections = useActiveConnections();
+
+  // get rid of stale connection related metadata in the state
+  useEffect(() => {
+    dispatch({ type: CONNECTIONS_CHANGED, connections: activeConnections });
+  }, [activeConnections]);
 
   // filter updates
   // connections change often, but the effect only uses connections if the filter is active
@@ -410,10 +419,6 @@ export const useFilteredConnections = (
     dispatch({ type: COLLAPSE_ALL });
   }, []);
 
-  const onConnectionsChanged = useCallback((connections: ConnectionInfo[]) => {
-    dispatch({ type: CONNECTIONS_CHANGED, connections: connections });
-  }, []);
-
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
       const result = connections.reduce(
@@ -439,6 +444,5 @@ export const useFilteredConnections = (
     onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
-    onConnectionsChanged,
   };
 };
