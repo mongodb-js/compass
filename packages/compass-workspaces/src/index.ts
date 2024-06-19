@@ -191,6 +191,7 @@ export type {
   WelcomeWorkspace,
   MyQueriesWorkspace,
   ServerStatsWorkspace,
+  ShellWorkspace,
   DatabasesWorkspace,
   CollectionsWorkspace,
   CollectionWorkspace,

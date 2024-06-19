@@ -1,7 +1,10 @@
 import React from 'react';
 import { css } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { CompassShellPlugin } from '@mongodb-js/compass-shell';
+import {
+  CompassShellPlugin,
+  WorkspaceTab as ShellWorkspace,
+} from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
@@ -70,6 +73,7 @@ export default function Workspace({
         value={[
           WelcomeWorkspace,
           MyQueriesWorkspace,
+          ShellWorkspace,
           PerformanceWorkspace,
           DatabasesWorkspaceTab,
           CollectionsWorkspaceTab,
@@ -116,13 +120,15 @@ export default function Workspace({
           ></WorkspacesPlugin>
         </CollectionTabsProvider>
       </WorkspacesProvider>
-      <div className={shellContainerStyles}>
-        <ConnectionInfoProvider
-          connectionInfoId={singleConnectionConnectionInfo?.id}
-        >
-          <CompassShellPlugin />
-        </ConnectionInfoProvider>
-      </div>
+      {!multiConnectionsEnabled && (
+        <div className={shellContainerStyles}>
+          <ConnectionInfoProvider
+            connectionInfoId={singleConnectionConnectionInfo?.id}
+          >
+            <CompassShellPlugin />
+          </ConnectionInfoProvider>
+        </div>
+      )}
     </div>
   );
 }

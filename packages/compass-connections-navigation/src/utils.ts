@@ -2,11 +2,11 @@ import type { SidebarTreeItem } from './tree-data';
 
 export const getTreeItemStyles = ({
   level,
-  maxNestingLevel,
-}: Pick<SidebarTreeItem, 'level' | 'maxNestingLevel'>): React.CSSProperties => {
-  const isExpandable = level < maxNestingLevel;
+  isExpandable,
+}: Pick<SidebarTreeItem, 'isExpandable' | 'level'>): React.CSSProperties => {
   const defaultPadding = 20;
+  const paddingLeft = (level - 1) * defaultPadding + (!isExpandable ? 30 : 0);
   return {
-    paddingLeft: (level - 1) * defaultPadding + (!isExpandable ? 30 : 0),
+    paddingLeft,
   };
 };

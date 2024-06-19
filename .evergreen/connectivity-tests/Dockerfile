@@ -1,5 +1,5 @@
 # "bullseye" is the debian distribution that ubuntu:20.04 is based on
-FROM node:16-bullseye
+FROM node:18-bullseye
 
 COPY .evergreen/connectivity-tests/krb5.conf /etc/krb5.conf
 
@@ -19,7 +19,7 @@ ENV COMPASS_RUN_DOCKER_TESTS="true"
 COPY . /compass-monorepo-root
 WORKDIR /compass-monorepo-root
 
-RUN npm i -g npm@8
+RUN npm i -g npm@10.2.4
 RUN npm run bootstrap-ci
 
 CMD ["bash", ".evergreen/connectivity-tests/entrypoint.sh"]

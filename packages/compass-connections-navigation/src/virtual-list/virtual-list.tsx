@@ -182,7 +182,7 @@ function TreeItem<T extends VirtualItem>({
   const item = useMemo(() => items[index], [items, index]);
   const focusRingProps = useFocusRing();
 
-  const Component = useMemo(() => {
+  const component = useMemo(() => {
     return renderItem({ index, item });
   }, [renderItem, index, item]);
 
@@ -193,7 +193,7 @@ function TreeItem<T extends VirtualItem>({
 
   // Placeholder check
   if (isPlaceholderItem(item)) {
-    return <div style={style}>{Component}</div>;
+    return <div style={style}>{component}</div>;
   }
 
   const treeItemProps = mergeProps(
@@ -211,7 +211,7 @@ function TreeItem<T extends VirtualItem>({
   );
   return (
     <div data-id={item.id} data-testid={item.id} {...treeItemProps}>
-      {Component}
+      {component}
     </div>
   );
 }

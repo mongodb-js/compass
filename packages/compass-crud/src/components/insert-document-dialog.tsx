@@ -107,7 +107,7 @@ class InsertDocumentDialog extends React.PureComponent<
         // Subscribe to the validation errors for BSON types on the document.
         this.props.doc.on(Element.Events.Invalid, this.handleInvalid);
         this.props.doc.on(Element.Events.Valid, this.handleValid);
-      } else {
+      } else if (!prevProps.jsonView && this.props.jsonView) {
         // When switching to JSON View.
         // Remove the listeners to the BSON type validation errors in order to clean up properly.
         this.props.doc.removeListener(

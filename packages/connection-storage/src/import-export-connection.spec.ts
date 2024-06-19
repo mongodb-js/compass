@@ -31,6 +31,7 @@ const CONNECTIONS: ConnectionInfo[] = [
   },
 ];
 
+// Security-relevant test -- see import-export-connections e2e test for description.
 describe('Connection serialization', function () {
   it('with default options', async function () {
     const serializedConnections = await serializeConnections(CONNECTIONS);

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   useHoverState,
@@ -23,9 +23,8 @@ import {
   withPreferences,
 } from 'compass-preferences-model/provider';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import DatabaseCollectionFilter from '../database-collection-filter';
+import NavigationItemsFilter from '../navigation-items-filter';
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-import { changeFilterRegex } from '../../modules/databases';
 import type { RootState } from '../../modules';
 import {
   useOpenWorkspace,
@@ -40,12 +39,12 @@ const navigationItem = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
   border: 'none',
-  height: spacing[5],
+  height: spacing[800],
   position: 'relative',
 
   '& .item-action-controls': {
     marginLeft: 'auto',
-    marginRight: spacing[1],
+    marginRight: spacing[100],
   },
 
   '&:hover .item-background': {
@@ -88,16 +87,16 @@ const itemPlaceholderStyles = css({
   width: '100%',
   display: 'flex',
   alignItems: 'center',
-  paddingLeft: spacing[3],
-  height: spacing[5],
+  paddingLeft: spacing[400],
+  height: spacing[800],
 });
 
 const itemWrapper = css({
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
-  height: spacing[5],
-  gap: spacing[2],
+  height: spacing[800],
+  gap: spacing[200],
   zIndex: 1,
 });
 
@@ -114,7 +113,7 @@ const itemButtonWrapper = css({
   display: 'flex',
   alignItems: 'center',
   minWidth: 0,
-  paddingLeft: spacing[3],
+  paddingLeft: spacing[400],
 });
 
 const signalContainerStyles = css({
@@ -125,7 +124,7 @@ const navigationItemLabel = css({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
-  marginLeft: spacing[2],
+  marginLeft: spacing[200],
 });
 
 const navigationItemDisabledDarkModeStyles = css({
@@ -138,6 +137,10 @@ const navigationItemDisabledLightModeStyles = css({
   '--item-color': palette.gray.base,
   '--item-color-active': palette.gray.base,
   '--item-bg-color-hover': 'var(--item-bg-color)',
+});
+
+const databaseCollectionsFilter = css({
+  margin: `${spacing[100]}px ${spacing[400]}px`,
 });
 
 const navigationItemActionIcons = css({ color: 'inherit' });
@@ -199,7 +202,7 @@ export function NavigationItem<Actions extends string>({
   return (
     <Tooltip
       align="right"
-      spacing={spacing[3]}
+      spacing={spacing[400]}
       isDisabled={!isButtonDisabled || !buttonDisabledMessage}
       trigger={({ children: tooltip, ...triggerProps }) => {
         const props = mergeProps(triggerProps, navigationItemProps);
@@ -257,7 +260,6 @@ export function NavigationItems({
   connectionInfo,
   showCreateDatabaseAction,
   isPerformanceTabSupported,
-  onFilterChange,
   onAction,
   activeWorkspace,
   showTooManyCollectionsInsight = false,
@@ -266,9 +268,8 @@ export function NavigationItems({
   connectionInfo: ConnectionInfo;
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
-  onFilterChange(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
-  activeWorkspace?: WorkspaceTab;
+  activeWorkspace: WorkspaceTab | null;
   showTooManyCollectionsInsight?: boolean;
 }) {
   const {
@@ -277,6 +278,14 @@ export function NavigationItems({
     openDatabasesWorkspace,
   } = useOpenWorkspace();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
+
+  const [databasesFilterRegex, setDatabasesFilterRegex] =
+    useState<RegExp | null>(null);
+
+  const onDatabasesFilterChange = useCallback(
+    (filterRegex: RegExp | null) => setDatabasesFilterRegex(filterRegex),
+    [setDatabasesFilterRegex]
+  );
 
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [
@@ -356,10 +365,16 @@ export function NavigationItems({
         }}
       ></ContentWithFallback>
 
-      <DatabaseCollectionFilter onFilterChange={onFilterChange} />
+      <NavigationItemsFilter
+        onFilterChange={onDatabasesFilterChange}
+        title="Databases and collections filter"
+        ariaLabel="Databases and collections filter"
+        searchInputClassName={databaseCollectionsFilter}
+      />
       <SidebarDatabasesNavigation
         connectionInfo={connectionInfo}
-        activeWorkspace={activeWorkspace ?? undefined}
+        activeWorkspace={activeWorkspace}
+        filterRegex={databasesFilterRegex}
       />
     </>
   );
@@ -399,9 +414,7 @@ const mapStateToProps = (
 };
 
 const MappedNavigationItems = withPreferences(
-  connect(mapStateToProps, {
-    onFilterChange: changeFilterRegex,
-  })(NavigationItems),
+  connect(mapStateToProps)(NavigationItems),
   ['readOnly']
 );
 

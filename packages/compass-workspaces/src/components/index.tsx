@@ -116,9 +116,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
           darkMode ? containerDarkThemeStyles : containerLightThemeStyles
         )}
       >
-        <div className={sidebarStyles}>
-          {renderSidebar && React.createElement(renderSidebar)}
-        </div>
+        <div className={sidebarStyles}>{renderSidebar?.()}</div>
         <div className={workspacesStyles}>
           <Workspaces
             singleConnectionConnectionInfo={singleConnectionConnectionInfo}
@@ -126,7 +124,7 @@ const WorkspacesWithSidebar: React.FunctionComponent<
           ></Workspaces>
         </div>
       </div>
-      {renderModals && React.createElement(renderModals)}
+      {renderModals?.()}
     </WorkspacesServiceProvider>
   );
 };
