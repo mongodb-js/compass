@@ -47,7 +47,7 @@ export const createGenericTrack = ({
           event_name: event,
         });
         log.error(
-          mongoLogId(1_001_000_310),
+          mongoLogId(1_001_000_313),
           'Telemetry',
           'Error computing event properties for telemetry',
           {

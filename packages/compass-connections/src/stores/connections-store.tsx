@@ -335,7 +335,7 @@ export function useConnections({
   const closeConnection = async (connectionId: string) => {
     debug('closing connection with connectionId', connectionId);
     log.info(
-      mongoLogId(1_001_000_313),
+      mongoLogId(1_001_000_317),
       'Connection UI',
       'Initiating disconnect attempt'
     );
