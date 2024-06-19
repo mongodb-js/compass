@@ -4,7 +4,9 @@ import {
   type TelemetryPreferences,
   createGenericTrack,
   type TrackFunction,
-} from './track';
+  type TrackProps,
+} from './generic-track';
+import { type Logger } from '@mongodb-js/compass-logging';
 
 function emit(
   ipc: HadronIpcRenderer | null | undefined,
@@ -19,13 +21,25 @@ function emit(
   }
 }
 
-export function createTrack(
-  preferencesService?: TelemetryPreferences
+export function createIpcTrack(
+  logger?: Logger,
+  preferences?: TelemetryPreferences
 ): TrackFunction {
   // This application may not be running in an Node.js/Electron context.
   const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer
     ? // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('hadron-ipc').ipcRenderer
     : null;
-  return createGenericTrack(emit.bind(null, ipc), preferencesService);
+
+  const sendTrack = (event: string, properties: TrackProps) =>
+    emit(ipc, 'compass:track', { event, properties });
+
+  return createGenericTrack({ sendTrack, logger, preferences });
+}
+
+export function createIpcTrackWithContext(
+  logger: Logger,
+  preferences: TelemetryPreferences
+): TrackFunction {
+  return createIpcTrack(logger, preferences);
 }

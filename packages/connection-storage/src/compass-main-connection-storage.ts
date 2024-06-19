@@ -30,10 +30,10 @@ import type {
   ConnectionStorage,
   AutoConnectPreferences,
 } from './connection-storage';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const { log, mongoLogId } = createLogger('CONNECTION-STORAGE');
-const track = createTrack();
+const track = createIpcTrack();
 
 export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
 

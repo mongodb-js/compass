@@ -26,10 +26,10 @@ import { SecretStore } from './secret-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
-const track = createTrack();
+const track = createIpcTrack();
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',

@@ -24,10 +24,10 @@ import {
   initCompassMainConnectionStorage,
   getCompassMainConnectionStorage,
 } from '@mongodb-js/connection-storage/main';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
-const track = createTrack();
+const track = createIpcTrack();
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';

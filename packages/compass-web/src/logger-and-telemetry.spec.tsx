@@ -51,11 +51,9 @@ describe('useCompassWebLoggerAndTelemetry', function () {
     } = renderLoggerAndTelemetryHook({ onLog, onTrack, onDebug });
 
     loggerAndTelemetry.debug('foo bar');
-    // loggerAndTelemetry.track('Tracking Event', { param: 1 }); // TODO COMPASS-8019
     loggerAndTelemetry.log.info(mongoLogId(123), 'Ctx', 'msg', { attr: 1 });
 
     expect(onDebug).to.have.been.calledOnceWith('TEST', 'foo bar');
-    // expect(onTrack).to.have.been.calledOnceWith('Tracking Event', { param: 1 }); // TODO COMPASS-8019
     expect(onLog).to.have.been.calledOnceWith(
       'info',
       'TEST',

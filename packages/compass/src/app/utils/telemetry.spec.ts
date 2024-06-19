@@ -9,7 +9,7 @@ import {
 } from './telemetry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createLogger } from '@mongodb-js/compass-logging';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   instance: () => {
@@ -38,7 +38,7 @@ const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
 describe('connection tracking', function () {
   let trackUsageStatistics: boolean;
   const logger = createLogger('TEST-CONNECTION');
-  const track = createTrack();
+  const track = createIpcTrack();
 
   before(async function () {
     // TODO(COMPASS-7397): Proper dependency injection for logger + telemetry would be nice here!

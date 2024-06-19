@@ -52,7 +52,7 @@ import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
+import { Logger, LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
@@ -63,6 +63,8 @@ import type {
   DebugFunction,
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
+import { createGenericTrack } from '@mongodb-js/compass-telemetry';
+import { TelemetryPreferences } from '@mongodb-js/compass-telemetry/dist/generic-track';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -277,15 +279,22 @@ const CompassWeb = ({
   const autoConnectConnectionId = initialWorkspaceRef.current?.connectionId;
 
   const telemetry = useRef({
-    createTrack:
-      () =>
-      async (event: string, properties: Record<string, any> | undefined) => {
-        onTrack &&
-          void onTrack(
-            event,
-            typeof properties === 'function' ? await properties() : properties
-          );
-      },
+    createTrack: (logger: Logger, preferences: TelemetryPreferences) =>
+      createGenericTrack({
+        sendTrack: async (
+          event: string,
+          properties: Record<string, any> | undefined
+        ) => {
+          onTrack &&
+            void onTrack(
+              event,
+              typeof properties === 'function' ? await properties() : properties
+            );
+        },
+        logger,
+        preferences,
+      }),
+    preferences: preferencesAccess.current,
   });
 
   return (

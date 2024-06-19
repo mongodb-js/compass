@@ -14,10 +14,10 @@ import { ipcMain } from 'hadron-ipc';
 import semver from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
-import { createTrack } from '@mongodb-js/compass-telemetry';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const { log, mongoLogId, debug } = createLogger('COMPASS-AUTO-UPDATES');
-const track = createTrack();
+const track = createIpcTrack();
 
 function hasSquirrel() {
   const updateExe = path.resolve(
