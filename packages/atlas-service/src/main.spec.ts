@@ -89,7 +89,7 @@ describe('CompassAuthServiceMain', function () {
 
     CompassAuthService['config'] = defaultConfig;
 
-    CompassAuthService['setupPlugin']();
+    await CompassAuthService['setupPlugin']();
     CompassAuthService['attachOidcPluginLoggerEvents']();
 
     preferences = await createSandboxFromDefaultPreferences();
@@ -291,6 +291,24 @@ describe('CompassAuthServiceMain', function () {
       );
       await CompassAuthService.init(preferences);
       expect(setupPluginSpy).to.have.been.calledOnce;
+    });
+
+    it('should pass the system ca to the plugin as a custom http option', async function () {
+      const createOIDCPluginSpy = sandbox.spy(
+        CompassAuthService as any,
+        'createMongoDBOIDCPlugin'
+      );
+      await CompassAuthService.init(preferences);
+      expect(createOIDCPluginSpy).to.have.been.calledOnce;
+      try {
+        expect(
+          createOIDCPluginSpy.firstCall.args[0].customHttpOptions.ca
+        ).to.include('-----BEGIN CERTIFICATE-----');
+      } catch (e) {
+        throw new Error(
+          'Expected ca to be included in the customHttpOptions, but it was not.'
+        );
+      }
     });
   });
 
