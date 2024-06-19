@@ -25,7 +25,7 @@ const connection = css({
 
 export type SelectConnectionModalProps = {
   modalTitle?: string;
-  descriptionText?: string;
+  descriptionText?: React.ReactNode;
   isModalOpen: boolean;
   isSubmitDisabled: boolean;
   submitButtonText: string;
