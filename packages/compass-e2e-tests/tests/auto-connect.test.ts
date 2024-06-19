@@ -211,9 +211,6 @@ describe('Automatically connecting from the command line', function () {
   });
 
   it('enters auto-connect mode again if the window is hard reloaded', async function () {
-    if (process.platform === 'win32' && (process.env.ci || process.env.CI)) {
-      return this.skip(); // Doesn't work on Windows, but only in CI
-    }
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,

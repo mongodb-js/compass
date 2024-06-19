@@ -46,6 +46,17 @@ function getTestBrowserShellCommand() {
   )}`;
 }
 
+/**
+ * @securityTest OIDC Authentication End-to-End Tests
+ *
+ * In addition to our regular tests for the different authentication mechanisms supported
+ * by MongoDB, we give special consideration to our OpenID Connect database authentication
+ * feature, as it involves client applications performing actions based on directions
+ * received from the database server.
+ *
+ * Additionally, we verify that Compass stores credentials in a way that is consistent with
+ * what the user has previously specified.
+ */
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;

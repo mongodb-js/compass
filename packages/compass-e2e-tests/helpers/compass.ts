@@ -997,6 +997,9 @@ export async function init(
 
   const { browser } = compass;
 
+  // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
+  await browser.setTimeout({ script: 5_000 });
+
   // larger window for more consistent results
   const [width, height] = await browser.execute(() => {
     // in case setWindowSize() below doesn't work
@@ -1022,6 +1025,7 @@ export async function init(
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
   }
+
   if (!opts.noWaitForConnectionScreen) {
     await browser.waitForConnectionScreen();
   }

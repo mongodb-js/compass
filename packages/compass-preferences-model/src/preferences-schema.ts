@@ -58,6 +58,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableGenAISampleDocumentPassing: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
+    enableShowDialogOnQuit: boolean;
   };
 
 export type InternalUserPreferences = {
@@ -745,6 +746,18 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().default(10),
     type: 'number',
+  },
+
+  enableShowDialogOnQuit: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Quit Confirmation Dialog',
+      long: 'Toggle whether confirmation dialog is shown when quitting Compass (cmd/ctrl-Q).',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,

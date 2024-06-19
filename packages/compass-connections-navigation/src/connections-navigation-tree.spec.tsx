@@ -11,7 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { ConnectedConnection } from './tree-data';
+import type { ConnectedConnection, Connection } from './tree-data';
 import type {
   AllPreferences,
   PreferencesAccess,
@@ -21,7 +21,7 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const connections: ConnectedConnection[] = [
+const connections: Connection[] = [
   {
     connectionInfo: {
       id: 'connection_ready',
@@ -50,9 +50,27 @@ const connections: ConnectedConnection[] = [
         collectionsStatus: 'ready',
         collectionsLength: 3,
         collections: [
-          { _id: 'db_ready.meow', name: 'meow', type: 'collection' },
-          { _id: 'db_ready.woof', name: 'woof', type: 'timeseries' },
-          { _id: 'db_ready.bwok', name: 'bwok', type: 'view' },
+          {
+            _id: 'db_ready.meow',
+            name: 'meow',
+            type: 'collection',
+            sourceName: '',
+            pipeline: [],
+          },
+          {
+            _id: 'db_ready.woof',
+            name: 'woof',
+            type: 'timeseries',
+            sourceName: '',
+            pipeline: [],
+          },
+          {
+            _id: 'db_ready.bwok',
+            name: 'bwok',
+            type: 'view',
+            sourceName: '',
+            pipeline: [],
+          },
         ],
       },
     ],
@@ -82,6 +100,17 @@ const connections: ConnectedConnection[] = [
     isWritable: false,
     isPerformanceTabSupported: false,
     connectionStatus: ConnectionStatus.Connected,
+  },
+  {
+    connectionInfo: {
+      id: 'connection_disconnected',
+      connectionOptions: {
+        connectionString: 'mongodb://connection-disconnected',
+      },
+      savedConnectionType: 'recent',
+    },
+    name: 'connection_disconnected',
+    connectionStatus: ConnectionStatus.Disconnected,
   },
 ];
 
@@ -234,7 +263,65 @@ describe('ConnectionsNavigationTree', function () {
     });
   });
 
+  it('should render the action items for the tabbed navigation item', async function () {
+    await renderConnectionsNavigationTree({
+      expanded: {},
+      activeWorkspace: null,
+    });
+
+    // Tab to the first element
+    userEvent.tab();
+    await waitFor(() => {
+      // Virtual list will be the one to grab the focus first, but will
+      // immediately forward it to the element and mocking raf here breaks
+      // virtual list implementatin, waitFor is to accomodate for that
+      expect(document.querySelector('[data-id="connection_ready"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+    let tabbedItem = screen.getByTestId('connection_ready');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
+
+    // Go down to the second element
+    userEvent.keyboard('{arrowdown}');
+    await waitFor(() => {
+      expect(document.querySelector('[data-id="connection_initial"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+
+    tabbedItem = screen.getByTestId('connection_initial');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
+  });
+
   describe('when connection is writable', function () {
+    it('should show all connection actions', async function () {
+      await renderConnectionsNavigationTree();
+
+      userEvent.hover(screen.getByText('turtles'));
+
+      const connection = screen.getByTestId('connection_ready');
+
+      expect(within(connection).getByTitle('Create database')).to.be.visible;
+
+      const otherActions = within(connection).getByTitle('Show actions');
+      expect(otherActions).to.exist;
+
+      userEvent.click(otherActions);
+
+      expect(screen.getByText('Open MongoDB shell')).to.be.visible;
+      expect(
+        screen.getByTestId('sidebar-navigation-item-actions-open-shell-action')
+      ).not.to.have.attribute('disabled');
+      expect(screen.getByText('View performance metrics')).to.be.visible;
+      expect(screen.getByText('Show connection info')).to.be.visible;
+      expect(screen.getByText('Copy connection string')).to.be.visible;
+      expect(screen.getByText('Unfavorite')).to.be.visible;
+      expect(screen.getByText('Disconnect')).to.be.visible;
+    });
+
     it('should show all database actions on hover', async function () {
       await renderConnectionsNavigationTree({
         expanded: { connection_ready: {} },
@@ -323,11 +410,11 @@ describe('ConnectionsNavigationTree', function () {
       ) {
         const readonlyConnections: ConnectedConnection[] = [
           {
-            ...connections[0],
+            ...(connections[0] as ConnectedConnection),
             isWritable: false,
           },
           {
-            ...connections[1],
+            ...(connections[1] as ConnectedConnection),
           },
         ];
         await renderConnectionsNavigationTree({
@@ -345,11 +432,11 @@ describe('ConnectionsNavigationTree', function () {
       ) {
         const readonlyConnections: ConnectedConnection[] = [
           {
-            ...connections[0],
+            ...(connections[0] as ConnectedConnection),
             isDataLake: true,
           },
           {
-            ...connections[1],
+            ...(connections[1] as ConnectedConnection),
           },
         ];
         await renderConnectionsNavigationTree({
@@ -365,7 +452,10 @@ describe('ConnectionsNavigationTree', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: ConnectedConnection[] = [...connections];
+        const readonlyConnections: ConnectedConnection[] = [
+          connections[0] as ConnectedConnection,
+          connections[1] as ConnectedConnection,
+        ];
         await renderConnectionsNavigationTree(
           {
             ...props,
@@ -379,6 +469,41 @@ describe('ConnectionsNavigationTree', function () {
     },
   ].forEach(function ({ name, renderReadonlyComponent }) {
     describe(name, function () {
+      it('should show reduced connection actions', async function () {
+        await renderReadonlyComponent();
+
+        userEvent.hover(screen.getByText('turtles'));
+
+        const connection = screen.getByTestId('connection_ready');
+
+        expect(within(connection).queryByTitle('Create database')).not.to.exist;
+
+        const otherActions = within(connection).getByTitle('Show actions');
+        expect(otherActions).to.exist;
+
+        userEvent.click(otherActions);
+
+        expect(screen.getByText('Open MongoDB shell')).to.be.visible;
+        if (name !== 'when connection is datalake') {
+          expect(
+            screen.getByTestId(
+              'sidebar-navigation-item-actions-open-shell-action'
+            )
+          ).to.have.attribute('disabled');
+        } else {
+          expect(
+            screen.getByTestId(
+              'sidebar-navigation-item-actions-open-shell-action'
+            )
+          ).not.to.have.attribute('disabled');
+        }
+        expect(screen.getByText('View performance metrics')).to.be.visible;
+        expect(screen.getByText('Show connection info')).to.be.visible;
+        expect(screen.getByText('Copy connection string')).to.be.visible;
+        expect(screen.getByText('Unfavorite')).to.be.visible;
+        expect(screen.getByText('Disconnect')).to.be.visible;
+      });
+
       it('should not show database actions', async function () {
         await renderReadonlyComponent({
           expanded: {
@@ -496,6 +621,60 @@ describe('ConnectionsNavigationTree', function () {
         expect(action).to.equal('create-database');
       });
 
+      it('should render the connect action for a disconnected connection', async function () {
+        const spy = Sinon.spy();
+        await renderConnectionsNavigationTree({
+          expanded: { connection_ready: { db_ready: true } },
+          onItemAction: spy,
+        });
+
+        userEvent.hover(screen.getByText('connection_disconnected'));
+
+        const connectButton = screen.getByTestId('connection_disconnected');
+        expect(within(connectButton).getByLabelText('Connect')).to.exist;
+
+        userEvent.click(connectButton);
+
+        expect(spy).to.be.calledOnce;
+        const [[item, action]] = spy.args;
+        expect(item.type).to.equal('connection');
+        expect(item.connectionInfo.id).to.equal('connection_disconnected');
+        expect(action).to.equal('connection-connect');
+      });
+
+      context(
+        'when number of active connections are equal to max allowed active connections',
+        function () {
+          it('should render the connect action disabled', async function () {
+            const spy = Sinon.spy();
+            await renderConnectionsNavigationTree(
+              {
+                expanded: { connection_ready: { db_ready: true } },
+                onItemAction: spy,
+              },
+              {
+                maximumNumberOfActiveConnections: 2,
+              }
+            );
+
+            userEvent.hover(screen.getByText('connection_disconnected'));
+
+            const disconnectConnectionNavItem = screen.getByTestId(
+              'connection_disconnected'
+            );
+            const connectBtn = within(
+              disconnectConnectionNavItem
+            ).getByLabelText('Connect');
+            expect(connectBtn).to.exist;
+            expect(connectBtn).to.have.attribute('aria-disabled', 'true');
+
+            userEvent.click(connectBtn);
+
+            expect(spy).to.not.be.called;
+          });
+        }
+      );
+
       context('when performance tab is supported', function () {
         it('should show performance action for connection item and activate callback with `connection-performance-metrics` when clicked', async function () {
           const spy = Sinon.spy();
@@ -521,7 +700,10 @@ describe('ConnectionsNavigationTree', function () {
           await renderConnectionsNavigationTree({
             onItemAction: spy,
             connections: [
-              { ...connections[0], isPerformanceTabSupported: false },
+              {
+                ...(connections[0] as ConnectedConnection),
+                isPerformanceTabSupported: false,
+              },
               { ...connections[1] },
             ],
           });

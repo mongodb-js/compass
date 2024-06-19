@@ -267,6 +267,7 @@ describe('connectMongoClient', function () {
   });
 });
 
+// Security-relevant test -- see oidc e2e test for description.
 // eslint-disable-next-line mocha/max-top-level-suites
 describe('prepareOIDCOptions', function () {
   it('defaults allowedFlows to "auth-code"', async function () {

@@ -26,6 +26,7 @@ type NavigationBaseItemProps = {
 
   canExpand: boolean;
   isExpanded: boolean;
+  isFocused: boolean;
   onExpand: (toggle: boolean) => void;
 
   actionProps: {
@@ -49,6 +50,11 @@ const baseItemLabelStyles = css({
   marginLeft: spacing[200],
 });
 
+const menuStyles = css({
+  width: '240px',
+  maxHeight: 'unset',
+});
+
 export const NavigationBaseItem = ({
   isActive,
   actionProps,
@@ -58,11 +64,13 @@ export const NavigationBaseItem = ({
   dataAttributes,
   canExpand,
   isExpanded,
+  isFocused,
   onExpand,
 }: NavigationBaseItemProps) => {
   const [hoverProps, isHovered] = useHoverState();
   return (
     <ItemContainer
+      data-testid="base-navigation-item"
       isActive={isActive}
       className={baseItemContainerStyles}
       {...hoverProps}
@@ -88,7 +96,8 @@ export const NavigationBaseItem = ({
           </ItemLabel>
         </ItemButtonWrapper>
         <ItemActionControls<Actions>
-          isVisible={isActive || isHovered}
+          menuClassName={menuStyles}
+          isVisible={isActive || isHovered || isFocused}
           data-testid="sidebar-navigation-item-actions"
           iconSize="small"
           {...actionProps}

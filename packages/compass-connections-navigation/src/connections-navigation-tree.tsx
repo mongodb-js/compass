@@ -63,16 +63,45 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
+  const maxAllowedActiveConnections = usePreference(
+    'maximumNumberOfActiveConnections'
+  ) as number;
+  const { isConnectDisabled, connectDisabledDescription } = useMemo(() => {
+    const numberOfActiveConnections = connections.filter(
+      (connection) => connection.connectionStatus === ConnectionStatus.Connected
+    ).length;
+    return {
+      isConnectDisabled:
+        numberOfActiveConnections >= maxAllowedActiveConnections,
+      connectDisabledDescription: `Only ${maxAllowedActiveConnections} connection${
+        numberOfActiveConnections > 1 ? 's' : ''
+      } can be open at the same time. First disconnect from another cluster.`,
+    };
+  }, [maxAllowedActiveConnections, connections]);
+
   const id = useId();
 
   const treeData = useMemo(() => {
-    return getVirtualTreeItems(connections, isSingleConnection, expanded);
-  }, [connections, isSingleConnection, expanded]);
+    return getVirtualTreeItems({
+      connections,
+      isSingleConnection,
+      expandedItems: expanded,
+      preferencesReadOnly,
+    });
+  }, [connections, isSingleConnection, expanded, preferencesReadOnly]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        onItemAction(item, 'select-connection');
+        if (item.connectionStatus === ConnectionStatus.Connected) {
+          onItemAction(item, 'select-connection');
+        } else if (
+          (item.connectionStatus === ConnectionStatus.Disconnected ||
+            item.connectionStatus === ConnectionStatus.Failed) &&
+          !isConnectDisabled
+        ) {
+          onItemAction(item, 'connection-connect');
+        }
       } else if (item.type === 'database') {
         onItemAction(item, 'select-database');
       } else {
@@ -83,7 +112,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction]
+    [onItemAction, isConnectDisabled]
   );
 
   const activeItemId = useMemo(() => {
@@ -96,11 +125,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
       }
       // Database List (of a connection)
-      if (activeWorkspace.type === 'Databases') {
+      if (activeWorkspace.type === 'Databases' && !isSingleConnection) {
         return activeWorkspace.connectionId;
       }
     }
-  }, [activeWorkspace]);
+  }, [activeWorkspace, isSingleConnection]);
 
   const getItemActions = useCallback(
     (item: SidebarTreeItem) => {
@@ -108,33 +137,34 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'placeholder':
           return [];
         case 'connection': {
-          const isFavorite =
-            item.connectionInfo?.savedConnectionType === 'favorite';
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
-              isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
-              isFavorite,
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+              isShellEnabled: item.isShellEnabled,
+              connectionInfo: item.connectionInfo,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
           } else {
             return notConnectedConnectionItemActions({
               connectionInfo: item.connectionInfo,
+              isConnectDisabled,
+              connectDisabledTooltip: connectDisabledDescription,
             });
           }
         }
         case 'database':
           return databaseItemActions({
-            isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
           });
         default:
           return collectionItemActions({
-            isReadOnly: preferencesReadOnly || item.isConnectionReadOnly,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
             type: item.type,
             isRenameCollectionEnabled,
           });
       }
     },
-    [preferencesReadOnly, isRenameCollectionEnabled]
+    [isRenameCollectionEnabled, isConnectDisabled, connectDisabledDescription]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
@@ -154,15 +184,18 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onDefaultAction={onDefaultAction}
             onExpandedChange={onItemExpand}
             getItemKey={(item) => item.id}
-            renderItem={({ item }) => (
-              <NavigationItem
-                item={item}
-                activeItemId={activeItemId}
-                getItemActions={getItemActions}
-                onItemExpand={onItemExpand}
-                onItemAction={onItemAction}
-              />
-            )}
+            renderItem={({ item, isActive, isFocused }) => {
+              return (
+                <NavigationItem
+                  item={item}
+                  isActive={isActive}
+                  isFocused={isFocused}
+                  getItemActions={getItemActions}
+                  onItemExpand={onItemExpand}
+                  onItemAction={onItemAction}
+                />
+              );
+            }}
           />
         )}
       </AutoSizer>

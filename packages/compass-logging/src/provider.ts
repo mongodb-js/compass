@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type {
   LoggerAndTelemetry,
   LoggingAndTelemetryPreferences,
@@ -56,9 +56,9 @@ export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
   if (!context) {
     throw new Error('LoggerAndTelemetry service is missing from React context');
   }
-  const loggerRef = React.createRef<LoggerAndTelemetry>();
+  const loggerRef = useRef<LoggerAndTelemetry>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = context.createLogger(
+    loggerRef.current = context.createLogger(
       component,
       context.preferences ?? {
         getPreferences() {
@@ -67,7 +67,7 @@ export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
       }
     );
   }
-  return loggerRef.current!;
+  return loggerRef.current;
 }
 
 export function useTrackOnChange(
@@ -119,3 +119,5 @@ export function withLoggerAndTelemetry<
 export function mongoLogId(id: number): MongoLogId { // !dupedLogId
   return { __value: id };
 }
+
+export type { MongoLogWriter } from 'mongodb-log-writer';

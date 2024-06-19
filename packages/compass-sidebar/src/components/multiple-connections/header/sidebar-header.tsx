@@ -8,9 +8,15 @@ import {
 } from '@mongodb-js/compass-components';
 
 const sidebarHeaderStyles = css({
-  height: spacing[6],
-  padding: spacing[3],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
   display: 'flex',
+  justifyContent: 'space-between',
+});
+
+const sidebarHeaderTextStyles = css({
+  lineHeight: '32px',
+  fontWeight: 600,
 });
 
 type Action = 'open-compass-settings';
@@ -30,7 +36,7 @@ export function SidebarHeader({
 }): React.ReactElement {
   return (
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
-      <Subtitle>Compass</Subtitle>
+      <Subtitle className={sidebarHeaderTextStyles}>Compass</Subtitle>
       <ItemActionControls<Action>
         onAction={onAction}
         iconSize="small"

@@ -124,5 +124,29 @@ describe('item action controls components', function () {
       expect(within(menuActions).queryByTestId('test-actions-delete-action')).to
         .exist;
     });
+
+    it('renders action icons disabled when collapseAfter is provided with disabled prop', function () {
+      render(
+        <ItemActionControls
+          actions={[
+            {
+              action: 'connect',
+              label: 'Connection',
+              icon: 'Plus',
+              isDisabled: true,
+            },
+            { action: 'edit', label: 'Edit', icon: 'Edit' },
+            { action: 'delete', label: 'Delete', icon: 'Trash' },
+          ]}
+          onAction={() => {}}
+          data-testid="test-actions"
+          collapseAfter={1}
+        ></ItemActionControls>
+      );
+
+      const actionButton = screen.getByTestId('test-actions-connect-action');
+      expect(actionButton).to.exist;
+      expect(actionButton).to.have.attribute('aria-disabled', 'true');
+    });
   });
 });

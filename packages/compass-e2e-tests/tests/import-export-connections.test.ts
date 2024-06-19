@@ -32,6 +32,13 @@ function waitForConnections() {
   return new Promise((resolve) => setTimeout(resolve, 5000));
 }
 
+/**
+ * @securityTest Connection Import / Export Testing
+ *
+ * Compass allows users to export and import connections. Our tests verify that
+ * the application informs the user about what this feature does, and in particular
+ * that encryption for credentials is correctly applied.
+ */
 describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;

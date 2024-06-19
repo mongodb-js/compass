@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.16.10",
+  "version": "0.16.12",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -46,6 +46,7 @@
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",
     "prompts": "^2.4.1",
-    "semver": "^7.6.2"
+    "semver": "^7.6.2",
+    "typescript": "^5.0.4"
   }
 }

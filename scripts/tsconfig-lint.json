@@ -1,0 +1,5 @@
+{
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
+  "include": ["**/*"],
+  "exclude": ["node_modules"]
+}
