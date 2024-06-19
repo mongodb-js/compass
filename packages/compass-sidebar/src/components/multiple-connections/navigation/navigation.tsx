@@ -6,12 +6,16 @@ import {
   mergeProps,
   useDefaultAction,
   Icon,
+  Tooltip,
+  SelectConnectionModal,
 } from '@mongodb-js/compass-components';
+import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
 import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
-import React from 'react';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
+import React, { useCallback, useMemo, useState } from 'react';
 
 const navigationItem = css({
   cursor: 'pointer',
@@ -19,12 +23,18 @@ const navigationItem = css({
   position: 'relative',
   paddingLeft: spacing[400],
 
-  '&:hover .item-background': {
+  '&[disabled]': {
+    cursor: 'not-allowed',
+    color: 'var(--item-color-disabled)',
+    backgroundColor: 'var(--item-bg-color-disabled)',
+  },
+
+  '&:not([disabled]):hover .item-background': {
     display: 'block',
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
-  '&:hover': {
+  '&:not([disabled]):hover': {
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
@@ -56,17 +66,28 @@ const navigationItemLabel = css({
   textOverflow: 'ellipsis',
 });
 
+const disabledTooltipStyles = css({
+  textAlign: 'center',
+  display: 'inline-flex',
+});
+
+type NavigationItemProps = {
+  glyph: string;
+  label: string;
+  isActive: boolean;
+  onClick(): void;
+  isDisabled?: boolean;
+  disabledTooltip?: string;
+};
+
 export function NavigationItem({
   onClick: onButtonClick,
   glyph,
   label,
   isActive,
-}: {
-  onClick(): void;
-  glyph: string;
-  label: string;
-  isActive: boolean;
-}) {
+  isDisabled,
+  disabledTooltip = 'Item cannot be navigated',
+}: NavigationItemProps) {
   const [hoverProps] = useHoverState();
   const defaultActionProps = useDefaultAction(onButtonClick);
 
@@ -76,19 +97,105 @@ export function NavigationItem({
       role: 'button',
       ['aria-label']: label,
       ['aria-current']: isActive,
+      ['aria-disabled']: !!isDisabled,
       tabIndex: 0,
+      disabled: !!isDisabled,
     },
     hoverProps,
     defaultActionProps
   ) as React.HTMLProps<HTMLDivElement>;
 
-  return (
-    <div {...navigationItemProps}>
-      <div className={itemButtonWrapper}>
-        <Icon glyph={glyph} size="small"></Icon>
-        <span className={navigationItemLabel}>{label}</span>
+  if (!isDisabled) {
+    return (
+      <div {...navigationItemProps}>
+        <div className={itemButtonWrapper}>
+          <Icon glyph={glyph} size="small"></Icon>
+          <span className={navigationItemLabel}>{label}</span>
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <Tooltip
+      align="top"
+      justify="middle"
+      trigger={({ children, ...props }) => (
+        <div {...props} {...navigationItemProps}>
+          <div className={itemButtonWrapper}>
+            <Icon glyph={glyph} size="small"></Icon>
+            <span className={navigationItemLabel}>{label}</span>
+          </div>
+          {children}
+        </div>
+      )}
+    >
+      <span className={disabledTooltipStyles}>{disabledTooltip}</span>
+    </Tooltip>
+  );
+}
+
+function ShellNavigationItem({
+  openShellWorkspace,
+  ...navigationItemProps
+}: Omit<NavigationItemProps, 'onClick'> & {
+  openShellWorkspace: ReturnType<typeof useOpenWorkspace>['openShellWorkspace'];
+}) {
+  const [selectedConnectionId, setSelectedConnectionId] = useState('');
+  const [selectConnectionModalOpened, setSelectConnectionModalOpened] =
+    useState(false);
+
+  const activeConnections = useActiveConnections();
+  const connectionsForModal = useMemo(() => {
+    return activeConnections.map((connection) => {
+      return {
+        id: connection.id,
+        name: getConnectionTitle(connection),
+      };
+    });
+  }, [activeConnections]);
+
+  const handleOpenShellWorkspace = useCallback(() => {
+    if (activeConnections.length === 1) {
+      const [{ id: connectionId }] = activeConnections;
+      openShellWorkspace(connectionId, { newTab: true });
+    } else if (activeConnections.length > 1) {
+      setSelectConnectionModalOpened(true);
+    }
+  }, [activeConnections, openShellWorkspace, setSelectConnectionModalOpened]);
+
+  const handleClose = useCallback(() => {
+    setSelectConnectionModalOpened(false);
+  }, []);
+
+  const handleSubmit = useCallback(() => {
+    setSelectConnectionModalOpened(false);
+    openShellWorkspace(selectedConnectionId, { newTab: true });
+  }, [selectedConnectionId, openShellWorkspace]);
+
+  const handleConnectionSelected = useCallback((connectionId: string) => {
+    setSelectedConnectionId(connectionId);
+  }, []);
+
+  return (
+    <>
+      <NavigationItem
+        {...navigationItemProps}
+        isDisabled={activeConnections.length === 0}
+        disabledTooltip="Connect to a connection first"
+        onClick={handleOpenShellWorkspace}
+      />
+      <SelectConnectionModal
+        isModalOpen={selectConnectionModalOpened}
+        isSubmitDisabled={!selectedConnectionId}
+        submitButtonText="Open shell"
+        connections={connectionsForModal}
+        selectedConnectionId={selectedConnectionId}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+        onConnectionSelected={handleConnectionSelected}
+      />
+    </>
   );
 }
 
@@ -98,7 +205,8 @@ export function Navigation({
   currentLocation: string | null;
 }): React.ReactElement {
   const { hasWorkspacePlugin } = useWorkspacePlugins();
-  const { openMyQueriesWorkspace } = useOpenWorkspace();
+  const { openMyQueriesWorkspace, openShellWorkspace } = useOpenWorkspace();
+
   return (
     <div>
       {hasWorkspacePlugin('My Queries') && (
@@ -107,6 +215,14 @@ export function Navigation({
           glyph="CurlyBraces"
           label="My Queries"
           isActive={currentLocation === 'My Queries'}
+        />
+      )}
+      {hasWorkspacePlugin('Shell') && (
+        <ShellNavigationItem
+          glyph="Shell"
+          label="MongoDB Shell"
+          isActive={currentLocation === 'Shell'}
+          openShellWorkspace={openShellWorkspace}
         />
       )}
     </div>
