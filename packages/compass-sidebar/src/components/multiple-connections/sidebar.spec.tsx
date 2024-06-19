@@ -453,9 +453,7 @@ describe('Multiple Connections Sidebar Component', function () {
         userEvent.click(screen.getByLabelText('MongoDB Shell'));
         expect(screen.getByTestId('select-connection-modal')).to.be.visible;
         // now select the saved favorite connection
-        userEvent.click(
-          screen.getByLabelText(savedFavoriteConnection.favorite.name)
-        );
+        userEvent.click(screen.getByLabelText('localhost'));
         // click the button to open shell
         userEvent.click(screen.getByText('Open shell'));
         expect(workspaceService.openShellWorkspace).to.be.calledWithExactly(
