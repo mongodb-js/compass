@@ -138,15 +138,18 @@ post:
 functions:
   clone:
     - command: git.get_project
+      type: system
       params:
         directory: src
 
   prepare:
     - command: git.get_project
+      type: system
       params:
         directory: src
 
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -162,6 +165,7 @@ functions:
           mkdir -p $NPM_TMP_DIR
 
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -186,6 +190,7 @@ functions:
 
   install:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -204,6 +209,7 @@ functions:
 
   bootstrap:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -558,11 +564,12 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           echo "Running E2E tests while collecting coverage..."
 
@@ -584,11 +591,12 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
@@ -619,11 +627,12 @@ functions:
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           BROWSER_NAME: ${browser_name}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
           npm run --unsafe-perm --workspace compass-e2e-tests test-web
 
   test-connectivity:
