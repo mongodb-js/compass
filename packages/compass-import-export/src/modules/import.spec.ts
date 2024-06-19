@@ -9,12 +9,15 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import { AppRegistry } from 'hadron-app-registry';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const logger = createNoopLogger();
+const track = createNoopTrack();
 
 const mockServices = {
   globalAppRegistry: new AppRegistry(),
   logger,
+  track,
   connectionsManager: new ConnectionsManager({ logger: logger.log.unbound }),
   workspaces: {} as WorkspacesService,
 } as ImportPluginServices;
