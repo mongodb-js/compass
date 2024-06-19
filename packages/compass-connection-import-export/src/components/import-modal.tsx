@@ -14,6 +14,7 @@ import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
 
@@ -37,6 +38,9 @@ export function ImportConnectionsModal({
   setOpen: (newOpen: boolean) => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
+  const multipleConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
   const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(
     (result: ImportExportResult) => {
@@ -82,21 +86,22 @@ export function ImportConnectionsModal({
         displayName: (
           <>
             {conn.name}
-            {conn.isExistingFavorite && (
+            {conn.isExistingConnection && (
               <Badge
                 className={existingFavoriteBadgeStyles}
                 variant={conn.selected ? 'yellow' : 'lightgray'}
                 data-testid={`existing-favorite-badge-${conn.id}`}
               >
-                Existing Favorite
+                Existing{' '}
+                {multipleConnectionsEnabled ? 'Connection' : 'Favorite'}
               </Badge>
             )}
           </>
         ),
       })),
-      connectionList.some((conn) => conn.isExistingFavorite && conn.selected),
+      connectionList.some((conn) => conn.isExistingConnection && conn.selected),
     ];
-  }, [connectionList]);
+  }, [connectionList, multipleConnectionsEnabled]);
 
   return (
     <FormModal

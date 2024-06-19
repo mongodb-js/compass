@@ -83,7 +83,9 @@ function findCollection(ns: string, databases: Database[]) {
 
 type ConnectionListTitleActions =
   | 'collapse-all-connections'
-  | 'add-new-connection';
+  | 'add-new-connection'
+  | 'import-saved-connections'
+  | 'export-saved-connections';
 
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
@@ -221,6 +223,16 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           action: 'add-new-connection',
           label: 'Add new connection',
           icon: 'Plus',
+        },
+        {
+          action: 'import-saved-connections',
+          label: 'Import saved connections',
+          icon: 'Download',
+        },
+        {
+          action: 'export-saved-connections',
+          label: 'Export saved connections',
+          icon: 'Export',
         },
       ];
     }, []);
