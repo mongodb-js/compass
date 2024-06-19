@@ -52,10 +52,7 @@ import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
-import {
-  type Logger,
-  LoggerProvider,
-} from '@mongodb-js/compass-logging/provider';
+import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { AtlasCloudConnectionStorageProvider } from './connection-storage';
@@ -66,8 +63,7 @@ import type {
   DebugFunction,
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
-import { createGenericTrack } from '@mongodb-js/compass-telemetry';
-import { type TelemetryPreferences } from '@mongodb-js/compass-telemetry/dist/generic-track';
+import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry/dist/generic-track';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (
@@ -283,19 +279,11 @@ const CompassWeb = ({
 
   const onTrackRef = useRef(onTrack);
 
-  const telemetry = useRef({
-    createTrack: (logger: Logger, preferences: TelemetryPreferences) =>
-      createGenericTrack({
-        sendTrack: (
-          event: string,
-          properties: Record<string, any> | undefined
-        ) => {
-          onTrackRef.current &&
-            void onTrackRef.current(event, properties || {});
-        },
-        logger,
-        preferences,
-      }),
+  const telemetryOptions = useRef<TelemetryServiceOptions>({
+    sendTrack: (event: string, properties: Record<string, any> | undefined) => {
+      onTrackRef.current && void onTrackRef.current(event, properties || {});
+    },
+    logger,
     preferences: preferencesAccess.current,
   });
 
@@ -311,7 +299,7 @@ const CompassWeb = ({
         >
           <PreferencesProvider value={preferencesAccess.current}>
             <LoggerProvider value={logger}>
-              <TelemetryProvider value={telemetry.current}>
+              <TelemetryProvider options={telemetryOptions.current}>
                 <WithAtlasProviders>
                   <AtlasCloudConnectionStorageProvider
                     orgId={orgId}

@@ -1,2 +1,2 @@
-export { createIpcTrack, createIpcTrackWithContext } from './ipc-track';
-export { createGenericTrack, type TrackFunction } from './generic-track';
+export { createIpcTrack, createIpcSendTrack } from './ipc-track';
+export { type TrackFunction } from './generic-track';

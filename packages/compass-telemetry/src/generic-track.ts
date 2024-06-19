@@ -1,8 +1,4 @@
-import {
-  type Logger,
-  mongoLogId,
-  createLogger,
-} from '@mongodb-js/compass-logging';
+import { type Logger, mongoLogId } from '@mongodb-js/compass-logging';
 
 export type TrackProps = Record<string, any> | (() => Record<string, any>);
 export type TrackFunction = (event: string, properties?: TrackProps) => void;
@@ -11,17 +7,17 @@ export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
 }
 
-export const createGenericTrack = ({
-  sendTrack,
-  logger,
-  preferences,
-}: {
+export interface TelemetryServiceOptions {
   sendTrack: (event: string, properties: TrackProps) => void;
   logger?: Logger;
   preferences?: TelemetryPreferences;
-}) => {
-  const { log, debug } = logger || createLogger('COMPASS-TELEMETRY');
+}
 
+export const createTrack = ({
+  sendTrack,
+  logger: { log, debug },
+  preferences,
+}: TelemetryServiceOptions & { logger: Logger }) => {
   const trackAsync = async (
     event: string,
     properties: TrackProps = {}

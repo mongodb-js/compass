@@ -25,20 +25,22 @@ import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import Home, { type HomeProps } from './home';
-import { createIpcTrackWithContext } from '@mongodb-js/compass-telemetry';
+import { createIpcSendTrack } from '@mongodb-js/compass-telemetry';
+import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry/dist/generic-track';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
     createLogger,
   });
-  const trackingProviderValue = useRef({
-    createTrack: createIpcTrackWithContext,
+  const preferencesProviderValue = useRef(defaultPreferencesInstance);
+  const telemetryOptions = useRef<TelemetryServiceOptions>({
+    sendTrack: createIpcSendTrack(),
     preferences: defaultPreferencesInstance,
   });
   return (
-    <PreferencesProvider value={trackingProviderValue.current.preferences}>
+    <PreferencesProvider value={preferencesProviderValue.current}>
       <LoggerProvider value={loggerProviderValue.current}>
-        <TelemetryProvider value={trackingProviderValue.current}>
+        <TelemetryProvider options={telemetryOptions.current}>
           {children}
         </TelemetryProvider>
       </LoggerProvider>

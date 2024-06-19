@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import type { TelemetryPreferences, TrackFunction } from './generic-track';
-import { type Logger } from '@mongodb-js/compass-logging';
+import { createTrack, type TelemetryPreferences, type TelemetryServiceOptions, type TrackFunction } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const noop = () => {
@@ -12,12 +11,25 @@ export function createNoopTrack(): TrackFunction {
   return noop;
 }
 
-export const TelemetryContext = React.createContext<{
-  createTrack(logger: Logger, preferences: TelemetryPreferences): TrackFunction;
-  preferences?: TelemetryPreferences;
-}>({ createTrack: createNoopTrack });
+export const TelemetryContext = React.createContext<TrackFunction>(createNoopTrack());
 
-export const TelemetryProvider = TelemetryContext.Provider;
+export const TelemetryProvider: React.FC<{
+  options: Omit<TelemetryServiceOptions, 'logger'>
+}> = ({
+  options,
+  children,
+}) => {
+  const logger = useLogger('COMPASS-TELEMETRY');
+  const trackFn = useRef(createTrack({
+    logger,
+    ...options,
+  }));
+  return (
+    <TelemetryContext.Provider value={trackFn.current}>
+      {children}
+    </TelemetryContext.Provider>
+  );
+}
 
 export function createTelemetryLocator() {
   return createServiceLocator(
@@ -27,23 +39,11 @@ export function createTelemetryLocator() {
 }
 
 export function useTelemetry(): TrackFunction {
-  const context = React.useContext(TelemetryContext);
-  const logger = useLogger('COMPASS-TELEMETRY');
-  if (!context) {
+  const track = React.useContext(TelemetryContext);
+  if (!track) {
     throw new Error('Telemetry service is missing from React context');
   }
-  const trackRef = React.createRef<TrackFunction>();
-  if (!trackRef.current) {
-    (trackRef as any).current = context.createTrack(
-      logger,
-      context.preferences ?? {
-        getPreferences() {
-          return { trackUsageStatistics: true };
-        },
-      }
-    );
-  }
-  return trackRef.current!;
+  return track;
 }
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
