@@ -267,7 +267,7 @@ async function main() {
     return index >= minGroupIndex && index <= maxGroupIndex;
   });
 
-  console.log(rawTests);
+  console.info('Test files:', rawTests);
 
   // The only test file that's interested in the first-run experience (at the
   // time of writing) is time-to-first-query.ts and that happens to be
