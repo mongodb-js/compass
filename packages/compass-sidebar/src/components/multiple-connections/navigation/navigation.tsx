@@ -166,11 +166,13 @@ function ShellNavigationItem({
 
   const handleClose = useCallback(() => {
     setSelectConnectionModalOpened(false);
+    setSelectedConnectionId('');
   }, []);
 
   const handleSubmit = useCallback(() => {
     setSelectConnectionModalOpened(false);
     openShellWorkspace(selectedConnectionId, { newTab: true });
+    setSelectedConnectionId('');
   }, [selectedConnectionId, openShellWorkspace]);
 
   const handleConnectionSelected = useCallback((connectionId: string) => {
