@@ -451,15 +451,6 @@ tasks:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 <% } %>
 
-  - name: create_static_analysis_report
-    tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: ".package-task"
-        variant: "*"
-    commands:
-      - func: prepare
-      - func: install
-
 <% for (const browser of BROWSERS) { %>
   <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-web-sandbox-<%= browser %>-<%= group.number %>
@@ -484,6 +475,14 @@ tasks:
   <% } %>
 <% } %>
 
+  - name: create_static_analysis_report
+    tags: ['required-for-publish', 'run-on-pr']
+    depends_on:
+      - name: ".package-task"
+        variant: "*"
+    commands:
+      - func: prepare
+      - func: install
 <%
 let firstPartyDepsFilenames = [];
 for (const compassDistribution of COMPASS_DISTRIBUTIONS) {

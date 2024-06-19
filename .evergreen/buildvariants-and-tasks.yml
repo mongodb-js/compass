@@ -1537,16 +1537,6 @@ tasks:
           e2e_test_groups: 3
           e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: create_static_analysis_report
-    tags:
-      - required-for-publish
-      - run-on-pr
-    depends_on:
-      - name: .package-task
-        variant: '*'
-    commands:
-      - func: prepare
-      - func: install
   - name: test-web-sandbox-chrome-1
     tags:
       - required-for-publish
@@ -1673,6 +1663,16 @@ tasks:
           e2e_test_groups: 3
           e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: create_static_analysis_report
+    tags:
+      - required-for-publish
+      - run-on-pr
+    depends_on:
+      - name: .package-task
+        variant: '*'
+    commands:
+      - func: prepare
+      - func: install
       - func: get_first_party_dependency_list
         vars:
           filename: first-party-deps-compass-package-ubuntu.json
