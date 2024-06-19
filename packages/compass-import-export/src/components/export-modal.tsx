@@ -39,7 +39,7 @@ import { JSONFileTypeOptions } from './export-json-format-options';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 type ExportFileTypes = 'json' | 'csv';
 

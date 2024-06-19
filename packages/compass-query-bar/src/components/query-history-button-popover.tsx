@@ -13,7 +13,7 @@ import { fetchSavedQueries } from '../stores/query-bar-reducer';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const openQueryHistoryButtonStyles = css(
   {

@@ -19,7 +19,7 @@ import {
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 export interface RenameCollectionModalProps {
   isVisible: boolean;

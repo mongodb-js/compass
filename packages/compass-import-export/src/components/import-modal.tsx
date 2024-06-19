@@ -42,7 +42,7 @@ import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const closeButtonStyles = css({
   marginRight: spacing[2],

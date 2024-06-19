@@ -10,7 +10,7 @@ import type { RootState } from '../../stores/query-bar-store';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyle = css({
   display: 'flex',

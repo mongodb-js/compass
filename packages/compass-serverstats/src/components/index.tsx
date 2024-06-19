@@ -24,7 +24,7 @@ import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 

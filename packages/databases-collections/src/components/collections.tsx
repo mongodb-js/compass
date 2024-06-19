@@ -22,7 +22,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 

@@ -22,7 +22,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const errorContainerStyles = css({
   padding: spacing[3],

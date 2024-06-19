@@ -32,7 +32,7 @@ import NoActiveConnectionsModal from './no-active-connections-modal';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {

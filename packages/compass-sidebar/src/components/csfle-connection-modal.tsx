@@ -13,7 +13,7 @@ import {
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const toggleStyles = css({
   marginTop: spacing[3],

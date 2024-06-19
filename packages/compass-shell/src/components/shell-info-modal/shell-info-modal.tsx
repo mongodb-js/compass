@@ -13,7 +13,7 @@ import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 import {
   useTrackOnChange,
   type TrackFunction,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const mongoshVersion = `v${
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-var-requires
