@@ -22,7 +22,7 @@ function createOptions(options) {
 const thunkArgs = {
   localAppRegistry: { emit() {} },
   dataService: { createIndex() {} },
-  logger: { track() {} },
+  track: () => {},
 };
 
 describe('create index module', function () {

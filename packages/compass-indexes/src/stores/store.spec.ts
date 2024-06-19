@@ -5,6 +5,7 @@ import type { IndexesDataService } from './store';
 import { activateIndexesPlugin, type IndexesStore } from './store';
 
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 class FakeInstance extends EventEmitter {
   isWritable = true;
@@ -42,6 +43,7 @@ describe('IndexesStore [Store]', function () {
           isConnected: () => true,
         } as unknown as IndexesDataService,
         logger: createNoopLogger(),
+        track: createNoopTrack(),
       },
       createActivateHelpers()
     );

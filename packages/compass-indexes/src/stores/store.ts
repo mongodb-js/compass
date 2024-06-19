@@ -25,6 +25,7 @@ import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -44,6 +45,7 @@ export type IndexesPluginServices = {
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: Logger;
+  track: TrackFunction;
 };
 
 export type IndexesPluginOptions = {
