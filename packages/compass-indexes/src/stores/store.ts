@@ -67,6 +67,7 @@ export function activateIndexesPlugin(
     localAppRegistry,
     globalAppRegistry,
     logger,
+    track,
   }: IndexesPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -90,6 +91,7 @@ export function activateIndexesPlugin(
         localAppRegistry,
         globalAppRegistry,
         logger,
+        track,
       })
     )
   );
