@@ -8,6 +8,7 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -35,12 +36,14 @@ const CollectionHeaderActions: React.FunctionComponent<
 }: CollectionHeaderActionsProps) => {
   const { id: connectionId } = useConnectionInfo();
   const { openCollectionWorkspace, openEditViewWorkspace } = useOpenWorkspace();
+  const preferencesReadOnly = usePreference('readOnly');
+
   return (
     <div
       className={collectionHeaderActionsStyles}
       data-testid="collection-header-actions"
     >
-      {isReadonly && sourceName && !editViewName && (
+      {isReadonly && sourceName && !editViewName && !preferencesReadOnly && (
         <Button
           data-testid="collection-header-actions-edit-button"
           size={ButtonSize.Small}
