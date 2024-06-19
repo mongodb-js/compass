@@ -15,7 +15,10 @@ import {
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggerProvider,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
@@ -45,12 +48,16 @@ describe('PipelineAI Component', function () {
           value={
             {
               createLogger() {
-                return { log: { info() {} }, mongoLogId() {} };
+                return createNoopLogger();
               },
             } as any
           }
         >
-          <TelemetryProvider value={{ createTrack: () => track }}>
+          <TelemetryProvider
+            options={{
+              sendTrack: track,
+            }}
+          >
             <Provider store={store}>
               <PipelineAI />
             </Provider>

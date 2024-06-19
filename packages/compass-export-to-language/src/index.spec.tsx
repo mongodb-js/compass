@@ -5,7 +5,10 @@ import userEvent from '@testing-library/user-event';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
-import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggerProvider,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import Sinon from 'sinon';
 
@@ -120,14 +123,21 @@ result = client['db']['coll'].find(
   describe('on "Copy" button clicked', function () {
     it('should emit telemetry event', function () {
       const track = Sinon.stub();
-      const logger = {
-        createLogger() {
-          return { track };
-        },
-      };
       render(
-        <LoggerProvider value={logger as any}>
-          <TelemetryProvider value={{ createTrack: () => track }}>
+        <LoggerProvider
+          value={
+            {
+              createLogger() {
+                return createNoopLogger();
+              },
+            } as any
+          }
+        >
+          <TelemetryProvider
+            options={{
+              sendTrack: track,
+            }}
+          >
             <Plugin namespace="db.coll"></Plugin>
           </TelemetryProvider>
         </LoggerProvider>

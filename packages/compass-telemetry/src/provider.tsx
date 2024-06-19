@@ -1,6 +1,10 @@
 import React, { useRef } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
-import { createTrack, type TelemetryPreferences, type TelemetryServiceOptions, type TrackFunction } from './generic-track';
+import {
+  createTrack,
+  type TelemetryServiceOptions,
+  type TrackFunction,
+} from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 
 const noop = () => {
@@ -11,25 +15,26 @@ export function createNoopTrack(): TrackFunction {
   return noop;
 }
 
-export const TelemetryContext = React.createContext<TrackFunction>(createNoopTrack());
+export const TelemetryContext = React.createContext<TrackFunction>(
+  createNoopTrack()
+);
 
 export const TelemetryProvider: React.FC<{
-  options: Omit<TelemetryServiceOptions, 'logger'>
-}> = ({
-  options,
-  children,
-}) => {
+  options: Omit<TelemetryServiceOptions, 'logger'>;
+}> = ({ options, children }) => {
   const logger = useLogger('COMPASS-TELEMETRY');
-  const trackFn = useRef(createTrack({
-    logger,
-    ...options,
-  }));
+  const trackFn = useRef(
+    createTrack({
+      logger,
+      ...options,
+    })
+  );
   return (
     <TelemetryContext.Provider value={trackFn.current}>
       {children}
     </TelemetryContext.Provider>
   );
-}
+};
 
 export function createTelemetryLocator() {
   return createServiceLocator(

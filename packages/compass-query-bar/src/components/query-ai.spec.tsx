@@ -19,7 +19,10 @@ import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggerProvider,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
@@ -56,12 +59,16 @@ describe('QueryAI Component', function () {
           value={
             {
               createLogger() {
-                return { log: { info() {} }, mongoLogId() {} };
+                return createNoopLogger();
               },
             } as any
           }
         >
-          <TelemetryProvider value={{ createTrack: () => track }}>
+          <TelemetryProvider
+            options={{
+              sendTrack: track,
+            }}
+          >
             <Provider store={store}>
               <QueryAI onClose={noop} show {...props} />
             </Provider>
