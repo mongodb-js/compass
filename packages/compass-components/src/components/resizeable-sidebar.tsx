@@ -27,6 +27,7 @@ const containerStylesDark = css({
 
   '--item-color': palette.white,
   '--item-color-active': palette.green.base,
+  '--item-color-disabled': palette.gray.base,
   '--item-bg-color': palette.gray.dark4,
   '--item-bg-color-hover': palette.gray.dark2,
   '--item-bg-color-active': palette.black,
@@ -47,6 +48,7 @@ const containerStylesLight = css({
 
   '--item-color': palette.gray.dark3,
   '--item-color-active': palette.green.dark2,
+  '--item-color-disabled': palette.gray.base,
   '--item-bg-color': palette.gray.light3,
   '--item-bg-color-hover': palette.gray.light2,
   '--item-bg-color-active': palette.green.light3,
