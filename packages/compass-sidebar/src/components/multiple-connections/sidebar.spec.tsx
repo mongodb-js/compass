@@ -43,7 +43,6 @@ import {
   TestMongoDBInstanceManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
