@@ -12,12 +12,12 @@ import {
   SearchInput,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { toggleSidePanel } from '../../modules/side-panel';
 import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 import { UseCaseCard } from './stage-wizard-use-cases';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   height: '100%',
@@ -78,7 +78,7 @@ export const AggregationSidePanel = ({
   onCloseSidePanel,
   onSelectUseCase,
 }: AggregationSidePanelProps) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+  const track = useTelemetry();
   const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
 

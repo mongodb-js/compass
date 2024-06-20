@@ -70,7 +70,8 @@ import ReactDOM from 'react-dom';
 
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import {
   onAutoupdateExternally,
   onAutoupdateFailed,
@@ -83,7 +84,8 @@ import {
   CompassRendererConnectionStorage,
   type AutoConnectPreferences,
 } from '@mongodb-js/connection-storage/renderer';
-const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-APP');
+const { log, mongoLogId } = createLogger('COMPASS-APP');
+const track = createIpcTrack();
 
 // Lets us call `setShowDevFeatureFlags(true | false)` from DevTools.
 (window as any).setShowDevFeatureFlags = async (showDevFeatureFlags = true) => {

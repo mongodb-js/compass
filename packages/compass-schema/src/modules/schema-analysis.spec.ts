@@ -3,7 +3,7 @@ import bson from 'bson';
 import { expect } from 'chai';
 import mongoDBSchemaAnalyzeSchema from 'mongodb-schema';
 import type { Schema } from 'mongodb-schema';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 import {
   analyzeSchema,
@@ -66,7 +66,7 @@ const testDocs = [
   },
 ];
 
-const dummyLogger = createNoopLoggerAndTelemetry('TEST');
+const dummyLogger = createNoopLogger('TEST');
 
 describe('schema-analysis', function () {
   afterEach(function () {

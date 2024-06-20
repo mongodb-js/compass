@@ -22,7 +22,6 @@ import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 import { editItem } from '../stores/edit-item';
 import { confirmDeleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import {
   type ConnectionInfo,
   useActiveConnections,
@@ -30,6 +29,10 @@ import {
 import SelectConnectionModal from './select-connection-modal';
 import SelectConnectionAndNamespaceModal from './select-connection-and-namespace-modal';
 import NoActiveConnectionsModal from './no-active-connections-modal';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -134,17 +137,12 @@ export const AggregationsQueriesList = ({
     })
     .map((x) => x.item);
 
-  useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
-      track('Screen', { name: 'my_queries' });
-    },
-    []
-  );
+  useTrackOnChange((track: TrackFunction) => {
+    track('Screen', { name: 'my_queries' });
+  }, []);
 
   useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (filters.database) {
         track('My Queries Filter', { type: 'database' });
       }
@@ -153,8 +151,7 @@ export const AggregationsQueriesList = ({
   );
 
   useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (filters.collection) {
         track('My Queries Filter', { type: 'collection' });
       }
@@ -169,8 +166,7 @@ export const AggregationsQueriesList = ({
   });
 
   useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       track('My Queries Sort', {
         sort_by: sortState.name,
         order: sortState.order === 1 ? 'ascending' : 'descending',

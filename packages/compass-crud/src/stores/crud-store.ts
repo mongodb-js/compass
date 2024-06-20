@@ -55,7 +55,7 @@ import type { DataService } from '../utils/data-service';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
@@ -64,6 +64,7 @@ import type {
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -332,7 +333,8 @@ class CrudStoreImpl
   favoriteQueriesStorage?: FavoriteQueryStorage;
   recentQueriesStorage?: RecentQueryStorage;
   fieldStoreService: FieldStoreService;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
@@ -346,6 +348,7 @@ class CrudStoreImpl
       | 'localAppRegistry'
       | 'preferences'
       | 'logger'
+      | 'track'
       | 'fieldStoreService'
       | 'connectionScopedAppRegistry'
       | 'queryBar'
@@ -362,6 +365,7 @@ class CrudStoreImpl
     this.localAppRegistry = services.localAppRegistry;
     this.preferences = services.preferences;
     this.logger = services.logger;
+    this.track = services.track;
     this.instance = services.instance;
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
@@ -474,7 +478,7 @@ class CrudStoreImpl
    * @returns {Boolean} If the copy succeeded.
    */
   copyToClipboard(doc: Document) {
-    this.logger.track('Document Copied', { mode: this.modeForTelemetry() });
+    this.track('Document Copied', { mode: this.modeForTelemetry() });
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
     void navigator.clipboard.writeText(documentEJSON);
@@ -486,7 +490,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async removeDocument(doc: Document) {
-    this.logger.track('Document Deleted', { mode: this.modeForTelemetry() });
+    this.track('Document Deleted', { mode: this.modeForTelemetry() });
     const id = doc.getId();
     if (id !== undefined) {
       doc.emit('remove-start');
@@ -554,7 +558,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async updateDocument(doc: Document) {
-    this.logger.track('Document Updated', { mode: this.modeForTelemetry() });
+    this.track('Document Updated', { mode: this.modeForTelemetry() });
     try {
       doc.emit('update-start');
       // We add the shard keys here, if there are any, because that is
@@ -620,7 +624,7 @@ class CrudStoreImpl
    * @param {Document} doc - The hadron document.
    */
   async replaceDocument(doc: Document) {
-    this.logger.track('Document Updated', { mode: this.modeForTelemetry() });
+    this.track('Document Updated', { mode: this.modeForTelemetry() });
     try {
       doc.emit('update-start');
 
@@ -859,7 +863,7 @@ class CrudStoreImpl
     const hadronDoc = new HadronDocument(doc);
 
     if (clone) {
-      this.logger.track('Document Cloned', { mode: this.modeForTelemetry() });
+      this.track('Document Cloned', { mode: this.modeForTelemetry() });
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
       for (const element of hadronDoc.elements) {
@@ -918,7 +922,7 @@ class CrudStoreImpl
   }
 
   async openBulkUpdateModal(updateText?: string) {
-    this.logger.track('Bulk Update Opened', {
+    this.track('Bulk Update Opened', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -1064,7 +1068,7 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
-    this.logger.track('Bulk Update Executed', {
+    this.track('Bulk Update Executed', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -1243,7 +1247,7 @@ class CrudStoreImpl
     const docs = HadronDocument.FromEJSONArray(
       this.state.insert.jsonDoc ?? ''
     ).map((doc) => doc.generateObject());
-    this.logger.track('Document Inserted', {
+    this.track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: docs.length > 1,
     });
@@ -1293,7 +1297,7 @@ class CrudStoreImpl
    * view to insert.
    */
   async insertDocument() {
-    this.logger.track('Document Inserted', {
+    this.track('Document Inserted', {
       mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
       multiple: false,
     });
@@ -1448,7 +1452,7 @@ class CrudStoreImpl
 
     if (onApply) {
       const { isTimeSeries, isReadonly } = this.state;
-      this.logger.track('Query Executed', {
+      this.track('Query Executed', {
         has_projection:
           !!query.project && Object.keys(query.project).length > 0,
         has_skip: (query.skip ?? 0) > 0,
@@ -1698,7 +1702,7 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    this.logger.track('Bulk Delete Opened');
+    this.track('Bulk Delete Opened');
 
     const PREVIEW_DOCS = 5;
 
@@ -1763,7 +1767,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    this.logger.track('Bulk Delete Executed');
+    this.track('Bulk Delete Executed');
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1803,7 +1807,7 @@ class CrudStoreImpl
   }
 
   async saveUpdateQuery(name: string): Promise<void> {
-    this.logger.track('Bulk Update Favorited', {
+    this.track('Bulk Update Favorited', {
       isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
     });
 
@@ -1841,7 +1845,8 @@ export type DocumentsPluginServices = {
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
   fieldStoreService: FieldStoreService;
@@ -1858,6 +1863,7 @@ export function activateDocumentsPlugin(
     globalAppRegistry,
     preferences,
     logger,
+    track,
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
     fieldStoreService,
@@ -1877,6 +1883,7 @@ export function activateDocumentsPlugin(
         localAppRegistry,
         preferences,
         logger,
+        track,
         favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
         recentQueryStorage: recentQueryStorageAccess?.getStorage(),
         fieldStoreService,

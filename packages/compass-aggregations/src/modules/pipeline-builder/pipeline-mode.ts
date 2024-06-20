@@ -65,7 +65,7 @@ const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
 export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     if (newMode === getState().pipelineBuilder.pipelineMode) {
       return;
     }

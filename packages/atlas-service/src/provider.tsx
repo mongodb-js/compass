@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import type { AtlasAuthService } from './atlas-auth-service';
 import { AtlasService, type AtlasServiceOptions } from './atlas-service';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   createServiceLocator,
   createServiceProvider,
@@ -33,7 +33,7 @@ export const AtlasServiceProvider: React.FC<{
   options,
   children,
 }) {
-  const logger = useLoggerAndTelemetry('ATLAS-SERVICE');
+  const logger = useLogger('ATLAS-SERVICE');
   const preferences = preferencesLocator();
   const authService = atlasAuthServiceLocator();
 

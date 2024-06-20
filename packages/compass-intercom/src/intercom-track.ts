@@ -1,5 +1,5 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
+import { createLogger } from '@mongodb-js/compass-logging';
+const { debug } = createLogger('COMPASS-INTERCOM');
 
 type WindowWithIntercomGlobals = Window &
   typeof globalThis & {

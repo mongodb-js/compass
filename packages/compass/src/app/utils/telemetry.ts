@@ -1,11 +1,12 @@
 import { type DataService, configuredKMSProviders } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
+import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -151,7 +152,8 @@ async function getConnectionData({
 
 export function trackConnectionAttemptEvent(
   { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
-  { track, debug }: LoggerAndTelemetry
+  { debug }: Logger,
+  track: TrackFunction
 ): void {
   try {
     const trackEvent = {
@@ -168,7 +170,8 @@ export function trackConnectionAttemptEvent(
 export function trackNewConnectionEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
-  { track, debug }: LoggerAndTelemetry
+  { debug }: Logger,
+  track: TrackFunction
 ): void {
   try {
     const callback = async () => {
@@ -199,7 +202,8 @@ export function trackNewConnectionEvent(
 export function trackConnectionFailedEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
-  { track, debug }: LoggerAndTelemetry
+  { debug }: Logger,
+  track: TrackFunction
 ): void {
   try {
     const callback = async () => {
