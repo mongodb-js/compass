@@ -1,4 +1,4 @@
-import { type Logger, mongoLogId } from '@mongodb-js/compass-logging';
+import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 
 export type TrackProps = Record<string, any> | (() => Record<string, any>);
 export type TrackFunction = (event: string, properties?: TrackProps) => void;
