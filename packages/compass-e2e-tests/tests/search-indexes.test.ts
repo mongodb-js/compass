@@ -141,7 +141,7 @@ async function verifyIndexDetails(
   expect(text.toLowerCase()).to.equal(details.toLowerCase());
 }
 
-describe.skip('Search Indexes', function () {
+describe('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
