@@ -144,4 +144,6 @@ describe('CompassWeb', function () {
       );
     });
   });
+
+  // TODO: add tests for onTrack COMPASS-8019
 });

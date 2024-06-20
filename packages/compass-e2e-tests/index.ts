@@ -259,9 +259,22 @@ async function main() {
     }
   }
 
-  const rawTests = await glob('tests/**/*.{test,spec}.ts', {
-    cwd: __dirname,
+  const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS || '1');
+  const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
+
+  const rawTests = (
+    await glob('tests/**/*.{test,spec}.ts', {
+      cwd: __dirname,
+    })
+  ).filter((value, index, array) => {
+    const testsPerGroup = Math.ceil(array.length / e2eTestGroupsAmount);
+    const minGroupIndex = (e2eTestGroup - 1) * testsPerGroup;
+    const maxGroupIndex = minGroupIndex + testsPerGroup - 1;
+
+    return index >= minGroupIndex && index <= maxGroupIndex;
   });
+
+  console.info('Test files:', rawTests);
 
   // The only test file that's interested in the first-run experience (at the
   // time of writing) is time-to-first-query.ts and that happens to be

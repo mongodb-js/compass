@@ -12,7 +12,7 @@ import {
   ConnectionsManagerProvider,
   ConnectionInfoProvider,
 } from '@mongodb-js/compass-connections/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
@@ -49,7 +49,7 @@ describe('CompassShellPlugin', function () {
   } as any;
 
   const connectionsManager = new ConnectionsManager({
-    logger: createNoopLoggerAndTelemetry().log.unbound,
+    logger: createNoopLogger().log.unbound,
   });
   sinon.replace(connectionsManager, 'getDataServiceForConnection', () => {
     return fakeDataService;

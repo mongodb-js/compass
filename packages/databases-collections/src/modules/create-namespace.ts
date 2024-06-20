@@ -99,7 +99,7 @@ export const open = (
   connectionId: string,
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
-  return (dispatch, _getState, { logger: { track } }) => {
+  return (dispatch, _getState, { track }) => {
     track('Screen', {
       name: dbName ? 'create_collection_modal' : 'create_database_modal',
     });
@@ -357,7 +357,8 @@ export const createNamespace = (
     {
       globalAppRegistry,
       connectionsManager,
-      logger: { track, debug },
+      logger: { debug },
+      track,
       workspaces,
     }
   ) => {

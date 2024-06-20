@@ -13,8 +13,9 @@ import type { QueryFormFields } from '../constants/query-properties';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -111,8 +112,8 @@ type FailedResponseTrackMessage = {
   errorCode?: string;
   errorName: string;
   errorMessage: string;
-  log: LoggerAndTelemetry['log'];
-  track: LoggerAndTelemetry['track'];
+  log: Logger['log'];
+  track: TrackFunction;
   requestId: string;
 };
 
@@ -155,7 +156,8 @@ export const runAIQuery = (
       localAppRegistry,
       preferences,
       atlasAiService,
-      logger: { log, track },
+      logger: { log },
+      track,
     }
   ) => {
     const provideSampleDocuments =

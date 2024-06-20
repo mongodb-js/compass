@@ -15,7 +15,7 @@ import { expect } from 'chai';
 import Sinon from 'sinon';
 import { waitFor } from '@testing-library/dom';
 import { ConnectionStatus } from '../connections-manager';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 const mockConnections: ConnectionInfo[] = [
   {
@@ -42,7 +42,7 @@ const mockConnections: ConnectionInfo[] = [
 
 function createConnectionsManager(connectFn?: any) {
   return new ConnectionsManager({
-    logger: createNoopLoggerAndTelemetry().log.unbound,
+    logger: createNoopLogger().log.unbound,
     __TEST_CONNECT_FN: connectFn,
   });
 }

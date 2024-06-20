@@ -9,8 +9,8 @@ import type { AllPreferences } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
 import type { z } from 'zod';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
+import { createLogger } from '@mongodb-js/compass-logging';
+const { log, mongoLogId } = createLogger('COMPASS-PREFERENCES');
 
 function getGlobalConfigPaths(): string[] {
   const paths = [];

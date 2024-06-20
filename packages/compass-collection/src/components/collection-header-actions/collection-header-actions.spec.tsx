@@ -6,31 +6,38 @@ import {
   WorkspacesServiceProvider,
   type WorkspacesService,
 } from '@mongodb-js/compass-workspaces/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+
 import CollectionHeaderActions from '../collection-header-actions';
 
-function renderCollectionHeaderActions(
-  props: Partial<ComponentProps<typeof CollectionHeaderActions>> = {},
-  workspaceService: Partial<WorkspacesService> = {}
-) {
-  return render(
-    <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
-      <CollectionHeaderActions
-        namespace="test.test"
-        isReadonly={false}
-        {...props}
-      />
-    </WorkspacesServiceProvider>
-  );
-}
-
 describe('CollectionHeaderActions [Component]', function () {
-  let sandbox: sinon.SinonSandbox;
-  beforeEach(function () {
-    sandbox = sinon.createSandbox();
+  let preferences: PreferencesAccess;
+  beforeEach(async function () {
+    preferences = await createSandboxFromDefaultPreferences();
   });
-  this.afterEach(function () {
-    sandbox.restore();
+  afterEach(function () {
+    sinon.restore();
   });
+
+  const renderCollectionHeaderActions = (
+    props: Partial<ComponentProps<typeof CollectionHeaderActions>> = {},
+    workspaceService: Partial<WorkspacesService> = {}
+  ) => {
+    return render(
+      <WorkspacesServiceProvider value={workspaceService as WorkspacesService}>
+        <PreferencesProvider value={preferences}>
+          <CollectionHeaderActions
+            namespace="test.test"
+            isReadonly={false}
+            {...props}
+          />
+        </PreferencesProvider>
+      </WorkspacesServiceProvider>
+    );
+  };
+
   context('when the collection is not readonly', function () {
     beforeEach(function () {
       renderCollectionHeaderActions({
@@ -52,10 +59,43 @@ describe('CollectionHeaderActions [Component]', function () {
     });
   });
 
+  context('Compass readonly mode', function () {
+    it('does not render edit view buttons when in readonly mode', async function () {
+      await preferences.savePreferences({ readOnly: true });
+
+      renderCollectionHeaderActions({
+        isReadonly: true,
+        namespace: 'db.coll2',
+        sourceName: 'db.someSource',
+        sourcePipeline: [{ $match: { a: 1 } }],
+      });
+
+      expect(
+        screen.queryByTestId('collection-header-actions-edit-button')
+      ).to.not.exist;
+      expect(
+        screen.queryByTestId('collection-header-actions-return-to-view-button')
+      ).to.not.exist;
+    });
+
+    it('renders edit view buttons when not in readonly mode', function () {
+      renderCollectionHeaderActions({
+        isReadonly: true,
+        namespace: 'db.coll2',
+        sourceName: 'db.someSource',
+        sourcePipeline: [{ $match: { a: 1 } }],
+      });
+
+      expect(
+        screen.getByTestId('collection-header-actions-edit-button')
+      ).to.be.visible;
+    });
+  });
+
   context('when the collection is a view', function () {
     let openEditViewWorkspaceStub: sinon.SinonStub;
     beforeEach(function () {
-      openEditViewWorkspaceStub = sandbox.stub();
+      openEditViewWorkspaceStub = sinon.stub();
       renderCollectionHeaderActions(
         {
           isReadonly: true,
@@ -96,7 +136,7 @@ describe('CollectionHeaderActions [Component]', function () {
   context('when the collection is editing a view', function () {
     let openCollectionWorkspaceStub: sinon.SinonStub;
     beforeEach(function () {
-      openCollectionWorkspaceStub = sandbox.stub();
+      openCollectionWorkspaceStub = sinon.stub();
       renderCollectionHeaderActions(
         {
           isReadonly: false,

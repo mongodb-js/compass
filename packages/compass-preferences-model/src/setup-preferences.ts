@@ -12,11 +12,9 @@ import type { ParsedGlobalPreferencesResult } from './global-config';
 import { getActiveUser, type PreferencesAccess } from '.';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { InMemoryStorage } from './preferences-in-memory-storage';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 
-const compassPreferencesLogger = createLoggerAndTelemetry(
-  'COMPASS-PREFERENCES'
-);
+const compassPreferencesLogger = createLogger('COMPASS-PREFERENCES');
 let preferencesSingleton: Preferences | undefined;
 
 export async function setupPreferences(

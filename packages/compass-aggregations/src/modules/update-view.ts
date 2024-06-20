@@ -85,7 +85,8 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     {
       pipelineBuilder,
       workspaces,
-      logger: { track, debug },
+      logger: { debug },
+      track,
       globalAppRegistry,
       connectionInfoAccess,
     }

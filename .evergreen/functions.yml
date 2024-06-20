@@ -138,15 +138,18 @@ post:
 functions:
   clone:
     - command: git.get_project
+      type: system
       params:
         directory: src
 
   prepare:
     - command: git.get_project
+      type: system
       params:
         directory: src
 
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -162,6 +165,7 @@ functions:
           mkdir -p $NPM_TMP_DIR
 
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -186,6 +190,7 @@ functions:
 
   install:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -204,6 +209,7 @@ functions:
 
   bootstrap:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -558,17 +564,42 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           echo "Running E2E tests while collecting coverage..."
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
+
+  test-multiple-connections:
+    - command: shell.exec
+      # Fail the task if it's idle for 10 mins
+      timeout_secs: 600
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+
+          echo "Running E2E tests for multiple connections"
+
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-multiple-connections
+
 
   test-packaged-app:
     - command: shell.exec
@@ -584,11 +615,12 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
@@ -619,46 +651,13 @@ functions:
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           BROWSER_NAME: ${browser_name}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
           npm run --unsafe-perm --workspace compass-e2e-tests test-web
-
-  test-multiple-connections:
-    - command: shell.exec
-      # Fail the task if it's idle for 10 mins
-      timeout_secs: 600
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-          COMPASS_APP_PATH_ORIGINAL: ${appPath}
-          COMPASS_APP_NAME: ${packagerOptions.name}
-          DEBUG: ${debug|}
-          MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_RUNNER_VERSION: ${mongodb_version|}
-        script: |
-          set -e
-          # Load environment variables
-          eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
-
-          if [[ "$IS_WINDOWS" == "true" ]]; then
-            export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
-          else
-            export COMPASS_APP_PATH="$PWD/../tmp/from-packaged/$(basename "$COMPASS_APP_PATH_ORIGINAL")"
-          fi
-          echo "Running tests against packaged app at $COMPASS_APP_PATH for MongoDB $MONGODB_VERSION..."
-
-          if [[ "$IS_OSX" == "true" ]]; then
-            echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
-            export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
-          fi
-
-          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-packaged-app --test-multiple-connections
 
   test-connectivity:
     - command: shell.exec
