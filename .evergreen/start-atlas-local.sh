@@ -8,14 +8,15 @@ fi
 
 # Container name
 CONTAINER_NAME=compass-e2e-tests-atlas-local
-docker rm -f $CONTAINER_NAME
 
-# Function to stop and remove the container on exit
+docker rm -f $CONTAINER_NAME || true
+
 cleanup() {
   echo "Stopping and removing container..."
-  docker stop $CONTAINER_NAME
-  docker rm -f $CONTAINER_NAME
+  docker stop $CONTAINER_NAME || true
+  docker rm -f $CONTAINER_NAME || true
 }
+
 trap cleanup EXIT
 
 # Image name with version
