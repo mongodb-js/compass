@@ -8,7 +8,7 @@ export interface TelemetryPreferences {
 }
 
 export interface TelemetryServiceOptions {
-  sendTrack: (event: string, properties: TrackProps) => void;
+  sendTrack: (event: string, properties: Record<string, any>) => void;
   logger?: Logger;
   preferences?: TelemetryPreferences;
 }
