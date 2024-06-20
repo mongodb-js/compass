@@ -23,6 +23,7 @@ import * as hadronIpc from 'hadron-ipc';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import {
   ConnectionsManagerProvider,
   ConnectionsManager,
@@ -51,7 +52,10 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
+import {
+  ConnectionImportExportProvider,
+  useOpenConnectionImportExportModal,
+} from '@mongodb-js/compass-connection-import-export';
 import { usePreference } from 'compass-preferences-model/provider';
 
 resetGlobalCSS();
@@ -143,6 +147,25 @@ export type HomeProps = {
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
   __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 };
+
+function SingleConnectionFormWithConnectionImportExport({
+  appRegistry,
+}: {
+  appRegistry: AppRegistry;
+}) {
+  const { supportsConnectionImportExport, openConnectionImportExportModal } =
+    useOpenConnectionImportExportModal({ context: 'connectionsList' });
+  return (
+    <SingleConnectionForm
+      appRegistry={appRegistry}
+      openConnectionImportExportModal={
+        supportsConnectionImportExport
+          ? openConnectionImportExportModal
+          : undefined
+      }
+    />
+  );
+}
 
 function Home({
   appName,
@@ -292,7 +315,9 @@ function Home({
                       </AppRegistryProvider>
                     ) : (
                       <div className={homePageStyles}>
-                        <SingleConnectionForm appRegistry={appRegistry} />
+                        <SingleConnectionFormWithConnectionImportExport
+                          appRegistry={appRegistry}
+                        />
                       </div>
                     ))}
                   <WelcomeModal

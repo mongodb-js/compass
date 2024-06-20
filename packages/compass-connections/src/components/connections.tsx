@@ -78,8 +78,12 @@ const formCardLightThemeStyles = css({
 
 function Connections({
   appRegistry,
+  openConnectionImportExportModal,
 }: {
   appRegistry: AppRegistry;
+  openConnectionImportExportModal?: (
+    action: 'import-saved-connections' | 'export-saved-connections'
+  ) => void;
 }): React.ReactElement {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
 
@@ -167,6 +171,7 @@ function Connections({
           }}
           removeConnection={removeConnection}
           duplicateConnection={duplicateConnection}
+          openConnectionImportExportModal={openConnectionImportExportModal}
         />
       </ResizableSidebar>
       <div>

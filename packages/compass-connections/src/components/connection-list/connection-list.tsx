@@ -19,10 +19,6 @@ import type AppRegistry from 'hadron-app-registry';
 import Connection from './connection';
 import ConnectionsTitle from './connections-title';
 import { TextInput } from '@mongodb-js/compass-components';
-import {
-  type ConnectionImportExportAction,
-  useOpenConnectionImportExportModal,
-} from '@mongodb-js/compass-connection-import-export';
 
 const newConnectionButtonContainerStyles = css({
   padding: spacing[3],
@@ -130,7 +126,9 @@ function RecentIcon() {
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
 
-const favoriteActions: ItemAction<ConnectionImportExportAction>[] = [
+type FavoriteAction = 'import-saved-connections' | 'export-saved-connections';
+
+const favoriteActions: ItemAction<FavoriteAction>[] = [
   {
     action: 'import-saved-connections',
     label: 'Import saved connections',
@@ -154,6 +152,7 @@ type ConnectionListProps = {
   removeAllRecentsConnections: () => void;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
+  openConnectionImportExportModal?: (action: FavoriteAction) => void;
 };
 
 function ConnectionList({
@@ -167,10 +166,9 @@ function ConnectionList({
   removeAllRecentsConnections,
   duplicateConnection,
   removeConnection,
+  openConnectionImportExportModal,
 }: ConnectionListProps): React.ReactElement {
   const darkMode = useDarkMode();
-  const { supportsConnectionImportExport, openConnectionImportExportModal } =
-    useOpenConnectionImportExportModal({ context: 'connectionsList' });
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
@@ -230,8 +228,8 @@ function ConnectionList({
           >
             Saved connections
           </H3>
-          {supportsConnectionImportExport && (
-            <ItemActionControls<ConnectionImportExportAction>
+          {openConnectionImportExportModal && (
+            <ItemActionControls<FavoriteAction>
               data-testid="favorites-menu"
               onAction={openConnectionImportExportModal}
               iconSize="small"

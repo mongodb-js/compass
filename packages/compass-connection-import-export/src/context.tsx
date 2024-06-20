@@ -92,7 +92,7 @@ export type ConnectionImportExportAction =
   | 'export-saved-connections';
 
 export const useOpenConnectionImportExportModal = (
-  trackingProps: Record<string, unknown>
+  trackingProps?: Record<string, unknown>
 ): {
   supportsConnectionImportExport: boolean;
   openConnectionImportExportModal: (
