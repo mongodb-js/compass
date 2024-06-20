@@ -32,26 +32,31 @@ const PACKAGE_BUILD_VARIANTS = [
     // # when compiling/re-building addons. This ensures compatibility with other
     // # debian platforms that have glibc 2.23 or newer.
     run_on: 'ubuntu1604-large',
+    silk_asset_group: 'compass-ubuntu',
   },
   {
     name: 'package-windows',
     display_name: 'Package Windows',
     run_on: 'windows-vsCurrent-large',
+    silk_asset_group: 'compass-windows',
   },
   {
     name: 'package-rhel',
     display_name: 'Package RHEL',
     run_on: 'rhel80-large',
+    silk_asset_group: 'compass-rhel',
   },
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-1100'
+    run_on: 'macos-1100',
+    silk_asset_group: 'compass-macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-1100-arm64'
+    run_on: 'macos-1100-arm64',
+    silk_asset_group: 'compass-macos-arm',
   }
 ];
 
@@ -152,7 +157,8 @@ buildvariants:
   # package
 <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
-
+    expansions:
+      silk_asset_group: <%= buildVariant.silk_asset_group %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:
