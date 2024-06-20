@@ -99,8 +99,9 @@ describe('useTabConnectionTheme', function () {
           '--workspace-tab-background-color': '#FFDFB5',
           '--workspace-tab-border-color': '#E8EDEB',
           '--workspace-tab-color': '#5C6C75',
-          '--workspace-tab-selected-background-color': '#FFD19A',
-          '--workspace-tab-selected-color': '#3D4F58',
+          '--workspace-tab-selected-background-color': '#FFFFFF',
+          '--workspace-tab-selected-border-color': '#FFD19A',
+          '--workspace-tab-selected-color': '#1C2D38',
         });
       });
     });

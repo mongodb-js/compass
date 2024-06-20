@@ -9,21 +9,22 @@ import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
+import { WithStatusMarker } from './with-status-marker';
+import type { Actions } from './constants';
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
-  activeItemId?: string;
+  isActive: boolean;
+  isFocused: boolean;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
-  onItemAction: (
-    item: SidebarActionableItem,
-    action: NavigationItemActions[number]['action']
-  ) => void;
+  onItemAction: (item: SidebarActionableItem, action: Actions) => void;
   onItemExpand: OnExpandedChange<SidebarActionableItem>;
 };
 
 export function NavigationItem({
   item,
-  activeItemId,
+  isActive,
+  isFocused,
   onItemAction,
   onItemExpand,
   getItemActions,
@@ -43,18 +44,30 @@ export function NavigationItem({
     }
     if (item.type === 'connection') {
       const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
-      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
-        return <Icon glyph="Laptop" />;
-      }
       if (isFavorite) {
-        return <Icon glyph="Favorite" />;
+        return (
+          <WithStatusMarker status={item.connectionStatus}>
+            <Icon glyph="Favorite" />
+          </WithStatusMarker>
+        );
       }
-      return <ServerIcon />;
+      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
+        return (
+          <WithStatusMarker status={item.connectionStatus}>
+            <Icon glyph="Laptop" />
+          </WithStatusMarker>
+        );
+      }
+      return (
+        <WithStatusMarker status={item.connectionStatus}>
+          <ServerIcon />
+        </WithStatusMarker>
+      );
     }
   }, [item]);
 
   const onAction = useCallback(
-    (action: NavigationItemActions[number]['action']) => {
+    (action: Actions) => {
       if (item.type !== 'placeholder') {
         onItemAction(item, action);
       }
@@ -69,7 +82,7 @@ export function NavigationItem({
       if (item.type === 'connection') {
         if (
           item.connectionStatus !== ConnectionStatus.Connected ||
-          !item.hasWriteActionsEnabled
+          !item.hasWriteActionsDisabled
         ) {
           return 1;
         }
@@ -114,12 +127,13 @@ export function NavigationItem({
   }, [item]);
 
   return (
-    <StyledNavigationItem colorCode={item.colorCode}>
+    <StyledNavigationItem item={item}>
       {item.type === 'placeholder' ? (
         <PlaceholderItem level={item.level} />
       ) : (
         <NavigationBaseItem
-          isActive={item.id === activeItemId}
+          isActive={isActive}
+          isFocused={isFocused}
           isExpanded={!!item.isExpanded}
           icon={itemIcon}
           name={item.name}

@@ -32,7 +32,6 @@ import { connect } from '../stores/context';
 import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
-  type ConnectionInfo,
   ConnectionInfoProvider,
   useTabConnectionTheme,
   useConnectionRepository,
@@ -75,7 +74,6 @@ type CompassWorkspacesProps = {
   activeTab?: WorkspaceTab | null;
   collectionInfo: Record<string, CollectionTabInfo>;
   openOnEmptyWorkspace?: OpenWorkspaceOptions | null;
-  singleConnectionConnectionInfo?: ConnectionInfo;
 
   onSelectTab(at: number): void;
   onSelectNextTab(): void;
@@ -102,7 +100,6 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCreateTab,
   onCloseTab,
   onNamespaceNotFound,
-  singleConnectionConnectionInfo,
 }) => {
   const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
@@ -192,23 +189,12 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const activeWorkspaceElement = useMemo(() => {
     switch (activeTab?.type) {
-      case 'Welcome': {
+      case 'Welcome':
+      case 'My Queries': {
         const Component = getWorkspacePluginByName(activeTab.type);
         return <Component></Component>;
       }
 
-      // TODO: Remove the ConnectionInfoProvider when we make My Queries
-      // workspace work independently of a DataService
-      case 'My Queries': {
-        const Component = getWorkspacePluginByName(activeTab.type);
-        return (
-          <ConnectionInfoProvider
-            connectionInfoId={singleConnectionConnectionInfo?.id}
-          >
-            <Component></Component>
-          </ConnectionInfoProvider>
-        );
-      }
       case 'Shell':
       case 'Performance':
       case 'Databases': {
@@ -254,12 +240,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
       default:
         return null;
     }
-  }, [
-    singleConnectionConnectionInfo,
-    activeTab,
-    getWorkspacePluginByName,
-    onNamespaceNotFound,
-  ]);
+  }, [activeTab, getWorkspacePluginByName, onNamespaceNotFound]);
 
   const onCreateNewTab = useCallback(() => {
     onCreateTab(openOnEmptyWorkspace);

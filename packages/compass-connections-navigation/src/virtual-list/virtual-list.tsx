@@ -50,7 +50,12 @@ function useDefaultAction<T extends VirtualTreeItem>(
 }
 
 type NotPlaceholderTreeItem<T> = T extends { type: 'placeholder' } ? never : T;
-type RenderItem<T> = (props: { index: number; item: T }) => React.ReactNode;
+type RenderItem<T> = (props: {
+  index: number;
+  isActive: boolean;
+  isFocused: boolean;
+  item: T;
+}) => React.ReactNode;
 export type OnDefaultAction<T> = (
   item: T,
   evt: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
@@ -113,14 +118,13 @@ export function VirtualTree<T extends VirtualItem>({
     },
     [items]
   );
-  const [rootProps, currentTabbable] = useVirtualNavigationTree<HTMLDivElement>(
-    {
+  const [rootProps, currentTabbable, isTreeItemFocused] =
+    useVirtualNavigationTree<HTMLDivElement>({
       items,
       activeItemId,
       onExpandedChange,
       onFocusMove,
-    }
-  );
+    });
 
   const id = useId();
 
@@ -128,10 +132,19 @@ export function VirtualTree<T extends VirtualItem>({
     return {
       items,
       currentTabbable,
+      isTreeItemFocused,
+      activeItemId,
       renderItem,
       onDefaultAction,
     };
-  }, [items, renderItem, currentTabbable, onDefaultAction]);
+  }, [
+    items,
+    renderItem,
+    currentTabbable,
+    onDefaultAction,
+    activeItemId,
+    isTreeItemFocused,
+  ]);
 
   const getItemKey = useCallback(
     (index: number, data: VirtualItemData<T>) => {
@@ -169,7 +182,9 @@ export function VirtualTree<T extends VirtualItem>({
 
 type VirtualItemData<T extends VirtualItem> = {
   items: T[];
+  isTreeItemFocused: boolean;
   currentTabbable?: string;
+  activeItemId?: string;
   renderItem: RenderItem<T>;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
 };
@@ -178,13 +193,28 @@ function TreeItem<T extends VirtualItem>({
   data,
   style,
 }: ListChildComponentProps<VirtualItemData<T>>) {
-  const { renderItem, items } = data;
+  const { renderItem, items, activeItemId } = data;
   const item = useMemo(() => items[index], [items, index]);
   const focusRingProps = useFocusRing();
 
   const component = useMemo(() => {
-    return renderItem({ index, item });
-  }, [renderItem, index, item]);
+    return renderItem({
+      index,
+      item,
+      isActive: !isPlaceholderItem(item) && item.id === activeItemId,
+      isFocused:
+        data.isTreeItemFocused &&
+        !isPlaceholderItem(item) &&
+        item.id === data.currentTabbable,
+    });
+  }, [
+    renderItem,
+    index,
+    item,
+    activeItemId,
+    data.currentTabbable,
+    data.isTreeItemFocused,
+  ]);
 
   const actionProps = useDefaultAction(
     item as NotPlaceholderTreeItem<T>,

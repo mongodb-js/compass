@@ -42,7 +42,10 @@ jobs:
           npm ci
 
       - name: Start Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           node scripts/release.js beta \
             --merge-branch="${{ github.event.inputs.mergeBranch || 'main' }}" \
-            --next-ga="${{ github.event.inputs.overrideNextGa }}"
+            --next-ga="${{ github.event.inputs.overrideNextGa }}" \
+            --submitter="${{ github.actor }}"
