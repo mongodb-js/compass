@@ -59,13 +59,17 @@ type RenderItem<T> = (props: {
   isFocused: boolean;
   item: T;
   onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemExpand(
+    this: void,
+    item: SidebarActionableItem,
+    isExpanded: boolean
+  ): void;
   getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
 }) => React.ReactNode;
 export type OnDefaultAction<T> = (
   item: T,
   evt: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>
 ) => void;
-export type OnExpandedChange<T> = (item: T, expanded: boolean) => void;
 
 type VirtualTreeProps<T extends VirtualItem> = {
   dataTestId?: string;
@@ -77,7 +81,11 @@ type VirtualTreeProps<T extends VirtualItem> = {
   renderItem: RenderItem<T>;
   getItemKey?: (item: T) => string;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
-  onExpandedChange: OnExpandedChange<NotPlaceholderTreeItem<T>>;
+  onItemExpand(
+    this: void,
+    item: SidebarActionableItem,
+    isExpanded: boolean
+  ): void;
   onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
   getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
 
@@ -106,7 +114,7 @@ export function VirtualTree<T extends VirtualItem>({
   getItemKey: _getItemKey,
   renderItem: _renderItem,
   onDefaultAction,
-  onExpandedChange,
+  onItemExpand,
   onItemAction,
   getItemActions,
   __TEST_OVER_SCAN_COUNT,
@@ -131,7 +139,7 @@ export function VirtualTree<T extends VirtualItem>({
     useVirtualNavigationTree<HTMLDivElement>({
       items,
       activeItemId,
-      onExpandedChange,
+      onExpandedChange: onItemExpand,
       onFocusMove,
     });
 
@@ -146,6 +154,7 @@ export function VirtualTree<T extends VirtualItem>({
       renderItem,
       onDefaultAction,
       onItemAction,
+      onItemExpand,
       getItemActions,
     };
   }, [
@@ -157,6 +166,7 @@ export function VirtualTree<T extends VirtualItem>({
     isTreeItemFocused,
     onItemAction,
     getItemActions,
+    onItemExpand,
   ]);
 
   const getItemKey = useCallback(
@@ -201,6 +211,11 @@ type VirtualItemData<T extends VirtualItem> = {
   renderItem: RenderItem<T>;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
   onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  onItemExpand(
+    this: void,
+    item: SidebarActionableItem,
+    isExpanded: boolean
+  ): void;
   getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
 };
 function TreeItem<T extends VirtualItem>({
@@ -222,6 +237,7 @@ function TreeItem<T extends VirtualItem>({
         !isPlaceholderItem(item) &&
         item.id === data.currentTabbable,
       onItemAction: data.onItemAction,
+      onItemExpand: data.onItemExpand,
       getItemActions: data.getItemActions,
     });
   }, [
@@ -233,6 +249,7 @@ function TreeItem<T extends VirtualItem>({
     data.isTreeItemFocused,
     data.onItemAction,
     data.getItemActions,
+    data.onItemExpand,
   ]);
 
   const actionProps = useDefaultAction(

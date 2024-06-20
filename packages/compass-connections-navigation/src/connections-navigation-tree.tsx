@@ -183,7 +183,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             itemHeight={ROW_HEIGHT}
             onDefaultAction={onDefaultAction}
             onItemAction={onItemAction}
-            onExpandedChange={onItemExpand}
+            onItemExpand={onItemExpand}
             getItemActions={getItemActions}
             getItemKey={(item) => item.id}
             renderItem={({
@@ -191,6 +191,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               isActive,
               isFocused,
               onItemAction,
+              onItemExpand,
               getItemActions,
             }) => {
               return (

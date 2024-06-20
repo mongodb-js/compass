@@ -5,7 +5,6 @@ import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
 import { NavigationBaseItem } from './base-navigation-item';
 import type { NavigationItemActions } from './item-actions';
-import type { OnExpandedChange } from './virtual-list/virtual-list';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
@@ -18,7 +17,7 @@ type NavigationItemProps = {
   isFocused: boolean;
   getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
   onItemAction: (item: SidebarActionableItem, action: Actions) => void;
-  onItemExpand: OnExpandedChange<SidebarActionableItem>;
+  onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
 };
 
 export function NavigationItem({
