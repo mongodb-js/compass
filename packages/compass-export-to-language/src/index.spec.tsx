@@ -1,6 +1,12 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
-import { screen, render, cleanup, within } from '@testing-library/react';
+import {
+  screen,
+  render,
+  cleanup,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
@@ -121,7 +127,7 @@ result = client['db']['coll'].find(
   });
 
   describe('on "Copy" button clicked', function () {
-    it('should emit telemetry event', function () {
+    it('should emit telemetry event', async function () {
       const track = Sinon.stub();
       render(
         <LoggerProvider
@@ -135,7 +141,9 @@ result = client['db']['coll'].find(
         >
           <TelemetryProvider
             options={{
-              sendTrack: track,
+              sendTrack: (event, props) => {
+                track(event, props);
+              },
             }}
           >
             <Plugin namespace="db.coll"></Plugin>
@@ -152,12 +160,14 @@ result = client['db']['coll'].find(
           { name: 'Copy' }
         )
       );
-      expect(track).to.have.been.calledOnceWith('Aggregation Exported', {
-        language: 'python',
-        with_import_statements: false,
-        with_drivers_syntax: false,
-        with_builders: false,
-        num_stages: 0,
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Aggregation Exported', {
+          language: 'python',
+          with_import_statements: false,
+          with_drivers_syntax: false,
+          with_builders: false,
+          num_stages: 0,
+        });
       });
     });
   });
