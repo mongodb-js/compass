@@ -917,8 +917,10 @@ functions:
 
           echo
 
-          # Fails if the report failed and is not a patch, including release branches:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then
+              # Run `snyk monitor` to keep `main` tracked
+            npx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json
+            # Fails if the report failed and is not a patch, including release branches:
             exit $return_code
           fi
 
