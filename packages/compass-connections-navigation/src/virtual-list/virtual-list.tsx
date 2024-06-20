@@ -15,6 +15,9 @@ import {
   useFocusRing,
   useId,
 } from '@mongodb-js/compass-components';
+import { type SidebarActionableItem, type SidebarTreeItem } from '../tree-data';
+import { type Actions } from '../constants';
+import { type NavigationItemActions } from '../item-actions';
 
 function useDefaultAction<T extends VirtualTreeItem>(
   item: T,
@@ -55,6 +58,8 @@ type RenderItem<T> = (props: {
   isActive: boolean;
   isFocused: boolean;
   item: T;
+  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
 }) => React.ReactNode;
 export type OnDefaultAction<T> = (
   item: T,
@@ -73,6 +78,8 @@ type VirtualTreeProps<T extends VirtualItem> = {
   getItemKey?: (item: T) => string;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
   onExpandedChange: OnExpandedChange<NotPlaceholderTreeItem<T>>;
+  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
 
   __TEST_OVER_SCAN_COUNT?: number;
 };
@@ -100,6 +107,8 @@ export function VirtualTree<T extends VirtualItem>({
   renderItem: _renderItem,
   onDefaultAction,
   onExpandedChange,
+  onItemAction,
+  getItemActions,
   __TEST_OVER_SCAN_COUNT,
 }: VirtualTreeProps<T>) {
   const listRef = useRef<List | null>(null);
@@ -136,6 +145,8 @@ export function VirtualTree<T extends VirtualItem>({
       activeItemId,
       renderItem,
       onDefaultAction,
+      onItemAction,
+      getItemActions,
     };
   }, [
     items,
@@ -144,6 +155,8 @@ export function VirtualTree<T extends VirtualItem>({
     onDefaultAction,
     activeItemId,
     isTreeItemFocused,
+    onItemAction,
+    getItemActions,
   ]);
 
   const getItemKey = useCallback(
@@ -187,6 +200,8 @@ type VirtualItemData<T extends VirtualItem> = {
   activeItemId?: string;
   renderItem: RenderItem<T>;
   onDefaultAction: OnDefaultAction<NotPlaceholderTreeItem<T>>;
+  onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
+  getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
 };
 function TreeItem<T extends VirtualItem>({
   index,
@@ -206,6 +221,8 @@ function TreeItem<T extends VirtualItem>({
         data.isTreeItemFocused &&
         !isPlaceholderItem(item) &&
         item.id === data.currentTabbable,
+      onItemAction: data.onItemAction,
+      getItemActions: data.getItemActions,
     });
   }, [
     renderItem,
@@ -214,6 +231,8 @@ function TreeItem<T extends VirtualItem>({
     activeItemId,
     data.currentTabbable,
     data.isTreeItemFocused,
+    data.onItemAction,
+    data.getItemActions,
   ]);
 
   const actionProps = useDefaultAction(
