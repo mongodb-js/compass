@@ -45,7 +45,6 @@ import {
   pickCollectionStats,
   collectionStatsFetched,
 } from '../modules/collection-stats';
-import { showConfirmation } from '@mongodb-js/compass-components';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -260,24 +259,9 @@ export function activateAggregationsPlugin(
   );
 
   addCleanup(
-    workspaces.registerTabCloseHandler?.(async function (nextTab) {
-      if (!store.getState().isModified) {
-        return 'allow';
-      }
-
-      if (nextTab) {
-        return 'open-in-new-tab';
-      }
-
-      const confirmed = await showConfirmation({
-        title: 'Your aggregation contains unsaved changes',
-        description:
-          'You will loose all unsaved changes to the pipeline you are currently building',
-        buttonText: 'Close tab',
-        variant: 'danger',
-      });
-
-      return confirmed ? 'user-allow' : 'deny';
+    workspaces.registerTabCloseHandler?.(function () {
+      const notModified = !store.getState().isModified;
+      return { canClose: notModified, canReplace: notModified };
     }) ?? (() => undefined)
   );
 

@@ -22,6 +22,7 @@ import {
   resolveTabCloseState,
 } from '../components/workspace-tab-state-provider';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { showConfirmation } from '@mongodb-js/compass-components';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -636,11 +637,8 @@ const fetchCollectionInfo = (
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
   tabOptions?: TabOptions & { atIndex?: number }
-): WorkspacesThunkAction<
-  Promise<void>,
-  OpenWorkspaceAction | SelectTabAction
-> => {
-  return async (dispatch, getState) => {
+): WorkspacesThunkAction<void, OpenWorkspaceAction | SelectTabAction> => {
+  return (dispatch, getState) => {
     const oldTabs = getState().tabs;
     const newTab = getInitialTabState(workspaceOptions);
 
@@ -662,18 +660,8 @@ export const openWorkspace = (
         getState().tabs[tabOptions?.atIndex ?? getActiveTabIndex(getState())];
 
       if (toReplace) {
-        const canClose = await resolveTabCloseState(
-          toReplace,
-          workspaceOptions
-        );
-
-        if (canClose === 'deny') {
-          return;
-        }
-
-        if (canClose === 'open-in-new-tab') {
-          forceNewTab = true;
-        }
+        const { canReplace } = resolveTabCloseState(toReplace);
+        forceNewTab = !canReplace;
       }
     }
 
@@ -742,9 +730,18 @@ export const closeTab = (
 ): WorkspacesThunkAction<Promise<void>, CloseTabAction> => {
   return async (dispatch, getState) => {
     const tab = getState().tabs[atIndex];
-    const canClose = await resolveTabCloseState(tab, null);
-    if (canClose === 'deny') {
-      return;
+    const { canClose } = resolveTabCloseState(tab);
+    if (!canClose) {
+      const confirmClose = await showConfirmation({
+        title: 'Are you sure you want to close the tab?',
+        description:
+          'The content of this tab was modified. You will loose you changes if you close it',
+        buttonText: 'Close tab',
+        variant: 'danger',
+      });
+      if (!confirmClose) {
+        return;
+      }
     }
     dispatch({ type: WorkspacesActions.CloseTab, atIndex });
     cleanupLocalAppRegistryForTab(tab?.id);
@@ -841,8 +838,8 @@ export const openFallbackTab = (
   tab: WorkspaceTab,
   connectionId: string,
   fallbackNamespace?: string | null
-): WorkspacesThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+): WorkspacesThunkAction<void> => {
+  return (dispatch, getState) => {
     const oldTabs = getState().tabs;
     const options: OpenWorkspaceOptions = fallbackNamespace
       ? {
@@ -856,9 +853,7 @@ export const openFallbackTab = (
     const tabIndex = getState().tabs.findIndex((ws) => {
       return ws.id === tab.id;
     });
-    await dispatch(
-      openWorkspace(options, { newTab: false, atIndex: tabIndex })
-    );
+    dispatch(openWorkspace(options, { newTab: false, atIndex: tabIndex }));
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };

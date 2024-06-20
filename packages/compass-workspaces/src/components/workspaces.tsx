@@ -85,11 +85,8 @@ const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
     });
   }, [setHasInteractedOnce]);
 
-  useOnTabCloseHandler((nextTab) => {
-    if (nextTab && hasInteractedOnce) {
-      return 'open-in-new-tab';
-    }
-    return 'allow';
+  useOnTabCloseHandler(() => {
+    return { canClose: true, canReplace: !hasInteractedOnce };
   });
 
   return (
