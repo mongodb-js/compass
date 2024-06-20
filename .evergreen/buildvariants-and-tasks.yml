@@ -16,6 +16,11 @@ buildvariants:
     run_on: ubuntu2004-large
     tasks:
       - name: e2e-coverage
+  - name: multiple-connections
+    display_name: E2E Multiple Connections
+    run_on: ubuntu2004-large
+    tasks:
+      - name: e2e-multiple-connections
   - name: csfle-tests
     display_name: CSFLE Tests
     run_on: ubuntu2004-large
@@ -245,6 +250,26 @@ tasks:
       - func: bootstrap
       - func: e2e-coverage
         vars:
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: e2e-multiple-connections
+    tags:
+      - run-on-pr
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-multiple-connections
+        vars:
+          mongodb_version: latest-alpha-enterprise
+          compass_distribution: compass
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: generate-vulnerability-report
     tags:
