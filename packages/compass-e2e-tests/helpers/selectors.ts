@@ -1173,7 +1173,6 @@ export const workspaceTab = (
       : `[data-namespace="${title}"]`;
   return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
 };
-// TODO(COMPASS-8006): My Queries isn't really an instance level tab
 export const instanceWorkspaceTab = (
   tabName: 'Performance' | 'Databases',
   active: boolean | null = null
