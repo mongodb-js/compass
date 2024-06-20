@@ -323,26 +323,23 @@ export const sidebarCollection = (
 };
 
 export const sidebarConnection = (connectionName: string): string => {
-  // multiple connections only
+  if (!TEST_MULTIPLE_CONNECTIONS) {
+    return sidebarFavorite(connectionName);
+  }
+
   return `[data-connection-name="${connectionName}"]`;
 };
 
+export const sidebarConnectionMenuButton = (favoriteName: string): string => {
+  return `${sidebarConnection(favoriteName)} button[title="Show actions"]`;
+};
+
 export const sidebarFavorite = (favoriteName: string): string => {
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    return sidebarConnection(favoriteName);
-  }
   return `${Single.FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 export const sidebarFavoriteButton = (favoriteName: string): string => {
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    return sidebarConnection(favoriteName);
-  }
   return `${sidebarFavorite(favoriteName)} > div > button`;
-};
-
-export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
-  return `${sidebarFavorite(favoriteName)} button[title="Show actions"]`;
 };
 
 // Favorite modal

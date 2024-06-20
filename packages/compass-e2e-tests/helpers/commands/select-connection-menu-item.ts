@@ -4,20 +4,19 @@ import * as Selectors from '../selectors';
 
 export async function selectConnectionMenuItem(
   browser: CompassBrowser,
-  // TODO(COMPASS-8023): once we're in a multiple-connection only world this should operate on a connection name
-  favoriteName: string,
+  connectionName: string,
   itemSelector: string
 ) {
   const Sidebar = TEST_MULTIPLE_CONNECTIONS
     ? Selectors.Multiple
     : Selectors.Single;
 
-  const selector = Selectors.sidebarFavorite(favoriteName);
+  const selector = Selectors.sidebarConnection(connectionName);
 
   await browser.waitUntil(async () => {
     if (
       await browser
-        .$(Selectors.sidebarFavoriteMenuButton(favoriteName))
+        .$(Selectors.sidebarConnectionMenuButton(connectionName))
         .isDisplayed()
     ) {
       return true;
@@ -38,7 +37,9 @@ export async function selectConnectionMenuItem(
     return false;
   });
 
-  await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
+  await browser.clickVisible(
+    Selectors.sidebarConnectionMenuButton(connectionName)
+  );
   await browser.$(Sidebar.ConnectionMenu).waitForDisplayed();
   await browser.clickVisible(itemSelector);
 }
