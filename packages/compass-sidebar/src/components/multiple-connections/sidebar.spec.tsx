@@ -43,6 +43,7 @@ import {
   TestMongoDBInstanceManager,
 } from '@mongodb-js/compass-app-stores/provider';
 import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -108,7 +109,10 @@ describe('Multiple Connections Sidebar Component', function () {
   let deactivate: () => void;
   let connectFn = sinon.stub();
 
-  function doRender(activeWorkspace: WorkspaceTab | null = null) {
+  function doRender(
+    activeWorkspace: WorkspaceTab | null = null,
+    { wrapper }: Parameters<typeof render>['1'] = {}
+  ) {
     return render(
       <ToastArea>
         <PreferencesProvider value={preferences}>
@@ -128,7 +132,8 @@ describe('Multiple Connections Sidebar Component', function () {
             </WorkspacesProvider>
           </WorkspacesServiceProvider>
         </PreferencesProvider>
-      </ToastArea>
+      </ToastArea>,
+      { wrapper }
     );
   }
 
@@ -197,7 +202,26 @@ describe('Multiple Connections Sidebar Component', function () {
 
       const addNewConnectionsBtn = screen.getByLabelText('Add new connection');
       expect(addNewConnectionsBtn).to.be.visible;
+
+      // import export connections actions behind Show actions are not visible
+      // because there is no provider
+      expect(() => screen.getByLabelText('Show actions')).to.throw;
     });
+
+    context(
+      'when there is ConnectionImportExportProvider available',
+      function () {
+        it('should show connection import export action in connection list header', function () {
+          cleanup();
+          doRender(null, { wrapper: ConnectionImportExportProvider });
+          expect(screen.getByLabelText('Show actions')).to.be.visible;
+
+          userEvent.click(screen.getByLabelText('Show actions'));
+          expect(screen.getByText('Import saved connections')).to.be.visible;
+          expect(screen.getByText('Export saved connections')).to.be.visible;
+        });
+      }
+    );
   });
 
   describe('connections list', function () {
