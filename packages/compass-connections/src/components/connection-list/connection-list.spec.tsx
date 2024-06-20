@@ -12,6 +12,7 @@ import sinon from 'sinon';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 
 import ConnectionList from './connection-list';
+import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 
 const mockRecents: ConnectionInfo[] = [];
 for (let i = 0; i < 5; i++) {
@@ -126,7 +127,7 @@ describe('ConnectionList Component', function () {
       expect(filter).to.not.exist;
     });
 
-    it('does not show connection import export option when there is no openConnectionImportExportModal prop', function () {
+    it('does not show connection import export option when there is no ConnectionImportExportProvider higher up in the tree', function () {
       const connectionsHeader = screen.getByTestId(
         'favorite-connections-list-header'
       );
@@ -134,26 +135,29 @@ describe('ConnectionList Component', function () {
       expect(() => screen.getByTestId('favorites-menu-show-actions')).to.throw;
     });
 
-    it('shows connection import export option when there is a openConnectionImportExportModal prop', function () {
+    it('shows connection import export option when there is ConnectionImportExportProvider higher up in the tree', async function () {
       cleanup();
       render(
-        <ConnectionList
-          activeConnectionId={mockFavorites[2].id}
-          favoriteConnections={mockFavorites}
-          recentConnections={mockRecents}
-          createNewConnection={createNewConnectionSpy}
-          setActiveConnectionId={setActiveConnectionIdSpy}
-          removeAllRecentsConnections={() => true}
-          onDoubleClick={() => true}
-          openConnectionImportExportModal={() => {}}
-        />
+        <ConnectionImportExportProvider>
+          <ConnectionList
+            activeConnectionId={mockFavorites[2].id}
+            favoriteConnections={mockFavorites}
+            recentConnections={mockRecents}
+            createNewConnection={createNewConnectionSpy}
+            setActiveConnectionId={setActiveConnectionIdSpy}
+            removeAllRecentsConnections={() => true}
+            onDoubleClick={() => true}
+          />
+        </ConnectionImportExportProvider>
       );
       const connectionsHeader = screen.getByTestId(
         'favorite-connections-list-header'
       );
       userEvent.hover(connectionsHeader);
-      expect(() => screen.getByTestId('favorites-menu-show-actions')).to.not
-        .throw;
+      await waitFor(() => {
+        return expect(screen.getByTestId('favorites-menu-show-actions')).to.be
+          .visible;
+      });
     });
   });
 
