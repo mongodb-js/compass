@@ -16,6 +16,8 @@ export async function waitForConnectionResult(
   } else if (connectionStatus === 'success') {
     // First meaningful thing on the screen after being connected, good enough
     // indicator that we are connected to the server
+    // TODO(COMPASS-8023): wait for the specific connection to appear in the
+    // sidebar and be connected
     selector = TEST_COMPASS_WEB
       ? '[data-testid="workspace-tab-button"][title=Databases]'
       : TEST_MULTIPLE_CONNECTIONS
