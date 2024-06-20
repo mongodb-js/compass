@@ -3,16 +3,15 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import { expect } from 'chai';
 
+// TODO(COMPASS-8003,COMPASS-8023): Just remove this command and use
+// setConnectionFormState() once we remove the single connection code
 export async function saveFavorite(
   browser: CompassBrowser,
   favoriteName: string,
-  // TODO(COMPASS-8003): make color optional for multiple connections
   color: `color${number}` | string
 ): Promise<void> {
   if (TEST_MULTIPLE_CONNECTIONS) {
     // this assumes that the checkbox is unchecked
-    // TODO(COMPASS-8003): opt into checking the favorite checkbox because not
-    // all named connections are favorites.
     await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
     await browser.setValueVisible(
       Selectors.ConnectionFormConnectionName,
