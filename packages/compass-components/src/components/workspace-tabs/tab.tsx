@@ -170,15 +170,11 @@ const tabSubtitleStyles = css({
 });
 
 const closeButtonStyles = css({
-  transition: tabTransition,
-  transitionProperty: 'opacity, transform',
-  transform: 'translateY(44px)',
-  opacity: 0,
+  visibility: 'hidden',
 });
 
 const selectedCloseButtonStyles = css({
-  transform: 'translateY(0)',
-  opacity: 1,
+  visibility: 'visible',
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
