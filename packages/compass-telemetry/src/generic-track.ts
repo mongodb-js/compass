@@ -43,7 +43,7 @@ export const createTrack = ({
           event_name: event,
         });
         log.error(
-          mongoLogId(1_001_000_313),
+          mongoLogId(1_001_000_190),
           'Telemetry',
           'Error computing event properties for telemetry',
           {
