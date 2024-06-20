@@ -260,6 +260,7 @@ describe('OIDC integration', function () {
     await browser.connectWithConnectionForm({
       hosts: [cluster.hostport],
       authMethod: 'MONGODB-OIDC',
+      connectionName: this.test?.fullTitle(),
     });
 
     const result: any = await browser.shellEval(

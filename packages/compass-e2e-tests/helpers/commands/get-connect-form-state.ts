@@ -1,6 +1,7 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 
 export async function getConnectFormState(
   browser: CompassBrowser,
@@ -17,14 +18,29 @@ export async function getConnectFormState(
   // General
   const initialTab = await browser.navigateToConnectTab('General');
 
-  const defaultState = await promiseMap({
+  const defaultPromises: Record<string, Promise<any>> = {
     scheme: getCheckedRadioValue(browser, Selectors.ConnectionFormSchemeRadios),
     hosts: getMultipleValues(browser, Selectors.ConnectionFormHostInputs),
     directConnection: getCheckboxValue(
       browser,
       Selectors.ConnectionFormDirectConnectionCheckbox
     ),
-  });
+  };
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    defaultPromises.connectionName = getValue(
+      browser,
+      Selectors.ConnectionFormConnectionName
+    );
+    defaultPromises.connectionColor = getValue(
+      browser,
+      Selectors.ConnectionFormConnectionColor
+    );
+    defaultPromises.connectionFavorite = getCheckboxValue(
+      browser,
+      Selectors.ConnectionFormFavoriteCheckbox
+    );
+  }
+  const defaultState = await promiseMap(defaultPromises);
 
   // Authentication
   await browser.navigateToConnectTab('Authentication');

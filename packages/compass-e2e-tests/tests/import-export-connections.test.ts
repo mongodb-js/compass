@@ -124,14 +124,19 @@ describe('Connection Import / Export', function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
       // close the modal again so connectWithConnectionString sees the expected state
       await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+
+      await browser.selectConnectionMenuItem(
+        favoriteName,
+        Selectors.Multiple.RemoveConnectionItem
+      );
     } else {
       await browser.selectConnection(favoriteName);
-    }
 
-    await browser.selectConnectionMenuItem(
-      favoriteName,
-      Selectors.RemoveConnectionItem
-    );
+      await browser.selectConnectionMenuItem(
+        favoriteName,
+        Selectors.Single.RemoveConnectionItem
+      );
+    }
 
     await waitForConnections();
   }
@@ -210,11 +215,14 @@ describe('Connection Import / Export', function () {
           const { browser } = compass;
           if (!TEST_MULTIPLE_CONNECTIONS) {
             await browser.selectConnection(favoriteName);
+
+            await browser.selectConnectionMenuItem(
+              favoriteName,
+              Selectors.Multiple.RemoveConnectionItem
+            );
+          } else {
+            Selectors.Single.RemoveConnectionItem;
           }
-          await browser.selectConnectionMenuItem(
-            favoriteName,
-            Selectors.RemoveConnectionItem
-          );
           await waitForConnections();
         } finally {
           await cleanup(compass);
@@ -268,7 +276,7 @@ describe('Connection Import / Export', function () {
       if (TEST_MULTIPLE_CONNECTIONS) {
         // open the connection modal so we can fill in the connection string
         await browser.clickVisible(
-          Selectors.MultipleSidebarNewConnectionButton
+          Selectors.Multiple.SidebarNewConnectionButton
         );
       }
 

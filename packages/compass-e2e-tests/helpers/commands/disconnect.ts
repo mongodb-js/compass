@@ -45,6 +45,8 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
 
     // NOTE: unlike the single connection flow this doesn't make sure the New
     // Connection modal is open after disconnecting.
+    // This also doesn't remove all connections from the sidebar so the
+    // connection will still be there, just disconnected.
   } else {
     // for single connections we expect the connect screen to re-appear
     await browser.$(Selectors.ConnectSection).waitForDisplayed();

@@ -46,7 +46,7 @@ describe('Connection form', function () {
 
   it('starts with the expected initial state', async function () {
     const state = await browser.getConnectFormState(true);
-    expect(state).to.deep.equal({
+    const expectedState: ConnectFormState = {
       connectionString: 'mongodb://localhost:27017',
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -62,7 +62,14 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    });
+    };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
+    expect(state).to.deep.equal(expectedState);
   });
 
   it('parses and formats a URI for direct connection', async function () {
@@ -90,6 +97,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -124,6 +137,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017,127.0.0.1:27091'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
@@ -156,6 +175,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -196,6 +221,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
@@ -234,6 +265,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
 
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -302,6 +339,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
@@ -337,6 +380,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -375,6 +424,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -415,6 +470,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -457,6 +518,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
@@ -475,7 +542,8 @@ describe('Connection form', function () {
       sshPasswordPassword: 'password',
     };
     await browser.setConnectFormState(state);
-    expect(await browser.getConnectFormState()).to.deep.equal({
+
+    const expectedState: ConnectFormState = {
       authMethod: 'DEFAULT',
       connectionString: 'mongodb://localhost:27017/',
       defaultAuthMechanism: 'DEFAULT',
@@ -495,7 +563,14 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    });
+    };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
+    expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
   });
 
   it('does not update the URI for SSH tunnel with identity file authentication', async function () {
@@ -511,8 +586,10 @@ describe('Connection form', function () {
       sshIdentityKeyFile: sshIdentityKeyFile,
       sshIdentityPassword: 'password',
     };
+
     await browser.setConnectFormState(state);
-    expect(await browser.getConnectFormState()).to.deep.equal({
+
+    const expectedState: ConnectFormState = {
       authMethod: 'DEFAULT',
       connectionString: 'mongodb://localhost:27017/',
       defaultAuthMechanism: 'DEFAULT',
@@ -533,7 +610,14 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    });
+    };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
+    expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
   });
 
   it('redacts passwords when input is not focused', async function () {
@@ -573,6 +657,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
     const state = await browser.getConnectFormState(false);
     expect(state).to.deep.equal(expectedState);
 
@@ -586,6 +676,10 @@ describe('Connection form', function () {
     const favoriteName = 'My Favorite';
     const newFavoriteName = 'My Favorite (edited)';
 
+    const Sidebar = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.Multiple
+      : Selectors.Single;
+
     // save
     await browser.saveFavorite(
       favoriteName,
@@ -596,7 +690,7 @@ describe('Connection form', function () {
       // copy the connection string
       await browser.selectConnectionMenuItem(
         favoriteName,
-        Selectors.CopyConnectionStringItem
+        Sidebar.CopyConnectionStringItem
       );
       await browser.waitUntil(
         async () => {
@@ -609,7 +703,7 @@ describe('Connection form', function () {
     // duplicate
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Selectors.DuplicateConnectionItem
+      Sidebar.DuplicateConnectionItem
     );
 
     // duplicating immediately opens the modal so you can edit it
@@ -620,7 +714,7 @@ describe('Connection form', function () {
     // delete the duplicate
     await browser.selectConnectionMenuItem(
       `${favoriteName} (copy)`,
-      Selectors.RemoveConnectionItem
+      Sidebar.RemoveConnectionItem
     );
 
     // edit the original
@@ -690,6 +784,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      (expectedState.connectionName = 'localhost:27017'),
+        (expectedState.connectionColor = 'no-color'),
+        (expectedState.connectionFavorite = false);
+    }
+
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
@@ -697,6 +797,40 @@ describe('Connection form', function () {
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       `${connectionString}&authSource=%24external`
     );
+  });
+
+  it('supports favorites', async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
+    const state: ConnectFormState = {
+      connectionName: 'my-connection',
+      connectionColor: 'Red',
+      connectionFavorite: true,
+    };
+    await browser.setConnectFormState(state);
+    expect(await browser.getConnectFormState()).to.deep.equal({
+      authMethod: 'DEFAULT',
+      connectionColor: 'color1',
+      connectionFavorite: true,
+      connectionName: 'my-connection',
+      connectionString: 'mongodb://localhost:27017/',
+      defaultAuthMechanism: 'DEFAULT',
+      directConnection: false,
+      fleEncryptedFieldsMap:
+        "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n",
+      fleStoreCredentials: false,
+      hosts: ['localhost:27017'],
+      proxyMethod: 'none',
+      readPreference: 'defaultReadPreference',
+      scheme: 'MONGODB',
+      sslConnection: 'DEFAULT',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+      useSystemCA: false,
+    });
   });
 
   it('can save & connect', async function () {
@@ -741,5 +875,7 @@ describe('Connection form', function () {
     expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
       favoriteName
     );
+
+    await browser.disconnect();
   });
 });

@@ -195,6 +195,7 @@ describe('CSFLE / QE', function () {
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
           fleKey: 'A'.repeat(128),
+          connectionName: this.test?.fullTitle(),
         });
       });
 
@@ -327,6 +328,7 @@ describe('CSFLE / QE', function () {
               ]
             }
           }`,
+          connectionName: this.test?.fullTitle(),
         });
         await browser.shellEval(`use ${databaseName}`);
         await browser.shellEval(
@@ -907,6 +909,7 @@ describe('CSFLE / QE', function () {
       // connect without QE and insert some fixture data that we generated against a 6.x database using the shell
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
+        connectionName: this.test?.fullTitle(),
       });
 
       await browser.shellEval(`use ${databaseName}`);
@@ -997,6 +1000,7 @@ describe('CSFLE / QE', function () {
         hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
         fleKey: 'A'.repeat(128),
+        connectionName: this.test?.fullTitle(),
       });
 
       await browser.navigateToCollectionTab(

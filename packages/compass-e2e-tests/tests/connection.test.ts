@@ -557,6 +557,7 @@ describe('Connection form', function () {
   it('can connect using connection form', async function () {
     await browser.connectWithConnectionForm({
       hosts: ['127.0.0.1:27091'],
+      connectionName: this.test?.fullTitle(),
     });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
@@ -576,7 +577,10 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ATLAS_HOST ?? ''
     );
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -605,7 +609,10 @@ describe('Connection form', function () {
         sslConnection: 'ON',
         tlsCertificateKeyFile: certPath,
       };
-      await browser.connectWithConnectionForm(atlasConnectionOptions);
+      await browser.connectWithConnectionForm({
+        ...atlasConnectionOptions,
+        connectionName: this.test?.fullTitle(),
+      });
       if (!TEST_MULTIPLE_CONNECTIONS) {
         const result = await browser.shellEval(
           'db.runCommand({ connectionStatus: 1 })',
@@ -634,7 +641,10 @@ describe('Connection form', function () {
       awsSecretAccessKey:
         process.env.E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY ?? '',
     };
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -667,7 +677,10 @@ describe('Connection form', function () {
       awsSecretAccessKey: secret,
       awsSessionToken: token,
     };
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -695,6 +708,7 @@ describe('Connection form', function () {
       hosts: [host],
       sslConnection: 'ON',
       useSystemCA: true,
+      connectionName: this.test?.fullTitle(),
     });
 
     if (!TEST_MULTIPLE_CONNECTIONS) {
@@ -717,7 +731,10 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
     );
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -741,7 +758,10 @@ describe('Connection form', function () {
     atlasConnectionOptions.sslConnection = 'ON';
     atlasConnectionOptions.defaultAuthSource = 'admin';
 
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -760,7 +780,10 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? ''
     );
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -779,7 +802,10 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
     );
-    await browser.connectWithConnectionForm(atlasConnectionOptions);
+    await browser.connectWithConnectionForm({
+      ...atlasConnectionOptions,
+      connectionName: this.test?.fullTitle(),
+    });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -884,6 +910,7 @@ describe('System CA access', function () {
         hosts: ['127.0.0.1:27091'],
         sslConnection: 'DEFAULT',
         useSystemCA: true,
+        connectionName: this.test?.fullTitle(),
       });
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -965,6 +992,7 @@ describe('FLE2', function () {
           ]
         }
       }`,
+      connectionName: this.test?.fullTitle(),
     });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval('db.getName()', true);

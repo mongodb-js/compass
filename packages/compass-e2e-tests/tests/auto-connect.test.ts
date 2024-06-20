@@ -124,7 +124,7 @@ describe('Automatically connecting from the command line', function () {
       await browser.waitForConnectionResult('success');
       await browser.disconnect();
       await browser
-        .$(Selectors.RecentConnections)
+        .$(Selectors.Single.RecentConnections)
         .waitForDisplayed({ reverse: true });
     } finally {
       await cleanup(compass);

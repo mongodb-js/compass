@@ -236,7 +236,6 @@ export const Single = {
   EditConnectionItem: `[data-testid="connection-menu-edit-connection-action"]`,
   DuplicateConnectionItem: `[data-testid="connection-menu-duplicate-connection-action"]`,
   RemoveConnectionItem: `[data-testid="connection-menu-remove-connection-action"]`,
-  RecentConnectionsHeader: '[data-testid="recents-header"]',
   RecentConnections: '[data-testid="recent-connection"]',
 };
 
