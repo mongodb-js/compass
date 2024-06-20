@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
+  rafraf,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -29,7 +30,11 @@ import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
 import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
-import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
+import {
+  WorkspaceTabStateProvider,
+  useOnTabCloseHandler,
+  useTabState,
+} from './workspace-tab-state-provider';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
   ConnectionInfoProvider,
@@ -51,6 +56,52 @@ const EmptyWorkspaceContent = () => {
         height={spacing[7] * 2}
         color={darkMode ? 'white' : 'black'}
       ></MongoDBLogoMark>
+    </div>
+  );
+};
+
+const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
+  const mountedRef = useRef(false);
+  const [hasInteractedOnce, setHasInteractedOnce] = useTabState(
+    'hasInteractedOnce',
+    false
+  );
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  });
+
+  const markAsInteracted = useCallback(() => {
+    // Make sure we don't count clicking on buttons that actually cause the
+    // workspace to change, like using breadcrumbs or clicking on an item in the
+    // Databases / Collections list
+    rafraf(() => {
+      if (mountedRef.current) {
+        setHasInteractedOnce(true);
+      }
+    });
+  }, [setHasInteractedOnce]);
+
+  useOnTabCloseHandler((nextTab) => {
+    if (nextTab && hasInteractedOnce) {
+      return 'open-in-new-tab';
+    }
+    return 'allow';
+  });
+
+  return (
+    // We're not using these for actual user interactions, just to capture the
+    // interacted state
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      style={{ display: 'contents' }}
+      onKeyDown={markAsInteracted}
+      onClickCapture={markAsInteracted}
+    >
+      {children}
     </div>
   );
 };
@@ -269,19 +320,21 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
               deactivateOnUnmount={false}
             >
-              <ErrorBoundary
-                displayName={activeTab.type}
-                onError={(error, errorInfo) => {
-                  log.error(
-                    mongoLogId(1_001_000_277),
-                    'Workspace',
-                    'Rendering workspace tab failed',
-                    { name: activeTab.type, error: error.message, errorInfo }
-                  );
-                }}
-              >
-                {activeWorkspaceElement}
-              </ErrorBoundary>
+              <ActiveTabCloseHandler>
+                <ErrorBoundary
+                  displayName={activeTab.type}
+                  onError={(error, errorInfo) => {
+                    log.error(
+                      mongoLogId(1_001_000_277),
+                      'Workspace',
+                      'Rendering workspace tab failed',
+                      { name: activeTab.type, error: error.message, errorInfo }
+                    );
+                  }}
+                >
+                  {activeWorkspaceElement}
+                </ErrorBoundary>
+              </ActiveTabCloseHandler>
             </AppRegistryProvider>
           </WorkspaceTabStateProvider>
         ) : (

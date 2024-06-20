@@ -12,6 +12,8 @@ import {
 } from './stores/workspaces';
 import { createServiceLocator } from 'hadron-app-registry';
 import type { CollectionSubtab } from './types';
+import type { WorkspaceCloseHandler } from './components/workspace-tab-state-provider';
+import { useRegisterTabCloseHandler } from './components/workspace-tab-state-provider';
 
 function useWorkspacesStore() {
   try {
@@ -108,6 +110,32 @@ export type WorkspacesService = {
     options: { sourceName: string; sourcePipeline: unknown[] } & TabOptions
   ): void;
   /**
+   * Tab workspaces can register a callback that will be called before tab will
+   * be closed (either by user clicking close button, or due to other tab
+   * replacing the content). The callback can change the closing behavior by
+   * returning the following responses:
+   *
+   * - "allow"            allows the tab to be closed, if more than one handler
+   *                      is registered and this state is returned, will call
+   *                      the next handler
+   * - "user-allow"       allows the tab to be closed
+   * - "deny"             prevent the tab from being closed
+   * - "open-in-new-tab"  in case that tab is getting replaced, open new
+   *                      workspace in new tab instead
+   *
+   * Method might be `undefined` if workspace service is injected outside of the
+   * workspace scope
+   *
+   * @example
+   * workspaceService.registerTabCloseHandler?.(async function () {
+   *   const confirmed = await showConfirmation({
+   *     description: 'Are you sure you want to close this tab?
+   *   });
+   *   return confirmed ? 'user-allow' : 'deny';
+   * })
+   */
+  registerTabCloseHandler?: (handler: WorkspaceCloseHandler) => () => void;
+  /**
    * useActiveWorkspace hook, exposed through the service interface so that it
    * can be mocked in the test environment
    * @internal
@@ -162,27 +190,27 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
         return getActiveTab(store.getState());
       },
       openMyQueriesWorkspace: (tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
       openShellWorkspace(connectionId, tabOptions) {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'Shell', connectionId }, tabOptions)
         );
       },
       openDatabasesWorkspace: (connectionId, tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'Databases', connectionId }, tabOptions)
         );
       },
       openPerformanceWorkspace: (connectionId, tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction({ type: 'Performance', connectionId }, tabOptions)
         );
       },
       openCollectionsWorkspace: (connectionId, namespace, tabOptions) => {
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction(
             { type: 'Collections', connectionId, namespace },
             tabOptions
@@ -191,7 +219,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       },
       openCollectionWorkspace: (connectionId, namespace, options) => {
         const { newTab, ...collectionOptions } = options ?? {};
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
@@ -208,7 +236,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
       },
       openEditViewWorkspace: (connectionId, viewNamespace, options) => {
         const { newTab, sourceName, sourcePipeline } = options ?? {};
-        return store.dispatch(
+        return void store.dispatch(
           openWorkspaceAction(
             {
               type: 'Collection',
@@ -241,7 +269,8 @@ function useWorkspacesService() {
       "Can't find Workspaces service in React context. Make sure you are using workspaces service and hooks inside Workspaces scope"
     );
   }
-  return service;
+  const registerTabCloseHandler = useRegisterTabCloseHandler();
+  return { ...service, registerTabCloseHandler };
 }
 
 export function useOpenWorkspace() {
@@ -283,4 +312,7 @@ export const workspacesServiceLocator = createServiceLocator(
 );
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
-export { useTabState } from './components/workspace-tab-state-provider';
+export {
+  useTabState,
+  useOnTabCloseHandler,
+} from './components/workspace-tab-state-provider';

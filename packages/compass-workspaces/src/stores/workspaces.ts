@@ -16,7 +16,11 @@ import type {
   CollectionSubtab,
 } from '..';
 import { isEqual } from 'lodash';
-import { cleanupTabState } from '../components/workspace-tab-state-provider';
+import {
+  cleanupTabCloseHandler,
+  cleanupTabState,
+  resolveTabCloseState,
+} from '../components/workspace-tab-state-provider';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
@@ -203,11 +207,22 @@ export const getInitialTabState = (
 ): WorkspaceTab => {
   const tabId = getTabId();
   if (workspace.type === 'Collection') {
-    const { initialSubtab, ...restOfWorkspace } = workspace;
+    const { initialSubtab, ...rest } = workspace;
+
+    const isAggregationsSubtab = Boolean(
+      rest.initialAggregation ||
+        rest.initialPipeline ||
+        rest.initialPipelineText ||
+        rest.editViewName
+    );
+
+    const subTab =
+      initialSubtab ?? isAggregationsSubtab ? 'Aggregations' : 'Documents';
+
     return {
       id: tabId,
-      ...restOfWorkspace,
-      subTab: initialSubtab ?? 'Documents',
+      subTab,
+      ...rest,
     };
   }
   return { id: tabId, ...workspace };
@@ -221,14 +236,18 @@ const getInitialState = () => {
   };
 };
 
+/**
+ * Compares two workspaces, ignoring their ids and subtabs (in case of
+ * Collection workspace)
+ */
 const isWorkspaceEqual = (
-  t1: WorkspaceTabProps & Partial<{ id: string }>,
-  t2: WorkspaceTabProps & Partial<{ id: string }>
+  t1: WorkspaceTabProps & Partial<{ id: string; subTab: string }>,
+  t2: WorkspaceTabProps & Partial<{ id: string; subTab: string }>
 ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _id1, ...ws1 } = t1;
+  const { id: _id1, subTab: _st1, ...ws1 } = t1;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { id: _id2, ...ws2 } = t2;
+  const { id: _id2, subTab: _st2, ...ws2 } = t2;
   return isEqual(ws1, ws2);
 };
 
@@ -259,6 +278,7 @@ const cleanupRemovedTabs = (
   for (const tabId of getRemovedTabsIndexes(oldTabs, newTabs)) {
     cleanupLocalAppRegistryForTab(tabId);
     cleanupTabState(tabId);
+    cleanupTabCloseHandler(tabId);
   }
 };
 
@@ -269,52 +289,22 @@ const reducer: Reducer<WorkspacesState> = (
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
     const newTab = getInitialTabState(action.workspace);
     if (action.newTab === true) {
-      return {
-        ...state,
-        tabs: [...state.tabs, newTab],
-        activeTabId: newTab.id,
-      };
-    }
-    const activeTab = getActiveTab(state);
-    // If we're explicitly trying NOT to open a new tab OR current tab type is
-    // the same as the new one we're trying to open and the workspaces are not
-    // equal, replace the current tab with the new one
-    if (
-      action.newTab === false ||
-      (activeTab?.type === newTab.type && !isWorkspaceEqual(activeTab, newTab))
-    ) {
-      const toReplaceIndex = action.atIndex ?? getActiveTabIndex(state);
+      // Always insert new tab after the active one
+      const activeTabIndex = getActiveTabIndex(state);
       const newTabs = [...state.tabs];
-      newTabs.splice(toReplaceIndex, 1, newTab);
+      newTabs.splice(activeTabIndex + 1, 0, newTab);
       return {
         ...state,
         tabs: newTabs,
         activeTabId: newTab.id,
       };
     }
-    // ... otherwise try to find an existing tab that is equal to what we're
-    // trying to open and select it if found.
-    const existingTab =
-      // If there is an active tab, give it priority when looking for a tab to
-      // select when opening a tab, it might be that we don't need to update the
-      // state at all
-      (activeTab ? [activeTab, ...state.tabs] : state.tabs).find((tab) => {
-        return isWorkspaceEqual(tab, newTab);
-      });
-    if (existingTab) {
-      if (existingTab.id !== state.activeTabId) {
-        return {
-          ...state,
-          activeTabId: existingTab.id,
-        };
-      }
-      return state;
-    }
-    // In any other case (the current active tab type is different or no
-    // existing matching tab) just open a new tab with the new workspace
+    const toReplaceIndex = action.atIndex ?? getActiveTabIndex(state);
+    const newTabs = [...state.tabs];
+    newTabs.splice(toReplaceIndex, 1, newTab);
     return {
       ...state,
-      tabs: [...state.tabs, newTab],
+      tabs: newTabs,
       activeTabId: newTab.id,
     };
   }
@@ -590,77 +580,115 @@ export type TabOptions = {
   newTab?: boolean;
 };
 
+const fetchCollectionInfo = (
+  workspaceOptions: Extract<OpenWorkspaceOptions, { type: 'Collection' }>
+): WorkspacesThunkAction<Promise<void>, FetchCollectionInfoAction> => {
+  return async (
+    dispatch,
+    getState,
+    { connectionsManager, instancesManager, logger }
+  ) => {
+    if (getState().collectionInfo[workspaceOptions.namespace]) {
+      return;
+    }
+
+    const { database, collection } = toNS(workspaceOptions.namespace);
+
+    try {
+      const dataService = connectionsManager.getDataServiceForConnection(
+        workspaceOptions.connectionId
+      );
+
+      const instance = instancesManager.getMongoDBInstanceForConnection(
+        workspaceOptions.connectionId
+      );
+
+      const coll = await instance.getNamespace({
+        dataService,
+        database,
+        collection,
+      });
+
+      if (coll) {
+        await coll.fetch({ dataService });
+        dispatch({
+          type: WorkspacesActions.FetchCollectionTabInfo,
+          namespace: workspaceOptions.namespace,
+          info: {
+            isTimeSeries: coll.isTimeSeries,
+            isReadonly: coll.readonly ?? coll.isView,
+            sourceName: coll.sourceName,
+          },
+        });
+      }
+    } catch (err) {
+      logger.debug(
+        'Collection Metadata',
+        logger.mongoLogId(1_001_000_306),
+        'Error fetching collection metadata for tab',
+        { namespace: workspaceOptions.namespace },
+        err
+      );
+    }
+  };
+};
+
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
   tabOptions?: TabOptions & { atIndex?: number }
 ): WorkspacesThunkAction<
-  void,
-  OpenWorkspaceAction | FetchCollectionInfoAction
+  Promise<void>,
+  OpenWorkspaceAction | SelectTabAction
 > => {
-  return (
-    dispatch,
-    getState,
-    { instancesManager, connectionsManager, logger }
-  ) => {
+  return async (dispatch, getState) => {
     const oldTabs = getState().tabs;
-    if (workspaceOptions.type === 'Collection') {
-      if (!getState().collectionInfo[workspaceOptions.namespace]) {
-        // Fetching extra metadata for collection should not block tab opening
-        void (async () => {
-          const { database, collection } = toNS(workspaceOptions.namespace);
-          try {
-            const dataService = connectionsManager.getDataServiceForConnection(
-              workspaceOptions.connectionId
-            );
+    const newTab = getInitialTabState(workspaceOptions);
 
-            const instance = instancesManager.getMongoDBInstanceForConnection(
-              workspaceOptions.connectionId
-            );
+    const existingTabIndex = getState().tabs.findIndex((tab) => {
+      return isWorkspaceEqual(tab, newTab);
+    });
 
-            const coll = await instance.getNamespace({
-              dataService,
-              database,
-              collection,
-            });
-            if (coll) {
-              await coll.fetch({ dataService });
-              dispatch({
-                type: WorkspacesActions.FetchCollectionTabInfo,
-                namespace: workspaceOptions.namespace,
-                info: {
-                  isTimeSeries: coll.isTimeSeries,
-                  isReadonly: coll.readonly ?? coll.isView,
-                  sourceName: coll.sourceName,
-                },
-              });
-            }
-          } catch (err) {
-            logger.debug(
-              'Collection Metadata',
-              logger.mongoLogId(1_001_000_306),
-              'Error fetching collection metadata for tab',
-              { namespace: workspaceOptions.namespace },
-              err
-            );
-          }
-        })();
-      }
-      const isAggregationsSubtab = Boolean(
-        workspaceOptions?.initialAggregation ||
-          workspaceOptions?.initialPipeline ||
-          workspaceOptions?.initialPipelineText ||
-          workspaceOptions?.editViewName
-      );
-      if (isAggregationsSubtab && !workspaceOptions.initialSubtab) {
-        workspaceOptions.initialSubtab = 'Aggregations';
+    if (existingTabIndex !== -1) {
+      dispatch(selectTab(existingTabIndex));
+      return;
+    }
+
+    let forceNewTab: boolean | undefined;
+
+    // This action will potentially replace existing tab content, check if we
+    // are allowed to close the tab
+    if (!tabOptions?.newTab) {
+      const toReplace =
+        getState().tabs[tabOptions?.atIndex ?? getActiveTabIndex(getState())];
+
+      if (toReplace) {
+        const canClose = await resolveTabCloseState(
+          toReplace,
+          workspaceOptions
+        );
+
+        if (canClose === 'deny') {
+          return;
+        }
+
+        if (canClose === 'open-in-new-tab') {
+          forceNewTab = true;
+        }
       }
     }
+
+    if (workspaceOptions.type === 'Collection') {
+      // Fetching extra metadata for collection should not block tab opening
+      void dispatch(fetchCollectionInfo(workspaceOptions));
+    }
+
     dispatch({
       type: WorkspacesActions.OpenWorkspace,
       workspace: workspaceOptions,
-      newTab: tabOptions?.newTab,
+      newTab: forceNewTab ?? tabOptions?.newTab,
       atIndex: tabOptions?.atIndex,
     });
+
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
@@ -711,9 +739,13 @@ type CloseTabAction = { type: WorkspacesActions.CloseTab; atIndex: number };
 
 export const closeTab = (
   atIndex: number
-): WorkspacesThunkAction<void, CloseTabAction> => {
-  return (dispatch, getState) => {
+): WorkspacesThunkAction<Promise<void>, CloseTabAction> => {
+  return async (dispatch, getState) => {
     const tab = getState().tabs[atIndex];
+    const canClose = await resolveTabCloseState(tab, null);
+    if (canClose === 'deny') {
+      return;
+    }
     dispatch({ type: WorkspacesActions.CloseTab, atIndex });
     cleanupLocalAppRegistryForTab(tab?.id);
   };
@@ -809,8 +841,8 @@ export const openFallbackTab = (
   tab: WorkspaceTab,
   connectionId: string,
   fallbackNamespace?: string | null
-): WorkspacesThunkAction<void> => {
-  return (dispatch, getState) => {
+): WorkspacesThunkAction<Promise<void>> => {
+  return async (dispatch, getState) => {
     const oldTabs = getState().tabs;
     const options: OpenWorkspaceOptions = fallbackNamespace
       ? {
@@ -824,7 +856,9 @@ export const openFallbackTab = (
     const tabIndex = getState().tabs.findIndex((ws) => {
       return ws.id === tab.id;
     });
-    dispatch(openWorkspace(options, { newTab: false, atIndex: tabIndex }));
+    await dispatch(
+      openWorkspace(options, { newTab: false, atIndex: tabIndex })
+    );
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };
