@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   ErrorBoundary,
   css,
@@ -31,7 +31,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   );
 
   const activeWorkspace = useActiveWorkspace();
-  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
+  const { log, mongoLogId } = useLogger('COMPASS-SIDEBAR-UI');
 
   let sidebar;
   if (isMultiConnectionEnabled) {

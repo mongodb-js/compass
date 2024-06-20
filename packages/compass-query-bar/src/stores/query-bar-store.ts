@@ -22,7 +22,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import { QueryBarStoreContext } from './context';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type {
@@ -31,6 +31,7 @@ import type {
   RecentQueryStorageAccess,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -41,7 +42,8 @@ type QueryBarServices = {
   localAppRegistry: AppRegistry;
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
@@ -73,7 +75,8 @@ export type QueryBarExtraArgs = {
   preferences: PreferencesAccess;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   atlasAiService: AtlasAiService;
 };
 
@@ -115,6 +118,7 @@ export function activatePlugin(
     dataService,
     preferences,
     logger,
+    track,
     atlasAuthService,
     atlasAiService,
     favoriteQueryStorageAccess,
@@ -148,6 +152,7 @@ export function activatePlugin(
       atlasAuthService,
       preferences,
       logger,
+      track,
       atlasAiService,
     }
   );

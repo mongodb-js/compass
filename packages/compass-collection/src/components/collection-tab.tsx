@@ -8,7 +8,7 @@ import {
   TabNavBar,
 } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   useCollectionQueryBar,
   useCollectionScopedModals,
@@ -21,6 +21,7 @@ import {
   CollectionIndexesStats,
 } from './collection-tab-stats';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 function trackingIdForTabName(name: string) {
   return name.toLowerCase().replace(/ /g, '_');
@@ -117,9 +118,8 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   onTabClick,
   stats,
 }) => {
-  const { log, mongoLogId, track } = useLoggerAndTelemetry(
-    'COMPASS-COLLECTION-TAB-UI'
-  );
+  const track = useTelemetry();
+  const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)

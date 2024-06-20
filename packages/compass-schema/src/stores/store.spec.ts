@@ -5,10 +5,12 @@ import { expect } from 'chai';
 
 import { ANALYSIS_STATE_INITIAL } from '../constants/analysis-states';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
-const dummyLogger = createNoopLoggerAndTelemetry('TEST');
+const dummyLogger = createNoopLogger('TEST');
+const dummyTrack = createNoopTrack();
 
 const mockFieldStoreService = {
   updateFieldsFromDocuments() {},
@@ -39,7 +41,8 @@ describe('Schema Store', function () {
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry,
           dataService: dataService as any,
-          loggerAndTelemetry: dummyLogger,
+          logger: dummyLogger,
+          track: dummyTrack,
           preferences: await createSandboxFromDefaultPreferences(),
           fieldStoreService: mockFieldStoreService,
           queryBar: mockQueryBar as any,

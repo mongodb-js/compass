@@ -456,7 +456,7 @@ export function validationFromCollection(
 export const saveValidation = (
   validation: Validation
 ): SchemaValidationThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { dataService, logger: { track } }) => {
+  return async (dispatch, getState, { dataService, track }) => {
     const state = getState();
     const namespace = state.namespace;
     const checkedValidator = checkValidator(validation.validator);

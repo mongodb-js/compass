@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createConnectionAttempt } from 'mongodb-data-service';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
@@ -112,7 +112,7 @@ type OnDatabaseSecretsChangedCallback = (
 export const CONNECTION_CANCELED_ERR = 'Connection attempt was canceled';
 
 export class ConnectionsManager extends EventEmitter {
-  private readonly logger: LoggerAndTelemetry['log']['unbound'];
+  private readonly logger: Logger['log']['unbound'];
   private readonly reAuthenticationHandler?: ReauthenticationHandler;
   private readonly __TEST_CONNECT_FN?: ConnectFn;
   private appName: string | undefined;
@@ -128,7 +128,7 @@ export class ConnectionsManager extends EventEmitter {
     __TEST_CONNECT_FN,
   }: {
     appName?: string;
-    logger: LoggerAndTelemetry['log']['unbound'];
+    logger: Logger['log']['unbound'];
     reAuthenticationHandler?: ReauthenticationHandler;
     __TEST_CONNECT_FN?: ConnectFn;
   }) {

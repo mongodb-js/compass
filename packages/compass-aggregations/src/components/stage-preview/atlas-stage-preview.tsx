@@ -6,7 +6,7 @@ import {
   AtlasNavGraphic,
   Body,
 } from '@mongodb-js/compass-components';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const ATLAS_LINK = 'https://www.mongodb.com/cloud/atlas/lp/search-1';
 
@@ -28,7 +28,7 @@ export const AtlasStagePreview = ({
 }: {
   stageOperator: string;
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+  const track = useTelemetry();
   return (
     <div
       className={atlasContainerStyles}

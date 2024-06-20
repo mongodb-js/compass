@@ -6,7 +6,7 @@ import { setupInstance } from './instance';
 import type { RootState } from '.';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 
 describe('sidebar instance', function () {
@@ -29,7 +29,7 @@ describe('sidebar instance', function () {
     },
   } as any as ConnectionsManager;
   let instancesManager: MongoDBInstancesManager;
-  let logger: LoggerAndTelemetry;
+  let logger: Logger;
   let listMongoDBInstancesStub: SinonStub;
 
   beforeEach(function () {
@@ -41,7 +41,7 @@ describe('sidebar instance', function () {
     logger = {
       log: { warn() {} },
       mongoLogId() {},
-    } as any as LoggerAndTelemetry;
+    } as any as Logger;
   });
 
   for (const event of [

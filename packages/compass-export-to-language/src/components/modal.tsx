@@ -18,7 +18,7 @@ import {
 import type { OutputLanguage } from '../modules/languages';
 import { isQueryExpression, runTranspiler } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
 import { usePreference } from 'compass-preferences-model/provider';
 import { prettify } from '@mongodb-js/compass-editor';
@@ -99,7 +99,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     onModalClose: () => void;
   }
 > = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
+  const track = useTelemetry();
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);

@@ -18,14 +18,14 @@ import {
 
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 const noop = (): any => {
   /* no-op */
 };
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
-  const { log } = createNoopLoggerAndTelemetry();
+  const { log } = createNoopLogger();
   return new ConnectionsManager({
     logger: log.unbound,
     __TEST_CONNECT_FN: mockTestConnectFn,

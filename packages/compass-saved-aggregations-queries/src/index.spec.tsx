@@ -22,8 +22,8 @@ import {
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
 import {
-  type LoggerAndTelemetry,
-  createNoopLoggerAndTelemetry,
+  type Logger,
+  createNoopLogger,
 } from '@mongodb-js/compass-logging/provider';
 import {
   type MongoDBInstance,
@@ -87,7 +87,7 @@ describe('AggregationsQueriesList', function () {
   } as any;
   let connectionOne: ReturnType<typeof getConnection>;
   let connectionTwo: ReturnType<typeof getConnection>;
-  let logger: LoggerAndTelemetry;
+  let logger: Logger;
   let queryStorage: FavoriteQueryStorage;
   let pipelineStorage: PipelineStorage;
   let connectionStorage: ConnectionStorage;
@@ -138,7 +138,7 @@ describe('AggregationsQueriesList', function () {
   beforeEach(async function () {
     connectionOne = getConnection();
     connectionTwo = getConnection();
-    logger = createNoopLoggerAndTelemetry();
+    logger = createNoopLogger();
     queryStorage = {
       loadAll() {
         return Promise.resolve([]);

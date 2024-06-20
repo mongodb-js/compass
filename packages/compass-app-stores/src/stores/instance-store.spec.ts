@@ -3,7 +3,8 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { createInstancesStore } from './instance-store';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import {
   ConnectionsManager,
@@ -73,7 +74,7 @@ describe('InstanceStore [Store]', function () {
     sandbox = sinon.createSandbox();
 
     dataService = createDataService();
-    const logger = createNoopLoggerAndTelemetry();
+    const logger = createNoopLogger();
     connectionsManager = new ConnectionsManager({
       logger: logger.log.unbound,
       __TEST_CONNECT_FN: () => Promise.resolve(dataService),
