@@ -435,6 +435,10 @@ functions:
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+          # for Silk SBOM integration
+          SILK_ASSET_GROUP: ${silk_asset_group}
+          SILK_CLIENT_ID: ${silk_client_id}
+          SILK_CLIENT_SECRET: ${silk_client_secret}
         script: |
           set -e
 
@@ -820,6 +824,13 @@ functions:
         local_file: src/.sbom/purls.txt
         remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/purls.txt
         content_type: text/plain
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
+        local_file: src/.sbom/sbom-lite.json
+        remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom-lite.json
+        content_type: application/json
         optional: true
     - command: s3.put
       params:
