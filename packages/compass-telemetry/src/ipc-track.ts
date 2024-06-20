@@ -1,5 +1,4 @@
-import isElectronRenderer from 'is-electron-renderer';
-import type { HadronIpcRenderer } from 'hadron-ipc';
+import { type HadronIpcRenderer } from 'hadron-ipc';
 import {
   type TelemetryPreferences,
   type TrackFunction,
@@ -34,10 +33,9 @@ export function createIpcTrack(
 
 export function createIpcSendTrack() {
   // This application may not be running in an Node.js/Electron context.
-  const ipc: HadronIpcRenderer | null | undefined = isElectronRenderer
-    ? // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require('hadron-ipc').ipcRenderer
-    : null;
+  const ipc =
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('hadron-ipc').ipcRenderer;
 
   const sendTrack = (event: string, properties: TrackProps) =>
     emit(ipc, 'compass:track', { event, properties });

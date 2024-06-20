@@ -63,7 +63,7 @@ import type {
   DebugFunction,
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
-import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry/dist/generic-track';
+import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 
 const WithAtlasProviders: React.FC = ({ children }) => {
   return (

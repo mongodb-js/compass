@@ -70,7 +70,7 @@ describe('DropNamespacePlugin', function () {
     );
   });
 
-  it.skip('should ask for confirmation and delete database on `open-drop-database` event', async function () {
+  it('should ask for confirmation and delete database on `open-drop-database` event', async function () {
     appRegistry.emit('open-drop-database', 'db-to-drop', {
       connectionId: 'TEST',
     });
