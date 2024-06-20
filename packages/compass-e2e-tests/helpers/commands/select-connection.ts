@@ -4,20 +4,22 @@ import * as Selectors from '../selectors';
 
 export async function selectConnection(
   browser: CompassBrowser,
-  // TODO(COMPASS-8023): once we're in a multiple-connection only world this should operate on a connection name
-  favoriteName: string
+  connectionName: string
 ): Promise<void> {
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.selectConnectionMenuItem(
-      favoriteName,
+      connectionName,
       Selectors.Multiple.EditConnectionItem
     );
   } else {
     await browser.pause(1000);
 
-    await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName), {
-      screenshot: `selecting-favourite-${favoriteName}.png`,
-    });
+    await browser.clickVisible(
+      Selectors.sidebarConnectionButton(connectionName),
+      {
+        screenshot: `selecting-connection-${connectionName}.png`,
+      }
+    );
   }
 
   await browser.waitUntil(async () => {
@@ -26,6 +28,6 @@ export async function selectConnection(
       : Selectors.ConnectionTitle;
 
     const text = await browser.$(connectionTitleSelector).getText();
-    return text === favoriteName;
+    return text === connectionName;
   });
 }

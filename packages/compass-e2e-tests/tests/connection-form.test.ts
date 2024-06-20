@@ -727,7 +727,7 @@ describe('Connection form', function () {
 
     // it should now be updated in the sidebar
     await browser
-      .$(Selectors.sidebarFavorite(newFavoriteName))
+      .$(Selectors.sidebarConnection(newFavoriteName))
       .waitForDisplayed();
 
     // open the modal so we can perform some actions in there

@@ -154,7 +154,9 @@ describe('CSFLE / QE', function () {
       await delay(10000);
       await browser.screenshot('saved-connections-after-disconnect.png');
 
-      await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
+      await browser.clickVisible(
+        Selectors.sidebarConnectionButton(favoriteName)
+      );
       await browser.waitUntil(async () => {
         const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
           ? Selectors.ConnectionModalTitle
