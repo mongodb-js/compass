@@ -1,14 +1,16 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-
-export type TrackProps = Record<string, any> | (() => Record<string, any>);
-export type TrackFunction = (event: string, properties?: TrackProps) => void;
+import type {
+  TrackFunction,
+  TelemetryEvent,
+  TelemetryEventParameters,
+} from './types';
 
 export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
 }
 
 export interface TelemetryServiceOptions {
-  sendTrack: (event: string, properties: Record<string, any>) => void;
+  sendTrack: (event: TelemetryEvent, properties: Record<string, any>) => void;
   logger?: Logger;
   preferences?: TelemetryPreferences;
 }
@@ -19,9 +21,11 @@ export const createTrack = ({
   preferences,
 }: TelemetryServiceOptions & { logger: Logger }) => {
   const trackAsync = async (
-    event: string,
-    properties: TrackProps = {}
-  ): Promise<void> => {
+    event: TelemetryEvent,
+    parameters:
+      | TelemetryEventParameters
+      | (() => Promise<TelemetryEventParameters>)
+  ) => {
     // Note that this preferences check is mainly a performance optimization,
     // since the main process telemetry code also checks this preference value,
     // so it is safe to fall back to 'true'.
@@ -31,9 +35,9 @@ export const createTrack = ({
       return;
     }
 
-    if (typeof properties === 'function') {
+    if (typeof parameters === 'function') {
       try {
-        properties = await properties();
+        parameters = await parameters();
       } catch (error) {
         // When an error arises during the fetching of properties,
         // for instance if we can't fetch host information,
@@ -55,12 +59,17 @@ export const createTrack = ({
         return;
       }
     }
-    sendTrack(event, properties);
+    sendTrack(event, parameters || {});
   };
 
-  const track = (...args: [string, TrackProps?]) => {
+  const track: TrackFunction = (
+    event: TelemetryEvent,
+    parameters:
+      | TelemetryEventParameters
+      | (() => Promise<TelemetryEventParameters>)
+  ) => {
     void Promise.resolve()
-      .then(() => trackAsync(...args))
+      .then(() => trackAsync(event, parameters))
       .catch((error) => debug('track failed', error));
   };
 
