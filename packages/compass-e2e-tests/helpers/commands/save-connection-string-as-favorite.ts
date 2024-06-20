@@ -15,7 +15,7 @@ export async function saveConnectionStringAsFavorite(
 
   favoriteName ??= new UUID().toHexString();
   await browser.setValueVisible(
-    Selectors.ConnectionStringInput,
+    Selectors.ConnectionFormStringInput,
     connectionString
   );
   await browser.saveFavorite(favoriteName, color);

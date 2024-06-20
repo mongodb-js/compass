@@ -2,14 +2,15 @@ import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-export async function selectFavorite(
+export async function selectConnection(
   browser: CompassBrowser,
+  // TODO(COMPASS-8023): once we're in a multiple-connection only world this should operate on a connection name
   favoriteName: string
 ): Promise<void> {
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Selectors.EditConnectionItem
+      Selectors.Multiple.EditConnectionItem
     );
   } else {
     await browser.pause(1000);

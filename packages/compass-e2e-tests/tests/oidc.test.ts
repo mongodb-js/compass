@@ -231,7 +231,7 @@ describe('OIDC integration', function () {
 
     {
       await browser.setValueVisible(
-        Selectors.ConnectionStringInput,
+        Selectors.ConnectionFormStringInput,
         connectionString
       );
       await browser.clickVisible(Selectors.ConnectButton);
@@ -281,7 +281,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
@@ -312,7 +312,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
@@ -346,7 +346,7 @@ describe('OIDC integration', function () {
     await browser.doConnect();
     await browser.disconnect();
 
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -375,7 +375,7 @@ describe('OIDC integration', function () {
     );
 
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -409,7 +409,7 @@ describe('OIDC integration', function () {
       browser = compass.browser;
     }
 
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 

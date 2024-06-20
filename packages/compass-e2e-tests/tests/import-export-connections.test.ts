@@ -111,7 +111,7 @@ describe('Connection Import / Export', function () {
     favoriteName: string,
     variant: typeof variants[number]
   ) {
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
     const cs = await browser.getConnectFormConnectionString(true);
@@ -123,9 +123,9 @@ describe('Connection Import / Export', function () {
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       // close the modal again so connectWithConnectionString sees the expected state
-      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     } else {
-      await browser.selectFavorite(favoriteName);
+      await browser.selectConnection(favoriteName);
     }
 
     await browser.selectConnectionMenuItem(
@@ -158,11 +158,13 @@ describe('Connection Import / Export', function () {
 
           if (TEST_MULTIPLE_CONNECTIONS) {
             // open the connection modal so we can fill in the connection string
-            await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+            await browser.clickVisible(
+              Selectors.Multiple.SidebarNewConnectionButton
+            );
           }
 
           await browser.setValueVisible(
-            Selectors.ConnectionStringInput,
+            Selectors.ConnectionFormStringInput,
             connectionString
           );
 
@@ -207,7 +209,7 @@ describe('Connection Import / Export', function () {
         try {
           const { browser } = compass;
           if (!TEST_MULTIPLE_CONNECTIONS) {
-            await browser.selectFavorite(favoriteName);
+            await browser.selectConnection(favoriteName);
           }
           await browser.selectConnectionMenuItem(
             favoriteName,
@@ -265,11 +267,13 @@ describe('Connection Import / Export', function () {
 
       if (TEST_MULTIPLE_CONNECTIONS) {
         // open the connection modal so we can fill in the connection string
-        await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+        await browser.clickVisible(
+          Selectors.MultipleSidebarNewConnectionButton
+        );
       }
 
       await browser.setValueVisible(
-        Selectors.ConnectionStringInput,
+        Selectors.ConnectionFormStringInput,
         connectionString
       );
 

@@ -7,7 +7,7 @@ export async function getConnectFormState(
   isFocused = false
 ): Promise<ConnectFormState> {
   const wasExpanded = await browser.expandAccordion(
-    Selectors.ShowConnectionFormButton
+    Selectors.ConnectionFormAdvancedToggle
   );
 
   const connectionString = await browser.getConnectFormConnectionString(
@@ -263,11 +263,11 @@ export async function getConnectFormState(
     await browser.navigateToConnectTab(initialTab);
   } else {
     // collapse it again
-    await browser.clickVisible(Selectors.ShowConnectionFormButton);
+    await browser.clickVisible(Selectors.ConnectionFormAdvancedToggle);
 
     await browser.waitUntil(async () => {
       const advancedButton = await browser.$(
-        Selectors.ShowConnectionFormButton
+        Selectors.ConnectionFormAdvancedToggle
       );
       return (await advancedButton.getAttribute('aria-expanded')) === 'false';
     });

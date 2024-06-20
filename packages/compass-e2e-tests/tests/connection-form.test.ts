@@ -69,7 +69,7 @@ describe('Connection form', function () {
     const connectionString = 'mongodb://localhost:27017/?directConnection=true';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -96,14 +96,14 @@ describe('Connection form', function () {
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for multiple hosts', async function () {
     const connectionString = 'mongodb://localhost:27017,127.0.0.1:27091/';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -129,14 +129,14 @@ describe('Connection form', function () {
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for mongodb+srv scheme', async function () {
     const connectionString = 'mongodb+srv://localhost/';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -162,7 +162,7 @@ describe('Connection form', function () {
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -171,7 +171,7 @@ describe('Connection form', function () {
       'mongodb://foo:bar@localhost:27017/?authSource=source&authMechanism=SCRAM-SHA-1';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -236,7 +236,7 @@ describe('Connection form', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -268,7 +268,7 @@ describe('Connection form', function () {
     expect(state.useSystemCA).to.equal(true);
 
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal('mongodb://localhost:27017/?tls=true');
   });
 
@@ -277,7 +277,7 @@ describe('Connection form', function () {
       'mongodb://principal@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -307,7 +307,7 @@ describe('Connection form', function () {
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -315,7 +315,7 @@ describe('Connection form', function () {
     const connectionString =
       'mongodb://username:password@localhost:27017/?authMechanism=PLAIN&authSource=%24external';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -352,7 +352,7 @@ describe('Connection form', function () {
       'mongodb://id:key@localhost:27017/?authMechanism=MONGODB-AWS&authSource=%24external&authMechanismProperties=AWS_SESSION_TOKEN%3Atoken';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -390,7 +390,7 @@ describe('Connection form', function () {
       'mongodb://localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=password';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -429,7 +429,7 @@ describe('Connection form', function () {
     const connectionString =
       'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234&maxPoolSize=100';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -462,7 +462,7 @@ describe('Connection form', function () {
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -541,7 +541,7 @@ describe('Connection form', function () {
       'mongodb://foo:user_password@localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=proxy_password';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -606,8 +606,6 @@ describe('Connection form', function () {
       );
     }
 
-    console.log('XXX duplicating favorite');
-
     // duplicate
     await browser.selectConnectionMenuItem(
       favoriteName,
@@ -616,10 +614,8 @@ describe('Connection form', function () {
 
     // duplicating immediately opens the modal so you can edit it
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     }
-
-    console.log('XXX deleting the duplicate');
 
     // delete the duplicate
     await browser.selectConnectionMenuItem(
@@ -627,19 +623,13 @@ describe('Connection form', function () {
       Selectors.RemoveConnectionItem
     );
 
-    console.log('XXX select the original');
-
     // edit the original
-    await browser.selectFavorite(favoriteName);
-
-    console.log('XXX save favorite');
+    await browser.selectConnection(favoriteName);
 
     await browser.saveFavorite(
       newFavoriteName,
       TEST_MULTIPLE_CONNECTIONS ? 'Pink' : 'color2'
     );
-
-    console.log('XXX checking if the sidebar fav is there');
 
     // it should now be updated in the sidebar
     await browser
@@ -648,16 +638,12 @@ describe('Connection form', function () {
 
     // open the modal so we can perform some actions in there
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectFavorite(newFavoriteName);
+      await browser.selectConnection(newFavoriteName);
     }
-
-    console.log('XXX checking the toggle');
 
     // the edit the connection string toggle should be on (because this is a new connection we just saved)
     const toggle = await browser.$(Selectors.EditConnectionStringToggle);
     expect(await toggle.getAttribute('aria-checked')).to.equal('true');
-
-    console.log('XXX toggle it twice');
 
     // toggle the edit connection string toggle twice
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
@@ -682,7 +668,7 @@ describe('Connection form', function () {
       'mongodb://testUser@localhost:27017/?authMechanism=MONGODB-OIDC';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -723,12 +709,12 @@ describe('Connection form', function () {
 
     // Fill in a valid URI
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       'mongodb://127.0.0.1:27091/test'
     );
 
     // Save & Connect
-    await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
+    await browser.clickVisible(Selectors.SaveAndConnectButton);
     await browser.$(Selectors.FavoriteModal).waitForDisplayed();
     await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
     await browser.clickVisible(

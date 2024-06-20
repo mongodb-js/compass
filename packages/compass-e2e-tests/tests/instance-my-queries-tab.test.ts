@@ -15,6 +15,13 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
+async function navigateToMyQueries(browser: CompassBrowser) {
+  await browser.clickVisible(Selectors.SidebarMyQueriesTab);
+  await browser
+    .$(Selectors.workspaceTab('My Queries', true))
+    .waitForDisplayed();
+}
+
 async function openMenuForQueryItem(
   browser: CompassBrowser,
   favoriteQueryName: string
@@ -108,7 +115,7 @@ describe('Instance my queries tab', function () {
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'Databases'
     );
-    await browser.navigateToInstanceTab('My Queries');
+    await navigateToMyQueries(browser);
 
     // open the menu
     await openMenuForQueryItem(browser, favoriteQueryName);
@@ -194,7 +201,7 @@ describe('Instance my queries tab', function () {
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'Databases'
     );
-    await browser.navigateToInstanceTab('My Queries');
+    await navigateToMyQueries(browser);
 
     // open the menu
     await openMenuForQueryItem(browser, newFavoriteQueryName);
@@ -257,7 +264,7 @@ describe('Instance my queries tab', function () {
     await createButton.click();
 
     await browser.closeWorkspaceTabs();
-    await browser.navigateToInstanceTab('My Queries');
+    await navigateToMyQueries(browser);
 
     await browser.clickVisible(Selectors.myQueriesItem(savedAggregationName));
     const namespace = await browser.getActiveTabNamespace();
@@ -303,7 +310,7 @@ describe('Instance my queries tab', function () {
           connectionNameFromString(DEFAULT_CONNECTION_STRING),
           'Databases'
         );
-        await browser.navigateToInstanceTab('My Queries');
+        await navigateToMyQueries(browser);
 
         // open the menu
         await openMenuForQueryItem(browser, favoriteQueryName);
@@ -339,7 +346,7 @@ describe('Instance my queries tab', function () {
       beforeEach(setup);
 
       it('users can permanently associate a new namespace for an aggregation/query', async function () {
-        await browser.navigateToInstanceTab('My Queries');
+        await navigateToMyQueries(browser);
         // browse to the query
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
@@ -367,7 +374,7 @@ describe('Instance my queries tab', function () {
         await confirmOpenButton.click();
         await openModal.waitForDisplayed({ reverse: true });
 
-        await browser.navigateToInstanceTab('My Queries');
+        await navigateToMyQueries(browser);
 
         const [databaseNameElement, collectionNameElement] = [
           await browser.$('span=test'),

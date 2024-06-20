@@ -145,7 +145,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );

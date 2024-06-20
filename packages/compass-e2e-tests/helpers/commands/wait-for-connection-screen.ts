@@ -11,7 +11,7 @@ export async function waitForConnectionScreen(
   }
 
   const selector = TEST_COMPASS_WEB
-    ? Selectors.ConnectionStringInput
+    ? Selectors.ConnectionFormStringInput
     : Selectors.ConnectSection;
   const connectScreenElement = await browser.$(selector);
   await connectScreenElement.waitForDisplayed();

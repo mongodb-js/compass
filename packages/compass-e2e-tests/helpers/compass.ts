@@ -1181,6 +1181,6 @@ export function positionalArgs(positionalArgs: string[]) {
   };
 }
 
-export function connectionNameFromString(connectionString: string) {
+export function connectionNameFromString(connectionString: string): string {
   return getConnectionTitle({ connectionOptions: { connectionString } });
 }

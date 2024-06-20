@@ -30,7 +30,7 @@ export async function setConnectFormState(
 ): Promise<void> {
   await browser.resetConnectForm();
 
-  await browser.expandAccordion(Selectors.ShowConnectionFormButton);
+  await browser.expandAccordion(Selectors.ConnectionFormAdvancedToggle);
 
   // General
   await browser.navigateToConnectTab('General');

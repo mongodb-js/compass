@@ -8,7 +8,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     const url = new URL(await browser.getUrl());
     url.pathname = '/';
     await browser.navigateTo(url.toString());
-    const element = await browser.$(Selectors.ConnectionStringInput);
+    const element = await browser.$(Selectors.ConnectionFormStringInput);
     await element.waitForDisplayed();
     return;
   }
@@ -39,7 +39,9 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     // For multiple connections we're making the assumption that there should be
     // no active connections left. Use a different command if you expect to
     // disconnect just one connection and still keep others around.
-    await browser.$(Selectors.SidebarTreeItems).waitForExist({ reverse: true });
+    await browser
+      .$(`${Selectors.SidebarTreeItems} [aria-expanded=true]`)
+      .waitForExist({ reverse: true });
 
     // NOTE: unlike the single connection flow this doesn't make sure the New
     // Connection modal is open after disconnecting.
@@ -48,7 +50,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     await browser.$(Selectors.ConnectSection).waitForDisplayed();
 
     // clear the form
-    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.Single.SidebarNewConnectionButton);
     await delay(100);
   }
 }

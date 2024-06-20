@@ -22,29 +22,22 @@ export const WelcomeModal = '[data-testid="welcome-modal"]';
 export const CloseWelcomeModalButton =
   '[data-testid="welcome-modal"] [aria-label="Close modal"]';
 
-// Connection screen
+// Connection screen (single connection only)
 export const ConnectSection = '[data-testid="connections-wrapper"]';
 export const ConnectButton = '[data-testid="connect-button"]';
-export const ConnectionFormSaveButton = '[data-testid="save-button"]';
-export const ConnectionFormSaveAndConnectButton =
-  '[data-testid="save-and-connect-button"]';
-export const ConnectionFormConnectButton = '[data-testid="connect-button"]';
-export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
-export const ConnectionFormEditFavouriteButton =
-  '[data-testid="edit-favorite-icon-button"]';
-export const ConnectionFormName = '[data-testid="personalization-name-input"]';
-export const ConnectionFormColor =
-  '[data-testid="personalization-color-input"]';
-export const ConnectionFormFavoriteCheckbox =
-  '[data-testid="personalization-favorite-checkbox"]';
-export const ConnectionTitle = '[data-testid="connection-form"] h3';
+export const SaveAndConnectButton = '[data-testid="save-and-connect-button"]';
 export const CancelConnectionButton =
   '[data-testid="cancel-connection-button"]';
-export const ConnectionStatusModalContent =
-  '[data-testid="connecting-modal-content"]';
-export const ShowConnectionFormButton =
-  '[data-testid="advanced-connection-options"]';
+export const ConnectionTitle = '[data-testid="connection-form"] h3';
+export const ConnectionEditFavouriteButton =
+  '[data-testid="edit-favorite-icon-button"]';
+
+// Connection form (shared by single and multiple connection)
 export const ConnectionForm = '[data-testid="connection-form"]';
+export const ConnectionFormStringInput =
+  'textarea[data-testid="connectionString"]';
+export const ConnectionFormAdvancedToggle =
+  '[data-testid="advanced-connection-options"]';
 export const ConnectionFormGeneralTabButton =
   '[data-testid="connection-general-tab"]';
 export const ConnectionFormAuthenticationTabButton =
@@ -213,37 +206,64 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
   return `[data-testid="url-options"] [data-testid="url-option-entry-${index}"] input`;
 };
 
-// Connection Sidebar
-export const ConnectionsTitle = '[data-testid="connections-title"]';
-export const SidebarNewConnectionButton =
-  '[data-testid="new-connection-button"]';
-export const FavoriteConnections = '[data-testid="favorite-connection"]';
-export const FavoriteConnectionsHeader =
-  '[data-testid="favorite-connections-list-header"]';
-export const FavoriteConnectionsMenuButton = `${FavoriteConnectionsHeader} button[title="Show actions"]`;
-export const FavoriteConnectionsMenu = '[data-testid="favorites-menu"]';
-export const ConnectionMenu = '[data-testid="connection-menu"]';
-export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="connection-menu-copy-connection-string-action"]`;
-export const EditConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-edit-connection-action"]`;
-export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-duplicate-connection-action"]`;
-export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-remove-connection-action"]`;
-export const RecentConnectionsHeader = '[data-testid="recents-header"]';
-export const RecentConnections = '[data-testid="recent-connection"]';
-
-// Multiple Connections Sidebar
-
-export const SidebarHeader = '[data-testid="sidebar-header"]';
-export const ActiveConnectionsTitle =
-  '[data-testid="active-connections-title"]';
-
-export const sidebarActiveConnection = (connectionName: string): string => {
-  return `[data-testid="sidebar-navigation-tree"] [data-connection-name="${connectionName}"]`;
-};
+// Connection status modal (single connection only)
+export const ConnectionStatusModalContent =
+  '[data-testid="connecting-modal-content"]';
 
 // Multiple Connections Modal
 export const ConnectionModal = '[data-testid="connection-form-modal"]';
 export const ConnectionModalTitle = `${ConnectionModal} h3`;
-export const ConnectionnModalCloseButton = `${ConnectionModal} [aria-label="Close modal"]`;
+export const ConnectionModalCloseButton = `${ConnectionModal} [aria-label="Close modal"]`;
+export const ConnectionModalConnectButton = '[data-testid="connect-button"]';
+export const ConnectionModalSaveButton = '[data-testid="save-button"]';
+export const ConnectionFormConnectionName =
+  '[data-testid="personalization-name-input"]';
+export const ConnectionFormConnectionColor =
+  '[data-testid="personalization-color-input"]';
+export const ConnectionFormFavoriteCheckbox =
+  '[data-testid="personalization-favorite-checkbox"]';
+
+// Single Connection sidebar
+export const Single = {
+  ConnectionsTitle: '[data-testid="connections-title"]',
+  SidebarNewConnectionButton: '[data-testid="new-connection-button"]',
+  FavoriteConnections: '[data-testid="favorite-connection"]',
+  FavoriteConnectionsHeader: '[data-testid="favorite-connections-list-header"]',
+  FavoriteConnectionsMenuButton: `[data-testid="favorite-connections-list-header"] button[title="Show actions"]`,
+  FavoriteConnectionsMenu: '[data-testid="favorites-menu"]',
+  ConnectionMenu: '[data-testid="connection-menu"]',
+  CopyConnectionStringItem: `[data-testid="connection-menu-copy-connection-string-action"]`,
+  EditConnectionItem: `[data-testid="connection-menu-edit-connection-action"]`,
+  DuplicateConnectionItem: `[data-testid="connection-menu-duplicate-connection-action"]`,
+  RemoveConnectionItem: `[data-testid="connection-menu-remove-connection-action"]`,
+  RecentConnectionsHeader: '[data-testid="recents-header"]',
+  RecentConnections: '[data-testid="recent-connection"]',
+};
+
+// Multiple Connections sidebar
+export const Multiple = {
+  ConnectionsTitle: '[data-testid="sidebar-header"]',
+  SidebarNewConnectionButton: '[data-action="add-new-connection"]',
+  ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
+
+  OpenShellItem:
+    '[data-testid="sidebar-navigation-item-actions-open-shell-action"]',
+  ViewPerformanceItem:
+    '[data-testid="sidebar-navigation-item-actions-connection-performance-metrics-action"]',
+  ShowConnectionInfoItem:
+    '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]',
+  DisconnectConnectionItem:
+    '[data-testid="sidebar-navigation-item-actions-connection-disconnect-action"]',
+
+  EditConnectionItem:
+    '[data-testid="sidebar-navigation-item-actions-edit-connection-action"]',
+  CopyConnectionStringItem:
+    '[data-testid="sidebar-navigation-item-actions-copy-connection-string-action"]',
+  UnfavoriteConnectionItem:
+    '[data-testid="sidebar-navigation-item-actions-connection-toggle-favorite-action"]',
+  DuplicateConnectionItem: `[data-testid="sidebar-navigation-item-actions-duplicate-connection-action"]`,
+  RemoveConnectionItem: `[data-testid="sidebar-navigation-item-actions-remove-connection-action"]`,
+};
 
 // Rename Collection Modal
 export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
@@ -303,22 +323,27 @@ export const sidebarCollection = (
   return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
 };
 
+export const sidebarConnection = (connectionName: string): string => {
+  // multiple connections only
+  return `[data-connection-name="${connectionName}"]`;
+};
+
 export const sidebarFavorite = (favoriteName: string): string => {
   if (TEST_MULTIPLE_CONNECTIONS) {
-    return `[data-testid="saved-connections"] [data-connection-name="${favoriteName}"]`;
+    return sidebarConnection(favoriteName);
   }
-  return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
+  return `${Single.FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 export const sidebarFavoriteButton = (favoriteName: string): string => {
   if (TEST_MULTIPLE_CONNECTIONS) {
-    return sidebarFavorite(favoriteName);
+    return sidebarConnection(favoriteName);
   }
   return `${sidebarFavorite(favoriteName)} > div > button`;
 };
 
 export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
-  return `${sidebarFavorite(favoriteName)}  button[title="Show actions"]`;
+  return `${sidebarFavorite(favoriteName)} button[title="Show actions"]`;
 };
 
 // Favorite modal
@@ -1130,13 +1155,12 @@ export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
-// TODO(COMPASS-8006): My Queries isn't an instance level nav item and you get
-// to Performance and Databases in very different ways.
 export const sidebarInstanceNavigationItem = (
-  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries'
+  tabName: 'Performance' | 'Databases'
 ) => {
   return `${Sidebar} [aria-label="${tabName}"]`;
 };
+export const SidebarMyQueriesTab = `${Sidebar} [aria-label="My Queries"]`;
 export const workspaceTab = (
   title: string | null,
   active: boolean | null = null
@@ -1152,7 +1176,7 @@ export const workspaceTab = (
 };
 // TODO(COMPASS-8006): My Queries isn't really an instance level tab
 export const instanceWorkspaceTab = (
-  tabName: 'My Queries' | 'Performance' | 'Databases' = 'My Queries',
+  tabName: 'Performance' | 'Databases',
   active: boolean | null = null
 ) => {
   return workspaceTab(tabName, active);

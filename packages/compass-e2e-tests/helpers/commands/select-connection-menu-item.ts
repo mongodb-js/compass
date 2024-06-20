@@ -4,13 +4,17 @@ import * as Selectors from '../selectors';
 
 export async function selectConnectionMenuItem(
   browser: CompassBrowser,
+  // TODO(COMPASS-8023): once we're in a multiple-connection only world this should operate on a connection name
   favoriteName: string,
   itemSelector: string
 ) {
+  const Sidebar = TEST_MULTIPLE_CONNECTIONS
+    ? Selectors.Multiple
+    : Selectors.Single;
+
   const selector = Selectors.sidebarFavorite(favoriteName);
 
   await browser.waitUntil(async () => {
-    console.log('.');
     if (
       await browser
         .$(Selectors.sidebarFavoriteMenuButton(favoriteName))
@@ -23,11 +27,7 @@ export async function selectConnectionMenuItem(
     await browser.$(selector).waitForDisplayed();
 
     // workaround for weirdness in the ItemActionControls menu opener icon
-    await browser.clickVisible(
-      TEST_MULTIPLE_CONNECTIONS
-        ? Selectors.SidebarHeader
-        : Selectors.ConnectionsTitle
-    );
+    await browser.clickVisible(Sidebar.ConnectionsTitle);
 
     // Hover over an arbitrary other element to ensure that the second hover will
     // actually be a fresh one. This otherwise breaks if this function is called
@@ -39,6 +39,6 @@ export async function selectConnectionMenuItem(
   });
 
   await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
-  await browser.$(Selectors.ConnectionMenu).waitForDisplayed();
+  await browser.$(Sidebar.ConnectionMenu).waitForDisplayed();
   await browser.clickVisible(itemSelector);
 }

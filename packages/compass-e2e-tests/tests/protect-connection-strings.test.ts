@@ -80,15 +80,11 @@ describe('protectConnectionStrings', function () {
       favoriteName,
       TEST_MULTIPLE_CONNECTIONS ? 'Yellow' : 'color4'
     );
-    await browser.selectFavorite(favoriteName);
-
-    console.log('XXX checking connection string');
+    await browser.selectConnection(favoriteName);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
     );
-
-    console.log('XXX Enter edit connection string mode');
 
     // Enter edit connection string mode
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
@@ -96,7 +92,6 @@ describe('protectConnectionStrings', function () {
     await confirmModal.waitForDisplayed();
     await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
 
-    console.log('XXX checking connection string (unprotected)');
     expect(
       await browser.getConnectFormConnectionString(),
       'hide password when input is not focused'
@@ -107,7 +102,7 @@ describe('protectConnectionStrings', function () {
     ).to.equal('mongodb://foo:bar@localhost:12345/');
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     }
 
     await expectCopyConnectionStringToClipboard(
@@ -117,31 +112,17 @@ describe('protectConnectionStrings', function () {
     );
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectFavorite(favoriteName);
+      await browser.selectConnection(favoriteName);
     }
 
-    /*
-    console.log(`XXX wait for ${Selectors.EditConnectionStringToggle} to go away`);
-    await browser
-      .$(Selectors.EditConnectionStringToggle)
-      .waitForExist({ reverse: false });
-
-    console.log(`XXX wait for ${Selectors.ShowConnectionFormButton} to go away`);
-    await browser
-      .$(Selectors.ShowConnectionFormButton)
-      .waitForExist({ reverse: false });
-    */
-
-    console.log('XXX turn on protectConnectionStrings');
     await browser.setFeature('protectConnectionStrings', true);
 
-    console.log('XXX checking connection string (protected)');
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
     );
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     }
 
     await expectCopyConnectionStringToClipboard(
@@ -149,17 +130,5 @@ describe('protectConnectionStrings', function () {
       favoriteName,
       'mongodb://<credentials>@localhost:12345/'
     );
-
-    /*
-    console.log(`XXX wait for ${Selectors.EditConnectionStringToggle} to go away`);
-    await browser
-      .$(Selectors.EditConnectionStringToggle)
-      .waitForExist({ reverse: true });
-
-    console.log(`XXX wait for ${Selectors.ShowConnectionFormButton} to go away`);
-    await browser
-      .$(Selectors.ShowConnectionFormButton)
-      .waitForExist({ reverse: true });
-    */
   });
 });

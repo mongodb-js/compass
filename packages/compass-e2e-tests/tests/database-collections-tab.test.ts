@@ -59,7 +59,7 @@ describe('Database collections tab', function () {
     await createDummyCollections();
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -131,7 +131,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-basic.png'
     );
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -170,7 +170,7 @@ describe('Database collections tab', function () {
 
     // the app should still be on the database Collections tab because there are
     // other collections in this database
-    await browser.waitUntilActiveConnectionDatabaseTab(
+    await browser.waitUntilActiveDatabaseTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -192,7 +192,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-capped.png'
     );
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -233,7 +233,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-custom-collation.png'
     );
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -269,7 +269,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -306,7 +306,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -341,7 +341,7 @@ describe('Database collections tab', function () {
       'add-collection-modal-clustered.png'
     );
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       'test'
     );
@@ -377,7 +377,7 @@ describe('Database collections tab', function () {
       await mongoClient.close();
     }
 
-    await browser.navigateToConnectionCollectionsTab(
+    await browser.navigateToDatabaseCollectionsTab(
       connectionNameFromString(DEFAULT_CONNECTION_STRING),
       db
     );

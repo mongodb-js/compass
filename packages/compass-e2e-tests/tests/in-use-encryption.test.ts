@@ -120,8 +120,8 @@ describe('CSFLE / QE', function () {
       // Save & Connect
       await browser.clickVisible(
         TEST_MULTIPLE_CONNECTIONS
-          ? Selectors.ConnectionFormConnectButton
-          : Selectors.ConnectionFormSaveAndConnectButton
+          ? Selectors.ConnectionModalConnectButton
+          : Selectors.SaveAndConnectButton
       );
       await browser.$(Selectors.FavoriteModal).waitForDisplayed();
       await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
@@ -218,7 +218,7 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
-        await browser.navigateToConnectionCollectionsTab(
+        await browser.navigateToDatabaseCollectionsTab(
           connectionNameFromString(DEFAULT_CONNECTION_STRING),
           databaseName
         );
@@ -240,7 +240,7 @@ describe('CSFLE / QE', function () {
           'add-collection-modal-encryptedfields.png'
         );
 
-        await browser.navigateToConnectionCollectionsTab(
+        await browser.navigateToDatabaseCollectionsTab(
           connectionNameFromString(DEFAULT_CONNECTION_STRING),
           databaseName
         );
@@ -359,14 +359,14 @@ describe('CSFLE / QE', function () {
       });
 
       it('can create a fle2 collection without encryptedFields', async function () {
-        await browser.navigateToConnectionCollectionsTab(
+        await browser.navigateToDatabaseCollectionsTab(
           connectionNameFromString(DEFAULT_CONNECTION_STRING),
           databaseName
         );
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
         await browser.addCollection(collectionName);
 
-        await browser.navigateToConnectionCollectionsTab(
+        await browser.navigateToDatabaseCollectionsTab(
           connectionNameFromString(DEFAULT_CONNECTION_STRING),
           databaseName
         );

@@ -43,7 +43,7 @@ describe('forceConnectionOptions', function () {
   it('forces the value of a specific connection option', async function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
       // open the connection modal because that's where the warnings will be displayed
-      await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
     }
 
     const warnings = await browser
@@ -55,7 +55,7 @@ describe('forceConnectionOptions', function () {
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       // close the modal again so connectWithConnectionString sees the expected state
-      await browser.clickVisible(Selectors.ConnectionnModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     }
 
     await browser.connectWithConnectionString(

@@ -14,12 +14,12 @@ export async function connectWithConnectionString(
   await browser.disconnect();
 
   if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();
   }
 
   await browser.setValueVisible(
-    Selectors.ConnectionStringInput,
+    Selectors.ConnectionFormStringInput,
     connectionString
   );
   await browser.doConnect(connectionStatus, timeout);

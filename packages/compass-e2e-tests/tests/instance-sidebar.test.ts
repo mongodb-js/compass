@@ -105,7 +105,6 @@ describe('Instance sidebar', function () {
     // wait for exactly two items: The database and the collection.
     await browser.waitUntil(async () => {
       const treeItems = await browser.$$(Selectors.SidebarTreeItems);
-      console.log(treeItems, treeItems.length);
       // connection, database, collection for multiple connections, otherwise just database and collection
       const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 3 : 2;
       return treeItems.length === expectedCount;
