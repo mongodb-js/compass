@@ -31,10 +31,9 @@ const connectionsWithNoSearchSupport: Connection[] = [
 ];
 const connectionsWithSearchSupport: Connection[] = [
   {
-    name: 'Atlas Dedicated Cluster',
-    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITH_SEARCH,
+    name: 'Atlas Local Dev',
+    connectionString: process.env.ATLAS_LOCAL_URL,
   },
-  // todo: atlas local dev
 ];
 
 const INDEX_DEFINITION = JSON.stringify({
