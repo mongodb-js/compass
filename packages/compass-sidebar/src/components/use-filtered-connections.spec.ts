@@ -7,7 +7,7 @@ import {
   ConnectionsManager,
   ConnectionsManagerProvider,
 } from '@mongodb-js/compass-connections/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type {
   SidebarConnectedConnection,
   SidebarConnection,
@@ -121,7 +121,7 @@ describe('useFilteredConnections', function () {
   const fetchAllCollectionsStub = Sinon.stub();
   const onDatabaseExpandStub = Sinon.stub();
   const connectionsManager = new ConnectionsManager({
-    logger: createNoopLoggerAndTelemetry().log.unbound,
+    logger: createNoopLogger().log.unbound,
   });
 
   const renderHookWithContext: typeof renderHook = (callback, options) => {
