@@ -268,6 +268,7 @@ const CompassWeb = ({
         GEN_AI_COMPASS: false,
       },
       maximumNumberOfActiveConnections: 1,
+      trackUsageStatistics: true,
       ...initialPreferences,
     })
   );
