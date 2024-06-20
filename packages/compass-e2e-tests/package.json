@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^3.6.0",
-    "@mongodb-js/connection-info": "^0.3.0",
+    "@mongodb-js/connection-info": "^0.4.0",
     "@mongodb-js/compass-test-server": "^0.1.16",
     "@mongodb-js/eslint-config-compass": "^1.1.1",
     "@mongodb-js/oidc-mock-provider": "^0.9.0",
