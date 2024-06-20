@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   Body,
   DropdownMenuButton,
@@ -138,7 +138,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   queryLimit,
   querySkip,
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-CRUD-UI');
+  const track = useTelemetry();
   const isImportExportEnabled = usePreference('enableImportExport');
 
   const displayedDocumentCount = useMemo(

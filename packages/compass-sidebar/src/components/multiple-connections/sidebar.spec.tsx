@@ -42,8 +42,8 @@ import {
   type MongoDBInstancesManager,
   TestMongoDBInstanceManager,
 } from '@mongodb-js/compass-app-stores/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 type PromiseFunction = (
   resolve: (dataService: DataService) => void,
@@ -141,7 +141,7 @@ describe('Multiple Connections Sidebar Component', function () {
     connectFn = sinon.stub();
     instancesManager = new TestMongoDBInstanceManager();
     connectionsManager = new ConnectionsManager({
-      logger: createNoopLoggerAndTelemetry().log.unbound,
+      logger: createNoopLogger().log.unbound,
       __TEST_CONNECT_FN: connectFn,
     });
     connectionStorage = new InMemoryConnectionStorage([
@@ -156,7 +156,7 @@ describe('Multiple Connections Sidebar Component', function () {
       {
         globalAppRegistry,
         instancesManager,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
         connectionsManager,
       },
       createActivateHelpers()
@@ -478,7 +478,7 @@ describe('Multiple Connections Sidebar Component', function () {
             {
               globalAppRegistry,
               instancesManager,
-              logger: createNoopLoggerAndTelemetry(),
+              logger: createNoopLogger(),
               connectionsManager,
             },
             createActivateHelpers()

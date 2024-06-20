@@ -14,7 +14,7 @@ import type {
 import { app as electronApp, shell, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
 
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
@@ -23,7 +23,7 @@ import {
   registerMongoDbUrlForBrowserWindow,
 } from './auto-connect';
 
-const { debug } = createLoggerAndTelemetry('COMPASS-WINDOW-MANAGER');
+const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
 
 const earlyOpenUrls: string[] = [];
 function earlyOpenUrlListener(

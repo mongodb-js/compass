@@ -176,7 +176,7 @@ export const openExplainPlanModal = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, logger: { log, track, mongoLogId } }
+    { dataService, preferences, track, logger: { log, mongoLogId } }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
 

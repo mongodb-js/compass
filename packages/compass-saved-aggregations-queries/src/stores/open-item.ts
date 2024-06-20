@@ -426,7 +426,7 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { logger: { track }, workspaces }) => {
+  (_dispatch, _getState, { track, workspaces }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'

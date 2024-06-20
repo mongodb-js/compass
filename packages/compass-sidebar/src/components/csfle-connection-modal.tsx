@@ -10,7 +10,10 @@ import {
   Toggle,
   InfoModal,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const toggleStyles = css({
   marginTop: spacing[3],
@@ -50,8 +53,7 @@ export default function CSFLEConnectionModal({
   }, [setOpen]);
 
   useTrackOnChange(
-    'COMPASS-SIDEBAR-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (open) {
         track('Screen', { name: 'csfle_connection_modal' });
       }

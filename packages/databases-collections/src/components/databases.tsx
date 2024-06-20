@@ -17,9 +17,12 @@ import {
   dropDatabase,
   refreshDatabases,
 } from '../modules/databases';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const errorContainerStyles = css({
   padding: spacing[3],
@@ -103,13 +106,9 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     _onCreateDatabaseClick(connectionId);
   }, [connectionId, _onCreateDatabaseClick]);
 
-  useTrackOnChange(
-    'COMPASS-DATABASES-UI',
-    (track) => {
-      track('Screen', { name: 'databases' });
-    },
-    []
-  );
+  useTrackOnChange((track: TrackFunction) => {
+    track('Screen', { name: 'databases' });
+  }, []);
 
   if (databasesLoadingStatus === 'error') {
     return (

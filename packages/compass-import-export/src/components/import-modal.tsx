@@ -16,7 +16,6 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import { FINISHED_STATUSES, STARTED } from '../constants/process-status';
 import type { ProcessStatus } from '../constants/process-status';
@@ -40,6 +39,10 @@ import type { RootImportState } from '../stores/import-store';
 import type { FieldFromCSV } from '../modules/import';
 import { ImportFileInput } from './import-file-input';
 import type { Delimiter, CSVParsableFieldType } from '../csv/csv-types';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const closeButtonStyles = css({
   marginRight: spacing[2],
@@ -155,8 +158,7 @@ function ImportModal({
   }, [errors, isOpen]);
 
   useTrackOnChange(
-    'COMPASS-IMPORT-EXPORT-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (isOpen) {
         track('Screen', { name: 'import_modal' });
       }

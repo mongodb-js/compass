@@ -1,5 +1,5 @@
 import type {
-  LoggerAndTelemetry,
+  Logger,
   MongoLogWriter,
 } from '@mongodb-js/compass-logging/provider';
 import { Writable } from 'stream';
@@ -88,7 +88,7 @@ class CompassWebLogWriter extends Writable implements MongoLogWriter {
   };
 }
 
-type Debugger = LoggerAndTelemetry['debug'];
+type Debugger = Logger['debug'];
 
 function createCompassWebDebugger(
   namespace: string,
@@ -119,8 +119,8 @@ function createCompassWebDebugger(
   );
 }
 
-export class CompassWebLoggerAndTelemetry implements LoggerAndTelemetry {
-  log: LoggerAndTelemetry['log'];
+export class CompassWebLoggerAndTelemetry implements Logger {
+  log: Logger['log'];
 
   debug: Debugger;
 
@@ -128,7 +128,6 @@ export class CompassWebLoggerAndTelemetry implements LoggerAndTelemetry {
     private component: string,
     private callbackRef: {
       current: {
-        onTrack?: TrackFunction;
         onLog?: LogFunction;
         onDebug?: DebugFunction;
       };
@@ -141,26 +140,9 @@ export class CompassWebLoggerAndTelemetry implements LoggerAndTelemetry {
     this.debug = createCompassWebDebugger(this.component, this.callbackRef);
   }
 
-  track = (
-    event: string,
-    properties: Record<string, any> | (() => Record<string, any>) = {}
-  ) => {
-    void (async () => {
-      try {
-        this.callbackRef.current.onTrack?.(
-          event,
-          typeof properties === 'function' ? await properties() : properties
-        );
-      } catch {
-        // noop
-      }
-    })();
-    return;
-  };
-
   mongoLogId = mongoLogId;
 
-  createLogger = (component: string): LoggerAndTelemetry => {
+  createLogger = (component: string): Logger => {
     return new CompassWebLoggerAndTelemetry(component, this.callbackRef);
   };
 }
@@ -168,7 +150,6 @@ export class CompassWebLoggerAndTelemetry implements LoggerAndTelemetry {
 export function useCompassWebLoggerAndTelemetry(callbacks: {
   onLog?: LogFunction;
   onDebug?: DebugFunction;
-  onTrack?: TrackFunction;
 }): CompassWebLoggerAndTelemetry {
   const callbackRef = useRef(callbacks);
   callbackRef.current = callbacks;

@@ -11,7 +11,8 @@ import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 /**
  * The lowest supported version.
@@ -26,7 +27,8 @@ type SchemaValidationServices = {
   >;
   preferences: PreferencesAccess;
   instance: MongoDBInstance;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
 };
 
 // Exposed for testing
@@ -34,7 +36,7 @@ export function configureStore(
   state: Partial<RootState>,
   services: Pick<
     SchemaValidationServices,
-    'globalAppRegistry' | 'dataService' | 'preferences' | 'logger'
+    'globalAppRegistry' | 'dataService' | 'preferences' | 'logger' | 'track'
   >
 ) {
   return createStore(
@@ -58,6 +60,7 @@ export function onActivated(
     preferences,
     instance,
     logger,
+    track,
   }: SchemaValidationServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -77,6 +80,7 @@ export function onActivated(
       preferences,
       globalAppRegistry,
       logger,
+      track,
     }
   );
 

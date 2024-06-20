@@ -1,10 +1,10 @@
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { getActiveUser } from 'compass-preferences-model';
 
-const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
+const { debug } = createLogger('COMPASS-INTERCOM');
 
 export async function setupIntercom(
   preferences: PreferencesAccess,
