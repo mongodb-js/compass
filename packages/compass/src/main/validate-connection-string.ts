@@ -3,12 +3,10 @@ import ConnectionStringUrl, {
   redactConnectionString,
 } from 'mongodb-connection-string-url';
 import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { isLocalhost } from 'mongodb-build-info';
 
-const { log, mongoLogId } = createLoggerAndTelemetry(
-  'VALIDATE-CONNECTION-STRING-UTIL'
-);
+const { log, mongoLogId } = createLogger('VALIDATE-CONNECTION-STRING-UTIL');
 
 const allowedConnectionStringOptions = [
   'appName',

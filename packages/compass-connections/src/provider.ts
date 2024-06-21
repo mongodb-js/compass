@@ -4,7 +4,7 @@ import { useConnectionInfo } from './connection-info-provider';
 import { EventEmitter } from 'events';
 import type { DataService } from 'mongodb-data-service';
 import { ConnectionsManager } from './connections-manager';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 export type { DataService };
 export * from './connections-manager';
@@ -35,7 +35,7 @@ export const useConnectionsManagerContext = (): ConnectionsManager => {
       );
     }
     return new ConnectionsManager({
-      logger: createNoopLoggerAndTelemetry().log.unbound,
+      logger: createNoopLogger().log.unbound,
     });
   }
   return connectionsManager;

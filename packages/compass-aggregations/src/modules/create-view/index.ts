@@ -202,7 +202,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { globalAppRegistry, connectionsManager, logger: { track }, workspaces }
+    { globalAppRegistry, connectionsManager, track, workspaces }
   ) => {
     const {
       name: viewName,

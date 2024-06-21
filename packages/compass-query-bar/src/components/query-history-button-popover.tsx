@@ -7,10 +7,13 @@ import {
   focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import QueryHistory from './query-history';
 import { fetchSavedQueries } from '../stores/query-bar-reducer';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const openQueryHistoryButtonStyles = css(
   {
@@ -41,8 +44,7 @@ const QueryHistoryButtonPopover = ({
   const [isOpen, setIsOpen] = React.useState(false);
 
   useTrackOnChange(
-    'COMPASS-QUERY-BAR-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (isOpen) {
         track('Query History Opened');
       } else {

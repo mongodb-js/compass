@@ -33,8 +33,8 @@ import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const rootStyles = css({
   width: '100%',
@@ -338,7 +338,7 @@ const nbsp = '\u00a0';
 const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const { atlasMetadata } = useConnectionInfo();
-  const { track } = useLoggerAndTelemetry('COMPASS-SCHEMA');
+  const track = useTelemetry();
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for schema anti-patterns?</Body>

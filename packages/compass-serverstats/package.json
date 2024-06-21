@@ -33,7 +33,7 @@
     "@mongodb-js/compass-app-stores": "^7.18.0",
     "@mongodb-js/compass-components": "^1.25.1",
     "@mongodb-js/compass-connections": "^1.32.0",
-    "@mongodb-js/compass-logging": "^1.3.0",
+    "@mongodb-js/compass-telemetry": "^1.0.0",
     "@mongodb-js/compass-workspaces": "^0.13.0",
     "d3": "^3.5.17",
     "d3-timer": "^1.0.3",

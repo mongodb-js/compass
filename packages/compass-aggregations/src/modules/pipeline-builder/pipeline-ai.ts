@@ -11,8 +11,9 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -159,7 +160,8 @@ type FailedResponseTrackMessage = {
   errorName: string;
   errorCode?: string;
   requestId: string;
-} & Pick<LoggerAndTelemetry, 'log' | 'track'>;
+  track: TrackFunction;
+} & Pick<Logger, 'log'>;
 
 function trackAndLogFailed({
   editor_view_type,
@@ -205,7 +207,8 @@ export const runAIPipelineGeneration = (
       atlasAiService,
       pipelineBuilder,
       preferences,
-      logger: { track, log, mongoLogId },
+      logger: { log, mongoLogId },
+      track,
     }
   ) => {
     const {

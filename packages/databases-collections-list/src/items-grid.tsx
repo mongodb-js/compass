@@ -8,7 +8,7 @@ import {
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { NamespaceItemCardProps } from './namespace-card';
 import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';
@@ -145,9 +145,7 @@ export const ItemsGrid = <T extends Item>({
   onRefreshClick,
   renderItem: _renderItem,
 }: ItemsGridProps<T>): React.ReactElement => {
-  const { track } = useLoggerAndTelemetry(
-    'COMPASS-DATABASES-COLLECTIONS-LIST-UI'
-  );
+  const track = useTelemetry();
   const onViewTypeChange = useCallback(
     (newType) => {
       track('Switch View Type', { view_type: newType, item_type: itemType });
