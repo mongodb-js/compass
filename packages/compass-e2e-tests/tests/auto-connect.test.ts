@@ -17,7 +17,7 @@ const connectionStringUnreachable =
   'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
-describe('Automatically connecting from the command line', function () {
+describe.only('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
@@ -85,7 +85,6 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
-      firstRun: true,
     });
     try {
       await compass.browser.waitForConnectionResult('success');
@@ -104,7 +103,6 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
       noWaitForConnectionScreen: true,
-      firstRun: true,
     });
     try {
       await compass.browser.waitForConnectionResult('success');
@@ -123,9 +121,16 @@ describe('Automatically connecting from the command line', function () {
       const browser = compass.browser;
       await browser.waitForConnectionResult('success');
       await browser.disconnect();
+
+      // this is not the ideal check because by default the recent connections
+      // list doesn't exist either
       await browser
         .$(Selectors.Single.RecentConnections)
         .waitForDisplayed({ reverse: true });
+
+      // make sure when the welcome modal was closed it _definitely_ saved the
+      // showedNetworkOptIn setting before closing compass
+      await browser.pause(5000);
     } finally {
       await cleanup(compass);
     }
@@ -139,7 +144,6 @@ describe('Automatically connecting from the command line', function () {
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
-      firstRun: true,
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -161,7 +165,6 @@ describe('Automatically connecting from the command line', function () {
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
-      firstRun: true,
     });
     const { browser } = compass;
     try {
@@ -185,7 +188,6 @@ describe('Automatically connecting from the command line', function () {
     ];
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
-      firstRun: true,
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -200,7 +202,6 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs([
         `--file=${path.join(tmpdir, 'doesnotexist.json')}`,
       ]),
-      firstRun: true,
     });
     try {
       const error = await compass.browser.waitForConnectionResult('failure');
@@ -214,7 +215,6 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
-      firstRun: true,
     });
     try {
       const { browser } = compass;
@@ -244,7 +244,6 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
-      firstRun: true,
     });
     try {
       const { browser } = compass;
