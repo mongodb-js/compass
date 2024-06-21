@@ -60,7 +60,7 @@ const filterConnections = (
         ...(connection.connectionStatus === ConnectionStatus.Connected
           ? {
               databases: filterMatchesConnection
-                ? connection.databases
+                ? connection.databases.map((db) => ({ ...db, isMatch: true }))
                 : filteredDatabases,
             }
           : {}),
@@ -84,7 +84,7 @@ const filterDatabases = (
         ...db,
         isMatch: filterMatchesDatabase,
         collections: filterMatchesDatabase
-          ? db.collections
+          ? db.collections.map((coll) => ({ ...coll, isMatch: true }))
           : filteredCollections,
       });
     }
