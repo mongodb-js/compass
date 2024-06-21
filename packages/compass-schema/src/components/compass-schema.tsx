@@ -31,10 +31,12 @@ import {
 } from '@mongodb-js/compass-components';
 import type { configureActions } from '../actions';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfo,
+  useConnectionScopedTelemetry,
+} from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const rootStyles = css({
   width: '100%',
@@ -338,7 +340,7 @@ const nbsp = '\u00a0';
 const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
   const { atlasMetadata } = useConnectionInfo();
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   return (
     <Banner variant="info">
       <Body weight="medium">Looking for schema anti-patterns?</Body>
@@ -351,7 +353,7 @@ const PerformanceAdvisorBanner = () => {
       {atlasMetadata ? (
         <Link
           href={getAtlasPerformanceAdvisorLink(atlasMetadata)}
-          onClick={() => track('Performance Advisor Clicked')}
+          onClick={() => track('Performance Advisor Clicked', {})}
           hideExternalIcon
         >
           {title}

@@ -44,9 +44,9 @@ const QueryHistory = ({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (tab === 'favorite') {
-        track('Query History Favorites');
+        track('Query History Favorites', {});
       } else {
-        track('Query History Recent');
+        track('Query History Recent', {});
       }
     },
     [tab],

@@ -145,7 +145,7 @@ export const ItemsGrid = <T extends Item>({
   onRefreshClick,
   renderItem: _renderItem,
 }: ItemsGridProps<T>): React.ReactElement => {
-  const track = useTelemetry();
+  const track = useTelemetry(); // TODO: connections are not included here?
   const onViewTypeChange = useCallback(
     (newType) => {
       track('Switch View Type', { view_type: newType, item_type: itemType });

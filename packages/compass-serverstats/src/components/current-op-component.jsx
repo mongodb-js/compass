@@ -97,7 +97,7 @@ class CurrentOpComponent extends React.Component {
    * @param {Object} data - The row data.
    */
   showOperationDetails(data) {
-    this.props.track('CurrentOp showOperationDetails');
+    this.props.track('CurrentOp showOperationDetails', {});
     Actions.showOperationDetails(data);
   }
 

@@ -68,6 +68,7 @@ export type EventsPayload = {
   'Index Created': ConnectionScopePayload;
   'Index Dropped': ConnectionScopePayload;
   'Index Edited': ConnectionScopePayload;
+  'My Queries Search': ConnectionScopePayload;
   'New Connection': ConnectionScopePayload;
   'Performance Advisor Clicked': ConnectionScopePayload;
   'Performance Paused': ConnectionScopePayload;
@@ -100,7 +101,6 @@ export type EventsPayload = {
   'Autoupdate Dismissed': GeneralPayload;
   'Autoupdate Enabled': GeneralPayload;
   'My Queries Filter': GeneralPayload;
-  'My Queries Search': GeneralPayload;
   'My Queries Sort': GeneralPayload;
   'Theme Changed': GeneralPayload;
   'Error Fetching Attributes': GeneralPayload;

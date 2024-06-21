@@ -17,7 +17,7 @@ import { STAGE_WIZARD_USE_CASES } from './stage-wizard-use-cases';
 import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 import { UseCaseCard } from './stage-wizard-use-cases';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 const containerStyles = css({
   height: '100%',
@@ -78,7 +78,7 @@ export const AggregationSidePanel = ({
   onCloseSidePanel,
   onSelectUseCase,
 }: AggregationSidePanelProps) => {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
 

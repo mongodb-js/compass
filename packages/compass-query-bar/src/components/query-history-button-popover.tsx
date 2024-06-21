@@ -46,9 +46,9 @@ const QueryHistoryButtonPopover = ({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isOpen) {
-        track('Query History Opened');
+        track('Query History Opened', {});
       } else {
-        track('Query History Closed');
+        track('Query History Closed', {});
       }
     },
     [isOpen],

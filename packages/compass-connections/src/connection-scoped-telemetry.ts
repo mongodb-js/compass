@@ -4,7 +4,7 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoAccessLocator } from './provider';
 
-type ConnectionScopedTrackFunction = (
+export type ConnectionScopedTrackFunction = (
   event: Parameters<TrackFunction>[0],
   parameters: Omit<Parameters<TrackFunction>[1], 'connectionId'>
 ) => ReturnType<TrackFunction>;

@@ -41,7 +41,7 @@ class DetailViewComponent extends React.Component {
   }
 
   killOp() {
-    this.props.logger.track('DetailView killOp');
+    this.props.logger.track('DetailView killOp', {});
     Actions.killOp(this.state.data.opid);
     this.hideOperationDetails();
   }
@@ -50,7 +50,7 @@ class DetailViewComponent extends React.Component {
    * Fire the show operation detail action with the row data.
    */
   hideOperationDetails() {
-    this.props.logger.track('DetailView hideOperationDetails');
+    this.props.logger.track('DetailView hideOperationDetails', {});
     Actions.hideOperationDetails();
   }
 

@@ -6,7 +6,7 @@ import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { Logger } from '@mongodb-js/compass-logging';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionScopedTrackFunction } from '@mongodb-js/compass-connections/provider';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -153,7 +153,7 @@ async function getConnectionData({
 export function trackConnectionAttemptEvent(
   { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
   { debug }: Logger,
-  track: TrackFunction
+  track: ConnectionScopedTrackFunction
 ): void {
   try {
     const trackEvent = {
@@ -171,7 +171,7 @@ export function trackNewConnectionEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
   { debug }: Logger,
-  track: TrackFunction
+  track: ConnectionScopedTrackFunction
 ): void {
   try {
     const callback = async () => {
@@ -203,7 +203,7 @@ export function trackConnectionFailedEvent(
   connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
   { debug }: Logger,
-  track: TrackFunction
+  track: ConnectionScopedTrackFunction
 ): void {
   try {
     const callback = async () => {

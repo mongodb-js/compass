@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { Item } from '../stores/aggregations-queries-items';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 interface SelectState {
   database?: string;
@@ -72,7 +72,7 @@ const FilterSelect: React.FunctionComponent<{
 };
 
 function useSearchFilter(): [React.ReactElement, string] {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   const [search, setSearch] = useState('');
   const searchControls = useMemo(() => {
     return (
@@ -87,7 +87,7 @@ function useSearchFilter(): [React.ReactElement, string] {
         }}
         onBlur={() => {
           if (search.length > 0) {
-            track('My Queries Search');
+            track('My Queries Search', {});
           }
         }}
         spellCheck={false}

@@ -22,7 +22,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import type { BaseQuery } from '../../constants/query-properties';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
@@ -42,7 +42,7 @@ const RecentItem = ({
   query: RecentQuery;
   isReadonly: boolean;
 }) => {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);

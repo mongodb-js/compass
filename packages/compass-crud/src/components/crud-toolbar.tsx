@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   Body,
   DropdownMenuButton,
@@ -19,6 +18,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -138,7 +138,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   queryLimit,
   querySkip,
 }) => {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   const isImportExportEnabled = usePreference('enableImportExport');
 
   const displayedDocumentCount = useMemo(
@@ -147,7 +147,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   );
 
   const onClickRefreshDocuments = useCallback(() => {
-    track('Query Results Refreshed');
+    track('Query Results Refreshed', {});
     refreshDocuments();
   }, [refreshDocuments, track]);
 

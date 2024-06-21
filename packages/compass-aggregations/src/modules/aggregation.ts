@@ -364,7 +364,7 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   Actions
 > => {
   return (dispatch, getState, { track }) => {
-    track('Aggregation Canceled');
+    track('Aggregation Canceled', {});
     const {
       aggregation: { abortController },
     } = getState();

@@ -12,7 +12,7 @@ import {
 import { createView, changeViewName, close } from '../../modules/create-view';
 import type { CreateViewRootState } from '../../stores/create-view';
 import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { type ConnectionScopedTrackFunction } from '@mongodb-js/compass-connections/provider';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -31,7 +31,7 @@ type CreateViewModalProps = {
   pipeline?: unknown[];
   isRunning?: boolean;
   error: Error | null;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
 };
 
 class CreateViewModal extends PureComponent<CreateViewModalProps> {
@@ -113,6 +113,8 @@ const mapStateToProps = (state: CreateViewRootState) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
+
+// TODO: why doesn't this complain??
 const MappedCreateViewModal = withTelemetry(
   connect(mapStateToProps, {
     createView,

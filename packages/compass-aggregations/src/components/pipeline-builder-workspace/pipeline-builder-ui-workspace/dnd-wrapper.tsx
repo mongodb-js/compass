@@ -16,7 +16,7 @@ import {
 import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
 import type { PipelineBuilderUIWorkspaceProps } from '.';
 import type { DraggedUseCase } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 // Types
 type PipelineBuilderDndWrapperProps = {
@@ -47,7 +47,7 @@ const PipelineBuilderDndWrapper = ({
   onStageMoveEnd,
   onUseCaseDropped,
 }: PipelineBuilderDndWrapperProps) => {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
 
   const [draggedUseCase, setDraggedUseCase] = useState<DraggedUseCase | null>(
     null

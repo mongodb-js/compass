@@ -1702,7 +1702,7 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    this.track('Bulk Delete Opened');
+    this.track('Bulk Delete Opened', {});
 
     const PREVIEW_DOCS = 5;
 
@@ -1767,7 +1767,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    this.track('Bulk Delete Executed');
+    this.track('Bulk Delete Executed', {});
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();

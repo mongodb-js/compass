@@ -14,11 +14,11 @@ import {
 import type { RootState } from '../../modules';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { getPipelineStageOperatorsFromBuilderState } from '../../modules/pipeline-builder/builder-helpers';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 const useOnSubmitFeedback = (lastAIPipelineRequestId: string | null) => {
   const logger = useLogger('AI-PIPELINE-UI');
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
       const { log, mongoLogId } = logger;

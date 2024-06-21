@@ -27,6 +27,7 @@ import {
   ConnectionsManagerProvider,
   ConnectionsManager,
   type ConnectionInfo,
+  useConnectionScopedTelemetry,
 } from '@mongodb-js/compass-connections/provider';
 import type { DataService } from 'mongodb-data-service';
 import React, {
@@ -57,7 +58,6 @@ import {
   ExportConnectionsModal,
 } from '@mongodb-js/compass-connection-import-export';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 resetGlobalCSS();
 
@@ -221,7 +221,7 @@ function Home({
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const logger = useLogger('COMPASS-CONNECT-UI');
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
 
   const connectionsManager = useRef(
     new ConnectionsManager({
@@ -387,7 +387,7 @@ function Home({
 }
 
 function ThemedHome(props: HomeProps): ReturnType<typeof Home> {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   return (
     <CompassComponentsProvider
       onNextGuideGue={(cue) => {

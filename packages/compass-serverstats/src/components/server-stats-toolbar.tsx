@@ -9,10 +9,10 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 
 const serverStatsToolbarStyles = css({
   display: 'flex',
@@ -56,7 +56,7 @@ type ServerStatsToolbarProps = {
 };
 
 function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
-  const track = useTelemetry();
+  const track = useConnectionScopedTelemetry();
   const darkMode = useDarkMode();
 
   const [time, setTime] = useState('00:00:00');
@@ -72,9 +72,9 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
 
   const onPlayPauseClicked = useCallback(() => {
     if (isPaused) {
-      track('Performance Resumed');
+      track('Performance Resumed', {});
     } else {
-      track('Performance Paused');
+      track('Performance Paused', {});
     }
     setPaused(!isPaused);
     Actions.pause();

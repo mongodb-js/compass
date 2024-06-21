@@ -94,4 +94,7 @@ export {
 export * from './connection-info-provider';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
-export { useConnectionScopedTelemetry } from './connection-scoped-telemetry';
+export {
+  useConnectionScopedTelemetry,
+  type ConnectionScopedTrackFunction,
+} from './connection-scoped-telemetry';

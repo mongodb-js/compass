@@ -76,7 +76,7 @@ export function withTelemetry<
  *
  * @example
  * useTrackOnChange((track) => {
- *   if (isShellOpen) { track('Shell Opened') }
+ *   if (isShellOpen) { track('Shell Opened', {}) }
  * }, [isShellOpen], { skipOnMount: true });
  */
 export function useTrackOnChange(
