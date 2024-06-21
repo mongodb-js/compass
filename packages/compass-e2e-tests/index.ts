@@ -294,6 +294,9 @@ async function main() {
     ),
   });
 
+  // print the test order for debugging purposes and so we can tweak the groups later
+  console.log('test order', tests);
+
   tests.forEach((testPath: string) => {
     mocha.addFile(path.join(__dirname, testPath));
   });
