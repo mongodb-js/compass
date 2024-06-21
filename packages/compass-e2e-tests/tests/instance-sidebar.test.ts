@@ -102,7 +102,6 @@ describe('Instance sidebar', function () {
     // now search for something specific
     await browser.setValueVisible(Selectors.SidebarFilterInput, 'numbers');
 
-    // wait for exactly two items: The database and the collection.
     await browser.waitUntil(async () => {
       const treeItems = await browser.$$(Selectors.SidebarTreeItems);
       // connection, database, collection for multiple connections, otherwise just database and collection
