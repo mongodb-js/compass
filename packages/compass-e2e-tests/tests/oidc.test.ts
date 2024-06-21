@@ -321,7 +321,7 @@ describe('OIDC integration', function () {
     afterReauth = true;
     await browser.clickVisible(`${modal} ${cancelButton}`);
     const errorBanner = await browser.$(
-      '[data-testid="toast-instance-refresh-failed"]'
+      '[data-testid="toast-oidc-auth-failed"]'
     );
     await errorBanner.waitForDisplayed();
     expect(await errorBanner.getText()).to.include(
