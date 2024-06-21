@@ -111,31 +111,6 @@ describe('Automatically connecting from the command line', function () {
     }
   });
 
-  it('does not store the connection information as a recent connection', async function () {
-    const compass = await init(this.test?.fullTitle(), {
-      wrapBinary: positionalArgs([connectionStringSuccess]),
-      noWaitForConnectionScreen: true,
-      firstRun: true,
-    });
-    try {
-      const browser = compass.browser;
-      await browser.waitForConnectionResult('success');
-      await browser.disconnect();
-
-      // this is not the ideal check because by default the recent connections
-      // list doesn't exist either
-      await browser
-        .$(Selectors.Single.RecentConnections)
-        .waitForDisplayed({ reverse: true });
-
-      // make sure when the welcome modal was closed it _definitely_ saved the
-      // showedNetworkOptIn setting before closing compass
-      await browser.pause(5000);
-    } finally {
-      await cleanup(compass);
-    }
-  });
-
   it('fails with an unreachable URL', async function () {
     const args = [
       `--file=${path.join(tmpdir, 'exported.json')}`,
@@ -267,6 +242,32 @@ describe('Automatically connecting from the command line', function () {
       });
 
       await browser.waitForConnectionScreen();
+    } finally {
+      await cleanup(compass);
+    }
+  });
+
+  it('does not store the connection information as a recent connection', async function () {
+    const compass = await init(this.test?.fullTitle(), {
+      wrapBinary: positionalArgs([connectionStringSuccess]),
+      noWaitForConnectionScreen: true,
+      firstRun: true,
+    });
+    try {
+      const browser = compass.browser;
+      await browser.waitForConnectionResult('success');
+      await browser.disconnect();
+
+      // this is not the ideal check because by default the recent connections
+      // list doesn't exist either
+      await browser
+        .$(Selectors.Single.RecentConnections)
+        .waitForDisplayed({ reverse: true });
+
+      // make sure when the welcome modal was closed it _definitely_ saved the
+      // showedNetworkOptIn setting before closing compass
+      await browser.setFeature('showedNetworkOptIn', true);
+      await browser.pause(5000);
     } finally {
       await cleanup(compass);
     }
