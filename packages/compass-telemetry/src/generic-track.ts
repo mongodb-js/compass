@@ -2,7 +2,7 @@ import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type {
   TrackFunction,
   TelemetryEvent,
-  TelemetryEventParameters,
+  AsyncTrackFunction,
 } from './types';
 
 export interface TelemetryPreferences {
@@ -20,11 +20,12 @@ export const createTrack = ({
   logger: { log, debug },
   preferences,
 }: TelemetryServiceOptions & { logger: Logger }) => {
-  const trackAsync = async (
+  const trackAsync: AsyncTrackFunction = async (
     event: TelemetryEvent,
     parameters:
-      | TelemetryEventParameters
-      | (() => Promise<TelemetryEventParameters>)
+      | undefined
+      | Record<string, any>
+      | (() => Promise<Record<string, any>>)
   ) => {
     // Note that this preferences check is mainly a performance optimization,
     // since the main process telemetry code also checks this preference value,
@@ -62,14 +63,9 @@ export const createTrack = ({
     sendTrack(event, parameters || {});
   };
 
-  const track: TrackFunction = (
-    event: TelemetryEvent,
-    parameters:
-      | TelemetryEventParameters
-      | (() => Promise<TelemetryEventParameters>)
-  ) => {
+  const track: TrackFunction = (...args) => {
     void Promise.resolve()
-      .then(() => trackAsync(event, parameters))
+      .then(() => trackAsync(...args))
       .catch((error) => debug('track failed', error));
   };
 
