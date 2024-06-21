@@ -2,8 +2,10 @@ import type { ChangeEvent } from 'react';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FormModal, TextInput } from '@mongodb-js/compass-components';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  type ConnectionScopedTrackFunction,
+  withConnectionScopedTelemetry,
+} from '@mongodb-js/compass-connections/provider';
 
 export interface SavingPipelineModalProps {
   isOpen: boolean;
@@ -14,7 +16,7 @@ export interface SavingPipelineModalProps {
   savingPipelineNameChanged: (v: string) => void;
   saveCurrentPipeline: () => void;
   clonePipeline: () => void;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
 }
 
 /**
@@ -94,4 +96,4 @@ class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
   }
 }
 
-export default withTelemetry(SavingPipelineModal);
+export default withConnectionScopedTelemetry(SavingPipelineModal);

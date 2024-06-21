@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
@@ -28,6 +27,10 @@ import type {
 } from '../../modules/validation';
 import { checkValidator } from '../../modules/validation';
 import { ActionSelector, LevelSelector } from '../validation-selectors';
+import {
+  ConnectionScopedTrackFunction,
+  withConnectionScopedTelemetry,
+} from '@mongodb-js/compass-connections/provider';
 
 const validationEditorStyles = css({
   padding: spacing[3],
@@ -116,7 +119,7 @@ export type ValidationEditorProps = {
   >;
   isEditable: boolean;
   darkMode?: boolean;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
 };
 
 /**
@@ -312,6 +315,6 @@ class ValidationEditor extends Component<ValidationEditorProps> {
   }
 }
 
-export default withTelemetry(
+export default withConnectionScopedTelemetry(
   withDarkMode<ValidationEditorProps>(ValidationEditor)
 );

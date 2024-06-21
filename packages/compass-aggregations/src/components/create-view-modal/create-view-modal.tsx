@@ -11,8 +11,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { createView, changeViewName, close } from '../../modules/create-view';
 import type { CreateViewRootState } from '../../stores/create-view';
-import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { type ConnectionScopedTrackFunction } from '@mongodb-js/compass-connections/provider';
+import {
+  type ConnectionScopedTrackFunction,
+  withConnectionScopedTelemetry,
+} from '@mongodb-js/compass-connections/provider';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -115,7 +117,7 @@ const mapStateToProps = (state: CreateViewRootState) => ({
  */
 
 // TODO: why doesn't this complain??
-const MappedCreateViewModal = withTelemetry(
+const MappedCreateViewModal = withConnectionScopedTelemetry(
   connect(mapStateToProps, {
     createView,
     changeViewName,

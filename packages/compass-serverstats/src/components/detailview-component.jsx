@@ -2,7 +2,9 @@ const React = require('react');
 const Actions = require('../actions');
 const { Button, Icon } = require('@mongodb-js/compass-components');
 const PropTypes = require('prop-types');
-const { withTelemetry } = require('@mongodb-js/compass-telemetry/provider');
+const {
+  withConnectionScopedTelemetry,
+} = require('@mongodb-js/compass-connections/provider');
 
 class DetailViewComponent extends React.Component {
   constructor(props) {
@@ -162,4 +164,4 @@ class DetailViewComponent extends React.Component {
 
 DetailViewComponent.displayName = 'DetailViewComponent';
 
-module.exports = withTelemetry(DetailViewComponent);
+module.exports = withConnectionScopedTelemetry(DetailViewComponent);
