@@ -761,8 +761,9 @@ describe('Collection export', function () {
     });
 
     it('aborts an in progress CSV export when disconnected', async function () {
-      // TODO: this is not working in multiple connections and the code below
-      // checking for the sidebar title to go away is wrong in that world anyway
+      // TODO(COMPASS-8008): this is not working in multiple connections and the
+      // code below checking for the sidebar title to go away is wrong in that
+      // world anyway
       if (TEST_MULTIPLE_CONNECTIONS) {
         this.skip();
       }
