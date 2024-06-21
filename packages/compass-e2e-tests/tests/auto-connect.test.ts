@@ -17,7 +17,7 @@ const connectionStringUnreachable =
   'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
 
-describe.only('Automatically connecting from the command line', function () {
+describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
   let i = 0;
 
