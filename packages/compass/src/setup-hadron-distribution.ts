@@ -32,6 +32,26 @@ if (
   // type `browser` indicates that we are in the main electron process
   process.type === 'browser'
 ) {
+  if (process.platform === 'linux') {
+    // For Linux users with drivers that are avoided by Chromium we disable the
+    // GPU check to attempt to bypass the disabled WebGL settings.
+    app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
+
+    /**
+     * Default password store detection in Chromium relies on pre-defined set of
+     * values for XDG_CURRENT_DESKTOP env var. Even if the store is installed
+     * correctly, Chromium might fail to detect that. To try to work around that
+     * we explicitly set password-store to gnome-libsecret for any linux
+     * platform (we list gnome-keyring as a dependency for all compass
+     * installers on linux)
+     *
+     * @see {@link https://github.com/microsoft/vscode/issues/185212#issuecomment-1593271415}
+     */
+    if (app.commandLine.hasSwitch('password-store') === false) {
+      app.commandLine.appendSwitch('gnome-libsecret');
+    }
+  }
+
   // Name and version are setup outside of Application and before anything else
   // so that if uncaught exception happens we already show correct name and
   // version
