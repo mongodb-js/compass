@@ -164,7 +164,11 @@ export const openStoredPipeline = (
  */
 export const saveCurrentPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder, pipelineStorage, track }) => {
+  async (
+    dispatch,
+    getState,
+    { pipelineBuilder, pipelineStorage, track, connectionInfoAccess }
+  ) => {
     if (getState().id === '') {
       dispatch(createId());
     }
@@ -209,6 +213,7 @@ export const saveCurrentPipeline =
       id: savedPipeline.id,
       num_stages: stagesLength,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
 
     dispatch(updatePipelineList());
@@ -216,10 +221,13 @@ export const saveCurrentPipeline =
 
 export const confirmOpenPipeline =
   (pipelineData: SavedPipeline): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { track }) => {
+  async (dispatch, getState, { track, connectionInfoAccess }) => {
     const isModified = getState().isModified;
     if (isModified) {
-      track('Screen', { name: 'restore_pipeline_modal' });
+      track('Screen', {
+        name: 'restore_pipeline_modal',
+        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
+      });
       const confirmed = await showConfirmation({
         title: 'Are you sure you want to open this pipeline?',
         description:
@@ -234,14 +242,22 @@ export const confirmOpenPipeline =
       id: pipelineData.id,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
       screen: 'aggregations',
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
     void dispatch(openStoredPipeline(pipelineData));
   };
 
 export const confirmDeletePipeline =
   (pipelineId: string): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineStorage, track }) => {
-    track('Screen', { name: 'delete_pipeline_modal' });
+  async (
+    dispatch,
+    getState,
+    { pipelineStorage, track, connectionInfoAccess }
+  ) => {
+    track('Screen', {
+      name: 'delete_pipeline_modal',
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
+    });
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this pipeline?',
       description:
@@ -256,6 +272,7 @@ export const confirmDeletePipeline =
       id: pipelineId,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
       screen: 'aggregations',
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
     await pipelineStorage?.delete(pipelineId);
     dispatch(updatePipelineList());

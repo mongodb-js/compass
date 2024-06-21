@@ -76,11 +76,12 @@ export default function reducer(
 export const enableFocusMode = (
   stageIndex: number
 ): PipelineBuilderThunkAction<void, FocusModeEnabledAction> => {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, getState, { track, connectionInfoAccess }) => {
     track('Focus Mode Opened', {
       num_stages: pipelineFromStore(
         getState().pipelineBuilder.stageEditor.stages
       ).length,
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
     dispatch({
       type: ActionTypes.FocusModeEnabled,
@@ -93,7 +94,7 @@ export const disableFocusMode = (): PipelineBuilderThunkAction<
   void,
   FocusModeDisabledAction
 > => {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, getState, { track, connectionInfoAccess }) => {
     const state = getState();
     track('Focus Mode Closed', {
       num_stages: pipelineFromStore(state.pipelineBuilder.stageEditor.stages)
@@ -101,6 +102,7 @@ export const disableFocusMode = (): PipelineBuilderThunkAction<
       duration: Number(
         (Date.now() - (state.focusMode.openedAt ?? 0)).toFixed(1)
       ),
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
     dispatch({ type: ActionTypes.FocusModeDisabled });
   };
