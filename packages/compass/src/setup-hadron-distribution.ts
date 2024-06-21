@@ -48,7 +48,7 @@ if (
      * @see {@link https://github.com/microsoft/vscode/issues/185212#issuecomment-1593271415}
      */
     if (app.commandLine.hasSwitch('password-store') === false) {
-      app.commandLine.appendSwitch('gnome-libsecret');
+      app.commandLine.appendSwitch('password-store', 'gnome-libsecret');
     }
   }
 
