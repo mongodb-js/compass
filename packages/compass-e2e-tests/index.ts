@@ -48,12 +48,6 @@ for (const arg of process.argv) {
 let metricsClient: MongoClient;
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
-const LAST_TESTS = [
-  'tests/atlas-login.test.ts',
-  'tests/auto-connect.test.ts',
-  'tests/intercom.test.ts',
-  'tests/logging.test.ts',
-];
 
 let compassWeb: ChildProcessWithoutNullStreams;
 
@@ -282,17 +276,7 @@ async function main() {
   // will also get the slow first run experience for no good reason unless it is
   // the time-to-first-query.ts test.
   // So yeah.. this is a bit of a micro optimisation.
-  const tests = [
-    FIRST_TEST,
-    ...rawTests.filter((t) => t !== FIRST_TEST && !LAST_TESTS.includes(t)),
-    // Tests that ask for firstRun: true (ie. re-display the welcome page) can
-    // mess with other tests if they fail just right because they won't close
-    // the welcome modal and then subsequent tests get tripped up. So just run
-    // them at the end and then we get fewer cascading failures when they fail.
-    // Not ideal, but we can't really force the welcome page to not display AND
-    // test the expected first run behaviour at the same time.
-    ...rawTests.filter((t) => LAST_TESTS.includes(t)),
-  ];
+  const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
 
   // Ensure the insert-data mocha hooks are run.
   tests.unshift(path.join('helpers', 'insert-data.ts'));
