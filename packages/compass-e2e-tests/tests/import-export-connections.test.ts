@@ -213,15 +213,18 @@ describe('Connection Import / Export', function () {
         );
         try {
           const { browser } = compass;
-          if (!TEST_MULTIPLE_CONNECTIONS) {
-            await browser.selectConnection(favoriteName);
-
+          if (TEST_MULTIPLE_CONNECTIONS) {
             await browser.selectConnectionMenuItem(
               favoriteName,
               Selectors.Multiple.RemoveConnectionItem
             );
           } else {
-            Selectors.Single.RemoveConnectionItem;
+            await browser.selectConnection(favoriteName);
+
+            await browser.selectConnectionMenuItem(
+              favoriteName,
+              Selectors.Single.RemoveConnectionItem
+            );
           }
           await waitForConnections();
         } finally {
