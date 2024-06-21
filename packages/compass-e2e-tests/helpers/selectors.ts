@@ -1298,3 +1298,6 @@ export const DisconnectAtlasAccountButton = 'button=Log Out';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
 export const AgreeAndContinueButton = 'button=Agree and continue';
+
+// Any toast
+export const AnyToastDismissButton = '[data-testid="lg-toast-dismiss-button"]';

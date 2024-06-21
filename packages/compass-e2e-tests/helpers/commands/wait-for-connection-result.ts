@@ -35,4 +35,10 @@ export async function waitForConnectionResult(
   if (connectionStatus === 'failure') {
     return await element.getText();
   }
+
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    await browser
+      .$(Selectors.ConnectionModal)
+      .waitForDisplayed({ reverse: true });
+  }
 }
