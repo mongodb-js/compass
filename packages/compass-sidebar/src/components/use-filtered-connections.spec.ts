@@ -541,6 +541,123 @@ describe('useFilteredConnections', function () {
       });
     });
 
+    context(
+      'and filter matches items at both connection and database levels',
+      function () {
+        const mockedConnections: SidebarConnection[] = [
+          {
+            name: 'connected_connection_ready_1',
+            connectionInfo: connectedConnection1,
+            connectionStatus: ConnectionStatus.Connected,
+            isReady: true,
+            isWritable: true,
+            isPerformanceTabSupported: true,
+            isDataLake: false,
+            databases: [
+              {
+                _id: 'db_ready_1_1',
+                name: 'db_ready_1_1',
+                collections: [
+                  {
+                    _id: 'coll_ready_1_1',
+                    name: 'coll_ready_1_1',
+                    type: 'collection',
+                    sourceName: '',
+                    pipeline: [],
+                  },
+                ],
+                collectionsLength: 1,
+                collectionsStatus: 'ready',
+              },
+              {
+                _id: 'db_ready_1_2',
+                name: 'db_ready_1_2',
+                collections: [
+                  {
+                    _id: 'coll_ready_1_2',
+                    name: 'coll_ready_1_2',
+                    type: 'collection',
+                    sourceName: '',
+                    pipeline: [],
+                  },
+                ],
+                collectionsLength: 1,
+                collectionsStatus: 'ready',
+              },
+            ],
+            databasesStatus: 'ready',
+            databasesLength: 2,
+          },
+          {
+            name: 'connected_connection_2',
+            connectionInfo: connectedConnection2,
+            connectionStatus: ConnectionStatus.Connected,
+            isReady: true,
+            isWritable: true,
+            isPerformanceTabSupported: true,
+            isDataLake: false,
+            databases: [
+              {
+                _id: 'db_2',
+                name: 'db_2',
+                collections: [
+                  {
+                    _id: 'coll_2',
+                    name: 'coll_2',
+                    type: 'collection',
+                    sourceName: '',
+                    pipeline: [],
+                  },
+                ],
+                collectionsLength: 1,
+                collectionsStatus: 'ready',
+              },
+            ],
+            databasesStatus: 'ready',
+            databasesLength: 1,
+          },
+          {
+            name: 'disconnected_connection_1',
+            connectionStatus: ConnectionStatus.Disconnected,
+            connectionInfo: disconnectedConnection,
+          },
+        ];
+        it('should include the matched connection item and retain all of the database items of the matched connection', async function () {
+          const { result } = renderHookWithContext(useFilteredConnections, {
+            initialProps: {
+              connections: mockedConnections,
+              filterRegex: new RegExp('ready_1', 'i'), // matches the first connection and its databases
+              fetchAllCollections: fetchAllCollectionsStub,
+              onDatabaseExpand: onDatabaseExpandStub,
+            },
+          });
+
+          await waitFor(() => {
+            expect(result.current.filtered).to.be.deep.equal([
+              mockedConnections[0],
+            ]);
+          });
+        });
+
+        it('should include the matched database item and retain all of the collection items of the matched database', async function () {
+          const { result } = renderHookWithContext(useFilteredConnections, {
+            initialProps: {
+              connections: mockedConnections,
+              filterRegex: new RegExp('db_2', 'i'), // matches the first connection and its databases
+              fetchAllCollections: fetchAllCollectionsStub,
+              onDatabaseExpand: onDatabaseExpandStub,
+            },
+          });
+
+          await waitFor(() => {
+            expect(result.current.filtered).to.be.deep.equal([
+              mockedConnections[1],
+            ]);
+          });
+        });
+      }
+    );
+
     context('and items are already collapsed', function () {
       it('should expand the items temporarily', async function () {
         const { result, rerender } = renderHookWithContext(

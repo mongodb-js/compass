@@ -47,21 +47,21 @@ const filterConnections = (
 ): FilteredConnection[] => {
   const results: FilteredConnection[] = [];
   for (const connection of connections) {
-    const isMatch = regex.test(connection.name);
-    let childMatches: FilteredDatabase[] = [];
+    const filterMatchesConnection = regex.test(connection.name);
+    let filteredDatabases: FilteredDatabase[] = [];
     if (connection.connectionStatus === ConnectionStatus.Connected) {
-      childMatches = filterDatabases(connection.databases, regex);
+      filteredDatabases = filterDatabases(connection.databases, regex);
     }
 
-    if (isMatch || childMatches.length) {
+    if (filterMatchesConnection || filteredDatabases.length) {
       results.push({
         ...connection,
-        isMatch,
+        isMatch: filterMatchesConnection,
         ...(connection.connectionStatus === ConnectionStatus.Connected
           ? {
-              databases: childMatches.length
-                ? childMatches
-                : connection.databases,
+              databases: filterMatchesConnection
+                ? connection.databases
+                : filteredDatabases,
             }
           : {}),
       });
@@ -76,14 +76,16 @@ const filterDatabases = (
 ): FilteredDatabase[] => {
   const results: FilteredDatabase[] = [];
   for (const db of databases) {
-    const isMatch = regex.test(db.name);
-    const childMatches = filterCollections(db.collections, regex);
+    const filterMatchesDatabase = regex.test(db.name);
+    const filteredCollections = filterCollections(db.collections, regex);
 
-    if (isMatch || childMatches.length) {
+    if (filterMatchesDatabase || filteredCollections.length) {
       results.push({
         ...db,
-        isMatch,
-        collections: childMatches.length ? childMatches : db.collections,
+        isMatch: filterMatchesDatabase,
+        collections: filterMatchesDatabase
+          ? db.collections
+          : filteredCollections,
       });
     }
   }
