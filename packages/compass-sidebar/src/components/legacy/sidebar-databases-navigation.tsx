@@ -45,14 +45,16 @@ const filterDatabases = (
 ): FilteredDatabase[] => {
   const results: FilteredDatabase[] = [];
   for (const db of databases) {
-    const isMatch = regex.test(db.name);
-    const childMatches = filterCollections(db.collections, regex);
+    const filterMatchesDatabase = regex.test(db.name);
+    const filteredCollections = filterCollections(db.collections, regex);
 
-    if (isMatch || childMatches.length) {
+    if (filterMatchesDatabase || filteredCollections.length) {
       results.push({
         ...db,
-        isMatch,
-        collections: childMatches.length ? childMatches : db.collections,
+        isMatch: filterMatchesDatabase,
+        collections: filterMatchesDatabase
+          ? db.collections
+          : filteredCollections,
       });
     }
   }
