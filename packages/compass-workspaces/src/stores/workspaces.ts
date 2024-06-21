@@ -640,22 +640,23 @@ export const openWorkspace = (
 ): WorkspacesThunkAction<void, OpenWorkspaceAction | SelectTabAction> => {
   return (dispatch, getState) => {
     const oldTabs = getState().tabs;
-    const newTab = getInitialTabState(workspaceOptions);
-
-    const existingTabIndex = getState().tabs.findIndex((tab) => {
-      return isWorkspaceEqual(tab, newTab);
-    });
-
-    if (existingTabIndex !== -1) {
-      dispatch(selectTab(existingTabIndex));
-      return;
-    }
 
     let forceNewTab: boolean | undefined;
 
     // This action will potentially replace existing tab content, check if we
     // are allowed to close the tab
     if (!tabOptions?.newTab) {
+      const newTab = getInitialTabState(workspaceOptions);
+
+      const existingTabIndex = getState().tabs.findIndex((tab) => {
+        return isWorkspaceEqual(tab, newTab);
+      });
+
+      if (existingTabIndex !== -1) {
+        dispatch(selectTab(existingTabIndex));
+        return;
+      }
+
       const toReplace =
         getState().tabs[tabOptions?.atIndex ?? getActiveTabIndex(getState())];
 
