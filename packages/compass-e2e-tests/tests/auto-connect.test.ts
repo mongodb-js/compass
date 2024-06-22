@@ -263,11 +263,6 @@ describe('Automatically connecting from the command line', function () {
       await browser
         .$(Selectors.Single.RecentConnections)
         .waitForDisplayed({ reverse: true });
-
-      // make sure when the welcome modal was closed it _definitely_ saved the
-      // showedNetworkOptIn setting before closing compass
-      await browser.setFeature('showedNetworkOptIn', true);
-      await browser.pause(5000);
     } finally {
       await cleanup(compass);
     }
