@@ -1015,19 +1015,19 @@ export async function init(
     console.error(err?.stack);
   }
 
-  if (!TEST_COMPASS_WEB) {
-    await browser.setFeature(
-      'enableNewMultipleConnectionSystem',
-      TEST_MULTIPLE_CONNECTIONS
-    );
-  }
-
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
   }
 
   if (!opts.noWaitForConnectionScreen) {
     await browser.waitForConnectionScreen();
+  }
+
+  if (!TEST_COMPASS_WEB) {
+    await browser.setFeature(
+      'enableNewMultipleConnectionSystem',
+      TEST_MULTIPLE_CONNECTIONS
+    );
   }
 
   return compass;
