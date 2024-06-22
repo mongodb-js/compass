@@ -8,7 +8,10 @@ import {
   Body,
   BannerVariant,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const modalBodyStyles = css({
   marginTop: spacing[3],
@@ -36,8 +39,7 @@ function NonGenuineWarningModal({
   }, [toggleIsVisible]);
 
   useTrackOnChange(
-    'COMPASS-SIDEBAR-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (isVisible) {
         track('Screen', { name: 'non_genuine_mongodb_modal' });
       }

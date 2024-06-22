@@ -10,14 +10,12 @@ import { cloneDeep, merge } from 'lodash';
 import { UUID } from 'bson';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 
-const { debug, mongoLogId, log } = createLoggerAndTelemetry(
-  'COMPASS-CONNECTIONS'
-);
+const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
 function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (

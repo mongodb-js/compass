@@ -17,7 +17,6 @@ import {
   spacing,
   createElectronFileInputBackend,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import {
   closeExport,
@@ -37,6 +36,10 @@ import { queryHasProjection } from '../utils/query-has-projection';
 import { FieldsToExportOptions } from './export-field-options';
 import type { ExportJSONFormat } from '../export/export-json';
 import { JSONFileTypeOptions } from './export-json-format-options';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 type ExportFileTypes = 'json' | 'csv';
 
@@ -146,8 +149,7 @@ function ExportModal({
   ] = useExport();
 
   useTrackOnChange(
-    'COMPASS-IMPORT-EXPORT-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (isOpen) {
         track('Screen', { name: 'export_modal' });
       }

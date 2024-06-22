@@ -37,7 +37,7 @@ const tabStyles = css({
   overflow: 'hidden',
 
   // leave space so the active and other tabs line up
-  borderTop: '4px solid transparent',
+  paddingTop: spacing[100],
 
   backgroundColor: 'var(--workspace-tab-background-color)',
   color: 'var(--workspace-tab-color)',
@@ -110,12 +110,16 @@ const tabDarkThemeStyles = css({
 const selectedTabStyles = css({
   color: 'var(--workspace-tab-selected-color)',
   backgroundColor: 'var(--workspace-tab-selected-background-color)',
-  borderTopColor: 'var(--workspace-tab-selected-border-color)',
   boxShadow: 'inset -1px 0 0 0 var(--workspace-tab-border-color)',
 
   '&:hover': {
     cursor: 'default',
   },
+});
+
+const selectedThemedTabStyles = css({
+  borderTop: `${spacing[100]}px solid var(--workspace-tab-selected-border-color)`,
+  paddingTop: 0,
 });
 
 const draggingTabStyles = css({
@@ -170,15 +174,11 @@ const tabSubtitleStyles = css({
 });
 
 const closeButtonStyles = css({
-  transition: tabTransition,
-  transitionProperty: 'opacity, transform',
-  transform: 'translateY(44px)',
-  opacity: 0,
+  visibility: 'hidden',
 });
 
 const selectedCloseButtonStyles = css({
-  transform: 'translateY(0)',
-  opacity: 1,
+  visibility: 'visible',
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
@@ -244,6 +244,7 @@ function Tab({
         tabStyles,
         themeClass,
         isSelected && selectedTabStyles,
+        isSelected && tabTheme && selectedThemedTabStyles,
         isDragging && draggingTabStyles,
         subtitle && animatedSubtitleStyles
       )}

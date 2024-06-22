@@ -23,7 +23,8 @@ describe('CreateViewStore [Store]', function () {
   let deactivate: any;
   let globalAppRegistry: AppRegistry;
   let appRegistryEmitSpy: Sinon.SinonSpy;
-  const logger = { track() {} } as any;
+  const logger = {} as any;
+  const track = () => {};
   const createViewStub = Sinon.stub();
   const dataService = {
     createView: createViewStub,
@@ -46,6 +47,7 @@ describe('CreateViewStore [Store]', function () {
         globalAppRegistry,
         connectionsManager,
         logger,
+        track,
         workspaces,
       },
       createActivateHelpers()

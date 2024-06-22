@@ -8,9 +8,10 @@ import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { AutoUpdateManagerState } from './auto-update-manager';
-const { track } = createLoggerAndTelemetry('COMPASS-APP-MENU');
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createIpcTrack();
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 

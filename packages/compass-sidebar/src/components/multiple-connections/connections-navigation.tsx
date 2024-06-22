@@ -202,12 +202,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
-  } = useFilteredConnections(
+  } = useFilteredConnections({
     connections,
     filterRegex,
     fetchAllCollections,
-    onDatabaseExpand
-  );
+    onDatabaseExpand,
+  });
 
   const connectionListTitleActions =
     useMemo((): ItemAction<ConnectionListTitleActions>[] => {
