@@ -387,7 +387,7 @@ export const createIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track }) {
+  return async function (dispatch, getState, { track, connectionInfoAccess }) {
     const { namespace, dataService } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
@@ -423,6 +423,7 @@ export const createIndex = ({
     track('Index Created', {
       atlas_search: true,
       type,
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
 
     openToast('search-index-creation-in-progress', {
@@ -445,7 +446,7 @@ export const updateIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track }) {
+  return async function (dispatch, getState, { track, connectionInfoAccess }) {
     const {
       namespace,
       dataService,
@@ -466,6 +467,7 @@ export const updateIndex = ({
       dispatch({ type: ActionTypes.UpdateSearchIndexSucceeded });
       track('Index Edited', {
         atlas_search: true,
+        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       });
       openToast('search-index-update-in-progress', {
         title: `Your index ${name} is being updated.`,
@@ -563,7 +565,7 @@ export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track }) {
+  return async function (dispatch, getState, { track, connectionInfoAccess }) {
     const { namespace, dataService } = getState();
     if (!dataService) {
       return;
@@ -585,6 +587,7 @@ export const dropSearchIndex = (
       await dataService.dropSearchIndex(namespace, name);
       track('Index Dropped', {
         atlas_search: true,
+        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       });
       openToast('search-index-delete-in-progress', {
         title: `Your index ${name} is being deleted.`,

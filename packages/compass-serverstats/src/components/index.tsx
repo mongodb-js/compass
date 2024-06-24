@@ -21,10 +21,7 @@ import TopStore from '../stores/top-store';
 import { ServerStatsToolbar } from './server-stats-toolbar';
 import Actions from '../actions';
 import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 
@@ -119,7 +116,7 @@ function PerformancePanelMsgs() {
 function PerformanceComponent() {
   const eventDispatcher = useRef(realTimeDispatcher());
 
-  useTrackOnChange((track: TrackFunction) => {
+  useConnectionScopedTrackOnChange((track) => {
     track('Screen', { name: 'performance' });
   }, []);
 

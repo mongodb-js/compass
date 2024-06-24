@@ -15,7 +15,7 @@ import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { type ConnectionScopedTrackFunction } from '@mongodb-js/compass-connections/provider';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -113,7 +113,7 @@ type FailedResponseTrackMessage = {
   errorName: string;
   errorMessage: string;
   log: Logger['log'];
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   requestId: string;
 };
 
@@ -158,6 +158,7 @@ export const runAIQuery = (
       atlasAiService,
       logger: { log },
       track,
+      connectionInfoAccess,
     }
   ) => {
     const provideSampleDocuments =
@@ -170,6 +171,7 @@ export const runAIQuery = (
       user_input_length: userInput.length,
       has_sample_documents: provideSampleDocuments,
       request_id: requestId,
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     }));
 
     const {
@@ -355,6 +357,7 @@ export const runAIQuery = (
       editor_view_type: 'find',
       query_shape: Object.keys(generatedFields),
       request_id: requestId,
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     }));
 
     dispatch({

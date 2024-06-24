@@ -7,10 +7,7 @@ import FavoriteList from './favorite-list';
 
 import { connect } from '../../stores/context';
 import type { RootState } from '../../stores/query-bar-store';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 const containerStyle = css({
   display: 'flex',
@@ -41,8 +38,8 @@ const QueryHistory = ({
 }: QueryHistoryProps) => {
   const [tab, setTab] = useState<QueryHistoryTab>('recent');
 
-  useTrackOnChange(
-    (track: TrackFunction) => {
+  useConnectionScopedTrackOnChange(
+    (track) => {
       if (tab === 'favorite') {
         track('Query History Favorites', {});
       } else {

@@ -19,10 +19,7 @@ import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules/create-index';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -53,8 +50,8 @@ function CreateIndexModal({
     [closeCreateIndexModal]
   );
 
-  useTrackOnChange(
-    (track: TrackFunction) => {
+  useConnectionScopedTrackOnChange(
+    (track) => {
       if (isVisible) {
         track('Screen', { name: 'create_index_modal' });
         track('Index Create Opened', {

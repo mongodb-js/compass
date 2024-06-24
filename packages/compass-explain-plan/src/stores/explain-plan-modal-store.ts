@@ -176,7 +176,13 @@ export const openExplainPlanModal = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, track, logger: { log, mongoLogId } }
+    {
+      dataService,
+      preferences,
+      track,
+      logger: { log, mongoLogId },
+      connectionInfoAccess,
+    }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
 
@@ -236,6 +242,7 @@ export const openExplainPlanModal = (
         track('Aggregation Explained', {
           num_stages: pipeline.length,
           index_used: explainPlan.usedIndexes.length > 0,
+          connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
         });
       }
 
@@ -276,6 +283,7 @@ export const openExplainPlanModal = (
         track('Explain Plan Executed', {
           with_filter: Object.entries(filter).length > 0,
           index_used: explainPlan.usedIndexes.length > 0,
+          connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
         });
       }
 

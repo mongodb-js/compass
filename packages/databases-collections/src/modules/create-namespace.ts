@@ -99,9 +99,10 @@ export const open = (
   connectionId: string,
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
-  return (dispatch, _getState, { track }) => {
+  return (dispatch, _getState, { track, connectionInfoAccess }) => {
     track('Screen', {
       name: dbName ? 'create_collection_modal' : 'create_database_modal',
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
 
     dispatch({
@@ -359,6 +360,7 @@ export const createNamespace = (
       connectionsManager,
       logger: { debug },
       track,
+      connectionInfoAccess,
       workspaces,
     }
   ) => {
@@ -389,6 +391,7 @@ export const createNamespace = (
         is_clustered: !!data.options.clusteredIndex,
         is_fle2: !!data.options.encryptedFields,
         expires: !!data.options.expireAfterSeconds,
+        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       };
 
       track(`${kind} Created`, trackEvent);

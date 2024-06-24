@@ -29,9 +29,7 @@ export type EventsPayload = {
   'Bulk Update Opened': ConnectionScopePayload;
   'Collection Created': ConnectionScopePayload;
   'Connection Attempt': ConnectionScopePayload;
-  'Connection Exported': ConnectionScopePayload;
   'Connection Failed': ConnectionScopePayload;
-  'Connection Imported': ConnectionScopePayload;
   'CurrentOp showOperationDetails': ConnectionScopePayload;
   'Database Created': ConnectionScopePayload;
   'Delete Export Opened': ConnectionScopePayload;
@@ -79,12 +77,12 @@ export type EventsPayload = {
   'Schema Validation Edited': ConnectionScopePayload;
   'Schema Validation Updated': ConnectionScopePayload;
   'Shell Opened': ConnectionScopePayload;
+  'Shell ${event}': ConnectionScopePayload;
   'Switch View Type': ConnectionScopePayload;
   'Update Export Opened': ConnectionScopePayload;
   'Update Exported': ConnectionScopePayload;
   'View Updated': ConnectionScopePayload;
   // unsure
-  Screen: ConnectionScopePayload;
   'Focus Mode Closed': ConnectionScopePayload;
   'Focus Mode Opened': ConnectionScopePayload;
   'Guide Cue Dismissed': ConnectionScopePayload;
@@ -105,6 +103,9 @@ export type EventsPayload = {
   'Theme Changed': GeneralPayload;
   'Error Fetching Attributes': GeneralPayload;
   // unsure
+  Screen: ConnectionScopePayload; // this is a maybe // TODO: go through all screens and add connectionId if possible
+  'Connection Exported': GeneralPayload; // looks like this is actually export of multiple connections
+  'Connection Imported': GeneralPayload; // same as above
   'Keytar Secrets Migration Failed': GeneralPayload;
   'Signal Action Button Clicked': GeneralPayload;
   'Signal Closed': GeneralPayload;

@@ -19,10 +19,7 @@ import {
 } from '../modules/databases';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 const errorContainerStyles = css({
   padding: spacing[3],
@@ -106,7 +103,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     _onCreateDatabaseClick(connectionId);
   }, [connectionId, _onCreateDatabaseClick]);
 
-  useTrackOnChange((track: TrackFunction) => {
+  useConnectionScopedTrackOnChange((track) => {
     track('Screen', { name: 'databases' });
   }, []);
 

@@ -4,6 +4,8 @@ import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
+  type ConnectionInfoAccess,
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
@@ -21,6 +23,7 @@ export const CompassShellPlugin = registerHadronPlugin<
     track: () => TrackFunction;
     dataService: () => DataService;
     preferences: () => PreferencesAccess;
+    connectionInfoAccess: () => ConnectionInfoAccess;
   }
 >(
   {
@@ -33,6 +36,7 @@ export const CompassShellPlugin = registerHadronPlugin<
     track: createTelemetryLocator(),
     dataService: dataServiceLocator,
     preferences: preferencesLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 

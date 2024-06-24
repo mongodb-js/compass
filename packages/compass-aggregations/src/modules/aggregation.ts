@@ -309,13 +309,11 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       type: ActionTypes.RunAggregation,
       pipeline,
     });
-    track('Aggregation Executed', () =>
-      Promise.resolve({
-        num_stages: pipeline.length,
-        editor_view_type: mapPipelineModeToEditorViewType(getState()),
-        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
-      })
-    );
+    track('Aggregation Executed', () => ({
+      num_stages: pipeline.length,
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
+    }));
     return dispatch(fetchAggregationData());
   };
 };

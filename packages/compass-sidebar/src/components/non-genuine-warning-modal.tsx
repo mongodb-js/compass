@@ -12,6 +12,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const modalBodyStyles = css({
   marginTop: spacing[3],
@@ -29,9 +30,11 @@ const MODAL_TITLE = 'Non-Genuine MongoDB Detected';
 
 function NonGenuineWarningModal({
   isVisible,
+  connectionId,
   toggleIsVisible,
 }: {
   isVisible: boolean;
+  connectionId: ConnectionInfo['id'];
   toggleIsVisible: (visible: boolean) => void;
 }) {
   const onClose = useCallback(() => {
@@ -41,7 +44,7 @@ function NonGenuineWarningModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isVisible) {
-        track('Screen', { name: 'non_genuine_mongodb_modal' });
+        track('Screen', { name: 'non_genuine_mongodb_modal', connectionId });
       }
     },
     [isVisible],

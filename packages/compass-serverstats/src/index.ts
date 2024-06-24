@@ -4,6 +4,7 @@ import {
   dataServiceLocator,
   type DataServiceLocator,
   type DataService,
+  connectionInfoAccessLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import CurrentOpStore from './stores/current-op-store';
@@ -32,6 +33,7 @@ const PerformancePlugin = registerHadronPlugin(
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    connectionInfoAccess: connectionInfoAccessLocator,
     instance: mongoDBInstanceLocator,
   }
 );

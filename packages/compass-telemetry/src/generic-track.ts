@@ -20,13 +20,7 @@ export const createTrack = ({
   logger: { log, debug },
   preferences,
 }: TelemetryServiceOptions & { logger: Logger }) => {
-  const trackAsync: AsyncTrackFunction = async (
-    event: TelemetryEvent,
-    parameters:
-      | undefined
-      | Record<string, any>
-      | (() => Promise<Record<string, any>>)
-  ) => {
+  const trackAsync: AsyncTrackFunction = async (event, parameters) => {
     // Note that this preferences check is mainly a performance optimization,
     // since the main process telemetry code also checks this preference value,
     // so it is safe to fall back to 'true'.

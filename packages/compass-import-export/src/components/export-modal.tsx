@@ -36,10 +36,7 @@ import { queryHasProjection } from '../utils/query-has-projection';
 import { FieldsToExportOptions } from './export-field-options';
 import type { ExportJSONFormat } from '../export/export-json';
 import { JSONFileTypeOptions } from './export-json-format-options';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTrackOnChange } from '@mongodb-js/compass-telemetry/provider';
 
 type ExportFileTypes = 'json' | 'csv';
 
@@ -149,7 +146,7 @@ function ExportModal({
   ] = useExport();
 
   useTrackOnChange(
-    (track: TrackFunction) => {
+    (track) => {
       if (isOpen) {
         track('Screen', { name: 'export_modal' });
       }

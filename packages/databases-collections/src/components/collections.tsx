@@ -19,10 +19,7 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 const ERROR_WARNING = 'An error occurred while loading collections';
 
@@ -62,8 +59,8 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 
   const parsedNS = toNS(namespace);
 
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'collections' });
+  useConnectionScopedTrackOnChange((track) => {
+    track('Screen', { name: 'collections', connectionId });
   }, []);
 
   const onCollectionClick = useCallback(

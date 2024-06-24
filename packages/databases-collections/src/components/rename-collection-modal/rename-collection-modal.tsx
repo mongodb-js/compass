@@ -16,10 +16,7 @@ import {
   hideModal,
   clearError,
 } from '../../modules/rename-collection/rename-collection';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 export interface RenameCollectionModalProps {
   isVisible: boolean;
@@ -106,8 +103,8 @@ function RenameCollectionModal({
     }
   };
 
-  useTrackOnChange(
-    (track: TrackFunction) => {
+  useConnectionScopedTrackOnChange(
+    (track) => {
       if (isVisible) {
         track('Screen', { name: 'rename_collection_modal' });
       }

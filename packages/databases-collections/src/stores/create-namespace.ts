@@ -1,5 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
+  type ConnectionInfoAccess,
   ConnectionsManagerEvents,
   type ConnectionsManager,
   type DataService,
@@ -29,6 +30,7 @@ type NS = ReturnType<typeof toNS>;
 
 export type CreateNamespaceServices = {
   connectionsManager: ConnectionsManager;
+  connectionInfoAccess: ConnectionInfoAccess;
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
   logger: Logger;

@@ -10,10 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
-import {
-  useTrackOnChange,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 const mongoshVersion = `v${
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-var-requires
@@ -37,8 +34,8 @@ function ShellInfoModal({
   hideInfoModal: () => void;
   show: boolean;
 }) {
-  useTrackOnChange(
-    (track: TrackFunction) => {
+  useConnectionScopedTrackOnChange(
+    (track) => {
       if (show) {
         track('Screen', { name: 'shell_info_modal' });
       }

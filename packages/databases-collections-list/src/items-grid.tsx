@@ -8,7 +8,7 @@ import {
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionScopedTelemetry } from '@mongodb-js/compass-connections/provider';
 import type { NamespaceItemCardProps } from './namespace-card';
 import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';
@@ -145,7 +145,7 @@ export const ItemsGrid = <T extends Item>({
   onRefreshClick,
   renderItem: _renderItem,
 }: ItemsGridProps<T>): React.ReactElement => {
-  const track = useTelemetry(); // TODO: connections are not included here?
+  const track = useConnectionScopedTelemetry();
   const onViewTypeChange = useCallback(
     (newType) => {
       track('Switch View Type', { view_type: newType, item_type: itemType });

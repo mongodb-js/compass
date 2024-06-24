@@ -52,6 +52,7 @@ export function activatePlugin(
     const namespaceLabel = isCollection ? 'Collection' : 'Database';
     track('Screen', {
       name: isCollection ? 'drop_collection_modal' : 'drop_database_modal',
+      connectionId,
     });
     const confirmed = await showConfirmation({
       variant: 'danger',

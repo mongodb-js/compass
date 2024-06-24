@@ -13,6 +13,8 @@ import {
 } from './stores/store';
 import Indexes from './components/indexes/indexes';
 import {
+  type ConnectionInfoAccess,
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -32,6 +34,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
     instance: () => MongoDBInstance;
     logger: () => Logger;
     track: () => TrackFunction;
+    connectionInfoAccess: () => ConnectionInfoAccess;
   }
 >(
   {
@@ -45,6 +48,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
     track: createTelemetryLocator(),
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 
@@ -63,6 +67,7 @@ export const CreateIndexPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
     track: createTelemetryLocator(),
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 
@@ -76,5 +81,6 @@ export const DropIndexPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
     track: createTelemetryLocator(),
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );

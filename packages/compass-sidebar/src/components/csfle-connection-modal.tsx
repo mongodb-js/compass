@@ -14,6 +14,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { ConnectionInfo } from '@mongodb-js/connection-info';
 
 const toggleStyles = css({
   marginTop: spacing[3],
@@ -33,11 +34,13 @@ const csfleBannerStyles = css({
 export default function CSFLEConnectionModal({
   csfleMode,
   open,
+  connectionId,
   setOpen,
   setConnectionIsCSFLEEnabled,
 }: {
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   open: boolean;
+  connectionId: ConnectionInfo['id'];
   setOpen: (isOpen: boolean) => void;
   setConnectionIsCSFLEEnabled: (isEnabled: boolean) => void;
 }) {
@@ -55,7 +58,7 @@ export default function CSFLEConnectionModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (open) {
-        track('Screen', { name: 'csfle_connection_modal' });
+        track('Screen', { name: 'csfle_connection_modal', connectionId });
       }
     },
     [open],

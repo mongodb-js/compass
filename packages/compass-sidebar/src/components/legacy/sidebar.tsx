@@ -214,12 +214,14 @@ export function Sidebar({
         />
         <NonGenuineWarningModal
           isVisible={isGenuineMongoDBVisible}
+          connectionId={initialConnectionInfo.id}
           toggleIsVisible={(visible) =>
             toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, visible)
           }
         />
         <CSFLEConnectionModal
           open={isCSFLEModalVisible}
+          connectionId={initialConnectionInfo.id}
           setOpen={(open: boolean) => setIsCSFLEModalVisible(open)}
           csfleMode={csfleMode}
           setConnectionIsCSFLEEnabled={(enabled) =>
