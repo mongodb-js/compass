@@ -245,12 +245,6 @@ export class ConnectionsManager extends EventEmitter {
       });
 
       dataService.on?.('oidcAuthFailed', (error) => {
-        this.logger.warn(
-          'ConnectionsManager',
-          mongoLogId(1_001_000_317),
-          'Failed to authenticate with OIDC',
-          error
-        );
         openToast('oidc-auth-failed', {
           title: 'Failed to authenticate',
           description: error,
