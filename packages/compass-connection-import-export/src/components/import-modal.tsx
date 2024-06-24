@@ -35,7 +35,7 @@ export function ImportConnectionsModal({
   trackingProps,
 }: {
   open: boolean;
-  setOpen: (newOpen: boolean) => void;
+  setOpen: (newOpen: boolean, trackingProps?: Record<string, unknown>) => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
   const multipleConnectionsEnabled = usePreference(
@@ -57,7 +57,15 @@ export function ImportConnectionsModal({
     [openToast, setOpen]
   );
 
-  useOpenModalThroughIpc(open, setOpen, 'compass:open-import-connections');
+  const openModalThroughIpc = useCallback(() => {
+    setOpen(true, { context: 'menuBar' });
+  }, [setOpen]);
+
+  useOpenModalThroughIpc(
+    open,
+    openModalThroughIpc,
+    'compass:open-import-connections'
+  );
 
   const {
     onSubmit,

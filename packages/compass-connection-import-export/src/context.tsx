@@ -15,22 +15,32 @@ const ConnectionImportExportServiceContext =
 export const ConnectionImportExportProvider: React.FC = ({ children }) => {
   const [importModalState, setImportModalState] = useState<{
     opened: boolean;
+    // trackingProps are passed to deserializeConnections implementation in
+    // compass-main-storage. Known props passed are:
+    // { context: 'CLI' | 'connectionsList' | 'menuBar' }
     trackingProps?: Record<string, unknown>;
   }>({
     opened: false,
   });
   const [exportModalState, setExportModalState] = useState<{
     opened: boolean;
+    // trackingProps are passed to serializeConnections implementation in
+    // compass-main-storage. Known props passed are:
+    // { context: 'CLI' | 'connectionsList' | 'menuBar' }
     trackingProps?: Record<string, unknown>;
   }>({
     opened: false,
   });
 
-  const setImportModalOpen = useCallback((isOpened: boolean) => {
-    setImportModalState({
-      opened: isOpened,
-    });
-  }, []);
+  const setImportModalOpen = useCallback(
+    (isOpened: boolean, trackingProps?: Record<string, unknown>) => {
+      setImportModalState({
+        opened: isOpened,
+        trackingProps,
+      });
+    },
+    []
+  );
 
   const openConnectionImportModal = useCallback(
     (trackingProps?: Record<string, unknown>) => {
@@ -42,11 +52,15 @@ export const ConnectionImportExportProvider: React.FC = ({ children }) => {
     []
   );
 
-  const setExportModalOpen = useCallback((isOpened: boolean) => {
-    setExportModalState({
-      opened: isOpened,
-    });
-  }, []);
+  const setExportModalOpen = useCallback(
+    (isOpened: boolean, trackingProps?: Record<string, unknown>) => {
+      setExportModalState({
+        opened: isOpened,
+        trackingProps,
+      });
+    },
+    []
+  );
 
   const openConnectionExportModal = useCallback(
     (trackingProps?: Record<string, unknown>) => {
