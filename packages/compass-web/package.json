@@ -116,7 +116,7 @@
     "is-ip": "^5.0.1",
     "lodash": "^4.17.21",
     "mocha": "^10.2.0",
-    "mongodb": "^6.6.2",
+    "mongodb": "^6.7.0",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.21.0",
     "nyc": "^15.1.0",
