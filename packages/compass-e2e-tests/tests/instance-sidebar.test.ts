@@ -7,6 +7,7 @@ import {
   screenshotIfFailed,
   DEFAULT_CONNECTION_STRING,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -38,6 +39,12 @@ describe('Instance sidebar', function () {
 
   it('has a connection info modal with connection info', async function () {
     skipForWeb(this, "these actions don't exist in compass-web");
+
+    // TODO(COMPASS-8002: this has to click the active connection's actions in
+    // multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
 
     await browser.clickVisible(Selectors.SidebarShowActions);
     await browser.clickVisible(Selectors.SidebarActionClusterInfo);
@@ -95,10 +102,11 @@ describe('Instance sidebar', function () {
     // now search for something specific
     await browser.setValueVisible(Selectors.SidebarFilterInput, 'numbers');
 
-    // wait for exactly two items: The database and the collection.
     await browser.waitUntil(async () => {
       const treeItems = await browser.$$(Selectors.SidebarTreeItems);
-      return treeItems.length === 2;
+      // connection, database, collection for multiple connections, otherwise just database and collection
+      const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 3 : 2;
+      return treeItems.length === expectedCount;
     });
 
     const dbElement = await browser.$(Selectors.sidebarDatabase('test'));
@@ -123,6 +131,12 @@ describe('Instance sidebar', function () {
   });
 
   it('can create a database and drop it', async function () {
+    // TODO(COMPASS-8002): we have to click the button for the specific
+    // connection
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     // TODO(COMPASS-7086): flaky test
     this.retries(5);
 
@@ -180,6 +194,11 @@ describe('Instance sidebar', function () {
   });
 
   it('can refresh the databases', async function () {
+    // TODO(COMPASS-8002): it isn't currently possible to refresh for multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     const db = 'test';
     const coll = `coll_${Date.now()}`;
 

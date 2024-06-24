@@ -7,6 +7,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -76,6 +77,11 @@ describe('OIDC integration', function () {
 
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
+
+    // TODO(COMPASS-8004): skipping for multiple connections due to the use of shellEval for now
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
 
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
     if (
@@ -225,7 +231,7 @@ describe('OIDC integration', function () {
 
     {
       await browser.setValueVisible(
-        Selectors.ConnectionStringInput,
+        Selectors.ConnectionFormStringInput,
         connectionString
       );
       await browser.clickVisible(Selectors.ConnectButton);
@@ -254,6 +260,7 @@ describe('OIDC integration', function () {
     await browser.connectWithConnectionForm({
       hosts: [cluster.hostport],
       authMethod: 'MONGODB-OIDC',
+      connectionName: this.test?.fullTitle(),
     });
 
     const result: any = await browser.shellEval(
@@ -275,7 +282,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
@@ -306,7 +313,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
@@ -340,7 +347,7 @@ describe('OIDC integration', function () {
     await browser.doConnect();
     await browser.disconnect();
 
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -369,7 +376,7 @@ describe('OIDC integration', function () {
     );
 
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 
@@ -403,7 +410,7 @@ describe('OIDC integration', function () {
       browser = compass.browser;
     }
 
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnect();
 

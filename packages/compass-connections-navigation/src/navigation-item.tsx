@@ -110,7 +110,7 @@ export function NavigationItem({
     if (item.type === 'connection') {
       return {
         'data-connection-id': item.connectionInfo.id,
-        'data-connection-name': item.connectionInfo.favorite?.name,
+        'data-connection-name': item.name,
       };
     }
     if (item.type === 'database') {
