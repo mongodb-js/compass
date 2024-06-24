@@ -56,6 +56,9 @@ async function setup() {
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
+  const shouldTestMultipleConnections = process.argv.includes(
+    '--test-multiple-connections'
+  );
 
   // When working on the tests it is faster to just keep the server running.
   if (!disableStartStop) {
@@ -94,6 +97,13 @@ async function setup() {
         stdio: 'inherit',
       });
     }
+  }
+
+  if (shouldTestMultipleConnections) {
+    process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING = path.join(
+      __dirname,
+      'multiple-connections.yaml'
+    );
   }
 
   try {

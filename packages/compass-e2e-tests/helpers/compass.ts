@@ -1023,13 +1023,6 @@ export async function init(
     await browser.waitForConnectionScreen();
   }
 
-  if (!TEST_COMPASS_WEB) {
-    await browser.setFeature(
-      'enableNewMultipleConnectionSystem',
-      TEST_MULTIPLE_CONNECTIONS
-    );
-  }
-
   return compass;
 }
 
