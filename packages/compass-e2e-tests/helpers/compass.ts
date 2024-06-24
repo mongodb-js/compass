@@ -28,6 +28,8 @@ import semver from 'semver';
 import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 
+import * as Selectors from './selectors';
+
 const debug = Debug('compass-e2e-tests');
 
 const { gunzip } = zlib;
@@ -1013,6 +1015,16 @@ export async function init(
     await browser.setWindowSize(width, height);
   } catch (err: any) {
     console.error(err?.stack);
+  }
+
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    // Wait for the multiple connections sidebar to appear. The preference
+    // should be picked up due to the presence of
+    // process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING which means we should
+    // get the multiple connections sidebar.
+    await browser
+      .$(Selectors.Multiple.SidebarNewConnectionButton)
+      .waitForDisplayed();
   }
 
   if (compass.needsCloseWelcomeModal) {
