@@ -138,15 +138,18 @@ post:
 functions:
   clone:
     - command: git.get_project
+      type: system
       params:
         directory: src
 
   prepare:
     - command: git.get_project
+      type: system
       params:
         directory: src
 
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -162,6 +165,7 @@ functions:
           mkdir -p $NPM_TMP_DIR
 
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -186,6 +190,7 @@ functions:
 
   install:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -204,6 +209,7 @@ functions:
 
   bootstrap:
     - command: shell.exec
+      type: setup
       params:
         working_dir: src
         shell: bash
@@ -429,6 +435,10 @@ functions:
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
           SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
           SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+          # for Silk SBOM integration
+          SILK_ASSET_GROUP: ${silk_asset_group}
+          SILK_CLIENT_ID: ${silk_client_id}
+          SILK_CLIENT_SECRET: ${silk_client_secret}
         script: |
           set -e
 
@@ -558,11 +568,12 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           echo "Running E2E tests while collecting coverage..."
 
@@ -584,11 +595,12 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
           if [[ "$IS_WINDOWS" == "true" ]]; then
             export COMPASS_APP_PATH="$COMPASS_APP_PATH_ORIGINAL"
@@ -619,11 +631,12 @@ functions:
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           BROWSER_NAME: ${browser_name}
+          E2E_TEST_GROUPS: ${e2e_test_groups}
+          E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
           npm run --unsafe-perm --workspace compass-e2e-tests test-web
 
   test-connectivity:
@@ -815,6 +828,13 @@ functions:
     - command: s3.put
       params:
         <<: *save-artifact-params-public
+        local_file: src/.sbom/sbom-lite.json
+        remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom-lite.json
+        content_type: application/json
+        optional: true
+    - command: s3.put
+      params:
+        <<: *save-artifact-params-public
         local_file: src/.sbom/sbom.json
         remote_file: ${project}/${revision}_${revision_order_id}/${task_id}/sbom.json
         content_type: application/json
@@ -908,8 +928,10 @@ functions:
 
           echo
 
-          # Fails if the report failed and is not a patch, including release branches:
           if [[ "$EVERGREEN_IS_PATCH" != "true" ]]; then
+              # Run `snyk monitor` to keep `main` tracked
+            npx snyk monitor --org=dcd6db53-1532-4e65-beca-55db83f2cd52 --file=package-lock.json
+            # Fails if the report failed and is not a patch, including release branches:
             exit $return_code
           fi
 

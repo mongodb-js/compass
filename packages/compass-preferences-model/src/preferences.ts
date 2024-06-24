@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { type Logger } from '@mongodb-js/compass-logging';
 
 import type { ParsedGlobalPreferencesResult } from './global-config';
 import type {
@@ -44,7 +44,7 @@ type PreferenceSandboxPropertiesImpl = {
 };
 
 export class Preferences {
-  private _logger: LoggerAndTelemetry;
+  private _logger: Logger;
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _preferencesStorage: PreferencesStorage;
   private _globalPreferences: {
@@ -58,7 +58,7 @@ export class Preferences {
     globalPreferences,
     preferencesStorage = new InMemoryStorage(),
   }: {
-    logger: LoggerAndTelemetry;
+    logger: Logger;
     preferencesStorage: PreferencesStorage;
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>;
   }) {
@@ -99,7 +99,7 @@ export class Preferences {
   // Create a
   static async CreateSandbox(
     props: PreferenceSandboxProperties | undefined,
-    logger: LoggerAndTelemetry
+    logger: Logger
   ): Promise<Preferences> {
     const { user, global } = props
       ? (JSON.parse(props) as PreferenceSandboxPropertiesImpl)

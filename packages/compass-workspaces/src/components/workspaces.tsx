@@ -27,7 +27,7 @@ import {
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
@@ -101,7 +101,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
   onNamespaceNotFound,
 }) => {
-  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
+  const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionTitleById } = useConnectionRepository();

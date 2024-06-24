@@ -63,6 +63,22 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
+  const maxAllowedActiveConnections = usePreference(
+    'maximumNumberOfActiveConnections'
+  ) as number;
+  const { isConnectDisabled, connectDisabledDescription } = useMemo(() => {
+    const numberOfActiveConnections = connections.filter(
+      (connection) => connection.connectionStatus === ConnectionStatus.Connected
+    ).length;
+    return {
+      isConnectDisabled:
+        numberOfActiveConnections >= maxAllowedActiveConnections,
+      connectDisabledDescription: `Only ${maxAllowedActiveConnections} connection${
+        numberOfActiveConnections > 1 ? 's' : ''
+      } can be open at the same time. First disconnect from another cluster.`,
+    };
+  }, [maxAllowedActiveConnections, connections]);
+
   const id = useId();
 
   const treeData = useMemo(() => {
@@ -77,7 +93,15 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        onItemAction(item, 'select-connection');
+        if (item.connectionStatus === ConnectionStatus.Connected) {
+          onItemAction(item, 'select-connection');
+        } else if (
+          (item.connectionStatus === ConnectionStatus.Disconnected ||
+            item.connectionStatus === ConnectionStatus.Failed) &&
+          !isConnectDisabled
+        ) {
+          onItemAction(item, 'connection-connect');
+        }
       } else if (item.type === 'database') {
         onItemAction(item, 'select-database');
       } else {
@@ -88,7 +112,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction]
+    [onItemAction, isConnectDisabled]
   );
 
   const activeItemId = useMemo(() => {
@@ -113,34 +137,34 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'placeholder':
           return [];
         case 'connection': {
-          const isFavorite =
-            item.connectionInfo?.savedConnectionType === 'favorite';
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
-              hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
-              isFavorite,
+              connectionInfo: item.connectionInfo,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
           } else {
             return notConnectedConnectionItemActions({
               connectionInfo: item.connectionInfo,
+              isConnectDisabled,
+              connectDisabledTooltip: connectDisabledDescription,
             });
           }
         }
         case 'database':
           return databaseItemActions({
-            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
           });
         default:
           return collectionItemActions({
-            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
             type: item.type,
             isRenameCollectionEnabled,
           });
       }
     },
-    [isRenameCollectionEnabled]
+    [isRenameCollectionEnabled, isConnectDisabled, connectDisabledDescription]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';

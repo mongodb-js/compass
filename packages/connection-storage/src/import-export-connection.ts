@@ -6,11 +6,11 @@ import type {
 } from '@mongodb-js/connection-info';
 import { extractSecrets, mergeSecrets } from '@mongodb-js/connection-info';
 import { Decrypter, Encrypter } from './encrypt';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry(
-  'COMPASS-CONNECTION-IMPORT-EXPORT'
-);
+const { log, mongoLogId } = createLogger('COMPASS-CONNECTION-IMPORT-EXPORT');
+const track = createIpcTrack();
 
 const kCurrentVersion = 1;
 const kFileTypeDescription = 'Compass Connections';
