@@ -54,17 +54,24 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
-export function withTelemetry<
-  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
->(ReactComponent: T): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {
+function withTelemetry<
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any },
+  TTrackFunction = TrackFunction
+>(
+  ReactComponent: T,
+  trackGetter?: () => TTrackFunction
+): React.FunctionComponent<Omit<FirstArgument<T>, 'track'>> {
   const WithTelemetry = (
     props: Omit<FirstArgument<T>, 'track'> & React.Attributes
   ) => {
-    const track = useTelemetry();
+    const trackGetterRef = useRef(trackGetter ?? useTelemetry);
+    const track = trackGetterRef.current();
     return React.createElement(ReactComponent, { ...props, track });
   };
   return WithTelemetry;
 }
+
+export { withTelemetry };
 
 /**
  * Hook that allows to track telemetry events as a side effect of dependencies changing.
@@ -79,14 +86,16 @@ export function withTelemetry<
  *   if (isShellOpen) { track('Shell Opened', {}) }
  * }, [isShellOpen], { skipOnMount: true });
  */
-export function useTrackOnChange(
-  onChange: (track: TrackFunction) => void,
+export function useTrackOnChangeGeneric<TTrackFunction = TrackFunction>(
+  onChange: (track: TTrackFunction) => void,
   dependencies: unknown[],
-  options: { skipOnMount: boolean } = { skipOnMount: false }
+  options: { skipOnMount: boolean } = { skipOnMount: false },
+  trackGetter: () => TTrackFunction
 ) {
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
-  const track = useTelemetry();
+  const trackGetterRef = useRef(trackGetter);
+  const track = trackGetterRef.current();
   const initialRef = useRef<boolean>(true);
   React.useEffect(() => {
     if (options.skipOnMount && initialRef.current) {
@@ -95,6 +104,19 @@ export function useTrackOnChange(
     }
     onChangeRef.current(track);
   }, [...dependencies, track, options.skipOnMount]);
+}
+
+export function useTrackOnChange(
+  onChange: (track: TrackFunction) => void,
+  dependencies: unknown[],
+  options?: { skipOnMount: boolean }
+) {
+  return useTrackOnChangeGeneric<TrackFunction>(
+    onChange,
+    dependencies,
+    options,
+    useTelemetry
+  );
 }
 
 export type { TrackFunction };
