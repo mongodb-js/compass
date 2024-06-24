@@ -28,8 +28,6 @@ import semver from 'semver';
 import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 
-import * as Selectors from './selectors';
-
 const debug = Debug('compass-e2e-tests');
 
 const { gunzip } = zlib;
@@ -989,6 +987,20 @@ export async function init(
 ): Promise<Compass> {
   name = pathName(name ?? formattedDate());
 
+  // Use the multiple connections feature flag when testing multiple connections
+  // so that compass starts up with it already enabled. But be careful not to
+  // override the env var because there are tests that set it.
+  if (
+    TEST_MULTIPLE_CONNECTIONS &&
+    !process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING
+  ) {
+    process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING = path.join(
+      __dirname,
+      '..',
+      'multiple-connections.yaml'
+    );
+  }
+
   // Unfortunately mocha's type is that this.test inside a test or hook is
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
@@ -1015,16 +1027,6 @@ export async function init(
     await browser.setWindowSize(width, height);
   } catch (err: any) {
     console.error(err?.stack);
-  }
-
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // Wait for the multiple connections sidebar to appear. The preference
-    // should be picked up due to the presence of
-    // process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING which means we should
-    // get the multiple connections sidebar.
-    await browser
-      .$(Selectors.Multiple.SidebarNewConnectionButton)
-      .waitForDisplayed();
   }
 
   if (compass.needsCloseWelcomeModal) {
