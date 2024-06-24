@@ -41,6 +41,10 @@ import {
 } from '../../modules/databases';
 import { useFilteredConnections } from '../use-filtered-connections';
 import NavigationItemsFilter from '../navigation-items-filter';
+import {
+  type ConnectionImportExportAction,
+  useOpenConnectionImportExportModal,
+} from '@mongodb-js/compass-connection-import-export';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -83,7 +87,8 @@ function findCollection(ns: string, databases: Database[]) {
 
 type ConnectionListTitleActions =
   | 'collapse-all-connections'
-  | 'add-new-connection';
+  | 'add-new-connection'
+  | ConnectionImportExportAction;
 
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
@@ -196,6 +201,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     return connections;
   }, [connectionsWithStatus, instances, databases, isPerformanceTabSupported]);
 
+  const { supportsConnectionImportExport, openConnectionImportExportModal } =
+    useOpenConnectionImportExportModal({ context: 'connectionsList' });
+
   const {
     filtered,
     expanded,
@@ -211,7 +219,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const connectionListTitleActions =
     useMemo((): ItemAction<ConnectionListTitleActions>[] => {
-      return [
+      const actions: ItemAction<ConnectionListTitleActions>[] = [
         {
           action: 'collapse-all-connections',
           label: 'Collapse all connections',
@@ -223,7 +231,24 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           icon: 'Plus',
         },
       ];
-    }, []);
+
+      if (supportsConnectionImportExport) {
+        actions.push(
+          {
+            action: 'import-saved-connections',
+            label: 'Import saved connections',
+            icon: 'Download',
+          },
+          {
+            action: 'export-saved-connections',
+            label: 'Export saved connections',
+            icon: 'Export',
+          }
+        );
+      }
+
+      return actions;
+    }, [supportsConnectionImportExport]);
 
   const onConnectionItemAction = useCallback(
     (
@@ -360,6 +385,22 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     [onConnectionToggle, onDatabaseToggle]
   );
 
+  const onConnectionListTitleAction = useCallback(
+    (action: ConnectionListTitleActions) => {
+      if (action === 'collapse-all-connections') {
+        onCollapseAll();
+      } else if (action === 'add-new-connection') {
+        onNewConnection();
+      } else if (
+        action === 'import-saved-connections' ||
+        action === 'export-saved-connections'
+      ) {
+        openConnectionImportExportModal(action);
+      }
+    },
+    [onCollapseAll, onNewConnection, openConnectionImportExportModal]
+  );
+
   // auto-expanding on a workspace change
   useEffect(() => {
     if (
@@ -378,17 +419,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     }
   }, [activeWorkspace, onDatabaseToggle, onConnectionToggle]);
 
-  const onConnectionListTitleAction = useCallback(
-    (action: ConnectionListTitleActions) => {
-      if (action === 'collapse-all-connections') {
-        onCollapseAll();
-      } else if (action === 'add-new-connection') {
-        onNewConnection();
-      }
-    },
-    [onCollapseAll, onNewConnection]
-  );
-
   return (
     <div className={connectionsContainerStyles}>
       <div className={connectionListHeaderStyles}>
@@ -406,6 +436,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           onAction={onConnectionListTitleAction}
           data-testid="connections-list-title-actions"
           collapseToMenuThreshold={3}
+          collapseAfter={2}
         ></ItemActionControls>
       </div>
       {connections.length ? (

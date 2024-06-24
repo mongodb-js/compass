@@ -592,7 +592,7 @@ export const BulkDeleteSuccessToastDismissButton = `[data-testid="toast-bulk-del
 
 // Connection import/export modals
 export const ExportConnectionsModalOpen =
-  '[data-testid="favorites-menu-export-favorites-action"]';
+  '[data-testid="favorites-menu-export-saved-connections-action"]';
 export const ExportConnectionsModal = '[data-testid="connection-export-modal"]';
 export const ExportConnectionsSubmit = `${ExportConnectionsModal} [data-testid="submit-button"]`;
 export const ExportConnectionsPassphrase =
@@ -602,7 +602,7 @@ export const ExportConnectionsRemoveSecrets =
 export const ExportConnectionsSucceededToast =
   '[data-testid="toast-compass-connection-import-export--export-succeeded"]';
 export const ImportConnectionsModalOpen =
-  '[data-testid="favorites-menu-import-favorites-action"]';
+  '[data-testid="favorites-menu-import-saved-connections-action"]';
 export const ImportConnectionsModal = '[data-testid="connection-import-modal"]';
 export const ImportConnectionsPassphrase =
   '[data-testid="conn-import-export-passphrase-input"]';
