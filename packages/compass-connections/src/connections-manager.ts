@@ -13,6 +13,7 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { cloneDeep, merge } from 'lodash';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import mongodbBuildInfo from 'mongodb-build-info';
+import { openToast } from '@mongodb-js/compass-components';
 
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
@@ -241,6 +242,14 @@ export class ConnectionsManager extends EventEmitter {
           adjustedConnectionInfoForConnection,
           dataService
         );
+      });
+
+      dataService.on?.('oidcAuthFailed', (error) => {
+        openToast('oidc-auth-failed', {
+          title: 'Failed to authenticate',
+          description: error,
+          variant: 'important',
+        });
       });
 
       if (this.reAuthenticationHandler) {

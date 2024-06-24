@@ -64,7 +64,7 @@
     "hadron-document": "^8.5.3",
     "hadron-ipc": "^3.2.15",
     "lodash": "^4.17.21",
-    "mongodb": "^6.6.2",
+    "mongodb": "^6.7.0",
     "mongodb-data-service": "^22.21.0",
     "mongodb-ns": "^2.4.2",
     "mongodb-query-parser": "^4.1.2",

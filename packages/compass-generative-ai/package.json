@@ -60,7 +60,7 @@
     "bson": "^6.7.0",
     "compass-preferences-model": "^2.23.0",
     "hadron-app-registry": "^9.1.11",
-    "mongodb": "^6.6.2",
+    "mongodb": "^6.7.0",
     "mongodb-schema": "^12.2.0",
     "react": "^17.0.2"
   },
