@@ -41,7 +41,7 @@ import {
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {

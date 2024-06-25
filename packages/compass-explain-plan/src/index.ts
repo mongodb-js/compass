@@ -8,7 +8,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/provider';
 
 const ExplainPlanModalPlugin = registerHadronPlugin(
   {

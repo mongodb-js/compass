@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 const mongoshVersion = `v${
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-var-requires

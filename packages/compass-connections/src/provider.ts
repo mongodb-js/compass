@@ -97,5 +97,7 @@ export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
 export {
   useConnectionScopedTelemetry,
   withConnectionScopedTelemetry,
+  useConnectionScopedTrackOnChange,
+  createConnectionScopedTelemetryLocator,
   type ConnectionScopedTrackFunction,
 } from './connection-scoped-telemetry';

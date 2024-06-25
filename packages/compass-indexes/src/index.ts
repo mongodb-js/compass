@@ -25,7 +25,7 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
   type ConnectionScopedTrackFunction,
   createConnectionScopedTelemetryLocator,
-} from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+} from '@mongodb-js/compass-connections/provider';
 
 export const CompassIndexesHadronPlugin = registerHadronPlugin<
   CollectionTabPluginMetadata,

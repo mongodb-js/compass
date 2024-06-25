@@ -1,7 +1,16 @@
 type GeneralPayload = Record<string, any> | undefined;
 type ConnectionScopePayload = GeneralPayload & { connection_id: string };
 
+export type PerformanceTrackingEvent =
+  | 'First Contentful Paint'
+  | 'Largest Contentful Paint'
+  | 'First Input Delay'
+  | 'Cumulative Layout Shift'
+  | 'Time to First Byte';
+
 export type EventsPayload = {
+  [key in PerformanceTrackingEvent]: GeneralPayload;
+} & {
   /* CONNECTION SCOPE */
   'Aggregation Canceled': ConnectionScopePayload;
   'Aggregation Edited': ConnectionScopePayload;
@@ -75,7 +84,7 @@ export type EventsPayload = {
   'Schema Validation Edited': ConnectionScopePayload;
   'Schema Validation Updated': ConnectionScopePayload;
   'Shell Opened': ConnectionScopePayload;
-  'Shell ${event}': ConnectionScopePayload;
+  [key: `Shell ${string}`]: ConnectionScopePayload;
   'Switch View Type': ConnectionScopePayload;
   'Update Export Opened': ConnectionScopePayload;
   'Update Exported': ConnectionScopePayload;

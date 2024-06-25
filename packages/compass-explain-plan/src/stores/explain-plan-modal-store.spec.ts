@@ -8,6 +8,7 @@ import { activatePlugin } from './';
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
 import Sinon from 'sinon';
+import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 
 const localAppRegistry = new AppRegistry();
 
@@ -80,6 +81,11 @@ describe('explain plan modal store', function () {
           mongoLogId() {},
         } as any,
         track: () => {},
+        connectionInfoAccess: {
+          getCurrentConnectionInfo() {
+            return TEST_CONNECTION_INFO;
+          },
+        },
         preferences: {
           getPreferences() {
             return { maxTimeMS: 0 };

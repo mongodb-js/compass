@@ -26,7 +26,7 @@ import {
   favoriteQueryStorageAccessLocator,
   recentQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
-import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {

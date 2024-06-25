@@ -56,8 +56,7 @@ export default class CompassShellStore {
         // Prefix Segment events with `Shell ` to avoid event name collisions.
         // We always enable telemetry here, since the track call will
         // already check whether Compass telemetry is enabled or not.
-        track: ({ event, properties }) =>
-          track(`Shell ${event}` as 'Shell ${event}', properties), // :single-tear:
+        track: ({ event, properties }) => track(`Shell ${event}`, properties), // :single-tear:
         flush: () => {
           return Promise.resolve(); // not needed
         },

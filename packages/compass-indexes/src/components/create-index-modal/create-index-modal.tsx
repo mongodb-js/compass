@@ -19,7 +19,7 @@ import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules/create-index';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;

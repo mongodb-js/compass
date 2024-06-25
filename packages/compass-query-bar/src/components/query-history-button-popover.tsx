@@ -10,7 +10,7 @@ import {
 
 import QueryHistory from './query-history';
 import { fetchSavedQueries } from '../stores/query-bar-reducer';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 const openQueryHistoryButtonStyles = css(
   {

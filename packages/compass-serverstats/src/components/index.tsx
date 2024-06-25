@@ -21,7 +21,7 @@ import TopStore from '../stores/top-store';
 import { ServerStatsToolbar } from './server-stats-toolbar';
 import Actions from '../actions';
 import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 

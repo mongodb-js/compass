@@ -10,7 +10,7 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
-import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/provider';
 
 export const CompassSchemaHadronPlugin = registerHadronPlugin(
   {

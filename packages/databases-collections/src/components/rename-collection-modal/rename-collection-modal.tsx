@@ -16,7 +16,7 @@ import {
   hideModal,
   clearError,
 } from '../../modules/rename-collection/rename-collection';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 export interface RenameCollectionModalProps {
   isVisible: boolean;

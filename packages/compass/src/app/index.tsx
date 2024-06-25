@@ -7,6 +7,7 @@ import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
 import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
+import { type PerformanceTrackingEvent } from '@mongodb-js/compass-telemetry';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
 
@@ -161,13 +162,14 @@ const Application = View.extend({
       name,
       value,
     }: Pick<webvitals.Metric, 'name' | 'value'>) {
-      const fullName = {
+      const nameToEvent: Record<typeof name, PerformanceTrackingEvent> = {
         FCP: 'First Contentful Paint',
         LCP: 'Largest Contentful Paint',
         FID: 'First Input Delay',
         CLS: 'Cumulative Layout Shift',
         TTFB: 'Time to First Byte',
-      }[name];
+      };
+      const fullName = nameToEvent[name];
       track(fullName, { value });
     }
 

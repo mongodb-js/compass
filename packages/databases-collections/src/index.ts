@@ -21,7 +21,7 @@ import {
   favoriteQueryStorageAccessLocator,
   pipelineStorageLocator,
 } from '@mongodb-js/my-queries-storage/provider';
-import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/provider';
 
 export const CollectionsWorkspaceTab: WorkspaceComponent<'Collections'> = {
   name: 'Collections' as const,

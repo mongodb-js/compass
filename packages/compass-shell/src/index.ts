@@ -14,7 +14,7 @@ import {
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
-import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/provider';
 
 export const CompassShellPlugin = registerHadronPlugin<
   unknown,

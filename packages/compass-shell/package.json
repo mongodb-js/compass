@@ -53,7 +53,6 @@
     "@mongodb-js/compass-components": "^1.26.0",
     "@mongodb-js/compass-connections": "^1.33.0",
     "@mongodb-js/compass-logging": "^1.3.1",
-    "@mongodb-js/compass-telemetry": "^1.0.1",
     "@mongodb-js/compass-user-data": "^0.2.1",
     "@mongodb-js/compass-utils": "^0.6.5",
     "@mongosh/browser-repl": "^2.2.10",

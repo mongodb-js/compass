@@ -7,7 +7,7 @@ import FavoriteList from './favorite-list';
 
 import { connect } from '../../stores/context';
 import type { RootState } from '../../stores/query-bar-store';
-import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
+import { useConnectionScopedTrackOnChange } from '@mongodb-js/compass-connections/provider';
 
 const containerStyle = css({
   display: 'flex',

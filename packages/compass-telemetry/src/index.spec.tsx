@@ -8,7 +8,7 @@ describe('Telemetry', () => {
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
 
-    track('Test Event1', {
+    track('Atlas Link Clicked', {
       some_attribute: 123,
     });
 
@@ -16,7 +16,7 @@ describe('Telemetry', () => {
 
     expect(trackingLogs).to.deep.equal([
       {
-        event: 'Test Event1',
+        event: 'Atlas Link Clicked',
         properties: {
           some_attribute: 123,
         },
@@ -30,7 +30,7 @@ describe('Telemetry', () => {
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
 
-    track('Test Event2', async () => {
+    track('Atlas Sign Out', async () => {
       await new Promise((resolve) => setTimeout(resolve, 3));
 
       return {
@@ -43,7 +43,7 @@ describe('Telemetry', () => {
 
     expect(trackingLogs).to.deep.equal([
       {
-        event: 'Test Event2',
+        event: 'Atlas Sign Out',
         properties: {
           values: true,
         },
@@ -57,7 +57,7 @@ describe('Telemetry', () => {
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
 
-    track('Test Event3', () => {
+    track('Atlas Link Clicked', () => {
       throw new Error('test error');
     });
 
@@ -67,7 +67,7 @@ describe('Telemetry', () => {
       {
         event: 'Error Fetching Attributes',
         properties: {
-          event_name: 'Test Event3',
+          event_name: 'Atlas Link Clicked',
         },
       },
     ]);
