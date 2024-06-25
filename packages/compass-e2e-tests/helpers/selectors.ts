@@ -1158,6 +1158,8 @@ export const sidebarInstanceNavigationItem = (
   return `${Sidebar} [aria-label="${tabName}"]`;
 };
 export const SidebarMyQueriesTab = `${Sidebar} [aria-label="My Queries"]`;
+export const WorkspaceTab =
+  '[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]';
 export const workspaceTab = (
   title: string | null,
   active: boolean | null = null
@@ -1169,7 +1171,7 @@ export const workspaceTab = (
       : ['My Queries', 'Performance', 'Databases'].includes(title)
       ? `[title="${title}"]`
       : `[data-namespace="${title}"]`;
-  return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
+  return `${WorkspaceTab}${_title}${_active}`;
 };
 export const instanceWorkspaceTab = (
   tabName: 'Performance' | 'Databases',
@@ -1301,3 +1303,6 @@ export const AgreeAndContinueButton = 'button=Agree and continue';
 
 // Any toast
 export const AnyToastDismissButton = '[data-testid="lg-toast-dismiss-button"]';
+
+// Close tab confirmation
+export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';

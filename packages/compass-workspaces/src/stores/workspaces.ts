@@ -768,6 +768,7 @@ export const closeTab = (
           'The content of this tab has been modified. You will lose your changes if you close it.',
         buttonText: 'Close tab',
         variant: 'danger',
+        'data-testid': 'confirm-tab-close',
       });
       if (!confirmClose) {
         return;
