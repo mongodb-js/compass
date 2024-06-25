@@ -72,8 +72,15 @@ const actionControlsStyle = css({
 
 const actionGroupButtonStyle = css({
   '&:not(:first-child)': {
-    marginLeft: spacing[1],
+    marginLeft: spacing[100],
   },
+});
+
+// Action buttons are rendered 4px apart from each other. With this we keep the
+// same spacing also when action buttons are rendered alongside action menu
+// (happens when collapseAfter prop is specified)
+const actionMenuWithActionControlsStyles = css({
+  marginLeft: spacing[100],
 });
 
 const iconContainerStyle = css({
@@ -442,6 +449,10 @@ export function ItemActionControls<Action extends string>({
           actions={collapsedActions}
           {...sharedProps}
           {...sharedMenuProps}
+          className={cx(
+            actionMenuWithActionControlsStyles,
+            sharedProps.className
+          )}
         ></ItemActionMenu>
       </div>
     );

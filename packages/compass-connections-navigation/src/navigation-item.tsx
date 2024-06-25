@@ -109,21 +109,24 @@ export function NavigationItem({
     }
     if (item.type === 'connection') {
       return {
+        'data-is-active': `${isActive}`,
         'data-connection-id': item.connectionInfo.id,
         'data-connection-name': item.name,
       };
     }
     if (item.type === 'database') {
       return {
+        'data-is-active': `${isActive}`,
         'data-connection-id': item.connectionId,
         'data-database-name': item.dbName,
       };
     }
     return {
+      'data-is-active': `${isActive}`,
       'data-connection-id': item.connectionId,
       'data-namespace': item.namespace,
     };
-  }, [item]);
+  }, [item, isActive]);
 
   return (
     <StyledNavigationItem item={item}>
