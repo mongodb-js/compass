@@ -48,8 +48,6 @@ import {
 
 const connectionsContainerStyles = css({
   height: '100%',
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
   paddingBottom: spacing[400],
   display: 'flex',
   flexDirection: 'column',
@@ -60,6 +58,8 @@ const connectionListHeaderStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 const connectionListHeaderTitleStyles = css({
@@ -73,6 +73,19 @@ const connectionListHeaderTitleStyles = css({
 const connectionCountStyles = css({
   fontWeight: 'normal',
   marginLeft: spacing[100],
+});
+
+const searchStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+});
+
+const noDeploymentStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
 });
 
 function findCollection(ns: string, databases: Database[]) {
@@ -442,6 +455,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {connections.length ? (
         <>
           <NavigationItemsFilter
+            searchInputClassName={searchStyles}
             placeholder="Search connections"
             onFilterChange={onFilterChange}
           />
@@ -454,7 +468,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           />
         </>
       ) : (
-        <>
+        <div className={noDeploymentStyles}>
           <Body>You have not connected to any deployments.</Body>
           <Button
             data-testid="add-new-connection-button"
@@ -464,7 +478,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           >
             Add new connection
           </Button>
-        </>
+        </div>
       )}
     </div>
   );
