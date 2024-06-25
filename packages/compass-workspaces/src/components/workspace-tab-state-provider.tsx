@@ -9,7 +9,6 @@ import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
 import { Provider, createSelectorHook, createStoreHook } from 'react-redux';
 import type { AnyAction } from 'redux';
 import { createStore } from 'redux';
-import type { WorkspaceTab } from '../stores/workspaces';
 
 type TabState = Record<string, Record<string, unknown>>;
 
@@ -99,7 +98,7 @@ export const WorkspaceTabStateProvider = ({
   );
 };
 
-function useWorkspaceTabId() {
+export function useWorkspaceTabId() {
   let tabId = useContext(WorkspaceTabIdContext);
   if (!tabId) {
     if (process.env.NODE_ENV !== 'test') {
@@ -239,98 +238,4 @@ export function useTabState<S>(
     storeRef.current
   );
   return [state, setState];
-}
-
-export type WorkspaceCloseState = { canClose: boolean; canReplace: boolean };
-
-/**
- * Workspace tab onClose handler. After being registered, this function will be
- * called when there will be an attempt to close the tab, either by replacing it
- * with the new tab or due to user clicking a close button on the tab. This
- * method can return three distinct states to control the closing behavior
- */
-export type WorkspaceCloseHandler = () => WorkspaceCloseState;
-
-const WorkspaceTabCloseHandlerMap = new Map<string, WorkspaceCloseHandler[]>();
-
-export const resolveTabCloseState = (
-  tab: WorkspaceTab
-): WorkspaceCloseState => {
-  const state = { canClose: true, canReplace: true };
-  for (const handler of WorkspaceTabCloseHandlerMap.get(tab.id) ?? []) {
-    const res = handler();
-    state.canClose = res.canClose === false ? res.canClose : state.canClose;
-    state.canReplace =
-      res.canReplace === false ? res.canReplace : state.canReplace;
-  }
-  return state;
-};
-
-export const setTabCloseHandler = (
-  tabId: string,
-  handler: WorkspaceCloseHandler
-) => {
-  const handlers = WorkspaceTabCloseHandlerMap.get(tabId) ?? [];
-  WorkspaceTabCloseHandlerMap.set(tabId, handlers.concat(handler));
-  return () => {
-    cleanupTabCloseHandler(tabId, handler);
-  };
-};
-
-export const cleanupTabCloseHandler = (
-  tabId?: string,
-  handler?: WorkspaceCloseHandler
-) => {
-  if (handler && tabId) {
-    const handlers = (WorkspaceTabCloseHandlerMap.get(tabId) ?? []).filter(
-      (fn) => {
-        return fn !== handler;
-      }
-    );
-    WorkspaceTabCloseHandlerMap.set(tabId, handlers);
-  } else if (tabId) {
-    WorkspaceTabCloseHandlerMap.delete(tabId);
-  } else {
-    WorkspaceTabCloseHandlerMap.clear();
-  }
-};
-
-/**
- * Tab workspaces can register a callback that will be called before tab will be
- * closed (either by user clicking close button, or due to other tab replacing
- * the content). The callback can change the default closing behaviour by
- * returning a special object
- *
- * @example
- * useOnTabCloseHandler(function () {
- *   return { canClose: true, canReplace: false }
- * })
- */
-export function useOnTabCloseHandler(handler: WorkspaceCloseHandler) {
-  const tabId = useWorkspaceTabId();
-  const handlerRef = useRef(handler);
-  handlerRef.current = handler;
-  useEffect(() => {
-    const onClose: WorkspaceCloseHandler = () => {
-      return handlerRef.current();
-    };
-    return setTabCloseHandler(tabId, onClose);
-  }, [tabId]);
-}
-
-export function useRegisterTabCloseHandler() {
-  let tabId: string | undefined;
-  try {
-    // We are not breaking rules of hooks here, this method will either always
-    // fail or always return a value when rendered in a certain spot in the
-    // application
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    tabId = useWorkspaceTabId();
-  } catch {
-    // do nothing, we are just outside of the workspace tab tree
-  }
-
-  if (tabId) {
-    return setTabCloseHandler.bind(null, tabId);
-  }
 }

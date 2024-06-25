@@ -32,9 +32,9 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
 import {
   WorkspaceTabStateProvider,
-  useOnTabCloseHandler,
   useTabState,
 } from './workspace-tab-state-provider';
+import { useOnTabReplace } from './workspace-close-handler';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
   ConnectionInfoProvider,
@@ -77,7 +77,9 @@ const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
   const markAsInteracted = useCallback(() => {
     // Make sure we don't count clicking on buttons that actually cause the
     // workspace to change, like using breadcrumbs or clicking on an item in the
-    // Databases / Collections list
+    // Databases / Collections list. There are certain corner-cases this doesn't
+    // handle, but it's good enough to prevent most cases where users can loose
+    // content by accident
     rafraf(() => {
       if (mountedRef.current) {
         setHasInteractedOnce(true);
@@ -85,8 +87,8 @@ const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
     });
   }, [setHasInteractedOnce]);
 
-  useOnTabCloseHandler(() => {
-    return { canClose: true, canReplace: !hasInteractedOnce };
+  useOnTabReplace(() => {
+    return !hasInteractedOnce;
   });
 
   return (

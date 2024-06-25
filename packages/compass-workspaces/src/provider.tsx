@@ -12,8 +12,8 @@ import {
 } from './stores/workspaces';
 import { createServiceLocator } from 'hadron-app-registry';
 import type { CollectionSubtab } from './types';
-import type { WorkspaceCloseHandler } from './components/workspace-tab-state-provider';
-import { useRegisterTabCloseHandler } from './components/workspace-tab-state-provider';
+import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
+import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
 
 function useWorkspacesStore() {
   try {
@@ -110,31 +110,70 @@ export type WorkspacesService = {
     options: { sourceName: string; sourcePipeline: unknown[] } & TabOptions
   ): void;
   /**
-   * Tab workspaces can register a callback that will be called before tab will
-   * be closed (either by user clicking close button, or due to other tab
-   * replacing the content). The callback can change the closing behavior by
-   * returning the following responses:
+   * A method that registers a tab close handler. Before closing the tab, this
+   * handler will be called and can return either `true` to allow the tab to be
+   * closed, or `false`, preventing tab to be closed before user confirms the
+   * tab closure.
    *
-   * - "allow"            allows the tab to be closed, if more than one handler
-   *                      is registered and this state is returned, will call
-   *                      the next handler
-   * - "user-allow"       allows the tab to be closed
-   * - "deny"             prevent the tab from being closed
-   * - "open-in-new-tab"  in case that tab is getting replaced, open new
-   *                      workspace in new tab instead
+   * Multiple handlers can be registered for one tab, they will be called in
+   * order of registration and any one of them returning `false` will prevent
+   * the tab from closing.
    *
-   * Method might be `undefined` if workspace service is injected outside of the
-   * workspace scope
+   * Method might be undefined when using workspace service outside of workspace
+   * tab context.
+   *
+   * @returns A clean-up method that will un-register the handler
    *
    * @example
-   * workspaceService.registerTabCloseHandler?.(async function () {
-   *   const confirmed = await showConfirmation({
-   *     description: 'Are you sure you want to close this tab?
-   *   });
-   *   return confirmed ? 'user-allow' : 'deny';
-   * })
+   * function activatePlugin(
+   *   initialProps,
+   *   { workspaces },
+   *   { addCleanup, cleanup }
+   * ) {
+   *   const store = createStore();
+   *
+   *   addCleanup(workspaces.onTabClose?.(() => {
+   *     return store.getState().modified === false;
+   *   }));
+   *
+   *   return { store, deactivate: cleanup }
+   * }
    */
-  registerTabCloseHandler?: (handler: WorkspaceCloseHandler) => () => void;
+  onTabClose?: (handler: WorkspaceDestroyHandler) => () => void;
+  /**
+   *
+   * A hook that registers a tab replace handler. By default when opening a new
+   * workspace, it will be opened in the same tab, destroying the content of the
+   * current workspace. In that case, the registered handler can return either
+   * `true` to allow the workspace to be destroyed, or `false` to prevent the
+   * tab from being destroyed and causing the new workspace to open in the new
+   * tab.
+   *
+   * Multiple handlers can be registered for one tab, they will be called in
+   * order of registration and any one of them returning `false` will prevent
+   * the tab from being replaced.
+   *
+   * Method might be undefined when using workspace service outside of workspace
+   * tab context.
+   *
+   * @returns A clean-up method that will un-register the handler
+   *
+   * @example
+   * function activatePlugin(
+   *   initialProps,
+   *   { workspaces },
+   *   { addCleanup, cleanup }
+   * ) {
+   *   const store = createStore();
+   *
+   *   addCleanup(workspaces.onTabReplace?.(() => {
+   *     return store.getState().modified === false;
+   *   }));
+   *
+   *   return { store, deactivate: cleanup }
+   * }
+   */
+  onTabReplace?: (handler: WorkspaceDestroyHandler) => () => void;
   /**
    * useActiveWorkspace hook, exposed through the service interface so that it
    * can be mocked in the test environment
@@ -269,8 +308,8 @@ function useWorkspacesService() {
       "Can't find Workspaces service in React context. Make sure you are using workspaces service and hooks inside Workspaces scope"
     );
   }
-  const registerTabCloseHandler = useRegisterTabCloseHandler();
-  return { ...service, registerTabCloseHandler };
+  const handlers = useRegisterTabDestroyHandler();
+  return { ...service, ...handlers };
 }
 
 export function useOpenWorkspace() {
@@ -312,7 +351,8 @@ export const workspacesServiceLocator = createServiceLocator(
 );
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
+export { useTabState } from './components/workspace-tab-state-provider';
 export {
-  useTabState,
-  useOnTabCloseHandler,
-} from './components/workspace-tab-state-provider';
+  useOnTabClose,
+  useOnTabReplace,
+} from './components/workspace-close-handler';

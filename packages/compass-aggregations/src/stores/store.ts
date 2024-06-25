@@ -262,12 +262,13 @@ export function activateAggregationsPlugin(
     maxTimeMSChanged(preferences.getPreferences().maxTimeMS || null)
   );
 
-  addCleanup(
-    workspaces.registerTabCloseHandler?.(function () {
-      const notModified = !store.getState().isModified;
-      return { canClose: notModified, canReplace: notModified };
-    }) ?? (() => undefined)
-  );
+  const onCloseOrReplace = () => {
+    return !store.getState().isModified;
+  };
+
+  addCleanup(workspaces.registerTabReplaceHandler?.(onCloseOrReplace));
+
+  addCleanup(workspaces.registerTabCloseHandler?.(onCloseOrReplace));
 
   return {
     store,

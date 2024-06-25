@@ -16,11 +16,12 @@ import type {
   CollectionSubtab,
 } from '..';
 import { isEqual } from 'lodash';
+import { cleanupTabState } from '../components/workspace-tab-state-provider';
 import {
-  cleanupTabCloseHandler,
-  cleanupTabState,
-  resolveTabCloseState,
-} from '../components/workspace-tab-state-provider';
+  cleanupTabDestroyHandler,
+  canCloseTab,
+  canReplaceTab,
+} from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
 
@@ -279,7 +280,8 @@ const cleanupRemovedTabs = (
   for (const tabId of getRemovedTabsIndexes(oldTabs, newTabs)) {
     cleanupLocalAppRegistryForTab(tabId);
     cleanupTabState(tabId);
-    cleanupTabCloseHandler(tabId);
+    cleanupTabDestroyHandler('close', tabId);
+    cleanupTabDestroyHandler('replace', tabId);
   }
 };
 
@@ -661,8 +663,7 @@ export const openWorkspace = (
         getState().tabs[tabOptions?.atIndex ?? getActiveTabIndex(getState())];
 
       if (toReplace) {
-        const { canReplace } = resolveTabCloseState(toReplace);
-        forceNewTab = !canReplace;
+        forceNewTab = !canReplaceTab(toReplace);
       }
     }
 
@@ -731,12 +732,11 @@ export const closeTab = (
 ): WorkspacesThunkAction<Promise<void>, CloseTabAction> => {
   return async (dispatch, getState) => {
     const tab = getState().tabs[atIndex];
-    const { canClose } = resolveTabCloseState(tab);
-    if (!canClose) {
+    if (!canCloseTab(tab)) {
       const confirmClose = await showConfirmation({
         title: 'Are you sure you want to close the tab?',
         description:
-          'The content of this tab was modified. You will loose you changes if you close it',
+          'The content of this tab has been modified. You will lose your changes if you close it.',
         buttonText: 'Close tab',
         variant: 'danger',
       });
