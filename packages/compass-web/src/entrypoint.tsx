@@ -8,6 +8,7 @@ import {
   ConnectionsManagerProvider,
   type ConnectionInfo,
   ConnectionInfoProvider,
+  useConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
@@ -286,6 +287,7 @@ const CompassWeb = ({
     },
     logger,
     preferences: preferencesAccess.current,
+    useConnectionInfo,
   });
 
   return (

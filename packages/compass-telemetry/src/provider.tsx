@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
 import {
   createTrack,
@@ -15,22 +15,33 @@ export function createNoopTrack(): TrackFunction {
   return noop;
 }
 
-export const TelemetryContext = React.createContext<TrackFunction>(
-  createNoopTrack()
-);
+type ConnectionInfo = any;
+
+export const TelemetryContext = React.createContext<{
+  track: TrackFunction;
+  useConnectionInfo: () => ConnectionInfo;
+}>({
+  track: createNoopTrack(),
+  useConnectionInfo() {
+    return {};
+  },
+});
 
 export const TelemetryProvider: React.FC<{
-  options: Omit<TelemetryServiceOptions, 'logger'>;
+  options: Omit<TelemetryServiceOptions, 'logger'> & {
+    useConnectionInfo: () => ConnectionInfo;
+  };
 }> = ({ options, children }) => {
   const logger = useLogger('COMPASS-TELEMETRY');
-  const trackFn = useRef(
-    createTrack({
+  const value = useRef({
+    track: createTrack({
       logger,
       ...options,
-    })
-  );
+    }),
+    useConnectionInfo: options.useConnectionInfo,
+  });
   return (
-    <TelemetryContext.Provider value={trackFn.current}>
+    <TelemetryContext.Provider value={value.current}>
       {children}
     </TelemetryContext.Provider>
   );
@@ -44,11 +55,23 @@ export function createTelemetryLocator() {
 }
 
 export function useTelemetry(): TrackFunction {
-  const track = React.useContext(TelemetryContext);
-  if (!track) {
-    throw new Error('Telemetry service is missing from React context');
+  const { track, useConnectionInfo } = React.useContext(TelemetryContext);
+  let connectionInfo;
+  try {
+    // We are not breaking the rules of hooks because this will always either throw or not
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    connectionInfo = useConnectionInfo();
+  } catch {
+    // We are outside of connection scope
   }
-  return track;
+  const connectionInfoRef = useRef(connectionInfo);
+  connectionInfoRef.current = connectionInfo;
+  return useCallback(
+    (event, properties) => {
+      track(event, properties, connectionInfoRef.current);
+    },
+    [track]
+  );
 }
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
