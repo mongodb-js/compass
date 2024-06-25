@@ -362,7 +362,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         success: !err,
         aborted: abortSignal.aborted,
         ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
-        connectionId,
+        connection_id: connectionId,
       });
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
@@ -393,7 +393,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       success: true,
       aborted: result.aborted,
       ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
-      connectionId,
+      connection_id: connectionId,
     });
 
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
@@ -407,7 +407,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           if (errorLogFilePath) {
             track('Import Error Log Opened', {
               errorCount: errors.length,
-              connectionId,
+              connection_id: connectionId,
             });
             void openFile(errorLogFilePath);
           }
@@ -868,7 +868,7 @@ export const openImport = ({
     }
     track('Import Opened', {
       origin,
-      connectionId,
+      connection_id: connectionId,
     });
     dispatch({ type: OPEN, namespace, connectionId });
   };

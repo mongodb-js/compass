@@ -1,5 +1,5 @@
 type GeneralPayload = Record<string, any> | undefined;
-type ConnectionScopePayload = GeneralPayload & { connectionId: string };
+type ConnectionScopePayload = GeneralPayload & { connection_id: string };
 
 export type EventsPayload = {
   /* CONNECTION SCOPE */

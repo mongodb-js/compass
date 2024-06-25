@@ -137,7 +137,7 @@ export const openExport = (
     track('Export Opened', {
       type: exportOptions.aggregation ? 'aggregation' : 'query',
       origin: exportOptions.origin,
-      connectionId: exportOptions.connectionId,
+      connection_id: exportOptions.connectionId,
     });
     dispatch({
       type: ExportActionTypes.OpenExport,
@@ -545,7 +545,7 @@ export const runExport = ({
       success: exportSucceeded,
       stopped: aborted,
       duration: Date.now() - startTime,
-      connectionId,
+      connection_id: connectionId,
     });
 
     if (!exportSucceeded) {

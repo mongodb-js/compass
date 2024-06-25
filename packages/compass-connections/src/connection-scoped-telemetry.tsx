@@ -25,7 +25,7 @@ export function useConnectionScopedTelemetry(): ConnectionScopedTrackFunction {
   const curriedTrack: ConnectionScopedTrackFunction = (event, parameters) => {
     track(event, {
       ...parameters,
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
+      connection_id: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
   };
 
