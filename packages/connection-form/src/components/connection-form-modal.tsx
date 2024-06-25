@@ -47,6 +47,7 @@ export default function ConnectionFormModal({
     <Modal
       open={isOpen}
       setOpen={setOpen}
+      data-testid="connection-form-modal"
       className={modalStyles}
       contentClassName={cx(
         modalContentStyles,

@@ -120,6 +120,7 @@ describe('Collection documents tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await createNestedDocumentsCollection('nestedDocs', 10);
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
@@ -621,8 +622,6 @@ FindIterable<Document> result = collection.find(filter);`);
 
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
-      await createNestedDocumentsCollection('nestedDocs', 10);
-      await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
       await browser.navigateToCollectionTab('test', 'nestedDocs', 'Documents');
     });
 
