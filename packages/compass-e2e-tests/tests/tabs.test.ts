@@ -54,7 +54,9 @@ describe('Global Tabs', function () {
         false
       );
       // Click something to make sure we "modified" the tab
-      await browser.clickVisible(Selectors.queryBar('Documents'));
+      await browser.clickVisible(
+        Selectors.queryBarApplyFilterButton('Documents')
+      );
     }
     expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(3);
   });
@@ -68,7 +70,9 @@ describe('Global Tabs', function () {
         false
       );
       // Click something to make sure we "modified" the tab
-      await browser.clickVisible(Selectors.queryBar('Documents'));
+      await browser.clickVisible(
+        Selectors.queryBarApplyFilterButton('Documents')
+      );
     }
     await browser.closeWorkspaceTabs(false);
     expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(0);
