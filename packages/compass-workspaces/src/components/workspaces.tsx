@@ -20,7 +20,7 @@ import {
   getActiveTab,
   getLocalAppRegistryForTab,
   moveTab,
-  openFallbackTab,
+  openFallbackWorkspace,
   openTabFromCurrent,
   selectNextTab,
   selectPrevTab,
@@ -132,8 +132,7 @@ type CompassWorkspacesProps = {
   onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
   onNamespaceNotFound(
-    tab: WorkspaceTab,
-    connectionId: string,
+    tab: Extract<WorkspaceTab, { namespace: string }>,
     fallbackNamespace: string | null
   ): void;
 };
@@ -262,7 +261,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             <NamespaceProvider
               namespace={activeTab.namespace}
               onNamespaceFallbackSelect={(ns) => {
-                onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
+                onNamespaceNotFound(activeTab, ns);
               }}
             >
               <Component namespace={activeTab.namespace}></Component>
@@ -279,7 +278,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             <NamespaceProvider
               namespace={activeTab.namespace}
               onNamespaceFallbackSelect={(ns) => {
-                onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
+                onNamespaceNotFound(activeTab, ns);
               }}
             >
               <Component tabId={id} {...collectionMetadata}></Component>
@@ -360,6 +359,6 @@ export default connect(
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
-    onNamespaceNotFound: openFallbackTab,
+    onNamespaceNotFound: openFallbackWorkspace,
   }
 )(CompassWorkspaces);

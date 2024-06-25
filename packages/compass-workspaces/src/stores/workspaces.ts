@@ -59,6 +59,7 @@ export const cleanupLocalAppRegistries = () => {
 
 export enum WorkspacesActions {
   OpenWorkspace = 'compass-workspaces/OpenWorkspace',
+  OpenFallbackWorkspace = 'compass-workspace/OpenFallbackWorkspace',
   SelectTab = 'compass-workspaces/SelectTab',
   SelectPreviousTab = 'compass-workspaces/SelectPreviousTab',
   SelectNextTab = 'compass-workspaces/SelectNextTab',
@@ -126,7 +127,7 @@ const filterTabs = ({
   isToBeClosed,
 }: {
   tabs: WorkspaceTab[];
-  isToBeClosed: (tab: WorkspaceTab) => boolean;
+  isToBeClosed: (tab: WorkspaceTab, index: number) => boolean;
 }): {
   newTabs: WorkspaceTab[];
   removedIndexes: number[];
@@ -134,7 +135,7 @@ const filterTabs = ({
   const newTabs: WorkspaceTab[] = [];
   const removedIndexes: number[] = [];
   tabs.forEach((tab, index) => {
-    if (isToBeClosed(tab)) {
+    if (isToBeClosed(tab, index)) {
       removedIndexes.push(index);
     } else {
       newTabs.push(tab);
@@ -180,7 +181,7 @@ export const _bulkTabsClose = ({
   isToBeClosed,
 }: {
   state: WorkspacesState;
-  isToBeClosed: (tab: WorkspaceTab, index?: number) => boolean;
+  isToBeClosed: (tab: WorkspaceTab, index: number) => boolean;
 }) => {
   const { newTabs, removedIndexes } = filterTabs({
     tabs: state.tabs,
@@ -290,8 +291,41 @@ const reducer: Reducer<WorkspacesState> = (
   action
 ) => {
   if (isAction<OpenWorkspaceAction>(action, WorkspacesActions.OpenWorkspace)) {
+    const currentActiveTab = getActiveTab(state);
     const newTab = getInitialTabState(action.workspace);
-    if (action.newTab === true) {
+    let forceNewTab = false;
+
+    // If we are not requesting for the workspace to be opened in the new tab ...
+    if (!action.newTab) {
+      const existingWorkspace =
+        // If there is an active tab, give it priority when looking for a tab to
+        // select when opening a tab, it might be that we don't need to update
+        // the state at all
+        (
+          currentActiveTab ? [currentActiveTab, ...state.tabs] : state.tabs
+        ).find((tab) => {
+          return isWorkspaceEqual(tab, newTab);
+        });
+
+      // ... first check if similar workspace already exists, and if it does,
+      // just switch the current active tab
+      if (existingWorkspace) {
+        return existingWorkspace.id !== state.activeTabId
+          ? {
+              ...state,
+              activeTabId: existingWorkspace.id,
+            }
+          : state;
+      }
+
+      // ... otherwise check if we can replace the current tab based on its
+      // replace handlers and force new tab opening if we can't
+      if (currentActiveTab) {
+        forceNewTab = canReplaceTab(currentActiveTab) === false;
+      }
+    }
+
+    if (forceNewTab || action.newTab) {
       // Always insert new tab after the active one
       const activeTabIndex = getActiveTabIndex(state);
       const newTabs = [...state.tabs];
@@ -302,7 +336,8 @@ const reducer: Reducer<WorkspacesState> = (
         activeTabId: newTab.id,
       };
     }
-    const toReplaceIndex = action.atIndex ?? getActiveTabIndex(state);
+
+    const toReplaceIndex = getActiveTabIndex(state);
     const newTabs = [...state.tabs];
     newTabs.splice(toReplaceIndex, 1, newTab);
     return {
@@ -330,6 +365,38 @@ const reducer: Reducer<WorkspacesState> = (
     return {
       ...state,
       tabs: [...state.tabs, newTab],
+      activeTabId: newTab.id,
+    };
+  }
+
+  if (
+    isAction<OpenFallbackWorkspaceAction>(
+      action,
+      WorkspacesActions.OpenFallbackWorkspace
+    )
+  ) {
+    const {
+      collection,
+      database,
+      ns: namespace,
+    } = toNS(action.fallbackNamespace ?? '');
+    const fallbackWorkspaceOptions = {
+      ...(collection
+        ? { type: 'Collection' as const, namespace }
+        : database
+        ? { type: 'Collections' as const, namespace }
+        : { type: 'Databases' as const }),
+      connectionId: action.toReplace.connectionId,
+    };
+    const newTab = getInitialTabState(fallbackWorkspaceOptions);
+    const toReplaceIndex = state.tabs.findIndex((tab) => {
+      return tab.id === action.toReplace.id;
+    });
+    const newTabs = [...state.tabs];
+    newTabs.splice(toReplaceIndex, 1, newTab);
+    return {
+      ...state,
+      tabs: newTabs,
       activeTabId: newTab.id,
     };
   }
@@ -365,10 +432,11 @@ const reducer: Reducer<WorkspacesState> = (
   ) {
     const currentActiveTabIndex = getActiveTabIndex(state);
     const newActiveTabIndex =
-      getActiveTabIndex(state) === 0
+      currentActiveTabIndex === 0
         ? state.tabs.length - 1
         : currentActiveTabIndex - 1;
     const newActiveTab = state.tabs[newActiveTabIndex];
+    // console.log({ currentActiveTabIndex, newActiveTabIndex, tabs: state.tabs });
     if (newActiveTab?.id === state.activeTabId) {
       return state;
     }
@@ -391,23 +459,12 @@ const reducer: Reducer<WorkspacesState> = (
   }
 
   if (isAction<CloseTabAction>(action, WorkspacesActions.CloseTab)) {
-    const tabToClose = state.tabs[action.atIndex];
-    const tabIndex = state.tabs.findIndex((tab) => tab.id === tabToClose?.id);
-    const newTabs = [...state.tabs];
-    newTabs.splice(action.atIndex, 1);
-    const newActiveTabId =
-      tabToClose.id === state.activeTabId
-        ? // We follow standard browser behavior with tabs on how we handle
-          // which tab gets activated if we close the active tab. If the active
-          // tab is the last tab, we activate the one before it, otherwise we
-          // activate the next tab.
-          (state.tabs[tabIndex + 1] ?? newTabs[newTabs.length - 1])?.id ?? null
-        : state.activeTabId;
-    return {
-      ...state,
-      activeTabId: newActiveTabId,
-      tabs: newTabs,
-    };
+    return _bulkTabsClose({
+      state,
+      isToBeClosed: (_tab, index) => {
+        return index === action.atIndex;
+      },
+    });
   }
 
   if (
@@ -563,7 +620,6 @@ type OpenWorkspaceAction = {
   type: WorkspacesActions.OpenWorkspace;
   workspace: OpenWorkspaceOptions;
   newTab?: boolean;
-  atIndex?: number;
 };
 
 type FetchCollectionInfoAction = {
@@ -574,11 +630,9 @@ type FetchCollectionInfoAction = {
 
 export type TabOptions = {
   /**
-   * Optional
-   *  * If set to `true`, always opens workspace in a new tab
-   *  * If set to `false`, always opens workspace in the same tab
-   *  * If `undefined`, tries to autodetect whether or not the tab should be opened
-   *    in a new tab or not (see workspaces reducer for the autodetection logic)
+   * Optional. If set to `true`, always opens workspace in a new tab, otherwise
+   * will resolve whether or not current active tab can be replaced based on the
+   * replace handlers
    */
   newTab?: boolean;
 };
@@ -638,34 +692,10 @@ const fetchCollectionInfo = (
 
 export const openWorkspace = (
   workspaceOptions: OpenWorkspaceOptions,
-  tabOptions?: TabOptions & { atIndex?: number }
-): WorkspacesThunkAction<void, OpenWorkspaceAction | SelectTabAction> => {
+  tabOptions?: TabOptions
+): WorkspacesThunkAction<void, OpenWorkspaceAction> => {
   return (dispatch, getState) => {
     const oldTabs = getState().tabs;
-
-    let forceNewTab: boolean | undefined;
-
-    // This action will potentially replace existing tab content, check if we
-    // are allowed to close the tab
-    if (!tabOptions?.newTab) {
-      const newTab = getInitialTabState(workspaceOptions);
-
-      const existingTabIndex = getState().tabs.findIndex((tab) => {
-        return isWorkspaceEqual(tab, newTab);
-      });
-
-      if (existingTabIndex !== -1) {
-        dispatch(selectTab(existingTabIndex));
-        return;
-      }
-
-      const toReplace =
-        getState().tabs[tabOptions?.atIndex ?? getActiveTabIndex(getState())];
-
-      if (toReplace) {
-        forceNewTab = !canReplaceTab(toReplace);
-      }
-    }
 
     if (workspaceOptions.type === 'Collection') {
       // Fetching extra metadata for collection should not block tab opening
@@ -675,8 +705,7 @@ export const openWorkspace = (
     dispatch({
       type: WorkspacesActions.OpenWorkspace,
       workspace: workspaceOptions,
-      newTab: forceNewTab ?? tabOptions?.newTab,
-      atIndex: tabOptions?.atIndex,
+      newTab: tabOptions?.newTab ?? false,
     });
 
     cleanupRemovedTabs(oldTabs, getState().tabs);
@@ -835,26 +864,28 @@ export const collectionSubtabSelected = (
   subTab,
 });
 
-export const openFallbackTab = (
+type OpenFallbackWorkspaceAction = {
+  type: WorkspacesActions.OpenFallbackWorkspace;
+  toReplace: Extract<WorkspaceTab, { namespace: string }>;
+  fallbackNamespace: string | null;
+};
+
+export const openFallbackWorkspace = (
   tab: WorkspaceTab,
-  connectionId: string,
   fallbackNamespace?: string | null
-): WorkspacesThunkAction<void> => {
+): WorkspacesThunkAction<void, OpenFallbackWorkspaceAction> => {
   return (dispatch, getState) => {
+    if (tab.type !== 'Collection' && tab.type !== 'Collections') {
+      throw new Error(
+        'Fallback workspace can only be opened for workspaces with a namespace'
+      );
+    }
     const oldTabs = getState().tabs;
-    const options: OpenWorkspaceOptions = fallbackNamespace
-      ? {
-          type: toNS(fallbackNamespace).collection
-            ? 'Collection'
-            : 'Collections',
-          connectionId,
-          namespace: fallbackNamespace,
-        }
-      : { type: 'Databases', connectionId };
-    const tabIndex = getState().tabs.findIndex((ws) => {
-      return ws.id === tab.id;
+    dispatch({
+      type: WorkspacesActions.OpenFallbackWorkspace,
+      toReplace: tab,
+      fallbackNamespace: fallbackNamespace ?? null,
     });
-    dispatch(openWorkspace(options, { newTab: false, atIndex: tabIndex }));
     cleanupRemovedTabs(oldTabs, getState().tabs);
   };
 };

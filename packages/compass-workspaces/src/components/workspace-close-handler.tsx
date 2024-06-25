@@ -32,7 +32,11 @@ export const canReplaceTab = (tab: WorkspaceTab) => {
   return resolveTabDestroyState('replace', tab);
 };
 
-const setTabDestroyHandler = (
+/**
+ * Exported only for testing purposes
+ * @internal
+ */
+export const setTabDestroyHandler = (
   type: 'close' | 'replace',
   tabId: string,
   handler: WorkspaceDestroyHandler
