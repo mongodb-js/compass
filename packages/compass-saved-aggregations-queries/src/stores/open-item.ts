@@ -434,6 +434,7 @@ const openItem =
       {
         id: item.id,
         screen: 'my_queries',
+        connectionId: connection,
       }
     );
 

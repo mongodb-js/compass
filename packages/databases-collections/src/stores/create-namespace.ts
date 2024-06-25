@@ -4,6 +4,7 @@ import {
   ConnectionsManagerEvents,
   type ConnectionsManager,
   type DataService,
+  type ConnectionScopedTrackFunction,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -24,7 +25,6 @@ import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -34,7 +34,7 @@ export type CreateNamespaceServices = {
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 

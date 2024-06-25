@@ -7,10 +7,12 @@ import {
   createLoggerLocator,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedTrackFunction,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export function ShellPlugin() {
   const multiConnectionsEnabled = usePreference(
@@ -70,7 +72,7 @@ export function onActivated(
   }: {
     globalAppRegistry: AppRegistry;
     logger: Logger;
-    track: TrackFunction;
+    track: ConnectionScopedTrackFunction;
     dataService: DataService;
     preferences: PreferencesAccess;
   }

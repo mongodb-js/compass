@@ -65,11 +65,7 @@ const reducer: Reducer<PipelineModeState> = (state = INITIAL_STATE, action) => {
 export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (
-    dispatch,
-    getState,
-    { pipelineBuilder, track, connectionInfoAccess }
-  ) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     if (newMode === getState().pipelineBuilder.pipelineMode) {
       return;
     }
@@ -98,7 +94,6 @@ export const changePipelineMode = (
     track('Editor Type Changed', {
       num_stages,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
 
     dispatch(updatePipelinePreview());

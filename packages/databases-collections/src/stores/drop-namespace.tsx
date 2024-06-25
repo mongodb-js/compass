@@ -7,10 +7,12 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedTrackFunction,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type NS = ReturnType<typeof toNS>;
 
@@ -18,7 +20,7 @@ type DropNamespaceServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
 };
 
 export function activatePlugin(

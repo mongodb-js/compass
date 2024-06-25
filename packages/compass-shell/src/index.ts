@@ -1,6 +1,5 @@
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
@@ -8,19 +7,20 @@ import {
   connectionInfoAccessLocator,
   dataServiceLocator,
   type DataService,
+  type ConnectionScopedTrackFunction,
 } from '@mongodb-js/compass-connections/provider';
 import {
   preferencesLocator,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
 import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 export const CompassShellPlugin = registerHadronPlugin<
   unknown,
   {
     logger: () => Logger;
-    track: () => TrackFunction;
+    track: () => ConnectionScopedTrackFunction;
     dataService: () => DataService;
     preferences: () => PreferencesAccess;
     connectionInfoAccess: () => ConnectionInfoAccess;
@@ -33,7 +33,7 @@ export const CompassShellPlugin = registerHadronPlugin<
   },
   {
     logger: createLoggerLocator('COMPASS-SHELL'),
-    track: createTelemetryLocator(),
+    track: createConnectionScopedTelemetryLocator(),
     dataService: dataServiceLocator,
     preferences: preferencesLocator,
     connectionInfoAccess: connectionInfoAccessLocator,

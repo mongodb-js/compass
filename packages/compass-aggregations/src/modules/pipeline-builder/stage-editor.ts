@@ -534,11 +534,7 @@ export const changeStageOperator = (
   string | undefined,
   ChangeStageOperatorAction
 > => {
-  return (
-    dispatch,
-    getState,
-    { pipelineBuilder, track, connectionInfoAccess }
-  ) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       env,
       comments,
@@ -579,7 +575,6 @@ export const changeStageOperator = (
       stage_name: stage.operator,
       stage_index: idxInPipeline + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
 
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
@@ -648,11 +643,7 @@ export const changeStageCollapsed = (
 export const addStage = (
   after?: number
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
-  return (
-    dispatch,
-    getState,
-    { pipelineBuilder, track, connectionInfoAccess }
-  ) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -671,7 +662,6 @@ export const addStage = (
       stage_action: 'stage_added',
       stage_index: stage.id + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
     dispatch({
       type: StageEditorActionTypes.StageAdded,
@@ -684,11 +674,7 @@ export const addStage = (
 export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
-  return (
-    dispatch,
-    getState,
-    { pipelineBuilder, track, connectionInfoAccess }
-  ) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -709,7 +695,6 @@ export const removeStage = (
       stage_name: stage.operator,
       stage_index: idxInPipeline + 1,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
@@ -721,11 +706,7 @@ export const moveStage = (
   from: number,
   to: number
 ): PipelineBuilderThunkAction<void, StageMoveAction> => {
-  return (
-    dispatch,
-    getState,
-    { pipelineBuilder, track, connectionInfoAccess }
-  ) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     if (from === to) {
       return;
     }
@@ -767,7 +748,6 @@ export const moveStage = (
         stage_name: stageAtFromIdx.stageOperator,
         stage_index: stageAtFromIdx.idxInPipeline + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
-        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       });
 
       pipelineBuilder.moveStage(stageAtFromIdx.idxInPipeline, toIdxInPipeline);

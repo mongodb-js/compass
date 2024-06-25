@@ -37,11 +37,7 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
   void,
   SidePanelToggledAction
 > => {
-  return (
-    dispatch,
-    getState,
-    { pipelineBuilder, track, connectionInfoAccess }
-  ) => {
+  return (dispatch, getState, { pipelineBuilder, track }) => {
     const {
       sidePanel: { isPanelOpen },
     } = getState();
@@ -53,7 +49,6 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
       track('Aggregation Side Panel Opened', {
         num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder)
           .length,
-        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       });
     }
 

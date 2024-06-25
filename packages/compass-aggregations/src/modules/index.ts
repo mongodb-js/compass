@@ -48,8 +48,8 @@ import type { DataService } from '../modules/data-service';
 import type {
   ConnectionInfoAccess,
   ConnectionScopedAppRegistry,
+  ConnectionScopedTrackFunction,
 } from '@mongodb-js/compass-connections/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 /**
  * The main application reducer.
  *
@@ -104,7 +104,7 @@ export type PipelineBuilderExtraArgs = {
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
   dataService: DataService;

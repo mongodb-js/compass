@@ -289,7 +289,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, instance, dataService, track, connectionInfoAccess }
+    { pipelineBuilder, instance, dataService, track }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
@@ -312,7 +312,6 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
     track('Aggregation Executed', () => ({
       num_stages: pipeline.length,
       editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     }));
     return dispatch(fetchAggregationData());
   };
@@ -364,10 +363,8 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState, { track, connectionInfoAccess }) => {
-    track('Aggregation Canceled', {
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
-    });
+  return (dispatch, getState, { track }) => {
+    track('Aggregation Canceled', {});
     const {
       aggregation: { abortController },
     } = getState();
@@ -390,13 +387,7 @@ const fetchAggregationData = (
   return async (
     dispatch,
     getState,
-    {
-      preferences,
-      logger: { log, mongoLogId },
-      track,
-      globalAppRegistry,
-      connectionInfoAccess,
-    }
+    { preferences, logger: { log, mongoLogId }, track, globalAppRegistry }
   ) => {
     const {
       namespace,
@@ -481,7 +472,6 @@ const fetchAggregationData = (
         if ((e as MongoServerError).codeName === 'MaxTimeMSExpired') {
           track('Aggregation Timed Out', {
             max_time_ms: maxTimeMS ?? null,
-            connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
           });
         }
         log.warn(

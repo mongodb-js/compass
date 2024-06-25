@@ -4,8 +4,6 @@ type ConnectionScopePayload = GeneralPayload & { connectionId: string };
 export type EventsPayload = {
   /* CONNECTION SCOPE */
   'Aggregation Canceled': ConnectionScopePayload;
-  'Aggregation Copied': ConnectionScopePayload;
-  'Aggregation Deleted': ConnectionScopePayload;
   'Aggregation Edited': ConnectionScopePayload;
   'Aggregation Executed': ConnectionScopePayload;
   'Aggregation Explained': ConnectionScopePayload;
@@ -102,8 +100,10 @@ export type EventsPayload = {
   'My Queries Sort': GeneralPayload;
   'Theme Changed': GeneralPayload;
   'Error Fetching Attributes': GeneralPayload;
+  'Aggregation Deleted': GeneralPayload;
+  'Aggregation Copied': GeneralPayload;
   // unsure
-  Screen: ConnectionScopePayload; // this is a maybe // TODO: go through all screens and add connectionId if possible
+  Screen: GeneralPayload; // this is a maybe.
   'Connection Exported': GeneralPayload; // looks like this is actually export of multiple connections
   'Connection Imported': GeneralPayload; // same as above
   'Keytar Secrets Migration Failed': GeneralPayload;
