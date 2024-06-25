@@ -139,6 +139,7 @@ export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   connectionInfoSecretsChanged: () => void;
   close: () => void;
+  oidcAuthFailed: (error: string) => void;
 }
 
 export type UpdatePreviewChange = {
@@ -1483,6 +1484,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
       state.oidcPlugin.logger.on('mongodb-oidc-plugin:state-updated', () => {
         this._emitter.emit('connectionInfoSecretsChanged');
       });
+
+      state.oidcPlugin.logger.on(
+        'mongodb-oidc-plugin:auth-failed',
+        ({ error }) => {
+          this._emitter.emit('oidcAuthFailed', error);
+        }
+      );
 
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;

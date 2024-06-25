@@ -68,3 +68,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr merge $PULL_REQUEST_NUMBER --squash --delete-branch
+          gh workflow run codeql.yml -r main

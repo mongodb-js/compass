@@ -3,6 +3,9 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -17,6 +20,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   before(function () {
     skipForWeb(this, 'settings modal not available on compass-web');
+    // TODO(COMPASS-8005): port these once implemented
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   beforeEach(async function () {
@@ -103,7 +110,10 @@ describe('readOnly: true / Read-Only Edition', function () {
   it('shows and hides the create database button on the instance tab', async function () {
     await browser.connectWithConnectionString();
 
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
 
     let instanceCreateDatabaseButton = await browser.$(
       Selectors.InstanceCreateDatabaseButton
@@ -135,7 +145,10 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     let databaseCreateCollectionButton = await browser.$(
       Selectors.DatabaseCreateCollectionButton

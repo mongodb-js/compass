@@ -271,4 +271,84 @@ describe('useExportConnections', function () {
 
     expect(result.current.exportConnections.state.error).to.equal('');
   });
+
+  context('when multiple connections is enabled', function () {
+    beforeEach(async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      const wrapper: React.FC = ({ children }) =>
+        createElement(PreferencesProvider, {
+          value: preferences,
+          children: createElement(ConnectionStorageProvider, {
+            value: connectionStorage,
+            children,
+          }),
+        });
+      renderHookResult = renderHook(
+        (props: Partial<UseExportConnectionsProps> = {}) => {
+          return {
+            connectionRepository: useConnectionRepository(),
+            exportConnections: useExportConnections({
+              ...defaultProps,
+              ...props,
+            }),
+          };
+        },
+        { wrapper }
+      );
+      ({ result, rerender } = renderHookResult);
+    });
+
+    it('includes also the non-favorites connections in the export list', async function () {
+      expect(
+        result.current.exportConnections.state.connectionList
+      ).to.deep.equal([]);
+
+      // expecting to include the non-favorite connections as well
+      await act(async () => {
+        await result.current.connectionRepository.saveConnection({
+          id: 'id1',
+          connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+          favorite: {
+            name: 'name1',
+          },
+          savedConnectionType: 'recent',
+        });
+      });
+
+      rerender({});
+      expect(
+        result.current.exportConnections.state.connectionList
+      ).to.deep.equal([{ id: 'id1', name: 'name1', selected: true }]);
+
+      act(() => {
+        result.current.exportConnections.onChangeConnectionList([
+          { id: 'id1', name: 'name1', selected: false },
+        ]);
+      });
+      expect(
+        result.current.exportConnections.state.connectionList
+      ).to.deep.equal([{ id: 'id1', name: 'name1', selected: false }]);
+
+      await act(async () => {
+        await result.current.connectionRepository.saveConnection({
+          id: 'id2',
+          connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+          favorite: {
+            name: 'name2',
+          },
+          savedConnectionType: 'recent',
+        });
+      });
+
+      expect(
+        result.current.exportConnections.state.connectionList
+      ).to.deep.equal([
+        { id: 'id1', name: 'name1', selected: false },
+        { id: 'id2', name: 'name2', selected: true },
+      ]);
+    });
+  });
 });
