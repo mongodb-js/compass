@@ -39,13 +39,13 @@ import { maxTimeMSChanged } from '../modules/max-time-ms';
 import type {
   ConnectionInfoAccess,
   ConnectionScopedAppRegistry,
+  ConnectionScopedTrackFunction,
 } from '@mongodb-js/compass-connections/provider';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 import {
   pickCollectionStats,
   collectionStatsFetched,
 } from '../modules/collection-stats';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -79,7 +79,7 @@ export type AggregationsPluginServices = {
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorage;

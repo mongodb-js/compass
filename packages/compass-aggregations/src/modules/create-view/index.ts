@@ -227,7 +227,10 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
         options
       );
       const ns = `${database}.${viewName}`;
-      track('Aggregation Saved As View', { num_stages: viewPipeline.length });
+      track('Aggregation Saved As View', {
+        num_stages: viewPipeline.length,
+        connectionId,
+      });
       globalAppRegistry.emit('view-created', ns, {
         connectionId,
       });

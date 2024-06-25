@@ -118,6 +118,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       track('View Updated', {
         num_stages: viewPipeline.length,
         editor_view_type: mapPipelineModeToEditorViewType(state),
+        connectionId,
       });
       debug('selecting namespace', viewNamespace);
       globalAppRegistry.emit('view-edited', viewNamespace);

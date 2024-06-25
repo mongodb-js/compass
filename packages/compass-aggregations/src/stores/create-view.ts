@@ -7,15 +7,17 @@ import reducer, { open } from '../modules/create-view';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedTrackFunction,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type CreateViewServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   workspaces: WorkspacesService;
 };
 

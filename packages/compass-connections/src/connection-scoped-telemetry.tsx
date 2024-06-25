@@ -5,6 +5,14 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoAccessLocator } from './provider';
+import { createServiceLocator } from 'hadron-app-registry';
+
+export function createConnectionScopedTelemetryLocator() {
+  return createServiceLocator(
+    useConnectionScopedTelemetry.bind(null),
+    'createConnectionScopedTelemetryLocator'
+  );
+}
 
 export type ConnectionScopedTrackFunction = (
   event: Parameters<TrackFunction>[0],

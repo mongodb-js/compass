@@ -13,7 +13,6 @@ import {
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
@@ -27,6 +26,7 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
+import { createConnectionScopedTelemetryLocator } from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 export const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
@@ -43,7 +43,7 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-AGGREGATIONS-UI'),
-    track: createTelemetryLocator(),
+    track: createConnectionScopedTelemetryLocator(),
     atlasAuthService: atlasAuthServiceLocator,
     atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
@@ -68,7 +68,7 @@ export const CreateViewPlugin = registerHadronPlugin(
   {
     connectionsManager: connectionsManagerLocator,
     logger: createLoggerLocator('COMPASS-CREATE-VIEW-UI'),
-    track: createTelemetryLocator(),
+    track: createConnectionScopedTelemetryLocator(),
     workspaces: workspacesServiceLocator,
   }
 );

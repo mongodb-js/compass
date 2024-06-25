@@ -14,6 +14,7 @@ import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -160,6 +161,7 @@ type FailedResponseTrackMessage = {
   errorName: string;
   errorCode?: string;
   requestId: string;
+  connectionId: ConnectionInfo['id'];
   track: TrackFunction;
 } & Pick<Logger, 'log'>;
 
@@ -171,6 +173,7 @@ function trackAndLogFailed({
   errorCode,
   log,
   requestId,
+  connectionId,
   track,
 }: FailedResponseTrackMessage) {
   log.warn(
@@ -191,6 +194,7 @@ function trackAndLogFailed({
     status_code: statusCode,
     error_name: errorName,
     request_id: requestId,
+    connectionId,
   });
 }
 
@@ -209,6 +213,7 @@ export const runAIPipelineGeneration = (
       preferences,
       logger: { log, mongoLogId },
       track,
+      connectionInfoAccess,
     }
   ) => {
     const {
@@ -219,6 +224,8 @@ export const runAIPipelineGeneration = (
       namespace,
       dataService: { dataService },
     } = getState();
+
+    const connectionId = connectionInfoAccess.getCurrentConnectionInfo().id;
 
     const provideSampleDocuments =
       preferences.getPreferences().enableGenAISampleDocumentPassing;
@@ -237,6 +244,7 @@ export const runAIPipelineGeneration = (
       user_input_length: userInput.length,
       request_id: requestId,
       has_sample_documents: provideSampleDocuments,
+      connectionId,
     }));
 
     dispatch({
@@ -293,6 +301,7 @@ export const runAIPipelineGeneration = (
         track,
         log,
         requestId,
+        connectionId,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -341,6 +350,7 @@ export const runAIPipelineGeneration = (
         track,
         log,
         requestId,
+        connectionId,
       });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
@@ -368,6 +378,7 @@ export const runAIPipelineGeneration = (
       syntax_errors: !!(pipelineBuilder.syntaxError?.length > 0),
       query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
       request_id: requestId,
+      connectionId,
     }));
 
     dispatch({

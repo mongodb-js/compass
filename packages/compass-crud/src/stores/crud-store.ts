@@ -62,9 +62,9 @@ import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type {
   ConnectionInfoAccess,
   ConnectionScopedAppRegistry,
+  ConnectionScopedTrackFunction,
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -334,7 +334,7 @@ class CrudStoreImpl
   recentQueriesStorage?: RecentQueryStorage;
   fieldStoreService: FieldStoreService;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
@@ -1846,7 +1846,7 @@ export type DocumentsPluginServices = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   preferences: PreferencesAccess;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
   fieldStoreService: FieldStoreService;
