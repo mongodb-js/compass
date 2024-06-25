@@ -14,7 +14,7 @@ import {
   ConnectionsManager,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   type MongoDBInstance,
   TestMongoDBInstanceManager,
@@ -65,7 +65,7 @@ describe('CreateNamespacePlugin', function () {
 
   beforeEach(function () {
     const connectionsManager = new ConnectionsManager({
-      logger: createNoopLoggerAndTelemetry().log.unbound,
+      logger: createNoopLogger().log.unbound,
     });
     sandbox
       .stub(connectionsManager, 'getDataServiceForConnection')

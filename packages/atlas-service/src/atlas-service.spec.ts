@@ -3,7 +3,7 @@ import Sinon from 'sinon';
 import { AtlasService } from './atlas-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { CompassAtlasAuthService } from './compass-atlas-auth-service';
 
 const ATLAS_CONFIG = {
@@ -27,7 +27,7 @@ function getAtlasService(
   const atlasService = new AtlasService(
     authService,
     preferences,
-    createNoopLoggerAndTelemetry()
+    createNoopLogger()
   );
   atlasService['config'] = ATLAS_CONFIG;
   return atlasService;

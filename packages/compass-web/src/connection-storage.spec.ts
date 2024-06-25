@@ -10,9 +10,9 @@ const deployment = {
       },
     },
   ],
-  clusters: [
+  sharding: [
     {
-      _id: 'sharded-xxx',
+      name: 'sharded-xxx',
       state: {
         clusterId: '123abc',
       },

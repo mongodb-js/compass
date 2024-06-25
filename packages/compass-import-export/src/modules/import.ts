@@ -193,7 +193,8 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       connectionsManager,
       globalAppRegistry: appRegistry,
       workspaces,
-      logger: { log, mongoLogId, track, debug },
+      track,
+      logger: { log, mongoLogId, debug },
     }
   ) => {
     const startTime = Date.now();
@@ -854,7 +855,7 @@ export const openImport = ({
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
-  return (dispatch, getState, { logger: { track } }) => {
+  return (dispatch, getState, { track }) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({

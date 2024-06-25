@@ -269,7 +269,7 @@ export function NavigationItems({
   showCreateDatabaseAction: boolean;
   isPerformanceTabSupported: boolean;
   onAction(actionName: string, ...rest: any[]): void;
-  activeWorkspace?: WorkspaceTab;
+  activeWorkspace: WorkspaceTab | null;
   showTooManyCollectionsInsight?: boolean;
 }) {
   const {
@@ -373,7 +373,7 @@ export function NavigationItems({
       />
       <SidebarDatabasesNavigation
         connectionInfo={connectionInfo}
-        activeWorkspace={activeWorkspace ?? undefined}
+        activeWorkspace={activeWorkspace}
         filterRegex={databasesFilterRegex}
       />
     </>

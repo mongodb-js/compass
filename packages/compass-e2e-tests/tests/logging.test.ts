@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -12,6 +13,11 @@ import type { Telemetry, LogEntry } from '../helpers/telemetry';
 describe('Logging and Telemetry integration', function () {
   before(function () {
     skipForWeb(this, 'telemetry not yet available in compass-web');
+
+    // TODO(COMPASS-8004): skipping for multiple connections due to the use of shellEval for now
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   describe('after running an example path through Compass', function () {
@@ -459,7 +465,7 @@ describe('Logging and Telemetry integration', function () {
       }
 
       uncaughtEntry.attr.stack = uncaughtEntry.attr.stack
-        .replace(/file:\/\/\/.+:\d+:\d+/g, '<filename>')
+        .replace(/(file|eval \(webpack):\/\/\/?.+:\d+:\d+\)?/g, '<filename>')
         .split('\n')
         .slice(0, 2)
         .join('\n');

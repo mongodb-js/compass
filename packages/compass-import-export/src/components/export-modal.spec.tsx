@@ -6,7 +6,9 @@ import { configureStore } from '../stores/export-store';
 import { ExportModal } from './export-modal';
 import { Provider } from 'react-redux';
 import { closeExport, openExport } from '../modules/export';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 function renderModal(exportState: any = {}) {
   // TODO: mutating state directly doesn't guarantee that we are testing the
@@ -16,7 +18,8 @@ function renderModal(exportState: any = {}) {
   const store = configureStore({
     dataService: {},
     globalAppRegistry: {},
-    logger: createNoopLoggerAndTelemetry(),
+    logger: createNoopLogger(),
+    track: createNoopTrack(),
   } as any);
   const state = store.getState();
   state.export = {

@@ -139,6 +139,7 @@ export interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   connectionInfoSecretsChanged: () => void;
   close: () => void;
+  oidcAuthFailed: (error: string) => void;
 }
 
 export type UpdatePreviewChange = {
@@ -1484,6 +1485,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
         this._emitter.emit('connectionInfoSecretsChanged');
       });
 
+      state.oidcPlugin.logger.on(
+        'mongodb-oidc-plugin:auth-failed',
+        ({ error }) => {
+          this._emitter.emit('oidcAuthFailed', error);
+        }
+      );
+
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
       this._tunnel = tunnel;
@@ -1717,8 +1725,12 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return coll.dropSearchIndex(name);
   }
 
-  @op(mongoLogId(1_001_000_041), ([ns, pipeline]) => {
-    return { ns, stages: pipeline.map((stage) => Object.keys(stage)[0]) };
+  @op(mongoLogId(1_001_000_041), ([ns, pipeline, options]) => {
+    return {
+      ns,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+      maxTimeMS: options?.maxTimeMS,
+    };
   })
   aggregateCursor(
     ns: string,

@@ -16,8 +16,9 @@ import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banne
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { withLogger } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 /**
  * The insert invalid message.
@@ -58,7 +59,8 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   ns: string;
   isCommentNeeded: boolean;
   updateComment: (isCommentNeeded: boolean) => void;
-  logger?: LoggerAndTelemetry;
+  logger?: Logger;
+  track?: TrackFunction;
 };
 
 type InsertDocumentDialogState = {
@@ -95,7 +97,8 @@ class InsertDocumentDialog extends React.PureComponent<
     state: InsertDocumentDialogState
   ) {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-      this.props.logger?.track('Screen', { name: 'insert_document_modal' });
+      this.props.track &&
+        this.props.track('Screen', { name: 'insert_document_modal' });
     }
 
     if (this.props.isOpen && !this.hasManyDocuments()) {
@@ -107,7 +110,7 @@ class InsertDocumentDialog extends React.PureComponent<
         // Subscribe to the validation errors for BSON types on the document.
         this.props.doc.on(Element.Events.Invalid, this.handleInvalid);
         this.props.doc.on(Element.Events.Valid, this.handleValid);
-      } else {
+      } else if (!prevProps.jsonView && this.props.jsonView) {
         // When switching to JSON View.
         // Remove the listeners to the BSON type validation errors in order to clean up properly.
         this.props.doc.removeListener(
@@ -340,4 +343,4 @@ class InsertDocumentDialog extends React.PureComponent<
   }
 }
 
-export default withLoggerAndTelemetry(InsertDocumentDialog, 'COMPASS-CRUD-UI');
+export default withLogger(InsertDocumentDialog, 'COMPASS-CRUD-UI');

@@ -11,31 +11,39 @@ import {
   hookLoggerToMongoLogWriter as oidcPluginHookLoggerToMongoLogWriter,
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
-// TODO(https://github.com/node-fetch/node-fetch/issues/1652): Remove this when
-// node-fetch types match the built in AbortSignal from node.
-import type { AbortSignal as NodeFetchAbortSignal } from 'node-fetch/externals';
+import { systemCertsAsync } from 'system-ca';
+import type { Options as SystemCAOptions } from 'system-ca';
 import type { RequestInfo, RequestInit, Response } from 'node-fetch';
+import https from 'https';
 import nodeFetch from 'node-fetch';
 import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
-import {
-  createLoggerAndTelemetry,
-  mongoLogId,
-} from '@mongodb-js/compass-logging';
+import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { SecretStore } from './secret-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
+const { log } = createLogger('COMPASS-ATLAS-SERVICE');
+const track = createIpcTrack();
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',
   productDocsLink: 'https://www.mongodb.com/docs/compass',
 });
+
+async function getSystemCA() {
+  // It is possible for OIDC login flow to fail if system CA certs are different from
+  // the ones packaged with the application. To avoid this, we include the system CA
+  // certs in the OIDC plugin options. See COMPASS-7950 for more details.
+  const systemCAOpts: SystemCAOptions = { includeNodeCertificates: true };
+  const ca = await systemCertsAsync(systemCAOpts);
+  return ca.join('\n');
+}
 
 const TOKEN_TYPE_TO_HINT = {
   accessToken: 'access_token',
@@ -63,7 +71,7 @@ export class CompassAuthService {
   ): Promise<Response> => {
     await this.initPromise;
     this.throwIfNetworkTrafficDisabled();
-    throwIfAborted(init.signal as AbortSignal);
+    throwIfAborted(init.signal ?? undefined);
     log.info(
       mongoLogId(1_001_000_299),
       'AtlasService',
@@ -72,6 +80,14 @@ export class CompassAuthService {
     );
     try {
       const res = await nodeFetch(url, {
+        // Tests use 'http'.
+        ...(url.toString().includes('https')
+          ? {
+              agent: new https.Agent({
+                ca: await getSystemCA(),
+              }),
+            }
+          : {}),
         ...init,
         headers: {
           ...init.headers,
@@ -129,7 +145,7 @@ export class CompassAuthService {
 
   private static createMongoDBOIDCPlugin = createMongoDBOIDCPlugin;
 
-  private static setupPlugin(serializedState?: string) {
+  private static async setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
       redirectServerRequestHandler: (data) => {
         if (data.result === 'redirecting') {
@@ -150,6 +166,9 @@ export class CompassAuthService {
       allowedFlows: this.getAllowedAuthFlows.bind(this),
       logger: this.oidcPluginLogger,
       serializedState,
+      customHttpOptions: {
+        ca: await getSystemCA(),
+      },
     });
     oidcPluginHookLoggerToMongoLogWriter(
       this.oidcPluginLogger,
@@ -180,7 +199,7 @@ export class CompassAuthService {
         { config: this.config }
       );
       const serializedState = await this.secretStore.getState();
-      this.setupPlugin(serializedState);
+      await this.setupPlugin(serializedState);
     })());
   }
 
@@ -188,9 +207,7 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
-  private static async requestOAuthToken({
-    signal,
-  }: { signal?: AbortSignal } = {}) {
+  private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
@@ -200,14 +217,14 @@ export class CompassAuthService {
       );
     }
 
-    return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
+    return this.plugin.mongoClientOptions.authMechanismProperties.OIDC_HUMAN_CALLBACK(
       {
-        clientId: this.config.atlasLogin.clientId,
-        issuer: this.config.atlasLogin.issuer,
-      },
-      {
+        idpInfo: {
+          clientId: this.config.atlasLogin.clientId,
+          issuer: this.config.atlasLogin.issuer,
+        },
         // Required driver specific stuff
-        version: 0,
+        version: 1,
         // While called timeoutContext, this is actually an abort signal that
         // plugin will listen to, not a timeout
         timeoutContext: signal,
@@ -301,7 +318,7 @@ export class CompassAuthService {
     this.attachOidcPluginLoggerEvents();
     // Destroy old plugin and setup new one
     await this.plugin?.destroy();
-    this.setupPlugin();
+    await this.setupPlugin();
     // Revoke tokens. Revoking refresh token will also revoke associated access
     // tokens
     // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
@@ -362,7 +379,7 @@ export class CompassAuthService {
             Authorization: `Bearer ${token ?? ''}`,
             Accept: 'application/json',
           },
-          signal: signal as NodeFetchAbortSignal | undefined,
+          signal: signal,
         }
       );
 
@@ -403,7 +420,7 @@ export class CompassAuthService {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      signal: signal as NodeFetchAbortSignal | undefined,
+      signal: signal,
     });
 
     await throwIfNotOk(res);
@@ -438,7 +455,7 @@ export class CompassAuthService {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      signal: signal as NodeFetchAbortSignal | undefined,
+      signal: signal,
     });
 
     await throwIfNotOk(res);

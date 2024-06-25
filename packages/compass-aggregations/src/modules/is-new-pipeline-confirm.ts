@@ -22,7 +22,7 @@ export type NewPipelineConfirmedAction = {
  */
 export const confirmNewPipeline =
   (): PipelineBuilderThunkAction<void> =>
-  async (dispatch, getState, { pipelineBuilder, logger: { track } }) => {
+  async (dispatch, getState, { pipelineBuilder, track }) => {
     const isModified = getState().isModified;
     if (isModified) {
       track('Screen', { name: 'confirm_new_pipeline_modal' });

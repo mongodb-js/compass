@@ -9,18 +9,30 @@ import {
 } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
-import { openSavedItem } from '../stores/open-item';
+import {
+  openSavedItem,
+  openSelectConnectionAndNamespaceModal,
+} from '../stores/open-item';
 import type { RootState } from '../stores';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { Action } from './saved-item-card';
 import { NoSavedItems, NoSearchResults } from './empty-list-items';
-import OpenItemModal from './open-item-modal';
 import EditItemModal from './edit-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
 import { editItem } from '../stores/edit-item';
 import { confirmDeleteItem } from '../stores/delete-item';
 import { copyToClipboard } from '../stores/copy-to-clipboard';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  type ConnectionInfo,
+  useActiveConnections,
+} from '@mongodb-js/compass-connections/provider';
+import SelectConnectionModal from './select-connection-modal';
+import SelectConnectionAndNamespaceModal from './select-connection-and-namespace-modal';
+import NoActiveConnectionsModal from './no-active-connections-modal';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {
@@ -73,7 +85,11 @@ export type AggregationsQueriesListProps = {
   loading: boolean;
   items: Item[];
   onMount(): void;
-  onOpenItem(id: string): void;
+  onOpenItem(id: string, activeConnections: ConnectionInfo[]): void;
+  onOpenItemForDiffTarget(
+    id: string,
+    activeConnections: ConnectionInfo[]
+  ): void;
   onEditItem(id: string): void;
   onDeleteItem(id: string): void;
   onCopyToClipboard(id: string): void;
@@ -84,6 +100,7 @@ export const AggregationsQueriesList = ({
   items,
   onMount,
   onOpenItem,
+  onOpenItemForDiffTarget,
   onEditItem,
   onDeleteItem,
   onCopyToClipboard,
@@ -91,6 +108,22 @@ export const AggregationsQueriesList = ({
   useEffect(() => {
     void onMount();
   }, [onMount]);
+
+  const activeConnections = useActiveConnections();
+
+  const handleOpenItem = useCallback(
+    (id: string) => {
+      onOpenItem(id, activeConnections);
+    },
+    [activeConnections, onOpenItem]
+  );
+
+  const handleOpenItemForDiffTarget = useCallback(
+    (id: string) => {
+      onOpenItemForDiffTarget(id, activeConnections);
+    },
+    [activeConnections, onOpenItemForDiffTarget]
+  );
 
   const {
     controls: filterControls,
@@ -104,17 +137,12 @@ export const AggregationsQueriesList = ({
     })
     .map((x) => x.item);
 
-  useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
-      track('Screen', { name: 'my_queries' });
-    },
-    []
-  );
+  useTrackOnChange((track: TrackFunction) => {
+    track('Screen', { name: 'my_queries' });
+  }, []);
 
   useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (filters.database) {
         track('My Queries Filter', { type: 'database' });
       }
@@ -123,8 +151,7 @@ export const AggregationsQueriesList = ({
   );
 
   useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (filters.collection) {
         track('My Queries Filter', { type: 'collection' });
       }
@@ -139,8 +166,7 @@ export const AggregationsQueriesList = ({
   });
 
   useTrackOnChange(
-    'COMPASS-MY-QUERIES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       track('My Queries Sort', {
         sort_by: sortState.name,
         order: sortState.order === 1 ? 'ascending' : 'descending',
@@ -155,7 +181,10 @@ export const AggregationsQueriesList = ({
     (id: string, actionName: Action) => {
       switch (actionName) {
         case 'open':
-          onOpenItem(id);
+          handleOpenItem(id);
+          return;
+        case 'open-in':
+          handleOpenItemForDiffTarget(id);
           return;
         case 'rename':
           onEditItem(id);
@@ -168,7 +197,13 @@ export const AggregationsQueriesList = ({
           return;
       }
     },
-    [onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
+    [
+      handleOpenItem,
+      handleOpenItemForDiffTarget,
+      onEditItem,
+      onDeleteItem,
+      onCopyToClipboard,
+    ]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
@@ -228,7 +263,9 @@ export const AggregationsQueriesList = ({
         classNames={{ row: rowStyles }}
         resetActiveItemOnBlur={false}
       ></VirtualGrid>
-      <OpenItemModal></OpenItemModal>
+      <SelectConnectionModal />
+      <SelectConnectionAndNamespaceModal />
+      <NoActiveConnectionsModal />
       <EditItemModal></EditItemModal>
     </ControlsContext.Provider>
   );
@@ -242,6 +279,7 @@ const mapState = ({ savedItems: { items, loading } }: RootState) => ({
 const mapDispatch = {
   onMount: fetchItems,
   onOpenItem: openSavedItem,
+  onOpenItemForDiffTarget: openSelectConnectionAndNamespaceModal,
   onEditItem: editItem,
   onDeleteItem: confirmDeleteItem,
   onCopyToClipboard: copyToClipboard,

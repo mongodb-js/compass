@@ -164,21 +164,19 @@ const connectionStringErrorStyles = css({
 });
 
 const colorPreviewStyles = css({
-  height: spacing[3],
-  width: spacing[3],
-  marginRight: spacing[2],
+  height: spacing[400],
+  width: spacing[400],
 });
 
 type ColorCircleGlyphProps = { hexColor?: string };
-
-const ColorCircleGlyph = createGlyphComponent(
+export const ColorCircleGlyph = createGlyphComponent(
   'ColorCircle',
   ({ hexColor, ...props }: any & ColorCircleGlyphProps) => (
     <svg
       {...props}
       className={colorPreviewStyles}
-      width={spacing[3]}
-      height={spacing[3]}
+      width={spacing[400]}
+      height={spacing[400]}
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

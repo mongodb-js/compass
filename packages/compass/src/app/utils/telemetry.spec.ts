@@ -8,10 +8,8 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import {
-  createLoggerAndTelemetry,
-  type LoggerAndTelemetry,
-} from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   instance: () => {
@@ -39,10 +37,10 @@ const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
 
 describe('connection tracking', function () {
   let trackUsageStatistics: boolean;
-  let loggerAndTelemetry: LoggerAndTelemetry;
+  const logger = createLogger('TEST-CONNECTION');
+  const track = createIpcTrack();
 
   before(async function () {
-    loggerAndTelemetry = createLoggerAndTelemetry('TEST-CONNECTION');
     // TODO(COMPASS-7397): Proper dependency injection for logger + telemetry would be nice here!
     trackUsageStatistics =
       defaultPreferencesInstance.getPreferences().trackUsageStatistics;
@@ -62,7 +60,8 @@ describe('connection tracking', function () {
         favorite: { name: 'example' },
         lastUsed: undefined,
       },
-      loggerAndTelemetry
+      logger,
+      track
     );
     const [{ properties }] = await trackEvent;
 
@@ -77,7 +76,8 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
       { favorite: undefined, lastUsed: new Date() },
-      loggerAndTelemetry
+      logger,
+      track
     );
     const [{ properties }] = await trackEvent;
     expect(properties).to.deep.equal({
@@ -91,7 +91,8 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
       { favorite: undefined, lastUsed: undefined },
-      loggerAndTelemetry
+      logger,
+      track
     );
     const [{ properties }] = await trackEvent;
     expect(properties).to.deep.equal({
@@ -108,7 +109,8 @@ describe('connection tracking', function () {
         favorite: { name: 'example' },
         lastUsed: new Date(),
       },
-      loggerAndTelemetry
+      logger,
+      track
     );
     const [{ properties }] = await trackEvent;
     expect(properties).to.deep.equal({
@@ -126,7 +128,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     const expected = {
       is_localhost: true,
@@ -166,7 +168,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -220,7 +222,7 @@ describe('connection tracking', function () {
         },
       };
 
-      trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+      trackNewConnectionEvent(connectionInfo, dataService, logger, track);
       const [{ properties }] = await trackEvent;
 
       const expected = {
@@ -291,11 +293,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connectionInfo,
-      mockDataService,
-      loggerAndTelemetry
-    );
+    trackNewConnectionEvent(connectionInfo, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -336,7 +334,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -378,7 +376,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -419,7 +417,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -459,7 +457,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -503,11 +501,7 @@ describe('connection tracking', function () {
             connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
-        trackNewConnectionEvent(
-          connectionInfo,
-          dataService,
-          loggerAndTelemetry
-        );
+        trackNewConnectionEvent(connectionInfo, dataService, logger, track);
         const [{ properties }] = await trackEvent;
         expect(properties.auth_type).to.equal(authMechanism || 'DEFAULT');
       });
@@ -521,7 +515,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.auth_type).to.equal('NONE');
   });
@@ -533,7 +527,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('none');
   });
@@ -550,7 +544,7 @@ describe('connection tracking', function () {
         },
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('ssh');
   });
@@ -562,7 +556,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb+srv://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.is_srv).to.equal(true);
   });
@@ -603,11 +597,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(
-      connectionInfo,
-      mockDataService,
-      loggerAndTelemetry
-    );
+    trackNewConnectionEvent(connectionInfo, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
@@ -657,11 +647,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(
-      connectionInfo,
-      mockDataService,
-      loggerAndTelemetry
-    );
+    trackNewConnectionEvent(connectionInfo, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
@@ -686,11 +672,7 @@ describe('connection tracking', function () {
 
     const connectionError = new Error();
 
-    trackConnectionFailedEvent(
-      connectionInfo,
-      connectionError,
-      loggerAndTelemetry
-    );
+    trackConnectionFailedEvent(connectionInfo, connectionError, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -735,7 +717,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, loggerAndTelemetry);
+    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {

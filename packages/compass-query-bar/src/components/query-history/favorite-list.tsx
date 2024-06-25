@@ -14,11 +14,11 @@ import {
   DeleteActionButton,
 } from './query-item';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
@@ -36,7 +36,7 @@ const FavoriteItem = ({
   query: FavoriteQuery;
   isReadonly: boolean;
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+  const track = useTelemetry();
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);

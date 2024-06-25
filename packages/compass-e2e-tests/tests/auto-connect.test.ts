@@ -1,5 +1,12 @@
 import { expect } from 'chai';
-import { init, cleanup, positionalArgs, skipForWeb } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  positionalArgs,
+  skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
+  screenshotPathName,
+} from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
@@ -16,6 +23,10 @@ describe('Automatically connecting from the command line', function () {
 
   before(function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
+    // TODO(COMPASS-8010): pory these tests
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
   });
 
   beforeEach(async function () {
@@ -100,24 +111,6 @@ describe('Automatically connecting from the command line', function () {
     }
   });
 
-  it('does not store the connection information as a recent connection', async function () {
-    const compass = await init(this.test?.fullTitle(), {
-      wrapBinary: positionalArgs([connectionStringSuccess]),
-      noWaitForConnectionScreen: true,
-      firstRun: true,
-    });
-    try {
-      const browser = compass.browser;
-      await browser.waitForConnectionResult('success');
-      await browser.disconnect();
-      await browser
-        .$(Selectors.RecentConnections)
-        .waitForDisplayed({ reverse: true });
-    } finally {
-      await cleanup(compass);
-    }
-  });
-
   it('fails with an unreachable URL', async function () {
     const args = [
       `--file=${path.join(tmpdir, 'exported.json')}`,
@@ -148,12 +141,16 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs(args),
     });
+    const { browser } = compass;
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await browser.waitForConnectionResult('failure');
       expect(error).to.include('Authentication failed');
-      const connectFormState = await compass.browser.getConnectFormState();
+      const connectFormState = await browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
       expect(connectFormState.defaultPassword).to.equal('asdf/');
+    } catch (err: any) {
+      await browser.screenshot(screenshotPathName('fails with invalid auth'));
+      throw err;
     } finally {
       await cleanup(compass);
     }
@@ -190,9 +187,6 @@ describe('Automatically connecting from the command line', function () {
   });
 
   it('enters auto-connect mode again if the window is hard reloaded', async function () {
-    if (process.platform === 'win32' && (process.env.ci || process.env.CI)) {
-      return this.skip(); // Doesn't work on Windows, but only in CI
-    }
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
@@ -209,6 +203,13 @@ describe('Automatically connecting from the command line', function () {
         location.reload();
       });
       await browser.waitForConnectionScreen();
+    } catch (err: any) {
+      await compass.browser.screenshot(
+        screenshotPathName(
+          'enters auto-connect mode again if the window is hard reloaded'
+        )
+      );
+      throw err;
     } finally {
       await cleanup(compass);
     }
@@ -241,6 +242,27 @@ describe('Automatically connecting from the command line', function () {
       });
 
       await browser.waitForConnectionScreen();
+    } finally {
+      await cleanup(compass);
+    }
+  });
+
+  it('does not store the connection information as a recent connection', async function () {
+    const compass = await init(this.test?.fullTitle(), {
+      wrapBinary: positionalArgs([connectionStringSuccess]),
+      noWaitForConnectionScreen: true,
+      firstRun: true,
+    });
+    try {
+      const browser = compass.browser;
+      await browser.waitForConnectionResult('success');
+      await browser.disconnect();
+
+      // this is not the ideal check because by default the recent connections
+      // list doesn't exist either
+      await browser
+        .$(Selectors.Single.RecentConnections)
+        .waitForDisplayed({ reverse: true });
     } finally {
       await cleanup(compass);
     }

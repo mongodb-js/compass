@@ -3,12 +3,10 @@ import ConnectionStringUrl, {
   redactConnectionString,
 } from 'mongodb-connection-string-url';
 import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { isLocalhost } from 'mongodb-build-info';
 
-const { log, mongoLogId } = createLoggerAndTelemetry(
-  'VALIDATE-CONNECTION-STRING-UTIL'
-);
+const { log, mongoLogId } = createLogger('VALIDATE-CONNECTION-STRING-UTIL');
 
 const allowedConnectionStringOptions = [
   'appName',
@@ -106,8 +104,8 @@ const disallowedConnectionStringOptions = [
 const allowedAuthMechanismProperties = [
   'CANONICALIZE_HOST_NAME',
   'AWS_SESSION_TOKEN',
-  'PROVIDER_NAME',
-  'TOKEN_AUDIENCE',
+  'ENVIRONMENT',
+  'TOKEN_RESOURCE',
 ] as const;
 
 const disallowedAuthMechanismProperties = [
@@ -115,8 +113,8 @@ const disallowedAuthMechanismProperties = [
   'SERVICE_NAME',
   'SERVICE_REALM',
   'ALLOWED_HOSTS',
-  'REQUEST_TOKEN_CALLBACK',
-  'REFRESH_TOKEN_CALLBACK',
+  'OIDC_CALLBACK',
+  'OIDC_HUMAN_CALLBACK',
 ] as const;
 
 // Ensure that all connection string options known to the Node.js driver

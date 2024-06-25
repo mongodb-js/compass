@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createConnectionAttempt } from 'mongodb-data-service';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
@@ -13,6 +13,7 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { cloneDeep, merge } from 'lodash';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import mongodbBuildInfo from 'mongodb-build-info';
+import { openToast } from '@mongodb-js/compass-components';
 
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
@@ -112,7 +113,7 @@ type OnDatabaseSecretsChangedCallback = (
 export const CONNECTION_CANCELED_ERR = 'Connection attempt was canceled';
 
 export class ConnectionsManager extends EventEmitter {
-  private readonly logger: LoggerAndTelemetry['log']['unbound'];
+  private readonly logger: Logger['log']['unbound'];
   private readonly reAuthenticationHandler?: ReauthenticationHandler;
   private readonly __TEST_CONNECT_FN?: ConnectFn;
   private appName: string | undefined;
@@ -128,7 +129,7 @@ export class ConnectionsManager extends EventEmitter {
     __TEST_CONNECT_FN,
   }: {
     appName?: string;
-    logger: LoggerAndTelemetry['log']['unbound'];
+    logger: Logger['log']['unbound'];
     reAuthenticationHandler?: ReauthenticationHandler;
     __TEST_CONNECT_FN?: ConnectFn;
   }) {
@@ -241,6 +242,14 @@ export class ConnectionsManager extends EventEmitter {
           adjustedConnectionInfoForConnection,
           dataService
         );
+      });
+
+      dataService.on?.('oidcAuthFailed', (error) => {
+        openToast('oidc-auth-failed', {
+          title: 'Failed to authenticate',
+          description: error,
+          variant: 'important',
+        });
       });
 
       if (this.reAuthenticationHandler) {
