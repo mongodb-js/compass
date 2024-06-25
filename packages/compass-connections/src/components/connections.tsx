@@ -82,7 +82,7 @@ function Connections({
 }: {
   appRegistry: AppRegistry;
   openConnectionImportExportModal?: (
-    action: 'export-favorites' | 'import-favorites'
+    action: 'import-saved-connections' | 'export-saved-connections'
   ) => void;
 }): React.ReactElement {
   const { log, mongoLogId } = useLogger('COMPASS-CONNECTIONS');

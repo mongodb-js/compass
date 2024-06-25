@@ -91,7 +91,9 @@ function NavigationTree({
       height={400}
       itemHeight={30}
       onDefaultAction={() => {}}
-      onExpandedChange={onExpandedChange}
+      onItemExpand={onExpandedChange}
+      onItemAction={() => {}}
+      getItemActions={() => []}
       width={100}
       renderItem={({ item }) => item.name}
       __TEST_OVER_SCAN_COUNT={Infinity}
