@@ -245,6 +245,8 @@ export const Multiple = {
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
 
+  CreateDatabaseItem:
+    '[data-testid="sidebar-navigation-item-actions-create-database-action"]',
   OpenShellItem:
     '[data-testid="sidebar-navigation-item-actions-open-shell-action"]',
   ViewPerformanceItem:
