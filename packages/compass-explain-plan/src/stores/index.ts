@@ -11,12 +11,12 @@ import type AppRegistry from 'hadron-app-registry';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type {
   ConnectionInfoAccess,
+  ConnectionScopedTrackFunction,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type OpenExplainPlanModalEvent =
   | {
@@ -46,7 +46,7 @@ export type ExplainPlanModalServices = {
     'explainFind' | 'explainAggregate' | 'isCancelError'
   >;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   preferences: PreferencesAccess;
   localAppRegistry: AppRegistry;
   connectionInfoAccess: ConnectionInfoAccess;

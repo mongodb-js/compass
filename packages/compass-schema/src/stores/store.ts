@@ -20,7 +20,10 @@ import {
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedTrackFunction,
+  DataService as OriginalDataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
@@ -29,7 +32,6 @@ import type { Schema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -60,7 +62,7 @@ export type SchemaPluginServices = {
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   preferences: PreferencesAccess;
   fieldStoreService: FieldStoreService;
   queryBar: QueryBarService;

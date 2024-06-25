@@ -23,10 +23,12 @@ import type { EditModeAction, EditModeState } from './edit-mode';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
 import type { ThunkAction } from 'redux-thunk';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionScopedTrackFunction,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 /**
  * Reset action constant.
@@ -64,7 +66,7 @@ export type SchemaValidationExtraArgs = {
   preferences: PreferencesAccess;
   globalAppRegistry: AppRegistry;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
 };
 
 export type SchemaValidationThunkAction<

@@ -23,9 +23,9 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
-  createTelemetryLocator,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+  type ConnectionScopedTrackFunction,
+  createConnectionScopedTelemetryLocator,
+} from '@mongodb-js/compass-connections/dist/connection-scoped-telemetry';
 
 export const CompassIndexesHadronPlugin = registerHadronPlugin<
   CollectionTabPluginMetadata,
@@ -33,7 +33,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
     dataService: () => IndexesDataService;
     instance: () => MongoDBInstance;
     logger: () => Logger;
-    track: () => TrackFunction;
+    track: () => ConnectionScopedTrackFunction;
     connectionInfoAccess: () => ConnectionInfoAccess;
   }
 >(
@@ -47,7 +47,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
       dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: createConnectionScopedTelemetryLocator(),
     connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
@@ -66,7 +66,7 @@ export const CreateIndexPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: createConnectionScopedTelemetryLocator(),
     connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
@@ -80,7 +80,7 @@ export const DropIndexPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: createConnectionScopedTelemetryLocator(),
     connectionInfoAccess: connectionInfoAccessLocator,
   }
 );

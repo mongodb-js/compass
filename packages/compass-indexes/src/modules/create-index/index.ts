@@ -106,7 +106,7 @@ export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { dataService, localAppRegistry, track, connectionInfoAccess }
+    { dataService, localAppRegistry, track }
   ) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
@@ -239,7 +239,6 @@ export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
         state.fields.filter(({ type }: { type: string }) => type === '2dsphere')
           .length > 0,
       atlas_search: false,
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     };
 
     try {

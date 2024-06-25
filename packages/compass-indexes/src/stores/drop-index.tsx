@@ -9,8 +9,10 @@ import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import {
+  type ConnectionScopedTrackFunction,
+  type ConnectionInfoAccess,
+} from '@mongodb-js/compass-connections/provider';
 
 type DropIndexInitialProps = Pick<CollectionTabPluginMetadata, 'namespace'>;
 
@@ -18,25 +20,19 @@ type DropIndexServices = {
   localAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'dropIndex'>;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   connectionInfoAccess: ConnectionInfoAccess;
 };
 
 export function activatePlugin(
   { namespace }: DropIndexInitialProps,
-  {
-    localAppRegistry,
-    dataService,
-    track,
-    connectionInfoAccess,
-  }: DropIndexServices,
+  { localAppRegistry, dataService, track }: DropIndexServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   on(localAppRegistry, 'open-drop-index-modal', async (indexName: string) => {
     try {
       track('Screen', {
         name: 'drop_index_modal',
-        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       });
       const confirmed = await showConfirmation({
         variant: 'danger',
@@ -53,7 +49,6 @@ export function activatePlugin(
       await dataService.dropIndex(namespace, indexName);
       track('Index Dropped', {
         atlas_search: false,
-        connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
       });
       localAppRegistry.emit('refresh-regular-indexes');
       openToast('drop-index-success', {

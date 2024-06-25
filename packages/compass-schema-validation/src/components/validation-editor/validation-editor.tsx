@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
@@ -28,7 +27,7 @@ import type {
 import { checkValidator } from '../../modules/validation';
 import { ActionSelector, LevelSelector } from '../validation-selectors';
 import {
-  ConnectionScopedTrackFunction,
+  type ConnectionScopedTrackFunction,
   withConnectionScopedTelemetry,
 } from '@mongodb-js/compass-connections/provider';
 

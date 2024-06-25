@@ -9,6 +9,7 @@ import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type {
   ConnectionInfoAccess,
+  ConnectionScopedTrackFunction,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
@@ -34,7 +35,6 @@ import type {
   RecentQueryStorageAccess,
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 // Partial of DataService that mms shares with Compass.
 type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
@@ -46,7 +46,7 @@ type QueryBarServices = {
   dataService: QueryBarDataService;
   preferences: PreferencesAccess;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
@@ -80,7 +80,7 @@ export type QueryBarExtraArgs = {
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
   logger: Logger;
-  track: TrackFunction;
+  track: ConnectionScopedTrackFunction;
   atlasAiService: AtlasAiService;
   connectionInfoAccess: ConnectionInfoAccess;
 };

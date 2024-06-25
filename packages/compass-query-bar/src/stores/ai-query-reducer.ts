@@ -158,7 +158,6 @@ export const runAIQuery = (
       atlasAiService,
       logger: { log },
       track,
-      connectionInfoAccess,
     }
   ) => {
     const provideSampleDocuments =
@@ -171,7 +170,6 @@ export const runAIQuery = (
       user_input_length: userInput.length,
       has_sample_documents: provideSampleDocuments,
       request_id: requestId,
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     }));
 
     const {
@@ -357,7 +355,6 @@ export const runAIQuery = (
       editor_view_type: 'find',
       query_shape: Object.keys(generatedFields),
       request_id: requestId,
-      connectionId: connectionInfoAccess.getCurrentConnectionInfo().id,
     }));
 
     dispatch({
