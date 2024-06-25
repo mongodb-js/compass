@@ -259,18 +259,18 @@ describe('tabs behavior', function () {
   });
 
   describe('closeTab', function () {
-    it('should close tab and make another tab active if needed', function () {
+    it('should close tab and make another tab active if needed', async function () {
       const store = configureStore();
       openTabs(store);
       const currentActiveTab = workspacesSlice.getActiveTab(store.getState());
       // closing inactive tab
-      store.dispatch(closeTab(0));
+      await store.dispatch(closeTab(0));
       const state1 = store.getState();
       expect(state1).to.have.property('tabs').have.lengthOf(2);
       // active tab didn't change
       expect(state1).to.have.property('activeTabId', currentActiveTab?.id);
       // closing active tab
-      store.dispatch(closeTab(1));
+      await store.dispatch(closeTab(1));
       const state2 = store.getState();
       expect(state2).to.have.property('tabs').have.lengthOf(1);
       // another tab was selected

@@ -266,9 +266,9 @@ export function activateAggregationsPlugin(
     return !store.getState().isModified;
   };
 
-  addCleanup(workspaces.registerTabReplaceHandler?.(onCloseOrReplace));
+  addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
 
-  addCleanup(workspaces.registerTabCloseHandler?.(onCloseOrReplace));
+  addCleanup(workspaces.onTabClose?.(onCloseOrReplace));
 
   return {
     store,

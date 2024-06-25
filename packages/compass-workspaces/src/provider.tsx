@@ -174,6 +174,10 @@ export type WorkspacesService = {
    * }
    */
   onTabReplace?: (handler: WorkspaceDestroyHandler) => () => void;
+};
+
+// Separate type to avoid exposing internal prop in exported types
+type WorkspacesServiceImpl = WorkspacesService & {
   /**
    * useActiveWorkspace hook, exposed through the service interface so that it
    * can be mocked in the test environment
@@ -209,7 +213,7 @@ const noopWorkspacesService = {
   },
 };
 
-const WorkspacesServiceContext = React.createContext<WorkspacesService>(
+const WorkspacesServiceContext = React.createContext<WorkspacesServiceImpl>(
   noopWorkspacesService
 );
 
@@ -224,7 +228,7 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
   /* eslint-disable react-hooks/rules-of-hooks */
   value ??= (() => {
     const store = useWorkspacesStore();
-    const service = useRef<WorkspacesService>({
+    const service = useRef<WorkspacesServiceImpl>({
       getActiveWorkspace: () => {
         return getActiveTab(store.getState());
       },
@@ -346,7 +350,7 @@ export function useActiveWorkspace() {
 }
 
 export const workspacesServiceLocator = createServiceLocator(
-  useWorkspacesService,
+  useWorkspacesService as () => WorkspacesService,
   'workspacesServiceLocator'
 );
 
