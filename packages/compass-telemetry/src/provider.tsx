@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from './types';
+import type { TrackFunction, TrackParameters } from './types';
 
 const noop = () => {
   // noop
@@ -119,4 +119,5 @@ export function useTrackOnChange(
   );
 }
 
-export type { TrackFunction };
+export type { TrackFunction, TrackParameters };
+export type { EventsPayload } from './events';

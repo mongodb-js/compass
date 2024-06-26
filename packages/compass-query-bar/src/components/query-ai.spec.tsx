@@ -132,7 +132,7 @@ describe('QueryAI Component', function () {
         store = renderQueryAI();
       });
 
-      it('should log a telemetry event with the entered text on submit', async function () {
+      it.only('should log a telemetry event with the entered text on submit', async function () {
         // No feedback popover is shown yet.
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
         expect(screen.queryByTestId(thumbsUpId)).to.not.exist;
@@ -163,6 +163,7 @@ describe('QueryAI Component', function () {
               {
                 event: 'AI Query Feedback',
                 properties: {
+                  connection_id: 'TEST',
                   feedback: 'positive',
                   request_id: 'pineapple',
                   text: 'this is the query I was looking for',

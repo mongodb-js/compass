@@ -9,10 +9,13 @@ export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
 }
 
+export type TelemetryConnectionInfoHook = () => { id: string };
+
 export interface TelemetryServiceOptions {
   sendTrack: (event: TelemetryEvent, properties: Record<string, any>) => void;
   logger?: Logger;
   preferences?: TelemetryPreferences;
+  useConnectionInfo?: TelemetryConnectionInfoHook;
 }
 
 export const createTrack = ({
@@ -54,6 +57,7 @@ export const createTrack = ({
         return;
       }
     }
+
     sendTrack(event, parameters || {});
   };
 

@@ -3,33 +3,63 @@ import {
   useTrackOnChangeGeneric,
   withTelemetry,
   type TrackFunction,
+  type EventsPayload,
 } from '@mongodb-js/compass-telemetry/provider';
-import { connectionInfoAccessLocator } from './provider';
+import {
+  type ConnectionInfoAccess,
+  connectionInfoAccessLocator,
+  useConnectionInfoAccess,
+} from './provider';
 import { createServiceLocator } from 'hadron-app-registry';
+
+type TrackParametersWithoutConnectionId<T extends keyof EventsPayload> =
+  | Omit<EventsPayload[T], 'connection_id'>
+  | (() => Promise<Omit<EventsPayload[T], 'connection_id'>>)
+  | (() => Omit<EventsPayload[T], 'connection_id'>);
+
+export type ConnectionScopedTrackFunction = <T extends keyof EventsPayload>(
+  event: T,
+  parameters: TrackParametersWithoutConnectionId<T>
+) => ReturnType<TrackFunction>;
+
+function getCurriedTrack(
+  track: TrackFunction,
+  connectionInfoAccess: ConnectionInfoAccess
+): ConnectionScopedTrackFunction {
+  const curriedTrack: ConnectionScopedTrackFunction = (event, parameters) => {
+    if (typeof parameters === 'function') {
+      track(event, async () => ({
+        ...(await parameters()),
+        connection_id: connectionInfoAccess.getCurrentConnectionInfo().id,
+      }));
+    } else {
+      track(event, {
+        ...parameters,
+        connection_id: connectionInfoAccess.getCurrentConnectionInfo().id,
+      });
+    }
+  };
+
+  return curriedTrack;
+}
 
 export function createConnectionScopedTelemetryLocator() {
   return createServiceLocator(
-    useConnectionScopedTelemetry.bind(null),
+    function useConnectionScopedTelemetry(): ConnectionScopedTrackFunction {
+      const track = useTelemetry();
+      const connectionInfoAccess = connectionInfoAccessLocator();
+
+      return getCurriedTrack(track, connectionInfoAccess);
+    },
     'createConnectionScopedTelemetryLocator'
   );
 }
 
-export type ConnectionScopedTrackFunction = (
-  event: Parameters<TrackFunction>[0],
-  parameters: Omit<Parameters<TrackFunction>[1], 'connectionId'>
-) => ReturnType<TrackFunction>;
-
 export function useConnectionScopedTelemetry(): ConnectionScopedTrackFunction {
   const track = useTelemetry();
-  const connectionInfoAccess = connectionInfoAccessLocator();
-  const curriedTrack: ConnectionScopedTrackFunction = (event, parameters) => {
-    track(event, {
-      ...parameters,
-      connection_id: connectionInfoAccess.getCurrentConnectionInfo().id,
-    });
-  };
+  const connectionInfoAccess = useConnectionInfoAccess();
 
-  return curriedTrack;
+  return getCurriedTrack(track, connectionInfoAccess);
 }
 
 export function withConnectionScopedTelemetry(
