@@ -28,6 +28,7 @@ export type ItemAction<Action extends string> = {
   isDisabled?: boolean;
   disabledDescription?: string;
   tooltip?: string;
+  actionBtnClassName?: string;
 };
 
 export type ItemSeparator = { separator: true };
@@ -334,8 +335,15 @@ export function ItemActionGroup<Action extends string>({
           return <MenuSeparator key={`separator-${idx}`} />;
         }
 
-        const { action, icon, label, isDisabled, tooltip, tooltipProps } =
-          menuItem;
+        const {
+          action,
+          icon,
+          label,
+          isDisabled,
+          tooltip,
+          tooltipProps,
+          actionBtnClassName,
+        } = menuItem;
         const button = (
           <ItemActionButton
             key={action}
@@ -346,7 +354,11 @@ export function ItemActionGroup<Action extends string>({
             data-action={action}
             data-testid={actionTestId<Action>(dataTestId, action)}
             onClick={onClick}
-            className={cx(actionGroupButtonStyle, iconClassName)}
+            className={cx(
+              actionGroupButtonStyle,
+              iconClassName,
+              actionBtnClassName
+            )}
             style={iconStyle}
             disabled={isDisabled}
           />

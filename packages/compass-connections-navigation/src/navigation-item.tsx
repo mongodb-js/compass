@@ -2,13 +2,11 @@ import React, { useCallback, useMemo } from 'react';
 import { isLocalhost } from 'mongodb-build-info';
 import {
   Icon,
-  IconButton,
   ServerIcon,
   css,
   palette,
-  spacing,
-  Tooltip,
-  cx,
+  ItemActionControls,
+  type ItemAction,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
@@ -19,14 +17,6 @@ import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { WithStatusMarker } from './with-status-marker';
 import type { Actions } from './constants';
-
-const markerBtnStyles = css({
-  flex: 'none',
-  // This is done to align the size of the static icon buttons with that of the
-  // size of action controls
-  width: spacing[600],
-  height: spacing[600],
-});
 
 const nonGenuineBtnStyles = css({
   color: palette.yellow.dark2,
@@ -63,42 +53,6 @@ const csfleBtnStyles = css({
     background: palette.white,
   },
 });
-
-const ConnectionMarker: React.FC<{
-  glyph: string;
-  label: string;
-  tooltip?: string;
-  iconBtnClassName?: string;
-  onClick(): void;
-}> = ({ glyph, label, tooltip, iconBtnClassName, onClick }) => {
-  const onTriggerClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      event.stopPropagation();
-      onClick();
-    },
-    [onClick]
-  );
-  return (
-    <Tooltip
-      align="top"
-      justify="middle"
-      trigger={({ children, ...props }) => (
-        <div {...props} style={{ display: 'inherit' }}>
-          <IconButton
-            className={cx(markerBtnStyles, iconBtnClassName)}
-            aria-label={label}
-            onClick={onTriggerClick}
-          >
-            {children}
-            <Icon glyph={glyph}></Icon>
-          </IconButton>
-        </div>
-      )}
-    >
-      {tooltip}
-    </Tooltip>
-  );
-};
 
 type NavigationItemProps = {
   item: SidebarTreeItem;
@@ -217,7 +171,7 @@ export function NavigationItem({
     };
   }, [item, isActive]);
 
-  const connectionMarkers = useMemo(() => {
+  const connectionStaticActions = useMemo(() => {
     if (
       item.type !== 'connection' ||
       item.connectionStatus !== ConnectionStatus.Connected
@@ -225,33 +179,31 @@ export function NavigationItem({
       return [];
     }
 
-    const markers: React.ReactElement[] = [];
+    const actions: ItemAction<
+      'open-non-genuine-mongodb-modal' | 'open-csfle-modal'
+    >[] = [];
     if (!item.isGenuineMongoDB) {
-      markers.push(
-        <ConnectionMarker
-          glyph="Warning"
-          label="Non-Genuine MongoDB"
-          tooltip="Non-Genuine MongoDB detected"
-          iconBtnClassName={nonGenuineBtnStyles}
-          onClick={() => onItemAction(item, 'open-non-genuine-mongodb-modal')}
-        />
-      );
+      actions.push({
+        action: 'open-non-genuine-mongodb-modal',
+        label: 'Non-Genuine MongoDB',
+        tooltip: 'Non-Genuine MongoDB detected',
+        icon: 'Warning',
+        actionBtnClassName: nonGenuineBtnStyles,
+      });
     }
 
     if (item.csfleMode && item.csfleMode !== 'unavailable') {
-      markers.push(
-        <ConnectionMarker
-          glyph="Key"
-          label="In-Use Encryption"
-          tooltip="Configure In-Use Encryption"
-          iconBtnClassName={csfleBtnStyles}
-          onClick={() => onItemAction(item, 'open-csfle-modal')}
-        />
-      );
+      actions.push({
+        action: 'open-csfle-modal',
+        label: 'In-Use Encryption',
+        tooltip: 'Configure In-Use Encryption',
+        icon: 'Key',
+        actionBtnClassName: csfleBtnStyles,
+      });
     }
 
-    return markers;
-  }, [item, onItemAction]);
+    return actions;
+  }, [item]);
 
   return (
     <StyledNavigationItem item={item}>
@@ -272,7 +224,16 @@ export function NavigationItem({
           }}
           actionProps={actionProps}
         >
-          {connectionMarkers}
+          {!!connectionStaticActions.length && (
+            <ItemActionControls<Actions>
+              iconSize="small"
+              actions={connectionStaticActions}
+              onAction={onAction}
+              // these are static buttons that we want visible always on the
+              // sidebar, not as menu item but as action group
+              collapseAfter={connectionStaticActions.length}
+            ></ItemActionControls>
+          )}
         </NavigationBaseItem>
       )}
     </StyledNavigationItem>
