@@ -7,15 +7,8 @@ import {
   useDefaultAction,
   Icon,
   Tooltip,
-  SelectConnectionModal,
 } from '@mongodb-js/compass-components';
-import { useActiveConnections } from '@mongodb-js/compass-connections/provider';
-import {
-  useOpenWorkspace,
-  useWorkspacePlugins,
-} from '@mongodb-js/compass-workspaces/provider';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
-import React, { useCallback, useMemo, useState } from 'react';
+import React from 'react';
 
 const navigationItem = css({
   cursor: 'pointer',
@@ -71,7 +64,7 @@ const disabledTooltipStyles = css({
   display: 'inline-flex',
 });
 
-type NavigationItemProps = {
+type NavigationItemComponentProps = {
   glyph: string;
   label: string;
   isActive: boolean;
@@ -80,14 +73,14 @@ type NavigationItemProps = {
   disabledTooltip?: string;
 };
 
-export function NavigationItem({
+function NavigationItemComponent({
   onClick: onButtonClick,
   glyph,
   label,
   isActive,
   isDisabled,
   disabledTooltip = 'Item cannot be navigated',
-}: NavigationItemProps) {
+}: NavigationItemComponentProps) {
   const [hoverProps] = useHoverState();
   const defaultActionProps = useDefaultAction(onButtonClick);
 
@@ -135,98 +128,32 @@ export function NavigationItem({
   );
 }
 
-function ShellNavigationItem({
-  openShellWorkspace,
-  ...navigationItemProps
-}: Omit<NavigationItemProps, 'onClick'> & {
-  openShellWorkspace: ReturnType<typeof useOpenWorkspace>['openShellWorkspace'];
-}) {
-  const [selectedConnectionId, setSelectedConnectionId] = useState('');
-  const [selectConnectionModalOpened, setSelectConnectionModalOpened] =
-    useState(false);
+export type NavigationItem = {
+  id: string;
+  glyph: string;
+  label: string;
+  isActive: boolean;
+  isDisabled?: boolean;
+  disabledTooltip?: string;
+};
 
-  const activeConnections = useActiveConnections();
-  const connectionsForModal = useMemo(() => {
-    return activeConnections.map((connection) => {
-      return {
-        id: connection.id,
-        name: getConnectionTitle(connection),
-      };
-    });
-  }, [activeConnections]);
-
-  const handleOpenShellWorkspace = useCallback(() => {
-    if (activeConnections.length === 1) {
-      const [{ id: connectionId }] = activeConnections;
-      openShellWorkspace(connectionId, { newTab: true });
-    } else if (activeConnections.length > 1) {
-      setSelectConnectionModalOpened(true);
-    }
-  }, [activeConnections, openShellWorkspace, setSelectConnectionModalOpened]);
-
-  const handleClose = useCallback(() => {
-    setSelectConnectionModalOpened(false);
-    setSelectedConnectionId('');
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    setSelectConnectionModalOpened(false);
-    openShellWorkspace(selectedConnectionId, { newTab: true });
-    setSelectedConnectionId('');
-  }, [selectedConnectionId, openShellWorkspace]);
-
-  const handleConnectionSelected = useCallback((connectionId: string) => {
-    setSelectedConnectionId(connectionId);
-  }, []);
-
-  return (
-    <>
-      <NavigationItem
-        {...navigationItemProps}
-        isDisabled={activeConnections.length === 0}
-        disabledTooltip="Connect to a connection first"
-        onClick={handleOpenShellWorkspace}
-      />
-      <SelectConnectionModal
-        isModalOpen={selectConnectionModalOpened}
-        isSubmitDisabled={!selectedConnectionId}
-        submitButtonText="Open shell"
-        connections={connectionsForModal}
-        selectedConnectionId={selectedConnectionId}
-        onClose={handleClose}
-        onSubmit={handleSubmit}
-        onConnectionSelected={handleConnectionSelected}
-      />
-    </>
-  );
-}
-
-export function Navigation({
-  currentLocation,
-}: {
-  currentLocation: string | null;
-}): React.ReactElement {
-  const { hasWorkspacePlugin } = useWorkspacePlugins();
-  const { openMyQueriesWorkspace, openShellWorkspace } = useOpenWorkspace();
-
+export const Navigation: React.FC<{
+  items: NavigationItem[];
+  onItemClick(item: string): void;
+}> = ({ items, onItemClick }) => {
   return (
     <div>
-      {hasWorkspacePlugin('My Queries') && (
-        <NavigationItem
-          onClick={openMyQueriesWorkspace}
-          glyph="CurlyBraces"
-          label="My Queries"
-          isActive={currentLocation === 'My Queries'}
+      {items.map((item) => (
+        <NavigationItemComponent
+          key={item.id}
+          onClick={() => onItemClick(item.id)}
+          glyph={item.glyph}
+          label={item.label}
+          isActive={item.isActive}
+          isDisabled={item.isDisabled}
+          disabledTooltip={item.disabledTooltip}
         />
-      )}
-      {hasWorkspacePlugin('Shell') && (
-        <ShellNavigationItem
-          glyph="Shell"
-          label="MongoDB Shell"
-          isActive={currentLocation === 'Shell'}
-          openShellWorkspace={openShellWorkspace}
-        />
-      )}
+      ))}
     </div>
   );
-}
+};

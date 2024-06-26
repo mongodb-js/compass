@@ -308,9 +308,10 @@ describe('Multiple Connections Sidebar Component', function () {
       return await waitFor(() => screen.getByRole('tree'));
     }
 
-    context('when there are no active connections', function () {
-      it('should be rendered disabled', async function () {
-        await renderWithConnections();
+    context('when there are no connections', function () {
+      it('should be rendered disabled', function () {
+        cleanup();
+        doRender();
         expect(screen.getByLabelText('MongoDB Shell')).to.have.attribute(
           'aria-disabled',
           'true'
@@ -318,9 +319,11 @@ describe('Multiple Connections Sidebar Component', function () {
       });
     });
 
-    context('when there is one active connection', function () {
+    context('when there is one connection', function () {
       const instances = new Map<string, MongoDBInstance>();
-      beforeEach(function () {
+      it('should open the shell workspace directly for an active connection', async function () {
+        const openShellStub = (workspaceService.openShellWorkspace =
+          sinon.stub());
         instances.set(savedFavoriteConnection.id, connectedInstance);
         sinon.stub(instancesManager, 'listMongoDBInstances').returns(instances);
         sinon
@@ -336,130 +339,79 @@ describe('Multiple Connections Sidebar Component', function () {
           {
             globalAppRegistry,
             instancesManager,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
             connectionsManager,
           },
           createActivateHelpers()
         ));
-      });
-      it('should open the shell workspace directly for the active connection', async function () {
-        await renderWithConnections();
+
+        await renderWithConnections([savedFavoriteConnection]);
         userEvent.click(screen.getByLabelText('MongoDB Shell'));
-        expect(workspaceService.openShellWorkspace).to.be.calledWithExactly(
-          savedFavoriteConnection.id,
-          { newTab: true }
+        await waitFor(() =>
+          expect(openShellStub).to.be.calledWithExactly(
+            savedFavoriteConnection.id,
+            { newTab: true }
+          )
         );
+      });
+
+      it('should first connect successfully and open the shell workspace for the connection', async function () {
+        const openShellStub = (workspaceService.openShellWorkspace =
+          sinon.stub());
+        connectFn.returns(slowConnection(andSucceed()));
+        await renderWithConnections([savedFavoriteConnection]);
+        userEvent.click(screen.getByLabelText('MongoDB Shell'));
+        expect(
+          screen.getByText('Opening MongoDB Shell for localhost')
+        ).to.exist;
+        await waitFor(() => {
+          expect(openShellStub).to.be.calledWithExactly('12345', {
+            newTab: true,
+          });
+        });
+      });
+
+      it('should not open the shell workspace for the connection when connection does not succeed', async function () {
+        const openShellStub = (workspaceService.openShellWorkspace =
+          sinon.stub());
+        connectFn.rejects(new Error('Bad connection string'));
+        await renderWithConnections([savedFavoriteConnection]);
+        userEvent.click(screen.getByLabelText('MongoDB Shell'));
+        expect(
+          screen.getByText('Opening MongoDB Shell for localhost')
+        ).to.exist;
+        await waitFor(() => {
+          expect(screen.getByText('Bad connection string')).to.exist;
+        });
+        expect(openShellStub).to.not.be.called;
       });
     });
 
-    context('when there are more than one active connections', function () {
-      const connectedInstance2: MongoDBInstance = {
-        _id: '2',
-        status: 'ready',
-        genuineMongoDB: {
-          dbType: 'local',
-          isGenuine: true,
-        },
-        build: {
-          isEnterprise: true,
-          version: '7.0.1',
-        },
-        dataLake: {
-          isDataLake: false,
-          version: '',
-        },
-        topologyDescription: {
-          servers: [],
-          setName: '',
-          type: 'standalone',
-        },
-        isWritable: true,
-        env: '',
-        isAtlas: false,
-        isLocalAtlas: false,
-        databasesStatus: 'ready',
-        databases: [
-          {
-            _id: 'db_ready_2',
-            name: 'db_ready_2',
-            collectionsLength: 1,
-            collectionsStatus: 'ready',
-            collections: [
-              {
-                _id: 'coll_ready_2',
-                name: 'coll_ready_2',
-                type: 'collection',
-              },
-            ],
-          },
-        ] as any,
-        refresh: () => Promise.resolve(),
-        fetch: () => Promise.resolve(),
-        fetchDatabases: () => Promise.resolve(),
-        getNamespace: () => Promise.resolve(null),
-        on: () => {},
-        removeListener: () => {},
-      } as any;
-
-      const connectedDataService2: DataService = {
-        id: 2,
-        getConnectionOptions: () => {
-          return {
-            ...savedRecentConnection.connectionOptions,
-          };
-        },
-        currentOp: () => Promise.resolve({} as any),
-        top: () => Promise.resolve({} as any),
-        disconnect: () => {},
-      } as any;
-
-      const instances = new Map<string, MongoDBInstance>();
-      beforeEach(function () {
-        instances.set(savedFavoriteConnection.id, connectedInstance);
-        instances.set(savedRecentConnection.id, connectedInstance2);
-        sinon.stub(instancesManager, 'listMongoDBInstances').returns(instances);
-        sinon
-          .stub(connectionsManager, 'getDataServiceForConnection')
-          .callsFake((id) => {
-            if (id === savedFavoriteConnection.id) {
-              return connectedDataService;
-            } else if (id === savedRecentConnection.id) {
-              return connectedDataService2;
-            }
-            throw new Error('No dataservice');
-          });
-        sinon.stub(connectionsManager, 'statusOf').callsFake((id) => {
-          if (
-            id === savedFavoriteConnection.id ||
-            id === savedRecentConnection.id
-          ) {
-            return ConnectionStatus.Connected;
-          }
-          return ConnectionStatus.Disconnected;
-        });
-        ({ store, deactivate } = createSidebarStore(
-          {
-            globalAppRegistry,
-            instancesManager,
-            logger: createNoopLoggerAndTelemetry(),
-            connectionsManager,
-          },
-          createActivateHelpers()
-        ));
-      });
-
+    context('when there are more than one connections', function () {
       it('should open the connection select modal asking for which connection to open the shell in', async function () {
+        const openShellStub = (workspaceService.openShellWorkspace =
+          sinon.stub());
+        connectFn.returns(slowConnection(andSucceed()));
         await renderWithConnections();
         userEvent.click(screen.getByLabelText('MongoDB Shell'));
-        expect(screen.getByTestId('select-connection-modal')).to.be.visible;
+        // Modal appears
+        expect(screen.getByText('Select a Connection')).to.be.visible;
+
+        // should have all the connections
+        expect(screen.getByLabelText('localhost')).to.be.visible;
+        expect(screen.getByLabelText('localhost:27020')).to.be.visible;
+
         // now select the saved favorite connection
         userEvent.click(screen.getByLabelText('localhost'));
+
         // click the button to open shell
         userEvent.click(screen.getByText('Open shell'));
-        expect(workspaceService.openShellWorkspace).to.be.calledWithExactly(
-          savedFavoriteConnection.id,
-          { newTab: true }
-        );
+        await waitFor(() => {
+          expect(openShellStub).to.be.calledWithExactly(
+            savedFavoriteConnection.id,
+            { newTab: true }
+          );
+        });
       });
     });
   });
