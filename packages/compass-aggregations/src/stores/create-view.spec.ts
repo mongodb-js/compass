@@ -25,6 +25,9 @@ describe('CreateViewStore [Store]', function () {
   let appRegistryEmitSpy: Sinon.SinonSpy;
   const logger = {} as any;
   const track = () => {};
+  const connectionInfoAccess = {
+    getCurrentConnectionInfo: () => ({ id: 'TEST' }),
+  };
   const createViewStub = Sinon.stub();
   const dataService = {
     createView: createViewStub,
@@ -48,6 +51,7 @@ describe('CreateViewStore [Store]', function () {
         connectionsManager,
         logger,
         track,
+        connectionInfoAccess,
         workspaces,
       },
       createActivateHelpers()

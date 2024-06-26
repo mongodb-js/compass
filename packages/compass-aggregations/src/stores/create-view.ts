@@ -7,7 +7,10 @@ import reducer, { open } from '../modules/create-view';
 import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
@@ -16,6 +19,7 @@ type CreateViewServices = {
   connectionsManager: ConnectionsManager;
   logger: Logger;
   track: TrackFunction;
+  connectionInfoAccess: ConnectionInfoAccess;
   workspaces: WorkspacesService;
 };
 
@@ -52,6 +56,7 @@ export function activateCreateViewPlugin(
     connectionsManager,
     logger,
     track,
+    connectionInfoAccess,
     workspaces,
   }: CreateViewServices,
   { on, cleanup }: ActivateHelpers
@@ -61,6 +66,7 @@ export function activateCreateViewPlugin(
     connectionsManager,
     logger,
     track,
+    connectionInfoAccess,
     workspaces,
   });
 
