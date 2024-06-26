@@ -1,5 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
+  type ConnectionInfoAccess,
   ConnectionsManagerEvents,
   type ConnectionsManager,
   type DataService,
@@ -33,6 +34,7 @@ export type CreateNamespaceServices = {
   globalAppRegistry: AppRegistry;
   logger: Logger;
   track: TrackFunction;
+  connectionInfoAccess: ConnectionInfoAccess;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 

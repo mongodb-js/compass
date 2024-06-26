@@ -2,6 +2,7 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
 import {
+  type ConnectionInfoAccess,
   ConnectionsManager,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
@@ -27,7 +28,7 @@ describe('CreateViewStore [Store]', function () {
   const track = () => {};
   const connectionInfoAccess = {
     getCurrentConnectionInfo: () => ({ id: 'TEST' }),
-  };
+  } as ConnectionInfoAccess;
   const createViewStub = Sinon.stub();
   const dataService = {
     createView: createViewStub,
