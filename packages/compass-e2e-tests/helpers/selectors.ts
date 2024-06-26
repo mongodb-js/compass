@@ -1173,7 +1173,7 @@ export const workspaceTab = (
       : `[data-namespace="${title}"]`;
   return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
 };
-export const instanceWorkspaceTab = (
+export const connectionWorkspaceTab = (
   tabName: 'Performance' | 'Databases',
   active: boolean | null = null
 ) => {

@@ -32,6 +32,6 @@ export async function waitUntilActiveConnectionTab(
 ) {
   // TODO(COMPASS-8002): we should differentiate by connectionName somehow
   await browser
-    .$(Selectors.instanceWorkspaceTab(tabName, true))
+    .$(Selectors.connectionWorkspaceTab(tabName, true))
     .waitForDisplayed();
 }
