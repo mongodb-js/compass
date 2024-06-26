@@ -3,6 +3,9 @@ const Actions = require('../actions');
 const { Button, Icon } = require('@mongodb-js/compass-components');
 const PropTypes = require('prop-types');
 const { withTelemetry } = require('@mongodb-js/compass-telemetry/provider');
+const {
+  withConnectionInfoAccess,
+} = require('@mongodb-js/compass-connections/provider');
 
 class DetailViewComponent extends React.Component {
   constructor(props) {
@@ -41,7 +44,11 @@ class DetailViewComponent extends React.Component {
   }
 
   killOp() {
-    this.props.logger.track('DetailView killOp');
+    this.props.track(
+      'DetailView killOp',
+      {},
+      this.props.connectionInfoAccess.getCurrentConnectionInfo()
+    );
     Actions.killOp(this.state.data.opid);
     this.hideOperationDetails();
   }
@@ -50,7 +57,11 @@ class DetailViewComponent extends React.Component {
    * Fire the show operation detail action with the row data.
    */
   hideOperationDetails() {
-    this.props.logger.track('DetailView hideOperationDetails');
+    this.props.track(
+      'DetailView hideOperationDetails',
+      {},
+      this.props.connectionInfoAccess.getCurrentConnectionInfo()
+    );
     Actions.hideOperationDetails();
   }
 
@@ -157,9 +168,11 @@ class DetailViewComponent extends React.Component {
 
   static propTypes = {
     logger: PropTypes.any.isRequired,
+    track: PropTypes.any.isRequired,
+    connectionInfoAccess: PropTypes.any.isRequired,
   };
 }
 
 DetailViewComponent.displayName = 'DetailViewComponent';
 
-module.exports = withTelemetry(DetailViewComponent);
+module.exports = withTelemetry(withConnectionInfoAccess(DetailViewComponent));

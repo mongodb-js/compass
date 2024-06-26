@@ -62,10 +62,10 @@ export const createTrack = ({
       parameters.connection_id = connectionInfo.id;
     }
 
-    console.log('TRACK', {
-      event,
-      connection_id: (parameters as { connection_id?: string }).connection_id,
-    });
+    // console.log('TRACK', {
+    //   event,
+    //   connection_id: (parameters as { connection_id?: string }).connection_id,
+    // });
 
     sendTrack(event, parameters || {});
   };

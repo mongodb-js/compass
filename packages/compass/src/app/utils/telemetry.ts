@@ -151,17 +151,18 @@ async function getConnectionData({
 }
 
 export function trackConnectionAttemptEvent(
-  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
+  connectionInfo: ConnectionInfo,
   { debug }: Logger,
   track: TrackFunction
 ): void {
   try {
+    const { favorite, lastUsed } = connectionInfo;
     const trackEvent = {
       is_favorite: Boolean(favorite),
       is_recent: Boolean(lastUsed && !favorite),
       is_new: !lastUsed,
     };
-    track('Connection Attempt', trackEvent);
+    track('Connection Attempt', trackEvent, connectionInfo);
   } catch (error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
@@ -200,7 +201,7 @@ export function trackNewConnectionEvent(
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
+  connectionInfo: ConnectionInfo | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
   { debug }: Logger,
   track: TrackFunction
@@ -216,7 +217,7 @@ export function trackConnectionFailedEvent(
       };
       return trackEvent;
     };
-    track('Connection Failed', callback);
+    track('Connection Failed', callback, connectionInfo ?? undefined);
   } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }
