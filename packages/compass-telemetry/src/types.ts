@@ -1,18 +1,22 @@
-import type { EventsPayload } from './events';
+export type EventsPayload = Record<string, any>;
 
-export type TelemetryEvent = keyof EventsPayload;
+export type TelemetryConnectionInfo = {
+  id: string;
+};
 
-export type TrackParameters<T extends keyof EventsPayload> =
-  | EventsPayload[T]
-  | (() => Promise<EventsPayload[T]>)
-  | (() => EventsPayload[T]);
+export type TrackParameters =
+  | EventsPayload
+  | (() => Promise<EventsPayload>)
+  | (() => EventsPayload);
 
-export type TrackFunction = <T extends keyof EventsPayload>(
-  event: T,
-  parameters: TrackParameters<T>
+export type TrackFunction = (
+  event: string,
+  parameters: TrackParameters,
+  connectionInfo?: TelemetryConnectionInfo
 ) => void;
 
-export type AsyncTrackFunction = <T extends keyof EventsPayload>(
-  event: T,
-  parameters: TrackParameters<T>
+export type AsyncTrackFunction = (
+  event: string,
+  parameters: TrackParameters,
+  connectionInfo?: TelemetryConnectionInfo
 ) => Promise<void>;

@@ -86,11 +86,11 @@ export { withTelemetry };
  *   if (isShellOpen) { track('Shell Opened', {}) }
  * }, [isShellOpen], { skipOnMount: true });
  */
-export function useTrackOnChangeGeneric<TTrackFunction = TrackFunction>(
-  onChange: (track: TTrackFunction) => void,
+export function useTrackOnChange(
+  onChange: (track: TrackFunction) => void,
   dependencies: unknown[],
   options: { skipOnMount: boolean } = { skipOnMount: false },
-  trackGetter: () => TTrackFunction
+  trackGetter: () => TrackFunction
 ) {
   const onChangeRef = React.useRef(onChange);
   onChangeRef.current = onChange;
@@ -106,18 +106,4 @@ export function useTrackOnChangeGeneric<TTrackFunction = TrackFunction>(
   }, [...dependencies, track, options.skipOnMount]);
 }
 
-export function useTrackOnChange(
-  onChange: (track: TrackFunction) => void,
-  dependencies: unknown[],
-  options?: { skipOnMount: boolean }
-) {
-  return useTrackOnChangeGeneric<TrackFunction>(
-    onChange,
-    dependencies,
-    options,
-    useTelemetry
-  );
-}
-
 export type { TrackFunction, TrackParameters };
-export type { EventsPayload } from './events';
