@@ -142,11 +142,11 @@ export type WorkspacesService = {
   onTabClose?: (handler: WorkspaceDestroyHandler) => () => void;
   /**
    *
-   * A hook that registers a tab replace handler. By default when opening a new
+   * A method that registers a tab replace handler. By default when opening a new
    * workspace, it will be opened in the same tab, destroying the content of the
    * current workspace. In that case, the registered handler can return either
    * `true` to allow the workspace to be destroyed, or `false` to prevent the
-   * tab from being destroyed and causing the new workspace to open in the new
+   * tab from being destroyed and forcing the new workspace to open in the new
    * tab.
    *
    * Multiple handlers can be registered for one tab, they will be called in

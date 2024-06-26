@@ -436,7 +436,6 @@ const reducer: Reducer<WorkspacesState> = (
         ? state.tabs.length - 1
         : currentActiveTabIndex - 1;
     const newActiveTab = state.tabs[newActiveTabIndex];
-    // console.log({ currentActiveTabIndex, newActiveTabIndex, tabs: state.tabs });
     if (newActiveTab?.id === state.activeTabId) {
       return state;
     }

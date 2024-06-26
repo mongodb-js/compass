@@ -116,7 +116,7 @@ export const useOnTabClose = useOnTabDestroyHandler.bind(null, 'close');
  * workspace, it will be opened in the same tab, destroying the content of the
  * current workspace. In that case, the registered handler can return either
  * `true` to allow the workspace to be destroyed, or `false` to prevent the tab
- * from being destroyed and causing the new workspace to open in the new tab.
+ * from being destroyed and forcing the new workspace to open in the new tab.
  *
  * Multiple handlers can be registered for one tab, they will be called in order
  * of registration and any one of them returning `false` will prevent the tab
