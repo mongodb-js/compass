@@ -213,7 +213,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           databases: connectionDatabases?.databases ?? [],
           connectionStatus: ConnectionStatus.Connected,
           isGenuineMongoDB:
-            false && connectionInstance?.genuineMongoDB.isGenuine !== false,
+            connectionInstance?.genuineMongoDB.isGenuine !== false,
           csfleMode: connectionInstance?.csfleMode,
         });
       }
