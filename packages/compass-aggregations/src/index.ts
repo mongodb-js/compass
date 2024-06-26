@@ -69,6 +69,7 @@ export const CreateViewPlugin = registerHadronPlugin(
     connectionsManager: connectionsManagerLocator,
     logger: createLoggerLocator('COMPASS-CREATE-VIEW-UI'),
     track: createTelemetryLocator(),
+    connectionInfoAccess: connectionInfoAccessLocator,
     workspaces: workspacesServiceLocator,
   }
 );
