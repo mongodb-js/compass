@@ -236,12 +236,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         actions.push(
           {
             action: 'import-saved-connections',
-            label: 'Import saved connections',
+            label: 'Import connections',
             icon: 'Download',
           },
           {
             action: 'export-saved-connections',
-            label: 'Export saved connections',
+            label: 'Export connections',
             icon: 'Export',
           }
         );

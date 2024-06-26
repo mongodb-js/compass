@@ -49,11 +49,6 @@ describe('Connection Import / Export', function () {
 
   before(function () {
     skipForWeb(this, 'export connections not available in compass-web');
-
-    // TODO(COMPASS-8007): port this test file to multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
   });
 
   beforeEach(async function () {
@@ -309,6 +304,10 @@ describe('Connection Import / Export', function () {
 
     for (const variant of variants) {
       it(`supports exporting and importing connections in ${variant} mode`, async function () {
+        const Sidebar = TEST_MULTIPLE_CONNECTIONS
+          ? Selectors.Multiple
+          : Selectors.Single;
+
         {
           // Make sure file exists so that the file picker works. We could also do work
           // similar to what we do for collection data export, where we add special listeners
@@ -320,8 +319,8 @@ describe('Connection Import / Export', function () {
 
         // Open export modal
         {
-          await browser.selectFavoritesMenuItem(
-            Selectors.ExportConnectionsModalOpen
+          await browser.selectConnectionsMenuItem(
+            Sidebar.ExportConnectionsModalOpen
           );
           await browser.$(Selectors.ExportConnectionsModal).waitForDisplayed();
         }
@@ -382,8 +381,8 @@ describe('Connection Import / Export', function () {
 
         // Open import modal
         {
-          await browser.selectFavoritesMenuItem(
-            Selectors.ImportConnectionsModalOpen
+          await browser.selectConnectionsMenuItem(
+            Sidebar.ImportConnectionsModalOpen
           );
           await browser.$(Selectors.ImportConnectionsModal).waitForDisplayed();
         }
