@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { useConnectionsManagerContext } from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
 import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
+import { createServiceLocator } from 'hadron-app-registry';
 
 const ConnectionsStoreContext = React.createContext<ReturnType<
   typeof useConnectionsStore
@@ -75,6 +76,11 @@ export function useConnectionRepository() {
   }
   return repository;
 }
+
+export const connectionRepositoryLocator = createServiceLocator(
+  useConnectionRepository.bind(null),
+  'createConnectionRepositoryLocator'
+);
 
 export type ConnectionRepository = ReturnType<typeof useConnectionRepository>;
 export { areConnectionsEqual } from '../hooks/use-connection-repository';

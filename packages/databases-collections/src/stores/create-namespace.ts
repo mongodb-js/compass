@@ -1,9 +1,9 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
-  type ConnectionInfoAccess,
   ConnectionsManagerEvents,
   type ConnectionsManager,
   type DataService,
+  type ConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -30,11 +30,11 @@ type NS = ReturnType<typeof toNS>;
 
 export type CreateNamespaceServices = {
   connectionsManager: ConnectionsManager;
+  connectionRepository: ConnectionRepository;
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
   logger: Logger;
   track: TrackFunction;
-  connectionInfoAccess: ConnectionInfoAccess;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 

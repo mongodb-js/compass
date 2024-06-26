@@ -205,8 +205,8 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
     {
       globalAppRegistry,
       connectionsManager,
+      connectionRepository,
       track,
-      connectionInfoAccess,
       workspaces,
     }
   ) => {
@@ -236,7 +236,7 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
       track(
         'Aggregation Saved As View',
         { num_stages: viewPipeline.length },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionRepository.getConnectionInfoById(connectionId)
       );
       globalAppRegistry.emit('view-created', ns, {
         connectionId,
