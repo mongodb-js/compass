@@ -116,8 +116,13 @@ function ShellSelectConnectionModal({
   const handleSubmit = useCallback(() => {
     if (selectedConnectionId) {
       onSubmit(selectedConnectionId);
+      setSelectedConnectionId(null);
     }
   }, [selectedConnectionId, onSubmit]);
+  const handleClose = useCallback(() => {
+    onClose();
+    setSelectedConnectionId(null);
+  }, [onClose]);
   return (
     <SelectConnectionModal
       isModalOpen={isModalOpen}
@@ -125,7 +130,7 @@ function ShellSelectConnectionModal({
       submitButtonText="Open shell"
       connections={connections}
       selectedConnectionId={selectedConnectionId ?? ''}
-      onClose={onClose}
+      onClose={handleClose}
       onSubmit={handleSubmit}
       onConnectionSelected={setSelectedConnectionId}
     />
