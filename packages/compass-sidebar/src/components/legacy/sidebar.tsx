@@ -220,8 +220,8 @@ export function Sidebar({
         />
         <CSFLEConnectionModal
           open={isCSFLEModalVisible}
-          setOpen={(open: boolean) => setIsCSFLEModalVisible(open)}
           csfleMode={csfleMode}
+          onClose={() => setIsCSFLEModalVisible(false)}
           setConnectionIsCSFLEEnabled={(enabled) =>
             setConnectionIsCSFLEEnabled(initialConnectionInfo.id, enabled)
           }

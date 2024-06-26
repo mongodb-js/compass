@@ -115,6 +115,8 @@ type ConnectionsNavigationComponentProps = {
   onDuplicateConnection(info: ConnectionInfo): void;
   onCopyConnectionString(info: ConnectionInfo): void;
   onToggleFavoriteConnectionInfo(info: ConnectionInfo): void;
+  onOpenCsfleModal(connectionId: string): void;
+  onOpenNonGenuineMongoDBModal(): void;
 
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
@@ -155,6 +157,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onDuplicateConnection,
   onCopyConnectionString,
   onToggleFavoriteConnectionInfo,
+  onOpenCsfleModal,
+  onOpenNonGenuineMongoDBModal: onOpenNonGenuinineMongoDBModal,
 
   onOpenConnectionInfo,
   onDisconnect,
@@ -208,6 +212,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             status as SidebarConnectedConnection['databasesStatus'],
           databases: connectionDatabases?.databases ?? [],
           connectionStatus: ConnectionStatus.Connected,
+          isGenuineMongoDB:
+            false && connectionInstance?.genuineMongoDB.isGenuine !== false,
+          csfleMode: connectionInstance?.csfleMode,
         });
       }
     }
@@ -311,6 +318,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           }
           onRemoveConnection(item.connectionInfo);
           return;
+        case 'open-csfle-modal':
+          onOpenCsfleModal(item.connectionInfo.id);
+          return;
+        case 'open-non-genuine-mongodb-modal':
+          onOpenNonGenuinineMongoDBModal();
+          return;
       }
     },
     [
@@ -327,6 +340,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onToggleFavoriteConnectionInfo,
       onDuplicateConnection,
       onRemoveConnection,
+      onOpenCsfleModal,
+      onOpenNonGenuinineMongoDBModal,
     ]
   );
 

@@ -78,6 +78,7 @@ const connections: Connection[] = [
     isDataLake: false,
     isWritable: true,
     isPerformanceTabSupported: true,
+    isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
   },
   {
@@ -99,6 +100,7 @@ const connections: Connection[] = [
     isDataLake: false,
     isWritable: false,
     isPerformanceTabSupported: false,
+    isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
   },
   {
@@ -236,6 +238,90 @@ describe('ConnectionsNavigationTree', function () {
     });
 
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
+  });
+
+  describe('connection markers', function () {
+    it('should not render non-genuine marker for the connection item when connection genuine', function () {
+      expect(() => screen.getAllByLabelText('Non-Genuine MongoDB')).to.throw;
+    });
+
+    it('should render non-genuine marker for the connection item when connection is not genuine', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          isGenuineMongoDB: false,
+        },
+        connections[1],
+        connections[2],
+      ];
+      const itemActionSpy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        connections: mockedConnections,
+        onItemAction: itemActionSpy,
+      });
+      expect(screen.getAllByLabelText('Non-Genuine MongoDB')).to.have.lengthOf(
+        1
+      );
+
+      userEvent.click(screen.getByLabelText('Non-Genuine MongoDB'));
+      expect(itemActionSpy).to.be.calledOnce;
+      const [[item, event]] = itemActionSpy.args;
+      expect(item.connectionInfo.id).to.equal(
+        mockedConnections[0].connectionInfo.id
+      );
+      expect(event).to.equal('open-non-genuine-mongodb-modal');
+    });
+
+    it('should render csfle marker for the connection item when csfle is enabled', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'enabled',
+        },
+        connections[1],
+        connections[2],
+      ];
+      const itemActionSpy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        connections: mockedConnections,
+        onItemAction: itemActionSpy,
+      });
+      expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
+
+      userEvent.click(screen.getByLabelText('In-Use Encryption'));
+      expect(itemActionSpy).to.be.calledOnce;
+      const [[item, event]] = itemActionSpy.args;
+      expect(item.connectionInfo.id).to.equal(
+        mockedConnections[0].connectionInfo.id
+      );
+      expect(event).to.equal('open-csfle-modal');
+    });
+
+    it('should render csfle marker for the connection item when csfle is disabled', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'disabled',
+        },
+        connections[1],
+        connections[2],
+      ];
+      await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
+    });
+
+    it('should not render csfle marker for the connection item when csfle is unavailable', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'unavailable',
+        },
+        connections[1],
+        connections[2],
+      ];
+      await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(() => screen.getAllByLabelText('In-Use Encryption')).to.throw;
+    });
   });
 
   it('should make current active namespace tabbable', async function () {
