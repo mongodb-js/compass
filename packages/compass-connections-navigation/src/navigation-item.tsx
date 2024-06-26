@@ -188,7 +188,7 @@ export function NavigationItem({
         label: 'Non-Genuine MongoDB',
         tooltip: 'Non-Genuine MongoDB detected',
         icon: 'Warning',
-        actionBtnClassName: nonGenuineBtnStyles,
+        actionButtonClassName: nonGenuineBtnStyles,
       });
     }
 
@@ -198,7 +198,7 @@ export function NavigationItem({
         label: 'In-Use Encryption',
         tooltip: 'Configure In-Use Encryption',
         icon: 'Key',
-        actionBtnClassName: csfleBtnStyles,
+        actionButtonClassName: csfleBtnStyles,
       });
     }
 

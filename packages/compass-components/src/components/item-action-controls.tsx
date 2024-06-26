@@ -28,7 +28,7 @@ export type ItemAction<Action extends string> = {
   isDisabled?: boolean;
   disabledDescription?: string;
   tooltip?: string;
-  actionBtnClassName?: string;
+  actionButtonClassName?: string;
 };
 
 export type ItemSeparator = { separator: true };
@@ -342,7 +342,7 @@ export function ItemActionGroup<Action extends string>({
           isDisabled,
           tooltip,
           tooltipProps,
-          actionBtnClassName,
+          actionButtonClassName,
         } = menuItem;
         const button = (
           <ItemActionButton
@@ -357,7 +357,7 @@ export function ItemActionGroup<Action extends string>({
             className={cx(
               actionGroupButtonStyle,
               iconClassName,
-              actionBtnClassName
+              actionButtonClassName
             )}
             style={iconStyle}
             disabled={isDisabled}
