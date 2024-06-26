@@ -370,7 +370,11 @@ export function ItemActionGroup<Action extends string>({
               key={action}
               {...tooltipProps}
               trigger={({ children, ...props }) => (
-                <div {...props} style={{ display: 'inherit' }}>
+                <div
+                  {...props}
+                  className={actionGroupButtonStyle}
+                  style={{ display: 'inherit' }}
+                >
                   {button}
                   {children}
                 </div>
