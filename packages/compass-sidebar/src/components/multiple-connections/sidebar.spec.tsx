@@ -373,6 +373,33 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByText('Connected to localhost')).to.exist;
         });
 
+        it('should render the non-genuine modal when connected to a non-genuine mongodb connection', async function () {
+          connectFn.returns(slowConnection(andSucceed()));
+          await renderWithConnections([
+            {
+              id: 'non-genuine',
+              connectionOptions: {
+                connectionString:
+                  'mongodb://dummy:1234@dummy-name.cosmos.azure.com:443/?ssl=true',
+              },
+            },
+          ]);
+          const connectionItem = screen.getByTestId('non-genuine');
+
+          userEvent.hover(
+            within(connectionItem).getByTestId('base-navigation-item')
+          );
+
+          const connectButton =
+            within(connectionItem).getByLabelText('Connect');
+          userEvent.click(connectButton);
+          expect(connectFn).to.have.been.called;
+          await waitFor(() => {
+            expect(screen.queryByText('Non-Genuine MongoDB Detected')).to.be
+              .visible;
+          });
+        });
+
         it('(failed connection) calls the connection function and renders the error toast', async function () {
           connectFn.callsFake(() => {
             return Promise.reject(new Error('Expected failure'));

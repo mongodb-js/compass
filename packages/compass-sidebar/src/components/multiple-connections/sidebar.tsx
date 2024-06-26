@@ -24,6 +24,7 @@ import {
   openToast,
   HorizontalRule,
 } from '@mongodb-js/compass-components';
+import { getGenuineMongoDB } from 'mongodb-build-info';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
@@ -233,6 +234,13 @@ export function MultipleConnectionSidebar({
         variant: 'success',
         timeout: 3_000,
       });
+
+      const { isGenuine } = getGenuineMongoDB(
+        info.connectionOptions.connectionString
+      );
+      if (!isGenuine) {
+        setGenuineMongoDBModalVisible(true);
+      }
     },
     [openToast]
   );
