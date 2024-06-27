@@ -6,6 +6,12 @@ if [ -z "$ATLAS_LOCAL_VERSION" ]; then
   return
 fi
 
+# When docker is not installed (currently on mac and rhel), we can't run the local atlas setup
+if ! command -v docker &>/dev/null; then
+  echo "Docker is not installed. Skipping local atlas setup."
+  return
+fi
+
 # Container name
 CONTAINER_NAME=compass-e2e-tests-atlas-local
 

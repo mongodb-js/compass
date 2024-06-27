@@ -135,10 +135,12 @@ async function verifyIndexDetails(
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
 
-  const text = await browser
-    .$(Selectors.searchIndexDetails(indexName))
-    .getText();
-  expect(text.toLowerCase()).to.equal(details.toLowerCase());
+  await browser.waitUntil(async () => {
+    const text = await browser
+      .$(Selectors.searchIndexDetails(indexName))
+      .getText();
+    return text.toLowerCase() === details.toLowerCase();
+  });
 }
 
 describe('Search Indexes', function () {
@@ -263,7 +265,6 @@ describe('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         // Verify it was added.
         // As we added index definition with no fields and only
@@ -280,7 +281,6 @@ describe('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         // Verify it was added.
         // As we added index definition with no fields and only
@@ -301,7 +301,11 @@ describe('Search Indexes', function () {
         // Verify its updating/updated.
         // As we set the new definition to have no dynamic mappings
         // with no fields, the index details should have '[empty]' value.
-        await verifyIndexDetails(browser, indexName, '[empty]');
+        await verifyIndexDetails(
+          browser,
+          indexName,
+          'No mappings in the index definition.'
+        );
       });
 
       it('runs a search aggregation with index name', async function () {
@@ -310,7 +314,6 @@ describe('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         const indexRowSelector = Selectors.searchIndexRow(indexName);
         const indexRow = await browser.$(indexRowSelector);

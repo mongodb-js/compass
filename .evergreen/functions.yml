@@ -597,6 +597,7 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
+          ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
           # Load environment variables
@@ -613,6 +614,9 @@ functions:
             echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
+
+          # Start atlas local to test Atlas Search
+          source .evergreen/start-atlas-local.sh
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
@@ -633,15 +637,10 @@ functions:
           BROWSER_NAME: ${browser_name}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
-          ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
-          # Start atlas local to test Atlas Search
-          source .evergreen/start-atlas-local.sh
-
           npm run --unsafe-perm --workspace compass-e2e-tests test-web
 
   test-connectivity:
