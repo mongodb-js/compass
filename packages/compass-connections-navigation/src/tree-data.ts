@@ -136,7 +136,7 @@ const notConnectedConnectionToItems = ({
       colorCode: connectionInfo.favorite?.color,
       connectionInfo,
       connectionStatus,
-      isExpandable: false,
+      isExpandable: true,
     },
   ];
 };
