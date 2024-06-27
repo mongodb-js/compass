@@ -43,6 +43,7 @@ function sortedAlphabetically(a: ConnectionInfo, b: ConnectionInfo): number {
 export type ConnectionRepository = {
   favoriteConnections: ConnectionInfo[];
   nonFavoriteConnections: ConnectionInfo[];
+  autoConnectInfo?: ConnectionInfo;
   saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
   deleteConnection: (info: ConnectionInfo) => Promise<void>;
   getConnectionInfoById: (
@@ -189,6 +190,7 @@ export function useConnectionRepository(): ConnectionRepository {
     getConnectionTitleById,
     favoriteConnections,
     nonFavoriteConnections,
+    autoConnectInfo,
     saveConnection,
     deleteConnection,
   };
