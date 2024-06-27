@@ -262,6 +262,14 @@ export function activateAggregationsPlugin(
     maxTimeMSChanged(preferences.getPreferences().maxTimeMS || null)
   );
 
+  const onCloseOrReplace = () => {
+    return !store.getState().isModified;
+  };
+
+  addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
+
+  addCleanup(workspaces.onTabClose?.(onCloseOrReplace));
+
   return {
     store,
     deactivate: cleanup,

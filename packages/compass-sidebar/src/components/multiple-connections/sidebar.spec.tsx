@@ -217,8 +217,8 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByLabelText('Show actions')).to.be.visible;
 
           userEvent.click(screen.getByLabelText('Show actions'));
-          expect(screen.getByText('Import saved connections')).to.be.visible;
-          expect(screen.getByText('Export saved connections')).to.be.visible;
+          expect(screen.getByText('Import connections')).to.be.visible;
+          expect(screen.getByText('Export connections')).to.be.visible;
         });
       }
     );

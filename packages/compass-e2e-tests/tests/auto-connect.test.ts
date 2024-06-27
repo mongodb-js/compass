@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { Compass } from '../helpers/compass';
 import {
   init,
   cleanup,
@@ -13,6 +14,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
+const connectionStringSuccessTitle = '127.0.0.1:27091';
 const connectionStringUnreachable =
   'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
 const connectionStringInvalid = 'http://example.com';
@@ -81,13 +83,29 @@ describe('Automatically connecting from the command line', function () {
     await fs.rmdir(tmpdir, { recursive: true });
   });
 
+  async function waitForConnectionSuccessAndCheckConnection(
+    compass: Compass,
+    expectedTitle = connectionStringSuccessTitle
+  ) {
+    await compass.browser.waitForConnectionResult('success');
+    const sidebarTitle = await compass.browser
+      .$(Selectors.SidebarTitle)
+      .getText();
+    expect(sidebarTitle).to.eq(expectedTitle);
+    const result = await compass.browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    expect(result).to.have.property('ok', 1);
+  }
+
   it('works with a connection string on the command line', async function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
     });
     try {
-      await compass.browser.waitForConnectionResult('success');
+      await waitForConnectionSuccessAndCheckConnection(compass);
     } finally {
       await cleanup(compass);
     }
@@ -105,7 +123,7 @@ describe('Automatically connecting from the command line', function () {
       noWaitForConnectionScreen: true,
     });
     try {
-      await compass.browser.waitForConnectionResult('success');
+      await waitForConnectionSuccessAndCheckConnection(compass, 'Success');
     } finally {
       await cleanup(compass);
     }

@@ -53,11 +53,6 @@ describe('protectConnectionStrings', function () {
   before(async function () {
     skipForWeb(this, 'connection form not available in compass-web');
 
-    // TODO(COMPASS-8029): This regressed for multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('protectConnectionStrings', false);
