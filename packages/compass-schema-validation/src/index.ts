@@ -2,6 +2,7 @@ import { onActivated } from './stores';
 import CompassSchemaValidation from './components/compass-schema-validation';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -20,6 +21,7 @@ export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<
       'aggregate' | 'collectionInfo' | 'updateCollection'
     >,
+    connectionInfoAccess: connectionInfoAccessLocator,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-SCHEMA-VALIDATION-UI'),

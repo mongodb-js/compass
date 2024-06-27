@@ -78,5 +78,6 @@ export const DropIndexPlugin = registerHadronPlugin(
     dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
     track: createTelemetryLocator(),
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
