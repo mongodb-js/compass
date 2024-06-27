@@ -8,24 +8,11 @@ export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
   isEditDisabled,
-  isConnectDisabled,
-  connectDisabledTooltip,
 }: {
   connectionInfo: ConnectionInfo;
   isEditDisabled?: boolean;
-  isConnectDisabled?: boolean;
-  connectDisabledTooltip?: string;
 }): NavigationItemActions => {
   return [
-    {
-      action: 'connection-connect',
-      icon: 'Connect',
-      label: 'Connect',
-      isDisabled: isConnectDisabled,
-      // we surface disabled description via the tooltip hence we would like to
-      // have tooltip rendered only if this action is disabled
-      tooltip: isConnectDisabled ? connectDisabledTooltip : undefined,
-    },
     {
       action: 'edit-connection',
       label: 'Edit connection',

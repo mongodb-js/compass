@@ -298,7 +298,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'connection-connect':
           onConnect(item.connectionInfo);
-          onConnectionToggle(item.connectionInfo.id, true);
           return;
         case 'edit-connection':
           onEditConnection(item.connectionInfo);
@@ -334,7 +333,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenConnectionInfo,
       onDisconnect,
       onConnect,
-      onConnectionToggle,
       onEditConnection,
       onCopyConnectionString,
       onToggleFavoriteConnectionInfo,

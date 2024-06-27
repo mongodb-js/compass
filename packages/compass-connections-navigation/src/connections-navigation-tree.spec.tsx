@@ -707,60 +707,6 @@ describe('ConnectionsNavigationTree', function () {
         expect(action).to.equal('create-database');
       });
 
-      it('should render the connect action for a disconnected connection', async function () {
-        const spy = Sinon.spy();
-        await renderConnectionsNavigationTree({
-          expanded: { connection_ready: { db_ready: true } },
-          onItemAction: spy,
-        });
-
-        userEvent.hover(screen.getByText('connection_disconnected'));
-
-        const connectButton = screen.getByTestId('connection_disconnected');
-        expect(within(connectButton).getByLabelText('Connect')).to.exist;
-
-        userEvent.click(connectButton);
-
-        expect(spy).to.be.calledOnce;
-        const [[item, action]] = spy.args;
-        expect(item.type).to.equal('connection');
-        expect(item.connectionInfo.id).to.equal('connection_disconnected');
-        expect(action).to.equal('connection-connect');
-      });
-
-      context(
-        'when number of active connections are equal to max allowed active connections',
-        function () {
-          it('should render the connect action disabled', async function () {
-            const spy = Sinon.spy();
-            await renderConnectionsNavigationTree(
-              {
-                expanded: { connection_ready: { db_ready: true } },
-                onItemAction: spy,
-              },
-              {
-                maximumNumberOfActiveConnections: 2,
-              }
-            );
-
-            userEvent.hover(screen.getByText('connection_disconnected'));
-
-            const disconnectConnectionNavItem = screen.getByTestId(
-              'connection_disconnected'
-            );
-            const connectBtn = within(
-              disconnectConnectionNavItem
-            ).getByLabelText('Connect');
-            expect(connectBtn).to.exist;
-            expect(connectBtn).to.have.attribute('aria-disabled', 'true');
-
-            userEvent.click(connectBtn);
-
-            expect(spy).to.not.be.called;
-          });
-        }
-      );
-
       context('when performance tab is supported', function () {
         it('should show performance action for connection item and activate callback with `connection-performance-metrics` when clicked', async function () {
           const spy = Sinon.spy();

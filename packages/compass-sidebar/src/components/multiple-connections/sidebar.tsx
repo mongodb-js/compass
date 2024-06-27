@@ -8,6 +8,7 @@ import React, {
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
+  useActiveConnections,
   useConnections,
   useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
@@ -195,6 +196,10 @@ export function MultipleConnectionSidebar({
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
+  const activeConnections = useActiveConnections();
+  const maxConcurrentConnections = usePreference(
+    'maximumNumberOfActiveConnections'
+  ) as number;
   const {
     setActiveConnectionById,
     connect,
@@ -287,8 +292,36 @@ export function MultipleConnectionSidebar({
     [openToast, closeToast, setIsConnectionFormOpen]
   );
 
+  const onMaxConcurrentConnectionsLimitReached = useCallback(
+    (
+      currentActiveConnections: number,
+      maxConcurrentConnections: number,
+      connectionId: string
+    ) => {
+      const message = `Only ${maxConcurrentConnections} connection${
+        currentActiveConnections > 1 ? 's' : ''
+      } can be connected to at the same time. First disconnect from another connection.`;
+
+      openToast(`connection-status-${connectionId}`, {
+        title: 'Maximum concurrent connections limit reached',
+        description: message,
+        variant: 'warning',
+        timeout: 5_000,
+      });
+    },
+    [openToast]
+  );
+
   const onConnect = useCallback(
     (info: ConnectionInfo) => {
+      if (activeConnections.length >= maxConcurrentConnections) {
+        onMaxConcurrentConnectionsLimitReached(
+          activeConnections.length,
+          maxConcurrentConnections,
+          info.id
+        );
+        return;
+      }
       setActiveConnectionById(info.id);
       onConnectionAttemptStarted(info);
       void connect(info).then(
@@ -301,6 +334,9 @@ export function MultipleConnectionSidebar({
       );
     },
     [
+      maxConcurrentConnections,
+      activeConnections,
+      onMaxConcurrentConnectionsLimitReached,
       connect,
       onConnected,
       onConnectionAttemptStarted,
