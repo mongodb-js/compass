@@ -3,10 +3,12 @@ import { isLocalhost } from 'mongodb-build-info';
 import {
   Icon,
   ServerIcon,
+  cx,
   css,
   palette,
   ItemActionControls,
   type ItemAction,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder';
 import StyledNavigationItem from './styled-navigation-item';
@@ -36,21 +38,57 @@ const nonGenuineBtnStyles = css({
   },
 });
 
+const nonGenuineBtnStylesDarkMode = css({
+  color: palette.yellow.light2,
+  background: palette.yellow.dark3,
+  border: `1px solid ${palette.yellow.dark2}`,
+  '&:focus': {
+    color: palette.yellow.light2,
+  },
+  '&:focus::before': {
+    background: palette.yellow.dark3,
+  },
+  '&:hover': {
+    color: palette.yellow.light2,
+  },
+  '&:hover::before': {
+    background: palette.yellow.dark3,
+  },
+});
+
 const csfleBtnStyles = css({
   color: palette.gray.dark1,
-  background: palette.white,
+  background: palette.gray.light3,
   border: `1px solid ${palette.gray.light2}`,
   '&:focus': {
     color: palette.gray.dark1,
   },
   '&:focus::before': {
-    background: palette.white,
+    background: palette.gray.light3,
   },
   '&:hover': {
     color: palette.gray.dark1,
   },
   '&:hover::before': {
-    background: palette.white,
+    background: palette.gray.light3,
+  },
+});
+
+const csfleBtnStylesDarkMode = css({
+  color: palette.gray.light3,
+  background: palette.gray.dark1,
+  border: `1px solid ${palette.gray.base}`,
+  '&:focus': {
+    color: palette.gray.light3,
+  },
+  '&:focus::before': {
+    background: palette.gray.dark1,
+  },
+  '&:hover': {
+    color: palette.gray.light3,
+  },
+  '&:hover::before': {
+    background: palette.gray.dark1,
   },
 });
 
@@ -71,6 +109,7 @@ export function NavigationItem({
   onItemExpand,
   getItemActions,
 }: NavigationItemProps) {
+  const isDarkMode = useDarkMode();
   const itemIcon = useMemo(() => {
     if (item.type === 'database') {
       return <Icon glyph="Database" />;
@@ -188,7 +227,9 @@ export function NavigationItem({
         label: 'Non-Genuine MongoDB',
         tooltip: 'Non-Genuine MongoDB detected',
         icon: 'Warning',
-        actionButtonClassName: nonGenuineBtnStyles,
+        actionButtonClassName: cx(nonGenuineBtnStyles, {
+          [nonGenuineBtnStylesDarkMode]: isDarkMode,
+        }),
       });
     }
 
@@ -198,12 +239,14 @@ export function NavigationItem({
         label: 'In-Use Encryption',
         tooltip: 'Configure In-Use Encryption',
         icon: 'Key',
-        actionButtonClassName: csfleBtnStyles,
+        actionButtonClassName: cx(csfleBtnStyles, {
+          [csfleBtnStylesDarkMode]: isDarkMode,
+        }),
       });
     }
 
     return actions;
-  }, [item]);
+  }, [item, isDarkMode]);
 
   return (
     <StyledNavigationItem item={item}>
