@@ -204,11 +204,7 @@ describe('Instance sidebar', function () {
   });
 
   it('can refresh the databases', async function () {
-    // TODO(COMPASS-8002): it isn't currently possible to refresh for multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
+    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
     const db = 'test';
     const coll = `coll_${Date.now()}`;
 
@@ -221,7 +217,14 @@ describe('Instance sidebar', function () {
       await mongoClient.close();
     }
 
-    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.RefreshDatabasesItem
+      );
+    } else {
+      await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
+    }
     await browser.clickVisible(Selectors.sidebarDatabase(db));
     const collectionElement = await browser.$(
       Selectors.sidebarCollection(db, coll)
