@@ -49,8 +49,6 @@ export type ConnectionScopeEvents = [
   | 'Query Exported'
   | 'Query History Closed'
   | 'Query History Favorite Added'
-  | 'Query History Favorite Removed' // depends! this one can be from 'my_queries' or from 'documents' screen
-  | 'Query History Favorite Used' // depends! this one can be from 'my_queries' or from 'documents' screen
   | 'Query History Favorites'
   | 'Query History Opened'
   | 'Query History Recent'
@@ -80,8 +78,12 @@ export type ConnectionScopeEvents = [
   // unsure
   | 'Focus Mode Closed'
   | 'Focus Mode Opened'
-  | 'Guide Cue Dismissed'
-  | 'Guide Cue Group Dismissed'
+];
+
+export type SometimesConnectionScopeEvents = [
+  | 'Query History Favorite Removed' // depends! this one can be from 'my_queries' or from 'documents' screen
+  | 'Query History Favorite Used' // depends! this one can be from 'my_queries' or from 'documents' screen
+  | 'Screen'
 ];
 
 export type GeneralScopeEvents = [
@@ -108,8 +110,9 @@ export type GeneralScopeEvents = [
   | 'First Input Delay'
   | 'Cumulative Layout Shift'
   | 'Time to First Byte'
+  | 'Guide Cue Dismissed'
+  | 'Guide Cue Group Dismissed'
   // unsure
-  | 'Screen' // this is a maybe.
   | 'Connection Exported'
   | 'Connection Imported'
   | 'Keytar Secrets Migration Failed'
