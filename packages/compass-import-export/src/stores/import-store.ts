@@ -6,7 +6,10 @@ import thunk from 'redux-thunk';
 import { cancelImport, importReducer, openImport } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionRepository,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
@@ -16,6 +19,7 @@ export type ImportPluginServices = {
   logger: Logger;
   track: TrackFunction;
   connectionsManager: ConnectionsManager;
+  connectionRepository: ConnectionRepository;
 };
 
 export function configureStore(services: ImportPluginServices) {
@@ -52,6 +56,7 @@ export function activatePlugin(
   {
     globalAppRegistry,
     connectionsManager,
+    connectionRepository,
     workspaces,
     logger,
     track,
@@ -64,6 +69,7 @@ export function activatePlugin(
     logger,
     track,
     connectionsManager,
+    connectionRepository,
   });
 
   addCleanup(() => {

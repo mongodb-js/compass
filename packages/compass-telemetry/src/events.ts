@@ -49,9 +49,8 @@ export type ConnectionScopeEvents = [
   | 'Query Exported'
   | 'Query History Closed'
   | 'Query History Favorite Added'
-  | 'Query History Favorite Copied'
-  | 'Query History Favorite Removed'
-  | 'Query History Favorite Used'
+  | 'Query History Favorite Removed' // depends! this one can be from 'my_queries' or from 'documents' screen
+  | 'Query History Favorite Used' // depends! this one can be from 'my_queries' or from 'documents' screen
   | 'Query History Favorites'
   | 'Query History Opened'
   | 'Query History Recent'
@@ -102,6 +101,7 @@ export type GeneralScopeEvents = [
   | 'My Queries Sort'
   | 'Theme Changed'
   | 'Error Fetching Attributes'
+  | 'Query History Favorite Copied' // this is from 'my_queries' screen
   | 'Aggregation Deleted'
   | 'Aggregation Copied'
   | 'First Contentful Paint'
