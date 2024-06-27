@@ -164,6 +164,21 @@ export function activateWorkspacePlugin(
     }
   });
 
+  // TODO(COMPASS-8033): activate this code and account for it in e2e tests and
+  // electron environment
+  // function onBeforeUnload(evt: BeforeUnloadEvent) {
+  //   const canUnload = store.getState().tabs.every((tab) => {
+  //     return canCloseTab(tab);
+  //   });
+  //   if (!canUnload) {
+  //     evt.preventDefault();
+  //   }
+  // }
+  // window.addEventListener('beforeunload', onBeforeUnload);
+  // addCleanup(() => {
+  //   window.removeEventListener('beforeunload', onBeforeUnload);
+  // });
+
   return {
     store,
     context: WorkspacesStoreContext,

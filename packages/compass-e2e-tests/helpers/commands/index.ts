@@ -43,7 +43,7 @@ export * from './save-favorite';
 export * from './save-connection-string-as-favorite';
 export * from './select-connection';
 export * from './select-connection-menu-item';
-export * from './select-favorites-menu-item';
+export * from './select-connections-menu-item';
 export * from './open-settings-modal';
 export * from './wait-for-connection-result';
 export * from './screenshot';

@@ -229,14 +229,19 @@ export const Single = {
   SidebarNewConnectionButton: '[data-testid="new-connection-button"]',
   FavoriteConnections: '[data-testid="favorite-connection"]',
   FavoriteConnectionsHeader: '[data-testid="favorite-connections-list-header"]',
-  FavoriteConnectionsMenuButton: `[data-testid="favorite-connections-list-header"] button[title="Show actions"]`,
-  FavoriteConnectionsMenu: '[data-testid="favorites-menu"]',
   ConnectionMenu: '[data-testid="connection-menu"]',
   CopyConnectionStringItem: `[data-testid="connection-menu-copy-connection-string-action"]`,
   EditConnectionItem: `[data-testid="connection-menu-edit-connection-action"]`,
   DuplicateConnectionItem: `[data-testid="connection-menu-duplicate-connection-action"]`,
   RemoveConnectionItem: `[data-testid="connection-menu-remove-connection-action"]`,
   RecentConnections: '[data-testid="recent-connection"]',
+
+  ConnectionsMenuButton: `[data-testid="favorite-connections-list-header"] button[title="Show actions"]`,
+  ConnectionsMenu: '[data-testid="favorites-menu"]',
+  ExportConnectionsModalOpen:
+    '[data-testid="favorites-menu-export-saved-connections-action"]',
+  ImportConnectionsModalOpen:
+    '[data-testid="favorites-menu-import-saved-connections-action"]',
 };
 
 // Multiple Connections sidebar
@@ -245,6 +250,8 @@ export const Multiple = {
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
 
+  CreateDatabaseItem:
+    '[data-testid="sidebar-navigation-item-actions-create-database-action"]',
   OpenShellItem:
     '[data-testid="sidebar-navigation-item-actions-open-shell-action"]',
   ViewPerformanceItem:
@@ -262,6 +269,14 @@ export const Multiple = {
     '[data-testid="sidebar-navigation-item-actions-connection-toggle-favorite-action"]',
   DuplicateConnectionItem: `[data-testid="sidebar-navigation-item-actions-duplicate-connection-action"]`,
   RemoveConnectionItem: `[data-testid="sidebar-navigation-item-actions-remove-connection-action"]`,
+
+  ConnectionsMenuButton:
+    '[data-testid="connections-list-title-actions-show-actions"]',
+  ConnectionsMenu: '[data-testid="connections-list-title-actions"]',
+  ExportConnectionsModalOpen:
+    '[data-testid="connections-list-title-actions-export-saved-connections-action"]',
+  ImportConnectionsModalOpen:
+    '[data-testid="connections-list-title-actions-import-saved-connections-action"]',
 };
 
 // Rename Collection Modal
@@ -644,8 +659,6 @@ export const BulkDeleteSuccessToast = `[data-testid="toast-bulk-delete-toast"]`;
 export const BulkDeleteSuccessToastDismissButton = `[data-testid="toast-bulk-delete-toast"] [data-testid="lg-toast-dismiss-button"]`;
 
 // Connection import/export modals
-export const ExportConnectionsModalOpen =
-  '[data-testid="favorites-menu-export-saved-connections-action"]';
 export const ExportConnectionsModal = '[data-testid="connection-export-modal"]';
 export const ExportConnectionsSubmit = `${ExportConnectionsModal} [data-testid="submit-button"]`;
 export const ExportConnectionsPassphrase =
@@ -654,8 +667,6 @@ export const ExportConnectionsRemoveSecrets =
   '[data-testid="connection-export-remove-secrets"]';
 export const ExportConnectionsSucceededToast =
   '[data-testid="toast-compass-connection-import-export--export-succeeded"]';
-export const ImportConnectionsModalOpen =
-  '[data-testid="favorites-menu-import-saved-connections-action"]';
 export const ImportConnectionsModal = '[data-testid="connection-import-modal"]';
 export const ImportConnectionsPassphrase =
   '[data-testid="conn-import-export-passphrase-input"]';
@@ -1158,6 +1169,8 @@ export const sidebarInstanceNavigationItem = (
   return `${Sidebar} [aria-label="${tabName}"]`;
 };
 export const SidebarMyQueriesTab = `${Sidebar} [aria-label="My Queries"]`;
+export const WorkspaceTab =
+  '[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]';
 export const workspaceTab = (
   title: string | null,
   active: boolean | null = null
@@ -1169,7 +1182,7 @@ export const workspaceTab = (
       : ['My Queries', 'Performance', 'Databases'].includes(title)
       ? `[title="${title}"]`
       : `[data-namespace="${title}"]`;
-  return `[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]${_title}${_active}`;
+  return `${WorkspaceTab}${_title}${_active}`;
 };
 export const instanceWorkspaceTab = (
   tabName: 'Performance' | 'Databases',
@@ -1301,3 +1314,6 @@ export const AgreeAndContinueButton = 'button=Agree and continue';
 
 // Any toast
 export const AnyToastDismissButton = '[data-testid="lg-toast-dismiss-button"]';
+
+// Close tab confirmation
+export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';
