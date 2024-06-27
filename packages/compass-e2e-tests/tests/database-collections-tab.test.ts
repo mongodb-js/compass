@@ -7,6 +7,7 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   DEFAULT_CONNECTION_STRING,
+  connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -58,7 +59,10 @@ describe('Database collections tab', function () {
     await createDummyCollections();
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
   });
 
   afterEach(async function () {
@@ -127,7 +131,10 @@ describe('Database collections tab', function () {
       'add-collection-modal-basic.png'
     );
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -163,7 +170,10 @@ describe('Database collections tab', function () {
 
     // the app should still be on the database Collections tab because there are
     // other collections in this database
-    await browser.waitUntilActiveDatabaseTab('test');
+    await browser.waitUntilActiveDatabaseTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
   });
 
   it('can create a capped collection', async function () {
@@ -182,7 +192,10 @@ describe('Database collections tab', function () {
       'add-collection-modal-capped.png'
     );
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -220,7 +233,10 @@ describe('Database collections tab', function () {
       'add-collection-modal-custom-collation.png'
     );
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     await waitForCollectionAndBadge(
       browser,
@@ -253,7 +269,10 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     await waitForCollectionAndBadge(
       browser,
@@ -287,7 +306,10 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     await waitForCollectionAndBadge(
       browser,
@@ -319,7 +341,10 @@ describe('Database collections tab', function () {
       'add-collection-modal-clustered.png'
     );
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     await waitForCollectionAndBadge(
       browser,
@@ -352,7 +377,10 @@ describe('Database collections tab', function () {
       await mongoClient.close();
     }
 
-    await browser.navigateToDatabaseCollectionsTab(db);
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      db
+    );
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
     const collSelector = Selectors.collectionCard(db, coll);

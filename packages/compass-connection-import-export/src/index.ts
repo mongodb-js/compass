@@ -1,2 +1,5 @@
-export { ImportConnectionsModal } from './components/import-modal';
-export { ExportConnectionsModal } from './components/export-modal';
+export {
+  ConnectionImportExportProvider,
+  useOpenConnectionImportExportModal,
+  type ConnectionImportExportAction,
+} from './context';

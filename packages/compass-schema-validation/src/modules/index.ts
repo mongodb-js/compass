@@ -25,7 +25,8 @@ import type { ThunkAction } from 'redux-thunk';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from 'hadron-app-registry';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 /**
  * Reset action constant.
@@ -62,7 +63,8 @@ export type SchemaValidationExtraArgs = {
   >;
   preferences: PreferencesAccess;
   globalAppRegistry: AppRegistry;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
 };
 
 export type SchemaValidationThunkAction<

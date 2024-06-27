@@ -1,7 +1,7 @@
 import Reflux from 'reflux';
 import type { StoreWithStateMixin } from '@mongodb-js/reflux-state-mixin';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { InternalLayer } from '../modules/geo';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
@@ -29,6 +29,7 @@ import type { Schema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -58,7 +59,8 @@ export type SchemaPluginServices = {
   dataService: DataService;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  loggerAndTelemetry: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   preferences: PreferencesAccess;
   fieldStoreService: FieldStoreService;
   queryBar: QueryBarService;
@@ -120,14 +122,15 @@ export function activateSchemaPlugin(
     dataService,
     localAppRegistry,
     globalAppRegistry,
-    loggerAndTelemetry,
+    logger,
+    track,
     preferences,
     fieldStoreService,
     queryBar,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const { track, debug, log, mongoLogId } = loggerAndTelemetry;
+  const { debug, log, mongoLogId } = logger;
   const actions = configureActions();
 
   /**
@@ -298,7 +301,7 @@ export function activateSchemaPlugin(
           this.ns,
           samplingOptions,
           driverOptions,
-          loggerAndTelemetry
+          logger
         );
         const analysisTime = Date.now() - analysisStartTime;
 

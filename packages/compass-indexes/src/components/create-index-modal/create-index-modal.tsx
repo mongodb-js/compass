@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import {
   Modal,
   ModalFooter,
@@ -20,6 +19,10 @@ import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules/create-index';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -51,8 +54,7 @@ function CreateIndexModal({
   );
 
   useTrackOnChange(
-    'COMPASS-INDEXES-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (isVisible) {
         track('Screen', { name: 'create_index_modal' });
         track('Index Create Opened', {

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { stub, type SinonStub, spy, type SinonSpy } from 'sinon';
 import { createSidebarStore } from '.';
 import { createInstance } from '../../test/helpers';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import {
   MongoDBInstancesManagerEvents,
@@ -73,7 +73,7 @@ describe('SidebarStore [Store]', function () {
           },
         } as any,
         instancesManager: instancesManager,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
       },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));

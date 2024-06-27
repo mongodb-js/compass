@@ -26,6 +26,7 @@ const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
   '--test-compass-web',
+  '--test-multiple-connections',
   '--no-compile',
   '--no-native-modules',
   '--test-packaged-app',
@@ -292,6 +293,9 @@ async function main() {
       'configs/mocha-config-compass/reporter.js'
     ),
   });
+
+  // print the test order for debugging purposes and so we can tweak the groups later
+  console.log('test order', tests);
 
   tests.forEach((testPath: string) => {
     mocha.addFile(path.join(__dirname, testPath));

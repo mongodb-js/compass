@@ -106,7 +106,7 @@ export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { dataService, localAppRegistry, logger: { track } }
+    { dataService, localAppRegistry, track }
   ) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;

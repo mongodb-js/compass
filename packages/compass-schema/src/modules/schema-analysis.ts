@@ -10,7 +10,7 @@ import type {
   PrimitiveSchemaType,
 } from 'mongodb-schema';
 import type { DataService } from '../stores/store';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 
 const MONGODB_GEO_TYPES = [
   'Point',
@@ -48,7 +48,7 @@ export const analyzeSchema = async (
       }
     | undefined,
   aggregateOptions: AggregateOptions,
-  { log, mongoLogId, debug }: LoggerAndTelemetry
+  { log, mongoLogId, debug }: Logger
 ): Promise<Schema | null> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {

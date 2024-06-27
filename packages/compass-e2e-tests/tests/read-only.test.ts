@@ -3,6 +3,9 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -37,12 +40,24 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.setFeature('readOnly', true);
     await browser.connectWithConnectionString();
 
-    let sidebarCreateDatabaseButton = await browser.$(
-      Selectors.SidebarCreateDatabaseButton
-    );
-    let isSidebarCreateDatabaseButtonExisting =
-      await sidebarCreateDatabaseButton.isExisting();
-    expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
+    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // navigate to the databases tab so that the connection is
+      // active/highlighted and then the add button and three dot menu will
+      // display without needing to hover
+      await browser.navigateToConnectionTab(connectionName, 'Databases');
+      expect(
+        await browser.$(Selectors.Multiple.CreateDatabaseItem).isExisting()
+      ).to.be.equal(false);
+    } else {
+      const sidebarCreateDatabaseButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      const isSidebarCreateDatabaseButtonExisting =
+        await sidebarCreateDatabaseButton.isExisting();
+      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
+    }
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -55,12 +70,19 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    sidebarCreateDatabaseButton = await browser.$(
-      Selectors.SidebarCreateDatabaseButton
-    );
-    isSidebarCreateDatabaseButtonExisting =
-      await sidebarCreateDatabaseButton.isExisting();
-    expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.navigateToConnectionTab(connectionName, 'Databases');
+      expect(
+        await browser.$(Selectors.Multiple.CreateDatabaseItem).isExisting()
+      ).to.be.equal(true);
+    } else {
+      const sidebarCreateDatabaseButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      const isSidebarCreateDatabaseButtonExisting =
+        await sidebarCreateDatabaseButton.isExisting();
+      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
+    }
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
@@ -103,7 +125,10 @@ describe('readOnly: true / Read-Only Edition', function () {
   it('shows and hides the create database button on the instance tab', async function () {
     await browser.connectWithConnectionString();
 
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
 
     let instanceCreateDatabaseButton = await browser.$(
       Selectors.InstanceCreateDatabaseButton
@@ -135,7 +160,10 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
     let databaseCreateCollectionButton = await browser.$(
       Selectors.DatabaseCreateCollectionButton

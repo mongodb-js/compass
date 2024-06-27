@@ -8,11 +8,11 @@ import {
   ConnectionsManager,
   ConnectionsManagerEvents,
 } from './connections-manager';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
-  const { log } = createNoopLoggerAndTelemetry();
+  const { log } = createNoopLogger();
   return new ConnectionsManager({
     logger: log.unbound,
     __TEST_CONNECT_FN: mockTestConnectFn,

@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
+  rafraf,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -19,7 +20,7 @@ import {
   getActiveTab,
   getLocalAppRegistryForTab,
   moveTab,
-  openFallbackTab,
+  openFallbackWorkspace,
   openTabFromCurrent,
   selectNextTab,
   selectPrevTab,
@@ -27,9 +28,13 @@ import {
 } from '../stores/workspaces';
 import { useWorkspacePlugins } from './workspaces-provider';
 import toNS from 'mongodb-ns';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { connect } from '../stores/context';
-import { WorkspaceTabStateProvider } from './workspace-tab-state-provider';
+import {
+  WorkspaceTabStateProvider,
+  useTabState,
+} from './workspace-tab-state-provider';
+import { useOnTabReplace } from './workspace-close-handler';
 import { NamespaceProvider } from '@mongodb-js/compass-app-stores/provider';
 import {
   ConnectionInfoProvider,
@@ -51,6 +56,51 @@ const EmptyWorkspaceContent = () => {
         height={spacing[7] * 2}
         color={darkMode ? 'white' : 'black'}
       ></MongoDBLogoMark>
+    </div>
+  );
+};
+
+const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
+  const mountedRef = useRef(false);
+  const [hasInteractedOnce, setHasInteractedOnce] = useTabState(
+    'hasInteractedOnce',
+    false
+  );
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  });
+
+  const markAsInteracted = useCallback(() => {
+    // Make sure we don't count clicking on buttons that actually cause the
+    // workspace to change, like using breadcrumbs or clicking on an item in the
+    // Databases / Collections list. There are certain corner-cases this doesn't
+    // handle, but it's good enough to prevent most cases where users can loose
+    // content by accident
+    rafraf(() => {
+      if (mountedRef.current) {
+        setHasInteractedOnce(true);
+      }
+    });
+  }, [setHasInteractedOnce]);
+
+  useOnTabReplace(() => {
+    return !hasInteractedOnce;
+  });
+
+  return (
+    // We're not using these for actual user interactions, just to capture the
+    // interacted state
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      style={{ display: 'contents' }}
+      onKeyDown={markAsInteracted}
+      onClickCapture={markAsInteracted}
+    >
+      {children}
     </div>
   );
 };
@@ -82,8 +132,7 @@ type CompassWorkspacesProps = {
   onCreateTab(defaultTab?: OpenWorkspaceOptions | null): void;
   onCloseTab(at: number): void;
   onNamespaceNotFound(
-    tab: WorkspaceTab,
-    connectionId: string,
+    tab: Extract<WorkspaceTab, { namespace: string }>,
     fallbackNamespace: string | null
   ): void;
 };
@@ -101,7 +150,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   onCloseTab,
   onNamespaceNotFound,
 }) => {
-  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-WORKSPACES');
+  const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionTitleById } = useConnectionRepository();
@@ -212,7 +261,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             <NamespaceProvider
               namespace={activeTab.namespace}
               onNamespaceFallbackSelect={(ns) => {
-                onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
+                onNamespaceNotFound(activeTab, ns);
               }}
             >
               <Component namespace={activeTab.namespace}></Component>
@@ -229,7 +278,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             <NamespaceProvider
               namespace={activeTab.namespace}
               onNamespaceFallbackSelect={(ns) => {
-                onNamespaceNotFound(activeTab, activeTab.connectionId, ns);
+                onNamespaceNotFound(activeTab, ns);
               }}
             >
               <Component tabId={id} {...collectionMetadata}></Component>
@@ -269,19 +318,21 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               localAppRegistry={getLocalAppRegistryForTab(activeTab.id)}
               deactivateOnUnmount={false}
             >
-              <ErrorBoundary
-                displayName={activeTab.type}
-                onError={(error, errorInfo) => {
-                  log.error(
-                    mongoLogId(1_001_000_277),
-                    'Workspace',
-                    'Rendering workspace tab failed',
-                    { name: activeTab.type, error: error.message, errorInfo }
-                  );
-                }}
-              >
-                {activeWorkspaceElement}
-              </ErrorBoundary>
+              <ActiveTabCloseHandler>
+                <ErrorBoundary
+                  displayName={activeTab.type}
+                  onError={(error, errorInfo) => {
+                    log.error(
+                      mongoLogId(1_001_000_277),
+                      'Workspace',
+                      'Rendering workspace tab failed',
+                      { name: activeTab.type, error: error.message, errorInfo }
+                    );
+                  }}
+                >
+                  {activeWorkspaceElement}
+                </ErrorBoundary>
+              </ActiveTabCloseHandler>
             </AppRegistryProvider>
           </WorkspaceTabStateProvider>
         ) : (
@@ -308,6 +359,6 @@ export default connect(
     onMoveTab: moveTab,
     onCreateTab: openTabFromCurrent,
     onCloseTab: closeTab,
-    onNamespaceNotFound: openFallbackTab,
+    onNamespaceNotFound: openFallbackWorkspace,
   }
 )(CompassWorkspaces);

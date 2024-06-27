@@ -8,7 +8,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type AppRegistry from 'hadron-app-registry';
 import type { connect } from 'mongodb-data-service';
@@ -82,10 +82,10 @@ function Connections({
 }: {
   appRegistry: AppRegistry;
   openConnectionImportExportModal?: (
-    action: 'export-favorites' | 'import-favorites'
+    action: 'import-saved-connections' | 'export-saved-connections'
   ) => void;
 }): React.ReactElement {
-  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-CONNECTIONS');
+  const { log, mongoLogId } = useLogger('COMPASS-CONNECTIONS');
 
   const {
     state,

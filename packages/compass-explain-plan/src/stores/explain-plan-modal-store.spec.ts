@@ -77,9 +77,9 @@ describe('explain plan modal store', function () {
         dataService,
         logger: {
           log: { warn() {}, error() {} },
-          track() {},
           mongoLogId() {},
         } as any,
+        track: () => {},
         preferences: {
           getPreferences() {
             return { maxTimeMS: 0 };

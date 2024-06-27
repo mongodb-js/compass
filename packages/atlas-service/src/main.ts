@@ -20,17 +20,16 @@ import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
-import {
-  createLoggerAndTelemetry,
-  mongoLogId,
-} from '@mongodb-js/compass-logging';
+import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { SecretStore } from './secret-store';
 import { OidcPluginLogger } from './oidc-plugin-logger';
 import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-const { log, track } = createLoggerAndTelemetry('COMPASS-ATLAS-SERVICE');
+const { log } = createLogger('COMPASS-ATLAS-SERVICE');
+const track = createIpcTrack();
 
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',
@@ -208,9 +207,7 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
-  private static async requestOAuthToken({
-    signal,
-  }: { signal?: AbortSignal } = {}) {
+  private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
@@ -220,14 +217,14 @@ export class CompassAuthService {
       );
     }
 
-    return this.plugin.mongoClientOptions.authMechanismProperties.REQUEST_TOKEN_CALLBACK(
+    return this.plugin.mongoClientOptions.authMechanismProperties.OIDC_HUMAN_CALLBACK(
       {
-        clientId: this.config.atlasLogin.clientId,
-        issuer: this.config.atlasLogin.issuer,
-      },
-      {
+        idpInfo: {
+          clientId: this.config.atlasLogin.clientId,
+          issuer: this.config.atlasLogin.issuer,
+        },
         // Required driver specific stuff
-        version: 0,
+        version: 1,
         // While called timeoutContext, this is actually an abort signal that
         // plugin will listen to, not a timeout
         timeoutContext: signal,
