@@ -8,6 +8,7 @@ import {
   DEFAULT_CONNECTION_STRING,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -15,7 +16,7 @@ import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
-describe('Instance sidebar', function () {
+describe.only('Instance sidebar', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -40,14 +41,17 @@ describe('Instance sidebar', function () {
   it('has a connection info modal with connection info', async function () {
     skipForWeb(this, "these actions don't exist in compass-web");
 
-    // TODO(COMPASS-8002: this has to click the active connection's actions in
-    // multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
+    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
-    await browser.clickVisible(Selectors.Single.ShowTitleActionsButton);
-    await browser.clickVisible(Selectors.Single.ClusterInfoItem);
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.ClusterInfoItem
+      );
+    } else {
+      await browser.clickVisible(Selectors.Single.ShowTitleActionsButton);
+      await browser.clickVisible(Selectors.Single.ClusterInfoItem);
+    }
 
     const modal = await browser.$(Selectors.ConnectionInfoModal);
     await modal.waitForDisplayed();
