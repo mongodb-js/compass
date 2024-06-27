@@ -19,6 +19,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type Item = { _id: string } & Record<string, unknown>;
 
@@ -274,11 +275,16 @@ export const ItemsGrid = <T extends Item>({
   renderLoadSampleDataBanner,
 }: ItemsGridProps<T>): React.ReactElement => {
   const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const onViewTypeChange = useCallback(
     (newType) => {
-      track('Switch View Type', { view_type: newType, item_type: itemType });
+      track(
+        'Switch View Type',
+        { view_type: newType, item_type: itemType },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
     },
-    [itemType, track]
+    [itemType, track, connectionInfoAccess]
   );
 
   const [sortControls, sortState] = useSortControls(sortBy);

@@ -2,9 +2,9 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { activateCreateViewPlugin } from './create-view';
 import { expect } from 'chai';
 import {
-  type ConnectionInfoAccess,
   ConnectionsManager,
   type DataService,
+  type ConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 import { changeViewName, createView } from '../modules/create-view';
 import Sinon from 'sinon';
@@ -26,9 +26,6 @@ describe('CreateViewStore [Store]', function () {
   let appRegistryEmitSpy: Sinon.SinonSpy;
   const logger = {} as any;
   const track = () => {};
-  const connectionInfoAccess = {
-    getCurrentConnectionInfo: () => ({ id: 'TEST' }),
-  } as ConnectionInfoAccess;
   const createViewStub = Sinon.stub();
   const dataService = {
     createView: createViewStub,
@@ -38,6 +35,9 @@ describe('CreateViewStore [Store]', function () {
   const workspaces = {
     openCollectionWorkspace: openCollectionWorkspaceStub,
   } as unknown as WorkspacesService;
+  const connectionRepository = {
+    getConnectionInfoById: () => {},
+  } as unknown as ConnectionRepository;
 
   beforeEach(function () {
     globalAppRegistry = new AppRegistry();
@@ -50,9 +50,9 @@ describe('CreateViewStore [Store]', function () {
       {
         globalAppRegistry,
         connectionsManager,
+        connectionRepository,
         logger,
         track,
-        connectionInfoAccess,
         workspaces,
       },
       createActivateHelpers()
