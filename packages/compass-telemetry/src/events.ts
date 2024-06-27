@@ -63,7 +63,6 @@ export type ConnectionScopeEvents = [
   | 'Index Created'
   | 'Index Dropped'
   | 'Index Edited'
-  | 'My Queries Search'
   | 'New Connection'
   | 'Performance Advisor Clicked'
   | 'Performance Paused'
@@ -99,6 +98,7 @@ export type GeneralScopeEvents = [
   | 'Autoupdate Enabled'
   | 'My Queries Filter'
   | 'My Queries Sort'
+  | 'My Queries Search'
   | 'Theme Changed'
   | 'Error Fetching Attributes'
   | 'Query History Favorite Copied' // this is from 'my_queries' screen
