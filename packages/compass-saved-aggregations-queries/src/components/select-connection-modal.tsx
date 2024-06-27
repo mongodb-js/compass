@@ -1,8 +1,8 @@
 import React from 'react';
 import {
-  SelectConnectionModal,
-  type SelectConnectionModalProps,
-} from '@mongodb-js/compass-components';
+  ConnectionSelectModal,
+  type ConnectionSelectModalProps,
+} from '@mongodb-js/compass-connections/provider';
 import {
   type MapDispatchToProps,
   type MapStateToProps,
@@ -17,7 +17,7 @@ import {
 
 const mapState: MapStateToProps<
   Pick<
-    SelectConnectionModalProps,
+    ConnectionSelectModalProps,
     | 'descriptionText'
     | 'isModalOpen'
     | 'isSubmitDisabled'
@@ -60,7 +60,7 @@ const mapState: MapStateToProps<
 
 const mapDispatch: MapDispatchToProps<
   Pick<
-    SelectConnectionModalProps,
+    ConnectionSelectModalProps,
     'onSubmit' | 'onClose' | 'onConnectionSelected'
   >,
   Record<string, never>
@@ -70,4 +70,4 @@ const mapDispatch: MapDispatchToProps<
   onConnectionSelected: connectionSelectedForPreSelectedNamespace,
 };
 
-export default connect(mapState, mapDispatch)(SelectConnectionModal);
+export default connect(mapState, mapDispatch)(ConnectionSelectModal);

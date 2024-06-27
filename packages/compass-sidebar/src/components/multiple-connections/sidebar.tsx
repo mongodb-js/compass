@@ -10,6 +10,7 @@ import {
   ConnectionStatus,
   useConnections,
   useConnectionsWithStatus,
+  ConnectionSelectModal,
 } from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
@@ -23,7 +24,6 @@ import {
   spacing,
   openToast,
   HorizontalRule,
-  SelectConnectionModal,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
@@ -124,7 +124,7 @@ function ShellSelectConnectionModal({
     setSelectedConnectionId(null);
   }, [onClose]);
   return (
-    <SelectConnectionModal
+    <ConnectionSelectModal
       isModalOpen={isModalOpen}
       isSubmitDisabled={!selectedConnectionId}
       submitButtonText="Open shell"
@@ -265,6 +265,7 @@ export function MultipleConnectionSidebar({
     return connectionsWithStatus.map(({ connectionInfo }) => ({
       id: connectionInfo.id,
       name: getConnectionTitle(connectionInfo),
+      color: connectionInfo.favorite?.color,
     }));
   }, [connectionsWithStatus]);
 

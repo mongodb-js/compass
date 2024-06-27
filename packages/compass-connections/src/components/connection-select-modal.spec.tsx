@@ -4,11 +4,12 @@ import { expect } from 'chai';
 import { render, screen, cleanup } from '@testing-library/react';
 import userEvents from '@testing-library/user-event';
 import {
-  SelectConnectionModal,
-  type SelectConnectionModalProps,
-} from './select-connection-modal';
+  ConnectionSelectModal,
+  type ConnectionSelectModalProps,
+} from './connection-select-modal';
+import userEvent from '@testing-library/user-event';
 
-const modalProps: SelectConnectionModalProps = {
+const modalProps: ConnectionSelectModalProps = {
   isModalOpen: false,
   descriptionText: '',
   isSubmitDisabled: false,
@@ -29,32 +30,35 @@ const modalProps: SelectConnectionModalProps = {
   onConnectionSelected: sinon.stub(),
 };
 
-describe('SelectConnectionModal Component', function () {
+describe('ConnectionSelectModal Component', function () {
   afterEach(() => {
     sinon.restore();
     cleanup();
   });
   it('should not open the modal when open is false', function () {
-    render(<SelectConnectionModal {...modalProps} />);
+    render(<ConnectionSelectModal {...modalProps} />);
 
     expect(() => screen.getByTestId('select-connection-modal')).to.throw;
   });
 
   it('should open the modal when open is true with expected contents', function () {
-    render(<SelectConnectionModal {...modalProps} isModalOpen={true} />);
+    render(<ConnectionSelectModal {...modalProps} isModalOpen={true} />);
 
     expect(() => screen.getByTestId('select-connection-modal')).to.not.throw;
     // buttons
-    expect(() => screen.getByText('Submit')).to.exist;
-    expect(() => screen.getByText('Cancel')).to.exist;
+    expect(screen.getByText('Submit')).to.exist;
+    expect(screen.getByText('Cancel')).to.exist;
     // connections
-    expect(() => screen.getByLabelText('peaches')).to.exist;
-    expect(() => screen.getByLabelText('turtles')).to.exist;
+    expect(screen.getByTestId('connection-select')).to.be.visible;
+    userEvent.click(screen.getByTestId('connection-select'));
+
+    expect(screen.getByText('peaches')).to.exist;
+    expect(screen.getByText('turtles')).to.exist;
   });
 
   it('should render the descriptionText when provided', function () {
     render(
-      <SelectConnectionModal
+      <ConnectionSelectModal
         {...modalProps}
         isModalOpen={true}
         descriptionText="This is description text"
@@ -65,9 +69,9 @@ describe('SelectConnectionModal Component', function () {
   });
 
   context('when selectedConnectionId is provided', function () {
-    it('should render the corresponding radio selected', function () {
+    it('should render the corresponding option selected', function () {
       render(
-        <SelectConnectionModal
+        <ConnectionSelectModal
           {...modalProps}
           isModalOpen={true}
           descriptionText="This is description text"
@@ -75,10 +79,7 @@ describe('SelectConnectionModal Component', function () {
         />
       );
 
-      expect(screen.getByLabelText('peaches')).to.have.attribute(
-        'aria-checked',
-        'true'
-      );
+      expect(screen.getByText('peaches')).to.be.visible;
     });
   });
 
@@ -86,7 +87,7 @@ describe('SelectConnectionModal Component', function () {
     it('should trigger onClose prop', function () {
       const onCloseStub = sinon.stub();
       render(
-        <SelectConnectionModal
+        <ConnectionSelectModal
           {...modalProps}
           isModalOpen={true}
           onClose={onCloseStub}
@@ -101,13 +102,14 @@ describe('SelectConnectionModal Component', function () {
     it('should trigger onConnectionSelected prop', function () {
       const onConnectionSelected = sinon.stub();
       render(
-        <SelectConnectionModal
+        <ConnectionSelectModal
           {...modalProps}
           isModalOpen={true}
           onConnectionSelected={onConnectionSelected}
         />
       );
-      userEvents.click(screen.getByLabelText('peaches'));
+      userEvent.click(screen.getByTestId('connection-select'));
+      userEvents.click(screen.getByText('peaches'));
       expect(onConnectionSelected).to.have.been.calledWithExactly('peaches');
     });
   });
@@ -116,7 +118,7 @@ describe('SelectConnectionModal Component', function () {
     it('should trigger onSubmit prop', function () {
       const onSubmitStub = sinon.stub();
       render(
-        <SelectConnectionModal
+        <ConnectionSelectModal
           {...modalProps}
           isModalOpen={true}
           onSubmit={onSubmitStub}

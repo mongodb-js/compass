@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Checkbox,
   FormModal,
@@ -9,9 +9,9 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import {
-  ColorCircleGlyph,
-  useConnectionColor,
-} from '@mongodb-js/connection-form';
+  ConnectionSelect,
+  type ConnectionSelectProps,
+} from '@mongodb-js/compass-connections/provider';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
@@ -70,56 +70,20 @@ const AsyncItemsSelect: React.FunctionComponent<AsyncItemsSelectProps> = ({
   );
 };
 
-type ConnectionSelectProps = {
-  items: OpenItemState['connections'];
-  selectedItem: string | null;
-  onChange(item: string): void;
-};
-
 const mapConnectionState: MapStateToProps<
-  Pick<ConnectionSelectProps, 'selectedItem' | 'items'>,
+  Pick<ConnectionSelectProps, 'selectedConnectionId' | 'connections'>,
   Record<string, never>,
   RootState
 > = ({ openItem: { selectedConnection, connections } }) => {
   return {
-    items: connections,
-    selectedItem: selectedConnection,
+    connections,
+    selectedConnectionId: selectedConnection ?? '',
   };
 };
 
-const ConnectionSelect = connect(mapConnectionState, {
-  onChange: connectionSelected,
-})(({ items, selectedItem, onChange: _onChange }: ConnectionSelectProps) => {
-  const { connectionColorToHex } = useConnectionColor();
-  const onChange = useCallback(
-    (connectionId: string) => _onChange(connectionId),
-    [_onChange]
-  );
-  return (
-    <Select
-      name="connection"
-      label="Connection"
-      value={selectedItem ?? ''}
-      onChange={onChange}
-      usePortal={false}
-      className={selectStyles}
-      dropdownWidthBasis="option"
-      data-testid="connection-select"
-    >
-      {items.map(({ id, name, color }) => {
-        const glyph =
-          color && color !== 'no-color' ? (
-            <ColorCircleGlyph hexColor={connectionColorToHex(color)} />
-          ) : undefined;
-        return (
-          <Option key={id} value={id} glyph={glyph}>
-            {name}
-          </Option>
-        );
-      })}
-    </Select>
-  );
-});
+const MappedConnectionSelect = connect(mapConnectionState, {
+  onConnectionSelected: connectionSelected,
+})(ConnectionSelect);
 
 const mapDatabaseState: MapStateToProps<
   Pick<AsyncItemsSelectProps, 'items' | 'selectedItem' | 'isLoading'>,
@@ -288,7 +252,7 @@ const SelectConnectionAndNamespaceModal: React.FunctionComponent<
             className={connectionSelectStyles}
             data-testid="connection-select-field"
           >
-            <ConnectionSelect />
+            <MappedConnectionSelect />
           </div>
         )}
         <div

@@ -397,6 +397,8 @@ describe('Multiple Connections Sidebar Component', function () {
         // Modal appears
         expect(screen.getByText('Select a Connection')).to.be.visible;
 
+        userEvent.click(screen.getByText('Select'));
+
         // should have all the connections
         expect(screen.getByLabelText('localhost')).to.be.visible;
         expect(screen.getByLabelText('localhost:27020')).to.be.visible;

@@ -89,10 +89,6 @@ export { ModalBody } from './components/modals/modal-body';
 export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
-export {
-  SelectConnectionModal,
-  type SelectConnectionModalProps,
-} from './components/modals/select-connection-modal';
 
 export type {
   FileInputBackend,
