@@ -14,6 +14,7 @@ import { useViewTypeControls } from './use-view-type';
 import type { ViewType } from './use-view-type';
 import { useCreateControls } from './use-create';
 import { useRefreshControls } from './use-refresh';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type Item = { _id: string } & Record<string, unknown>;
 
@@ -146,11 +147,16 @@ export const ItemsGrid = <T extends Item>({
   renderItem: _renderItem,
 }: ItemsGridProps<T>): React.ReactElement => {
   const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const onViewTypeChange = useCallback(
     (newType) => {
-      track('Switch View Type', { view_type: newType, item_type: itemType });
+      track(
+        'Switch View Type',
+        { view_type: newType, item_type: itemType },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
     },
-    [itemType, track]
+    [itemType, track, connectionInfoAccess]
   );
   const createControls = useCreateControls(itemType, onCreateItemClick);
   const refreshControls = useRefreshControls(onRefreshClick);

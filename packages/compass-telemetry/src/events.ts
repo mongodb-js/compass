@@ -72,7 +72,6 @@ export type ConnectionScopeEvents = [
   | 'Schema Validation Added'
   | 'Schema Validation Edited'
   | 'Schema Validation Updated'
-  | 'Shell Opened'
   | `Shell ${string}`
   | 'Switch View Type'
   | 'Update Export Opened'
