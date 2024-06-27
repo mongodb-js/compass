@@ -17,11 +17,14 @@ export function useConnectionsWithStatus(): ConnectionInfoWithStatus[] {
   // when this code is refactored to use the hadron plugin interface, storage
   // should be handled through the plugin activation lifecycle
   const connectionsManager = useConnectionsManagerContext();
-  const { favoriteConnections, nonFavoriteConnections } =
+  const { favoriteConnections, nonFavoriteConnections, autoConnectInfo } =
     useConnectionRepository();
   const allConnections = useMemo(() => {
-    return [...favoriteConnections, ...nonFavoriteConnections];
-  }, [favoriteConnections, nonFavoriteConnections]);
+    return favoriteConnections.concat(
+      nonFavoriteConnections,
+      autoConnectInfo ? autoConnectInfo : []
+    );
+  }, [favoriteConnections, nonFavoriteConnections, autoConnectInfo]);
 
   const [connectionsWithStatus, setConnectionsWithStatus] = useState<
     ConnectionInfoWithStatus[]
@@ -60,7 +63,7 @@ export function useConnectionsWithStatus(): ConnectionInfoWithStatus[] {
 
   useEffect(() => {
     updateListRef.current();
-  }, [favoriteConnections, nonFavoriteConnections]);
+  }, [favoriteConnections, nonFavoriteConnections, autoConnectInfo]);
 
   useEffect(() => {
     const updateOnStatusChange = () => {
