@@ -90,6 +90,7 @@ export {
   type ConnectionRepository,
   useConnectionRepository,
   areConnectionsEqual,
+  connectionRepositoryLocator,
 } from './components/connections-provider';
 export * from './connection-info-provider';
 
