@@ -16,7 +16,7 @@ import { createNumbersCollection } from '../helpers/insert-data';
 
 const { expect } = chai;
 
-describe.only('Instance sidebar', function () {
+describe('Instance sidebar', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
