@@ -26,7 +26,7 @@ async function refresh(browser: CompassBrowser) {
   // hit refresh, then wait for a transition to occur that will correlate to the
   // data actually being refreshed and arriving.
 
-  await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+  await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
 }
 
 /**

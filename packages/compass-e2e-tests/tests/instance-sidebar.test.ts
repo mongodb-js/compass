@@ -46,8 +46,8 @@ describe('Instance sidebar', function () {
       this.skip();
     }
 
-    await browser.clickVisible(Selectors.SidebarShowActions);
-    await browser.clickVisible(Selectors.SidebarActionClusterInfo);
+    await browser.clickVisible(Selectors.Single.ShowTitleActionsButton);
+    await browser.clickVisible(Selectors.Single.ClusterInfoItem);
 
     const modal = await browser.$(Selectors.ConnectionInfoModal);
     await modal.waitForDisplayed();
@@ -144,7 +144,7 @@ describe('Instance sidebar', function () {
     const collectionName = 'my-collection';
 
     // open the create database modal from the sidebar
-    await browser.clickVisible(Selectors.SidebarCreateDatabaseButton, {
+    await browser.clickVisible(Selectors.Single.CreateDatabaseButton, {
       screenshot: 'before-can-create-a-database-and-drop-it-click.png',
     });
 
@@ -211,7 +211,7 @@ describe('Instance sidebar', function () {
       await mongoClient.close();
     }
 
-    await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
     await browser.clickVisible(Selectors.sidebarDatabase(db));
     const collectionElement = await browser.$(
       Selectors.sidebarCollection(db, coll)

@@ -165,7 +165,7 @@ describe('Instance my queries tab', function () {
     // rename the collection associated with the query to force the open item modal
     await browser.shellEval('use test');
     await browser.shellEval('db.numbers.renameCollection("numbers-renamed")');
-    await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
 
     // browse to the query
     await browser.clickVisible(Selectors.myQueriesItem(newFavoriteQueryName));
@@ -341,7 +341,7 @@ describe('Instance my queries tab', function () {
         await browser.shellEval(
           `db.numbers.renameCollection('${newCollectionName}')`
         );
-        await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+        await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
       }
       beforeEach(setup);
 
