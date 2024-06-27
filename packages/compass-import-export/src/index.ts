@@ -40,6 +40,7 @@ export const ExportPlugin = registerHadronPlugin(
   },
   {
     connectionsManager: connectionsManagerLocator,
+    connectionRepository: connectionRepositoryLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-EXPORT-UI'),
     track: createTelemetryLocator(),

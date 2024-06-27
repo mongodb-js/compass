@@ -7,6 +7,7 @@ import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -169,7 +170,7 @@ export function trackConnectionAttemptEvent(
 }
 
 export function trackNewConnectionEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionInfo: ConnectionInfo,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
   { debug }: Logger,
   track: TrackFunction
@@ -194,7 +195,7 @@ export function trackNewConnectionEvent(
       };
       return trackEvent;
     };
-    track('New Connection', callback);
+    track('New Connection', callback, connectionInfo);
   } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
