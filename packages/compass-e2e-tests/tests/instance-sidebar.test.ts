@@ -135,20 +135,26 @@ describe.only('Instance sidebar', function () {
   });
 
   it('can create a database and drop it', async function () {
-    // TODO(COMPASS-8002): we have to click the button for the specific
-    // connection
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     // TODO(COMPASS-7086): flaky test
     this.retries(5);
 
+    const Sidebar = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.Multiple
+      : Selectors.Single;
+
+    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
     const dbName = `my-sidebar-database-${Date.now()}`;
     const collectionName = 'my-collection';
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // navigate to the databases tab so that the connection is
+      // active/highlighted and then the add button and three dot menu will
+      // display without needing to hover
+      await browser.navigateToConnectionTab(connectionName, 'Databases');
+    }
+
     // open the create database modal from the sidebar
-    await browser.clickVisible(Selectors.Single.CreateDatabaseButton, {
+    await browser.clickVisible(Sidebar.CreateDatabaseButton, {
       screenshot: 'before-can-create-a-database-and-drop-it-click.png',
     });
 
