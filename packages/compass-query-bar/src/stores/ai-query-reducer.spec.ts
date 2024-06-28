@@ -36,6 +36,12 @@ describe('aiQueryReducer', function () {
   }
 
   describe('runAIQuery', function () {
+    const connectionInfoAccess = {
+      getCurrentConnectionInfo: () => ({
+        id: 'TEST',
+      }),
+    };
+
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasAiService = {
@@ -54,6 +60,7 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
+            connectionInfoAccess,
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
@@ -99,6 +106,7 @@ describe('aiQueryReducer', function () {
         const store = createStore({}, {
           atlasAuthService: { on: sandbox.stub() },
           atlasAiService: mockAtlasAiService,
+          connectionInfoAccess,
           dataService: {
             sample() {
               return Promise.resolve([]);
@@ -131,6 +139,7 @@ describe('aiQueryReducer', function () {
               return Promise.resolve([]);
             },
           },
+          connectionInfoAccess,
           preferences,
           logger: createNoopLogger(),
           track: createNoopTrack(),
@@ -172,6 +181,7 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
+            connectionInfoAccess,
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
@@ -212,6 +222,7 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
+            connectionInfoAccess,
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
