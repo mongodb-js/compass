@@ -88,6 +88,11 @@ export const connectedConnectionItemActions = ({
       label: 'Show connection info',
     },
     {
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
+    },
+    {
       action: 'connection-disconnect',
       icon: 'Disconnect',
       label: 'Disconnect',

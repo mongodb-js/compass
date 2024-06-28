@@ -21,6 +21,7 @@ export type Actions =
   | 'connection-toggle-favorite'
   | 'open-non-genuine-mongodb-modal'
   | 'open-csfle-modal'
+  | 'refresh-databases'
   // database item related actions
   | 'select-database'
   | 'create-database'
