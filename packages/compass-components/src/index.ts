@@ -196,3 +196,4 @@ export {
   RequiredURLSearchParamsProvider,
   useRequiredURLSearchParams,
 } from './components/links/link';
+export { formatDate } from './utils/format-date';

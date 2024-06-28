@@ -12,13 +12,15 @@ import {
 import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
-  createQueryAutocompleter,
+  createFullQueryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+import { applyFromHistory } from '@mongodb-js/compass-query-bar';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -94,6 +96,8 @@ type OptionEditorProps = {
   ['data-testid']?: string;
   insights?: Signal | Signal[];
   disabled?: boolean;
+  recentQueries: RecentQuery[];
+  onApplyQuery: (query: RecentQuery) => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -110,6 +114,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
   disabled = false,
+  recentQueries,
+  onApplyQuery,
 }) => {
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -140,11 +146,15 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const schemaFields = useAutocompleteFields(namespace);
 
   const completer = useMemo(() => {
-    return createQueryAutocompleter({
-      fields: schemaFields,
-      serverVersion,
-    });
-  }, [schemaFields, serverVersion]);
+    return createFullQueryAutocompleter(
+      recentQueries,
+      {
+        fields: schemaFields,
+        serverVersion,
+      },
+      onApplyQuery
+    );
+  }, [recentQueries, schemaFields, serverVersion, onApplyQuery]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
@@ -152,6 +162,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         if (editorRef.current?.editorContents === '') {
           editorRef.current?.applySnippet('\\{${}}');
         }
+        if (editorRef.current?.editor) editorRef.current?.startCompletion();
       });
     }
   };
@@ -215,11 +226,17 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   );
 };
 
-const ConnectedOptionEditor = connect((state: RootState) => {
-  return {
-    namespace: state.queryBar.namespace,
-    serverVersion: state.queryBar.serverVersion,
-  };
-})(OptionEditor);
+const ConnectedOptionEditor = (state: RootState) => ({
+  namespace: state.queryBar.namespace,
+  serverVersion: state.queryBar.serverVersion,
+  recentQueries: [
+    ...state.queryBar.recentQueries,
+    ...state.queryBar.favoriteQueries,
+  ],
+});
 
-export default ConnectedOptionEditor;
+const ConnectedOnApply = {
+  onApplyQuery: applyFromHistory,
+};
+
+export default connect(ConnectedOptionEditor, ConnectedOnApply)(OptionEditor);
