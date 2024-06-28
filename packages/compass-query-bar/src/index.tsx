@@ -59,7 +59,7 @@ const QueryBarPlugin = registerHadronPlugin(
   }
 );
 
-export type ChangeQueryBar = typeof useChangeQueryBarQuery;
+export type ChangeQueryFn = ReturnType<typeof useChangeQueryBarQuery>;
 
 // Rendering query bar only makes sense if query bar store is in the rendering
 // tree. If it's not, `useQueryBarComponent` will return a `null` component
