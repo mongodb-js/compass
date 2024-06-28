@@ -79,6 +79,10 @@ export const setupStore = (
     getStore: Sinon.spy(),
   } as unknown as AppRegistry;
 
+  const connectionInfoAccess = {
+    getCurrentConnectionInfo: () => ({ id: 'TEST' }),
+  };
+
   return activateIndexesPlugin(
     {
       namespace: 'citibike.trips',
@@ -94,6 +98,7 @@ export const setupStore = (
       instance: fakeInstance as any,
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
+      connectionInfoAccess,
       ...services,
     },
     createActivateHelpers()

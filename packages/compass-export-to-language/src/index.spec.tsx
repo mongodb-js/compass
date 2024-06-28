@@ -167,6 +167,7 @@ result = client['db']['coll'].find(
           with_drivers_syntax: false,
           with_builders: false,
           num_stages: 0,
+          connection_id: 'TEST',
         });
       });
     });
