@@ -77,6 +77,7 @@ describe('connection tracking', function () {
       is_favorite: true,
       is_recent: false,
       is_new: true,
+      connection_id: 'TEST',
     });
   });
 
@@ -92,6 +93,7 @@ describe('connection tracking', function () {
       is_favorite: false,
       is_recent: true,
       is_new: false,
+      connection_id: 'TEST',
     });
   });
 
@@ -107,6 +109,7 @@ describe('connection tracking', function () {
       is_favorite: false,
       is_recent: false,
       is_new: true,
+      connection_id: 'TEST',
     });
   });
 
@@ -126,6 +129,7 @@ describe('connection tracking', function () {
       is_favorite: true,
       is_recent: false,
       is_new: false,
+      connection_id: 'TEST',
     });
   });
 
@@ -165,6 +169,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -207,6 +212,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -263,6 +269,7 @@ describe('connection tracking', function () {
         has_kms_azure: false,
         is_public_cloud: true,
         public_cloud_name: 'AWS',
+        connection_id: 'TEST',
       };
 
       expect(properties).to.deep.equal(expected);
@@ -334,6 +341,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -377,6 +385,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -419,6 +428,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -460,6 +470,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -501,6 +512,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -717,6 +729,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -771,6 +784,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
