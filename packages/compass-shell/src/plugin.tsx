@@ -7,7 +7,10 @@ import {
   createLoggerLocator,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -67,12 +70,14 @@ export function onActivated(
     track,
     dataService,
     preferences,
+    connectionInfoAccess,
   }: {
     globalAppRegistry: AppRegistry;
     logger: Logger;
     track: TrackFunction;
     dataService: DataService;
     preferences: PreferencesAccess;
+    connectionInfoAccess: ConnectionInfoAccess;
   }
 ) {
   const store = new CompassShellStore();
@@ -82,6 +87,7 @@ export function onActivated(
     track,
     dataService,
     preferences,
+    connectionInfoAccess,
   });
   return {
     store: store.reduxStore,
