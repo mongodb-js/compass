@@ -6,12 +6,6 @@ if [ -z "$ATLAS_LOCAL_VERSION" ]; then
   return
 fi
 
-# When docker is not installed (currently on mac and rhel), we can't run the local atlas setup
-if ! command -v docker &>/dev/null; then
-  echo "Docker is not installed. Skipping local atlas setup."
-  return
-fi
-
 # Container name
 CONTAINER_NAME=compass-e2e-tests-atlas-local
 
@@ -35,19 +29,40 @@ docker run --rm --name $CONTAINER_NAME -d -e DO_NOT_TRACK=1 -P "$IMAGE_NAME"
 echo "Waiting for container to become healthy..."
 
 STATUS=""
+CONSECUTIVE_FAILED_ATTEMPTS=0
+MAX_CONSECUTIVE_FAILED_ATTEMPTS=20
+
 while true; do
-  STATUS=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER_NAME || "null")
+  INSPECT_OUTPUT=$(docker inspect --format='{{.State.Health.Status}}' $CONTAINER_NAME 2>&1)
+  if [[ $? -ne 0 ]]; then
+    echo "Inspect Failed: ${INSPECT_OUTPUT}"
+    STATUS="failed"
+  else
+    STATUS="$INSPECT_OUTPUT"
+  fi
+
   echo "Status: $STATUS"
 
-  if [[ "starting" != "$STATUS" ]]; then
+  if [[ "$STATUS" != "starting" && "$STATUS" != "failed" ]]; then
     break
+  fi
+
+  if [[ "$STATUS" == "failed" ]]; then
+    CONSECUTIVE_FAILED_ATTEMPTS=$((CONSECUTIVE_FAILED_ATTEMPTS + 1))
+  else
+    CONSECUTIVE_FAILED_ATTEMPTS=0
+  fi
+
+  if [[ $CONSECUTIVE_FAILED_ATTEMPTS -ge $MAX_CONSECUTIVE_FAILED_ATTEMPTS ]]; then
+    echo "Maximum number of consecutive failed attempts reached. Exiting."
+    exit 1
   fi
 
   sleep 2
 done
 
-if [[ "healthy" != "$STATUS" ]]; then
-  echo "Atlas Local is not healty, exiting."
+if [[ "$STATUS" != "healthy" ]]; then
+  echo "Atlas Local is not healthy, exiting."
   exit 1
 fi
 
