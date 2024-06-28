@@ -1747,6 +1747,7 @@ class CrudStoreImpl
   openBulkDeleteDialog() {
     this.track(
       'Bulk Delete Opened',
+      {},
       this.connectionInfoAccess.getCurrentConnectionInfo()
     );
 
@@ -1815,6 +1816,7 @@ class CrudStoreImpl
   async runBulkDelete() {
     this.track(
       'Bulk Delete Executed',
+      {},
       this.connectionInfoAccess.getCurrentConnectionInfo()
     );
 
