@@ -32,7 +32,7 @@ export async function connectWithConnectionString(
 
       // wait for a connection to appear. It must because if there are no
       // connections the filter field wouldn't exist in the first place
-      await browser.$(Selectors.SidebarTreeItems).waitForDisplayed();
+      await browser.$(Selectors.Multiple.ConnectionItem).waitForDisplayed();
     }
 
     const selector = Selectors.sidebarConnection(connectionName);
@@ -69,9 +69,6 @@ export async function connectWithConnectionString(
       await browser.setValueVisible(Selectors.SidebarFilterInput, '');
     }
 
-    // some connection should be expanded (ie. connected) by now
-    await browser
-      .$(`${Selectors.SidebarTreeItems} [aria-expanded=true]`)
-      .waitForExist({ reverse: true });
+    await browser.$(Selectors.Multiple.ConnectionItemConnected).waitForExist();
   }
 }

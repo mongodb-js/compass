@@ -253,6 +253,14 @@ export const Single = {
 
 // Multiple Connections sidebar
 export const Multiple = {
+  ConnectionItem: '[data-testid="base-navigation-item"][data-connection-name]',
+  ConnectionItemDisconnected:
+    '[data-testid="base-navigation-item"][data-connection-name][data-connection-status="disconnected"]',
+  ConnectionItemConnected:
+    '[data-testid="base-navigation-item"][data-connection-name][data-connection-status="connected"]',
+  ConnectionItemFailed:
+    '[data-testid="base-navigation-item"][data-connection-name][data-connection-status="failed"]',
+
   ConnectionsTitle: '[data-testid="sidebar-header"]',
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
