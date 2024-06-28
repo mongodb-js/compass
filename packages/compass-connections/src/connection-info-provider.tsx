@@ -85,7 +85,7 @@ function withConnectionInfoAccess<
 >(
   ReactComponent: T
 ): React.FunctionComponent<Omit<FirstArgument<T>, 'connectionInfoAccess'>> {
-  const WithTelemetry = (
+  const WithConnectionInfoAccess = (
     props: Omit<FirstArgument<T>, 'connectionInfoAccess'> & React.Attributes
   ) => {
     const connectionInfoAccess = useConnectionInfoAccess();
@@ -94,7 +94,7 @@ function withConnectionInfoAccess<
       connectionInfoAccess,
     });
   };
-  return WithTelemetry;
+  return WithConnectionInfoAccess;
 }
 
 export { withConnectionInfoAccess };
