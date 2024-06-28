@@ -269,7 +269,7 @@ export function NavigationItem({
         >
           {!!connectionStaticActions.length && (
             <ItemActionControls<Actions>
-              iconSize="small"
+              iconSize="xsmall"
               actions={connectionStaticActions}
               onAction={onAction}
               // these are static buttons that we want visible always on the

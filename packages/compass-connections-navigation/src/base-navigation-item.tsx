@@ -124,7 +124,7 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
             menuClassName={menuStyles}
             isVisible={isActive || isHovered || isFocused}
             data-testid="sidebar-navigation-item-actions"
-            iconSize="small"
+            iconSize="xsmall"
             {...actionProps}
           ></ItemActionControls>
           {children}

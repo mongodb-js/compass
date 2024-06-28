@@ -457,7 +457,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           )}
         </Subtitle>
         <ItemActionControls<ConnectionListTitleActions>
-          iconSize="small"
+          iconSize="xsmall"
           actions={connectionListTitleActions}
           onAction={onConnectionListTitleAction}
           data-testid="connections-list-title-actions"

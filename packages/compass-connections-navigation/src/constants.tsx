@@ -1,11 +1,9 @@
-import { spacing } from '@mongodb-js/compass-components';
-
 // TODO: Currently we show placeholder for every collection/database item in the list, but
 // do we want to / need to?
 export const MAX_COLLECTION_PLACEHOLDER_ITEMS = Infinity;
 export const MAX_DATABASE_PLACEHOLDER_ITEMS = Infinity;
 export const MIN_DATABASE_PLACEHOLDER_ITEMS = 5;
-export const ROW_HEIGHT = spacing[800];
+export const ROW_HEIGHT = 28;
 // export const COLLETIONS_MARGIN_BOTTOM = spacing[1];
 
 export type Actions =
