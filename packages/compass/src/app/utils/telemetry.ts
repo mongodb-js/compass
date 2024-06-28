@@ -7,7 +7,6 @@ import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type HostInformation = {
   is_localhost: boolean;
