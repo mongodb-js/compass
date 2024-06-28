@@ -136,6 +136,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         has_projection: false,
@@ -205,6 +207,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         has_projection: false,
@@ -272,6 +276,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         has_projection: true,
@@ -324,6 +330,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'csv',
@@ -396,6 +404,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
@@ -463,6 +473,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
@@ -515,6 +527,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'json',
@@ -569,6 +583,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'json',
@@ -658,6 +674,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
@@ -743,6 +761,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
@@ -846,6 +866,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
@@ -957,6 +979,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
@@ -1058,6 +1082,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
