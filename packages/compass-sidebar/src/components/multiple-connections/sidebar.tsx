@@ -10,6 +10,7 @@ import {
   ConnectionStatus,
   useConnections,
   useConnectionsWithStatus,
+  ConnectionSelectModal,
 } from '@mongodb-js/compass-connections/provider';
 import {
   type ConnectionInfo,
@@ -29,12 +30,16 @@ import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { SidebarThunkAction } from '../../modules';
-import { Navigation } from './navigation/navigation';
+import { Navigation, type NavigationItem } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { useGlobalAppRegistry } from 'hadron-app-registry';
 import ConnectionsNavigation from './connections-navigation';
+import {
+  useOpenWorkspace,
+  useWorkspacePlugins,
+} from '@mongodb-js/compass-workspaces/provider';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -91,6 +96,44 @@ function ConnectionErrorToastBody({
         </Link>
       )}
     </span>
+  );
+}
+
+function ShellSelectConnectionModal({
+  connections,
+  isModalOpen,
+  onSubmit,
+  onClose,
+}: {
+  connections: { id: string; name: string }[];
+  isModalOpen: boolean;
+  onSubmit(connectionId: string): void;
+  onClose(): void;
+}) {
+  const [selectedConnectionId, setSelectedConnectionId] = useState<
+    string | null
+  >(null);
+  const handleSubmit = useCallback(() => {
+    if (selectedConnectionId) {
+      onSubmit(selectedConnectionId);
+      setSelectedConnectionId(null);
+    }
+  }, [selectedConnectionId, onSubmit]);
+  const handleClose = useCallback(() => {
+    onClose();
+    setSelectedConnectionId(null);
+  }, [onClose]);
+  return (
+    <ConnectionSelectModal
+      isModalOpen={isModalOpen}
+      isSubmitDisabled={!selectedConnectionId}
+      submitButtonText="Open shell"
+      connections={connections}
+      selectedConnectionId={selectedConnectionId ?? ''}
+      onClose={handleClose}
+      onSubmit={handleSubmit}
+      onConnectionSelected={setSelectedConnectionId}
+    />
   );
 }
 
@@ -156,11 +199,15 @@ export function MultipleConnectionSidebar({
   const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
     useState<RegExp | null>(null);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+  const [selectConnectionModalOpen, setSelectConnectionModalOpen] =
+    useState(false);
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
   const appRegistry = useGlobalAppRegistry();
   const formPreferences = useMemoisedFormPreferences();
+  const { hasWorkspacePlugin } = useWorkspacePlugins();
+  const { openMyQueriesWorkspace, openShellWorkspace } = useOpenWorkspace();
   const { openToast, closeToast } = useToast('multiple-connection-status');
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
@@ -190,6 +237,38 @@ export function MultipleConnectionSidebar({
   const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
   cancelCurrentConnectionRef.current = cancelConnectionAttempt;
 
+  const navigationItems = useMemo(() => {
+    const items: NavigationItem[] = [];
+    if (hasWorkspacePlugin('My Queries')) {
+      items.push({
+        id: 'My Queries',
+        glyph: 'CurlyBraces',
+        label: 'My Queries',
+        isActive: activeWorkspace?.type === 'My Queries',
+      });
+    }
+
+    if (hasWorkspacePlugin('Shell')) {
+      items.push({
+        id: 'MongoDB Shell',
+        glyph: 'Shell',
+        label: 'MongoDB Shell',
+        isActive: activeWorkspace?.type === 'Shell',
+        isDisabled: connectionsWithStatus.length === 0,
+        disabledTooltip: 'Add a connection first',
+      });
+    }
+    return items;
+  }, [activeWorkspace, hasWorkspacePlugin, connectionsWithStatus]);
+
+  const connectionsForSelectConnectionsModal = useMemo(() => {
+    return connectionsWithStatus.map(({ connectionInfo }) => ({
+      id: connectionInfo.id,
+      name: getConnectionTitle(connectionInfo),
+      color: connectionInfo.favorite?.color,
+    }));
+  }, [connectionsWithStatus]);
+
   const onActiveConnectionFilterChange = useCallback(
     (filterRegex: RegExp | null) =>
       setActiveConnectionsFilterRegex(filterRegex),
@@ -208,14 +287,14 @@ export function MultipleConnectionSidebar({
   );
 
   const onConnectionAttemptStarted = useCallback(
-    (info: ConnectionInfo) => {
+    (info: ConnectionInfo, titlePrefix = 'Connecting to') => {
       const cancelAndCloseToast = () => {
         void cancelCurrentConnectionRef.current?.(info.id);
         closeToast(`connection-status-${info.id}`);
       };
 
       openToast(`connection-status-${info.id}`, {
-        title: `Connecting to ${getConnectionTitle(info)}`,
+        title: `${titlePrefix} ${getConnectionTitle(info)}`,
         dismissible: true,
         variant: 'progress',
         actionElement: (
@@ -364,6 +443,83 @@ export function MultipleConnectionSidebar({
     [closeConnection]
   );
 
+  const connectAndOpenShell = useCallback(
+    (connectionInfo: ConnectionInfo) => {
+      setActiveConnectionById(connectionInfo.id);
+      onConnectionAttemptStarted(connectionInfo, 'Opening MongoDB Shell for');
+      void connect(connectionInfo)
+        .then(() => {
+          openShellWorkspace(connectionInfo.id, { newTab: true });
+          closeToast(`connection-status-${connectionInfo.id}`);
+        })
+        .catch((err) => onConnectionFailed(connectionInfo, err));
+    },
+    [
+      setActiveConnectionById,
+      onConnectionAttemptStarted,
+      connect,
+      closeToast,
+      openShellWorkspace,
+      onConnectionFailed,
+    ]
+  );
+
+  const openShellForSelectedConnection = useCallback(
+    ({ id }: Pick<ConnectionInfo, 'id'>) => {
+      const connection = connectionsWithStatus.find(
+        ({ connectionInfo }) => connectionInfo.id === id
+      );
+      if (!connection) {
+        return;
+      }
+
+      if (connection.connectionStatus === ConnectionStatus.Connected) {
+        openShellWorkspace(connection.connectionInfo.id, { newTab: true });
+        return;
+      }
+
+      connectAndOpenShell(connection.connectionInfo);
+    },
+    [connectionsWithStatus, connectAndOpenShell, openShellWorkspace]
+  );
+
+  const openShell = useCallback(() => {
+    if (!connectionsWithStatus.length) {
+      // Cannot open shell without a connection
+      return;
+    }
+
+    if (connectionsWithStatus.length > 1) {
+      setSelectConnectionModalOpen(true);
+      return;
+    }
+
+    openShellForSelectedConnection(connectionsWithStatus[0].connectionInfo);
+  }, [connectionsWithStatus, openShellForSelectedConnection]);
+
+  const onNavigationItemClick = useCallback(
+    (item: string) => {
+      if (item === 'My Queries') {
+        openMyQueriesWorkspace();
+      } else if (item === 'MongoDB Shell') {
+        openShell();
+      }
+    },
+    [openMyQueriesWorkspace, openShell]
+  );
+
+  const onSelectConnectionModalClosed = useCallback(() => {
+    setSelectConnectionModalOpen(false);
+  }, []);
+
+  const onSelectConnectionModalSubmit = useCallback(
+    (id: string) => {
+      setSelectConnectionModalOpen(false);
+      openShellForSelectedConnection({ id });
+    },
+    [openShellForSelectedConnection]
+  );
+
   useEffect(() => {
     // TODO(COMPASS-7397): don't hack this via the app registry
     appRegistry.on('open-new-connection', onNewConnectionOpen);
@@ -376,7 +532,10 @@ export function MultipleConnectionSidebar({
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
         <SidebarHeader onAction={onSidebarAction} />
-        <Navigation currentLocation={activeWorkspace?.type ?? null} />
+        <Navigation
+          items={navigationItems}
+          onItemClick={onNavigationItemClick}
+        />
         <HorizontalRule />
         <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
@@ -412,6 +571,12 @@ export function MultipleConnectionSidebar({
           }
           isVisible={!!connectionInfoModalConnectionId}
           close={onCloseConnectionInfo}
+        />
+        <ShellSelectConnectionModal
+          connections={connectionsForSelectConnectionsModal}
+          isModalOpen={selectConnectionModalOpen}
+          onClose={onSelectConnectionModalClosed}
+          onSubmit={onSelectConnectionModalSubmit}
         />
       </aside>
     </ResizableSidebar>

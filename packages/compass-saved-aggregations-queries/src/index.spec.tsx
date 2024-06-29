@@ -686,21 +686,14 @@ describe('AggregationsQueriesList', function () {
 
               // Modal content expectations
               expect(screen.getByText('Select a Connection')).to.exist;
-              expect(
-                screen.getByTestId(
-                  `connection-item-${connectionOne.connectionInfo.id}`
-                )
-              ).to.exist;
-              expect(
-                screen.getByTestId(
-                  `connection-item-${connectionTwo.connectionInfo.id}`
-                )
-              ).to.exist;
+              expect(screen.getByText('Select')).to.exist;
 
               // Now selecting a connection to open the query in
+              userEvent.click(screen.getByText('Select'));
+
               userEvent.click(
-                screen.getByTestId(
-                  `connection-item-${connectionTwo.connectionInfo.id}`
+                screen.getByText(
+                  getConnectionTitle(connectionTwo.connectionInfo)
                 )
               );
 

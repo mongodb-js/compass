@@ -6,11 +6,8 @@ import {
   mergeProps,
   useDefaultAction,
   Icon,
+  Tooltip,
 } from '@mongodb-js/compass-components';
-import {
-  useOpenWorkspace,
-  useWorkspacePlugins,
-} from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 
 const navigationItem = css({
@@ -19,12 +16,18 @@ const navigationItem = css({
   position: 'relative',
   paddingLeft: spacing[400],
 
-  '&:hover .item-background': {
+  '&[disabled]': {
+    cursor: 'not-allowed',
+    color: 'var(--item-color-disabled)',
+    backgroundColor: 'var(--item-bg-color-disabled)',
+  },
+
+  '&:not([disabled]):hover .item-background': {
     display: 'block',
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
-  '&:hover': {
+  '&:not([disabled]):hover': {
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
@@ -56,17 +59,28 @@ const navigationItemLabel = css({
   textOverflow: 'ellipsis',
 });
 
-export function NavigationItem({
+const disabledTooltipStyles = css({
+  textAlign: 'center',
+  display: 'inline-flex',
+});
+
+type NavigationItemComponentProps = {
+  glyph: string;
+  label: string;
+  isActive: boolean;
+  onClick(): void;
+  isDisabled?: boolean;
+  disabledTooltip?: string;
+};
+
+function NavigationItemComponent({
   onClick: onButtonClick,
   glyph,
   label,
   isActive,
-}: {
-  onClick(): void;
-  glyph: string;
-  label: string;
-  isActive: boolean;
-}) {
+  isDisabled,
+  disabledTooltip = 'Item cannot be navigated',
+}: NavigationItemComponentProps) {
   const [hoverProps] = useHoverState();
   const defaultActionProps = useDefaultAction(onButtonClick);
 
@@ -76,39 +90,70 @@ export function NavigationItem({
       role: 'button',
       ['aria-label']: label,
       ['aria-current']: isActive,
+      ['aria-disabled']: !!isDisabled,
       tabIndex: 0,
+      disabled: !!isDisabled,
     },
     hoverProps,
     defaultActionProps
   ) as React.HTMLProps<HTMLDivElement>;
 
-  return (
-    <div {...navigationItemProps}>
-      <div className={itemButtonWrapper}>
-        <Icon glyph={glyph} size="small"></Icon>
-        <span className={navigationItemLabel}>{label}</span>
+  if (!isDisabled) {
+    return (
+      <div {...navigationItemProps}>
+        <div className={itemButtonWrapper}>
+          <Icon glyph={glyph} size="small"></Icon>
+          <span className={navigationItemLabel}>{label}</span>
+        </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <Tooltip
+      align="top"
+      justify="middle"
+      trigger={({ children, ...props }) => (
+        <div {...props} {...navigationItemProps}>
+          <div className={itemButtonWrapper}>
+            <Icon glyph={glyph} size="small"></Icon>
+            <span className={navigationItemLabel}>{label}</span>
+          </div>
+          {children}
+        </div>
+      )}
+    >
+      <span className={disabledTooltipStyles}>{disabledTooltip}</span>
+    </Tooltip>
   );
 }
 
-export function Navigation({
-  currentLocation,
-}: {
-  currentLocation: string | null;
-}): React.ReactElement {
-  const { hasWorkspacePlugin } = useWorkspacePlugins();
-  const { openMyQueriesWorkspace } = useOpenWorkspace();
+export type NavigationItem = {
+  id: string;
+  glyph: string;
+  label: string;
+  isActive: boolean;
+  isDisabled?: boolean;
+  disabledTooltip?: string;
+};
+
+export const Navigation: React.FC<{
+  items: NavigationItem[];
+  onItemClick(item: string): void;
+}> = ({ items, onItemClick }) => {
   return (
     <div>
-      {hasWorkspacePlugin('My Queries') && (
-        <NavigationItem
-          onClick={openMyQueriesWorkspace}
-          glyph="CurlyBraces"
-          label="My Queries"
-          isActive={currentLocation === 'My Queries'}
+      {items.map((item) => (
+        <NavigationItemComponent
+          key={item.id}
+          onClick={() => onItemClick(item.id)}
+          glyph={item.glyph}
+          label={item.label}
+          isActive={item.isActive}
+          isDisabled={item.isDisabled}
+          disabledTooltip={item.disabledTooltip}
         />
-      )}
+      ))}
     </div>
   );
-}
+};

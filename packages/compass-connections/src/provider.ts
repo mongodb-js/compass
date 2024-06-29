@@ -94,3 +94,11 @@ export {
 export * from './connection-info-provider';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';
+export {
+  ConnectionSelect,
+  type ConnectionSelectProps,
+} from './components/connection-select';
+export {
+  ConnectionSelectModal,
+  type ConnectionSelectModalProps,
+} from './components/connection-select-modal';
