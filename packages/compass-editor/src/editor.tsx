@@ -342,7 +342,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
-        marginRight: '10em',
+        marginRight: `${spacing[2]}px`,
         marginTop: `${spacing[2]}px`,
         marginBottom: `${spacing[2]}px`,
       },

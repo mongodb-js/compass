@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import { activatePlugin } from './stores/query-bar-store'; // changed
+import { activatePlugin } from './stores/query-bar-store';
 import {
   dataServiceLocator,
   type DataServiceLocator,
@@ -77,6 +77,4 @@ export {
   queryBarServiceLocator,
 };
 export type { QueryBarService };
-export type { BaseQuery as Query } from './constants/query-properties';
-export { applyFromHistory } from './stores/query-bar-reducer';
-export type { RootState } from './stores/query-bar-store';
+export { type BaseQuery as Query } from './constants/query-properties';

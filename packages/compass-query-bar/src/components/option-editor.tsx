@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
@@ -12,7 +12,7 @@ import {
 import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
-  createFullQueryAutocompleter,
+  createQueryWithHistoryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -20,7 +20,12 @@ import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import type { RecentQuery } from '@mongodb-js/my-queries-storage';
-import { applyFromHistory } from '@mongodb-js/compass-query-bar';
+import {
+  applyFromHistory,
+  fetchSavedQueries,
+} from '../stores/query-bar-reducer';
+import { getQueryAttributes } from '../utils';
+import type { BaseQuery } from '../constants/query-properties';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -96,8 +101,9 @@ type OptionEditorProps = {
   ['data-testid']?: string;
   insights?: Signal | Signal[];
   disabled?: boolean;
-  recentQueries: RecentQuery[];
-  onApplyQuery: (query: RecentQuery) => void;
+  savedQueries: RecentQuery[];
+  onApplyQuery: (query: BaseQuery) => void;
+  loadSavedQueries: () => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -114,9 +120,14 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
   disabled = false,
-  recentQueries,
+  savedQueries,
   onApplyQuery,
+  loadSavedQueries,
 }) => {
+  useEffect(() => {
+    loadSavedQueries();
+  }, [loadSavedQueries]);
+
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -146,15 +157,18 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const schemaFields = useAutocompleteFields(namespace);
 
   const completer = useMemo(() => {
-    return createFullQueryAutocompleter(
-      recentQueries,
+    return createQueryWithHistoryAutocompleter(
+      savedQueries.map((query) => ({
+        lastExecuted: query._lastExecuted,
+        queryProperties: getQueryAttributes(query),
+      })),
       {
         fields: schemaFields,
         serverVersion,
       },
       onApplyQuery
     );
-  }, [recentQueries, schemaFields, serverVersion, onApplyQuery]);
+  }, [savedQueries, schemaFields, serverVersion, onApplyQuery]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
@@ -229,14 +243,15 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 const ConnectedOptionEditor = (state: RootState) => ({
   namespace: state.queryBar.namespace,
   serverVersion: state.queryBar.serverVersion,
-  recentQueries: [
+  savedQueries: [
     ...state.queryBar.recentQueries,
     ...state.queryBar.favoriteQueries,
   ],
 });
 
-const ConnectedOnApply = {
+const mapDispatchToProps = {
   onApplyQuery: applyFromHistory,
+  loadSavedQueries: fetchSavedQueries,
 };
 
-export default connect(ConnectedOptionEditor, ConnectedOnApply)(OptionEditor);
+export default connect(ConnectedOptionEditor, mapDispatchToProps)(OptionEditor);

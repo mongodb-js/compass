@@ -30,7 +30,10 @@ import {
   resetQuery,
   explainQuery,
 } from '../stores/query-bar-reducer';
-import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import {
+  toggleQueryOptions,
+  fetchSavedQueries,
+} from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
 import { QueryAI } from './query-ai';
@@ -350,6 +353,7 @@ export default connect(
         if (applied === false) {
           return;
         }
+        dispatch(fetchSavedQueries());
         ownProps.onApply?.(applied);
       },
       onReset: () => {

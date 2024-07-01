@@ -1,21 +1,25 @@
-import { createQueryHistoryAutocompleter } from './query-history-autocompleter';
+import {
+  type SavedQuery,
+  createQueryHistoryAutocompleter,
+} from './query-history-autocompleter';
 import { createQueryAutocompleter } from './query-autocompleter';
-import type { RecentQuery } from '@mongodb-js/my-queries-storage';
+
 import type {
   CompletionSource,
   CompletionContext,
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 
-export const createFullQueryAutocompleter = (
-  recentQueries: RecentQuery[],
+export const createQueryWithHistoryAutocompleter = (
+  recentQueries: SavedQuery[],
   options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {},
-  onApply: (query: RecentQuery) => void
+  onApply: (query: SavedQuery['queryProperties']) => void
 ): CompletionSource => {
   const queryHistoryAutocompleter = createQueryHistoryAutocompleter(
     recentQueries,
     onApply
   );
+
   const originalQueryAutocompleter = createQueryAutocompleter(options);
 
   return function fullCompletions(context: CompletionContext) {

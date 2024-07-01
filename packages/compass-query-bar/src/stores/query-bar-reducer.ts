@@ -159,6 +159,7 @@ export const resetQuery = (
       DEFAULT_FIELD_VALUES
     );
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });
+    dispatch(fetchSavedQueries);
     return cloneDeep(DEFAULT_QUERY_VALUES);
   };
 };
@@ -432,6 +433,7 @@ const saveRecentQuery = (
         _ns: namespace,
         _host: host ?? '',
       });
+      _dispatch(fetchSavedQueries());
     } catch (e) {
       debug('Failed to save recent query', e);
     }
