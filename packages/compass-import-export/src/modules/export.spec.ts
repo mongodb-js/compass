@@ -26,7 +26,10 @@ import {
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionsManager,
+  type ConnectionRepository,
+} from '@mongodb-js/compass-connections/provider';
 import { type PreferencesAccess } from 'compass-preferences-model/provider';
 
 const logger = createNoopLogger();
@@ -38,11 +41,15 @@ const dataService = {
 const connectionsManager = new ConnectionsManager({
   logger: logger.log.unbound,
 });
+const connectionRepository = {
+  getConnectionInfoById: () => ({ id: 'TEST' }),
+} as unknown as ConnectionRepository;
 const mockServices: ExportPluginServices = {
   connectionsManager,
   globalAppRegistry: new AppRegistry(),
   logger: createNoopLogger(),
   track: createNoopTrack(),
+  connectionRepository,
   preferences: {} as PreferencesAccess,
 };
 
@@ -346,6 +353,7 @@ describe('export [module]', function () {
         logger,
         track,
         connectionsManager,
+        connectionRepository,
       });
     });
 

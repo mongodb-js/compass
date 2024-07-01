@@ -19,6 +19,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const crudQueryBarStyles = css({
   width: '100%',
@@ -139,6 +140,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   querySkip,
 }) => {
   const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const isImportExportEnabled = usePreference('enableImportExport');
 
   const displayedDocumentCount = useMemo(
@@ -147,9 +149,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   );
 
   const onClickRefreshDocuments = useCallback(() => {
-    track('Query Results Refreshed');
+    track(
+      'Query Results Refreshed',
+      {},
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
     refreshDocuments();
-  }, [refreshDocuments, track]);
+  }, [refreshDocuments, track, connectionInfoAccess]);
 
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(

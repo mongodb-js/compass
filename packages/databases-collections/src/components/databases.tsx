@@ -84,7 +84,8 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   onCreateDatabaseClick: _onCreateDatabaseClick,
   onRefreshClick,
 }) => {
-  const { id: connectionId } = useConnectionInfo();
+  const connectionInfo = useConnectionInfo();
+  const { id: connectionId } = connectionInfo;
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
 
@@ -107,7 +108,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   }, [connectionId, _onCreateDatabaseClick]);
 
   useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'databases' });
+    track('Screen', { name: 'databases' }, connectionInfo);
   }, []);
 
   if (databasesLoadingStatus === 'error') {

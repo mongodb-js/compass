@@ -23,6 +23,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -44,6 +45,7 @@ function CreateIndexModal({
   closeCreateIndexModal,
   ...props
 }: CreateIndexModalProps) {
+  const connectionInfoAccess = useConnectionInfoAccess();
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
@@ -55,11 +57,16 @@ function CreateIndexModal({
 
   useTrackOnChange(
     (track: TrackFunction) => {
+      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
       if (isVisible) {
-        track('Screen', { name: 'create_index_modal' });
-        track('Index Create Opened', {
-          atlas_search: false,
-        });
+        track('Screen', { name: 'create_index_modal' }, connectionInfo);
+        track(
+          'Index Create Opened',
+          {
+            atlas_search: false,
+          },
+          connectionInfo
+        );
       }
     },
     [isVisible],

@@ -176,9 +176,17 @@ export const openExplainPlanModal = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, track, logger: { log, mongoLogId } }
+    {
+      dataService,
+      preferences,
+      track,
+      connectionInfoAccess,
+      logger: { log, mongoLogId },
+    }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
+
+    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
 
     let rawExplainPlan = null;
     let explainPlan = null;
@@ -233,10 +241,14 @@ export const openExplainPlanModal = (
           throw err;
         }
 
-        track('Aggregation Explained', {
-          num_stages: pipeline.length,
-          index_used: explainPlan.usedIndexes.length > 0,
-        });
+        track(
+          'Aggregation Explained',
+          {
+            num_stages: pipeline.length,
+            index_used: explainPlan.usedIndexes.length > 0,
+          },
+          connectionInfo
+        );
       }
 
       if (event.query) {
@@ -273,10 +285,14 @@ export const openExplainPlanModal = (
           throw err;
         }
 
-        track('Explain Plan Executed', {
-          with_filter: Object.entries(filter).length > 0,
-          index_used: explainPlan.usedIndexes.length > 0,
-        });
+        track(
+          'Explain Plan Executed',
+          {
+            with_filter: Object.entries(filter).length > 0,
+            index_used: explainPlan.usedIndexes.length > 0,
+          },
+          connectionInfo
+        );
       }
 
       dispatch({

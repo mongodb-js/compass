@@ -16,7 +16,10 @@ import {
 import type Collection from 'mongodb-collection-model';
 import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfo,
+  useConnectionInfoAccess,
+} from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
@@ -60,10 +63,16 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   const { openDatabasesWorkspace, openCollectionWorkspace } =
     useOpenWorkspace();
 
+  const connectionInfoAccess = useConnectionInfoAccess();
+
   const parsedNS = toNS(namespace);
 
   useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'collections' });
+    track(
+      'Screen',
+      { name: 'collections' },
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
   }, []);
 
   const onCollectionClick = useCallback(

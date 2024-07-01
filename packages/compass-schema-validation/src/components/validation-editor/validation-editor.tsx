@@ -28,6 +28,10 @@ import type {
 } from '../../modules/validation';
 import { checkValidator } from '../../modules/validation';
 import { ActionSelector, LevelSelector } from '../validation-selectors';
+import {
+  type ConnectionInfoAccess,
+  withConnectionInfoAccess,
+} from '@mongodb-js/compass-connections/provider';
 
 const validationEditorStyles = css({
   padding: spacing[3],
@@ -117,6 +121,7 @@ export type ValidationEditorProps = {
   isEditable: boolean;
   darkMode?: boolean;
   track: TrackFunction;
+  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 /**
@@ -178,7 +183,11 @@ class ValidationEditor extends Component<ValidationEditorProps> {
         typeof checkedValidator.validator === 'object' &&
         !!checkedValidator.validator?.$jsonSchema,
     };
-    this.props.track('Schema Validation Edited', trackEvent);
+    this.props.track(
+      'Schema Validation Edited',
+      trackEvent,
+      this.props.connectionInfoAccess.getCurrentConnectionInfo()
+    );
   }
 
   /**
@@ -313,5 +322,7 @@ class ValidationEditor extends Component<ValidationEditorProps> {
 }
 
 export default withTelemetry(
-  withDarkMode<ValidationEditorProps>(ValidationEditor)
+  withConnectionInfoAccess(
+    withDarkMode<ValidationEditorProps>(ValidationEditor)
+  )
 );

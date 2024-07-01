@@ -45,6 +45,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 function parseShellBSON(source: string): Document[] {
@@ -157,6 +158,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   onClose,
 }) => {
   const editorRef = useRef<EditorRef>(null);
+  const connectionInfoAccess = useConnectionInfoAccess();
 
   const [indexName, setIndexName] = useState(initialIndexName);
   const [searchIndexType, setSearchIndexType] = useState<string>(
@@ -190,11 +192,16 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isModalOpen) {
-        track('Screen', { name: `${mode}_search_index_modal` });
+        const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+        track('Screen', { name: `${mode}_search_index_modal` }, connectionInfo);
         if (mode === 'create') {
-          track('Index Create Opened', {
-            atlas_search: true,
-          });
+          track(
+            'Index Create Opened',
+            {
+              atlas_search: true,
+            },
+            connectionInfo
+          );
         }
       }
     },

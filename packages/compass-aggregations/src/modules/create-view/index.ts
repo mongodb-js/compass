@@ -202,7 +202,13 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { globalAppRegistry, connectionsManager, track, workspaces }
+    {
+      globalAppRegistry,
+      connectionsManager,
+      connectionRepository,
+      track,
+      workspaces,
+    }
   ) => {
     const {
       name: viewName,
@@ -227,7 +233,11 @@ export const createView = (): CreateViewThunkAction<Promise<void>> => {
         options
       );
       const ns = `${database}.${viewName}`;
-      track('Aggregation Saved As View', { num_stages: viewPipeline.length });
+      track(
+        'Aggregation Saved As View',
+        { num_stages: viewPipeline.length },
+        connectionRepository.getConnectionInfoById(connectionId)
+      );
       globalAppRegistry.emit('view-created', ns, {
         connectionId,
       });

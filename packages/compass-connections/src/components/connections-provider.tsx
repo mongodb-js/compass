@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { useConnectionsManagerContext } from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
 import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
+import { createServiceLocator } from 'hadron-app-registry';
 
 const ConnectionsStoreContext = React.createContext<ReturnType<
   typeof useConnectionsStore
@@ -75,6 +76,36 @@ export function useConnectionRepository() {
   }
   return repository;
 }
+
+type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
+  ? A
+  : F extends { new (...args: [infer A, ...any]): any }
+  ? A
+  : never;
+
+function withConnectionRepository<
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
+>(
+  ReactComponent: T
+): React.FunctionComponent<Omit<FirstArgument<T>, 'connectionRepository'>> {
+  const WithConnectionRepository = (
+    props: Omit<FirstArgument<T>, 'connectionRepository'> & React.Attributes
+  ) => {
+    const connectionInfoAccess = useConnectionRepository();
+    return React.createElement(ReactComponent, {
+      ...props,
+      connectionInfoAccess,
+    });
+  };
+  return WithConnectionRepository;
+}
+
+export { withConnectionRepository };
+
+export const connectionRepositoryLocator = createServiceLocator(
+  useConnectionRepository.bind(null),
+  'createConnectionRepositoryLocator'
+);
 
 export type ConnectionRepository = ReturnType<typeof useConnectionRepository>;
 export { areConnectionsEqual } from '../hooks/use-connection-repository';
