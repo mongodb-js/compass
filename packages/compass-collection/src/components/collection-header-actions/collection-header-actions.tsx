@@ -9,6 +9,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
+import toNS from 'mongodb-ns';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -16,6 +17,20 @@ const collectionHeaderActionsStyles = css({
   overflow: 'hidden',
   gap: spacing[2],
 });
+
+function buildChartsUrl(
+  groupId: string,
+  clusterName: string,
+  namespace: string
+) {
+  const { database, collection } = toNS(namespace);
+  const url = new URL(`/charts/${groupId}`, window.location.origin);
+  url.searchParams.set('sourceType', 'cluster');
+  url.searchParams.set('instanceName', clusterName);
+  url.searchParams.set('database', database);
+  url.searchParams.set('collection', collection);
+  return url.toString();
+}
 
 type CollectionHeaderActionsProps = {
   namespace: string;
@@ -34,7 +49,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
 }: CollectionHeaderActionsProps) => {
-  const { id: connectionId } = useConnectionInfo();
+  const { id: connectionId, atlasMetadata } = useConnectionInfo();
   const { openCollectionWorkspace, openEditViewWorkspace } = useOpenWorkspace();
   const preferencesReadOnly = usePreference('readOnly');
 
@@ -43,6 +58,22 @@ const CollectionHeaderActions: React.FunctionComponent<
       className={collectionHeaderActionsStyles}
       data-testid="collection-header-actions"
     >
+      {atlasMetadata && (
+        <Button
+          data-testid="collection-header-visualize-your-data"
+          size={ButtonSize.Small}
+          href={buildChartsUrl(
+            atlasMetadata.projectId,
+            atlasMetadata.clusterName,
+            namespace
+          )}
+          target="_self"
+          rel="noopener noreferrer"
+          leftGlyph={<Icon glyph="Charts" />}
+        >
+          Visualize Your Data
+        </Button>
+      )}
       {isReadonly && sourceName && !editViewName && !preferencesReadOnly && (
         <Button
           data-testid="collection-header-actions-edit-button"
