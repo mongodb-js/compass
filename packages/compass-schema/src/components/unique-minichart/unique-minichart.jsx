@@ -12,6 +12,7 @@ class UniqueMiniChart extends Component {
     queryValue: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     type: PropTypes.object.isRequired,
     width: PropTypes.number,
+    onQueryChanged: PropTypes.func,
   };
 
   constructor(props) {
@@ -46,6 +47,7 @@ class UniqueMiniChart extends Component {
           value={value}
           queryValue={this.props.queryValue}
           fieldName={this.props.fieldName}
+          onQueryChanged={this.props.onQueryChanged}
         />
       );
     });
