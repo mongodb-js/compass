@@ -21,24 +21,38 @@ export async function waitForConnectionResult(
     selector = TEST_COMPASS_WEB
       ? '[data-testid="workspace-tab-button"][title=Databases]'
       : TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.SidebarTreeItems
+      ? Selectors.Multiple.ConnectionItemConnected
       : Selectors.MyQueriesList;
   } else {
     // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't
     // encountered yet
-    selector = Selectors.ConnectionFormErrorMessage;
+    // TODO(COMPASS-7397): as explained below, for multiple connections we
+    // ideally want to wait for the error toast, but at the time of writing the
+    // error toast does not appear for autoconnect failures which is the main
+    // use case for waiting for connection failures at present.
+    selector = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.Multiple.ConnectionItemFailed
+      : Selectors.ConnectionFormErrorMessage;
   }
+  console.log({ selector });
   const element = await browser.$(selector);
   await element.waitForDisplayed(
     typeof timeout !== 'undefined' ? { timeout } : undefined
   );
-  if (connectionStatus === 'failure') {
-    return await element.getText();
-  }
 
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
+  }
+
+  // TODO(COMPASS-7397): In the single connection case the element we wait for
+  // happens to contain the useful error message. In the multiple connections
+  // case it does not because we're just waiting for the status on the
+  // connection item in the sidebar. Once the error toast appears for
+  // autoconnect failures in multiple connections we can wait for the error
+  // toast and return its text so that the calling code can check that.
+  if (connectionStatus === 'failure' && !TEST_MULTIPLE_CONNECTIONS) {
+    return await element.getText();
   }
 }
