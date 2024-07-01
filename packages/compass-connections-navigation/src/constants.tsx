@@ -22,6 +22,7 @@ export type Actions =
   | 'open-connection-info'
   | 'copy-connection-string'
   | 'connection-toggle-favorite'
+  | 'refresh-databases'
   // database item related actions
   | 'select-database'
   | 'create-database'

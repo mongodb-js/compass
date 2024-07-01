@@ -241,7 +241,7 @@
     "compass-preferences-model": "^2.23.1",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^29.4.2",
+    "electron": "^29.4.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^12.2.0",
