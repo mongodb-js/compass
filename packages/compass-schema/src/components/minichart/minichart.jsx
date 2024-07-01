@@ -88,6 +88,7 @@ class MiniChart extends PureComponent {
           queryValue={fieldValue}
           type={this.props.type}
           width={width}
+          onQueryChanged={this.props.onQueryChanged}
         />
       );
     }
@@ -97,6 +98,7 @@ class MiniChart extends PureComponent {
           actions={this.props.actions}
           fieldName={fieldName}
           type={this.props.type}
+          onQueryChanged={this.props.onQueryChanged}
         />
       );
     }

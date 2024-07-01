@@ -9,7 +9,7 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
+import type { ChangeQueryFn } from '@mongodb-js/compass-query-bar';
 
 import constants from '../constants/schema';
 
@@ -63,21 +63,26 @@ type ValueBubbleProps = {
   fieldName: string;
   queryValue: any;
   value: any;
+  onQueryChanged: ChangeQueryFn;
 };
 
-function ValueBubble({ fieldName, queryValue, value }: ValueBubbleProps) {
+function ValueBubble({
+  fieldName,
+  queryValue,
+  value,
+  onQueryChanged,
+}: ValueBubbleProps) {
   const darkMode = useDarkMode();
-  const changeQuery = useChangeQueryBarQuery();
 
   const onBubbleClicked = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
-      changeQuery(e.shiftKey ? 'toggleDistinctValue' : 'setValue', {
+      onQueryChanged(e.shiftKey ? 'toggleDistinctValue' : 'setValue', {
         field: fieldName,
         value,
         unsetIfSet: true,
       });
     },
-    [changeQuery, fieldName, value]
+    [onQueryChanged, fieldName, value]
   );
 
   const extractedStringValue = useMemo(

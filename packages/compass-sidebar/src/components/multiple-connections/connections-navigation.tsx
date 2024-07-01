@@ -48,8 +48,6 @@ import {
 
 const connectionsContainerStyles = css({
   height: '100%',
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
   paddingBottom: spacing[400],
   display: 'flex',
   flexDirection: 'column',
@@ -60,6 +58,8 @@ const connectionListHeaderStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
 });
 
 const connectionListHeaderTitleStyles = css({
@@ -73,6 +73,19 @@ const connectionListHeaderTitleStyles = css({
 const connectionCountStyles = css({
   fontWeight: 'normal',
   marginLeft: spacing[100],
+});
+
+const searchStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+});
+
+const noDeploymentStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
 });
 
 function findCollection(ns: string, databases: Database[]) {
@@ -102,6 +115,8 @@ type ConnectionsNavigationComponentProps = {
   onDuplicateConnection(info: ConnectionInfo): void;
   onCopyConnectionString(info: ConnectionInfo): void;
   onToggleFavoriteConnectionInfo(info: ConnectionInfo): void;
+  onOpenCsfleModal(connectionId: string): void;
+  onOpenNonGenuineMongoDBModal(): void;
 
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
@@ -142,6 +157,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onDuplicateConnection,
   onCopyConnectionString,
   onToggleFavoriteConnectionInfo,
+  onOpenCsfleModal,
+  onOpenNonGenuineMongoDBModal: onOpenNonGenuinineMongoDBModal,
 
   onOpenConnectionInfo,
   onDisconnect,
@@ -195,6 +212,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             status as SidebarConnectedConnection['databasesStatus'],
           databases: connectionDatabases?.databases ?? [],
           connectionStatus: ConnectionStatus.Connected,
+          isGenuineMongoDB:
+            connectionInstance?.genuineMongoDB.isGenuine !== false,
+          csfleMode: connectionInstance?.csfleMode,
         });
       }
     }
@@ -278,7 +298,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'connection-connect':
           onConnect(item.connectionInfo);
-          onConnectionToggle(item.connectionInfo.id, true);
           return;
         case 'edit-connection':
           onEditConnection(item.connectionInfo);
@@ -298,6 +317,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           }
           onRemoveConnection(item.connectionInfo);
           return;
+        case 'open-csfle-modal':
+          onOpenCsfleModal(item.connectionInfo.id);
+          return;
+        case 'open-non-genuine-mongodb-modal':
+          onOpenNonGenuinineMongoDBModal();
+          return;
       }
     },
     [
@@ -308,12 +333,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onOpenConnectionInfo,
       onDisconnect,
       onConnect,
-      onConnectionToggle,
       onEditConnection,
       onCopyConnectionString,
       onToggleFavoriteConnectionInfo,
       onDuplicateConnection,
       onRemoveConnection,
+      onOpenCsfleModal,
+      onOpenNonGenuinineMongoDBModal,
     ]
   );
 
@@ -431,7 +457,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           )}
         </Subtitle>
         <ItemActionControls<ConnectionListTitleActions>
-          iconSize="small"
+          iconSize="xsmall"
           actions={connectionListTitleActions}
           onAction={onConnectionListTitleAction}
           data-testid="connections-list-title-actions"
@@ -442,6 +468,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {connections.length ? (
         <>
           <NavigationItemsFilter
+            searchInputClassName={searchStyles}
             placeholder="Search connections"
             onFilterChange={onFilterChange}
           />
@@ -454,7 +481,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           />
         </>
       ) : (
-        <>
+        <div className={noDeploymentStyles}>
           <Body>You have not connected to any deployments.</Body>
           <Button
             data-testid="add-new-connection-button"
@@ -464,7 +491,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           >
             Add new connection
           </Button>
-        </>
+        </div>
       )}
     </div>
   );

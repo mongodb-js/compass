@@ -17,7 +17,6 @@ import GeoscatterMapItem from './marker';
 import { LIGHTMODE_TILE_URL, DARKMODE_TILE_URL } from './constants';
 import { getHereAttributionMessage } from './utils';
 import { debounce } from 'lodash';
-import { useChangeQueryBarQuery } from '@mongodb-js/compass-query-bar';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
@@ -308,14 +307,13 @@ class UnthemedCoordinatesMinichart extends PureComponent {
   }
 }
 
-const CoordinatesMinichart = ({ ...props }) => {
+const CoordinatesMinichart = ({ onQueryChanged, ...props }) => {
   const darkMode = useDarkMode();
-  const changeQuery = useChangeQueryBarQuery();
   const onChange = useCallback(
     (geoQuery) => {
-      changeQuery('mergeGeoQuery', geoQuery);
+      onQueryChanged('mergeGeoQuery', geoQuery);
     },
-    [changeQuery]
+    [onQueryChanged]
   );
   return (
     <UnthemedCoordinatesMinichart
@@ -324,6 +322,10 @@ const CoordinatesMinichart = ({ ...props }) => {
       onGeoQueryChanged={onChange}
     ></UnthemedCoordinatesMinichart>
   );
+};
+
+CoordinatesMinichart.propTypes = {
+  onQueryChanged: PropTypes.func,
 };
 
 export default CoordinatesMinichart;

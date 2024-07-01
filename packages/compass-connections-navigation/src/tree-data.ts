@@ -36,6 +36,8 @@ export type ConnectedConnection = {
   isDataLake: boolean;
   isWritable: boolean;
   isPerformanceTabSupported: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   databasesStatus: DatabaseOrCollectionStatus;
   databasesLength: number;
   databases: Database[];
@@ -82,6 +84,8 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   isPerformanceTabSupported: boolean;
   hasWriteActionsDisabled: boolean;
   isShellEnabled: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export type DatabaseTreeItem = VirtualTreeItem & {
@@ -132,7 +136,7 @@ const notConnectedConnectionToItems = ({
       colorCode: connectionInfo.favorite?.color,
       connectionInfo,
       connectionStatus,
-      isExpandable: false,
+      isExpandable: true,
     },
   ];
 };
@@ -148,6 +152,8 @@ const connectedConnectionToItems = ({
     isPerformanceTabSupported,
     isDataLake,
     isWritable,
+    isGenuineMongoDB,
+    csfleMode,
   },
   connectionIndex,
   connectionsLength,
@@ -180,6 +186,8 @@ const connectedConnectionToItems = ({
     isPerformanceTabSupported,
     hasWriteActionsDisabled,
     isShellEnabled,
+    isGenuineMongoDB,
+    csfleMode,
   };
 
   const sidebarData: SidebarTreeItem[] = [connectionTI];

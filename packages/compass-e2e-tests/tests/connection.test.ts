@@ -14,6 +14,7 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -125,6 +126,8 @@ function generateIamSessionToken(): {
 
 async function assertCanReadData(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take into account connectionName
+  connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
@@ -139,6 +142,8 @@ async function assertCanReadData(
 
 async function assertCannotInsertData(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take into account connectionName
+  connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
@@ -178,12 +183,23 @@ async function assertCannotInsertData(
 
 async function assertCannotCreateDb(
   browser: CompassBrowser,
+  connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
+  const Sidebar = TEST_MULTIPLE_CONNECTIONS
+    ? Selectors.Multiple
+    : Selectors.Single;
+
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    // navigate to the databases tab so that the connection is
+    // active/highlighted and then the add button and three dot menu will
+    // display without needing to hover
+    await browser.navigateToConnectionTab(connectionName, 'Databases');
+  }
+
   // open the create database modal from the sidebar
-  // TODO(COMPASS-8002): add support for multiple connections
-  await browser.clickVisible(Selectors.SidebarCreateDatabaseButton);
+  await browser.clickVisible(Sidebar.CreateDatabaseButton);
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
@@ -212,6 +228,8 @@ async function assertCannotCreateDb(
 
 async function assertCannotCreateCollection(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take into account connectionName
+  connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
@@ -436,7 +454,16 @@ describe('Connection string', function () {
       expect(result).to.have.property('ok', 1);
     }
 
-    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
+    const connectionName = connectionNameFromString(
+      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
+    );
+
+    await assertCanReadData(
+      browser,
+      connectionName,
+      'compass_e2e',
+      'companies_info'
+    );
   });
 
   it('can connect with readAnyDatabase builtin role', async function () {
@@ -457,16 +484,31 @@ describe('Connection string', function () {
       expect(result).to.have.property('ok', 1);
     }
 
-    await assertCanReadData(browser, 'compass_e2e', 'companies_info');
-    await assertCannotInsertData(browser, 'compass_e2e', 'companies_info');
-    // TODO(COMPASS-8002: we need to click the active connection's add database
-    // button and therefore might as well wait for the active&saved connections
-    // to be unified
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    }
+    const connectionName = connectionNameFromString(
+      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
+    );
+
+    await assertCanReadData(
+      browser,
+      connectionName,
+      'compass_e2e',
+      'companies_info'
+    );
+    await assertCannotInsertData(
+      browser,
+      connectionName,
+      'compass_e2e',
+      'companies_info'
+    );
+    await assertCannotCreateDb(
+      browser,
+      connectionName,
+      'new-db',
+      'new-collection'
+    );
     await assertCannotCreateCollection(
       browser,
+      connectionName,
       'compass_e2e',
       'new-collection'
     );
@@ -490,14 +532,23 @@ describe('Connection string', function () {
       expect(result).to.have.property('ok', 1);
     }
 
-    await assertCanReadData(browser, 'test', 'users');
-    // TODO(COMPASS-8002: we need to click the active connection's add database
-    // button and therefore might as well wait for the active&saved connections
-    // to be unified
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    }
-    await assertCannotCreateCollection(browser, 'test', 'new-collection');
+    const connectionName = connectionNameFromString(
+      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
+    );
+
+    await assertCanReadData(browser, connectionName, 'test', 'users');
+    await assertCannotCreateDb(
+      browser,
+      connectionName,
+      'new-db',
+      'new-collection'
+    );
+    await assertCannotCreateCollection(
+      browser,
+      connectionName,
+      'test',
+      'new-collection'
+    );
   });
 
   it('can connect with read one collection specific permission', async function () {
@@ -518,15 +569,24 @@ describe('Connection string', function () {
       expect(result).to.have.property('ok', 1);
     }
 
-    await assertCanReadData(browser, 'test', 'users');
-    await assertCannotInsertData(browser, 'test', 'users');
-    // TODO(COMPASS-8002: we need to click the active connection's add database
-    // button and therefore might as well wait for the active&saved connections
-    // to be unified
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      await assertCannotCreateDb(browser, 'new-db', 'new-collection');
-    }
-    await assertCannotCreateCollection(browser, 'test', 'new-collection');
+    const connectionName = connectionNameFromString(
+      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
+    );
+
+    await assertCanReadData(browser, connectionName, 'test', 'users');
+    await assertCannotInsertData(browser, connectionName, 'test', 'users');
+    await assertCannotCreateDb(
+      browser,
+      connectionName,
+      'new-db',
+      'new-collection'
+    );
+    await assertCannotCreateCollection(
+      browser,
+      connectionName,
+      'test',
+      'new-collection'
+    );
   });
 });
 
@@ -555,9 +615,11 @@ describe('Connection form', function () {
   });
 
   it('can connect using connection form', async function () {
+    const connectionName = this.test?.fullTitle();
+
     await browser.connectWithConnectionForm({
       hosts: ['127.0.0.1:27091'],
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
@@ -574,12 +636,14 @@ describe('Connection form', function () {
       return this.skip();
     }
 
+    const connectionName = this.test?.fullTitle();
+
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ATLAS_HOST ?? ''
     );
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
@@ -596,6 +660,8 @@ describe('Connection form', function () {
       return this.skip();
     }
 
+    const connectionName = this.test?.fullTitle();
+
     let tempdir;
     try {
       tempdir = await fs.mkdtemp(path.join(os.tmpdir(), 'connect-tests-'));
@@ -611,7 +677,7 @@ describe('Connection form', function () {
       };
       await browser.connectWithConnectionForm({
         ...atlasConnectionOptions,
-        connectionName: this.test?.fullTitle(),
+        connectionName,
       });
       if (!TEST_MULTIPLE_CONNECTIONS) {
         const result = await browser.shellEval(
@@ -633,6 +699,8 @@ describe('Connection form', function () {
       return this.skip();
     }
 
+    const connectionName = this.test?.fullTitle();
+
     const atlasConnectionOptions: ConnectFormState = {
       hosts: [process.env.E2E_TESTS_FREE_TIER_HOST ?? ''],
       authMethod: 'MONGODB-AWS',
@@ -643,7 +711,7 @@ describe('Connection form', function () {
     };
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
     if (!TEST_MULTIPLE_CONNECTIONS) {
       const result = await browser.shellEval(
