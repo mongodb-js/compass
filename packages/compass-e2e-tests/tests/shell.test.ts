@@ -11,7 +11,6 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { expect } from 'chai';
 
 describe('Shell', function () {
   let compass: Compass;
