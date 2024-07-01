@@ -1,11 +1,5 @@
-/* eslint-disable react/prop-types */
-import React, { useMemo } from 'react';
-import {
-  type BreadcrumbItem,
-  Breadcrumbs,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import React from 'react';
+import { css, spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
@@ -86,47 +80,25 @@ const pageContainerStyles = css({
   flexDirection: 'column',
 });
 
-const breadcrumbStyles = css({
-  paddingLeft: spacing[3],
-  paddingTop: spacing[3],
-  paddingBottom: spacing[2],
-});
-
 const CollectionsList: React.FunctionComponent<{
-  connectionTitle: string;
-  databaseName: string;
+  namespace: string;
   collections: Collection[];
   onCollectionClick(id: string): void;
-  onClickConnectionBreadcrumb(): void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
   onRefreshClick?: () => void;
 }> = ({
-  connectionTitle,
-  databaseName,
+  namespace,
   collections,
-  onClickConnectionBreadcrumb,
   onCollectionClick,
   onCreateCollectionClick,
   onDeleteCollectionClick,
   onRefreshClick,
 }) => {
-  const breadcrumbItems = useMemo(() => {
-    return [
-      {
-        name: connectionTitle,
-        onClick: () => onClickConnectionBreadcrumb(),
-      },
-      {
-        name: databaseName,
-      },
-    ] as BreadcrumbItem[];
-  }, [connectionTitle, databaseName, onClickConnectionBreadcrumb]);
-
   return (
     <div className={pageContainerStyles}>
-      <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
       <ItemsGrid
+        namespace={namespace}
         items={collections}
         itemType="collection"
         itemGridWidth={COLLECTION_CARD_WIDTH}

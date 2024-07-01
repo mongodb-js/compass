@@ -49,8 +49,12 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.26.0",
+    "@mongodb-js/compass-connections": "^1.33.0",
     "@mongodb-js/compass-telemetry": "^1.0.1",
+    "@mongodb-js/compass-workspaces": "^0.14.0",
+    "@mongodb-js/connection-info": "^0.4.1",
     "compass-preferences-model": "^2.23.1",
+    "mongodb-ns": "^2.4.2",
     "react": "^17.0.2"
   },
   "devDependencies": {
