@@ -348,6 +348,8 @@ const mapStateToProps: MapStateToProps<
         connectionStatus: ConnectionStatus.Connected,
         isPerformanceTabSupported:
           !isDataLake && !!state.isPerformanceTabSupported[connectionId],
+        isGenuineMongoDB: instance?.genuineMongoDB.isGenuine !== false,
+        csfleMode: instance?.csfleMode,
       },
     ],
   };

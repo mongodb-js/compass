@@ -19,8 +19,8 @@ export type StatusMarkerProps = {
 function ConnectedStatusMarker(): React.ReactElement {
   return (
     <svg
-      width={spacing[2]}
-      height={spacing[2]}
+      width={spacing[200]}
+      height={spacing[200]}
       viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -47,8 +47,8 @@ function ConnectingStatusMarker(): React.ReactElement {
   return (
     <svg
       className={connectingIconStyle}
-      width={spacing[2]}
-      height={spacing[2]}
+      width={spacing[200]}
+      height={spacing[200]}
       viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -67,8 +67,8 @@ function ConnectingStatusMarker(): React.ReactElement {
 function FailedStatusMarker(): React.ReactElement {
   return (
     <svg
-      width={spacing[2]}
-      height={spacing[2]}
+      width={spacing[200]}
+      height={spacing[200]}
       viewBox="0 0 7 6"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +84,7 @@ function FailedStatusMarker(): React.ReactElement {
 }
 
 function NoMarker(): React.ReactElement {
-  return <div style={{ width: spacing[2], height: spacing[2] }}></div>;
+  return <div style={{ width: spacing[200], height: spacing[200] }}></div>;
 }
 
 const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
@@ -97,7 +97,6 @@ const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
 const withStatusMarkerStyles = css({
   position: 'relative',
   display: 'flex',
-  minWidth: spacing[400],
 });
 
 const withStatusMarkerMarkerStyles = css({

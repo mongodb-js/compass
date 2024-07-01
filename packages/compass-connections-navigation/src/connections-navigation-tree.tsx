@@ -63,21 +63,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
-  const maxAllowedActiveConnections = usePreference(
-    'maximumNumberOfActiveConnections'
-  ) as number;
-  const { isConnectDisabled, connectDisabledDescription } = useMemo(() => {
-    const numberOfActiveConnections = connections.filter(
-      (connection) => connection.connectionStatus === ConnectionStatus.Connected
-    ).length;
-    return {
-      isConnectDisabled:
-        numberOfActiveConnections >= maxAllowedActiveConnections,
-      connectDisabledDescription: `Only ${maxAllowedActiveConnections} connection${
-        numberOfActiveConnections > 1 ? 's' : ''
-      } can be open at the same time. First disconnect from another cluster.`,
-    };
-  }, [maxAllowedActiveConnections, connections]);
 
   const id = useId();
 
@@ -96,9 +81,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         if (item.connectionStatus === ConnectionStatus.Connected) {
           onItemAction(item, 'select-connection');
         } else if (
-          (item.connectionStatus === ConnectionStatus.Disconnected ||
-            item.connectionStatus === ConnectionStatus.Failed) &&
-          !isConnectDisabled
+          item.connectionStatus === ConnectionStatus.Disconnected ||
+          item.connectionStatus === ConnectionStatus.Failed
         ) {
           onItemAction(item, 'connection-connect');
         }
@@ -112,7 +96,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isConnectDisabled]
+    [onItemAction]
   );
 
   const activeItemId = useMemo(() => {
@@ -147,8 +131,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           } else {
             return notConnectedConnectionItemActions({
               connectionInfo: item.connectionInfo,
-              isConnectDisabled,
-              connectDisabledTooltip: connectDisabledDescription,
             });
           }
         }
@@ -164,7 +146,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           });
       }
     },
-    [isRenameCollectionEnabled, isConnectDisabled, connectDisabledDescription]
+    [isRenameCollectionEnabled]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
