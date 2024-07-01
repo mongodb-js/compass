@@ -19,7 +19,7 @@ import {
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
-import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import type { WorkerRuntime } from '../../node-runtime-worker-thread';
 import type { HistoryStorage } from '../../modules/history-storage';
 import type { RootState } from '../../modules';
 

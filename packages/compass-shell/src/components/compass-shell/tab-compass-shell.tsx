@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { MapStateToProps } from 'react-redux';
 import type { Shell as ShellType } from '@mongosh/browser-repl';
-import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
+import type { WorkerRuntime } from '../../node-runtime-worker-thread';
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header/shell-header';

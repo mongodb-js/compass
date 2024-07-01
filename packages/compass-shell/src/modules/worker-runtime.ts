@@ -14,23 +14,26 @@ function getRealRequire() {
  * @type {{ WorkerRuntime: .WorkerRuntime }}
  */
 const { WorkerRuntime } = (() => {
-  const require = getRealRequire();
-  const realModulePath = require.resolve('@mongosh/node-runtime-worker-thread');
-  // Runtime needs to be outside the asar bundle to function properly, so if we
-  // resolved it inside of one, we will try to import it from outside (and hard
-  // fail if this didn't work)
-  if (/\.asar(?!\.unpacked)/.test(realModulePath)) {
-    try {
-      return require(realModulePath.replace('.asar', '.asar.unpacked'));
-    } catch (e: any) {
-      e.message +=
-        '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
-      throw e;
-    }
-  }
+  return require('../node-runtime-worker-thread');
+  // const require = getRealRequire();
+  // const realModulePath = require.resolve('../node-runtime-worker-thread', {
+  //   paths: [__dirname]
+  // });
+  // // Runtime needs to be outside the asar bundle to function properly, so if we
+  // // resolved it inside of one, we will try to import it from outside (and hard
+  // // fail if this didn't work)
+  // if (/\.asar(?!\.unpacked)/.test(realModulePath)) {
+  //   try {
+  //     return require(realModulePath.replace('.asar', '.asar.unpacked'));
+  //   } catch (e: any) {
+  //     e.message +=
+  //       '\n\n@mongosh/node-runtime-worker-thread module and all its dependencies needs to be unpacked before it can be used';
+  //     throw e;
+  //   }
+  // }
 
-  return require(realModulePath);
+  // return require(realModulePath);
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-})() as typeof import('@mongosh/node-runtime-worker-thread');
+})() as typeof import('../node-runtime-worker-thread');
 
 export { WorkerRuntime };

@@ -127,6 +127,7 @@ function showConnectWindow(
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      nodeIntegrationInWorker: true,
       ...(opts && opts.webPreferences),
     },
   };
