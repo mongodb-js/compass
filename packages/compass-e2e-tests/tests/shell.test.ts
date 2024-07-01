@@ -67,9 +67,8 @@ describe('Shell', function () {
   it('shows and hides shell based on settings', async function () {
     await browser.connectWithConnectionString();
 
-    let shellSection = await browser.$(Selectors.ShellSection);
-    let isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(true);
+    // Will fail is shell is not on the screen
+    await browser.$(Selectors.ShellSection).waitForExist();
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -82,8 +81,7 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    shellSection = await browser.$(Selectors.ShellSection);
-    isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(false);
+    // Will fail if shell eventually doesn't go away from the screen
+    await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
   });
 });
