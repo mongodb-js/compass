@@ -28,6 +28,7 @@
     "release": "npm run release --workspace mongodb-compass --",
     "reformat": "lerna run reformat --stream --no-bail",
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
+    "package-compass-nocompile": "npm run package-compass-nocompile --workspace=mongodb-compass --",
     "prestart": "npm run compile --workspace=@mongodb-js/webpack-config-compass",
     "prestart-web": "npm run prestart",
     "start": "npm run start --workspace=mongodb-compass",
