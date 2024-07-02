@@ -8,7 +8,7 @@ import CompassSchema from './components/compass-schema';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activateSchemaPlugin } from './stores/store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
@@ -24,7 +24,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin(
       'sample' | 'isCancelError'
     >,
     logger: createLoggerLocator('COMPASS-SCHEMA-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     preferences: preferencesLocator,
     fieldStoreService: fieldStoreServiceLocator,
     queryBar: queryBarServiceLocator,
