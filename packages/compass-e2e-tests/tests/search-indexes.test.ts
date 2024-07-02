@@ -31,10 +31,9 @@ const connectionsWithNoSearchSupport: Connection[] = [
 ];
 const connectionsWithSearchSupport: Connection[] = [
   {
-    name: 'Atlas Dedicated Cluster',
-    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITH_SEARCH,
+    name: 'Atlas Local Dev',
+    connectionString: process.env.ATLAS_LOCAL_URL,
   },
-  // todo: atlas local dev
 ];
 
 const INDEX_DEFINITION = JSON.stringify({
@@ -136,13 +135,15 @@ async function verifyIndexDetails(
   await browser.hover(indexRowSelector);
   await browser.clickVisible(Selectors.searchIndexExpandButton(indexName));
 
-  const text = await browser
-    .$(Selectors.searchIndexDetails(indexName))
-    .getText();
-  expect(text.toLowerCase()).to.equal(details.toLowerCase());
+  await browser.waitUntil(async () => {
+    const text = await browser
+      .$(Selectors.searchIndexDetails(indexName))
+      .getText();
+    return text.toLowerCase() === details.toLowerCase();
+  });
 }
 
-describe.skip('Search Indexes', function () {
+describe('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
@@ -264,7 +265,6 @@ describe.skip('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         // Verify it was added.
         // As we added index definition with no fields and only
@@ -281,7 +281,6 @@ describe.skip('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         // Verify it was added.
         // As we added index definition with no fields and only
@@ -302,7 +301,11 @@ describe.skip('Search Indexes', function () {
         // Verify its updating/updated.
         // As we set the new definition to have no dynamic mappings
         // with no fields, the index details should have '[empty]' value.
-        await verifyIndexDetails(browser, indexName, '[empty]');
+        await verifyIndexDetails(
+          browser,
+          indexName,
+          'No mappings in the index definition.'
+        );
       });
 
       it('runs a search aggregation with index name', async function () {
@@ -311,7 +314,6 @@ describe.skip('Search Indexes', function () {
           Selectors.indexesSegmentedTab('search-indexes')
         );
         await createSearchIndex(browser, indexName, INDEX_DEFINITION);
-        await browser.waitForAnimations(Selectors.SearchIndexList);
 
         const indexRowSelector = Selectors.searchIndexRow(indexName);
         const indexRow = await browser.$(indexRowSelector);
