@@ -36,7 +36,7 @@ const ZeroGraphic = () => {
   );
 };
 
-function AddDataZeroGraphic(
+function LoadSampleDataZeroGraphic(
   props: React.SVGProps<SVGSVGElement> & { size?: number }
 ) {
   const size = props.size ?? 60;
@@ -70,4 +70,4 @@ function AddDataZeroGraphic(
   );
 }
 
-export { ZeroGraphic, AddDataZeroGraphic };
+export { ZeroGraphic, LoadSampleDataZeroGraphic };

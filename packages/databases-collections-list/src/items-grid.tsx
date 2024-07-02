@@ -79,7 +79,7 @@ type ItemsGridProps<T> = {
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
   renderItem: RenderItem<T>;
-  renderBanner?: () => React.ReactNode;
+  renderLoadSampleDataBanner?: () => React.ReactNode;
 };
 
 const controlsContainerStyles = css({
@@ -140,7 +140,7 @@ const GridControls: React.FunctionComponent<{
   viewTypeControls?: React.ReactNode;
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
-  renderBanner?: () => React.ReactNode;
+  renderLoadSampleDataBanner?: () => React.ReactNode;
 }> = ({
   namespace,
   itemType,
@@ -148,7 +148,7 @@ const GridControls: React.FunctionComponent<{
   viewTypeControls,
   onCreateItemClick,
   onRefreshClick,
-  renderBanner,
+  renderLoadSampleDataBanner,
 }) => {
   const connectionInfo = useConnectionInfo();
   const connectionTitle = getConnectionTitle(connectionInfo);
@@ -184,7 +184,7 @@ const GridControls: React.FunctionComponent<{
     openDatabasesWorkspace,
   ]);
 
-  const banner = renderBanner?.();
+  const banner = renderLoadSampleDataBanner?.();
 
   return (
     <div className={controlsContainerStyles}>
@@ -271,7 +271,7 @@ export const ItemsGrid = <T extends Item>({
   onCreateItemClick,
   onRefreshClick,
   renderItem: _renderItem,
-  renderBanner,
+  renderLoadSampleDataBanner,
 }: ItemsGridProps<T>): React.ReactElement => {
   const track = useTelemetry();
   const onViewTypeChange = useCallback(
@@ -318,7 +318,7 @@ export const ItemsGrid = <T extends Item>({
             viewTypeControls={shouldShowControls ? viewTypeControls : undefined}
             onCreateItemClick={onCreateItemClick}
             onRefreshClick={onRefreshClick}
-            renderBanner={renderBanner}
+            renderLoadSampleDataBanner={renderLoadSampleDataBanner}
           ></GridControls>
         }
       >
