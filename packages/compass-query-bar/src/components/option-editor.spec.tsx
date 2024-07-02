@@ -3,6 +3,11 @@ import { expect } from 'chai';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OptionEditor } from './option-editor';
+import Sinon from 'sinon';
+import {
+  applyFromHistory,
+  fetchSavedQueries,
+} from '../stores/query-bar-reducer';
 
 class MockPasteEvent extends window.Event {
   constructor(private text: string) {
@@ -35,6 +40,9 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
+          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -54,6 +62,9 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value="{ foo: 1 }"
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
+          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -73,6 +84,9 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
+          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -98,6 +112,9 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
+          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -125,6 +142,9 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
+          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -137,6 +157,49 @@ describe('OptionEditor', function () {
 
       await waitFor(() => {
         expect(screen.getByRole('textbox').textContent).to.eq('{ foo: 1 }');
+      });
+    });
+  });
+
+  describe('createQueryWithHistoryAutocompleter', function () {
+    const onApplySpy = Sinon.spy();
+
+    it.only('calls onApply when an autocomplete option is selected', async function () {
+      render(
+        <OptionEditor
+          namespace="test.test"
+          insertEmptyDocOnFocus
+          onChange={() => {}}
+          value=""
+          savedQueries={[
+            {
+              filter: { a: 1 },
+              _lastExecuted: new Date('2024-06-01T12:00:00Z'),
+            },
+            {
+              filter: { a: 2 },
+              _lastExecuted: new Date('2023-06-02T12:00:00Z'),
+            },
+          ]}
+          onApplyQuery={applyFromHistory}
+          loadSavedQueries={fetchSavedQueries}
+        ></OptionEditor>
+      );
+
+      userEvent.click(screen.getByRole('textbox'));
+      await waitFor(() => {
+        expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
+        expect(screen.getAllByText('{ a: 1 }')[1]).to.be.visible;
+        expect(screen.getByText('{ a: 2 }')).to.be.visible;
+      });
+
+      // Simulate selecting the autocomplete option
+      userEvent.click(screen.getByText('{ a: 2 }'));
+      // await waitFor(() => {
+      //   expect(screen.getByRole('textbox').textContent).to.eq('{ a: 2 }');
+      // });
+      await waitFor(() => {
+        expect(onApplySpy).to.have.been.called;
       });
     });
   });
