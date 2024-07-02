@@ -27,12 +27,14 @@ const DatabasesList: React.FunctionComponent<{
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
   onRefreshClick?: () => void;
+  renderBanner?: () => React.ReactNode;
 }> = ({
   databases,
   onDatabaseClick,
   onCreateDatabaseClick,
   onDeleteDatabaseClick,
   onRefreshClick,
+  renderBanner,
 }) => {
   return (
     <ItemsGrid
@@ -91,6 +93,7 @@ const DatabasesList: React.FunctionComponent<{
           ></NamespaceItemCard>
         );
       }}
+      renderBanner={renderBanner}
     ></ItemsGrid>
   );
 };

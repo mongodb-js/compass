@@ -3,14 +3,16 @@ import { connect } from 'react-redux';
 import {
   Banner,
   BannerVariant,
+  Button,
   EmptyContent,
   Link,
   css,
   spacing,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 import { usePreference } from 'compass-preferences-model/provider';
-import { ZeroGraphic } from './zero-graphic';
+import { AddDataZeroGraphic, ZeroGraphic } from './zero-graphic';
 import type { Database, DatabasesState } from '../modules/databases';
 import {
   createDatabase,
@@ -23,9 +25,10 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import toNS from 'mongodb-ns';
 
 const errorContainerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 const nonGenuineErrorContainerStyles = css({
@@ -61,6 +64,125 @@ function NonGenuineZeroState() {
   );
 }
 
+function buildAddDataUrl(projectId: string, clusterName: string) {
+  const url = new URL(
+    `/v2/${projectId}#/addData/${encodeURIComponent(clusterName)}/load`,
+    window.location.origin
+  );
+  return url.toString();
+}
+
+const addDataContainerStyles = css({
+  width: '100%',
+  padding: spacing[400],
+});
+
+const addDataActionsStyles = css({
+  display: 'flex',
+  gap: spacing[300],
+});
+
+function AddDataZeroState({
+  projectId,
+  clusterName,
+  canCreateDatabase,
+  onCreateDatabase,
+}: {
+  projectId: string;
+  clusterName: string;
+  canCreateDatabase: boolean;
+  onCreateDatabase: () => void;
+}) {
+  return (
+    <div className={addDataContainerStyles} data-testid="add-data-zero-state">
+      <EmptyContent
+        icon={AddDataZeroGraphic}
+        title="Looks like your cluster is empty"
+        subTitle={
+          canCreateDatabase ? (
+            <>
+              Create database or load sample data to your cluster to quickly get
+              started experimenting with data in MongoDB.
+            </>
+          ) : (
+            <>
+              You can load sample data to quickly get started experimenting with
+              data in MongoDB.
+            </>
+          )
+        }
+        callToActionLink={
+          <div className={addDataActionsStyles}>
+            {canCreateDatabase && (
+              <Button variant="default" onClick={onCreateDatabase}>
+                Create database
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              href={buildAddDataUrl(projectId, clusterName)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Load sample dataset
+            </Button>
+          </div>
+        }
+      />
+    </div>
+  );
+}
+
+const addDataBannerContent = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const addDataBannerButtonStyles = css({
+  marginLeft: 'auto',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+});
+
+const EmptyElement = () => null;
+
+function AddDataZeroBanner({
+  projectId,
+  clusterName,
+}: {
+  projectId: string;
+  clusterName: string;
+}) {
+  return (
+    <Banner image={<EmptyElement></EmptyElement>}>
+      <div className={addDataBannerContent}>
+        <span>
+          Working with MongoDB is easy, but first you’ll need some data to get
+          started. Sample data is available for loading.
+        </span>
+        <Button
+          className={addDataBannerButtonStyles}
+          onClick={() => {
+            // Leafygreen overrides anchor tag styles inside the banner in a way
+            // that completely breaks the button visuals and there is no good
+            // way for us to hack around it, so instead of a link, we're using a
+            // button and open a url with browser APIs
+            window.open(
+              buildAddDataUrl(projectId, clusterName),
+              '_blank',
+              'noopener noreferrer'
+            );
+          }}
+          leftGlyph={<Icon glyph="Upload"></Icon>}
+          size="small"
+        >
+          Load sample data
+        </Button>
+      </div>
+    </Banner>
+  );
+}
+
 type DatabasesProps = {
   databases: ReturnType<Database['toJSON']>[];
   databasesLoadingStatus: string;
@@ -84,7 +206,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   onCreateDatabaseClick: _onCreateDatabaseClick,
   onRefreshClick,
 }) => {
-  const { id: connectionId } = useConnectionInfo();
+  const { id: connectionId, atlasMetadata } = useConnectionInfo();
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
 
@@ -110,6 +232,30 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     track('Screen', { name: 'databases' });
   }, []);
 
+  const renderBanner = useCallback(() => {
+    if (
+      !atlasMetadata ||
+      databases.some((db) => {
+        return !toNS(db.name).specialish;
+      })
+    ) {
+      return null;
+    }
+
+    return (
+      <AddDataZeroBanner
+        projectId={atlasMetadata.projectId}
+        clusterName={atlasMetadata.clusterName}
+      ></AddDataZeroBanner>
+    );
+  }, [databases, atlasMetadata]);
+
+  const editable = isWritable && !isPreferencesReadOnly;
+
+  if (databasesLoadingStatus === 'fetching') {
+    return null;
+  }
+
   if (databasesLoadingStatus === 'error') {
     return (
       <div className={errorContainerStyles}>
@@ -126,7 +272,17 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     return <NonGenuineZeroState />;
   }
 
-  const editable = isWritable && !isPreferencesReadOnly;
+  if (atlasMetadata && databases.length === 0) {
+    return (
+      <AddDataZeroState
+        projectId={atlasMetadata.projectId}
+        clusterName={atlasMetadata.clusterName}
+        canCreateDatabase={editable}
+        onCreateDatabase={onCreateDatabaseClick}
+      ></AddDataZeroState>
+    );
+  }
+
   const actions = Object.assign(
     {
       onDatabaseClick,
@@ -140,7 +296,13 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
       : {}
   );
 
-  return <DatabasesList databases={databases} {...actions} />;
+  return (
+    <DatabasesList
+      databases={databases}
+      renderBanner={renderBanner}
+      {...actions}
+    />
+  );
 };
 
 const mapStateToProps = (state: DatabasesState) => {
