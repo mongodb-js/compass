@@ -23,7 +23,7 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
-  createTelemetryLocator,
+  telemetryLocator,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 
@@ -48,7 +48,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
     connectionInfoAccess: connectionInfoAccessLocator,
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
   }
 );
 
@@ -66,7 +66,7 @@ export const CreateIndexPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
@@ -80,7 +80,7 @@ export const DropIndexPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     connectionInfoAccess: connectionInfoAccessLocator,
   }
 );

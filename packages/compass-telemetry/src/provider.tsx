@@ -33,12 +33,10 @@ export const TelemetryProvider: React.FC<{
   );
 };
 
-export function createTelemetryLocator() {
-  return createServiceLocator(
-    useTelemetry.bind(null),
-    'createTelemetryLocator'
-  );
-}
+export const telemetryLocator = createServiceLocator(
+  useTelemetry.bind(null),
+  'telemetryLocator'
+);
 
 export function useTelemetry(): TrackFunction {
   const track = React.useContext(TelemetryContext);

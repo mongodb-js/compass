@@ -1,6 +1,6 @@
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
@@ -33,7 +33,7 @@ export const CompassShellPlugin = registerHadronPlugin<
   },
   {
     logger: createLoggerLocator('COMPASS-SHELL'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     dataService: dataServiceLocator,
     connectionInfoAccess: connectionInfoAccessLocator,
     preferences: preferencesLocator,
