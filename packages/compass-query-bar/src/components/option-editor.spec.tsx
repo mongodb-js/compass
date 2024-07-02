@@ -3,11 +3,12 @@ import { expect } from 'chai';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OptionEditor } from './option-editor';
-import Sinon from 'sinon';
+import type { SinonSpy } from 'sinon';
 import {
   applyFromHistory,
   fetchSavedQueries,
 } from '../stores/query-bar-reducer';
+import sinon from 'sinon';
 
 class MockPasteEvent extends window.Event {
   constructor(private text: string) {
@@ -162,9 +163,16 @@ describe('OptionEditor', function () {
   });
 
   describe('createQueryWithHistoryAutocompleter', function () {
-    const onApplySpy = Sinon.spy();
+    let onApplySpy: SinonSpy;
+    let loadSavedQueriesSpy: SinonSpy;
 
-    it.only('calls onApply when an autocomplete option is selected', async function () {
+    afterEach(function () {
+      cleanup();
+    });
+
+    it('filter applied correctly when autocomplete option is clicked', async function () {
+      onApplySpy = sinon.spy();
+      loadSavedQueriesSpy = sinon.spy();
       render(
         <OptionEditor
           namespace="test.test"
@@ -174,15 +182,16 @@ describe('OptionEditor', function () {
           savedQueries={[
             {
               filter: { a: 1 },
-              _lastExecuted: new Date('2024-06-01T12:00:00Z'),
+              _lastExecuted: new Date(),
             },
             {
               filter: { a: 2 },
-              _lastExecuted: new Date('2023-06-02T12:00:00Z'),
+              sort: { a: -1 },
+              _lastExecuted: new Date(),
             },
           ]}
-          onApplyQuery={applyFromHistory}
-          loadSavedQueries={fetchSavedQueries}
+          onApplyQuery={onApplySpy}
+          loadSavedQueries={loadSavedQueriesSpy}
         ></OptionEditor>
       );
 
@@ -190,16 +199,17 @@ describe('OptionEditor', function () {
       await waitFor(() => {
         expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
         expect(screen.getAllByText('{ a: 1 }')[1]).to.be.visible;
-        expect(screen.getByText('{ a: 2 }')).to.be.visible;
+        expect(screen.getByText('{ a: 2 }, sort: { a: -1 }')).to.be.visible;
       });
 
       // Simulate selecting the autocomplete option
-      userEvent.click(screen.getByText('{ a: 2 }'));
-      // await waitFor(() => {
-      //   expect(screen.getByRole('textbox').textContent).to.eq('{ a: 2 }');
-      // });
+      userEvent.click(screen.getByText('{ a: 2 }, sort: { a: -1 }'));
       await waitFor(() => {
-        expect(onApplySpy).to.have.been.called;
+        expect(onApplySpy.lastCall).to.be.calledWithExactly({
+          filter: { a: 2 },
+          sort: { a: -1 },
+        });
+        expect(loadSavedQueriesSpy).to.be.called;
       });
     });
   });

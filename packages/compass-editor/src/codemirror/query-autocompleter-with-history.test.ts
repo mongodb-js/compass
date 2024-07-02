@@ -3,8 +3,6 @@ import { createQueryWithHistoryAutocompleter } from './query-autocompleter-with-
 import { setupCodemirrorCompleter } from '../../test/completer';
 import type { SavedQuery } from '../../dist/codemirror/query-history-autocompleter';
 import applyFromHistory from '@mongodb-js/compass-query-bar';
-// import Sinon from 'sinon';
-// import type { Completion } from '@codemirror/autocomplete';
 
 describe('query history autocompleter', function () {
   const { getCompletions, cleanup } = setupCodemirrorCompleter(
