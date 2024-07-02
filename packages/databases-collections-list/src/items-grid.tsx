@@ -79,6 +79,7 @@ type ItemsGridProps<T> = {
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
   renderItem: RenderItem<T>;
+  renderLoadSampleDataBanner?: () => React.ReactNode;
 };
 
 const controlsContainerStyles = css({
@@ -113,6 +114,10 @@ const pushRightStyles = css({
   marginLeft: 'auto',
 });
 
+const bannerRowStyles = css({
+  paddingTop: spacing[200],
+});
+
 function buildChartsUrl(
   groupId: string,
   clusterName: string,
@@ -135,6 +140,7 @@ const GridControls: React.FunctionComponent<{
   viewTypeControls?: React.ReactNode;
   onCreateItemClick?: () => void;
   onRefreshClick?: () => void;
+  renderLoadSampleDataBanner?: () => React.ReactNode;
 }> = ({
   namespace,
   itemType,
@@ -142,6 +148,7 @@ const GridControls: React.FunctionComponent<{
   viewTypeControls,
   onCreateItemClick,
   onRefreshClick,
+  renderLoadSampleDataBanner,
 }) => {
   const connectionInfo = useConnectionInfo();
   const connectionTitle = getConnectionTitle(connectionInfo);
@@ -176,6 +183,8 @@ const GridControls: React.FunctionComponent<{
     openCollectionsWorkspace,
     openDatabasesWorkspace,
   ]);
+
+  const banner = renderLoadSampleDataBanner?.();
 
   return (
     <div className={controlsContainerStyles}>
@@ -238,6 +247,7 @@ const GridControls: React.FunctionComponent<{
           </div>
         </div>
       )}
+      {banner && <div className={bannerRowStyles}>{banner}</div>}
     </div>
   );
 };
@@ -261,6 +271,7 @@ export const ItemsGrid = <T extends Item>({
   onCreateItemClick,
   onRefreshClick,
   renderItem: _renderItem,
+  renderLoadSampleDataBanner,
 }: ItemsGridProps<T>): React.ReactElement => {
   const track = useTelemetry();
   const onViewTypeChange = useCallback(
@@ -307,6 +318,7 @@ export const ItemsGrid = <T extends Item>({
             viewTypeControls={shouldShowControls ? viewTypeControls : undefined}
             onCreateItemClick={onCreateItemClick}
             onRefreshClick={onRefreshClick}
+            renderLoadSampleDataBanner={renderLoadSampleDataBanner}
           ></GridControls>
         }
       >
