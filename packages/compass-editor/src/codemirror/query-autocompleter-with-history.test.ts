@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { createQueryWithHistoryAutocompleter } from './query-autocompleter-with-history';
 import { setupCodemirrorCompleter } from '../../test/completer';
 import type { SavedQuery } from '../../dist/codemirror/query-history-autocompleter';
-import applyFromHistory from '@mongodb-js/compass-query-bar';
 
 describe('query history autocompleter', function () {
   const { getCompletions, cleanup } = setupCodemirrorCompleter(
@@ -64,9 +63,7 @@ describe('query history autocompleter', function () {
 
   after(cleanup);
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  const mockOnApply: (query: SavedQuery['queryProperties']) => void =
-    applyFromHistory;
+  const mockOnApply: (query: SavedQuery['queryProperties']) => any = () => {};
 
   it('returns all saved queries as completions on click', function () {
     expect(

@@ -159,7 +159,6 @@ export const resetQuery = (
       DEFAULT_FIELD_VALUES
     );
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });
-    dispatch(fetchSavedQueries);
     return cloneDeep(DEFAULT_QUERY_VALUES);
   };
 };
