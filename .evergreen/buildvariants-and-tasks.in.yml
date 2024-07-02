@@ -49,13 +49,13 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-1100',
+    run_on: 'macos-14',
     silk_asset_group: 'compass-macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-1100-arm64',
+    run_on: 'macos-14-arm64',
     silk_asset_group: 'compass-macos-arm',
   }
 ];
@@ -89,6 +89,19 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     name: 'test-server-macos-11-x64',
     display_name: 'MacOS x64 11',
     run_on: 'macos-1100-gui',
+    patchable: false,
+    depends_on: 'package-macos-x64'
+  },
+  {
+    name: 'test-server-macos-14-arm',
+    display_name: 'MacOS arm64 14',
+    run_on: 'macos-14-arm64-gui',
+    depends_on: 'package-macos-arm'
+  },
+  {
+    name: 'test-server-macos-14-x64',
+    display_name: 'MacOS x64 14',
+    run_on: 'macos-14-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
   }

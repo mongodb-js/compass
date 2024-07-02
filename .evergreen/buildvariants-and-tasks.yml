@@ -62,7 +62,7 @@ buildvariants:
     expansions:
       silk_asset_group: compass-macos
     display_name: Package MacOS Intel
-    run_on: macos-1100
+    run_on: macos-14
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -71,7 +71,7 @@ buildvariants:
     expansions:
       silk_asset_group: compass-macos-arm
     display_name: Package MacOS Arm64
-    run_on: macos-1100-arm64
+    run_on: macos-14-arm64
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -192,6 +192,28 @@ buildvariants:
   - name: test-server-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
     run_on: macos-1100-gui
+    patchable: false
+    depends_on:
+      - name: package-compass
+        variant: package-macos-x64
+    tasks:
+      - name: test-packaged-app-1
+      - name: test-packaged-app-2
+      - name: test-packaged-app-3
+  - name: test-server-macos-14-arm
+    display_name: Test Packaged App MacOS arm64 14
+    run_on: macos-14-arm64-gui
+    patchable: true
+    depends_on:
+      - name: package-compass
+        variant: package-macos-arm
+    tasks:
+      - name: test-packaged-app-1
+      - name: test-packaged-app-2
+      - name: test-packaged-app-3
+  - name: test-server-macos-14-x64
+    display_name: Test Packaged App MacOS x64 14
+    run_on: macos-14-gui
     patchable: false
     depends_on:
       - name: package-compass
