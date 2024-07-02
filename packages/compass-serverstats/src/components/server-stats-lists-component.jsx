@@ -1,6 +1,6 @@
 const React = require('react');
 const PropTypes = require('prop-types');
-const DetailViewComponent = require('./detailview-component');
+const { DetailViewComponent } = require('./detailview-component');
 const CurrentOpComponent = require('./current-op-component');
 const TopComponent = require('./top-component');
 const CurrentOpStore = require('../stores/current-op-store');
