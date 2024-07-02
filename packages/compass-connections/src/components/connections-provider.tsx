@@ -104,7 +104,7 @@ export { withConnectionRepository };
 
 export const connectionRepositoryLocator = createServiceLocator(
   useConnectionRepository.bind(null),
-  'createConnectionRepositoryLocator'
+  'connectionRepositoryLocator'
 );
 
 export type ConnectionRepository = ReturnType<typeof useConnectionRepository>;

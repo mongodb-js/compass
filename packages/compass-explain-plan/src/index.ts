@@ -7,7 +7,7 @@ import {
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 
 const ExplainPlanModalPlugin = registerHadronPlugin(
@@ -18,7 +18,7 @@ const ExplainPlanModalPlugin = registerHadronPlugin(
   },
   {
     logger: createLoggerLocator('EXPLAIN-PLAN-MODAL-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
     connectionInfoAccess: connectionInfoAccessLocator,
     dataService: dataServiceLocator as DataServiceLocator<
       'explainAggregate' | 'explainFind' | 'isCancelError'
