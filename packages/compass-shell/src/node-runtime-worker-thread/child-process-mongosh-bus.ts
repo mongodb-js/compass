@@ -1,5 +1,4 @@
 import type { ChildProcess } from 'child_process';
-import type { Worker } from 'worker_threads';
 import type { MongoshBus } from '@mongosh/types';
 import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
@@ -7,7 +6,7 @@ import { exposeAll, close } from './rpc';
 export class ChildProcessMongoshBus {
   exposedEmitter: Exposed<MongoshBus>;
 
-  constructor(eventEmitter: MongoshBus, childProcess: ChildProcess | Worker) {
+  constructor(eventEmitter: MongoshBus, childProcess: ChildProcess) {
     const exposedEmitter: Exposed<MongoshBus> = exposeAll(
       {
         emit(...args) {

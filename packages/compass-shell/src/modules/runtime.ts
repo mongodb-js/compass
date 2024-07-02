@@ -153,7 +153,7 @@ function createWorkerRuntime(
 
   return new WorkerRuntime(
     driverUrl,
-    driverOptions,
+    driverOptions as any,
     cliOptions ?? {},
     {
       env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },

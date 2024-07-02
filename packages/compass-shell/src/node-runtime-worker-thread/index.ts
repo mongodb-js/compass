@@ -9,15 +9,16 @@ import type {
   RuntimeEvaluationResult,
 } from '@mongosh/browser-runtime-core';
 import type { MongoshBus } from '@mongosh/types';
+import path from 'path';
 import { EventEmitter, once } from 'events';
 import type { Caller } from './rpc';
 import { createCaller, cancel } from './rpc';
+import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
 import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './child-process';
 import {
   deserializeEvaluationResult,
   serializeConnectOptions,
 } from './serializer';
-import path from 'path';
 import { ChildProcessMongoshBus } from './child-process-mongosh-bus';
 import type { CompassServiceProvider } from '@mongosh/service-provider-server';
 
@@ -84,6 +85,8 @@ class WorkerRuntime implements Runtime {
 
   private childProcessMongoshBus!: ChildProcessMongoshBus;
 
+  private childProcessEvaluationListener!: ChildProcessEvaluationListener;
+
   private childProcess!: ChildProcess;
 
   private childProcessRuntime!: ChildProcessRuntime;
@@ -109,6 +112,7 @@ class WorkerRuntime implements Runtime {
 
   private async initWorker() {
     const { uri, driverOptions, cliOptions, spawnOptions } = this.initOptions;
+
     this.childProcess = spawn(
       process.execPath,
       [this.childProcessProxySrcPath],
@@ -171,6 +175,11 @@ class WorkerRuntime implements Runtime {
       this.childProcess
     );
 
+    this.childProcessEvaluationListener = new ChildProcessEvaluationListener(
+      this,
+      this.childProcess
+    );
+
     this.childProcessMongoshBus = new ChildProcessMongoshBus(
       this.eventEmitter,
       this.childProcess
@@ -220,6 +229,10 @@ class WorkerRuntime implements Runtime {
       this.childProcessRuntime[cancel]();
     }
 
+    if (this.childProcessEvaluationListener) {
+      this.childProcessEvaluationListener.terminate();
+    }
+
     if (this.childProcessMongoshBus) {
       this.childProcessMongoshBus.terminate();
     }
@@ -227,7 +240,7 @@ class WorkerRuntime implements Runtime {
 
   async interrupt() {
     await this.initWorkerPromise;
-    return this.childProcessRuntime.interrupt();
+    this.childProcess.kill('SIGINT');
   }
 
   async waitForRuntimeToBeReady() {

@@ -24,7 +24,7 @@ function sleep(ms: number) {
 }
 
 describe('WorkerRuntime', function () {
-  let runtime: WorkerRuntime;
+  let runtime: WorkerRuntime | null = null;
 
   afterEach(async function () {
     if (runtime) {
@@ -66,33 +66,6 @@ describe('WorkerRuntime', function () {
       expect(err)
         .to.have.property('message')
         .match(/Child process failed to start/);
-    });
-
-    it('should return init error if worker in child process failed to spawn', async function () {
-      runtime = new WorkerRuntime(
-        'mongodb://nodb/',
-        dummyOptions,
-        { nodb: true },
-        {
-          env: {
-            WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING:
-              brokenScript,
-          },
-        }
-      );
-
-      let err;
-
-      try {
-        await runtime.evaluate('1+1');
-      } catch (e: any) {
-        err = e;
-      }
-
-      expect(err).to.be.instanceof(Error);
-      expect(err)
-        .to.have.property('message')
-        .match(/Worker thread failed to start/);
     });
   });
 
