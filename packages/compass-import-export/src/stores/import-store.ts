@@ -7,7 +7,7 @@ import { cancelImport, importReducer, openImport } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type {
-  ConnectionRepository,
+  ConnectionRepositoryAccess,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
@@ -19,7 +19,7 @@ export type ImportPluginServices = {
   logger: Logger;
   track: TrackFunction;
   connectionsManager: ConnectionsManager;
-  connectionRepository: ConnectionRepository;
+  connectionRepository: ConnectionRepositoryAccess;
 };
 
 export function configureStore(services: ImportPluginServices) {

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useConnectionsManagerContext } from '../provider';
+import { type ConnectionInfo, useConnectionsManagerContext } from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
 import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
 import { createServiceLocator } from 'hadron-app-registry';
@@ -62,8 +62,9 @@ export function useConnections() {
   return store;
 }
 
-export function useConnectionRepository() {
+export function useConnectionRepository(source?: unknown) {
   const repository = useContext(ConnectionsRepositoryStateContext);
+  if (source === 'locator') console.log({ repository });
   if (!repository) {
     // TODO(COMPASS-7879): implement a default provider in test methods
     if (process.env.NODE_ENV === 'test') {
@@ -102,9 +103,25 @@ function withConnectionRepository<
 
 export { withConnectionRepository };
 
-export const connectionRepositoryLocator = createServiceLocator(
-  useConnectionRepository.bind(null),
-  'connectionRepositoryLocator'
+export type ConnectionRepositoryAccess = Pick<
+  ConnectionRepository,
+  'getConnectionInfoById'
+>;
+
+export const useConnectionRepositoryAccess = (): ConnectionRepositoryAccess => {
+  const repository = useConnectionRepository('locator');
+  const repositoryRef = useRef(repository);
+  repositoryRef.current = repository;
+  return {
+    getConnectionInfoById(id: ConnectionInfo['id']) {
+      console.log('getting from', repositoryRef.current, id);
+      return repositoryRef.current.getConnectionInfoById(id);
+    },
+  };
+};
+export const connectionRepositoryAccessLocator = createServiceLocator(
+  useConnectionRepositoryAccess,
+  'connectionRepositoryAccessLocator'
 );
 
 export type ConnectionRepository = ReturnType<typeof useConnectionRepository>;

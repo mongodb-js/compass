@@ -525,6 +525,10 @@ export const runExport = ({
     const aborted = !!(
       exportAbortController.signal.aborted || exportResult?.aborted
     );
+    console.log(
+      'EXPORT',
+      connectionRepository.getConnectionInfoById(connectionId)
+    );
     track(
       'Export Completed',
       {

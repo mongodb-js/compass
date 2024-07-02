@@ -1,6 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import { type DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 
 /**
@@ -99,10 +99,25 @@ export const open = (
   connectionId: string,
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
-  return (dispatch, _getState, { track }) => {
-    track('Screen', {
-      name: dbName ? 'create_collection_modal' : 'create_database_modal',
+  return (
+    dispatch,
+    _getState,
+    { track, connectionRepository, connectionsManager }
+  ) => {
+    console.log('OPEN MODAL', dbName);
+    console.log({
+      connectionRepository,
+      info: connectionRepository.getConnectionInfoById(connectionId),
+      connectionsManager,
+      dataService: connectionsManager.getDataServiceForConnection(connectionId),
     });
+    track(
+      'Screen',
+      {
+        name: dbName ? 'create_collection_modal' : 'create_database_modal',
+      },
+      connectionRepository.getConnectionInfoById(connectionId)
+    );
 
     dispatch({
       type: CreateNamespaceActionTypes.Open,

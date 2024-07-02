@@ -3,7 +3,7 @@ import {
   ConnectionsManagerEvents,
   type ConnectionsManager,
   type DataService,
-  type ConnectionRepository,
+  type ConnectionRepositoryAccess,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -30,7 +30,7 @@ type NS = ReturnType<typeof toNS>;
 
 export type CreateNamespaceServices = {
   connectionsManager: ConnectionsManager;
-  connectionRepository: ConnectionRepository;
+  connectionRepository: ConnectionRepositoryAccess;
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
   logger: Logger;
