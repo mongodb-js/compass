@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "4.27.0",
+  "version": "4.28.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -74,7 +74,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.26.1",
+    "@mongodb-js/compass-components": "^1.27.0",
     "hadron-app-registry": "^9.2.0",
     "hadron-ipc": "^3.2.17",
     "react": "^17.0.2",
