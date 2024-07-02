@@ -26,25 +26,23 @@ export function DetailViewComponent() {
 
   const track = useTelemetry();
 
-  const onShow = useCallback((newDataToShow: CurrentOpData) => {
-    setData(newDataToShow);
-  }, []);
-
-  const onHide = useCallback(() => {
-    setData(null);
-  }, []);
-
   useEffect(() => {
-    const unsubscribeShowOperationDetails =
-      Actions.showOperationDetails.listen(onShow);
-    const unsubscribeHideOperationDetails =
-      Actions.hideOperationDetails.listen(onHide);
+    const unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(
+      (newDataToShow: CurrentOpData) => {
+        setData(newDataToShow);
+      }
+    );
+    const unsubscribeHideOperationDetails = Actions.hideOperationDetails.listen(
+      () => {
+        setData(null);
+      }
+    );
 
     return () => {
       unsubscribeShowOperationDetails();
       unsubscribeHideOperationDetails();
     };
-  }, [onShow, onHide]);
+  }, []);
 
   const hideOperationDetails = useCallback(() => {
     track('DetailView hideOperationDetails');
