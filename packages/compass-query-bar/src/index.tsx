@@ -77,4 +77,4 @@ export {
   queryBarServiceLocator,
 };
 export type { QueryBarService };
-export { type BaseQuery as Query } from './constants/query-properties';
+export type { BaseQuery as Query } from './constants/query-properties';
