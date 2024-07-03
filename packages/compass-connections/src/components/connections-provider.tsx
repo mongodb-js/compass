@@ -91,10 +91,10 @@ function withConnectionRepository<
   const WithConnectionRepository = (
     props: Omit<FirstArgument<T>, 'connectionRepository'> & React.Attributes
   ) => {
-    const connectionInfoAccess = useConnectionRepository();
+    const connectionRepository = useConnectionRepository();
     return React.createElement(ReactComponent, {
       ...props,
-      connectionInfoAccess,
+      connectionRepository,
     });
   };
   return WithConnectionRepository;
