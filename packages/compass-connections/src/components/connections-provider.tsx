@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from 'react';
-import { useConnectionsManagerContext } from '../provider';
+import { type ConnectionInfo, useConnectionsManagerContext } from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
 import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
 import { createServiceLocator } from 'hadron-app-registry';
@@ -102,9 +102,24 @@ function withConnectionRepository<
 
 export { withConnectionRepository };
 
-export const connectionRepositoryLocator = createServiceLocator(
-  useConnectionRepository.bind(null),
-  'connectionRepositoryLocator'
+export type ConnectionRepositoryAccess = Pick<
+  ConnectionRepository,
+  'getConnectionInfoById'
+>;
+
+export const useConnectionRepositoryAccess = (): ConnectionRepositoryAccess => {
+  const repository = useConnectionRepository();
+  const repositoryRef = useRef(repository);
+  repositoryRef.current = repository;
+  return {
+    getConnectionInfoById(id: ConnectionInfo['id']) {
+      return repositoryRef.current.getConnectionInfoById(id);
+    },
+  };
+};
+export const connectionRepositoryAccessLocator = createServiceLocator(
+  useConnectionRepositoryAccess,
+  'connectionRepositoryAccessLocator'
 );
 
 export type ConnectionRepository = ReturnType<typeof useConnectionRepository>;
