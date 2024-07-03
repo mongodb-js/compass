@@ -156,10 +156,8 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    // this id is always different, because the connection is not a saved one
-    // so we just check it exists for simplicity
     expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id;
+    delete queryExecutedEvent.connection_id; // connection_id varies
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -197,10 +195,8 @@ describe('Collection documents tab', function () {
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
 
-    // this id is always different, because the connection is not a saved one
-    // so we just check it exists for simplicity
     expect(queryExecutedEvent.connection_id).to.exist;
-    delete queryExecutedEvent.connection_id;
+    delete queryExecutedEvent.connection_id; // connection_id varies
 
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,

@@ -386,11 +386,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       errorLogWriteStream?.close();
     }
 
-    console.log(
-      '*** TRACK ***',
-      connectionRepository.getConnectionInfoById(connectionId)
-    );
-
     track(
       'Import Completed',
       {
