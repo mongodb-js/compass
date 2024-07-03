@@ -47,12 +47,20 @@ export function DetailViewComponent() {
   }, []);
 
   const hideOperationDetails = useCallback(() => {
-    track('DetailView hideOperationDetails', {}, connectionInfoAccess.getCurrentConnectionInfo());
+    track(
+      'DetailView hideOperationDetails',
+      {},
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
     Actions.hideOperationDetails();
   }, [track, connectionInfoAccess]);
 
   const onKillOp = useCallback(() => {
-    track('DetailView killOp', {}, connectionInfoAccess.getCurrentConnectionInfo());
+    track(
+      'DetailView killOp',
+      {},
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
     if (data?.opid !== undefined) Actions.killOp(data.opid);
     hideOperationDetails();
   }, [data, track, hideOperationDetails, connectionInfoAccess]);
