@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
@@ -116,7 +116,7 @@ export type ValidationEditorProps = {
   >;
   isEditable: boolean;
   darkMode?: boolean;
-  logger: LoggerAndTelemetry;
+  track: TrackFunction;
 };
 
 /**
@@ -178,7 +178,7 @@ class ValidationEditor extends Component<ValidationEditorProps> {
         typeof checkedValidator.validator === 'object' &&
         !!checkedValidator.validator?.$jsonSchema,
     };
-    this.props.logger.track('Schema Validation Edited', trackEvent);
+    this.props.track('Schema Validation Edited', trackEvent);
   }
 
   /**
@@ -312,7 +312,6 @@ class ValidationEditor extends Component<ValidationEditorProps> {
   }
 }
 
-export default withLoggerAndTelemetry(
-  withDarkMode<ValidationEditorProps>(ValidationEditor),
-  'COMPASS-SCHEMA-VALIDATION-UI'
+export default withTelemetry(
+  withDarkMode<ValidationEditorProps>(ValidationEditor)
 );

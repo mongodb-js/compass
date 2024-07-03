@@ -7,10 +7,10 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { expect } from 'chai';
 
 describe('Shell', function () {
   let compass: Compass;
@@ -20,6 +20,11 @@ describe('Shell', function () {
   before(async function () {
     skipForWeb(this, 'shell not available on compass-web');
 
+    // TODO(COMPASS-8004): best to just port this once the shell works with multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -27,6 +32,10 @@ describe('Shell', function () {
 
   after(async function () {
     if (TEST_COMPASS_WEB) {
+      return;
+    }
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
       return;
     }
 
@@ -57,9 +66,8 @@ describe('Shell', function () {
   it('shows and hides shell based on settings', async function () {
     await browser.connectWithConnectionString();
 
-    let shellSection = await browser.$(Selectors.ShellSection);
-    let isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(true);
+    // Will fail if shell is not on the screen eventually
+    await browser.$(Selectors.ShellSection).waitForExist();
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -72,8 +80,7 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    shellSection = await browser.$(Selectors.ShellSection);
-    isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(false);
+    // Will fail if shell eventually doesn't go away from the screen
+    await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
   });
 });

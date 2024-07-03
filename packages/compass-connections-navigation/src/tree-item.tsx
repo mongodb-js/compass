@@ -1,13 +1,6 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
-import {
-  css,
-  cx,
-  mergeProps,
-  spacing,
-  Icon,
-} from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { css, cx, Icon } from '@mongodb-js/compass-components';
 
 const buttonReset = css({
   padding: 0,
@@ -18,10 +11,6 @@ const buttonReset = css({
 
 const expandButton = css({
   display: 'flex',
-  // Not using leafygreen spacing here because none of them allow to align the
-  // button with the search bar content. This probably can go away when we are
-  // rebuilding the search also
-  padding: 6,
   transition: 'transform .16s linear',
   transform: 'rotate(0deg)',
   '&:hover': {
@@ -53,154 +42,7 @@ export const ExpandButton: React.FunctionComponent<{
       onClick={onClick}
       className={cx(buttonReset, expandButton, isExpanded && expanded)}
     >
-      <Icon glyph="CaretRight" size="small"></Icon>
+      <Icon width={16} height={16} glyph="CaretRight" size="small"></Icon>
     </button>
-  );
-};
-
-const itemContainer = css({
-  cursor: 'pointer',
-  color: 'var(--item-color)',
-  backgroundColor: 'var(--item-bg-color)',
-  backgroundRadius: 'var(--item-bg-radius)',
-
-  '.item-background': {
-    backgroundColor: 'var(--item-bg-color)',
-  },
-
-  '& .item-action-controls': {
-    marginLeft: 'auto',
-  },
-
-  '&:hover .item-background': {
-    display: 'block',
-    backgroundColor: 'var(--item-bg-color-hover)',
-  },
-
-  '&:hover': {
-    backgroundColor: 'var(--item-bg-color-hover)',
-  },
-
-  '& .item-action-controls:hover + .item-background': {
-    display: 'none',
-  },
-
-  svg: {
-    flexShrink: 0,
-  },
-});
-
-const activeItemContainer = css({
-  color: 'var(--item-color-active)',
-  backgroundColor: 'var(--item-bg-color-active)',
-  fontWeight: 'bold',
-
-  '&:hover': {
-    backgroundColor: 'var(--item-bg-color-active)',
-  },
-});
-
-const legacyActiveItemContainer = css({
-  color: 'var(--item-color-active)',
-  backgroundColor: 'var(--item-bg-color-active)',
-  fontWeight: 'bold',
-
-  '&:hover': {
-    backgroundColor: 'var(--item-bg-color-active)',
-  },
-
-  '::before': {
-    zIndex: 1,
-    backgroundColor: 'var(--item-color-active)',
-    content: '""',
-    position: 'absolute',
-    left: '0px',
-    top: '6px',
-    bottom: '6px',
-    width: '4px',
-    borderRadius: '0px 6px 6px 0px',
-  },
-});
-
-const itemWrapper = css({
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-  paddingRight: spacing[100],
-});
-
-const itemBackground = css({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  zIndex: -1,
-});
-
-const itemButtonWrapper = css({
-  display: 'flex',
-  alignItems: 'center',
-  minWidth: 0,
-});
-
-const itemLabel = css({
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-});
-
-export const ItemContainer: React.FunctionComponent<
-  {
-    isActive?: boolean;
-  } & React.HTMLProps<HTMLDivElement>
-> = ({ isActive, children, className, ...props }) => {
-  const isMultipleConnection = usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
-  const extraCSS = [];
-  if (isActive) {
-    if (isMultipleConnection) {
-      extraCSS.push(activeItemContainer);
-    } else {
-      extraCSS.push(legacyActiveItemContainer);
-    }
-  }
-
-  const allProps = mergeProps(props, {
-    className: cx(itemContainer, ...extraCSS, className),
-  });
-
-  return <div {...allProps}>{children}</div>;
-};
-
-export const ItemWrapper: React.FunctionComponent<
-  React.HTMLProps<HTMLDivElement>
-> = ({ className, children }) => {
-  return (
-    <div className={cx(itemWrapper, className)}>
-      {children}
-      <div className={cx('item-background', itemBackground)} />
-    </div>
-  );
-};
-
-export const ItemButtonWrapper: React.FunctionComponent<
-  React.HTMLProps<HTMLDivElement>
-> = ({ className, children, ...rest }) => {
-  return (
-    <div className={cx(itemButtonWrapper, className)} {...rest}>
-      {children}
-    </div>
-  );
-};
-
-export const ItemLabel: React.FunctionComponent<
-  React.HTMLProps<HTMLSpanElement>
-> = ({ children, className, ...props }) => {
-  return (
-    <span className={cx(itemLabel, className)} {...props}>
-      {children}
-    </span>
   );
 };

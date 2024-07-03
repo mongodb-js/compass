@@ -13,7 +13,7 @@ import atlasLoginReducer, {
   atlasServiceSignedOut,
   atlasServiceTokenRefreshFailed,
 } from './atlas-login';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type Public<T> = { [K in keyof T]: T[K] };
@@ -21,13 +21,13 @@ export type Public<T> = { [K in keyof T]: T[K] };
 export type SettingsThunkExtraArgs = {
   preferencesSandbox: Public<PreferencesSandbox>;
   atlasAuthService: AtlasAuthService;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
 };
 
 export type SettingsPluginServices = {
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
   atlasAuthService: AtlasAuthService;

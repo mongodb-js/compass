@@ -14,6 +14,7 @@ import {
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
 import { MockAtlasAiService } from '../../../test/configure-store';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 describe('AIPipelineReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -50,6 +51,7 @@ describe('AIPipelineReducer', function () {
         atlasAiService: atlasAiService as any,
         dataService: mockDataService as any,
         preferences,
+        track: createNoopTrack(),
       }
     );
   }

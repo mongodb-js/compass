@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   type ConnectionStorage,
   useConnectionStorageContext,
@@ -14,9 +14,10 @@ import type {
   CommonImportExportState,
 } from './common';
 import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
-  isExistingFavorite: boolean;
+  isExistingConnection: boolean;
 };
 
 type ImportConnectionsState = CommonImportExportState<ConnectionImportInfo> & {
@@ -34,9 +35,9 @@ async function loadFile(
   {
     filename,
     passphrase,
-    favoriteConnectionIds,
+    existingConnectionIds,
   }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
-    favoriteConnectionIds: string[];
+    existingConnectionIds: string[];
   },
   deserializeConnections: Required<ConnectionStorage>['deserializeConnections']
 ): Promise<Partial<ImportConnectionsState>> {
@@ -55,12 +56,12 @@ async function loadFile(
 
     for (const info of connections) {
       if (info.favorite?.name) {
-        const isExistingFavorite = favoriteConnectionIds.includes(info.id);
+        const isExistingConnection = existingConnectionIds.includes(info.id);
         connectionList.push({
           name: info.favorite.name,
           id: info.id,
-          selected: !isExistingFavorite,
-          isExistingFavorite,
+          selected: !isExistingConnection,
+          isExistingConnection,
         });
       }
     }
@@ -99,7 +100,21 @@ export function useImportConnections({
   onChangeConnectionList: (connectionInfos: ConnectionShortInfo[]) => void;
   state: ImportConnectionsState;
 } {
-  const { favoriteConnections } = useConnectionRepository();
+  const multipleConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+  const { favoriteConnections, nonFavoriteConnections } =
+    useConnectionRepository();
+  const existingConnections = useMemo(() => {
+    // in case of multiple connections all the connections are saved (that used
+    // to be favorites in the single connection world) so we need to account for
+    // all the saved connections
+    if (multipleConnectionsEnabled) {
+      return [...favoriteConnections, ...nonFavoriteConnections];
+    } else {
+      return favoriteConnections;
+    }
+  }, [multipleConnectionsEnabled, favoriteConnections, nonFavoriteConnections]);
   const connectionStorage = useConnectionStorageContext();
   const importConnectionsImpl =
     connectionStorage.importConnections?.bind(connectionStorage);
@@ -115,18 +130,18 @@ export function useImportConnections({
   useEffect(() => setState(INITIAL_STATE), [open]);
   const { passphrase, filename, fileContents, connectionList } = state;
 
-  const favoriteConnectionIds = favoriteConnections.map(({ id }) => id);
+  const existingConnectionIds = existingConnections.map(({ id }) => id);
   useEffect(() => {
-    // If `favoriteConnections` changes, update the list of connections
-    // that are displayed in our table.
+    // If `existingConnections` changes, update the list of connections that are
+    // displayed in our table.
     setState((prevState) => ({
       ...prevState,
       connectionList: state.connectionList.map((conn) => ({
         ...conn,
-        isExistingFavorite: favoriteConnectionIds.includes(conn.id),
+        isExistingConnection: existingConnectionIds.includes(conn.id),
       })),
     }));
-  }, [favoriteConnectionIds.join(',')]);
+  }, [existingConnectionIds.join(',')]);
 
   const { onChangeConnectionList, onChangePassphrase, onCancel } =
     useImportExportConnectionsCommon(setState, finish);
@@ -166,7 +181,7 @@ export function useImportConnections({
     timer = setTimeout(() => {
       timer = undefined;
       void loadFile(
-        { filename, passphrase, favoriteConnectionIds },
+        { filename, passphrase, existingConnectionIds },
         deserializeConnectionsImpl
       ).then((stateUpdate) => {
         setState((prevState) => {
@@ -184,7 +199,7 @@ export function useImportConnections({
     return () => {
       if (timer !== undefined) clearTimeout(timer);
     };
-  }, [filename, passphrase, favoriteConnectionIds.join(',')]);
+  }, [filename, passphrase, existingConnectionIds.join(',')]);
 
   const onChangeFilename = useCallback((filename: string) => {
     setState((prevState) => ({

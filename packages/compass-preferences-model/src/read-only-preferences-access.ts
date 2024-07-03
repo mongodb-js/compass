@@ -1,4 +1,4 @@
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { Preferences, type PreferencesAccess } from './preferences';
 import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
@@ -8,7 +8,7 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
   private _preferences: Preferences;
   constructor(preferencesOverrides?: Partial<AllPreferences>) {
     this._preferences = new Preferences({
-      logger: createNoopLoggerAndTelemetry(),
+      logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
     });
   }

@@ -36,6 +36,8 @@ export type ConnectedConnection = {
   isDataLake: boolean;
   isWritable: boolean;
   isPerformanceTabSupported: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   databasesStatus: DatabaseOrCollectionStatus;
   databasesLength: number;
   databases: Database[];
@@ -80,8 +82,10 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   connectionInfo: ConnectionInfo;
   connectionStatus: ConnectionStatus.Connected;
   isPerformanceTabSupported: boolean;
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
   isShellEnabled: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export type DatabaseTreeItem = VirtualTreeItem & {
@@ -91,7 +95,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   isExpanded: boolean;
   connectionId: string;
   dbName: string;
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -101,7 +105,7 @@ export type CollectionTreeItem = VirtualTreeItem & {
   colorCode?: string;
   connectionId: string;
   namespace: string;
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
 };
 
 export type SidebarActionableItem =
@@ -129,9 +133,10 @@ const notConnectedConnectionToItems = ({
       type: 'connection' as const,
       setSize: connectionsLength,
       posInSet: connectionIndex + 1,
+      colorCode: connectionInfo.favorite?.color,
       connectionInfo,
       connectionStatus,
-      isExpandable: false,
+      isExpandable: true,
     },
   ];
 };
@@ -147,6 +152,8 @@ const connectedConnectionToItems = ({
     isPerformanceTabSupported,
     isDataLake,
     isWritable,
+    isGenuineMongoDB,
+    csfleMode,
   },
   connectionIndex,
   connectionsLength,
@@ -161,7 +168,7 @@ const connectedConnectionToItems = ({
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
-  const hasWriteActionsEnabled =
+  const hasWriteActionsDisabled =
     preferencesReadOnly || isDataLake || !isWritable;
   const isShellEnabled = !preferencesReadOnly && isWritable;
   const connectionTI: ConnectedConnectionTreeItem = {
@@ -177,8 +184,10 @@ const connectedConnectionToItems = ({
     connectionInfo,
     connectionStatus,
     isPerformanceTabSupported,
-    hasWriteActionsEnabled,
+    hasWriteActionsDisabled,
     isShellEnabled,
+    isGenuineMongoDB,
+    csfleMode,
   };
 
   const sidebarData: SidebarTreeItem[] = [connectionTI];
@@ -216,7 +225,7 @@ const connectedConnectionToItems = ({
         colorCode,
         databasesLength,
         databaseIndex,
-        hasWriteActionsEnabled,
+        hasWriteActionsDisabled,
       });
     })
   );
@@ -236,7 +245,7 @@ const databaseToItems = ({
   colorCode,
   databaseIndex,
   databasesLength,
-  hasWriteActionsEnabled,
+  hasWriteActionsDisabled,
 }: {
   database: Database;
   connectionId: string;
@@ -245,7 +254,7 @@ const databaseToItems = ({
   colorCode?: string;
   databaseIndex: number;
   databasesLength: number;
-  hasWriteActionsEnabled: boolean;
+  hasWriteActionsDisabled: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
@@ -260,7 +269,7 @@ const databaseToItems = ({
     connectionId,
     dbName: id,
     isExpandable: true,
-    hasWriteActionsEnabled,
+    hasWriteActionsDisabled,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -298,7 +307,7 @@ const databaseToItems = ({
       colorCode,
       connectionId,
       namespace: id,
-      hasWriteActionsEnabled,
+      hasWriteActionsDisabled,
       isExpandable: false,
     }))
   );
@@ -355,7 +364,7 @@ export function getVirtualTreeItems({
   }
 
   const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
-  const hasWriteActionsEnabled =
+  const hasWriteActionsDisabled =
     preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   return connection.databases.flatMap((database, databaseIndex) => {
     return databaseToItems({
@@ -365,7 +374,7 @@ export function getVirtualTreeItems({
       level: 1,
       databasesLength: connection.databasesLength,
       databaseIndex,
-      hasWriteActionsEnabled,
+      hasWriteActionsDisabled,
     });
   });
 }

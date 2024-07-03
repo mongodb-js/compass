@@ -10,7 +10,10 @@ import {
   Toggle,
   InfoModal,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const toggleStyles = css({
   marginTop: spacing[3],
@@ -27,17 +30,19 @@ const csfleBannerStyles = css({
   marginTop: spacing[3],
 });
 
-export default function CSFLEConnectionModal({
-  csfleMode,
-  open,
-  setOpen,
-  setConnectionIsCSFLEEnabled,
-}: {
-  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
+export type CSFLEConnectionModalProps = {
   open: boolean;
-  setOpen: (isOpen: boolean) => void;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
+  onClose: () => void;
   setConnectionIsCSFLEEnabled: (isEnabled: boolean) => void;
-}) {
+};
+
+export default function CSFLEConnectionModal({
+  open,
+  csfleMode,
+  onClose,
+  setConnectionIsCSFLEEnabled,
+}: CSFLEConnectionModalProps) {
   const onChange = useCallback(
     (checked: boolean) => {
       setConnectionIsCSFLEEnabled(checked);
@@ -45,13 +50,8 @@ export default function CSFLEConnectionModal({
     [setConnectionIsCSFLEEnabled]
   );
 
-  const onClose = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-
   useTrackOnChange(
-    'COMPASS-SIDEBAR-UI',
-    (track) => {
+    (track: TrackFunction) => {
       if (open) {
         track('Screen', { name: 'csfle_connection_modal' });
       }

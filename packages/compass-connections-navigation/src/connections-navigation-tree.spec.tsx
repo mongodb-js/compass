@@ -11,7 +11,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
-import type { ConnectedConnection } from './tree-data';
+import type { ConnectedConnection, Connection } from './tree-data';
 import type {
   AllPreferences,
   PreferencesAccess,
@@ -21,7 +21,7 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-const connections: ConnectedConnection[] = [
+const connections: Connection[] = [
   {
     connectionInfo: {
       id: 'connection_ready',
@@ -78,6 +78,7 @@ const connections: ConnectedConnection[] = [
     isDataLake: false,
     isWritable: true,
     isPerformanceTabSupported: true,
+    isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
   },
   {
@@ -99,7 +100,19 @@ const connections: ConnectedConnection[] = [
     isDataLake: false,
     isWritable: false,
     isPerformanceTabSupported: false,
+    isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
+  },
+  {
+    connectionInfo: {
+      id: 'connection_disconnected',
+      connectionOptions: {
+        connectionString: 'mongodb://connection-disconnected',
+      },
+      savedConnectionType: 'recent',
+    },
+    name: 'connection_disconnected',
+    connectionStatus: ConnectionStatus.Disconnected,
   },
 ];
 
@@ -227,6 +240,92 @@ describe('ConnectionsNavigationTree', function () {
     expect(screen.getAllByTestId('placeholder')).to.have.lengthOf(5);
   });
 
+  describe('connection markers', function () {
+    it('should not render non-genuine marker for the connection item when connection genuine', function () {
+      expect(() => screen.getAllByLabelText('Non-Genuine MongoDB')).to.throw;
+    });
+
+    it('should render non-genuine marker for the connection item when connection is not genuine', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          isGenuineMongoDB: false,
+        },
+        connections[1],
+        connections[2],
+      ];
+      const itemActionSpy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        connections: mockedConnections,
+        onItemAction: itemActionSpy,
+      });
+      expect(screen.getAllByLabelText('Non-Genuine MongoDB')).to.have.lengthOf(
+        1
+      );
+
+      userEvent.click(screen.getByLabelText('Non-Genuine MongoDB'));
+      expect(itemActionSpy).to.be.calledOnce;
+      const [[item, event]] = itemActionSpy.args;
+      expect(item.connectionInfo.id).to.equal(
+        mockedConnections[0].connectionInfo.id
+      );
+      expect(event).to.equal('open-non-genuine-mongodb-modal');
+    });
+
+    it('should render csfle marker for the connection item when csfle is enabled', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'enabled',
+        },
+        connections[1],
+        connections[2],
+      ];
+      const itemActionSpy = Sinon.spy();
+      await renderConnectionsNavigationTree({
+        connections: mockedConnections,
+        onItemAction: itemActionSpy,
+      });
+      expect(screen.getByLabelText('Lock Icon')).to.be.visible;
+      expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
+
+      userEvent.click(screen.getByLabelText('In-Use Encryption'));
+      expect(itemActionSpy).to.be.calledOnce;
+      const [[item, event]] = itemActionSpy.args;
+      expect(item.connectionInfo.id).to.equal(
+        mockedConnections[0].connectionInfo.id
+      );
+      expect(event).to.equal('open-csfle-modal');
+    });
+
+    it('should render csfle marker for the connection item when csfle is disabled', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'disabled',
+        },
+        connections[1],
+        connections[2],
+      ];
+      await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(screen.getByLabelText('Unlock Icon')).to.be.visible;
+      expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
+    });
+
+    it('should not render csfle marker for the connection item when csfle is unavailable', async function () {
+      const mockedConnections = [
+        {
+          ...connections[0],
+          csfleMode: 'unavailable',
+        },
+        connections[1],
+        connections[2],
+      ];
+      await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(() => screen.getAllByLabelText('In-Use Encryption')).to.throw;
+    });
+  });
+
   it('should make current active namespace tabbable', async function () {
     await renderConnectionsNavigationTree({
       expanded: {
@@ -250,6 +349,39 @@ describe('ConnectionsNavigationTree', function () {
       ).to.eq(document.activeElement);
       return true;
     });
+  });
+
+  it('should render the action items for the tabbed navigation item', async function () {
+    await renderConnectionsNavigationTree({
+      expanded: {},
+      activeWorkspace: null,
+    });
+
+    // Tab to the first element
+    userEvent.tab();
+    await waitFor(() => {
+      // Virtual list will be the one to grab the focus first, but will
+      // immediately forward it to the element and mocking raf here breaks
+      // virtual list implementatin, waitFor is to accomodate for that
+      expect(document.querySelector('[data-id="connection_ready"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+    let tabbedItem = screen.getByTestId('connection_ready');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
+
+    // Go down to the second element
+    userEvent.keyboard('{arrowdown}');
+    await waitFor(() => {
+      expect(document.querySelector('[data-id="connection_initial"]')).to.eq(
+        document.activeElement
+      );
+      return true;
+    });
+
+    tabbedItem = screen.getByTestId('connection_initial');
+    expect(within(tabbedItem).getByLabelText('Show actions')).to.be.visible;
   });
 
   describe('when connection is writable', function () {
@@ -366,11 +498,11 @@ describe('ConnectionsNavigationTree', function () {
       ) {
         const readonlyConnections: ConnectedConnection[] = [
           {
-            ...connections[0],
+            ...(connections[0] as ConnectedConnection),
             isWritable: false,
           },
           {
-            ...connections[1],
+            ...(connections[1] as ConnectedConnection),
           },
         ];
         await renderConnectionsNavigationTree({
@@ -388,11 +520,11 @@ describe('ConnectionsNavigationTree', function () {
       ) {
         const readonlyConnections: ConnectedConnection[] = [
           {
-            ...connections[0],
+            ...(connections[0] as ConnectedConnection),
             isDataLake: true,
           },
           {
-            ...connections[1],
+            ...(connections[1] as ConnectedConnection),
           },
         ];
         await renderConnectionsNavigationTree({
@@ -408,7 +540,10 @@ describe('ConnectionsNavigationTree', function () {
           React.ComponentProps<typeof ConnectionsNavigationTree>
         > = {}
       ) {
-        const readonlyConnections: ConnectedConnection[] = [...connections];
+        const readonlyConnections: ConnectedConnection[] = [
+          connections[0] as ConnectedConnection,
+          connections[1] as ConnectedConnection,
+        ];
         await renderConnectionsNavigationTree(
           {
             ...props,
@@ -599,7 +734,10 @@ describe('ConnectionsNavigationTree', function () {
           await renderConnectionsNavigationTree({
             onItemAction: spy,
             connections: [
-              { ...connections[0], isPerformanceTabSupported: false },
+              {
+                ...(connections[0] as ConnectedConnection),
+                isPerformanceTabSupported: false,
+              },
               { ...connections[1] },
             ],
           });

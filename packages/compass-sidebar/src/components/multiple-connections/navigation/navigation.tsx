@@ -13,10 +13,6 @@ import {
 } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 
-const navigationContainer = css({
-  padding: `0px 0px ${spacing[200]}px`,
-});
-
 const navigationItem = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
@@ -43,26 +39,21 @@ const activeNavigationItem = css({
   backgroundColor: 'var(--item-bg-color-active)',
 });
 
-const itemWrapper = css({
-  position: 'relative',
-  display: 'flex',
-  alignItems: 'center',
-  height: spacing[800],
-  gap: spacing[200],
-  zIndex: 1,
-});
-
 const itemButtonWrapper = css({
+  zIndex: 1,
+  minWidth: 0,
   display: 'flex',
   alignItems: 'center',
-  minWidth: 0,
+  justifyContent: 'flex-start',
+  gap: spacing[200],
+  paddingTop: spacing[150],
+  paddingBottom: spacing[150],
 });
 
 const navigationItemLabel = css({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
-  marginLeft: spacing[200],
 });
 
 export function NavigationItem({
@@ -93,11 +84,9 @@ export function NavigationItem({
 
   return (
     <div {...navigationItemProps}>
-      <div className={itemWrapper}>
-        <div className={itemButtonWrapper}>
-          <Icon glyph={glyph} size="small"></Icon>
-          <span className={navigationItemLabel}>{label}</span>
-        </div>
+      <div className={itemButtonWrapper}>
+        <Icon glyph={glyph} size="small"></Icon>
+        <span className={navigationItemLabel}>{label}</span>
       </div>
     </div>
   );
@@ -111,7 +100,7 @@ export function Navigation({
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const { openMyQueriesWorkspace } = useOpenWorkspace();
   return (
-    <div className={navigationContainer}>
+    <div>
       {hasWorkspacePlugin('My Queries') && (
         <NavigationItem
           onClick={openMyQueriesWorkspace}

@@ -18,6 +18,8 @@ import {
 } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
 import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 type UseImportConnectionsProps = Parameters<typeof useImportConnections>[0];
 type UseImportConnectionsResult = ReturnType<typeof useImportConnections>;
@@ -124,7 +126,14 @@ describe('useImportConnections', function () {
 
     expect(deserializeStub).to.have.been.calledOnce;
     expect(result.current.importConnections.state.connectionList).to.deep.equal(
-      [{ id: 'id1', name: 'name1', selected: true, isExistingFavorite: false }]
+      [
+        {
+          id: 'id1',
+          name: 'name1',
+          selected: true,
+          isExistingConnection: false,
+        },
+      ]
     );
   });
 
@@ -239,8 +248,18 @@ describe('useImportConnections', function () {
     );
     expect(result.current.importConnections.state.connectionList).to.deep.equal(
       [
-        { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
-        { id: 'id2', name: 'name2', selected: true, isExistingFavorite: false },
+        {
+          id: 'id1',
+          name: 'name1',
+          selected: false,
+          isExistingConnection: true,
+        },
+        {
+          id: 'id2',
+          name: 'name2',
+          selected: true,
+          isExistingConnection: false,
+        },
       ]
     );
 
@@ -258,8 +277,18 @@ describe('useImportConnections', function () {
     rerender({});
     expect(result.current.importConnections.state.connectionList).to.deep.equal(
       [
-        { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
-        { id: 'id2', name: 'name2', selected: true, isExistingFavorite: true },
+        {
+          id: 'id1',
+          name: 'name1',
+          selected: false,
+          isExistingConnection: true,
+        },
+        {
+          id: 'id2',
+          name: 'name2',
+          selected: true,
+          isExistingConnection: true,
+        },
       ]
     );
   });
@@ -307,5 +336,124 @@ describe('useImportConnections', function () {
     const arg = importConnectionsStub.firstCall.args[0];
     expect(arg?.options?.trackingProps).to.deep.equal({ context: 'Tests' });
     expect(arg?.options?.filterConnectionIds).to.deep.equal(['id2']);
+  });
+
+  context('when multiple connections is enabled', function () {
+    beforeEach(async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      const wrapper: React.FC = ({ children }) =>
+        React.createElement(PreferencesProvider, {
+          value: preferences,
+          children: React.createElement(ConnectionStorageProvider, {
+            value: connectionStorage,
+            children,
+          }),
+        });
+      renderHookResult = renderHook(
+        (props: Partial<UseImportConnectionsProps> = {}) => {
+          return {
+            connectionRepository: useConnectionRepository(),
+            importConnections: useImportConnections({
+              ...defaultProps,
+              ...props,
+            }),
+          };
+        },
+        { wrapper }
+      );
+      ({ result, rerender } = renderHookResult);
+    });
+    it('does not select existing connections (including non-favorites) by default', async function () {
+      sandbox
+        .stub(connectionStorage, 'deserializeConnections')
+        .callsFake(
+          ({ content, options }: { content: string; options: any }) => {
+            expect(content).to.equal(exampleFileContents);
+            expect(options.passphrase).to.equal('');
+            // we're expecting both these non-favorite connections to be taken into
+            // account when performing the diff
+            return Promise.resolve([
+              {
+                id: 'id1',
+                favorite: { name: 'name1' },
+                savedConnectionType: 'recent',
+              },
+              {
+                id: 'id2',
+                favorite: { name: 'name2' },
+                savedConnectionType: 'recent',
+              },
+            ] as ConnectionInfo[]);
+          }
+        );
+
+      await act(async () => {
+        await result.current.connectionRepository.saveConnection({
+          id: 'id1',
+          connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+          favorite: {
+            name: 'name1',
+          },
+          savedConnectionType: 'recent',
+        });
+      });
+
+      rerender({});
+      act(() => {
+        result.current.importConnections.onChangeFilename(exampleFile);
+      });
+
+      await renderHookResult.waitForValueToChange(
+        () => result.current.importConnections.state.connectionList.length
+      );
+      expect(
+        result.current.importConnections.state.connectionList
+      ).to.deep.equal([
+        {
+          id: 'id1',
+          name: 'name1',
+          selected: false,
+          isExistingConnection: true,
+        },
+        {
+          id: 'id2',
+          name: 'name2',
+          selected: true,
+          isExistingConnection: false,
+        },
+      ]);
+
+      await act(async () => {
+        await result.current.connectionRepository.saveConnection({
+          id: 'id2',
+          connectionOptions: { connectionString: 'mongodb://localhost:2020' },
+          favorite: {
+            name: 'name2',
+          },
+          savedConnectionType: 'recent',
+        });
+      });
+
+      rerender({});
+      expect(
+        result.current.importConnections.state.connectionList
+      ).to.deep.equal([
+        {
+          id: 'id1',
+          name: 'name1',
+          selected: false,
+          isExistingConnection: true,
+        },
+        {
+          id: 'id2',
+          name: 'name2',
+          selected: true,
+          isExistingConnection: true,
+        },
+      ]);
+    });
   });
 });

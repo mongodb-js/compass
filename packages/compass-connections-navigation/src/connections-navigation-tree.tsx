@@ -63,6 +63,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
+
   const id = useId();
 
   const treeData = useMemo(() => {
@@ -77,7 +78,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        onItemAction(item, 'select-connection');
+        if (item.connectionStatus === ConnectionStatus.Connected) {
+          onItemAction(item, 'select-connection');
+        } else if (
+          item.connectionStatus === ConnectionStatus.Disconnected ||
+          item.connectionStatus === ConnectionStatus.Failed
+        ) {
+          onItemAction(item, 'connection-connect');
+        }
       } else if (item.type === 'database') {
         onItemAction(item, 'select-database');
       } else {
@@ -101,11 +109,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         return `${activeWorkspace.connectionId}.${activeWorkspace.namespace}`;
       }
       // Database List (of a connection)
-      if (activeWorkspace.type === 'Databases') {
+      if (activeWorkspace.type === 'Databases' && !isSingleConnection) {
         return activeWorkspace.connectionId;
       }
     }
-  }, [activeWorkspace]);
+  }, [activeWorkspace, isSingleConnection]);
 
   const getItemActions = useCallback(
     (item: SidebarTreeItem) => {
@@ -113,13 +121,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'placeholder':
           return [];
         case 'connection': {
-          const isFavorite =
-            item.connectionInfo?.savedConnectionType === 'favorite';
           if (item.connectionStatus === ConnectionStatus.Connected) {
             return connectedConnectionItemActions({
-              hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
-              isFavorite,
+              connectionInfo: item.connectionInfo,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
           } else {
@@ -130,11 +136,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
         case 'database':
           return databaseItemActions({
-            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
           });
         default:
           return collectionItemActions({
-            hasWriteActionsEnabled: item.hasWriteActionsEnabled,
+            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
             type: item.type,
             isRenameCollectionEnabled,
           });
@@ -158,17 +164,29 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             height={height}
             itemHeight={ROW_HEIGHT}
             onDefaultAction={onDefaultAction}
-            onExpandedChange={onItemExpand}
+            onItemAction={onItemAction}
+            onItemExpand={onItemExpand}
+            getItemActions={getItemActions}
             getItemKey={(item) => item.id}
-            renderItem={({ item }) => (
-              <NavigationItem
-                item={item}
-                activeItemId={activeItemId}
-                getItemActions={getItemActions}
-                onItemExpand={onItemExpand}
-                onItemAction={onItemAction}
-              />
-            )}
+            renderItem={({
+              item,
+              isActive,
+              isFocused,
+              onItemAction,
+              onItemExpand,
+              getItemActions,
+            }) => {
+              return (
+                <NavigationItem
+                  item={item}
+                  isActive={isActive}
+                  isFocused={isFocused}
+                  getItemActions={getItemActions}
+                  onItemExpand={onItemExpand}
+                  onItemAction={onItemAction}
+                />
+              );
+            }}
           />
         )}
       </AutoSizer>

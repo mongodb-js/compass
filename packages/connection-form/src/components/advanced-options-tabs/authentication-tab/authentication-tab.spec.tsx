@@ -49,7 +49,7 @@ const authMechanisms: {
     id: 'DEFAULT',
   },
   {
-    title: 'OIDC (Preview)',
+    title: 'OIDC',
     id: 'MONGODB-OIDC',
   },
   {

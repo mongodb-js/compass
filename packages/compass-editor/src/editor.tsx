@@ -246,6 +246,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-gutter-lint .cm-gutterElement': {
         padding: '0',
       },
+      '& .cm-lineNumbers .cm-gutterElement': {
+        userSelect: 'none',
+      },
       '& .cm-gutter-lint .cm-lint-marker': {
         width: `${spacing[3]}px`,
         height: `${spacing[3]}px`,

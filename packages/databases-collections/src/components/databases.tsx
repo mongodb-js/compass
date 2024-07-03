@@ -17,12 +17,20 @@ import {
   dropDatabase,
   refreshDatabases,
 } from '../modules/databases';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
+import toNS from 'mongodb-ns';
+import {
+  LoadSampleDataZeroBanner,
+  LoadSampleDataZeroState,
+} from './load-sample-data';
 
 const errorContainerStyles = css({
-  padding: spacing[3],
+  padding: spacing[400],
 });
 
 const nonGenuineErrorContainerStyles = css({
@@ -81,7 +89,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   onCreateDatabaseClick: _onCreateDatabaseClick,
   onRefreshClick,
 }) => {
-  const { id: connectionId } = useConnectionInfo();
+  const { id: connectionId, atlasMetadata } = useConnectionInfo();
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
 
@@ -103,13 +111,33 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     _onCreateDatabaseClick(connectionId);
   }, [connectionId, _onCreateDatabaseClick]);
 
-  useTrackOnChange(
-    'COMPASS-DATABASES-UI',
-    (track) => {
-      track('Screen', { name: 'databases' });
-    },
-    []
-  );
+  useTrackOnChange((track: TrackFunction) => {
+    track('Screen', { name: 'databases' });
+  }, []);
+
+  const renderLoadSampleDataBanner = useCallback(() => {
+    if (
+      !atlasMetadata ||
+      databases.some((db) => {
+        return !toNS(db.name).specialish;
+      })
+    ) {
+      return null;
+    }
+
+    return (
+      <LoadSampleDataZeroBanner
+        projectId={atlasMetadata.projectId}
+        clusterName={atlasMetadata.clusterName}
+      ></LoadSampleDataZeroBanner>
+    );
+  }, [databases, atlasMetadata]);
+
+  const editable = isWritable && !isPreferencesReadOnly;
+
+  if (databasesLoadingStatus === 'fetching') {
+    return null;
+  }
 
   if (databasesLoadingStatus === 'error') {
     return (
@@ -127,7 +155,17 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     return <NonGenuineZeroState />;
   }
 
-  const editable = isWritable && !isPreferencesReadOnly;
+  if (atlasMetadata && databases.length === 0) {
+    return (
+      <LoadSampleDataZeroState
+        projectId={atlasMetadata.projectId}
+        clusterName={atlasMetadata.clusterName}
+        canCreateDatabase={editable}
+        onCreateDatabase={onCreateDatabaseClick}
+      ></LoadSampleDataZeroState>
+    );
+  }
+
   const actions = Object.assign(
     {
       onDatabaseClick,
@@ -141,7 +179,13 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
       : {}
   );
 
-  return <DatabasesList databases={databases} {...actions} />;
+  return (
+    <DatabasesList
+      databases={databases}
+      renderLoadSampleDataBanner={renderLoadSampleDataBanner}
+      {...actions}
+    />
+  );
 };
 
 const mapStateToProps = (state: DatabasesState) => {

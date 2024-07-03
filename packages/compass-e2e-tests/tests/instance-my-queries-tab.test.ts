@@ -7,10 +7,20 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+
+async function navigateToMyQueries(browser: CompassBrowser) {
+  await browser.clickVisible(Selectors.SidebarMyQueriesTab);
+  await browser
+    .$(Selectors.workspaceTab('My Queries', true))
+    .waitForDisplayed();
+}
 
 async function openMenuForQueryItem(
   browser: CompassBrowser,
@@ -45,6 +55,11 @@ describe('Instance my queries tab', function () {
   before(async function () {
     skipForWeb(this, 'saved queries not yet available in compass-web');
 
+    // TODO(COMPASS-8006): best to only skip this until the My Queries tab is ported
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -54,6 +69,10 @@ describe('Instance my queries tab', function () {
   });
   after(async function () {
     if (TEST_COMPASS_WEB) {
+      return;
+    }
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
       return;
     }
 
@@ -92,8 +111,11 @@ describe('Instance my queries tab', function () {
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
-    await browser.navigateToInstanceTab('Databases');
-    await browser.navigateToInstanceTab('My Queries');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
+    await navigateToMyQueries(browser);
 
     // open the menu
     await openMenuForQueryItem(browser, favoriteQueryName);
@@ -143,7 +165,7 @@ describe('Instance my queries tab', function () {
     // rename the collection associated with the query to force the open item modal
     await browser.shellEval('use test');
     await browser.shellEval('db.numbers.renameCollection("numbers-renamed")');
-    await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
 
     // browse to the query
     await browser.clickVisible(Selectors.myQueriesItem(newFavoriteQueryName));
@@ -151,9 +173,12 @@ describe('Instance my queries tab', function () {
     // the open item modal - select a new collection
     const openModal = await browser.$(Selectors.OpenSavedItemModal);
     await openModal.waitForDisplayed();
-    await browser.selectOption(Selectors.OpenSavedItemDatabaseField, 'test');
     await browser.selectOption(
-      Selectors.OpenSavedItemCollectionField,
+      `${Selectors.OpenSavedItemDatabaseField} button`,
+      'test'
+    );
+    await browser.selectOption(
+      `${Selectors.OpenSavedItemCollectionField} button`,
       'numbers-renamed'
     );
     const confirmOpenButton = await browser.$(
@@ -172,8 +197,11 @@ describe('Instance my queries tab', function () {
 
     // back to my queries
     await browser.closeWorkspaceTabs();
-    await browser.navigateToInstanceTab('Databases');
-    await browser.navigateToInstanceTab('My Queries');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
+    await navigateToMyQueries(browser);
 
     // open the menu
     await openMenuForQueryItem(browser, newFavoriteQueryName);
@@ -235,10 +263,8 @@ describe('Instance my queries tab', function () {
 
     await createButton.click();
 
-    // TODO: open the saved item again
-
     await browser.closeWorkspaceTabs();
-    await browser.navigateToInstanceTab('My Queries');
+    await navigateToMyQueries(browser);
 
     await browser.clickVisible(Selectors.myQueriesItem(savedAggregationName));
     const namespace = await browser.getActiveTabNamespace();
@@ -280,8 +306,11 @@ describe('Instance my queries tab', function () {
         );
 
         await browser.closeWorkspaceTabs();
-        await browser.navigateToInstanceTab('Databases');
-        await browser.navigateToInstanceTab('My Queries');
+        await browser.navigateToConnectionTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          'Databases'
+        );
+        await navigateToMyQueries(browser);
 
         // open the menu
         await openMenuForQueryItem(browser, favoriteQueryName);
@@ -312,12 +341,12 @@ describe('Instance my queries tab', function () {
         await browser.shellEval(
           `db.numbers.renameCollection('${newCollectionName}')`
         );
-        await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
+        await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
       }
       beforeEach(setup);
 
       it('users can permanently associate a new namespace for an aggregation/query', async function () {
-        await browser.navigateToInstanceTab('My Queries');
+        await navigateToMyQueries(browser);
         // browse to the query
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
@@ -325,11 +354,11 @@ describe('Instance my queries tab', function () {
         const openModal = await browser.$(Selectors.OpenSavedItemModal);
         await openModal.waitForDisplayed();
         await browser.selectOption(
-          Selectors.OpenSavedItemDatabaseField,
+          `${Selectors.OpenSavedItemDatabaseField} button`,
           'test'
         );
         await browser.selectOption(
-          Selectors.OpenSavedItemCollectionField,
+          `${Selectors.OpenSavedItemCollectionField} button`,
           newCollectionName
         );
 
@@ -345,7 +374,7 @@ describe('Instance my queries tab', function () {
         await confirmOpenButton.click();
         await openModal.waitForDisplayed({ reverse: true });
 
-        await browser.navigateToInstanceTab('My Queries');
+        await navigateToMyQueries(browser);
 
         const [databaseNameElement, collectionNameElement] = [
           await browser.$('span=test'),

@@ -9,6 +9,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
@@ -296,11 +297,12 @@ describe('Collection import', function () {
     await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
 
     // confirm
-    const insertConfirm = await browser.$(Selectors.InsertConfirm);
     // this selector is very brittle, so just make sure it works
-    expect(await insertConfirm.isDisplayed()).to.be.true;
-    expect(await insertConfirm.getText()).to.equal('Insert');
-    await insertConfirm.waitForEnabled();
+    expect(await browser.$(Selectors.InsertConfirm).isDisplayed()).to.be.true;
+    expect(await browser.$(Selectors.InsertConfirm).getText()).to.equal(
+      'Insert'
+    );
+    await browser.$(Selectors.InsertConfirm).waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
 
     // wait for the modal to go away
@@ -1331,6 +1333,11 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
+      // TODO(COMPASS-8008): same thing as for aborting an export when disconnected
+      if (TEST_MULTIPLE_CONNECTIONS) {
+        this.skip();
+      }
+
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 

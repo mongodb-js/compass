@@ -4,10 +4,11 @@ import type { RootAction, RootState } from '../modules';
 import reducer from '../modules';
 import { changeEnableShell, setupRuntime } from '../modules/runtime';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export default class CompassShellStore {
   reduxStore: Store<RootState, RootAction>;
@@ -21,12 +22,14 @@ export default class CompassShellStore {
 
   onActivated({
     globalAppRegistry,
-    logger: { log, track, debug },
+    logger: { log, debug },
+    track,
     dataService,
     preferences,
   }: {
     globalAppRegistry: AppRegistry;
-    logger: LoggerAndTelemetry;
+    logger: Logger;
+    track: TrackFunction;
     dataService: DataService;
     preferences: PreferencesAccess;
   }): () => void {

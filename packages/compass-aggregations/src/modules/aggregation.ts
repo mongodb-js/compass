@@ -289,7 +289,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, logger: { track }, instance, dataService }
+    { pipelineBuilder, instance, dataService, track }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
@@ -363,7 +363,7 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState, { logger: { track } }) => {
+  return (dispatch, getState, { track }) => {
     track('Aggregation Canceled');
     const {
       aggregation: { abortController },
@@ -387,7 +387,7 @@ const fetchAggregationData = (
   return async (
     dispatch,
     getState,
-    { preferences, logger: { track, log, mongoLogId }, globalAppRegistry }
+    { preferences, logger: { log, mongoLogId }, track, globalAppRegistry }
   ) => {
     const {
       namespace,

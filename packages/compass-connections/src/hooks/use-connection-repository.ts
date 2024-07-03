@@ -23,10 +23,7 @@ export type PartialConnectionInfo = DeepPartial<ConnectionInfo> &
 /**
  * Same as _.isEqual but taking into consideration BSON values.
  */
-export function areConnectionsEqual(
-  listA: ConnectionInfo[],
-  listB: ConnectionInfo[]
-): boolean {
+export function areConnectionsEqual<T>(listA: T[], listB: T[]): boolean {
   return isEqual(
     listA.map((a: any) => BSON.serialize(a)),
     listB.map((b: any) => BSON.serialize(b))
@@ -38,14 +35,15 @@ function ensureWellFormedConnectionString(connectionString: string) {
 }
 
 function sortedAlphabetically(a: ConnectionInfo, b: ConnectionInfo): number {
-  const aName = a.favorite?.name?.toLocaleLowerCase() || '';
-  const bName = b.favorite?.name?.toLocaleLowerCase() || '';
-  return aName.localeCompare(bName);
+  const aTitle = getConnectionTitle(a).toLocaleLowerCase();
+  const bTitle = getConnectionTitle(b).toLocaleLowerCase();
+  return aTitle.localeCompare(bTitle);
 }
 
 export type ConnectionRepository = {
   favoriteConnections: ConnectionInfo[];
   nonFavoriteConnections: ConnectionInfo[];
+  autoConnectInfo?: ConnectionInfo;
   saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
   deleteConnection: (info: ConnectionInfo) => Promise<void>;
   getConnectionInfoById: (
@@ -192,6 +190,7 @@ export function useConnectionRepository(): ConnectionRepository {
     getConnectionTitleById,
     favoriteConnections,
     nonFavoriteConnections,
+    autoConnectInfo,
     saveConnection,
     deleteConnection,
   };
