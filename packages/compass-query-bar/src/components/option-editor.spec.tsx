@@ -181,10 +181,14 @@ describe('OptionEditor', function () {
           value=""
           savedQueries={[
             {
+              _id: '1',
+              _ns: '1',
               filter: { a: 1 },
               _lastExecuted: new Date(),
             },
             {
+              _id: '1',
+              _ns: '1',
               filter: { a: 2 },
               sort: { a: -1 },
               _lastExecuted: new Date(),
