@@ -424,6 +424,7 @@ const saveRecentQuery = (
           existingQuery._id,
           updateAttributes
         );
+        _dispatch(fetchSavedQueries());
         return;
       }
 
