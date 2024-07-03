@@ -238,7 +238,7 @@ export function NavigationItem({
         action: 'open-csfle-modal',
         label: 'In-Use Encryption',
         tooltip: 'Configure In-Use Encryption',
-        icon: 'Key',
+        icon: item.csfleMode === 'enabled' ? 'Lock' : 'Unlock',
         actionButtonClassName: cx(csfleBtnStyles, {
           [csfleBtnStylesDarkMode]: isDarkMode,
         }),

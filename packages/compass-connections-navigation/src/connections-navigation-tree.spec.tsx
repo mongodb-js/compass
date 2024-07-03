@@ -286,6 +286,7 @@ describe('ConnectionsNavigationTree', function () {
         connections: mockedConnections,
         onItemAction: itemActionSpy,
       });
+      expect(screen.getByLabelText('Lock Icon')).to.be.visible;
       expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
 
       userEvent.click(screen.getByLabelText('In-Use Encryption'));
@@ -307,6 +308,7 @@ describe('ConnectionsNavigationTree', function () {
         connections[2],
       ];
       await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(screen.getByLabelText('Unlock Icon')).to.be.visible;
       expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
     });
 
