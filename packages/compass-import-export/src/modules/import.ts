@@ -217,9 +217,6 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       },
     } = getState();
 
-    const connectionInfo =
-      connectionRepository.getConnectionInfoById(connectionId);
-
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
     const fields: Record<string, CSVParsableFieldType> = {};
@@ -369,7 +366,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           aborted: abortSignal.aborted,
           ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
         },
-        connectionInfo
+        connectionRepository.getConnectionInfoById(connectionId)
       );
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
@@ -389,6 +386,11 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       errorLogWriteStream?.close();
     }
 
+    console.log(
+      '*** TRACK ***',
+      connectionRepository.getConnectionInfoById(connectionId)
+    );
+
     track(
       'Import Completed',
       {
@@ -403,7 +405,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
         aborted: result.aborted,
         ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
       },
-      connectionInfo
+      connectionRepository.getConnectionInfoById(connectionId)
     );
 
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
@@ -420,7 +422,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
               {
                 errorCount: errors.length,
               },
-              connectionInfo
+              connectionRepository.getConnectionInfoById(connectionId)
             );
             void openFile(errorLogFilePath);
           }

@@ -8,7 +8,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type {
-  ConnectionRepository,
+  ConnectionRepositoryAccess,
   ConnectionsManager,
 } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
@@ -17,7 +17,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 type CreateViewServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
-  connectionRepository: ConnectionRepository;
+  connectionRepository: ConnectionRepositoryAccess;
   logger: Logger;
   track: TrackFunction;
   workspaces: WorkspacesService;

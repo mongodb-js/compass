@@ -91,7 +91,8 @@ export {
   useConnectionRepository,
   withConnectionRepository,
   areConnectionsEqual,
-  connectionRepositoryLocator,
+  connectionRepositoryAccessLocator,
+  type ConnectionRepositoryAccess,
 } from './components/connections-provider';
 export * from './connection-info-provider';
 
