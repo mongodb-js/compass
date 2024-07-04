@@ -404,8 +404,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     (item: SidebarItem, isExpanded: boolean) => {
       if (item.type === 'connection') {
         if (item.connectionStatus === 'disconnected') {
-          // user is trying to expand an inactive connection -> we connect
-          // after it's connected, it'll be expanded by default
+          // we expand an inactive connection by connecting
           onConnectionItemAction(item, 'connection-connect');
         } else {
           onConnectionToggle(item.connectionInfo.id, isExpanded);
