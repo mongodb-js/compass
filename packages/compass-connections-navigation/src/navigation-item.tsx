@@ -261,7 +261,11 @@ export function NavigationItem({
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}
-          canExpand={item.isExpandable}
+          isExpandVisible={item.isExpandable}
+          isExpandDisabled={
+            item.type === 'connection' &&
+            item.connectionStatus === 'disconnected'
+          }
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);
           }}
