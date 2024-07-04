@@ -13,7 +13,8 @@ import { type NavigationItemActions } from './item-actions';
 type NavigationBaseItemProps = {
   name: string;
   isActive: boolean;
-  canExpand: boolean;
+  isExpandVisible: boolean;
+  isExpandDisabled: boolean;
   isExpanded: boolean;
   isFocused: boolean;
   icon: React.ReactNode;
@@ -91,7 +92,8 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
   style,
   icon,
   dataAttributes,
-  canExpand,
+  isExpandVisible,
+  isExpandDisabled,
   isExpanded,
   isFocused,
   onExpand,
@@ -106,9 +108,10 @@ export const NavigationBaseItem: React.FC<NavigationBaseItemProps> = ({
       {...dataAttributes}
     >
       <div className={cx('item-wrapper', itemWrapperStyles)} style={style}>
-        {canExpand && (
+        {isExpandVisible && (
           <ExpandButton
             onClick={(evt) => {
+              if (isExpandDisabled) return;
               evt.stopPropagation();
               onExpand(!isExpanded);
             }}

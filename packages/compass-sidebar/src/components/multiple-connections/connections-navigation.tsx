@@ -403,17 +403,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   const onItemExpand = useCallback(
     (item: SidebarItem, isExpanded: boolean) => {
       if (item.type === 'connection') {
-        if (item.connectionStatus === 'disconnected') {
-          // we expand an inactive connection by connecting
-          onConnectionItemAction(item, 'connection-connect');
-        } else {
-          onConnectionToggle(item.connectionInfo.id, isExpanded);
-        }
+        onConnectionToggle(item.connectionInfo.id, isExpanded);
       } else if (item.type === 'database') {
         onDatabaseToggle(item.connectionId, item.dbName, isExpanded);
       }
     },
-    [onConnectionToggle, onDatabaseToggle, onConnectionItemAction]
+    [onConnectionToggle, onDatabaseToggle]
   );
 
   const onConnectionListTitleAction = useCallback(
