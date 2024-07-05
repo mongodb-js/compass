@@ -161,25 +161,20 @@ interface ActiveAndInactiveConnectionsCount {
   inactive: number;
 }
 
-function getActiveAndInactiveCount(
-  connectionsManager: ConnectionsManager,
-  favoriteConnections: ConnectionInfo[],
-  recentConnections: ConnectionInfo[]
-): ActiveAndInactiveConnectionsCount {
-  const total = favoriteConnections.length + recentConnections.length;
-  const active = connectionsManager.getConnectionsByStatus().connected.length;
-  return { active, inactive: total - active };
-}
-
 export function useConnections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
+  onDisconnected,
   __TEST_INITIAL_CONNECTION_INFO,
 }: {
   onConnected?: (
     connectionInfo: ConnectionInfo,
     dataService: DataService,
+    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
+  ) => void;
+  onDisconnected?: (
+    connectionInfo: ConnectionInfo | undefined,
     activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
   ) => void;
   onConnectionFailed?: (
@@ -227,6 +222,22 @@ export function useConnections({
     defaultConnectionsState(__TEST_INITIAL_CONNECTION_INFO)
   );
   const { activeConnectionId } = state;
+
+  const getActiveAndInactiveCount = useCallback(() => {
+    const total = favoriteConnections.length + recentConnections.length;
+    const active =
+      connectionsManager.getConnectionsByStatus().connected?.length || 0;
+    return { active, inactive: total - active };
+  }, [favoriteConnections, recentConnections, connectionsManager]);
+
+  const findConnectionInfo = useCallback(
+    (connectionId: ConnectionInfo['id']) => {
+      return [...favoriteConnections, ...recentConnections].find(
+        ({ id }) => id === connectionId
+      );
+    },
+    [favoriteConnections, recentConnections]
+  );
 
   const saveConnectionInfo = useCallback(
     async (
@@ -314,15 +325,7 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        onConnected?.(
-          connectionInfo,
-          dataService,
-          getActiveAndInactiveCount(
-            connectionsManager,
-            favoriteConnections,
-            recentConnections
-          )
-        );
+        onConnected?.(connectionInfo, dataService, getActiveAndInactiveCount());
         if (!shouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
@@ -348,9 +351,7 @@ export function useConnections({
       onConnected,
       persistOIDCTokens,
       saveConnectionInfo,
-      connectionsManager,
-      favoriteConnections,
-      recentConnections,
+      getActiveAndInactiveCount,
     ]
   );
 
@@ -374,7 +375,13 @@ export function useConnections({
     );
     try {
       await connectionsManager.closeConnection(connectionId);
+      console.log('DISCONNECT');
+      onDisconnected?.(
+        findConnectionInfo(connectionId),
+        getActiveAndInactiveCount()
+      );
     } catch (error) {
+      console.log({ error });
       log.error(
         mongoLogId(1_001_000_314),
         'Connection UI',
@@ -539,9 +546,7 @@ export function useConnections({
       }
     },
     setActiveConnectionById(newConnectionId: string) {
-      const connection = [...favoriteConnections, ...recentConnections].find(
-        (connection) => connection.id === newConnectionId
-      );
+      const connection = findConnectionInfo(newConnectionId);
       if (connection) {
         dispatch({
           type: 'set-active-connection',

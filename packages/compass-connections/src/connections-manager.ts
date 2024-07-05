@@ -157,7 +157,9 @@ export class ConnectionsManager extends EventEmitter {
     );
   }
 
-  getConnectionsByStatus(): Record<ConnectionStatus, ConnectionInfoId[]> {
+  getConnectionsByStatus(): Partial<
+    Record<ConnectionStatus, ConnectionInfoId[]>
+  > {
     return [...this.connectionStatuses.entries()].reduce(
       (record, [connectionId, status]) => {
         if (!record[status]) record[status] = [];

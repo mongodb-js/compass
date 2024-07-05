@@ -204,6 +204,30 @@ export function trackNewConnectionEvent(
   }
 }
 
+export function trackConnectionDisconnectedEvent(
+  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | undefined,
+  { debug }: Logger,
+  track: TrackFunction,
+  { active, inactive }: { active: number; inactive: number }
+): void {
+  try {
+    const callback = async () => {
+      const connectionData = connectionInfo
+        ? await getConnectionData(connectionInfo)
+        : {};
+      const trackEvent = {
+        ...connectionData,
+        active_connections_count: active,
+        inactive_connections_count: inactive,
+      };
+      return trackEvent;
+    };
+    track('Connection Disconnected', callback);
+  } catch (error) {
+    debug('trackConnectionDisconnectedEvent failed', error);
+  }
+}
+
 export function trackConnectionFailedEvent(
   connectionInfo: ConnectionInfo | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
