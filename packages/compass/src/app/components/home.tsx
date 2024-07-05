@@ -198,8 +198,18 @@ function Home({
   });
 
   const onConnected = useCallback(
-    (connectionInfo: ConnectionInfo, dataService: DataService) => {
-      trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    (
+      connectionInfo: ConnectionInfo,
+      dataService: DataService,
+      activeAndInactiveConnectionsCount: { active: number; inactive: number }
+    ) => {
+      trackNewConnectionEvent(
+        connectionInfo,
+        dataService,
+        logger,
+        track,
+        activeAndInactiveConnectionsCount
+      );
       dispatch({ type: 'connected', connectionInfo: connectionInfo });
     },
     [logger, track]

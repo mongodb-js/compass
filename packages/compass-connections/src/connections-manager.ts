@@ -157,6 +157,17 @@ export class ConnectionsManager extends EventEmitter {
     );
   }
 
+  getConnectionsByStatus(): Record<ConnectionStatus, ConnectionInfoId[]> {
+    return [...this.connectionStatuses.entries()].reduce(
+      (record, [connectionId, status]) => {
+        if (!record[status]) record[status] = [];
+        record[status].push(connectionId);
+        return record;
+      },
+      {} as Record<ConnectionStatus, ConnectionInfoId[]>
+    );
+  }
+
   cancelAllConnectionAttempts(): void {
     for (const connectionInfoId of this.connectionAttempts.keys()) {
       this.cancelConnectionAttempt(connectionInfoId);
