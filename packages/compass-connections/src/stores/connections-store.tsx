@@ -3,6 +3,7 @@ import type { DataService, connect } from 'mongodb-data-service';
 import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
+  type ConnectionsManager,
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
@@ -155,6 +156,21 @@ export function connectionsReducer(state: State, action: Action): State {
   }
 }
 
+interface ActiveAndInactiveConnectionsCount {
+  active: number;
+  inactive: number;
+}
+
+function getActiveAndInactiveCount(
+  connectionsManager: ConnectionsManager,
+  favoriteConnections: ConnectionInfo[],
+  recentConnections: ConnectionInfo[]
+): ActiveAndInactiveConnectionsCount {
+  const total = favoriteConnections.length + recentConnections.length;
+  const active = connectionsManager.getConnectionsByStatus().connected.length;
+  return { active, inactive: total - active };
+}
+
 export function useConnections({
   onConnected,
   onConnectionFailed,
@@ -163,7 +179,8 @@ export function useConnections({
 }: {
   onConnected?: (
     connectionInfo: ConnectionInfo,
-    dataService: DataService
+    dataService: DataService,
+    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
   ) => void;
   onConnectionFailed?: (
     connectionInfo: ConnectionInfo | null,
@@ -297,7 +314,15 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        onConnected?.(connectionInfo, dataService);
+        onConnected?.(
+          connectionInfo,
+          dataService,
+          getActiveAndInactiveCount(
+            connectionsManager,
+            favoriteConnections,
+            recentConnections
+          )
+        );
         if (!shouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
@@ -319,7 +344,14 @@ export function useConnections({
         );
       }
     },
-    [onConnected, persistOIDCTokens, saveConnectionInfo]
+    [
+      onConnected,
+      persistOIDCTokens,
+      saveConnectionInfo,
+      connectionsManager,
+      favoriteConnections,
+      recentConnections,
+    ]
   );
 
   useEffect(() => {
