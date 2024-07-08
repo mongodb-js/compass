@@ -69,7 +69,7 @@ function CreateIndexModal({
         );
       }
     },
-    [isVisible],
+    [isVisible, connectionInfoAccess],
     undefined
   );
 

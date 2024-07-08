@@ -30,6 +30,9 @@ const tsOverrides = {
 const tsxRules = {
   ...common.tsxRules,
   ...extraTsRules,
+  "react-hooks/exhaustive-deps": ["warn", {
+    "additionalHooks": "useTrackOnChange"
+  }]
 };
 
 const tsxOverrides = {

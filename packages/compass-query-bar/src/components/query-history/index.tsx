@@ -52,7 +52,7 @@ const QueryHistory = ({
         track('Query History Recent', {}, connectionInfo);
       }
     },
-    [tab],
+    [tab, connectionInfoAccess],
     undefined
   );
 

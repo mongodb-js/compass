@@ -112,9 +112,12 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     _onCreateDatabaseClick(connectionId);
   }, [connectionId, _onCreateDatabaseClick]);
 
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'databases' }, connectionInfo);
-  }, []);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track('Screen', { name: 'databases' }, connectionInfo);
+    },
+    [connectionInfo]
+  );
 
   const renderLoadSampleDataBanner = useCallback(() => {
     if (
