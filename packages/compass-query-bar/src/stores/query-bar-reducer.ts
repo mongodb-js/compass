@@ -394,7 +394,7 @@ const saveRecentQuery = (
   query: Omit<BaseQuery, 'maxTimeMS'>
 ): QueryBarThunkAction<Promise<void>> => {
   return async (
-    _dispatch,
+    dispatch,
     getState,
     { recentQueryStorage, logger: { debug } }
   ) => {
@@ -424,7 +424,7 @@ const saveRecentQuery = (
           existingQuery._id,
           updateAttributes
         );
-        _dispatch(fetchSavedQueries());
+        dispatch(fetchSavedQueries());
         return;
       }
 
@@ -433,7 +433,7 @@ const saveRecentQuery = (
         _ns: namespace,
         _host: host ?? '',
       });
-      _dispatch(fetchSavedQueries());
+      dispatch(fetchSavedQueries());
     } catch (e) {
       debug('Failed to save recent query', e);
     }

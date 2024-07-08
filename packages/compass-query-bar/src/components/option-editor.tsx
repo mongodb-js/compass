@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
@@ -20,10 +20,7 @@ import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import type { RecentQuery } from '@mongodb-js/my-queries-storage';
-import {
-  applyFromHistory,
-  fetchSavedQueries,
-} from '../stores/query-bar-reducer';
+import { applyFromHistory } from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
 import type { BaseQuery } from '../constants/query-properties';
 
@@ -103,7 +100,6 @@ type OptionEditorProps = {
   disabled?: boolean;
   savedQueries: RecentQuery[];
   onApplyQuery: (query: BaseQuery) => void;
-  loadSavedQueries: () => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -122,12 +118,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   disabled = false,
   savedQueries,
   onApplyQuery,
-  loadSavedQueries,
 }) => {
-  useEffect(() => {
-    loadSavedQueries();
-  }, [loadSavedQueries]);
-
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -251,7 +242,6 @@ const ConnectedOptionEditor = (state: RootState) => ({
 
 const mapDispatchToProps = {
   onApplyQuery: applyFromHistory,
-  loadSavedQueries: fetchSavedQueries,
 };
 
 export default connect(ConnectedOptionEditor, mapDispatchToProps)(OptionEditor);
