@@ -58,9 +58,12 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   const { id: connectionId } = connectionInfo;
   const { openCollectionWorkspace } = useOpenWorkspace();
 
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'collections' }, connectionInfo);
-  }, []);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track('Screen', { name: 'collections' }, connectionInfo);
+    },
+    [connectionInfo]
+  );
 
   const onCollectionClick = useCallback(
     (ns: string) => {

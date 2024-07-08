@@ -121,13 +121,16 @@ function PerformanceComponent() {
   const eventDispatcher = useRef(realTimeDispatcher());
   const connectionInfoAccess = useConnectionInfoAccess();
 
-  useTrackOnChange((track: TrackFunction) => {
-    track(
-      'Screen',
-      { name: 'performance' },
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
-  }, []);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track(
+        'Screen',
+        { name: 'performance' },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
+    },
+    [connectionInfoAccess]
+  );
 
   useEffect(() => {
     return () => {

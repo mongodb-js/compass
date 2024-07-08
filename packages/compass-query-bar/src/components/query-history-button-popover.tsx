@@ -54,7 +54,7 @@ const QueryHistoryButtonPopover = ({
         track('Query History Closed', {}, connectionInfo);
       }
     },
-    [isOpen],
+    [isOpen, connectionInfoAccess],
     undefined
   );
 

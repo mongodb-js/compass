@@ -95,11 +95,14 @@ export const changePipelineMode = (
       pipelineBuilder
     ).length;
 
-    track('Editor Type Changed', {
-      num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(getState()),
-      connectionInfoAccess,
-    });
+    track(
+      'Editor Type Changed',
+      {
+        num_stages,
+        editor_view_type: mapPipelineModeToEditorViewType(getState()),
+      },
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
 
     dispatch(updatePipelinePreview());
   };

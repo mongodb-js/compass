@@ -229,7 +229,7 @@ describe('connectMongoClient', function () {
         asyncHook.disable();
       });
 
-      it.skip('should close ssh tunnel if the connection fails', async function () {
+      it('should close ssh tunnel if the connection fails', async function () {
         const connectionOptions: ConnectionOptions = {
           connectionString:
             'mongodb://localhost:27020?serverSelectionTimeoutMS=100',

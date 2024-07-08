@@ -205,7 +205,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         }
       }
     },
-    [isModalOpen, mode],
+    [isModalOpen, mode, connectionInfoAccess],
     undefined
   );
 
