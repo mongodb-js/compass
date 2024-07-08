@@ -25,7 +25,6 @@ import type {
   SignalPopover,
 } from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
-import type { ItemType } from './use-create';
 import type { ViewType } from './use-view-type';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -162,7 +161,7 @@ export type DataProp = {
 
 export type NamespaceItemCardProps = {
   id: string;
-  type: ItemType;
+  type: 'database' | 'collection';
   viewType: ViewType;
   name: string;
   status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';

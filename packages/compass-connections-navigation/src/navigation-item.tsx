@@ -238,7 +238,7 @@ export function NavigationItem({
         action: 'open-csfle-modal',
         label: 'In-Use Encryption',
         tooltip: 'Configure In-Use Encryption',
-        icon: 'Key',
+        icon: item.csfleMode === 'enabled' ? 'Lock' : 'Unlock',
         actionButtonClassName: cx(csfleBtnStyles, {
           [csfleBtnStylesDarkMode]: isDarkMode,
         }),
@@ -261,7 +261,11 @@ export function NavigationItem({
           name={item.name}
           style={style}
           dataAttributes={itemDataProps}
-          canExpand={item.isExpandable}
+          isExpandVisible={item.isExpandable}
+          isExpandDisabled={
+            item.type === 'connection' &&
+            item.connectionStatus === 'disconnected'
+          }
           onExpand={(isExpanded: boolean) => {
             onItemExpand(item, isExpanded);
           }}
