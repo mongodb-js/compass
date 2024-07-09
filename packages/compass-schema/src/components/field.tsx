@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Subtitle,
   Icon,
@@ -10,7 +10,7 @@ import {
   SignalPopover,
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
-import { find } from 'lodash';
+import { debounce, find } from 'lodash';
 import { withPreferences } from 'compass-preferences-model/provider';
 import type {
   ArraySchemaType,
@@ -208,6 +208,22 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
       : undefined;
   });
 
+  // In some cases charts can call the change callback too often (for examlpe
+  // when selecting from a very tightly rendered list of timeline items, like
+  // ObjectIds), to avoid application hanging trying to process them all
+  // syncronously and sequentially causing non-stop re-renders, we're debouncing
+  // change call a bit and only applying the last selected change to the actual
+  // query bar
+  const debouncedChangeQuery = useMemo(() => {
+    return debounce(changeQuery, 100);
+  }, [changeQuery]);
+
+  useEffect(() => {
+    return () => {
+      debouncedChangeQuery.cancel();
+    };
+  }, [debouncedChangeQuery]);
+
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
   const nestedDocType = useMemo(() => getNestedDocType(types), [types]);
 
@@ -293,7 +309,7 @@ function Field({ actions, name, path, types, enableMaps }: FieldProps) {
               type={activeType}
               nestedDocType={nestedDocType}
               actions={actions}
-              onQueryChanged={changeQuery}
+              onQueryChanged={debouncedChangeQuery}
             />
           </div>
         </div>

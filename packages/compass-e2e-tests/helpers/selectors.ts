@@ -235,7 +235,14 @@ export const Single = {
   DuplicateConnectionItem: `[data-testid="connection-menu-duplicate-connection-action"]`,
   RemoveConnectionItem: `[data-testid="connection-menu-remove-connection-action"]`,
   RecentConnections: '[data-testid="recent-connection"]',
-
+  CreateDatabaseButton:
+    '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]',
+  // for single connections refresh is a button next to add, not a menu item
+  RefreshDatabasesButton:
+    '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]',
+  ShowTitleActionsButton: '[data-testid="sidebar-title-actions-show-actions"]',
+  ClusterInfoItem:
+    '[data-testid="sidebar-title-actions-open-connection-info-action"]',
   ConnectionsMenuButton: `[data-testid="favorite-connections-list-header"] button[title="Show actions"]`,
   ConnectionsMenu: '[data-testid="favorites-menu"]',
   ExportConnectionsModalOpen:
@@ -249,8 +256,7 @@ export const Multiple = {
   ConnectionsTitle: '[data-testid="sidebar-header"]',
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
-
-  CreateDatabaseItem:
+  CreateDatabaseButton:
     '[data-testid="sidebar-navigation-item-actions-create-database-action"]',
   OpenShellItem:
     '[data-testid="sidebar-navigation-item-actions-open-shell-action"]',
@@ -260,7 +266,6 @@ export const Multiple = {
     '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]',
   DisconnectConnectionItem:
     '[data-testid="sidebar-navigation-item-actions-connection-disconnect-action"]',
-
   EditConnectionItem:
     '[data-testid="sidebar-navigation-item-actions-edit-connection-action"]',
   CopyConnectionStringItem:
@@ -270,6 +275,11 @@ export const Multiple = {
   DuplicateConnectionItem: `[data-testid="sidebar-navigation-item-actions-duplicate-connection-action"]`,
   RemoveConnectionItem: `[data-testid="sidebar-navigation-item-actions-remove-connection-action"]`,
 
+  // for multiple connections refresh is a menu item, not a button next to add database
+  RefreshDatabasesItem:
+    '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]',
+  ClusterInfoItem:
+    '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]',
   ConnectionsMenuButton:
     '[data-testid="connections-list-title-actions-show-actions"]',
   ConnectionsMenu: '[data-testid="connections-list-title-actions"]',
@@ -299,28 +309,16 @@ export const SidebarNavigationTree = '[data-testid="sidebar-navigation-tree"]';
 export const SidebarTreeItems = `${SidebarNavigationTree} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
-export const SidebarShowActions =
-  '[data-testid="sidebar-title-actions-show-actions"]';
-export const SidebarActionClusterInfo =
-  '[data-testid="sidebar-title-actions-open-connection-info-action"]';
-export const SidebarCreateDatabaseButton =
-  '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
-export const SidebarRefreshDatabasesButton =
-  '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
 export const SidebarNavigationItemShowActionsButton =
   '[data-testid="sidebar-navigation-item-actions-show-actions"]';
-export const DropDatabaseButton = '[data-action="drop-database"]';
-export const CreateCollectionButton = '[data-action="create-collection"]';
 export const RenameCollectionButton =
   '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
+export const DropDatabaseButton = '[data-action="drop-database"]';
+export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
+
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
-export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
-export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
-export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
-export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
-export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `${Sidebar} [data-database-name="${dbName}"]`;
@@ -357,6 +355,15 @@ export const sidebarFavorite = (favoriteName: string): string => {
   // single connection only
   return `${Single.FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
+
+// CSFLE modal
+export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
+export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
+export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
+
+// Connection Info modal
+export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
+export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 // Favorite modal
 export const FavoriteModal = '[data-testid="favorite-modal"]';
@@ -461,9 +468,9 @@ export const ShellOutput = '[data-testid="shell-output"]';
 // Instance screen
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
-  '[data-testid="database-grid"] [data-testid="create-controls"] button';
+  '[data-testid="create-controls"] button';
 export const InstanceRefreshDatabaseButton =
-  '[data-testid="database-grid"] [data-testid="refresh-controls"] button';
+  '[data-testid="refresh-controls"] button';
 export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
@@ -484,9 +491,9 @@ export const databaseCardClickable = (dbName: string): string => {
 // Database screen
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
-  '[data-testid="collection-grid"] [data-testid="create-controls"] button';
+  '[data-testid="create-controls"] button';
 export const DatabaseRefreshCollectionButton =
-  '[data-testid="collection-grid"] [data-testid="refresh-controls"] button';
+  '[data-testid="refresh-controls"] button';
 export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
@@ -1184,7 +1191,7 @@ export const workspaceTab = (
       : `[data-namespace="${title}"]`;
   return `${WorkspaceTab}${_title}${_active}`;
 };
-export const instanceWorkspaceTab = (
+export const connectionWorkspaceTab = (
   tabName: 'Performance' | 'Databases',
   active: boolean | null = null
 ) => {

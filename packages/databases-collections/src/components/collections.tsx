@@ -17,7 +17,6 @@ import type Collection from 'mongodb-collection-model';
 import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
   useTrackOnChange,
@@ -55,12 +54,8 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   const isEditable = useMemo(() => {
     return isCompassInWritableMode && isInstanceWritable;
   }, [isCompassInWritableMode, isInstanceWritable]);
-  const connectionInfo = useConnectionInfo();
-  const { id: connectionId } = connectionInfo;
-  const { openDatabasesWorkspace, openCollectionWorkspace } =
-    useOpenWorkspace();
-
-  const parsedNS = toNS(namespace);
+  const { id: connectionId } = useConnectionInfo();
+  const { openCollectionWorkspace } = useOpenWorkspace();
 
   useTrackOnChange((track: TrackFunction) => {
     track('Screen', { name: 'collections' });
@@ -84,10 +79,6 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     [connectionId, _onDeleteCollectionClick]
   );
 
-  const onClickConnectionBreadcrumb = useCallback(() => {
-    openDatabasesWorkspace(connectionId);
-  }, [connectionId, openDatabasesWorkspace]);
-
   if (collectionsLoadingStatus === 'error') {
     return (
       <div className={collectionsErrorStyles}>
@@ -101,10 +92,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    {
-      onCollectionClick,
-      onRefreshClick,
-    },
+    { onCollectionClick, onRefreshClick },
     isEditable
       ? {
           onCreateCollectionClick,
@@ -115,10 +103,8 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 
   return (
     <CollectionsList
+      namespace={namespace}
       collections={collections}
-      databaseName={parsedNS.database}
-      connectionTitle={getConnectionTitle(connectionInfo)}
-      onClickConnectionBreadcrumb={onClickConnectionBreadcrumb}
       {...actions}
     />
   );

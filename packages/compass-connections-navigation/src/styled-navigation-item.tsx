@@ -4,12 +4,7 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { usePreference } from 'compass-preferences-model/provider';
-import {
-  css,
-  palette,
-  spacing,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { palette, useDarkMode } from '@mongodb-js/compass-components';
 import type { SidebarTreeItem } from './tree-data';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
@@ -18,12 +13,7 @@ type AcceptedStyles = {
   '--item-bg-color-hover'?: string;
   '--item-bg-color-active'?: string;
   '--item-color'?: string;
-  borderRadius?: string;
 };
-
-const styledStyles = css({
-  overflow: 'hidden',
-});
 
 export default function StyledNavigationItem({
   item,
@@ -47,7 +37,6 @@ export default function StyledNavigationItem({
     const style: AcceptedStyles = {};
 
     if (!isSingleConnection) {
-      style['borderRadius'] = `${spacing[100]}px`;
       if (colorCode && colorCode !== DefaultColorCode) {
         style['--item-bg-color'] = connectionColorToHex(colorCode);
         style['--item-bg-color-hover'] = connectionColorToHexActive(colorCode);
@@ -70,9 +59,5 @@ export default function StyledNavigationItem({
     connectionColorToHexActive,
   ]);
 
-  return (
-    <div className={styledStyles} style={style}>
-      {children}
-    </div>
-  );
+  return <div style={style}>{children}</div>;
 }

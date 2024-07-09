@@ -11,7 +11,10 @@ export async function navigateToConnectionTab(
     if (tabName === 'Databases') {
       await browser.clickVisible(Selectors.sidebarConnection(connectionName));
     } else {
-      // TODO(COMPASS-8002): click the three dots menu then the relevant option. (View performance metrics)
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.ViewPerformanceItem
+      );
     }
 
     await waitUntilActiveConnectionTab(browser, connectionName, tabName);
@@ -29,6 +32,6 @@ export async function waitUntilActiveConnectionTab(
 ) {
   // TODO(COMPASS-8002): we should differentiate by connectionName somehow
   await browser
-    .$(Selectors.instanceWorkspaceTab(tabName, true))
+    .$(Selectors.connectionWorkspaceTab(tabName, true))
     .waitForDisplayed();
 }

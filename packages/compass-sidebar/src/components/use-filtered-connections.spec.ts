@@ -46,6 +46,7 @@ const sidebarConnections: SidebarConnection[] = [
     isReady: true,
     isWritable: true,
     isPerformanceTabSupported: true,
+    isGenuineMongoDB: true,
     isDataLake: false,
     databases: [
       {
@@ -89,6 +90,7 @@ const sidebarConnections: SidebarConnection[] = [
     isReady: true,
     isWritable: true,
     isPerformanceTabSupported: true,
+    isGenuineMongoDB: true,
     isDataLake: false,
     databases: [
       {

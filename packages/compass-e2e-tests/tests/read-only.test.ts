@@ -37,6 +37,9 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('hides and shows the plus icon on the sidebar to create a database', async function () {
+    const Sidebar = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.Multiple
+      : Selectors.Single;
     await browser.setFeature('readOnly', true);
     await browser.connectWithConnectionString();
 
@@ -47,17 +50,11 @@ describe('readOnly: true / Read-Only Edition', function () {
       // active/highlighted and then the add button and three dot menu will
       // display without needing to hover
       await browser.navigateToConnectionTab(connectionName, 'Databases');
-      expect(
-        await browser.$(Selectors.Multiple.CreateDatabaseItem).isExisting()
-      ).to.be.equal(false);
-    } else {
-      const sidebarCreateDatabaseButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
-      );
-      const isSidebarCreateDatabaseButtonExisting =
-        await sidebarCreateDatabaseButton.isExisting();
-      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
     }
+
+    expect(
+      await browser.$(Sidebar.CreateDatabaseButton).isExisting()
+    ).to.be.equal(false);
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -72,17 +69,11 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.navigateToConnectionTab(connectionName, 'Databases');
-      expect(
-        await browser.$(Selectors.Multiple.CreateDatabaseItem).isExisting()
-      ).to.be.equal(true);
-    } else {
-      const sidebarCreateDatabaseButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
-      );
-      const isSidebarCreateDatabaseButtonExisting =
-        await sidebarCreateDatabaseButton.isExisting();
-      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
     }
+
+    expect(
+      await browser.$(Sidebar.CreateDatabaseButton).isExisting()
+    ).to.be.equal(true);
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {

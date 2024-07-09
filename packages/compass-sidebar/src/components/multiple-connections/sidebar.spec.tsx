@@ -289,9 +289,6 @@ describe('Multiple Connections Sidebar Component', function () {
             within(favoriteItem).getByTestId('base-navigation-item')
           );
 
-          const connectAction = within(favoriteItem).getByLabelText('Connect');
-          expect(connectAction).to.be.visible;
-
           const moreActions =
             within(favoriteItem).getByLabelText('Show actions');
           expect(moreActions).to.be.visible;
@@ -323,10 +320,6 @@ describe('Multiple Connections Sidebar Component', function () {
             within(nonFavoriteItem).getByTestId('base-navigation-item')
           );
 
-          const connectAction =
-            within(nonFavoriteItem).getByLabelText('Connect');
-          expect(connectAction).to.be.visible;
-
           const moreActions =
             within(nonFavoriteItem).getByLabelText('Show actions');
           expect(moreActions).to.be.visible;
@@ -356,14 +349,7 @@ describe('Multiple Connections Sidebar Component', function () {
           await renderWithConnections();
           const connectionItem = screen.getByTestId('12345');
 
-          userEvent.hover(
-            within(connectionItem).getByTestId('base-navigation-item')
-          );
-
-          const connectButton =
-            within(connectionItem).getByLabelText('Connect');
-
-          userEvent.click(connectButton);
+          userEvent.click(connectionItem);
           expect(screen.getByText('Connecting to localhost')).to.exist;
           expect(connectFn).to.have.been.called;
 
@@ -373,6 +359,26 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByText('Connected to localhost')).to.exist;
         });
 
+        it('should render the non-genuine modal when connected to a non-genuine mongodb connection', async function () {
+          connectFn.returns(slowConnection(andSucceed()));
+          await renderWithConnections([
+            {
+              id: 'non-genuine',
+              connectionOptions: {
+                connectionString:
+                  'mongodb://dummy:1234@dummy-name.cosmos.azure.com:443/?ssl=true',
+              },
+            },
+          ]);
+          const connectionItem = screen.getByTestId('non-genuine');
+          userEvent.click(connectionItem);
+          expect(connectFn).to.have.been.called;
+          await waitFor(() => {
+            expect(screen.queryByText('Non-Genuine MongoDB Detected')).to.be
+              .visible;
+          });
+        });
+
         it('(failed connection) calls the connection function and renders the error toast', async function () {
           connectFn.callsFake(() => {
             return Promise.reject(new Error('Expected failure'));
@@ -380,14 +386,7 @@ describe('Multiple Connections Sidebar Component', function () {
           await renderWithConnections();
           const connectionItem = screen.getByTestId('12345');
 
-          userEvent.hover(
-            within(connectionItem).getByTestId('base-navigation-item')
-          );
-
-          const connectButton =
-            within(connectionItem).getByLabelText('Connect');
-
-          userEvent.click(connectButton);
+          userEvent.click(connectionItem);
           expect(screen.getByText('Connecting to localhost')).to.exist;
           expect(connectFn).to.have.been.called;
 
@@ -513,7 +512,6 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByText('Show connection info')).to.be.visible;
           expect(screen.getByText('Disconnect')).to.be.visible;
 
-          expect(screen.getByText('Edit connection')).to.be.visible;
           expect(screen.getByText('Copy connection string')).to.be.visible;
           // because it is already a favorite
           expect(screen.getByText('Unfavorite')).to.be.visible;
@@ -619,6 +617,18 @@ describe('Multiple Connections Sidebar Component', function () {
             userEvent.click(screen.getByText('Disconnect'));
 
             expect(disconnectSpy).to.be.calledWith(savedFavoriteConnection.id);
+          });
+
+          it('should connect when the user tries to expand an inactive connection', async function () {
+            const connectSpy = sinon.spy(connectionsManager, 'connect');
+            await renderWithConnections();
+            const connectionItem = screen.getByTestId(savedRecentConnection.id);
+
+            userEvent.click(
+              within(connectionItem).getByLabelText('Caret Right Icon')
+            );
+
+            expect(connectSpy).to.be.calledWith(savedRecentConnection);
           });
 
           it('should open edit connection modal when clicked on edit connection action', function () {

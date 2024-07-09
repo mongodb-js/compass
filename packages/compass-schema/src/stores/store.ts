@@ -105,7 +105,7 @@ export type SchemaStore = StoreWithStateMixin<SchemaState> & {
     onDeleted: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
   ): void;
   stopAnalysis(): void;
-  _trackSchemaAnalyzed(analysisTimeMS: number): void;
+  _trackSchemaAnalyzed(analysisTimeMS: number, query: any): void;
   startAnalysis(): void;
 };
 
@@ -317,7 +317,7 @@ export function activateSchemaPlugin(
           resultId: resultId(),
         });
 
-        this._trackSchemaAnalyzed(analysisTime);
+        this._trackSchemaAnalyzed(analysisTime, query);
 
         this.onSchemaSampled();
       } catch (err: any) {
