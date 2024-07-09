@@ -412,6 +412,10 @@ functions:
           COMPASS_DISTRIBUTION: ${compass_distribution}
         script: |
           set -e
+
+          # Ensure .sbom is always created with fresh data
+          rm -rvf .sbom && mkdir -pv .sbom
+
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
           cd packages/compass && npm run prepackage-compass
