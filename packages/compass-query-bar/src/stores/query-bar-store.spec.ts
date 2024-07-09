@@ -65,7 +65,7 @@ describe('createQueryWithHistoryAutocompleter', function () {
       {
         on: () => {},
         cleanup: () => {},
-      }
+      } as any
     );
     await waitFor(() => {
       expect(loadAllStub).to.have.been.calledTwice;
