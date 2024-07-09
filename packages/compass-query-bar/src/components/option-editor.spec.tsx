@@ -4,10 +4,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OptionEditor } from './option-editor';
 import type { SinonSpy } from 'sinon';
-import {
-  applyFromHistory,
-  fetchSavedQueries,
-} from '../stores/query-bar-reducer';
+import { applyFromHistory } from '../stores/query-bar-reducer';
 import sinon from 'sinon';
 
 class MockPasteEvent extends window.Event {
@@ -43,7 +40,6 @@ describe('OptionEditor', function () {
           value=""
           savedQueries={[]}
           onApplyQuery={applyFromHistory}
-          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -65,7 +61,6 @@ describe('OptionEditor', function () {
           value="{ foo: 1 }"
           savedQueries={[]}
           onApplyQuery={applyFromHistory}
-          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -87,7 +82,6 @@ describe('OptionEditor', function () {
           value=""
           savedQueries={[]}
           onApplyQuery={applyFromHistory}
-          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -115,7 +109,6 @@ describe('OptionEditor', function () {
           value=""
           savedQueries={[]}
           onApplyQuery={applyFromHistory}
-          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -145,7 +138,6 @@ describe('OptionEditor', function () {
           value=""
           savedQueries={[]}
           onApplyQuery={applyFromHistory}
-          loadSavedQueries={fetchSavedQueries}
         ></OptionEditor>
       );
 
@@ -164,7 +156,6 @@ describe('OptionEditor', function () {
 
   describe('createQueryWithHistoryAutocompleter', function () {
     let onApplySpy: SinonSpy;
-    let loadSavedQueriesSpy: SinonSpy;
 
     afterEach(function () {
       cleanup();
@@ -172,7 +163,6 @@ describe('OptionEditor', function () {
 
     it('filter applied correctly when autocomplete option is clicked', async function () {
       onApplySpy = sinon.spy();
-      loadSavedQueriesSpy = sinon.spy();
       render(
         <OptionEditor
           namespace="test.test"
@@ -195,7 +185,6 @@ describe('OptionEditor', function () {
             },
           ]}
           onApplyQuery={onApplySpy}
-          loadSavedQueries={loadSavedQueriesSpy}
         ></OptionEditor>
       );
 
@@ -213,7 +202,6 @@ describe('OptionEditor', function () {
           filter: { a: 2 },
           sort: { a: -1 },
         });
-        expect(loadSavedQueriesSpy).to.be.called;
       });
     });
   });
