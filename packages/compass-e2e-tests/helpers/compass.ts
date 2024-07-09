@@ -901,8 +901,6 @@ export async function buildCompass(
   force = false,
   compassPath = COMPASS_PATH
 ): Promise<void> {
-  await compileCompassAssets(compassPath);
-
   if (!force) {
     try {
       await getCompassBuildMetadata();
