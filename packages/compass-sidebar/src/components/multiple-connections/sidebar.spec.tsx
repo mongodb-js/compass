@@ -619,6 +619,18 @@ describe('Multiple Connections Sidebar Component', function () {
             expect(disconnectSpy).to.be.calledWith(savedFavoriteConnection.id);
           });
 
+          it('should connect when the user tries to expand an inactive connection', async function () {
+            const connectSpy = sinon.spy(connectionsManager, 'connect');
+            await renderWithConnections();
+            const connectionItem = screen.getByTestId(savedRecentConnection.id);
+
+            userEvent.click(
+              within(connectionItem).getByLabelText('Caret Right Icon')
+            );
+
+            expect(connectSpy).to.be.calledWith(savedRecentConnection);
+          });
+
           it('should open edit connection modal when clicked on edit connection action', function () {
             // note that we only click on non-connected item because for
             // connected item we cannot edit connection

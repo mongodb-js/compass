@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-serverstats",
   "description": "Compass Real Time",
   "private": true,
-  "version": "16.34.0",
+  "version": "16.34.1",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
