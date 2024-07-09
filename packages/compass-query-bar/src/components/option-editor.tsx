@@ -149,10 +149,12 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const completer = useMemo(() => {
     return createQueryWithHistoryAutocompleter(
-      savedQueries.map((query) => ({
-        lastExecuted: query._lastExecuted,
-        queryProperties: getQueryAttributes(query),
-      })),
+      savedQueries
+        .filter((query) => !('update' in query))
+        .map((query) => ({
+          lastExecuted: query._lastExecuted,
+          queryProperties: getQueryAttributes(query),
+        })),
       {
         fields: schemaFields,
         serverVersion,

@@ -13,6 +13,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { fetchSavedQueries } from '../stores/query-bar-reducer';
 
 const openQueryHistoryButtonStyles = css(
   {
@@ -35,7 +36,11 @@ const queryHistoryPopoverStyles = css({
   display: 'flex',
 });
 
-const QueryHistoryButtonPopover = () => {
+const QueryHistoryButtonPopover = ({
+  onOpenPopover,
+}: {
+  onOpenPopover: () => void;
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   useTrackOnChange(
@@ -50,9 +55,15 @@ const QueryHistoryButtonPopover = () => {
     undefined
   );
 
-  const setOpen = useCallback((newValue: boolean) => {
-    setIsOpen(newValue);
-  }, []);
+  const setOpen = useCallback(
+    (newValue: boolean) => {
+      if (newValue) {
+        onOpenPopover();
+      }
+      setIsOpen(newValue);
+    },
+    [onOpenPopover]
+  );
 
   const closePopover = useCallback(() => {
     setIsOpen(false);
@@ -92,4 +103,6 @@ const QueryHistoryButtonPopover = () => {
   );
 };
 
-export default connect(null)(QueryHistoryButtonPopover);
+export default connect(null, {
+  onOpenPopover: fetchSavedQueries,
+})(QueryHistoryButtonPopover);

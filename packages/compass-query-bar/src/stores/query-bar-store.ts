@@ -165,7 +165,7 @@ export function activatePlugin(
     });
   });
 
-  store.dispatch(fetchSavedQueries);
+  store.dispatch(fetchSavedQueries());
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };
 }
