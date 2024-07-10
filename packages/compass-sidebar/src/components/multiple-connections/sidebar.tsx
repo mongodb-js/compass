@@ -188,13 +188,6 @@ export function MultipleConnectionSidebar({
   const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
     useState<RegExp | null>(null);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
-  const [duplicateInProgress, setDuplicateInProgress] = useState<
-    ConnectionInfo | undefined
-  >(undefined);
-  useEffect(() => {
-    if (!isConnectionFormOpen) setDuplicateInProgress(undefined);
-  }, [isConnectionFormOpen]);
-
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
@@ -215,7 +208,7 @@ export function MultipleConnectionSidebar({
     removeConnection,
     saveConnection,
     createNewConnection,
-    getConnectionDuplicate,
+    createDuplicateConnection,
     state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
   } = useConnections();
 
@@ -401,10 +394,10 @@ export function MultipleConnectionSidebar({
 
   const onDuplicateConnection = useCallback(
     (info: ConnectionInfo) => {
-      setDuplicateInProgress(getConnectionDuplicate(info));
+      createDuplicateConnection(info);
       setIsConnectionFormOpen(true);
     },
-    [setIsConnectionFormOpen, getConnectionDuplicate]
+    [setIsConnectionFormOpen, createDuplicateConnection]
   );
 
   const onToggleFavoriteConnectionInfo = useCallback(
@@ -504,7 +497,7 @@ export function MultipleConnectionSidebar({
           onConnectClicked={onNewConnectionConnect}
           key={activeConnectionId}
           onSaveConnectionClicked={onSaveNewConnection}
-          initialConnectionInfo={duplicateInProgress || activeConnectionInfo}
+          initialConnectionInfo={activeConnectionInfo}
           connectionErrorMessage={connectionErrorMessage}
           preferences={formPreferences}
         />

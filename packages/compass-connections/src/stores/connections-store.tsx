@@ -181,11 +181,11 @@ export function useConnections({
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
+  createDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
   legacyDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
-  getConnectionDuplicate: (connectionInfo: ConnectionInfo) => ConnectionInfo;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
 } {
   // TODO(COMPASS-7397): services should not be used directly in render method,
@@ -542,7 +542,7 @@ export function useConnections({
         }
       );
     },
-    getConnectionDuplicate(connectionInfo: ConnectionInfo) {
+    createDuplicateConnection(connectionInfo: ConnectionInfo) {
       const findConnectionByFavoriteName = (name: string) =>
         [...favoriteConnections, ...recentConnections].find(
           (connection: ConnectionInfo) => connection.favorite?.name === name
@@ -563,7 +563,10 @@ export function useConnections({
         duplicate.favorite.name = `${name} (${copyNumber})`;
       }
 
-      return duplicate;
+      dispatch({
+        type: 'new-connection',
+        connectionInfo: duplicate,
+      });
     },
     async removeAllRecentsConnections() {
       await Promise.all(

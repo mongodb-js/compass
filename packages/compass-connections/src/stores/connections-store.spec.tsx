@@ -574,8 +574,8 @@ describe('use-connections hook', function () {
     });
   });
 
-  describe('getConnectionDuplicate', function () {
-    it('should return a connection duplicate', async function () {
+  describe('createDuplicateConnection', function () {
+    it('should create a connection duplicate and set it as the new active connection', async function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
@@ -588,10 +588,13 @@ describe('use-connections hook', function () {
       });
 
       const original = result.current.favoriteConnections[0];
-      const duplicate = result.current.getConnectionDuplicate(original);
+      result.current.createDuplicateConnection(original);
+
+      const duplicate = result.current.state.activeConnectionInfo;
 
       expect(duplicate).to.haveOwnProperty('id');
       expect(duplicate.id).not.to.equal(original.id);
+      expect(result.current.state.activeConnectionId).to.equal(duplicate.id);
       delete original.id;
       delete duplicate.id;
       expect(duplicate).to.deep.equal({
@@ -626,11 +629,13 @@ describe('use-connections hook', function () {
       });
 
       const original = result.current.favoriteConnections[0]; // copying the original
-      const duplicate = result.current.getConnectionDuplicate(original);
+      result.current.createDuplicateConnection(original);
+      const duplicate = result.current.state.activeConnectionInfo;
       expect(duplicate.favorite.name).to.equal(`${original.favorite.name} (2)`);
 
       const copy = result.current.favoriteConnections[1]; // copying the copy
-      const duplicate2 = result.current.getConnectionDuplicate(copy);
+      result.current.createDuplicateConnection(copy);
+      const duplicate2 = result.current.state.activeConnectionInfo;
       expect(duplicate2.favorite.name).to.equal(
         `${original.favorite.name} (2)`
       );
