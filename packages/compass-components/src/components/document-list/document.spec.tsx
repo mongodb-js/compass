@@ -258,7 +258,7 @@ describe('Document', function () {
       prop3: 'prop3',
       prop4: 'prop4',
     });
-    hadronDoc.setVisibleElementsCount(2);
+    hadronDoc.setMaxVisibleElementsCount(2);
     render(<Document value={hadronDoc}></Document>);
     expect(screen.getByText('prop1')).to.exist;
     expect(screen.getByText('prop2')).to.exist;
@@ -266,7 +266,7 @@ describe('Document', function () {
     expect(() => screen.getByText('prop4')).to.throw;
     expect(screen.getByText('Show 2 more fields')).to.exist;
 
-    hadronDoc.setVisibleElementsCount(25);
+    hadronDoc.setMaxVisibleElementsCount(25);
     await waitFor(() => {
       expect(screen.getByText('prop3')).to.exist;
       expect(screen.getByText('prop4')).to.exist;
@@ -291,7 +291,7 @@ describe('Document', function () {
     expect(screen.getByText('prop3')).to.exist;
     expect(screen.getByText('prop4')).to.exist;
 
-    nestedElement.setVisibleElementsCount(2);
+    nestedElement.setMaxVisibleElementsCount(2);
     await waitFor(() => {
       expect(() => screen.getByText('prop3')).to.throw;
       expect(() => screen.getByText('prop4')).to.throw;
