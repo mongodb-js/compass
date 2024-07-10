@@ -41,4 +41,9 @@ export async function waitForConnectionResult(
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
   }
+
+  // make sure the placeholders for databases & collections that are loading are all gone
+  await browser
+    .$(Selectors.DatabaseCollectionPlaceholder)
+    .waitForExist({ reverse: true });
 }
