@@ -51,6 +51,7 @@
     "@mongodb-js/prettier-config-compass": "^1.0.2",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
     "@types/chai": "^4.2.21",
+    "@types/codemirror": "^5.60.15",
     "@types/mocha": "^9.0.0",
     "@types/prettier": "^2.7.1",
     "@types/sinon-chai": "^3.2.5",
@@ -63,7 +64,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.4.0",
+    "@codemirror/autocomplete": "^6.17.0",
     "@codemirror/commands": "^6.1.2",
     "@codemirror/lang-javascript": "^6.1.2",
     "@codemirror/lang-json": "^6.0.1",
