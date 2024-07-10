@@ -2779,4 +2779,31 @@ describe('Element', function () {
       }
     });
   });
+
+  context(
+    'when expanding an element that has been added with a changed type',
+    function () {
+      it('should expand the target element and its children', function () {
+        const element = new Element('names', {
+          firstName: 'A',
+          addresses: [1, 2],
+        });
+        expect(element.expanded).to.be.false;
+
+        element.insertEnd('pineapple', 'to be changed');
+        element.get('pineapple')?.changeType('Object');
+
+        element.insertEnd('pie', new Int32(123));
+        element.get('pie')?.changeType('Array');
+
+        expect(element.get('pineapple')?.expanded).to.be.false;
+        expect(element.get('pie')?.expanded).to.be.false;
+
+        element.expand(true);
+        expect(element.expanded).to.be.true;
+        expect(element.get('pineapple')?.expanded).to.be.true;
+        expect(element.get('pie')?.expanded).to.be.true;
+      });
+    }
+  );
 });

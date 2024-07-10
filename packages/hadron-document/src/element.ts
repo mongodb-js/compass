@@ -726,7 +726,13 @@ export class Element extends EventEmitter {
    * will most expand the element itself.
    */
   expand(expandChildren = false): void {
-    if (!this._isExpandable(this.originalExpandableValue)) {
+    if (
+      !this._isExpandable(this.originalExpandableValue) &&
+      !(
+        this.isModified() &&
+        (this.currentType === 'Array' || this.currentType === 'Object')
+      )
+    ) {
       return;
     }
 
@@ -743,7 +749,13 @@ export class Element extends EventEmitter {
    * Collapses only the target element
    */
   collapse(): void {
-    if (!this._isExpandable(this.originalExpandableValue)) {
+    if (
+      !this._isExpandable(this.originalExpandableValue) &&
+      !(
+        this.isModified() &&
+        (this.currentType === 'Array' || this.currentType === 'Object')
+      )
+    ) {
       return;
     }
 
