@@ -521,13 +521,23 @@ export function useConnections({
       void removeConnection(connectionInfo);
     },
     legacyDuplicateConnection(connectionInfo: ConnectionInfo) {
+      const findConnectionByFavoriteName = (name: string) =>
+        [...favoriteConnections, ...recentConnections].find(
+          (connection: ConnectionInfo) => connection.favorite?.name === name
+        );
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
         id: new UUID().toString(),
       };
 
       if (duplicate.favorite?.name) {
-        duplicate.favorite.name += ' (copy)';
+        const copyFormat = duplicate.favorite?.name.match(/(.*)\s\(([0-9])+\)/); // title (2) -> [title (2), title, 2]
+        const name = copyFormat ? copyFormat[1] : duplicate.favorite?.name;
+        let copyNumber = copyFormat ? parseInt(copyFormat[2]) : 1;
+        while (findConnectionByFavoriteName(`${name} (${copyNumber})`)) {
+          copyNumber++;
+        }
+        duplicate.favorite.name = `${name} (${copyNumber})`;
       }
 
       void saveConnectionInfo(duplicate).then(

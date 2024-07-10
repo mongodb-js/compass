@@ -709,19 +709,13 @@ describe('Connection form', function () {
     // duplicating immediately opens the modal so you can edit it
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-
-      // delete the duplicate
-      await browser.selectConnectionMenuItem(
-        `${favoriteName} (1)`,
-        Sidebar.RemoveConnectionItem
-      );
-    } else {
-      // delete the duplicate
-      await browser.selectConnectionMenuItem(
-        `${favoriteName} (copy)`,
-        Sidebar.RemoveConnectionItem
-      );
     }
+
+    // delete the duplicate
+    await browser.selectConnectionMenuItem(
+      `${favoriteName} (1)`,
+      Sidebar.RemoveConnectionItem
+    );
 
     // edit the original
     await browser.selectConnection(favoriteName);
