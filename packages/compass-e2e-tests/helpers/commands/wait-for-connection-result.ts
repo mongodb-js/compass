@@ -40,10 +40,10 @@ export async function waitForConnectionResult(
     await browser
       .$(Selectors.ConnectionModal)
       .waitForDisplayed({ reverse: true });
-  }
 
-  // make sure the placeholders for databases & collections that are loading are all gone
-  await browser
-    .$(Selectors.DatabaseCollectionPlaceholder)
-    .waitForDisplayed({ reverse: true });
+    // make sure the placeholders for databases & collections that are loading are all gone
+    await browser
+      .$(Selectors.DatabaseCollectionPlaceholder)
+      .waitForDisplayed({ reverse: true });
+  }
 }
