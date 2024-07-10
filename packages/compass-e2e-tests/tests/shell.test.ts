@@ -58,9 +58,9 @@ describe('Shell', function () {
   });
 
   it('shows and hides shell based on settings', async function () {
-    // TODO: Leaving this skipped until we decide what we're going to do. hide
-    // the buttons & menu items, disable them or keep them enabled and open a
-    // shell tab that just has an error banner.
+    // TODO(COMPASS-8071): Leaving this skipped until we decide what we're going
+    // to do. hide the buttons & menu items, disable them or keep them enabled
+    // and open a shell tab that just has an error banner.
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

@@ -177,9 +177,10 @@ describe('Global preferences', function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
     try {
-      // TODO: check that the shell is there before toggling the section so we
-      // can have some level of confidence that toggling the setting did
-      // something and that it would be detected by our assertions below.
+      // TODO(COMPASS-8071): check that the shell is there before toggling the
+      // section so we can have some level of confidence that toggling the
+      // setting did something and that it would be detected by our assertions
+      // below.
       await browser.openSettingsModal('Privacy');
       await browser.clickVisible(Selectors.GeneralSettingsButton);
       {
@@ -204,7 +205,8 @@ describe('Global preferences', function () {
           'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
       }
-      // TODO: This just passes for multiple connections because the shell section is never there.
+      // TODO(COMPASS-8071): This just passes for multiple connections because
+      // the shell section is never there.
       {
         const shellSection = await browser.$(Selectors.ShellSection);
         const isShellSectionExisting = await shellSection.isExisting();
