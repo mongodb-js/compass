@@ -13,7 +13,7 @@ import type { TypeCastTypes } from 'hadron-type-checker';
 import type { ObjectId } from 'bson';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { getDefaultValueForType } from './utils';
-import { ElementEvents } from '.';
+import { DocumentEvents, ElementEvents } from '.';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 export { Events };
@@ -303,6 +303,7 @@ export class Element extends EventEmitter {
     }
     const newElement = this.elements.insertAfter(element, key, value);
     newElement!._bubbleUp(Events.Added, newElement, this);
+    this.emitVisibleElementsChanged();
     return newElement!;
   }
 
@@ -320,6 +321,7 @@ export class Element extends EventEmitter {
     }
     const newElement = this.elements.insertEnd(key, value, true);
     this._bubbleUp(Events.Added, newElement);
+    this.emitVisibleElementsChanged();
     return newElement;
   }
 
@@ -692,6 +694,7 @@ export class Element extends EventEmitter {
     this.removed = true;
     if (this.parent) {
       this._bubbleUp(Events.Removed, this, this.parent);
+      this.emitVisibleElementsChanged(this.parent);
     }
   }
 
@@ -702,6 +705,9 @@ export class Element extends EventEmitter {
     if (this.isAdded()) {
       this.parent?.elements?.remove(this);
       this._bubbleUp(Events.Removed, this, this.parent);
+      if (this.parent) {
+        this.emitVisibleElementsChanged(this.parent);
+      }
       delete (this as any).parent;
     } else {
       if (this.originalExpandableValue) {
@@ -739,7 +745,8 @@ export class Element extends EventEmitter {
         element.expand(expandChildren);
       }
     }
-    this._bubbleUp(ElementEvents.Expanded, this);
+    this.emit(ElementEvents.Expanded, this);
+    this.emitVisibleElementsChanged();
   }
 
   /**
@@ -756,7 +763,8 @@ export class Element extends EventEmitter {
         element.collapse();
       }
     }
-    this._bubbleUp(ElementEvents.Collapsed, this);
+    this.emit(ElementEvents.Collapsed, this);
+    this.emitVisibleElementsChanged();
   }
 
   /**
@@ -851,10 +859,7 @@ export class Element extends EventEmitter {
       return;
     }
     this.maxVisibleElementsCount = newCount;
-
-    if (this.expanded) {
-      this._bubbleUp(Events.VisibleElementsChanged, this, this.getRoot());
-    }
+    this.emitVisibleElementsChanged();
   }
 
   getTotalVisibleElementsCount(): number {
@@ -869,6 +874,18 @@ export class Element extends EventEmitter {
       },
       0
     );
+  }
+
+  private emitVisibleElementsChanged(targetElement: Element | Document = this) {
+    if (targetElement.isRoot()) {
+      targetElement.emit(DocumentEvents.VisibleElementsChanged, targetElement);
+    } else if (targetElement.expanded) {
+      targetElement._bubbleUp(
+        Events.VisibleElementsChanged,
+        targetElement,
+        targetElement.getRoot()
+      );
+    }
   }
 
   /**
