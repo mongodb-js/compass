@@ -42,7 +42,7 @@ export class Document extends EventEmitter {
   currentType: 'Document';
   size: number | null = null;
   expanded = false;
-  visibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
+  maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
 
   /**
    * Send cancel event.
@@ -417,11 +417,11 @@ export class Document extends EventEmitter {
   }
 
   getVisibleElements() {
-    return [...this.elements].slice(0, this.visibleElementsCount);
+    return [...this.elements].slice(0, this.maxVisibleElementsCount);
   }
 
-  setVisibleElementsCount(newCount: number) {
-    this.visibleElementsCount = newCount;
+  setMaxVisibleElementsCount(newCount: number) {
+    this.maxVisibleElementsCount = newCount;
     this.emit(Events.VisibleElementsChanged, this);
   }
 

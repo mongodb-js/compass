@@ -2825,23 +2825,27 @@ describe('Element', function () {
 
     context('when element is expandable', function () {
       it("should return total nested elements if nested elements are less than element's visible element count", function () {
-        expect(
-          new Element('list', [1, 2, 3]).getVisibleElements()
-        ).to.have.lengthOf(3);
-        expect(
-          new Element('ob', { prop1: '1', prop2: '2' }).getVisibleElements()
-        ).to.have.lengthOf(2);
+        const listElement = new Element('list', [1, 2, 3]);
+        expect(listElement.getVisibleElements()).to.have.lengthOf(0); // because it is not expanded
+        listElement.expand();
+        expect(listElement.getVisibleElements()).to.have.lengthOf(3);
+
+        const obElement = new Element('ob', { prop1: '1', prop2: '2' });
+        expect(obElement.getVisibleElements()).to.have.lengthOf(0); // because it is not expanded
+        obElement.expand();
+        expect(obElement.getVisibleElements()).to.have.lengthOf(2);
       });
 
       it("should return sliced list of nested elements if nested elements are more than element's visible element count", function () {
         const listElement = new Element('list', [1, 2, 3]);
-        listElement.setVisibleElementsCount(1);
+        listElement.expand();
+        listElement.setMaxVisibleElementsCount(1);
         const listVisibleElements = listElement.getVisibleElements();
         expect(listVisibleElements).to.have.lengthOf(1);
         expect(
           listVisibleElements.map((element) => element.value)
         ).to.deep.equal([{ value: 1 }]);
-        listElement.setVisibleElementsCount(25);
+        listElement.setMaxVisibleElementsCount(25);
         expect(listElement.getVisibleElements()).to.have.lengthOf(3);
 
         const obElement = new Element('ob', {
@@ -2849,13 +2853,14 @@ describe('Element', function () {
           prop2: '2',
           prop3: '3',
         });
-        obElement.setVisibleElementsCount(1);
+        obElement.expand();
+        obElement.setMaxVisibleElementsCount(1);
         const obVisibleElement = obElement.getVisibleElements();
         expect(obVisibleElement).to.have.lengthOf(1);
         expect(obVisibleElement.map((element) => element.value)).to.deep.equal([
           '1',
         ]);
-        obElement.setVisibleElementsCount(25);
+        obElement.setMaxVisibleElementsCount(25);
         expect(obElement.getVisibleElements()).to.have.lengthOf(3);
       });
     });
@@ -2867,8 +2872,10 @@ describe('Element', function () {
         const element = new Element('name', 'string');
         const spy = Sinon.spy();
         element.on(ElementEvents.VisibleElementsChanged, spy);
-        element.setVisibleElementsCount(10);
-        expect(element.visibleElementsCount).to.equal(DEFAULT_VISIBLE_ELEMENTS);
+        element.setMaxVisibleElementsCount(10);
+        expect(element.maxVisibleElementsCount).to.equal(
+          DEFAULT_VISIBLE_ELEMENTS
+        );
         expect(spy).to.not.be.called;
       });
     });
@@ -2883,8 +2890,13 @@ describe('Element', function () {
         });
         const [addressElement] = [...(rootElement.elements as ElementList)];
         rootElement.on(ElementEvents.VisibleElementsChanged, spy);
-        addressElement.setVisibleElementsCount(10);
-        expect(addressElement.visibleElementsCount).to.equal(10);
+        addressElement.setMaxVisibleElementsCount(10);
+        expect(addressElement.maxVisibleElementsCount).to.equal(10);
+        expect(spy).to.not.be.called; // not called because the element was not expanded and hence no visible changes
+
+        rootElement.expand(true);
+        addressElement.setMaxVisibleElementsCount(11);
+        expect(addressElement.maxVisibleElementsCount).to.equal(11);
         expect(spy).to.be.calledWithExactly(addressElement, rootElement);
       });
     });
@@ -2988,7 +3000,7 @@ describe('Element', function () {
               prop2: 'y',
             });
             nestedObElement.expand();
-            nestedObElement.setVisibleElementsCount(1);
+            nestedObElement.setMaxVisibleElementsCount(1);
             expect(nestedObElement.getTotalVisibleElementsCount()).to.equal(1);
           });
         }

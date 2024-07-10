@@ -79,7 +79,7 @@ export class Element extends EventEmitter {
   invalidTypeMessage?: string;
   decrypted: boolean;
   expanded = false;
-  visibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
+  maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
 
   /**
    * Cancel any modifications to the element.
@@ -843,18 +843,21 @@ export class Element extends EventEmitter {
   }
 
   getVisibleElements() {
-    if (!this.elements) {
+    if (!this.elements || !this.expanded) {
       return [];
     }
-    return [...this.elements].slice(0, this.visibleElementsCount);
+    return [...this.elements].slice(0, this.maxVisibleElementsCount);
   }
 
-  setVisibleElementsCount(newCount: number) {
+  setMaxVisibleElementsCount(newCount: number) {
     if (!this._isExpandable(this.originalExpandableValue)) {
       return;
     }
-    this.visibleElementsCount = newCount;
-    this._bubbleUp(Events.VisibleElementsChanged, this, this.getRoot());
+    this.maxVisibleElementsCount = newCount;
+
+    if (this.expanded) {
+      this._bubbleUp(Events.VisibleElementsChanged, this, this.getRoot());
+    }
   }
 
   getTotalVisibleElementsCount(): number {

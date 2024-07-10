@@ -2435,14 +2435,14 @@ describe('Document', function () {
 
     it("should return sliced list of nested elements if nested elements are more than element's visible element count", function () {
       const document = new Document(doc);
-      document.setVisibleElementsCount(1);
+      document.setMaxVisibleElementsCount(1);
       const visibleElements = document.getVisibleElements();
       expect(visibleElements).to.have.lengthOf(1);
       expect(visibleElements.map((element) => element.value)).to.deep.equal([
         'a1',
       ]);
 
-      document.setVisibleElementsCount(10);
+      document.setMaxVisibleElementsCount(10);
       expect(document.getVisibleElements()).to.have.lengthOf(2);
     });
   });
@@ -2458,8 +2458,8 @@ describe('Document', function () {
         },
       });
       document.on(DocumentEvents.VisibleElementsChanged, spy);
-      document.setVisibleElementsCount(10);
-      expect(document.visibleElementsCount).to.equal(10);
+      document.setMaxVisibleElementsCount(10);
+      expect(document.maxVisibleElementsCount).to.equal(10);
       expect(spy).to.be.calledWithExactly(document);
     });
   });
@@ -2514,7 +2514,7 @@ describe('Document', function () {
               b12: 'b1.2',
             },
           });
-          document.setVisibleElementsCount(1);
+          document.setMaxVisibleElementsCount(1);
           expect(document.getTotalVisibleElementsCount()).to.equal(1);
         });
       }

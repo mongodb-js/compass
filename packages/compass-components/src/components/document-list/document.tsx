@@ -100,7 +100,7 @@ const HadronDocument: React.FunctionComponent<{
 
   const handleVisibleFieldsChanged = useCallback(
     (totalVisibleFields: number) => {
-      document.setVisibleElementsCount(totalVisibleFields);
+      document.setMaxVisibleElementsCount(totalVisibleFields);
     },
     [document]
   );
@@ -146,7 +146,7 @@ const HadronDocument: React.FunctionComponent<{
         // that are changed but then hidden
         // https://jira.mongodb.org/browse/COMPASS-5587
         showHideButton={!editing}
-        currentSize={document.visibleElementsCount}
+        currentSize={document.maxVisibleElementsCount}
         totalSize={elements.length}
         minSize={DEFAULT_VISIBLE_DOCUMENT_ELEMENTS}
         // In the editing mode we allow to show / hide less fields because
