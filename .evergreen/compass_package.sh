@@ -7,11 +7,8 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
   net start MSIServer
 fi
 
-# Ensure .sbom is always created with fresh data
-rm -rvf .sbom && mkdir -pv .sbom
-
 echo "Creating signed release build..."
-npm run package-compass $COMPASS_DISTRIBUTION;
+npm run package-compass-nocompile $COMPASS_DISTRIBUTION
 npm run generate-first-party-deps-json
 
 ls -la packages/compass/dist
