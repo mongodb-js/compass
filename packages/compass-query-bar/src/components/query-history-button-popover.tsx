@@ -9,11 +9,11 @@ import {
 } from '@mongodb-js/compass-components';
 
 import QueryHistory from './query-history';
-import { fetchSavedQueries } from '../stores/query-bar-reducer';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
+import { fetchSavedQueries } from '../stores/query-bar-reducer';
 
 const openQueryHistoryButtonStyles = css(
   {
