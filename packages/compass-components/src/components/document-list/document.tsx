@@ -20,9 +20,14 @@ function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
   const forceUpdate = useForceUpdate();
 
-  const onVisibleElementsChanged = useCallback(() => {
-    forceUpdate();
-  }, [forceUpdate]);
+  const onVisibleElementsChanged = useCallback(
+    (document: HadronDocumentType) => {
+      if (document === doc) {
+        forceUpdate();
+      }
+    },
+    [doc, forceUpdate]
+  );
 
   const onDocumentFieldsAddedOrRemoved = useCallback(
     (
@@ -48,13 +53,11 @@ function useHadronDocument(doc: HadronDocumentType) {
 
   useEffect(() => {
     doc.on(DocumentEvents.VisibleElementsChanged, onVisibleElementsChanged);
-    doc.on(ElementEvents.VisibleElementsChanged, onVisibleElementsChanged);
     doc.on(ElementEvents.Added, onDocumentFieldsAddedOrRemoved);
     doc.on(ElementEvents.Removed, onDocumentFieldsAddedOrRemoved);
 
     return () => {
       doc.off(DocumentEvents.VisibleElementsChanged, onVisibleElementsChanged);
-      doc.off(ElementEvents.VisibleElementsChanged, onVisibleElementsChanged);
       doc.off(ElementEvents.Added, onDocumentFieldsAddedOrRemoved);
       doc.off(ElementEvents.Removed, onDocumentFieldsAddedOrRemoved);
     };
