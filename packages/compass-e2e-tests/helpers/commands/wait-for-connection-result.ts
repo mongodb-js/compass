@@ -21,7 +21,7 @@ export async function waitForConnectionResult(
     selector = TEST_COMPASS_WEB
       ? '[data-testid="workspace-tab-button"][title=Databases]'
       : TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.SidebarTreeItems
+      ? `${Selectors.SidebarTreeItems} [aria-expanded=true]`
       : Selectors.MyQueriesList;
   } else {
     // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't
