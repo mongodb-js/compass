@@ -701,7 +701,10 @@ export const HadronElement: React.FunctionComponent<{
             // this for "performance" reasons
             step={editingEnabled ? DEFAULT_VISIBLE_ELEMENTS : 1000}
             onSizeChange={handleVisibleElementsChanged}
-            style={{ paddingLeft: nestedElementsVisibilityToggleOffset }}
+            style={{
+              paddingLeft: nestedElementsVisibilityToggleOffset,
+              paddingTop: spacing[200],
+            }}
           ></DocumentFieldsToggleGroup>
         </>
       )}
