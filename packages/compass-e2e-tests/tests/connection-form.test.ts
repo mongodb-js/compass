@@ -706,9 +706,9 @@ describe('Connection form', function () {
       Sidebar.DuplicateConnectionItem
     );
 
-    // duplicating immediately opens the modal so you can edit it
+    // duplicating opens the modal, in multiple connections you have to save
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalSaveButton);
     }
 
     // delete the duplicate
