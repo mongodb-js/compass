@@ -343,6 +343,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString(connectionString);
 
     if (!TEST_COMPASS_WEB) {
+      await browser.screenshot('direct-connection-shell.png');
       const result = await browser.shellEval(
         connectionNameFromString(connectionString),
         'db.runCommand({ connectionStatus: 1 })',
@@ -655,6 +656,7 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
+    await browser.screenshot('SCDAM-SHA1-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -721,6 +723,7 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
+    await browser.screenshot('without-session-token-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -757,6 +760,7 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
+    await browser.screenshot('including-session-token-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -786,6 +790,8 @@ describe('Connection form', function () {
       useSystemCA: true,
       connectionName,
     });
+
+    await browser.screenshot('tlsUseSystemCA-shell.png');
 
     // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
     const result = await browser.shellEval(
