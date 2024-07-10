@@ -41,17 +41,12 @@ export const createQueryWithHistoryAutocompleter = (
         }))
       );
     }
-
-    const nonSectionOptions = combinedOptions.filter(
-      (option) => !option.section
-    );
-    const sectionOptions = combinedOptions.filter((option) => option.section);
     return {
       from: Math.min(
         historyCompletions?.from ?? context.pos,
         originalCompletions?.from ?? context.pos
       ),
-      options: [...nonSectionOptions, ...sectionOptions],
+      options: combinedOptions,
     };
   };
 };
