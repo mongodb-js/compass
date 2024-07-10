@@ -470,7 +470,7 @@ export const HadronElement: React.FunctionComponent<{
 
   const handleVisibleElementsChanged = useCallback(
     (totalVisibleFields: number) => {
-      element.setVisibleElementsCount(totalVisibleFields);
+      element.setMaxVisibleElementsCount(totalVisibleFields);
     },
     [element]
   );
@@ -693,7 +693,7 @@ export const HadronElement: React.FunctionComponent<{
             // to handle changes to the fields that are changed but then hidden
             // https://jira.mongodb.org/browse/COMPASS-5587
             showHideButton={!editingEnabled}
-            currentSize={element.visibleElementsCount}
+            currentSize={element.maxVisibleElementsCount}
             totalSize={children.length}
             minSize={DEFAULT_VISIBLE_ELEMENTS}
             // Same as that for Document renderer, in the editing mode we allow
