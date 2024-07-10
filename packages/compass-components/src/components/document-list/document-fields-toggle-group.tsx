@@ -21,6 +21,7 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
   totalSize: number;
   minSize?: number;
   step?: number;
+  style?: React.CSSProperties;
   onSizeChange(newSize: number): void;
 }> = ({
   showHideButton = true,
@@ -28,6 +29,7 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
   totalSize,
   minSize = 25,
   step = 1000,
+  style,
   onSizeChange,
 }) => {
   const showSizeDiff = useMemo(() => {
@@ -59,7 +61,7 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
   }
 
   return (
-    <div className={container}>
+    <div className={container} style={style}>
       {isShowButtonVisible && (
         <Button
           size="xsmall"

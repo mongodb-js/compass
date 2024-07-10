@@ -46,6 +46,7 @@ const UNEDITABLE_TYPES = [
   'DBRef',
 ];
 
+export const DEFAULT_VISIBLE_ELEMENTS = 25;
 export function isValueExpandable(
   value: BSONValue
 ): value is BSONObject | BSONArray {
@@ -78,6 +79,7 @@ export class Element extends EventEmitter {
   invalidTypeMessage?: string;
   decrypted: boolean;
   expanded = false;
+  visibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
 
   /**
    * Cancel any modifications to the element.
@@ -751,7 +753,7 @@ export class Element extends EventEmitter {
         element.expand(expandChildren);
       }
     }
-    this.emit(ElementEvents.Expanded, this);
+    this._bubbleUp(ElementEvents.Expanded, this);
   }
 
   /**
@@ -768,7 +770,7 @@ export class Element extends EventEmitter {
         element.collapse();
       }
     }
-    this.emit(ElementEvents.Collapsed, this);
+    this._bubbleUp(ElementEvents.Collapsed, this);
   }
 
   /**
@@ -838,6 +840,35 @@ export class Element extends EventEmitter {
         }
       }
     }
+  }
+
+  getVisibleElements() {
+    if (!this.elements) {
+      return [];
+    }
+    return [...this.elements].slice(0, this.visibleElementsCount);
+  }
+
+  setVisibleElementsCount(newCount: number) {
+    if (!this._isExpandable(this.originalExpandableValue)) {
+      return;
+    }
+    this.visibleElementsCount = newCount;
+    this._bubbleUp(Events.VisibleElementsChanged, this, this.getRoot());
+  }
+
+  getTotalVisibleElementsCount(): number {
+    if (!this.elements || !this.expanded) {
+      return 0;
+    }
+    return this.getVisibleElements().reduce(
+      (totalVisibleChildElements, element) => {
+        return (
+          totalVisibleChildElements + 1 + element.getTotalVisibleElementsCount()
+        );
+      },
+      0
+    );
   }
 
   /**
