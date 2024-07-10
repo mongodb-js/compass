@@ -63,7 +63,7 @@ function andSucceed(): PromiseFunction {
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
   connectionOptions: {
-    connectionString: 'mongodb://localhost:27017',
+    connectionString: 'mongodb://localhost:12345/',
   },
   favorite: {
     name: 'localhost',
@@ -75,7 +75,7 @@ const savedFavoriteConnection: ConnectionInfo = {
 const savedRecentConnection: ConnectionInfo = {
   id: '54321',
   connectionOptions: {
-    connectionString: 'mongodb://localhost:27020',
+    connectionString: 'mongodb://localhost:27020/',
   },
 };
 
@@ -693,7 +693,7 @@ describe('Multiple Connections Sidebar Component', function () {
             });
           });
 
-          it('should duplicate connection when clicked on duplicate action', async function () {
+          it('should open a connection form when clicked on duplicate action', async function () {
             const saveSpy = sinon.spy(connectionStorage, 'save');
 
             const connectionItem = screen.getByTestId(
@@ -709,16 +709,18 @@ describe('Multiple Connections Sidebar Component', function () {
 
             userEvent.click(screen.getByText('Duplicate'));
 
+            // Does not save the duplicate yet
             await waitFor(() => {
-              expect(saveSpy).to.have.been.called;
+              expect(saveSpy).not.to.have.been.called;
             });
 
-            await waitFor(() => {
-              // 3 connections and one database from the connected one
-              return expect(screen.getAllByRole('treeitem')).to.have.lengthOf(
-                4
-              );
-            });
+            // We see the connect button in the form modal
+            expect(screen.getByTestId('connect-button')).to.be.visible;
+
+            // Connection string is pre-filled with a duplicate
+            expect(screen.getByTestId('connectionString')).to.have.value(
+              savedFavoriteConnection.connectionOptions.connectionString
+            );
           });
 
           it('should disconnect and remove the connection when clicked on remove action', async function () {

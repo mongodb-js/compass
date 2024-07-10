@@ -42,6 +42,7 @@ import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
+import { UUID } from 'bson';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -188,6 +189,13 @@ export function MultipleConnectionSidebar({
   const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
     useState<RegExp | null>(null);
   const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
+  const [duplicateInProgress, setDuplicateInProgress] = useState<
+    ConnectionInfo | undefined
+  >(undefined);
+  useEffect(() => {
+    if (!isConnectionFormOpen) setDuplicateInProgress(undefined);
+  }, [isConnectionFormOpen]);
+
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
@@ -207,8 +215,8 @@ export function MultipleConnectionSidebar({
     cancelConnectionAttempt,
     removeConnection,
     saveConnection,
-    duplicateConnection,
     createNewConnection,
+    getConnectionDuplicate,
     state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
   } = useConnections();
 
@@ -394,10 +402,10 @@ export function MultipleConnectionSidebar({
 
   const onDuplicateConnection = useCallback(
     (info: ConnectionInfo) => {
-      duplicateConnection(info);
+      setDuplicateInProgress(getConnectionDuplicate(info));
       setIsConnectionFormOpen(true);
     },
-    [duplicateConnection, setIsConnectionFormOpen]
+    [setIsConnectionFormOpen, getConnectionDuplicate]
   );
 
   const onToggleFavoriteConnectionInfo = useCallback(
@@ -497,7 +505,7 @@ export function MultipleConnectionSidebar({
           onConnectClicked={onNewConnectionConnect}
           key={activeConnectionId}
           onSaveConnectionClicked={onSaveNewConnection}
-          initialConnectionInfo={activeConnectionInfo}
+          initialConnectionInfo={duplicateInProgress || activeConnectionInfo}
           connectionErrorMessage={connectionErrorMessage}
           preferences={formPreferences}
         />

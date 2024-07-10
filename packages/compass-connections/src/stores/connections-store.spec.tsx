@@ -574,13 +574,8 @@ describe('use-connections hook', function () {
     });
   });
 
-  describe('#duplicateConnection', function () {
-    let hookResult: RenderResult<ReturnType<typeof useConnections>>;
-
-    it('should duplicate a connection', async function () {
-      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-
+  describe('getConnectionDuplicate', function () {
+    it('should return a connection duplicate', async function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
@@ -592,19 +587,53 @@ describe('use-connections hook', function () {
         expect(result.current.favoriteConnections.length).to.equal(2);
       });
 
-      result.current.setActiveConnectionById('turtle');
-      result.current.duplicateConnection(result.current.favoriteConnections[0]);
+      const original = result.current.favoriteConnections[0];
+      const duplicate = result.current.getConnectionDuplicate(original);
 
-      await waitFor(() => {
-        expect(loadAllSpy).to.have.been.called;
-        expect(saveSpy.callCount).to.equal(1);
+      expect(duplicate).to.haveOwnProperty('id');
+      expect(duplicate.id).not.to.equal(original.id);
+      delete original.id;
+      delete duplicate.id;
+      expect(duplicate).to.deep.equal({
+        ...original,
+        favorite: {
+          ...original.favorite,
+          name: `${original.favorite.name} (1)`,
+        },
       });
-
-      hookResult = result;
     });
 
-    it('should set the duplicated connection as current active', function () {
-      expect(hookResult.current.state.activeConnectionId).to.not.equal(null);
+    it('should increment (number) appendix', async function () {
+      mockConnectionStorage = new InMemoryConnectionStorage([
+        mockConnections[0],
+        {
+          ...mockConnections[0],
+          favorite: {
+            ...mockConnections[0].favorite,
+            name: `${mockConnections[0].favorite.name} (1)`,
+          },
+        },
+      ]);
+      const { result } = renderHookWithContext(() =>
+        useConnections({
+          onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
+        })
+      );
+      await waitFor(() => {
+        expect(result.current.favoriteConnections.length).to.equal(2);
+      });
+
+      const original = result.current.favoriteConnections[0]; // copying the original
+      const duplicate = result.current.getConnectionDuplicate(original);
+      expect(duplicate.favorite.name).to.equal(`${original.favorite.name} (2)`);
+
+      const copy = result.current.favoriteConnections[1]; // copying the copy
+      const duplicate2 = result.current.getConnectionDuplicate(copy);
+      expect(duplicate2.favorite.name).to.equal(
+        `${original.favorite.name} (2)`
+      );
     });
   });
 
