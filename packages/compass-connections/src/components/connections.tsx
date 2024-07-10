@@ -92,7 +92,7 @@ function Connections({
     cancelConnectionAttempt,
     connect,
     createNewConnection,
-    duplicateConnection,
+    legacyDuplicateConnection: duplicateConnection,
     setActiveConnectionById,
     removeAllRecentsConnections,
     removeConnection,

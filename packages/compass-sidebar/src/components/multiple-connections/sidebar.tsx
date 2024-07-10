@@ -207,8 +207,8 @@ export function MultipleConnectionSidebar({
     cancelConnectionAttempt,
     removeConnection,
     saveConnection,
-    duplicateConnection,
     createNewConnection,
+    createDuplicateConnection,
     state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
   } = useConnections();
 
@@ -394,10 +394,10 @@ export function MultipleConnectionSidebar({
 
   const onDuplicateConnection = useCallback(
     (info: ConnectionInfo) => {
-      duplicateConnection(info);
+      createDuplicateConnection(info);
       setIsConnectionFormOpen(true);
     },
-    [duplicateConnection, setIsConnectionFormOpen]
+    [setIsConnectionFormOpen, createDuplicateConnection]
   );
 
   const onToggleFavoriteConnectionInfo = useCallback(
