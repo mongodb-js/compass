@@ -266,6 +266,7 @@ export class Document extends EventEmitter {
   insertBeginning(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertBeginning(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -280,6 +281,7 @@ export class Document extends EventEmitter {
   insertEnd(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertEnd(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -299,6 +301,7 @@ export class Document extends EventEmitter {
   ): Element | undefined {
     const newElement = this.elements.insertAfter(element, key, value);
     newElement?._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -403,6 +406,7 @@ export class Document extends EventEmitter {
       element.expand(true);
     }
     this.emit(Events.Expanded);
+    this.emit(Events.VisibleElementsChanged, this);
   }
 
   /**
@@ -414,6 +418,7 @@ export class Document extends EventEmitter {
       element.collapse();
     }
     this.emit(Events.Collapsed);
+    this.emit(Events.VisibleElementsChanged, this);
   }
 
   getVisibleElements() {
