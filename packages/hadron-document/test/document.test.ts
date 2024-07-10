@@ -2419,4 +2419,105 @@ describe('Document', function () {
       expect(collapsedSpy).to.be.calledOnce;
     });
   });
+
+  describe('#getVisibleElements', function () {
+    const doc = {
+      a1: 'a1',
+      b1: {
+        b11: 'b1.1',
+        b12: 'b1.2',
+      },
+    };
+
+    it("should return total elements if the elements are less than document's visible element count", function () {
+      expect(new Document(doc).getVisibleElements()).to.have.lengthOf(2);
+    });
+
+    it("should return sliced list of nested elements if nested elements are more than element's visible element count", function () {
+      const document = new Document(doc);
+      document.setVisibleElementsCount(1);
+      const visibleElements = document.getVisibleElements();
+      expect(visibleElements).to.have.lengthOf(1);
+      expect(visibleElements.map((element) => element.value)).to.deep.equal([
+        'a1',
+      ]);
+
+      document.setVisibleElementsCount(10);
+      expect(document.getVisibleElements()).to.have.lengthOf(2);
+    });
+  });
+
+  describe('#setVisibleElementsCount', function () {
+    it('should update the visible count and emit an event', function () {
+      const spy = Sinon.spy();
+      const document = new Document({
+        a1: 'a1',
+        b1: {
+          b11: 'b1.1',
+          b12: 'b1.2',
+        },
+      });
+      document.on(DocumentEvents.VisibleElementsChanged, spy);
+      document.setVisibleElementsCount(10);
+      expect(document.visibleElementsCount).to.equal(10);
+      expect(spy).to.be.calledWithExactly(document);
+    });
+  });
+
+  describe('#getTotalVisibleElementsCount', function () {
+    it('should return the count of top level fields only if none of the fields are expanded', function () {
+      const document = new Document({
+        a1: 'a1',
+        b1: {
+          b11: 'b1.1',
+          b12: 'b1.2',
+        },
+      });
+      expect(document.getTotalVisibleElementsCount()).to.equal(2);
+    });
+    it('should do a recursive tree traversal for providing the total visible elements count', function () {
+      const document = new Document({
+        a1: 'a1',
+        b1: {
+          b11: 'b1.1',
+          b12: 'b1.2',
+        },
+      });
+      // we need to expand the element all the way to its children to make it
+      // visible
+      document.expand();
+      expect(document.getTotalVisibleElementsCount()).to.equal(4);
+    });
+    context(
+      'and total elements are less than the allowed visible elements',
+      function () {
+        it('should return the count for number of elements', function () {
+          const document = new Document({
+            a1: 'a1',
+            b1: {
+              b11: 'b1.1',
+              b12: 'b1.2',
+            },
+          });
+          expect(document.getTotalVisibleElementsCount()).to.equal(2);
+        });
+      }
+    );
+    context(
+      'and total child elements are more than the allowed visible elements',
+      function () {
+        it('should return the count for allowed visible elements', function () {
+          const document = new Document({
+            a1: 'a1',
+            b1: {
+              b11: 'b1.1',
+              b12: 'b1.2',
+            },
+          });
+          document.setVisibleElementsCount(1);
+          expect(document.getTotalVisibleElementsCount()).to.equal(1);
+        });
+      }
+    );
+  });
 });

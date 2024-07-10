@@ -19,12 +19,15 @@ export const Events = {
   Cancel: 'Document::Cancel',
   Expanded: 'Document::Expanded',
   Collapsed: 'Document::Collapsed',
+  VisibleElementsChanged: 'Document::VisibleElementsChanged',
 };
 
 /**
  * The id field.
  */
 const ID = '_id';
+
+export const DEFAULT_VISIBLE_ELEMENTS = 25;
 
 /**
  * Represents a document.
@@ -39,6 +42,7 @@ export class Document extends EventEmitter {
   currentType: 'Document';
   size: number | null = null;
   expanded = false;
+  visibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
 
   /**
    * Send cancel event.
@@ -410,6 +414,24 @@ export class Document extends EventEmitter {
       element.collapse();
     }
     this.emit(Events.Collapsed);
+  }
+
+  getVisibleElements() {
+    return [...this.elements].slice(0, this.visibleElementsCount);
+  }
+
+  setVisibleElementsCount(newCount: number) {
+    this.visibleElementsCount = newCount;
+    this.emit(Events.VisibleElementsChanged, this);
+  }
+
+  getTotalVisibleElementsCount() {
+    const visibleElements = this.getVisibleElements();
+    return visibleElements.reduce((totalVisibleChildElements, element) => {
+      return (
+        totalVisibleChildElements + 1 + element.getTotalVisibleElementsCount()
+      );
+    }, 0);
   }
 }
 
