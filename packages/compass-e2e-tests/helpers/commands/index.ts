@@ -15,7 +15,7 @@ export * from './collection-workspaces';
 export * from './run-find-operation';
 export * from './focus-stage-operator';
 export * from './select-stage-operator';
-export * from './close-workspace-tabs';
+export * from './workspace-tabs';
 export * from './set-validation';
 export * from './wait-for-animations';
 export * from './wait-for-aria-disabled';

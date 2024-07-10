@@ -184,6 +184,8 @@ const selectedCloseButtonStyles = css({
 type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 type TabProps = {
+  connectionName?: string;
+  type: string;
   title: string;
   isSelected: boolean;
   isDragging: boolean;
@@ -196,6 +198,8 @@ type TabProps = {
 };
 
 function Tab({
+  connectionName,
+  type,
   title,
   isSelected,
   isDragging,
@@ -254,6 +258,8 @@ function Tab({
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
       data-testid="workspace-tab-button"
+      data-connectionName={connectionName}
+      data-type={type}
       title={subtitle ? subtitle : title}
       {...tabProps}
     >

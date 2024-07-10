@@ -15,6 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -287,8 +288,9 @@ describe('Connection string', function () {
 
   it('can connect using connection string', async function () {
     await browser.connectWithConnectionString();
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionNameFromString(DEFAULT_CONNECTION_STRING),
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -309,8 +311,9 @@ describe('Connection string', function () {
 
     const connectionString = await resolveMongodbSrv(withSRV);
     await browser.connectWithConnectionString(connectionString);
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionNameFromString(connectionString),
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -339,8 +342,9 @@ describe('Connection string', function () {
     const connectionString = parsedString.toString();
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionNameFromString(connectionString),
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -358,11 +362,13 @@ describe('Connection string', function () {
     const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
     const host = process.env.E2E_TESTS_SERVERLESS_HOST ?? '';
     const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+    const connectionName = connectionNameFromString(connectionString);
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -380,11 +386,13 @@ describe('Connection string', function () {
     const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
     const host = process.env.E2E_TESTS_DATA_LAKE_HOST ?? '';
     const connectionString = `mongodb://${username}:${password}@${host}/?authSource=admin&tls=true`;
+    const connectionName = connectionNameFromString(connectionString);
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -402,11 +410,13 @@ describe('Connection string', function () {
     const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
     const host = process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? '';
     const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+    const connectionName = connectionNameFromString(connectionString);
 
     await browser.connectWithConnectionString(connectionString);
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -424,10 +434,12 @@ describe('Connection string', function () {
     const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
     const host = process.env.E2E_TESTS_FREE_TIER_HOST ?? '';
     const connectionString = `mongodb+srv://${username}:${password}@${host}`;
+    const connectionName = connectionNameFromString(connectionString);
 
     await browser.connectWithConnectionString(connectionString);
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -441,22 +453,21 @@ describe('Connection string', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
-    );
+    const connectionString =
+      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? '';
+    const connectionName = connectionNameFromString(connectionString);
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    await browser.connectWithConnectionString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
     }
-
-    const connectionName = connectionNameFromString(
-      process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
-    );
 
     await assertCanReadData(
       browser,
@@ -471,22 +482,22 @@ describe('Connection string', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
-    );
+    const connectionString =
+      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? '';
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    await browser.connectWithConnectionString(connectionString);
+
+    const connectionName = connectionNameFromString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
     }
-
-    const connectionName = connectionNameFromString(
-      process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
-    );
 
     await assertCanReadData(
       browser,
@@ -519,22 +530,22 @@ describe('Connection string', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
-    );
+    const connectionString =
+      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? '';
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    await browser.connectWithConnectionString(connectionString);
+
+    const connectionName = connectionNameFromString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
     }
-
-    const connectionName = connectionNameFromString(
-      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
-    );
 
     await assertCanReadData(browser, connectionName, 'test', 'users');
     await assertCannotCreateDb(
@@ -556,22 +567,22 @@ describe('Connection string', function () {
       return this.skip();
     }
 
-    await browser.connectWithConnectionString(
-      process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
-    );
+    const connectionString =
+      process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? '';
 
-    if (!TEST_COMPASS_WEB && !TEST_MULTIPLE_CONNECTIONS) {
+    await browser.connectWithConnectionString(connectionString);
+
+    const connectionName = connectionNameFromString(connectionString);
+
+    if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
     }
-
-    const connectionName = connectionNameFromString(
-      process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
-    );
 
     await assertCanReadData(browser, connectionName, 'test', 'users');
     await assertCannotInsertData(browser, connectionName, 'test', 'users');
@@ -615,20 +626,19 @@ describe('Connection form', function () {
   });
 
   it('can connect using connection form', async function () {
-    const connectionName = this.test?.fullTitle();
+    const connectionName = this.test?.fullTitle() ?? '';
 
     await browser.connectWithConnectionForm({
       hosts: ['127.0.0.1:27091'],
       connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to an Atlas cluster with username/password authentication (SCRAM-SHA-1)', async function () {
@@ -636,7 +646,7 @@ describe('Connection form', function () {
       return this.skip();
     }
 
-    const connectionName = this.test?.fullTitle();
+    const connectionName = this.test?.fullTitle() ?? '';
 
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ATLAS_HOST ?? ''
@@ -645,14 +655,13 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to an Atlas cluster with X.509 authentication', async function () {
@@ -660,7 +669,7 @@ describe('Connection form', function () {
       return this.skip();
     }
 
-    const connectionName = this.test?.fullTitle();
+    const connectionName = this.test?.fullTitle() ?? '';
 
     let tempdir;
     try {
@@ -679,14 +688,13 @@ describe('Connection form', function () {
         ...atlasConnectionOptions,
         connectionName,
       });
-      if (!TEST_MULTIPLE_CONNECTIONS) {
-        const result = await browser.shellEval(
-          'db.runCommand({ connectionStatus: 1 })',
-          true
-        );
-        assertNotError(result);
-        expect(result).to.have.property('ok', 1);
-      }
+      const result = await browser.shellEval(
+        connectionName,
+        'db.runCommand({ connectionStatus: 1 })',
+        true
+      );
+      assertNotError(result);
+      expect(result).to.have.property('ok', 1);
     } finally {
       if (tempdir) {
         await fs.rmdir(tempdir, { recursive: true });
@@ -699,7 +707,7 @@ describe('Connection form', function () {
       return this.skip();
     }
 
-    const connectionName = this.test?.fullTitle();
+    const connectionName = this.test?.fullTitle() ?? '';
 
     const atlasConnectionOptions: ConnectFormState = {
       hosts: [process.env.E2E_TESTS_FREE_TIER_HOST ?? ''],
@@ -713,14 +721,13 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to an Atlas cluster with AWS IAM authentication (including session token)', async function () {
@@ -745,18 +752,18 @@ describe('Connection form', function () {
       awsSecretAccessKey: secret,
       awsSessionToken: token,
     };
+    const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to an Atlas with tlsUseSystemCA', async function () {
@@ -767,6 +774,7 @@ describe('Connection form', function () {
     const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
     const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
     const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+    const connectionName = this.test?.fullTitle() ?? '';
 
     await browser.connectWithConnectionForm({
       scheme: 'MONGODB_SRV',
@@ -776,19 +784,18 @@ describe('Connection form', function () {
       hosts: [host],
       sslConnection: 'ON',
       useSystemCA: true,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
 
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      await new Promise((resolve) => setTimeout(resolve, 10000));
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Serverless', async function () {
@@ -799,18 +806,18 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
     );
+    const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Datalake', async function () {
@@ -825,19 +832,19 @@ describe('Connection form', function () {
     atlasConnectionOptions.defaultDatabase = 'test';
     atlasConnectionOptions.sslConnection = 'ON';
     atlasConnectionOptions.defaultAuthSource = 'admin';
+    const connectionName = this.test?.fullTitle() ?? '';
 
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Analytics Node', async function () {
@@ -848,18 +855,18 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? ''
     );
+    const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 
   it('can connect to Atlas Free Tier', async function () {
@@ -870,18 +877,18 @@ describe('Connection form', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
     );
+    const connectionName = this.test?.fullTitle() ?? '';
     await browser.connectWithConnectionForm({
       ...atlasConnectionOptions,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval(
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    assertNotError(result);
+    expect(result).to.have.property('ok', 1);
   });
 });
 
@@ -965,22 +972,20 @@ describe('System CA access', function () {
   });
 
   it('allows using the system certificate store for connections', async function () {
-    // TODO(COMPASS-8004): this uses shellEval and that's not working in multiple connections yet
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
+
+    const connectionName = this.test?.fullTitle() ?? '';
 
     try {
       await browser.connectWithConnectionForm({
         hosts: ['127.0.0.1:27091'],
         sslConnection: 'DEFAULT',
         useSystemCA: true,
-        connectionName: this.test?.fullTitle(),
+        connectionName,
       });
       const result = await browser.shellEval(
+        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -1045,6 +1050,8 @@ describe('FLE2', function () {
       return this.skip();
     }
 
+    const connectionName = this.test?.fullTitle() ?? '';
+
     await browser.connectWithConnectionForm({
       hosts: ['127.0.0.1:27091'],
       fleKeyVaultNamespace: 'alena.keyvault',
@@ -1060,12 +1067,14 @@ describe('FLE2', function () {
           ]
         }
       }`,
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval('db.getName()', true);
-      expect(result).to.be.equal('test');
-    }
+    const result = await browser.shellEval(
+      connectionName,
+      'db.getName()',
+      true
+    );
+    expect(result).to.be.equal('test');
   });
 });
 

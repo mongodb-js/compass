@@ -9,10 +9,13 @@ async function getOutputText(browser: CompassBrowser): Promise<string[]> {
 
 export async function shellEval(
   browser: CompassBrowser,
+  connectionName: string,
   str: string,
   parse = false
 ): Promise<string> {
-  await browser.showShell();
+  // Keep in mind that for multiple connections this will open a new tab and
+  // focus it.
+  await browser.showShell(connectionName);
 
   const numLines = (await getOutputText(browser)).length;
 
@@ -52,7 +55,11 @@ export async function shellEval(
     }
   }
 
-  await browser.hideShell();
+  // For multiple connections we're currently making the assumption that closing
+  // the shell will put the user back on the tab they were on before
+  // opening the shell tab. This might not stay true as we start testing more
+  // complicated user flows.
+  await browser.hideShell(connectionName);
 
   return result as string;
 }
