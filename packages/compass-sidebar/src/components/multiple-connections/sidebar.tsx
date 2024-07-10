@@ -42,7 +42,6 @@ import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
-import { UUID } from 'bson';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
