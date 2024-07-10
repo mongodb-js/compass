@@ -73,7 +73,7 @@
     "@testing-library/dom": "^8.20.1",
     "babel-loader": "^7.1.5",
     "husky": "^8.0.3",
-    "js-yaml":"^4.1.0",
+    "js-yaml": "^4.1.0",
     "lerna": "^7.1.5",
     "lodash": "^4.17.21",
     "node-gyp": "^8.4.1"
@@ -90,5 +90,17 @@
     "packages/*",
     "configs/*",
     "scripts"
-  ]
+  ],
+  "//": "TODO: remove after mongosh is updated to latest",
+  "overrides": {
+    "@mongosh/history": {
+      "mongodb-redact": "1.1.0"
+    },
+    "@mongosh/logging": {
+      "mongodb-redact": "1.1.0"
+    },
+    "@mongosh/shell-api": {
+      "mongodb-redact": "1.1.0"
+    }
+  }
 }
