@@ -10,7 +10,6 @@ import {
   useHotkeys,
 } from '@mongodb-js/compass-components';
 import React from 'react';
-import PropTypes from 'prop-types';
 
 const shellHeaderStyles = css({
   height: spacing[5],
@@ -155,14 +154,6 @@ export const ShellHeader = ({
       </div>
     </div>
   );
-};
-
-ShellHeader.propTypes = {
-  darkMode: PropTypes.bool,
-  isExpanded: PropTypes.bool.isRequired,
-  isOperationInProgress: PropTypes.bool.isRequired,
-  onShellToggleClicked: PropTypes.func.isRequired,
-  showInfoModal: PropTypes.func.isRequired,
 };
 
 export default withDarkMode(
