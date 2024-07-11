@@ -311,9 +311,7 @@ describe('when a user has a saved query associated with a collection that does n
       Selectors.QueryHistoryFavoriteItemNameField,
       favoriteQueryName
     );
-    await browser.clickVisible(
-      Selectors.QueryHistorySaveFavoriteItemButton
-    );
+    await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
     await browser.navigateToConnectionTab(
@@ -357,9 +355,6 @@ describe('when a user has a saved query associated with a collection that does n
         connectionName,
         Selectors.Multiple.RefreshDatabasesItem
       );
-
-      // go to My Queries because for multiple connections it is not the default tab
-      //await browser.navigateToMyQueries();
     } else {
       await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
     }
