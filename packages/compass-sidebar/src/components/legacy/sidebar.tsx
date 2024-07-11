@@ -150,6 +150,13 @@ export function Sidebar({
         return;
       }
 
+      if (action === 'refresh-databases') {
+        onSidebarAction(action, ...rest, {
+          connectionId: initialConnectionInfo.id,
+        });
+        return;
+      }
+
       onSidebarAction(action, ...rest);
     },
     [

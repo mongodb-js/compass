@@ -75,7 +75,7 @@ type DatabasesProps = {
   isDataLake: boolean;
   onDeleteDatabaseClick(connectionId: string, ns: string): void;
   onCreateDatabaseClick(connectionId: string): void;
-  onRefreshClick(): void;
+  onRefreshClick(connectionId: string): void;
 };
 
 const Databases: React.FunctionComponent<DatabasesProps> = ({
@@ -87,7 +87,7 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   isGenuineMongoDB,
   onDeleteDatabaseClick: _onDeleteDatabaseClick,
   onCreateDatabaseClick: _onCreateDatabaseClick,
-  onRefreshClick,
+  onRefreshClick: _onRefreshClick,
 }) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
@@ -111,6 +111,10 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   const onCreateDatabaseClick = useCallback(() => {
     _onCreateDatabaseClick(connectionId);
   }, [connectionId, _onCreateDatabaseClick]);
+
+  const onRefreshClick = useCallback(() => {
+    _onRefreshClick(connectionId);
+  }, [connectionId, _onRefreshClick]);
 
   useTrackOnChange(
     (track: TrackFunction) => {
