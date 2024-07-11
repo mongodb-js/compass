@@ -111,7 +111,15 @@ export function createInstancesStore(
       // Event emitted when the Databases grid needs to be refreshed. We
       // additionally refresh the list of collections as well since there is the
       // side navigation which could be in expanded mode
-      async function refreshDatabases() {
+      async function refreshDatabases({
+        connectionId,
+      }: {
+        connectionId: string;
+      }) {
+        if (instanceConnectionId !== connectionId) {
+          return;
+        }
+
         try {
           await instance.fetchDatabases({ dataService, force: true });
           await Promise.allSettled(

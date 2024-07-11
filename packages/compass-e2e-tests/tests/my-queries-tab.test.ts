@@ -41,7 +41,7 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-describe.only('My Queries tab', function () {
+describe('My Queries tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
