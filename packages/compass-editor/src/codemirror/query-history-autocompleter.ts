@@ -13,18 +13,6 @@ export type SavedQuery = {
   };
 };
 
-function scaleBetween(
-  unscaledNum: number,
-  minAllowed: number,
-  maxAllowed: number,
-  min: number,
-  max: number
-) {
-  return (
-    ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed
-  );
-}
-
 export const createQueryHistoryAutocompleter = (
   savedQueries: SavedQuery[],
   onApply: (query: SavedQuery['queryProperties']) => void
@@ -46,6 +34,7 @@ export const createQueryHistoryAutocompleter = (
       apply: () => {
         onApply(query.queryProperties);
       },
+      // CodeMirror expects boost values to be between -99 and 99
       boost: scaleBetween(
         query.lastExecuted.getTime(),
         -99,
@@ -113,4 +102,17 @@ function createInfo(query: SavedQuery): {
       }
     },
   };
+}
+
+// scales a number unscaledNum between [minAllowed, maxAllowed]
+function scaleBetween(
+  unscaledNum: number,
+  minAllowed: number,
+  maxAllowed: number,
+  min: number,
+  max: number
+) {
+  return (
+    ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed
+  );
 }

@@ -19,11 +19,19 @@ export const createQueryWithHistoryAutocompleter = (
     recentQueries,
     onApply
   );
+
   const originalQueryAutocompleter = createQueryAutocompleter(options);
-  const historySection: CompletionSection = { name: 'Query History' };
+  const historySection: CompletionSection = {
+    name: 'Query History',
+    header: renderHorizontalLine,
+  };
 
   return async function fullCompletions(context: CompletionContext) {
+    if (context.state.doc.toString() === '{}')
+      return queryHistoryAutocompleter(context);
+
     const combinedOptions = [];
+    // completions assigned to a section appear below ones that are not assigned
     const originalCompletions = await originalQueryAutocompleter(context);
     const historyCompletions = await queryHistoryAutocompleter(context);
 
@@ -52,3 +60,11 @@ export const createQueryWithHistoryAutocompleter = (
     };
   };
 };
+
+function renderHorizontalLine(): HTMLElement {
+  const header = document.createElement('div');
+  header.style.display = 'list-item';
+  header.style.borderBottom = '1px dashed #ccc';
+  header.style.margin = '5px 0';
+  return header;
+}
