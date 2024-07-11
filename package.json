@@ -90,17 +90,5 @@
     "packages/*",
     "configs/*",
     "scripts"
-  ],
-  "//": "TODO: remove after mongosh is updated to latest",
-  "overrides": {
-    "@mongosh/history": {
-      "mongodb-redact": "1.1.0"
-    },
-    "@mongosh/logging": {
-      "mongodb-redact": "1.1.0"
-    },
-    "@mongosh/shell-api": {
-      "mongodb-redact": "1.1.0"
-    }
-  }
+  ]
 }
