@@ -187,7 +187,7 @@
     "keytar": "^7.9.0",
     "mongodb-client-encryption": "^6.0.0",
     "os-dns-native": "^1.2.1",
-    "system-ca": "^1.0.3"
+    "system-ca": "^2.0.0"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.6.0",
@@ -277,6 +277,6 @@
   },
   "optionalDependencies": {
     "macos-export-certificate-and-key": "^1.1.2",
-    "win-export-certificate-and-key": "^1.1.2"
+    "win-export-certificate-and-key": "^2.0.1"
   }
 }
