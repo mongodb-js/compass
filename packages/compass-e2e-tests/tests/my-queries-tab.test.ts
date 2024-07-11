@@ -342,8 +342,6 @@ describe('My Queries tab', function () {
           `db.numbers.renameCollection('${newCollectionName}')`
         );
 
-        await browser.screenshot('before-refresh.png');
-
         if (TEST_MULTIPLE_CONNECTIONS) {
           await browser.selectConnectionMenuItem(
             connectionName,
@@ -352,8 +350,6 @@ describe('My Queries tab', function () {
         } else {
           await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
         }
-
-        await browser.screenshot('after-refresh.png');
 
         await browser.navigateToMyQueries();
         // browse to the query
