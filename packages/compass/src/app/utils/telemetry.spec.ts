@@ -42,7 +42,12 @@ const connectionInfo: ConnectionInfo = {
   },
 };
 
-describe('connection tracking', function () {
+const activeInactiveConnectionsCount = {
+  active: 3,
+  inactive: 7,
+};
+
+describe.only('connection tracking', function () {
   let trackUsageStatistics: boolean;
   const logger = createLogger('TEST-CONNECTION');
   const track = createIpcTrack();
@@ -142,7 +147,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
     const expected = {
       is_localhost: true,
@@ -170,6 +181,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -184,7 +197,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -213,6 +232,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -240,7 +261,13 @@ describe('connection tracking', function () {
         },
       };
 
-      trackNewConnectionEvent(connection, dataService, logger, track);
+      trackNewConnectionEvent(
+        connection,
+        dataService,
+        logger,
+        track,
+        activeInactiveConnectionsCount
+      );
       const [{ properties }] = await trackEvent;
 
       const expected = {
@@ -270,6 +297,8 @@ describe('connection tracking', function () {
         is_public_cloud: true,
         public_cloud_name: 'AWS',
         connection_id: 'TEST',
+        active_connections_count: activeInactiveConnectionsCount.active,
+        inactive_connections_count: activeInactiveConnectionsCount.inactive,
       };
 
       expect(properties).to.deep.equal(expected);
@@ -313,7 +342,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      mockDataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -342,6 +377,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -356,7 +393,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -386,6 +429,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -400,7 +445,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -429,6 +480,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -443,7 +496,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -471,6 +530,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -485,7 +546,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -513,6 +580,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -531,7 +600,13 @@ describe('connection tracking', function () {
             connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
-        trackNewConnectionEvent(connection, dataService, logger, track);
+        trackNewConnectionEvent(
+          connection,
+          dataService,
+          logger,
+          track,
+          activeInactiveConnectionsCount
+        );
         const [{ properties }] = await trackEvent;
         expect(properties.auth_type).to.equal(authMechanism || 'DEFAULT');
       });
@@ -546,7 +621,13 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
     expect(properties.auth_type).to.equal('NONE');
   });
@@ -559,7 +640,13 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('none');
   });
@@ -577,7 +664,13 @@ describe('connection tracking', function () {
         },
       },
     };
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('ssh');
   });
@@ -590,7 +683,13 @@ describe('connection tracking', function () {
         connectionString: 'mongodb+srv://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
     expect(properties.is_srv).to.equal(true);
   });
@@ -632,7 +731,13 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      mockDataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
@@ -683,7 +788,13 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      mockDataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
@@ -756,7 +867,13 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connection, dataService, logger, track);
+    trackNewConnectionEvent(
+      connection,
+      dataService,
+      logger,
+      track,
+      activeInactiveConnectionsCount
+    );
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -785,6 +902,8 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
