@@ -14,6 +14,7 @@ import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
+  fetchSavedQueries,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
@@ -163,6 +164,8 @@ export function activatePlugin(
       readonly: !instance.isWritable,
     });
   });
+
+  store.dispatch(fetchSavedQueries());
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };
 }

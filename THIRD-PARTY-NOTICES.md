@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jul 09 2024.
+This document was automatically generated on Thu Jul 11 2024.
 
 ## List of dependencies
 
@@ -423,7 +423,7 @@ This document was automatically generated on Tue Jul 09 2024.
 | **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**                                 | 1.4.2        | Apache-2.0                          |
 | **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**                                         | 2.4.2        | MIT                                 |
 | **[mongodb-query-parser](#9f3ddf73a8002fab690b67f0054b65229001a6020a697e3ea8103b39dc20dd94)**                               | 4.1.2        | Apache-2.0                          |
-| **[mongodb-redact](#f2e211a75ccc2bd1c32144837dbd44675e30fd51a9e4e60b8ba3bc0b1750af38)**                                     | 0.2.3        | Apache-2.0                          |
+| **[mongodb-redact](#9dfa40be1a8ba1ded5ec7d6df21649a218c35e135bcf2f4543a03bf68274cd24)**                                     | 1.1.0        | Apache-2.0                          |
 | **[mongodb-schema](#652dcef4a8a39849996a5f858fe48048e806fda4ce1aa0f757ada56bef011145)**                                     | 12.2.0       | Apache-2.0                          |
 | **[mongodb](#d7483daab94fde07ac4a7920bd6d7070eec5f48fdf516669acd398920978d9fe)**                                            | 6.7.0        | Apache-2.0                          |
 | **[ms](#484b814b85d5028e34246147c8fc901d33570202bd7cdc3703c0ed1078eba0aa)**                                                 | 2.0.0        | MIT                                 |
@@ -27595,9 +27595,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="f2e211a75ccc2bd1c32144837dbd44675e30fd51a9e4e60b8ba3bc0b1750af38"></a>
+<a id="9dfa40be1a8ba1ded5ec7d6df21649a218c35e135bcf2f4543a03bf68274cd24"></a>
 
-### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 0.2.3)
+### [mongodb-redact](https://www.npmjs.com/package/mongodb-redact) (version 1.1.0)
 
 License tags: Apache-2.0
 
