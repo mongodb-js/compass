@@ -389,7 +389,7 @@ export const runStage = (
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, preferences, globalAppRegistry }
+    { pipelineBuilder, preferences, connectionScopedAppRegistry }
   ) => {
     const {
       dataService: { dataService },
@@ -442,7 +442,7 @@ export const runStage = (
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
       });
-      globalAppRegistry.emit(
+      connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
         getDestinationNamespaceFromStage(
           namespace,

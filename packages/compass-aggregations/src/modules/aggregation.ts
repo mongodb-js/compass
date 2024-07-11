@@ -400,7 +400,7 @@ const fetchAggregationData = (
       logger: { log, mongoLogId },
       track,
       connectionInfoAccess,
-      globalAppRegistry,
+      connectionScopedAppRegistry,
     }
   ) => {
     const {
@@ -452,7 +452,7 @@ const fetchAggregationData = (
       });
 
       if (isMergeOrOut) {
-        globalAppRegistry.emit(
+        connectionScopedAppRegistry.emit(
           'agg-pipeline-out-executed',
           getDestinationNamespaceFromStage(
             namespace,
