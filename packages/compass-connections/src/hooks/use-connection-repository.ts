@@ -53,19 +53,7 @@ export type ConnectionRepository = {
   getConnectionTitleById: (id: ConnectionInfo['id']) => string | undefined;
 };
 
-export function useConnectionRepository({
-  onConnectionCreated,
-  onConnectionRemoved,
-}: {
-  onConnectionCreated?: (
-    connectionInfo: ConnectionInfo,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
-  onConnectionRemoved?: (
-    connectionInfo: ConnectionInfo,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
-} = {}): ConnectionRepository {
+export function useConnectionRepository(): ConnectionRepository {
   const storage = useConnectionStorageContext();
 
   const [favoriteConnections, setFavoriteConnections] = useState<
@@ -83,7 +71,7 @@ export function useConnectionRepository({
   const persistOIDCTokens = usePreference('persistOIDCTokens');
 
   useEffect(() => {
-    async function updateListsOfConnections(firstRender = false) {
+    async function updateListsOfConnections() {
       const allConnections = (await storage.loadAll()) || [];
       let prevConnections: ConnectionInfo[] = [];
 
@@ -130,28 +118,9 @@ export function useConnectionRepository({
           }
         });
       }
-
-      if (firstRender) return;
-      const newConnections = allConnections;
-      // TODO: there might be multiple new connections - import
-      if (newConnections.length < prevConnections.length) {
-        const missing = prevConnections.find(
-          ({ id: idA }) => !newConnections.find(({ id: idB }) => idA === idB)
-        );
-        console.log({ missing, onConnectionRemoved });
-        if (missing) onConnectionRemoved?.(missing, { active: 0, inactive: 0 }); // TODO
-      }
-      if (newConnections.length > prevConnections.length) {
-        const newcomer = newConnections.find(
-          ({ id: idA }) => !prevConnections.find(({ id: idB }) => idA === idB)
-        );
-        console.log({ newcomer });
-        if (newcomer)
-          onConnectionCreated?.(newcomer, { active: 0, inactive: 0 }); // TODO
-      }
     }
 
-    void updateListsOfConnections(true);
+    void updateListsOfConnections();
 
     function updateListsOfConnectionsSubscriber() {
       void updateListsOfConnections();
@@ -176,8 +145,6 @@ export function useConnectionRepository({
       const infoToSave = (
         oldConnectionInfo ? merge(oldConnectionInfo, info) : info
       ) as ConnectionInfo;
-
-      console.log({ oldConnectionInfo, infoToSave });
 
       ensureWellFormedConnectionString(
         infoToSave.connectionOptions?.connectionString

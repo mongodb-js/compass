@@ -3,7 +3,6 @@ import { type ConnectionInfo, useConnectionsManagerContext } from '../provider';
 import { useConnections as useConnectionsStore } from '../stores/connections-store';
 import { useConnectionRepository as useConnectionsRepositoryState } from '../hooks/use-connection-repository';
 import { createServiceLocator } from 'hadron-app-registry';
-import { ActiveAndInactiveConnectionsCount } from '../types';
 
 const ConnectionsStoreContext = React.createContext<ReturnType<
   typeof useConnectionsStore
@@ -63,22 +62,13 @@ export function useConnections() {
   return store;
 }
 
-export function useConnectionRepository(options: {
-  onConnectionCreated?: (
-    connectionInfo: ConnectionInfo,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
-  onConnectionRemoved?: (
-    connectionInfo: ConnectionInfo,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
-}) {
+export function useConnectionRepository() {
   const repository = useContext(ConnectionsRepositoryStateContext);
   if (!repository) {
     // TODO(COMPASS-7879): implement a default provider in test methods
     if (process.env.NODE_ENV === 'test') {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useConnectionsRepositoryState(options);
+      return useConnectionsRepositoryState();
     }
     throw new Error(
       'Can not use useConnectionRepository outside of ConnectionsProvider component'

@@ -6,7 +6,7 @@ import {
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
-import { cloneDeep, merge } from 'lodash';
+import { cloneDeep, find, merge } from 'lodash';
 import { UUID } from 'bson';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
@@ -195,7 +195,10 @@ export function useConnections({
   cancelConnectionAttempt: (
     connectionId: ConnectionInfo['id']
   ) => Promise<void>;
-  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  connect: (
+    connectionInfo: ConnectionInfo,
+    shouldSaveConnectionInfo: boolean
+  ) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
   createDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
@@ -215,10 +218,7 @@ export function useConnections({
     nonFavoriteConnections: recentConnections,
     saveConnection: repositorySaveConnection,
     deleteConnection: repositoryRemoveConnection,
-  } = useConnectionRepository({
-    onConnectionCreated,
-    onConnectionRemoved,
-  });
+  } = useConnectionRepository();
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -248,24 +248,35 @@ export function useConnections({
   );
 
   const saveConnectionInfo = useCallback(
-    async (
-      connectionInfo: RecursivePartial<ConnectionInfo> &
-        Pick<ConnectionInfo, 'id'>
-    ) => {
+    async ({
+      fullConnectionInfo,
+      partialConnectionInfo,
+    }:
+      | {
+          fullConnectionInfo?: undefined;
+          partialConnectionInfo: RecursivePartial<ConnectionInfo> &
+            Pick<ConnectionInfo, 'id'>;
+        }
+      | {
+          fullConnectionInfo: ConnectionInfo;
+          partialConnectionInfo?: undefined;
+        }) => {
+      const connectionInfo = fullConnectionInfo || partialConnectionInfo;
       try {
-        // const isNewConnection = !findConnectionInfo(connectionInfo.id);
-        // console.log({ isNewConnection });
-        // if (isNewConnection) {
-        //   const { active, inactive } = getActiveAndInactiveCount();
-        //   const isActive =
-        //     connectionsManager.statusOf(connectionInfo.id) === 'connected';
-        //   console.log('statusOf', connectionsManager.statusOf(connectionInfo.id));
-        //   // onConnectionCreated?.(connectionInfo, {
-        //   //   active: isActive ? active + 1 : active,
-        //   //   inactive: isActive ? inactive : inactive + 1,
-        //   // });
-        // }
-        await repositorySaveConnection(connectionInfo);
+        if (fullConnectionInfo) {
+          const isNewConnection = !findConnectionInfo(fullConnectionInfo.id);
+          if (isNewConnection) {
+            const { active, inactive } = getActiveAndInactiveCount();
+            const isActive =
+              connectionsManager.statusOf(fullConnectionInfo.id) ===
+              'connected'; // save normally happens first, but in case.
+            onConnectionCreated?.(fullConnectionInfo, {
+              active: isActive ? active + 1 : active,
+              inactive: isActive ? inactive : inactive + 1, // we can't use ConnectionRepository here, as it updates asynchronously
+            });
+          }
+        }
+        await repositorySaveConnection(connectionInfo || partialConnectionInfo);
         return true;
       } catch (err) {
         debug(
@@ -288,21 +299,23 @@ export function useConnections({
     [
       openToast,
       repositorySaveConnection,
-      getActiveAndInactiveCount,
       findConnectionInfo,
-      onConnectionCreated,
+      getActiveAndInactiveCount,
       connectionsManager,
+      onConnectionCreated,
     ]
   );
 
   const removeConnection = useCallback(
     async (connectionInfo: ConnectionInfo) => {
       await repositoryRemoveConnection(connectionInfo);
-      // const { active, inactive } = getActiveAndInactiveCount();
-      // onConnectionRemoved?.(connectionInfo, {
-      //   active,
-      //   inactive: inactive - 1, // TODO: double check
-      // });
+      const { active, inactive } = getActiveAndInactiveCount();
+      const isActive =
+        connectionsManager.statusOf(connectionInfo.id) === 'connected'; // disconnect normally happens first, but in case.
+      onConnectionRemoved?.(connectionInfo, {
+        active: isActive ? active - 1 : active,
+        inactive: isActive ? inactive : inactive - 1, // we can't use ConnectionRepository here, as it updates asynchronously
+      });
 
       if (activeConnectionId === connectionInfo.id) {
         const nextActiveConnection = createNewConnectionInfo();
@@ -316,14 +329,17 @@ export function useConnections({
       activeConnectionId,
       repositoryRemoveConnection,
       dispatch,
-      onConnectionRemoved,
       getActiveAndInactiveCount,
+      onConnectionRemoved,
+      connectionsManager,
     ]
   );
 
   const saveConnection = useCallback(
     async (connectionInfo: ConnectionInfo) => {
-      const saved = await saveConnectionInfo(connectionInfo);
+      const saved = await saveConnectionInfo({
+        fullConnectionInfo: connectionInfo,
+      });
       if (!saved) {
         return;
       }
@@ -361,7 +377,9 @@ export function useConnections({
           connectionOptions: await dataService.getUpdatedSecrets(),
         };
 
-        await saveConnectionInfo(mergeConnectionInfo);
+        await saveConnectionInfo({
+          partialConnectionInfo: mergeConnectionInfo,
+        });
       } catch (err: any) {
         log.warn(
           mongoLogId(1_001_000_195),
@@ -396,9 +414,8 @@ export function useConnections({
           ...merge(connectionInfo, mergeConnectionInfo),
           lastUsed: new Date(),
         };
-        console.log('shouldSaveConnectionInfo', { connectionInfoToSave });
 
-        await saveConnectionInfo(connectionInfoToSave);
+        await saveConnectionInfo({ fullConnectionInfo: connectionInfoToSave });
       } catch (err) {
         debug(
           `error occurred connection with id ${connectionInfo.id || ''}: ${
@@ -456,7 +473,7 @@ export function useConnections({
     _connectionInfo:
       | ConnectionInfo
       | (() => Promise<ConnectionInfo | undefined>),
-    shouldSaveConnectionInfo = true
+    shouldSaveConnectionInfo: boolean
   ) => {
     const isAutoconnectAttempt = typeof _connectionInfo === 'function';
     let connectionInfo: ConnectionInfo;
@@ -621,7 +638,7 @@ export function useConnections({
         duplicate.favorite.name = `${name} (${copyNumber})`;
       }
 
-      void saveConnectionInfo(duplicate).then(
+      void saveConnectionInfo({ fullConnectionInfo: duplicate }).then(
         () => {
           dispatch({
             type: 'set-active-connection',
