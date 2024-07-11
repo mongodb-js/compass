@@ -41,7 +41,7 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-describe('My Queries tab', function () {
+describe.only('My Queries tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
@@ -268,147 +268,131 @@ describe('My Queries tab', function () {
     const namespace = await browser.getActiveTabNamespace();
     expect(namespace).to.equal('test.numbers');
   });
-});
 
-describe('when a user has a saved query associated with a collection that does not exist', function () {
-  let compass: Compass;
-  let browser: CompassBrowser;
-  const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
-  const favoriteQueryName = 'list of numbers greater than 10 - query';
-  const newCollectionName = 'numbers-renamed';
+  context(
+    'when a user has a saved query associated with a collection that does not exist',
+    function () {
+      const favoriteQueryName = 'list of numbers greater than 10 - query';
+      const newCollectionName = 'numbers-renamed';
 
-  before(async function () {
-    skipForWeb(this, 'saved queries not yet available in compass-web');
+      it('users can permanently associate a new namespace for an aggregation/query', async function () {
+        // save a query and rename the collection associated with the query, so that the query must be opened with the "select namespace" modal
 
-    compass = await init(this.test?.fullTitle());
-    browser = compass.browser;
-  });
+        // Run a query
+        await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+        await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
+          limit: '10',
+        });
+        await browser.clickVisible(Selectors.QueryBarHistoryButton);
 
-  /** saves a query and renames the collection associated with the query, so that the query must be opened with the "select namespace" modal */
-  beforeEach(async function () {
-    await createNumbersCollection();
-    await browser.connectWithConnectionString();
+        // Wait for the popover to show
+        const history = await browser.$(Selectors.QueryBarHistory);
+        await history.waitForDisplayed();
 
-    // Run a query
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
-    await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
-      limit: '10',
-    });
-    await browser.clickVisible(Selectors.QueryBarHistoryButton);
+        // wait for the recent item to show.
+        const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
+        await recentCard.waitForDisplayed();
 
-    // Wait for the popover to show
-    const history = await browser.$(Selectors.QueryBarHistory);
-    await history.waitForDisplayed();
+        // Save the ran query
+        await browser.hover(Selectors.QueryHistoryRecentItem);
+        await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
+        await browser.setValueVisible(
+          Selectors.QueryHistoryFavoriteItemNameField,
+          favoriteQueryName
+        );
+        await browser.clickVisible(
+          Selectors.QueryHistorySaveFavoriteItemButton
+        );
 
-    // wait for the recent item to show.
-    const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
-    await recentCard.waitForDisplayed();
+        await browser.closeWorkspaceTabs();
+        await browser.navigateToConnectionTab(
+          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          'Databases'
+        );
+        await browser.navigateToMyQueries();
 
-    // Save the ran query
-    await browser.hover(Selectors.QueryHistoryRecentItem);
-    await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
-    await browser.setValueVisible(
-      Selectors.QueryHistoryFavoriteItemNameField,
-      favoriteQueryName
-    );
-    await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
+        // open the menu
+        await openMenuForQueryItem(browser, favoriteQueryName);
 
-    await browser.closeWorkspaceTabs();
-    await browser.navigateToConnectionTab(
-      connectionNameFromString(DEFAULT_CONNECTION_STRING),
-      'Databases'
-    );
-    await browser.navigateToMyQueries();
+        // copy to clipboard
+        await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
 
-    // open the menu
-    await openMenuForQueryItem(browser, favoriteQueryName);
+        if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+          await browser.waitUntil(
+            async () => {
+              const text = (await clipboard.read())
+                .replace(/\s+/g, ' ')
+                .replace(/\n/g, '');
+              const isValid =
+                text ===
+                '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
+              if (!isValid) {
+                console.log(text);
+              }
+              return isValid;
+            },
+            { timeoutMsg: 'Expected copy to clipboard to work' }
+          );
+        }
 
-    // copy to clipboard
-    await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
+        // rename the collection associated with the query to force the open item modal
+        await browser.shellEval(connectionName, 'use test');
+        await browser.shellEval(
+          connectionName,
+          `db.numbers.renameCollection('${newCollectionName}')`
+        );
 
-    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
-      await browser.waitUntil(
-        async () => {
-          const text = (await clipboard.read())
-            .replace(/\s+/g, ' ')
-            .replace(/\n/g, '');
-          const isValid =
-            text ===
-            '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
-          if (!isValid) {
-            console.log(text);
-          }
-          return isValid;
-        },
-        { timeoutMsg: 'Expected copy to clipboard to work' }
-      );
+        await browser.screenshot('before-refresh.png');
+
+        if (TEST_MULTIPLE_CONNECTIONS) {
+          await browser.selectConnectionMenuItem(
+            connectionName,
+            Selectors.Multiple.RefreshDatabasesItem
+          );
+        } else {
+          await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
+        }
+
+        await browser.screenshot('after-refresh.png');
+
+        await browser.navigateToMyQueries();
+        // browse to the query
+        await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
+
+        // the open item modal - select a new collection
+        const openModal = await browser.$(Selectors.OpenSavedItemModal);
+        await openModal.waitForDisplayed();
+        await browser.selectOption(
+          `${Selectors.OpenSavedItemDatabaseField} button`,
+          'test'
+        );
+        await browser.selectOption(
+          `${Selectors.OpenSavedItemCollectionField} button`,
+          newCollectionName
+        );
+
+        await browser.clickParent(
+          '[data-testid="update-query-aggregation-checkbox"]'
+        );
+
+        const confirmOpenButton = await browser.$(
+          Selectors.OpenSavedItemModalConfirmButton
+        );
+        await confirmOpenButton.waitForEnabled();
+
+        await confirmOpenButton.click();
+        await openModal.waitForDisplayed({ reverse: true });
+
+        await browser.navigateToMyQueries();
+
+        const [databaseNameElement, collectionNameElement] = [
+          await browser.$('span=test'),
+          await browser.$(`span=${newCollectionName}`),
+        ];
+
+        await databaseNameElement.waitForDisplayed();
+        await collectionNameElement.waitForDisplayed();
+      });
     }
-
-    // rename the collection associated with the query to force the open item modal
-    await browser.shellEval(connectionName, 'use test');
-    await browser.shellEval(
-      connectionName,
-      `db.numbers.renameCollection('${newCollectionName}')`
-    );
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectConnectionMenuItem(
-        connectionName,
-        Selectors.Multiple.RefreshDatabasesItem
-      );
-    } else {
-      await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-    }
-  });
-
-  after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
-    }
-
-    await cleanup(compass);
-  });
-
-  afterEach(async function () {
-    await screenshotIfFailed(compass, this.currentTest);
-  });
-
-  it('users can permanently associate a new namespace for an aggregation/query', async function () {
-    await browser.navigateToMyQueries();
-    // browse to the query
-    await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
-
-    // the open item modal - select a new collection
-    const openModal = await browser.$(Selectors.OpenSavedItemModal);
-    await openModal.waitForDisplayed();
-    await browser.selectOption(
-      `${Selectors.OpenSavedItemDatabaseField} button`,
-      'test'
-    );
-    await browser.selectOption(
-      `${Selectors.OpenSavedItemCollectionField} button`,
-      newCollectionName
-    );
-
-    await browser.clickParent(
-      '[data-testid="update-query-aggregation-checkbox"]'
-    );
-
-    const confirmOpenButton = await browser.$(
-      Selectors.OpenSavedItemModalConfirmButton
-    );
-    await confirmOpenButton.waitForEnabled();
-
-    await confirmOpenButton.click();
-    await openModal.waitForDisplayed({ reverse: true });
-
-    await browser.navigateToMyQueries();
-
-    const [databaseNameElement, collectionNameElement] = [
-      await browser.$('span=test'),
-      await browser.$(`span=${newCollectionName}`),
-    ];
-
-    await databaseNameElement.waitForDisplayed();
-    await collectionNameElement.waitForDisplayed();
-  });
+  );
 });
