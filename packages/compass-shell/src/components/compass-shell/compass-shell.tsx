@@ -2,12 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withPreferences } from 'compass-preferences-model/provider';
-import type { Shell as ShellType } from '@mongosh/browser-repl';
-
-// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
-const { Shell } =
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
-  require('@mongosh/browser-repl') as typeof import('@mongosh/browser-repl');
+import { Shell } from '@mongosh/browser-repl';
 import {
   ResizeHandle,
   ResizeDirection,
@@ -16,7 +11,6 @@ import {
   getScrollbarStyles,
   palette,
 } from '@mongodb-js/compass-components';
-
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
@@ -78,7 +72,11 @@ interface CompassShellState {
   showInfoModal: boolean;
 }
 
-type ShellOutputEntry = ShellType['state']['output'][number];
+type ShellProps = React.ComponentProps<typeof Shell>;
+
+type ShellRef = Extract<Required<ShellProps>['ref'], { current: any }>;
+
+type ShellOutputEntry = Required<ShellProps>['initialOutput'][number];
 
 export class CompassShell extends Component<
   CompassShellProps,
@@ -92,7 +90,7 @@ export class CompassShell extends Component<
     enableShell: PropTypes.bool,
   };
 
-  shellRef = React.createRef<ShellType>();
+  shellRef: ShellRef = React.createRef();
   shellOutput: readonly ShellOutputEntry[];
 
   static defaultProps = {
@@ -214,16 +212,10 @@ export class CompassShell extends Component<
 
   focusEditor() {
     if (this.shellRef.current && window.getSelection()?.type !== 'Range') {
-      (this.shellRef.current as any) /* private ... */
-        .focusEditor();
+      this.shellRef.current.focusEditor();
     }
   }
 
-  /**
-   * Render CompassShell component.
-   *
-   * @returns {React.Component} The rendered component.
-   */
   render() {
     const { height, prevHeight, isOperationInProgress, showInfoModal } =
       this.state;

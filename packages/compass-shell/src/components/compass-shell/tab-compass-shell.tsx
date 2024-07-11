@@ -10,19 +10,13 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { MapStateToProps } from 'react-redux';
-import type { Shell as ShellType } from '@mongosh/browser-repl';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
-
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header/shell-header';
 import type { HistoryStorage } from '../../modules/history-storage';
 import type { RootState } from '../../modules';
 import { usePreference } from 'compass-preferences-model/provider';
-
-// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
-const { Shell } =
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
-  require('@mongosh/browser-repl') as typeof import('@mongosh/browser-repl');
+import { Shell } from '@mongosh/browser-repl';
 
 const compassShellStyles = css(
   {
@@ -47,7 +41,11 @@ const compassShellContainerStyles = css({
   borderTop: `1px solid ${palette.gray.dark2}`,
 });
 
-type ShellOutputEntry = ShellType['state']['output'][number];
+type ShellProps = React.ComponentProps<typeof Shell>;
+
+type ShellRef = Extract<Required<ShellProps>['ref'], { current: any }>;
+
+type ShellOutputEntry = Required<ShellProps>['initialOutput'][number];
 
 type CompassShellProps = {
   runtime: WorkerRuntime | null;
@@ -61,7 +59,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
   emitShellPluginOpened,
 }) => {
   const enableShell = usePreference('enableShell');
-  const shellRef = useRef<ShellType>(null);
+  const shellRef: ShellRef = useRef(null);
   const emitShellPluginOpenedRef = useRef(emitShellPluginOpened);
   emitShellPluginOpenedRef.current =
     emitShellPluginOpened ??
@@ -106,7 +104,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
 
   const focusEditor = useCallback(() => {
     if (shellRef.current && window.getSelection()?.type !== 'Range') {
-      shellRef.current['focusEditor']();
+      shellRef.current.focusEditor();
     }
   }, [shellRef]);
 
