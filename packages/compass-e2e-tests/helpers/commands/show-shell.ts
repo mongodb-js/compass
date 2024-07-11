@@ -22,7 +22,6 @@ export async function showShell(
       const activeConnectionName = await currentActiveTab.getAttribute(
         'data-connectionName'
       );
-      console.log({ activeType, activeConnectionName });
       return activeType === 'Shell' && activeConnectionName === connectionName;
     });
 
