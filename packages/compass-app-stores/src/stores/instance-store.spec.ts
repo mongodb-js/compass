@@ -474,7 +474,7 @@ describe('InstanceStore [Store]', function () {
   });
 
   context('when disconnected', function () {
-    it('should remove the instance from InstancesManager and also remove listeners from the old instance', async function () {
+    it('should remove the instance from InstancesManager and should not perform any actions on the stale instance', async function () {
       // first connect
       connectionsManager.emit(
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,
@@ -516,13 +516,23 @@ describe('InstanceStore [Store]', function () {
       const newInstance = instancesManager.getMongoDBInstanceForConnection(
         connectedConnectionInfoId
       );
-      const newFetchDatabasesSpy = sinon.spy(newInstance, 'fetchDatabases');
+
+      let resolveFetchDatabasePromise: (() => void) | undefined;
+      const fetchDatabasePromise = new Promise<void>((resolve) => {
+        resolveFetchDatabasePromise = resolve;
+      });
+      const newFetchDatabasesSpy = sinon
+        .stub(newInstance, 'fetchDatabases')
+        .callsFake(() => {
+          resolveFetchDatabasePromise?.();
+          return Promise.resolve();
+        });
 
       globalAppRegistry.emit('refresh-databases', {
         connectionId: connectedConnectionInfoId,
       });
+      await fetchDatabasePromise;
       expect(oldFetchDatabasesSpy).to.not.be.called;
-      await new Promise((resolve) => setTimeout(resolve, 0));
       expect(newFetchDatabasesSpy).to.be.called;
     });
   });
