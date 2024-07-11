@@ -3,7 +3,7 @@ import type { CompassBrowser } from '../compass-browser';
 import retryWithBackoff from '../retry-with-backoff';
 import * as Selectors from '../selectors';
 
-export async function showShell(
+export async function openShell(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<void> {

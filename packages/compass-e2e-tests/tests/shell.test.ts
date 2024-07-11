@@ -45,7 +45,7 @@ describe('Shell', function () {
     await browser.connectWithConnectionString();
     const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
-    await browser.showShell(connectionName);
+    await browser.openShell(connectionName);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     const infoModalElement = await browser.$(Selectors.ShellInfoModal);
@@ -54,7 +54,7 @@ describe('Shell', function () {
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
-    await browser.hideShell(connectionName);
+    await browser.closeShell(connectionName);
   });
 
   it('shows and hides shell based on settings', async function () {

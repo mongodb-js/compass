@@ -15,7 +15,7 @@ export async function shellEval(
 ): Promise<string> {
   // Keep in mind that for multiple connections this will open a new tab and
   // focus it.
-  await browser.showShell(connectionName);
+  await browser.openShell(connectionName);
 
   const numLines = (await getOutputText(browser)).length;
 
@@ -59,7 +59,7 @@ export async function shellEval(
   // the shell will put the user back on the tab they were on before
   // opening the shell tab. This might not stay true as we start testing more
   // complicated user flows.
-  await browser.hideShell(connectionName);
+  await browser.closeShell(connectionName);
 
   return result as string;
 }
