@@ -13,6 +13,18 @@ export type SavedQuery = {
   };
 };
 
+function scaleBetween(
+  unscaledNum: number,
+  minAllowed: number,
+  maxAllowed: number,
+  min: number,
+  max: number
+) {
+  return (
+    ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed
+  );
+}
+
 export const createQueryHistoryAutocompleter = (
   savedQueries: SavedQuery[],
   onApply: (query: SavedQuery['queryProperties']) => void
@@ -22,6 +34,10 @@ export const createQueryHistoryAutocompleter = (
       return null;
     }
 
+    const maxTime =
+      savedQueries[savedQueries.length - 1].lastExecuted.getTime();
+    const minTime = savedQueries[0].lastExecuted.getTime();
+
     const options = savedQueries.map((query) => ({
       label: createQuery(query),
       type: 'text',
@@ -30,7 +46,13 @@ export const createQueryHistoryAutocompleter = (
       apply: () => {
         onApply(query.queryProperties);
       },
-      boost: query.lastExecuted.getTime(),
+      boost: scaleBetween(
+        query.lastExecuted.getTime(),
+        -99,
+        99,
+        minTime,
+        maxTime
+      ),
     }));
 
     return {

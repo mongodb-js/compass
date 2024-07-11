@@ -154,7 +154,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         .map((query) => ({
           lastExecuted: query._lastExecuted,
           queryProperties: getQueryAttributes(query),
-        })),
+        }))
+        .sort((a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()),
       {
         fields: schemaFields,
         serverVersion,

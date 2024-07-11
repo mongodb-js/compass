@@ -6,8 +6,10 @@ import { createQueryAutocompleter } from './query-autocompleter';
 import type {
   CompletionSource,
   CompletionContext,
+  CompletionSection,
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
+
 export const createQueryWithHistoryAutocompleter = (
   recentQueries: SavedQuery[],
   options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {},
@@ -18,18 +20,17 @@ export const createQueryWithHistoryAutocompleter = (
     onApply
   );
   const originalQueryAutocompleter = createQueryAutocompleter(options);
-  const originalSection = { name: '', rank: 0 };
-  const historySection = { name: 'Query History', rank: 1 };
+  const historySection: CompletionSection = { name: 'Query History' };
 
   return async function fullCompletions(context: CompletionContext) {
     const combinedOptions = [];
     const originalCompletions = await originalQueryAutocompleter(context);
     const historyCompletions = await queryHistoryAutocompleter(context);
+
     if (originalCompletions) {
       combinedOptions.push(
         ...originalCompletions.options.map((option) => ({
           ...option,
-          section: originalSection,
         }))
       );
     }
@@ -41,6 +42,7 @@ export const createQueryWithHistoryAutocompleter = (
         }))
       );
     }
+
     return {
       from: Math.min(
         historyCompletions?.from ?? context.pos,
