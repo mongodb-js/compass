@@ -71,7 +71,7 @@ export async function connectWithConnectionString(
 
     // some connection should be expanded (ie. connected) by now
     await browser
-      .$(`${Selectors.SidebarTreeItems} [aria-expanded=true]`)
-      .waitForExist({ reverse: true });
+      .$(`${Selectors.SidebarTreeItems}[aria-expanded=true]`)
+      .waitForExist();
   }
 }

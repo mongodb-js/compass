@@ -113,7 +113,7 @@ export async function waitUntilActiveCollectionSubTab(
 
 export async function getActiveTabNamespace(browser: CompassBrowser) {
   const activeWorkspaceNamespace = await browser
-    .$(Selectors.workspaceTab(null, true))
+    .$(Selectors.workspaceTab({ active: true }))
     .getAttribute('data-namespace');
   return activeWorkspaceNamespace || null;
 }

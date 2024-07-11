@@ -572,7 +572,10 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(otherActions);
 
         expect(screen.getByText('Open MongoDB shell')).to.be.visible;
-        if (name !== 'when connection is datalake') {
+        if (
+          name !== 'when connection is datalake' &&
+          name !== 'when connection is not writable'
+        ) {
           expect(
             screen.getByTestId(
               'sidebar-navigation-item-actions-open-shell-action'

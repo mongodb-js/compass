@@ -44,7 +44,7 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     // no active connections left. Use a different command if you expect to
     // disconnect just one connection and still keep others around.
     await browser
-      .$(`${Selectors.SidebarTreeItems} [aria-expanded=true]`)
+      .$(`${Selectors.SidebarTreeItems}[aria-expanded=true]`)
       .waitForExist({ reverse: true });
 
     // The potential problem here is that the list is virtual, so it is possible
