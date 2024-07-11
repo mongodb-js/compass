@@ -12,7 +12,6 @@ import {
 } from '@mongodb-js/connection-storage/provider';
 import { useState, useEffect, useCallback } from 'react';
 import { BSON } from 'bson';
-import type { ActiveAndInactiveConnectionsCount } from '../types';
 
 type DeepPartial<T> = T extends object
   ? { [P in keyof T]?: DeepPartial<T[P]> }
@@ -73,7 +72,6 @@ export function useConnectionRepository(): ConnectionRepository {
   useEffect(() => {
     async function updateListsOfConnections() {
       const allConnections = (await storage.loadAll()) || [];
-      let prevConnections: ConnectionInfo[] = [];
 
       const newFavoriteConnections = allConnections
         .filter((connection) => connection.savedConnectionType === 'favorite')
@@ -92,7 +90,6 @@ export function useConnectionRepository(): ConnectionRepository {
       );
 
       setFavoriteConnections((prevList) => {
-        prevConnections = [...prevList];
         if (areConnectionsEqual(prevList, newFavoriteConnections)) {
           return prevList;
         } else {
@@ -101,7 +98,6 @@ export function useConnectionRepository(): ConnectionRepository {
       });
 
       setNonFavoriteConnections((prevList) => {
-        prevConnections = [...prevConnections, ...prevList];
         if (areConnectionsEqual(prevList, newNonFavoriteConnections)) {
           return prevList;
         } else {

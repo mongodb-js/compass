@@ -15,6 +15,7 @@ import type {
 } from './common';
 import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingConnection: boolean;
@@ -105,6 +106,7 @@ export function useImportConnections({
   );
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();
+  const track = useTelemetry();
   const existingConnections = useMemo(() => {
     // in case of multiple connections all the connections are saved (that used
     // to be favorites in the single connection world) so we need to account for

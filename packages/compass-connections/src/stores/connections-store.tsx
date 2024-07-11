@@ -3,10 +3,11 @@ import type { DataService, connect } from 'mongodb-data-service';
 import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
+  ConnectionStatus,
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
-import { cloneDeep, find, merge } from 'lodash';
+import { cloneDeep, merge } from 'lodash';
 import { UUID } from 'bson';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
@@ -14,7 +15,6 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
-import type { ActiveAndInactiveConnectionsCount } from '../types';
 
 const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
@@ -30,6 +30,11 @@ function isOIDCAuth(connectionString: string): boolean {
 type ConnectFn = typeof connect;
 
 export type { ConnectFn };
+
+interface ActiveAndInactiveConnectionsCount {
+  active: number;
+  inactive: number;
+}
 
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -197,7 +202,7 @@ export function useConnections({
   ) => Promise<void>;
   connect: (
     connectionInfo: ConnectionInfo,
-    shouldSaveConnectionInfo: boolean
+    legacyShouldSaveConnectionInfo: boolean
   ) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
@@ -234,7 +239,8 @@ export function useConnections({
   const getActiveAndInactiveCount = useCallback(() => {
     const total = favoriteConnections.length + recentConnections.length;
     const active =
-      connectionsManager.getConnectionsByStatus().connected?.length || 0;
+      connectionsManager.getConnectionIdsByStatus(ConnectionStatus.Connected)
+        .length || 0;
     return { active, inactive: total - active };
   }, [favoriteConnections, recentConnections, connectionsManager]);
 
@@ -396,12 +402,12 @@ export function useConnections({
     async (
       connectionInfo: ConnectionInfo,
       dataService: DataService,
-      shouldSaveConnectionInfo: boolean
+      legacyShouldSaveConnectionInfo: boolean
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected?.(connectionInfo, dataService, getActiveAndInactiveCount());
-        if (!shouldSaveConnectionInfo) return;
+        if (!legacyShouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
         if (persistOIDCTokens) {
@@ -473,7 +479,7 @@ export function useConnections({
     _connectionInfo:
       | ConnectionInfo
       | (() => Promise<ConnectionInfo | undefined>),
-    shouldSaveConnectionInfo: boolean
+    legacyShouldSaveConnectionInfo: boolean
   ) => {
     const isAutoconnectAttempt = typeof _connectionInfo === 'function';
     let connectionInfo: ConnectionInfo;
@@ -540,7 +546,7 @@ export function useConnections({
       void onConnectSuccess(
         connectionInfo,
         newConnectionDataService,
-        shouldSaveConnectionInfo
+        legacyShouldSaveConnectionInfo
       );
 
       debug(

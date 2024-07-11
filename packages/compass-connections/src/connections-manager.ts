@@ -157,17 +157,10 @@ export class ConnectionsManager extends EventEmitter {
     );
   }
 
-  getConnectionsByStatus(): Partial<
-    Record<ConnectionStatus, ConnectionInfoId[]>
-  > {
-    return [...this.connectionStatuses.entries()].reduce(
-      (record, [connectionId, status]) => {
-        if (!record[status]) record[status] = [];
-        record[status].push(connectionId);
-        return record;
-      },
-      {} as Record<ConnectionStatus, ConnectionInfoId[]>
-    );
+  getConnectionIdsByStatus(status: ConnectionStatus): ConnectionInfoId[] {
+    return [...this.connectionStatuses.entries()]
+      .filter(([, connectionStatus]) => connectionStatus === status)
+      .map(([connectionId]) => connectionId);
   }
 
   cancelAllConnectionAttempts(): void {
