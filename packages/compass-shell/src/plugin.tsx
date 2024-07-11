@@ -11,6 +11,9 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { Theme, ThemeProvider } from '@mongodb-js/compass-components';
+
+const SHELL_THEME = { theme: Theme.Dark, enabled: true };
 
 export function ShellPlugin() {
   const multiConnectionsEnabled = usePreference(
@@ -53,7 +56,11 @@ export function ShellPlugin() {
   }, [multiConnectionsEnabled]);
 
   if (ShellComponent) {
-    return <ShellComponent historyStorage={historyStorage.current} />;
+    return (
+      <ThemeProvider theme={SHELL_THEME}>
+        <ShellComponent historyStorage={historyStorage.current} />
+      </ThemeProvider>
+    );
   }
 
   return null;
