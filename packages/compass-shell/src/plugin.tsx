@@ -23,14 +23,19 @@ import { Theme, ThemeProvider } from '@mongodb-js/compass-components';
 
 const SHELL_THEME = { theme: Theme.Dark, enabled: true };
 
-export function ShellPlugin() {
+type ShellPluginProps = {
+  initialEvaluate?: string | string[];
+  initialInput?: string;
+};
+
+export function ShellPlugin(props: ShellPluginProps) {
   const multiConnectionsEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
   );
   const ShellComponent = multiConnectionsEnabled ? TabShell : Shell;
   return (
     <ThemeProvider theme={SHELL_THEME}>
-      <ShellComponent />
+      <ShellComponent {...props} />
     </ThemeProvider>
   );
 }
@@ -48,7 +53,7 @@ export type ShellPluginExtraArgs = ShellPluginServices & {
 };
 
 export function onActivated(
-  _initialProps: unknown,
+  _initialProps: ShellPluginProps,
   services: ShellPluginServices,
   { addCleanup, cleanup }: ActivateHelpers
 ) {

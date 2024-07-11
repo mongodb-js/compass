@@ -1,19 +1,23 @@
 import { connect } from 'react-redux';
-import React, { useCallback, useRef, useState } from 'react';
-import { useTabState } from '@mongodb-js/compass-workspaces/provider';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useOnTabReplace,
+  useTabState,
+} from '@mongodb-js/compass-workspaces/provider';
 import {
   Banner,
   Link,
   css,
   getScrollbarStyles,
   palette,
+  rafraf,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header/shell-header';
 import { usePreference } from 'compass-preferences-model/provider';
-import { Shell } from '@mongosh/browser-repl';
+import { Shell as _Shell } from '@mongosh/browser-repl';
 import type { RootState } from '../../stores/store';
 import { selectRuntimeById, saveHistory } from '../../stores/store';
 
@@ -40,9 +44,11 @@ const compassShellContainerStyles = css({
   borderTop: `1px solid ${palette.gray.dark2}`,
 });
 
-type ShellProps = React.ComponentProps<typeof Shell>;
+type ShellProps = React.ComponentProps<typeof _Shell>;
 
 type ShellRef = Extract<Required<ShellProps>['ref'], { current: any }>;
+
+type ShellType = ShellRef['current'];
 
 type ShellOutputEntry = Required<ShellProps>['initialOutput'][number];
 
@@ -50,12 +56,58 @@ type CompassShellProps = {
   runtime: WorkerRuntime | null;
   initialHistory: string[] | null;
   onHistoryChange: (history: string[]) => void;
+  initialEvaluate?: string | string[];
+  initialInput?: string;
 };
+
+function useInitialEval(initialEvaluate?: string | string[]) {
+  const [initialEvalApplied, setInitialEvalApplied] = useTabState(
+    'initialEvalApplied',
+    false
+  );
+  useEffect(() => {
+    setInitialEvalApplied(true);
+  }, [setInitialEvalApplied]);
+  return initialEvalApplied ? undefined : initialEvaluate;
+}
+
+const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
+  { initialEvaluate: _initialEvaluate, ...props },
+  ref
+) {
+  const shellRef = useRef<ShellType | null>(null);
+  const initialEvaluate = useInitialEval(_initialEvaluate);
+  const mergeRef = useCallback(
+    (shell: ShellType | null) => {
+      shellRef.current = shell;
+      if (typeof ref === 'function') {
+        ref(shell);
+      } else if (ref) {
+        ref.current = shell;
+      }
+    },
+    [ref]
+  );
+  useEffect(() => {
+    return rafraf(() => {
+      shellRef.current?.focusEditor();
+    });
+  }, []);
+  return (
+    <_Shell
+      ref={mergeRef}
+      initialEvaluate={initialEvaluate}
+      {...props}
+    ></_Shell>
+  );
+});
 
 const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
   initialHistory,
   onHistoryChange,
+  initialEvaluate,
+  initialInput,
 }) => {
   const enableShell = usePreference('enableShell');
   const shellRef: ShellRef = useRef(null);
@@ -64,7 +116,16 @@ const CompassShell: React.FC<CompassShellProps> = ({
   const [shellOutput, setShellOutput] = useTabState<
     readonly ShellOutputEntry[]
   >('shellOutput', []);
-  const [shellInput, setShellInput] = useTabState('shellInput', '');
+  const [shellInput, setShellInput] = useTabState(
+    'shellInput',
+    initialInput ?? ''
+  );
+
+  useOnTabReplace(() => {
+    // Never allow to replace the shell tab to avoid destroying the runtime
+    // unnecessarily
+    return false;
+  });
 
   const showInfoModal = useCallback(() => {
     setInfoModalVisible(true);
@@ -78,7 +139,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
     if (shellRef.current && window.getSelection()?.type !== 'Range') {
       shellRef.current.focusEditor();
     }
-  }, [shellRef]);
+  }, []);
 
   const updateShellOutput = useCallback(
     (output: readonly ShellOutputEntry[]) => {
@@ -95,6 +156,8 @@ const CompassShell: React.FC<CompassShellProps> = ({
     setIsOperationInProgress(false);
   }, []);
 
+  const canRenderShell = enableShell && initialHistory && runtime;
+
   if (!enableShell) {
     return (
       <div className={infoBannerContainerStyles}>
@@ -110,7 +173,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
     );
   }
 
-  if (!runtime || !initialHistory) {
+  if (!canRenderShell) {
     return <div className={compassShellStyles} />;
   }
 
@@ -140,6 +203,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
           <Shell
             ref={shellRef}
             runtime={runtime}
+            initialEvaluate={initialEvaluate}
             initialInput={shellInput}
             onInputChanged={setShellInput}
             initialOutput={shellOutput}
@@ -150,6 +214,8 @@ const CompassShell: React.FC<CompassShellProps> = ({
             }}
             onOperationStarted={notifyOperationStarted}
             onOperationEnd={notifyOperationEnd}
+            maxOutputLength={1000}
+            maxHistoryLength={1000}
           />
         </div>
       </div>
