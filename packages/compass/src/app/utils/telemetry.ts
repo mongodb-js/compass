@@ -7,7 +7,6 @@ import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { type ConnectionInfoWithStatus } from '@mongodb-js/compass-connections/provider';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -205,27 +204,49 @@ export function trackNewConnectionEvent(
 }
 
 export function trackConnectionDisconnectedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | undefined,
-  { debug }: Logger,
+  connectionInfo: ConnectionInfo | undefined,
   track: TrackFunction,
   { active, inactive }: { active: number; inactive: number }
 ): void {
-  try {
-    const callback = async () => {
-      const connectionData = connectionInfo
-        ? await getConnectionData(connectionInfo)
-        : {};
-      const trackEvent = {
-        ...connectionData,
-        active_connections_count: active,
-        inactive_connections_count: inactive,
-      };
-      return trackEvent;
-    };
-    track('Connection Disconnected', callback);
-  } catch (error) {
-    debug('trackConnectionDisconnectedEvent failed', error);
-  }
+  track(
+    'Connection Disconnected',
+    {
+      active_connections_count: active,
+      inactive_connections_count: inactive,
+    },
+    connectionInfo
+  );
+}
+
+export function trackConnectionCreatedEvent(
+  connectionInfo: ConnectionInfo | undefined,
+  track: TrackFunction,
+  { active, inactive }: { active: number; inactive: number }
+): void {
+  track(
+    'Connection Created',
+    {
+      active_connections_count: active,
+      inactive_connections_count: inactive,
+      color: connectionInfo?.favorite?.color,
+    },
+    connectionInfo
+  );
+}
+
+export function trackConnectionRemovedEvent(
+  connectionInfo: ConnectionInfo | undefined,
+  track: TrackFunction,
+  { active, inactive }: { active: number; inactive: number }
+): void {
+  track(
+    'Connection Removed',
+    {
+      active_connections_count: active,
+      inactive_connections_count: inactive,
+    },
+    connectionInfo
+  );
 }
 
 export function trackConnectionFailedEvent(

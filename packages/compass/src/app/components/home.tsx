@@ -44,6 +44,8 @@ import {
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
   trackConnectionDisconnectedEvent,
+  trackConnectionCreatedEvent,
+  trackConnectionRemovedEvent,
 } from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
@@ -218,17 +220,44 @@ function Home({
 
   const onDisconnected = useCallback(
     (
-      connectionInfo?: ConnectionInfo,
+      connectionInfo: ConnectionInfo | undefined,
       activeAndInactiveConnectionsCount: { active: number; inactive: number }
     ) => {
       trackConnectionDisconnectedEvent(
         connectionInfo,
-        logger,
         track,
         activeAndInactiveConnectionsCount
       );
     },
-    [logger, track]
+    [track]
+  );
+
+  const onConnectionCreated = useCallback(
+    (
+      connectionInfo: ConnectionInfo | undefined,
+      activeAndInactiveConnectionsCount: { active: number; inactive: number }
+    ) => {
+      trackConnectionCreatedEvent(
+        connectionInfo,
+        track,
+        activeAndInactiveConnectionsCount
+      );
+    },
+    [track]
+  );
+
+  const onConnectionRemoved = useCallback(
+    (
+      connectionInfo: ConnectionInfo | undefined,
+      activeAndInactiveConnectionsCount: { active: number; inactive: number }
+    ) => {
+      trackConnectionRemovedEvent(
+        connectionInfo,
+        track,
+        activeAndInactiveConnectionsCount
+      );
+    },
+    [track]
   );
 
   const onConnectionFailed = useCallback(
@@ -323,6 +352,8 @@ function Home({
             onConnectionFailed={onConnectionFailed}
             onConnected={onConnected}
             onDisconnected={onDisconnected}
+            onConnectionCreated={onConnectionCreated}
+            onConnectionRemoved={onConnectionRemoved}
             __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
           >
             <ConnectionImportExportProvider>
