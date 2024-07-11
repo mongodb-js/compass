@@ -131,6 +131,7 @@ type MapStateProps = {
 type MapDispatchProps = {
   fetchAllCollections(): void;
   onDatabaseExpand(connectionId: string, dbId: string): void;
+  onRefreshDatabases(): void;
   onNamespaceAction(
     connectionId: string,
     namespace: string,
@@ -164,6 +165,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onDisconnect,
   onDatabaseExpand,
   fetchAllCollections,
+  onRefreshDatabases: _onRefreshDatabases,
   onNamespaceAction: _onNamespaceAction,
 }) => {
   const {
@@ -281,6 +283,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'select-connection':
           openDatabasesWorkspace(item.connectionInfo.id);
           return;
+        case 'refresh-databases':
+          _onRefreshDatabases();
+          return;
         case 'create-database':
           _onNamespaceAction(item.connectionInfo.id, '', action);
           return;
@@ -326,6 +331,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       }
     },
     [
+      _onRefreshDatabases,
       _onNamespaceAction,
       openShellWorkspace,
       openDatabasesWorkspace,
@@ -497,6 +503,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   );
 };
 
+const onRefreshDatabases = (): SidebarThunkAction<void> => {
+  return (_dispatch, getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('refresh-databases');
+  };
+};
+
 const onNamespaceAction = (
   connectionId: string,
   namespace: string,
@@ -567,6 +579,7 @@ const mapDispatchToProps: MapDispatchToProps<
   MapDispatchProps,
   ConnectionsNavigationComponentProps
 > = {
+  onRefreshDatabases,
   onNamespaceAction,
   onDatabaseExpand,
   fetchAllCollections,

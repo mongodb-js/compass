@@ -41,18 +41,13 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-describe('Instance my queries tab', function () {
+describe('My Queries tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
   before(async function () {
     skipForWeb(this, 'saved queries not yet available in compass-web');
-
-    // TODO(COMPASS-8006): best to only skip this until the My Queries tab is ported
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -63,10 +58,6 @@ describe('Instance my queries tab', function () {
   });
   after(async function () {
     if (TEST_COMPASS_WEB) {
-      return;
-    }
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
       return;
     }
 
@@ -162,7 +153,17 @@ describe('Instance my queries tab', function () {
       connectionName,
       'db.numbers.renameCollection("numbers-renamed")'
     );
-    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.RefreshDatabasesItem
+      );
+
+      // go to My Queries because for multiple connections it is not the default tab
+      await browser.navigateToMyQueries();
+    } else {
+      await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
+    }
 
     // browse to the query
     await browser.clickVisible(Selectors.myQueriesItem(newFavoriteQueryName));
@@ -267,121 +268,152 @@ describe('Instance my queries tab', function () {
     const namespace = await browser.getActiveTabNamespace();
     expect(namespace).to.equal('test.numbers');
   });
+});
 
-  context(
-    'when a user has a saved query associated with a collection that does not exist',
-    function () {
-      const favoriteQueryName = 'list of numbers greater than 10 - query';
-      const newCollectionName = 'numbers-renamed';
+describe('when a user has a saved query associated with a collection that does not exist', function () {
+  let compass: Compass;
+  let browser: CompassBrowser;
+  const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
+  const favoriteQueryName = 'list of numbers greater than 10 - query';
+  const newCollectionName = 'numbers-renamed';
 
-      /** saves a query and renames the collection associated with the query, so that the query must be opened with the "select namespace" modal */
-      async function setup() {
-        // Run a query
-        await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
-        await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
-          limit: '10',
-        });
-        await browser.clickVisible(Selectors.QueryBarHistoryButton);
+  before(async function () {
+    skipForWeb(this, 'saved queries not yet available in compass-web');
 
-        // Wait for the popover to show
-        const history = await browser.$(Selectors.QueryBarHistory);
-        await history.waitForDisplayed();
+    compass = await init(this.test?.fullTitle());
+    browser = compass.browser;
+  });
 
-        // wait for the recent item to show.
-        const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
-        await recentCard.waitForDisplayed();
+  /** saves a query and renames the collection associated with the query, so that the query must be opened with the "select namespace" modal */
+  beforeEach(async function () {
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-        // Save the ran query
-        await browser.hover(Selectors.QueryHistoryRecentItem);
-        await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
-        await browser.setValueVisible(
-          Selectors.QueryHistoryFavoriteItemNameField,
-          favoriteQueryName
-        );
-        await browser.clickVisible(
-          Selectors.QueryHistorySaveFavoriteItemButton
-        );
+    // Run a query
+    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
+      limit: '10',
+    });
+    await browser.clickVisible(Selectors.QueryBarHistoryButton);
 
-        await browser.closeWorkspaceTabs();
-        await browser.navigateToConnectionTab(
-          connectionNameFromString(DEFAULT_CONNECTION_STRING),
-          'Databases'
-        );
-        await browser.navigateToMyQueries();
+    // Wait for the popover to show
+    const history = await browser.$(Selectors.QueryBarHistory);
+    await history.waitForDisplayed();
 
-        // open the menu
-        await openMenuForQueryItem(browser, favoriteQueryName);
+    // wait for the recent item to show.
+    const recentCard = await browser.$(Selectors.QueryHistoryRecentItem);
+    await recentCard.waitForDisplayed();
 
-        // copy to clipboard
-        await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
+    // Save the ran query
+    await browser.hover(Selectors.QueryHistoryRecentItem);
+    await browser.clickVisible(Selectors.QueryHistoryFavoriteAnItemButton);
+    await browser.setValueVisible(
+      Selectors.QueryHistoryFavoriteItemNameField,
+      favoriteQueryName
+    );
+    await browser.clickVisible(
+      Selectors.QueryHistorySaveFavoriteItemButton
+    );
 
-        if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
-          await browser.waitUntil(
-            async () => {
-              const text = (await clipboard.read())
-                .replace(/\s+/g, ' ')
-                .replace(/\n/g, '');
-              const isValid =
-                text ===
-                '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
-              if (!isValid) {
-                console.log(text);
-              }
-              return isValid;
-            },
-            { timeoutMsg: 'Expected copy to clipboard to work' }
-          );
-        }
+    await browser.closeWorkspaceTabs();
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
+    await browser.navigateToMyQueries();
 
-        // rename the collection associated with the query to force the open item modal
-        await browser.shellEval(connectionName, 'use test');
-        await browser.shellEval(
-          connectionName,
-          `db.numbers.renameCollection('${newCollectionName}')`
-        );
-        await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-      }
-      beforeEach(setup);
+    // open the menu
+    await openMenuForQueryItem(browser, favoriteQueryName);
 
-      it('users can permanently associate a new namespace for an aggregation/query', async function () {
-        await browser.navigateToMyQueries();
-        // browse to the query
-        await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
+    // copy to clipboard
+    await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
 
-        // the open item modal - select a new collection
-        const openModal = await browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemDatabaseField} button`,
-          'test'
-        );
-        await browser.selectOption(
-          `${Selectors.OpenSavedItemCollectionField} button`,
-          newCollectionName
-        );
-
-        await browser.clickParent(
-          '[data-testid="update-query-aggregation-checkbox"]'
-        );
-
-        const confirmOpenButton = await browser.$(
-          Selectors.OpenSavedItemModalConfirmButton
-        );
-        await confirmOpenButton.waitForEnabled();
-
-        await confirmOpenButton.click();
-        await openModal.waitForDisplayed({ reverse: true });
-
-        await browser.navigateToMyQueries();
-
-        const [databaseNameElement, collectionNameElement] = [
-          await browser.$('span=test'),
-          await browser.$(`span=${newCollectionName}`),
-        ];
-
-        await databaseNameElement.waitForDisplayed();
-        await collectionNameElement.waitForDisplayed();
-      });
+    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+      await browser.waitUntil(
+        async () => {
+          const text = (await clipboard.read())
+            .replace(/\s+/g, ' ')
+            .replace(/\n/g, '');
+          const isValid =
+            text ===
+            '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
+          if (!isValid) {
+            console.log(text);
+          }
+          return isValid;
+        },
+        { timeoutMsg: 'Expected copy to clipboard to work' }
+      );
     }
-  );
+
+    // rename the collection associated with the query to force the open item modal
+    await browser.shellEval(connectionName, 'use test');
+    await browser.shellEval(
+      connectionName,
+      `db.numbers.renameCollection('${newCollectionName}')`
+    );
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.RefreshDatabasesItem
+      );
+
+      // go to My Queries because for multiple connections it is not the default tab
+      //await browser.navigateToMyQueries();
+    } else {
+      await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
+    }
+  });
+
+  after(async function () {
+    if (TEST_COMPASS_WEB) {
+      return;
+    }
+
+    await cleanup(compass);
+  });
+
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
+  });
+
+  it('users can permanently associate a new namespace for an aggregation/query', async function () {
+    await browser.navigateToMyQueries();
+    // browse to the query
+    await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
+
+    // the open item modal - select a new collection
+    const openModal = await browser.$(Selectors.OpenSavedItemModal);
+    await openModal.waitForDisplayed();
+    await browser.selectOption(
+      `${Selectors.OpenSavedItemDatabaseField} button`,
+      'test'
+    );
+    await browser.selectOption(
+      `${Selectors.OpenSavedItemCollectionField} button`,
+      newCollectionName
+    );
+
+    await browser.clickParent(
+      '[data-testid="update-query-aggregation-checkbox"]'
+    );
+
+    const confirmOpenButton = await browser.$(
+      Selectors.OpenSavedItemModalConfirmButton
+    );
+    await confirmOpenButton.waitForEnabled();
+
+    await confirmOpenButton.click();
+    await openModal.waitForDisplayed({ reverse: true });
+
+    await browser.navigateToMyQueries();
+
+    const [databaseNameElement, collectionNameElement] = [
+      await browser.$('span=test'),
+      await browser.$(`span=${newCollectionName}`),
+    ];
+
+    await databaseNameElement.waitForDisplayed();
+    await collectionNameElement.waitForDisplayed();
+  });
 });
