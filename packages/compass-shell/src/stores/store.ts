@@ -7,7 +7,10 @@ import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  DataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export default class CompassShellStore {
@@ -25,12 +28,14 @@ export default class CompassShellStore {
     logger: { log, debug },
     track,
     dataService,
+    connectionInfoAccess,
     preferences,
   }: {
     globalAppRegistry: AppRegistry;
     logger: Logger;
     track: TrackFunction;
     dataService: DataService;
+    connectionInfoAccess: ConnectionInfoAccess;
     preferences: PreferencesAccess;
   }): () => void {
     debug('activated');
@@ -54,7 +59,12 @@ export default class CompassShellStore {
         // Prefix Segment events with `Shell ` to avoid event name collisions.
         // We always enable telemetry here, since the track call will
         // already check whether Compass telemetry is enabled or not.
-        track: ({ event, properties }) => track(`Shell ${event}`, properties),
+        track: ({ event, properties }) =>
+          track(
+            `Shell ${event}`,
+            properties,
+            connectionInfoAccess.getCurrentConnectionInfo()
+          ),
         flush: () => {
           return Promise.resolve(); // not needed
         },

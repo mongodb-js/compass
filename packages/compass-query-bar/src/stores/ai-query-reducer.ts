@@ -16,6 +16,7 @@ import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
@@ -115,6 +116,7 @@ type FailedResponseTrackMessage = {
   log: Logger['log'];
   track: TrackFunction;
   requestId: string;
+  connectionInfo: ConnectionInfo;
 };
 
 function trackAndLogFailed({
@@ -125,6 +127,7 @@ function trackAndLogFailed({
   log,
   track,
   requestId,
+  connectionInfo,
 }: FailedResponseTrackMessage) {
   log.warn(mongoLogId(1_001_000_198), 'AIQuery', 'AI query request failed', {
     statusCode,
@@ -133,13 +136,17 @@ function trackAndLogFailed({
     errorCode,
     requestId,
   });
-  track('AI Response Failed', () => ({
-    editor_view_type: 'find',
-    error_name: errorName,
-    status_code: statusCode,
-    error_code: errorCode ?? '',
-    request_id: requestId,
-  }));
+  track(
+    'AI Response Failed',
+    () => ({
+      editor_view_type: 'find',
+      error_name: errorName,
+      status_code: statusCode,
+      error_code: errorCode ?? '',
+      request_id: requestId,
+    }),
+    connectionInfo
+  );
 }
 
 export const runAIQuery = (
@@ -157,6 +164,7 @@ export const runAIQuery = (
       preferences,
       atlasAiService,
       logger: { log },
+      connectionInfoAccess,
       track,
     }
   ) => {
@@ -165,12 +173,18 @@ export const runAIQuery = (
     const abortController = new AbortController();
     const { id: requestId, signal } = getAbortSignal();
 
-    track('AI Prompt Submitted', () => ({
-      editor_view_type: 'find',
-      user_input_length: userInput.length,
-      has_sample_documents: provideSampleDocuments,
-      request_id: requestId,
-    }));
+    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+
+    track(
+      'AI Prompt Submitted',
+      () => ({
+        editor_view_type: 'find',
+        user_input_length: userInput.length,
+        has_sample_documents: provideSampleDocuments,
+        request_id: requestId,
+      }),
+      connectionInfo
+    );
 
     const {
       aiQuery: { aiQueryRequestId: existingRequestId },
@@ -234,6 +248,7 @@ export const runAIQuery = (
         log,
         track,
         requestId,
+        connectionInfo,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -286,6 +301,7 @@ export const runAIQuery = (
         log,
         track,
         requestId,
+        connectionInfo,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -314,6 +330,7 @@ export const runAIQuery = (
           log,
           track,
           requestId,
+          connectionInfo,
         });
         return;
       }
@@ -326,6 +343,7 @@ export const runAIQuery = (
         log,
         track,
         requestId,
+        connectionInfo,
       });
       dispatch({
         type: AIQueryActionTypes.AIQueryFailed,
@@ -351,11 +369,15 @@ export const runAIQuery = (
         shape: Object.keys(generatedFields),
       }
     );
-    track('AI Response Generated', () => ({
-      editor_view_type: 'find',
-      query_shape: Object.keys(generatedFields),
-      request_id: requestId,
-    }));
+    track(
+      'AI Response Generated',
+      () => ({
+        editor_view_type: 'find',
+        query_shape: Object.keys(generatedFields),
+        request_id: requestId,
+      }),
+      connectionInfo
+    );
 
     dispatch({
       type: AIQueryActionTypes.AIQuerySucceeded,
