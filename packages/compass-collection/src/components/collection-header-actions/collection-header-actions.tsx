@@ -8,8 +8,9 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
+import { wrapField } from '@mongodb-js/mongodb-constants';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -50,14 +51,41 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourcePipeline,
 }: CollectionHeaderActionsProps) => {
   const { id: connectionId, atlasMetadata } = useConnectionInfo();
-  const { openCollectionWorkspace, openEditViewWorkspace } = useOpenWorkspace();
-  const preferencesReadOnly = usePreference('readOnly');
+  const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
+    useOpenWorkspace();
+  const {
+    readOnly: preferencesReadOnly,
+    enableShell,
+    enableNewMultipleConnectionSystem,
+  } = usePreferences([
+    'readOnly',
+    'enableShell',
+    'enableNewMultipleConnectionSystem',
+  ]);
+
+  const { database, collection } = toNS(namespace);
+
+  const showOpenShellButton = enableShell && enableNewMultipleConnectionSystem;
 
   return (
     <div
       className={collectionHeaderActionsStyles}
       data-testid="collection-header-actions"
     >
+      {showOpenShellButton && (
+        <Button
+          size="small"
+          onClick={() => {
+            openShellWorkspace(connectionId, {
+              initialEvaluate: `use ${database}`,
+              initialInput: `db[${wrapField(collection, true)}].find()`,
+            });
+          }}
+          leftGlyph={<Icon glyph="Shell"></Icon>}
+        >
+          Open MongoDB shell
+        </Button>
+      )}
       {atlasMetadata && (
         <Button
           data-testid="collection-header-visualize-your-data"

@@ -42,7 +42,7 @@ describe('Global Tabs', function () {
         false
       );
     }
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(1);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
   });
 
   it('should open tabs over each other when not modified', async function () {
@@ -58,7 +58,7 @@ describe('Global Tabs', function () {
         Selectors.queryBarApplyFilterButton('Documents')
       );
     }
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(3);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(3);
   });
 
   it('should close tabs without warning even when "modified" by interacting with the tab', async function () {
@@ -75,7 +75,7 @@ describe('Global Tabs', function () {
       );
     }
     await browser.closeWorkspaceTabs(false);
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(0);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(0);
   });
 
   it('should ask for confirmation when closing modified Aggregations tab', async function () {
@@ -101,7 +101,7 @@ describe('Global Tabs', function () {
       .waitForExist({ reverse: true });
 
     // Checking first that cancel leaves the tab on the screen
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(1);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
 
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
@@ -114,6 +114,6 @@ describe('Global Tabs', function () {
       .waitForExist({ reverse: true });
 
     // When confirmed, should remove the tab
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(0);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(0);
   });
 });
