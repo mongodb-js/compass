@@ -1,12 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import CompassShellStore from './stores';
+import React from 'react';
+import thunk from 'redux-thunk';
 import { HistoryStorage } from './modules/history-storage';
-import type CompassShellComponentType from './components/compass-shell';
-import type AppRegistry from 'hadron-app-registry';
-import {
-  createLoggerLocator,
-  type Logger,
-} from '@mongodb-js/compass-logging/provider';
+import { type Logger } from '@mongodb-js/compass-logging/provider';
 import type {
   ConnectionInfoAccess,
   DataService,
@@ -14,6 +9,16 @@ import type {
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import TabShell from './components/compass-shell/tab-compass-shell';
+import Shell from './components/compass-shell/compass-shell';
+import { applyMiddleware, createStore } from 'redux';
+import reducer, {
+  createAndStoreRuntime,
+  createRuntime,
+  destroyCurrentRuntime,
+  loadHistory,
+} from './stores/store';
+import type { ActivateHelpers } from 'hadron-app-registry';
 import { Theme, ThemeProvider } from '@mongodb-js/compass-components';
 
 const SHELL_THEME = { theme: Theme.Dark, enabled: true };
@@ -22,83 +27,75 @@ export function ShellPlugin() {
   const multiConnectionsEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
   );
-  const [ShellComponent, setShellComponent] = useState<
-    typeof CompassShellComponentType | null
-  >(null);
-  const historyStorage = useRef<HistoryStorage | null>(null);
-
-  if (!historyStorage.current) {
-    historyStorage.current = new HistoryStorage();
-  }
-
-  useEffect(() => {
-    let mounted = true;
-    async function importShellComponent() {
-      let component: typeof CompassShellComponentType | null = null;
-      try {
-        if (multiConnectionsEnabled) {
-          component = (
-            await import('./components/compass-shell/tab-compass-shell')
-          ).default;
-        } else {
-          component = (await import('./components/compass-shell/compass-shell'))
-            .default;
-        }
-      } finally {
-        if (mounted) {
-          setShellComponent(component);
-        }
-      }
-    }
-
-    void importShellComponent();
-
-    return () => {
-      mounted = false;
-    };
-  }, [multiConnectionsEnabled]);
-
-  if (ShellComponent) {
-    return (
-      <ThemeProvider theme={SHELL_THEME}>
-        <ShellComponent historyStorage={historyStorage.current} />
-      </ThemeProvider>
-    );
-  }
-
-  return null;
+  const ShellComponent = multiConnectionsEnabled ? TabShell : Shell;
+  return (
+    <ThemeProvider theme={SHELL_THEME}>
+      <ShellComponent />
+    </ThemeProvider>
+  );
 }
 
+export type ShellPluginServices = {
+  logger: Logger;
+  track: TrackFunction;
+  dataService: DataService;
+  preferences: PreferencesAccess;
+  connectionInfo: ConnectionInfoAccess;
+};
+
+export type ShellPluginExtraArgs = ShellPluginServices & {
+  historyStorage: HistoryStorage;
+};
+
 export function onActivated(
-  _: unknown,
-  {
-    globalAppRegistry,
-    logger,
-    track,
-    dataService,
-    preferences,
-    connectionInfoAccess,
-  }: {
-    globalAppRegistry: AppRegistry;
-    logger: Logger;
-    track: TrackFunction;
-    dataService: DataService;
-    preferences: PreferencesAccess;
-    connectionInfoAccess: ConnectionInfoAccess;
-  }
+  _initialProps: unknown,
+  services: ShellPluginServices,
+  { addCleanup, cleanup }: ActivateHelpers
 ) {
-  const store = new CompassShellStore();
-  const deactivate = store.onActivated({
-    globalAppRegistry,
-    logger,
-    track,
-    dataService,
-    preferences,
-    connectionInfoAccess,
+  const { preferences, dataService, logger, track, connectionInfo } = services;
+
+  const store = createStore(
+    reducer,
+    {
+      runtimeId: preferences.getPreferences().enableShell
+        ? createAndStoreRuntime(dataService, logger, track, connectionInfo).id
+        : null,
+      history: null,
+    },
+    applyMiddleware(
+      thunk.withExtraArgument({
+        ...services,
+        historyStorage: new HistoryStorage(),
+      })
+    )
+  );
+
+  setTimeout(() => {
+    void store.dispatch(loadHistory());
   });
-  return {
-    store: store.reduxStore,
-    deactivate,
-    logger: createLoggerLocator('COMPASS-SHELL'),
-  };
+
+  addCleanup(
+    preferences.onPreferenceValueChanged('enableShell', (enabled) => {
+      if (enabled) {
+        store.dispatch(createRuntime());
+      } else {
+        store.dispatch(destroyCurrentRuntime());
+      }
+    })
+  );
+
+  function destroyRuntime() {
+    store.dispatch(destroyCurrentRuntime());
+  }
+
+  addCleanup(destroyRuntime);
+
+  // Trigger terminate when page unloads to kill the spawned child process
+  window.addEventListener('beforeunload', destroyRuntime);
+
+  addCleanup(() => {
+    window.removeEventListener('beforeunload', destroyRuntime);
+  });
+
+  return { store, deactivate: cleanup };
 }
