@@ -255,8 +255,17 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         const Component = getWorkspacePluginByName(activeTab.type);
         return <Component></Component>;
       }
-
-      case 'Shell':
+      case 'Shell': {
+        const Component = getWorkspacePluginByName(activeTab.type);
+        return (
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
+            <Component
+              initialEvaluate={activeTab.initialEvaluate}
+              initialInput={activeTab.initialInput}
+            ></Component>
+          </ConnectionInfoProvider>
+        );
+      }
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);

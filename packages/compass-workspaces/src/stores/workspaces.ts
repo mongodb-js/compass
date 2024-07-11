@@ -599,7 +599,10 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
-  | Pick<Workspace<'Shell'>, 'type' | 'connectionId'>
+  | Pick<
+      Workspace<'Shell'>,
+      'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'
+    >
   | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>
