@@ -3,7 +3,6 @@ import type { DataService, connect } from 'mongodb-data-service';
 import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
-  type ConnectionsManager,
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
@@ -15,6 +14,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
+import type { ActiveAndInactiveConnectionsCount } from '../types';
 
 const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
@@ -156,16 +156,13 @@ export function connectionsReducer(state: State, action: Action): State {
   }
 }
 
-interface ActiveAndInactiveConnectionsCount {
-  active: number;
-  inactive: number;
-}
-
 export function useConnections({
   onConnected,
   onConnectionFailed,
   onConnectionAttemptStarted,
   onDisconnected,
+  onConnectionCreated,
+  onConnectionRemoved,
   __TEST_INITIAL_CONNECTION_INFO,
 }: {
   onConnected?: (
@@ -175,6 +172,14 @@ export function useConnections({
   ) => void;
   onDisconnected?: (
     connectionInfo: ConnectionInfo | undefined,
+    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
+  ) => void;
+  onConnectionCreated?: (
+    connectionInfo: ConnectionInfo,
+    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
+  ) => void;
+  onConnectionRemoved?: (
+    connectionInfo: ConnectionInfo,
     activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
   ) => void;
   onConnectionFailed?: (
@@ -208,9 +213,12 @@ export function useConnections({
   const {
     favoriteConnections,
     nonFavoriteConnections: recentConnections,
-    saveConnection,
-    deleteConnection,
-  } = useConnectionRepository();
+    saveConnection: repositorySaveConnection,
+    deleteConnection: repositoryRemoveConnection,
+  } = useConnectionRepository({
+    onConnectionCreated,
+    onConnectionRemoved,
+  });
 
   const { openToast } = useToast('compass-connections');
   const persistOIDCTokens = usePreference('persistOIDCTokens');
@@ -245,7 +253,19 @@ export function useConnections({
         Pick<ConnectionInfo, 'id'>
     ) => {
       try {
-        await saveConnection(connectionInfo);
+        // const isNewConnection = !findConnectionInfo(connectionInfo.id);
+        // console.log({ isNewConnection });
+        // if (isNewConnection) {
+        //   const { active, inactive } = getActiveAndInactiveCount();
+        //   const isActive =
+        //     connectionsManager.statusOf(connectionInfo.id) === 'connected';
+        //   console.log('statusOf', connectionsManager.statusOf(connectionInfo.id));
+        //   // onConnectionCreated?.(connectionInfo, {
+        //   //   active: isActive ? active + 1 : active,
+        //   //   inactive: isActive ? inactive : inactive + 1,
+        //   // });
+        // }
+        await repositorySaveConnection(connectionInfo);
         return true;
       } catch (err) {
         debug(
@@ -265,12 +285,24 @@ export function useConnections({
         return false;
       }
     },
-    [openToast, saveConnection]
+    [
+      openToast,
+      repositorySaveConnection,
+      getActiveAndInactiveCount,
+      findConnectionInfo,
+      onConnectionCreated,
+      connectionsManager,
+    ]
   );
 
   const removeConnection = useCallback(
     async (connectionInfo: ConnectionInfo) => {
-      await deleteConnection(connectionInfo);
+      await repositoryRemoveConnection(connectionInfo);
+      // const { active, inactive } = getActiveAndInactiveCount();
+      // onConnectionRemoved?.(connectionInfo, {
+      //   active,
+      //   inactive: inactive - 1, // TODO: double check
+      // });
 
       if (activeConnectionId === connectionInfo.id) {
         const nextActiveConnection = createNewConnectionInfo();
@@ -280,7 +312,32 @@ export function useConnections({
         });
       }
     },
-    [activeConnectionId, deleteConnection, dispatch]
+    [
+      activeConnectionId,
+      repositoryRemoveConnection,
+      dispatch,
+      onConnectionRemoved,
+      getActiveAndInactiveCount,
+    ]
+  );
+
+  const saveConnection = useCallback(
+    async (connectionInfo: ConnectionInfo) => {
+      const saved = await saveConnectionInfo(connectionInfo);
+      if (!saved) {
+        return;
+      }
+
+      if (activeConnectionId === connectionInfo.id) {
+        // Update the active connection if it's currently selected.
+        dispatch({
+          type: 'set-active-connection',
+          connectionInfo: cloneDeep(connectionInfo),
+        });
+        return;
+      }
+    },
+    [activeConnectionId, saveConnectionInfo]
   );
 
   const oidcAttemptConnectNotifyDeviceAuth = useCallback(
@@ -335,10 +392,13 @@ export function useConnections({
           };
         }
 
-        await saveConnectionInfo({
+        const connectionInfoToSave: ConnectionInfo = {
           ...merge(connectionInfo, mergeConnectionInfo),
           lastUsed: new Date(),
-        });
+        };
+        console.log('shouldSaveConnectionInfo', { connectionInfoToSave });
+
+        await saveConnectionInfo(connectionInfoToSave);
       } catch (err) {
         debug(
           `error occurred connection with id ${connectionInfo.id || ''}: ${
@@ -375,13 +435,11 @@ export function useConnections({
     );
     try {
       await connectionsManager.closeConnection(connectionId);
-      console.log('DISCONNECT');
       onDisconnected?.(
         findConnectionInfo(connectionId),
         getActiveAndInactiveCount()
       );
     } catch (error) {
-      console.log({ error });
       log.error(
         mongoLogId(1_001_000_314),
         'Connection UI',
@@ -530,21 +588,7 @@ export function useConnections({
         connectionInfo: createNewConnectionInfo(),
       });
     },
-    async saveConnection(connectionInfo: ConnectionInfo) {
-      const saved = await saveConnectionInfo(connectionInfo);
-      if (!saved) {
-        return;
-      }
-
-      if (activeConnectionId === connectionInfo.id) {
-        // Update the active connection if it's currently selected.
-        dispatch({
-          type: 'set-active-connection',
-          connectionInfo: cloneDeep(connectionInfo),
-        });
-        return;
-      }
-    },
+    saveConnection,
     setActiveConnectionById(newConnectionId: string) {
       const connection = findConnectionInfo(newConnectionId);
       if (connection) {
@@ -617,7 +661,7 @@ export function useConnections({
     },
     async removeAllRecentsConnections() {
       await Promise.all(
-        recentConnections.map((info) => deleteConnection(info))
+        recentConnections.map((info) => repositoryRemoveConnection(info))
       );
     },
   };

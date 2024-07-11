@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/connection-storage/provider';
 import { useState, useEffect, useCallback } from 'react';
 import { BSON } from 'bson';
+import type { ActiveAndInactiveConnectionsCount } from '../types';
 
 type DeepPartial<T> = T extends object
   ? { [P in keyof T]?: DeepPartial<T[P]> }
@@ -52,7 +53,19 @@ export type ConnectionRepository = {
   getConnectionTitleById: (id: ConnectionInfo['id']) => string | undefined;
 };
 
-export function useConnectionRepository(): ConnectionRepository {
+export function useConnectionRepository({
+  onConnectionCreated,
+  onConnectionRemoved,
+}: {
+  onConnectionCreated?: (
+    connectionInfo: ConnectionInfo,
+    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
+  ) => void;
+  onConnectionRemoved?: (
+    connectionInfo: ConnectionInfo,
+    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
+  ) => void;
+} = {}): ConnectionRepository {
   const storage = useConnectionStorageContext();
 
   const [favoriteConnections, setFavoriteConnections] = useState<
@@ -70,13 +83,15 @@ export function useConnectionRepository(): ConnectionRepository {
   const persistOIDCTokens = usePreference('persistOIDCTokens');
 
   useEffect(() => {
-    async function updateListsOfConnections() {
+    async function updateListsOfConnections(firstRender = false) {
       const allConnections = (await storage.loadAll()) || [];
-      const favoriteConnections = allConnections
+      let prevConnections: ConnectionInfo[] = [];
+
+      const newFavoriteConnections = allConnections
         .filter((connection) => connection.savedConnectionType === 'favorite')
         .sort(sortedAlphabetically);
 
-      const nonFavoriteConnections = allConnections
+      const newNonFavoriteConnections = allConnections
         .filter(
           ({ savedConnectionType }) =>
             savedConnectionType !== 'favorite' &&
@@ -89,18 +104,20 @@ export function useConnectionRepository(): ConnectionRepository {
       );
 
       setFavoriteConnections((prevList) => {
-        if (areConnectionsEqual(prevList, favoriteConnections)) {
+        prevConnections = [...prevList];
+        if (areConnectionsEqual(prevList, newFavoriteConnections)) {
           return prevList;
         } else {
-          return favoriteConnections;
+          return newFavoriteConnections;
         }
       });
 
       setNonFavoriteConnections((prevList) => {
-        if (areConnectionsEqual(prevList, nonFavoriteConnections)) {
+        prevConnections = [...prevConnections, ...prevList];
+        if (areConnectionsEqual(prevList, newNonFavoriteConnections)) {
           return prevList;
         } else {
-          return nonFavoriteConnections;
+          return newNonFavoriteConnections;
         }
       });
 
@@ -113,9 +130,28 @@ export function useConnectionRepository(): ConnectionRepository {
           }
         });
       }
+
+      if (firstRender) return;
+      const newConnections = allConnections;
+      // TODO: there might be multiple new connections - import
+      if (newConnections.length < prevConnections.length) {
+        const missing = prevConnections.find(
+          ({ id: idA }) => !newConnections.find(({ id: idB }) => idA === idB)
+        );
+        console.log({ missing, onConnectionRemoved });
+        if (missing) onConnectionRemoved?.(missing, { active: 0, inactive: 0 }); // TODO
+      }
+      if (newConnections.length > prevConnections.length) {
+        const newcomer = newConnections.find(
+          ({ id: idA }) => !prevConnections.find(({ id: idB }) => idA === idB)
+        );
+        console.log({ newcomer });
+        if (newcomer)
+          onConnectionCreated?.(newcomer, { active: 0, inactive: 0 }); // TODO
+      }
     }
 
-    void updateListsOfConnections();
+    void updateListsOfConnections(true);
 
     function updateListsOfConnectionsSubscriber() {
       void updateListsOfConnections();
@@ -140,6 +176,8 @@ export function useConnectionRepository(): ConnectionRepository {
       const infoToSave = (
         oldConnectionInfo ? merge(oldConnectionInfo, info) : info
       ) as ConnectionInfo;
+
+      console.log({ oldConnectionInfo, infoToSave });
 
       ensureWellFormedConnectionString(
         infoToSave.connectionOptions?.connectionString
