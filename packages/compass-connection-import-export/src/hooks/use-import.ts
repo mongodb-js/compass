@@ -19,7 +19,6 @@ import {
   useConnectionsManagerContext,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingConnection: boolean;
@@ -110,7 +109,6 @@ export function useImportConnections({
   );
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();
-  const track = useTelemetry();
   const connectionsManager = useConnectionsManagerContext();
   const existingConnections = useMemo(() => {
     // in case of multiple connections all the connections are saved (that used
@@ -160,25 +158,25 @@ export function useImportConnections({
         .filter((x) => x.selected)
         .map((x) => x.id);
       try {
+        const activeConnectionsCount =
+          connectionsManager.getConnectionIdsByStatus(
+            ConnectionStatus.Connected
+          ).length || 0;
         await importConnectionsImpl({
           content: fileContents,
           options: {
             passphrase,
             filterConnectionIds,
-            trackingProps,
+            trackingProps: {
+              ...trackingProps,
+              connection_ids: filterConnectionIds,
+              active_connections_count: activeConnectionsCount,
+              inactive_connections_count:
+                existingConnectionIds.length +
+                filterConnectionIds.length -
+                activeConnectionsCount,
+            },
           },
-        });
-        const activeConnectionsCount =
-          connectionsManager.getConnectionIdsByStatus(
-            ConnectionStatus.Connected
-          ).length || 0;
-        track('Connections Imported', {
-          connection_ids: filterConnectionIds,
-          active_connections_count: activeConnectionsCount,
-          inactive_connections_count:
-            existingConnectionIds.length +
-            filterConnectionIds.length -
-            activeConnectionsCount,
         });
       } catch (err: any) {
         setState((prevState) => {
