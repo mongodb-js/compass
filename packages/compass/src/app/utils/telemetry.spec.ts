@@ -6,6 +6,9 @@ import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
+  trackConnectionDisconnectedEvent,
+  trackConnectionCreatedEvent,
+  trackConnectionRemovedEvent,
 } from './telemetry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -40,6 +43,9 @@ const connectionInfo: ConnectionInfo = {
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
   },
+  favorite: {
+    color: 'color_2',
+  },
 };
 
 const activeInactiveConnectionsCount = {
@@ -47,7 +53,7 @@ const activeInactiveConnectionsCount = {
   inactive: 7,
 };
 
-describe.only('connection tracking', function () {
+describe('connection tracking', function () {
   let trackUsageStatistics: boolean;
   const logger = createLogger('TEST-CONNECTION');
   const track = createIpcTrack();
@@ -874,7 +880,7 @@ describe.only('connection tracking', function () {
       track,
       activeInactiveConnectionsCount
     );
-    const [{ properties }] = await trackEvent;
+    const [{ properties, event }] = await trackEvent;
 
     const expected = {
       is_localhost: true,
@@ -906,6 +912,68 @@ describe.only('connection tracking', function () {
       inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
+    expect(event).to.equal('New Connection');
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a connection disconnected event', async function () {
+    const trackEvent = once(process, 'compass:track');
+
+    trackConnectionDisconnectedEvent(
+      connectionInfo,
+      track,
+      activeInactiveConnectionsCount
+    );
+    const [{ properties, event }] = await trackEvent;
+
+    const expected = {
+      connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
+    };
+
+    expect(event).to.equal('Connection Disconnected');
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a connection created event', async function () {
+    const trackEvent = once(process, 'compass:track');
+
+    trackConnectionCreatedEvent(
+      connectionInfo,
+      track,
+      activeInactiveConnectionsCount
+    );
+    const [{ properties, event }] = await trackEvent;
+
+    const expected = {
+      connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
+      color: connectionInfo.favorite.color,
+    };
+
+    expect(event).to.equal('Connection Created');
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a connection removed event', async function () {
+    const trackEvent = once(process, 'compass:track');
+
+    trackConnectionRemovedEvent(
+      connectionInfo,
+      track,
+      activeInactiveConnectionsCount
+    );
+    const [{ properties, event }] = await trackEvent;
+
+    const expected = {
+      connection_id: 'TEST',
+      active_connections_count: activeInactiveConnectionsCount.active,
+      inactive_connections_count: activeInactiveConnectionsCount.inactive,
+    };
+
+    expect(event).to.equal('Connection Removed');
     expect(properties).to.deep.equal(expected);
   });
 });
