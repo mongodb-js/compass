@@ -882,9 +882,7 @@ describe('CSFLE / QE', function () {
             )
           );
         } else {
-          await browser.clickVisible(
-            Selectors.FleConnectionConfigurationBanner
-          );
+          await browser.clickVisible(Selectors.Single.InUseEncryptionMarker);
         }
 
         await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
@@ -914,9 +912,7 @@ describe('CSFLE / QE', function () {
             )
           );
         } else {
-          await browser.clickVisible(
-            Selectors.FleConnectionConfigurationBanner
-          );
+          await browser.clickVisible(Selectors.Single.InUseEncryptionMarker);
         }
 
         await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();

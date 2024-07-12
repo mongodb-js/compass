@@ -258,6 +258,8 @@ export const Single = {
     '[data-testid="favorites-menu-export-saved-connections-action"]',
   ImportConnectionsModalOpen:
     '[data-testid="favorites-menu-import-saved-connections-action"]',
+
+  InUseEncryptionMarker: '[data-testid="fle-connection-configuration"]',
 };
 
 // Multiple Connections sidebar
@@ -328,9 +330,6 @@ export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
-
-export const FleConnectionConfigurationBanner =
-  '[data-testid="fle-connection-configuration"]';
 
 export const sidebarDatabase = (dbName: string): string => {
   return `${Sidebar} [data-database-name="${dbName}"]`;

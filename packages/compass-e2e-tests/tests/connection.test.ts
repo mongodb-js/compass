@@ -200,7 +200,16 @@ async function assertCannotCreateDb(
   }
 
   // open the create database modal from the sidebar
-  await browser.clickVisible(Sidebar.CreateDatabaseButton);
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    await browser.clickVisible(
+      Selectors.sidebarConnectionActionButton(
+        connectionName,
+        Sidebar.CreateDatabaseButton
+      )
+    );
+  } else {
+    await browser.clickVisible(Sidebar.CreateDatabaseButton);
+  }
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
