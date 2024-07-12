@@ -76,7 +76,7 @@ export function createInstancesStore(
       );
     } catch (error) {
       log.warn(
-        mongoLogId(1_001_000_315),
+        mongoLogId(1_001_000_324),
         'Instance Store',
         'Failed to respond to fetch all collections',
         {
@@ -266,7 +266,7 @@ export function createInstancesStore(
         instance.removeAllListeners();
       } catch (error) {
         log.warn(
-          mongoLogId(1_001_000_313),
+          mongoLogId(1_001_000_322),
           'Instance Store',
           'Failed to remove instance listeners upon disconnect',
           {
@@ -347,7 +347,7 @@ export function createInstancesStore(
           ?.fetchCollections({ dataService });
       } catch (error) {
         log.warn(
-          mongoLogId(1_001_000_314),
+          mongoLogId(1_001_000_323),
           'Instance Store',
           'Failed to respond to sidebar-expand-database',
           {
@@ -411,7 +411,7 @@ export function createInstancesStore(
         }
       } catch (error) {
         log.warn(
-          mongoLogId(1_001_000_316),
+          mongoLogId(1_001_000_325),
           'Instance Store',
           'Failed to respond to database-dropped',
           {
