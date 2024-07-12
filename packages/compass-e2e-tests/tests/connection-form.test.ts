@@ -836,7 +836,7 @@ describe('Connection form', function () {
   });
 
   it('supports saving a favorite (single connection)', async function () {
-    if (!TEST_MULTIPLE_CONNECTIONS) {
+    if (TEST_MULTIPLE_CONNECTIONS) {
       // this will remain skipped until we remove the test because the test is
       // now for the single connection case only
       this.skip();
