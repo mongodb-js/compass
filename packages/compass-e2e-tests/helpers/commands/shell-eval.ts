@@ -7,8 +7,6 @@ async function getOutputText(browser: CompassBrowser): Promise<string[]> {
   });
 }
 
-let screenshotNumber = 0;
-
 export async function shellEval(
   browser: CompassBrowser,
   connectionName: string,
@@ -49,8 +47,6 @@ export async function shellEval(
       return false;
     });
   }
-
-  await browser.screenshot(`shell-eval-${++screenshotNumber}.png`);
 
   const output = await getOutputText(browser);
 
