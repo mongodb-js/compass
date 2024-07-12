@@ -48,7 +48,7 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
  * we ensure that when writing back into the database, it is always encrypted again,
  * and never sent in plaintext.
  */
-describe.only('CSFLE / QE', function () {
+describe('CSFLE / QE', function () {
   // reuse the same connectionName so that connectWithConnectionForm (or
   // connectWithConnectionString for that matter) will remove the connection
   // every time before connecting
@@ -848,7 +848,7 @@ describe.only('CSFLE / QE', function () {
         );
       });
 
-      it.only('can enable and disable in-use encryption from the sidebar', async function () {
+      it('can enable and disable in-use encryption from the sidebar', async function () {
         await browser.shellEval(connectionName, [
           `use ${databaseName}`,
           `db.createCollection('${collectionName}')`,
@@ -887,12 +887,24 @@ describe.only('CSFLE / QE', function () {
           );
         }
 
-        let modal = await browser.$(Selectors.CSFLEConnectionModal);
-        await modal.waitForDisplayed();
+        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
-        await browser.screenshot('csfle-connection-modal.png');
+        await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
+        await browser
+          .$(Selectors.CSFLEConnectionModal)
+          .waitForDisplayed({ reverse: true });
+
+        const encryptedResult = await getFirstListDocument(browser);
+
+        delete encryptedResult._id;
+        delete encryptedResult.__safeContent__;
+
+        expect(encryptedResult).to.deep.equal({
+          phoneNumber: '*********',
+          name: '"Person Z"',
+        });
 
         if (TEST_MULTIPLE_CONNECTIONS) {
           await browser.clickVisible(
@@ -906,27 +918,15 @@ describe.only('CSFLE / QE', function () {
             Selectors.FleConnectionConfigurationBanner
           );
         }
-        await modal.waitForDisplayed({ reverse: true });
 
-        const encryptedResult = await getFirstListDocument(browser);
-
-        delete encryptedResult._id;
-        delete encryptedResult.__safeContent__;
-
-        expect(encryptedResult).to.deep.equal({
-          phoneNumber: '*********',
-          name: '"Person Z"',
-        });
-
-        await browser.clickVisible(Selectors.FleConnectionConfigurationBanner);
-
-        modal = await browser.$(Selectors.CSFLEConnectionModal);
-        await modal.waitForDisplayed();
+        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await modal.waitForDisplayed({ reverse: true });
+        await browser
+          .$(Selectors.CSFLEConnectionModal)
+          .waitForDisplayed({ reverse: true });
 
         decryptedResult = await getFirstListDocument(browser);
 
