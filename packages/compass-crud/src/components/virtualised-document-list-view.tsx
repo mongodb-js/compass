@@ -30,8 +30,10 @@ const virtualisedDocumentStyles = css({
 
 type VirtualisedDocumentListViewProps = {
   docs: HadronDocument[];
-  className?: string;
   isEditable: boolean;
+  className?: string;
+  initialScrollTop?: number;
+  scrollableContainerRef?: React.Ref<HTMLElement>;
 } & Pick<
   DocumentProps,
   | 'isTimeSeries'
@@ -44,7 +46,7 @@ type VirtualisedDocumentListViewProps = {
 
 type VirtualisedDocumentData = Omit<
   VirtualisedDocumentListViewProps,
-  'className'
+  'className' | 'initialScrollTop' | 'scrollableContainerRef'
 > & {
   setDocumentCardSize(this: void, index: number, size: number): void;
 };
@@ -120,6 +122,8 @@ export const VirtualisedDocumentListView: React.FC<
   className,
   isEditable,
   isTimeSeries,
+  initialScrollTop,
+  scrollableContainerRef,
   copyToClipboard,
   removeDocument,
   replaceDocument,
@@ -256,6 +260,8 @@ export const VirtualisedDocumentListView: React.FC<
         {({ width, height }) => (
           <List<VirtualisedDocumentData>
             ref={listRef}
+            outerRef={scrollableContainerRef}
+            initialScrollOffset={initialScrollTop}
             width={width}
             height={height}
             itemData={itemData}

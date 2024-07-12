@@ -146,15 +146,26 @@ export type DocumentListProps = {
   >;
 
 const DocumentViewComponent: React.FunctionComponent<
-  DocumentListProps & { isEditable: boolean; outdated: boolean; query: unknown }
-> = (props) => {
+  DocumentListProps & {
+    isEditable: boolean;
+    outdated: boolean;
+    query: unknown;
+    scrollableContainerRef?: React.Ref<HTMLElement>;
+    initialScrollTop?: number;
+  }
+> = ({ initialScrollTop, scrollableContainerRef, ...props }) => {
   if (props.docs?.length === 0) {
     return null;
   }
 
   if (props.view === 'List') {
     return (
-      <VirtualisedDocumentListView {...props} className={listAndJsonStyles} />
+      <VirtualisedDocumentListView
+        {...props}
+        className={listAndJsonStyles}
+        initialScrollTop={initialScrollTop}
+        scrollableContainerRef={scrollableContainerRef}
+      />
     );
     // return <DocumentListView {...props} className={listAndJsonStyles} />
   } else if (props.view === 'Table') {
@@ -285,6 +296,15 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const isError = status === DOCUMENTS_STATUS_ERROR;
 
+  const [initialScrollTop, setInitialScrollTop] = useTabState(
+    'documents-list-initial-scroll-top',
+    0
+  );
+  const initialScrollTopRef = useRef(initialScrollTop);
+  initialScrollTopRef.current = initialScrollTop;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   let content = null;
 
   if (isFetching) {
@@ -337,42 +357,45 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
         );
       }
     } else {
+      const listViewProps =
+        props.view === 'List'
+          ? {
+              scrollableContainerRef: scrollRef,
+              initialScrollTop: initialScrollTop,
+            }
+          : {};
+
       content = (
         <DocumentViewComponent
           {...props}
           isEditable={isEditable}
           outdated={outdated}
           query={query}
+          {...listViewProps}
         />
       );
     }
   }
 
-  const [initialScrollTop, setInitialScrollTop] = useTabState(
-    'documents-list-initial-scroll-top',
-    0
-  );
-  const initialScrollTopRef = useRef(initialScrollTop);
-  initialScrollTopRef.current = initialScrollTop;
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   useLayoutEffect(() => {
-    if (scrollRef.current) {
+    // List view is rendered with a virtual list and the scrollTop is managed
+    // the VirtualList interface itself hence we don't need to set the scrollTop
+    // explicitly here
+    if (scrollRef.current && props.view !== 'List') {
       scrollRef.current.scrollTop = initialScrollTopRef.current;
     }
 
     return () => {
       setInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
     };
-  }, [setInitialScrollTop]);
+  }, [props.view, setInitialScrollTop]);
 
   // Preserve the scroll top when documents are refreshed
   useLayoutEffect(() => {
-    if (scrollRef.current && !isFetching) {
+    if (scrollRef.current && !isFetching && props.view !== 'List') {
       scrollRef.current.scrollTop = initialScrollTopRef.current;
     }
-  }, [isFetching]);
+  }, [isFetching, props.view]);
 
   const handleMaxDocsPerPageChanged = useCallback(
     (newDocsPerPage: number) => {
@@ -388,7 +411,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   return (
     <div className={documentsContainerStyles} data-testid="compass-crud">
       <WorkspaceContainer
-        scrollableContainerRef={scrollRef}
+        scrollableContainerRef={props.view !== 'List' ? scrollRef : undefined}
         initialTopInView={initialScrollTop === 0}
         toolbar={
           <CrudToolbar
