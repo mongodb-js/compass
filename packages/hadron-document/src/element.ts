@@ -46,6 +46,12 @@ const UNEDITABLE_TYPES = [
   'DBRef',
 ];
 
+export function isValueExpandable(
+  value: BSONValue
+): value is BSONObject | BSONArray {
+  return isPlainObject(value) || isArray(value);
+}
+
 /**
  * Represents an element in a document.
  */
@@ -58,6 +64,11 @@ export class Element extends EventEmitter {
   added: boolean;
   removed: boolean;
   elements?: ElementList;
+  // With Arrays and Objects we store the value in the
+  // `elements` instead of currentValue. We use `originalExpandableValue`
+  // to store the original value that was passed in. This is necessary
+  // to be able to revert to the original value when the user cancels
+  // any changes.
   originalExpandableValue?: BSONObject | BSONArray;
   parent: Element | Document | null;
   type: TypeCastTypes;
@@ -116,7 +127,7 @@ export class Element extends EventEmitter {
       value = TypeChecker.cast(value, TypeChecker.type(value));
     }
 
-    if (this._isExpandable(value)) {
+    if (isValueExpandable(value)) {
       // NB: Important to set `originalExpandableValue` first as element
       // generation will depend on it
       this.originalExpandableValue = value;
@@ -168,10 +179,10 @@ export class Element extends EventEmitter {
    */
   edit(value: BSONValue): void {
     this.currentType = TypeChecker.type(value);
-    if (this._isExpandable(value) && !this._isExpandable(this.currentValue)) {
+    if (isValueExpandable(value) && !isValueExpandable(this.currentValue)) {
       this.currentValue = null;
       this.elements = this._generateElements(value);
-    } else if (!this._isExpandable(value) && this.elements) {
+    } else if (!isValueExpandable(value) && this.elements) {
       this.currentValue = value;
       this.elements = undefined;
     } else {
@@ -455,6 +466,14 @@ export class Element extends EventEmitter {
     }
   }
 
+  _isExpandable(): boolean {
+    return (
+      isValueExpandable(this.originalExpandableValue) ||
+      (this.isModified() &&
+        (this.currentType === 'Array' || this.currentType === 'Object'))
+    );
+  }
+
   /**
    * Is the element the last in the elements.
    *
@@ -726,13 +745,7 @@ export class Element extends EventEmitter {
    * will most expand the element itself.
    */
   expand(expandChildren = false): void {
-    if (
-      !this._isExpandable(this.originalExpandableValue) &&
-      !(
-        this.isModified() &&
-        (this.currentType === 'Array' || this.currentType === 'Object')
-      )
-    ) {
+    if (!this._isExpandable()) {
       return;
     }
 
@@ -749,13 +762,7 @@ export class Element extends EventEmitter {
    * Collapses only the target element
    */
   collapse(): void {
-    if (
-      !this._isExpandable(this.originalExpandableValue) &&
-      !(
-        this.isModified() &&
-        (this.currentType === 'Array' || this.currentType === 'Object')
-      )
-    ) {
+    if (!this._isExpandable()) {
       return;
     }
 
@@ -811,17 +818,6 @@ export class Element extends EventEmitter {
    */
   _isElementEmpty(element: Element | undefined | null): boolean {
     return !!element && element.isAdded() && element.isBlank();
-  }
-
-  /**
-   * Check if the value is expandable.
-   *
-   * @param value - The value to check.
-   *
-   * @returns If the value is expandable.
-   */
-  _isExpandable(value: BSONValue): value is BSONObject | BSONArray {
-    return isPlainObject(value) || isArray(value);
   }
 
   /**

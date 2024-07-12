@@ -12,7 +12,7 @@ import {
 } from 'bson';
 import { expect } from 'chai';
 import { Document, Element, ElementEvents } from '../src/';
-import { DATE_FORMAT } from '../src/element';
+import { DATE_FORMAT, isValueExpandable } from '../src/element';
 import moment from 'moment';
 import Sinon from 'sinon';
 
@@ -2773,7 +2773,7 @@ describe('Element', function () {
       expect(element.expanded).to.be.true;
 
       for (const el of element.elements ?? []) {
-        if (el._isExpandable(el.originalExpandableValue)) {
+        if (isValueExpandable(el.originalExpandableValue)) {
           expect(el.expanded).to.be.true;
         }
       }
