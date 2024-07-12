@@ -202,7 +202,7 @@ export function useConnections({
   ) => Promise<void>;
   connect: (
     connectionInfo: ConnectionInfo,
-    legacyShouldSaveConnectionInfo: boolean
+    legacyShouldSaveConnectionInfo?: boolean
   ) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
@@ -402,7 +402,7 @@ export function useConnections({
     async (
       connectionInfo: ConnectionInfo,
       dataService: DataService,
-      legacyShouldSaveConnectionInfo: boolean
+      legacyShouldSaveConnectionInfo?: boolean
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
@@ -479,7 +479,7 @@ export function useConnections({
     _connectionInfo:
       | ConnectionInfo
       | (() => Promise<ConnectionInfo | undefined>),
-    legacyShouldSaveConnectionInfo: boolean
+    legacyShouldSaveConnectionInfo?: boolean
   ) => {
     const isAutoconnectAttempt = typeof _connectionInfo === 'function';
     let connectionInfo: ConnectionInfo;
