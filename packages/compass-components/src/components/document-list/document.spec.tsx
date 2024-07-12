@@ -296,5 +296,6 @@ describe('Document', function () {
       expect(() => screen.getByText('prop3')).to.throw;
       expect(() => screen.getByText('prop4')).to.throw;
     });
+    expect(screen.getByText('Show 2 more fields in nested')).to.exist;
   });
 });

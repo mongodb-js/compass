@@ -27,7 +27,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-import DocumentFieldsToggleGroup from './document-fields-toggle-group';
+import VisibleFieldsToggle from './visible-field-toggle';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -687,7 +687,8 @@ export const HadronElement: React.FunctionComponent<{
               ></HadronElement>
             );
           })}
-          <DocumentFieldsToggleGroup
+          <VisibleFieldsToggle
+            parentFieldName={key.value}
             // TODO: (Same as that for Document) "Hide items" button will only
             // be shown when document is not edited because it's not decided how
             // to handle changes to the fields that are changed but then hidden
@@ -703,9 +704,10 @@ export const HadronElement: React.FunctionComponent<{
             onSizeChange={handleVisibleElementsChanged}
             style={{
               paddingLeft: nestedElementsVisibilityToggleOffset,
-              paddingTop: spacing[200],
+              paddingTop: spacing[100],
+              paddingBottom: spacing[100],
             }}
-          ></DocumentFieldsToggleGroup>
+          ></VisibleFieldsToggle>
         </>
       )}
     </>
