@@ -87,7 +87,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       workspaces,
       logger: { debug },
       track,
-      globalAppRegistry,
+      connectionScopedAppRegistry,
       connectionInfoAccess,
     }
   ) => {
@@ -123,7 +123,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
         connectionInfo
       );
       debug('selecting namespace', viewNamespace);
-      globalAppRegistry.emit('view-edited', viewNamespace);
+      connectionScopedAppRegistry.emit('view-edited', viewNamespace);
       workspaces.openCollectionWorkspace(connectionInfo.id, viewNamespace);
     } catch (e: any) {
       debug('Unexpected error updating view', e);
