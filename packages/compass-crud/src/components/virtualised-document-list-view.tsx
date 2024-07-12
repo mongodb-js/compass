@@ -74,12 +74,10 @@ const VirtualisedDocument: React.FC<
     setDocumentCardSize(index, size);
 
   useLayoutEffect(() => {
+    let reqId: number;
     const observer = new ResizeObserver(([entry]) => {
-      // We request animation frame here to avoid ResizeObserverLoop crashing
-      // with undelivered notification error. This crash happens when a document
-      // gets out of the spanning window of the virtual list because of
-      // collapsing.
-      window.requestAnimationFrame(() => {
+      cancelAnimationFrame(reqId);
+      reqId = requestAnimationFrame(() => {
         setDocumentCardSizeRef.current(entry.contentRect.height);
       });
     });
@@ -88,6 +86,7 @@ const VirtualisedDocument: React.FC<
       observer.observe(docCardRef.current);
     }
     return () => {
+      cancelAnimationFrame(reqId);
       observer.disconnect();
     };
   }, []);
@@ -167,9 +166,9 @@ export const VirtualisedDocumentListView: React.FC<
   );
 
   const getDocumentCardSize = useCallback(
-    (docIndex: number) => {
-      const actualSize = documentCardSizes[docIndex];
-      if (docIndex === documentCardSizes.length - 1) {
+    (index: number) => {
+      const actualSize = documentCardSizes[index];
+      if (index === documentCardSizes.length - 1) {
         return actualSize;
       }
       const marginBetweenDocuments = spacing[150];
@@ -180,19 +179,17 @@ export const VirtualisedDocumentListView: React.FC<
 
   const handleDocumentCardSizeChange = useCallback(
     (index: number, newSize: number) => {
-      setDocumentCardSizes((previousSizes) => {
-        const oldSize = previousSizes[index];
-        if (oldSize === newSize) {
-          return previousSizes;
-        }
+      const oldSize = documentCardSizes[index];
+      if (oldSize === newSize) {
+        return;
+      }
 
-        const newSizes = [...previousSizes];
-        newSizes.splice(index, 1, newSize);
-        return newSizes;
-      });
-      listRef.current?.resetAfterIndex(index, true);
+      const newSizes = [...documentCardSizes];
+      newSizes.splice(index, 1, newSize);
+      setDocumentCardSizes(newSizes);
+      listRef.current?.resetAfterIndex(index);
     },
-    []
+    [documentCardSizes]
   );
 
   const averageDocumentCardSize = useMemo(() => {
@@ -206,9 +203,10 @@ export const VirtualisedDocumentListView: React.FC<
   // const documentCardSizesRef = useRef(docs.map(calculateInitialDocumentCardHeight));
 
   // const getDocumentCardSize = useCallback(
-  //   (docIndex: number) => {
-  //     const actualSize = documentCardSizesRef.current[docIndex];
-  //     if (docIndex === documentCardSizesRef.current.length - 1) {
+  //   (index: number) => {
+  //     console.log("getItemHeight", index, documentCardSizesRef.current[index]);
+  //     const actualSize = documentCardSizesRef.current[index];
+  //     if (index === documentCardSizesRef.current.length - 1) {
   //       return actualSize;
   //     }
   //     const marginBetweenDocuments = spacing[150];
@@ -218,8 +216,13 @@ export const VirtualisedDocumentListView: React.FC<
   // );
 
   // const handleDocumentCardSizeChange = useCallback((index: number, newSize: number) => {
-  //   documentCardSizesRef.current[index] = newSize;
-  //   listRef.current?.resetAfterIndex(index, true);
+  //   const oldSize = documentCardSizesRef.current[index];
+  //   console.log("setItemHeight called", index, newSize, oldSize);
+  //   if (newSize !== oldSize) {
+  //     console.log('Setting for idnex', index);
+  //     documentCardSizesRef.current[index] = newSize;
+  //     listRef.current?.resetAfterIndex(index);
+  //   }
   // }, []);
 
   // const averageDocumentCardSize = useMemo(() => {
