@@ -799,9 +799,10 @@ describe('Connection form', function () {
     );
   });
 
-  it('supports favorites', async function () {
-    // TODO(COMPASS-8003): saving a favorite is now part of the connect form
+  it('supports saving a favorite (multiple connections)', async function () {
     if (!TEST_MULTIPLE_CONNECTIONS) {
+      // this will remain skipped until we remove the test because the test is
+      // now for the multiple connections case only
       this.skip();
     }
 
@@ -834,9 +835,10 @@ describe('Connection form', function () {
     });
   });
 
-  it('can save & connect', async function () {
-    // TODO(COMPASS-8003): saving a favorite is now part of the connect form
-    if (TEST_MULTIPLE_CONNECTIONS) {
+  it('supports saving a favorite (single connection)', async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      // this will remain skipped until we remove the test because the test is
+      // now for the single connection case only
       this.skip();
     }
 
@@ -850,6 +852,8 @@ describe('Connection form', function () {
 
     // Save & Connect
     await browser.clickVisible(Selectors.SaveAndConnectButton);
+
+    // Fill out the favorite info
     await browser.$(Selectors.FavoriteModal).waitForDisplayed();
     await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
     await browser.clickVisible(

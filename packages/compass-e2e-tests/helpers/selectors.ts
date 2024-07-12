@@ -296,6 +296,8 @@ export const Multiple = {
     '[data-testid="connections-list-title-actions-export-saved-connections-action"]',
   ImportConnectionsModalOpen:
     '[data-testid="connections-list-title-actions-import-saved-connections-action"]',
+
+  InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
 };
 
 // Rename Collection Modal
@@ -355,6 +357,13 @@ export const sidebarConnection = (connectionName: string): string => {
 
 export const sidebarConnectionButton = (connectionName: string): string => {
   return `${sidebarConnection(connectionName)} > div > button`;
+};
+
+export const sidebarConnectionActionButton = (
+  connectionName: string,
+  selector: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${selector}`;
 };
 
 export const sidebarConnectionMenuButton = (connectionName: string): string => {
@@ -473,6 +482,7 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
+export const ShellInput = '[data-testid="shell-input"]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen

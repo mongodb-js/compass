@@ -154,6 +154,7 @@ describe('Instance sidebar', function () {
     }
 
     // open the create database modal from the sidebar
+    // TODO: technically this should be scoped to the connection
     await browser.clickVisible(Sidebar.CreateDatabaseButton, {
       screenshot: 'before-can-create-a-database-and-drop-it-click.png',
     });

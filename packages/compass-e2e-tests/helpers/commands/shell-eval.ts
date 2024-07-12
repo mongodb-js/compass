@@ -7,10 +7,12 @@ async function getOutputText(browser: CompassBrowser): Promise<string[]> {
   });
 }
 
+let screenshotNumber = 0;
+
 export async function shellEval(
   browser: CompassBrowser,
   connectionName: string,
-  str: string,
+  input: string | string[],
   parse = false
 ): Promise<string> {
   // Keep in mind that for multiple connections this will open a new tab and
@@ -19,23 +21,36 @@ export async function shellEval(
 
   const numLines = (await getOutputText(browser)).length;
 
-  const command = parse === true ? `JSON.stringify(${str})` : str;
+  const strings = Array.isArray(input) ? input : [input];
 
-  await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
-  await browser.keys(['Enter']);
+  for (const str of strings) {
+    const command = parse === true ? `JSON.stringify(${str})` : str;
 
-  // wait until more output appears
-  await browser.waitUntil(async () => {
-    const lines = await getOutputText(browser);
-    return (
-      lines.length >
-      /**
-       * input line becomes an output line on enter press, so we are waiting
-       * for two new lines to appear, not just one
-       */
-      numLines + 1
-    );
-  });
+    await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
+    await browser.keys(['Enter']);
+
+    // wait until more output appears
+    await browser.waitUntil(async () => {
+      const lines = await getOutputText(browser);
+      if (
+        lines.length >
+        /**
+         * input line becomes an output line on enter press, so we are waiting
+         * for two new lines to appear, not just one
+         */
+        numLines + 1
+      ) {
+        // make sure the prompt shows up before entering another line or continueing on
+        await browser
+          .$(`${Selectors.ShellInput} [aria-label="Chevron Right Icon"]`)
+          .waitForDisplayed();
+        return true;
+      }
+      return false;
+    });
+  }
+
+  await browser.screenshot(`shell-eval-${++screenshotNumber}.png`);
 
   const output = await getOutputText(browser);
 

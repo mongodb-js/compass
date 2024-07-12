@@ -1,6 +1,5 @@
 import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
-import * as Selectors from '../selectors';
 
 export async function connectWithConnectionForm(
   browser: CompassBrowser,
@@ -8,9 +7,13 @@ export async function connectWithConnectionForm(
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {
-  const sidebar = await browser.$(Selectors.SidebarTitle);
-  if (await sidebar.isDisplayed()) {
-    await browser.disconnect();
+  await browser.disconnect();
+
+  // If a connectionName is specified and a connection already exists with this
+  // name, make sure we don't add a duplicate so that tests can always address
+  // this new connection.
+  if (options.connectionName) {
+    await browser.removeConnection(options.connectionName);
   }
 
   await browser.setConnectFormState(options);
