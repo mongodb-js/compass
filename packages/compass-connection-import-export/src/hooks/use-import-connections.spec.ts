@@ -6,7 +6,7 @@ import type {
   RenderHookResult,
 } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useImportConnections } from './use-import';
+import { useImportConnections } from './use-import-connections';
 import type { ImportExportResult } from './common';
 import os from 'os';
 import path from 'path';
@@ -17,7 +17,12 @@ import {
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionsManager,
+  ConnectionsManagerProvider,
+  ConnectionStatus,
+  useConnectionRepository,
+} from '@mongodb-js/compass-connections/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
@@ -44,6 +49,7 @@ describe('useImportConnections', function () {
   let tmpdir: string;
   let exampleFile: string;
   let connectionStorage: ConnectionStorage;
+  let connectionsManager: ConnectionsManager;
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
@@ -56,10 +62,16 @@ describe('useImportConnections', function () {
       trackingProps: { context: 'Tests' },
     };
     connectionStorage = new InMemoryConnectionStorage();
+    connectionsManager = new ConnectionsManager({} as any);
     const wrapper: React.FC = ({ children }) =>
       React.createElement(ConnectionStorageProvider, {
         value: connectionStorage,
-        children,
+        children: [
+          React.createElement(ConnectionsManagerProvider, {
+            value: connectionsManager,
+            children,
+          }),
+        ],
       });
     renderHookResult = renderHook(
       (props: Partial<UseImportConnectionsProps> = {}) => {
@@ -334,7 +346,12 @@ describe('useImportConnections', function () {
     expect(await finishedPromise).to.equal('succeeded');
     expect(importConnectionsStub).to.have.been.calledOnce;
     const arg = importConnectionsStub.firstCall.args[0];
-    expect(arg?.options?.trackingProps).to.deep.equal({ context: 'Tests' });
+    expect(arg?.options?.trackingProps).to.deep.equal({
+      context: 'Tests',
+      connection_ids: ['id2'],
+      active_connections_count: 0,
+      inactive_connections_count: 1,
+    });
     expect(arg?.options?.filterConnectionIds).to.deep.equal(['id2']);
   });
 
