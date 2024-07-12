@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 import {
   VariableSizeList as List,
@@ -9,8 +15,6 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import type { DocumentProps } from './document';
 import Document from './document';
 import HadronDocument from 'hadron-document';
-import { DocumentEvents, ElementEvents } from 'hadron-document';
-import { debounce } from 'lodash';
 
 const containerStyles = css({
   width: '100%',
@@ -19,10 +23,7 @@ const containerStyles = css({
 
 const virtualisedDocumentStyles = css({
   position: 'relative',
-  marginBottom: spacing[100],
-
   '&:last-child': {
-    marginBottom: 0,
     borderBottom: '0 solid transparent',
   },
 });
@@ -44,21 +45,13 @@ type VirtualisedDocumentListViewProps = {
 type VirtualisedDocumentData = Omit<
   VirtualisedDocumentListViewProps,
   'className'
->;
+> & {
+  setDocumentCardSize(this: void, index: number, size: number): void;
+};
 
-type VirtualisedDocumentProps =
-  ListChildComponentProps<VirtualisedDocumentData> & {
-    cardWidth: number;
-    setDocumentCardSize(this: void, index: number, size: number): void;
-  };
-
-const VirtualisedDocument: React.FC<VirtualisedDocumentProps> = ({
-  index,
-  data,
-  style,
-  cardWidth,
-  setDocumentCardSize,
-}) => {
+const VirtualisedDocument: React.FC<
+  ListChildComponentProps<VirtualisedDocumentData>
+> = ({ index, data, style }) => {
   const {
     docs,
     isEditable,
@@ -68,32 +61,34 @@ const VirtualisedDocument: React.FC<VirtualisedDocumentProps> = ({
     replaceDocument,
     updateDocument,
     openInsertDocumentDialog,
+    setDocumentCardSize,
   } = data;
   const doc = useMemo(() => docs[index], [docs, index]);
-  const docRef = useRef<HTMLDivElement | null>(null);
+  const docCardRef = useRef<HTMLDivElement | null>(null);
+  const setDocumentCardSizeRef = useRef((size: number) =>
+    setDocumentCardSize(index, size)
+  );
+  setDocumentCardSizeRef.current = (size: number) =>
+    setDocumentCardSize(index, size);
+
   useLayoutEffect(() => {
-    const resetHeight = debounce(() => {
-      if (docRef.current) {
-        const height = docRef.current.getBoundingClientRect().height;
-        setDocumentCardSize(index, height);
-      }
-    }, 10);
-    resetHeight();
-    doc.on(ElementEvents.Added, resetHeight);
-    doc.on(ElementEvents.Removed, resetHeight);
-    doc.on(ElementEvents.Expanded, resetHeight);
-    doc.on(ElementEvents.Collapsed, resetHeight);
-    doc.on(DocumentEvents.VisibleElementsChanged, resetHeight);
-    doc.on(ElementEvents.VisibleElementsChanged, resetHeight);
+    const observer = new ResizeObserver(([entry]) => {
+      // We request animation frame here to avoid ResizeObserverLoop crashing
+      // with undelivered notification error. This crash happens when a document
+      // gets out of the spanning window of the virtual list because of
+      // collapsing.
+      window.requestAnimationFrame(() => {
+        setDocumentCardSizeRef.current(entry.contentRect.height);
+      });
+    });
+
+    if (docCardRef.current) {
+      observer.observe(docCardRef.current);
+    }
     return () => {
-      doc.off(ElementEvents.Added, resetHeight);
-      doc.off(ElementEvents.Removed, resetHeight);
-      doc.off(ElementEvents.Expanded, resetHeight);
-      doc.off(ElementEvents.Collapsed, resetHeight);
-      doc.off(DocumentEvents.VisibleElementsChanged, resetHeight);
-      doc.off(ElementEvents.VisibleElementsChanged, resetHeight);
+      observer.disconnect();
     };
-  }, [setDocumentCardSize, index, doc, cardWidth]);
+  }, []);
 
   return (
     <div
@@ -102,7 +97,7 @@ const VirtualisedDocument: React.FC<VirtualisedDocumentProps> = ({
       key={index}
       style={style}
     >
-      <KeylineCard ref={docRef}>
+      <KeylineCard ref={docCardRef}>
         <Document
           doc={doc}
           editable={isEditable}
@@ -132,6 +127,7 @@ export const VirtualisedDocumentListView: React.FC<
   openInsertDocumentDialog,
 }) => {
   const listRef = useRef<List | null>(null);
+
   const docs = useMemo(() => {
     return _docs.map((_doc) => {
       // COMPASS-5872 If doc is a plain js object rather than an instance of hadron-document Document
@@ -143,46 +139,15 @@ export const VirtualisedDocumentListView: React.FC<
     });
   }, [_docs]);
 
-  const itemData = useMemo(
-    () => ({
-      docs,
-      isEditable,
-      isTimeSeries,
-      copyToClipboard,
-      removeDocument,
-      replaceDocument,
-      updateDocument,
-      openInsertDocumentDialog,
-    }),
-    [
-      docs,
-      isEditable,
-      isTimeSeries,
-      copyToClipboard,
-      removeDocument,
-      replaceDocument,
-      updateDocument,
-      openInsertDocumentDialog,
-    ]
-  );
-
-  const documentCardSizesRef = useRef<Record<number, number>>({});
-
-  const setDocumentCardSize = useCallback((index: number, size: number) => {
-    documentCardSizesRef.current = {
-      ...documentCardSizesRef.current,
-      [index]: size,
-    };
-    listRef.current?.resetAfterIndex(index, true);
-  }, []);
-
   const calculateInitialDocumentCardHeight = useCallback(
     (doc: HadronDocument) => {
       // top and bottom padding taken up by the document card
       const occupiedStaticSizePerItem = spacing[400] + spacing[400];
       // total size occupied by the "Show more fields" button whenever visible
       const showMoreButtonSize =
-        doc.visibleElementsCount < doc.elements.size ? 38 : 0;
+        doc.maxVisibleElementsCount < doc.elements.size
+          ? spacing[400] + spacing[400]
+          : 0;
       // total size occupied by initially rendered fields
       const visibleFieldsSize =
         doc.getTotalVisibleElementsCount() * (spacing[400] + spacing[25]);
@@ -193,31 +158,93 @@ export const VirtualisedDocumentListView: React.FC<
     []
   );
 
-  // We need to provide the VariableSizeList and estimate of the size of the
-  // document cards so that it can appropriately adjust the scroll length and
-  // behavior. We do that by taking an average of initial card heights because
-  // the provided estimate will get updated when new items are rendered.
-  const averageDocumentCardSize = useMemo(() => {
-    return (
-      docs.reduce((totalSize, doc) => {
-        return totalSize + calculateInitialDocumentCardHeight(doc);
-      }, 0) / docs.length
-    );
-  }, [docs, calculateInitialDocumentCardHeight]);
+  const [documentCardSizes, setDocumentCardSizes] = useState<number[]>(
+    docs.map(calculateInitialDocumentCardHeight)
+  );
 
   const getDocumentCardSize = useCallback(
     (docIndex: number) => {
-      const document = docs[docIndex];
-      const actualSize =
-        documentCardSizesRef.current[docIndex] ??
-        calculateInitialDocumentCardHeight(document);
-      if (docIndex === docs.length - 1) {
+      const actualSize = documentCardSizes[docIndex];
+      if (docIndex === documentCardSizes.length - 1) {
         return actualSize;
       }
-      const marginBetweenDocuments = spacing[100];
+      const marginBetweenDocuments = spacing[150];
       return actualSize + marginBetweenDocuments;
     },
-    [docs, calculateInitialDocumentCardHeight]
+    [documentCardSizes]
+  );
+
+  const handleDocumentCardSizeChange = useCallback(
+    (index: number, newSize: number) => {
+      setDocumentCardSizes((previousSizes) => {
+        const oldSize = previousSizes[index];
+        if (oldSize === newSize) {
+          return previousSizes;
+        }
+
+        const newSizes = [...previousSizes];
+        newSizes.splice(index, 1, newSize);
+        return newSizes;
+      });
+      listRef.current?.resetAfterIndex(index, true);
+    },
+    []
+  );
+
+  const averageDocumentCardSize = useMemo(() => {
+    return (
+      documentCardSizes.reduce((totalSize, size) => totalSize + size, 0) /
+      documentCardSizes.length
+    );
+  }, [documentCardSizes]);
+
+  // TODO: Remove the following block of comment. Keeping it around only to test a few things
+  // const documentCardSizesRef = useRef(docs.map(calculateInitialDocumentCardHeight));
+
+  // const getDocumentCardSize = useCallback(
+  //   (docIndex: number) => {
+  //     const actualSize = documentCardSizesRef.current[docIndex];
+  //     if (docIndex === documentCardSizesRef.current.length - 1) {
+  //       return actualSize;
+  //     }
+  //     const marginBetweenDocuments = spacing[150];
+  //     return actualSize + marginBetweenDocuments;
+  //   },
+  //   []
+  // );
+
+  // const handleDocumentCardSizeChange = useCallback((index: number, newSize: number) => {
+  //   documentCardSizesRef.current[index] = newSize;
+  //   listRef.current?.resetAfterIndex(index, true);
+  // }, []);
+
+  // const averageDocumentCardSize = useMemo(() => {
+  //   return documentCardSizesRef.current.reduce((totalSize, size) => totalSize + size, 0) / documentCardSizesRef.current.length
+  // }, []);
+
+  const itemData = useMemo(
+    () => ({
+      docs,
+      isEditable,
+      isTimeSeries,
+      copyToClipboard,
+      removeDocument,
+      replaceDocument,
+      updateDocument,
+      openInsertDocumentDialog,
+      setDocumentCardSize: handleDocumentCardSizeChange,
+    }),
+    [
+      docs,
+      isEditable,
+      isTimeSeries,
+      copyToClipboard,
+      removeDocument,
+      replaceDocument,
+      updateDocument,
+      openInsertDocumentDialog,
+      handleDocumentCardSizeChange,
+    ]
   );
 
   return (
@@ -236,15 +263,7 @@ export const VirtualisedDocumentListView: React.FC<
             itemSize={getDocumentCardSize}
             estimatedItemSize={averageDocumentCardSize}
           >
-            {({ index, data, style }) => (
-              <VirtualisedDocument
-                index={index}
-                data={data}
-                style={style}
-                cardWidth={width}
-                setDocumentCardSize={setDocumentCardSize}
-              />
-            )}
+            {VirtualisedDocument}
           </List>
         )}
       </AutoSizer>

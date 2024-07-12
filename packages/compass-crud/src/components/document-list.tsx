@@ -15,7 +15,7 @@ import InsertDocumentDialog from './insert-document-dialog';
 import type { BulkUpdateModalProps } from './bulk-update-modal';
 import BulkUpdateModal from './bulk-update-modal';
 import type { DocumentListViewProps } from './document-list-view';
-import DocumentListView from './document-list-view';
+// import DocumentListView from './document-list-view';
 import { VirtualisedDocumentListView } from './virtualised-document-list-view';
 import type { DocumentJsonViewProps } from './document-json-view';
 import DocumentJsonView from './document-json-view';
@@ -156,7 +156,7 @@ const DocumentViewComponent: React.FunctionComponent<
     return (
       <VirtualisedDocumentListView {...props} className={listAndJsonStyles} />
     );
-    // return <DocumentListView {...props} className={listAndJsonStyles} />;
+    // return <DocumentListView {...props} className={listAndJsonStyles} />
   } else if (props.view === 'Table') {
     return (
       <DocumentTableView
