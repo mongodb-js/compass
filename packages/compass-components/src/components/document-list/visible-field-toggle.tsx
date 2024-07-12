@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon } from '../leafygreen';
+import { Icon, Link } from '../leafygreen';
+import { documentTypography } from './typography';
 
 const container = css({
   display: 'flex',
@@ -11,12 +12,24 @@ const container = css({
   paddingRight: spacing[3],
 });
 
-const button = css({
-  flex: 'none',
+const linkButtonStyles = css({
+  border: 'none',
+  background: 'none',
+  padding: 0,
+  fontFamily: documentTypography.fontFamily,
+  fontSize: `${documentTypography.fontSize}px`,
+  lineHeight: `${documentTypography.lineHeight}px`,
+  '& > span': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: spacing[100],
+  },
 });
 
-const DocumentFieldsToggleGroup: React.FunctionComponent<{
+const VisibleFieldsToggle: React.FunctionComponent<{
   showHideButton?: boolean;
+  buttonClassName?: string;
+  parentFieldName?: string;
   currentSize: number;
   totalSize: number;
   minSize?: number;
@@ -25,6 +38,8 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
   onSizeChange(newSize: number): void;
 }> = ({
   showHideButton = true,
+  buttonClassName,
+  parentFieldName,
   currentSize,
   totalSize,
   minSize = 25,
@@ -60,32 +75,41 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
     return null;
   }
 
+  const showButtonText = `Show ${showSizeDiff} more ${
+    showSizeDiff === 1 ? 'field' : 'fields'
+  }${parentFieldName ? ` in ${parentFieldName}` : ''}`;
+  const hideButtonText = `Hide ${hideSizeDiff} ${
+    hideSizeDiff === 1 ? 'field' : 'fields'
+  }${parentFieldName ? ` in ${parentFieldName}` : ''}`;
+
   return (
     <div className={container} style={style}>
       {isShowButtonVisible && (
-        <Button
-          size="xsmall"
-          leftGlyph={<Icon glyph="ArrowDown"></Icon>}
+        <Link
+          as="button"
+          hideExternalIcon={true}
+          className={cx(linkButtonStyles, buttonClassName)}
           onClick={onShowClick}
-          className={button}
-          data-testid="show-more-fields-button"
+          aria-label={showButtonText}
         >
-          Show {showSizeDiff} more fields
-        </Button>
+          <Icon size="xsmall" glyph="ArrowDown"></Icon>
+          {showButtonText}
+        </Link>
       )}
       {isHideButtonVisible && (
-        <Button
-          size="xsmall"
-          leftGlyph={<Icon glyph="ArrowUp"></Icon>}
+        <Link
+          as="button"
+          hideExternalIcon={true}
+          className={cx(linkButtonStyles, buttonClassName)}
           onClick={onHideClick}
-          className={button}
-          data-testid="hide-fields-button"
+          aria-label={hideButtonText}
         >
-          Hide {hideSizeDiff} fields
-        </Button>
+          <Icon size="xsmall" glyph="ArrowUp"></Icon>
+          {hideButtonText}
+        </Link>
       )}
     </div>
   );
 };
 
-export default DocumentFieldsToggleGroup;
+export default VisibleFieldsToggle;

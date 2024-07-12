@@ -13,7 +13,7 @@ import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { HadronElement } from './element';
 import { usePrevious } from './use-previous';
-import DocumentFieldsToggleGroup from './document-fields-toggle-group';
+import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
 
 function useHadronDocument(doc: HadronDocumentType) {
@@ -140,7 +140,7 @@ const HadronDocument: React.FunctionComponent<{
           })}
         </AutoFocusContext.Provider>
       </div>
-      <DocumentFieldsToggleGroup
+      <VisibleFieldsToggle
         // TODO: "Hide items" button will only be shown when document is not
         // edited because it's not decided how to handle changes to the fields
         // that are changed but then hidden
@@ -153,7 +153,7 @@ const HadronDocument: React.FunctionComponent<{
         // historically Compass was doing this for "performance" reasons
         step={editing ? 100 : 1000}
         onSizeChange={handleVisibleFieldsChanged}
-      ></DocumentFieldsToggleGroup>
+      ></VisibleFieldsToggle>
     </div>
   );
 };
