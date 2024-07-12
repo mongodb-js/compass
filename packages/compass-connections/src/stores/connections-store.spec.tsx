@@ -275,7 +275,6 @@ describe('use-connections hook', function () {
   describe('#connect', function () {
     it(`calls onConnected`, async function () {
       const onConnected = sinon.spy();
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
@@ -294,7 +293,26 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         expect(onConnected).to.have.been.called;
       });
-      expect(saveSpy).to.have.been.calledOnce;
+    });
+  });
+
+  describe('#closeConnection', function () {
+    it(`calls onDisconnected`, async function () {
+      const onDisconnected = sinon.spy();
+      const { result } = renderHookWithContext(() =>
+        useConnections({
+          onDisconnected,
+          onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
+        })
+      );
+
+      await result.current.closeConnection('old');
+
+      await waitFor(() => {
+        expect(onDisconnected).to.have.been.called;
+      });
     });
   });
 
@@ -364,10 +382,13 @@ describe('use-connections hook', function () {
 
     describe('saving a new connection', function () {
       let saveSpy: sinon.SinonSpy;
+      const onConnectionCreated = sinon.spy();
+
       beforeEach(async function () {
         saveSpy = sinon.spy(mockConnectionStorage, 'save');
         const { result } = renderHookWithContext(() =>
           useConnections({
+            onConnectionCreated,
             onConnected: noop,
             onConnectionFailed: noop,
             onConnectionAttemptStarted: noop,
@@ -388,8 +409,12 @@ describe('use-connections hook', function () {
         });
       });
 
-      it('calls to save a connection on the store', function () {
+      it('calls to save a connection on the store', async function () {
         expect(saveSpy.callCount).to.equal(1);
+
+        await waitFor(() => {
+          expect(onConnectionCreated).to.have.been.called;
+        });
       });
     });
 
@@ -645,11 +670,13 @@ describe('use-connections hook', function () {
   describe('#removeConnection', function () {
     let hookResult: RenderResult<ReturnType<typeof useConnections>>;
     it('should remove a connection', async function () {
+      const onConnectionRemoved = sinon.spy();
       const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
       const deleteSpy = sinon.spy(mockConnectionStorage, 'delete');
 
       const { result } = renderHookWithContext(() =>
         useConnections({
+          onConnectionRemoved,
           onConnected: noop,
           onConnectionFailed: noop,
           onConnectionAttemptStarted: noop,
@@ -665,6 +692,9 @@ describe('use-connections hook', function () {
 
       expect(loadAllSpy).to.have.been.called;
       expect(deleteSpy.callCount).to.equal(1);
+      await waitFor(() => {
+        expect(onConnectionRemoved).to.have.been.called;
+      });
       hookResult = result;
     });
     it('should set a new connection as current active connection', function () {
