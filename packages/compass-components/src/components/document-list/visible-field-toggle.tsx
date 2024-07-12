@@ -91,6 +91,7 @@ const VisibleFieldsToggle: React.FunctionComponent<{
           className={cx(linkButtonStyles, buttonClassName)}
           onClick={onShowClick}
           aria-label={showButtonText}
+          data-testid="show-more-fields-button"
         >
           <Icon size="xsmall" glyph="ArrowDown"></Icon>
           {showButtonText}
@@ -103,6 +104,7 @@ const VisibleFieldsToggle: React.FunctionComponent<{
           className={cx(linkButtonStyles, buttonClassName)}
           onClick={onHideClick}
           aria-label={hideButtonText}
+          data-testid="hide-fields-button"
         >
           <Icon size="xsmall" glyph="ArrowUp"></Icon>
           {hideButtonText}
