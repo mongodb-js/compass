@@ -1367,7 +1367,7 @@ describe('Collection import', function () {
       // Wait for the in progress toast to appear.
       await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
 
-      await browser.disconnect();
+      await browser.disconnectAll();
       await browser
         .$(Selectors.SidebarTitle)
         .waitForDisplayed({ reverse: true });

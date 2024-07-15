@@ -830,7 +830,7 @@ describe('Collection export', function () {
       const exportAbortButton = await browser.$(Selectors.ExportToastAbort);
       await exportAbortButton.waitForDisplayed();
 
-      await browser.disconnect();
+      await browser.disconnectAll();
       await browser
         .$(Selectors.SidebarTitle)
         .waitForDisplayed({ reverse: true });

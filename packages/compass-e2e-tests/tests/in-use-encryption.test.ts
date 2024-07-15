@@ -78,7 +78,7 @@ describe('CSFLE / QE', function () {
     });
 
     beforeEach(async function () {
-      await browser.disconnect();
+      await browser.disconnectAll();
     });
 
     afterEach(async function () {
@@ -156,7 +156,7 @@ describe('CSFLE / QE', function () {
       await delay(10000);
 
       try {
-        await browser.disconnect();
+        await browser.disconnectAll();
       } catch (err) {
         console.error('Error during disconnect:');
         console.error(err);
@@ -1048,7 +1048,7 @@ describe('CSFLE / QE', function () {
         });`,
       ]);
 
-      await browser.disconnect();
+      await browser.disconnectAll();
 
       // now connect with QE and check that we can query the data stored in a 6.x database
       await browser.connectWithConnectionForm({

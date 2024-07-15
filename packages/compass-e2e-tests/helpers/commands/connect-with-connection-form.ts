@@ -7,7 +7,7 @@ export async function connectWithConnectionForm(
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {
-  await browser.disconnect();
+  await browser.disconnectAll();
 
   // If a connectionName is specified and a connection already exists with this
   // name, make sure we don't add a duplicate so that tests can always address

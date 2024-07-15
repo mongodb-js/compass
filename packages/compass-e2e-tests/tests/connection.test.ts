@@ -23,7 +23,7 @@ import * as Selectors from '../helpers/selectors';
 
 async function disconnect(browser: CompassBrowser) {
   try {
-    await browser.disconnect();
+    await browser.disconnectAll();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);

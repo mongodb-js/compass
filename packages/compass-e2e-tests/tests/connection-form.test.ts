@@ -881,6 +881,6 @@ describe('Connection form', function () {
       favoriteName
     );
 
-    await browser.disconnect();
+    await browser.disconnectAll();
   });
 });

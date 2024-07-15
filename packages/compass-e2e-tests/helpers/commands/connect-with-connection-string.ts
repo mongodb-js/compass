@@ -12,7 +12,7 @@ export async function connectWithConnectionString(
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<void> {
-  await browser.disconnect();
+  await browser.disconnectAll();
 
   if (TEST_MULTIPLE_CONNECTIONS) {
     // if the modal is still animating away when we're connecting again, things
