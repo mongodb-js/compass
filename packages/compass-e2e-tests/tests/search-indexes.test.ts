@@ -10,7 +10,6 @@ import {
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
 import { type Db, MongoClient } from 'mongodb';
 
@@ -205,7 +204,7 @@ describe.skip('Search Indexes', function () {
       }
     }
     void mongoClient.close();
-    await disconnect(browser);
+    await browser.disconnectAll();
     await screenshotIfFailed(compass, this.currentTest);
   });
 
