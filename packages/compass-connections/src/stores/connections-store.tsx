@@ -282,7 +282,7 @@ export function useConnections({
             });
           }
         }
-        await repositorySaveConnection(connectionInfo || partialConnectionInfo);
+        await repositorySaveConnection(connectionInfo);
         return true;
       } catch (err) {
         debug(
@@ -402,7 +402,7 @@ export function useConnections({
     async (
       connectionInfo: ConnectionInfo,
       dataService: DataService,
-      legacyShouldSaveConnectionInfo?: boolean
+      legacyShouldSaveConnectionInfo?: boolean // TODO: cleanup COMPASS-7906
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
