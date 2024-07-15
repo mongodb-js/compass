@@ -83,7 +83,7 @@
     "decomment": "^0.9.5",
     "depcheck": "^1.4.1",
     "digest-fetch": "^2.0.3",
-    "ejson-shell-parser": "^2.0.1",
+    "@mongodb-js/shell-bson-parser": "^1.1.0",
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
