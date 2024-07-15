@@ -4,10 +4,13 @@ import React, {
   useMemo,
   useRef,
   useState,
+  memo,
 } from 'react';
 import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 import {
   VariableSizeList as List,
+  areEqual,
+  type ListOnItemsRenderedProps,
   type ListChildComponentProps,
 } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -49,11 +52,12 @@ type VirtualisedDocumentData = Omit<
   'className' | 'initialScrollTop' | 'scrollableContainerRef'
 > & {
   setDocumentCardSize(this: void, index: number, size: number): void;
+  isOverscanRender(this: void, index: number): boolean;
 };
 
 const VirtualisedDocument: React.FC<
   ListChildComponentProps<VirtualisedDocumentData>
-> = ({ index, data, style }) => {
+> = memo(function VirtualisedDocument({ index, data, style }) {
   const {
     docs,
     isEditable,
@@ -64,6 +68,7 @@ const VirtualisedDocument: React.FC<
     updateDocument,
     openInsertDocumentDialog,
     setDocumentCardSize,
+    isOverscanRender,
   } = data;
   const doc = useMemo(() => docs[index], [docs, index]);
   const docCardRef = useRef<HTMLDivElement | null>(null);
@@ -98,23 +103,39 @@ const VirtualisedDocument: React.FC<
       key={index}
       style={style}
     >
-      <KeylineCard ref={docCardRef}>
-        <Document
-          doc={doc}
-          editable={isEditable}
-          isTimeSeries={isTimeSeries}
-          copyToClipboard={copyToClipboard}
-          removeDocument={removeDocument}
-          replaceDocument={replaceDocument}
-          updateDocument={updateDocument}
-          openInsertDocumentDialog={openInsertDocumentDialog}
-        />
-      </KeylineCard>
+      {isOverscanRender(index) ? (
+        <KeylineCard ref={docCardRef}>
+          <div
+            style={{
+              padding: spacing[400],
+              height: `400px`,
+              overflowY: 'scroll',
+              overflowX: 'scroll',
+              scrollbarGutter: 'stable',
+            }}
+          >
+            {doc.toEJSON('original')}
+          </div>
+        </KeylineCard>
+      ) : (
+        <KeylineCard ref={docCardRef}>
+          <Document
+            doc={doc}
+            editable={isEditable}
+            isTimeSeries={isTimeSeries}
+            copyToClipboard={copyToClipboard}
+            removeDocument={removeDocument}
+            replaceDocument={replaceDocument}
+            updateDocument={updateDocument}
+            openInsertDocumentDialog={openInsertDocumentDialog}
+          />
+        </KeylineCard>
+      )}
     </div>
   );
-};
+}, areEqual);
 
-export const VirtualisedDocumentListView: React.FC<
+const VirtualisedDocumentListView: React.FC<
   VirtualisedDocumentListViewProps
 > = ({
   docs: _docs,
@@ -165,6 +186,52 @@ export const VirtualisedDocumentListView: React.FC<
     docs.map(calculateInitialDocumentCardHeight)
   );
 
+  const renderStateRef = useRef<{
+    overscanStartIndex: number;
+    overscanStopIndex: number;
+    visibleStartIndex: number;
+    visibleStopIndex: number;
+  } | null>(null);
+
+  const isOverscanRender = useCallback((rowIndex: number) => {
+    if (!renderStateRef.current) {
+      return false;
+    }
+    const {
+      overscanStartIndex,
+      overscanStopIndex,
+      visibleStartIndex,
+      visibleStopIndex,
+    } = renderStateRef.current;
+
+    const isOverScan = (() => {
+      // We consider at-least 2 elements above and below the visible elements to
+      // also be visible. This is done to avoid possible visual disruption when
+      // scrolling because the overscanned items when rendered are rendered
+      // simply as json in a list for browser search to work and it is not
+      // pretty to look at, at all.
+      if (
+        visibleStartIndex - 2 <= rowIndex &&
+        rowIndex <= visibleStopIndex + 2
+      ) {
+        return false;
+      }
+
+      return overscanStartIndex <= rowIndex && rowIndex <= overscanStopIndex;
+    })();
+
+    // console.table({
+    //   rowIndex,
+    //   overscanStartIndex,
+    //   overscanStopIndex,
+    //   visibleStartIndex,
+    //   visibleStopIndex,
+    //   isOverScan
+    // });
+
+    return isOverScan;
+  }, []);
+
   const getDocumentCardSize = useCallback(
     (index: number) => {
       const actualSize = documentCardSizes[index];
@@ -199,36 +266,6 @@ export const VirtualisedDocumentListView: React.FC<
     );
   }, [documentCardSizes]);
 
-  // TODO: Remove the following block of comment. Keeping it around only to test a few things
-  // const documentCardSizesRef = useRef(docs.map(calculateInitialDocumentCardHeight));
-
-  // const getDocumentCardSize = useCallback(
-  //   (index: number) => {
-  //     console.log("getItemHeight", index, documentCardSizesRef.current[index]);
-  //     const actualSize = documentCardSizesRef.current[index];
-  //     if (index === documentCardSizesRef.current.length - 1) {
-  //       return actualSize;
-  //     }
-  //     const marginBetweenDocuments = spacing[150];
-  //     return actualSize + marginBetweenDocuments;
-  //   },
-  //   []
-  // );
-
-  // const handleDocumentCardSizeChange = useCallback((index: number, newSize: number) => {
-  //   const oldSize = documentCardSizesRef.current[index];
-  //   console.log("setItemHeight called", index, newSize, oldSize);
-  //   if (newSize !== oldSize) {
-  //     console.log('Setting for idnex', index);
-  //     documentCardSizesRef.current[index] = newSize;
-  //     listRef.current?.resetAfterIndex(index);
-  //   }
-  // }, []);
-
-  // const averageDocumentCardSize = useMemo(() => {
-  //   return documentCardSizesRef.current.reduce((totalSize, size) => totalSize + size, 0) / documentCardSizesRef.current.length
-  // }, []);
-
   const itemData = useMemo(
     () => ({
       docs,
@@ -240,6 +277,7 @@ export const VirtualisedDocumentListView: React.FC<
       updateDocument,
       openInsertDocumentDialog,
       setDocumentCardSize: handleDocumentCardSizeChange,
+      isOverscanRender,
     }),
     [
       docs,
@@ -251,8 +289,13 @@ export const VirtualisedDocumentListView: React.FC<
       updateDocument,
       openInsertDocumentDialog,
       handleDocumentCardSizeChange,
+      isOverscanRender,
     ]
   );
+
+  const onItemsRendered = useCallback((props: ListOnItemsRenderedProps) => {
+    renderStateRef.current = props;
+  }, []);
 
   return (
     <div
@@ -271,6 +314,8 @@ export const VirtualisedDocumentListView: React.FC<
             itemCount={docs.length}
             itemSize={getDocumentCardSize}
             estimatedItemSize={averageDocumentCardSize}
+            overscanCount={docs.length}
+            onItemsRendered={onItemsRendered}
           >
             {VirtualisedDocument}
           </List>
@@ -279,3 +324,5 @@ export const VirtualisedDocumentListView: React.FC<
     </div>
   );
 };
+
+export default VirtualisedDocumentListView;
