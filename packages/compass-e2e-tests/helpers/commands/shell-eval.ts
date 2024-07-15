@@ -17,11 +17,11 @@ export async function shellEval(
   // focus it.
   await browser.openShell(connectionName);
 
-  const numLines = (await getOutputText(browser)).length;
-
   const strings = Array.isArray(input) ? input : [input];
 
   for (const str of strings) {
+    const numLines = (await getOutputText(browser)).length;
+
     const command = parse === true ? `JSON.stringify(${str})` : str;
 
     await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
