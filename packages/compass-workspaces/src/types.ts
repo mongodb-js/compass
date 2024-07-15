@@ -16,6 +16,8 @@ export type MyQueriesWorkspace = {
 export type ShellWorkspace = {
   type: 'Shell';
   connectionId: string;
+  initialEvaluate?: string | string[];
+  initialInput?: string;
 };
 
 export type ServerStatsWorkspace = {

@@ -131,7 +131,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, preferences, globalAppRegistry }
+    { pipelineBuilder, preferences, connectionScopedAppRegistry }
   ) => {
     const {
       autoPreview,
@@ -173,7 +173,7 @@ export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
       dispatch({
         type: OutputStageActionTypes.FetchSucceded,
       });
-      globalAppRegistry.emit(
+      connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
         getDestinationNamespaceFromStage(
           namespace,

@@ -47,6 +47,7 @@ import {
   closeBrackets,
   closeBracketsKeymap,
   snippetCompletion,
+  startCompletion,
 } from '@codemirror/autocomplete';
 import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
@@ -344,6 +345,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
+        marginRight: `${spacing[2]}px`,
         marginTop: `${spacing[2]}px`,
         marginBottom: `${spacing[2]}px`,
       },
@@ -604,6 +606,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
+  startCompletion: () => boolean;
   readonly editorContents: string | null;
   readonly editor: EditorView | null;
 };
@@ -712,6 +715,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           editorViewRef.current.focus();
           return true;
+        },
+        startCompletion() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return startCompletion(editorViewRef.current);
         },
         get editorContents() {
           if (!editorViewRef.current) {
@@ -1352,6 +1361,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           },
           applySnippet(template: string) {
             return editorRef.current?.applySnippet(template) ?? false;
+          },
+          startCompletion() {
+            return editorRef.current?.startCompletion() ?? false;
           },
           get editorContents() {
             return editorRef.current?.editorContents ?? null;

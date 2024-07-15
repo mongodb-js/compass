@@ -208,6 +208,15 @@ describe('Instance sidebar', function () {
     const db = 'test';
     const coll = `coll_${Date.now()}`;
 
+    // expand the database entry in the sidebar
+    await browser.clickVisible(Selectors.sidebarDatabase(db));
+
+    // wait until the collections finish loading
+    const numbersCollectionElement = await browser.$(
+      Selectors.sidebarCollection(db, 'numbers')
+    );
+    await numbersCollectionElement.waitForDisplayed();
+
     const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
     await mongoClient.connect();
     try {
@@ -225,10 +234,11 @@ describe('Instance sidebar', function () {
     } else {
       await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
     }
-    await browser.clickVisible(Selectors.sidebarDatabase(db));
-    const collectionElement = await browser.$(
+
+    // wait for the new collection we added via the driver to appear.
+    const newCollectionElement = await browser.$(
       Selectors.sidebarCollection(db, coll)
     );
-    await collectionElement.waitForDisplayed();
+    await newCollectionElement.waitForDisplayed();
   });
 });

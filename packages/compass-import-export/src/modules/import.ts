@@ -191,6 +191,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     getState,
     {
       connectionsManager,
+      connectionRepository,
       globalAppRegistry: appRegistry,
       workspaces,
       track,
@@ -351,18 +352,22 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
       progressCallback.flush();
     } catch (err: any) {
-      track('Import Completed', {
-        duration: Date.now() - startTime,
-        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
-        newline: fileType === 'csv' ? newline : undefined,
-        file_type: fileType,
-        all_fields: exclude.length === 0,
-        stop_on_error_selected: stopOnErrors,
-        number_of_docs: err.result.docsWritten,
-        success: !err,
-        aborted: abortSignal.aborted,
-        ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
-      });
+      track(
+        'Import Completed',
+        {
+          duration: Date.now() - startTime,
+          delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+          newline: fileType === 'csv' ? newline : undefined,
+          file_type: fileType,
+          all_fields: exclude.length === 0,
+          stop_on_error_selected: stopOnErrors,
+          number_of_docs: err.result.docsWritten,
+          success: !err,
+          aborted: abortSignal.aborted,
+          ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
+        },
+        connectionRepository.getConnectionInfoById(connectionId)
+      );
 
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
         ns,
@@ -381,18 +386,22 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       errorLogWriteStream?.close();
     }
 
-    track('Import Completed', {
-      duration: Date.now() - startTime,
-      delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
-      newline: fileType === 'csv' ? newline : undefined,
-      file_type: fileType,
-      all_fields: exclude.length === 0,
-      stop_on_error_selected: stopOnErrors,
-      number_of_docs: result.docsWritten,
-      success: true,
-      aborted: result.aborted,
-      ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
-    });
+    track(
+      'Import Completed',
+      {
+        duration: Date.now() - startTime,
+        delimiter: fileType === 'csv' ? delimiter ?? ',' : undefined,
+        newline: fileType === 'csv' ? newline : undefined,
+        file_type: fileType,
+        all_fields: exclude.length === 0,
+        stop_on_error_selected: stopOnErrors,
+        number_of_docs: result.docsWritten,
+        success: true,
+        aborted: result.aborted,
+        ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
+      },
+      connectionRepository.getConnectionInfoById(connectionId)
+    );
 
     log.info(mongoLogId(1001000082), 'Import', 'Import completed', {
       ns,
@@ -403,9 +412,13 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
     const openErrorLogFilePathActionHandler = errorLogFilePath
       ? () => {
           if (errorLogFilePath) {
-            track('Import Error Log Opened', {
-              errorCount: errors.length,
-            });
+            track(
+              'Import Error Log Opened',
+              {
+                errorCount: errors.length,
+              },
+              connectionRepository.getConnectionInfoById(connectionId)
+            );
             void openFile(errorLogFilePath);
           }
         }
@@ -855,7 +868,7 @@ export const openImport = ({
   namespace: string;
   origin: 'menu' | 'crud-toolbar' | 'empty-state';
 }): ImportThunkAction<void> => {
-  return (dispatch, getState, { track }) => {
+  return (dispatch, getState, { track, connectionRepository }) => {
     const { status } = getState().import;
     if (status === 'STARTED') {
       dispatch({
@@ -863,9 +876,13 @@ export const openImport = ({
       });
       return;
     }
-    track('Import Opened', {
-      origin,
-    });
+    track(
+      'Import Opened',
+      {
+        origin,
+      },
+      connectionRepository.getConnectionInfoById(connectionId)
+    );
     dispatch({ type: OPEN, namespace, connectionId });
   };
 };

@@ -50,6 +50,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Update Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
@@ -112,6 +116,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const executedEvent = await telemetryEntry('Bulk Update Executed');
+
+    expect(executedEvent.connection_id).to.exist;
+    delete executedEvent.connection_id; // connection_id varies
+
     expect(executedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
@@ -156,6 +164,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
+
+    expect(favoritedEvent.connection_id).to.exist;
+    delete favoritedEvent.connection_id; // connection_id varies
+
     expect(favoritedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });

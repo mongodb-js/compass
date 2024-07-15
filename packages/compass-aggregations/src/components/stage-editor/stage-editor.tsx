@@ -25,6 +25,7 @@ import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -97,6 +98,7 @@ export const StageEditor = ({
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
   const editorCurrentValueRef = useRef<string | null>(stageValue);
@@ -136,16 +138,27 @@ export const StageEditor = ({
       !!editorCurrentValueRef.current &&
       editorCurrentValueRef.current !== editorInitialValueRef.current
     ) {
-      track('Aggregation Edited', {
-        num_stages: num_stages,
-        stage_index: index + 1,
-        stage_action: 'stage_content_changed',
-        stage_name: stageOperator,
-        editor_view_type: editor_view_type,
-      });
+      track(
+        'Aggregation Edited',
+        {
+          num_stages: num_stages,
+          stage_index: index + 1,
+          stage_action: 'stage_content_changed',
+          stage_name: stageOperator,
+          editor_view_type: editor_view_type,
+        },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [track, num_stages, index, stageOperator, editor_view_type]);
+  }, [
+    track,
+    num_stages,
+    index,
+    stageOperator,
+    editor_view_type,
+    connectionInfoAccess,
+  ]);
 
   return (
     <div

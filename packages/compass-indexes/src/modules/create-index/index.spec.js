@@ -23,6 +23,7 @@ const thunkArgs = {
   localAppRegistry: { emit() {} },
   dataService: { createIndex() {} },
   track: () => {},
+  connectionInfoAccess: { getCurrentConnectionInfo() {} },
 };
 
 describe('create index module', function () {

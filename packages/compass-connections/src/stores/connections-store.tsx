@@ -181,10 +181,11 @@ export function useConnections({
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
+  createDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
-  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
+  legacyDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
 } {
   // TODO(COMPASS-7397): services should not be used directly in render method,
@@ -519,14 +520,24 @@ export function useConnections({
     removeConnection(connectionInfo) {
       void removeConnection(connectionInfo);
     },
-    duplicateConnection(connectionInfo: ConnectionInfo) {
+    legacyDuplicateConnection(connectionInfo: ConnectionInfo) {
+      const findConnectionByFavoriteName = (name: string) =>
+        [...favoriteConnections, ...recentConnections].find(
+          (connection: ConnectionInfo) => connection.favorite?.name === name
+        );
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
         id: new UUID().toString(),
       };
 
       if (duplicate.favorite?.name) {
-        duplicate.favorite.name += ' (copy)';
+        const copyFormat = duplicate.favorite?.name.match(/(.*)\s\(([0-9])+\)/); // title (2) -> [title (2), title, 2]
+        const name = copyFormat ? copyFormat[1] : duplicate.favorite?.name;
+        let copyNumber = copyFormat ? parseInt(copyFormat[2]) : 1;
+        while (findConnectionByFavoriteName(`${name} (${copyNumber})`)) {
+          copyNumber++;
+        }
+        duplicate.favorite.name = `${name} (${copyNumber})`;
       }
 
       void saveConnectionInfo(duplicate).then(
@@ -540,6 +551,32 @@ export function useConnections({
           // We do nothing when if it fails
         }
       );
+    },
+    createDuplicateConnection(connectionInfo: ConnectionInfo) {
+      const findConnectionByFavoriteName = (name: string) =>
+        [...favoriteConnections, ...recentConnections].find(
+          (connection: ConnectionInfo) => connection.favorite?.name === name
+        );
+
+      const duplicate: ConnectionInfo = {
+        ...cloneDeep(connectionInfo),
+        id: new UUID().toString(),
+      };
+
+      if (duplicate.favorite?.name) {
+        const copyFormat = duplicate.favorite?.name.match(/(.*)\s\(([0-9])+\)/); // title (2) -> [title (2), title, 2]
+        const name = copyFormat ? copyFormat[1] : duplicate.favorite?.name;
+        let copyNumber = copyFormat ? parseInt(copyFormat[2]) : 1;
+        while (findConnectionByFavoriteName(`${name} (${copyNumber})`)) {
+          copyNumber++;
+        }
+        duplicate.favorite.name = `${name} (${copyNumber})`;
+      }
+
+      dispatch({
+        type: 'new-connection',
+        connectionInfo: duplicate,
+      });
     },
     async removeAllRecentsConnections() {
       await Promise.all(

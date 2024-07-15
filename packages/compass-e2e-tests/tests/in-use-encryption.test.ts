@@ -187,6 +187,7 @@ describe('CSFLE / QE', function () {
     describe('when fleEncryptedFieldsMap is not specified while connecting', function () {
       const databaseName = 'db-for-fle';
       const collectionName = 'my-encrypted-collection';
+      const connectionName = 'fle';
       let compass: Compass;
       let browser: CompassBrowser;
 
@@ -197,21 +198,20 @@ describe('CSFLE / QE', function () {
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
           fleKey: 'A'.repeat(128),
-          connectionName: this.test?.fullTitle(),
+          connectionName,
         });
+
+        await browser.shellEval(
+          connectionName,
+          `db.getMongo().getDB('${databaseName}').createCollection('default')`
+        );
+        await refresh(browser);
       });
 
       after(async function () {
         if (compass) {
           await cleanup(compass);
         }
-      });
-
-      beforeEach(async function () {
-        await browser.shellEval(
-          `db.getMongo().getDB('${databaseName}').createCollection('default')`
-        );
-        await refresh(browser);
       });
 
       afterEach(async function () {
@@ -282,6 +282,7 @@ describe('CSFLE / QE', function () {
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
+      let connectionName: string;
 
       before(async function () {
         compass = await init(this.test?.fullTitle());
@@ -289,6 +290,8 @@ describe('CSFLE / QE', function () {
       });
 
       beforeEach(async function () {
+        connectionName = this.test?.fullTitle() ?? '';
+
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -330,10 +333,11 @@ describe('CSFLE / QE', function () {
               ]
             }
           }`,
-          connectionName: this.test?.fullTitle(),
+          connectionName,
         });
-        await browser.shellEval(`use ${databaseName}`);
+        await browser.shellEval(connectionName, `use ${databaseName}`);
         await browser.shellEval(
+          connectionName,
           'db.keyvault.insertOne({' +
             '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
             '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
@@ -411,7 +415,10 @@ describe('CSFLE / QE', function () {
       });
 
       it('can insert a document with an encrypted field and a non-encrypted field', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
+        await browser.shellEval(
+          connectionName,
+          `db.createCollection('${collectionName}')`
+        );
         await refresh(browser);
 
         await browser.navigateToCollectionTab(
@@ -467,8 +474,12 @@ describe('CSFLE / QE', function () {
       });
 
       it('shows a decrypted field icon', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
+          connectionName,
+          `db.createCollection('${collectionName}')`
+        );
+        await browser.shellEval(
+          connectionName,
           `db[${JSON.stringify(
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
@@ -513,8 +524,12 @@ describe('CSFLE / QE', function () {
           const toString = (v: any) =>
             v?.toISOString?.()?.replace(/Z$/, '+00:00') ?? JSON.stringify(v);
 
-          await browser.shellEval(`db.createCollection('${coll}')`);
           await browser.shellEval(
+            connectionName,
+            `db.createCollection('${coll}')`
+          );
+          await browser.shellEval(
+            connectionName,
             `db[${JSON.stringify(
               coll
             )}].insertOne({ "${field}": ${oldValue}, "name": "Person X" })`
@@ -581,8 +596,12 @@ describe('CSFLE / QE', function () {
       }
 
       it('can edit and query the encrypted field in the JSON view', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
+          connectionName,
+          `db.createCollection('${collectionName}')`
+        );
+        await browser.shellEval(
+          connectionName,
           `db[${JSON.stringify(
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
@@ -635,8 +654,12 @@ describe('CSFLE / QE', function () {
       });
 
       it('can not edit the copied encrypted field', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
+          connectionName,
+          `db.createCollection('${collectionName}')`
+        );
+        await browser.shellEval(
+          connectionName,
           `db[${JSON.stringify(
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
@@ -716,8 +739,12 @@ describe('CSFLE / QE', function () {
       });
 
       it('shows incomplete schema for cloned document banner', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
+          connectionName,
+          `db.createCollection('${collectionName}')`
+        );
+        await browser.shellEval(
+          connectionName,
           `db[${JSON.stringify(
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`
@@ -810,8 +837,12 @@ describe('CSFLE / QE', function () {
       });
 
       it('can enable and disable in-use encryption from the sidebar', async function () {
-        await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
+          connectionName,
+          `db.createCollection('${collectionName}')`
+        );
+        await browser.shellEval(
+          connectionName,
           `db[${JSON.stringify(
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
@@ -882,6 +913,7 @@ describe('CSFLE / QE', function () {
   describe('server version gte 6.0 and lt 7.0', function () {
     const databaseName = 'db-for-fle';
     const collectionName = 'my-encrypted-collection';
+    const connectionName = 'fle';
 
     let compass: Compass;
     let browser: CompassBrowser;
@@ -911,25 +943,31 @@ describe('CSFLE / QE', function () {
       // connect without QE and insert some fixture data that we generated against a 6.x database using the shell
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
-        connectionName: this.test?.fullTitle(),
+        connectionName,
       });
 
-      await browser.shellEval(`use ${databaseName}`);
+      await browser.shellEval(connectionName, `use ${databaseName}`);
 
       // insert the dataKey that was used to encrypt the payloads used below
       await browser.shellEval(
+        connectionName,
         'dataKey = new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1");'
       );
-      await browser.shellEval(`db.getCollection("keyvault").insertOne({
+      await browser.shellEval(
+        connectionName,
+        `db.getCollection("keyvault").insertOne({
         _id: new UUID("2871cd1d-8317-4d0c-92be-1ac934ed26b1"),
         keyMaterial: Binary.createFromHexString("519e2b15d20f00955a3960aab31e70a8e3fdb661129ef0d8a752291599488f8fda23ca64ddcbced93dbc715d03f45ab53a8e8273f2230c41c0e64d9ef746d6959cbdc1abcf0e9d020856e2da09a91ef129ac60ef13a98abcd5ee0cbfba21f1de153974996ab002bddccf7dc0268fed90a172dc373e90b63bc2369a5a1bfc78e0c2d7d81e65e970a38ca585248fef53b70452687024b8ecd308930a25414518e3", 0),
         creationDate: ISODate("2023-05-05T10:58:12.473Z"),
         updateDate: ISODate("2023-05-05T10:58:12.473Z"),
         status: 0,
         masterKey: { provider: 'local' }
-      });`);
+      });`
+      );
 
-      await browser.shellEval(`db.runCommand({
+      await browser.shellEval(
+        connectionName,
+        `db.runCommand({
         create: '${collectionName}',
         encryptedFields: {
           fields: [{
@@ -939,10 +977,13 @@ describe('CSFLE / QE', function () {
             queries: [{ queryType: 'equality' }]
           }]
         }
-      });`);
+      });`
+      );
 
       // these payloads were encrypted using dataKey
-      await browser.shellEval(`db.runCommand({
+      await browser.shellEval(
+        connectionName,
+        `db.runCommand({
         insert: '${collectionName}',
         documents: [
           {
@@ -961,9 +1002,12 @@ describe('CSFLE / QE', function () {
           }
         ],
         bypassDocumentValidation: true
-      });`);
+      });`
+      );
 
-      await browser.shellEval(`db.runCommand({
+      await browser.shellEval(
+        connectionName,
+        `db.runCommand({
         insert: 'enxcol_.${collectionName}.ecoc',
         documents: [
           {
@@ -978,9 +1022,12 @@ describe('CSFLE / QE', function () {
           }
         ],
         bypassDocumentValidation: true
-      });`);
+      });`
+      );
 
-      await browser.shellEval(`db.runCommand({
+      await browser.shellEval(
+        connectionName,
+        `db.runCommand({
         insert: 'enxcol_.${collectionName}.esc',
         documents: [
           {
@@ -993,7 +1040,8 @@ describe('CSFLE / QE', function () {
           }
         ],
         bypassDocumentValidation: true
-      });`);
+      });`
+      );
 
       await browser.disconnect();
 

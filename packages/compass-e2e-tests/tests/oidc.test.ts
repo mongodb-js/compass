@@ -7,7 +7,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -60,7 +60,6 @@ function getTestBrowserShellCommand() {
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
@@ -71,17 +70,13 @@ describe('OIDC integration', function () {
   let tmpdir: string;
   let cluster: MongoCluster;
   let connectionString: string;
+  let connectionName: string;
   let getFavoriteConnectionInfo: (
     favoriteName: string
   ) => Promise<Record<string, any> | undefined>;
 
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
-
-    // TODO(COMPASS-8004): skipping for multiple connections due to the use of shellEval for now
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
 
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
     if (
@@ -151,6 +146,7 @@ describe('OIDC integration', function () {
       cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
 
       connectionString = cs.toString();
+      connectionName = connectionNameFromString(connectionString);
     }
 
     {
@@ -203,6 +199,7 @@ describe('OIDC integration', function () {
     };
     await browser.connectWithConnectionString(connectionString);
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -243,6 +240,7 @@ describe('OIDC integration', function () {
     await browser.connectWithConnectionString(connectionString);
     emitter.emit('secondConnectionEstablished');
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -264,6 +262,7 @@ describe('OIDC integration', function () {
     });
 
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -297,6 +296,7 @@ describe('OIDC integration', function () {
     afterReauth = true;
     await browser.clickVisible(`${modal} ${confirmButton}`);
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );

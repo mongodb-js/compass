@@ -7,7 +7,10 @@ import { closeExport, exportReducer, openExport } from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionRepositoryAccess,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export function configureStore(services: ExportPluginServices) {
@@ -26,6 +29,7 @@ export type RootExportState = ReturnType<
 export type ExportPluginServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
+  connectionRepository: ConnectionRepositoryAccess;
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
@@ -55,6 +59,7 @@ export function activatePlugin(
   {
     globalAppRegistry,
     connectionsManager,
+    connectionRepository,
     preferences,
     logger,
     track,
@@ -64,6 +69,7 @@ export function activatePlugin(
   const store = configureStore({
     globalAppRegistry,
     connectionsManager,
+    connectionRepository,
     preferences,
     logger,
     track,

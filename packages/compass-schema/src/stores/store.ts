@@ -20,7 +20,10 @@ import {
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  DataService as OriginalDataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
@@ -57,6 +60,7 @@ function resultId(): number {
 export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
 export type SchemaPluginServices = {
   dataService: DataService;
+  connectionInfoAccess: ConnectionInfoAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: Logger;
@@ -127,6 +131,7 @@ export function activateSchemaPlugin(
     preferences,
     fieldStoreService,
     queryBar,
+    connectionInfoAccess,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -261,7 +266,11 @@ export function activateSchemaPlugin(
         geo_data: schema ? schemaContainsGeoData(schema) : false,
         analysis_time_ms: analysisTimeMS,
       });
-      track('Schema Analyzed', trackEvent);
+      track(
+        'Schema Analyzed',
+        trackEvent,
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
     },
 
     startAnalysis: async function (this: SchemaStore) {
