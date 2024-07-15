@@ -20,7 +20,6 @@ import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provid
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
-  ConnectionStatus,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';

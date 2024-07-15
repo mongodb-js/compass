@@ -44,6 +44,7 @@ const connectionInfo: ConnectionInfo = {
     connectionString: 'mongodb://localhost:27017',
   },
   favorite: {
+    name: 'localhost',
     color: 'color_2',
   },
 };
@@ -950,7 +951,7 @@ describe('connection tracking', function () {
       connection_id: 'TEST',
       active_connections_count: activeInactiveConnectionsCount.active,
       inactive_connections_count: activeInactiveConnectionsCount.inactive,
-      color: connectionInfo.favorite.color,
+      color: connectionInfo.favorite?.color,
     };
 
     expect(event).to.equal('Connection Created');
