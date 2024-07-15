@@ -79,8 +79,8 @@
     "node-gyp": "^8.4.1"
   },
   "engines": {
-    "node": ">=16.15.1",
-    "npm": ">=8.19.4"
+    "node": ">=18.19.1",
+    "npm": ">=10.2.4"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
