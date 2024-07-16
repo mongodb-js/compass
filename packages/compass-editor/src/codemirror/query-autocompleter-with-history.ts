@@ -9,6 +9,7 @@ import type {
   CompletionSection,
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
+import { css } from '@mongodb-js/compass-components';
 
 export const createQueryWithHistoryAutocompleter = (
   recentQueries: SavedQuery[],
@@ -33,12 +34,12 @@ export const createQueryWithHistoryAutocompleter = (
 
     const combinedOptions = [];
     // completions assigned to a section appear below ones that are not assigned
-    const originalCompletions = await originalQueryAutocompleter(context);
+    const baseCompletions = await originalQueryAutocompleter(context);
     const historyCompletions = await queryHistoryAutocompleter(context);
 
-    if (originalCompletions) {
+    if (baseCompletions) {
       combinedOptions.push(
-        ...originalCompletions.options.map((option) => ({
+        ...baseCompletions.options.map((option) => ({
           ...option,
         }))
       );
@@ -55,17 +56,21 @@ export const createQueryWithHistoryAutocompleter = (
     return {
       from: Math.min(
         historyCompletions?.from ?? context.pos,
-        originalCompletions?.from ?? context.pos
+        baseCompletions?.from ?? context.pos
       ),
       options: combinedOptions,
     };
   };
 };
 
+const sectionHeaderStyles = css({
+  display: 'list-item',
+  borderBottom: '1px dashed #ccc',
+  margin: `5px 0`,
+});
+
 function renderDottedLine(): HTMLElement {
   const header = document.createElement('div');
-  header.style.display = 'list-item';
-  header.style.borderBottom = '1px dashed #ccc';
-  header.style.margin = '5px 0';
+  header.className = sectionHeaderStyles;
   return header;
 }

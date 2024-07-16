@@ -105,13 +105,14 @@ function createInfo(query: SavedQuery): {
 }
 
 // scales a number unscaledNum between [minAllowed, maxAllowed]
-function scaleBetween(
+export function scaleBetween(
   unscaledNum: number,
   minAllowed: number,
   maxAllowed: number,
   min: number,
   max: number
-) {
+): number {
+  if (max === min) return 0;
   return (
     ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed
   );
