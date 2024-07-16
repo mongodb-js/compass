@@ -150,7 +150,7 @@ describe('CSFLE / QE', function () {
       }
 
       // Wait for it to connect
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(true, 'success');
 
       // extra pause to make very sure that it saved the connection before we disconnect
       await delay(10000);
