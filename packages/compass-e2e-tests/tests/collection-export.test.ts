@@ -10,7 +10,6 @@ import {
   outputFilename,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
