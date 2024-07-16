@@ -24,7 +24,7 @@ import * as Selectors from '../helpers/selectors';
 
 async function disconnect(browser: CompassBrowser) {
   try {
-    await browser.disconnect();
+    await browser.disconnectAll();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -201,7 +201,16 @@ async function assertCannotCreateDb(
   }
 
   // open the create database modal from the sidebar
-  await browser.clickVisible(Sidebar.CreateDatabaseButton);
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    await browser.clickVisible(
+      Selectors.sidebarConnectionActionButton(
+        connectionName,
+        Sidebar.CreateDatabaseButton
+      )
+    );
+  } else {
+    await browser.clickVisible(Sidebar.CreateDatabaseButton);
+  }
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();

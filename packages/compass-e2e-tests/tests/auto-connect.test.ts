@@ -227,7 +227,7 @@ describe('Automatically connecting from the command line', function () {
         location.reload();
       });
       await browser.waitForConnectionResult(false, 'success');
-      await browser.disconnect();
+      await browser.disconnectAll();
       await browser.execute(() => {
         location.reload();
       });
@@ -285,7 +285,7 @@ describe('Automatically connecting from the command line', function () {
     try {
       const browser = compass.browser;
       await browser.waitForConnectionResult(false, 'success');
-      await browser.disconnect();
+      await browser.disconnectAll();
 
       // this is not the ideal check because by default the recent connections
       // list doesn't exist either

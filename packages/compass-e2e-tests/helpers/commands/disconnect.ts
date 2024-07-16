@@ -7,7 +7,7 @@ import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');
 
-export async function disconnect(browser: CompassBrowser): Promise<void> {
+export async function disconnectAll(browser: CompassBrowser): Promise<void> {
   if (TEST_COMPASS_WEB) {
     const url = new URL(await browser.getUrl());
     url.pathname = '/';
