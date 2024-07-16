@@ -160,6 +160,8 @@ export const connectionDisconnected = (
     const currentConnectionId = getState().export.connectionId;
     debug('connectionDisconnected', { connectionId, currentConnectionId });
     if (connectionId === currentConnectionId) {
+      // unlike cancelExport() close also cancels fieldsToExportAbortController
+      // and it hides the modal
       dispatch(closeExport());
     }
   };
