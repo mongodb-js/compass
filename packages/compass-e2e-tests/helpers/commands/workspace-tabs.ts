@@ -14,10 +14,11 @@ async function closeTab(
   selectorOptions: WorkspaceTabSelectorOptions,
   autoConfirmTabClose: boolean
 ): Promise<void> {
-  await browser
-    .$(Selectors.workspaceTab(selectorOptions))
-    .$(Selectors.CloseWorkspaceTab)
-    .click();
+  await browser.clickVisible(
+    browser
+      .$(Selectors.workspaceTab(selectorOptions))
+      .$(Selectors.CloseWorkspaceTab)
+  );
 
   // wait until the tab goes away and if the confirmation modal opens, maybe confirm
   await browser.waitUntil(async () => {
@@ -48,17 +49,21 @@ export async function closeWorkspaceTabs(
     return (await browser.$$(Selectors.workspaceTab())).length;
   };
 
-  while ((await countTabs()) > 0) {
-    const currentActiveTab = await browser.$(
-      Selectors.workspaceTab({ active: true })
-    );
-    await currentActiveTab.click();
-    // Close this exact active tab rather than "the active one" because if there
-    // are multiple tabs then another tab will immediately become active and
-    // trip up the logic that checks that the tab you closed went away.
-    const id = await currentActiveTab.getAttribute('id');
-    await closeTab(browser, { id }, autoConfirmTabClose);
-  }
+  await browser.waitUntil(async () => {
+    if ((await countTabs()) > 0) {
+      const currentActiveTab = await browser.$(
+        Selectors.workspaceTab({ active: true })
+      );
+
+      // Close this exact active tab rather than "the active one" because if there
+      // are multiple tabs then another tab will immediately become active and
+      // trip up the logic that checks that the tab you closed went away.
+      const id = await currentActiveTab.getAttribute('id');
+      await closeTab(browser, { id }, autoConfirmTabClose);
+    }
+    const numTabs = await countTabs();
+    return numTabs === 0;
+  });
 }
 
 export async function closeWorkspaceTab(
