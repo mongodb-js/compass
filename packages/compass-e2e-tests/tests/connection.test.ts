@@ -316,7 +316,7 @@ describe('Connection string', function () {
     );
     if (TEST_MULTIPLE_CONNECTIONS) {
       const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
-      expect(toastTitle).to.equal('Authentication failed');
+      expect(toastTitle).to.equal('Authentication failed.');
 
       const errorMessage = await browser
         .$(Selectors.ConnectionToastErrorText)
@@ -328,7 +328,7 @@ describe('Connection string', function () {
       const errorMessage = await browser
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
-      expect(errorMessage).to.equal('Authentication failed');
+      expect(errorMessage).to.equal('Authentication failed.');
     }
   });
 
