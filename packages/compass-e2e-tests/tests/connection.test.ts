@@ -310,7 +310,7 @@ describe('Connection string', function () {
       expect(toastTitle).to.equal('Authentication failed');
 
       const errorMessage = await browser
-        .$(Selectors.ConnectionErrorText)
+        .$(Selectors.ConnectionToastErrorText)
         .getText();
       expect(errorMessage).to.equal(
         'There was a problem connecting to 127.0.0.1:27091'

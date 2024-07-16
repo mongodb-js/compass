@@ -232,8 +232,8 @@ export const ConnectionFormConnectionColor =
   '[data-testid="personalization-color-input"]';
 export const ConnectionFormFavoriteCheckbox =
   '[data-testid="personalization-favorite-checkbox"]';
-export const ConnectionErrorText = '[data-testid="connection-error-text"]';
-export const ConnectionErrorReviewButton =
+export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
+export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
 
 // Single Connection sidebar

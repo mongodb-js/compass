@@ -28,7 +28,7 @@ export async function waitForConnectionResult(
     // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't
     // encountered yet
     selector = TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.ConnectionErrorText
+      ? Selectors.ConnectionToastErrorText
       : Selectors.ConnectionFormErrorMessage;
   }
   const element = await browser.$(selector);
