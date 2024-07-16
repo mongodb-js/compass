@@ -167,10 +167,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
-        if (editorRef.current?.editorContents === '') {
+        if (
+          editorRef.current?.editorContents === '' ||
+          editorRef.current?.editorContents === '{}'
+        ) {
           editorRef.current?.applySnippet('\\{${}}');
+          editorRef.current?.startCompletion();
         }
-        if (editorRef.current?.editor) editorRef.current?.startCompletion();
       });
     }
   };

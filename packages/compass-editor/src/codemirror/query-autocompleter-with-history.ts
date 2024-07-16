@@ -23,12 +23,13 @@ export const createQueryWithHistoryAutocompleter = (
   const originalQueryAutocompleter = createQueryAutocompleter(options);
   const historySection: CompletionSection = {
     name: 'Query History',
-    header: renderHorizontalLine,
+    header: renderDottedLine,
   };
 
   return async function fullCompletions(context: CompletionContext) {
-    if (context.state.doc.toString() === '{}')
+    if (context.state.doc.toString() === '{}') {
       return queryHistoryAutocompleter(context);
+    }
 
     const combinedOptions = [];
     // completions assigned to a section appear below ones that are not assigned
@@ -61,7 +62,7 @@ export const createQueryWithHistoryAutocompleter = (
   };
 };
 
-function renderHorizontalLine(): HTMLElement {
+function renderDottedLine(): HTMLElement {
   const header = document.createElement('div');
   header.style.display = 'list-item';
   header.style.borderBottom = '1px dashed #ccc';
