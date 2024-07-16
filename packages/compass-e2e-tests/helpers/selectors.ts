@@ -331,6 +331,7 @@ export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
+// TODO: this should take a connnectionId
 export const sidebarDatabase = (dbName: string): string => {
   return `${Sidebar} [data-database-name="${dbName}"]`;
 };
@@ -339,6 +340,7 @@ export const sidebarDatabaseToggle = (dbName: string): string => {
   return `${sidebarDatabase(dbName)} button[type=button]`;
 };
 
+// TODO: this should take a connnectionId
 export const sidebarCollection = (
   dbName: string,
   collectionName: string
@@ -1225,18 +1227,6 @@ export const workspaceTab = ({
     parts.push(`[aria-selected="${String(active)}"]`);
   }
   return parts.join('');
-};
-export const connectionWorkspaceTab = (
-  tabName: 'Performance' | 'Databases',
-  active?: boolean
-) => {
-  return workspaceTab({ title: tabName, active });
-};
-export const databaseWorkspaceTab = (dbName: string, active?: boolean) => {
-  return workspaceTab({ title: dbName, active });
-};
-export const collectionWorkspaceTab = (namespace: string, active: boolean) => {
-  return workspaceTab({ namespace, active });
 };
 
 // Export modal

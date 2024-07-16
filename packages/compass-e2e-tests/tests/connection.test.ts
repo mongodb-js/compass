@@ -15,7 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
-  DEFAULT_CONNECTION_STRING,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -127,12 +127,16 @@ function generateIamSessionToken(): {
 
 async function assertCanReadData(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take into account connectionName
   connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
+  await browser.navigateToCollectionTab(
+    connectionName,
+    dbName,
+    collectionName,
+    'Documents'
+  );
   await browser.waitUntil(async () => {
     const text = await browser
       .$(Selectors.DocumentListActionBarMessage)
@@ -143,12 +147,16 @@ async function assertCanReadData(
 
 async function assertCannotInsertData(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take into account connectionName
   connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
+  await browser.navigateToCollectionTab(
+    connectionName,
+    dbName,
+    collectionName,
+    'Documents'
+  );
 
   // browse to the "Insert to Collection" modal
   await browser.clickVisible(Selectors.AddDataButton);
@@ -299,7 +307,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        connectionNameFromString(DEFAULT_CONNECTION_STRING),
+        DEFAULT_CONNECTION_NAME,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );

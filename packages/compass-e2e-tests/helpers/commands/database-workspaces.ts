@@ -16,8 +16,7 @@ export async function waitUntilActiveDatabaseTab(
   connectionName: string,
   dbName: string
 ) {
-  // TODO(COMPASS-8002): check that the connectionName matches too
   await browser
-    .$(Selectors.databaseWorkspaceTab(dbName, true))
+    .$(Selectors.workspaceTab({ connectionName, title: dbName, active: true }))
     .waitForDisplayed();
 }

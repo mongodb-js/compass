@@ -3,7 +3,7 @@ import * as Selectors from '../selectors';
 
 async function navigateToCollection(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
+  connectionName: string,
   dbName: string,
   collectionName: string,
 
@@ -30,12 +30,17 @@ async function navigateToCollection(
 
   // click it and wait for the collection header to become visible
   await browser.clickVisible(collectionSelector);
-  await waitUntilActiveCollectionTab(browser, dbName, collectionName);
+  await waitUntilActiveCollectionTab(
+    browser,
+    connectionName,
+    dbName,
+    collectionName
+  );
 }
 
 export async function navigateToCollectionTab(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
+  connectionName: string,
   dbName: string,
   collectionName: string,
   tabName:
@@ -48,6 +53,7 @@ export async function navigateToCollectionTab(
 ): Promise<void> {
   await navigateToCollection(
     browser,
+    connectionName,
     dbName,
     collectionName,
     closeExistingTabs
@@ -57,7 +63,6 @@ export async function navigateToCollectionTab(
 
 export async function navigateWithinCurrentCollectionTabs(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'
@@ -77,9 +82,9 @@ export async function navigateWithinCurrentCollectionTabs(
   await waitUntilActiveCollectionSubTab(browser, tabName);
 }
 
-export async function waitUntilActiveCollectionTab(
+async function waitUntilActiveCollectionTab(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
+  connectionName: string,
   dbName: string,
   collectionName: string,
   tabName:
@@ -91,7 +96,13 @@ export async function waitUntilActiveCollectionTab(
     | null = null
 ) {
   await browser
-    .$(Selectors.collectionWorkspaceTab(`${dbName}.${collectionName}`, true))
+    .$(
+      Selectors.workspaceTab({
+        connectionName,
+        namespace: `${dbName}.${collectionName}`,
+        active: true,
+      })
+    )
     .waitForDisplayed();
   if (tabName) {
     await waitUntilActiveCollectionSubTab(browser, tabName);
@@ -100,7 +111,6 @@ export async function waitUntilActiveCollectionTab(
 
 export async function waitUntilActiveCollectionSubTab(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'

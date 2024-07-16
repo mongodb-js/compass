@@ -8,6 +8,7 @@ import {
   outputFilename,
   serverSatisfies,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -176,7 +177,12 @@ describe('Collection aggregations tab', function () {
     }, STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY);
 
     // Some tests navigate away from the numbers collection aggregations tab
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Aggregations'
+    );
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
@@ -1627,6 +1633,7 @@ describe('Collection aggregations tab', function () {
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         'nestedDocs',
         'Aggregations'
