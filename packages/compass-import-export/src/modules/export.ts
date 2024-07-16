@@ -153,6 +153,18 @@ type CloseExportAction = {
   type: ExportActionTypes.CloseExport;
 };
 
+export const connectionDisconnected = (
+  connectionId: string
+): ExportThunkAction<void> => {
+  return (dispatch, getState, { logger: { debug } }) => {
+    const currentConnectionId = getState().export.connectionId;
+    debug('connectionDisconnected', { connectionId, currentConnectionId });
+    if (connectionId === currentConnectionId) {
+      dispatch(closeExport());
+    }
+  };
+};
+
 export const closeExport = (): CloseExportAction => ({
   type: ExportActionTypes.CloseExport,
 });

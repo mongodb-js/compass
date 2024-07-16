@@ -1335,11 +1335,6 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      // TODO(COMPASS-8008): same thing as for aborting an export when disconnected
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        this.skip();
-      }
-
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
@@ -1367,10 +1362,7 @@ describe('Collection import', function () {
       // Wait for the in progress toast to appear.
       await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
 
-      await browser.disconnectAll();
-      await browser
-        .$(Selectors.SidebarTitle)
-        .waitForDisplayed({ reverse: true });
+      await browser.disconnectAll({ closeToasts: false });
 
       // Wait for the aborted toast to appear.
       await browser
