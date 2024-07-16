@@ -467,11 +467,7 @@ export class Element extends EventEmitter {
   }
 
   _isExpandable(): boolean {
-    return (
-      isValueExpandable(this.originalExpandableValue) ||
-      (this.isModified() &&
-        (this.currentType === 'Array' || this.currentType === 'Object'))
-    );
+    return this.currentType === 'Array' || this.currentType === 'Object';
   }
 
   /**
