@@ -310,6 +310,8 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
+    skipForWeb(this, 'connect happens on the outside');
+
     await browser.connectWithConnectionString(
       `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
       'failure'
