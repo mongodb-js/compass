@@ -4,7 +4,6 @@ import * as Selectors from '../selectors';
 
 export async function waitForConnectionResult(
   browser: CompassBrowser,
-  fromForm: boolean,
   connectionStatus: 'success' | 'failure' | 'either' = 'success',
   timeout?: number
 ): Promise<undefined | string> {
@@ -40,12 +39,6 @@ export async function waitForConnectionResult(
   }
 
   if (TEST_MULTIPLE_CONNECTIONS) {
-    if (fromForm) {
-      await browser
-        .$(Selectors.ConnectionModal)
-        .waitForDisplayed({ reverse: true });
-    }
-
     // make sure the placeholders for databases & collections that are loading are all gone
     await browser
       .$(Selectors.DatabaseCollectionPlaceholder)

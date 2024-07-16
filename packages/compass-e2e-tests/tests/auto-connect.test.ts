@@ -88,7 +88,7 @@ describe('Automatically connecting from the command line', function () {
     compass: Compass,
     expectedTitle = connectionStringSuccessTitle
   ) {
-    await compass.browser.waitForConnectionResult(false, 'success');
+    await compass.browser.waitForConnectionResult('success');
     const sidebarTitle = await compass.browser
       .$(Selectors.SidebarTitle)
       .getText();
@@ -141,10 +141,7 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs(args),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult(
-        false,
-        'failure'
-      );
+      const error = await compass.browser.waitForConnectionResult('failure');
       expect(error).to.match(
         /ECONNRESET|Server selection timed out|Client network socket disconnected/i
       );
@@ -166,7 +163,7 @@ describe('Automatically connecting from the command line', function () {
     });
     const { browser } = compass;
     try {
-      const error = await browser.waitForConnectionResult(false, 'failure');
+      const error = await browser.waitForConnectionResult('failure');
       expect(error).to.include('Authentication failed');
       const connectFormState = await browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
@@ -188,10 +185,7 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs(args),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult(
-        false,
-        'failure'
-      );
+      const error = await compass.browser.waitForConnectionResult('failure');
       expect(error).to.include('Invalid scheme');
     } finally {
       await cleanup(compass);
@@ -205,10 +199,7 @@ describe('Automatically connecting from the command line', function () {
       ]),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult(
-        false,
-        'failure'
-      );
+      const error = await compass.browser.waitForConnectionResult('failure');
       expect(error).to.include('ENOENT');
     } finally {
       await cleanup(compass);
@@ -222,11 +213,11 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const { browser } = compass;
-      await browser.waitForConnectionResult(false, 'success');
+      await browser.waitForConnectionResult('success');
       await browser.execute(() => {
         location.reload();
       });
-      await browser.waitForConnectionResult(false, 'success');
+      await browser.waitForConnectionResult('success');
       await browser.disconnectAll();
       await browser.execute(() => {
         location.reload();
@@ -251,7 +242,7 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const { browser } = compass;
-      await browser.waitForConnectionResult(false, 'success');
+      await browser.waitForConnectionResult('success');
       await browser.execute(() => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('electron').ipcRenderer.call('test:show-connect-window');
@@ -284,7 +275,7 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const browser = compass.browser;
-      await browser.waitForConnectionResult(false, 'success');
+      await browser.waitForConnectionResult('success');
       await browser.disconnectAll();
 
       // this is not the ideal check because by default the recent connections

@@ -35,27 +35,4 @@ export async function connectWithConnectionString(
     connectionString
   );
   await browser.doConnect(connectionStatus, timeout);
-
-  if (connectionStatus === 'success') {
-    // Ideally this would be part of browser.doConnect() and
-    // browser.waitForConnectionResult(), but that requires the context of
-    // connectionName there. Which is easy enough for connectWithConnectionString,
-    // but not so easy right now for connectWithConnectionForm.
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // There's a potential problem here: The list of connections is virtual, so
-      // the new connection might not be rendered. By searching for it if possible
-      // we can guarantee that it will be on screen. The search box won't exist
-      // for the first connection, but that's OK because once connected it will be
-      // the only connection so should be rendered.
-      if (await browser.$(Selectors.SidebarFilterInput).isExisting()) {
-        await browser.clickVisible(Selectors.SidebarFilterInput);
-        await browser.setValueVisible(Selectors.SidebarFilterInput, '');
-      }
-
-      // some connection should be expanded (ie. connected) by now
-      await browser
-        .$(`${Selectors.SidebarTreeItems}[aria-expanded=true]`)
-        .waitForExist();
-    }
-  }
 }

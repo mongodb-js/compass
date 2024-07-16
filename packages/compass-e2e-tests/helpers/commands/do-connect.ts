@@ -7,5 +7,5 @@ export async function doConnect(
   timeout?: number
 ): Promise<void> {
   await browser.clickVisible(Selectors.ConnectButton);
-  await browser.waitForConnectionResult(true, connectionStatus, timeout);
+  await browser.waitForConnectionResult(connectionStatus, timeout);
 }
