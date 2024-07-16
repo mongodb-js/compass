@@ -56,10 +56,10 @@ export async function disconnect(browser: CompassBrowser): Promise<void> {
     // retrieve server info" or similar, there might be an error or warning
     // toast by now. If so, just close it otherwise the next test or connection
     // attempt will be confused by it.
-    if (await browser.$(Selectors.AnyToastDismissButton).isExisting()) {
+    if (await browser.$(Selectors.LGToastCloseButton).isExisting()) {
       const toastText = await browser.$('#lg-toast-region').getText();
       debug('Closing toast', toastText);
-      await browser.clickVisible(Selectors.AnyToastDismissButton);
+      await browser.clickVisible(Selectors.LGToastCloseButton);
     }
 
     // NOTE: unlike the single connection flow this doesn't make sure the New

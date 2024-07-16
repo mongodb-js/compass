@@ -15,6 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
+  MONGODB_TEST_SERVER_PORT,
   DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -296,6 +297,29 @@ describe('Connection string', function () {
       );
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('fails for authentication errors', async function () {
+    await browser.connectWithConnectionString(
+      `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
+      'failure'
+    );
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
+      expect(toastTitle).to.equal('Authentication failed');
+
+      const errorMessage = await browser
+        .$(Selectors.ConnectionErrorText)
+        .getText();
+      expect(errorMessage).to.equal(
+        'There was a problem connecting to 127.0.0.1:27091'
+      );
+    } else {
+      const errorMessage = await browser
+        .$(Selectors.ConnectionFormErrorMessage)
+        .getText();
+      expect(errorMessage).to.equal('Authentication failed');
     }
   });
 
