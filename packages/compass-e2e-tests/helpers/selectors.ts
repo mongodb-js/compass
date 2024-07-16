@@ -25,6 +25,7 @@ export const SettingsInputElement = (settingName: string): string => {
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
 export const LGToastCloseButton = '[data-testid="lg-toast-dismiss-button"]';
+export const LGToastTitle = '[data-testid="toast-title"]';
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
@@ -231,6 +232,9 @@ export const ConnectionFormConnectionColor =
   '[data-testid="personalization-color-input"]';
 export const ConnectionFormFavoriteCheckbox =
   '[data-testid="personalization-favorite-checkbox"]';
+export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
+export const ConnectionToastErrorReviewButton =
+  '[data-testid="connection-error-review"]';
 
 // Single Connection sidebar
 export const Single = {
@@ -1347,9 +1351,6 @@ export const DisconnectAtlasAccountButton = 'button=Log Out';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
 export const AgreeAndContinueButton = 'button=Agree and continue';
-
-// Any toast
-export const AnyToastDismissButton = '[data-testid="lg-toast-dismiss-button"]';
 
 // Close tab confirmation
 export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';
