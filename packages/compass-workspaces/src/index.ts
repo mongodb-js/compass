@@ -164,6 +164,20 @@ export function activateWorkspacePlugin(
     }
   });
 
+  on(globalAppRegistry, 'find-in-page:active-tab-search-started', function () {
+    const activeTab = getActiveTab(store.getState());
+    if (activeTab?.type === 'Collection') {
+      getLocalAppRegistryForTab(activeTab.id).emit('active-tab-search-started');
+    }
+  });
+
+  on(globalAppRegistry, 'find-in-page:active-tab-search-stopped', function () {
+    const activeTab = getActiveTab(store.getState());
+    if (activeTab?.type === 'Collection') {
+      getLocalAppRegistryForTab(activeTab.id).emit('active-tab-search-stopped');
+    }
+  });
+
   // TODO(COMPASS-8033): activate this code and account for it in e2e tests and
   // electron environment
   // function onBeforeUnload(evt: BeforeUnloadEvent) {

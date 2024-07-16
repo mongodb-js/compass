@@ -31,12 +31,22 @@ const virtualisedDocumentStyles = css({
   },
 });
 
+const overScannedCardStyles = css({
+  height: '400px',
+  overflowY: 'scroll',
+  scrollbarGutter: 'stable',
+  wordWrap: 'break-word',
+  overflowX: 'hidden',
+  padding: spacing[400],
+});
+
 type VirtualisedDocumentListViewProps = {
   docs: HadronDocument[];
   isEditable: boolean;
   className?: string;
   initialScrollTop?: number;
   scrollableContainerRef?: React.Ref<HTMLElement>;
+  compassSearchActive?: boolean;
 } & Pick<
   DocumentProps,
   | 'isTimeSeries'
@@ -52,7 +62,7 @@ type VirtualisedDocumentData = Omit<
   'className' | 'initialScrollTop' | 'scrollableContainerRef'
 > & {
   setDocumentCardSize(this: void, index: number, size: number): void;
-  isOverscanRender(this: void, index: number): boolean;
+  isOverScanRender(this: void, index: number): boolean;
 };
 
 const VirtualisedDocument: React.FC<
@@ -68,7 +78,7 @@ const VirtualisedDocument: React.FC<
     updateDocument,
     openInsertDocumentDialog,
     setDocumentCardSize,
-    isOverscanRender,
+    isOverScanRender,
   } = data;
   const doc = useMemo(() => docs[index], [docs, index]);
   const docCardRef = useRef<HTMLDivElement | null>(null);
@@ -103,19 +113,9 @@ const VirtualisedDocument: React.FC<
       key={index}
       style={style}
     >
-      {isOverscanRender(index) ? (
+      {isOverScanRender(index) ? (
         <KeylineCard ref={docCardRef}>
-          <div
-            style={{
-              padding: spacing[400],
-              height: `400px`,
-              overflowY: 'scroll',
-              overflowX: 'scroll',
-              scrollbarGutter: 'stable',
-            }}
-          >
-            {doc.toEJSON('original')}
-          </div>
+          <div className={overScannedCardStyles}>{doc.toEJSON('original')}</div>
         </KeylineCard>
       ) : (
         <KeylineCard ref={docCardRef}>
@@ -149,6 +149,7 @@ const VirtualisedDocumentListView: React.FC<
   replaceDocument,
   updateDocument,
   openInsertDocumentDialog,
+  compassSearchActive,
 }) => {
   const listRef = useRef<List | null>(null);
 
@@ -193,7 +194,7 @@ const VirtualisedDocumentListView: React.FC<
     visibleStopIndex: number;
   } | null>(null);
 
-  const isOverscanRender = useCallback((rowIndex: number) => {
+  const isOverScanRender = useCallback((rowIndex: number) => {
     if (!renderStateRef.current) {
       return false;
     }
@@ -277,7 +278,7 @@ const VirtualisedDocumentListView: React.FC<
       updateDocument,
       openInsertDocumentDialog,
       setDocumentCardSize: handleDocumentCardSizeChange,
-      isOverscanRender,
+      isOverScanRender: isOverScanRender,
     }),
     [
       docs,
@@ -289,7 +290,7 @@ const VirtualisedDocumentListView: React.FC<
       updateDocument,
       openInsertDocumentDialog,
       handleDocumentCardSizeChange,
-      isOverscanRender,
+      isOverScanRender,
     ]
   );
 
@@ -314,7 +315,7 @@ const VirtualisedDocumentListView: React.FC<
             itemCount={docs.length}
             itemSize={getDocumentCardSize}
             estimatedItemSize={averageDocumentCardSize}
-            overscanCount={docs.length}
+            overscanCount={compassSearchActive ? docs.length : 4}
             onItemsRendered={onItemsRendered}
           >
             {VirtualisedDocument}

@@ -152,8 +152,14 @@ const DocumentViewComponent: React.FunctionComponent<
     query: unknown;
     scrollableContainerRef?: React.Ref<HTMLElement>;
     initialScrollTop?: number;
+    compassSearchActive?: boolean;
   }
-> = ({ initialScrollTop, scrollableContainerRef, ...props }) => {
+> = ({
+  initialScrollTop,
+  scrollableContainerRef,
+  compassSearchActive,
+  ...props
+}) => {
   if (props.docs?.length === 0) {
     return null;
   }
@@ -164,6 +170,7 @@ const DocumentViewComponent: React.FunctionComponent<
         {...props}
         className={listAndJsonStyles}
         initialScrollTop={initialScrollTop}
+        compassSearchActive={compassSearchActive}
         scrollableContainerRef={scrollableContainerRef}
       />
     );
@@ -360,6 +367,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       const listViewProps =
         props.view === 'List'
           ? {
+              compassSearchActive: store.state.compassSearchActive,
               scrollableContainerRef: scrollRef,
               initialScrollTop: initialScrollTop,
             }

@@ -309,6 +309,7 @@ type CrudState = {
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
+  compassSearchActive: boolean;
 };
 
 type CrudStoreActionsOptions = {
@@ -376,6 +377,14 @@ class CrudStoreImpl
     this.queryBar = services.queryBar;
   }
 
+  onSearchStarted() {
+    this.setState({ compassSearchActive: true });
+  }
+
+  onSearchStopped() {
+    this.setState({ compassSearchActive: false });
+  }
+
   getInitialState(): CrudState {
     const isDataLake = !!this.instance.dataLake.isDataLake;
     const isReadonly = !!this.options.isReadonly;
@@ -411,6 +420,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: DEFAULT_NUM_PAGE_DOCS,
+      compassSearchActive: false,
     };
   }
 
@@ -1972,6 +1982,14 @@ export function activateDocumentsPlugin(
       );
     }
   );
+
+  on(localAppRegistry, 'active-tab-search-started', () => {
+    store.onSearchStarted();
+  });
+
+  on(localAppRegistry, 'active-tab-search-stopped', () => {
+    store.onSearchStopped();
+  });
 
   // these can change later
   on(instance, 'change:isWritable', () => {

@@ -1,9 +1,15 @@
+import type AppRegistry from 'hadron-app-registry';
 import { ipcRenderer } from 'hadron-ipc';
+import { type ThunkAction } from 'redux-thunk';
 
 export const TOGGLE_STATUS = 'TOGGLE_STATUS';
 export const SEARCH_TERM = 'SEARCH_TERM';
 export const STOP_FIND = 'STOP_FIND';
 export const FIND = 'FIND';
+
+export type FindInPageServices = {
+  globalAppRegistry: AppRegistry;
+};
 
 export type State = {
   searching: boolean;
@@ -89,6 +95,15 @@ export const dispatchStopFind = (): StopFindAction => ({
   type: STOP_FIND,
 });
 
-export const toggleStatus = (): ToggleStatusAction => ({
-  type: TOGGLE_STATUS,
-});
+export const toggleStatus =
+  (): ThunkAction<void, State, FindInPageServices, ToggleStatusAction> =>
+  (dispatch, getState, { globalAppRegistry }) => {
+    const { enabled: wasEnabled } = getState();
+    dispatch({
+      type: TOGGLE_STATUS,
+    });
+    const eventToEmit = wasEnabled
+      ? 'find-in-page:active-tab-search-stopped'
+      : 'find-in-page:active-tab-search-started';
+    globalAppRegistry.emit(eventToEmit);
+  };
