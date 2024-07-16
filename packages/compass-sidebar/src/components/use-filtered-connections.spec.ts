@@ -535,8 +535,7 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          (result.current.filtered?.[0] as SidebarConnectedConnection)
-            .databases[0]
+          (result.current.filtered?.[0] as SidebarConnectedConnection).databases
         ).to.have.length(2); // both databases are included
       });
     });
