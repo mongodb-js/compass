@@ -9,6 +9,17 @@ import type { AnyWorkspaceComponent } from './components/workspaces-provider';
 import { useOpenWorkspace } from './provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import {
+  PreferencesProvider,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
+import {
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
+  type ConnectionStorage,
+  ConnectionStorageEvents,
+} from '@mongodb-js/connection-storage/provider';
 
 function mockWorkspace(name: string) {
   return {
@@ -35,6 +46,7 @@ describe('WorkspacesPlugin', function () {
     logger: (() => {}) as any,
   });
   const dataService = {} as any;
+  let preferences: PreferencesAccess;
   const Plugin = WorkspacesPlugin.withMockServices(
     {
       globalAppRegistry,
@@ -44,6 +56,13 @@ describe('WorkspacesPlugin', function () {
     { disableChildPluginRendering: true }
   );
   const onTabChangeSpy = sandbox.spy();
+  let connectionStorage: ConnectionStorage;
+  const TEST_CONNECTION_INFO = {
+    id: '1',
+    favorite: {
+      name: 'Test Connection',
+    },
+  };
 
   function renderPlugin() {
     const Modals: React.FC = () => {
@@ -51,33 +70,42 @@ describe('WorkspacesPlugin', function () {
       return null;
     };
     return render(
-      <WorkspacesProvider
-        value={[
-          mockWorkspace('Welcome'),
-          mockWorkspace('My Queries'),
-          mockWorkspace('Databases'),
-          mockWorkspace('Performance'),
-          mockWorkspace('Collections'),
-          mockWorkspace('Collection'),
-        ]}
-      >
-        <Plugin
-          onActiveWorkspaceTabChange={onTabChangeSpy}
-          renderModals={() => {
-            return <Modals />;
-          }}
-        ></Plugin>
-      </WorkspacesProvider>
+      <PreferencesProvider value={preferences}>
+        <ConnectionStorageProvider value={connectionStorage}>
+          <WorkspacesProvider
+            value={[
+              mockWorkspace('Welcome'),
+              mockWorkspace('My Queries'),
+              mockWorkspace('Databases'),
+              mockWorkspace('Performance'),
+              mockWorkspace('Collections'),
+              mockWorkspace('Collection'),
+            ]}
+          >
+            <Plugin
+              onActiveWorkspaceTabChange={onTabChangeSpy}
+              renderModals={() => {
+                return <Modals />;
+              }}
+            ></Plugin>
+          </WorkspacesProvider>
+        </ConnectionStorageProvider>
+      </PreferencesProvider>
     );
   }
 
-  beforeEach(function () {
+  beforeEach(async function () {
     sandbox
       .stub(connectionsManager, 'getDataServiceForConnection')
       .returns(dataService);
     sandbox
       .stub(instancesManager, 'getMongoDBInstanceForConnection')
       .returns(instance);
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
+    connectionStorage = new InMemoryConnectionStorage([TEST_CONNECTION_INFO]);
   });
 
   afterEach(function () {
@@ -89,7 +117,10 @@ describe('WorkspacesPlugin', function () {
 
   const tabs = [
     ['My Queries', () => openFns.openMyQueriesWorkspace()],
-    ['Databases', () => openFns.openDatabasesWorkspace('1')],
+    [
+      TEST_CONNECTION_INFO.favorite.name,
+      () => openFns.openDatabasesWorkspace('1'),
+    ],
     ['Performance', () => openFns.openPerformanceWorkspace('1')],
     ['db', () => openFns.openCollectionsWorkspace('1', 'db')],
     ['db > coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
@@ -97,10 +128,13 @@ describe('WorkspacesPlugin', function () {
 
   for (const suite of tabs) {
     const [tabName, fn] = suite;
-    it(`should open "${tabName}" tab when corresponding open method is called`, function () {
+    it(`should open "${tabName}" tab when corresponding open method is called`, async function () {
       renderPlugin();
+      connectionStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
       fn();
-      expect(screen.getByRole('tab', { name: tabName })).to.exist;
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: tabName })).to.exist;
+      });
     });
   }
 

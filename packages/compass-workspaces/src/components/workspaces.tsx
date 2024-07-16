@@ -41,6 +41,7 @@ import {
   useTabConnectionTheme,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -154,6 +155,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionTitleById } = useConnectionRepository();
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -181,15 +185,17 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             iconGlyph: 'Shell',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Databases':
+        case 'Databases': {
+          const connectionName = getConnectionTitleById(tab.connectionId);
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: tab.type,
+            title: multiConnectionsEnabled ? connectionName : tab.type,
             iconGlyph: 'Database',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
+        }
         case 'Performance':
           return {
             id: tab.id,
