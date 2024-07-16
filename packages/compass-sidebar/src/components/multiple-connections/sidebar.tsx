@@ -369,7 +369,6 @@ export function MultipleConnectionSidebar({
 
   const onNewConnectionConnect = useCallback(
     (connectionInfo: ConnectionInfo) => {
-      setIsConnectionFormOpen(false);
       void _onConnect(connectionInfo).then(() => {
         setIsConnectionFormOpen(false);
       });
@@ -380,6 +379,7 @@ export function MultipleConnectionSidebar({
   const onSaveNewConnection = useCallback(
     async (connectionInfo: ConnectionInfo) => {
       await saveConnection(connectionInfo);
+      setIsConnectionFormOpen(false);
     },
     [saveConnection]
   );
