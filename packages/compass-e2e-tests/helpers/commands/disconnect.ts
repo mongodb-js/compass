@@ -7,7 +7,14 @@ import Debug from 'debug';
 
 const debug = Debug('compass-e2e-tests');
 
-export async function disconnectAll(browser: CompassBrowser): Promise<void> {
+export async function disconnectAll(
+  browser: CompassBrowser,
+  {
+    closeToasts = true,
+  }: {
+    closeToasts?: boolean;
+  } = {}
+): Promise<void> {
   if (TEST_COMPASS_WEB) {
     const url = new URL(await browser.getUrl());
     url.pathname = '/';
@@ -52,14 +59,16 @@ export async function disconnectAll(browser: CompassBrowser): Promise<void> {
     // enough. For now just wait an extra second just in case.
     await browser.pause(1000);
 
-    // If we disconnected "too soon" and we get an error like "Failed to
-    // retrieve server info" or similar, there might be an error or warning
-    // toast by now. If so, just close it otherwise the next test or connection
-    // attempt will be confused by it.
-    if (await browser.$(Selectors.AnyToastDismissButton).isExisting()) {
-      const toastText = await browser.$('#lg-toast-region').getText();
-      debug('Closing toast', toastText);
-      await browser.clickVisible(Selectors.AnyToastDismissButton);
+    if (closeToasts) {
+      // If we disconnected "too soon" and we get an error like "Failed to
+      // retrieve server info" or similar, there might be an error or warning
+      // toast by now. If so, just close it otherwise the next test or connection
+      // attempt will be confused by it.
+      if (await browser.$(Selectors.LGToastCloseButton).isExisting()) {
+        const toastText = await browser.$('#lg-toast-region').getText();
+        debug('Closing toast', toastText);
+        await browser.clickVisible(Selectors.LGToastCloseButton);
+      }
     }
 
     // NOTE: unlike the single connection flow this doesn't make sure the New
