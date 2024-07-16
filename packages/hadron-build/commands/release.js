@@ -31,7 +31,6 @@ const run = require('./../lib/run');
 const rebuild = require('@electron/rebuild').rebuild;
 const { signArchive } = require('./../lib/signtool');
 
-const ui = require('./ui');
 const verify = require('./verify');
 
 exports.command = 'release';
@@ -496,7 +495,7 @@ exports.builder = {
   }
 };
 
-_.assign(exports.builder, ui.builder, verify.builder);
+_.assign(exports.builder, verify.builder);
 
 
 /**
