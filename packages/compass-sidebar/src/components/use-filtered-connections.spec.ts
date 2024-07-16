@@ -515,15 +515,17 @@ describe('useFilteredConnections', function () {
               name: 'Matching connection',
               databases: [
                 {
-                  ...mockSidebarConnections[0].databases[0],
+                  ...(mockSidebarConnections[0] as SidebarConnectedConnection)
+                    .databases[0],
                   name: 'Matching database',
                 },
                 {
-                  ...mockSidebarConnections[0].databases[1],
+                  ...(mockSidebarConnections[0] as SidebarConnectedConnection)
+                    .databases[1],
                   name: 'Another database',
                 },
               ],
-            },
+            } as SidebarConnectedConnection,
           ],
           filterRegex: new RegExp('Matching', 'i'), // this matches connection as well as database
           fetchAllCollections: fetchAllCollectionsStub,
@@ -532,7 +534,10 @@ describe('useFilteredConnections', function () {
       });
 
       await waitFor(() => {
-        expect(result.current.filtered?.[0].databases).to.have.length(2); // both databases are included
+        expect(
+          (result.current.filtered?.[0] as SidebarConnectedConnection)
+            .databases[0]
+        ).to.have.length(2); // both databases are included
       });
     });
 
@@ -576,7 +581,8 @@ describe('useFilteredConnections', function () {
 
       await waitFor(() => {
         expect(
-          result.current.filtered?.[0].databases[0].collections
+          (result.current.filtered?.[0] as SidebarConnectedConnection)
+            .databases[0].collections
         ).to.have.length(2); // the result has 2 collections
       });
     });
@@ -585,7 +591,7 @@ describe('useFilteredConnections', function () {
       const { result } = renderHookWithContext(useFilteredConnections, {
         initialProps: {
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('_1_1', 'i'),
+          filterRegex: new RegExp('coll_ready_1_1', 'i'),
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         },
@@ -627,7 +633,7 @@ describe('useFilteredConnections', function () {
 
         rerender({
           connections: mockSidebarConnections,
-          filterRegex: new RegExp('_1_1', 'i'),
+          filterRegex: new RegExp('coll_ready_1_1', 'i'),
           fetchAllCollections: fetchAllCollectionsStub,
           onDatabaseExpand: onDatabaseExpandStub,
         });
@@ -650,7 +656,7 @@ describe('useFilteredConnections', function () {
           {
             initialProps: {
               connections: mockSidebarConnections,
-              filterRegex: new RegExp('_1_1', 'i'),
+              filterRegex: new RegExp('coll_ready_1_1', 'i'),
               fetchAllCollections: fetchAllCollectionsStub,
               onDatabaseExpand: onDatabaseExpandStub,
             },
@@ -689,7 +695,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('_1_1', 'i'),
+            filterRegex: new RegExp('coll_ready_1_1', 'i'),
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -721,7 +727,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('_1_1', 'i'),
+            filterRegex: new RegExp('coll_ready_1_1', 'i'),
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
@@ -759,7 +765,7 @@ describe('useFilteredConnections', function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
           initialProps: {
             connections: mockSidebarConnections,
-            filterRegex: new RegExp('_1_1', 'i'),
+            filterRegex: new RegExp('coll_ready_1_1', 'i'),
             fetchAllCollections: fetchAllCollectionsStub,
             onDatabaseExpand: onDatabaseExpandStub,
           },
