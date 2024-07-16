@@ -13,6 +13,11 @@ import { createView, changeViewName, close } from '../../modules/create-view';
 import type { CreateViewRootState } from '../../stores/create-view';
 import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import {
+  type ConnectionRepository,
+  withConnectionRepository,
+  type ConnectionInfo,
+} from '@mongodb-js/compass-connections/provider';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -29,9 +34,11 @@ type CreateViewModalProps = {
   isDuplicating?: boolean;
   source?: string;
   pipeline?: unknown[];
+  connectionId: ConnectionInfo['id'];
   isRunning?: boolean;
   error: Error | null;
   track: TrackFunction;
+  connectionRepository: ConnectionRepository;
 };
 
 class CreateViewModal extends PureComponent<CreateViewModalProps> {
@@ -46,7 +53,11 @@ class CreateViewModal extends PureComponent<CreateViewModalProps> {
 
   componentDidUpdate(prevProps: CreateViewModalProps) {
     if (prevProps.isVisible !== this.props.isVisible && this.props.isVisible) {
-      this.props.track('Screen', { name: 'create_view_modal' });
+      const connectionInfo =
+        this.props.connectionRepository.getConnectionInfoById(
+          this.props.connectionId
+        );
+      this.props.track('Screen', { name: 'create_view_modal' }, connectionInfo);
     }
   }
 
@@ -107,6 +118,7 @@ const mapStateToProps = (state: CreateViewRootState) => ({
   error: state.error,
   source: state.source,
   pipeline: state.pipeline,
+  connectionId: state.connectionId,
 });
 
 /**
@@ -114,11 +126,13 @@ const mapStateToProps = (state: CreateViewRootState) => ({
  * (dispatch)
  */
 const MappedCreateViewModal = withTelemetry(
-  connect(mapStateToProps, {
-    createView,
-    changeViewName,
-    closeModal: close,
-  })(CreateViewModal)
+  withConnectionRepository(
+    connect(mapStateToProps, {
+      createView,
+      changeViewName,
+      closeModal: close,
+    })(CreateViewModal)
+  )
 );
 
 export default MappedCreateViewModal;

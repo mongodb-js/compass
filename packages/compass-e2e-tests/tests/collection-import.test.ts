@@ -9,7 +9,6 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
@@ -605,6 +604,8 @@ describe('Collection import', function () {
 
     const importCompletedEvent = await telemetryEntry('Import Completed');
     delete importCompletedEvent.duration; // Duration varies.
+    expect(importCompletedEvent.connection_id).to.exist;
+    delete importCompletedEvent.connection_id; // connection_id varies
     expect(importCompletedEvent).to.deep.equal({
       delimiter: ',',
       newline: '\n',
@@ -1333,11 +1334,6 @@ describe('Collection import', function () {
     });
 
     it('aborts when disconnected', async function () {
-      // TODO(COMPASS-8008): same thing as for aborting an export when disconnected
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        this.skip();
-      }
-
       // 16116 documents.
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
@@ -1365,10 +1361,7 @@ describe('Collection import', function () {
       // Wait for the in progress toast to appear.
       await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
 
-      await browser.disconnect();
-      await browser
-        .$(Selectors.SidebarTitle)
-        .waitForDisplayed({ reverse: true });
+      await browser.disconnectAll({ closeToasts: false });
 
       // Wait for the aborted toast to appear.
       await browser

@@ -1,5 +1,14 @@
 import { TEST_MULTIPLE_CONNECTIONS } from './compass';
 
+export type WorkspaceTabSelectorOptions = {
+  id?: string;
+  connectionName?: string;
+  namespace?: string;
+  type?: string;
+  title?: string;
+  active?: boolean;
+};
+
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
@@ -16,6 +25,7 @@ export const SettingsInputElement = (settingName: string): string => {
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
 export const LGToastCloseButton = '[data-testid="lg-toast-dismiss-button"]';
+export const LGToastTitle = '[data-testid="toast-title"]';
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
@@ -222,6 +232,9 @@ export const ConnectionFormConnectionColor =
   '[data-testid="personalization-color-input"]';
 export const ConnectionFormFavoriteCheckbox =
   '[data-testid="personalization-favorite-checkbox"]';
+export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
+export const ConnectionToastErrorReviewButton =
+  '[data-testid="connection-error-review"]';
 
 // Single Connection sidebar
 export const Single = {
@@ -249,6 +262,8 @@ export const Single = {
     '[data-testid="favorites-menu-export-saved-connections-action"]',
   ImportConnectionsModalOpen:
     '[data-testid="favorites-menu-import-saved-connections-action"]',
+
+  InUseEncryptionMarker: '[data-testid="fle-connection-configuration"]',
 };
 
 // Multiple Connections sidebar
@@ -287,6 +302,8 @@ export const Multiple = {
     '[data-testid="connections-list-title-actions-export-saved-connections-action"]',
   ImportConnectionsModalOpen:
     '[data-testid="connections-list-title-actions-import-saved-connections-action"]',
+
+  InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
 };
 
 // Rename Collection Modal
@@ -316,9 +333,7 @@ export const RenameCollectionButton =
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-
-export const FleConnectionConfigurationBanner =
-  '[data-testid="fle-connection-configuration"]';
+export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
 export const sidebarDatabase = (dbName: string): string => {
   return `${Sidebar} [data-database-name="${dbName}"]`;
@@ -345,6 +360,13 @@ export const sidebarConnection = (connectionName: string): string => {
 
 export const sidebarConnectionButton = (connectionName: string): string => {
   return `${sidebarConnection(connectionName)} > div > button`;
+};
+
+export const sidebarConnectionActionButton = (
+  connectionName: string,
+  selector: string
+): string => {
+  return `${sidebarConnection(connectionName)} ${selector}`;
 };
 
 export const sidebarConnectionMenuButton = (connectionName: string): string => {
@@ -463,6 +485,7 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInputEditor = '[data-testid="shell-input"] [data-codemirror]';
+export const ShellInput = '[data-testid="shell-input"]';
 export const ShellOutput = '[data-testid="shell-output"]';
 
 // Instance screen
@@ -1178,36 +1201,46 @@ export const sidebarInstanceNavigationItem = (
 export const SidebarMyQueriesTab = `${Sidebar} [aria-label="My Queries"]`;
 export const WorkspaceTab =
   '[role="tablist"][aria-label="Workspace Tabs"] [role="tab"]';
-export const workspaceTab = (
-  title: string | null,
-  active: boolean | null = null
-) => {
-  const _active = active === null ? '' : `[aria-selected="${String(active)}"]`;
-  const _title =
-    title === null
-      ? ''
-      : ['My Queries', 'Performance', 'Databases'].includes(title)
-      ? `[title="${title}"]`
-      : `[data-namespace="${title}"]`;
-  return `${WorkspaceTab}${_title}${_active}`;
+export const workspaceTab = ({
+  id,
+  connectionName,
+  namespace,
+  type,
+  title,
+  active,
+}: WorkspaceTabSelectorOptions = {}) => {
+  const parts: string[] = [WorkspaceTab];
+  if (id !== undefined) {
+    parts.push(`[id="${id}"]`);
+  }
+  if (connectionName !== undefined) {
+    parts.push(`[data-connectionName="${connectionName}"]`);
+  }
+  if (namespace !== undefined) {
+    parts.push(`[data-namespace="${namespace}"]`);
+  }
+  if (type !== undefined) {
+    parts.push(`[data-type="${type}"]`);
+  }
+  if (title !== undefined) {
+    parts.push(`[title="${title}"]`);
+  }
+  if (active !== undefined) {
+    parts.push(`[aria-selected="${String(active)}"]`);
+  }
+  return parts.join('');
 };
 export const connectionWorkspaceTab = (
   tabName: 'Performance' | 'Databases',
-  active: boolean | null = null
+  active?: boolean
 ) => {
-  return workspaceTab(tabName, active);
+  return workspaceTab({ title: tabName, active });
 };
-export const databaseWorkspaceTab = (
-  dbName: string,
-  active: boolean | null = null
-) => {
-  return workspaceTab(dbName, active);
+export const databaseWorkspaceTab = (dbName: string, active?: boolean) => {
+  return workspaceTab({ title: dbName, active });
 };
-export const collectionWorkspaceTab = (
-  namespace: string,
-  active: boolean | null = null
-) => {
-  return workspaceTab(namespace, active);
+export const collectionWorkspaceTab = (namespace: string, active: boolean) => {
+  return workspaceTab({ namespace, active });
 };
 
 // Export modal
@@ -1318,9 +1351,6 @@ export const DisconnectAtlasAccountButton = 'button=Log Out';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
 export const AgreeAndContinueButton = 'button=Agree and continue';
-
-// Any toast
-export const AnyToastDismissButton = '[data-testid="lg-toast-dismiss-button"]';
 
 // Close tab confirmation
 export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';

@@ -109,7 +109,9 @@ export type PipelineBuilderExtraArgs = {
   instance: MongoDBInstance;
   dataService: DataService;
   connectionInfoAccess: ConnectionInfoAccess;
-  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<
+    'open-export' | 'view-edited' | 'agg-pipeline-out-executed'
+  >;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

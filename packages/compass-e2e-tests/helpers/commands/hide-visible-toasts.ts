@@ -12,12 +12,17 @@ export async function hideAllVisibleToasts(
   // LG toasts are stacked in scroll container and we need to close them all.
   const toasts = await toastContainer.$$('div');
   for (const toast of toasts) {
-    await browser.hover(Selectors.LGToastContainer);
-    const isToastVisible = await toast.isDisplayed();
-    if (!isToastVisible) {
+    try {
+      await browser.hover(Selectors.LGToastContainer);
+      const isToastVisible = await toast.isDisplayed();
+      if (!isToastVisible) {
+        continue;
+      }
+      await browser.clickVisible(toast.$(Selectors.LGToastCloseButton));
+      await toast.waitForExist({ reverse: true });
+    } catch (err) {
+      // if the toast disappears by itself in the meantime, that's fine
       continue;
     }
-    await browser.clickVisible(toast.$(Selectors.LGToastCloseButton));
-    await toast.waitForExist({ reverse: true });
   }
 }

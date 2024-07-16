@@ -8,6 +8,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   Selectors,
+  connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
@@ -58,15 +59,19 @@ describe('forceConnectionOptions', function () {
       await browser.clickVisible(Selectors.ConnectionModalCloseButton);
     }
 
-    await browser.connectWithConnectionString(
-      'mongodb://127.0.0.1:27091/?appName=userSpecifiedAppName'
-    );
+    const connectionString =
+      'mongodb://127.0.0.1:27091/?appName=userSpecifiedAppName';
+    const connectionName = connectionNameFromString(connectionString);
 
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      const result = await browser.shellEval('db.getMongo()._uri', true);
-      expect(new ConnectionString(result).searchParams.get('appName')).to.equal(
-        'testAppName'
-      );
-    }
+    await browser.connectWithConnectionString(connectionString);
+
+    const result = await browser.shellEval(
+      connectionName,
+      'db.getMongo()._uri',
+      true
+    );
+    expect(new ConnectionString(result).searchParams.get('appName')).to.equal(
+      'testAppName'
+    );
   });
 });

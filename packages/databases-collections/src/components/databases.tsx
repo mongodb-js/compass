@@ -75,7 +75,7 @@ type DatabasesProps = {
   isDataLake: boolean;
   onDeleteDatabaseClick(connectionId: string, ns: string): void;
   onCreateDatabaseClick(connectionId: string): void;
-  onRefreshClick(): void;
+  onRefreshClick(connectionId: string): void;
 };
 
 const Databases: React.FunctionComponent<DatabasesProps> = ({
@@ -87,9 +87,10 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
   isGenuineMongoDB,
   onDeleteDatabaseClick: _onDeleteDatabaseClick,
   onCreateDatabaseClick: _onCreateDatabaseClick,
-  onRefreshClick,
+  onRefreshClick: _onRefreshClick,
 }) => {
-  const { id: connectionId, atlasMetadata } = useConnectionInfo();
+  const connectionInfo = useConnectionInfo();
+  const { id: connectionId, atlasMetadata } = connectionInfo;
   const isPreferencesReadOnly = usePreference('readOnly');
   const { openCollectionsWorkspace } = useOpenWorkspace();
 
@@ -111,9 +112,16 @@ const Databases: React.FunctionComponent<DatabasesProps> = ({
     _onCreateDatabaseClick(connectionId);
   }, [connectionId, _onCreateDatabaseClick]);
 
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'databases' });
-  }, []);
+  const onRefreshClick = useCallback(() => {
+    _onRefreshClick(connectionId);
+  }, [connectionId, _onRefreshClick]);
+
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track('Screen', { name: 'databases' }, connectionInfo);
+    },
+    [connectionInfo]
+  );
 
   const renderLoadSampleDataBanner = useCallback(() => {
     if (
