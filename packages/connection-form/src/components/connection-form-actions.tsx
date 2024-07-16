@@ -124,7 +124,7 @@ export type ConnectionFormModalActionsProps = {
 
   onCancel?(): void;
   onSave(): void;
-  onConnect(): void;
+  onSaveAndConnect(): void;
 };
 
 export function ConnectionFormModalActions({
@@ -132,7 +132,7 @@ export function ConnectionFormModalActions({
   warnings,
   onCancel,
   onSave,
-  onConnect,
+  onSaveAndConnect,
 }: ConnectionFormModalActionsProps): React.ReactElement {
   return (
     <div className={cx(formActionStyles)}>
@@ -178,9 +178,9 @@ export function ConnectionFormModalActions({
         <Button
           data-testid="connect-button"
           variant={ButtonVariant.Primary}
-          onClick={onConnect}
+          onClick={onSaveAndConnect}
         >
-          Connect
+          Save & Connect
         </Button>
       </div>
     </div>
