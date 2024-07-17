@@ -61,7 +61,7 @@ const queryCodeStyles = css({
   maxHeight: '30vh',
 });
 
-function createQuery(query: SavedQuery): string {
+export function createQuery(query: SavedQuery): string {
   let res = '';
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);

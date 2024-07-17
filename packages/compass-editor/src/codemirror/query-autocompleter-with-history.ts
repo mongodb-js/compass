@@ -7,6 +7,7 @@ import type {
   CompletionSource,
   CompletionContext,
   CompletionSection,
+  Completion,
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { css } from '@mongodb-js/compass-components';
@@ -32,7 +33,7 @@ export const createQueryWithHistoryAutocompleter = (
       return queryHistoryAutocompleter(context);
     }
 
-    const combinedOptions = [];
+    const combinedOptions: Completion[] = [];
     // completions assigned to a section appear below ones that are not assigned
     const baseCompletions = await originalQueryAutocompleter(context);
     const historyCompletions = await queryHistoryAutocompleter(context);
