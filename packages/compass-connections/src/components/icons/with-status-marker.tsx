@@ -24,6 +24,8 @@ function ConnectedStatusMarker(): React.ReactElement {
       viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Connected Icon"
     >
       <circle cx="4.25" cy="4.25" r="3.5" fill={palette.green.dark1} />
     </svg>
@@ -52,6 +54,8 @@ function ConnectingStatusMarker(): React.ReactElement {
       viewBox="0 0 8 8"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Connecting Icon"
     >
       <rect width="8" height="8" rx="4" fill="#F9FBFA" />
       <path
@@ -72,6 +76,8 @@ function FailedStatusMarker(): React.ReactElement {
       viewBox="0 0 7 6"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Failed Connection Icon"
     >
       <path
         fillRule="evenodd"

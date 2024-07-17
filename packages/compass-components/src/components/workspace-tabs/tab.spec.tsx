@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { Tab } from './tab';
+import Icon from '@leafygreen-ui/icon';
 
 describe('Tab', function () {
   let onCloseSpy: sinon.SinonSpy;
@@ -27,6 +28,8 @@ describe('Tab', function () {
           tabContentId="1"
           subtitle="test.collection"
           iconGlyph="Folder"
+          type="typeA"
+          isDragging={false}
         />
       );
     });
@@ -63,6 +66,29 @@ describe('Tab', function () {
     });
   });
 
+  describe('custom icon', function () {
+    beforeEach(function () {
+      render(
+        <Tab
+          onClose={onCloseSpy}
+          onSelect={onSelectSpy}
+          title="docs"
+          isSelected
+          tabContentId="1"
+          subtitle="test.collection"
+          icon={<Icon glyph="Favorite" />}
+          type="typeA"
+          isDragging={false}
+        />
+      );
+    });
+
+    it('should render the icon', async function () {
+      expect(await screen.findByRole('img', { name: 'Favorite Icon' })).to.be
+        .visible;
+    });
+  });
+
   describe('when rendered', function () {
     beforeEach(function () {
       render(
@@ -74,6 +100,8 @@ describe('Tab', function () {
           tabContentId="1"
           subtitle="test.collection"
           iconGlyph="Folder"
+          type="typeA"
+          isDragging={false}
         />
       );
     });
