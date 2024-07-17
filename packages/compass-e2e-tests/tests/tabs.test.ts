@@ -10,7 +10,7 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
 
-describe('Global Tabs', function () {
+describe.only('Global Tabs', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -51,7 +51,7 @@ describe('Global Tabs', function () {
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
   });
 
-  it('should open tabs over each other when not modified', async function () {
+  it('should open new tabs when modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME,
