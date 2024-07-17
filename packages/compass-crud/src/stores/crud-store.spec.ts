@@ -260,6 +260,7 @@ describe('store', function () {
         collection: 'test',
         count: 0,
         docs: [],
+        docsPerPage: 25,
         end: 0,
         error: null,
         insert: {
@@ -1836,14 +1837,14 @@ describe('store', function () {
     });
 
     it('does nothing if the page being requested is past the end', async function () {
-      mockQueryBar.getLastAppliedQuery.returns({ limit: 20 });
-      await store.getPage(1); // there is only one page of 20
+      mockQueryBar.getLastAppliedQuery.returns({ limit: 25 });
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.false;
     });
 
     it('does not ask for documents past the end', async function () {
-      mockQueryBar.getLastAppliedQuery.returns({ limit: 21 });
-      await store.getPage(1); // there is only one page of 20
+      mockQueryBar.getLastAppliedQuery.returns({ limit: 26 });
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       const opts = findSpy.args[0][2];
       // the second page should only have 1 due to the limit
@@ -1851,14 +1852,14 @@ describe('store', function () {
     });
 
     it('sets status fetchedPagination if it succeeds with no filter', async function () {
-      await store.getPage(1); // there is only one page of 20
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
 
     it('sets status fetchedPagination if it succeeds with a filter', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ filter: { i: { $gt: 1 } } });
-      await store.getPage(1); // there is only one page of 20
+      await store.getPage(1); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
@@ -2534,6 +2535,39 @@ describe('store', function () {
           $set: { anotherField: 2 },
         },
       });
+    });
+  });
+
+  describe('#updateMaxDocumentsPerPage', function () {
+    let store: CrudStore;
+
+    beforeEach(function () {
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+    });
+
+    it('should update the number of documents per page in the state', async function () {
+      let listener = waitForState(store, (state) => {
+        expect(state).to.have.property('docsPerPage', 50);
+      });
+      store.updateMaxDocumentsPerPage(50);
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state).to.have.property('docsPerPage', 75);
+      });
+      store.updateMaxDocumentsPerPage(75);
+      await listener;
+    });
+
+    it('should trigger refresh of documents when documents per page changes', function () {
+      const refreshSpy = sinon.spy(store, 'refreshDocuments');
+      store.updateMaxDocumentsPerPage(50);
+      // calling it twice with the same count but the refresh should be
+      // triggered only once
+      store.updateMaxDocumentsPerPage(50);
+      expect(refreshSpy).to.be.calledOnce;
     });
   });
 });
