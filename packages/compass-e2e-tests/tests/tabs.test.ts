@@ -10,7 +10,7 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
 
-describe.only('Global Tabs', function () {
+describe('Global Tabs', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
