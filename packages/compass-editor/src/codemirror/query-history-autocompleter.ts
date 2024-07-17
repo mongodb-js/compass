@@ -61,6 +61,10 @@ const queryCodeStyles = css({
   maxHeight: '30vh',
 });
 
+const completionInfoStyles = css({
+  overflow: 'auto',
+});
+
 export function createQuery(query: SavedQuery): string {
   let res = '';
   Object.entries(query.queryProperties).forEach(([key, value]) => {
@@ -77,6 +81,7 @@ function createInfo(query: SavedQuery): {
   destroy?: () => void;
 } {
   const container = document.createElement('div');
+  container.className = completionInfoStyles;
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
     const codeDiv = document.createElement('div');
