@@ -1231,10 +1231,14 @@ export const workspaceTab = ({
   return parts.join('');
 };
 export const connectionWorkspaceTab = (
-  tabName: 'Performance' | 'Databases',
+  connectionName: string,
+  workspace: 'Performance' | 'Databases',
   active?: boolean
 ) => {
-  return workspaceTab({ title: tabName, active });
+  return workspaceTab({
+    title: workspace === 'Databases' ? connectionName : workspace,
+    active,
+  });
 };
 export const databaseWorkspaceTab = (dbName: string, active?: boolean) => {
   return workspaceTab({ title: dbName, active });

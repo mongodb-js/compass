@@ -56,6 +56,9 @@ describe('WorkspacesPlugin', function () {
     favorite: {
       name: 'Test Connection',
     },
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27017',
+    },
   };
 
   function renderPlugin() {
