@@ -12,7 +12,7 @@ import {
 } from 'bson';
 import { expect } from 'chai';
 import { Document, Element, ElementEvents } from '../src/';
-import { DATE_FORMAT } from '../src/element';
+import { DATE_FORMAT, isValueExpandable } from '../src/element';
 import moment from 'moment';
 import Sinon from 'sinon';
 
@@ -2773,10 +2773,37 @@ describe('Element', function () {
       expect(element.expanded).to.be.true;
 
       for (const el of element.elements ?? []) {
-        if (el._isExpandable(el.originalExpandableValue)) {
+        if (isValueExpandable(el.originalExpandableValue)) {
           expect(el.expanded).to.be.true;
         }
       }
     });
   });
+
+  context(
+    'when expanding an element that has been added with a changed type',
+    function () {
+      it('should expand the target element and its children', function () {
+        const element = new Element('names', {
+          firstName: 'A',
+          addresses: [1, 2],
+        });
+        expect(element.expanded).to.be.false;
+
+        element.insertEnd('pineapple', 'to be changed');
+        element.get('pineapple')?.changeType('Object');
+
+        element.insertEnd('pie', new Int32(123));
+        element.get('pie')?.changeType('Array');
+
+        expect(element.get('pineapple')?.expanded).to.be.false;
+        expect(element.get('pie')?.expanded).to.be.false;
+
+        element.expand(true);
+        expect(element.expanded).to.be.true;
+        expect(element.get('pineapple')?.expanded).to.be.true;
+        expect(element.get('pie')?.expanded).to.be.true;
+      });
+    }
+  );
 });
