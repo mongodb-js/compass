@@ -16,15 +16,16 @@ async function closeTab(
   selectorOptions: WorkspaceTabSelectorOptions,
   autoConfirmTabClose: boolean
 ): Promise<void> {
-  await browser.clickVisible(
-    browser
-      .$(Selectors.workspaceTab(selectorOptions))
-      .$(Selectors.CloseWorkspaceTab)
-  );
-
   // wait until the tab goes away and if the confirmation modal opens, maybe confirm
   await browser.waitUntil(
     async () => {
+      // keep retrying the click :(
+      await browser.clickVisible(
+        browser
+          .$(Selectors.workspaceTab(selectorOptions))
+          .$(Selectors.CloseWorkspaceTab)
+      );
+
       if (autoConfirmTabClose) {
         // Tabs in "dirty" state can't be closed without confirmation
         if (await browser.$(Selectors.ConfirmTabCloseModal).isExisting()) {
@@ -42,6 +43,7 @@ async function closeTab(
           .isExisting()) === false
       );
     },
+    // Don't wait longer than the wait in closeWorkspaceTabs
     { timeout: 10_000 }
   );
 }
