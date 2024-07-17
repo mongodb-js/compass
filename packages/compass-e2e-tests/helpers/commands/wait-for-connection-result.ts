@@ -26,7 +26,9 @@ export async function waitForConnectionResult(
   } else {
     // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't
     // encountered yet
-    selector = Selectors.ConnectionFormErrorMessage;
+    selector = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.ConnectionToastErrorText
+      : Selectors.ConnectionFormErrorMessage;
   }
   const element = await browser.$(selector);
   await element.waitForDisplayed(
@@ -37,10 +39,6 @@ export async function waitForConnectionResult(
   }
 
   if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
-
     // make sure the placeholders for databases & collections that are loading are all gone
     await browser
       .$(Selectors.DatabaseCollectionPlaceholder)

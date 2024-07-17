@@ -15,6 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
+  MONGODB_TEST_SERVER_PORT,
   DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -23,7 +24,7 @@ import * as Selectors from '../helpers/selectors';
 
 async function disconnect(browser: CompassBrowser) {
   try {
-    await browser.disconnect();
+    await browser.disconnectAll();
   } catch (err) {
     console.error('Error during disconnect:');
     console.error(err);
@@ -200,7 +201,16 @@ async function assertCannotCreateDb(
   }
 
   // open the create database modal from the sidebar
-  await browser.clickVisible(Sidebar.CreateDatabaseButton);
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    await browser.clickVisible(
+      Selectors.sidebarConnectionActionButton(
+        connectionName,
+        Sidebar.CreateDatabaseButton
+      )
+    );
+  } else {
+    await browser.clickVisible(Sidebar.CreateDatabaseButton);
+  }
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
@@ -296,6 +306,31 @@ describe('Connection string', function () {
       );
       assertNotError(result);
       expect(result).to.have.property('ok', 1);
+    }
+  });
+
+  it('fails for authentication errors', async function () {
+    skipForWeb(this, 'connect happens on the outside');
+
+    await browser.connectWithConnectionString(
+      `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
+      'failure'
+    );
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
+      expect(toastTitle).to.equal('Authentication failed.');
+
+      const errorMessage = await browser
+        .$(Selectors.ConnectionToastErrorText)
+        .getText();
+      expect(errorMessage).to.equal(
+        'There was a problem connecting to 127.0.0.1:27091'
+      );
+    } else {
+      const errorMessage = await browser
+        .$(Selectors.ConnectionFormErrorMessage)
+        .getText();
+      expect(errorMessage).to.equal('Authentication failed.');
     }
   });
 

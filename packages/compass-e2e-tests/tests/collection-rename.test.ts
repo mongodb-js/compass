@@ -11,7 +11,6 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
 import * as Selectors from '../helpers/selectors';
 
-import { setFeature } from '../helpers/commands';
 const initialName = 'numbers';
 const newName = 'renamed';
 
@@ -114,7 +113,7 @@ describe('Collection Rename Modal', () => {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
 
-    await setFeature(browser, 'enableRenameCollectionModal', true);
+    await browser.setFeature('enableRenameCollectionModal', true);
   });
 
   beforeEach(async function () {
