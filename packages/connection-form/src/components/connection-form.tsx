@@ -28,8 +28,9 @@ import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectionFormActions, {
+import {
   ConnectionFormModalActions,
+  LegacyConnectionFormActions,
 } from './connection-form-actions';
 import {
   useConnectForm,
@@ -637,7 +638,7 @@ function ConnectionForm({
             />
           )}
           {!isMultiConnectionEnabled && (
-            <ConnectionFormActions
+            <LegacyConnectionFormActions
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
               saveButton={

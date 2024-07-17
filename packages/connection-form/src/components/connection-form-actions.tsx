@@ -38,7 +38,7 @@ const saveAndConnectStyles = css({
   justifyContent: 'flex-end',
 });
 
-function ConnectFormActions({
+export function LegacyConnectionFormActions({
   errors,
   warnings,
   onConnectClicked,
@@ -180,11 +180,9 @@ export function ConnectionFormModalActions({
           variant={ButtonVariant.Primary}
           onClick={onSaveAndConnect}
         >
-          Save & Connect
+          Save &amp; Connect
         </Button>
       </div>
     </div>
   );
 }
-
-export default ConnectFormActions;

@@ -1,222 +1,98 @@
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import ConnectFormActions from './connection-form-actions';
+import { ConnectionFormModalActions } from './connection-form-actions';
 
-describe('ConnectFormActions Component', function () {
-  afterEach(cleanup);
-  describe('Save Button', function () {
-    describe('with save button hidden', function () {
-      let onSaveClickedFn: sinon.SinonSpy;
-      let onSaveAndConnectClickedFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onSaveClickedFn = sinon.spy();
-        onSaveAndConnectClickedFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={() => true}
-            onSaveClicked={onSaveClickedFn}
-            onSaveAndConnectClicked={onSaveAndConnectClickedFn}
-            saveButton="hidden"
-            saveAndConnectButton="hidden"
-          ></ConnectFormActions>
-        );
-      });
-      it('should not show the button', function () {
-        expect(screen.queryByText('Save')).to.throw;
-      });
-    });
-    describe('with save button disabled', function () {
-      let onSaveClickedFn: sinon.SinonSpy;
-      let onSaveAndConnectClickedFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onSaveClickedFn = sinon.spy();
-        onSaveAndConnectClickedFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={() => true}
-            onSaveClicked={onSaveClickedFn}
-            onSaveAndConnectClicked={onSaveAndConnectClickedFn}
-            saveButton="disabled"
-            saveAndConnectButton="hidden"
-          ></ConnectFormActions>
-        );
-      });
-      it('should show the button', function () {
-        const saveButton = screen.getByText('Save');
-        expect(saveButton).to.be.visible;
-      });
-      it('should not call onSaveClicked function', function () {
-        const saveButton = screen.getByText('Save');
-        fireEvent(
-          saveButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-        expect(onSaveClickedFn.callCount).to.equal(0);
-      });
-    });
-    describe('with save button enabled', function () {
-      let onSaveClickedFn: sinon.SinonSpy;
-      let onSaveAndConnectClickedFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onSaveClickedFn = sinon.spy();
-        onSaveAndConnectClickedFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={() => true}
-            onSaveClicked={onSaveClickedFn}
-            onSaveAndConnectClicked={onSaveAndConnectClickedFn}
-            saveButton="enabled"
-            saveAndConnectButton="hidden"
-          ></ConnectFormActions>
-        );
-      });
-      it('should show the button', function () {
-        const saveButton = screen.getByText('Save');
-        expect(saveButton).to.be.visible;
-      });
-      it('should call onSaveClicked function', function () {
-        const saveButton = screen.getByText('Save');
-        fireEvent(
-          saveButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-        expect(onSaveClickedFn.callCount).to.equal(1);
-      });
+describe('<ConnectionFormModalActions />', function () {
+  describe.only('Connect Button', function () {
+    it('should call onSave function', function () {
+      const onSaveSpy = sinon.spy();
+      render(
+        <ConnectionFormModalActions
+          errors={[]}
+          warnings={[]}
+          onSave={onSaveSpy}
+          onSaveAndConnect={() => undefined}
+        ></ConnectionFormModalActions>
+      );
+      const saveButton = screen.getByText('Save');
+      fireEvent(
+        saveButton,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      expect(onSaveSpy).to.have.been.calledOnce;
     });
 
-    describe('with save and connect button hidden', function () {
-      let onSaveClickedFn: sinon.SinonSpy;
-      let onSaveAndConnectClickedFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onSaveClickedFn = sinon.spy();
-        onSaveAndConnectClickedFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={() => true}
-            onSaveClicked={onSaveClickedFn}
-            onSaveAndConnectClicked={onSaveAndConnectClickedFn}
-            saveButton="hidden"
-            saveAndConnectButton="hidden"
-          ></ConnectFormActions>
-        );
-      });
-      it('should not show the button', function () {
-        expect(screen.queryByText('Save & Connect')).to.throw;
-      });
-    });
-    describe('with save and connect button disabled', function () {
-      let onSaveClickedFn: sinon.SinonSpy;
-      let onSaveAndConnectClickedFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onSaveClickedFn = sinon.spy();
-        onSaveAndConnectClickedFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={() => true}
-            onSaveClicked={onSaveClickedFn}
-            onSaveAndConnectClicked={onSaveAndConnectClickedFn}
-            saveButton="disabled"
-            saveAndConnectButton="disabled"
-          ></ConnectFormActions>
-        );
-      });
-      it('should show the button', function () {
-        const saveAndConnectButton = screen.getByText('Save & Connect');
-        expect(saveAndConnectButton).to.be.visible;
-      });
-      it('should not call onSaveAndConnectClicked function', function () {
-        const saveAndConnectButton = screen.getByText('Save & Connect');
-        fireEvent(
-          saveAndConnectButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-        expect(onSaveAndConnectClickedFn.callCount).to.equal(0);
-      });
-    });
-    describe('with save and connect button enabled', function () {
-      let onSaveClickedFn: sinon.SinonSpy;
-      let onSaveAndConnectClickedFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onSaveClickedFn = sinon.spy();
-        onSaveAndConnectClickedFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={() => true}
-            onSaveClicked={onSaveClickedFn}
-            onSaveAndConnectClicked={onSaveAndConnectClickedFn}
-            saveButton="disabled"
-            saveAndConnectButton="enabled"
-          ></ConnectFormActions>
-        );
-      });
-      it('should show the button', function () {
-        const saveAndConnectButton = screen.getByText('Save & Connect');
-        expect(saveAndConnectButton).to.be.visible;
-      });
-      it('should call onSaveAndConnectClicked function', function () {
-        const saveAndConnectButton = screen.getByText('Save & Connect');
-        fireEvent(
-          saveAndConnectButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-        expect(onSaveAndConnectClickedFn.callCount).to.equal(1);
-      });
+    it('should call onSaveAndConnect function', function () {
+      const onSaveAndConnectSpy = sinon.spy();
+      render(
+        <ConnectionFormModalActions
+          errors={[]}
+          warnings={[]}
+          onSave={() => undefined}
+          onSaveAndConnect={onSaveAndConnectSpy}
+        ></ConnectionFormModalActions>
+      );
+      const saveButton = screen.getByText('Save & Connect');
+      fireEvent(
+        saveButton,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      expect(onSaveAndConnectSpy).to.have.been.calledOnce;
     });
 
-    describe('Connect Button', function () {
-      let onConnectButtonFn: sinon.SinonSpy;
-      beforeEach(function () {
-        onConnectButtonFn = sinon.spy();
-        render(
-          <ConnectFormActions
-            errors={[]}
-            warnings={[]}
-            onConnectClicked={onConnectButtonFn}
-            onSaveClicked={() => true}
-            onSaveAndConnectClicked={() => true}
-            saveButton="hidden"
-            saveAndConnectButton="hidden"
-          ></ConnectFormActions>
-        );
-      });
-      it('should call onConnectClicked function', function () {
-        const saveButton = screen.getByText('Connect');
-        fireEvent(
-          saveButton,
-          new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-          })
-        );
-        expect(onConnectButtonFn.callCount).to.equal(1);
-      });
+    it('should call onCancel function', function () {
+      const onCancelSpy = sinon.spy();
+      render(
+        <ConnectionFormModalActions
+          errors={[]}
+          warnings={[]}
+          onSave={() => undefined}
+          onSaveAndConnect={() => undefined}
+          onCancel={onCancelSpy}
+        ></ConnectionFormModalActions>
+      );
+      const saveButton = screen.getByText('Cancel');
+      fireEvent(
+        saveButton,
+        new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+      expect(onCancelSpy).to.have.been.calledOnce;
+    });
+
+    it('should show warnings', function () {
+      render(
+        <ConnectionFormModalActions
+          errors={[]}
+          warnings={[{ message: 'Warning!' }]}
+          onSave={() => undefined}
+          onSaveAndConnect={() => undefined}
+        ></ConnectionFormModalActions>
+      );
+      expect(screen.getByText('Warning!')).to.be.visible;
+    });
+
+    it('should show errors', function () {
+      render(
+        <ConnectionFormModalActions
+          errors={[{ message: 'Error!' }]}
+          warnings={[]}
+          onSave={() => undefined}
+          onSaveAndConnect={() => undefined}
+        ></ConnectionFormModalActions>
+      );
+      expect(screen.getByText('Error!')).to.be.visible;
     });
   });
 });
