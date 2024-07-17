@@ -178,7 +178,10 @@ export function useConnections({
   cancelConnectionAttempt: (
     connectionId: ConnectionInfo['id']
   ) => Promise<void>;
-  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  connect: (
+    connectionInfo: ConnectionInfo,
+    legacyShouldSaveConnectionInfo?: boolean
+  ) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
   createDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
@@ -293,12 +296,12 @@ export function useConnections({
     async (
       connectionInfo: ConnectionInfo,
       dataService: DataService,
-      shouldSaveConnectionInfo: boolean
+      legacyShouldSaveConnectionInfo?: boolean // TODO: cleanup COMPASS-7906
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected?.(connectionInfo, dataService);
-        if (!shouldSaveConnectionInfo) return;
+        if (!legacyShouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
         if (persistOIDCTokens) {
@@ -359,7 +362,7 @@ export function useConnections({
     _connectionInfo:
       | ConnectionInfo
       | (() => Promise<ConnectionInfo | undefined>),
-    shouldSaveConnectionInfo = true
+    legacyShouldSaveConnectionInfo?: boolean
   ) => {
     const isAutoconnectAttempt = typeof _connectionInfo === 'function';
     let connectionInfo: ConnectionInfo;
@@ -426,7 +429,7 @@ export function useConnections({
       void onConnectSuccess(
         connectionInfo,
         newConnectionDataService,
-        shouldSaveConnectionInfo
+        legacyShouldSaveConnectionInfo
       );
 
       debug(
