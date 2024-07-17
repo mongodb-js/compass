@@ -247,7 +247,6 @@ async function assertCannotCreateDb(
 
 async function assertCannotCreateCollection(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take into account connectionName
   connectionName: string,
   dbName: string,
   collectionName: string
