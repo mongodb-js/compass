@@ -252,12 +252,16 @@ async function assertCannotCreateCollection(
   dbName: string,
   collectionName: string
 ): Promise<void> {
+  const connectionId = await browser.getConnectionIdByName(connectionName);
+
   // open create collection modal from the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-  const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+  const dbElement = await browser.$(
+    Selectors.sidebarDatabase(connectionId, dbName)
+  );
   await dbElement.waitForDisplayed();
-  await browser.hover(Selectors.sidebarDatabase(dbName));
+  await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
   await browser.clickVisible(Selectors.CreateCollectionButton);
 
   const createModalElement = await browser.$(Selectors.CreateCollectionModal);

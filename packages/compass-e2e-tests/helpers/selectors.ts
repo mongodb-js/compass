@@ -335,21 +335,26 @@ export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
-// TODO: this should take a connnectionId
-export const sidebarDatabase = (dbName: string): string => {
-  return `${Sidebar} [data-database-name="${dbName}"]`;
+export const sidebarDatabase = (
+  connectionId: string,
+  dbName: string
+): string => {
+  return `${Sidebar} [data-connection-id="${connectionId}"][data-database-name="${dbName}"]`;
 };
 
-export const sidebarDatabaseToggle = (dbName: string): string => {
-  return `${sidebarDatabase(dbName)} button[type=button]`;
+export const sidebarDatabaseToggle = (
+  connectionId: string,
+  dbName: string
+): string => {
+  return `${sidebarDatabase(connectionId, dbName)} button[type=button]`;
 };
 
-// TODO: this should take a connnectionId
 export const sidebarCollection = (
+  connectionId: string,
   dbName: string,
   collectionName: string
 ): string => {
-  return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
+  return `${Sidebar} [data-connection-id="${connectionId}"][data-namespace="${dbName}.${collectionName}"]`;
 };
 
 export const sidebarConnection = (connectionName: string): string => {

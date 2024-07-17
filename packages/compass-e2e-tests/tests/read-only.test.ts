@@ -88,12 +88,18 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
+    const connectionId = await browser.getConnectionIdByName(
+      DEFAULT_CONNECTION_NAME
+    );
+
     const dbName = 'test'; // existing db
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-    const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+    const dbElement = await browser.$(
+      Selectors.sidebarDatabase(connectionId, dbName)
+    );
     await dbElement.waitForDisplayed();
-    await browser.hover(Selectors.sidebarDatabase(dbName));
+    await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
 
     let sidebarCreateCollectionButton = await browser.$(
       Selectors.CreateCollectionButton

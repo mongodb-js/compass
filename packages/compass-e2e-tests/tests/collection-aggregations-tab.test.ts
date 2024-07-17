@@ -72,15 +72,19 @@ async function getDocuments(browser: CompassBrowser) {
 
 async function chooseCollectionAction(
   browser: CompassBrowser,
+  connectionName: string,
   dbName: string,
   collectionName: string,
   actionName: string
 ) {
+  const connectionId = await browser.getConnectionIdByName(connectionName);
+
   // search for the view in the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
 
   const collectionSelector = Selectors.sidebarCollection(
+    connectionId,
     dbName,
     collectionName
   );
@@ -476,6 +480,7 @@ describe('Collection aggregations tab', function () {
     // choose Duplicate view
     await chooseCollectionAction(
       browser,
+      DEFAULT_CONNECTION_NAME,
       'test',
       'my-view-from-pipeline',
       'duplicate-view'
@@ -504,6 +509,7 @@ describe('Collection aggregations tab', function () {
     // now select modify view of the non-duplicate
     await chooseCollectionAction(
       browser,
+      DEFAULT_CONNECTION_NAME,
       'test',
       'my-view-from-pipeline',
       'modify-view'

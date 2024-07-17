@@ -12,7 +12,10 @@ async function navigateToCollection(
   // state of Schema, and Validation tabs without re-connecting.
   closeExistingTabs = true
 ): Promise<void> {
+  const connectionId = await browser.getConnectionIdByName(connectionName);
+
   const collectionSelector = Selectors.sidebarCollection(
+    connectionId,
     dbName,
     collectionName
   );

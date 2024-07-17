@@ -3,17 +3,23 @@ import * as Selectors from '../selectors';
 
 export async function dropCollectionFromSidebar(
   browser: CompassBrowser,
+  connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
+  const connectionId = await browser.getConnectionIdByName(connectionName);
+
   // search for the collecton in the sidebar filter
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
-  const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+  const dbElement = await browser.$(
+    Selectors.sidebarDatabase(connectionId, dbName)
+  );
   await dbElement.waitForDisplayed();
 
   // wait for the collection to become displayed
   const collectionSelector = Selectors.sidebarCollection(
+    connectionId,
     dbName,
     collectionName
   );
