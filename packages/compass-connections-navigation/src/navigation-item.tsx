@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { isLocalhost } from 'mongodb-build-info';
 import {
   Icon,
-  ServerIcon,
   cx,
   css,
   palette,
@@ -17,7 +15,7 @@ import type { NavigationItemActions } from './item-actions';
 import type { SidebarTreeItem, SidebarActionableItem } from './tree-data';
 import { getTreeItemStyles } from './utils';
 import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
-import { WithStatusMarker } from './with-status-marker';
+import { ConnectionIcon } from '@mongodb-js/compass-connections';
 import type { Actions } from './constants';
 
 const nonGenuineBtnStyles = css({
@@ -124,25 +122,11 @@ export function NavigationItem({
       return <Icon glyph="TimeSeries" />;
     }
     if (item.type === 'connection') {
-      const isFavorite = item.connectionInfo.savedConnectionType === 'favorite';
-      if (isFavorite) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Favorite" />
-          </WithStatusMarker>
-        );
-      }
-      if (isLocalhost(item.connectionInfo.connectionOptions.connectionString)) {
-        return (
-          <WithStatusMarker status={item.connectionStatus}>
-            <Icon glyph="Laptop" />
-          </WithStatusMarker>
-        );
-      }
       return (
-        <WithStatusMarker status={item.connectionStatus}>
-          <ServerIcon />
-        </WithStatusMarker>
+        <ConnectionIcon
+          connectionInfo={item.connectionInfo}
+          withStatus={item.connectionStatus}
+        />
       );
     }
   }, [item]);

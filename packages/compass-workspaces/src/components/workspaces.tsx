@@ -41,6 +41,7 @@ import {
   useTabConnectionTheme,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
+import { ConnectionIcon } from '@mongodb-js/compass-connections';
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -153,7 +154,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { log, mongoLogId } = useLogger('COMPASS-WORKSPACES');
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
-  const { getConnectionTitleById } = useConnectionRepository();
+  const { getConnectionTitleById, getConnectionInfoById } =
+    useConnectionRepository();
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -182,13 +184,16 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Databases': {
-          const connectionName = getConnectionTitleById(tab.connectionId);
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const connectionInfo = getConnectionInfoById(tab.connectionId);
           return {
             id: tab.id,
             connectionName,
             type: tab.type,
             title: connectionName,
-            iconGlyph: 'Database',
+            icon: connectionInfo && (
+              <ConnectionIcon connectionInfo={connectionInfo} />
+            ),
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
@@ -246,7 +251,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [tabs, collectionInfo, getThemeOf, getConnectionTitleById]);
+  }, [
+    tabs,
+    collectionInfo,
+    getThemeOf,
+    getConnectionTitleById,
+    getConnectionInfoById,
+  ]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 

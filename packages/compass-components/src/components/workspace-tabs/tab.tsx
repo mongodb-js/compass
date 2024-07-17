@@ -191,11 +191,19 @@ type TabProps = {
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: IconGlyph | 'Logo';
   tabContentId: string;
   subtitle?: string;
   tabTheme?: TabTheme;
-};
+} & (
+  | {
+      iconGlyph: IconGlyph | 'Logo';
+      icon?: undefined;
+    }
+  | {
+      iconGlyph?: undefined;
+      icon: React.ReactElement;
+    }
+);
 
 function Tab({
   connectionName,
@@ -207,6 +215,7 @@ function Tab({
   onClose,
   tabContentId,
   iconGlyph,
+  icon,
   subtitle,
   tabTheme,
   ...props
@@ -271,7 +280,7 @@ function Tab({
           data-testid={`workspace-tab-icon-${iconGlyph}`}
         />
       )}
-      {iconGlyph !== 'Logo' && (
+      {iconGlyph && iconGlyph !== 'Logo' && (
         <Icon
           size="small"
           role="presentation"
@@ -280,6 +289,7 @@ function Tab({
           data-testid={`workspace-tab-icon-${iconGlyph}`}
         />
       )}
+      {icon && icon}
 
       <div className={tabTitleContainerStyles}>
         <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>
