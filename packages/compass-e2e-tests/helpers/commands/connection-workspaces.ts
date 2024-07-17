@@ -1,6 +1,7 @@
 import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
+import type { WorkspaceTabSelectorOptions } from '../selectors';
 
 export async function navigateToConnectionTab(
   browser: CompassBrowser,
@@ -30,7 +31,13 @@ export async function waitUntilActiveConnectionTab(
   connectionName: string,
   tabName: 'Performance' | 'Databases'
 ) {
-  await browser
-    .$(Selectors.workspaceTab({ connectionName, title: tabName, active: true }))
-    .waitForDisplayed();
+  const options: WorkspaceTabSelectorOptions = { title: tabName, active: true };
+
+  // Only add the connectionName for multiple connections because for some
+  // reason this sometimes flakes in single connections even though the tab is
+  // definitely there in the screenshot.
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    options.connectionName = connectionName;
+  }
+  await browser.$(Selectors.workspaceTab(options)).waitForDisplayed();
 }
