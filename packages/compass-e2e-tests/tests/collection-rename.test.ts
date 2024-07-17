@@ -7,6 +7,7 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
@@ -61,9 +62,9 @@ async function navigateToCollectionInSidebar(browser: CompassBrowser) {
   const sidebar = await browser.$(Selectors.SidebarNavigationTree);
   await sidebar.waitForDisplayed();
 
-  const connectionId = await browser.getConnectionIdByName(
-    DEFAULT_CONNECTION_NAME
-  );
+  const connectionId = TEST_MULTIPLE_CONNECTIONS
+    ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
+    : undefined;
 
   // open the database in the sidebar
   const dbElement = await browser.$(
@@ -116,7 +117,7 @@ async function renameCollectionSuccessFlow(
 describe('Collection Rename Modal', () => {
   let compass: Compass;
   let browser: CompassBrowser;
-  let connectionId: string;
+  let connectionId: string | undefined;
 
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
@@ -134,7 +135,9 @@ describe('Collection Rename Modal', () => {
     await createBlankCollection(databaseName, 'bar');
 
     await browser.connectWithConnectionString();
-    connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
+    connectionId = TEST_MULTIPLE_CONNECTIONS
+      ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
+      : undefined;
   });
 
   after(async function () {

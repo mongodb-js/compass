@@ -6,6 +6,7 @@ export async function getConnectionIdByName(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<string> {
+  // NOTE: this is only supported for multiple connections
   return await browser
     .$(Selectors.sidebarConnection(connectionName))
     .getAttribute('data-connection-id');

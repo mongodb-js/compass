@@ -336,25 +336,31 @@ export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
 export const sidebarDatabase = (
-  connectionId: string,
+  connectionId: string | undefined,
   dbName: string
 ): string => {
-  return `${Sidebar} [data-connection-id="${connectionId}"][data-database-name="${dbName}"]`;
+  if (connectionId) {
+    return `${Sidebar} [data-connection-id="${connectionId}"][data-database-name="${dbName}"]`;
+  }
+  return `${Sidebar} [data-database-name="${dbName}"]`;
 };
 
 export const sidebarDatabaseToggle = (
-  connectionId: string,
+  connectionId: string | undefined,
   dbName: string
 ): string => {
   return `${sidebarDatabase(connectionId, dbName)} button[type=button]`;
 };
 
 export const sidebarCollection = (
-  connectionId: string,
+  connectionId: string | undefined,
   dbName: string,
   collectionName: string
 ): string => {
-  return `${Sidebar} [data-connection-id="${connectionId}"][data-namespace="${dbName}.${collectionName}"]`;
+  if (connectionId) {
+    return `${Sidebar} [data-connection-id="${connectionId}"][data-namespace="${dbName}.${collectionName}"]`;
+  }
+  return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
 };
 
 export const sidebarConnection = (connectionName: string): string => {

@@ -88,9 +88,9 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    const connectionId = await browser.getConnectionIdByName(
-      DEFAULT_CONNECTION_NAME
-    );
+    const connectionId = TEST_MULTIPLE_CONNECTIONS
+      ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
+      : undefined;
 
     const dbName = 'test'; // existing db
     await browser.clickVisible(Selectors.SidebarFilterInput);

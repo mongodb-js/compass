@@ -19,7 +19,7 @@ const { expect } = chai;
 describe('Instance sidebar', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-  let connectionId: string;
+  let connectionId: string | undefined;
 
   before(async function () {
     compass = await init(this.test?.fullTitle());
@@ -29,7 +29,9 @@ describe('Instance sidebar', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
+    connectionId = TEST_MULTIPLE_CONNECTIONS
+      ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
+      : undefined;
   });
 
   after(async function () {

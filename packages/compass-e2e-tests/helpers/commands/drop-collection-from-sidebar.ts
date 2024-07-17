@@ -1,3 +1,4 @@
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -7,7 +8,9 @@ export async function dropCollectionFromSidebar(
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = TEST_MULTIPLE_CONNECTIONS
+    ? await browser.getConnectionIdByName(connectionName)
+    : undefined;
 
   // search for the collecton in the sidebar filter
   await browser.clickVisible(Selectors.SidebarFilterInput);

@@ -252,7 +252,9 @@ async function assertCannotCreateCollection(
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = TEST_MULTIPLE_CONNECTIONS
+    ? await browser.getConnectionIdByName(connectionName)
+    : undefined;
 
   // open create collection modal from the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
