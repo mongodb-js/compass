@@ -336,6 +336,7 @@ export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
 export const sidebarDatabase = (
+  // TODO(COMPASS-7906): don't allow undefined connectionId
   connectionId: string | undefined,
   dbName: string
 ): string => {
@@ -346,6 +347,7 @@ export const sidebarDatabase = (
 };
 
 export const sidebarDatabaseToggle = (
+  // TODO(COMPASS-7906): don't allow undefined connectionId
   connectionId: string | undefined,
   dbName: string
 ): string => {
@@ -353,6 +355,7 @@ export const sidebarDatabaseToggle = (
 };
 
 export const sidebarCollection = (
+  // TODO(COMPASS-7906): don't allow undefined connectionId
   connectionId: string | undefined,
   dbName: string,
   collectionName: string
