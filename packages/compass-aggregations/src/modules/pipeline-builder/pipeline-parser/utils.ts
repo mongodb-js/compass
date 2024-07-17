@@ -1,6 +1,6 @@
 import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
-import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
 
