@@ -345,11 +345,11 @@ describe('OIDC integration', function () {
     );
 
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     await browser.selectConnection(favoriteName);
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
@@ -369,7 +369,7 @@ describe('OIDC integration', function () {
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     await browser.screenshot(
       `after-disconnecting-favourite-${favoriteName}.png`
@@ -378,7 +378,7 @@ describe('OIDC integration', function () {
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
     await browser.selectConnection(favoriteName);
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.equal(
@@ -396,7 +396,7 @@ describe('OIDC integration', function () {
     );
 
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
@@ -412,7 +412,7 @@ describe('OIDC integration', function () {
 
     await browser.selectConnection(favoriteName);
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
   });

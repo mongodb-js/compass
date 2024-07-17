@@ -154,9 +154,16 @@ describe('Instance sidebar', function () {
     }
 
     // open the create database modal from the sidebar
-    await browser.clickVisible(Sidebar.CreateDatabaseButton, {
-      screenshot: 'before-can-create-a-database-and-drop-it-click.png',
-    });
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(
+        Selectors.sidebarConnectionActionButton(
+          connectionName,
+          Sidebar.CreateDatabaseButton
+        )
+      );
+    } else {
+      await browser.clickVisible(Sidebar.CreateDatabaseButton);
+    }
 
     await browser.addDatabase(dbName, collectionName);
 

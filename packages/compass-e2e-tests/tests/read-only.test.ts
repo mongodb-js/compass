@@ -52,9 +52,16 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.navigateToConnectionTab(connectionName, 'Databases');
     }
 
-    expect(
-      await browser.$(Sidebar.CreateDatabaseButton).isExisting()
-    ).to.be.equal(false);
+    const addDatabaseSelector = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.sidebarConnectionActionButton(
+          connectionName,
+          Sidebar.CreateDatabaseButton
+        )
+      : Sidebar.CreateDatabaseButton;
+
+    expect(await browser.$(addDatabaseSelector).isExisting()).to.be.equal(
+      false
+    );
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -71,9 +78,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.navigateToConnectionTab(connectionName, 'Databases');
     }
 
-    expect(
-      await browser.$(Sidebar.CreateDatabaseButton).isExisting()
-    ).to.be.equal(true);
+    expect(await browser.$(addDatabaseSelector).isExisting()).to.be.equal(true);
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
