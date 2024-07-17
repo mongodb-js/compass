@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
+  Icon,
   MongoDBLogoMark,
   WorkspaceTabs,
   css,
@@ -191,8 +192,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             connectionName,
             type: tab.type,
             title: connectionName,
-            icon: connectionInfo && (
+            icon: connectionInfo ? (
               <ConnectionIcon connectionInfo={connectionInfo} />
+            ) : (
+              <Icon glyph="Database" />
             ),
             tabTheme: getThemeOf(tab.connectionId),
           } as const;

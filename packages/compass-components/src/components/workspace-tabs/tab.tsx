@@ -183,6 +183,16 @@ const selectedCloseButtonStyles = css({
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
 
+export type IconOrIconGlyph =
+  | {
+      iconGlyph: IconGlyph | 'Logo';
+      icon?: never;
+    }
+  | {
+      iconGlyph?: never;
+      icon: React.ReactElement;
+    };
+
 type TabProps = {
   connectionName?: string;
   type: string;
@@ -194,16 +204,7 @@ type TabProps = {
   tabContentId: string;
   subtitle?: string;
   tabTheme?: TabTheme;
-} & (
-  | {
-      iconGlyph: IconGlyph | 'Logo';
-      icon?: undefined;
-    }
-  | {
-      iconGlyph?: undefined;
-      icon: React.ReactElement;
-    }
-);
+} & IconOrIconGlyph;
 
 function Tab({
   connectionName,

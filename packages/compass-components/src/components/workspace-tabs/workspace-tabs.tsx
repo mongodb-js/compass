@@ -8,7 +8,6 @@ import React, {
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { glyphs } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
 
 import {
@@ -28,7 +27,7 @@ import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
-import { Tab } from './tab';
+import { type IconOrIconGlyph, Tab } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
 
 export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
@@ -175,16 +174,7 @@ export type TabProps = {
   subtitle?: string;
   connectionId?: string;
 } & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'> &
-  (
-    | {
-        iconGlyph: Extract<keyof typeof glyphs, string> | 'Logo';
-        icon?: undefined;
-      }
-    | {
-        iconGlyph?: undefined;
-        icon: React.ReactElement;
-      }
-  );
+  IconOrIconGlyph;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,
