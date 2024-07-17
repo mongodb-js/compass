@@ -1,7 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
 import {
   fireEvent,
   render,
@@ -53,7 +52,6 @@ describe('CrudToolbar Component', function () {
   function renderCrudToolbar(
     props?: Partial<React.ComponentProps<typeof CrudToolbar>>
   ) {
-    const appRegistry = new AppRegistry();
     const queryBarProps = {};
 
     return render(
@@ -66,7 +64,8 @@ describe('CrudToolbar Component', function () {
             getPage={noop}
             insertDataHandler={noop}
             loadingCount={false}
-            localAppRegistry={appRegistry}
+            isFetching={false}
+            docsPerPage={25}
             isWritable
             instanceDescription=""
             onApplyClicked={noop}
@@ -81,6 +80,7 @@ describe('CrudToolbar Component', function () {
             resultId="123"
             start={0}
             viewSwitchHandler={noop}
+            updateMaxDocumentsPerPage={noop}
             queryLimit={0}
             querySkip={0}
             {...props}
@@ -436,6 +436,26 @@ describe('CrudToolbar Component', function () {
           'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
         )
       ).to.be.visible;
+    });
+  });
+
+  describe('documents per page select', function () {
+    it('should render a select to update documents fetched per page', function () {
+      renderCrudToolbar();
+      expect(screen.getByLabelText('Update number of documents per page')).to.be
+        .visible;
+    });
+
+    it('should call updateDocumentsPerPage when select value changes', function () {
+      const stub = sinon.stub();
+      renderCrudToolbar({
+        updateMaxDocumentsPerPage: stub,
+      });
+      userEvent.click(
+        screen.getByLabelText('Update number of documents per page')
+      );
+      userEvent.click(screen.getByText('75'));
+      expect(stub).to.be.calledWithExactly(75);
     });
   });
 });

@@ -140,6 +140,8 @@ export type DocumentListProps = {
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
+    | 'docsPerPage'
+    | 'updateMaxDocumentsPerPage'
   >;
 
 const DocumentViewComponent: React.FunctionComponent<
@@ -206,6 +208,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     closeBulkUpdateModal,
     updateBulkUpdatePreview,
     runBulkUpdate,
+    docsPerPage,
+    updateMaxDocumentsPerPage,
   } = props;
 
   const onOpenInsert = useCallback(
@@ -344,18 +348,38 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     'documents-list-initial-scroll-top',
     0
   );
+  const initialScrollTopRef = useRef(initialScrollTop);
+  initialScrollTopRef.current = initialScrollTop;
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = initialScrollTop;
+      scrollRef.current.scrollTop = initialScrollTopRef.current;
     }
 
     return () => {
       setInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
     };
-  }, [initialScrollTop, setInitialScrollTop]);
+  }, [setInitialScrollTop]);
+
+  // Preserve the scroll top when documents are refreshed
+  useLayoutEffect(() => {
+    if (scrollRef.current && !isFetching) {
+      scrollRef.current.scrollTop = initialScrollTopRef.current;
+    }
+  }, [isFetching]);
+
+  const handleMaxDocsPerPageChanged = useCallback(
+    (newDocsPerPage: number) => {
+      const scrollTop = scrollRef.current?.scrollTop ?? 0;
+      updateMaxDocumentsPerPage(newDocsPerPage);
+      if (newDocsPerPage > docsPerPage) {
+        setInitialScrollTop(scrollTop);
+      }
+    },
+    [docsPerPage, setInitialScrollTop, updateMaxDocumentsPerPage]
+  );
 
   return (
     <div className={documentsContainerStyles} data-testid="compass-crud">
@@ -367,6 +391,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             activeDocumentView={view}
             error={error}
             count={count}
+            isFetching={isFetching}
             loadingCount={loadingCount}
             start={start}
             end={end}
@@ -394,6 +419,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               store.openCreateIndexModal.bind(store),
               store.openCreateSearchIndexModal.bind(store)
             )}
+            docsPerPage={docsPerPage}
+            updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
           />
         }
       >

@@ -170,9 +170,9 @@ export const fetchDocuments: (
 };
 
 /**
- * Number of docs per page.
+ * Default number of docs per page.
  */
-const NUM_PAGE_DOCS = 20;
+const DEFAULT_NUM_PAGE_DOCS = 25;
 
 /**
  * Error constant.
@@ -308,6 +308,7 @@ type CrudState = {
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
+  docsPerPage: number;
 };
 
 type CrudStoreActionsOptions = {
@@ -409,6 +410,7 @@ class CrudStoreImpl
       isSearchIndexesSupported: this.options.isSearchIndexesSupported,
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
+      docsPerPage: DEFAULT_NUM_PAGE_DOCS,
     };
   }
 
@@ -489,6 +491,16 @@ class CrudStoreImpl
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
     void navigator.clipboard.writeText(documentEJSON);
+  }
+
+  updateMaxDocumentsPerPage(docsPerPage: number) {
+    const previousDocsPerPage = this.state.docsPerPage;
+    this.setState({
+      docsPerPage,
+    });
+    if (previousDocsPerPage !== docsPerPage) {
+      void this.refreshDocuments();
+    }
   }
 
   /**
@@ -752,7 +764,7 @@ class CrudStoreImpl
    * @param {Number} page - The page that is being shown.
    */
   async getPage(page: number) {
-    const { ns, status } = this.state;
+    const { ns, status, docsPerPage } = this.state;
 
     if (page < 0) {
       return;
@@ -772,10 +784,10 @@ class CrudStoreImpl
       skip: _skip = 0,
     } = this.queryBar.getLastAppliedQuery('crud');
 
-    const skip = _skip + page * NUM_PAGE_DOCS;
+    const skip = _skip + page * docsPerPage;
 
     // nextPageCount will be the number of docs to load
-    let nextPageCount = NUM_PAGE_DOCS;
+    let nextPageCount = docsPerPage;
 
     // Make sure we don't go past the limit if a limit is set
     if (limit) {
@@ -1482,7 +1494,7 @@ class CrudStoreImpl
       return;
     }
 
-    const { ns, status } = this.state;
+    const { ns, status, docsPerPage } = this.state;
     const query = this.queryBar.getLastAppliedQuery('crud');
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
@@ -1544,7 +1556,7 @@ class CrudStoreImpl
       sort: query.sort,
       projection: query.project,
       skip: query.skip,
-      limit: NUM_PAGE_DOCS,
+      limit: docsPerPage,
       collation: query.collation,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
         this.preferences,
@@ -1557,7 +1569,7 @@ class CrudStoreImpl
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
     if (query.limit && query.limit > 0) {
       countOptions.limit = query.limit;
-      findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
+      findOptions.limit = Math.min(docsPerPage, query.limit);
     }
 
     this.logger.log.info(
