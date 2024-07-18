@@ -127,6 +127,10 @@ export type ConnectionFormModalActionsProps = {
   onSaveAndConnect(): void;
 };
 
+// TODO(COMPASS-8098): Make sure these work for VSCode, for example add:
+// saveButton: 'enabled' | 'disabled' | 'hidden';
+// saveAndConnectButton: 'enabled' | 'disabled' | 'hidden';
+// cancelButton: 'enabled' | 'disabled' | 'hidden';
 export function ConnectionFormModalActions({
   errors,
   warnings,
