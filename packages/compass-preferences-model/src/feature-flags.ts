@@ -19,6 +19,7 @@ export type FeatureFlags = {
   showInsights: boolean;
   enableRenameCollectionModal: boolean;
   enableNewMultipleConnectionSystem: boolean;
+  enableQueryHistoryAutocomplete: boolean;
 };
 
 export const featureFlags: Required<{
@@ -71,6 +72,17 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables support for multiple connections.',
       long: 'Allows users to open multiple connections in the same window.',
+    },
+  },
+
+  /**
+   * Feature flag for adding query history items to the query bar autocompletion. COMPASS-8096
+   */
+  enableQueryHistoryAutocomplete: {
+    stage: 'development',
+    description: {
+      short:
+        'Enables showing query history items in the query bar autocomplete.',
     },
   },
 };
