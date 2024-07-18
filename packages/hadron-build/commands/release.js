@@ -23,7 +23,6 @@ const path = require('path');
 const del = require('del');
 const fs = require('fs-extra');
 const _ = require('lodash');
-const async = require('async');
 const asar = require('asar');
 const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
@@ -277,7 +276,7 @@ const transformPackageJson = async(CONFIG, done) => {
       const depEdge = packageNode.edgesOut.get(depName);
       if (!depEdge.to && !depEdge.optional) {
         throw new Error(
-          `Couldn\'t find node for package ${depName} in arborist tree`
+          `Couldn't find node for package ${depName} in arborist tree`
         );
       }
       if (depEdge.to) {
@@ -439,7 +438,7 @@ const createApplicationAsar = (CONFIG, done) => {
     }, done);
   }).catch((err) => {
     if (err) {
-      console.error(err);
+      cli.error(err);
     }
     done();
   });
@@ -498,17 +497,17 @@ exports.run = (argv, done) => {
   cli.debug(`Building distribution: ${target.distribution}`);
 
   const task = (name, fn) => {
-    return function(cb) {
+    return () => (new Promise((resolve, reject) => {
       cli.debug(`start: ${name}`);
-      fn(target, function(err) {
+      fn(target, (err) => {
         if (err) {
           cli.error(err);
-          return cb(err);
+          return reject(err);
         }
         cli.debug(`completed: ${name}`);
-        cb();
+        return resolve();
       });
-    };
+    }));
   };
 
   const skipInstaller =
@@ -517,11 +516,7 @@ exports.run = (argv, done) => {
   const noAsar = process.env.NO_ASAR === 'true' || argv.no_asar;
 
   const tasks = _.flatten([
-    function(cb) {
-      verify.tasks(argv)
-        .then(() => cb())
-        .catch(cb);
-    },
+    () => verify.tasks(argv),
     task('copy npmrc from root', ({ dir }, done) => {
       fs.cp(
         path.resolve(dir, '..', '..', '.npmrc'),
@@ -547,20 +542,18 @@ exports.run = (argv, done) => {
     task('store build configuration as json', writeConfigToJson)
   ].filter(Boolean));
 
-  return async.series(tasks, (_err) => {
-    try {
-      if (_err) {
-        return done(_err);
+  return tasks.reduce((promise, task) => {
+    return promise.then(task);
+  }, Promise.resolve()).then(() => {
+    // clean up copied npmrc
+    fs.rm(path.resolve(target.dir, '.npmrc'), (err) => {
+      if (err) {
+        cli.warn(err.message);
       }
-      done(null, target);
-    } finally {
-      // clean up copied npmrc
-      fs.rm(path.resolve(target.dir, '.npmrc'), (err) => {
-        if (err) {
-          cli.warn(err.message);
-        }
-      });
-    }
+    });
+    done(null, target);
+  }).catch((err) => {
+    done(err);
   });
 };
 
