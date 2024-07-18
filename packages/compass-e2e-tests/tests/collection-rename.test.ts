@@ -7,7 +7,6 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createBlankCollection, dropDatabase } from '../helpers/insert-data';
@@ -62,9 +61,9 @@ async function navigateToCollectionInSidebar(browser: CompassBrowser) {
   const sidebar = await browser.$(Selectors.SidebarNavigationTree);
   await sidebar.waitForDisplayed();
 
-  const connectionId = TEST_MULTIPLE_CONNECTIONS
-    ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
-    : undefined;
+  const connectionId = await browser.getConnectionIdByName(
+    DEFAULT_CONNECTION_NAME
+  );
 
   // open the database in the sidebar
   const dbElement = await browser.$(
@@ -135,9 +134,7 @@ describe('Collection Rename Modal', () => {
     await createBlankCollection(databaseName, 'bar');
 
     await browser.connectWithConnectionString();
-    connectionId = TEST_MULTIPLE_CONNECTIONS
-      ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
-      : undefined;
+    connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
   });
 
   after(async function () {

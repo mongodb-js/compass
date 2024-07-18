@@ -1,4 +1,3 @@
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -7,9 +6,7 @@ export async function dropDatabaseFromSidebar(
   connectionName: string,
   dbName: string
 ): Promise<void> {
-  const connectionId = TEST_MULTIPLE_CONNECTIONS
-    ? await browser.getConnectionIdByName(connectionName)
-    : undefined;
+  const connectionId = await browser.getConnectionIdByName(connectionName);
 
   // search for the database in the sidebar filter
   await browser.clickVisible(Selectors.SidebarFilterInput);

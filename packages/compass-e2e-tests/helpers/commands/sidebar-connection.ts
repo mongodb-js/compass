@@ -5,8 +5,13 @@ import * as Selectors from '../selectors';
 export async function getConnectionIdByName(
   browser: CompassBrowser,
   connectionName: string
-): Promise<string> {
-  // NOTE: this is only supported for multiple connections
+): Promise<string | undefined> {
+  if (!TEST_MULTIPLE_CONNECTIONS) {
+    // the connection id isn't somewhere we can consistently access it in the
+    // single connection world
+    return undefined;
+  }
+
   const connections = await browser.$$(
     Selectors.sidebarConnection(connectionName)
   );

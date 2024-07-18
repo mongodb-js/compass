@@ -9,7 +9,6 @@ import {
   serverSatisfies,
   skipForWeb,
   DEFAULT_CONNECTION_NAME,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -78,9 +77,7 @@ async function chooseCollectionAction(
   collectionName: string,
   actionName: string
 ) {
-  const connectionId = TEST_MULTIPLE_CONNECTIONS
-    ? await browser.getConnectionIdByName(connectionName)
-    : undefined;
+  const connectionId = await browser.getConnectionIdByName(connectionName);
 
   // search for the view in the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);

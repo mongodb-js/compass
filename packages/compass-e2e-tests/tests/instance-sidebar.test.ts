@@ -29,9 +29,7 @@ describe('Instance sidebar', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    connectionId = TEST_MULTIPLE_CONNECTIONS
-      ? await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME)
-      : undefined;
+    connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
   });
 
   after(async function () {

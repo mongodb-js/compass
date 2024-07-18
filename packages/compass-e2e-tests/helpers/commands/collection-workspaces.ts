@@ -1,4 +1,3 @@
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -13,9 +12,7 @@ async function navigateToCollection(
   // state of Schema, and Validation tabs without re-connecting.
   closeExistingTabs = true
 ): Promise<void> {
-  const connectionId = TEST_MULTIPLE_CONNECTIONS
-    ? await browser.getConnectionIdByName(connectionName)
-    : undefined;
+  const connectionId = await browser.getConnectionIdByName(connectionName);
 
   const collectionSelector = Selectors.sidebarCollection(
     connectionId,
