@@ -462,15 +462,18 @@ function ConnectionForm({
         setErrors(formErrors);
         return;
       }
-      const callback =
-        action === 'saveAndConnect'
-          ? onSaveAndConnectClicked
-          : onConnectClicked;
-      callback?.({
-        ...initialConnectionInfo,
-        ...getConnectionInfoToSave(),
-        connectionOptions: updatedConnectionOptions,
-      });
+      if (action === 'saveAndConnect') {
+        onSaveAndConnectClicked?.({
+          ...initialConnectionInfo,
+          ...getConnectionInfoToSave(),
+          connectionOptions: updatedConnectionOptions,
+        });
+      } else {
+        onConnectClicked?.({
+          ...initialConnectionInfo,
+          connectionOptions: updatedConnectionOptions,
+        });
+      }
     },
     [
       initialConnectionInfo,
