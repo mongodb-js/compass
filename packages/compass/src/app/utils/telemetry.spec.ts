@@ -67,6 +67,7 @@ describe('connection tracking', function () {
         ...connectionInfo,
         favorite: { name: 'example' },
         lastUsed: undefined,
+        savedConnectionType: 'favorite',
       },
       logger,
       track
