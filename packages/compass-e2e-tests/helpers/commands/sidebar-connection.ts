@@ -7,6 +7,16 @@ export async function getConnectionIdByName(
   connectionName: string
 ): Promise<string> {
   // NOTE: this is only supported for multiple connections
+  const connections = await browser.$$(
+    Selectors.sidebarConnection(connectionName)
+  );
+
+  if (connections.length !== 1) {
+    throw new Error(
+      `Found ${connections.length} connections named ${connectionName}.`
+    );
+  }
+
   return await browser
     .$(Selectors.sidebarConnection(connectionName))
     .getAttribute('data-connection-id');
