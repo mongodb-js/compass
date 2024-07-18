@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Jul 14 2024.
+This document was automatically generated on Thu Jul 18 2024.
 
 ## List of dependencies
 
@@ -235,10 +235,9 @@ This document was automatically generated on Sun Jul 14 2024.
 | **[domify](#4360a769ee10e827f9ae503aa7ea9aeb9039932fa02ac938316df303704a7fb1)**                                             | 1.4.1        | MIT                                 |
 | **[dset](#0ad3cccee140cec056ad5553443d2c3609cb002e279e2820cada2d6cb85c883d)**                                               | 3.1.3        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
-| **[ejson-shell-parser](#88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b)**                                 | 2.0.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**                          | 1.0.1        | Apache-2.0                          |
-| **[electron](#23de25a47b9c95fe5de7e7d13e9ef6a17313dcbe5903b274bb4b85a165a056f2)**                                           | 29.4.3       | MIT                                 |
+| **[electron](#2d57f0e02aec4ac92532b06902fbe13af26292bde2d718c49f75a8fe02c85fdd)**                                           | 29.4.5       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -422,7 +421,7 @@ This document was automatically generated on Sun Jul 14 2024.
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**                                 | 1.4.2        | Apache-2.0                          |
 | **[mongodb-ns](#68260f4d06e4d16a28d4139e391264d220e891ac6f0fb844b925a0cc37792aff)**                                         | 2.4.2        | MIT                                 |
-| **[mongodb-query-parser](#9f3ddf73a8002fab690b67f0054b65229001a6020a697e3ea8103b39dc20dd94)**                               | 4.1.2        | Apache-2.0                          |
+| **[mongodb-query-parser](#54882af81246ce19e8a17d9d9f024887e6dee6567cc6677e67678a3ed61281a3)**                               | 4.2.0        | Apache-2.0                          |
 | **[mongodb-redact](#5e6afee018104befaaf45f0b7eb3cf888cb0b1f2ce3a1ff5f74baafd43a4c627)**                                     | 1.1.1        | Apache-2.0                          |
 | **[mongodb-schema](#652dcef4a8a39849996a5f858fe48048e806fda4ce1aa0f757ada56bef011145)**                                     | 12.2.0       | Apache-2.0                          |
 | **[mongodb](#d7483daab94fde07ac4a7920bd6d7070eec5f48fdf516669acd398920978d9fe)**                                            | 6.7.0        | Apache-2.0                          |
@@ -498,7 +497,7 @@ This document was automatically generated on Sun Jul 14 2024.
 | **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                          | 0.20.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
-| **[semver](#71de4ee7dd984e3cd1e9f57341f55d0ac36409a24466ac2516f5e3dac67a57ff)**                                             | 7.6.2        | ISC                                 |
+| **[semver](#2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b)**                                             | 7.6.3        | ISC                                 |
 | **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**                                               | 0.18.0       | MIT                                 |
 | **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**                                       | 1.15.0       | MIT                                 |
 | **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**                                | 1.2.2        | MIT                                 |
@@ -19555,12 +19554,6 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="88e1a447c02d9ef3274034c023a5ebcec8188381b1bd951de7c57c140f7f3d4b"></a>
-
-### [ejson-shell-parser](https://www.npmjs.com/package/ejson-shell-parser) (version 2.0.1)
-
-License tags: MIT
-
 <a id="e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7"></a>
 
 ### [electron-dl](https://www.npmjs.com/package/electron-dl) (version 3.5.0)
@@ -19793,9 +19786,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="23de25a47b9c95fe5de7e7d13e9ef6a17313dcbe5903b274bb4b85a165a056f2"></a>
+<a id="2d57f0e02aec4ac92532b06902fbe13af26292bde2d718c49f75a8fe02c85fdd"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 29.4.3)
+### [electron](https://www.npmjs.com/package/electron) (version 29.4.5)
 
 License tags: MIT
 
@@ -27383,9 +27376,9 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="9f3ddf73a8002fab690b67f0054b65229001a6020a697e3ea8103b39dc20dd94"></a>
+<a id="54882af81246ce19e8a17d9d9f024887e6dee6567cc6677e67678a3ed61281a3"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.1.2)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.2.0)
 
 License tags: Apache-2.0
 
@@ -36652,9 +36645,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="71de4ee7dd984e3cd1e9f57341f55d0ac36409a24466ac2516f5e3dac67a57ff"></a>
+<a id="2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 7.6.2)
+### [semver](https://www.npmjs.com/package/semver) (version 7.6.3)
 
 License tags: ISC
 

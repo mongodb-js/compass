@@ -10,7 +10,7 @@ import { expect } from 'chai';
 import type { ConnectionOptions, connect } from 'mongodb-data-service';
 import { UUID } from 'bson';
 import sinon from 'sinon';
-import Connections from './connections';
+import Connections from './legacy-connections';
 import { ToastArea } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';

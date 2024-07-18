@@ -489,6 +489,18 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
   };
 };
 
+export const connectionDisconnected = (
+  connectionId: string
+): ImportThunkAction<void> => {
+  return (dispatch, getState, { logger: { debug } }) => {
+    const currentConnectionId = getState().import.connectionId;
+    debug('connectionDisconnected', { connectionId, currentConnectionId });
+    if (connectionId === currentConnectionId) {
+      dispatch(cancelImport());
+    }
+  };
+};
+
 /**
  * Cancels an active import if there is one, noop if not.
  *

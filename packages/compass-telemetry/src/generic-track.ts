@@ -62,6 +62,7 @@ export const createTrack = ({
       parameters.connection_id = connectionInfo.id;
     }
 
+    debug('sendTrack()', event, parameters);
     sendTrack(event, parameters || {});
   };
 

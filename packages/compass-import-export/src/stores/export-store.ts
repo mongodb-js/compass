@@ -3,9 +3,15 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { closeExport, exportReducer, openExport } from '../modules/export';
+import {
+  closeExport,
+  exportReducer,
+  openExport,
+  connectionDisconnected,
+} from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { ConnectionsManagerEvents } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type {
   ConnectionRepositoryAccess,
@@ -108,6 +114,13 @@ export function activatePlugin(
           origin,
         })
       );
+    }
+  );
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connectionId: string) {
+      store.dispatch(connectionDisconnected(connectionId));
     }
   );
 

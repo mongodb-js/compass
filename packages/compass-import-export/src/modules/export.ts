@@ -153,6 +153,20 @@ type CloseExportAction = {
   type: ExportActionTypes.CloseExport;
 };
 
+export const connectionDisconnected = (
+  connectionId: string
+): ExportThunkAction<void> => {
+  return (dispatch, getState, { logger: { debug } }) => {
+    const currentConnectionId = getState().export.connectionId;
+    debug('connectionDisconnected', { connectionId, currentConnectionId });
+    if (connectionId === currentConnectionId) {
+      // unlike cancelExport() close also cancels fieldsToExportAbortController
+      // and it hides the modal
+      dispatch(closeExport());
+    }
+  };
+};
+
 export const closeExport = (): CloseExportAction => ({
   type: ExportActionTypes.CloseExport,
 });
