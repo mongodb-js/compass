@@ -11,7 +11,10 @@ export async function dropCollectionFromSidebar(
 
   // search for the collecton in the sidebar filter
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
+  await browser.setValueVisible(
+    Selectors.SidebarFilterInput,
+    `^(${dbName}|${collectionName})$`
+  );
   const dbElement = await browser.$(
     Selectors.sidebarDatabase(connectionId, dbName)
   );

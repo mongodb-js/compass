@@ -81,7 +81,10 @@ async function chooseCollectionAction(
 
   // search for the view in the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
+  await browser.setValueVisible(
+    Selectors.SidebarFilterInput,
+    `^(${dbName}|${collectionName})$`
+  );
 
   const collectionSelector = Selectors.sidebarCollection(
     connectionId,
