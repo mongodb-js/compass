@@ -512,7 +512,7 @@ exports.run = (argv, done) => {
   cli.debug(`Building distribution: ${target.distribution}`);
 
   const task = (name, fn) => {
-    return () => (new Promise((resolve, reject) => {
+    return () => new Promise((resolve, reject) => {
       cli.debug(`start: ${name}`);
       fn(target, (err) => {
         if (err) {
@@ -522,7 +522,7 @@ exports.run = (argv, done) => {
         cli.debug(`completed: ${name}`);
         return resolve();
       });
-    }));
+    });
   };
 
   const skipInstaller =
