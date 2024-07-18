@@ -332,7 +332,6 @@ export const RenameCollectionButton =
   '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
-export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
 export const sidebarDatabase = (

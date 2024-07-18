@@ -70,56 +70,6 @@ async function getDocuments(browser: CompassBrowser) {
   });
 }
 
-async function chooseCollectionAction(
-  browser: CompassBrowser,
-  connectionName: string,
-  dbName: string,
-  collectionName: string,
-  actionName: string
-) {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
-
-  // search for the view in the sidebar
-  await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(
-    Selectors.SidebarFilterInput,
-    `^(${dbName}|${collectionName})$`
-  );
-
-  const collectionSelector = Selectors.sidebarCollection(
-    connectionId,
-    dbName,
-    collectionName
-  );
-
-  // scroll to the collection if necessary
-  await browser.scrollToVirtualItem(
-    Selectors.SidebarNavigationTree,
-    collectionSelector,
-    'tree'
-  );
-
-  const collectionElement = await browser.$(collectionSelector);
-  await collectionElement.waitForDisplayed();
-
-  // hover over the collection
-  await browser.hover(collectionSelector);
-
-  // click the show collections button
-  // NOTE: This assumes it is currently closed
-  await browser.clickVisible(Selectors.SidebarNavigationItemShowActionsButton);
-
-  const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
-
-  const actionButton = await browser.$(actionSelector);
-
-  // click the action
-  await browser.clickVisible(actionSelector);
-
-  // make sure the menu closed
-  await actionButton.waitForDisplayed({ reverse: true });
-}
-
 async function waitForTab(browser: CompassBrowser, namespace: string) {
   await browser.waitUntil(
     async function () {
@@ -481,8 +431,7 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.my-view-from-pipeline');
 
     // choose Duplicate view
-    await chooseCollectionAction(
-      browser,
+    await browser.selectCollectionMenuItem(
       DEFAULT_CONNECTION_NAME,
       'test',
       'my-view-from-pipeline',
@@ -510,8 +459,7 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.duplicated-view');
 
     // now select modify view of the non-duplicate
-    await chooseCollectionAction(
-      browser,
+    await browser.selectCollectionMenuItem(
       DEFAULT_CONNECTION_NAME,
       'test',
       'my-view-from-pipeline',
@@ -524,6 +472,7 @@ describe('Collection aggregations tab', function () {
     // make sure we're on the aggregations tab, in edit mode
     const modifyBanner = await browser.$(Selectors.ModifySourceBanner);
     await modifyBanner.waitForDisplayed();
+
     expect(await modifyBanner.getText()).to.equal(
       'MODIFYING PIPELINE BACKING "TEST.MY-VIEW-FROM-PIPELINE"'
     );
