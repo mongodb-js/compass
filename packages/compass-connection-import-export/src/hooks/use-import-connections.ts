@@ -105,7 +105,6 @@ export function useImportConnections({
   );
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();
-
   const existingConnections = useMemo(() => {
     // in case of multiple connections all the connections are saved (that used
     // to be favorites in the single connection world) so we need to account for

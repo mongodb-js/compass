@@ -49,11 +49,6 @@ const connectionInfo: ConnectionInfo = {
   },
 };
 
-const activeInactiveConnectionsCount = {
-  active: 3,
-  inactive: 7,
-};
-
 describe('connection tracking', function () {
   let trackUsageStatistics: boolean;
   const logger = createLogger('TEST-CONNECTION');
@@ -154,13 +149,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     const expected = {
       is_localhost: true,
@@ -202,13 +191,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -264,13 +247,7 @@ describe('connection tracking', function () {
         },
       };
 
-      trackNewConnectionEvent(
-        connection,
-        dataService,
-        logger,
-        track,
-        activeInactiveConnectionsCount
-      );
+      trackNewConnectionEvent(connection, dataService, logger, track);
       const [{ properties }] = await trackEvent;
 
       const expected = {
@@ -343,13 +320,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      mockDataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -392,13 +363,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -442,13 +407,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -491,13 +450,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -539,13 +492,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -591,13 +538,7 @@ describe('connection tracking', function () {
             connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
-        trackNewConnectionEvent(
-          connection,
-          dataService,
-          logger,
-          track,
-          activeInactiveConnectionsCount
-        );
+        trackNewConnectionEvent(connection, dataService, logger, track);
         const [{ properties }] = await trackEvent;
         expect(properties.auth_type).to.equal(authMechanism || 'DEFAULT');
       });
@@ -612,13 +553,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.auth_type).to.equal('NONE');
   });
@@ -631,13 +566,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('none');
   });
@@ -655,13 +584,7 @@ describe('connection tracking', function () {
         },
       },
     };
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('ssh');
   });
@@ -674,13 +597,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb+srv://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.is_srv).to.equal(true);
   });
@@ -722,13 +639,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(
-      connection,
-      mockDataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
@@ -779,13 +690,7 @@ describe('connection tracking', function () {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(
-      connection,
-      mockDataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
@@ -858,13 +763,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(
-      connection,
-      dataService,
-      logger,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties, event }] = await trackEvent;
 
     const expected = {
@@ -902,11 +801,7 @@ describe('connection tracking', function () {
   it('tracks a connection disconnected event', async function () {
     const trackEvent = once(process, 'compass:track');
 
-    trackConnectionDisconnectedEvent(
-      connectionInfo,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackConnectionDisconnectedEvent(connectionInfo, track);
     const [{ properties, event }] = await trackEvent;
 
     const expected = {
@@ -920,11 +815,7 @@ describe('connection tracking', function () {
   it('tracks a connection created event', async function () {
     const trackEvent = once(process, 'compass:track');
 
-    trackConnectionCreatedEvent(
-      connectionInfo,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackConnectionCreatedEvent(connectionInfo, track);
     const [{ properties, event }] = await trackEvent;
 
     const expected = {
@@ -939,11 +830,7 @@ describe('connection tracking', function () {
   it('tracks a connection removed event', async function () {
     const trackEvent = once(process, 'compass:track');
 
-    trackConnectionRemovedEvent(
-      connectionInfo,
-      track,
-      activeInactiveConnectionsCount
-    );
+    trackConnectionRemovedEvent(connectionInfo, track);
     const [{ properties, event }] = await trackEvent;
 
     const expected = {

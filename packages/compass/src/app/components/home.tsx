@@ -201,61 +201,30 @@ function Home({
   });
 
   const onConnected = useCallback(
-    (
-      connectionInfo: ConnectionInfo,
-      dataService: DataService,
-      activeAndInactiveConnectionsCount: { active: number; inactive: number }
-    ) => {
-      trackNewConnectionEvent(
-        connectionInfo,
-        dataService,
-        logger,
-        track,
-        activeAndInactiveConnectionsCount
-      );
+    (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      trackNewConnectionEvent(connectionInfo, dataService, logger, track);
       dispatch({ type: 'connected', connectionInfo: connectionInfo });
     },
     [logger, track]
   );
 
   const onDisconnected = useCallback(
-    (
-      connectionInfo: ConnectionInfo | undefined,
-      activeAndInactiveConnectionsCount: { active: number; inactive: number }
-    ) => {
-      trackConnectionDisconnectedEvent(
-        connectionInfo,
-        track,
-        activeAndInactiveConnectionsCount
-      );
+    (connectionInfo: ConnectionInfo | undefined) => {
+      trackConnectionDisconnectedEvent(connectionInfo, track);
     },
     [track]
   );
 
   const onConnectionCreated = useCallback(
-    (
-      connectionInfo: ConnectionInfo | undefined,
-      activeAndInactiveConnectionsCount: { active: number; inactive: number }
-    ) => {
-      trackConnectionCreatedEvent(
-        connectionInfo,
-        track,
-        activeAndInactiveConnectionsCount
-      );
+    (connectionInfo: ConnectionInfo | undefined) => {
+      trackConnectionCreatedEvent(connectionInfo, track);
     },
     [track]
   );
 
   const onConnectionRemoved = useCallback(
-    (
-      connectionInfo: ConnectionInfo | undefined,
-      activeAndInactiveConnectionsCount: { active: number; inactive: number }
-    ) => {
-      trackConnectionRemovedEvent(
-        connectionInfo,
-        track,
-        activeAndInactiveConnectionsCount
-      );
+    (connectionInfo: ConnectionInfo | undefined) => {
+      trackConnectionRemovedEvent(connectionInfo, track);
     },
     [track]
   );

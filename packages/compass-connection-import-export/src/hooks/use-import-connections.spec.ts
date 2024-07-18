@@ -17,11 +17,7 @@ import {
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import {
-  ConnectionsManager,
-  ConnectionsManagerProvider,
-  useConnectionRepository,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
@@ -48,7 +44,6 @@ describe('useImportConnections', function () {
   let tmpdir: string;
   let exampleFile: string;
   let connectionStorage: ConnectionStorage;
-  let connectionsManager: ConnectionsManager;
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
@@ -61,16 +56,10 @@ describe('useImportConnections', function () {
       trackingProps: { context: 'Tests' },
     };
     connectionStorage = new InMemoryConnectionStorage();
-    connectionsManager = new ConnectionsManager({} as any);
     const wrapper: React.FC = ({ children }) =>
       React.createElement(ConnectionStorageProvider, {
         value: connectionStorage,
-        children: [
-          React.createElement(ConnectionsManagerProvider, {
-            value: connectionsManager,
-            children,
-          }),
-        ],
+        children,
       });
     renderHookResult = renderHook(
       (props: Partial<UseImportConnectionsProps> = {}) => {

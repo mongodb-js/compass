@@ -3,7 +3,6 @@ import type { DataService, connect } from 'mongodb-data-service';
 import {
   useConnectionsManagerContext,
   CONNECTION_CANCELED_ERR,
-  ConnectionStatus,
 } from '../provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
@@ -30,11 +29,6 @@ function isOIDCAuth(connectionString: string): boolean {
 type ConnectFn = typeof connect;
 
 export type { ConnectFn };
-
-interface ActiveAndInactiveConnectionsCount {
-  active: number;
-  inactive: number;
-}
 
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -172,21 +166,11 @@ export function useConnections({
 }: {
   onConnected?: (
     connectionInfo: ConnectionInfo,
-    dataService: DataService,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
+    dataService: DataService
   ) => void;
-  onDisconnected?: (
-    connectionInfo: ConnectionInfo | undefined,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
-  onConnectionCreated?: (
-    connectionInfo: ConnectionInfo,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
-  onConnectionRemoved?: (
-    connectionInfo: ConnectionInfo,
-    activeAndInactiveConnectionsCount: ActiveAndInactiveConnectionsCount
-  ) => void;
+  onDisconnected?: (connectionInfo: ConnectionInfo | undefined) => void;
+  onConnectionCreated?: (connectionInfo: ConnectionInfo) => void;
+  onConnectionRemoved?: (connectionInfo: ConnectionInfo) => void;
   onConnectionFailed?: (
     connectionInfo: ConnectionInfo | null,
     error: Error
@@ -236,14 +220,6 @@ export function useConnections({
   );
   const { activeConnectionId } = state;
 
-  const getActiveAndInactiveCount = useCallback(() => {
-    const total = favoriteConnections.length + recentConnections.length;
-    const active =
-      connectionsManager.getConnectionIdsByStatus(ConnectionStatus.Connected)
-        .length || 0;
-    return { active, inactive: total - active };
-  }, [favoriteConnections, recentConnections, connectionsManager]);
-
   const findConnectionInfo = useCallback(
     (connectionId: ConnectionInfo['id']) => {
       return [...favoriteConnections, ...recentConnections].find(
@@ -272,14 +248,7 @@ export function useConnections({
         if (fullConnectionInfo) {
           const isNewConnection = !findConnectionInfo(fullConnectionInfo.id);
           if (isNewConnection) {
-            const { active, inactive } = getActiveAndInactiveCount();
-            const isActive =
-              connectionsManager.statusOf(fullConnectionInfo.id) ===
-              'connected'; // save normally happens first, but in case.
-            onConnectionCreated?.(fullConnectionInfo, {
-              active: isActive ? active + 1 : active,
-              inactive: isActive ? inactive : inactive + 1, // we can't use ConnectionRepository here, as it updates asynchronously
-            });
+            onConnectionCreated?.(fullConnectionInfo);
           }
         }
         await repositorySaveConnection(connectionInfo);
@@ -306,8 +275,6 @@ export function useConnections({
       openToast,
       repositorySaveConnection,
       findConnectionInfo,
-      getActiveAndInactiveCount,
-      connectionsManager,
       onConnectionCreated,
     ]
   );
@@ -315,13 +282,7 @@ export function useConnections({
   const removeConnection = useCallback(
     async (connectionInfo: ConnectionInfo) => {
       await repositoryRemoveConnection(connectionInfo);
-      const { active, inactive } = getActiveAndInactiveCount();
-      const isActive =
-        connectionsManager.statusOf(connectionInfo.id) === 'connected'; // disconnect normally happens first, but in case.
-      onConnectionRemoved?.(connectionInfo, {
-        active: isActive ? active - 1 : active,
-        inactive: isActive ? inactive : inactive - 1, // we can't use ConnectionRepository here, as it updates asynchronously
-      });
+      onConnectionRemoved?.(connectionInfo);
 
       if (activeConnectionId === connectionInfo.id) {
         const nextActiveConnection = createNewConnectionInfo();
@@ -335,9 +296,7 @@ export function useConnections({
       activeConnectionId,
       repositoryRemoveConnection,
       dispatch,
-      getActiveAndInactiveCount,
       onConnectionRemoved,
-      connectionsManager,
     ]
   );
 
@@ -406,7 +365,7 @@ export function useConnections({
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
-        onConnected?.(connectionInfo, dataService, getActiveAndInactiveCount());
+        onConnected?.(connectionInfo, dataService);
         if (!legacyShouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
@@ -430,12 +389,7 @@ export function useConnections({
         );
       }
     },
-    [
-      onConnected,
-      persistOIDCTokens,
-      saveConnectionInfo,
-      getActiveAndInactiveCount,
-    ]
+    [onConnected, persistOIDCTokens, saveConnectionInfo]
   );
 
   useEffect(() => {
@@ -458,10 +412,7 @@ export function useConnections({
     );
     try {
       await connectionsManager.closeConnection(connectionId);
-      onDisconnected?.(
-        findConnectionInfo(connectionId),
-        getActiveAndInactiveCount()
-      );
+      onDisconnected?.(findConnectionInfo(connectionId));
     } catch (error) {
       log.error(
         mongoLogId(1_001_000_314),
