@@ -339,8 +339,8 @@ type ConnectionFormPropsWithoutPreferences = {
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onCancel?: () => void;
-  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  onSaveAndConnectClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
+  onConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+  onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
   onSaveClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
   onAdvancedOptionsToggle?: (newState: boolean) => void;
 };
@@ -466,7 +466,7 @@ function ConnectionForm({
         action === 'saveAndConnect'
           ? onSaveAndConnectClicked
           : onConnectClicked;
-      callback({
+      callback?.({
         ...initialConnectionInfo,
         ...getConnectionInfoToSave(),
         connectionOptions: updatedConnectionOptions,

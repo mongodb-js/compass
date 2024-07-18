@@ -6,7 +6,7 @@ import sinon from 'sinon';
 import { ConnectionFormModalActions } from './connection-form-actions';
 
 describe('<ConnectionFormModalActions />', function () {
-  describe.only('Connect Button', function () {
+  describe('Connect Button', function () {
     it('should call onSave function', function () {
       const onSaveSpy = sinon.spy();
       render(
