@@ -452,7 +452,7 @@ function ConnectionForm({
     ]
   );
   const onSubmitForm = useCallback(
-    (action: 'saveAndConnect' | 'connect' = 'saveAndConnect') => {
+    (action: 'saveAndConnect' | 'connect') => {
       // TODO(COMPASS-7906): cleanup
       const updatedConnectionOptions = cloneDeep(connectionOptions);
       const formErrors = validateConnectionOptionsErrors(
@@ -634,7 +634,7 @@ function ConnectionForm({
                   getConnectionInfoToSave()
                 )
               }
-              onSaveAndConnect={() => onSubmitForm()}
+              onSaveAndConnect={() => onSubmitForm('saveAndConnect')}
             />
           )}
           {!isMultiConnectionEnabled && (
