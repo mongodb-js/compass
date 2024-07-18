@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { scaleBetween } from './query-history-autocompleter';
 
 describe('scaleBetween', function () {
-  // args: unscaledNum, minAllowed, maxAllowed, min, max
+  // args: unscaledNum, newScaleMin, newScaleMax, originalScaleMin, originalScaleMax
   it('should scale a number the same if given same range', function () {
     const result = scaleBetween(5, 0, 10, 0, 10);
     expect(result).to.equal(5);
@@ -18,8 +18,8 @@ describe('scaleBetween', function () {
     expect(result).to.equal(-99);
   });
 
-  it('should return 0 when min equals max', function () {
-    const result = scaleBetween(5, 0, 10, 10, 10);
-    expect(result).to.equal(0);
+  it('should return midpoint when min equals max', function () {
+    const result = scaleBetween(10, 20, 30, 10, 10);
+    expect(result).to.equal(25);
   });
 });

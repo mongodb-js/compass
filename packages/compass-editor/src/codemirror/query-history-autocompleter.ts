@@ -109,16 +109,20 @@ function createInfo(query: SavedQuery): {
   };
 }
 
-// scales a number unscaledNum between [minAllowed, maxAllowed]
+// scales a number unscaledNum between [newScaleMin, newScaleMax]
 export function scaleBetween(
   unscaledNum: number,
-  minAllowed: number,
-  maxAllowed: number,
-  min: number,
-  max: number
+  newScaleMin: number,
+  newScaleMax: number,
+  originalScaleMin: number,
+  originalScaleMax: number
 ): number {
-  if (max === min) return 0;
+  // returns midpoint of new range if original range is 0
+  if (originalScaleMax === originalScaleMin)
+    return newScaleMin + (newScaleMax - newScaleMin) / 2;
   return (
-    ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) + minAllowed
+    ((newScaleMax - newScaleMin) * (unscaledNum - originalScaleMin)) /
+      (originalScaleMax - originalScaleMin) +
+    newScaleMin
   );
 }
