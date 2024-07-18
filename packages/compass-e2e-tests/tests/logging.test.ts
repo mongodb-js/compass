@@ -5,8 +5,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
-  connectionNameFromString,
-  DEFAULT_CONNECTION_STRING,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -20,7 +19,6 @@ describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
     let logs: LogEntry[];
     let telemetry: Telemetry;
-    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
     before(async function () {
       telemetry = await startTelemetryServer();
@@ -35,9 +33,9 @@ describe('Logging and Telemetry integration', function () {
           await browser.navigateToMyQueries();
         }
 
-        await browser.shellEval(connectionName, 'use test');
+        await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
         await browser.shellEval(
-          connectionName,
+          DEFAULT_CONNECTION_NAME,
           'db.runCommand({ connectionStatus: 1 })'
         );
       } finally {

@@ -1,5 +1,10 @@
 import { expect } from 'chai';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { createNumbersCollection } from '../helpers/insert-data';
 
@@ -39,7 +44,12 @@ describe('Time to first query', function () {
 
     await browser.connectWithConnectionString();
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     await browser.runFindOperation('Documents', '{ i: 42 }');
 
@@ -59,7 +69,12 @@ describe('Time to first query', function () {
 
     await browser.connectWithConnectionString();
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     await browser.runFindOperation('Documents', '{ i: 42 }');
 
