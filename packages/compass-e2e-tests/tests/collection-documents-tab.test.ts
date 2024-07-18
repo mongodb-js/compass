@@ -120,6 +120,7 @@ describe('Collection documents tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await createNestedDocumentsCollection('nestedDocs', 10);
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
@@ -154,6 +155,10 @@ describe('Collection documents tab', function () {
 
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
+
+    expect(queryExecutedEvent.connection_id).to.exist;
+    delete queryExecutedEvent.connection_id; // connection_id varies
+
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
       collection_type: 'collection',
@@ -189,6 +194,10 @@ describe('Collection documents tab', function () {
 
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
+
+    expect(queryExecutedEvent.connection_id).to.exist;
+    delete queryExecutedEvent.connection_id; // connection_id varies
+
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
       collection_type: 'collection',
@@ -621,8 +630,6 @@ FindIterable<Document> result = collection.find(filter);`);
 
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
-      await createNestedDocumentsCollection('nestedDocs', 10);
-      await browser.clickVisible(Selectors.SidebarRefreshDatabasesButton);
       await browser.navigateToCollectionTab('test', 'nestedDocs', 'Documents');
     });
 

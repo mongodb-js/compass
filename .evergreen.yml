@@ -1,4 +1,3 @@
-unset_function_vars: true
 stepback: false
 exec_timeout_secs: 5400
 ignore:
@@ -6,5 +5,4 @@ ignore:
   - THIRD-PARTY-NOTICES.md
 include:
   - filename: .evergreen/functions.yml
-  - filename: .evergreen/tasks.yml
-  - filename: .evergreen/buildvariants.yml
+  - filename: .evergreen/buildvariants-and-tasks.yml

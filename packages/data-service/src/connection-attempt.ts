@@ -1,12 +1,12 @@
 import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 
 import type { UnboundDataServiceImplLogger } from './logger';
 import connect from './connect';
 import type { DataService } from './data-service';
 import type { ConnectionOptions } from './connection-options';
 
-const { mongoLogId } = createLoggerAndTelemetry('CONNECTION-ATTEMPT');
+const { mongoLogId } = createLogger('CONNECTION-ATTEMPT');
 
 function isConnectionAttemptTerminatedError(err: Error) {
   return err?.name === 'MongoTopologyClosedError';

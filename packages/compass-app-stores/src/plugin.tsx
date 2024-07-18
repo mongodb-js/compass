@@ -1,6 +1,6 @@
 import React from 'react';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
@@ -31,7 +31,7 @@ function MongoDBInstancesManagerProvider({
 export const CompassInstanceStorePlugin = registerHadronPlugin<
   { children: React.ReactNode },
   {
-    logger: () => LoggerAndTelemetry;
+    logger: () => Logger;
     connectionsManager: () => ConnectionsManager;
   }
 >(
@@ -48,7 +48,7 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
         globalAppRegistry,
       }: {
         connectionsManager: ConnectionsManager;
-        logger: LoggerAndTelemetry;
+        logger: Logger;
         globalAppRegistry: AppRegistry;
       },
       helpers: ActivateHelpers
@@ -70,7 +70,7 @@ export const CompassInstanceStorePlugin = registerHadronPlugin<
     },
   },
   {
-    logger: createLoggerAndTelemetryLocator('COMPASS-INSTANCE-STORE'),
+    logger: createLoggerLocator('COMPASS-INSTANCE-STORE'),
     connectionsManager: connectionsManagerLocator,
   }
 );

@@ -6,6 +6,7 @@ import toNS from 'mongodb-ns';
 import { render, cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 describe('DropNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
@@ -22,6 +23,7 @@ describe('DropNamespacePlugin', function () {
     const Plugin = DropNamespacePlugin.withMockServices({
       globalAppRegistry: appRegistry,
       connectionsManager,
+      track: createNoopTrack(),
     });
     render(<Plugin></Plugin>);
   });

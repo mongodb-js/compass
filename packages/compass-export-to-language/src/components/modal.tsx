@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   InfoModal,
@@ -18,11 +18,12 @@ import {
 import type { OutputLanguage } from '../modules/languages';
 import { isQueryExpression, runTranspiler } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
 import { usePreference } from 'compass-preferences-model/provider';
 import { prettify } from '@mongodb-js/compass-editor';
 import { closeModal } from '../stores';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type LanguageOption = {
   displayName: string;
@@ -99,7 +100,8 @@ const ExportToLanguageModal: React.FunctionComponent<
     onModalClose: () => void;
   }
 > = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
+  const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);
@@ -154,16 +156,21 @@ const ExportToLanguageModal: React.FunctionComponent<
         : 'Aggregation Export Opened';
 
     if (modalOpen && !wasOpen) {
-      track(trackingEvent, {
-        ...stageCountForTelemetry(inputExpression),
-      });
-      track('Screen', { name: 'export_to_language_modal' });
+      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      track(
+        trackingEvent,
+        {
+          ...stageCountForTelemetry(inputExpression),
+        },
+        connectionInfo
+      );
+      track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     }
 
     setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track]);
+  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoAccess]);
 
-  function trackCopiedOutput() {
+  const trackCopiedOutput = useCallback(() => {
     const trackingEvent =
       mode === 'Update Query'
         ? 'Update Exported'
@@ -173,14 +180,27 @@ const ExportToLanguageModal: React.FunctionComponent<
         ? 'Query Exported'
         : 'Aggregation Exported';
 
-    track(trackingEvent, {
-      language: outputLanguage,
-      with_import_statements: includeImports,
-      with_drivers_syntax: includeDrivers,
-      with_builders: useBuilders,
-      ...stageCountForTelemetry(inputExpression),
-    });
-  }
+    track(
+      trackingEvent,
+      {
+        language: outputLanguage,
+        with_import_statements: includeImports,
+        with_drivers_syntax: includeDrivers,
+        with_builders: useBuilders,
+        ...stageCountForTelemetry(inputExpression),
+      },
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
+  }, [
+    track,
+    connectionInfoAccess,
+    outputLanguage,
+    includeImports,
+    includeDrivers,
+    useBuilders,
+    inputExpression,
+    mode,
+  ]);
 
   const prettyInput = useMemo(() => {
     return prettify(input, 'javascript-expression');

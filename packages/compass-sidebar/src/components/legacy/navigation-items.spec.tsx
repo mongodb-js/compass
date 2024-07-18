@@ -31,6 +31,7 @@ function renderNavigationItems(
           }}
           showCreateDatabaseAction={true}
           isPerformanceTabSupported={true}
+          activeWorkspace={null}
           {...props}
         />
       </WorkspacesProvider>

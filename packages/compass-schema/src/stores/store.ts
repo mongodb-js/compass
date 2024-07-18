@@ -1,7 +1,7 @@
 import Reflux from 'reflux';
 import type { StoreWithStateMixin } from '@mongodb-js/reflux-state-mixin';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { InternalLayer } from '../modules/geo';
 import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
@@ -20,7 +20,10 @@ import {
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import { openToast } from '@mongodb-js/compass-components';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { DataService as OriginalDataService } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfoAccess,
+  DataService as OriginalDataService,
+} from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import { configureActions } from '../actions';
@@ -29,6 +32,7 @@ import type { Schema } from 'mongodb-schema';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 const DEFAULT_SAMPLE_SIZE = 1000;
 
@@ -56,9 +60,11 @@ function resultId(): number {
 export type DataService = Pick<OriginalDataService, 'sample' | 'isCancelError'>;
 export type SchemaPluginServices = {
   dataService: DataService;
+  connectionInfoAccess: ConnectionInfoAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
-  loggerAndTelemetry: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   preferences: PreferencesAccess;
   fieldStoreService: FieldStoreService;
   queryBar: QueryBarService;
@@ -103,7 +109,7 @@ export type SchemaStore = StoreWithStateMixin<SchemaState> & {
     onDeleted: (geoQuery: ReturnType<typeof generateGeoQuery>) => void
   ): void;
   stopAnalysis(): void;
-  _trackSchemaAnalyzed(analysisTimeMS: number): void;
+  _trackSchemaAnalyzed(analysisTimeMS: number, query: any): void;
   startAnalysis(): void;
 };
 
@@ -120,14 +126,16 @@ export function activateSchemaPlugin(
     dataService,
     localAppRegistry,
     globalAppRegistry,
-    loggerAndTelemetry,
+    logger,
+    track,
     preferences,
     fieldStoreService,
     queryBar,
+    connectionInfoAccess,
   }: SchemaPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  const { track, debug, log, mongoLogId } = loggerAndTelemetry;
+  const { debug, log, mongoLogId } = logger;
   const actions = configureActions();
 
   /**
@@ -258,7 +266,11 @@ export function activateSchemaPlugin(
         geo_data: schema ? schemaContainsGeoData(schema) : false,
         analysis_time_ms: analysisTimeMS,
       });
-      track('Schema Analyzed', trackEvent);
+      track(
+        'Schema Analyzed',
+        trackEvent,
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
     },
 
     startAnalysis: async function (this: SchemaStore) {
@@ -298,7 +310,7 @@ export function activateSchemaPlugin(
           this.ns,
           samplingOptions,
           driverOptions,
-          loggerAndTelemetry
+          logger
         );
         const analysisTime = Date.now() - analysisStartTime;
 
@@ -314,7 +326,7 @@ export function activateSchemaPlugin(
           resultId: resultId(),
         });
 
-        this._trackSchemaAnalyzed(analysisTime);
+        this._trackSchemaAnalyzed(analysisTime, query);
 
         this.onSchemaSampled();
       } catch (err: any) {

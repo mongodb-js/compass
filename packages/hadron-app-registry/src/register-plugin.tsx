@@ -54,8 +54,10 @@ class ActivateHelpersImpl {
   /**
    * Add an arbitrary callback to the cleanup set
    */
-  addCleanup = (fn: () => void) => {
-    this.cleanupFns.add(fn);
+  addCleanup = (fn?: () => void) => {
+    if (fn) {
+      this.cleanupFns.add(fn);
+    }
   };
 
   /**

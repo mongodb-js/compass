@@ -3,12 +3,9 @@ import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
 import { hasDisallowedConnectionStringOptions } from './validate-connection-string';
 import COMPASS_ICON from './icon';
-import {
-  createLoggerAndTelemetry,
-  mongoLogId,
-} from '@mongodb-js/compass-logging';
+import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { redactConnectionString } from 'mongodb-connection-string-url';
-const { log } = createLoggerAndTelemetry('COMPASS-AUTO-CONNECT-MAIN');
+const { log } = createLogger('COMPASS-AUTO-CONNECT-MAIN');
 
 export type AutoConnectPreferences = Partial<
   Pick<

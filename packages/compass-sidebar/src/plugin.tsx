@@ -1,16 +1,18 @@
 import React from 'react';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   ErrorBoundary,
   css,
   defaultSidebarWidth,
 } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/legacy/sidebar';
 import { usePreference } from 'compass-preferences-model/provider';
 import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
-import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionInfoProvider,
+  useActiveConnections,
+} from '@mongodb-js/compass-connections/provider';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -18,30 +20,25 @@ const errorBoundaryStyles = css({
 
 export interface SidebarPluginProps {
   showConnectionInfo?: boolean;
-  singleConnectionConnectionInfo?: ConnectionInfo;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
-  // TODO(COMPASS-7397): the need for passing this directly to sidebar should go
-  // away with refactoring compass-connection to a plugin
-  singleConnectionConnectionInfo,
 }) => {
+  const [activeConnection] = useActiveConnections();
   const isMultiConnectionEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
   );
 
   const activeWorkspace = useActiveWorkspace();
-  const { log, mongoLogId } = useLoggerAndTelemetry('COMPASS-SIDEBAR-UI');
+  const { log, mongoLogId } = useLogger('COMPASS-SIDEBAR-UI');
 
   let sidebar;
   if (isMultiConnectionEnabled) {
     sidebar = <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />;
   } else {
     sidebar = (
-      <ConnectionInfoProvider
-        connectionInfoId={singleConnectionConnectionInfo?.id}
-      >
+      <ConnectionInfoProvider connectionInfoId={activeConnection?.id}>
         {(connectionInfo) => {
           return (
             <Sidebar

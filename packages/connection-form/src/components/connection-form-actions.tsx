@@ -166,7 +166,7 @@ export function ConnectionFormModalActions({
 
         <div className={saveAndConnectStyles}>
           <Button
-            data-testid="save-and-connect-button"
+            data-testid="save-button"
             variant={ButtonVariant.PrimaryOutline}
             disabled={false}
             onClick={onSave}

@@ -24,11 +24,20 @@ const tabStyles = css({
   paddingRight: spacing[1],
   gap: spacing[2],
 
+  // same as the border at the top
+  paddingBottom: '4px',
+
   maxWidth: spacing[6] * 4,
   minWidth: spacing[6] * 2,
   height: 36,
   position: 'relative',
   outline: 'none',
+
+  // hide the close button until it animates in
+  overflow: 'hidden',
+
+  // leave space so the active and other tabs line up
+  paddingTop: spacing[100],
 
   backgroundColor: 'var(--workspace-tab-background-color)',
   color: 'var(--workspace-tab-color)',
@@ -78,6 +87,7 @@ const tabLightThemeStyles = css({
   '--workspace-tab-border-color': palette.gray.light2,
   '--workspace-tab-color': palette.gray.base,
   '--workspace-tab-selected-color': palette.green.dark2,
+  '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.base,
     '--workspace-tab-border-color': palette.blue.base,
@@ -90,6 +100,7 @@ const tabDarkThemeStyles = css({
   '--workspace-tab-border-color': palette.gray.dark2,
   '--workspace-tab-color': palette.gray.base,
   '--workspace-tab-selected-color': palette.green.base,
+  '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.light1,
     '--workspace-tab-border-color': palette.blue.light1,
@@ -104,6 +115,11 @@ const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
   },
+});
+
+const selectedThemedTabStyles = css({
+  borderTop: `${spacing[100]}px solid var(--workspace-tab-selected-border-color)`,
+  paddingTop: 0,
 });
 
 const draggingTabStyles = css({
@@ -168,6 +184,8 @@ const selectedCloseButtonStyles = css({
 type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 type TabProps = {
+  connectionName?: string;
+  type: string;
   title: string;
   isSelected: boolean;
   isDragging: boolean;
@@ -180,6 +198,8 @@ type TabProps = {
 };
 
 function Tab({
+  connectionName,
+  type,
   title,
   isSelected,
   isDragging,
@@ -228,6 +248,7 @@ function Tab({
         tabStyles,
         themeClass,
         isSelected && selectedTabStyles,
+        isSelected && tabTheme && selectedThemedTabStyles,
         isDragging && draggingTabStyles,
         subtitle && animatedSubtitleStyles
       )}
@@ -237,6 +258,8 @@ function Tab({
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
       data-testid="workspace-tab-button"
+      data-connectionName={connectionName}
+      data-type={type}
       title={subtitle ? subtitle : title}
       {...tabProps}
     >

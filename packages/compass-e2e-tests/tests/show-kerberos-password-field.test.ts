@@ -50,7 +50,7 @@ describe('showKerberosPasswordField', function () {
     };
     await browser.setConnectFormState(state);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(
       'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external'
     );
@@ -71,7 +71,7 @@ describe('showKerberosPasswordField', function () {
     };
     await browser.setConnectFormState(state);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(
       'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external'
     );

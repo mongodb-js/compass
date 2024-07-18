@@ -7,6 +7,11 @@ export interface ConnectFormState {
   hosts?: string[];
   directConnection?: boolean;
 
+  // Name, Color, Favorite
+  connectionName?: string;
+  connectionColor?: string;
+  connectionFavorite?: boolean;
+
   // Authentication
   authMethod?:
     | 'DEFAULT'

@@ -8,6 +8,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -45,7 +46,7 @@ describe('Connection form', function () {
 
   it('starts with the expected initial state', async function () {
     const state = await browser.getConnectFormState(true);
-    expect(state).to.deep.equal({
+    const expectedState: ConnectFormState = {
       connectionString: 'mongodb://localhost:27017',
       scheme: 'MONGODB',
       hosts: ['localhost:27017'],
@@ -61,14 +62,21 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    });
+    };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
+    expect(state).to.deep.equal(expectedState);
   });
 
   it('parses and formats a URI for direct connection', async function () {
     const connectionString = 'mongodb://localhost:27017/?directConnection=true';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -90,19 +98,25 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for multiple hosts', async function () {
     const connectionString = 'mongodb://localhost:27017,127.0.0.1:27091/';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -123,19 +137,25 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017,127.0.0.1:27091';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
   it('parses and formats a URI for mongodb+srv scheme', async function () {
     const connectionString = 'mongodb+srv://localhost/';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -156,12 +176,18 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -170,7 +196,7 @@ describe('Connection form', function () {
       'mongodb://foo:bar@localhost:27017/?authSource=source&authMechanism=SCRAM-SHA-1';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -194,6 +220,12 @@ describe('Connection form', function () {
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -234,8 +266,14 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -267,7 +305,7 @@ describe('Connection form', function () {
     expect(state.useSystemCA).to.equal(true);
 
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal('mongodb://localhost:27017/?tls=true');
   });
 
@@ -276,7 +314,7 @@ describe('Connection form', function () {
       'mongodb://principal@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -301,12 +339,18 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -314,7 +358,7 @@ describe('Connection form', function () {
     const connectionString =
       'mongodb://username:password@localhost:27017/?authMechanism=PLAIN&authSource=%24external';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -337,6 +381,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
@@ -351,7 +401,7 @@ describe('Connection form', function () {
       'mongodb://id:key@localhost:27017/?authMechanism=MONGODB-AWS&authSource=%24external&authMechanismProperties=AWS_SESSION_TOKEN%3Atoken';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -375,6 +425,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
@@ -389,7 +445,7 @@ describe('Connection form', function () {
       'mongodb://localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=password';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -415,6 +471,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
@@ -428,7 +490,7 @@ describe('Connection form', function () {
     const connectionString =
       'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234&maxPoolSize=100';
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -456,12 +518,18 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
     await browser.setConnectFormState(expectedState);
     expect(
-      await browser.$(Selectors.ConnectionStringInput).getValue()
+      await browser.$(Selectors.ConnectionFormStringInput).getValue()
     ).to.equal(connectionString);
   });
 
@@ -474,7 +542,8 @@ describe('Connection form', function () {
       sshPasswordPassword: 'password',
     };
     await browser.setConnectFormState(state);
-    expect(await browser.getConnectFormState()).to.deep.equal({
+
+    const expectedState: ConnectFormState = {
       authMethod: 'DEFAULT',
       connectionString: 'mongodb://localhost:27017/',
       defaultAuthMechanism: 'DEFAULT',
@@ -494,7 +563,14 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    });
+    };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
+    expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
   });
 
   it('does not update the URI for SSH tunnel with identity file authentication', async function () {
@@ -510,8 +586,10 @@ describe('Connection form', function () {
       sshIdentityKeyFile: sshIdentityKeyFile,
       sshIdentityPassword: 'password',
     };
+
     await browser.setConnectFormState(state);
-    expect(await browser.getConnectFormState()).to.deep.equal({
+
+    const expectedState: ConnectFormState = {
       authMethod: 'DEFAULT',
       connectionString: 'mongodb://localhost:27017/',
       defaultAuthMechanism: 'DEFAULT',
@@ -532,7 +610,14 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
-    });
+    };
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
+    expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
   });
 
   it('redacts passwords when input is not focused', async function () {
@@ -540,7 +625,7 @@ describe('Connection form', function () {
       'mongodb://foo:user_password@localhost:27017/?proxyHost=hostname&proxyPort=1234&proxyUsername=username&proxyPassword=proxy_password';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -572,6 +657,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState(false);
     expect(state).to.deep.equal(expectedState);
 
@@ -585,14 +676,21 @@ describe('Connection form', function () {
     const favoriteName = 'My Favorite';
     const newFavoriteName = 'My Favorite (edited)';
 
+    const Sidebar = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.Multiple
+      : Selectors.Single;
+
     // save
-    await browser.saveFavorite(favoriteName, 'color1');
+    await browser.saveFavorite(
+      favoriteName,
+      TEST_MULTIPLE_CONNECTIONS ? 'Red' : 'color1'
+    );
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
       // copy the connection string
       await browser.selectConnectionMenuItem(
         favoriteName,
-        Selectors.CopyConnectionStringItem
+        Sidebar.CopyConnectionStringItem
       );
       await browser.waitUntil(
         async () => {
@@ -605,23 +703,37 @@ describe('Connection form', function () {
     // duplicate
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Selectors.DuplicateConnectionItem
+      Sidebar.DuplicateConnectionItem
     );
+
+    // duplicating opens the modal, in multiple connections you have to save
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionModalSaveButton);
+    }
 
     // delete the duplicate
     await browser.selectConnectionMenuItem(
-      `${favoriteName} (copy)`,
-      Selectors.RemoveConnectionItem
+      `${favoriteName} (1)`,
+      Sidebar.RemoveConnectionItem
     );
 
     // edit the original
-    await browser.selectFavorite(favoriteName);
-    await browser.saveFavorite(newFavoriteName, 'color2');
+    await browser.selectConnection(favoriteName);
+
+    await browser.saveFavorite(
+      newFavoriteName,
+      TEST_MULTIPLE_CONNECTIONS ? 'Pink' : 'color2'
+    );
 
     // it should now be updated in the sidebar
     await browser
-      .$(Selectors.sidebarFavorite(newFavoriteName))
+      .$(Selectors.sidebarConnection(newFavoriteName))
       .waitForDisplayed();
+
+    // open the modal so we can perform some actions in there
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectConnection(newFavoriteName);
+    }
 
     // the edit the connection string toggle should be on (because this is a new connection we just saved)
     const toggle = await browser.$(Selectors.EditConnectionStringToggle);
@@ -650,7 +762,7 @@ describe('Connection form', function () {
       'mongodb://testUser@localhost:27017/?authMechanism=MONGODB-OIDC';
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
 
@@ -672,6 +784,12 @@ describe('Connection form', function () {
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
+    }
+
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
@@ -681,17 +799,61 @@ describe('Connection form', function () {
     );
   });
 
-  it('can save & connect', async function () {
+  it('supports saving a favorite (multiple connections)', async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      // this will remain skipped until we remove the test because the test is
+      // now for the multiple connections case only
+      this.skip();
+    }
+
+    const state: ConnectFormState = {
+      connectionName: 'my-connection',
+      connectionColor: 'Red',
+      connectionFavorite: true,
+    };
+    await browser.setConnectFormState(state);
+    expect(await browser.getConnectFormState()).to.deep.equal({
+      authMethod: 'DEFAULT',
+      connectionColor: 'color1',
+      connectionFavorite: true,
+      connectionName: 'my-connection',
+      connectionString: 'mongodb://localhost:27017/',
+      defaultAuthMechanism: 'DEFAULT',
+      directConnection: false,
+      fleEncryptedFieldsMap:
+        "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n",
+      fleStoreCredentials: false,
+      hosts: ['localhost:27017'],
+      proxyMethod: 'none',
+      readPreference: 'defaultReadPreference',
+      scheme: 'MONGODB',
+      sslConnection: 'DEFAULT',
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      tlsInsecure: false,
+      useSystemCA: false,
+    });
+  });
+
+  it('supports saving a favorite (single connection)', async function () {
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // this will remain skipped until we remove the test because the test is
+      // now for the single connection case only
+      this.skip();
+    }
+
     const favoriteName = 'My New Favorite';
 
     // Fill in a valid URI
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       'mongodb://127.0.0.1:27091/test'
     );
 
     // Save & Connect
-    await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
+    await browser.clickVisible(Selectors.SaveAndConnectButton);
+
+    // Fill out the favorite info
     await browser.$(Selectors.FavoriteModal).waitForDisplayed();
     await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
     await browser.clickVisible(
@@ -718,5 +880,7 @@ describe('Connection form', function () {
     expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
       favoriteName
     );
+
+    await browser.disconnectAll();
   });
 });

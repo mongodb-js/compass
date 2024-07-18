@@ -98,7 +98,7 @@ export const WorkspaceTabStateProvider = ({
   );
 };
 
-function useWorkspaceTabId() {
+export function useWorkspaceTabId() {
   let tabId = useContext(WorkspaceTabIdContext);
   if (!tabId) {
     if (process.env.NODE_ENV !== 'test') {

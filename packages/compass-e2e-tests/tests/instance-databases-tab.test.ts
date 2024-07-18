@@ -5,6 +5,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
+  connectionNameFromString,
   DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -29,7 +30,10 @@ describe('Instance databases tab', function () {
     await createDummyCollections();
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
   });
 
   after(async function () {
@@ -99,7 +103,10 @@ describe('Instance databases tab', function () {
       'add-database-modal-basic.png'
     );
 
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
 
     const selector = Selectors.databaseCard(dbName);
     await browser.scrollToVirtualItem(
@@ -134,7 +141,10 @@ describe('Instance databases tab', function () {
     await databaseCard.waitForExist({ reverse: true });
 
     // the app should stay on the instance Databases tab.
-    await browser.waitUntilActiveInstanceTab('Databases');
+    await browser.waitUntilActiveConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
   });
 
   it('can refresh the list of databases using refresh controls', async function () {
@@ -142,7 +152,10 @@ describe('Instance databases tab', function () {
     const dbSelector = Selectors.databaseCard(db);
 
     // Browse to the databases tab
-    await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
 
     // Make sure the db card we're going to drop is in there.
     await browser.scrollToVirtualItem(

@@ -28,6 +28,7 @@
     "release": "npm run release --workspace mongodb-compass --",
     "reformat": "lerna run reformat --stream --no-bail",
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
+    "package-compass-nocompile": "npm run package-compass-nocompile --workspace=mongodb-compass --",
     "prestart": "npm run compile --workspace=@mongodb-js/webpack-config-compass",
     "prestart-web": "npm run prestart",
     "start": "npm run start --workspace=mongodb-compass",
@@ -45,6 +46,8 @@
     "where": "monorepo-where",
     "create-workspace": "node ./scripts/create-workspace.js",
     "update-evergreen-config": "node .evergreen/template-yml.js",
+    "postupdate-evergreen-config": "evergreen validate .evergreen.yml",
+    "update-security-test-summary": "ts-node scripts/generate-security-test-summary.ts > docs/security-test-summary.md",
     "version-packages-next": "npx lerna version \"0.0.0-next-$(git rev-parse HEAD)\" --exact --private --no-git-tag-version --force-publish --no-push --yes",
     "publish-packages-next": "npx lerna publish from-package --no-private --dist-tag next --pre-dist-tag next --yes",
     "prepare": "husky install",
@@ -52,8 +55,8 @@
     "pregenerate-vulnerability-report": "npm run compile -w packages/compass && npm run snyk-test",
     "generate-vulnerability-report": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --fail-on=high > .sbom/vulnerability-report.md",
     "create-vulnerability-tickets": "mongodb-sbom-tools generate-vulnerability-report --snyk-reports=.sbom/snyk-test-result.json --dependencies=.sbom/dependencies.json --create-jira-issues",
-    "precreate-static-analysis-report": "npm run compile -w packages/compass",
-    "create-static-analysis-report": "mongodb-sbom-tools fetch-codeql-results --sarif-dest=.sbom/codeql.sarif.json --dependencies=.sbom/dependencies.json --exclude-repos=mongodb-js/kerberos",
+    "generate-first-party-deps-json": "mongodb-sbom-tools fetch-codeql-results --first-party-deps-list-dest=.sbom/first-party-deps.json --dependencies=.sbom/dependencies.json --exclude-repos=mongodb-js/kerberos",
+    "create-static-analysis-report": "mongodb-sbom-tools fetch-codeql-results --sarif-dest=.sbom/codeql.sarif.json",
     "postcreate-static-analysis-report": "mongodb-sbom-tools sarif-to-markdown --sarif=.sbom/codeql.sarif.json --md=.sbom/codeql.md",
     "precommit": "precommit"
   },
@@ -66,16 +69,18 @@
     "@babel/core": "7.16.0",
     "@babel/parser": "7.16.0",
     "@mongodb-js/monorepo-tools": "^1.1.1",
-    "@mongodb-js/sbom-tools": "^0.6.2",
+    "@mongodb-js/sbom-tools": "^0.7.0",
     "@testing-library/dom": "^8.20.1",
     "babel-loader": "^7.1.5",
     "husky": "^8.0.3",
+    "js-yaml": "^4.1.0",
     "lerna": "^7.1.5",
+    "lodash": "^4.17.21",
     "node-gyp": "^8.4.1"
   },
   "engines": {
-    "node": ">=16.15.1",
-    "npm": ">=8.19.4"
+    "node": ">=18.19.1",
+    "npm": ">=10.2.4"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",

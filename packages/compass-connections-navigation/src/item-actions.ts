@@ -1,30 +1,79 @@
 import type { ItemAction } from '@mongodb-js/compass-components';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type Actions } from './constants';
+import { type ItemSeparator } from '@mongodb-js/compass-components';
 
-export type NavigationItemActions = ItemAction<Actions>[];
+export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
-export const connectionItemActions = ({
-  isReadOnly,
-  isFavorite,
-  isPerformanceTabSupported,
+export const notConnectedConnectionItemActions = ({
+  connectionInfo,
+  isEditDisabled,
 }: {
-  isReadOnly: boolean;
-  isFavorite: boolean;
-  isPerformanceTabSupported: boolean;
+  connectionInfo: ConnectionInfo;
+  isEditDisabled?: boolean;
 }): NavigationItemActions => {
-  const actions: NavigationItemActions = [];
-  if (!isReadOnly) {
-    actions.push({
+  return [
+    {
+      action: 'edit-connection',
+      label: 'Edit connection',
+      icon: 'Edit',
+      isDisabled: isEditDisabled,
+      disabledDescription: 'Cannot edit an active connection',
+    },
+    {
+      action: 'copy-connection-string',
+      label: 'Copy connection string',
+      icon: 'Copy',
+    },
+    {
+      action: 'connection-toggle-favorite',
+      label:
+        connectionInfo.savedConnectionType === 'favorite'
+          ? 'Unfavorite'
+          : 'Favorite',
+      icon: 'Favorite',
+    },
+    {
+      action: 'duplicate-connection',
+      label: 'Duplicate',
+      icon: 'Clone',
+    },
+    {
+      action: 'remove-connection',
+      label: 'Remove',
+      icon: 'Trash',
+      variant: 'destructive',
+    },
+  ];
+};
+
+export const connectedConnectionItemActions = ({
+  hasWriteActionsDisabled,
+  connectionInfo,
+  isPerformanceTabSupported,
+  isShellEnabled,
+}: {
+  hasWriteActionsDisabled: boolean;
+  connectionInfo: ConnectionInfo;
+  isPerformanceTabSupported: boolean;
+  isShellEnabled: boolean;
+}): NavigationItemActions => {
+  const connectionManagementActions = notConnectedConnectionItemActions({
+    connectionInfo,
+    isEditDisabled: true,
+  }).slice(1); // for connected connections we don't show connect action
+  const actions: NavigationItemActions = [
+    {
       action: 'create-database',
       icon: 'Plus',
       label: 'Create database',
-    });
-  }
-  actions.push(
+    },
     {
       action: 'open-shell',
       icon: 'Shell',
       label: 'Open MongoDB shell',
+      isDisabled: !isShellEnabled,
+      disabledDescription: 'Not available',
     },
     {
       action: 'connection-performance-metrics',
@@ -39,31 +88,34 @@ export const connectionItemActions = ({
       label: 'Show connection info',
     },
     {
-      action: 'copy-connection-string',
-      icon: 'Copy',
-      label: 'Copy connection string',
-    },
-    {
-      action: 'connection-toggle-favorite',
-      icon: 'Favorite',
-      label: isFavorite ? 'Unfavorite' : 'Favorite',
+      action: 'refresh-databases',
+      label: 'Refresh databases',
+      icon: 'Refresh',
     },
     {
       action: 'connection-disconnect',
       icon: 'Disconnect',
       label: 'Disconnect',
       variant: 'destructive',
-    }
-  );
+    },
+    { separator: true },
+    ...connectionManagementActions,
+  ];
+
+  // when connection is readonly we don't want to show create-database action
+  // and hence we splice it out here
+  if (hasWriteActionsDisabled) {
+    actions.splice(0, 1);
+  }
   return actions;
 };
 
 export const databaseItemActions = ({
-  isReadOnly,
+  hasWriteActionsDisabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsDisabled: boolean;
 }): NavigationItemActions => {
-  if (isReadOnly) {
+  if (hasWriteActionsDisabled) {
     return [];
   }
   return [
@@ -81,11 +133,11 @@ export const databaseItemActions = ({
 };
 
 export const collectionItemActions = ({
-  isReadOnly,
+  hasWriteActionsDisabled,
   type,
   isRenameCollectionEnabled,
 }: {
-  isReadOnly: boolean;
+  hasWriteActionsDisabled: boolean;
   type: 'collection' | 'view' | 'timeseries';
   isRenameCollectionEnabled: boolean;
 }): NavigationItemActions => {
@@ -97,7 +149,7 @@ export const collectionItemActions = ({
     },
   ];
 
-  if (isReadOnly) {
+  if (hasWriteActionsDisabled) {
     return actions;
   }
 

@@ -8,9 +8,9 @@ import {
   Option,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 
 import type { Item } from '../stores/aggregations-queries-items';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 interface SelectState {
   database?: string;
@@ -72,7 +72,7 @@ const FilterSelect: React.FunctionComponent<{
 };
 
 function useSearchFilter(): [React.ReactElement, string] {
-  const { track } = useLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
+  const track = useTelemetry();
   const [search, setSearch] = useState('');
   const searchControls = useMemo(() => {
     return (

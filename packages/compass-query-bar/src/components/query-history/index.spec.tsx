@@ -20,7 +20,8 @@ import {
 import { fetchRecents, fetchFavorites } from '../../stores/query-bar-reducer';
 import { configureStore } from '../../stores/query-bar-store';
 import { UUID } from 'bson';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const BASE_QUERY = {
   filter: { name: 'hello' },
@@ -64,7 +65,8 @@ function createStore(basepath: string) {
           return { hosts: [] } as any;
         },
       },
-      logger: createNoopLoggerAndTelemetry(),
+      logger: createNoopLogger(),
+      track: createNoopTrack(),
     } as any
   );
 

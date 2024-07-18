@@ -13,7 +13,8 @@ import {
 } from './ai-query-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 describe('aiQueryReducer', function () {
   let preferences: PreferencesAccess;
@@ -35,6 +36,12 @@ describe('aiQueryReducer', function () {
   }
 
   describe('runAIQuery', function () {
+    const connectionInfoAccess = {
+      getCurrentConnectionInfo: () => ({
+        id: 'TEST',
+      }),
+    };
+
     describe('with a successful server response', function () {
       it('should succeed', async function () {
         const mockAtlasAiService = {
@@ -53,10 +60,12 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
+            connectionInfoAccess,
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
+            track: createNoopTrack(),
           } as any
         );
 
@@ -97,13 +106,15 @@ describe('aiQueryReducer', function () {
         const store = createStore({}, {
           atlasAuthService: { on: sandbox.stub() },
           atlasAiService: mockAtlasAiService,
+          connectionInfoAccess,
           dataService: {
             sample() {
               return Promise.resolve([]);
             },
           },
           preferences,
-          logger: createNoopLoggerAndTelemetry(),
+          logger: createNoopLogger(),
+          track: createNoopTrack(),
         } as any);
         expect(store.getState().aiQuery.errorMessage).to.equal(undefined);
         await store.dispatch(runAIQuery('testing prompt') as any);
@@ -128,8 +139,10 @@ describe('aiQueryReducer', function () {
               return Promise.resolve([]);
             },
           },
+          connectionInfoAccess,
           preferences,
-          logger: createNoopLoggerAndTelemetry(),
+          logger: createNoopLogger(),
+          track: createNoopTrack(),
         } as any);
         await store.dispatch(runAIQuery('testing prompt') as any);
         expect(store.getState()).to.have.property('aiQuery').deep.eq({
@@ -168,10 +181,12 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
+            connectionInfoAccess,
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
+            track: createNoopTrack(),
           } as any
         );
 
@@ -207,10 +222,12 @@ describe('aiQueryReducer', function () {
           },
           {
             dataService: mockDataService,
+            connectionInfoAccess,
             atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
-            logger: createNoopLoggerAndTelemetry(),
+            logger: createNoopLogger(),
+            track: createNoopTrack(),
           } as any
         );
 

@@ -3,9 +3,10 @@ import {
   ConnectionsManagerEvents,
   type ConnectionsManager,
   type DataService,
+  type ConnectionRepositoryAccess,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { Action, AnyAction } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
@@ -23,14 +24,17 @@ import {
   MongoDBInstancesManagerEvents,
   type MongoDBInstancesManager,
 } from '@mongodb-js/compass-app-stores/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type NS = ReturnType<typeof toNS>;
 
 export type CreateNamespaceServices = {
   connectionsManager: ConnectionsManager;
+  connectionRepository: ConnectionRepositoryAccess;
   instancesManager: MongoDBInstancesManager;
   globalAppRegistry: AppRegistry;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 

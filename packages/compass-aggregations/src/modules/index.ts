@@ -39,7 +39,7 @@ import insights from './insights';
 import searchIndexes from './search-indexes';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
@@ -49,6 +49,7 @@ import type {
   ConnectionInfoAccess,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 /**
  * The main application reducer.
  *
@@ -102,12 +103,15 @@ export type PipelineBuilderExtraArgs = {
   atlasAuthService: AtlasAuthService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
   dataService: DataService;
   connectionInfoAccess: ConnectionInfoAccess;
-  connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
+  connectionScopedAppRegistry: ConnectionScopedAppRegistry<
+    'open-export' | 'view-edited' | 'agg-pipeline-out-executed'
+  >;
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

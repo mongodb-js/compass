@@ -6,6 +6,9 @@ import type { Binary } from 'bson';
 import connect from './connect';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 
+// Security-relevant test -- see in-use-encryption e2e tests for description.
+// (In particular, the tests here verify that decrypted data is always encrypted
+// when written back into the database)
 describe('CSFLECollectionTracker', function () {
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
   const ALGO_DET = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';

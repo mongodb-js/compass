@@ -18,7 +18,9 @@ import type { Store } from 'redux';
 import type { RootAction, RootState } from '../modules';
 import { onActivated } from './store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -44,6 +46,9 @@ describe('Schema Validation Store', function () {
   let store: Store<RootState, RootAction>;
   let deactivate: null | (() => void) = null;
   const globalAppRegistry = new AppRegistry();
+  const connectionInfoAccess = {
+    getCurrentConnectionInfo: () => {},
+  } as ConnectionInfoAccess;
 
   beforeEach(async function () {
     const activateResult = onActivated(
@@ -53,7 +58,9 @@ describe('Schema Validation Store', function () {
         dataService: fakeDataService,
         instance: fakeInstance,
         preferences: await createSandboxFromDefaultPreferences(),
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        connectionInfoAccess,
       },
       createActivateHelpers()
     );

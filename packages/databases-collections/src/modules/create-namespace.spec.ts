@@ -16,6 +16,7 @@ import reducer, {
 } from './create-namespace';
 import type { Binary } from 'bson';
 import { UUID } from 'bson';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 describe('create collection module', function () {
   describe('#reducer', function () {
@@ -31,7 +32,12 @@ describe('create collection module', function () {
           storeAction = action;
         },
         () => INITIAL_STATE,
-        { logger: { track() {} } } as any
+        {
+          track: createNoopTrack(),
+          connectionRepository: {
+            getConnectionInfoById: () => ({ id: 'TEST' }),
+          },
+        } as any
       );
       const state = reducer(undefined, storeAction);
       expect(state).to.deep.equal({
@@ -53,7 +59,12 @@ describe('create collection module', function () {
           storeAction = action;
         },
         () => INITIAL_STATE,
-        { logger: { track() {} } } as any
+        {
+          track: createNoopTrack(),
+          connectionRepository: {
+            getConnectionInfoById: () => ({ id: 'TEST' }),
+          },
+        } as any
       );
       const state = reducer(undefined, storeAction);
       expect(state).to.deep.equal({

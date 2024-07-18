@@ -3,25 +3,16 @@ import { MongoLogWriter, mongoLogId } from 'mongodb-log-writer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
 
-export interface LoggingAndTelemetryPreferences {
-  getPreferences(): { trackUsageStatistics: boolean };
-}
-
-type TrackProps = Record<string, any> | (() => Record<string, any>);
-type TrackFunction = (event: string, properties?: TrackProps) => void;
-
-export type LoggerAndTelemetry = {
+export type Logger = {
   log: ReturnType<MongoLogWriter['bindComponent']>;
   mongoLogId: typeof mongoLogId;
   debug: ReturnType<typeof createDebug>;
-  track: TrackFunction;
 };
 
-export function createGenericLoggerAndTelemetry(
+export function createGenericLogger(
   component: string,
-  emit: (event: string, arg: any) => void,
-  preferencesService?: LoggingAndTelemetryPreferences
-): LoggerAndTelemetry {
+  emit: (event: string, arg: any) => void
+): Logger {
   // Do not create an actual Writable stream here, since the callback
   // logic in Node.js streams would mean that two writes from the
   // same event loop tick would not be written synchronously,
@@ -38,60 +29,6 @@ export function createGenericLoggerAndTelemetry(
   const writer = new MongoLogWriter('', null, target);
   const log = writer.bindComponent(component);
 
-  const track = (...args: [string, TrackProps?]) => {
-    void Promise.resolve()
-      .then(() => trackAsync(...args))
-      .catch((error) => debug('track failed', error));
-  };
-
-  const trackAsync = async (
-    event: string,
-    properties: TrackProps = {}
-  ): Promise<void> => {
-    // Note that this preferences check is mainly a performance optimization,
-    // since the main process telemetry code also checks this preference value,
-    // so it is safe to fall back to 'true'.
-    const { trackUsageStatistics = true } =
-      preferencesService?.getPreferences() ?? {};
-
-    if (!trackUsageStatistics) {
-      return;
-    }
-
-    const data = {
-      event,
-      properties,
-    };
-    if (typeof properties === 'function') {
-      try {
-        data.properties = await properties();
-      } catch (error) {
-        // When an error arises during the fetching of properties,
-        // for instance if we can't fetch host information,
-        // we track a new error indicating the failure.
-        // This is so that we are aware of which events might be misreported.
-        emit('compass:track', {
-          event: 'Error Fetching Attributes',
-          properties: {
-            event_name: event,
-          },
-        });
-        log.error(
-          mongoLogId(1_001_000_190),
-          'Telemetry',
-          'Error computing event properties for telemetry',
-          {
-            event,
-            error: (error as Error).stack,
-          }
-        );
-
-        return;
-      }
-    }
-    emit('compass:track', data);
-  };
-
   const debug = createDebug(`mongodb-compass:${component.toLowerCase()}`);
   writer.on('log', ({ s, ctx, msg, attr }: MongoLogEntry) => {
     if (attr) {
@@ -104,6 +41,5 @@ export function createGenericLoggerAndTelemetry(
     log,
     mongoLogId,
     debug,
-    track,
   };
 }

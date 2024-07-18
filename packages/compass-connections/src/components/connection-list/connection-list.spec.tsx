@@ -152,8 +152,7 @@ describe('ConnectionList Component', function () {
         'favorite-connections-list-header'
       );
       userEvent.hover(connectionsHeader);
-      expect(() => screen.getByTestId('favorites-menu-show-actions')).to.not
-        .throw;
+      expect(screen.getByTestId('favorites-menu-show-actions')).to.be.visible;
     });
   });
 

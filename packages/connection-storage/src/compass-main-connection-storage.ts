@@ -9,7 +9,7 @@ import type {
   ConnectionInfo,
   ConnectionSecrets,
 } from '@mongodb-js/connection-info';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
 import {
   deleteCompassAppNameParam,
@@ -30,9 +30,10 @@ import type {
   ConnectionStorage,
   AutoConnectPreferences,
 } from './connection-storage';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-const { log, mongoLogId, track } =
-  createLoggerAndTelemetry('CONNECTION-STORAGE');
+const { log, mongoLogId } = createLogger('CONNECTION-STORAGE');
+const track = createIpcTrack();
 
 export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
 

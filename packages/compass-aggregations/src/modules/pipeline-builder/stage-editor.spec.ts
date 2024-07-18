@@ -27,7 +27,8 @@ import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from 'hadron-app-registry';
 import {
   TEST_CONNECTION_INFO,
@@ -136,7 +137,8 @@ function createStore({
         instance: {} as any,
         workspaces: {} as any,
         preferences,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
         dataService: {} as any,
         connectionInfoAccess,
         connectionScopedAppRegistry,

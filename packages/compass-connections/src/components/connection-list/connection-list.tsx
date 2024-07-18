@@ -126,16 +126,16 @@ function RecentIcon() {
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
 
-type FavoriteAction = 'import-favorites' | 'export-favorites';
+type FavoriteAction = 'import-saved-connections' | 'export-saved-connections';
 
 const favoriteActions: ItemAction<FavoriteAction>[] = [
   {
-    action: 'import-favorites',
+    action: 'import-saved-connections',
     label: 'Import saved connections',
     icon: 'Download',
   },
   {
-    action: 'export-favorites',
+    action: 'export-saved-connections',
     label: 'Export saved connections',
     icon: 'Export',
   },

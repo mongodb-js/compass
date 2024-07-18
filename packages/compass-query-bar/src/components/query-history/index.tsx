@@ -7,7 +7,11 @@ import FavoriteList from './favorite-list';
 
 import { connect } from '../../stores/context';
 import type { RootState } from '../../stores/query-bar-store';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const containerStyle = css({
   display: 'flex',
@@ -37,17 +41,18 @@ const QueryHistory = ({
   onUpdateRecentChoosen,
 }: QueryHistoryProps) => {
   const [tab, setTab] = useState<QueryHistoryTab>('recent');
+  const connectionInfoAccess = useConnectionInfoAccess();
 
   useTrackOnChange(
-    'COMPASS-QUERY-BAR-UI',
-    (track) => {
+    (track: TrackFunction) => {
+      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
       if (tab === 'favorite') {
-        track('Query History Favorites');
+        track('Query History Favorites', {}, connectionInfo);
       } else {
-        track('Query History Recent');
+        track('Query History Recent', {}, connectionInfo);
       }
     },
-    [tab],
+    [tab, connectionInfoAccess],
     undefined
   );
 

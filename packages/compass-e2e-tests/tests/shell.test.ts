@@ -7,10 +7,12 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { expect } from 'chai';
 
 describe('Shell', function () {
   let compass: Compass;
@@ -41,8 +43,9 @@ describe('Shell', function () {
 
   it('has an info modal', async function () {
     await browser.connectWithConnectionString();
+    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
-    await browser.showShell();
+    await browser.openShell(connectionName);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     const infoModalElement = await browser.$(Selectors.ShellInfoModal);
@@ -51,15 +54,21 @@ describe('Shell', function () {
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
-    await browser.hideShell();
+    await browser.closeShell(connectionName);
   });
 
   it('shows and hides shell based on settings', async function () {
+    // TODO(COMPASS-8071): Leaving this skipped until we decide what we're going
+    // to do. hide the buttons & menu items, disable them or keep them enabled
+    // and open a shell tab that just has an error banner.
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     await browser.connectWithConnectionString();
 
-    let shellSection = await browser.$(Selectors.ShellSection);
-    let isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(true);
+    // Will fail if shell is not on the screen eventually
+    await browser.$(Selectors.ShellSection).waitForExist();
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -72,8 +81,7 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    shellSection = await browser.$(Selectors.ShellSection);
-    isShellSectionExisting = await shellSection.isExisting();
-    expect(isShellSectionExisting).to.be.equal(false);
+    // Will fail if shell eventually doesn't go away from the screen
+    await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
   });
 });

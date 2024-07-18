@@ -9,98 +9,233 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { queries, pipelines, DATE } from '../test/fixtures';
+import { queries, pipelines } from '../test/fixtures';
 import { MyQueriesPlugin } from '.';
 import type {
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import {
+  ConnectionStatus,
+  ConnectionsManager,
+  ConnectionsManagerProvider,
+  type DataService,
+} from '@mongodb-js/compass-connections/provider';
+import {
+  type Logger,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
+import {
+  type MongoDBInstance,
+  type MongoDBInstancesManager,
+  TestMongoDBInstanceManager,
+} from '@mongodb-js/compass-app-stores/provider';
+import {
+  PreferencesProvider,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
+import {
+  type ConnectionStorage,
+  ConnectionStorageProvider,
+  InMemoryConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
+
+let id = 0;
+function getConnection() {
+  id += 1;
+  return {
+    status: ConnectionStatus.Disconnected,
+    connectionInfo: {
+      id: `${id}FOO`,
+      connectionOptions: {
+        connectionString: `mongodb://localhost:2702${id}`,
+      },
+    },
+    dataService: {} as DataService,
+    instance: {
+      fetchDatabases() {},
+      getNamespace() {},
+    } as unknown as MongoDBInstance,
+  };
+}
 
 describe('AggregationsQueriesList', function () {
   const sandbox = Sinon.createSandbox();
-  const dataService = {} as any;
-  const instance = {} as any;
-  const queryStorage = {
-    loadAll: sandbox.stub().resolves([]),
-    updateAttributes: sandbox.stub().resolves({}),
-  };
-  const pipelineStorage = {
-    loadAll: sandbox.stub().resolves([]),
-    updateAttributes: sandbox.stub().resolves({}),
+  const query = {
+    _id: '123',
+    _name: 'Query',
+    _ns: 'bar.foo',
+    _dateSaved: new Date(),
+    filter: { foo: 'bar' },
+    sort: { bar: -1 },
+  } as any;
+  const aggregation = {
+    id: '123',
+    name: 'Aggregation',
+    namespace: 'foo.bar',
+    lastModified: 0,
+    pipelineText: `[
+  {
+    $match: {
+      "field": 42
+    }
+  }
+]`,
+  } as any;
+  let connectionOne: ReturnType<typeof getConnection>;
+  let connectionTwo: ReturnType<typeof getConnection>;
+  let logger: Logger;
+  let queryStorage: FavoriteQueryStorage;
+  let pipelineStorage: PipelineStorage;
+  let connectionStorage: ConnectionStorage;
+  let connectionsManager: ConnectionsManager;
+  let instancesManager: MongoDBInstancesManager;
+  let preferencesAccess: PreferencesAccess;
+  let workspaces: WorkspacesService;
+
+  const renderPlugin = () => {
+    const Plugin = MyQueriesPlugin.withMockServices({
+      instancesManager,
+      favoriteQueryStorageAccess: {
+        getStorage() {
+          return queryStorage;
+        },
+      },
+      pipelineStorage: pipelineStorage,
+      workspaces,
+    });
+    render(
+      <PreferencesProvider value={preferencesAccess}>
+        <ConnectionStorageProvider value={connectionStorage}>
+          <ConnectionsManagerProvider value={connectionsManager}>
+            <Plugin />
+          </ConnectionsManagerProvider>
+        </ConnectionStorageProvider>
+      </PreferencesProvider>
+    );
   };
 
-  const Plugin = MyQueriesPlugin.withMockServices({
-    dataService,
-    instance,
-    favoriteQueryStorageAccess: {
-      getStorage() {
-        return queryStorage as unknown as FavoriteQueryStorage;
+  const selectContextMenuItem = (
+    itemId: string,
+    item: 'open-in' | 'rename' | 'copy' | 'delete'
+  ) => {
+    const queryCard = document.querySelector<HTMLElement>(
+      `[data-id="${itemId}"]`
+    );
+    if (!queryCard) {
+      throw new Error('Query card not yet rendered');
+    }
+
+    userEvent.hover(queryCard);
+    userEvent.click(screen.getByTestId('saved-item-actions-show-actions'));
+    userEvent.click(screen.getByTestId(`saved-item-actions-${item}-action`));
+    return queryCard;
+  };
+
+  beforeEach(async function () {
+    connectionOne = getConnection();
+    connectionTwo = getConnection();
+    logger = createNoopLogger();
+    queryStorage = {
+      loadAll() {
+        return Promise.resolve([]);
       },
-    },
-    pipelineStorage: pipelineStorage as unknown as PipelineStorage,
+      updateAttributes() {},
+    } as unknown as FavoriteQueryStorage;
+    pipelineStorage = {
+      loadAll() {
+        return Promise.resolve([]);
+      },
+      updateAttributes() {},
+    } as unknown as PipelineStorage;
+    connectionStorage = new InMemoryConnectionStorage([
+      connectionOne.connectionInfo,
+      connectionTwo.connectionInfo,
+    ]);
+    connectionsManager = new ConnectionsManager({
+      logger: logger.log.unbound,
+    });
+    instancesManager = new TestMongoDBInstanceManager();
+    preferencesAccess = await createSandboxFromDefaultPreferences();
+    await preferencesAccess.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
+    workspaces = {
+      openCollectionWorkspace() {},
+    } as unknown as WorkspacesService;
+
+    sandbox.stub(connectionsManager, 'statusOf').callsFake((id) => {
+      if (id === connectionOne.connectionInfo.id) {
+        return connectionOne.status;
+      } else if (id === connectionTwo.connectionInfo.id) {
+        return connectionTwo.status;
+      } else {
+        throw new Error('Unexpected id');
+      }
+    });
+
+    sandbox
+      .stub(connectionsManager, 'getDataServiceForConnection')
+      .callsFake((id) => {
+        if (id === connectionOne.connectionInfo.id) {
+          return connectionOne.dataService;
+        } else if (id === connectionTwo.connectionInfo.id) {
+          return connectionTwo.dataService;
+        } else {
+          throw new Error('Unexpected id');
+        }
+      });
+
+    sandbox
+      .stub(instancesManager, 'getMongoDBInstanceForConnection')
+      .callsFake((id) => {
+        if (id === connectionOne.connectionInfo.id) {
+          return connectionOne.instance;
+        } else if (id === connectionTwo.connectionInfo.id) {
+          return connectionTwo.instance;
+        } else {
+          throw new Error('Unexpected id');
+        }
+      });
   });
 
   afterEach(function () {
-    sandbox.resetHistory();
+    sandbox.restore();
     cleanup();
+    id = 0;
+    connectionOne = getConnection();
+    connectionTwo = getConnection();
   });
 
   it('should display no saved items when user has no saved queries/aggregations', async function () {
-    render(<Plugin></Plugin>);
+    renderPlugin();
     expect(await screen.findByText('No saved queries yet.')).to.exist;
   });
 
   it('should load queries and display them in the list', async function () {
-    queryStorage.loadAll.resolves([
-      {
-        _id: '123',
-        _name: 'Query',
-        _ns: 'bar.foo',
-        _dateSaved: DATE,
-      },
-    ]);
-    render(<Plugin></Plugin>);
+    sandbox.stub(queryStorage, 'loadAll').resolves([query]);
+    renderPlugin();
     expect(await screen.findByText('Query')).to.exist;
+    await waitFor(() => expect(screen.findByText(query._name)).to.exist);
   });
 
   it('should load aggregations and display them in the list', async function () {
-    queryStorage.loadAll.resolves([]);
-    pipelineStorage.loadAll.resolves([
-      {
-        id: '123',
-        name: 'Aggregation',
-        namespace: 'foo.bar',
-        lastModified: 0,
-      },
-    ]);
-    render(<Plugin></Plugin>);
+    sandbox.stub(pipelineStorage, 'loadAll').resolves([aggregation]);
+    renderPlugin();
     expect(await screen.findByText('Aggregation')).to.exist;
+    await waitFor(() => expect(screen.findByText(aggregation.name)).to.exist);
   });
 
   describe('copy to clipboard', function () {
     it('should copy query to the clipboard', async function () {
-      queryStorage.loadAll.resolves([
-        {
-          _id: '123',
-          _name: 'My Query',
-          _ns: 'bar.foo',
-          _dateSaved: DATE,
-          filter: { foo: 'bar' },
-          sort: { bar: -1 },
-        },
-      ]);
-      pipelineStorage.loadAll.resolves([]);
+      sandbox.stub(queryStorage, 'loadAll').resolves([query]);
+      renderPlugin();
+      expect(await screen.findByText(query._name)).to.exist;
 
-      render(<Plugin></Plugin>);
-
-      await waitFor(async () => await screen.findByText('My Query'));
-
-      const card = await screen.findByRole('gridcell');
-
-      userEvent.hover(card);
-
-      userEvent.click(within(card).getByLabelText(/show actions/i));
-      userEvent.click(within(card).getByText('Copy'));
+      selectContextMenuItem(query._id, 'copy');
 
       expect(await navigator.clipboard.readText()).to.eq(`{
   "collation": null,
@@ -117,33 +252,11 @@ describe('AggregationsQueriesList', function () {
     });
 
     it('should copy aggregation to the clipboard', async function () {
-      queryStorage.loadAll.resolves([]);
-      pipelineStorage.loadAll.resolves([
-        {
-          id: '123',
-          name: 'My Aggregation',
-          namespace: 'foo.bar',
-          lastModified: 0,
-          pipelineText: `[
-  {
-    $match: {
-      "field": 42
-    }
-  }
-]`,
-        },
-      ]);
+      sandbox.stub(pipelineStorage, 'loadAll').resolves([aggregation]);
+      renderPlugin();
+      expect(await screen.findByText(aggregation.name)).to.exist;
 
-      render(<Plugin></Plugin>);
-
-      await waitFor(async () => await screen.findByText('My Aggregation'));
-
-      const card = await screen.findByRole('gridcell');
-
-      userEvent.hover(card);
-
-      userEvent.click(within(card).getByLabelText(/show actions/i));
-      userEvent.click(within(card).getByText('Copy'));
+      selectContextMenuItem(aggregation.id, 'copy');
 
       expect(await navigator.clipboard.readText()).to.eq(`[
   {
@@ -156,13 +269,16 @@ describe('AggregationsQueriesList', function () {
   });
 
   context('with fixtures', function () {
+    let queryStorageLoadAllStub: Sinon.SinonStub;
     beforeEach(async function () {
-      queryStorage.loadAll.resolves(queries.map((item) => item.query));
-      pipelineStorage.loadAll.resolves(
-        pipelines.map((item) => item.aggregation)
-      );
+      queryStorageLoadAllStub = sandbox
+        .stub(queryStorage, 'loadAll')
+        .resolves(queries.map((item) => item.query));
+      sandbox
+        .stub(pipelineStorage, 'loadAll')
+        .resolves(pipelines.map((item) => item.aggregation));
 
-      render(<Plugin></Plugin>);
+      renderPlugin();
 
       // Wait for the items to "load"
       await screen.findByText(queries[0].name);
@@ -194,33 +310,27 @@ describe('AggregationsQueriesList', function () {
       const updatedName = 'the updated name';
 
       // Post the update we fetch all queries to load the updated query
-      queryStorage.updateAttributes.callsFake((id, attributes) => {
-        expect(id).to.equal(item.id);
-        expect(attributes._name).to.equal(updatedName);
-        queryStorage.loadAll.resolves(
-          queries.map(({ query }) => {
-            if (query._id === item.query._id) {
-              return {
-                ...item.query,
-                _name: updatedName,
-              };
-            }
-            return query;
-          })
-        );
-      });
+      sandbox
+        .stub(queryStorage, 'updateAttributes')
+        .callsFake((id, attributes) => {
+          expect(id).to.equal(item.id);
+          expect(attributes._name).to.equal(updatedName);
+          let updatedQuery: any;
+          queryStorageLoadAllStub.resolves(
+            queries.map(({ query }) => {
+              if (query._id === item.query._id) {
+                return (updatedQuery = {
+                  ...item.query,
+                  _name: updatedName,
+                });
+              }
+              return query;
+            })
+          );
+          return Promise.resolve(updatedQuery);
+        });
 
-      const card = document.querySelector<HTMLElement>(
-        `[data-id="${item.id}"]`
-      );
-
-      if (!card) {
-        throw new Error('Expected card to exist');
-      }
-
-      userEvent.hover(card);
-      userEvent.click(within(card).getByLabelText('Show actions'));
-      userEvent.click(within(card).getByText('Rename'));
+      selectContextMenuItem(item.id, 'rename');
 
       const modal = screen.getByTestId('edit-item-modal');
 
@@ -271,17 +381,7 @@ describe('AggregationsQueriesList', function () {
 
     it('should not update an item if rename was not confirmed', async function () {
       const item = queries[0];
-      const card = document.querySelector<HTMLElement>(
-        `[data-id="${item.id}"]`
-      );
-
-      if (!card) {
-        throw new Error('Expected card to exist');
-      }
-
-      userEvent.hover(card);
-      userEvent.click(within(card).getByLabelText('Show actions'));
-      userEvent.click(within(card).getByText('Rename'));
+      selectContextMenuItem(item.id, 'rename');
 
       const modal = await screen.findByTestId('edit-item-modal');
 
@@ -290,6 +390,401 @@ describe('AggregationsQueriesList', function () {
       });
 
       expect(screen.queryByText(item.name)).to.exist;
+    });
+  });
+
+  context('with possible multiple connections', function () {
+    const renderPluginWithWait = async () => {
+      renderPlugin();
+      await screen.findByText(query._name);
+    };
+
+    const selectCardForItem = (itemId: string) => {
+      const queryCard = document.querySelector<HTMLElement>(
+        `[data-id="${itemId}"]`
+      );
+      if (!queryCard) {
+        throw new Error('Query card not yet rendered');
+      }
+      userEvent.click(queryCard);
+      return queryCard;
+    };
+
+    const selectDropdownOption = async (
+      selectDataTestId: string,
+      value: string
+    ) => {
+      const selectBtn = screen.getByTestId(selectDataTestId);
+      userEvent.click(selectBtn);
+      await waitFor(() => {
+        expect(within(selectBtn).getByLabelText(new RegExp(value, 'i'))).to
+          .exist;
+      });
+
+      userEvent.click(within(selectBtn).getByLabelText(new RegExp(value, 'i')));
+
+      await waitFor(() => {
+        expect(within(selectBtn).getByLabelText(new RegExp(value, 'i'))).to
+          .throw;
+      });
+    };
+
+    const mockedInstanceWithDatabaseAndCollection = (prefix: string) => {
+      const dummyDbModel = {
+        fetchCollections() {},
+        collections: [{ name: `${prefix}-dummy-coll` }],
+      };
+
+      const databases = [{ name: `${prefix}-dummy-db` }];
+      Object.defineProperty(databases, 'get', {
+        value: () => {
+          return dummyDbModel;
+        },
+        enumerable: false,
+      });
+
+      return {
+        fetchDatabases() {},
+        getNamespace() {},
+        databases,
+      } as unknown as MongoDBInstance;
+    };
+
+    beforeEach(function () {
+      sandbox.stub(queryStorage, 'loadAll').resolves([query]);
+    });
+
+    context('when not connected to any connection', function () {
+      context('and clicked on a saved item', function () {
+        it('should show not connected modal', async function () {
+          await renderPluginWithWait();
+          selectCardForItem(query._id);
+          await waitFor(() => {
+            expect(screen.getByTestId('no-active-connection-modal')).to.exist;
+          });
+        });
+      });
+
+      context(
+        'and trying to open the query using context menu "Open in"',
+        function () {
+          it('should show not connected modal', async function () {
+            await renderPluginWithWait();
+            selectContextMenuItem(query._id, 'open-in');
+            await waitFor(() => {
+              expect(screen.getByTestId('no-active-connection-modal')).to.exist;
+            });
+          });
+        }
+      );
+    });
+
+    context('when connected to just one connection', function () {
+      beforeEach(function () {
+        connectionOne.status = ConnectionStatus.Connected;
+      });
+
+      context('and clicked on a saved item', function () {
+        it('should open the query right away if the namespace exist in the current connection', async function () {
+          const openCollectionWorkspaceSpy = sandbox.spy(
+            workspaces,
+            'openCollectionWorkspace'
+          );
+          sandbox
+            .stub(connectionOne.instance, 'getNamespace')
+            .resolves({} as any);
+
+          await renderPluginWithWait();
+          selectCardForItem(query._id);
+          await waitFor(() => {
+            expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+              `${connectionOne.connectionInfo.id}`,
+              `${query._ns}`,
+              {
+                initialAggregation: undefined,
+                initialQuery: query,
+                newTab: true,
+              }
+            );
+          });
+        });
+
+        context(
+          'and namespace does not exist in the current connection',
+          function () {
+            it('should open the namespace not found modal and allow opening query from right within the modal', async function () {
+              const openCollectionWorkspaceSpy = sandbox.spy(
+                workspaces,
+                'openCollectionWorkspace'
+              );
+              const queryStorageUpdateSpy = sandbox.spy(
+                queryStorage,
+                'updateAttributes'
+              );
+              connectionOne.instance =
+                mockedInstanceWithDatabaseAndCollection('connection-one');
+              await renderPluginWithWait();
+              selectCardForItem(query._id);
+              await waitFor(() => {
+                expect(screen.getByTestId('open-item-modal')).to.exist;
+              });
+
+              expect(screen.getByText('Select a Namespace')).to.exist;
+              expect(screen.getByTestId('description')).to.exist;
+              // connection is already selected because there is only one
+              expect(() => screen.getByTestId('connection-select-field')).to
+                .throw;
+              expect(screen.getByTestId('database-select-field')).to.exist;
+              expect(screen.getByTestId('collection-select-field')).to.exist;
+
+              // Selecting items to run the query
+              await selectDropdownOption(
+                'database-select',
+                'connection-one-dummy-db'
+              );
+              await selectDropdownOption(
+                'collection-select',
+                'connection-one-dummy-coll'
+              );
+              screen.getByTestId('update-query-aggregation-checkbox').click();
+
+              userEvent.click(screen.getByTestId('submit-button'));
+              await waitFor(() => {
+                expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                  `${connectionOne.connectionInfo.id}`,
+                  'connection-one-dummy-db.connection-one-dummy-coll',
+                  {
+                    initialAggregation: undefined,
+                    initialQuery: query,
+                    newTab: true,
+                  }
+                );
+              });
+              expect(queryStorageUpdateSpy).to.be.calledOnceWithExactly(
+                query._id,
+                { _ns: 'connection-one-dummy-db.connection-one-dummy-coll' }
+              );
+            });
+          }
+        );
+      });
+
+      context(
+        'and trying to open the query using context menu "Open in"',
+        function () {
+          it('should open the select namespace modal and allow running query right from the modal', async function () {
+            const openCollectionWorkspaceSpy = sandbox.spy(
+              workspaces,
+              'openCollectionWorkspace'
+            );
+            const queryStorageUpdateSpy = sandbox.spy(
+              queryStorage,
+              'updateAttributes'
+            );
+            connectionOne.instance =
+              mockedInstanceWithDatabaseAndCollection('connection-one');
+            await renderPluginWithWait();
+            selectContextMenuItem(query._id, 'open-in');
+
+            await waitFor(() => {
+              expect(screen.getByTestId('open-item-modal')).to.exist;
+            });
+
+            // Modal content expectations
+            expect(screen.getByText('Select a Namespace')).to.exist;
+            // We don't show description in this modal
+            expect(() => screen.getByTestId('description')).to.throw;
+            // connection is already selected because there is only one
+            expect(() => screen.getByTestId('connection-select-field')).to
+              .throw;
+            expect(screen.getByTestId('database-select-field')).to.exist;
+            expect(screen.getByTestId('collection-select-field')).to.exist;
+
+            // Now selecting items to run the query
+            await selectDropdownOption(
+              'database-select',
+              'connection-one-dummy-db'
+            );
+            await selectDropdownOption(
+              'collection-select',
+              'connection-one-dummy-coll'
+            );
+            screen.getByTestId('update-query-aggregation-checkbox').click();
+
+            userEvent.click(screen.getByTestId('submit-button'));
+            await waitFor(() => {
+              expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                `${connectionOne.connectionInfo.id}`,
+                'connection-one-dummy-db.connection-one-dummy-coll',
+                {
+                  initialAggregation: undefined,
+                  initialQuery: query,
+                  newTab: true,
+                }
+              );
+            });
+            expect(queryStorageUpdateSpy).to.be.calledOnceWithExactly(
+              query._id,
+              { _ns: 'connection-one-dummy-db.connection-one-dummy-coll' }
+            );
+          });
+        }
+      );
+    });
+
+    context('when connected to multiple connections', function () {
+      beforeEach(function () {
+        connectionOne.status = ConnectionStatus.Connected;
+        connectionTwo.status = ConnectionStatus.Connected;
+      });
+
+      context('and clicked on a saved item', function () {
+        it('should open the query right away if the namespace exists in only one of the active connections', async function () {
+          const openCollectionWorkspaceSpy = sandbox.spy(
+            workspaces,
+            'openCollectionWorkspace'
+          );
+          sandbox
+            .stub(connectionTwo.instance, 'getNamespace')
+            .resolves({} as any);
+          await renderPluginWithWait();
+          selectCardForItem(query._id);
+
+          await waitFor(() => {
+            expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+              `${connectionTwo.connectionInfo.id}`,
+              query._ns,
+              {
+                initialAggregation: undefined,
+                initialQuery: query,
+                newTab: true,
+              }
+            );
+          });
+        });
+
+        context(
+          'and namespace exists in multiple active connections',
+          function () {
+            it('should open connection select modal and allow running query right from the modal', async function () {
+              sandbox
+                .stub(connectionOne.instance, 'getNamespace')
+                .resolves({} as any);
+              sandbox
+                .stub(connectionTwo.instance, 'getNamespace')
+                .resolves({} as any);
+              const openCollectionWorkspaceSpy = sandbox.spy(
+                workspaces,
+                'openCollectionWorkspace'
+              );
+              await renderPluginWithWait();
+              selectCardForItem(query._id);
+
+              await waitFor(() => {
+                expect(screen.getByTestId('select-connection-modal')).to.exist;
+              });
+
+              // Modal content expectations
+              expect(screen.getByText('Select a Connection')).to.exist;
+              expect(
+                screen.getByTestId(
+                  `connection-item-${connectionOne.connectionInfo.id}`
+                )
+              ).to.exist;
+              expect(
+                screen.getByTestId(
+                  `connection-item-${connectionTwo.connectionInfo.id}`
+                )
+              ).to.exist;
+
+              // Now selecting a connection to open the query in
+              userEvent.click(
+                screen.getByTestId(
+                  `connection-item-${connectionTwo.connectionInfo.id}`
+                )
+              );
+
+              userEvent.click(screen.getByTestId('submit-button'));
+              await waitFor(() => {
+                expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                  `${connectionTwo.connectionInfo.id}`,
+                  query._ns,
+                  {
+                    initialAggregation: undefined,
+                    initialQuery: query,
+                    newTab: true,
+                  }
+                );
+              });
+            });
+          }
+        );
+
+        context(
+          'and namespace does not exist in any of the active connections',
+          function () {
+            it('should open select connection and namespace modal and allow running query right from the modal', async function () {
+              const openCollectionWorkspaceSpy = sandbox.spy(
+                workspaces,
+                'openCollectionWorkspace'
+              );
+              const queryStorageUpdateSpy = sandbox.spy(
+                queryStorage,
+                'updateAttributes'
+              );
+              connectionTwo.instance =
+                mockedInstanceWithDatabaseAndCollection('connection-two');
+              await renderPluginWithWait();
+              selectCardForItem(query._id);
+
+              await waitFor(() => {
+                expect(screen.getByTestId('open-item-modal')).to.exist;
+              });
+
+              // Modal content expectations
+              expect(screen.getByText('Select a Connection and Namespace')).to
+                .exist;
+              // We don't show description in this modal
+              expect(() => screen.getByTestId('description')).to.throw;
+              expect(screen.getByTestId('connection-select-field')).to.exist;
+              expect(screen.getByTestId('database-select-field')).to.exist;
+              expect(screen.getByTestId('collection-select-field')).to.exist;
+
+              // Now selecting the items to run the query
+              await selectDropdownOption(
+                'connection-select',
+                getConnectionTitle(connectionTwo.connectionInfo)
+              );
+              await selectDropdownOption(
+                'database-select',
+                'connection-two-dummy-db'
+              );
+              await selectDropdownOption(
+                'collection-select',
+                'connection-two-dummy-coll'
+              );
+              screen.getByTestId('update-query-aggregation-checkbox').click();
+
+              userEvent.click(screen.getByTestId('submit-button'));
+              await waitFor(() => {
+                expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                  `${connectionTwo.connectionInfo.id}`,
+                  'connection-two-dummy-db.connection-two-dummy-coll',
+                  {
+                    initialAggregation: undefined,
+                    initialQuery: query,
+                    newTab: true,
+                  }
+                );
+              });
+              expect(queryStorageUpdateSpy).to.be.calledOnceWithExactly(
+                query._id,
+                { _ns: 'connection-two-dummy-db.connection-two-dummy-coll' }
+              );
+            });
+          }
+        );
+      });
     });
   });
 });

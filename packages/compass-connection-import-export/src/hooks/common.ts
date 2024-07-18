@@ -58,7 +58,7 @@ export function useImportExportConnectionsCommon<S>(
 
 export function useOpenModalThroughIpc(
   open: boolean,
-  setOpen: (newValue: boolean) => void,
+  openModal: () => void,
   ipcEvent: string,
   ipcForTesting: HadronIpcRenderer | undefined = undefined
 ): void {
@@ -67,12 +67,12 @@ export function useOpenModalThroughIpc(
   useEffect(() => {
     if (ipc?.on && !open) {
       const listener = () => {
-        setOpen(true);
+        openModal();
       };
       ipc.on(ipcEvent, listener);
       return () => {
         ipc.off(ipcEvent, listener);
       };
     }
-  }, [open, setOpen]);
+  }, [open, openModal]);
 }

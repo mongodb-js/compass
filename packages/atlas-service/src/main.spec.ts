@@ -13,6 +13,12 @@ function getListenerCount(emitter: EventEmitter) {
   }, 0);
 }
 
+/**
+ * @securityTest Atlas Login Integration Tests
+ *
+ * The Atlas Login feature is thoroughly tested, including proper authentication token
+ * handling and credential revocation upon signout.
+ */
 describe('CompassAuthServiceMain', function () {
   const sandbox = Sinon.createSandbox();
 
@@ -39,12 +45,7 @@ describe('CompassAuthServiceMain', function () {
   const mockOidcPlugin = {
     mongoClientOptions: {
       authMechanismProperties: {
-        REQUEST_TOKEN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken: '1234' }),
-        REFRESH_TOKEN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken: '4321' }),
+        OIDC_HUMAN_CALLBACK: sandbox.stub().resolves({ accessToken: '1234' }),
       },
     },
     logger: CompassAuthService['oidcPluginLogger'],
@@ -88,7 +89,7 @@ describe('CompassAuthServiceMain', function () {
 
     CompassAuthService['config'] = defaultConfig;
 
-    CompassAuthService['setupPlugin']();
+    await CompassAuthService['setupPlugin']();
     CompassAuthService['attachOidcPluginLoggerEvents']();
 
     preferences = await createSandboxFromDefaultPreferences();
@@ -126,7 +127,7 @@ describe('CompassAuthServiceMain', function () {
       const userInfo = await CompassAuthService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
+          .OIDC_HUMAN_CALLBACK
         // two times because we need to explicitly request token first to show a
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
@@ -146,7 +147,7 @@ describe('CompassAuthServiceMain', function () {
 
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .REQUEST_TOKEN_CALLBACK
+          .OIDC_HUMAN_CALLBACK
         // two times because we need to explicitly request token first to show a
         // proper error message from oidc plugin in case of failed sign in
       ).to.have.been.calledTwice;
@@ -162,14 +163,13 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['plugin'] = {
         mongoClientOptions: {
           authMechanismProperties: {
-            REQUEST_TOKEN_CALLBACK: sandbox
+            OIDC_HUMAN_CALLBACK: sandbox
               .stub()
               .rejects(
                 new Error(
                   'Failed to request token for some specific plugin reason'
                 )
               ),
-            REFRESH_TOKEN_CALLBACK: sandbox.stub().rejects(),
           },
         },
       } as any;
@@ -291,6 +291,24 @@ describe('CompassAuthServiceMain', function () {
       );
       await CompassAuthService.init(preferences);
       expect(setupPluginSpy).to.have.been.calledOnce;
+    });
+
+    it('should pass the system ca to the plugin as a custom http option', async function () {
+      const createOIDCPluginSpy = sandbox.spy(
+        CompassAuthService as any,
+        'createMongoDBOIDCPlugin'
+      );
+      await CompassAuthService.init(preferences);
+      expect(createOIDCPluginSpy).to.have.been.calledOnce;
+      try {
+        expect(
+          createOIDCPluginSpy.firstCall.args[0].customHttpOptions.ca
+        ).to.include('-----BEGIN CERTIFICATE-----');
+      } catch (e) {
+        throw new Error(
+          'Expected ca to be included in the customHttpOptions, but it was not.'
+        );
+      }
     });
   });
 

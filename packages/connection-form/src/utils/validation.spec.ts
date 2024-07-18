@@ -6,6 +6,12 @@ import {
 } from './validation';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
+/**
+ * @securityTest Connection Option Validation Rules
+ *
+ * We explicitly verify that the application warns users about connection settings
+ * that may result in security issues, for example potentially insecure TLS or Proxy settings.
+ */
 describe('validation', function () {
   describe('Form Validation Errors', function () {
     describe('SSH', function () {

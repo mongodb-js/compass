@@ -233,7 +233,7 @@ class Target {
     this.app_archive_name =
       this.osx_zip_filename ||
       this.windows_zip_filename ||
-      (process.env.EVERGREEN_BUILD_VARIANT === 'rhel'
+      (process.env.IS_RHEL === 'true'
         ? this.rhel_tar_filename
         : this.linux_tar_filename);
   }

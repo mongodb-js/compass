@@ -19,7 +19,11 @@ import { mapQueryToFormFields } from '../utils/query';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggerProvider,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* no op */
@@ -51,19 +55,25 @@ describe('QueryAI Component', function () {
     render(
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>
-        <LoggerAndTelemetryProvider
+        <LoggerProvider
           value={
             {
               createLogger() {
-                return { track, log: { info() {} }, mongoLogId() {} };
+                return createNoopLogger();
               },
             } as any
           }
         >
-          <Provider store={store}>
-            <QueryAI onClose={noop} show {...props} />
-          </Provider>
-        </LoggerAndTelemetryProvider>
+          <TelemetryProvider
+            options={{
+              sendTrack: track,
+            }}
+          >
+            <Provider store={store}>
+              <QueryAI onClose={noop} show {...props} />
+            </Provider>
+          </TelemetryProvider>
+        </LoggerProvider>
       </PreferencesProvider>
     );
     return store;
@@ -156,6 +166,7 @@ describe('QueryAI Component', function () {
                   feedback: 'positive',
                   request_id: 'pineapple',
                   text: 'this is the query I was looking for',
+                  connection_id: 'TEST',
                 },
               },
             ]);

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import os from 'os';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { FeedURLOptions } from 'electron';
 import { app, dialog, BrowserWindow, autoUpdater, shell } from 'electron';
@@ -14,10 +14,10 @@ import { ipcMain } from 'hadron-ipc';
 import semver from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { getOsInfo } from '@mongodb-js/get-os-info';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
-  'COMPASS-AUTO-UPDATES'
-);
+const { log, mongoLogId, debug } = createLogger('COMPASS-AUTO-UPDATES');
+const track = createIpcTrack();
 
 function hasSquirrel() {
   const updateExe = path.resolve(

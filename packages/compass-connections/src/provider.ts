@@ -4,11 +4,12 @@ import { useConnectionInfo } from './connection-info-provider';
 import { EventEmitter } from 'events';
 import type { DataService } from 'mongodb-data-service';
 import { ConnectionsManager } from './connections-manager';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 export type { DataService };
 export * from './connections-manager';
 export { useConnections } from './components/connections-provider';
+export { useConnectionsWithStatus } from './hooks/use-connections-with-status';
 export { useActiveConnections } from './hooks/use-active-connections';
 
 class TestConnectionsManager extends EventEmitter {
@@ -34,7 +35,7 @@ export const useConnectionsManagerContext = (): ConnectionsManager => {
       );
     }
     return new ConnectionsManager({
-      logger: createNoopLoggerAndTelemetry().log.unbound,
+      logger: createNoopLogger().log.unbound,
     });
   }
   return connectionsManager;
@@ -88,7 +89,10 @@ export {
 export {
   type ConnectionRepository,
   useConnectionRepository,
+  withConnectionRepository,
   areConnectionsEqual,
+  connectionRepositoryAccessLocator,
+  type ConnectionRepositoryAccess,
 } from './components/connections-provider';
 export * from './connection-info-provider';
 

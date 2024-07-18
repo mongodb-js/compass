@@ -150,6 +150,13 @@ export function Sidebar({
         return;
       }
 
+      if (action === 'refresh-databases') {
+        onSidebarAction(action, ...rest, {
+          connectionId: initialConnectionInfo.id,
+        });
+        return;
+      }
+
       onSidebarAction(action, ...rest);
     },
     [
@@ -201,7 +208,7 @@ export function Sidebar({
         <div className={navigationItemsContainerStyles}>
           <NavigationItems
             connectionInfo={initialConnectionInfo}
-            activeWorkspace={activeWorkspace ?? undefined}
+            activeWorkspace={activeWorkspace}
             onAction={onAction}
           />
         </div>
@@ -220,8 +227,8 @@ export function Sidebar({
         />
         <CSFLEConnectionModal
           open={isCSFLEModalVisible}
-          setOpen={(open: boolean) => setIsCSFLEModalVisible(open)}
           csfleMode={csfleMode}
+          onClose={() => setIsCSFLEModalVisible(false)}
           setConnectionIsCSFLEEnabled={(enabled) =>
             setConnectionIsCSFLEEnabled(initialConnectionInfo.id, enabled)
           }

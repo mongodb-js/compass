@@ -62,7 +62,12 @@ describe('common utilities', function () {
 
       const { result } = renderHook(() => {
         const [open, setOpen] = useState(false);
-        useOpenModalThroughIpc(open, setOpen, event, fakeIpc as any);
+        useOpenModalThroughIpc(
+          open,
+          () => setOpen(true),
+          event,
+          fakeIpc as any
+        );
         return { open, setOpen };
       });
 

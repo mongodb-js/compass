@@ -296,11 +296,12 @@ describe('Collection import', function () {
     await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
 
     // confirm
-    const insertConfirm = await browser.$(Selectors.InsertConfirm);
     // this selector is very brittle, so just make sure it works
-    expect(await insertConfirm.isDisplayed()).to.be.true;
-    expect(await insertConfirm.getText()).to.equal('Insert');
-    await insertConfirm.waitForEnabled();
+    expect(await browser.$(Selectors.InsertConfirm).isDisplayed()).to.be.true;
+    expect(await browser.$(Selectors.InsertConfirm).getText()).to.equal(
+      'Insert'
+    );
+    await browser.$(Selectors.InsertConfirm).waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
 
     // wait for the modal to go away
@@ -603,6 +604,8 @@ describe('Collection import', function () {
 
     const importCompletedEvent = await telemetryEntry('Import Completed');
     delete importCompletedEvent.duration; // Duration varies.
+    expect(importCompletedEvent.connection_id).to.exist;
+    delete importCompletedEvent.connection_id; // connection_id varies
     expect(importCompletedEvent).to.deep.equal({
       delimiter: ',',
       newline: '\n',
@@ -1358,10 +1361,7 @@ describe('Collection import', function () {
       // Wait for the in progress toast to appear.
       await browser.$(Selectors.ImportToastAbort).waitForDisplayed();
 
-      await browser.disconnect();
-      await browser
-        .$(Selectors.SidebarTitle)
-        .waitForDisplayed({ reverse: true });
+      await browser.disconnectAll({ closeToasts: false });
 
       // Wait for the aborted toast to appear.
       await browser

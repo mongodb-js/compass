@@ -48,7 +48,7 @@ describe('CompassWeb', function () {
   before(function () {
     // TODO(COMPASS-7551): for some reason, specifically evergreen rhel machine can't
     // fully render this component, skipping for now
-    if (process.env.EVERGREEN_BUILD_VARIANT === 'rhel') {
+    if (process.env.IS_RHEL === 'true') {
       this.skip();
     }
   });
@@ -144,4 +144,6 @@ describe('CompassWeb', function () {
       );
     });
   });
+
+  // TODO: add tests for onTrack COMPASS-8019
 });

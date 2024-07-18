@@ -8,9 +8,10 @@ import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { AutoUpdateManagerState } from './auto-update-manager';
-const { track } = createLoggerAndTelemetry('COMPASS-APP-MENU');
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+
+const track = createIpcTrack();
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 
@@ -24,12 +25,34 @@ function separator(): MenuItemConstructorOptions {
   };
 }
 
-function quitItem(label: string): MenuItemConstructorOptions {
+function quitItem(
+  label: string,
+  compassApp: typeof CompassApplication
+): MenuItemConstructorOptions {
   return {
     label: label,
     accelerator: 'CmdOrCtrl+Q',
     click() {
-      app.quit();
+      !compassApp.preferences.getPreferences().enableShowDialogOnQuit
+        ? app.quit()
+        : void dialog
+            .showMessageBox({
+              type: 'warning',
+              title: `Quit ${app.getName()}`,
+              icon: COMPASS_ICON,
+              message: 'Are you sure you want to quit?',
+              buttons: ['Quit', 'Cancel'],
+              checkboxLabel: 'Do not ask me again',
+            })
+            .then((result) => {
+              if (result.response === 0) {
+                if (result.checkboxChecked)
+                  void compassApp.preferences.savePreferences({
+                    enableShowDialogOnQuit: false,
+                  });
+                app.quit();
+              }
+            });
     },
   };
 }
@@ -98,7 +121,7 @@ function darwinCompassSubMenu(
         role: 'unhide',
       },
       separator(),
-      quitItem('Quit'),
+      quitItem('Quit', compassApp),
     ],
   };
 }
@@ -155,7 +178,7 @@ function connectSubMenu(
 
   if (nonDarwin) {
     subMenu.push(separator());
-    subMenu.push(quitItem('E&xit'));
+    subMenu.push(quitItem('E&xit', app));
   }
 
   return {
@@ -714,4 +737,4 @@ class CompassMenu {
   }
 }
 
-export { CompassMenu };
+export { CompassMenu, quitItem };

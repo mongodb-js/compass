@@ -1,11 +1,11 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-USER-STORAGE');
+const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;

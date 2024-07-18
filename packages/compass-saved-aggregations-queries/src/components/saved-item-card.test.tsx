@@ -5,6 +5,8 @@ import { expect } from 'chai';
 import Sinon from 'sinon';
 
 import { SavedItemCard } from './saved-item-card';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 const now = Date.now();
 
@@ -114,5 +116,43 @@ describe('SavedItemCard', function () {
     expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
       ['123', 'delete'],
     ]);
+  });
+
+  context('when multi connections is enabled', function () {
+    it('should render an "Open in" action', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableNewMultipleConnectionSystem: true,
+      });
+      const onAction = Sinon.spy();
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <SavedItemCard
+            id="123"
+            name="My Awesome Query"
+            type="query"
+            database="sample_airbnb"
+            collection="listingsAndReviews"
+            onAction={onAction}
+            lastModified={now}
+            tabIndex={0}
+          ></SavedItemCard>
+        </PreferencesProvider>
+      );
+
+      userEvent.hover(screen.getByText('My Awesome Query'));
+      userEvent.click(
+        screen.getByRole('button', {
+          name: /show actions/i,
+        })
+      );
+      userEvent.click(screen.getByText('Open in'));
+
+      expect(onAction).to.have.callCount(1);
+      expect(onAction.getCalls().map((call) => call.args)).to.deep.eq([
+        ['123', 'open-in'],
+      ]);
+    });
   });
 });

@@ -10,15 +10,8 @@ import {
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 type WorkspacesWithSidebarProps = {
-  /**
-   * ConnectionInfo of the connection that Compass is connected to while in
-   * single connection mode. This is a temporary addition until we change My
-   * Queries plugin to be not dependent on DataService and MongoDBInstance.
-   */
-  singleConnectionConnectionInfo?: ConnectionInfo;
   /**
    * Current active workspace tab
    */
@@ -94,7 +87,6 @@ const sidebarStyles = css({
 const WorkspacesWithSidebar: React.FunctionComponent<
   WorkspacesWithSidebarProps
 > = ({
-  singleConnectionConnectionInfo,
   activeTab,
   activeTabCollectionInfo,
   openOnEmptyWorkspace,
@@ -116,17 +108,12 @@ const WorkspacesWithSidebar: React.FunctionComponent<
           darkMode ? containerDarkThemeStyles : containerLightThemeStyles
         )}
       >
-        <div className={sidebarStyles}>
-          {renderSidebar && React.createElement(renderSidebar)}
-        </div>
+        <div className={sidebarStyles}>{renderSidebar?.()}</div>
         <div className={workspacesStyles}>
-          <Workspaces
-            singleConnectionConnectionInfo={singleConnectionConnectionInfo}
-            openOnEmptyWorkspace={openOnEmptyWorkspace}
-          ></Workspaces>
+          <Workspaces openOnEmptyWorkspace={openOnEmptyWorkspace}></Workspaces>
         </div>
       </div>
-      {renderModals && React.createElement(renderModals)}
+      {renderModals?.()}
     </WorkspacesServiceProvider>
   );
 };

@@ -11,8 +11,10 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import type Stage from './stage';
 import { updatePipelinePreview } from './builder-helpers';
 import type { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const emptyPipelineError =
   'No pipeline was returned. Please try again with a different prompt.';
@@ -159,7 +161,9 @@ type FailedResponseTrackMessage = {
   errorName: string;
   errorCode?: string;
   requestId: string;
-} & Pick<LoggerAndTelemetry, 'log' | 'track'>;
+  connectionInfo: ConnectionInfo;
+  track: TrackFunction;
+} & Pick<Logger, 'log'>;
 
 function trackAndLogFailed({
   editor_view_type,
@@ -169,6 +173,7 @@ function trackAndLogFailed({
   errorCode,
   log,
   requestId,
+  connectionInfo,
   track,
 }: FailedResponseTrackMessage) {
   log.warn(
@@ -183,13 +188,17 @@ function trackAndLogFailed({
       requestId,
     }
   );
-  track('AI Response Failed', {
-    editor_view_type,
-    error_code: errorCode || '',
-    status_code: statusCode,
-    error_name: errorName,
-    request_id: requestId,
-  });
+  track(
+    'AI Response Failed',
+    {
+      editor_view_type,
+      error_code: errorCode || '',
+      status_code: statusCode,
+      error_name: errorName,
+      request_id: requestId,
+    },
+    connectionInfo
+  );
 }
 
 export const runAIPipelineGeneration = (
@@ -205,7 +214,9 @@ export const runAIPipelineGeneration = (
       atlasAiService,
       pipelineBuilder,
       preferences,
-      logger: { track, log, mongoLogId },
+      logger: { log, mongoLogId },
+      track,
+      connectionInfoAccess,
     }
   ) => {
     const {
@@ -216,6 +227,8 @@ export const runAIPipelineGeneration = (
       namespace,
       dataService: { dataService },
     } = getState();
+
+    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
 
     const provideSampleDocuments =
       preferences.getPreferences().enableGenAISampleDocumentPassing;
@@ -229,12 +242,16 @@ export const runAIPipelineGeneration = (
     const abortController = new AbortController();
     const { id: requestId, signal } = getAbortSignal();
 
-    track('AI Prompt Submitted', () => ({
-      editor_view_type,
-      user_input_length: userInput.length,
-      request_id: requestId,
-      has_sample_documents: provideSampleDocuments,
-    }));
+    track(
+      'AI Prompt Submitted',
+      () => ({
+        editor_view_type,
+        user_input_length: userInput.length,
+        request_id: requestId,
+        has_sample_documents: provideSampleDocuments,
+      }),
+      connectionInfo
+    );
 
     dispatch({
       type: AIPipelineActionTypes.AIPipelineStarted,
@@ -290,6 +307,7 @@ export const runAIPipelineGeneration = (
         track,
         log,
         requestId,
+        connectionInfo,
       });
       // We're going to reset input state with this error, show the error in the
       // toast instead
@@ -338,6 +356,7 @@ export const runAIPipelineGeneration = (
         track,
         log,
         requestId,
+        connectionInfo,
       });
       dispatch({
         type: AIPipelineActionTypes.AIPipelineFailed,
@@ -360,12 +379,16 @@ export const runAIPipelineGeneration = (
       }
     );
 
-    track('AI Response Generated', () => ({
-      editor_view_type,
-      syntax_errors: !!(pipelineBuilder.syntaxError?.length > 0),
-      query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
-      request_id: requestId,
-    }));
+    track(
+      'AI Response Generated',
+      () => ({
+        editor_view_type,
+        syntax_errors: !!(pipelineBuilder.syntaxError?.length > 0),
+        query_shape: pipelineBuilder.stages.map((stage) => stage.operator),
+        request_id: requestId,
+      }),
+      connectionInfo
+    );
 
     dispatch({
       type: AIPipelineActionTypes.LoadGeneratedPipeline,

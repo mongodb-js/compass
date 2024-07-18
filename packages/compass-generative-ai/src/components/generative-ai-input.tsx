@@ -300,6 +300,7 @@ const SubmitArrowSVG = ({ darkMode }: { darkMode?: boolean }) => (
 
 type GenerativeAIInputProps = {
   aiPromptText: string;
+  didGenerateEmptyResults: boolean;
   didSucceed: boolean;
   errorMessage?: string;
   errorCode?: string;
@@ -320,6 +321,7 @@ type GenerativeAIInputProps = {
 
 function GenerativeAIInput({
   aiPromptText,
+  didGenerateEmptyResults,
   didSucceed,
   errorMessage,
   errorCode,
@@ -336,8 +338,16 @@ function GenerativeAIInput({
 }: GenerativeAIInputProps) {
   const promptTextInputRef = useRef<HTMLTextAreaElement>(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showEmptyResultsDisclaimer, setShowEmptyResultsDisclaimer] =
+    useState(false);
   const darkMode = useDarkMode();
   const guideCueRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (didGenerateEmptyResults) {
+      setShowEmptyResultsDisclaimer(true);
+    }
+  }, [didGenerateEmptyResults]);
 
   const handleSubmit = useCallback(
     (aiPromptText: string) => {
@@ -413,6 +423,13 @@ function GenerativeAIInput({
                   refEl={guideCueRef}
                   title="Aggregation generated"
                   description="Your query requires stages from MongoDB's aggregation framework. Continue to work on it in our Aggregation Pipeline Builder"
+                />
+                <AIGuideCue
+                  showGuideCue={showEmptyResultsDisclaimer}
+                  onCloseGuideCue={() => setShowEmptyResultsDisclaimer(false)}
+                  refEl={guideCueRef}
+                  title="No content generated"
+                  description="The query generated returns all of the documents in your collection. Consider adjusting and resubmitting your prompt to narrow down the results."
                 />
                 <span className={aiEntryContainerStyles} ref={guideCueRef}>
                   <Icon glyph="Sparkle" />

@@ -154,6 +154,7 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     for (const protectConnectionStrings of [false, true]) {
+      // Security-relevant test -- description is in the protect-connection-strings e2e test.
       context(
         `when protect connection strings is ${protectConnectionStrings}`,
         function () {

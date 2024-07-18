@@ -21,7 +21,11 @@ import TopStore from '../stores/top-store';
 import { ServerStatsToolbar } from './server-stats-toolbar';
 import Actions from '../actions';
 import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 
@@ -115,13 +119,17 @@ function PerformancePanelMsgs() {
  */
 function PerformanceComponent() {
   const eventDispatcher = useRef(realTimeDispatcher());
+  const connectionInfoAccess = useConnectionInfoAccess();
 
   useTrackOnChange(
-    'COMPASS-PERFORMANCE-UI',
-    (track) => {
-      track('Screen', { name: 'performance' });
+    (track: TrackFunction) => {
+      track(
+        'Screen',
+        { name: 'performance' },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
     },
-    []
+    [connectionInfoAccess]
   );
 
   useEffect(() => {

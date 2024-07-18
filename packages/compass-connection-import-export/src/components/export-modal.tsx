@@ -30,7 +30,7 @@ export function ExportConnectionsModal({
   trackingProps,
 }: {
   open: boolean;
-  setOpen: (newOpen: boolean) => void;
+  setOpen: (newOpen: boolean, trackingProps?: Record<string, unknown>) => void;
   afterExport?: () => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
@@ -51,7 +51,15 @@ export function ExportConnectionsModal({
     [afterExport, openToast, setOpen]
   );
 
-  useOpenModalThroughIpc(open, setOpen, 'compass:open-export-connections');
+  const openModalThroughIpc = useCallback(() => {
+    setOpen(true, { context: 'menuBar' });
+  }, [setOpen]);
+
+  useOpenModalThroughIpc(
+    open,
+    openModalThroughIpc,
+    'compass:open-export-connections'
+  );
 
   const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   const {

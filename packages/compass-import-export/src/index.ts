@@ -6,7 +6,9 @@ import ExportPluginComponent from './export-plugin';
 import { activatePlugin as activateExportPlugin } from './stores/export-store';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { connectionRepositoryAccessLocator } from '@mongodb-js/compass-connections/provider';
 
 /**
  * The import plugin.
@@ -19,9 +21,11 @@ export const ImportPlugin = registerHadronPlugin(
   },
   {
     connectionsManager: connectionsManagerLocator,
+    connectionRepository: connectionRepositoryAccessLocator,
     workspaces: workspacesServiceLocator,
     preferences: preferencesLocator,
-    logger: createLoggerAndTelemetryLocator('COMPASS-IMPORT-UI'),
+    logger: createLoggerLocator('COMPASS-IMPORT-UI'),
+    track: telemetryLocator,
   }
 );
 
@@ -36,7 +40,9 @@ export const ExportPlugin = registerHadronPlugin(
   },
   {
     connectionsManager: connectionsManagerLocator,
+    connectionRepository: connectionRepositoryAccessLocator,
     preferences: preferencesLocator,
-    logger: createLoggerAndTelemetryLocator('COMPASS-EXPORT-UI'),
+    logger: createLoggerLocator('COMPASS-EXPORT-UI'),
+    track: telemetryLocator,
   }
 );

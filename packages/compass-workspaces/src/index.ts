@@ -26,8 +26,8 @@ import {
   ConnectionsManagerEvents,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import {
   type MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
@@ -37,7 +37,7 @@ export type WorkspacesServices = {
   globalAppRegistry: AppRegistry;
   instancesManager: MongoDBInstancesManager;
   connectionsManager: ConnectionsManager;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
 };
 
 export function configureStore(
@@ -164,6 +164,21 @@ export function activateWorkspacePlugin(
     }
   });
 
+  // TODO(COMPASS-8033): activate this code and account for it in e2e tests and
+  // electron environment
+  // function onBeforeUnload(evt: BeforeUnloadEvent) {
+  //   const canUnload = store.getState().tabs.every((tab) => {
+  //     return canCloseTab(tab);
+  //   });
+  //   if (!canUnload) {
+  //     evt.preventDefault();
+  //   }
+  // }
+  // window.addEventListener('beforeunload', onBeforeUnload);
+  // addCleanup(() => {
+  //   window.removeEventListener('beforeunload', onBeforeUnload);
+  // });
+
   return {
     store,
     context: WorkspacesStoreContext,
@@ -180,7 +195,7 @@ const WorkspacesPlugin = registerHadronPlugin(
   {
     instancesManager: mongoDBInstancesManagerLocator,
     connectionsManager: connectionsManagerLocator,
-    logger: createLoggerAndTelemetryLocator('COMPASS-WORKSPACES-UI'),
+    logger: createLoggerLocator('COMPASS-WORKSPACES-UI'),
   }
 );
 

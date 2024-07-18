@@ -30,16 +30,11 @@ const run = require('./../lib/run');
 const rebuild = require('@electron/rebuild').rebuild;
 const { signArchive } = require('./../lib/signtool');
 
-const ui = require('./ui');
 const verify = require('./verify');
 
 exports.command = 'release';
 
 exports.describe = ':shipit:';
-
-const compileAssets = module.exports.compileAssets = (CONFIG, done) => {
-  run('npm', ['run', 'compile'], { cwd: CONFIG.dir }, done);
-};
 
 /**
  * Run `electron-packager`
@@ -160,6 +155,26 @@ const copy3rdPartyNoticesFile = (CONFIG, done) => {
       cli.debug(format('THIRD-PARTY-NOTICES.md written'));
     }).then(() => done(null, true));
   } catch (err) {
+    done(err);
+  }
+};
+
+/**
+ * Copies the SBOM file from the compass dir to the root of the archive, similar to
+ * copy3rdPartyNoticesFile().
+ */
+const copySBOMFile = (CONFIG, done) => {
+  try {
+    const sbomPath = path.join(CONFIG.dir, '..', '..', '.sbom', 'sbom.json');
+    const contents = fs.readFileSync(sbomPath);
+    CONFIG.write('.sbom.json', contents).then(() => {
+      cli.debug(format('.sbom.json written'));
+    }).then(() => done(null, true));
+  } catch (err) {
+    if (err.code === 'ENOENT' && !process.env.COMPASS_WAS_COMPILED_AND_HAS_SBOM) {
+      cli.debug(format('Skipping sbom.json writing because the file is missing'));
+      return done(null, true);
+    }
     done(err);
   }
 };
@@ -479,7 +494,7 @@ exports.builder = {
   }
 };
 
-_.assign(exports.builder, ui.builder, verify.builder);
+_.assign(exports.builder, verify.builder);
 
 
 /**
@@ -524,7 +539,6 @@ exports.run = (argv, done) => {
         done
       );
     }),
-    task('compile application assets with webpack', compileAssets),
     task('create branded application', createBrandedApplication),
     task('create executable symlink', symlinkExecutable),
     task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),
@@ -534,6 +548,7 @@ exports.run = (argv, done) => {
     task('fix COMPASS-5333', fixCompass5333),
     task('write license file', writeLicenseFile),
     task('write 3rd party notices file', copy3rdPartyNoticesFile),
+    task('write sbom file', copySBOMFile),
     task('remove development files', removeDevelopmentFiles),
     !noAsar && task('create application asar', createApplicationAsar),
     !skipInstaller && task('create branded installer', createBrandedInstaller),

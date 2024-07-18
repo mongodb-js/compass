@@ -16,7 +16,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { mapQueryToFormFields } from '../utils/query';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import {
   FavoriteQueryStorageProvider,
   RecentQueryStorageProvider,
@@ -25,6 +25,7 @@ import {
   compassFavoriteQueryStorageAccess,
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* no op */
@@ -56,7 +57,8 @@ describe('QueryBar Component', function () {
   ) => {
     const store = configureStore(storeOptions, {
       preferences,
-      logger: createNoopLoggerAndTelemetry(),
+      logger: createNoopLogger(),
+      track: createNoopTrack(),
     } as QueryBarExtraArgs);
     store.dispatch(toggleQueryOptions(expanded));
 
@@ -262,7 +264,8 @@ describe('QueryBar Component', function () {
     it('editors are disabled', function () {
       const store = configureStore({}, {
         preferences,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
       } as QueryBarExtraArgs);
 
       store.dispatch({

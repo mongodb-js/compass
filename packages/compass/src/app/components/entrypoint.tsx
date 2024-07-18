@@ -20,21 +20,32 @@ import {
   type FavoriteQueryStorageAccess,
   type RecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import { createLogger } from '@mongodb-js/compass-logging';
+import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import Home, { type HomeProps } from './home';
+import {
+  type TelemetryServiceOptions,
+  createIpcSendTrack,
+} from '@mongodb-js/compass-telemetry';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
-    createLogger: createLoggerAndTelemetry,
+    createLogger,
+  });
+  const preferencesProviderValue = useRef(defaultPreferencesInstance);
+  const telemetryOptions = useRef<TelemetryServiceOptions>({
+    sendTrack: createIpcSendTrack(),
     preferences: defaultPreferencesInstance,
   });
   return (
-    <PreferencesProvider value={loggerProviderValue.current.preferences}>
-      <LoggerAndTelemetryProvider value={loggerProviderValue.current}>
-        {children}
-      </LoggerAndTelemetryProvider>
+    <PreferencesProvider value={preferencesProviderValue.current}>
+      <LoggerProvider value={loggerProviderValue.current}>
+        <TelemetryProvider options={telemetryOptions.current}>
+          {children}
+        </TelemetryProvider>
+      </LoggerProvider>
     </PreferencesProvider>
   );
 };

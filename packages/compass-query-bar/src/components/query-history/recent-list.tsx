@@ -21,8 +21,9 @@ import { OpenBulkUpdateActionButton } from './query-item/query-item-action-butto
 import { usePreference } from 'compass-preferences-model/provider';
 import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type RecentActions = {
   onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
@@ -42,7 +43,8 @@ const RecentItem = ({
   query: RecentQuery;
   isReadonly: boolean;
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+  const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
@@ -61,9 +63,13 @@ const RecentItem = ({
       onUpdateRecentChoosen();
     }
 
-    track('Query History Recent Used', {
-      isUpdateQuery,
-    });
+    track(
+      'Query History Recent Used',
+      {
+        isUpdateQuery,
+      },
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
     onApply(attributes);
   }, [
     isDisabled,
@@ -72,6 +78,7 @@ const RecentItem = ({
     onApply,
     attributes,
     onUpdateRecentChoosen,
+    connectionInfoAccess,
   ]);
 
   const onCardClick = useCallback(
@@ -88,10 +95,14 @@ const RecentItem = ({
 
   const onSaveQuery = useCallback(
     (name: string) => {
-      track('Query History Favorite Added', { isUpdateQuery });
+      track(
+        'Query History Favorite Added',
+        { isUpdateQuery },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
       void onFavorite(query, name);
     },
-    [track, isUpdateQuery, onFavorite, query]
+    [track, isUpdateQuery, onFavorite, query, connectionInfoAccess]
   );
 
   return (

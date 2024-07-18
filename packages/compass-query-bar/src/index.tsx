@@ -2,6 +2,7 @@ import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activatePlugin } from './stores/query-bar-store';
 import {
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -18,13 +19,14 @@ import {
 import type { QueryBarService } from './components/hooks';
 import QueryBarComponent from './components/query-bar';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import {
   favoriteQueryStorageAccessLocator,
   recentQueryStorageAccessLocator,
 } from '@mongodb-js/my-queries-storage/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 
 const QueryBarPlugin = registerHadronPlugin(
   {
@@ -49,7 +51,9 @@ const QueryBarPlugin = registerHadronPlugin(
     >,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
-    logger: createLoggerAndTelemetryLocator('COMPASS-QUERY-BAR-UI'),
+    logger: createLoggerLocator('COMPASS-QUERY-BAR-UI'),
+    track: telemetryLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
     atlasAiService: atlasAiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
@@ -57,7 +61,7 @@ const QueryBarPlugin = registerHadronPlugin(
   }
 );
 
-export type ChangeQueryBar = typeof useChangeQueryBarQuery;
+export type ChangeQueryFn = ReturnType<typeof useChangeQueryBarQuery>;
 
 // Rendering query bar only makes sense if query bar store is in the rendering
 // tree. If it's not, `useQueryBarComponent` will return a `null` component

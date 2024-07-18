@@ -6,7 +6,7 @@ import {
   throwIfNetworkTrafficDisabled,
   throwIfNotOk,
 } from './util';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
 export type AtlasServiceOptions = {
@@ -18,7 +18,7 @@ export class AtlasService {
   constructor(
     private readonly authService: AtlasAuthService,
     private readonly preferences: PreferencesAccess,
-    private readonly logger: LoggerAndTelemetry,
+    private readonly logger: Logger,
     private readonly options?: AtlasServiceOptions
   ) {
     this.config = getAtlasConfig(preferences);

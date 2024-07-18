@@ -1,13 +1,29 @@
-import type { ActionCreator, Reducer } from 'redux';
+import type { ActionCreator, AnyAction, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
+
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
+export type OpenedModal =
+  | 'select-connection-and-namespace-modal'
+  | 'namespace-not-found-modal'
+  | 'select-connection-modal'
+  | 'no-active-connections-modal';
+
 export type State = {
-  isModalOpen: boolean;
+  openedModal: OpenedModal | null;
   selectedItem: Item | null;
-  createCollectionStatus: Status;
+  connections: { id: string; name: string; color?: string }[];
+  selectedConnection: string | null;
   databases: string[];
   selectedDatabase: string | null;
   databasesStatus: Status;
@@ -18,9 +34,10 @@ export type State = {
 };
 
 const INITIAL_STATE: State = {
-  isModalOpen: false,
+  openedModal: null,
   selectedItem: null,
-  createCollectionStatus: 'initial',
+  connections: [],
+  selectedConnection: null,
   databases: [],
   selectedDatabase: null,
   databasesStatus: 'initial',
@@ -33,12 +50,13 @@ const INITIAL_STATE: State = {
 export enum ActionTypes {
   OpenModal = 'compass-saved-aggregations-queries/openModal',
   CloseModal = 'compass-saved-aggregations-queries/closeModal',
-  CreateNamespaceStatusChange = 'compass-saved-aggregations-queries/createNamespaceStatusChange',
-  SelectDatabase = 'compass-saved-aggregations-queries/selectDatabase',
+  ConnectionSelected = 'compass-saved-aggregations-queries/connectionSelected',
+  ConnectionSelectedForPreSelectedNamespace = 'compass-saved-aggregations-queries/connectionSelectedForPreSelectedNamespace',
+  DatabaseSelected = 'compass-saved-aggregations-queries/DatabaseSelected',
   LoadDatabases = 'compass-saved-aggregations-queries/loadDatabases',
   LoadDatabasesSuccess = 'compass-saved-aggregations-queries/loadDatabasesSuccess',
   LoadDatabasesError = 'compass-saved-aggregations-queries/loadDatabasesError',
-  SelectCollection = 'compass-saved-aggregations-queries/selectCollection',
+  CollectionSelected = 'compass-saved-aggregations-queries/collectionSelected',
   LoadCollections = 'compass-saved-aggregations-queries/loadCollections',
   LoadCollectionsSuccess = 'compass-saved-aggregations-queries/loadCollectionsSuccess',
   LoadCollectionsError = 'compass-saved-aggregations-queries/loadCollectionsError',
@@ -47,20 +65,32 @@ export enum ActionTypes {
 
 type OpenModalAction = {
   type: ActionTypes.OpenModal;
-  selectedItem: Item;
+  modal: OpenedModal;
+  connections: State['connections'];
+  selectedItem?: Item;
+  selectedConnection?: string;
+  selectedDatabase?: string;
+  selectedCollection?: string;
 };
 
 type CloseModalAction = {
   type: ActionTypes.CloseModal;
 };
 
-type CreateNamespaceStatusChangeAction = {
-  type: ActionTypes.CreateNamespaceStatusChange;
-  status: Status;
+type ConnectionSelectedAction = {
+  type: ActionTypes.ConnectionSelected;
+  selectedConnection: string;
 };
 
-type SelectDatabaseAction = {
-  type: ActionTypes.SelectDatabase;
+// Supposed to happen when a connection is selected without destroying the
+// pre-selected namespace(database / collection) state in the store
+type ConnectionSelectedForPreSelectedNamespaceAction = {
+  type: ActionTypes.ConnectionSelectedForPreSelectedNamespace;
+  selectedConnection: string;
+};
+
+type DatabaseSelectedAction = {
+  type: ActionTypes.DatabaseSelected;
   database: string;
 };
 
@@ -77,8 +107,8 @@ type LoadDatabasesErrorAction = {
   type: ActionTypes.LoadDatabasesError;
 };
 
-type SelectCollectionAction = {
-  type: ActionTypes.SelectCollection;
+type CollectionSelectedAction = {
+  type: ActionTypes.CollectionSelected;
   collection: string;
 };
 
@@ -95,7 +125,7 @@ type LoadCollectionsErrorAction = {
   type: ActionTypes.LoadCollectionsError;
 };
 
-type UpdateNamespaceChecked = {
+type UpdateNamespaceCheckedAction = {
   type: ActionTypes.UpdateNamespaceChecked;
   updateItemNamespace: boolean;
 };
@@ -103,100 +133,177 @@ type UpdateNamespaceChecked = {
 export type Actions =
   | OpenModalAction
   | CloseModalAction
-  | CreateNamespaceStatusChangeAction
-  | SelectDatabaseAction
+  | ConnectionSelectedAction
+  | ConnectionSelectedForPreSelectedNamespaceAction
+  | DatabaseSelectedAction
   | LoadDatabasesAction
   | LoadDatabasesErrorAction
   | LoadDatabasesSuccessAction
-  | SelectCollectionAction
+  | CollectionSelectedAction
   | LoadCollectionsAction
   | LoadCollectionsErrorAction
   | LoadCollectionsSuccessAction
-  | UpdateNamespaceChecked;
+  | UpdateNamespaceCheckedAction;
 
 const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ActionTypes.OpenModal:
-      return {
-        ...state,
-        selectedItem: action.selectedItem,
-        isModalOpen: true,
-      };
-    case ActionTypes.CloseModal:
-      return { ...INITIAL_STATE };
-    case ActionTypes.CreateNamespaceStatusChange:
-      return {
-        ...state,
-        createCollectionStatus: action.status,
-      };
-    case ActionTypes.SelectDatabase:
-      return {
-        ...state,
-        selectedDatabase: action.database,
-        collections: [],
-        collectionsStatus: 'initial',
-        selectedCollection: null,
-      };
-    case ActionTypes.LoadDatabases:
-      return {
-        ...state,
-        databasesStatus: 'fetching',
-      };
-    case ActionTypes.LoadDatabasesError:
-      return {
-        ...state,
-        databasesStatus: 'error',
-      };
-    case ActionTypes.LoadDatabasesSuccess:
-      return {
-        ...state,
-        databases: action.databases,
-        databasesStatus: 'ready',
-      };
-    case ActionTypes.SelectCollection:
-      return {
-        ...state,
-        selectedCollection: action.collection,
-      };
-    case ActionTypes.LoadCollections:
-      return {
-        ...state,
-        collectionsStatus: 'fetching',
-      };
-    case ActionTypes.LoadCollectionsError:
-      return {
-        ...state,
-        collectionsStatus: 'error',
-      };
-    case ActionTypes.LoadCollectionsSuccess:
-      return {
-        ...state,
-        collections: action.collections,
-        collectionsStatus: 'ready',
-      };
-    case ActionTypes.UpdateNamespaceChecked:
-      return {
-        ...state,
-        updateItemNamespace: action.updateItemNamespace,
-      };
-    default:
-      return state;
+  if (isAction<OpenModalAction>(action, ActionTypes.OpenModal)) {
+    return {
+      ...state,
+      openedModal: action.modal,
+      connections: action.connections,
+      selectedItem: action.selectedItem ?? state.selectedItem,
+      selectedConnection: action.selectedConnection ?? state.selectedConnection,
+      selectedDatabase: action.selectedDatabase ?? state.selectedDatabase,
+      selectedCollection: action.selectedCollection ?? state.selectedCollection,
+    };
   }
+
+  if (isAction<CloseModalAction>(action, ActionTypes.CloseModal)) {
+    return { ...INITIAL_STATE };
+  }
+
+  if (
+    isAction<ConnectionSelectedAction>(action, ActionTypes.ConnectionSelected)
+  ) {
+    return {
+      ...state,
+      selectedConnection: action.selectedConnection,
+      selectedDatabase: null,
+      databases: [],
+      databasesStatus: 'initial',
+      collections: [],
+      collectionsStatus: 'initial',
+      selectedCollection: null,
+    };
+  }
+
+  if (
+    isAction<ConnectionSelectedForPreSelectedNamespaceAction>(
+      action,
+      ActionTypes.ConnectionSelectedForPreSelectedNamespace
+    )
+  ) {
+    return {
+      ...state,
+      selectedConnection: action.selectedConnection,
+    };
+  }
+
+  if (isAction<DatabaseSelectedAction>(action, ActionTypes.DatabaseSelected)) {
+    return {
+      ...state,
+      selectedDatabase: action.database,
+      collections: [],
+      collectionsStatus: 'initial',
+      selectedCollection: null,
+    };
+  }
+
+  if (isAction<LoadDatabasesAction>(action, ActionTypes.LoadDatabases)) {
+    return {
+      ...state,
+      databasesStatus: 'fetching',
+    };
+  }
+
+  if (
+    isAction<LoadDatabasesErrorAction>(action, ActionTypes.LoadDatabasesError)
+  ) {
+    return {
+      ...state,
+      databasesStatus: 'error',
+    };
+  }
+
+  if (
+    isAction<LoadDatabasesSuccessAction>(
+      action,
+      ActionTypes.LoadDatabasesSuccess
+    )
+  ) {
+    return {
+      ...state,
+      databases: action.databases,
+      databasesStatus: 'ready',
+    };
+  }
+
+  if (
+    isAction<CollectionSelectedAction>(action, ActionTypes.CollectionSelected)
+  ) {
+    return {
+      ...state,
+      selectedCollection: action.collection,
+    };
+  }
+
+  if (isAction<LoadCollectionsAction>(action, ActionTypes.LoadCollections)) {
+    return {
+      ...state,
+      collectionsStatus: 'fetching',
+    };
+  }
+
+  if (
+    isAction<LoadCollectionsErrorAction>(
+      action,
+      ActionTypes.LoadCollectionsError
+    )
+  ) {
+    return {
+      ...state,
+      collectionsStatus: 'error',
+    };
+  }
+
+  if (
+    isAction<LoadCollectionsSuccessAction>(
+      action,
+      ActionTypes.LoadCollectionsSuccess
+    )
+  ) {
+    return {
+      ...state,
+      collections: action.collections,
+      collectionsStatus: 'ready',
+    };
+  }
+
+  if (
+    isAction<UpdateNamespaceCheckedAction>(
+      action,
+      ActionTypes.UpdateNamespaceChecked
+    )
+  ) {
+    return {
+      ...state,
+      updateItemNamespace: action.updateItemNamespace,
+    };
+  }
+
+  return state;
 };
 
-export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
-  type: ActionTypes.UpdateNamespaceChecked,
-  updateItemNamespace,
-});
+const connectionInfoToStateConnections = (
+  connectionInfo: ConnectionInfo
+): State['connections'][number] => {
+  return {
+    id: connectionInfo.id,
+    name: getConnectionTitle(connectionInfo),
+    color: connectionInfo.favorite?.color,
+  };
+};
 
-const openModal =
-  (selectedItem: Item): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, _getState, { instance, dataService }) => {
-    dispatch({ type: ActionTypes.OpenModal, selectedItem });
-
+const loadDatabasesForConnection =
+  (connectionId: string): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (dispatch, _getState, { connectionsManager, instancesManager }) => {
     dispatch({ type: ActionTypes.LoadDatabases });
-
     try {
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(connectionId);
+      const dataService =
+        connectionsManager.getDataServiceForConnection(connectionId);
+
       await instance.fetchDatabases({ dataService });
       dispatch({
         type: ActionTypes.LoadDatabasesSuccess,
@@ -207,21 +314,119 @@ const openModal =
     }
   };
 
-export const closeModal: ActionCreator<CloseModalAction> = () => {
-  return { type: ActionTypes.CloseModal };
-};
+export const connectionSelected =
+  (selectedConnection: string): SavedQueryAggregationThunkAction<void> =>
+  (dispatch) => {
+    dispatch({
+      type: ActionTypes.ConnectionSelected,
+      selectedConnection,
+    });
+
+    void dispatch(loadDatabasesForConnection(selectedConnection));
+  };
+
+export const connectionSelectedForPreSelectedNamespace = (
+  selectedConnection: string
+): ConnectionSelectedForPreSelectedNamespaceAction => ({
+  type: ActionTypes.ConnectionSelectedForPreSelectedNamespace,
+  selectedConnection,
+});
+
+export const updateItemNamespaceChecked = (updateItemNamespace: boolean) => ({
+  type: ActionTypes.UpdateNamespaceChecked,
+  updateItemNamespace,
+});
+
+const openNamespaceNotFoundModal =
+  (
+    selectedItem: Item,
+    connections: State['connections'],
+    selectedConnection?: string
+  ): SavedQueryAggregationThunkAction<void, OpenModalAction> =>
+  (dispatch) => {
+    dispatch({
+      type: ActionTypes.OpenModal,
+      modal: 'namespace-not-found-modal',
+      selectedItem,
+      connections,
+      selectedConnection,
+    });
+
+    if (selectedConnection) {
+      void dispatch(loadDatabasesForConnection(selectedConnection));
+    }
+  };
+
+const openSelectConnectionsModal = (
+  selectedItem: Item,
+  connections: State['connections'],
+  selectedDatabase: string,
+  selectedCollection: string
+): OpenModalAction => ({
+  type: ActionTypes.OpenModal,
+  modal: 'select-connection-modal',
+  selectedItem,
+  connections,
+  selectedDatabase,
+  selectedCollection,
+});
+
+export const openSelectConnectionAndNamespaceModal =
+  (
+    id: string,
+    activeConnections: ConnectionInfo[]
+  ): SavedQueryAggregationThunkAction<void, OpenModalAction> =>
+  (dispatch, getState) => {
+    const {
+      savedItems: { items },
+    } = getState();
+
+    if (!activeConnections.length) {
+      dispatch(openNoActiveConnectionsModal());
+      return;
+    }
+
+    const selectedItem = items.find((item) => item.id === id);
+
+    if (!selectedItem) {
+      return;
+    }
+
+    const connections = activeConnections.map(connectionInfoToStateConnections);
+    const selectedConnection =
+      connections.length === 1 ? connections[0].id : undefined;
+
+    dispatch({
+      type: ActionTypes.OpenModal,
+      modal: 'select-connection-and-namespace-modal',
+      selectedItem,
+      connections,
+      selectedConnection,
+    });
+
+    if (selectedConnection) {
+      void dispatch(loadDatabasesForConnection(selectedConnection));
+    }
+  };
+
+const openNoActiveConnectionsModal = (): OpenModalAction => ({
+  type: ActionTypes.OpenModal,
+  modal: 'no-active-connections-modal',
+  connections: [],
+});
+
+export const closeModal = (): CloseModalAction => ({
+  type: ActionTypes.CloseModal,
+});
 
 const openItem =
   (
     item: Item,
+    connection: string,
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (
-    _dispatch,
-    _getState,
-    { logger: { track }, workspaces, connectionInfoAccess }
-  ) => {
+  (_dispatch, _getState, { track, workspaces }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -232,11 +437,8 @@ const openItem =
       }
     );
 
-    const { id: connectionId } =
-      connectionInfoAccess.getCurrentConnectionInfo();
-
     workspaces.openCollectionWorkspace(
-      connectionId,
+      connection,
       `${database}.${collection}`,
       {
         initialAggregation:
@@ -251,11 +453,23 @@ const openItem =
   };
 
 export const openSavedItem =
-  (id: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState, { instance, dataService }) => {
+  (
+    id: string,
+    activeConnections: ConnectionInfo[]
+  ): SavedQueryAggregationThunkAction<Promise<void>> =>
+  async (
+    dispatch,
+    getState,
+    { instancesManager, connectionsManager, logger: { log, mongoLogId } }
+  ) => {
     const {
       savedItems: { items },
     } = getState();
+
+    if (!activeConnections.length) {
+      dispatch(openNoActiveConnectionsModal());
+      return;
+    }
 
     const item = items.find((item) => item.id === id);
 
@@ -265,27 +479,66 @@ export const openSavedItem =
 
     const { database, collection } = item;
 
-    const coll = await instance.getNamespace({
-      dataService,
-      database,
-      collection,
-    });
+    const connectionsWithError: { connectionId: string; error: Error }[] = [];
+    const connectionsWithNamespace: ConnectionInfo[] = [];
+    for (const connectionInfo of activeConnections) {
+      try {
+        const dataService = connectionsManager.getDataServiceForConnection(
+          connectionInfo.id
+        );
+        const instance = instancesManager.getMongoDBInstanceForConnection(
+          connectionInfo.id
+        );
+        const coll = await instance.getNamespace({
+          dataService,
+          database,
+          collection,
+        });
 
-    if (!coll) {
-      void dispatch(openModal(item));
-      return;
+        if (coll) {
+          connectionsWithNamespace.push(connectionInfo);
+        }
+      } catch (error) {
+        connectionsWithError.push({
+          connectionId: connectionInfo.id,
+          error: error as Error,
+        });
+      }
     }
 
-    dispatch(openItem(item, database, collection));
-  };
+    if (connectionsWithError.length) {
+      log.info(
+        mongoLogId(1_001_000_316),
+        'Saved Aggregations Queries',
+        'Failed to lookup namespace in some connections',
+        connectionsWithError
+      );
+    }
 
-export const updateNamespaceChecked =
-  (updateNamespaceChecked: boolean): SavedQueryAggregationThunkAction<void> =>
-  (dispatch) => {
-    dispatch({
-      type: ActionTypes.UpdateNamespaceChecked,
-      updateNamespaceChecked,
-    });
+    if (connectionsWithNamespace.length === 0) {
+      // If we only have one active connection then we have it selected by
+      // default
+      const selectedConnection =
+        activeConnections.length === 1 ? activeConnections[0] : undefined;
+      const connections = activeConnections.map(
+        connectionInfoToStateConnections
+      );
+      dispatch(
+        openNamespaceNotFoundModal(item, connections, selectedConnection?.id)
+      );
+    } else if (connectionsWithNamespace.length === 1) {
+      dispatch(
+        openItem(item, connectionsWithNamespace[0].id, database, collection)
+      );
+    } else {
+      // For SelectConnectionsModal we only show the connections that have the namespace
+      const connections = connectionsWithNamespace.map(
+        connectionInfoToStateConnections
+      );
+      dispatch(
+        openSelectConnectionsModal(item, connections, database, collection)
+      );
+    }
   };
 
 export const openSelectedItem =
@@ -294,13 +547,19 @@ export const openSelectedItem =
     const {
       openItem: {
         selectedItem,
+        selectedConnection,
         selectedDatabase,
         selectedCollection,
         updateItemNamespace,
       },
     } = getState();
 
-    if (!selectedItem || !selectedDatabase || !selectedCollection) {
+    if (
+      !selectedItem ||
+      !selectedConnection ||
+      !selectedDatabase ||
+      !selectedCollection
+    ) {
       return;
     }
 
@@ -318,29 +577,45 @@ export const openSelectedItem =
     }
 
     dispatch({ type: ActionTypes.CloseModal });
-    dispatch(openItem(selectedItem, selectedDatabase, selectedCollection));
+    dispatch(
+      openItem(
+        selectedItem,
+        selectedConnection,
+        selectedDatabase,
+        selectedCollection
+      )
+    );
   };
 
-export const selectDatabase =
+export const databaseSelected =
   (database: string): SavedQueryAggregationThunkAction<Promise<void>> =>
-  async (dispatch, getState, { instance, dataService }) => {
+  async (dispatch, getState, { instancesManager, connectionsManager }) => {
     const {
-      openItem: { selectedDatabase },
+      openItem: { selectedDatabase, selectedConnection },
     } = getState();
 
     if (database === selectedDatabase) {
       return;
     }
 
-    dispatch({ type: ActionTypes.SelectDatabase, database });
+    dispatch({ type: ActionTypes.DatabaseSelected, database });
 
-    const db = instance.databases.get(database);
-
-    if (!db) {
-      return;
-    }
-
+    dispatch({ type: ActionTypes.LoadCollections });
     try {
+      if (!selectedConnection) {
+        throw new Error('Select a connection first');
+      }
+
+      const dataService =
+        connectionsManager.getDataServiceForConnection(selectedConnection);
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(selectedConnection);
+
+      const db = instance.databases.get(database);
+      if (!db) {
+        throw new Error('Database not found');
+      }
+
       await db.fetchCollections({ dataService });
       // Check with the the current value in case db was re-selected while we
       // were fetching
@@ -359,10 +634,10 @@ export const selectDatabase =
     }
   };
 
-export const selectCollection: ActionCreator<SelectCollectionAction> = (
+export const collectionSelected: ActionCreator<CollectionSelectedAction> = (
   collection: string
 ) => {
-  return { type: ActionTypes.SelectCollection, collection };
+  return { type: ActionTypes.CollectionSelected, collection };
 };
 
 export default reducer;

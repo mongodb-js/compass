@@ -37,14 +37,15 @@ function normalizeItems(
   expanded: string[] = []
 ): MockTreeItem[] {
   const data = items
-    .map((item, index) =>
-      [
+    .map((item, index) => {
+      return [
         {
           id: item.id,
           name: item.id,
           level,
           setSize: items.length,
           posInSet: index + 1,
+          isExpandable: Array.isArray(item.items),
           ...(item.items && { isExpanded: expanded.includes(item.id) }),
         },
       ].concat(
@@ -53,8 +54,8 @@ function normalizeItems(
         item.items && expanded.includes(item.id)
           ? normalizeItems(item.items, level + 1, expanded)
           : []
-      )
-    )
+      );
+    })
     .flat();
 
   return data.map((item, index) => ({
@@ -73,7 +74,7 @@ function NavigationTree({
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const onExpandedChange = useCallback(({ id }, isExpanded) => {
+  const onExpandedChange = useCallback(({ id }: { id: string }, isExpanded) => {
     setExpanded((expanded) =>
       isExpanded ? expanded.concat(id) : expanded.filter((_id) => _id !== id)
     );
@@ -90,7 +91,9 @@ function NavigationTree({
       height={400}
       itemHeight={30}
       onDefaultAction={() => {}}
-      onExpandedChange={onExpandedChange}
+      onItemExpand={onExpandedChange}
+      onItemAction={() => {}}
+      getItemActions={() => []}
       width={100}
       renderItem={({ item }) => item.name}
       __TEST_OVER_SCAN_COUNT={Infinity}

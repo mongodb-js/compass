@@ -1,11 +1,12 @@
 import { type DataService, configuredKMSProviders } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
-import { type LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
+import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -150,25 +151,28 @@ async function getConnectionData({
 }
 
 export function trackConnectionAttemptEvent(
-  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
-  { track, debug }: LoggerAndTelemetry
+  connectionInfo: ConnectionInfo,
+  { debug }: Logger,
+  track: TrackFunction
 ): void {
   try {
+    const { favorite, lastUsed } = connectionInfo;
     const trackEvent = {
       is_favorite: Boolean(favorite),
       is_recent: Boolean(lastUsed && !favorite),
       is_new: !lastUsed,
     };
-    track('Connection Attempt', trackEvent);
+    track('Connection Attempt', trackEvent, connectionInfo);
   } catch (error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
 }
 
 export function trackNewConnectionEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionInfo: ConnectionInfo,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
-  { track, debug }: LoggerAndTelemetry
+  { debug }: Logger,
+  track: TrackFunction
 ): void {
   try {
     const callback = async () => {
@@ -190,16 +194,17 @@ export function trackNewConnectionEvent(
       };
       return trackEvent;
     };
-    track('New Connection', callback);
+    track('New Connection', callback, connectionInfo);
   } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
+  connectionInfo: ConnectionInfo | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
-  { track, debug }: LoggerAndTelemetry
+  { debug }: Logger,
+  track: TrackFunction
 ): void {
   try {
     const callback = async () => {
@@ -212,7 +217,7 @@ export function trackConnectionFailedEvent(
       };
       return trackEvent;
     };
-    track('Connection Failed', callback);
+    track('Connection Failed', callback, connectionInfo ?? undefined);
   } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }

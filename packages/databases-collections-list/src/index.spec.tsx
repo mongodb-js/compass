@@ -34,16 +34,35 @@ function createCollection(name) {
   };
 }
 
+function createTimeSeries(name) {
+  return {
+    _id: name,
+    name: name,
+    type: 'timeseries' as const,
+    status: 'ready' as const,
+    document_count: 0,
+    document_size: 0,
+    avg_document_size: 0,
+    storage_size: 0,
+    free_storage_size: 0,
+    index_count: 0,
+    index_size: 0,
+    properties: [],
+  };
+}
+
 const dbs = [
   createDatabase('foo'),
   createDatabase('bar'),
   createDatabase('buz'),
+  createDatabase('bat'),
 ];
 
 const colls = [
   createCollection('foo.foo'),
   createCollection('bar.bar'),
   createCollection('buz.buz'),
+  createTimeSeries('bat.bat'),
 ];
 
 describe('databases and collections list', function () {
@@ -62,7 +81,7 @@ describe('databases and collections list', function () {
 
       expect(screen.getByTestId('database-grid')).to.exist;
 
-      expect(screen.getAllByTestId('database-grid-item')).to.have.lengthOf(3);
+      expect(screen.getAllByTestId('database-grid-item')).to.have.lengthOf(4);
 
       expect(screen.getByText('foo')).to.exist;
       expect(screen.getByText('bar')).to.exist;
@@ -82,17 +101,15 @@ describe('databases and collections list', function () {
 
       render(
         <CollectionsList
-          connectionTitle="My Connection"
-          databaseName="My Database"
+          namespace="db"
           collections={colls}
           onCollectionClick={clickSpy}
-          onClickConnectionBreadcrumb={() => {}}
         ></CollectionsList>
       );
 
       expect(screen.getByTestId('collection-grid')).to.exist;
 
-      expect(screen.getAllByTestId('collection-grid-item')).to.have.lengthOf(3);
+      expect(screen.getAllByTestId('collection-grid-item')).to.have.lengthOf(4);
 
       expect(screen.getByText('foo.foo')).to.exist;
       expect(screen.getByText('bar.bar')).to.exist;
@@ -103,23 +120,24 @@ describe('databases and collections list', function () {
       expect(clickSpy).to.be.calledWith('bar.bar');
     });
 
-    it('should notify when the connection name is clicked', function () {
-      const clickSpy = Sinon.spy();
-      const connectionClickSpy = Sinon.spy();
-
+    it('should not display statistics (except storage size) on timeseries collection card', function () {
       render(
         <CollectionsList
-          connectionTitle="My Connection"
-          databaseName="My Database"
+          namespace="db"
           collections={colls}
-          onClickConnectionBreadcrumb={connectionClickSpy}
-          onCollectionClick={clickSpy}
+          onCollectionClick={() => {}}
         ></CollectionsList>
       );
 
-      userEvent.click(screen.getByText('My Connection'));
-
-      expect(connectionClickSpy).to.be.called;
+      const timeseriesCard = screen
+        .getByText('bat.bat')
+        .closest('[data-testid="collection-grid-item"]');
+      expect(timeseriesCard).to.exist;
+      expect(timeseriesCard).to.contain.text('Storage size:');
+      expect(timeseriesCard).to.not.contain.text('Documents:');
+      expect(timeseriesCard).to.not.contain.text('Avg. document size::');
+      expect(timeseriesCard).to.not.contain.text('Indexes:');
+      expect(timeseriesCard).to.not.contain.text('Total index size:');
     });
   });
 });

@@ -10,24 +10,33 @@ import {
   changeAIPromptText,
   runAIQuery,
 } from '../stores/ai-query-reducer';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useLogger } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { isEqualDefaultQuery } from '../utils/query';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
-  const logger = useLoggerAndTelemetry('AI-QUERY-UI');
+  const logger = useLogger('AI-QUERY-UI');
+  const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
-      const { log, mongoLogId, track } = logger;
+      const { log, mongoLogId } = logger;
       log.info(mongoLogId(1_001_000_224), 'AIQuery', 'AI query feedback', {
         feedback,
         requestId: lastAIQueryRequestId,
         text,
       });
 
-      track('AI Query Feedback', () => ({
-        feedback,
-        text,
-        request_id: lastAIQueryRequestId,
-      }));
+      track(
+        'AI Query Feedback',
+        () => ({
+          feedback,
+          text,
+          request_id: lastAIQueryRequestId,
+        }),
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
 
       openToast('query-ai-feedback-submitted', {
         variant: 'success',
@@ -35,7 +44,7 @@ const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
         timeout: 10_000,
       });
     },
-    [logger, lastAIQueryRequestId]
+    [logger, lastAIQueryRequestId, track, connectionInfoAccess]
   );
 };
 
@@ -65,6 +74,9 @@ const ConnectedQueryAI = connect(
       aiPromptText: state.aiQuery.aiPromptText,
       isFetching: state.aiQuery.status === 'fetching',
       lastAIQueryRequestId: state.aiQuery.lastAIQueryRequestId,
+      didGenerateEmptyResults:
+        state.aiQuery.status === 'success' &&
+        isEqualDefaultQuery(state.queryBar.fields),
       didSucceed: state.aiQuery.status === 'success',
       errorMessage: state.aiQuery.errorMessage,
       errorCode: state.aiQuery.errorCode,

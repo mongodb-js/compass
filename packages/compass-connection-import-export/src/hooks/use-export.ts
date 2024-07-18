@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   COMMON_INITIAL_STATE,
   useImportExportConnectionsCommon,
@@ -55,7 +55,21 @@ export function useExportConnections({
   onChangeRemoveSecrets: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   state: ExportConnectionsState;
 } {
-  const { favoriteConnections } = useConnectionRepository();
+  const multipleConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+  const { favoriteConnections, nonFavoriteConnections } =
+    useConnectionRepository();
+  const connectionsToExport = useMemo(() => {
+    // in case of multiple connections all the connections are saved (that used
+    // to be favorites in the single connection world) so we need to account for
+    // all the saved connections
+    if (multipleConnectionsEnabled) {
+      return [...favoriteConnections, ...nonFavoriteConnections];
+    } else {
+      return favoriteConnections;
+    }
+  }, [multipleConnectionsEnabled, favoriteConnections, nonFavoriteConnections]);
   const connectionStorage = useConnectionStorageContext();
   const exportConnectionsImpl =
     connectionStorage.exportConnections?.bind(connectionStorage);
@@ -70,21 +84,21 @@ export function useExportConnections({
   const { passphrase, filename, connectionList, removeSecrets } = state;
 
   useEffect(() => {
-    // If `favoriteConnections` changes, update the list of connections
+    // If `connectionsToExport` changes, update the list of connections
     // that are displayed in our table.
     if (
-      favoriteConnections.map(({ id }) => id).join(',') !==
+      connectionsToExport.map(({ id }) => id).join(',') !==
       state.connectionList.map(({ id }) => id).join(',')
     ) {
       setState((prevState) => ({
         ...prevState,
         connectionList: connectionInfosToConnectionShortInfos(
-          favoriteConnections,
+          connectionsToExport,
           state.connectionList
         ),
       }));
     }
-  }, [favoriteConnections, state.connectionList]);
+  }, [connectionsToExport, state.connectionList]);
 
   const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   useEffect(() => {

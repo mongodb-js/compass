@@ -3,11 +3,21 @@ import type { Action, AnyAction } from 'redux';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import { closeExport, exportReducer, openExport } from '../modules/export';
+import {
+  closeExport,
+  exportReducer,
+  openExport,
+  connectionDisconnected,
+} from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { ConnectionsManagerEvents } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionRepositoryAccess,
+  ConnectionsManager,
+} from '@mongodb-js/compass-connections/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export function configureStore(services: ExportPluginServices) {
   return createStore(
@@ -25,8 +35,10 @@ export type RootExportState = ReturnType<
 export type ExportPluginServices = {
   globalAppRegistry: AppRegistry;
   connectionsManager: ConnectionsManager;
+  connectionRepository: ConnectionRepositoryAccess;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
 };
 
 export type ExportThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -53,16 +65,20 @@ export function activatePlugin(
   {
     globalAppRegistry,
     connectionsManager,
+    connectionRepository,
     preferences,
     logger,
+    track,
   }: ExportPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const store = configureStore({
     globalAppRegistry,
     connectionsManager,
+    connectionRepository,
     preferences,
     logger,
+    track,
   });
 
   on(
@@ -98,6 +114,13 @@ export function activatePlugin(
           origin,
         })
       );
+    }
+  );
+  on(
+    connectionsManager,
+    ConnectionsManagerEvents.ConnectionDisconnected,
+    function (connectionId: string) {
+      store.dispatch(connectionDisconnected(connectionId));
     }
   );
 

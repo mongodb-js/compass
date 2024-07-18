@@ -21,7 +21,7 @@ function formatQuery(query: FavoriteQuery) {
 export function copyToClipboard(
   id: string
 ): SavedQueryAggregationThunkAction<Promise<void>> {
-  return async (_dispatch, getState, { logger: { track } }) => {
+  return async (_dispatch, getState, { track }) => {
     const {
       savedItems: { items },
     } = getState();

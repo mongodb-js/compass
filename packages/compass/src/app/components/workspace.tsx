@@ -1,6 +1,5 @@
 import React from 'react';
 import { css } from '@mongodb-js/compass-components';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import {
   CompassShellPlugin,
   WorkspaceTab as ShellWorkspace,
@@ -39,7 +38,10 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
+import {
+  ConnectionInfoProvider,
+  useActiveConnections,
+} from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const verticalSplitStyles = css({
@@ -56,14 +58,13 @@ const shellContainerStyles = css({
 });
 
 export default function Workspace({
-  singleConnectionConnectionInfo,
   onActiveWorkspaceTabChange,
 }: {
-  singleConnectionConnectionInfo?: ConnectionInfo;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
+  const [activeConnection] = useActiveConnections();
   const multiConnectionsEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
   );
@@ -100,13 +101,8 @@ export default function Workspace({
             initialWorkspaceTabs={[
               { type: multiConnectionsEnabled ? 'Welcome' : 'My Queries' },
             ]}
-            singleConnectionConnectionInfo={singleConnectionConnectionInfo}
             onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
-            renderSidebar={() => (
-              <CompassSidebarPlugin
-                singleConnectionConnectionInfo={singleConnectionConnectionInfo}
-              />
-            )}
+            renderSidebar={() => <CompassSidebarPlugin />}
             renderModals={() => (
               <>
                 <ImportPlugin></ImportPlugin>
@@ -122,9 +118,7 @@ export default function Workspace({
       </WorkspacesProvider>
       {!multiConnectionsEnabled && (
         <div className={shellContainerStyles}>
-          <ConnectionInfoProvider
-            connectionInfoId={singleConnectionConnectionInfo?.id}
-          >
+          <ConnectionInfoProvider connectionInfoId={activeConnection?.id}>
             <CompassShellPlugin />
           </ConnectionInfoProvider>
         </div>

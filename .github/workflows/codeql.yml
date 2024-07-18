@@ -20,6 +20,8 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: '30 14 * * 4'
+  workflow_dispatch:
+    inputs: {}
 
 jobs:
   analyze:

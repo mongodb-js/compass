@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { cx, useDarkMode } from '@mongodb-js/compass-components';
 import {
@@ -18,8 +18,9 @@ import {
   useFormattedDate,
 } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
+import { usePreference } from 'compass-preferences-model/provider';
 
-export type Action = 'open' | 'delete' | 'copy' | 'rename';
+export type Action = 'open' | SavedItemAction;
 
 export type SavedItemCardProps = Pick<
   Item,
@@ -130,7 +131,7 @@ const lastModifiedLabel = css({
   fontStyle: 'italic',
 });
 
-type SavedItemAction = 'copy' | 'rename' | 'delete';
+type SavedItemAction = 'copy' | 'rename' | 'delete' | 'open-in';
 const savedItemActions: MenuAction<SavedItemAction>[] = [
   { action: 'copy', label: 'Copy' },
   { action: 'rename', label: 'Rename' },
@@ -142,6 +143,15 @@ const CardActions: React.FunctionComponent<{
   isVisible: boolean;
   onAction: SavedItemCardProps['onAction'];
 }> = ({ itemId, isVisible, onAction }) => {
+  const multiConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
+  const actions: MenuAction<SavedItemAction>[] = useMemo(() => {
+    return multiConnectionsEnabled
+      ? [...savedItemActions, { action: 'open-in', label: 'Open in' }]
+      : [...savedItemActions];
+  }, [multiConnectionsEnabled]);
+
   const onMenuItemClick = useCallback(
     (action: SavedItemAction) => {
       onAction(itemId, action);
@@ -153,7 +163,7 @@ const CardActions: React.FunctionComponent<{
     <ItemActionMenu<SavedItemAction>
       data-testid="saved-item-actions"
       isVisible={isVisible}
-      actions={savedItemActions}
+      actions={actions}
       onAction={onMenuItemClick}
       // NB: Focus should be preserved inside the card while interactions are
       // happening inside the card DOM tree, otherwise we will have troubles

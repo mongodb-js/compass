@@ -1,4 +1,4 @@
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
 import { mongoLogId, debug as _debug } from '@mongodb-js/compass-logging';
 
 export const debug = _debug.extend('data-service');
@@ -8,7 +8,7 @@ export { mongoLogId };
 type MongoLogId = ReturnType<typeof mongoLogId>;
 
 export type DataServiceImplLogger = Pick<
-  LoggerAndTelemetry['log']['unbound'],
+  Logger['log']['unbound'],
   'debug' | 'info' | 'warn' | 'error' | 'fatal'
 >;
 

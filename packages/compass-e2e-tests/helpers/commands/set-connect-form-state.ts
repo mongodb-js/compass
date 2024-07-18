@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 
 async function waitForElementAnimations(browser: CompassBrowser, element: any) {
   let previousResult = {
@@ -24,13 +25,33 @@ async function waitForElementAnimations(browser: CompassBrowser, element: any) {
   });
 }
 
+const colorMap: Record<string, string> = {
+  'no-color': 'No Color',
+  color1: 'Red',
+  color2: 'Pink',
+  color3: 'Orange',
+  color4: 'Yellow',
+  color5: 'Green',
+  color6: 'Teal',
+  color7: 'Blue',
+  color8: 'Iris',
+  color9: 'Purple',
+};
+
+function colorValueToName(color: string): string {
+  if (colorMap[color]) {
+    return colorMap[color];
+  }
+  return color;
+}
+
 export async function setConnectFormState(
   browser: CompassBrowser,
   state: ConnectFormState
 ): Promise<void> {
   await browser.resetConnectForm();
 
-  await browser.expandAccordion(Selectors.ShowConnectionFormButton);
+  await browser.expandAccordion(Selectors.ConnectionFormAdvancedToggle);
 
   // General
   await browser.navigateToConnectTab('General');
@@ -55,6 +76,27 @@ export async function setConnectFormState(
   }
   if (state.directConnection) {
     await browser.clickParent(Selectors.ConnectionFormDirectConnectionCheckbox);
+  }
+
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    // Name, Color, Favorite
+    if (state.connectionName) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormConnectionName,
+        state.connectionName
+      );
+    }
+
+    if (state.connectionColor) {
+      await browser.selectOption(
+        Selectors.ConnectionFormConnectionColor,
+        colorValueToName(state.connectionColor)
+      );
+    }
+
+    if (state.connectionFavorite) {
+      await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
+    }
   }
 
   // Authentication

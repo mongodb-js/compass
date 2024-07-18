@@ -1,12 +1,12 @@
 import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 type WelcomeServices = {
   globalAppRegistry: AppRegistry;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
 };
 

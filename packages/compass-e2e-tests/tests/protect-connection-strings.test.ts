@@ -4,7 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_COMPASS_WEB,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import clipboard from 'clipboardy';
@@ -17,15 +17,20 @@ async function expectCopyConnectionStringToClipboard(
   favoriteName: string,
   expected: string
 ): Promise<void> {
+  const Sidebar = TEST_MULTIPLE_CONNECTIONS
+    ? Selectors.Multiple
+    : Selectors.Single;
   if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
     await browser.selectConnectionMenuItem(
       favoriteName,
-      Selectors.CopyConnectionStringItem
+      Sidebar.CopyConnectionStringItem
     );
     let actual = '';
     await browser.waitUntil(
       async () => {
-        return (actual = await clipboard.read()) === expected;
+        actual = await clipboard.read();
+        console.log({ actual, expected });
+        return actual === expected;
       },
       {
         timeoutMsg: `Expected copy to clipboard to contain '${expected}', saw '${actual}'`,
@@ -34,6 +39,13 @@ async function expectCopyConnectionStringToClipboard(
   }
 }
 
+/**
+ * @securityTest Connection String Credential Protection Tests
+ *
+ * Compass provides a user- or administrator-configurable setting that prevents the application
+ * from displaying credentials to avoid accidental leakage. Our tests verify that features
+ * which expose connection information honor this setting.
+ */
 describe('protectConnectionStrings', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -47,12 +59,10 @@ describe('protectConnectionStrings', function () {
   });
 
   after(async function () {
-    if (TEST_COMPASS_WEB) {
-      return;
+    if (compass) {
+      await browser.setFeature('protectConnectionStrings', false);
+      await cleanup(compass);
     }
-
-    await browser.setFeature('protectConnectionStrings', false);
-    await cleanup(compass);
   });
 
   afterEach(async function () {
@@ -68,8 +78,11 @@ describe('protectConnectionStrings', function () {
       defaultPassword: 'bar',
     };
     await browser.setConnectFormState(state);
-    await browser.saveFavorite(favoriteName, 'color4');
-    await browser.selectFavorite(favoriteName);
+    await browser.saveFavorite(
+      favoriteName,
+      TEST_MULTIPLE_CONNECTIONS ? 'Yellow' : 'color4'
+    );
+    await browser.selectConnection(favoriteName);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
@@ -89,33 +102,35 @@ describe('protectConnectionStrings', function () {
       await browser.getConnectFormConnectionString(true),
       'shows password when input is focused'
     ).to.equal('mongodb://foo:bar@localhost:12345/');
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+    }
+
     await expectCopyConnectionStringToClipboard(
       browser,
       favoriteName,
       'mongodb://foo:bar@localhost:12345/'
     );
-    await browser
-      .$(Selectors.EditConnectionStringToggle)
-      .waitForExist({ reverse: false });
-    await browser
-      .$(Selectors.ShowConnectionFormButton)
-      .waitForExist({ reverse: false });
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.selectConnection(favoriteName);
+    }
 
     await browser.setFeature('protectConnectionStrings', true);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
     );
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+    }
+
     await expectCopyConnectionStringToClipboard(
       browser,
       favoriteName,
       'mongodb://<credentials>@localhost:12345/'
     );
-    await browser
-      .$(Selectors.EditConnectionStringToggle)
-      .waitForExist({ reverse: true });
-    await browser
-      .$(Selectors.ShowConnectionFormButton)
-      .waitForExist({ reverse: true });
   });
 });

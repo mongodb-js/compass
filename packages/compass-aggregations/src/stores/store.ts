@@ -31,7 +31,7 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
@@ -45,6 +45,7 @@ import {
   pickCollectionStats,
   collectionStatsFetched,
 } from '../modules/collection-stats';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -77,7 +78,8 @@ export type AggregationsPluginServices = {
   workspaces: WorkspacesService;
   instance: MongoDBInstance;
   preferences: PreferencesAccess;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorage;
@@ -96,6 +98,7 @@ export function activateAggregationsPlugin(
     instance,
     preferences,
     logger,
+    track,
     atlasAiService,
     atlasAuthService,
     pipelineStorage,
@@ -186,6 +189,7 @@ export function activateAggregationsPlugin(
         instance,
         preferences,
         logger,
+        track,
         atlasAiService,
         connectionInfoAccess,
         connectionScopedAppRegistry,
@@ -257,6 +261,14 @@ export function activateAggregationsPlugin(
   store.dispatch(
     maxTimeMSChanged(preferences.getPreferences().maxTimeMS || null)
   );
+
+  const onCloseOrReplace = () => {
+    return !store.getState().isModified;
+  };
+
+  addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
+
+  addCleanup(workspaces.onTabClose?.(onCloseOrReplace));
 
   return {
     store,

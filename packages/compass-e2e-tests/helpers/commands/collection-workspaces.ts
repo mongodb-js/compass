@@ -3,18 +3,23 @@ import * as Selectors from '../selectors';
 
 async function navigateToCollection(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take connectionName into account
   dbName: string,
-  collectionName: string
+  collectionName: string,
+
+  // Close all the workspace tabs to get rid of all the state we
+  // might have accumulated. This is the only way to get back to the zero
+  // state of Schema, and Validation tabs without re-connecting.
+  closeExistingTabs = true
 ): Promise<void> {
   const collectionSelector = Selectors.sidebarCollection(
     dbName,
     collectionName
   );
 
-  // Close all the workspace tabs to get rid of all the state we
-  // might have accumulated. This is the only way to get back to the zero
-  // state of Schema, and Validation tabs without re-connecting.
-  await browser.closeWorkspaceTabs();
+  if (closeExistingTabs) {
+    await browser.closeWorkspaceTabs();
+  }
 
   // search for the collection and wait for the collection to be there and visible
   await browser.clickVisible(Selectors.SidebarFilterInput);
@@ -30,6 +35,7 @@ async function navigateToCollection(
 
 export async function navigateToCollectionTab(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take connectionName into account
   dbName: string,
   collectionName: string,
   tabName:
@@ -37,14 +43,21 @@ export async function navigateToCollectionTab(
     | 'Aggregations'
     | 'Schema'
     | 'Indexes'
-    | 'Validation' = 'Documents'
+    | 'Validation' = 'Documents',
+  closeExistingTabs = true
 ): Promise<void> {
-  await navigateToCollection(browser, dbName, collectionName);
+  await navigateToCollection(
+    browser,
+    dbName,
+    collectionName,
+    closeExistingTabs
+  );
   await navigateWithinCurrentCollectionTabs(browser, tabName);
 }
 
 export async function navigateWithinCurrentCollectionTabs(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'
@@ -66,6 +79,7 @@ export async function navigateWithinCurrentCollectionTabs(
 
 export async function waitUntilActiveCollectionTab(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take connectionName into account
   dbName: string,
   collectionName: string,
   tabName:
@@ -86,6 +100,7 @@ export async function waitUntilActiveCollectionTab(
 
 export async function waitUntilActiveCollectionSubTab(
   browser: CompassBrowser,
+  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'
@@ -98,7 +113,7 @@ export async function waitUntilActiveCollectionSubTab(
 
 export async function getActiveTabNamespace(browser: CompassBrowser) {
   const activeWorkspaceNamespace = await browser
-    .$(Selectors.workspaceTab(null, true))
+    .$(Selectors.workspaceTab({ active: true }))
     .getAttribute('data-namespace');
   return activeWorkspaceNamespace || null;
 }

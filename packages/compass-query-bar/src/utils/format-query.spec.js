@@ -75,7 +75,7 @@ describe('formatQuery [Utils]', function () {
   describe('when the property has a Long', function () {
     const value = bson.Long.fromNumber(1);
     const filter = { field: value };
-    const expected = '{\n  field: NumberLong(1)\n}';
+    const expected = "{\n  field: NumberLong('1')\n}";
 
     it('returns the shell syntax string', function () {
       expect(formatQuery(filter)).to.equal(expected);

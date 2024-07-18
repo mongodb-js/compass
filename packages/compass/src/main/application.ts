@@ -17,16 +17,17 @@ import type {
 } from 'compass-preferences-model';
 import { setupPreferencesAndUser } from 'compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
 import {
   initCompassMainConnectionStorage,
   getCompassMainConnectionStorage,
 } from '@mongodb-js/connection-storage/main';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
-const { debug, log, track, mongoLogId } =
-  createLoggerAndTelemetry('COMPASS-MAIN');
+const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
+const track = createIpcTrack();
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
@@ -131,7 +132,11 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
-    this.setupAutoUpdate();
+    // TODO(COMPASS-7618): For now don't setup auto-update in CI because the
+    // toasts will obscure other things which we don't expect yet.
+    if (!process.env.CI) {
+      this.setupAutoUpdate();
+    }
     await setupCSFLELibrary();
     setupTheme(this);
     this.setupJavaScriptArguments();

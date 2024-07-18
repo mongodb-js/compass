@@ -1,12 +1,18 @@
+import { spacing } from '@mongodb-js/compass-components';
 import type { SidebarTreeItem } from './tree-data';
 
 export const getTreeItemStyles = ({
   level,
-  maxNestingLevel,
-}: Pick<SidebarTreeItem, 'level' | 'maxNestingLevel'>): React.CSSProperties => {
-  const isExpandable = level < maxNestingLevel;
-  const defaultPadding = 20;
+  isExpandable,
+}: Pick<SidebarTreeItem, 'isExpandable' | 'level'>): React.CSSProperties => {
+  const DEFAULT_PADDING = spacing[100];
+  const EXPAND_ICON_WIDTH = spacing[400];
+  const EXPAND_ICON_GAP = spacing[50];
+  const EXPAND_ICON_SIZE = EXPAND_ICON_WIDTH + EXPAND_ICON_GAP;
   return {
-    paddingLeft: (level - 1) * defaultPadding + (!isExpandable ? 30 : 0),
+    paddingLeft:
+      DEFAULT_PADDING +
+      (!isExpandable ? EXPAND_ICON_SIZE : 0) +
+      (level - 1) * EXPAND_ICON_SIZE,
   };
 };

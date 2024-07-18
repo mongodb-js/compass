@@ -10,14 +10,12 @@ import { cloneDeep, merge } from 'lodash';
 import { UUID } from 'bson';
 import { ConnectionString } from 'mongodb-connection-string-url';
 import { useToast } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
 
-const { debug, mongoLogId, log } = createLoggerAndTelemetry(
-  'COMPASS-CONNECTIONS'
-);
+const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
 function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
@@ -180,13 +178,17 @@ export function useConnections({
   cancelConnectionAttempt: (
     connectionId: ConnectionInfo['id']
   ) => Promise<void>;
-  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  connect: (
+    connectionInfo: ConnectionInfo,
+    legacyShouldSaveConnectionInfo?: boolean
+  ) => Promise<void>;
   closeConnection: (connectionId: ConnectionInfo['id']) => Promise<void>;
   createNewConnection: () => void;
+  createDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
   removeAllRecentsConnections: () => Promise<void>;
-  duplicateConnection: (connectionInfo: ConnectionInfo) => void;
+  legacyDuplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
 } {
   // TODO(COMPASS-7397): services should not be used directly in render method,
@@ -294,12 +296,12 @@ export function useConnections({
     async (
       connectionInfo: ConnectionInfo,
       dataService: DataService,
-      shouldSaveConnectionInfo: boolean
+      legacyShouldSaveConnectionInfo?: boolean // TODO: cleanup COMPASS-7906
     ) => {
       try {
         dispatch({ type: 'set-active-connection', connectionInfo });
         onConnected?.(connectionInfo, dataService);
-        if (!shouldSaveConnectionInfo) return;
+        if (!legacyShouldSaveConnectionInfo) return;
 
         let mergeConnectionInfo = {};
         if (persistOIDCTokens) {
@@ -360,7 +362,7 @@ export function useConnections({
     _connectionInfo:
       | ConnectionInfo
       | (() => Promise<ConnectionInfo | undefined>),
-    shouldSaveConnectionInfo = true
+    legacyShouldSaveConnectionInfo?: boolean
   ) => {
     const isAutoconnectAttempt = typeof _connectionInfo === 'function';
     let connectionInfo: ConnectionInfo;
@@ -427,7 +429,7 @@ export function useConnections({
       void onConnectSuccess(
         connectionInfo,
         newConnectionDataService,
-        shouldSaveConnectionInfo
+        legacyShouldSaveConnectionInfo
       );
 
       debug(
@@ -521,14 +523,24 @@ export function useConnections({
     removeConnection(connectionInfo) {
       void removeConnection(connectionInfo);
     },
-    duplicateConnection(connectionInfo: ConnectionInfo) {
+    legacyDuplicateConnection(connectionInfo: ConnectionInfo) {
+      const findConnectionByFavoriteName = (name: string) =>
+        [...favoriteConnections, ...recentConnections].find(
+          (connection: ConnectionInfo) => connection.favorite?.name === name
+        );
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
         id: new UUID().toString(),
       };
 
       if (duplicate.favorite?.name) {
-        duplicate.favorite.name += ' (copy)';
+        const copyFormat = duplicate.favorite?.name.match(/(.*)\s\(([0-9])+\)/); // title (2) -> [title (2), title, 2]
+        const name = copyFormat ? copyFormat[1] : duplicate.favorite?.name;
+        let copyNumber = copyFormat ? parseInt(copyFormat[2]) : 1;
+        while (findConnectionByFavoriteName(`${name} (${copyNumber})`)) {
+          copyNumber++;
+        }
+        duplicate.favorite.name = `${name} (${copyNumber})`;
       }
 
       void saveConnectionInfo(duplicate).then(
@@ -542,6 +554,32 @@ export function useConnections({
           // We do nothing when if it fails
         }
       );
+    },
+    createDuplicateConnection(connectionInfo: ConnectionInfo) {
+      const findConnectionByFavoriteName = (name: string) =>
+        [...favoriteConnections, ...recentConnections].find(
+          (connection: ConnectionInfo) => connection.favorite?.name === name
+        );
+
+      const duplicate: ConnectionInfo = {
+        ...cloneDeep(connectionInfo),
+        id: new UUID().toString(),
+      };
+
+      if (duplicate.favorite?.name) {
+        const copyFormat = duplicate.favorite?.name.match(/(.*)\s\(([0-9])+\)/); // title (2) -> [title (2), title, 2]
+        const name = copyFormat ? copyFormat[1] : duplicate.favorite?.name;
+        let copyNumber = copyFormat ? parseInt(copyFormat[2]) : 1;
+        while (findConnectionByFavoriteName(`${name} (${copyNumber})`)) {
+          copyNumber++;
+        }
+        duplicate.favorite.name = `${name} (${copyNumber})`;
+      }
+
+      dispatch({
+        type: 'new-connection',
+        connectionInfo: duplicate,
+      });
     },
     async removeAllRecentsConnections() {
       await Promise.all(

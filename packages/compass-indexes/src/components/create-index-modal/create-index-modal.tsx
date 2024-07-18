@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 import {
   Modal,
   ModalFooter,
@@ -20,6 +19,11 @@ import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import type { RootState } from '../../modules/create-index';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -41,6 +45,7 @@ function CreateIndexModal({
   closeCreateIndexModal,
   ...props
 }: CreateIndexModalProps) {
+  const connectionInfoAccess = useConnectionInfoAccess();
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
@@ -51,16 +56,20 @@ function CreateIndexModal({
   );
 
   useTrackOnChange(
-    'COMPASS-INDEXES-UI',
-    (track) => {
+    (track: TrackFunction) => {
+      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
       if (isVisible) {
-        track('Screen', { name: 'create_index_modal' });
-        track('Index Create Opened', {
-          atlas_search: false,
-        });
+        track('Screen', { name: 'create_index_modal' }, connectionInfo);
+        track(
+          'Index Create Opened',
+          {
+            atlas_search: false,
+          },
+          connectionInfo
+        );
       }
     },
-    [isVisible],
+    [isVisible, connectionInfoAccess],
     undefined
   );
 

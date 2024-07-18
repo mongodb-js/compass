@@ -96,6 +96,7 @@ module.exports = async (env, args) => {
         // Polyfills that are required for the driver to function in browser
         // environment
         net: localPolyfill('net'),
+        'timers/promises': require.resolve('timers-browserify'),
         timers: require.resolve('timers-browserify'),
         os: require.resolve('os-browserify/browser'),
         crypto: require.resolve('crypto-browserify'),

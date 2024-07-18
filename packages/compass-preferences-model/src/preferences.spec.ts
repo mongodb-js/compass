@@ -5,7 +5,7 @@ import { Preferences } from './preferences';
 import { expect } from 'chai';
 import { featureFlags } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 
 const releasedFeatureFlags = Object.entries(featureFlags)
   .filter(([, v]) => v.stage === 'released')
@@ -15,7 +15,7 @@ const expectedReleasedFeatureFlagsStates = Object.fromEntries(
   releasedFeatureFlags.map((ff) => [ff, 'hardcoded'])
 );
 
-const logger = createLoggerAndTelemetry('COMPASS-PREFERENCES');
+const logger = createLogger('COMPASS-PREFERENCES');
 
 const setupPreferences = async (
   basePath: string,

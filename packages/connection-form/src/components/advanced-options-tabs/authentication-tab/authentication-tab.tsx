@@ -40,7 +40,7 @@ const options: TabOption[] = [
     component: AuthenticationDefault,
   },
   {
-    title: 'OIDC (Preview)',
+    title: 'OIDC',
     id: 'MONGODB-OIDC',
     component: AuthenticationOidc,
   },

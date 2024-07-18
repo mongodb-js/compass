@@ -18,14 +18,14 @@ import {
 
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
 const noop = (): any => {
   /* no-op */
 };
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
-  const { log } = createNoopLoggerAndTelemetry();
+  const { log } = createNoopLogger();
   return new ConnectionsManager({
     logger: log.unbound,
     __TEST_CONNECT_FN: mockTestConnectFn,
@@ -275,7 +275,6 @@ describe('use-connections hook', function () {
   describe('#connect', function () {
     it(`calls onConnected`, async function () {
       const onConnected = sinon.spy();
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
@@ -294,7 +293,6 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         expect(onConnected).to.have.been.called;
       });
-      expect(saveSpy).to.have.been.calledOnce;
     });
   });
 
@@ -574,13 +572,8 @@ describe('use-connections hook', function () {
     });
   });
 
-  describe('#duplicateConnection', function () {
-    let hookResult: RenderResult<ReturnType<typeof useConnections>>;
-
-    it('should duplicate a connection', async function () {
-      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-
+  describe('createDuplicateConnection', function () {
+    it('should create a connection duplicate and set it as the new active connection', async function () {
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected: noop,
@@ -592,19 +585,58 @@ describe('use-connections hook', function () {
         expect(result.current.favoriteConnections.length).to.equal(2);
       });
 
-      result.current.setActiveConnectionById('turtle');
-      result.current.duplicateConnection(result.current.favoriteConnections[0]);
+      const original = result.current.favoriteConnections[0];
+      result.current.createDuplicateConnection(original);
 
-      await waitFor(() => {
-        expect(loadAllSpy).to.have.been.called;
-        expect(saveSpy.callCount).to.equal(1);
+      const duplicate = result.current.state.activeConnectionInfo;
+
+      expect(duplicate).to.haveOwnProperty('id');
+      expect(duplicate.id).not.to.equal(original.id);
+      expect(result.current.state.activeConnectionId).to.equal(duplicate.id);
+      delete original.id;
+      delete duplicate.id;
+      expect(duplicate).to.deep.equal({
+        ...original,
+        favorite: {
+          ...original.favorite,
+          name: `${original.favorite.name} (1)`,
+        },
       });
-
-      hookResult = result;
     });
 
-    it('should set the duplicated connection as current active', function () {
-      expect(hookResult.current.state.activeConnectionId).to.not.equal(null);
+    it('should increment (number) appendix', async function () {
+      mockConnectionStorage = new InMemoryConnectionStorage([
+        mockConnections[0],
+        {
+          ...mockConnections[0],
+          favorite: {
+            ...mockConnections[0].favorite,
+            name: `${mockConnections[0].favorite.name} (1)`,
+          },
+        },
+      ]);
+      const { result } = renderHookWithContext(() =>
+        useConnections({
+          onConnected: noop,
+          onConnectionFailed: noop,
+          onConnectionAttemptStarted: noop,
+        })
+      );
+      await waitFor(() => {
+        expect(result.current.favoriteConnections.length).to.equal(2);
+      });
+
+      const original = result.current.favoriteConnections[0]; // copying the original
+      result.current.createDuplicateConnection(original);
+      const duplicate = result.current.state.activeConnectionInfo;
+      expect(duplicate.favorite.name).to.equal(`${original.favorite.name} (2)`);
+
+      const copy = result.current.favoriteConnections[1]; // copying the copy
+      result.current.createDuplicateConnection(copy);
+      const duplicate2 = result.current.state.activeConnectionInfo;
+      expect(duplicate2.favorite.name).to.equal(
+        `${original.favorite.name} (2)`
+      );
     });
   });
 

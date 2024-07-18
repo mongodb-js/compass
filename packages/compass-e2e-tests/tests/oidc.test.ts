@@ -7,6 +7,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  connectionNameFromString,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
@@ -45,10 +46,20 @@ function getTestBrowserShellCommand() {
   )}`;
 }
 
+/**
+ * @securityTest OIDC Authentication End-to-End Tests
+ *
+ * In addition to our regular tests for the different authentication mechanisms supported
+ * by MongoDB, we give special consideration to our OpenID Connect database authentication
+ * feature, as it involves client applications performing actions based on directions
+ * received from the database server.
+ *
+ * Additionally, we verify that Compass stores credentials in a way that is consistent with
+ * what the user has previously specified.
+ */
 describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
   let overrideRequestHandler: typeof oidcMockProviderConfig.overrideRequestHandler;
   let oidcMockProviderConfig: OIDCMockProviderConfig;
@@ -59,6 +70,7 @@ describe('OIDC integration', function () {
   let tmpdir: string;
   let cluster: MongoCluster;
   let connectionString: string;
+  let connectionName: string;
   let getFavoriteConnectionInfo: (
     favoriteName: string
   ) => Promise<Record<string, any> | undefined>;
@@ -134,6 +146,7 @@ describe('OIDC integration', function () {
       cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
 
       connectionString = cs.toString();
+      connectionName = connectionNameFromString(connectionString);
     }
 
     {
@@ -186,6 +199,7 @@ describe('OIDC integration', function () {
     };
     await browser.connectWithConnectionString(connectionString);
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -214,7 +228,7 @@ describe('OIDC integration', function () {
 
     {
       await browser.setValueVisible(
-        Selectors.ConnectionStringInput,
+        Selectors.ConnectionFormStringInput,
         connectionString
       );
       await browser.clickVisible(Selectors.ConnectButton);
@@ -226,6 +240,7 @@ describe('OIDC integration', function () {
     await browser.connectWithConnectionString(connectionString);
     emitter.emit('secondConnectionEstablished');
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -243,9 +258,11 @@ describe('OIDC integration', function () {
     await browser.connectWithConnectionForm({
       hosts: [cluster.hostport],
       authMethod: 'MONGODB-OIDC',
+      connectionName: this.test?.fullTitle(),
     });
 
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -264,7 +281,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
@@ -279,6 +296,7 @@ describe('OIDC integration', function () {
     afterReauth = true;
     await browser.clickVisible(`${modal} ${confirmButton}`);
     const result: any = await browser.shellEval(
+      connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
       true
     );
@@ -295,7 +313,7 @@ describe('OIDC integration', function () {
     };
 
     await browser.setValueVisible(
-      Selectors.ConnectionStringInput,
+      Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
@@ -310,7 +328,7 @@ describe('OIDC integration', function () {
     afterReauth = true;
     await browser.clickVisible(`${modal} ${cancelButton}`);
     const errorBanner = await browser.$(
-      '[data-testid="toast-instance-refresh-failed"]'
+      '[data-testid="toast-oidc-auth-failed"]'
     );
     await errorBanner.waitForDisplayed();
     expect(await errorBanner.getText()).to.include(
@@ -327,11 +345,11 @@ describe('OIDC integration', function () {
     );
 
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
@@ -351,16 +369,16 @@ describe('OIDC integration', function () {
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     await browser.screenshot(
       `after-disconnecting-favourite-${favoriteName}.png`
     );
 
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.equal(
@@ -378,7 +396,7 @@ describe('OIDC integration', function () {
     );
 
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
     expect(connectionInfo?.connectionOptions?.oidc?.serializedState).to.be.a(
@@ -392,9 +410,9 @@ describe('OIDC integration', function () {
       browser = compass.browser;
     }
 
-    await browser.selectFavorite(favoriteName);
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
-    await browser.disconnect();
+    await browser.disconnectAll();
 
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
   });

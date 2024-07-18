@@ -21,7 +21,7 @@ export const confirmDeleteItem = (
   return async (
     dispatch,
     getState,
-    { pipelineStorage, queryStorage, logger: { track } }
+    { pipelineStorage, queryStorage, track }
   ) => {
     const {
       savedItems: { items },

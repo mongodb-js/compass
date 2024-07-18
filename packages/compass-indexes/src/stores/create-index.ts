@@ -6,7 +6,9 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import { type ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { Logger } from '@mongodb-js/compass-logging';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 type CreateIndexPluginOptions = Pick<
   CollectionTabPluginMetadata,
@@ -17,19 +19,33 @@ export type CreateIndexPluginServices = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'createIndex'>;
-  logger: LoggerAndTelemetry;
+  connectionInfoAccess: ConnectionInfoAccess;
+  logger: Logger;
+  track: TrackFunction;
 };
 
 export function activatePlugin(
   { namespace, serverVersion }: CreateIndexPluginOptions,
-  { localAppRegistry, dataService, logger }: CreateIndexPluginServices,
+  {
+    localAppRegistry,
+    dataService,
+    logger,
+    track,
+    connectionInfoAccess,
+  }: CreateIndexPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
   const store = createStore(
     reducer,
     { namespace, serverVersion },
     applyMiddleware(
-      thunk.withExtraArgument({ localAppRegistry, dataService, logger })
+      thunk.withExtraArgument({
+        localAppRegistry,
+        dataService,
+        logger,
+        track,
+        connectionInfoAccess,
+      })
     )
   );
 

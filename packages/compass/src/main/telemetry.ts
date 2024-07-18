@@ -1,12 +1,12 @@
 import { Analytics } from '@segment/analytics-node';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 
-const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
+const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;

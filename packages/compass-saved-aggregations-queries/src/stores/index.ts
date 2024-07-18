@@ -6,39 +6,40 @@ import type { ThunkAction } from 'redux-thunk';
 import itemsReducer from './aggregations-queries-items';
 import openItemReducer from './open-item';
 import editItemReducer from './edit-item';
-import type {
-  ConnectionInfoAccess,
-  DataService,
-} from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type {
   FavoriteQueryStorageAccess,
   PipelineStorage,
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 type MyQueriesServices = {
-  dataService: DataService;
-  instance: MongoDBInstance;
+  connectionsManager: ConnectionsManager;
+  instancesManager: MongoDBInstancesManager;
+  preferencesAccess: PreferencesAccess;
   globalAppRegistry: AppRegistry;
-  logger: LoggerAndTelemetry;
+  logger: Logger;
+  track: TrackFunction;
   pipelineStorage?: PipelineStorage;
   workspaces: ReturnType<typeof workspacesServiceLocator>;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
-  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 export function configureStore({
   globalAppRegistry,
-  dataService,
-  instance,
+  connectionsManager,
+  instancesManager,
+  preferencesAccess,
   logger,
+  track,
   workspaces,
   pipelineStorage,
   favoriteQueryStorageAccess,
-  connectionInfoAccess,
 }: MyQueriesServices) {
   return createStore(
     combineReducers({
@@ -49,13 +50,14 @@ export function configureStore({
     applyMiddleware(
       thunk.withExtraArgument({
         globalAppRegistry,
-        dataService,
-        instance,
+        connectionsManager,
+        instancesManager,
+        preferencesAccess,
         logger,
+        track,
         pipelineStorage,
         queryStorage: favoriteQueryStorageAccess?.getStorage(),
         workspaces,
-        connectionInfoAccess,
       })
     )
   );

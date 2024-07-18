@@ -23,7 +23,7 @@ import isPerformanceTabSupported from './is-performance-tab-supported';
 import type { ThunkAction } from 'redux-thunk';
 import type { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 export interface RootState {
   connectionOptions: ConnectionOptionsState;
@@ -47,7 +47,7 @@ export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
     globalAppRegistry: AppRegistry;
     connectionsManager: ConnectionsManager;
     instancesManager: MongoDBInstancesManager;
-    logger: LoggerAndTelemetry;
+    logger: Logger;
   },
   A
 >;

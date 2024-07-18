@@ -3,7 +3,10 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { expect } from 'chai';
 import type { IndexesDataService } from './store';
 import { activateIndexesPlugin, type IndexesStore } from './store';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { ConnectionInfo } from '../../../connection-info/dist';
 
 class FakeInstance extends EventEmitter {
   isWritable = true;
@@ -40,7 +43,11 @@ describe('IndexesStore [Store]', function () {
           },
           isConnected: () => true,
         } as unknown as IndexesDataService,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        connectionInfoAccess: {
+          getCurrentConnectionInfo: () => ({ id: 'TEST' } as ConnectionInfo),
+        },
       },
       createActivateHelpers()
     );

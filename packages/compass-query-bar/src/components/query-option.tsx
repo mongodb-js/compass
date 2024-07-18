@@ -16,7 +16,8 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -121,7 +122,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   insights,
   disabled = false,
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+  const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | undefined>(value);
   const editorCurrentValueRef = useRef<string | undefined>(value);
@@ -146,10 +148,14 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       editorCurrentValueRef.current !== editorInitialValueRef.current &&
       (editorInitialValueRef.current || editorCurrentValueRef.current !== '{}')
     ) {
-      track('Query Edited', { option_name: name });
+      track(
+        'Query Edited',
+        { option_name: name },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [track, name]);
+  }, [track, name, connectionInfoAccess]);
 
   return (
     <div

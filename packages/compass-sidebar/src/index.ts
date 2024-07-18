@@ -11,15 +11,15 @@ import {
   type ConnectionsManager,
   connectionsManagerLocator,
 } from '@mongodb-js/compass-connections/provider';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 
 export const CompassSidebarPlugin = registerHadronPlugin<
   SidebarPluginProps,
   {
     connectionsManager: () => ConnectionsManager;
     instancesManager: () => MongoDBInstancesManager;
-    logger: () => LoggerAndTelemetry;
+    logger: () => Logger;
   }
 >(
   {
@@ -37,7 +37,7 @@ export const CompassSidebarPlugin = registerHadronPlugin<
         globalAppRegistry: AppRegistry;
         connectionsManager: ConnectionsManager;
         instancesManager: MongoDBInstancesManager;
-        logger: LoggerAndTelemetry;
+        logger: Logger;
       },
       helpers: ActivateHelpers
     ) {
@@ -59,6 +59,6 @@ export const CompassSidebarPlugin = registerHadronPlugin<
   {
     connectionsManager: connectionsManagerLocator,
     instancesManager: mongoDBInstancesManagerLocator,
-    logger: createLoggerAndTelemetryLocator('COMPASS-SIDEBAR-UI'),
+    logger: createLoggerLocator('COMPASS-SIDEBAR-UI'),
   }
 );

@@ -3,6 +3,7 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import type { PipelineBuilderThunkAction } from '.';
 import type { AnyAction } from 'redux';
 import { isAction } from '../utils/is-action';
+import { DEFAULT_MAX_TIME_MS } from '../constants';
 
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
@@ -111,9 +112,10 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<
     }
 
     const options = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, maxTimeMS) as
-        | number
-        | undefined,
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+        preferences,
+        maxTimeMS ?? DEFAULT_MAX_TIME_MS
+      ),
     };
 
     const aggregateOptions = { ...options };

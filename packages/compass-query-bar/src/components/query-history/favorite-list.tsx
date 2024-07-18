@@ -14,11 +14,12 @@ import {
   DeleteActionButton,
 } from './query-item';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import { useLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
 import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
@@ -36,18 +37,23 @@ const FavoriteItem = ({
   query: FavoriteQuery;
   isReadonly: boolean;
 }) => {
-  const { track } = useLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+  const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
 
   const onCardClick = useCallback(() => {
-    track('Query History Favorite Used', {
-      id: query._id,
-      screen: 'documents',
-      isUpdateQuery,
-    });
+    track(
+      'Query History Favorite Used',
+      {
+        id: query._id,
+        screen: 'documents',
+        isUpdateQuery,
+      },
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
 
     if (isDisabled) {
       return;
@@ -66,16 +72,21 @@ const FavoriteItem = ({
     onApply,
     attributes,
     onUpdateFavoriteChoosen,
+    connectionInfoAccess,
   ]);
 
   const onDeleteClick = useCallback(() => {
-    track('Query History Favorite Removed', {
-      id: query._id,
-      screen: 'documents',
-      isUpdateQuery,
-    });
+    track(
+      'Query History Favorite Removed',
+      {
+        id: query._id,
+        screen: 'documents',
+        isUpdateQuery,
+      },
+      connectionInfoAccess.getCurrentConnectionInfo()
+    );
     onDelete(query._id);
-  }, [track, query._id, isUpdateQuery, onDelete]);
+  }, [track, query._id, isUpdateQuery, onDelete, connectionInfoAccess]);
 
   return (
     <QueryItemCard

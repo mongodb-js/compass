@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import {
   ConnectionsManager,
   type DataService,
+  type ConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 import { changeViewName, createView } from '../modules/create-view';
 import Sinon from 'sinon';
@@ -23,7 +24,8 @@ describe('CreateViewStore [Store]', function () {
   let deactivate: any;
   let globalAppRegistry: AppRegistry;
   let appRegistryEmitSpy: Sinon.SinonSpy;
-  const logger = { track() {} } as any;
+  const logger = {} as any;
+  const track = () => {};
   const createViewStub = Sinon.stub();
   const dataService = {
     createView: createViewStub,
@@ -33,6 +35,9 @@ describe('CreateViewStore [Store]', function () {
   const workspaces = {
     openCollectionWorkspace: openCollectionWorkspaceStub,
   } as unknown as WorkspacesService;
+  const connectionRepository = {
+    getConnectionInfoById: () => {},
+  } as unknown as ConnectionRepository;
 
   beforeEach(function () {
     globalAppRegistry = new AppRegistry();
@@ -45,7 +50,9 @@ describe('CreateViewStore [Store]', function () {
       {
         globalAppRegistry,
         connectionsManager,
+        connectionRepository,
         logger,
+        track,
         workspaces,
       },
       createActivateHelpers()

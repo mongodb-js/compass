@@ -1,33 +1,27 @@
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { createLoggerAndTelemetryLocator } from '@mongodb-js/compass-logging/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { ShellPlugin, onActivated } from './plugin';
 import { registerHadronPlugin } from 'hadron-app-registry';
+import { preferencesLocator } from 'compass-preferences-model/provider';
+import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import {
   dataServiceLocator,
   type DataService,
+  connectionInfoAccessLocator,
+  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import {
-  preferencesLocator,
-  type PreferencesAccess,
-} from 'compass-preferences-model/provider';
-import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 
-export const CompassShellPlugin = registerHadronPlugin<
-  unknown,
-  {
-    logger: () => LoggerAndTelemetry;
-    dataService: () => DataService;
-    preferences: () => PreferencesAccess;
-  }
->(
+export const CompassShellPlugin = registerHadronPlugin(
   {
     name: 'CompassShell',
     component: ShellPlugin,
     activate: onActivated,
   },
   {
-    logger: createLoggerAndTelemetryLocator('COMPASS-SHELL'),
-    dataService: dataServiceLocator,
+    logger: createLoggerLocator('COMPASS-SHELL'),
+    track: telemetryLocator,
+    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    connectionInfo: connectionInfoAccessLocator,
     preferences: preferencesLocator,
   }
 );

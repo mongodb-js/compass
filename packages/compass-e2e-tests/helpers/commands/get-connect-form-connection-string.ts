@@ -5,7 +5,7 @@ export async function getConnectFormConnectionString(
   browser: CompassBrowser,
   shouldFocusInput = false
 ): Promise<string> {
-  const inputElem = await browser.$(Selectors.ConnectionStringInput);
+  const inputElem = await browser.$(Selectors.ConnectionFormStringInput);
   await inputElem.waitForDisplayed();
   if (shouldFocusInput) {
     await browser.waitUntil(async () => {

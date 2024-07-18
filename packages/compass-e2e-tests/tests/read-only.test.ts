@@ -3,384 +3,346 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  TEST_MULTIPLE_CONNECTIONS,
+  connectionNameFromString,
+  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
-import { promises as fs } from 'fs';
-import path from 'path';
-import os from 'os';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { getStageOperators } from '../helpers/read-stage-operators';
+import type { Compass } from '../helpers/compass';
+import type { CompassBrowser } from '../helpers/compass-browser';
 
 describe('readOnly: true / Read-Only Edition', function () {
-  let tmpdir: string;
-  let i = 0;
+  let compass: Compass;
+  let browser: CompassBrowser;
 
   before(function () {
     skipForWeb(this, 'settings modal not available on compass-web');
   });
 
   beforeEach(async function () {
-    tmpdir = path.join(
-      os.tmpdir(),
-      `compass-read-only-${Date.now().toString(32)}-${++i}`
-    );
-    await fs.mkdir(tmpdir, { recursive: true });
+    compass = await init(this.test?.fullTitle());
+    browser = compass.browser;
+    await browser.setFeature('readOnly', false);
   });
 
   afterEach(async function () {
-    await fs.rmdir(tmpdir, { recursive: true });
+    if (compass) {
+      await screenshotIfFailed(compass, this.currentTest);
+      await browser.setFeature('readOnly', false);
+      await cleanup(compass);
+    }
   });
 
   it('hides and shows the plus icon on the sidebar to create a database', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', true);
-      await browser.connectWithConnectionString();
+    const Sidebar = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.Multiple
+      : Selectors.Single;
+    await browser.setFeature('readOnly', true);
+    await browser.connectWithConnectionString();
 
-      let sidebarCreateDatabaseButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
-      );
-      let isSidebarCreateDatabaseButtonExisting =
-        await sidebarCreateDatabaseButton.isExisting();
-      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
+    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
-
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
-
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
-
-      sidebarCreateDatabaseButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
-      );
-      isSidebarCreateDatabaseButtonExisting =
-        await sidebarCreateDatabaseButton.isExisting();
-      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // navigate to the databases tab so that the connection is
+      // active/highlighted and then the add button and three dot menu will
+      // display without needing to hover
+      await browser.navigateToConnectionTab(connectionName, 'Databases');
     }
+
+    const addDatabaseSelector = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.sidebarConnectionActionButton(
+          connectionName,
+          Sidebar.CreateDatabaseButton
+        )
+      : Sidebar.CreateDatabaseButton;
+
+    expect(await browser.$(addDatabaseSelector).isExisting()).to.be.equal(
+      false
+    );
+
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
+
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
+
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.navigateToConnectionTab(connectionName, 'Databases');
+    }
+
+    expect(await browser.$(addDatabaseSelector).isExisting()).to.be.equal(true);
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', false);
-      await createNumbersCollection();
-      await browser.connectWithConnectionString();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-      const dbName = 'test'; // existing db
-      await browser.clickVisible(Selectors.SidebarFilterInput);
-      await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-      const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
-      await dbElement.waitForDisplayed();
-      await browser.hover(Selectors.sidebarDatabase(dbName));
+    const dbName = 'test'; // existing db
+    await browser.clickVisible(Selectors.SidebarFilterInput);
+    await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
+    const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+    await dbElement.waitForDisplayed();
+    await browser.hover(Selectors.sidebarDatabase(dbName));
 
-      let sidebarCreateCollectionButton = await browser.$(
-        Selectors.CreateCollectionButton
-      );
-      let isSidebarCreateCollectionButtonExisting =
-        await sidebarCreateCollectionButton.isExisting();
-      expect(isSidebarCreateCollectionButtonExisting).to.be.equal(true);
+    let sidebarCreateCollectionButton = await browser.$(
+      Selectors.CreateCollectionButton
+    );
+    let isSidebarCreateCollectionButtonExisting =
+      await sidebarCreateCollectionButton.isExisting();
+    expect(isSidebarCreateCollectionButtonExisting).to.be.equal(true);
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      sidebarCreateCollectionButton = await browser.$(
-        Selectors.CreateCollectionButton
-      );
-      isSidebarCreateCollectionButtonExisting =
-        await sidebarCreateCollectionButton.isExisting();
-      expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
-    }
+    sidebarCreateCollectionButton = await browser.$(
+      Selectors.CreateCollectionButton
+    );
+    isSidebarCreateCollectionButtonExisting =
+      await sidebarCreateCollectionButton.isExisting();
+    expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
   });
 
   it('shows and hides the create database button on the instance tab', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', false);
-      await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString();
 
-      await browser.navigateToInstanceTab('Databases');
+    await browser.navigateToConnectionTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'Databases'
+    );
 
-      let instanceCreateDatabaseButton = await browser.$(
-        Selectors.InstanceCreateDatabaseButton
-      );
-      let isInstanceCreateDatabaseButtonExisting =
-        await instanceCreateDatabaseButton.isExisting();
-      expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(true);
+    let instanceCreateDatabaseButton = await browser.$(
+      Selectors.InstanceCreateDatabaseButton
+    );
+    let isInstanceCreateDatabaseButtonExisting =
+      await instanceCreateDatabaseButton.isExisting();
+    expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(true);
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      instanceCreateDatabaseButton = await browser.$(
-        Selectors.InstanceCreateDatabaseButton
-      );
-      isInstanceCreateDatabaseButtonExisting =
-        await instanceCreateDatabaseButton.isExisting();
-      expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(false);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
-    }
+    instanceCreateDatabaseButton = await browser.$(
+      Selectors.InstanceCreateDatabaseButton
+    );
+    isInstanceCreateDatabaseButtonExisting =
+      await instanceCreateDatabaseButton.isExisting();
+    expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(false);
   });
 
   it('shows and hides the create collection button on the instance tab', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', false);
-      await createNumbersCollection();
-      await browser.connectWithConnectionString();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-      await browser.navigateToDatabaseCollectionsTab('test');
+    await browser.navigateToDatabaseCollectionsTab(
+      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      'test'
+    );
 
-      let databaseCreateCollectionButton = await browser.$(
-        Selectors.DatabaseCreateCollectionButton
-      );
-      let isDatabaseCreateCollectionButtonExisting =
-        await databaseCreateCollectionButton.isExisting();
-      expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(true);
+    let databaseCreateCollectionButton = await browser.$(
+      Selectors.DatabaseCreateCollectionButton
+    );
+    let isDatabaseCreateCollectionButtonExisting =
+      await databaseCreateCollectionButton.isExisting();
+    expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(true);
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      databaseCreateCollectionButton = await browser.$(
-        Selectors.DatabaseCreateCollectionButton
-      );
-      isDatabaseCreateCollectionButtonExisting =
-        await databaseCreateCollectionButton.isExisting();
-      expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(false);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
-    }
+    databaseCreateCollectionButton = await browser.$(
+      Selectors.DatabaseCreateCollectionButton
+    );
+    isDatabaseCreateCollectionButtonExisting =
+      await databaseCreateCollectionButton.isExisting();
+    expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(false);
   });
 
   it('shows and hides the add data button on the documents tab', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', false);
-      await createNumbersCollection();
-      await browser.connectWithConnectionString();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
 
-      let addDataButton = await browser.$(Selectors.AddDataButton);
-      let isAddDataButtonExisting = await addDataButton.isExisting();
-      expect(isAddDataButtonExisting).to.be.equal(true);
+    let addDataButton = await browser.$(Selectors.AddDataButton);
+    let isAddDataButtonExisting = await addDataButton.isExisting();
+    expect(isAddDataButtonExisting).to.be.equal(true);
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      addDataButton = await browser.$(Selectors.AddDataButton);
-      isAddDataButtonExisting = await addDataButton.isExisting();
-      expect(isAddDataButtonExisting).to.be.equal(false);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
-    }
+    addDataButton = await browser.$(Selectors.AddDataButton);
+    isAddDataButtonExisting = await addDataButton.isExisting();
+    expect(isAddDataButtonExisting).to.be.equal(false);
   });
 
   it('shows and hides the $out aggregation stage', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', false);
-      await createNumbersCollection();
-      await browser.connectWithConnectionString();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-      // Some tests navigate away from the numbers collection aggregations tab
-      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    // Some tests navigate away from the numbers collection aggregations tab
+    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
 
-      await browser.clickVisible(Selectors.AddStageButton);
-      await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
 
-      // sanity check to make sure there's only one
-      const stageContainers = await browser.$$(Selectors.StageCard);
-      expect(stageContainers).to.have.lengthOf(1);
+    // sanity check to make sure there's only one
+    const stageContainers = await browser.$$(Selectors.StageCard);
+    expect(stageContainers).to.have.lengthOf(1);
 
-      let options = await getStageOperators(browser, 0);
+    let options = await getStageOperators(browser, 0);
 
-      expect(options).to.include('$match');
-      expect(options).to.include('$out');
+    expect(options).to.include('$match');
+    expect(options).to.include('$out');
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
 
-      await browser.waitUntil(async () => {
-        await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.waitUntil(async () => {
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-        const featuresSettingsContent = await browser.$(
-          Selectors.GeneralSettingsContent
-        );
-        const isFeaturesSettingsContentExisting =
-          await featuresSettingsContent.isExisting();
+      const featuresSettingsContent = await browser.$(
+        Selectors.GeneralSettingsContent
+      );
+      const isFeaturesSettingsContentExisting =
+        await featuresSettingsContent.isExisting();
 
-        return isFeaturesSettingsContentExisting;
-      });
+      return isFeaturesSettingsContentExisting;
+    });
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      await browser.focusStageOperator(0);
+    await browser.focusStageOperator(0);
 
-      options = await getStageOperators(browser, 0);
+    options = await getStageOperators(browser, 0);
 
-      expect(options).to.include('$match');
-      expect(options).to.not.include('$out');
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
-    }
+    expect(options).to.include('$match');
+    expect(options).to.not.include('$out');
   });
 
   it('shows and hides the create index button', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await createNumbersCollection();
-      await browser.connectWithConnectionString();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-      await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
+    await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
 
-      let createIndexButton = await browser.$(Selectors.CreateIndexButton);
-      let isCreateIndexButtonExisting = await createIndexButton.isExisting();
-      expect(isCreateIndexButtonExisting).to.be.equal(true);
+    let createIndexButton = await browser.$(Selectors.CreateIndexButton);
+    let isCreateIndexButtonExisting = await createIndexButton.isExisting();
+    expect(isCreateIndexButtonExisting).to.be.equal(true);
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      createIndexButton = await browser.$(Selectors.CreateIndexButton);
-      isCreateIndexButtonExisting = await createIndexButton.isExisting();
-      expect(isCreateIndexButtonExisting).to.be.equal(false);
+    createIndexButton = await browser.$(Selectors.CreateIndexButton);
+    isCreateIndexButtonExisting = await createIndexButton.isExisting();
+    expect(isCreateIndexButtonExisting).to.be.equal(false);
 
-      const indexList = await browser.$(Selectors.IndexList);
-      const isIndexListExisting = await indexList.isExisting();
-      expect(isIndexListExisting).to.be.equal(true);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await screenshotIfFailed(compass, this.currentTest);
-      await cleanup(compass);
-    }
+    const indexList = await browser.$(Selectors.IndexList);
+    const isIndexListExisting = await indexList.isExisting();
+    expect(isIndexListExisting).to.be.equal(true);
   });
 
   it('enables and disables validation actions', async function () {
-    const compass = await init(this.test?.fullTitle());
-    const browser = compass.browser;
-    try {
-      await browser.setFeature('readOnly', false);
-      await createNumbersCollection();
-      await browser.connectWithConnectionString();
+    await createNumbersCollection();
+    await browser.connectWithConnectionString();
 
-      await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
-      await browser.clickVisible(Selectors.AddRuleButton);
-      const element = await browser.$(Selectors.ValidationEditor);
-      await element.waitForDisplayed();
+    await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
+    await browser.clickVisible(Selectors.AddRuleButton);
+    const element = await browser.$(Selectors.ValidationEditor);
+    await element.waitForDisplayed();
 
-      await browser.setCodemirrorEditorValue(
-        Selectors.ValidationEditor,
-        '{ $jsonSchema: {} }'
-      );
+    await browser.setCodemirrorEditorValue(
+      Selectors.ValidationEditor,
+      '{ $jsonSchema: {} }'
+    );
 
-      expect(
-        await browser.$(Selectors.UpdateValidationButton).isExisting()
-      ).to.be.equal(true);
-      expect(
-        await browser
-          .$(Selectors.ValidationActionSelector)
-          .getAttribute('aria-disabled')
-      ).to.equal('false');
-      expect(
-        await browser
-          .$(Selectors.ValidationLevelSelector)
-          .getAttribute('aria-disabled')
-      ).to.equal('false');
+    expect(
+      await browser.$(Selectors.UpdateValidationButton).isExisting()
+    ).to.be.equal(true);
+    expect(
+      await browser
+        .$(Selectors.ValidationActionSelector)
+        .getAttribute('aria-disabled')
+    ).to.equal('false');
+    expect(
+      await browser
+        .$(Selectors.ValidationLevelSelector)
+        .getAttribute('aria-disabled')
+    ).to.equal('false');
 
-      await browser.openSettingsModal();
-      const settingsModal = await browser.$(Selectors.SettingsModal);
-      await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.GeneralSettingsButton);
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
-      await browser.clickVisible(Selectors.SaveSettingsButton);
+    await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
 
-      // wait for the modal to go away
-      await settingsModal.waitForDisplayed({ reverse: true });
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
 
-      expect(
-        await browser
-          .$(Selectors.ValidationActionSelector)
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-      expect(
-        await browser
-          .$(Selectors.ValidationLevelSelector)
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-      expect(
-        await browser.$(Selectors.UpdateValidationButton).isExisting()
-      ).to.be.equal(false);
-    } finally {
-      await browser.setFeature('readOnly', false);
-      await cleanup(compass);
-    }
+    expect(
+      await browser
+        .$(Selectors.ValidationActionSelector)
+        .getAttribute('aria-disabled')
+    ).to.equal('true');
+    expect(
+      await browser
+        .$(Selectors.ValidationLevelSelector)
+        .getAttribute('aria-disabled')
+    ).to.equal('true');
+    expect(
+      await browser.$(Selectors.UpdateValidationButton).isExisting()
+    ).to.be.equal(false);
   });
 });

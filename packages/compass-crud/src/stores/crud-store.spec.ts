@@ -27,7 +27,8 @@ import {
 import { satisfies } from 'semver';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import {
   type ConnectionInfoAccess,
@@ -35,6 +36,7 @@ import {
   ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
 import type { TableHeaderType } from './grid-store';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 
 chai.use(chaiAsPromised);
 
@@ -155,7 +157,8 @@ describe('store', function () {
         globalAppRegistry,
         instance,
         preferences,
-        logger: createNoopLoggerAndTelemetry(),
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
         favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
         recentQueryStorageAccess: compassRecentQueryStorageAccess,
         fieldStoreService: mockFieldStoreService,

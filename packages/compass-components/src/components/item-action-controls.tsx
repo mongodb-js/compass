@@ -27,6 +27,8 @@ export type ItemAction<Action extends string> = {
   variant?: 'default' | 'destructive';
   isDisabled?: boolean;
   disabledDescription?: string;
+  tooltip?: string;
+  actionButtonClassName?: string;
 };
 
 export type ItemSeparator = { separator: true };
@@ -71,8 +73,15 @@ const actionControlsStyle = css({
 
 const actionGroupButtonStyle = css({
   '&:not(:first-child)': {
-    marginLeft: spacing[1],
+    marginLeft: spacing[100],
   },
+});
+
+// Action buttons are rendered 4px apart from each other. With this we keep the
+// same spacing also when action buttons are rendered alongside action menu
+// (happens when collapseAfter prop is specified)
+const actionMenuWithActionControlsStyles = css({
+  marginLeft: spacing[100],
 });
 
 const iconContainerStyle = css({
@@ -326,7 +335,15 @@ export function ItemActionGroup<Action extends string>({
           return <MenuSeparator key={`separator-${idx}`} />;
         }
 
-        const { action, icon, label, tooltip, tooltipProps } = menuItem;
+        const {
+          action,
+          icon,
+          label,
+          isDisabled,
+          tooltip,
+          tooltipProps,
+          actionButtonClassName,
+        } = menuItem;
         const button = (
           <ItemActionButton
             key={action}
@@ -337,8 +354,13 @@ export function ItemActionGroup<Action extends string>({
             data-action={action}
             data-testid={actionTestId<Action>(dataTestId, action)}
             onClick={onClick}
-            className={cx(actionGroupButtonStyle, iconClassName)}
+            className={cx(
+              actionGroupButtonStyle,
+              iconClassName,
+              actionButtonClassName
+            )}
             style={iconStyle}
+            disabled={isDisabled}
           />
         );
 
@@ -348,7 +370,11 @@ export function ItemActionGroup<Action extends string>({
               key={action}
               {...tooltipProps}
               trigger={({ children, ...props }) => (
-                <div {...props} style={{ display: 'inherit' }}>
+                <div
+                  {...props}
+                  className={actionGroupButtonStyle}
+                  style={{ display: 'inherit' }}
+                >
                   {button}
                   {children}
                 </div>
@@ -439,6 +465,10 @@ export function ItemActionControls<Action extends string>({
           actions={collapsedActions}
           {...sharedProps}
           {...sharedMenuProps}
+          className={cx(
+            actionMenuWithActionControlsStyles,
+            sharedProps.className
+          )}
         ></ItemActionMenu>
       </div>
     );

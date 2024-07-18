@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import {
   css,
@@ -8,9 +7,12 @@ import {
   Subtitle,
   spacing,
 } from '@mongodb-js/compass-components';
-import { useTrackOnChange } from '@mongodb-js/compass-logging/provider';
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
+import {
+  useTrackOnChange,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const mongoshVersion = `v${
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-var-requires
@@ -35,8 +37,7 @@ function ShellInfoModal({
   show: boolean;
 }) {
   useTrackOnChange(
-    'COMPASS-SHELL',
-    (track) => {
+    (track: TrackFunction) => {
       if (show) {
         track('Screen', { name: 'shell_info_modal' });
       }
@@ -74,10 +75,5 @@ function ShellInfoModal({
     </InfoModal>
   );
 }
-
-ShellInfoModal.propTypes = {
-  hideInfoModal: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
-};
 
 export default ShellInfoModal;

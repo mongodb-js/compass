@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { debounce } from 'lodash';
-import type { LoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
-import { withLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
@@ -28,6 +28,10 @@ import type {
 } from '../../modules/validation';
 import { checkValidator } from '../../modules/validation';
 import { ActionSelector, LevelSelector } from '../validation-selectors';
+import {
+  type ConnectionInfoAccess,
+  withConnectionInfoAccess,
+} from '@mongodb-js/compass-connections/provider';
 
 const validationEditorStyles = css({
   padding: spacing[3],
@@ -116,7 +120,8 @@ export type ValidationEditorProps = {
   >;
   isEditable: boolean;
   darkMode?: boolean;
-  logger: LoggerAndTelemetry;
+  track: TrackFunction;
+  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 /**
@@ -178,7 +183,11 @@ class ValidationEditor extends Component<ValidationEditorProps> {
         typeof checkedValidator.validator === 'object' &&
         !!checkedValidator.validator?.$jsonSchema,
     };
-    this.props.logger.track('Schema Validation Edited', trackEvent);
+    this.props.track(
+      'Schema Validation Edited',
+      trackEvent,
+      this.props.connectionInfoAccess.getCurrentConnectionInfo()
+    );
   }
 
   /**
@@ -312,7 +321,8 @@ class ValidationEditor extends Component<ValidationEditorProps> {
   }
 }
 
-export default withLoggerAndTelemetry(
-  withDarkMode<ValidationEditorProps>(ValidationEditor),
-  'COMPASS-SCHEMA-VALIDATION-UI'
+export default withTelemetry(
+  withConnectionInfoAccess(
+    withDarkMode<ValidationEditorProps>(ValidationEditor)
+  )
 );

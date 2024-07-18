@@ -1,11 +1,21 @@
 import React from 'react';
 import AppRegistry from 'hadron-app-registry';
-import { screen, render, cleanup, within } from '@testing-library/react';
+import {
+  screen,
+  render,
+  cleanup,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
-import { LoggerAndTelemetryProvider } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggerProvider,
+  createNoopLogger,
+} from '@mongodb-js/compass-logging/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import Sinon from 'sinon';
 
 const allTypesStr = `{
@@ -117,17 +127,28 @@ result = client['db']['coll'].find(
   });
 
   describe('on "Copy" button clicked', function () {
-    it('should emit telemetry event', function () {
+    it('should emit telemetry event', async function () {
       const track = Sinon.stub();
-      const logger = {
-        createLogger() {
-          return { track };
-        },
-      };
       render(
-        <LoggerAndTelemetryProvider value={logger as any}>
-          <Plugin namespace="db.coll"></Plugin>
-        </LoggerAndTelemetryProvider>
+        <LoggerProvider
+          value={
+            {
+              createLogger() {
+                return createNoopLogger();
+              },
+            } as any
+          }
+        >
+          <TelemetryProvider
+            options={{
+              sendTrack: (event, props) => {
+                track(event, props);
+              },
+            }}
+          >
+            <Plugin namespace="db.coll"></Plugin>
+          </TelemetryProvider>
+        </LoggerProvider>
       );
       appRegistry.emit('open-aggregation-export-to-language', '[]');
 
@@ -139,12 +160,15 @@ result = client['db']['coll'].find(
           { name: 'Copy' }
         )
       );
-      expect(track).to.have.been.calledOnceWith('Aggregation Exported', {
-        language: 'python',
-        with_import_statements: false,
-        with_drivers_syntax: false,
-        with_builders: false,
-        num_stages: 0,
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Aggregation Exported', {
+          language: 'python',
+          with_import_statements: false,
+          with_drivers_syntax: false,
+          with_builders: false,
+          num_stages: 0,
+          connection_id: 'TEST',
+        });
       });
     });
   });

@@ -1,20 +1,15 @@
-import React from 'react';
-import type {
-  LoggerAndTelemetry,
-  LoggingAndTelemetryPreferences,
-} from './logger';
+import React, { useRef } from 'react';
+import type { Logger } from './logger';
 import type { MongoLogId, MongoLogWriter } from 'mongodb-log-writer';
 import { createServiceLocator } from 'hadron-app-registry';
 
-export type { LoggerAndTelemetry } from './logger';
+export type { Logger } from './logger';
 
 const noop = () => {
   // noop
 };
 
-export function createNoopLoggerAndTelemetry(
-  component = 'NOOP-LOGGER'
-): LoggerAndTelemetry {
+export function createNoopLogger(component = 'NOOP-LOGGER'): Logger {
   return {
     log: {
       component,
@@ -28,65 +23,34 @@ export function createNoopLoggerAndTelemetry(
       fatal: noop,
       debug: noop,
     },
-    debug: noop as unknown as LoggerAndTelemetry['debug'],
-    track: noop,
+    debug: noop as unknown as Logger['debug'],
     mongoLogId,
   };
 }
 
-const LoggerAndTelemetryContext = React.createContext<{
-  createLogger(
-    component: string,
-    preferences: LoggingAndTelemetryPreferences
-  ): LoggerAndTelemetry;
-  preferences?: LoggingAndTelemetryPreferences;
-}>({ createLogger: createNoopLoggerAndTelemetry });
+const LoggerContext = React.createContext<{
+  createLogger(component: string): Logger;
+}>({ createLogger: createNoopLogger });
 
-export const LoggerAndTelemetryProvider = LoggerAndTelemetryContext.Provider;
+export const LoggerProvider = LoggerContext.Provider;
 
-export function createLoggerAndTelemetryLocator(component: string) {
+export function createLoggerLocator(component: string) {
   return createServiceLocator(
-    useLoggerAndTelemetry.bind(null, component),
-    'createLoggerAndTelemetryLocator'
+    useLogger.bind(null, component),
+    'createLoggerLocator'
   );
 }
 
-export function useLoggerAndTelemetry(component: string): LoggerAndTelemetry {
-  const context = React.useContext(LoggerAndTelemetryContext);
+export function useLogger(component: string): Logger {
+  const context = React.useContext(LoggerContext);
   if (!context) {
-    throw new Error('LoggerAndTelemetry service is missing from React context');
+    throw new Error('Logger service is missing from React context');
   }
-  const loggerRef = React.createRef<LoggerAndTelemetry>();
+  const loggerRef = useRef<Logger>();
   if (!loggerRef.current) {
-    (loggerRef as any).current = context.createLogger(
-      component,
-      context.preferences ?? {
-        getPreferences() {
-          return { trackUsageStatistics: true };
-        },
-      }
-    );
+    loggerRef.current = context.createLogger(component);
   }
-  return loggerRef.current!;
-}
-
-export function useTrackOnChange(
-  component: string,
-  onChange: (track: LoggerAndTelemetry['track']) => void,
-  dependencies: unknown[],
-  options: { skipOnMount: boolean } = { skipOnMount: false }
-) {
-  const onChangeRef = React.useRef(onChange);
-  onChangeRef.current = onChange;
-  const { track } = useLoggerAndTelemetry(component);
-  let initial = true;
-  React.useEffect(() => {
-    if (options.skipOnMount && initial) {
-      initial = false;
-      return;
-    }
-    onChangeRef.current(track);
-  }, [...dependencies, track]);
+  return loggerRef.current;
 }
 
 type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
@@ -95,19 +59,19 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
-export function withLoggerAndTelemetry<
+export function withLogger<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(
   ReactComponent: T,
   component: string
 ): React.FunctionComponent<Omit<FirstArgument<T>, 'logger'>> {
-  const WithLoggerAndTelemetry = (
+  const WithLogger = (
     props: Omit<FirstArgument<T>, 'logger'> & React.Attributes
   ) => {
-    const logger = useLoggerAndTelemetry(component);
+    const logger = useLogger(component);
     return React.createElement(ReactComponent, { ...props, logger });
   };
-  return WithLoggerAndTelemetry;
+  return WithLogger;
 }
 
 // To avoid dependency on mongodb-log-writer that will pull in a lot of Node.js
@@ -119,3 +83,5 @@ export function withLoggerAndTelemetry<
 export function mongoLogId(id: number): MongoLogId { // !dupedLogId
   return { __value: id };
 }
+
+export type { MongoLogWriter } from 'mongodb-log-writer';

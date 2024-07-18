@@ -4,7 +4,7 @@ version: v1.25.0
 ignore:
   SNYK-JS-AGGRIDCOMMUNITY-1932011:
     - '*':
-        reason: None Given
+        reason: Not applicable as we do not use a valueFormatter or cellRenderer function
         expires: 2024-07-17T18:27:24.346Z
         created: 2024-01-18T18:27:24.353Z
   SNYK-JS-AXIOS-6032459:

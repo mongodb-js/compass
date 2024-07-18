@@ -8,6 +8,7 @@ import { activatePlugin } from './';
 import { expect } from 'chai';
 import type { Document } from 'mongodb';
 import Sinon from 'sinon';
+import type { ConnectionInfo } from '../../../connection-info/dist';
 
 const localAppRegistry = new AppRegistry();
 
@@ -77,9 +78,15 @@ describe('explain plan modal store', function () {
         dataService,
         logger: {
           log: { warn() {}, error() {} },
-          track() {},
           mongoLogId() {},
         } as any,
+        track: () => {},
+        connectionInfoAccess: {
+          getCurrentConnectionInfo: () =>
+            ({
+              id: 'TEST',
+            } as ConnectionInfo),
+        },
         preferences: {
           getPreferences() {
             return { maxTimeMS: 0 };

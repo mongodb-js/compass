@@ -33,6 +33,12 @@ const renderConnectionStringInput = (
   );
 };
 
+/**
+ * @securityTest Connection Form Password Protection
+ *
+ * We verify that database credentials are not displayed to users, unless they
+ * are actively in the process of editing them.
+ */
 describe('ConnectionStringInput Component', function () {
   let setEnableEditingConnectionStringSpy: sinon.SinonSpy;
   let updateConnectionFormFieldSpy: sinon.SinonSpy;

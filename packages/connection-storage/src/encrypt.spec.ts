@@ -1,6 +1,7 @@
 import { Encrypter, Decrypter } from './encrypt';
 import { expect } from 'chai';
 
+// Security-relevant test -- see import-export-connections e2e test for description.
 describe('Encryption support', function () {
   it('can encrypt and decrypt data', async function () {
     const encrypter = new Encrypter('passphrase');

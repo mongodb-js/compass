@@ -804,7 +804,7 @@ describe('use-connect-form hook', function () {
     });
 
     describe('update-connection-path action', function () {
-      it('should udpate connection path - to input value', function () {
+      it('should update connection path - to input value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/admin'
         );
@@ -822,7 +822,7 @@ describe('use-connect-form hook', function () {
         ).to.equal('/awesome');
       });
 
-      it('should udpate connection path - to empty value', function () {
+      it('should update connection path - to empty value', function () {
         const connectionStringUrl = new ConnectionStringUrl(
           'mongodb://localhost:27019/admin'
         );
@@ -931,7 +931,7 @@ describe('use-connect-form hook', function () {
         );
       });
 
-      it('should not be infered from the connection url when changed', function () {
+      it('should not be inferred from the connection url when changed', function () {
         const { result: initialState } = renderHook(() =>
           useConnectForm(initialConnectionInfo, null)
         );
@@ -971,7 +971,7 @@ describe('use-connect-form hook', function () {
         );
       });
 
-      it('should be infered from the connection url when changed', function () {
+      it('should be inferred from the connection url when changed', function () {
         const { result: initialState } = renderHook(() =>
           useConnectForm(initialConnectionInfo, null)
         );
@@ -989,7 +989,7 @@ describe('use-connect-form hook', function () {
         expect(result.personalizationOptions.isNameDirty).to.be.false;
       });
 
-      it('should not be infered when the name is dirty', function () {
+      it('should not be inferred when the name is dirty', function () {
         const { result: initialState } = renderHook(() =>
           useConnectForm(initialConnectionInfo, null)
         );

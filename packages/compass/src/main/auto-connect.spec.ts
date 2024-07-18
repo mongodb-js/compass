@@ -20,6 +20,15 @@ const URI_WITH_DISALLOWED_SERVICE_HOST_AUTH_MECHANISM_PROP =
 const URI_WITH_ALLOWED_SERVICE_HOST_AUTH_MECHANISM_PROP =
   'mongodb://localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=CANONICALIZE_HOST_NAME%3Aforward';
 
+/**
+ * @securityTest Automatic Connection Establishment Tests
+ *
+ * Since this application accepts remote host connection information on the command line,
+ * we thoroughly check such arguments to verify that they do not result in surprising
+ * behavior for users. In particular, our tests verify that the application warns users
+ * about options that seem unusual or may not result in unexpected or dangerous application
+ * behavior.
+ */
 describe('auto connect management', function () {
   let sandbox: sinon.SinonSandbox;
   let preferences: Parameters<typeof getWindowAutoConnectPreferences>[1];

@@ -8,8 +8,57 @@ import type {
   VirtualPlaceholderItem,
   VirtualTreeItem,
 } from './virtual-list/use-virtual-navigation-tree';
+import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
-type Collection = {
+type DatabaseOrCollectionStatus =
+  | 'initial'
+  | 'fetching'
+  | 'refreshing'
+  | 'ready'
+  | 'error';
+
+export type NotConnectedConnectionStatus =
+  | ConnectionStatus.Connecting
+  | ConnectionStatus.Disconnected
+  | ConnectionStatus.Failed;
+
+export type NotConnectedConnection = {
+  name: string;
+  connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
+};
+
+export type ConnectedConnection = {
+  name: string;
+  connectionInfo: ConnectionInfo;
+  connectionStatus: ConnectionStatus.Connected;
+  isReady: boolean;
+  isDataLake: boolean;
+  isWritable: boolean;
+  isPerformanceTabSupported: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
+  databasesStatus: DatabaseOrCollectionStatus;
+  databasesLength: number;
+  databases: Database[];
+};
+
+export type Connection = ConnectedConnection | NotConnectedConnection;
+
+export type Database = {
+  _id: string;
+  name: string;
+  collectionsStatus: DatabaseOrCollectionStatus;
+  collectionsLength: number;
+  collections: Collection[];
+};
+
+type PlaceholderTreeItem = VirtualPlaceholderItem & {
+  colorCode?: string;
+  id: string;
+};
+
+export type Collection = {
   _id: string;
   name: string;
   type: 'view' | 'collection' | 'timeseries';
@@ -17,42 +66,26 @@ type Collection = {
   pipeline: unknown[];
 };
 
-type Status = 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-
-type Database = {
-  _id: string;
+export type NotConnectedConnectionTreeItem = VirtualTreeItem & {
   name: string;
-  collectionsStatus: Status;
-  collectionsLength: number;
-  collections: Collection[];
-};
-
-export type Connection = {
-  connectionInfo: ConnectionInfo;
-  name: string;
-  databasesStatus: Status;
-  databasesLength: number;
-  databases: Database[];
-  isReady: boolean;
-  isDataLake: boolean;
-  isWritable: boolean;
-  isPerformanceTabSupported: boolean;
-};
-
-type PlaceholderTreeItem = VirtualPlaceholderItem & {
+  type: 'connection';
   colorCode?: string;
-  id: string;
-  maxNestingLevel: number;
+  connectionInfo: ConnectionInfo;
+  connectionStatus: NotConnectedConnectionStatus;
 };
 
-export type ConnectionTreeItem = VirtualTreeItem & {
+export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   name: string;
   type: 'connection';
   colorCode?: string;
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
+  connectionStatus: ConnectionStatus.Connected;
   isPerformanceTabSupported: boolean;
-  maxNestingLevel: number;
+  hasWriteActionsDisabled: boolean;
+  isShellEnabled: boolean;
+  isGenuineMongoDB: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 };
 
 export type DatabaseTreeItem = VirtualTreeItem & {
@@ -62,7 +95,7 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   isExpanded: boolean;
   connectionId: string;
   dbName: string;
-  maxNestingLevel: number;
+  hasWriteActionsDisabled: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -72,39 +105,73 @@ export type CollectionTreeItem = VirtualTreeItem & {
   colorCode?: string;
   connectionId: string;
   namespace: string;
-  maxNestingLevel: number;
+  hasWriteActionsDisabled: boolean;
 };
 
 export type SidebarActionableItem =
-  | ConnectionTreeItem
+  | NotConnectedConnectionTreeItem
+  | ConnectedConnectionTreeItem
   | DatabaseTreeItem
   | CollectionTreeItem;
 
 export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
-const connectionToItems = ({
+const notConnectedConnectionToItems = ({
+  connection: { name, connectionInfo, connectionStatus },
+  connectionIndex,
+  connectionsLength,
+}: {
+  connection: NotConnectedConnection;
+  connectionIndex: number;
+  connectionsLength: number;
+}): SidebarTreeItem[] => {
+  return [
+    {
+      id: connectionInfo.id,
+      level: 1,
+      name,
+      type: 'connection' as const,
+      setSize: connectionsLength,
+      posInSet: connectionIndex + 1,
+      colorCode: connectionInfo.favorite?.color,
+      connectionInfo,
+      connectionStatus,
+      isExpandable: true,
+    },
+  ];
+};
+
+const connectedConnectionToItems = ({
   connection: {
     connectionInfo,
+    connectionStatus,
     name,
     databases,
     databasesStatus,
     databasesLength,
     isPerformanceTabSupported,
+    isDataLake,
+    isWritable,
+    isGenuineMongoDB,
+    csfleMode,
   },
-  maxNestingLevel,
   connectionIndex,
   connectionsLength,
   expandedItems = {},
+  preferencesReadOnly,
 }: {
-  connection: Connection;
-  maxNestingLevel: number;
+  connection: ConnectedConnection;
   connectionIndex: number;
   connectionsLength: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
+  preferencesReadOnly: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
-  const connectionTI: ConnectionTreeItem = {
+  const hasWriteActionsDisabled =
+    preferencesReadOnly || isDataLake || !isWritable;
+  const isShellEnabled = !preferencesReadOnly;
+  const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,
     name,
@@ -112,10 +179,15 @@ const connectionToItems = ({
     setSize: connectionsLength,
     posInSet: connectionIndex + 1,
     isExpanded,
+    isExpandable: true,
     colorCode,
     connectionInfo,
+    connectionStatus,
     isPerformanceTabSupported,
-    maxNestingLevel,
+    hasWriteActionsDisabled,
+    isShellEnabled,
+    isGenuineMongoDB,
+    csfleMode,
   };
 
   const sidebarData: SidebarTreeItem[] = [connectionTI];
@@ -138,7 +210,6 @@ const connectionToItems = ({
         level: 2,
         type: 'placeholder' as const,
         colorCode,
-        maxNestingLevel,
         id: `${connectionInfo.id}.placeholder.${index}`,
       }))
     );
@@ -152,9 +223,9 @@ const connectionToItems = ({
         expandedItems: expandedItems[connectionInfo.id] || {},
         level: 2,
         colorCode,
-        maxNestingLevel,
         databasesLength,
         databaseIndex,
+        hasWriteActionsDisabled,
       });
     })
   );
@@ -172,18 +243,18 @@ const databaseToItems = ({
   expandedItems = {},
   level,
   colorCode,
-  maxNestingLevel,
   databaseIndex,
   databasesLength,
+  hasWriteActionsDisabled,
 }: {
   database: Database;
   connectionId: string;
   expandedItems?: Record<string, boolean>;
   level: number;
   colorCode?: string;
-  maxNestingLevel: number;
   databaseIndex: number;
   databasesLength: number;
+  hasWriteActionsDisabled: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
   const databaseTI: DatabaseTreeItem = {
@@ -197,7 +268,8 @@ const databaseToItems = ({
     colorCode,
     connectionId,
     dbName: id,
-    maxNestingLevel,
+    isExpandable: true,
+    hasWriteActionsDisabled,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -219,7 +291,6 @@ const databaseToItems = ({
         level: level + 1,
         type: 'placeholder' as const,
         colorCode,
-        maxNestingLevel,
         id: `${connectionId}.${id}.placeholder.${index}`,
       }))
     );
@@ -236,14 +307,11 @@ const databaseToItems = ({
       colorCode,
       connectionId,
       namespace: id,
-      maxNestingLevel,
+      hasWriteActionsDisabled,
+      isExpandable: false,
     }))
   );
 };
-
-export function getMaxNestingLevel(isSingleConnection: boolean): number {
-  return isSingleConnection ? 2 : 3;
-}
 
 /**
  * Converts a list connections to virtual tree items.
@@ -258,34 +326,55 @@ export function getMaxNestingLevel(isSingleConnection: boolean): number {
  * @param isSingleConnection - Whether the connections are a single connection.
  * @param expandedItems - The expanded items.
  */
-export function getVirtualTreeItems(
-  connections: Connection[],
-  isSingleConnection: boolean,
-  expandedItems: Record<string, false | Record<string, boolean>> = {}
-): SidebarTreeItem[] {
+export function getVirtualTreeItems({
+  connections,
+  isSingleConnection,
+  expandedItems = {},
+  preferencesReadOnly,
+}: {
+  connections: (NotConnectedConnection | ConnectedConnection)[];
+  isSingleConnection: boolean;
+  expandedItems: Record<string, false | Record<string, boolean>>;
+  preferencesReadOnly: boolean;
+}): SidebarTreeItem[] {
   if (!isSingleConnection) {
-    return connections.flatMap((connection, connectionIndex) =>
-      connectionToItems({
-        connection,
-        expandedItems,
-        maxNestingLevel: getMaxNestingLevel(isSingleConnection),
-        connectionIndex,
-        connectionsLength: connections.length,
-      })
-    );
+    return connections.flatMap((connection, connectionIndex) => {
+      if (connection.connectionStatus === ConnectionStatus.Connected) {
+        return connectedConnectionToItems({
+          connection,
+          expandedItems,
+          connectionIndex,
+          connectionsLength: connections.length,
+          preferencesReadOnly,
+        });
+      } else {
+        return notConnectedConnectionToItems({
+          connection,
+          connectionsLength: connections.length,
+          connectionIndex,
+        });
+      }
+    });
   }
 
   const connection = connections[0];
+  // In single connection mode we expect the only connection to be connected
+  if (connection.connectionStatus !== ConnectionStatus.Connected) {
+    return [];
+  }
+
   const dbExpandedItems = expandedItems[connection.connectionInfo.id] || {};
+  const hasWriteActionsDisabled =
+    preferencesReadOnly || connection.isDataLake || !connection.isWritable;
   return connection.databases.flatMap((database, databaseIndex) => {
     return databaseToItems({
       connectionId: connection.connectionInfo.id,
       database,
       expandedItems: dbExpandedItems,
       level: 1,
-      maxNestingLevel: getMaxNestingLevel(isSingleConnection),
       databasesLength: connection.databasesLength,
       databaseIndex,
+      hasWriteActionsDisabled,
     });
   });
 }

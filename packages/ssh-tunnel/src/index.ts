@@ -3,7 +3,7 @@ import { EventEmitter, once } from 'events';
 import type { Socket } from 'net';
 import type { ClientChannel, ConnectConfig } from 'ssh2';
 import { Client as SshClient } from 'ssh2';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { createLogger } from '@mongodb-js/compass-logging';
 
 // The socksv5 module is not bundle-able by itself, so we get the
 // subpackages directly
@@ -11,8 +11,7 @@ import socks5Server from 'socksv5/lib/server';
 import socks5AuthNone from 'socksv5/lib/auth/None';
 import socks5AuthUserPassword from 'socksv5/lib/auth/UserPassword';
 
-const { log, mongoLogId, debug } =
-  createLoggerAndTelemetry('COMPASS-SSH-TUNNEL');
+const { log, mongoLogId, debug } = createLogger('COMPASS-SSH-TUNNEL');
 
 type LocalProxyServerConfig = {
   localAddr: string;

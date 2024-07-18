@@ -3,7 +3,8 @@ import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import { createInstancesStore } from './instance-store';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { createNoopLoggerAndTelemetry } from '@mongodb-js/compass-logging/provider';
+
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import {
   ConnectionsManager,
@@ -73,7 +74,7 @@ describe('InstanceStore [Store]', function () {
     sandbox = sinon.createSandbox();
 
     dataService = createDataService();
-    const logger = createNoopLoggerAndTelemetry();
+    const logger = createNoopLogger();
     connectionsManager = new ConnectionsManager({
       logger: logger.log.unbound,
       __TEST_CONNECT_FN: () => Promise.resolve(dataService),
@@ -120,6 +121,9 @@ describe('InstanceStore [Store]', function () {
     let connectedInstance: MongoDBInstance;
     let initialInstanceRefreshedPromise: Promise<unknown>;
     beforeEach(function () {
+      sinon
+        .stub(connectionsManager, 'getDataServiceForConnection')
+        .returns(dataService);
       connectionsManager.emit(
         ConnectionsManagerEvents.ConnectionAttemptSuccessful,
         connectedConnectionInfoId,
@@ -329,35 +333,35 @@ describe('InstanceStore [Store]', function () {
         });
       });
 
-      const createdEvents = ['agg-pipeline-out-executed'];
-
-      for (const evt of createdEvents) {
-        context(`on '${evt}' event`, function () {
-          it('should add collection to the databases collections', function () {
-            globalAppRegistry.emit(evt, 'foo.qux');
-            expect(
-              connectedInstance.databases.get('foo')?.collections
-            ).to.have.lengthOf(3);
-            expect(
-              connectedInstance.databases
-                .get('foo')
-                ?.collections.get('foo.qux', '_id')
-            ).to.exist;
+      context(`on 'agg-pipeline-out-executed' event`, function () {
+        it('should add collection to the databases collections', function () {
+          globalAppRegistry.emit('agg-pipeline-out-executed', 'foo.qux', {
+            connectionId: connectedConnectionInfoId,
           });
-
-          it("should add new database and add collection to its collections if database doesn't exist yet", function () {
-            globalAppRegistry.emit(evt, 'bar.qux');
-            expect(connectedInstance.databases).to.have.lengthOf(2);
-            expect(connectedInstance.databases.get('bar')).to.exist;
-            expect(
-              connectedInstance.databases.get('bar')?.collections
-            ).to.have.lengthOf(1);
-            expect(
-              connectedInstance.databases.get('bar')?.collections.get('bar.qux')
-            ).to.exist;
-          });
+          expect(
+            connectedInstance.databases.get('foo')?.collections
+          ).to.have.lengthOf(3);
+          expect(
+            connectedInstance.databases
+              .get('foo')
+              ?.collections.get('foo.qux', '_id')
+          ).to.exist;
         });
-      }
+
+        it("should add new database and add collection to its collections if database doesn't exist yet", function () {
+          globalAppRegistry.emit('agg-pipeline-out-executed', 'bar.qux', {
+            connectionId: connectedConnectionInfoId,
+          });
+          expect(connectedInstance.databases).to.have.lengthOf(2);
+          expect(connectedInstance.databases.get('bar')).to.exist;
+          expect(
+            connectedInstance.databases.get('bar')?.collections
+          ).to.have.lengthOf(1);
+          expect(
+            connectedInstance.databases.get('bar')?.collections.get('bar.qux')
+          ).to.exist;
+        });
+      });
 
       context(`on 'collection-created' event`, function () {
         it('should not respond when the connectionId does not matches the connectionId for the instance', function () {
@@ -466,6 +470,70 @@ describe('InstanceStore [Store]', function () {
           ).to.exist;
         });
       });
+    });
+  });
+
+  context('when disconnected', function () {
+    it('should remove the instance from InstancesManager and should not perform any actions on the stale instance', async function () {
+      // first connect
+      connectionsManager.emit(
+        ConnectionsManagerEvents.ConnectionAttemptSuccessful,
+        connectedConnectionInfoId,
+        dataService
+      );
+
+      // setup a spy on old instance
+      const oldInstance = instancesManager.getMongoDBInstanceForConnection(
+        connectedConnectionInfoId
+      );
+      const oldFetchDatabasesSpy = sinon.spy(oldInstance, 'fetchDatabases');
+
+      // now disconnect
+      connectionsManager.emit(
+        ConnectionsManagerEvents.ConnectionDisconnected,
+        connectedConnectionInfoId
+      );
+
+      // there is no instance in store InstancesManager now
+      expect(() =>
+        instancesManager.getMongoDBInstanceForConnection(
+          connectedConnectionInfoId
+        )
+      ).to.throw;
+
+      // lets connect again and ensure that old instance does not receive events anymore
+      const newDataService = createDataService();
+      sinon
+        .stub(connectionsManager, 'getDataServiceForConnection')
+        .returns(dataService);
+      connectionsManager.emit(
+        ConnectionsManagerEvents.ConnectionAttemptSuccessful,
+        connectedConnectionInfoId,
+        newDataService
+      );
+
+      // setup a spy on new instance
+      const newInstance = instancesManager.getMongoDBInstanceForConnection(
+        connectedConnectionInfoId
+      );
+
+      let resolveFetchDatabasePromise: (() => void) | undefined;
+      const fetchDatabasePromise = new Promise<void>((resolve) => {
+        resolveFetchDatabasePromise = resolve;
+      });
+      const newFetchDatabasesSpy = sinon
+        .stub(newInstance, 'fetchDatabases')
+        .callsFake(() => {
+          resolveFetchDatabasePromise?.();
+          return Promise.resolve();
+        });
+
+      globalAppRegistry.emit('refresh-databases', {
+        connectionId: connectedConnectionInfoId,
+      });
+      await fetchDatabasePromise;
+      expect(oldFetchDatabasesSpy).to.not.be.called;
+      expect(newFetchDatabasesSpy).to.be.called;
     });
   });
 });
