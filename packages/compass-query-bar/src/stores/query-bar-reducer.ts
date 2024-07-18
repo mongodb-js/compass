@@ -135,7 +135,6 @@ export const applyQuery = (
     }
     const query = mapFormFieldsToQuery(fields);
     dispatch({ type: QueryBarActions.ApplyQuery, query, source });
-    // const favorites = (await favoriteQueryStorage?.loadAll(namespace)) ?? [];
     const queryAttributes = getQueryAttributes(query);
     const existingFavoriteQuery = favoriteQueries.find((favoriteQuery) => {
       return isQueryEqual(getQueryAttributes(favoriteQuery), queryAttributes);
