@@ -10,7 +10,6 @@ import {
   outputFilename,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -781,13 +780,6 @@ describe('Collection export', function () {
     });
 
     it('aborts an in progress CSV export when disconnected', async function () {
-      // TODO(COMPASS-8008): this is not working in multiple connections and the
-      // code below checking for the sidebar title to go away is wrong in that
-      // world anyway
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        this.skip();
-      }
-
       const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
       // Set a query that we'll use.
@@ -830,10 +822,7 @@ describe('Collection export', function () {
       const exportAbortButton = await browser.$(Selectors.ExportToastAbort);
       await exportAbortButton.waitForDisplayed();
 
-      await browser.disconnect();
-      await browser
-        .$(Selectors.SidebarTitle)
-        .waitForDisplayed({ reverse: true });
+      await browser.disconnectAll({ closeToasts: false });
 
       // Wait for the aborted toast to appear.
       const toastElement = await browser.$(Selectors.ExportToast);

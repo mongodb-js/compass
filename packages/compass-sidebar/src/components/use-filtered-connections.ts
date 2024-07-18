@@ -59,9 +59,10 @@ const filterConnections = (
         isMatch,
         ...(connection.connectionStatus === ConnectionStatus.Connected
           ? {
-              databases: childMatches.length
-                ? childMatches
-                : connection.databases,
+              databases:
+                !isMatch && childMatches.length
+                  ? childMatches
+                  : connection.databases,
             }
           : {}),
       });
@@ -83,7 +84,8 @@ const filterDatabases = (
       results.push({
         ...db,
         isMatch,
-        collections: childMatches.length ? childMatches : db.collections,
+        collections:
+          !isMatch && childMatches.length ? childMatches : db.collections,
       });
     }
   }

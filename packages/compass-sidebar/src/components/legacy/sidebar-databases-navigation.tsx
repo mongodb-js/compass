@@ -52,7 +52,8 @@ const filterDatabases = (
       results.push({
         ...db,
         isMatch,
-        collections: childMatches.length ? childMatches : db.collections,
+        collections:
+          !isMatch && childMatches.length ? childMatches : db.collections,
       });
     }
   }

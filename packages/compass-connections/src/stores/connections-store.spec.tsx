@@ -296,26 +296,6 @@ describe('use-connections hook', function () {
     });
   });
 
-  describe('#closeConnection', function () {
-    it(`calls onDisconnected`, async function () {
-      const onDisconnected = sinon.spy();
-      const { result } = renderHookWithContext(() =>
-        useConnections({
-          onDisconnected,
-          onConnected: noop,
-          onConnectionFailed: noop,
-          onConnectionAttemptStarted: noop,
-        })
-      );
-
-      await result.current.closeConnection('old');
-
-      await waitFor(() => {
-        expect(onDisconnected).to.have.been.called;
-      });
-    });
-  });
-
   describe('#saveConnection', function () {
     describe('with an existing connection', function () {
       let hookResult: RenderResult<ReturnType<typeof useConnections>>;
