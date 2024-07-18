@@ -348,8 +348,6 @@ describe('useImportConnections', function () {
     expect(arg?.options?.trackingProps).to.deep.equal({
       context: 'Tests',
       connection_ids: ['id2'],
-      active_connections_count: 0,
-      inactive_connections_count: 1,
     });
     expect(arg?.options?.filterConnectionIds).to.deep.equal(['id2']);
   });

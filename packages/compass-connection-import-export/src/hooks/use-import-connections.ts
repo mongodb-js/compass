@@ -13,11 +13,7 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import {
-  ConnectionStatus,
-  useConnectionRepository,
-  useConnectionsManagerContext,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
@@ -110,7 +106,6 @@ export function useImportConnections({
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();
 
-  const connectionsManager = useConnectionsManagerContext();
   const existingConnections = useMemo(() => {
     // in case of multiple connections all the connections are saved (that used
     // to be favorites in the single connection world) so we need to account for
@@ -159,10 +154,6 @@ export function useImportConnections({
         .filter((x) => x.selected)
         .map((x) => x.id);
       try {
-        const activeConnectionsCount =
-          connectionsManager.getConnectionIdsByStatus(
-            ConnectionStatus.Connected
-          ).length || 0;
         await importConnectionsImpl({
           content: fileContents,
           options: {
@@ -171,11 +162,6 @@ export function useImportConnections({
             trackingProps: {
               ...trackingProps,
               connection_ids: filterConnectionIds,
-              active_connections_count: activeConnectionsCount,
-              inactive_connections_count:
-                existingConnectionIds.length +
-                filterConnectionIds.length -
-                activeConnectionsCount,
             },
           },
         });

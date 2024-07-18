@@ -172,8 +172,7 @@ export function trackNewConnectionEvent(
   connectionInfo: ConnectionInfo,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
   { debug }: Logger,
-  track: TrackFunction,
-  { active, inactive }: { active: number; inactive: number }
+  track: TrackFunction
 ): void {
   try {
     const callback = async () => {
@@ -192,8 +191,6 @@ export function trackNewConnectionEvent(
         server_arch: host.arch,
         server_os_family: host.os_family,
         topology_type: dataService.getCurrentTopologyType(),
-        active_connections_count: active,
-        inactive_connections_count: inactive,
       };
       return trackEvent;
     };
@@ -205,29 +202,18 @@ export function trackNewConnectionEvent(
 
 export function trackConnectionDisconnectedEvent(
   connectionInfo: ConnectionInfo | undefined,
-  track: TrackFunction,
-  { active, inactive }: { active: number; inactive: number }
+  track: TrackFunction
 ): void {
-  track(
-    'Connection Disconnected',
-    {
-      active_connections_count: active,
-      inactive_connections_count: inactive,
-    },
-    connectionInfo
-  );
+  track('Connection Disconnected', {}, connectionInfo);
 }
 
 export function trackConnectionCreatedEvent(
   connectionInfo: ConnectionInfo | undefined,
-  track: TrackFunction,
-  { active, inactive }: { active: number; inactive: number }
+  track: TrackFunction
 ): void {
   track(
     'Connection Created',
     {
-      active_connections_count: active,
-      inactive_connections_count: inactive,
       color: connectionInfo?.favorite?.color,
     },
     connectionInfo
@@ -236,17 +222,9 @@ export function trackConnectionCreatedEvent(
 
 export function trackConnectionRemovedEvent(
   connectionInfo: ConnectionInfo | undefined,
-  track: TrackFunction,
-  { active, inactive }: { active: number; inactive: number }
+  track: TrackFunction
 ): void {
-  track(
-    'Connection Removed',
-    {
-      active_connections_count: active,
-      inactive_connections_count: inactive,
-    },
-    connectionInfo
-  );
+  track('Connection Removed', {}, connectionInfo);
 }
 
 export function trackConnectionFailedEvent(

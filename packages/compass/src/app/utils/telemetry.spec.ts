@@ -188,8 +188,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -239,8 +237,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -304,8 +300,6 @@ describe('connection tracking', function () {
         is_public_cloud: true,
         public_cloud_name: 'AWS',
         connection_id: 'TEST',
-        active_connections_count: activeInactiveConnectionsCount.active,
-        inactive_connections_count: activeInactiveConnectionsCount.inactive,
       };
 
       expect(properties).to.deep.equal(expected);
@@ -384,8 +378,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -436,8 +428,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -487,8 +477,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -537,8 +525,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -587,8 +573,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -909,8 +893,6 @@ describe('connection tracking', function () {
       has_kms_kmip: false,
       has_kms_azure: false,
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(event).to.equal('New Connection');
@@ -929,8 +911,6 @@ describe('connection tracking', function () {
 
     const expected = {
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(event).to.equal('Connection Disconnected');
@@ -949,8 +929,6 @@ describe('connection tracking', function () {
 
     const expected = {
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
       color: connectionInfo.favorite?.color,
     };
 
@@ -970,8 +948,6 @@ describe('connection tracking', function () {
 
     const expected = {
       connection_id: 'TEST',
-      active_connections_count: activeInactiveConnectionsCount.active,
-      inactive_connections_count: activeInactiveConnectionsCount.inactive,
     };
 
     expect(event).to.equal('Connection Removed');
