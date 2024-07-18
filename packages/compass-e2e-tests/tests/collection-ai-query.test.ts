@@ -9,6 +9,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -56,7 +57,12 @@ describe('Collection ai query', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
   });
 
   after(async function () {

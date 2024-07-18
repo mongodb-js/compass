@@ -15,8 +15,8 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
+  DEFAULT_CONNECTION_NAME,
   MONGODB_TEST_SERVER_PORT,
-  DEFAULT_CONNECTION_STRING,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -128,12 +128,16 @@ function generateIamSessionToken(): {
 
 async function assertCanReadData(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take into account connectionName
   connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
+  await browser.navigateToCollectionTab(
+    connectionName,
+    dbName,
+    collectionName,
+    'Documents'
+  );
   await browser.waitUntil(async () => {
     const text = await browser
       .$(Selectors.DocumentListActionBarMessage)
@@ -144,12 +148,16 @@ async function assertCanReadData(
 
 async function assertCannotInsertData(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take into account connectionName
   connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  await browser.navigateToCollectionTab(dbName, collectionName, 'Documents');
+  await browser.navigateToCollectionTab(
+    connectionName,
+    dbName,
+    collectionName,
+    'Documents'
+  );
 
   // browse to the "Insert to Collection" modal
   await browser.clickVisible(Selectors.AddDataButton);
@@ -239,17 +247,20 @@ async function assertCannotCreateDb(
 
 async function assertCannotCreateCollection(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take into account connectionName
   connectionName: string,
   dbName: string,
   collectionName: string
 ): Promise<void> {
+  const connectionId = await browser.getConnectionIdByName(connectionName);
+
   // open create collection modal from the sidebar
   await browser.clickVisible(Selectors.SidebarFilterInput);
   await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-  const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+  const dbElement = await browser.$(
+    Selectors.sidebarDatabase(connectionId, dbName)
+  );
   await dbElement.waitForDisplayed();
-  await browser.hover(Selectors.sidebarDatabase(dbName));
+  await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
   await browser.clickVisible(Selectors.CreateCollectionButton);
 
   const createModalElement = await browser.$(Selectors.CreateCollectionModal);
@@ -300,7 +311,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        connectionNameFromString(DEFAULT_CONNECTION_STRING),
+        DEFAULT_CONNECTION_NAME,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );

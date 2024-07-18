@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -36,6 +41,7 @@ describe('Global Tabs', function () {
   it('should open tabs over each other when not modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         collName,
         'Documents',
@@ -45,9 +51,10 @@ describe('Global Tabs', function () {
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
   });
 
-  it('should open tabs over each other when not modified', async function () {
+  it('should open new tabs when modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         collName,
         'Documents',
@@ -64,6 +71,7 @@ describe('Global Tabs', function () {
   it('should close tabs without warning even when "modified" by interacting with the tab', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         collName,
         'Documents',
@@ -79,7 +87,12 @@ describe('Global Tabs', function () {
   });
 
   it('should ask for confirmation when closing modified Aggregations tab', async function () {
-    await browser.navigateToCollectionTab('test', 'a', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'a',
+      'Aggregations'
+    );
 
     await browser.clickVisible(
       Selectors.aggregationPipelineModeToggle('as-text')
