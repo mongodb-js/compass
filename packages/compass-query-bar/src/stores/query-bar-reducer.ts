@@ -140,7 +140,7 @@ export const applyQuery = (
       return isQueryEqual(getQueryAttributes(favoriteQuery), queryAttributes);
     });
     if (existingFavoriteQuery) {
-      void dispatch(updateFavoriteQuery(query));
+      void dispatch(updateFavoriteQuery(existingFavoriteQuery));
     } else {
       void dispatch(saveRecentQuery(query));
     }
@@ -448,7 +448,7 @@ const saveRecentQuery = (
 };
 
 const updateFavoriteQuery = (
-  query: Omit<BaseQuery, 'maxTimeMS'>
+  query: FavoriteQuery
 ): QueryBarThunkAction<Promise<void>> => {
   return async (
     dispatch,
@@ -457,7 +457,7 @@ const updateFavoriteQuery = (
   ) => {
     try {
       const {
-        queryBar: { favoriteQueries },
+        queryBar: { host },
       } = getState();
 
       const queryAttributes = getQueryAttributes(query);
@@ -466,21 +466,13 @@ const updateFavoriteQuery = (
         return;
       }
 
-      const existingFavoriteQuery = favoriteQueries.find((favoriteQuery) => {
-        return isQueryEqual(getQueryAttributes(favoriteQuery), queryAttributes);
-      });
-
-      if (existingFavoriteQuery) {
-        const updateAttributes = {
-          _host: existingFavoriteQuery._host,
-          _lastExecuted: new Date(),
-        };
-        await favoriteQueryStorage?.updateAttributes(
-          existingFavoriteQuery._id,
-          updateAttributes
-        );
-      }
-      dispatch(fetchSavedQueries());
+      const updateAttributes = {
+        _host: query._host ?? host,
+        _lastExecuted: new Date(),
+      };
+      await favoriteQueryStorage?.updateAttributes(query._id, updateAttributes);
+      // update favorites
+      void dispatch(fetchFavorites());
     } catch (e) {
       debug('Failed to update favorite query', e);
     }
