@@ -1221,7 +1221,6 @@ export const workspaceTab = ({
   connectionName,
   namespace,
   type,
-  title,
   active,
 }: WorkspaceTabSelectorOptions = {}) => {
   const parts: string[] = [WorkspaceTab];
@@ -1236,9 +1235,6 @@ export const workspaceTab = ({
   }
   if (type !== undefined) {
     parts.push(`[data-type="${type}"]`);
-  }
-  if (title !== undefined) {
-    parts.push(`[title="${title}"]`);
   }
   if (active !== undefined) {
     parts.push(`[aria-selected="${String(active)}"]`);

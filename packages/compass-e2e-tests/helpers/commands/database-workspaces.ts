@@ -18,7 +18,11 @@ export async function waitUntilActiveDatabaseTab(
   connectionName: string,
   dbName: string
 ) {
-  const options: WorkspaceTabSelectorOptions = { title: dbName, active: true };
+  const options: WorkspaceTabSelectorOptions = {
+    type: 'collections',
+    namespace: dbName,
+    active: true,
+  };
 
   // Only add the connectionName for multiple connections because for some
   // reason this sometimes flakes in single connections even though the tab is

@@ -157,6 +157,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
+      const connectionName =
+        tab.type !== 'Welcome' && tab.type !== 'My Queries'
+          ? getConnectionTitleById(tab.connectionId)
+          : undefined;
       switch (tab.type) {
         case 'Welcome':
           return {
@@ -175,34 +179,40 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         case 'Shell':
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: getConnectionTitleById(tab.connectionId) ?? 'MongoDB Shell',
+            title: connectionName
+              ? `Shell: ${connectionName}`
+              : 'MongoDB Shell',
             iconGlyph: 'Shell',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Databases':
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: tab.type,
+            title: connectionName
+              ? `Databases: ${connectionName}`
+              : 'Databases',
             iconGlyph: 'Database',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Performance':
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: tab.type,
+            title: connectionName
+              ? `Performance: ${connectionName}`
+              : 'Performance',
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         case 'Collections':
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: tab.namespace,
             iconGlyph: 'Database',
@@ -228,7 +238,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             : `${database} > ${collection}`;
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: collection,
             subtitle,

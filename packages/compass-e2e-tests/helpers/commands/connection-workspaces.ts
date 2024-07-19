@@ -31,7 +31,7 @@ export async function waitUntilActiveConnectionTab(
   connectionName: string,
   tabName: 'Performance' | 'Databases'
 ) {
-  const options: WorkspaceTabSelectorOptions = { title: tabName, active: true };
+  const options: WorkspaceTabSelectorOptions = { type: tabName, active: true };
 
   // Only add the connectionName for multiple connections because for some
   // reason this sometimes flakes in single connections even though the tab is

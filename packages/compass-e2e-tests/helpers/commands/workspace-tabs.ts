@@ -7,7 +7,7 @@ const debug = Debug('compass-e2e-tests');
 export async function navigateToMyQueries(browser: CompassBrowser) {
   await browser.clickVisible(Selectors.SidebarMyQueriesTab);
   await browser
-    .$(Selectors.workspaceTab({ title: 'My Queries', active: true }))
+    .$(Selectors.workspaceTab({ type: 'My Queries', active: true }))
     .waitForDisplayed();
 }
 
