@@ -85,6 +85,7 @@
     "@mongodb-js/my-queries-storage": "^0.14.0",
     "@mongodb-js/reflux-state-mixin": "^1.0.3",
     "@mongodb-js/shell-bson-parser": "^1.1.0",
+    "@tanstack/react-virtual": "^3.8.3",
     "ag-grid-community": "^20.2.0",
     "ag-grid-react": "^20.2.0",
     "bson": "^6.7.0",
@@ -99,6 +100,7 @@
     "mongodb-query-parser": "^4.2.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
+    "react-virtuoso": "^4.7.12",
     "reflux": "^0.4.1",
     "semver": "^7.6.2"
   },

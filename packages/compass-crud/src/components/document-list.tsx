@@ -15,7 +15,7 @@ import InsertDocumentDialog from './insert-document-dialog';
 import type { BulkUpdateModalProps } from './bulk-update-modal';
 import BulkUpdateModal from './bulk-update-modal';
 import type { DocumentListViewProps } from './document-list-view';
-import DocumentListView from './document-list-view';
+import VirtualisedDocumentListView from './virtualised-document-list-view';
 import type { DocumentJsonViewProps } from './document-json-view';
 import DocumentJsonView from './document-json-view';
 import type { DocumentTableViewProps } from './table-view/document-table-view';
@@ -145,14 +145,27 @@ export type DocumentListProps = {
   >;
 
 const DocumentViewComponent: React.FunctionComponent<
-  DocumentListProps & { isEditable: boolean; outdated: boolean; query: unknown }
-> = (props) => {
+  DocumentListProps & {
+    isEditable: boolean;
+    outdated: boolean;
+    query: unknown;
+    scrollableContainerRef?: React.MutableRefObject<HTMLDivElement | null>;
+    initialScrollTop?: number;
+  }
+> = ({ initialScrollTop, scrollableContainerRef, ...props }) => {
   if (props.docs?.length === 0) {
     return null;
   }
 
   if (props.view === 'List') {
-    return <DocumentListView {...props} className={listAndJsonStyles} />;
+    return (
+      <VirtualisedDocumentListView
+        {...props}
+        className={listAndJsonStyles}
+        initialScrollTop={initialScrollTop}
+        scrollableContainerRef={scrollableContainerRef}
+      />
+    );
   } else if (props.view === 'Table') {
     return (
       <DocumentTableView
@@ -283,6 +296,15 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   let content = null;
 
+  const [initialScrollTop, setInitialScrollTop] = useTabState(
+    'documents-list-initial-scroll-top',
+    0
+  );
+  const initialScrollTopRef = useRef(initialScrollTop);
+  initialScrollTopRef.current = initialScrollTop;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   if (isFetching) {
     content = (
       <div className={loaderContainerStyles}>
@@ -339,19 +361,12 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           isEditable={isEditable}
           outdated={outdated}
           query={query}
+          initialScrollTop={initialScrollTop}
+          scrollableContainerRef={scrollRef}
         />
       );
     }
   }
-
-  const [initialScrollTop, setInitialScrollTop] = useTabState(
-    'documents-list-initial-scroll-top',
-    0
-  );
-  const initialScrollTopRef = useRef(initialScrollTop);
-  initialScrollTopRef.current = initialScrollTop;
-
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     if (scrollRef.current) {
