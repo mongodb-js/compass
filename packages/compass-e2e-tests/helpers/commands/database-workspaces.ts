@@ -19,7 +19,7 @@ export async function waitUntilActiveDatabaseTab(
   dbName: string
 ) {
   const options: WorkspaceTabSelectorOptions = {
-    type: 'collections',
+    type: 'Collections',
     namespace: dbName,
     active: true,
   };
