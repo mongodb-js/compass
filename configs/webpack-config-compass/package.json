@@ -74,7 +74,7 @@
     "cli-progress": "^3.9.1",
     "core-js": "^3.17.3",
     "css-loader": "^4.3.0",
-    "electron": "^29.4.3",
+    "electron": "^29.4.5",
     "html-webpack-plugin": "^5.3.2",
     "less": "^3.13.1",
     "less-loader": "^10.0.1",

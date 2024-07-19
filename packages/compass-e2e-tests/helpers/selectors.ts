@@ -332,21 +332,36 @@ export const RenameCollectionButton =
   '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
-export const DropCollectionButton = '[data-action="drop-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
 
-export const sidebarDatabase = (dbName: string): string => {
+export const sidebarDatabase = (
+  // TODO(COMPASS-7906): don't allow undefined connectionId
+  connectionId: string | undefined,
+  dbName: string
+): string => {
+  if (connectionId) {
+    return `${Sidebar} [data-connection-id="${connectionId}"][data-database-name="${dbName}"]`;
+  }
   return `${Sidebar} [data-database-name="${dbName}"]`;
 };
 
-export const sidebarDatabaseToggle = (dbName: string): string => {
-  return `${sidebarDatabase(dbName)} button[type=button]`;
+export const sidebarDatabaseToggle = (
+  // TODO(COMPASS-7906): don't allow undefined connectionId
+  connectionId: string | undefined,
+  dbName: string
+): string => {
+  return `${sidebarDatabase(connectionId, dbName)} button[type=button]`;
 };
 
 export const sidebarCollection = (
+  // TODO(COMPASS-7906): don't allow undefined connectionId
+  connectionId: string | undefined,
   dbName: string,
   collectionName: string
 ): string => {
+  if (connectionId) {
+    return `${Sidebar} [data-connection-id="${connectionId}"][data-namespace="${dbName}.${collectionName}"]`;
+  }
   return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
 };
 
@@ -1229,18 +1244,6 @@ export const workspaceTab = ({
     parts.push(`[aria-selected="${String(active)}"]`);
   }
   return parts.join('');
-};
-export const connectionWorkspaceTab = (
-  tabName: 'Performance' | 'Databases',
-  active?: boolean
-) => {
-  return workspaceTab({ title: tabName, active });
-};
-export const databaseWorkspaceTab = (dbName: string, active?: boolean) => {
-  return workspaceTab({ title: dbName, active });
-};
-export const collectionWorkspaceTab = (namespace: string, active: boolean) => {
-  return workspaceTab({ namespace, active });
 };
 
 // Export modal

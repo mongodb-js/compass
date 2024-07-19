@@ -8,6 +8,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
@@ -191,7 +192,12 @@ describe.skip('Search Indexes', function () {
     }
 
     await browser.connectWithConnectionString(currentConnectionString);
-    await browser.navigateToCollectionTab(DB_NAME, collectionName, 'Indexes');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      DB_NAME,
+      collectionName,
+      'Indexes'
+    );
   });
 
   afterEach(async function () {

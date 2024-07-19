@@ -7,9 +7,8 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  connectionNameFromString,
-  DEFAULT_CONNECTION_STRING,
   TEST_MULTIPLE_CONNECTIONS,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -44,7 +43,6 @@ async function openMenuForQueryItem(
 describe('My Queries tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
-  const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
   before(async function () {
     skipForWeb(this, 'saved queries not yet available in compass-web');
@@ -72,7 +70,12 @@ describe('My Queries tab', function () {
     const newFavoriteQueryName = 'my renamed query';
 
     // Run a query
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
     await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
       limit: '10',
     });
@@ -96,10 +99,7 @@ describe('My Queries tab', function () {
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
-    await browser.navigateToConnectionTab(
-      connectionNameFromString(DEFAULT_CONNECTION_STRING),
-      'Databases'
-    );
+    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
     await browser.navigateToMyQueries();
 
     // open the menu
@@ -148,14 +148,14 @@ describe('My Queries tab', function () {
     await renameModal.waitForDisplayed({ reverse: true });
 
     // rename the collection associated with the query to force the open item modal
-    await browser.shellEval(connectionName, 'use test');
+    await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
     await browser.shellEval(
-      connectionName,
+      DEFAULT_CONNECTION_NAME,
       'db.numbers.renameCollection("numbers-renamed")'
     );
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
-        connectionName,
+        DEFAULT_CONNECTION_NAME,
         Selectors.Multiple.RefreshDatabasesItem
       );
 
@@ -195,10 +195,7 @@ describe('My Queries tab', function () {
 
     // back to my queries
     await browser.closeWorkspaceTabs();
-    await browser.navigateToConnectionTab(
-      connectionNameFromString(DEFAULT_CONNECTION_STRING),
-      'Databases'
-    );
+    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
     await browser.navigateToMyQueries();
 
     // open the menu
@@ -224,7 +221,12 @@ describe('My Queries tab', function () {
       'list of numbers greater than 10 - aggregation';
 
     // Navigate to aggregation
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Aggregations'
+    );
     // add stage
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
@@ -279,7 +281,12 @@ describe('My Queries tab', function () {
         // save a query and rename the collection associated with the query, so that the query must be opened with the "select namespace" modal
 
         // Run a query
-        await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+        await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
+          'test',
+          'numbers',
+          'Documents'
+        );
         await browser.runFindOperation('Documents', `{i: {$gt: 10}}`, {
           limit: '10',
         });
@@ -306,7 +313,7 @@ describe('My Queries tab', function () {
 
         await browser.closeWorkspaceTabs();
         await browser.navigateToConnectionTab(
-          connectionNameFromString(DEFAULT_CONNECTION_STRING),
+          DEFAULT_CONNECTION_NAME,
           'Databases'
         );
         await browser.navigateToMyQueries();
@@ -336,15 +343,15 @@ describe('My Queries tab', function () {
         }
 
         // rename the collection associated with the query to force the open item modal
-        await browser.shellEval(connectionName, 'use test');
+        await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
         await browser.shellEval(
-          connectionName,
+          DEFAULT_CONNECTION_NAME,
           `db.numbers.renameCollection('${newCollectionName}')`
         );
 
         if (TEST_MULTIPLE_CONNECTIONS) {
           await browser.selectConnectionMenuItem(
-            connectionName,
+            DEFAULT_CONNECTION_NAME,
             Selectors.Multiple.RefreshDatabasesItem
           );
         } else {

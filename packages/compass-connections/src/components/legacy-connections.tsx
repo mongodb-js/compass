@@ -150,7 +150,7 @@ function Connections({
   );
 
   const onConnectClick = (connectionInfo: ConnectionInfo) => {
-    void connect({ ...cloneDeep(connectionInfo) }).catch(() => {
+    void connect({ ...cloneDeep(connectionInfo) }, true).catch(() => {
       // noop, we're logging in the connect method
     });
   };
@@ -199,7 +199,7 @@ function Connections({
                 <ConnectionForm
                   onConnectClicked={onConnectClick}
                   key={activeConnectionId}
-                  onSaveConnectionClicked={saveConnection}
+                  onSaveClicked={saveConnection}
                   initialConnectionInfo={activeConnectionInfo}
                   connectionErrorMessage={connectionErrorMessage}
                   preferences={preferences}

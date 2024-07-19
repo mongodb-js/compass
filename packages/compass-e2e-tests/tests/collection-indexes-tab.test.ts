@@ -6,6 +6,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -25,7 +26,12 @@ describe('Collection indexes tab', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Indexes'
+    );
   });
 
   after(async function () {

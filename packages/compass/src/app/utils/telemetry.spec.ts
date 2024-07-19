@@ -40,6 +40,7 @@ const connectionInfo: ConnectionInfo = {
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
   },
+  savedConnectionType: 'recent',
 };
 
 describe('connection tracking', function () {
@@ -67,6 +68,7 @@ describe('connection tracking', function () {
         ...connectionInfo,
         favorite: { name: 'example' },
         lastUsed: undefined,
+        savedConnectionType: 'favorite',
       },
       logger,
       track
@@ -119,6 +121,7 @@ describe('connection tracking', function () {
       {
         ...connectionInfo,
         favorite: { name: 'example' },
+        savedConnectionType: 'favorite',
         lastUsed: new Date(),
       },
       logger,
