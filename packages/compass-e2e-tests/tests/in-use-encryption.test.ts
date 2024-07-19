@@ -7,6 +7,7 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -287,6 +288,7 @@ describe('CSFLE / QE', function () {
         );
 
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -426,6 +428,7 @@ describe('CSFLE / QE', function () {
         );
 
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -449,6 +452,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -511,6 +515,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -558,6 +563,7 @@ describe('CSFLE / QE', function () {
           await refresh(browser, connectionName);
 
           await browser.navigateToCollectionTab(
+            DEFAULT_CONNECTION_NAME,
             databaseName,
             coll,
             'Documents'
@@ -627,6 +633,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -694,6 +701,7 @@ describe('CSFLE / QE', function () {
 
         await refresh(browser, connectionName);
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -776,6 +784,7 @@ describe('CSFLE / QE', function () {
 
         await refresh(browser, connectionName);
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -859,6 +868,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          DEFAULT_CONNECTION_NAME,
           databaseName,
           collectionName,
           'Documents'
@@ -1059,6 +1069,7 @@ describe('CSFLE / QE', function () {
       });
 
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         databaseName,
         collectionName,
         'Documents'

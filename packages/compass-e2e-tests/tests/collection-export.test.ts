@@ -10,6 +10,7 @@ import {
   outputFilename,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -67,7 +68,12 @@ describe('Collection export', function () {
     beforeEach(async function () {
       await createNumbersCollection();
       await browser.connectWithConnectionString();
-      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'test',
+        'numbers',
+        'Documents'
+      );
     });
 
     it('supports collection to CSV with a query filter with a subset of fields', async function () {
@@ -879,6 +885,7 @@ describe('Collection export', function () {
       await createNumbersStringCollection();
       await browser.connectWithConnectionString();
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         'numbers-strings',
         'Documents'

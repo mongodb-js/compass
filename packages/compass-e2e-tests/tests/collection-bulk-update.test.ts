@@ -7,6 +7,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -31,7 +32,12 @@ describe('Bulk Update', () => {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
   });
 
   afterEach(async function () {
