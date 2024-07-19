@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import type {
   default as HadronDocumentType,
@@ -11,7 +11,7 @@ import {
 } from 'hadron-document';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
-import { HadronElement } from './element';
+import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
@@ -105,6 +105,19 @@ const HadronDocument: React.FunctionComponent<{
     [document]
   );
 
+  // To render the "Show more" toggle for the document we need to calculate a
+  // proper offset so that it aligns with the expand icon of top level fields
+  // Note: We're not sharing the logic with element
+  const showMoreToggleOffset = useMemo(
+    () =>
+      calculateShowMoreToggleOffset({
+        editable,
+        level: 0,
+        alignWithNestedExpandIcon: false,
+      }),
+    [editable]
+  );
+
   return (
     <div>
       <div
@@ -153,6 +166,9 @@ const HadronDocument: React.FunctionComponent<{
         // historically Compass was doing this for "performance" reasons
         step={editing ? 100 : 1000}
         onSizeChange={handleVisibleFieldsChanged}
+        style={{
+          paddingLeft: showMoreToggleOffset,
+        }}
       ></VisibleFieldsToggle>
     </div>
   );

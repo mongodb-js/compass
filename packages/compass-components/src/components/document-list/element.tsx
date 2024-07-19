@@ -363,6 +363,38 @@ const elementKeyDarkMode = css({
   color: palette.gray.light2,
 });
 
+const calculateElementSpacerWidth = (editable: boolean, level: number) => {
+  return (editable ? spacing[200] : 0) + spacing[400] * level;
+};
+
+export const calculateShowMoreToggleOffset = ({
+  editable,
+  level,
+  alignWithNestedExpandIcon,
+}: {
+  editable: boolean;
+  level: number;
+  alignWithNestedExpandIcon: boolean;
+}) => {
+  // the base padding that we have on all elements rendered in the document
+  const BASE_PADDING_LEFT = spacing[200];
+  const OFFSET_WHEN_EDITABLE = editable
+    ? // space taken by element actions
+      spacing[400] +
+      // space and margin taken by line number element
+      spacing[400] +
+      spacing[100] +
+      // element spacer width that we render
+      calculateElementSpacerWidth(editable, level)
+    : 0;
+  const EXPAND_ICON_SIZE = spacing[400];
+  return (
+    BASE_PADDING_LEFT +
+    OFFSET_WHEN_EDITABLE +
+    (alignWithNestedExpandIcon ? EXPAND_ICON_SIZE : 0)
+  );
+};
+
 export const HadronElement: React.FunctionComponent<{
   value: HadronElementType;
   editable: boolean;
@@ -412,27 +444,22 @@ export const HadronElement: React.FunctionComponent<{
     return spacing[400];
   }, [lineNumberSize, editingEnabled]);
 
-  const elementSpacerWidth = useMemo(() => {
-    return (editable ? spacing[200] : 0) + spacing[400] * level;
-  }, [editable, level]);
+  const elementSpacerWidth = useMemo(
+    () => calculateElementSpacerWidth(editable, level),
+    [editable, level]
+  );
 
   // To render the "Show more" toggle for the nested expandable elements we need
   // to calculate a proper offset so that it aligns with the nesting level
-  const nestedElementsVisibilityToggleOffset = useMemo(() => {
-    // the base padding that we have on all elements rendered in the document
-    const BASE_PADDING_LEFT = spacing[200];
-    const OFFSET_WHEN_EDITABLE = editable
-      ? // space taken by element actions
-        spacing[400] +
-        // space and margin taken by line number element
-        spacing[400] +
-        spacing[100] +
-        // element spacer width that we render
-        elementSpacerWidth
-      : 0;
-    const EXPAND_ICON_SIZE = spacing[400];
-    return BASE_PADDING_LEFT + OFFSET_WHEN_EDITABLE + EXPAND_ICON_SIZE;
-  }, [editable, elementSpacerWidth]);
+  const nestedElementsVisibilityToggleOffset = useMemo(
+    () =>
+      calculateShowMoreToggleOffset({
+        editable,
+        level,
+        alignWithNestedExpandIcon: true,
+      }),
+    [editable, level]
+  );
 
   const isValid = key.valid && value.valid;
   const shouldShowActions = editingEnabled;
@@ -704,8 +731,6 @@ export const HadronElement: React.FunctionComponent<{
             onSizeChange={handleVisibleElementsChanged}
             style={{
               paddingLeft: nestedElementsVisibilityToggleOffset,
-              paddingTop: spacing[100],
-              paddingBottom: spacing[100],
             }}
           ></VisibleFieldsToggle>
         </>

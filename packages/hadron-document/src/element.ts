@@ -858,7 +858,7 @@ export class Element extends EventEmitter {
   }
 
   setMaxVisibleElementsCount(newCount: number) {
-    if (!this._isExpandable(this.originalExpandableValue)) {
+    if (!this._isExpandable()) {
       return;
     }
     this.maxVisibleElementsCount = newCount;

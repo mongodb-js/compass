@@ -6,10 +6,8 @@ import { documentTypography } from './typography';
 
 const container = css({
   display: 'flex',
-  gap: spacing[2],
-  paddingTop: spacing[3],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  gap: spacing[200],
+  paddingTop: spacing[200],
 });
 
 const linkButtonStyles = css({
@@ -93,7 +91,7 @@ const VisibleFieldsToggle: React.FunctionComponent<{
           aria-label={showButtonText}
           data-testid="show-more-fields-button"
         >
-          <Icon size="xsmall" glyph="ArrowDown"></Icon>
+          <Icon size="small" glyph="CaretDown"></Icon>
           {showButtonText}
         </Link>
       )}
@@ -106,7 +104,7 @@ const VisibleFieldsToggle: React.FunctionComponent<{
           aria-label={hideButtonText}
           data-testid="hide-fields-button"
         >
-          <Icon size="xsmall" glyph="ArrowUp"></Icon>
+          <Icon size="small" glyph="CaretUp"></Icon>
           {hideButtonText}
         </Link>
       )}
