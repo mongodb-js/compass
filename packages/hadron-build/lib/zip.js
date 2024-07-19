@@ -4,8 +4,9 @@ const { execFileSync } = require('child_process');
 const fs = require('fs-extra');
 const path = require('path');
 const zipFolder = require('zip-folder');
+const { promisify } = require('util');
 
-function zip(_opts, done) {
+async function zip(_opts, done) {
   const opts = Object.assign({}, _opts);
   opts.dir = path.resolve(opts.dir);
   opts.out = path.resolve(opts.out);
@@ -18,50 +19,43 @@ function zip(_opts, done) {
     opts.outPath = path.resolve(opts.out, path.basename(opts.dir, '.app')) + '.zip';
   }
 
-  const runZip = () => {
-    return new Promise((resolve, reject) => {
-      if (opts.platform !== 'darwin') {
-        zipFolder(opts.dir, opts.outPath, (err) => {
-          if (err) return reject(err);
-          return resolve(opts.outPath);
-        });
-      } else {
-        try {
-          const args = ['-r', '--symlinks', opts.outPath, './'];
-          execFileSync('zip', args, {
-            env: process.env,
-            cwd: path.join(opts.dir, '..'),
-            stdio: 'inherit'
-          });
-          return resolve(opts.outPath);
-        } catch (err) {
-          return reject(err);
-        }
-      }
-    });
+  const runZip = async () => {
+    if (opts.platform !== 'darwin') {
+      await promisify(zipFolder)(opts.dir, opts.outPath);
+    } else {
+      const args = ['-r', '--symlinks', opts.outPath, './'];
+      execFileSync('zip', args, {
+        env: process.env,
+        cwd: path.join(opts.dir, '..'),
+        stdio: 'inherit'
+      });
+    }
   }
-  
+
   const removeZipIfExists = async () => {
     try {
       const stats = await fs.stat(opts.outPath);
       if (!stats.isFile()) {
         throw new Error('Refusing to wipe path "' + opts.outPath + '" as it is ' + (stats.isDirectory() ? 'a directory' : 'not a file'));
       }
-      return await fs.unlink(opts.outPath);
+      await fs.unlink(opts.outPath);
     } catch (err) {
       if (err.code !== 'ENOENT') {
         throw err;
       }
     }
   }
-  
+
   debug('creating zip', opts);
-  
-  removeZipIfExists()
-    .then(() => fs.mkdirs(opts.out))
-    .then(() => runZip())
-    .then(result => done(null, result))
-    .catch(err => done(err));
+
+  try {
+    await removeZipIfExists();
+    await fs.mkdirs(opts.out);
+    await runZip();
+    done(null, opts.outPath);
+  } catch (err) {
+    done(err);
+  }
 }
 
 /**

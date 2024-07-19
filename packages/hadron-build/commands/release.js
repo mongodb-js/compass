@@ -502,7 +502,7 @@ _.assign(exports.builder, verify.builder);
  * @param {Function} done Callback
  * @returns {any}
  */
-exports.run = (argv, done) => {
+exports.run = async (argv, done) => {
   cli.argv = argv;
 
   verifyDistro(argv);
@@ -557,19 +557,21 @@ exports.run = (argv, done) => {
     task('store build configuration as json', writeConfigToJson)
   ].filter(Boolean));
 
-  return tasks.reduce((promise, task) => {
-    return promise.then(task);
-  }, Promise.resolve()).then(() => {
+  try {
+    for (const task of tasks) {
+      await task();
+    }
+    done(null, target);
+  } catch (err) {
+    done(err);
+  } finally {
     // clean up copied npmrc
     fs.rm(path.resolve(target.dir, '.npmrc'), (err) => {
       if (err) {
         cli.warn(err.message);
       }
     });
-    done(null, target);
-  }).catch((err) => {
-    done(err);
-  });
+  }
 };
 
 exports.handler = (argv) => {
