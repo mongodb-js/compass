@@ -28,8 +28,9 @@ import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import ConnectionFormActions, {
+import {
   ConnectionFormModalActions,
+  LegacyConnectionFormActions,
 } from './connection-form-actions';
 import {
   useConnectForm,
@@ -338,8 +339,9 @@ type ConnectionFormPropsWithoutPreferences = {
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   onCancel?: () => void;
-  onConnectClicked: (connectionInfo: ConnectionInfo) => void;
-  onSaveConnectionClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
+  onConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+  onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+  onSaveClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
   onAdvancedOptionsToggle?: (newState: boolean) => void;
 };
 
@@ -351,9 +353,8 @@ function ConnectionForm({
   initialConnectionInfo,
   connectionErrorMessage,
   onConnectClicked,
-  // The connect form will not always used in an environment where
-  // the connection info can be saved.
-  onSaveConnectionClicked,
+  onSaveAndConnectClicked,
+  onSaveClicked,
   onCancel,
   onAdvancedOptionsToggle,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
@@ -451,7 +452,8 @@ function ConnectionForm({
     ]
   );
   const onSubmitForm = useCallback(
-    (connectionInfo?: ConnectionInfo) => {
+    (action: 'saveAndConnect' | 'connect') => {
+      // TODO(COMPASS-7906): cleanup
       const updatedConnectionOptions = cloneDeep(connectionOptions);
       const formErrors = validateConnectionOptionsErrors(
         updatedConnectionOptions
@@ -460,22 +462,33 @@ function ConnectionForm({
         setErrors(formErrors);
         return;
       }
-      onConnectClicked({
-        ...initialConnectionInfo,
-        // If connectionInfo is passed in that will be used similar to if there
-        // was initialConnectionInfo. Useful for connecting to a new favorite that
-        // was just added.
-        ...connectionInfo,
-        connectionOptions: updatedConnectionOptions,
-      });
+      if (action === 'saveAndConnect') {
+        onSaveAndConnectClicked?.({
+          ...initialConnectionInfo,
+          ...getConnectionInfoToSave(),
+          connectionOptions: updatedConnectionOptions,
+        });
+      } else {
+        onConnectClicked?.({
+          ...initialConnectionInfo,
+          connectionOptions: updatedConnectionOptions,
+        });
+      }
     },
-    [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]
+    [
+      initialConnectionInfo,
+      onSaveAndConnectClicked,
+      onConnectClicked,
+      setErrors,
+      connectionOptions,
+      getConnectionInfoToSave,
+    ]
   );
 
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
       try {
-        await onSaveConnectionClicked?.(connectionInfo);
+        await onSaveClicked?.(connectionInfo);
       } catch (err) {
         // save errors are already handled as toast notifications,
         // keeping so we don't rely too much on far-away code and leave errors
@@ -487,7 +500,7 @@ function ConnectionForm({
         ]);
       }
     },
-    [onSaveConnectionClicked, setErrors]
+    [onSaveClicked, setErrors]
   );
 
   const showFavoriteActions = useConnectionFormPreference(
@@ -505,7 +518,7 @@ function ConnectionForm({
         onSubmit={(e) => {
           // Prevent default html page refresh.
           e.preventDefault();
-          onSubmitForm();
+          onSubmitForm(isMultiConnectionEnabled ? 'saveAndConnect' : 'connect');
         }}
         // Prevent default html tooltip popups.
         noValidate
@@ -566,7 +579,11 @@ function ConnectionForm({
               setEnableEditingConnectionString={
                 setEnableEditingConnectionString
               }
-              onSubmit={() => onSubmitForm()}
+              onSubmit={() =>
+                onSubmitForm(
+                  isMultiConnectionEnabled ? 'saveAndConnect' : 'connect'
+                )
+              }
               updateConnectionFormField={updateConnectionFormField}
               protectConnectionStrings={protectConnectionStrings}
             />
@@ -620,16 +637,11 @@ function ConnectionForm({
                   getConnectionInfoToSave()
                 )
               }
-              onConnect={() => {
-                void callOnSaveConnectionClickedAndStoreErrors?.(
-                  getConnectionInfoToSave()
-                );
-                onSubmitForm();
-              }}
+              onSaveAndConnect={() => onSubmitForm('saveAndConnect')}
             />
           )}
           {!isMultiConnectionEnabled && (
-            <ConnectionFormActions
+            <LegacyConnectionFormActions
               errors={connectionStringInvalidError ? [] : errors}
               warnings={connectionStringInvalidError ? [] : warnings}
               saveButton={
@@ -653,7 +665,7 @@ function ConnectionForm({
               onSaveAndConnectClicked={() => {
                 setSaveConnectionModal('saveAndConnect');
               }}
-              onConnectClicked={() => onSubmitForm()}
+              onConnectClicked={() => onSubmitForm('connect')}
             />
           )}
         </div>
@@ -676,7 +688,7 @@ function ConnectionForm({
 
             if (saveConnectionModal === 'saveAndConnect') {
               // Connect to the newly created favorite
-              onSubmitForm(connectionInfo);
+              onSubmitForm('connect');
             }
           }}
           key={initialConnectionInfo.id}
