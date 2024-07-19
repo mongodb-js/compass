@@ -4,8 +4,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
-  connectionNameFromString,
-  DEFAULT_CONNECTION_STRING,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -43,18 +42,26 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.setFeature('readOnly', true);
     await browser.connectWithConnectionString();
 
-    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
-
     if (TEST_MULTIPLE_CONNECTIONS) {
       // navigate to the databases tab so that the connection is
       // active/highlighted and then the add button and three dot menu will
       // display without needing to hover
-      await browser.navigateToConnectionTab(connectionName, 'Databases');
+      await browser.navigateToConnectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'Databases'
+      );
     }
 
-    expect(
-      await browser.$(Sidebar.CreateDatabaseButton).isExisting()
-    ).to.be.equal(false);
+    const addDatabaseSelector = TEST_MULTIPLE_CONNECTIONS
+      ? Selectors.sidebarConnectionActionButton(
+          DEFAULT_CONNECTION_NAME,
+          Sidebar.CreateDatabaseButton
+        )
+      : Sidebar.CreateDatabaseButton;
+
+    expect(await browser.$(addDatabaseSelector).isExisting()).to.be.equal(
+      false
+    );
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -68,24 +75,31 @@ describe('readOnly: true / Read-Only Edition', function () {
     await settingsModal.waitForDisplayed({ reverse: true });
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.navigateToConnectionTab(connectionName, 'Databases');
+      await browser.navigateToConnectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'Databases'
+      );
     }
 
-    expect(
-      await browser.$(Sidebar.CreateDatabaseButton).isExisting()
-    ).to.be.equal(true);
+    expect(await browser.$(addDatabaseSelector).isExisting()).to.be.equal(true);
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
+    const connectionId = await browser.getConnectionIdByName(
+      DEFAULT_CONNECTION_NAME
+    );
+
     const dbName = 'test'; // existing db
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
-    const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
+    const dbElement = await browser.$(
+      Selectors.sidebarDatabase(connectionId, dbName)
+    );
     await dbElement.waitForDisplayed();
-    await browser.hover(Selectors.sidebarDatabase(dbName));
+    await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
 
     let sidebarCreateCollectionButton = await browser.$(
       Selectors.CreateCollectionButton
@@ -116,10 +130,7 @@ describe('readOnly: true / Read-Only Edition', function () {
   it('shows and hides the create database button on the instance tab', async function () {
     await browser.connectWithConnectionString();
 
-    await browser.navigateToConnectionTab(
-      connectionNameFromString(DEFAULT_CONNECTION_STRING),
-      'Databases'
-    );
+    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
 
     let instanceCreateDatabaseButton = await browser.$(
       Selectors.InstanceCreateDatabaseButton
@@ -152,7 +163,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectWithConnectionString();
 
     await browser.navigateToDatabaseCollectionsTab(
-      connectionNameFromString(DEFAULT_CONNECTION_STRING),
+      DEFAULT_CONNECTION_NAME,
       'test'
     );
 
@@ -186,7 +197,12 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     let addDataButton = await browser.$(Selectors.AddDataButton);
     let isAddDataButtonExisting = await addDataButton.isExisting();
@@ -213,7 +229,12 @@ describe('readOnly: true / Read-Only Edition', function () {
     await browser.connectWithConnectionString();
 
     // Some tests navigate away from the numbers collection aggregations tab
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Aggregations'
+    );
 
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
@@ -261,7 +282,12 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Indexes'
+    );
 
     let createIndexButton = await browser.$(Selectors.CreateIndexButton);
     let isCreateIndexButtonExisting = await createIndexButton.isExisting();
@@ -291,7 +317,12 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
 
-    await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Validation'
+    );
     await browser.clickVisible(Selectors.AddRuleButton);
     const element = await browser.$(Selectors.ValidationEditor);
     await element.waitForDisplayed();

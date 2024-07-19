@@ -22,15 +22,13 @@ const fakeRuntime = {
 describe('CompassShell', function () {
   context('when rendered', function () {
     let wrapper;
-    let emitShellOpenedSpy;
 
     beforeEach(function () {
-      emitShellOpenedSpy = sinon.spy();
-
       wrapper = mount(
         <CompassShell
+          initialHistory={[]}
+          onHistoryChange={() => undefined}
           runtime={fakeRuntime}
-          emitShellPluginOpened={emitShellOpenedSpy}
           enableShell
         />
       );
@@ -49,23 +47,19 @@ describe('CompassShell', function () {
         getComputedStyle(shellDomNode).getPropertyValue('display');
       expect(shellDisplayStyle).to.equal('none');
     });
-
-    context('when is it expanded', function () {
-      it('calls the function prop emitShellPluginOpened', function () {
-        expect(emitShellOpenedSpy.calledOnce).to.equal(false);
-
-        wrapper.setState({ height: 300 });
-        wrapper.update();
-
-        expect(emitShellOpenedSpy.calledOnce).to.equal(true);
-      });
-    });
   });
 
   context('when rendered expanded', function () {
     context('when runtime property is not present', function () {
       it('does not render a shell if runtime is null', function () {
-        const wrapper = mount(<CompassShell runtime={null} enableShell />);
+        const wrapper = mount(
+          <CompassShell
+            initialHistory={[]}
+            onHistoryChange={() => undefined}
+            runtime={null}
+            enableShell
+          />
+        );
         try {
           wrapper.setState({ height: 300 });
           wrapper.update();
@@ -82,8 +76,9 @@ describe('CompassShell', function () {
       beforeEach(function () {
         wrapper = mount(
           <CompassShell
+            initialHistory={[]}
+            onHistoryChange={() => undefined}
             runtime={fakeRuntime}
-            emitShellPluginOpened={() => {}}
             enableShell
           />
         );
@@ -128,8 +123,9 @@ describe('CompassShell', function () {
       it('renders the inital output', function () {
         const wrapper = mount(
           <CompassShell
+            initialHistory={[]}
+            onHistoryChange={() => undefined}
             runtime={fakeRuntime}
-            emitShellPluginOpened={() => {}}
             shellOutput={[
               {
                 type: 'output',
@@ -159,7 +155,12 @@ describe('CompassShell', function () {
     context('when historyStorage is not present', function () {
       it('passes an empty history to the Shell', function () {
         const wrapper = shallow(
-          <CompassShell runtime={fakeRuntime} enableShell />
+          <CompassShell
+            initialHistory={[]}
+            onHistoryChange={() => undefined}
+            runtime={fakeRuntime}
+            enableShell
+          />
         );
 
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
@@ -174,8 +175,9 @@ describe('CompassShell', function () {
       beforeEach(function () {
         wrapper = mount(
           <CompassShell
+            initialHistory={[]}
+            onHistoryChange={() => undefined}
             runtime={fakeRuntime}
-            emitShellPluginOpened={() => {}}
             enableShell
           />
         );
@@ -221,22 +223,14 @@ describe('CompassShell', function () {
   });
 
   context('when historyStorage is present', function () {
-    let fakeStorage;
-
-    beforeEach(function () {
-      fakeStorage = {
-        load: sinon.spy(() => Promise.resolve([])),
-        save: sinon.spy(() => Promise.resolve()),
-      };
-    });
+    const history = ['line1'];
 
     it('passes the loaded history as initialHistory to Shell', async function () {
-      fakeStorage.load = sinon.spy(() => Promise.resolve(['line1']));
-
       const wrapper = shallow(
         <CompassShell
           runtime={{} as any}
-          historyStorage={fakeStorage}
+          initialHistory={history}
+          onHistoryChange={() => undefined}
           enableShell
         />
       );
@@ -251,10 +245,13 @@ describe('CompassShell', function () {
     });
 
     it('saves the history when history changes', async function () {
+      const changeSpy = sinon.spy();
+
       const wrapper = shallow(
         <CompassShell
           runtime={{} as any}
-          historyStorage={fakeStorage}
+          initialHistory={[]}
+          onHistoryChange={changeSpy}
           enableShell
         />
       );
@@ -264,7 +261,7 @@ describe('CompassShell', function () {
       const onHistoryChanged = wrapper.find(Shell).prop('onHistoryChanged');
       onHistoryChanged(['line1']);
 
-      expect(fakeStorage.save.calledWith(['line1'])).to.equal(true);
+      expect(changeSpy).to.have.been.calledOnceWith(['line1']);
 
       wrapper.unmount();
     });
@@ -291,22 +288,20 @@ describe('CompassShell', function () {
   });
 
   context('resize actions', function () {
-    let onOpenShellSpy;
     let wrapper;
 
     beforeEach(function () {
-      onOpenShellSpy = sinon.spy();
       wrapper = mount(
         <CompassShell
+          initialHistory={[]}
+          onHistoryChange={() => undefined}
           runtime={fakeRuntime}
-          emitShellPluginOpened={onOpenShellSpy}
           enableShell
         />
       );
     });
     afterEach(function () {
       wrapper.unmount();
-      onOpenShellSpy = null;
       wrapper = null;
     });
 
@@ -379,10 +374,6 @@ describe('CompassShell', function () {
           expect(shellDisplayStyle).to.equal('none');
         });
 
-        it('does not calls the function prop emitShellPluginOpened', function () {
-          expect(onOpenShellSpy.called).to.equal(false);
-        });
-
         context('when it hits the resize threshold', function () {
           beforeEach(function () {
             wrapper.setState({ height: 151 });
@@ -394,10 +385,6 @@ describe('CompassShell', function () {
               wrapper.find('[data-testid="shell-section"]').prop('style').height
             ).to.equal(151);
             expect(wrapper.state('height')).to.equal(151);
-          });
-
-          it('calls the function prop emitShellPluginOpened', function () {
-            expect(onOpenShellSpy.calledOnce).to.equal(true);
           });
         });
       });

@@ -7,6 +7,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -31,7 +32,12 @@ describe('Bulk Update', () => {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
   });
 
   afterEach(async function () {
@@ -50,6 +56,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Update Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
@@ -112,6 +122,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const executedEvent = await telemetryEntry('Bulk Update Executed');
+
+    expect(executedEvent.connection_id).to.exist;
+    delete executedEvent.connection_id; // connection_id varies
+
     expect(executedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });
@@ -156,6 +170,10 @@ describe('Bulk Update', () => {
 
     // Check the telemetry
     const favoritedEvent = await telemetryEntry('Bulk Update Favorited');
+
+    expect(favoritedEvent.connection_id).to.exist;
+    delete favoritedEvent.connection_id; // connection_id varies
+
     expect(favoritedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
     });

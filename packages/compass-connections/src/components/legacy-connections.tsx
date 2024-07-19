@@ -92,7 +92,7 @@ function Connections({
     cancelConnectionAttempt,
     connect,
     createNewConnection,
-    duplicateConnection,
+    legacyDuplicateConnection: duplicateConnection,
     setActiveConnectionById,
     removeAllRecentsConnections,
     removeConnection,
@@ -150,7 +150,7 @@ function Connections({
   );
 
   const onConnectClick = (connectionInfo: ConnectionInfo) => {
-    void connect({ ...cloneDeep(connectionInfo) }).catch(() => {
+    void connect({ ...cloneDeep(connectionInfo) }, true).catch(() => {
       // noop, we're logging in the connect method
     });
   };

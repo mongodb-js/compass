@@ -170,6 +170,7 @@ type WorkspaceTabsProps = {
 
 export type TabProps = {
   id: string;
+  type: string;
   title: string;
   subtitle?: string;
   connectionId?: string;

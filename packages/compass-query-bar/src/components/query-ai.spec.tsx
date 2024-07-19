@@ -166,6 +166,7 @@ describe('QueryAI Component', function () {
                   feedback: 'positive',
                   request_id: 'pineapple',
                   text: 'this is the query I was looking for',
+                  connection_id: 'TEST',
                 },
               },
             ]);

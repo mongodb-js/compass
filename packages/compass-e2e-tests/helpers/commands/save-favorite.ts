@@ -3,7 +3,7 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import { expect } from 'chai';
 
-// TODO(COMPASS-8003,COMPASS-8023): Just remove this command and use
+// TODO(COMPASS-8023): Just remove this command and use
 // setConnectionFormState() once we remove the single connection code
 export async function saveFavorite(
   browser: CompassBrowser,

@@ -410,19 +410,15 @@ functions:
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
           COMPASS_DISTRIBUTION: ${compass_distribution}
-          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
-          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
-          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
-          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
-          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
-          GITHUB_PR_NUMBER: ${github_pr_number}
-          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
-          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
         script: |
           set -e
+
+          # Ensure .sbom is always created with fresh data
+          rm -rvf .sbom && mkdir -pv .sbom
+
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          .evergreen/compass_package.sh
+          cd packages/compass && npm run prepackage-compass
     - command: shell.exec
       params:
         working_dir: src
@@ -443,6 +439,29 @@ functions:
           set -e
 
           .evergreen/create-sbom.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          npm_config_loglevel: ${npm_loglevel}
+          COMPASS_DISTRIBUTION: ${compass_distribution}
+          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
+          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
+          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
+          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
+          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+          GITHUB_PR_NUMBER: ${github_pr_number}
+          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
+          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
+          COMPASS_WAS_COMPILED_AND_HAS_SBOM: '1'
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/compass_package.sh
 
   get_first_party_dependency_list:
     - command: s3.get

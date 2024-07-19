@@ -170,7 +170,7 @@ const connectedConnectionToItems = ({
   const colorCode = connectionInfo.favorite?.color;
   const hasWriteActionsDisabled =
     preferencesReadOnly || isDataLake || !isWritable;
-  const isShellEnabled = !preferencesReadOnly && isWritable;
+  const isShellEnabled = !preferencesReadOnly;
   const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,

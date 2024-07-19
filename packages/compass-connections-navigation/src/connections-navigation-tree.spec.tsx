@@ -286,6 +286,7 @@ describe('ConnectionsNavigationTree', function () {
         connections: mockedConnections,
         onItemAction: itemActionSpy,
       });
+      expect(screen.getByLabelText('Lock Icon')).to.be.visible;
       expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
 
       userEvent.click(screen.getByLabelText('In-Use Encryption'));
@@ -307,6 +308,7 @@ describe('ConnectionsNavigationTree', function () {
         connections[2],
       ];
       await renderConnectionsNavigationTree({ connections: mockedConnections });
+      expect(screen.getByLabelText('Unlock Icon')).to.be.visible;
       expect(screen.getAllByLabelText('In-Use Encryption')).to.have.lengthOf(1);
     });
 
@@ -570,7 +572,10 @@ describe('ConnectionsNavigationTree', function () {
         userEvent.click(otherActions);
 
         expect(screen.getByText('Open MongoDB shell')).to.be.visible;
-        if (name !== 'when connection is datalake') {
+        if (
+          name !== 'when connection is datalake' &&
+          name !== 'when connection is not writable'
+        ) {
           expect(
             screen.getByTestId(
               'sidebar-navigation-item-actions-open-shell-action'

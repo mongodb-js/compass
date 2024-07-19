@@ -65,8 +65,8 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     expect(state).to.deep.equal(expectedState);
@@ -99,9 +99,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState();
@@ -138,9 +138,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017,127.0.0.1:27091'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017,127.0.0.1:27091';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState();
@@ -177,9 +177,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState();
@@ -222,9 +222,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState(true);
@@ -267,9 +267,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     await browser.setValueVisible(
@@ -340,9 +340,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState();
@@ -382,9 +382,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState(true);
@@ -426,9 +426,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState(true);
@@ -472,9 +472,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState(true);
@@ -519,9 +519,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState();
@@ -566,8 +566,8 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
@@ -613,8 +613,8 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
@@ -658,9 +658,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState(false);
@@ -706,14 +706,14 @@ describe('Connection form', function () {
       Sidebar.DuplicateConnectionItem
     );
 
-    // duplicating immediately opens the modal so you can edit it
+    // duplicating opens the modal, in multiple connections you have to save
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+      await browser.clickVisible(Selectors.ConnectionModalSaveButton);
     }
 
     // delete the duplicate
     await browser.selectConnectionMenuItem(
-      `${favoriteName} (copy)`,
+      `${favoriteName} (1)`,
       Sidebar.RemoveConnectionItem
     );
 
@@ -785,9 +785,9 @@ describe('Connection form', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
-      (expectedState.connectionName = 'localhost:27017'),
-        (expectedState.connectionColor = 'no-color'),
-        (expectedState.connectionFavorite = false);
+      expectedState.connectionName = 'localhost:27017';
+      expectedState.connectionColor = 'no-color';
+      expectedState.connectionFavorite = false;
     }
 
     const state = await browser.getConnectFormState(true);
@@ -799,8 +799,10 @@ describe('Connection form', function () {
     );
   });
 
-  it('supports favorites', async function () {
+  it('supports saving a favorite (multiple connections)', async function () {
     if (!TEST_MULTIPLE_CONNECTIONS) {
+      // this will remain skipped until we remove the test because the test is
+      // now for the multiple connections case only
       this.skip();
     }
 
@@ -833,9 +835,10 @@ describe('Connection form', function () {
     });
   });
 
-  it('can save & connect', async function () {
-    // TODO(COMPASS-8003): saving a favorite is now part of the connect form
+  it('supports saving a favorite (single connection)', async function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
+      // this will remain skipped until we remove the test because the test is
+      // now for the single connection case only
       this.skip();
     }
 
@@ -849,6 +852,8 @@ describe('Connection form', function () {
 
     // Save & Connect
     await browser.clickVisible(Selectors.SaveAndConnectButton);
+
+    // Fill out the favorite info
     await browser.$(Selectors.FavoriteModal).waitForDisplayed();
     await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
     await browser.clickVisible(
@@ -876,6 +881,6 @@ describe('Connection form', function () {
       favoriteName
     );
 
-    await browser.disconnect();
+    await browser.disconnectAll();
   });
 });

@@ -56,12 +56,8 @@
     }
   },
   "scripts": {
-    "start": "hadron-build develop",
     "prepublish": "hadron-build release",
-    "postuninstall": "hadron-build clean",
     "test-check-ci": "npm run test",
-    "clean": "hadron-build clean",
-    "compile-ui": "hadron-build ui",
     "release": "hadron-build release",
     "upload": "hadron-build upload"
   },

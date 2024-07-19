@@ -5,6 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -39,7 +40,12 @@ describe('Collection schema tab', function () {
   });
 
   it('analyzes a schema', async function () {
-    await browser.navigateToCollectionTab('test', 'numbers', 'Schema');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Schema'
+    );
     await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
     const element = await browser.$(Selectors.SchemaFieldList);
@@ -70,7 +76,12 @@ describe('Collection schema tab', function () {
       skipForWeb(this, "can't toggle features in compass-web");
 
       await browser.setFeature('enableMaps', enableMaps);
-      await browser.navigateToCollectionTab('test', 'geospatial', 'Schema');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'test',
+        'geospatial',
+        'Schema'
+      );
       await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
       const element = await browser.$(Selectors.SchemaFieldList);

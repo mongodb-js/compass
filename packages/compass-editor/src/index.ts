@@ -21,3 +21,5 @@ export { createQueryAutocompleter } from './codemirror/query-autocompleter';
 export { createStageAutocompleter } from './codemirror/stage-autocompleter';
 export { createAggregationAutocompleter } from './codemirror/aggregation-autocompleter';
 export { createSearchIndexAutocompleter } from './codemirror/search-index-autocompleter';
+export { createQueryHistoryAutocompleter } from './codemirror/query-history-autocompleter';
+export { createQueryWithHistoryAutocompleter } from './codemirror/query-autocompleter-with-history';

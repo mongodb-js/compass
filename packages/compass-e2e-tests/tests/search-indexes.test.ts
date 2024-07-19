@@ -8,9 +8,9 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { disconnect } from '../helpers/commands';
 import { expect } from 'chai';
 import { type Db, MongoClient } from 'mongodb';
 
@@ -193,7 +193,12 @@ describe('Search Indexes', function () {
     }
 
     await browser.connectWithConnectionString(currentConnectionString);
-    await browser.navigateToCollectionTab(DB_NAME, collectionName, 'Indexes');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      DB_NAME,
+      collectionName,
+      'Indexes'
+    );
   });
 
   afterEach(async function () {
@@ -206,7 +211,7 @@ describe('Search Indexes', function () {
       }
     }
     void mongoClient.close();
-    await disconnect(browser);
+    await browser.disconnectAll();
     await screenshotIfFailed(compass, this.currentTest);
   });
 
