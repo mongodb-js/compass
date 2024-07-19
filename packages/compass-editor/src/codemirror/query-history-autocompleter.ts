@@ -117,7 +117,7 @@ export function scaleBetween(
   originalScaleMin: number,
   originalScaleMax: number
 ): number {
-  // returns midpoint of new range if original range is 0
+  // returns midpoint of new range if original range is of size 0
   if (originalScaleMax === originalScaleMin)
     return newScaleMin + (newScaleMax - newScaleMin) / 2;
   return (
