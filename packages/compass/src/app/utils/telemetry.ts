@@ -156,10 +156,11 @@ export function trackConnectionAttemptEvent(
   track: TrackFunction
 ): void {
   try {
-    const { favorite, lastUsed } = connectionInfo;
+    const { lastUsed, savedConnectionType } = connectionInfo;
+    const isFavorite = savedConnectionType === 'favorite';
     const trackEvent = {
-      is_favorite: Boolean(favorite),
-      is_recent: Boolean(lastUsed && !favorite),
+      is_favorite: isFavorite,
+      is_recent: Boolean(lastUsed && !isFavorite),
       is_new: !lastUsed,
     };
     track('Connection Attempt', trackEvent, connectionInfo);
