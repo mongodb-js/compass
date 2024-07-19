@@ -107,7 +107,6 @@ const HadronDocument: React.FunctionComponent<{
 
   // To render the "Show more" toggle for the document we need to calculate a
   // proper offset so that it aligns with the expand icon of top level fields
-  // Note: We're not sharing the logic with element
   const showMoreToggleOffset = useMemo(
     () =>
       calculateShowMoreToggleOffset({
