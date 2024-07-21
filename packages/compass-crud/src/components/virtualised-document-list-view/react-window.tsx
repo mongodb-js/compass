@@ -10,7 +10,6 @@ import { KeylineCard, css, cx, spacing } from '@mongodb-js/compass-components';
 import {
   VariableSizeList as List,
   areEqual,
-  type ListOnItemsRenderedProps,
   type ListChildComponentProps,
 } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';

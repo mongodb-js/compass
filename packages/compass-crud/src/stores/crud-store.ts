@@ -516,11 +516,11 @@ class CrudStoreImpl
     );
     const id = doc.getId();
     if (id !== undefined) {
-      doc.emit('remove-start');
+      doc.onRemoveStart();
       try {
         await this.dataService.deleteOne(this.state.ns, { _id: id } as any);
         // emit on the document(list view) and success state(json view)
-        doc.emit('remove-success');
+        doc.onRemoveSuccess();
         const payload = { view: this.state.view, ns: this.state.ns };
         this.localAppRegistry.emit('document-deleted', payload);
         this.connectionScopedAppRegistry.emit('document-deleted', payload);
@@ -532,11 +532,11 @@ class CrudStoreImpl
         });
       } catch (error) {
         // emit on the document(list view) and success state(json view)
-        doc.emit('remove-error', (error as Error).message);
+        doc.onRemoveError(error as Error);
         this.trigger(this.state);
       }
     } else {
-      doc.emit('remove-error', DELETE_ERROR);
+      doc.onRemoveError(DELETE_ERROR);
       this.trigger(this.state);
     }
   }
@@ -563,9 +563,10 @@ class CrudStoreImpl
         doc.generateOriginalObject()
       );
       if (!isAllowed) {
-        doc.emit(
-          'update-error',
-          'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+        doc.onUpdateError(
+          new Error(
+            'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+          )
         );
         return false;
       }
@@ -587,7 +588,7 @@ class CrudStoreImpl
       this.connectionInfoAccess.getCurrentConnectionInfo()
     );
     try {
-      doc.emit('update-start');
+      doc.onUpdateStart();
       // We add the shard keys here, if there are any, because that is
       // required for updated documents in sharded collections.
       const { query, updateDoc } =
@@ -602,7 +603,7 @@ class CrudStoreImpl
       this.logger.debug('Performing findOneAndUpdate', { query, updateDoc });
 
       if (Object.keys(updateDoc).length === 0) {
-        doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
+        doc.onUpdateError(EMPTY_UPDATE_ERROR);
         return;
       }
 
@@ -626,21 +627,22 @@ class CrudStoreImpl
           const nbsp = '\u00a0';
           error.message += ` (Updating fields whose names contain dots or start with $ require MongoDB${nbsp}5.0 or above.)`;
         }
-        doc.emit('update-error', error.message);
+        doc.onUpdateError(error as Error);
       } else if (d) {
-        doc.emit('update-success', d);
+        doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
         this.state.docs![index] = new HadronDocument(d);
         this.trigger(this.state);
       } else {
-        doc.emit('update-blocked');
+        doc.onUpdateBlocked();
       }
     } catch (err: any) {
-      doc.emit(
-        'update-error',
-        `An error occured when attempting to update the document: ${String(
-          err.message
-        )}`
+      doc.onUpdateError(
+        new Error(
+          `An error occured when attempting to update the document: ${String(
+            err.message
+          )}`
+        )
       );
     }
   }
@@ -657,7 +659,7 @@ class CrudStoreImpl
       this.connectionInfoAccess.getCurrentConnectionInfo()
     );
     try {
-      doc.emit('update-start');
+      doc.onUpdateStart();
 
       if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
         // _verifyUpdateAllowed emitted update-error
@@ -718,19 +720,20 @@ class CrudStoreImpl
         'replace'
       );
       if (error) {
-        doc.emit('update-error', error.message);
+        doc.onUpdateError(error as Error);
       } else {
-        doc.emit('update-success', d);
+        doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
         this.state.docs![index] = new HadronDocument(d);
         this.trigger(this.state);
       }
     } catch (err: any) {
-      doc.emit(
-        'update-error',
-        `An error occured when attempting to update the document: ${String(
-          err.message
-        )}`
+      doc.onUpdateError(
+        new Error(
+          `An error occured when attempting to update the document: ${String(
+            err.message
+          )}`
+        )
       );
     }
   }
