@@ -3,6 +3,7 @@
     "$oid": "123456789012345678901234"
   },
   "double": 1.2,
+  "doubleThatIsAlsoAnInteger": 1,
   "string": "Hello, world!",
   "object": {
     "key": "value"
@@ -35,7 +36,9 @@
   "javascript": {
     "$code": "function() {}"
   },
-  "symbol": "symbol",
+  "symbol": {
+    "$symbol": "symbol"
+  },
   "javascriptWithScope": {
     "$code": "function() {}",
     "$scope": {
