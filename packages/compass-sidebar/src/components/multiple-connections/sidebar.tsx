@@ -367,16 +367,17 @@ export function MultipleConnectionSidebar({
     []
   );
 
-  const onNewConnectionConnect = useCallback(
+  const onSaveAndConnectClicked = useCallback(
     (connectionInfo: ConnectionInfo) => {
+      void saveConnection(connectionInfo);
       void _onConnect(connectionInfo).then(() => {
         setIsConnectionFormOpen(false);
       });
     },
-    [_onConnect]
+    [saveConnection, _onConnect]
   );
 
-  const onSaveNewConnection = useCallback(
+  const onSaveConnectionClicked = useCallback(
     async (connectionInfo: ConnectionInfo) => {
       await saveConnection(connectionInfo);
       setIsConnectionFormOpen(false);
@@ -501,9 +502,9 @@ export function MultipleConnectionSidebar({
           isOpen={isConnectionFormOpen}
           setOpen={onNewConnectionToggle}
           onCancel={onNewConnectionClose}
-          onConnectClicked={onNewConnectionConnect}
+          onSaveAndConnectClicked={onSaveAndConnectClicked}
           key={activeConnectionId}
-          onSaveConnectionClicked={onSaveNewConnection}
+          onSaveClicked={onSaveConnectionClicked}
           initialConnectionInfo={activeConnectionInfo}
           connectionErrorMessage={connectionErrorMessage}
           preferences={formPreferences}

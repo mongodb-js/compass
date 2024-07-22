@@ -199,7 +199,7 @@ function Connections({
                 <ConnectionForm
                   onConnectClicked={onConnectClick}
                   key={activeConnectionId}
-                  onSaveConnectionClicked={saveConnection}
+                  onSaveClicked={saveConnection}
                   initialConnectionInfo={activeConnectionInfo}
                   connectionErrorMessage={connectionErrorMessage}
                   preferences={preferences}
