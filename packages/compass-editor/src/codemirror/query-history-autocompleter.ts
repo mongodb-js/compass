@@ -9,7 +9,7 @@ import { css } from '@mongodb-js/compass-components';
 export type SavedQuery = {
   lastExecuted: Date;
   queryProperties: {
-    [properyName: string]: any;
+    [propertyName: string]: any;
   };
 };
 
@@ -72,8 +72,7 @@ export function createQuery(query: SavedQuery): string {
     const noFilterKey = key === 'filter' ? '' : `${key}: `;
     res += formattedQuery ? `, ${noFilterKey}${formattedQuery}` : '';
   });
-  const len = res.length;
-  return len <= 100 ? res.slice(2, res.length) : res.slice(2, 100);
+  return res.slice(2, res.length);
 }
 
 function createInfo(query: SavedQuery): {

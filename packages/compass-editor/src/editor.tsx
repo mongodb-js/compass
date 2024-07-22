@@ -324,6 +324,10 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip.cm-tooltip-autocomplete > ul': {
         fontFamily: fontFamilies.code,
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+      },
+      '& .cm-tooltip-autocomplete ul li': {
+        display: 'flex',
       },
       '& .cm-tooltip-autocomplete ul li[aria-selected]': {
         color: editorPalette[theme].autocompleteColor,
@@ -333,15 +337,25 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-completionIcon': {
         display: 'none',
       },
+      '& .cm-completionLabel': {
+        flex: 1,
+        overflowX: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      },
       '& .cm-completionDetail': {
         color: rgba(editorPalette[theme].autocompleteColor, 0.5),
         fontStyle: 'normal',
         marginRight: '1em',
+        marginLeft: '1em',
       },
       '& .cm-completionMatchedText': {
         color: editorPalette[theme].autocompleteMatchColor,
         fontWeight: 'bold',
         textDecoration: 'none',
+      },
+      '.cm-tooltip.cm-completionInfo': {
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
       },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
