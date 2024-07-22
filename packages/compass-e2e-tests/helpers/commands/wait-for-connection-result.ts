@@ -19,7 +19,7 @@ export async function waitForConnectionResult(
     // TODO(COMPASS-8023): wait for the specific connection to appear in the
     // sidebar and be connected
     selector = TEST_COMPASS_WEB
-      ? '[data-testid="workspace-tab-button"][type=Databases]'
+      ? '[data-testid="workspace-tab-button"][data-type="Databases"]'
       : TEST_MULTIPLE_CONNECTIONS
       ? `${Selectors.SidebarTreeItems}[aria-expanded=true]`
       : Selectors.MyQueriesList;
