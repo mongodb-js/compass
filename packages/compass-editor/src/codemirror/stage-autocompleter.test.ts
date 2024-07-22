@@ -26,33 +26,37 @@ describe('createStageAutocompleter', function () {
 
   after(cleanup);
 
-  it('returns nothing for empty input', function () {
+  it('returns nothing for empty input', async function () {
     const completions = getCompletions('', { fields });
-    expect(completions).to.have.lengthOf(0);
+    expect(await completions).to.have.lengthOf(0);
   });
 
-  it('retuns nothing when inside a comment', function () {
+  it('retuns nothing when inside a comment', async function () {
     const completions = getCompletions('// a', { fields });
-    expect(completions).to.have.lengthOf(0);
+    expect(await completions).to.have.lengthOf(0);
   });
 
-  it('returns any word when inside a string', function () {
+  it('returns any word when inside a string', async function () {
     const completions = getCompletions('{ bar: 1, foo: "b', { fields });
-    expect(completions.map((c) => c.label)).to.deep.eq(['bar', '1', 'foo']);
+    expect((await completions).map((c) => c.label)).to.deep.eq([
+      'bar',
+      '1',
+      'foo',
+    ]);
   });
 
-  it('returns unescaped field references when inside string and starts with $', function () {
+  it('returns unescaped field references when inside string and starts with $', async function () {
     const completions = getCompletions('{ foo: "$', { fields });
-    expect(completions.map((c) => c.apply)).to.deep.eq([
+    expect((await completions).map((c) => c.apply)).to.deep.eq([
       '$name',
       '$with.dots',
       '$with spaces',
     ]);
   });
 
-  it('returns expected types of completions for identifier-like completion', function () {
+  it('returns expected types of completions for identifier-like completion', async function () {
     const completions = getCompletions('{ a', { fields });
-    expect(meta(completions)).to.deep.eq([
+    expect(meta(await completions)).to.deep.eq([
       'bson',
       'conv',
       'expr:arith',
@@ -75,24 +79,24 @@ describe('createStageAutocompleter', function () {
     ]);
   });
 
-  it('returns query completions for $match stage', function () {
+  it('returns query completions for $match stage', async function () {
     const completions = getCompletions('{ a', {
       fields,
       stageOperator: '$match',
     });
-    expect(meta(completions)).to.deep.eq(['bson', 'query', 'field']);
+    expect(meta(await completions)).to.deep.eq(['bson', 'query', 'field']);
   });
 
   ['$project', '$group'].forEach((stageOperator) => {
-    it(`returns accumulators when stage is ${stageOperator}`, function () {
+    it(`returns accumulators when stage is ${stageOperator}`, async function () {
       const completions = getCompletions('{ a', {
         fields,
         stageOperator,
       });
-      expect(meta(completions)).to.include('accumulator');
-      expect(meta(completions)).to.include('accumulator:bottom-n');
-      expect(meta(completions)).to.include('accumulator:top-n');
-      expect(meta(completions)).to.include('accumulator:window');
+      expect(meta(await completions)).to.include('accumulator');
+      expect(meta(await completions)).to.include('accumulator:bottom-n');
+      expect(meta(await completions)).to.include('accumulator:top-n');
+      expect(meta(await completions)).to.include('accumulator:window');
     });
   });
 });

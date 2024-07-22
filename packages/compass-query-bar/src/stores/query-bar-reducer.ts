@@ -128,15 +128,22 @@ export const applyQuery = (
 ): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
   return (dispatch, getState, { preferences }) => {
     const {
-      queryBar: { fields },
+      queryBar: { fields, favoriteQueries },
     } = getState();
     if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
     dispatch({ type: QueryBarActions.ApplyQuery, query, source });
-
-    void dispatch(saveRecentQuery(query));
+    const queryAttributes = getQueryAttributes(query);
+    const existingFavoriteQuery = favoriteQueries.find((favoriteQuery) => {
+      return isQueryEqual(getQueryAttributes(favoriteQuery), queryAttributes);
+    });
+    if (existingFavoriteQuery) {
+      void dispatch(updateFavoriteQuery(existingFavoriteQuery));
+    } else {
+      void dispatch(saveRecentQuery(query));
+    }
     return query;
   };
 };
@@ -436,6 +443,38 @@ const saveRecentQuery = (
       dispatch(fetchSavedQueries());
     } catch (e) {
       debug('Failed to save recent query', e);
+    }
+  };
+};
+
+const updateFavoriteQuery = (
+  query: FavoriteQuery
+): QueryBarThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    getState,
+    { favoriteQueryStorage, logger: { debug } }
+  ) => {
+    try {
+      const {
+        queryBar: { host },
+      } = getState();
+
+      const queryAttributes = getQueryAttributes(query);
+      // Ignore empty or default queries
+      if (isEmpty(queryAttributes)) {
+        return;
+      }
+
+      const updateAttributes = {
+        _host: query._host ?? host,
+        _lastExecuted: new Date(),
+      };
+      await favoriteQueryStorage?.updateAttributes(query._id, updateAttributes);
+      // update favorites
+      void dispatch(fetchFavorites());
+    } catch (e) {
+      debug('Failed to update favorite query', e);
     }
   };
 };

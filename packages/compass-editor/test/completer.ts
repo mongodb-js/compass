@@ -1,9 +1,6 @@
 import { forceParsing } from '@codemirror/language';
 import { EditorView } from '@codemirror/view';
-import type {
-  CompletionSource,
-  CompletionResult,
-} from '@codemirror/autocomplete';
+import type { CompletionSource } from '@codemirror/autocomplete';
 import { CompletionContext } from '@codemirror/autocomplete';
 import { languages } from '../src/editor';
 
@@ -23,7 +20,7 @@ export const setupCodemirrorCompleter = <
       parent: el,
     });
   });
-  const getCompletions = (text = '', ...args: Parameters<T>) => {
+  const getCompletions = async (text = '', ...args: Parameters<T>) => {
     editor.dispatch({
       changes: { from: 0, to: editor.state.doc.length, insert: text },
       selection: { anchor: text.length },
@@ -32,9 +29,9 @@ export const setupCodemirrorCompleter = <
     forceParsing(editor, editor.state.doc.length, 10_000);
     return (
       (
-        completer(...args)(
+        await completer(...args)(
           new CompletionContext(editor.state, text.length, false)
-        ) as CompletionResult
+        )
       )?.options ?? []
     );
   };
