@@ -230,6 +230,9 @@ class CompassApplication {
         debug('Did not agree to license, quitting app.');
         app.quit();
       },
+      'compass:check-secret-storage-is-available': function () {
+        return safeStorage.isEncryptionAvailable();
+      },
     });
 
     ipcMain?.handle('coverage', () => {
