@@ -149,6 +149,7 @@ const completionInfoStyles = css({
   marginTop: 0,
   paddingTop: 0,
   fontSize: '11.5px !important',
+  maxHeight: '70vh',
 });
 
 export function createQuery(query: SavedQuery): string {
