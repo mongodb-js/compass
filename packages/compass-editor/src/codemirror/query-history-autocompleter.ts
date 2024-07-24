@@ -6,18 +6,18 @@ import {
   fontFamilies,
   formatDate,
   spacing,
-  // useDarkMode,
 } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 import { css } from '@mongodb-js/compass-components';
-import { parser } from '@lezer/javascript';
-// import { highlightCode, tagHighlighter, tags } from '@lezer/highlight';
+import type { CodemirrorThemeType } from '../editor';
+import { languages } from '../editor';
 import { highlightCode } from '@lezer/highlight';
 import { highlightStyles } from '../editor';
 
 export const createQueryHistoryAutocompleter = (
   savedQueries: SavedQuery[],
-  onApply: (query: SavedQuery['queryProperties']) => void
+  onApply: (query: SavedQuery['queryProperties']) => void,
+  theme: CodemirrorThemeType
 ): CompletionSource => {
   return function queryCompletions(context: CompletionContext) {
     if (savedQueries.length === 0) {
@@ -32,7 +32,7 @@ export const createQueryHistoryAutocompleter = (
       label: createQuery(query),
       type: 'text',
       detail: formatDate(query.lastExecuted.getTime()),
-      info: () => createInfo(query).dom,
+      info: () => createInfo(query, theme).dom,
       apply: () => {
         onApply(query.queryProperties);
       },
@@ -85,17 +85,17 @@ export function createQuery(query: SavedQuery): string {
   return res.slice(2, res.length);
 }
 
-function createInfo(query: SavedQuery): {
+function createInfo(
+  query: SavedQuery,
+  theme: CodemirrorThemeType
+): {
   dom: Node;
   destroy?: () => void;
 } {
-  // const darkMode = useDarkMode();
-  // const theme = darkMode ? 'dark' : 'light';
-  const theme = 'dark';
   const customHighlighter = highlightStyles[theme];
-
   const container = document.createElement('div');
   container.className = completionInfoStyles;
+
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
     const codeDiv = document.createElement('div');
@@ -126,7 +126,9 @@ function createInfo(query: SavedQuery): {
     if (formattedQuery) {
       highlightCode(
         formattedQuery,
-        parser.parse(formattedQuery),
+        languages['javascript-expression']().language.parser.parse(
+          formattedQuery
+        ),
         customHighlighter,
         emit,
         emitBreak

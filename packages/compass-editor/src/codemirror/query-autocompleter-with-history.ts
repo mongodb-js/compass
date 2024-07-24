@@ -11,6 +11,7 @@ import type {
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { css } from '@mongodb-js/compass-components';
+import { useDarkMode } from '@mongodb-js/compass-components';
 
 export const createQueryWithHistoryAutocompleter = (
   recentQueries: SavedQuery[],
@@ -19,7 +20,8 @@ export const createQueryWithHistoryAutocompleter = (
 ): CompletionSource => {
   const queryHistoryAutocompleter = createQueryHistoryAutocompleter(
     recentQueries,
-    onApply
+    onApply,
+    useDarkMode() ? 'dark' : 'light'
   );
 
   const originalQueryAutocompleter = createQueryAutocompleter(options);

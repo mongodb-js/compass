@@ -144,7 +144,7 @@ const tabKeymap: KeyBinding[] = [
   indentWithTab,
 ];
 
-type CodemirrorThemeType = 'light' | 'dark';
+export type CodemirrorThemeType = 'light' | 'dark';
 
 export const editorPalette = {
   light: {
