@@ -22,12 +22,12 @@ const customHighlighter = tagHighlighter([
 const styleElement = document.createElement('style');
 styleElement.textContent = `
   .cm-number { color: ${codePalette['light'][9]};}
-  .cm-string { color: ${codePalette['light'][7]}; }
+  .cm-string { color: ${codePalette['light'][7]}; font-weight: 600}
   .cm-name { color: ${codePalette['light'][5]}; }
 `;
 document.head.appendChild(styleElement);
 
-function createInfo2(query: SavedQuery): {
+function createInfo(query: SavedQuery): {
   dom: Node;
   destroy?: () => void;
 } {
@@ -109,7 +109,7 @@ export const createQueryHistoryAutocompleter = (
       label: createQuery(query),
       type: 'text',
       detail: formatDate(query.lastExecuted.getTime()),
-      info: () => createInfo2(query).dom,
+      info: () => createInfo(query).dom,
       apply: () => {
         onApply(query.queryProperties);
       },
@@ -133,16 +133,22 @@ export const createQueryHistoryAutocompleter = (
 const queryLabelStyles = css({
   textTransform: 'capitalize',
   fontWeight: 'bold',
-  margin: `${spacing[2]}px 0`,
+  fontFamily: fontFamilies.default,
 });
 
 const queryCodeStyles = css({
-  maxHeight: '30vh',
   fontFamily: fontFamilies.code,
+  margin: `${spacing[50]}px`,
+  marginLeft: `${spacing[100]}px`,
+  padding: 0,
+  whiteSpace: 'pre-wrap',
 });
 
 const completionInfoStyles = css({
   overflow: 'auto',
+  marginTop: 0,
+  paddingTop: 0,
+  fontSize: '11.5px !important',
 });
 
 export function createQuery(query: SavedQuery): string {
