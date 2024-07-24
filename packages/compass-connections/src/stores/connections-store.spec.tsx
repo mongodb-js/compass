@@ -275,7 +275,6 @@ describe('use-connections hook', function () {
   describe('#connect', function () {
     it(`calls onConnected`, async function () {
       const onConnected = sinon.spy();
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       const { result } = renderHookWithContext(() =>
         useConnections({
           onConnected,
@@ -294,7 +293,6 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         expect(onConnected).to.have.been.called;
       });
-      expect(saveSpy).to.have.been.calledOnce;
     });
   });
 

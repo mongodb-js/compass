@@ -7,8 +7,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  connectionNameFromString,
-  DEFAULT_CONNECTION_STRING,
+  DEFAULT_CONNECTION_NAME,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -43,9 +42,8 @@ describe('Shell', function () {
 
   it('has an info modal', async function () {
     await browser.connectWithConnectionString();
-    const connectionName = connectionNameFromString(DEFAULT_CONNECTION_STRING);
 
-    await browser.openShell(connectionName);
+    await browser.openShell(DEFAULT_CONNECTION_NAME);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     const infoModalElement = await browser.$(Selectors.ShellInfoModal);
@@ -54,7 +52,7 @@ describe('Shell', function () {
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
-    await browser.closeShell(connectionName);
+    await browser.closeShell(DEFAULT_CONNECTION_NAME);
   });
 
   it('shows and hides shell based on settings', async function () {

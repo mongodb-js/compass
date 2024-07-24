@@ -32,7 +32,7 @@ import {
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {

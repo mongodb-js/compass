@@ -19,12 +19,15 @@ export const Events = {
   Cancel: 'Document::Cancel',
   Expanded: 'Document::Expanded',
   Collapsed: 'Document::Collapsed',
+  VisibleElementsChanged: 'Document::VisibleElementsChanged',
 };
 
 /**
  * The id field.
  */
 const ID = '_id';
+
+export const DEFAULT_VISIBLE_ELEMENTS = 25;
 
 /**
  * Represents a document.
@@ -39,6 +42,7 @@ export class Document extends EventEmitter {
   currentType: 'Document';
   size: number | null = null;
   expanded = false;
+  maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
 
   /**
    * Send cancel event.
@@ -262,6 +266,7 @@ export class Document extends EventEmitter {
   insertBeginning(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertBeginning(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -276,6 +281,7 @@ export class Document extends EventEmitter {
   insertEnd(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertEnd(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -295,6 +301,7 @@ export class Document extends EventEmitter {
   ): Element | undefined {
     const newElement = this.elements.insertAfter(element, key, value);
     newElement?._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -399,6 +406,7 @@ export class Document extends EventEmitter {
       element.expand(true);
     }
     this.emit(Events.Expanded);
+    this.emit(Events.VisibleElementsChanged, this);
   }
 
   /**
@@ -410,6 +418,25 @@ export class Document extends EventEmitter {
       element.collapse();
     }
     this.emit(Events.Collapsed);
+    this.emit(Events.VisibleElementsChanged, this);
+  }
+
+  getVisibleElements() {
+    return [...this.elements].slice(0, this.maxVisibleElementsCount);
+  }
+
+  setMaxVisibleElementsCount(newCount: number) {
+    this.maxVisibleElementsCount = newCount;
+    this.emit(Events.VisibleElementsChanged, this);
+  }
+
+  getTotalVisibleElementsCount() {
+    const visibleElements = this.getVisibleElements();
+    return visibleElements.reduce((totalVisibleChildElements, element) => {
+      return (
+        totalVisibleChildElements + 1 + element.getTotalVisibleElementsCount()
+      );
+    }, 0);
   }
 }
 

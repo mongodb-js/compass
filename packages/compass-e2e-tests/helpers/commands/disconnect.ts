@@ -65,9 +65,13 @@ export async function disconnectAll(
       // toast by now. If so, just close it otherwise the next test or connection
       // attempt will be confused by it.
       if (await browser.$(Selectors.LGToastCloseButton).isExisting()) {
-        const toastText = await browser.$('#lg-toast-region').getText();
-        debug('Closing toast', toastText);
-        await browser.clickVisible(Selectors.LGToastCloseButton);
+        try {
+          const toastText = await browser.$('#lg-toast-region').getText();
+          debug('Closing toast', toastText);
+          await browser.clickVisible(Selectors.LGToastCloseButton);
+        } catch (error) {
+          debug('ignoring', error);
+        }
       }
     }
 

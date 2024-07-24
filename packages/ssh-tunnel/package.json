@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -73,7 +73,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.4.1",
+    "@mongodb-js/compass-logging": "^1.4.2",
     "socksv5": "0.0.6",
     "ssh2": "^1.12.0"
   }

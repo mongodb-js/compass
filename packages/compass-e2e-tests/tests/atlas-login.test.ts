@@ -6,6 +6,7 @@ import {
   Selectors,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -273,7 +274,12 @@ describe('Atlas Login', function () {
     beforeEach(async function () {
       await createNumbersCollection();
       await browser.connectWithConnectionString();
-      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'test',
+        'numbers',
+        'Documents'
+      );
     });
 
     it('should not show AI input if sign in flow was not finished', async function () {
@@ -300,7 +306,12 @@ describe('Atlas Login', function () {
     beforeEach(async function () {
       await createNumbersCollection();
       await browser.connectWithConnectionString();
-      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'test',
+        'numbers',
+        'Aggregations'
+      );
     });
 
     it('should not show AI input if sign in flow was not finished', async function () {

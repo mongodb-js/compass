@@ -22,6 +22,10 @@ export const createQueryHistoryAutocompleter = (
       return null;
     }
 
+    const maxTime =
+      savedQueries[savedQueries.length - 1].lastExecuted.getTime();
+    const minTime = savedQueries[0].lastExecuted.getTime();
+
     const options = savedQueries.map((query) => ({
       label: createQuery(query),
       type: 'text',
@@ -30,7 +34,14 @@ export const createQueryHistoryAutocompleter = (
       apply: () => {
         onApply(query.queryProperties);
       },
-      boost: query.lastExecuted.getTime(),
+      // CodeMirror expects boost values to be between -99 and 99
+      boost: scaleBetween(
+        query.lastExecuted.getTime(),
+        -99,
+        99,
+        minTime,
+        maxTime
+      ),
     }));
 
     return {
@@ -50,7 +61,11 @@ const queryCodeStyles = css({
   maxHeight: '30vh',
 });
 
-function createQuery(query: SavedQuery): string {
+const completionInfoStyles = css({
+  overflow: 'auto',
+});
+
+export function createQuery(query: SavedQuery): string {
   let res = '';
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
@@ -66,6 +81,7 @@ function createInfo(query: SavedQuery): {
   destroy?: () => void;
 } {
   const container = document.createElement('div');
+  container.className = completionInfoStyles;
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
     const codeDiv = document.createElement('div');
@@ -91,4 +107,22 @@ function createInfo(query: SavedQuery): {
       }
     },
   };
+}
+
+// scales a number unscaledNum between [newScaleMin, newScaleMax]
+export function scaleBetween(
+  unscaledNum: number,
+  newScaleMin: number,
+  newScaleMax: number,
+  originalScaleMin: number,
+  originalScaleMax: number
+): number {
+  // returns midpoint of new range if original range is of size 0
+  if (originalScaleMax === originalScaleMin)
+    return newScaleMin + (newScaleMax - newScaleMin) / 2;
+  return (
+    ((newScaleMax - newScaleMin) * (unscaledNum - originalScaleMin)) /
+      (originalScaleMax - originalScaleMin) +
+    newScaleMin
+  );
 }

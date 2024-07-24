@@ -7,7 +7,6 @@ import type { Readable, Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import Parser from 'stream-json/Parser';
 import StreamValues from 'stream-json/streamers/StreamValues';
 import path from 'path';
@@ -29,6 +28,7 @@ import { formatCSVHeaderName } from '../csv/csv-utils';
 import type { Delimiter, Linebreak, PathPart } from '../csv/csv-types';
 import { createDebug } from '../utils/logger';
 import type { AggregationCursor, FindCursor } from 'mongodb';
+import { createAggregationCursor, createFindCursor } from './export-cursor';
 
 const debug = createDebug('export-csv');
 
@@ -274,18 +274,12 @@ export async function exportCSVFromAggregation({
 }) {
   debug('exportCSVFromAggregation()', { ns: toNS(ns), aggregation });
 
-  const { stages, options: aggregationOptions = {} } = aggregation;
-  aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
-    preferences,
-    aggregationOptions.maxTimeMS
-  );
-  aggregationOptions.promoteValues = false;
-  aggregationOptions.bsonRegExp = true;
-  const aggregationCursor = dataService.aggregateCursor(
+  const aggregationCursor = createAggregationCursor({
     ns,
-    stages,
-    aggregationOptions
-  );
+    aggregation,
+    dataService,
+    preferences,
+  });
 
   let filename, input, columns;
   try {
@@ -335,14 +329,10 @@ export async function exportCSVFromQuery({
 }) {
   debug('exportCSVFromQuery()', { ns: toNS(ns), query });
 
-  const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
-    projection: query.projection,
-    sort: query.sort,
-    limit: query.limit,
-    skip: query.skip,
-    collation: query.collation,
-    promoteValues: false,
-    bsonRegExp: true,
+  const findCursor = createFindCursor({
+    ns,
+    query,
+    dataService,
   });
 
   let filename, input, columns;

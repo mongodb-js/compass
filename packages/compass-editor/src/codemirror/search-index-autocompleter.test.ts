@@ -9,22 +9,22 @@ describe('search-index autocompleter', function () {
 
   after(cleanup);
 
-  it('returns words in context when its not completing fields', function () {
+  it('returns words in context when its not completing fields', async function () {
     const completions = getCompletions('{ dynamic: true, type: "dy', {
       fields: ['_id', 'name', 'age'],
     });
-    expect(completions.map((x) => x.label)).to.deep.equal([
+    expect((await completions).map((x) => x.label)).to.deep.equal([
       'dynamic',
       'true',
       'type',
     ]);
   });
 
-  it('returns field names when autocompleting fields', function () {
+  it('returns field names when autocompleting fields', async function () {
     const completions = getCompletions('{ fields: { "a', {
       fields: ['_id', 'name', 'age'],
     });
-    expect(completions.map((x) => x.label)).to.deep.equal([
+    expect((await completions).map((x) => x.label)).to.deep.equal([
       '_id',
       'name',
       'age',
