@@ -211,7 +211,7 @@ async function assertCannotCreateDb(
   // open the create database modal from the sidebar
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.selectConnectionMenuItem(
-      DEFAULT_CONNECTION_NAME,
+      connectionName,
       Sidebar.CreateDatabaseButton,
       false
     );
