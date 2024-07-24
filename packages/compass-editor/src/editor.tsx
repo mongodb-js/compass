@@ -1535,3 +1535,4 @@ export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
 export { getCodemirrorEditorValue };
 export type { CompletionSource as Completer };
+export { highlightStyles };
