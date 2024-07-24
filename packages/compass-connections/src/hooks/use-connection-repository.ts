@@ -1,4 +1,4 @@
-import { usePreference } from 'compass-preferences-model/provider';
+import { usePreferencesContext } from 'compass-preferences-model/provider';
 import {
   getConnectionTitle,
   type ConnectionInfo,
@@ -10,7 +10,7 @@ import {
   ConnectionStorageEvents,
   useConnectionStorageContext,
 } from '@mongodb-js/connection-storage/provider';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { BSON } from 'bson';
 
 type DeepPartial<T> = T extends object
@@ -46,6 +46,20 @@ export type ConnectionRepository = {
   autoConnectInfo?: ConnectionInfo;
   saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
   deleteConnection: (info: ConnectionInfo) => Promise<void>;
+  findConnectionInfo: (
+    fn: (
+      value: ConnectionInfo,
+      index: number,
+      items: ConnectionInfo[]
+    ) => boolean
+  ) => ConnectionInfo | undefined;
+  filterConnectionInfo: (
+    fn: (
+      value: ConnectionInfo,
+      index: number,
+      items: ConnectionInfo[]
+    ) => boolean
+  ) => ConnectionInfo[];
   getConnectionInfoById: (
     id: ConnectionInfo['id']
   ) => ConnectionInfo | undefined;
@@ -67,7 +81,16 @@ export function useConnectionRepository(): ConnectionRepository {
     ConnectionInfo | undefined
   >(undefined);
 
-  const persistOIDCTokens = usePreference('persistOIDCTokens');
+  const favoriteConnectionsRef = useRef(favoriteConnections);
+  favoriteConnectionsRef.current = favoriteConnections;
+
+  const nonFavoriteConnectionsRef = useRef(nonFavoriteConnections);
+  nonFavoriteConnectionsRef.current = nonFavoriteConnections;
+
+  const autoConnectInfoRef = useRef(autoConnectInfo);
+  autoConnectInfoRef.current = autoConnectInfo;
+
+  const preferences = usePreferencesContext();
 
   useEffect(() => {
     async function updateListsOfConnections() {
@@ -145,7 +168,7 @@ export function useConnectionRepository(): ConnectionRepository {
         infoToSave.connectionOptions?.connectionString
       );
 
-      if (!persistOIDCTokens) {
+      if (!preferences.getPreferences().persistOIDCTokens) {
         if (infoToSave.connectionOptions.oidc?.serializedState) {
           infoToSave.connectionOptions.oidc.serializedState = undefined;
         }
@@ -154,7 +177,7 @@ export function useConnectionRepository(): ConnectionRepository {
       await storage.save?.({ connectionInfo: infoToSave });
       return infoToSave;
     },
-    [storage, persistOIDCTokens]
+    [storage, preferences]
   );
 
   const deleteConnection = useCallback(
@@ -164,16 +187,47 @@ export function useConnectionRepository(): ConnectionRepository {
     [storage]
   );
 
+  const findConnectionInfo = useCallback(
+    (
+      fn: (
+        value: ConnectionInfo,
+        index: number,
+        items: ConnectionInfo[]
+      ) => boolean
+    ) => {
+      const allConnections = [
+        ...favoriteConnectionsRef.current,
+        ...nonFavoriteConnectionsRef.current,
+        ...(autoConnectInfoRef.current ? [autoConnectInfoRef.current] : []),
+      ];
+      return allConnections.find(fn);
+    },
+    []
+  );
+
+  const filterConnectionInfo = useCallback(
+    (
+      fn: (
+        value: ConnectionInfo,
+        index: number,
+        items: ConnectionInfo[]
+      ) => boolean
+    ) => {
+      const allConnections = [
+        ...favoriteConnectionsRef.current,
+        ...nonFavoriteConnectionsRef.current,
+        ...(autoConnectInfoRef.current ? [autoConnectInfoRef.current] : []),
+      ];
+      return allConnections.filter(fn);
+    },
+    []
+  );
+
   const getConnectionInfoById = useCallback(
     (connectionInfoId: ConnectionInfo['id']) => {
-      const allConnections = [
-        ...favoriteConnections,
-        ...nonFavoriteConnections,
-        ...(autoConnectInfo ? [autoConnectInfo] : []),
-      ];
-      return allConnections.find(({ id }) => id === connectionInfoId);
+      return findConnectionInfo(({ id }) => id === connectionInfoId);
     },
-    [favoriteConnections, nonFavoriteConnections, autoConnectInfo]
+    [findConnectionInfo]
   );
 
   const getConnectionTitleById = useCallback(
@@ -185,7 +239,10 @@ export function useConnectionRepository(): ConnectionRepository {
     },
     [getConnectionInfoById]
   );
+
   return {
+    findConnectionInfo,
+    filterConnectionInfo,
     getConnectionInfoById,
     getConnectionTitleById,
     favoriteConnections,

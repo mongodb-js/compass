@@ -333,6 +333,20 @@ export class ConnectionsManager extends EventEmitter {
     );
   }
 
+  /**
+   * Returns the number of active connections. We count in-progress connections
+   * as "active" to make sure that the maximum connection allowed check takes
+   * those into account and doesn't allow to open more connections than allowed
+   * by starting too many connections in parallel
+   */
+  getActiveConnectionsCount(): number {
+    return Array.from(this.connectionStatuses.values()).filter((status) => {
+      return (
+        status === ConnectionStatus.Connected || ConnectionStatus.Connecting
+      );
+    }).length;
+  }
+
   on<T extends ConnectionsManagerEvents>(
     eventName: T,
     listener: ConnectionManagerEventListeners[T]

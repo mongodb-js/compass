@@ -199,7 +199,7 @@ export function MultipleConnectionSidebar({
   const activeConnections = useActiveConnections();
   const maxConcurrentConnections = usePreference(
     'maximumNumberOfActiveConnections'
-  ) as number;
+  );
   const {
     setActiveConnectionById,
     connect,
@@ -209,7 +209,6 @@ export function MultipleConnectionSidebar({
     saveConnection,
     createNewConnection,
     createDuplicateConnection,
-    state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
   } = useConnections();
 
   const findActiveConnection = (id: string) => {
@@ -230,119 +229,6 @@ export function MultipleConnectionSidebar({
     (filterRegex: RegExp | null) =>
       setActiveConnectionsFilterRegex(filterRegex),
     [setActiveConnectionsFilterRegex]
-  );
-
-  const onConnected = useCallback(
-    (info: ConnectionInfo) => {
-      openToast(`connection-status-${info.id}`, {
-        title: `Connected to ${getConnectionTitle(info)}`,
-        variant: 'success',
-        timeout: 3_000,
-      });
-
-      const { isGenuine } = getGenuineMongoDB(
-        info.connectionOptions.connectionString
-      );
-      if (!isGenuine) {
-        setGenuineMongoDBModalVisible(true);
-      }
-    },
-    [openToast]
-  );
-
-  const onConnectionAttemptStarted = useCallback(
-    (info: ConnectionInfo) => {
-      const cancelAndCloseToast = () => {
-        void cancelCurrentConnectionRef.current?.(info.id);
-        closeToast(`connection-status-${info.id}`);
-      };
-
-      openToast(`connection-status-${info.id}`, {
-        title: `Connecting to ${getConnectionTitle(info)}`,
-        dismissible: true,
-        variant: 'progress',
-        actionElement: (
-          <Link hideExternalIcon={true} onClick={cancelAndCloseToast}>
-            CANCEL
-          </Link>
-        ),
-      });
-    },
-    [openToast, closeToast]
-  );
-
-  const onConnectionFailed = useCallback(
-    (info: ConnectionInfo | null, error: Error) => {
-      const reviewAndCloseToast = () => {
-        closeToast(`connection-status-${info?.id ?? ''}`);
-        setIsConnectionFormOpen(true);
-      };
-
-      openToast(`connection-status-${info?.id ?? ''}`, {
-        title: `${error.message}`,
-        description: (
-          <ConnectionErrorToastBody
-            info={info}
-            onReview={reviewAndCloseToast}
-          />
-        ),
-        variant: 'warning',
-      });
-    },
-    [openToast, closeToast, setIsConnectionFormOpen]
-  );
-
-  const onMaxConcurrentConnectionsLimitReached = useCallback(
-    (
-      currentActiveConnections: number,
-      maxConcurrentConnections: number,
-      connectionId: string
-    ) => {
-      const message = `Only ${maxConcurrentConnections} connection${
-        currentActiveConnections > 1 ? 's' : ''
-      } can be connected to at the same time. First disconnect from another connection.`;
-
-      openToast(`connection-status-${connectionId}`, {
-        title: 'Maximum concurrent connections limit reached',
-        description: message,
-        variant: 'warning',
-        timeout: 5_000,
-      });
-    },
-    [openToast]
-  );
-
-  const _onConnect = useCallback(
-    async (info: ConnectionInfo): Promise<void> => {
-      if (activeConnections.length >= maxConcurrentConnections) {
-        onMaxConcurrentConnectionsLimitReached(
-          activeConnections.length,
-          maxConcurrentConnections,
-          info.id
-        );
-        return;
-      }
-      setActiveConnectionById(info.id);
-      onConnectionAttemptStarted(info);
-      await connect(info).then(
-        () => {
-          onConnected(info);
-        },
-        (err: Error) => {
-          void onConnectionFailed(info, err);
-        }
-      );
-    },
-    [
-      maxConcurrentConnections,
-      activeConnections,
-      onMaxConcurrentConnectionsLimitReached,
-      connect,
-      onConnected,
-      onConnectionAttemptStarted,
-      onConnectionFailed,
-      setActiveConnectionById,
-    ]
   );
 
   const onConnect = useCallback(
