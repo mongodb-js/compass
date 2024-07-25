@@ -101,6 +101,9 @@ class CompassApplication {
       safeStorage.setUsePlainTextEncryption(true);
     }
 
+    // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
+    // https://github.com/electron/electron/issues/33640
+    await app.whenReady();
     log.info(
       mongoLogId(1_001_000_307),
       'Application',
@@ -231,6 +234,9 @@ class CompassApplication {
         app.quit();
       },
       'compass:check-secret-storage-is-available': function () {
+        // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
+        // https://github.com/electron/electron/issues/33640
+        // But here Compass is already rendered and it is safe to omit `await app.whenReady()`
         return safeStorage.isEncryptionAvailable();
       },
     });
