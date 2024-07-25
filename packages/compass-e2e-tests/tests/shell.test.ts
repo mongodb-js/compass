@@ -12,6 +12,8 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import chai from 'chai';
+const { expect } = chai;
 
 describe('Shell', function () {
   let compass: Compass;
@@ -24,6 +26,7 @@ describe('Shell', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setFeature('enableShell', true);
   });
 
   after(async function () {
@@ -56,17 +59,19 @@ describe('Shell', function () {
   });
 
   it('shows and hides shell based on settings', async function () {
-    // TODO(COMPASS-8071): Leaving this skipped until we decide what we're going
-    // to do. hide the buttons & menu items, disable them or keep them enabled
-    // and open a shell tab that just has an error banner.
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     await browser.connectWithConnectionString();
 
-    // Will fail if shell is not on the screen eventually
-    await browser.$(Selectors.ShellSection).waitForExist();
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expect(
+        await browser.hasConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME,
+          Selectors.Multiple.OpenShellItem
+        )
+      ).to.be.equal(true);
+    } else {
+      // Will fail if shell is not on the screen eventually
+      await browser.$(Selectors.ShellSection).waitForExist();
+    }
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -79,7 +84,16 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    // Will fail if shell eventually doesn't go away from the screen
-    await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expect(
+        await browser.hasConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME,
+          Selectors.Multiple.OpenShellItem
+        )
+      ).to.be.equal(false);
+    } else {
+      // Will fail if shell eventually doesn't go away from the screen
+      await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
+    }
   });
 });

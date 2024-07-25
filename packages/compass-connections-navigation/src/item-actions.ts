@@ -62,19 +62,8 @@ export const connectedConnectionItemActions = ({
     connectionInfo,
     isEditDisabled: true,
   }).slice(1); // for connected connections we don't show connect action
+
   const actions: NavigationItemActions = [
-    {
-      action: 'create-database',
-      icon: 'Plus',
-      label: 'Create database',
-    },
-    {
-      action: 'open-shell',
-      icon: 'Shell',
-      label: 'Open MongoDB shell',
-      isDisabled: !isShellEnabled,
-      disabledDescription: 'Not available',
-    },
     {
       action: 'connection-performance-metrics',
       icon: 'Gauge',
@@ -102,11 +91,25 @@ export const connectedConnectionItemActions = ({
     ...connectionManagementActions,
   ];
 
+  // we show shell icon only when its enabled
+  if (isShellEnabled) {
+    actions.unshift({
+      action: 'open-shell',
+      icon: 'Shell',
+      label: 'Open MongoDB shell',
+    });
+  }
+
   // when connection is readonly we don't want to show create-database action
   // and hence we splice it out here
-  if (hasWriteActionsDisabled) {
-    actions.splice(0, 1);
+  if (!hasWriteActionsDisabled) {
+    actions.unshift({
+      action: 'create-database',
+      icon: 'Plus',
+      label: 'Create database',
+    });
   }
+
   return actions;
 };
 
