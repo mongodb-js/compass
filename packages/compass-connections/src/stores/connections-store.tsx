@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import { useConnectionsManagerContext } from '../provider';
-import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
+import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { cloneDeep, merge } from 'lodash';
 import { UUID } from 'bson';
 import { useToast } from '@mongodb-js/compass-components';
