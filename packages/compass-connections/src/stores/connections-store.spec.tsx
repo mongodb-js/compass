@@ -659,7 +659,9 @@ describe('use-connections hook', function () {
       act(() => {
         result.current.setActiveConnectionById('turtle');
       });
-      result.current.removeConnection(result.current.favoriteConnections[1]);
+      void result.current.removeConnection(
+        result.current.favoriteConnections[1]
+      );
 
       expect(loadAllSpy).to.have.been.called;
       expect(deleteSpy.callCount).to.equal(1);

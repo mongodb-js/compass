@@ -91,10 +91,7 @@ export const WithStorageProviders: React.FC = ({ children }) => {
 };
 
 export const CompassElectron = (
-  props: Omit<
-    HomeProps,
-    '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN' | '__TEST_INITIAL_CONNECTION_INFO'
-  >
+  props: Omit<HomeProps, '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN'>
 ) => {
   return (
     <WithPreferencesAndLoggerProviders>

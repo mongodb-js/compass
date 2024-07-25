@@ -53,11 +53,11 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.28.1",
     "@mongodb-js/compass-logging": "^1.4.2",
-    "@mongodb-js/compass-telemetry": "^1.1.2",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.23.1",
+    "@mongodb-js/compass-telemetry": "^1.1.2",
+    "@mongodb-js/compass-utils": "^0.6.7",
     "@mongodb-js/connection-form": "^1.35.0",
     "@mongodb-js/connection-info": "^0.5.2",
-    "@mongodb-js/connection-storage": "^0.16.1",
     "bson": "^6.7.0",
     "compass-preferences-model": "^2.25.1",
     "hadron-app-registry": "^9.2.1",
