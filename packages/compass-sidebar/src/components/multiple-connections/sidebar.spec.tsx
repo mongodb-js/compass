@@ -505,9 +505,10 @@ describe('Multiple Connections Sidebar Component', function () {
           );
 
           expect(screen.getByLabelText('Create database')).to.be.visible;
+          expect(screen.getByLabelText('Open MongoDB shell')).to.be.visible;
 
           userEvent.click(screen.getByLabelText('Show actions'));
-          expect(screen.getByText('Open MongoDB shell')).to.be.visible;
+
           expect(screen.getByText('View performance metrics')).to.be.visible;
           expect(screen.getByText('Show connection info')).to.be.visible;
           expect(screen.getByText('Disconnect')).to.be.visible;
@@ -557,9 +558,7 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByTestId('base-navigation-item')
             );
 
-            userEvent.click(screen.getByLabelText('Show actions'));
-
-            userEvent.click(screen.getByText('Open MongoDB shell'));
+            userEvent.click(screen.getByLabelText('Open MongoDB shell'));
 
             expect(workspaceService.openShellWorkspace).to.have.been.calledWith(
               savedFavoriteConnection.id,
