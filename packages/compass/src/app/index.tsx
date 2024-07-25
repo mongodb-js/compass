@@ -265,6 +265,7 @@ const Application = View.extend({
         title:
           'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
       });
+      track('Secret Storage Not Available');
     }
 
     document.querySelector('#loading-placeholder')?.remove();
