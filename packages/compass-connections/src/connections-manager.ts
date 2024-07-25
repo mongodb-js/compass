@@ -342,8 +342,8 @@ export class ConnectionsManager extends EventEmitter {
    */
   getActiveConnectionsCount(): number {
     return Array.from(this.connectionStatuses.values()).filter((status) => {
-      return (
-        status === ConnectionStatus.Connected || ConnectionStatus.Connecting
+      return [ConnectionStatus.Connected, ConnectionStatus.Connecting].includes(
+        status
       );
     }).length;
   }
