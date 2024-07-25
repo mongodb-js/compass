@@ -13,6 +13,13 @@ import { languages } from '../editor';
 import { highlightCode } from '@lezer/highlight';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
+export type SavedQuery = {
+  lastExecuted: Date;
+  queryProperties: {
+    [propertyName: string]: any;
+  };
+};
+
 export const createQueryHistoryAutocompleter = (
   savedQueries: SavedQuery[],
   onApply: (query: SavedQuery['queryProperties']) => void,
@@ -76,6 +83,9 @@ export function createQuery(query: SavedQuery): string {
   return res.slice(2, res.length);
 }
 
+const javascriptExpressionLanguageParser =
+  languages['javascript-expression']().language.parser;
+
 function createInfo(
   query: SavedQuery,
   theme: CodemirrorThemeType
@@ -116,9 +126,7 @@ function createInfo(
     if (formattedQuery) {
       highlightCode(
         formattedQuery,
-        languages['javascript-expression']().language.parser.parse(
-          formattedQuery
-        ),
+        javascriptExpressionLanguageParser.parse(formattedQuery),
         customHighlighter,
         emit,
         emitBreak
@@ -139,13 +147,6 @@ function createInfo(
     },
   };
 }
-
-export type SavedQuery = {
-  lastExecuted: Date;
-  queryProperties: {
-    [propertyName: string]: any;
-  };
-};
 
 // scales a number unscaledNum between [newScaleMin, newScaleMax]
 export function scaleBetween(
