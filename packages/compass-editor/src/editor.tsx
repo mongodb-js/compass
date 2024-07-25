@@ -324,7 +324,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip.cm-tooltip-autocomplete > ul': {
         fontFamily: fontFamilies.code,
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+        boxShadow: `0 ${spacing[50]}px ${spacing[200]}px rgba(0, 0, 0, 0.25)`,
       },
       '& .cm-tooltip-autocomplete ul li': {
         display: 'flex',
@@ -355,7 +355,12 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         textDecoration: 'none',
       },
       '.cm-tooltip.cm-completionInfo': {
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+        boxShadow: `0 ${spacing[50]}px ${spacing[200]}px rgba(0, 0, 0, 0.25)`,
+        overflow: 'auto',
+        marginTop: 0,
+        paddingTop: 0,
+        fontSize: '12px',
+        maxHeight: '70vh',
       },
       '& .cm-tooltip .completion-info p': {
         margin: 0,

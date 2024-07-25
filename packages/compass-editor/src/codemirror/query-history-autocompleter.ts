@@ -67,14 +67,6 @@ const queryCodeStyles = css({
   whiteSpace: 'pre-wrap',
 });
 
-const completionInfoStyles = css({
-  overflow: 'auto',
-  marginTop: 0,
-  paddingTop: 0,
-  fontSize: '11.5px !important',
-  maxHeight: '70vh',
-});
-
 export function createQuery(query: SavedQuery): string {
   let res = '';
   Object.entries(query.queryProperties).forEach(([key, value]) => {
@@ -94,7 +86,6 @@ function createInfo(
 } {
   const customHighlighter = highlightStyles[theme];
   const container = document.createElement('div');
-  container.className = completionInfoStyles;
 
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
