@@ -68,13 +68,13 @@ describe('query history autocompleter', function () {
 
   it('returns all saved queries as completions on click', async function () {
     expect(
-      await getCompletions('{}', savedQueries, undefined, mockOnApply)
+      await getCompletions('{}', savedQueries, undefined, mockOnApply, 'light')
     ).to.have.lengthOf(5);
   });
 
   it('returns combined completions when user starts typing', async function () {
     expect(
-      await getCompletions('foo', savedQueries, undefined, mockOnApply)
+      await getCompletions('foo', savedQueries, undefined, mockOnApply, 'light')
     ).to.have.lengthOf(50);
   });
 
@@ -88,7 +88,8 @@ describe('query history autocompleter', function () {
           '{ bar: 1, buz: 2, foo: "b',
           savedQueries,
           undefined,
-          mockOnApply
+          mockOnApply,
+          'light'
         )
       ).map((completion) => completion.label)
     ).to.deep.eq(['bar', '1', 'buz', '2', 'foo', ...prettifiedSavedQueries]);

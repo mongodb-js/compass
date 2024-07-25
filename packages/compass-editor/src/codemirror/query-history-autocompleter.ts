@@ -2,20 +2,28 @@ import type {
   CompletionContext,
   CompletionSource,
 } from '@codemirror/autocomplete';
-import { formatDate, spacing } from '@mongodb-js/compass-components';
+import {
+  fontFamilies,
+  formatDate,
+  spacing,
+  css,
+} from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
-import { css } from '@mongodb-js/compass-components';
+import { languages } from '../editor';
+import { highlightCode } from '@lezer/highlight';
+import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
 export type SavedQuery = {
   lastExecuted: Date;
   queryProperties: {
-    [properyName: string]: any;
+    [propertyName: string]: any;
   };
 };
 
 export const createQueryHistoryAutocompleter = (
   savedQueries: SavedQuery[],
-  onApply: (query: SavedQuery['queryProperties']) => void
+  onApply: (query: SavedQuery['queryProperties']) => void,
+  theme: CodemirrorThemeType
 ): CompletionSource => {
   return function queryCompletions(context: CompletionContext) {
     if (savedQueries.length === 0) {
@@ -30,7 +38,7 @@ export const createQueryHistoryAutocompleter = (
       label: createQuery(query),
       type: 'text',
       detail: formatDate(query.lastExecuted.getTime()),
-      info: () => createInfo(query).dom,
+      info: () => createInfo(query, theme).dom,
       apply: () => {
         onApply(query.queryProperties);
       },
@@ -54,15 +62,15 @@ export const createQueryHistoryAutocompleter = (
 const queryLabelStyles = css({
   textTransform: 'capitalize',
   fontWeight: 'bold',
-  margin: `${spacing[2]}px 0`,
+  fontFamily: fontFamilies.default,
 });
 
 const queryCodeStyles = css({
-  maxHeight: '30vh',
-});
-
-const completionInfoStyles = css({
-  overflow: 'auto',
+  fontFamily: fontFamilies.code,
+  margin: `${spacing[50]}px`,
+  marginLeft: `${spacing[100]}px`,
+  padding: 0,
+  whiteSpace: 'pre-wrap',
 });
 
 export function createQuery(query: SavedQuery): string {
@@ -72,16 +80,22 @@ export function createQuery(query: SavedQuery): string {
     const noFilterKey = key === 'filter' ? '' : `${key}: `;
     res += formattedQuery ? `, ${noFilterKey}${formattedQuery}` : '';
   });
-  const len = res.length;
-  return len <= 100 ? res.slice(2, res.length) : res.slice(2, 100);
+  return res.slice(2, res.length);
 }
 
-function createInfo(query: SavedQuery): {
+const javascriptExpressionLanguageParser =
+  languages['javascript-expression']().language.parser;
+
+function createInfo(
+  query: SavedQuery,
+  theme: CodemirrorThemeType
+): {
   dom: Node;
   destroy?: () => void;
 } {
+  const customHighlighter = highlightStyles[theme];
   const container = document.createElement('div');
-  container.className = completionInfoStyles;
+
   Object.entries(query.queryProperties).forEach(([key, value]) => {
     const formattedQuery = toJSString(value);
     const codeDiv = document.createElement('div');
@@ -92,7 +106,32 @@ function createInfo(query: SavedQuery): {
 
     const code = document.createElement('pre');
     code.className = queryCodeStyles;
-    if (formattedQuery) code.textContent = formattedQuery;
+
+    function emit(text: string, classes: string | null) {
+      const node = document.createTextNode(text);
+      if (classes) {
+        const span = document.createElement('span');
+        span.appendChild(node);
+        span.className = classes;
+        code.appendChild(span);
+      } else {
+        code.appendChild(node);
+      }
+    }
+
+    function emitBreak() {
+      code.appendChild(document.createTextNode('\n'));
+    }
+
+    if (formattedQuery) {
+      highlightCode(
+        formattedQuery,
+        javascriptExpressionLanguageParser.parse(formattedQuery),
+        customHighlighter,
+        emit,
+        emitBreak
+      );
+    }
 
     codeDiv.append(label);
     codeDiv.appendChild(code);
