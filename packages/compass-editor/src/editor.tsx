@@ -339,7 +339,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-completionLabel': {
         flex: 1,
-        overflowX: 'hidden',
+        overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       },

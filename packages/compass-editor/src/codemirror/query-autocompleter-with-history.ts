@@ -11,17 +11,18 @@ import type {
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { css } from '@mongodb-js/compass-components';
-import { useDarkMode } from '@mongodb-js/compass-components';
+import type { CodemirrorThemeType } from '../editor';
 
 export const createQueryWithHistoryAutocompleter = (
   recentQueries: SavedQuery[],
   options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {},
-  onApply: (query: SavedQuery['queryProperties']) => void
+  onApply: (query: SavedQuery['queryProperties']) => void,
+  theme: CodemirrorThemeType
 ): CompletionSource => {
   const queryHistoryAutocompleter = createQueryHistoryAutocompleter(
     recentQueries,
     onApply,
-    useDarkMode() ? 'dark' : 'light'
+    theme
   );
 
   const originalQueryAutocompleter = createQueryAutocompleter(options);

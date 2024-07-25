@@ -6,13 +6,12 @@ import {
   fontFamilies,
   formatDate,
   spacing,
+  css,
 } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
-import { css } from '@mongodb-js/compass-components';
-import type { CodemirrorThemeType } from '../editor';
 import { languages } from '../editor';
 import { highlightCode } from '@lezer/highlight';
-import { highlightStyles } from '../editor';
+import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
 export const createQueryHistoryAutocompleter = (
   savedQueries: SavedQuery[],
