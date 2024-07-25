@@ -233,10 +233,10 @@ class CompassApplication {
         debug('Did not agree to license, quitting app.');
         app.quit();
       },
-      'compass:check-secret-storage-is-available': function () {
+      'compass:check-secret-storage-is-available': async function () {
         // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
         // https://github.com/electron/electron/issues/33640
-        // But here Compass is already rendered and it is safe to omit `await app.whenReady()`
+        await app.whenReady();
         return safeStorage.isEncryptionAvailable();
       },
     });
