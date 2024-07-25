@@ -96,7 +96,12 @@ type NavigationItemProps = {
   item: SidebarTreeItem;
   isActive: boolean;
   isFocused: boolean;
-  getItemActions: (item: SidebarTreeItem) => NavigationItemActions;
+  getItemActions: (item: SidebarTreeItem) => {
+    actions: NavigationItemActions;
+    config?: {
+      collapseAfter: number;
+    };
+  };
   onItemAction: (item: SidebarActionableItem, action: Actions) => void;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
 };
@@ -159,25 +164,13 @@ export function NavigationItem({
   const style = useMemo(() => getTreeItemStyles(item), [item]);
 
   const actionProps = useMemo(() => {
-    const collapseAfter = (() => {
-      if (item.type === 'connection') {
-        if (
-          item.connectionStatus === ConnectionStatus.Connected &&
-          !item.hasWriteActionsDisabled
-        ) {
-          return 1;
-        }
-        // when connected connection is readonly we don't show the create-database action
-        // so the whole action menu is collapsed
-        return 0;
-      }
-    })();
+    const { actions, config: actionsConfig } = getItemActions(item);
 
     return {
-      actions: getItemActions(item),
+      actions: actions,
       onAction: onAction,
-      ...(typeof collapseAfter === 'number' && {
-        collapseAfter,
+      ...(typeof actionsConfig?.collapseAfter === 'number' && {
+        collapseAfter: actionsConfig?.collapseAfter,
       }),
       ...(item.type === 'database' && {
         collapseToMenuThreshold: 3,
