@@ -11,7 +11,10 @@ import {
 import userEvent from '@testing-library/user-event';
 import MultipleConnectionSidebar from './sidebar';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ToastArea } from '@mongodb-js/compass-components';
+import {
+  ConfirmationModalArea,
+  ToastArea,
+} from '@mongodb-js/compass-components';
 import {
   InMemoryConnectionStorage,
   ConnectionStorageProvider,
@@ -115,23 +118,25 @@ describe('Multiple Connections Sidebar Component', function () {
   ) {
     return render(
       <ToastArea>
-        <PreferencesProvider value={preferences}>
-          <WorkspacesServiceProvider value={workspaceService}>
-            <WorkspacesProvider
-              value={[{ name: 'My Queries', component: () => null }]}
-            >
-              <ConnectionStorageProvider value={connectionStorage}>
-                <ConnectionsManagerProvider value={connectionsManager}>
-                  <Provider store={store}>
-                    <MultipleConnectionSidebar
-                      activeWorkspace={activeWorkspace}
-                    />
-                  </Provider>
-                </ConnectionsManagerProvider>
-              </ConnectionStorageProvider>
-            </WorkspacesProvider>
-          </WorkspacesServiceProvider>
-        </PreferencesProvider>
+        <ConfirmationModalArea>
+          <PreferencesProvider value={preferences}>
+            <WorkspacesServiceProvider value={workspaceService}>
+              <WorkspacesProvider
+                value={[{ name: 'My Queries', component: () => null }]}
+              >
+                <ConnectionStorageProvider value={connectionStorage}>
+                  <ConnectionsManagerProvider value={connectionsManager}>
+                    <Provider store={store}>
+                      <MultipleConnectionSidebar
+                        activeWorkspace={activeWorkspace}
+                      />
+                    </Provider>
+                  </ConnectionsManagerProvider>
+                </ConnectionStorageProvider>
+              </WorkspacesProvider>
+            </WorkspacesServiceProvider>
+          </PreferencesProvider>
+        </ConfirmationModalArea>
       </ToastArea>,
       { wrapper }
     );

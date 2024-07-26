@@ -664,17 +664,24 @@ export function useConnections({
           connectionInfo
         );
 
-        const mergeConnectionInfo = preferences.getPreferences()
-          .persistOIDCTokens
-          ? { connectionOptions: await dataService.getUpdatedSecrets() }
-          : {};
+        try {
+          const mergeConnectionInfo = preferences.getPreferences()
+            .persistOIDCTokens
+            ? { connectionOptions: await dataService.getUpdatedSecrets() }
+            : {};
 
-        // Auto-connect info should never be saved
-        if (!isAutoconnectAttempt) {
-          await saveConnectionInfo({
-            ...merge(connectionInfo, mergeConnectionInfo),
-            lastUsed: new Date(),
-          });
+          // Auto-connect info should never be saved
+          if (!isAutoconnectAttempt) {
+            await saveConnectionInfo({
+              ...merge(connectionInfo, mergeConnectionInfo),
+              lastUsed: new Date(),
+            });
+          }
+        } catch (err) {
+          debug(
+            'failed to update connection info after successful connect',
+            err
+          );
         }
 
         if (
