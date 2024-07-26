@@ -58,7 +58,7 @@ function getTestBrowserShellCommand() {
  * Additionally, we verify that Compass stores credentials in a way that is consistent with
  * what the user has previously specified.
  */
-describe('OIDC integration', function () {
+describe.only('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
@@ -79,15 +79,12 @@ describe('OIDC integration', function () {
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
-    // TODO(COMPASS-8105): Fix and enable OIDC tests for multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      return this.skip();
-    }
-
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
+    // Test locally by settnig OIDC_MOCK_HOSTNAME, OIDC_MOCK_PORT and OIDC_CONNECTION_STRING
     if (
-      process.platform !== 'linux' ||
-      !serverSatisfies('> 7.0.0-alpha0', true)
+      (process.platform !== 'linux' ||
+        !serverSatisfies('> 7.0.0-alpha0', true)) &&
+      !process.env.OIDC_CONNECTION_STRING
     ) {
       return this.skip();
     }
@@ -100,6 +97,10 @@ describe('OIDC integration', function () {
     {
       oidcMockProviderEndpointAccesses = {};
       oidcMockProviderConfig = {
+        hostname: process.env.OIDC_MOCK_HOSTNAME ?? undefined,
+        port: process.env.OIDC_MOCK_PORT
+          ? parseInt(process.env.OIDC_MOCK_PORT, 10)
+          : undefined,
         getTokenPayload(metadata: Parameters<typeof getTokenPayload>[0]) {
           return getTokenPayload(metadata);
         },
@@ -111,6 +112,9 @@ describe('OIDC integration', function () {
         },
       };
       oidcMockProvider = await OIDCMockProvider.create(oidcMockProviderConfig);
+
+      // so we can be sure we're passing the correct one if starting mongodb manually
+      console.log('OIDC Mock Provider Issuer', oidcMockProvider.issuer);
     }
 
     {
@@ -121,38 +125,48 @@ describe('OIDC integration', function () {
       await fs.mkdir(path.join(tmpdir, 'db'), { recursive: true });
     }
 
+    let clusterConnectionString: string;
+
     {
-      const serverOidcConfig = {
-        issuer: oidcMockProvider.issuer,
-        clientId: 'testServer',
-        requestScopes: ['mongodbGroups'],
-        authorizationClaim: 'groups',
-        audience: 'resource-server-audience-value',
-        authNamePrefix: 'dev',
-      };
+      if (process.env.OIDC_CONNECTION_STRING) {
+        clusterConnectionString = process.env.OIDC_CONNECTION_STRING;
+      } else {
+        const serverOidcConfig = {
+          issuer: oidcMockProvider.issuer,
+          clientId: 'testServer',
+          requestScopes: ['mongodbGroups'],
+          authorizationClaim: 'groups',
+          audience: 'resource-server-audience-value',
+          authNamePrefix: 'dev',
+        };
 
-      const args = [
-        '--setParameter',
-        'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
-        // enableTestCommands allows using http:// issuers such as http://localhost
-        '--setParameter',
-        'enableTestCommands=true',
-        '--setParameter',
-        `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
-      ];
+        const args = [
+          '--setParameter',
+          'authenticationMechanisms=SCRAM-SHA-256,MONGODB-OIDC',
+          // enableTestCommands allows using http:// issuers such as http://localhost
+          '--setParameter',
+          'enableTestCommands=true',
+          '--setParameter',
+          `oidcIdentityProviders=${JSON.stringify([serverOidcConfig])}`,
+        ];
 
-      if (serverSatisfies('>= 8.1.0-rc0', true)) {
-        // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
-        args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
+        if (serverSatisfies('>= 8.1.0-rc0', true)) {
+          // Disable quiescing of JWKSet fetches to match the pre-8.0 behavior.
+          args.push('--setParameter', 'JWKSMinimumQuiescePeriodSecs=0');
+        }
+
+        cluster = await startTestServer({ args });
+        clusterConnectionString = cluster.connectionString;
       }
 
-      cluster = await startTestServer({ args });
-
-      const cs = new ConnectionString(cluster.connectionString);
+      const cs = new ConnectionString(clusterConnectionString);
       cs.searchParams.set('authMechanism', 'MONGODB-OIDC');
 
       connectionString = cs.toString();
+
+      console.log('OIDC connectionString', connectionString);
       connectionName = connectionNameFromString(connectionString);
+      // TODO: up to about here
     }
 
     {
@@ -169,8 +183,13 @@ describe('OIDC integration', function () {
 
   beforeEach(async function () {
     oidcMockProviderEndpointAccesses = {};
-    getTokenPayload = () => DEFAULT_TOKEN_PAYLOAD;
-    overrideRequestHandler = () => {};
+    getTokenPayload = () => {
+      console.log('getTokenPayload()');
+      return DEFAULT_TOKEN_PAYLOAD;
+    };
+    overrideRequestHandler = () => {
+      console.log('overrideRequestHandler()');
+    };
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature(
