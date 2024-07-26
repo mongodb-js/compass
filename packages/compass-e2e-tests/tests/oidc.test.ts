@@ -80,7 +80,7 @@ describe.only('OIDC integration', function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
-    // Test locally by settnig OIDC_MOCK_HOSTNAME, OIDC_MOCK_PORT and OIDC_CONNECTION_STRING
+    // Test locally by setting OIDC_MOCK_HOSTNAME, OIDC_MOCK_PORT and OIDC_CONNECTION_STRING
     if (
       (process.platform !== 'linux' ||
         !serverSatisfies('> 7.0.0-alpha0', true)) &&
@@ -166,7 +166,6 @@ describe.only('OIDC integration', function () {
 
       console.log('OIDC connectionString', connectionString);
       connectionName = connectionNameFromString(connectionString);
-      // TODO: up to about here
     }
 
     {
