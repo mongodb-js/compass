@@ -1,8 +1,6 @@
 /* istanbul ignore file */
-/* ^^^ we test the dist directly, so isntanbul can't calculate the coverage correctly */
+/* ^^^ we test the dist directly, so istanbul can't calculate the coverage correctly */
 
-import type { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
-import { spawn } from 'child_process';
 import type {
   Runtime,
   RuntimeEvaluationListener,
@@ -12,201 +10,161 @@ import type { MongoshBus } from '@mongosh/types';
 import path from 'path';
 import { EventEmitter, once } from 'events';
 import type { Caller } from './rpc';
-import { createCaller, cancel } from './rpc';
-import { ChildProcessEvaluationListener } from './child-process-evaluation-listener';
-import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './child-process';
+import { createCaller, cancel, exposeAll } from './rpc';
+import type { WorkerRuntime as WorkerThreadWorkerRuntime } from './worker-runtime';
 import {
   deserializeEvaluationResult,
   serializeConnectOptions,
 } from './serializer';
-import { ChildProcessMongoshBus } from './child-process-mongosh-bus';
 import type { CompassServiceProvider } from '@mongosh/service-provider-server';
-
-const workerPath = path.resolve(
-  process.cwd(),
-  '..',
-  'compass-shell',
-  'dist',
-  'node-runtime-worker-thread',
-  'child-process.js'
-);
+import { SHARE_ENV, Worker } from 'worker_threads';
+import type { WorkerOptions } from 'worker_threads';
+import type { InterruptHandle } from 'interruptor';
+import { interrupt as nativeInterrupt } from 'interruptor';
+import { WorkerThreadEvaluationListener } from './worker-thread-evaluation-listener';
+import { WorkerProcessMongoshBus } from './worker-process-mongosh-bus';
 
 type DevtoolsConnectOptions = Parameters<
   typeof CompassServiceProvider['connect']
 >[1];
-type ChildProcessRuntime = Caller<WorkerThreadWorkerRuntime>;
+type WorkerThreadRuntime = Caller<WorkerThreadWorkerRuntime>;
 
-async function kill(
-  childProcess: ChildProcess,
-  code: NodeJS.Signals | number = 'SIGTERM'
-) {
-  childProcess.kill(code);
-  if (childProcess.exitCode === null && childProcess.signalCode === null) {
-    await once(childProcess, 'exit');
-  }
-}
+const workerRuntimeSrcPath = path.resolve(__dirname, 'worker-runtime.js');
 
-function parseStderrToError(str: string): Error | null {
-  const [, errorMessageWithStack] = str
-    .split(/^\s*\^\s*$/m)
-    .map((part) => part.trim());
+const workerReadyPromise = async (workerProcess: Worker): Promise<void> => {
+  const waitForReadyMessage = async () => {
+    let msg: string;
+    while (([msg] = await once(workerProcess, 'message'))) {
+      if (msg === 'ready') return;
+    }
+  };
 
-  if (errorMessageWithStack) {
-    const e = new Error();
-    const errorHeader =
-      errorMessageWithStack.substring(
-        0,
-        errorMessageWithStack.search(/^\s*at/m)
-      ) || errorMessageWithStack;
+  const waitForError = async () => {
+    const [err] = await once(workerProcess, 'error');
+    if (err) {
+      err.message = `Worker thread failed to start with the following error: ${err.message}`;
+      throw err;
+    }
+  };
 
-    const [name, ...message] = errorHeader.split(': ');
-
-    e.name = name;
-    e.message = message.join(': ').trim();
-    e.stack = errorMessageWithStack;
-
-    return e;
-  }
-
-  return null;
-}
+  await Promise.race([waitForReadyMessage(), waitForError()]);
+};
 
 class WorkerRuntime implements Runtime {
   private initOptions: {
     uri: string;
     driverOptions: DevtoolsConnectOptions;
     cliOptions: { nodb?: boolean };
-    spawnOptions: SpawnOptionsWithoutStdio;
+    workerOptions: WorkerOptions;
   };
 
   evaluationListener: RuntimeEvaluationListener | null = null;
 
   private eventEmitter: MongoshBus;
 
-  private childProcessMongoshBus!: ChildProcessMongoshBus;
+  private workerProcess!: Worker;
 
-  private childProcessEvaluationListener!: ChildProcessEvaluationListener;
-
-  private childProcess!: ChildProcess;
-
-  private childProcessRuntime!: ChildProcessRuntime;
+  private workerProcessRuntime!: WorkerThreadRuntime;
 
   private initWorkerPromise: Promise<void>;
 
-  private childProcessProxySrcPath: string =
-    process.env
-      .CHILD_PROCESS_PROXY_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
-    workerPath;
+  private workerThreadEvaluationListener!: WorkerThreadEvaluationListener;
+
+  private workerProcessMongoshBus!: WorkerProcessMongoshBus;
 
   constructor(
     uri: string,
     driverOptions: DevtoolsConnectOptions,
     cliOptions: { nodb?: boolean } = {},
-    spawnOptions: SpawnOptionsWithoutStdio = {},
+    workerOptions: WorkerOptions = {},
     eventEmitter: MongoshBus = new EventEmitter()
   ) {
-    this.initOptions = { uri, driverOptions, cliOptions, spawnOptions };
+    this.initOptions = { uri, driverOptions, cliOptions, workerOptions };
     this.eventEmitter = eventEmitter;
     this.initWorkerPromise = this.initWorker();
   }
 
   private async initWorker() {
-    const { uri, driverOptions, cliOptions, spawnOptions } = this.initOptions;
+    const workerProcess = new Worker(
+      process.env.WORKER_RUNTIME_SRC_PATH_DO_NOT_USE_THIS_EXCEPT_FOR_TESTING ||
+        workerRuntimeSrcPath,
+      { env: SHARE_ENV }
+    );
+    this.workerProcess = workerProcess;
 
-    this.childProcess = spawn(
-      process.execPath,
-      [this.childProcessProxySrcPath],
+    await workerReadyPromise(this.workerProcess);
+
+    workerProcess.setMaxListeners(25);
+
+    const { interrupt } = createCaller(['interrupt'], workerProcess);
+
+    let interruptHandle: InterruptHandle | null = null;
+
+    this.workerProcessRuntime = Object.assign(
+      createCaller(
+        [
+          'init',
+          'evaluate',
+          'getCompletions',
+          'getShellPrompt',
+          'setEvaluationListener',
+          'interrupt',
+        ],
+        workerProcess
+      ),
       {
-        stdio: ['inherit', 'inherit', 'pipe', 'ipc'],
-        ...spawnOptions,
+        interrupt(): boolean {
+          if (interruptHandle) {
+            nativeInterrupt(interruptHandle);
+            return true;
+          }
+
+          return interrupt();
+        },
       }
     );
 
-    const waitForReadyMessage = async () => {
-      let msg: string;
-      while (([msg] = await once(this.childProcess, 'message'))) {
-        if (msg === 'ready') return;
-      }
-    };
-
-    let spawnError = '';
-
-    this.childProcess?.stderr?.setEncoding('utf8')?.on('data', (chunk) => {
-      spawnError += chunk;
-    });
-
-    const waitForError = async () => {
-      const [exitCode] = await once(this.childProcess, 'exit');
-
-      if (exitCode) {
-        let error = parseStderrToError(spawnError);
-
-        if (error) {
-          error.message = `Child process failed to start with the following error: ${error.message}`;
-        } else {
-          error = new Error(
-            `Worker runtime failed to start: child process exited with code ${
-              exitCode as number | string
-            }`
-          );
-        }
-
-        throw error;
-      }
-    };
-
-    await Promise.race([waitForReadyMessage(), waitForError()]);
-
-    // We expect the amount of listeners to be more than the default value of 10
-    // but probably not more than ~25 (all exposed methods on
-    // ChildProcessEvaluationListener and ChildProcessMongoshBus + any
-    // concurrent in-flight calls on ChildProcessRuntime) at once
-    this.childProcess.setMaxListeners(25);
-
-    this.childProcessRuntime = createCaller(
-      [
-        'init',
-        'evaluate',
-        'getCompletions',
-        'setEvaluationListener',
-        'getShellPrompt',
-        'interrupt',
-      ],
-      this.childProcess
-    );
-
-    this.childProcessEvaluationListener = new ChildProcessEvaluationListener(
+    this.workerThreadEvaluationListener = new WorkerThreadEvaluationListener(
       this,
-      this.childProcess
+      this.workerProcess
     );
 
-    this.childProcessMongoshBus = new ChildProcessMongoshBus(
+    exposeAll(
+      {
+        onRunInterruptible(handle: InterruptHandle | null) {
+          interruptHandle = handle;
+        },
+      },
+      workerProcess
+    );
+
+    this.workerProcessMongoshBus = new WorkerProcessMongoshBus(
       this.eventEmitter,
-      this.childProcess
+      this.workerProcess
     );
 
-    await this.childProcessRuntime.init(
-      uri,
-      serializeConnectOptions(driverOptions),
-      cliOptions
+    await this.workerProcessRuntime.init(
+      this.initOptions.uri,
+      serializeConnectOptions(this.initOptions.driverOptions),
+      this.initOptions.cliOptions
     );
   }
 
   async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     await this.initWorkerPromise;
     return deserializeEvaluationResult(
-      await this.childProcessRuntime.evaluate(code)
+      await this.workerProcessRuntime.evaluate(code)
     );
   }
 
   async getCompletions(code: string) {
     await this.initWorkerPromise;
-    return await this.childProcessRuntime.getCompletions(code);
+    return await this.workerProcessRuntime.getCompletions(code);
   }
 
   async getShellPrompt() {
     await this.initWorkerPromise;
-    return await this.childProcessRuntime.getShellPrompt();
+    return await this.workerProcessRuntime.getShellPrompt();
   }
 
   setEvaluationListener(listener: RuntimeEvaluationListener | null) {
@@ -219,28 +177,30 @@ class WorkerRuntime implements Runtime {
     try {
       await this.initWorkerPromise;
     } catch {
-      // In case child process encountered an error during init we still want
-      // to clean up whatever possible
+      // In case the worker thread encountered an error during init
+      // we still want to clean up whatever possible.
     }
 
-    await kill(this.childProcess);
-
-    if (this.childProcessRuntime) {
-      this.childProcessRuntime[cancel]();
+    if (this.workerProcessRuntime) {
+      this.workerProcessRuntime[cancel]();
     }
 
-    if (this.childProcessEvaluationListener) {
-      this.childProcessEvaluationListener.terminate();
+    if (this.workerProcess) {
+      await this.workerProcess.terminate();
     }
 
-    if (this.childProcessMongoshBus) {
-      this.childProcessMongoshBus.terminate();
+    if (this.workerThreadEvaluationListener) {
+      this.workerThreadEvaluationListener.terminate();
+    }
+
+    if (this.workerProcessMongoshBus) {
+      this.workerProcessMongoshBus.terminate();
     }
   }
 
   async interrupt() {
     await this.initWorkerPromise;
-    this.childProcess.kill('SIGINT');
+    return this.workerProcessRuntime.interrupt();
   }
 
   async waitForRuntimeToBeReady() {

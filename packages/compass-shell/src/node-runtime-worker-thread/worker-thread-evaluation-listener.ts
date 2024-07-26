@@ -1,18 +1,18 @@
-import type { ChildProcess } from 'child_process';
+import type { Worker } from 'worker_threads';
 import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
 import type { WorkerRuntime } from './index';
 import { deserializeEvaluationResult } from './serializer';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
-export class ChildProcessEvaluationListener {
+export class WorkerThreadEvaluationListener {
   exposedListener: Exposed<
     Required<
       Omit<RuntimeEvaluationListener, 'onLoad' | 'getCryptLibraryOptions'>
     >
   >;
 
-  constructor(workerRuntime: WorkerRuntime, childProcess: ChildProcess) {
+  constructor(workerRuntime: WorkerRuntime, worker: Worker) {
     this.exposedListener = exposeAll(
       {
         onPrompt(question, type) {
@@ -58,7 +58,7 @@ export class ChildProcessEvaluationListener {
           );
         },
       },
-      childProcess
+      worker
     );
   }
 
