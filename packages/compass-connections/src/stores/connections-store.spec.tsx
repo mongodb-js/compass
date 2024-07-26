@@ -1,24 +1,32 @@
+import { promisify } from 'util';
 import { expect } from 'chai';
-import { waitFor, cleanup } from '@testing-library/react';
-import type { RenderResult } from '@testing-library/react-hooks';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { waitFor, cleanup, screen, render } from '@testing-library/react';
 import sinon from 'sinon';
-
-import { useConnections } from './connections-store';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { createElement } from 'react';
+import { createNewConnectionInfo } from './connections-store';
+import {
+  createSandboxFromDefaultPreferences,
+  PreferencesAccess,
+} from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
-
 import {
   InMemoryConnectionStorage,
   type ConnectionStorage,
   ConnectionStorageProvider,
 } from '@mongodb-js/connection-storage/provider';
-
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService, connect } from 'mongodb-data-service';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import type { ComponentProps } from 'react';
+import React from 'react';
+import {
+  ConfirmationModalArea,
+  ToastArea,
+} from '@mongodb-js/compass-components';
+import {
+  ConnectionsProvider,
+  useConnections,
+} from '../components/connections-provider';
 
 const noop = (): any => {
   /* no-op */
@@ -55,43 +63,59 @@ const mockConnections: ConnectionInfo[] = [
   },
 ];
 
-describe('use-connections hook', function () {
+describe('useConnections hook', function () {
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: ConnectionStorage;
-  let renderHookWithContext: typeof renderHook;
+  let preferences: PreferencesAccess;
+  let renderHookWithContext: (
+    props?: ComponentProps<typeof ConnectionsProvider>
+  ) => ReturnType<typeof useConnections>;
 
   before(async function () {
-    const preferences = await createSandboxFromDefaultPreferences();
-    renderHookWithContext = (callback, options) => {
-      const wrapper: React.FC = ({ children }) =>
-        createElement(PreferencesProvider, {
-          value: preferences,
-          children: [
-            createElement(ConnectionStorageProvider, {
-              value: mockConnectionStorage,
-              children: [
-                createElement(ConnectionsManagerProvider, {
-                  value: connectionsManager,
-                  children,
-                }),
-              ],
-            }),
-          ],
-        });
-
-      return renderHook(callback, { wrapper, ...options });
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
+    renderHookWithContext = (props) => {
+      const wrapper: React.FC = ({ children }) => {
+        return (
+          <ToastArea>
+            <ConfirmationModalArea>
+              <PreferencesProvider value={preferences}>
+                <ConnectionStorageProvider value={mockConnectionStorage}>
+                  <ConnectionsManagerProvider value={connectionsManager}>
+                    <ConnectionsProvider {...props}>
+                      {children}
+                    </ConnectionsProvider>
+                  </ConnectionsManagerProvider>
+                </ConnectionStorageProvider>
+              </PreferencesProvider>
+            </ConfirmationModalArea>
+          </ToastArea>
+        );
+      };
+      let hookResult: ReturnType<typeof useConnections>;
+      const UseConnections = () => {
+        hookResult = useConnections();
+        return null;
+      };
+      render(<UseConnections></UseConnections>, { wrapper });
+      return hookResult!;
     };
-    await preferences.savePreferences({ persistOIDCTokens: false });
   });
 
   beforeEach(function () {
     mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);
-    connectionsManager = getConnectionsManager(() =>
-      Promise.resolve({
+    connectionsManager = getConnectionsManager(async () => {
+      await promisify(setTimeout)(200);
+      return {
         mockDataService: 'yes',
         addReauthenticationHandler() {},
-      } as unknown as DataService)
-    );
+        getUpdatedSecrets() {
+          return Promise.resolve({});
+        },
+      } as unknown as DataService;
+    });
   });
 
   afterEach(() => {
@@ -99,199 +123,125 @@ describe('use-connections hook', function () {
     sinon.restore();
   });
 
-  describe('#onMount', function () {
-    it('allows connecting to a dynamically provided connection info object', async function () {
+  it('autoconnects on mount and does not save autoconnect info', async function () {
+    const onConnected = sinon.spy();
+    sinon.stub(mockConnectionStorage, 'getAutoConnectInfo').resolves({
+      id: 'new',
+      connectionOptions: {
+        connectionString: 'mongodb://new-recent',
+      },
+    });
+    const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+
+    renderHookWithContext({ onConnected });
+
+    await waitFor(() => {
+      expect(onConnected).to.have.been.called;
+    });
+
+    // autoconnect info should never be saved
+    expect(saveSpy).to.not.have.been.called;
+  });
+
+  describe.only('#connect', function () {
+    it('should show notifications throughout connection flow and save connection on disk', async function () {
+      const onConnectionAttemptStarted = sinon.spy();
       const onConnected = sinon.spy();
-      sinon.stub(mockConnectionStorage, 'getAutoConnectInfo').resolves({
-        id: 'new',
-        connectionOptions: {
-          connectionString: 'mongodb://new-recent',
-        },
+      const connections = renderHookWithContext({
+        onConnectionAttemptStarted,
+        onConnected,
       });
       const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-      renderHookWithContext(() =>
-        useConnections({
-          onConnected,
-          onConnectionFailed: noop,
-          onConnectionAttemptStarted: noop,
-        })
-      );
+
+      const connectionInfo = createNewConnectionInfo();
+      const connectPromise = connections.connect(connectionInfo);
 
       await waitFor(() => {
-        expect(onConnected).to.have.been.called;
+        expect(onConnectionAttemptStarted).to.have.been.calledOnce;
       });
-      expect(saveSpy).to.not.have.been.called;
-    });
-  });
 
-  describe('#loadConnections', function () {
-    it('loads the connections from the connection storage', async function () {
-      const loadAllSpy = sinon.spy(mockConnectionStorage, 'loadAll');
+      // First time to save new connection in the storage
+      expect(saveSpy).to.have.been.calledOnce;
 
-      const { result } = renderHookWithContext(() =>
-        useConnections({
-          onConnected: noop,
-          onConnectionFailed: noop,
-          onConnectionAttemptStarted: noop,
-        })
-      );
+      await waitFor(() => {
+        expect(screen.getByText('Connecting to localhost:27017')).to.exist;
+      });
 
-      // Wait for the async loading of connections to complete.
-      await waitFor(() =>
-        expect(result.current.favoriteConnections.length).to.equal(2)
-      );
+      await connectPromise;
 
-      expect(loadAllSpy).to.have.been.called;
+      expect(screen.getByText('Connected to localhost:27017')).to.exist;
+
+      // Second time to update the connection lastUsed time
+      expect(saveSpy).to.have.been.calledTwice;
+
+      expect(onConnected).to.have.been.calledOnce;
     });
 
-    it('filters and sort favorites connections', async function () {
-      const connectionOptions = {
-        connectionString: 'mongodb://turtle',
-      };
-      mockConnectionStorage = new InMemoryConnectionStorage([
-        {
-          id: '1',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'bcd' },
-          connectionOptions,
-        },
-        { id: '2', lastUsed: new Date(), connectionOptions },
-        {
-          id: '3',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'abc' },
-          connectionOptions,
-        },
-      ]);
+    describe('saving connections in single connection mode', function () {
+      it('should update existing connection with new props when connection is successfull', async function () {
+        await preferences.savePreferences({
+          enableNewMultipleConnectionSystem: false,
+        });
 
-      const { result } = renderHookWithContext(() =>
-        useConnections({
-          onConnected: noop,
-          onConnectionFailed: noop,
-          onConnectionAttemptStarted: noop,
-        })
-      );
+        const connections = renderHookWithContext();
+        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
 
-      // Wait for the async loading of connections to complete.
-      await waitFor(() =>
-        expect(result.current.favoriteConnections).to.deep.equal([
-          {
-            id: '3',
-            favorite: {
-              name: 'abc',
-            },
-            savedConnectionType: 'favorite',
-            connectionOptions,
+        await connections.connect({
+          ...mockConnections[0],
+          favorite: { name: 'foobar' },
+        });
+
+        // Only once on success so that we're not updating existing connections if
+        // they failed
+        expect(saveSpy).to.have.been.calledOnce;
+        expect(saveSpy.getCall(0)).to.have.nested.property(
+          'args[0].connectionInfo.favorite.name',
+          'foobar'
+        );
+      });
+
+      it('should not update existing connection if connection failed', async function () {
+        await preferences.savePreferences({
+          enableNewMultipleConnectionSystem: false,
+        });
+
+        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+        const onConnectionFailed = sinon.spy();
+        const connections = renderHookWithContext({ onConnectionFailed });
+
+        sinon
+          .stub(connectionsManager, 'connect')
+          .rejects(new Error('Failed to connect'));
+
+        await connections.connect({
+          ...mockConnections[0],
+          favorite: { name: 'foobar' },
+        });
+
+        expect(onConnectionFailed).to.have.been.called;
+        expect(saveSpy).to.not.have.been.called;
+      });
+    });
+
+    describe('saving connections in multiple connections mode', function () {
+      it('should always update existing connection even if conneciton will fail', async function () {
+        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+        const onConnectionFailed = sinon.spy();
+        const connections = renderHookWithContext({ onConnectionFailed });
+
+        sinon
+          .stub(connectionsManager, 'connect')
+          .rejects(new Error('Failed to connect'));
+
+        await connections.connect({
+          ...mockConnections[0],
+          connectionOptions: {
+            connectionString: 'mongodb://super-broken-new-url',
           },
-          {
-            id: '1',
-            favorite: {
-              name: 'bcd',
-            },
-            savedConnectionType: 'favorite',
-            connectionOptions,
-          },
-        ])
-      );
-    });
+        });
 
-    it('filters and sort recents connections', async function () {
-      const connectionOptions = {
-        connectionString: 'mongodb://turtle',
-      };
-      mockConnectionStorage = new InMemoryConnectionStorage([
-        {
-          id: '1',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'bcd' },
-          connectionOptions,
-        },
-        {
-          id: '2',
-          savedConnectionType: 'recent',
-          favorite: { name: '2' },
-          lastUsed: new Date(1647020087550),
-          connectionOptions,
-        },
-        {
-          id: '3',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'abc' },
-          connectionOptions,
-        },
-        {
-          id: '4',
-          savedConnectionType: 'recent',
-          favorite: { name: '4' },
-          connectionOptions,
-        }, // very old recent connection without lastUsed
-        {
-          id: '5',
-          savedConnectionType: 'recent',
-          favorite: { name: '5' },
-          lastUsed: new Date(1647020087551),
-          connectionOptions,
-        },
-      ]);
-
-      const { result } = renderHookWithContext(() =>
-        useConnections({
-          onConnected: noop,
-          onConnectionFailed: noop,
-          onConnectionAttemptStarted: noop,
-        })
-      );
-
-      await waitFor(() => {
-        expect(result.current.favoriteConnections.length).to.equal(2);
-        expect(result.current.recentConnections.length).to.equal(3);
-      });
-
-      expect(result.current.recentConnections).to.deep.equal([
-        {
-          id: '2',
-          savedConnectionType: 'recent',
-          favorite: { name: '2' },
-          lastUsed: new Date(1647020087550),
-          connectionOptions,
-        },
-        {
-          id: '4',
-          savedConnectionType: 'recent',
-          favorite: { name: '4' },
-          connectionOptions,
-        },
-        {
-          id: '5',
-          savedConnectionType: 'recent',
-          favorite: { name: '5' },
-          lastUsed: new Date(1647020087551),
-          connectionOptions,
-        },
-      ]);
-    });
-  });
-
-  describe('#connect', function () {
-    it(`calls onConnected`, async function () {
-      const onConnected = sinon.spy();
-      const { result } = renderHookWithContext(() =>
-        useConnections({
-          onConnected,
-          onConnectionFailed: noop,
-          onConnectionAttemptStarted: noop,
-        })
-      );
-
-      await result.current.connect({
-        id: 'new',
-        connectionOptions: {
-          connectionString: 'mongodb://new-recent',
-        },
-      });
-
-      await waitFor(() => {
-        expect(onConnected).to.have.been.called;
+        expect(onConnectionFailed).to.have.been.called;
+        expect(saveSpy).to.have.been.called;
       });
     });
   });

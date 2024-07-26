@@ -437,7 +437,7 @@ export function useConnections({
       }
       debug('connection closed', connectionId);
     },
-    [connectionsManager]
+    [closeConnectionStatusToast, connectionsManager]
   );
 
   const createNewConnection = useCallback(() => {
@@ -604,16 +604,38 @@ export function useConnections({
           return;
         }
 
+        // We use connection storage directly for this check here because
+        // connection repository state is React based and we have no means of
+        // making sure that we already loaded connections when doing this check.
+        // This should not be required after we remove the need to save the
+        // connection before we actually connect (or at all) for the application
+        // to function
+        let isExistingConnection = false;
+        try {
+          isExistingConnection = !!(await connectionStorage.load({
+            id: connectionInfo.id,
+          }));
+        } catch {
+          // Assume connection doesn't exist yet
+        }
+
         // Auto-connect info should never be saved, connection storage has other
         // means to returning this info as part of the connections list
         if (!isAutoconnectAttempt) {
-          // TODO(COMPASS-7397): The way the whole connection logic is set up
-          // right now it is required that we save connection before starting
-          // the connection process so that it can show up in the Compass UI and
-          // be picked up from connection storage by various providers, this
-          // should not be required, but we're preserving it for now to avoid
-          // even more refactoring
-          if (!getConnectionInfoById(connectionInfo.id)) {
+          if (
+            // In single connection mode we only update existing connection when
+            // we successfully connected. In multiple connections we don't care
+            // if existing connection fails with errors and update it either way
+            // before we finished connecting
+            preferences.getPreferences().enableNewMultipleConnectionSystem ||
+            // TODO(COMPASS-7397): The way the whole connection logic is set up
+            // right now it is required that we save connection before starting
+            // the connection process even if we don't need or want to so that
+            // it can show up in the Compass UI and be picked up from connection
+            // storage by various providers, this should not be required, but
+            // we're preserving it for now to avoid even more refactoring
+            !isExistingConnection
+          ) {
             await saveConnectionInfo(connectionInfo);
           }
         }
@@ -653,17 +675,6 @@ export function useConnections({
           ),
         });
 
-        dispatch({ type: 'connection-attempt-succeeded', connectionInfo });
-
-        openConnectionSucceededToast(connectionInfo);
-
-        void onConnectedRef.current?.(connectionInfo, dataService);
-
-        debug(
-          'connection attempt succeeded with connection info',
-          connectionInfo
-        );
-
         try {
           const mergeConnectionInfo = preferences.getPreferences()
             .persistOIDCTokens
@@ -683,6 +694,17 @@ export function useConnections({
             err
           );
         }
+
+        dispatch({ type: 'connection-attempt-succeeded', connectionInfo });
+
+        openConnectionSucceededToast(connectionInfo);
+
+        void onConnectedRef.current?.(connectionInfo, dataService);
+
+        debug(
+          'connection attempt succeeded with connection info',
+          connectionInfo
+        );
 
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)

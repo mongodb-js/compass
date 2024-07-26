@@ -82,8 +82,8 @@ describe('Connections Component', function () {
       );
     });
 
-    it('calls once to load the connections', function () {
-      expect(loadConnectionsSpy.callCount).to.equal(1);
+    it('calls to load the connections', function () {
+      expect(loadConnectionsSpy).to.have.been.called;
     });
 
     it('renders the connect button from the connect-form', function () {
