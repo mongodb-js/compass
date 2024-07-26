@@ -21,6 +21,7 @@ export function mapMongoDBCompletionToCodemirrorCompletion(
         ? completion.value
         : wrapField(completion.value, escape === 'always'),
     detail: completion.meta?.startsWith('field') ? 'field' : completion.meta,
+    type: 'base-autocompleter',
     info() {
       if (!completion.description) {
         return null;

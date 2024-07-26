@@ -36,7 +36,7 @@ export const createQueryHistoryAutocompleter = (
 
     const options = savedQueries.map((query) => ({
       label: createQuery(query),
-      type: 'text',
+      type: 'query-history',
       detail: formatDate(query.lastExecuted.getTime()),
       info: () => createInfo(query, theme).dom,
       apply: () => {

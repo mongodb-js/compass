@@ -334,14 +334,52 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         backgroundColor:
           editorPalette[theme].autocompleteSelectedBackgroundColor,
       },
-      '& .cm-completionIcon': {
-        display: 'none',
+      '& .cm-completionIcon-query-history': {
+        color: editorPalette[theme].autocompleteColor,
+        marginRight: `${spacing[200]}px`,
+        '&:after': {
+          content: '""',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM7.25 4.75C7.25 4.33579 7.58579 4 8 4C8.41421 4 8.75 4.33579 8.75 4.75V7.90966L10.4939 9.43556C10.8056 9.70832 10.8372 10.1821 10.5644 10.4939C10.2917 10.8056 9.81786 10.8372 9.50613 10.5644L7.51059 8.81833C7.5014 8.8104 7.4924 8.80226 7.48361 8.79391C7.41388 8.7278 7.35953 8.65117 7.32087 8.56867C7.27541 8.47195 7.25 8.36394 7.25 8.25V4.75Z' fill='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
+      '& .cm-completionIcon-base-autocompleter': {
+        color: editorPalette[theme].autocompleteColor,
+        marginRight: `${spacing[50]}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '16px',
+        height: '16px',
+        '&:after': {
+          content: '""',
+          display: 'block',
+          width: '13px',
+          height: '11px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='13' height='11' viewBox='0 0 13 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4.06383L4.96 5.78723M1 4.06383L7.18333 1.19342C7.44783 1.07064 7.75273 1.06942 8.0182 1.19009L12 3M1 4.06383V7.29287C1 7.66257 1.20398 8.00212 1.53039 8.17574L4.96 10M4.96 5.78723L12 3M4.96 5.78723V10M12 3V6.45563C12 6.86203 11.7541 7.22801 11.3778 7.38153L4.96 10' stroke='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}' stroke-width='1.3'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
       },
       '& .cm-completionLabel': {
         flex: 1,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
+        lineHeight: '110%',
+        verticalAlign: 'middle',
       },
       '& .cm-completionDetail': {
         color: rgba(editorPalette[theme].autocompleteColor, 0.5),
