@@ -335,7 +335,6 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
           editorPalette[theme].autocompleteSelectedBackgroundColor,
       },
       '& .cm-completionIcon-query-history': {
-        color: editorPalette[theme].autocompleteColor,
         marginRight: `${spacing[200]}px`,
         '&:after': {
           content: '""',
@@ -353,7 +352,6 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         },
       },
       '& .cm-completionIcon-base-autocompleter': {
-        color: editorPalette[theme].autocompleteColor,
         marginRight: `${spacing[50]}px`,
         display: 'flex',
         alignItems: 'center',
