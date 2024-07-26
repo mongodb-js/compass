@@ -3,11 +3,12 @@ import {
   createQueryHistoryAutocompleter,
 } from './query-history-autocompleter';
 import { createQueryAutocompleter } from './query-autocompleter';
-import type {
-  CompletionSource,
-  CompletionContext,
-  CompletionSection,
-  Completion,
+import {
+  type CompletionSource,
+  type CompletionContext,
+  type CompletionSection,
+  type Completion,
+  currentCompletions,
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { css } from '@mongodb-js/compass-components';
@@ -41,6 +42,9 @@ export const createQueryWithHistoryAutocompleter = (
     const baseCompletions = await originalQueryAutocompleter(context);
     const historyCompletions = await queryHistoryAutocompleter(context);
 
+    const currentBaseCompletions = currentCompletions(context.state);
+    const numBaseCompletions = currentBaseCompletions.length;
+
     if (baseCompletions) {
       combinedOptions.push(
         ...baseCompletions.options.map((option) => ({
@@ -52,7 +56,7 @@ export const createQueryWithHistoryAutocompleter = (
       combinedOptions.push(
         ...historyCompletions.options.map((option) => ({
           ...option,
-          section: historySection,
+          section: numBaseCompletions > 0 ? historySection : undefined,
         }))
       );
     }
