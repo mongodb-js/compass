@@ -351,7 +351,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
           backgroundPosition: 'center',
         },
       },
-      '& .cm-completionIcon-base-autocompleter': {
+      '& .cm-completionIcon-field': {
         marginRight: `${spacing[50]}px`,
         display: 'flex',
         alignItems: 'center',
@@ -366,6 +366,26 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='13' height='11' viewBox='0 0 13 11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4.06383L4.96 5.78723M1 4.06383L7.18333 1.19342C7.44783 1.07064 7.75273 1.06942 8.0182 1.19009L12 3M1 4.06383V7.29287C1 7.66257 1.20398 8.00212 1.53039 8.17574L4.96 10M4.96 5.78723L12 3M4.96 5.78723V10M12 3V6.45563C12 6.86203 11.7541 7.22801 11.3778 7.38153L4.96 10' stroke='${encodeURIComponent(
             editorPalette[theme].autocompleteColor
           )}' stroke-width='1.3'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
+      '& .cm-completionIcon-method': {
+        marginRight: `${spacing[50]}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '16px',
+        height: '16px',
+        '&:after': {
+          content: '""',
+          display: 'block',
+          width: '13px',
+          height: '13px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='13' height='13' viewBox='0 0 13 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_914_100226)'%3E%3Cpath d='M1.5 4.13357L6.45 7.11111M1.5 4.13357L5.92043 1.33524C6.2443 1.13022 6.65686 1.12836 6.98256 1.33046L11.5 4.13357M1.5 4.13357V8.26879C1.5 8.60888 1.67284 8.92565 1.95883 9.1097L6.45 12M6.45 7.11111L11.5 4.13357M6.45 7.11111V12M11.5 4.13357V8.26289C11.5 8.6062 11.3239 8.92551 11.0335 9.10868L6.45 12' stroke='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}' stroke-width='1.3'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_914_100226'%3E%3Crect width='13' height='13' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E")`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
