@@ -720,7 +720,9 @@ export function useConnections({
                 // multiple connections we update everything
                 preferences.getPreferences().enableNewMultipleConnectionSystem
                   ? connectionInfo
-                  : existingConnectionInfo,
+                  : // Existing connection info might be missing when connecting
+                    // to a new connection for the first time
+                    existingConnectionInfo ?? connectionInfo,
                 mergeConnectionInfo
               ),
               lastUsed: new Date(),
