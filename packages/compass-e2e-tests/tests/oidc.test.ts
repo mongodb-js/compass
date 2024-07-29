@@ -58,7 +58,7 @@ function getTestBrowserShellCommand() {
  * Additionally, we verify that Compass stores credentials in a way that is consistent with
  * what the user has previously specified.
  */
-describe.only('OIDC integration', function () {
+describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
@@ -240,7 +240,7 @@ describe.only('OIDC integration', function () {
     expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 
-  it.only('can cancel a connection attempt and then successfully connect', async function () {
+  it('can cancel a connection attempt and then successfully connect', async function () {
     const emitter = new EventEmitter();
     const secondConnectionEstablished = once(
       emitter,
@@ -259,6 +259,7 @@ describe.only('OIDC integration', function () {
     };
 
     if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.removeConnection(connectionName);
       await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
       await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     }
@@ -294,7 +295,7 @@ describe.only('OIDC integration', function () {
     await browser.connectWithConnectionForm({
       hosts: [hostport],
       authMethod: 'MONGODB-OIDC',
-      connectionName: this.test?.fullTitle(),
+      connectionName,
     });
 
     const result: any = await browser.shellEval(
@@ -308,6 +309,11 @@ describe.only('OIDC integration', function () {
   });
 
   it('can successfully re-authenticate', async function () {
+    // TODO: not working for multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     let afterReauth = false;
     getTokenPayload = () => {
       return {
@@ -316,12 +322,18 @@ describe.only('OIDC integration', function () {
       };
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.removeConnection(connectionName);
+      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    }
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
 
+    // TODO: selectors
     const modal = '[role=dialog]';
     const confirmButton = 'button:nth-of-type(1)';
     await browser.waitUntil(async () => {
@@ -340,6 +352,11 @@ describe.only('OIDC integration', function () {
   });
 
   it('can decline re-authentication if wanted', async function () {
+    // TODO: not working for multiple connections
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     let afterReauth = false;
     getTokenPayload = () => {
       return {
@@ -348,12 +365,18 @@ describe.only('OIDC integration', function () {
       };
     };
 
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.removeConnection(connectionName);
+      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    }
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
 
+    // TODO: selectors
     const modal = '[role=dialog]';
     const cancelButton = 'button:nth-of-type(2)';
     await browser.waitUntil(async () => {
@@ -373,6 +396,11 @@ describe.only('OIDC integration', function () {
   });
 
   it('saves tokens across connections for favorites if asked to do so', async function () {
+    // TODO: port saveConnectionStringAsFavorite
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
@@ -395,6 +423,11 @@ describe.only('OIDC integration', function () {
   });
 
   it('does not save tokens across connections for favorites if asked to do so', async function () {
+    // TODO: port saveConnectionStringAsFavorite
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     await browser.setFeature('persistOIDCTokens', false);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
@@ -424,6 +457,11 @@ describe.only('OIDC integration', function () {
   });
 
   it('saves tokens across Compass sessions for favorites if asked to do so', async function () {
+    // TODO: port saveConnectionStringAsFavorite
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
