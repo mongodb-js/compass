@@ -6,7 +6,7 @@ import { expect } from 'chai';
 
 import { CompassShell } from './components/compass-shell';
 import { CompassShellPlugin } from './index';
-import { AppRegistryProvider, globalAppRegistry } from 'hadron-app-registry';
+import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ConnectionsManager,
   ConnectionsManagerProvider,
@@ -51,6 +51,7 @@ describe('CompassShellPlugin', function () {
   const connectionsManager = new ConnectionsManager({
     logger: createNoopLogger().log.unbound,
   });
+
   sinon.replace(connectionsManager, 'getDataServiceForConnection', () => {
     return fakeDataService;
   });
@@ -61,8 +62,9 @@ describe('CompassShellPlugin', function () {
     wrapper?.unmount();
     wrapper = null;
   });
+
   it('returns a renderable plugin', async function () {
-    (connectionsManager as any).connectionStatuses.set('1', 'connected');
+    connectionsManager['connectionStatuses'].set('1', 'connected');
     wrapper = mount(
       <AppRegistryProvider>
         {/* global */}
@@ -84,41 +86,5 @@ describe('CompassShellPlugin', function () {
     const component = await waitForAsyncComponent(wrapper, CompassShell);
 
     expect(component?.exists()).to.equal(true);
-  });
-
-  it('emits an event on the app registry when it is expanded', async function () {
-    let eventOccured = false;
-    globalAppRegistry.on('compass:compass-shell:opened', () => {
-      eventOccured = true;
-    });
-    (connectionsManager as any).connectionStatuses.set('1', 'connected');
-
-    wrapper = mount(
-      <AppRegistryProvider>
-        {/* global */}
-        <AppRegistryProvider>
-          {/* local */}
-          <ConnectionStorageProvider
-            value={new InMemoryConnectionStorage([dummyConnectionInfo])}
-          >
-            <ConnectionsManagerProvider value={connectionsManager}>
-              <ConnectionInfoProvider connectionInfoId={dummyConnectionInfo.id}>
-                <CompassShellPlugin />
-              </ConnectionInfoProvider>
-            </ConnectionsManagerProvider>
-          </ConnectionStorageProvider>
-        </AppRegistryProvider>
-      </AppRegistryProvider>
-    );
-
-    const shellComponentWrapper = await waitForAsyncComponent(
-      wrapper,
-      CompassShell
-    );
-
-    const { emitShellPluginOpened } = shellComponentWrapper?.props() ?? {};
-    emitShellPluginOpened?.();
-
-    expect(eventOccured).to.equal(true);
   });
 });

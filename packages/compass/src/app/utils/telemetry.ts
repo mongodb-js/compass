@@ -151,24 +151,26 @@ async function getConnectionData({
 }
 
 export function trackConnectionAttemptEvent(
-  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
+  connectionInfo: ConnectionInfo,
   { debug }: Logger,
   track: TrackFunction
 ): void {
   try {
+    const { lastUsed, savedConnectionType } = connectionInfo;
+    const isFavorite = savedConnectionType === 'favorite';
     const trackEvent = {
-      is_favorite: Boolean(favorite),
-      is_recent: Boolean(lastUsed && !favorite),
+      is_favorite: isFavorite,
+      is_recent: Boolean(lastUsed && !isFavorite),
       is_new: !lastUsed,
     };
-    track('Connection Attempt', trackEvent);
+    track('Connection Attempt', trackEvent, connectionInfo);
   } catch (error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
 }
 
 export function trackNewConnectionEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionInfo: ConnectionInfo,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
   { debug }: Logger,
   track: TrackFunction
@@ -193,14 +195,14 @@ export function trackNewConnectionEvent(
       };
       return trackEvent;
     };
-    track('New Connection', callback);
+    track('New Connection', callback, connectionInfo);
   } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
+  connectionInfo: ConnectionInfo | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
   { debug }: Logger,
   track: TrackFunction
@@ -216,7 +218,7 @@ export function trackConnectionFailedEvent(
       };
       return trackEvent;
     };
-    track('Connection Failed', callback);
+    track('Connection Failed', callback, connectionInfo ?? undefined);
   } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }

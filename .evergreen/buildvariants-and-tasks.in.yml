@@ -365,6 +365,7 @@ tasks:
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          mongodb_version: latest-enterprise
 <% } %>
 
   - name: generate-vulnerability-report
@@ -485,7 +486,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars:
-          mongodb_version: latest
+          mongodb_version: latest-enterprise
           compass_distribution: compass
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
@@ -507,7 +508,7 @@ tasks:
           compass_distribution: compass
       - func: test-web-sandbox
         vars:
-          mongodb_version: latest
+          mongodb_version: latest-enterprise
           browser_name: '<%= browser %>'
           compass_distribution: compass
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>

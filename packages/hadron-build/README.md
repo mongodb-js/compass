@@ -16,10 +16,6 @@ npm install --save-dev hadron-build;
 
 ### `hadron-build info`
 
-### `hadron-build develop`
-
-### `hadron-build clean`
-
 ### `hadron-build release`
 
 ### `hadron-build upload`
@@ -33,12 +29,9 @@ hadron-build <command> [options]
 
 Commands:
   release            :shipit:
-  clean              Remove generated directories.
   config             Configuration.
-  develop [options]  Run the app in development mode.
   test [options]     Run app tests.
   upload [options]   Upload assets from `release`.
-  ui [options]       Compile the app UI.
   verify [options]   Verify the current environment meets the app\'s requirements.
 
 Options:
@@ -74,12 +67,9 @@ Options:
   "scripts": {
     "check": "hadron-build check",
     "test-check-ci": "npm run test",
-    "clean": "hadron-build clean",
     "compile-ui": "hadron-build ui",
     "fmt": "hadron-build fmt",
-    "postuninstall": "hadron-build clean",
     "release": "hadron-build release",
-    "start": "hadron-build develop",
   }
 }
 ```

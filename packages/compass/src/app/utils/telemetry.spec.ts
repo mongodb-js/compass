@@ -35,6 +35,14 @@ const dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'> = {
   getCurrentTopologyType: () => 'Unknown',
 };
 
+const connectionInfo: ConnectionInfo = {
+  id: 'TEST',
+  connectionOptions: {
+    connectionString: 'mongodb://localhost:27017',
+  },
+  savedConnectionType: 'recent',
+};
+
 describe('connection tracking', function () {
   let trackUsageStatistics: boolean;
   const logger = createLogger('TEST-CONNECTION');
@@ -57,8 +65,10 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
       {
+        ...connectionInfo,
         favorite: { name: 'example' },
         lastUsed: undefined,
+        savedConnectionType: 'favorite',
       },
       logger,
       track
@@ -69,13 +79,14 @@ describe('connection tracking', function () {
       is_favorite: true,
       is_recent: false,
       is_new: true,
+      connection_id: 'TEST',
     });
   });
 
   it('tracks a new connection attempt event - recent', async function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
-      { favorite: undefined, lastUsed: new Date() },
+      { ...connectionInfo, favorite: undefined, lastUsed: new Date() },
       logger,
       track
     );
@@ -84,13 +95,14 @@ describe('connection tracking', function () {
       is_favorite: false,
       is_recent: true,
       is_new: false,
+      connection_id: 'TEST',
     });
   });
 
   it('tracks a new connection attempt event - new', async function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
-      { favorite: undefined, lastUsed: undefined },
+      { ...connectionInfo, favorite: undefined, lastUsed: undefined },
       logger,
       track
     );
@@ -99,6 +111,7 @@ describe('connection tracking', function () {
       is_favorite: false,
       is_recent: false,
       is_new: true,
+      connection_id: 'TEST',
     });
   });
 
@@ -106,7 +119,9 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent(
       {
+        ...connectionInfo,
         favorite: { name: 'example' },
+        savedConnectionType: 'favorite',
         lastUsed: new Date(),
       },
       logger,
@@ -117,18 +132,20 @@ describe('connection tracking', function () {
       is_favorite: true,
       is_recent: false,
       is_new: false,
+      connection_id: 'TEST',
     });
   });
 
   it('tracks a new connection event - localhost', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://localhost:27017',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     const expected = {
       is_localhost: true,
@@ -155,6 +172,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -162,13 +180,14 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - digital ocean', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://example.mongo.ondigitalocean.com:27017',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -196,6 +215,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -216,13 +236,14 @@ describe('connection tracking', function () {
   ]) {
     it(`tracks a new connection event - ${title}`, async function () {
       const trackEvent = once(process, 'compass:track');
-      const connectionInfo = {
+      const connection: ConnectionInfo = {
+        ...connectionInfo,
         connectionOptions: {
           connectionString: url,
         },
       };
 
-      trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+      trackNewConnectionEvent(connection, dataService, logger, track);
       const [{ properties }] = await trackEvent;
 
       const expected = {
@@ -251,6 +272,7 @@ describe('connection tracking', function () {
         has_kms_azure: false,
         is_public_cloud: true,
         public_cloud_name: 'AWS',
+        connection_id: 'TEST',
       };
 
       expect(properties).to.deep.equal(expected);
@@ -287,13 +309,14 @@ describe('connection tracking', function () {
       getCurrentTopologyType: () => 'Unknown',
     };
 
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://localhost:27017/',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, mockDataService, logger, track);
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -321,6 +344,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -328,13 +352,14 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - public cloud', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://13.248.118.1',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -363,6 +388,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -370,13 +396,14 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - public ip but not aws/gcp/azure', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://google.com',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -404,6 +431,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -411,13 +439,14 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - nonexistent', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://nonexistent',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -444,6 +473,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -451,13 +481,14 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - nonexistent SRV', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb+srv://nonexistent',
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -484,6 +515,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -496,12 +528,13 @@ describe('connection tracking', function () {
         authMechanism || 'DEFAULT'
       } auth`, async function () {
         const trackEvent = once(process, 'compass:track');
-        const connectionInfo = {
+        const connection: ConnectionInfo = {
+          ...connectionInfo,
           connectionOptions: {
             connectionString: `mongodb://root:pwd@127.0.0.1?authMechanism=${authMechanism}`,
           },
         };
-        trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+        trackNewConnectionEvent(connection, dataService, logger, track);
         const [{ properties }] = await trackEvent;
         expect(properties.auth_type).to.equal(authMechanism || 'DEFAULT');
       });
@@ -510,31 +543,34 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - no auth', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.auth_type).to.equal('NONE');
   });
 
   it('tracks a new connection event - no tunnel', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('none');
   });
 
   it('tracks a new connection event - ssh tunnel', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://127.0.0.1?authMechanism=',
         sshTunnel: {
@@ -544,19 +580,20 @@ describe('connection tracking', function () {
         },
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.tunnel).to.equal('ssh');
   });
 
   it('tracks a new connection event - SRV', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb+srv://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
     expect(properties.is_srv).to.equal(true);
   });
@@ -592,12 +629,13 @@ describe('connection tracking', function () {
       getCurrentTopologyType: () => 'Unknown',
     };
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connectionInfo, mockDataService, logger, track);
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
@@ -642,12 +680,13 @@ describe('connection tracking', function () {
       getCurrentTopologyType: () => 'Sharded',
     };
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://127.0.0.1',
       },
     };
-    trackNewConnectionEvent(connectionInfo, mockDataService, logger, track);
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
@@ -664,7 +703,8 @@ describe('connection tracking', function () {
 
   it('tracks connection error event', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://localhost:27017',
       },
@@ -672,7 +712,7 @@ describe('connection tracking', function () {
 
     const connectionError = new Error();
 
-    trackConnectionFailedEvent(connectionInfo, connectionError, logger, track);
+    trackConnectionFailedEvent(connection, connectionError, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -692,6 +732,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);
@@ -699,7 +740,8 @@ describe('connection tracking', function () {
 
   it('tracks a new connection event - csfle on', async function () {
     const trackEvent = once(process, 'compass:track');
-    const connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> = {
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
       connectionOptions: {
         connectionString: 'mongodb://127.128.0.0',
         fleOptions: {
@@ -717,7 +759,7 @@ describe('connection tracking', function () {
       },
     };
 
-    trackNewConnectionEvent(connectionInfo, dataService, logger, track);
+    trackNewConnectionEvent(connection, dataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     const expected = {
@@ -745,6 +787,7 @@ describe('connection tracking', function () {
       has_kms_gcp: false,
       has_kms_kmip: false,
       has_kms_azure: false,
+      connection_id: 'TEST',
     };
 
     expect(properties).to.deep.equal(expected);

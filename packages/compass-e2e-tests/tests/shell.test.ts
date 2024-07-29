@@ -7,10 +7,13 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_NAME,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import chai from 'chai';
+const { expect } = chai;
 
 describe('Shell', function () {
   let compass: Compass;
@@ -20,22 +23,14 @@ describe('Shell', function () {
   before(async function () {
     skipForWeb(this, 'shell not available on compass-web');
 
-    // TODO(COMPASS-8004): best to just port this once the shell works with multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setFeature('enableShell', true);
   });
 
   after(async function () {
     if (TEST_COMPASS_WEB) {
-      return;
-    }
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
       return;
     }
 
@@ -51,7 +46,7 @@ describe('Shell', function () {
   it('has an info modal', async function () {
     await browser.connectWithConnectionString();
 
-    await browser.showShell();
+    await browser.openShell(DEFAULT_CONNECTION_NAME);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     const infoModalElement = await browser.$(Selectors.ShellInfoModal);
@@ -60,14 +55,23 @@ describe('Shell', function () {
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
-    await browser.hideShell();
+    await browser.closeShell(DEFAULT_CONNECTION_NAME);
   });
 
   it('shows and hides shell based on settings', async function () {
     await browser.connectWithConnectionString();
 
-    // Will fail if shell is not on the screen eventually
-    await browser.$(Selectors.ShellSection).waitForExist();
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expect(
+        await browser.hasConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME,
+          Selectors.Multiple.OpenShellItem
+        )
+      ).to.be.equal(true);
+    } else {
+      // Will fail if shell is not on the screen eventually
+      await browser.$(Selectors.ShellSection).waitForExist();
+    }
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -80,7 +84,16 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    // Will fail if shell eventually doesn't go away from the screen
-    await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      expect(
+        await browser.hasConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME,
+          Selectors.Multiple.OpenShellItem
+        )
+      ).to.be.equal(false);
+    } else {
+      // Will fail if shell eventually doesn't go away from the screen
+      await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
+    }
   });
 });

@@ -28,7 +28,6 @@ import {
 import { getGenuineMongoDB } from 'mongodb-build-info';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
-import { cloneDeep } from 'lodash';
 import { usePreference } from 'compass-preferences-model/provider';
 import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
@@ -103,7 +102,7 @@ function ConnectionErrorToastBody({
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
     <span className={connectionErrorToastBodyStyles}>
-      <span>
+      <span data-testid="connection-error-text">
         There was a problem connecting{' '}
         {info ? `to ${getConnectionTitle(info)}` : ''}
       </span>
@@ -112,6 +111,7 @@ function ConnectionErrorToastBody({
           className={connectionErrorToastActionMessageStyles}
           hideExternalIcon={true}
           onClick={onReview}
+          data-testid="connection-error-review"
         >
           REVIEW
         </Link>
@@ -207,8 +207,8 @@ export function MultipleConnectionSidebar({
     cancelConnectionAttempt,
     removeConnection,
     saveConnection,
-    duplicateConnection,
     createNewConnection,
+    createDuplicateConnection,
     state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
   } = useConnections();
 
@@ -312,8 +312,8 @@ export function MultipleConnectionSidebar({
     [openToast]
   );
 
-  const onConnect = useCallback(
-    (info: ConnectionInfo) => {
+  const _onConnect = useCallback(
+    async (info: ConnectionInfo): Promise<void> => {
       if (activeConnections.length >= maxConcurrentConnections) {
         onMaxConcurrentConnectionsLimitReached(
           activeConnections.length,
@@ -324,7 +324,7 @@ export function MultipleConnectionSidebar({
       }
       setActiveConnectionById(info.id);
       onConnectionAttemptStarted(info);
-      void connect(info).then(
+      await connect(info).then(
         () => {
           onConnected(info);
         },
@@ -345,6 +345,13 @@ export function MultipleConnectionSidebar({
     ]
   );
 
+  const onConnect = useCallback(
+    (info: ConnectionInfo) => {
+      void _onConnect(info);
+    },
+    [_onConnect]
+  );
+
   const onNewConnectionOpen = useCallback(() => {
     createNewConnection();
     setIsConnectionFormOpen(true);
@@ -360,16 +367,17 @@ export function MultipleConnectionSidebar({
     []
   );
 
-  const onNewConnectionConnect = useCallback(
+  const onSaveAndConnectClicked = useCallback(
     (connectionInfo: ConnectionInfo) => {
-      void connect({
-        ...cloneDeep(connectionInfo),
-      }).then(() => setIsConnectionFormOpen(false));
+      void saveConnection(connectionInfo);
+      void _onConnect(connectionInfo).then(() => {
+        setIsConnectionFormOpen(false);
+      });
     },
-    [connect]
+    [saveConnection, _onConnect]
   );
 
-  const onSaveNewConnection = useCallback(
+  const onSaveConnectionClicked = useCallback(
     async (connectionInfo: ConnectionInfo) => {
       await saveConnection(connectionInfo);
       setIsConnectionFormOpen(false);
@@ -394,10 +402,10 @@ export function MultipleConnectionSidebar({
 
   const onDuplicateConnection = useCallback(
     (info: ConnectionInfo) => {
-      duplicateConnection(info);
+      createDuplicateConnection(info);
       setIsConnectionFormOpen(true);
     },
-    [duplicateConnection, setIsConnectionFormOpen]
+    [setIsConnectionFormOpen, createDuplicateConnection]
   );
 
   const onToggleFavoriteConnectionInfo = useCallback(
@@ -494,9 +502,9 @@ export function MultipleConnectionSidebar({
           isOpen={isConnectionFormOpen}
           setOpen={onNewConnectionToggle}
           onCancel={onNewConnectionClose}
-          onConnectClicked={onNewConnectionConnect}
+          onSaveAndConnectClicked={onSaveAndConnectClicked}
           key={activeConnectionId}
-          onSaveConnectionClicked={onSaveNewConnection}
+          onSaveClicked={onSaveConnectionClicked}
           initialConnectionInfo={activeConnectionInfo}
           connectionErrorMessage={connectionErrorMessage}
           preferences={formPreferences}

@@ -11,6 +11,7 @@ import type {
   SidebarActionableItem,
   Connection,
 } from './tree-data';
+import type { ItemAction, ItemSeparator } from '@mongodb-js/compass-components';
 import {
   VisuallyHidden,
   css,
@@ -19,6 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { NavigationItemActions } from './item-actions';
 import {
   collectionItemActions,
   connectedConnectionItemActions,
@@ -56,6 +58,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onItemExpand,
   onItemAction,
 }) => {
+  const preferencesShellEnabled = usePreference('enableShell');
   const preferencesReadOnly = usePreference('readOnly');
   const isSingleConnection = !usePreference(
     'enableNewMultipleConnectionSystem'
@@ -72,8 +75,15 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       isSingleConnection,
       expandedItems: expanded,
       preferencesReadOnly,
+      preferencesShellEnabled,
     });
-  }, [connections, isSingleConnection, expanded, preferencesReadOnly]);
+  }, [
+    connections,
+    isSingleConnection,
+    expanded,
+    preferencesReadOnly,
+    preferencesShellEnabled,
+  ]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
@@ -115,38 +125,95 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     }
   }, [activeWorkspace, isSingleConnection]);
 
-  const getItemActions = useCallback(
+  const getCollapseAfterForConnectedItem = useCallback(
+    (actions: NavigationItemActions) => {
+      const [firstAction, secondAction] = actions;
+
+      const actionCanBeShownInline = (
+        action: NavigationItemActions[number]
+      ): boolean => {
+        if (typeof (action as ItemSeparator).separator !== 'undefined') {
+          return false;
+        }
+
+        return ['create-database', 'open-shell'].includes(
+          (action as ItemAction<Actions>).action
+        );
+      };
+
+      // this is the normal case for a connection that is writable and when we
+      // also have shell enabled
+      if (
+        actionCanBeShownInline(firstAction) &&
+        actionCanBeShownInline(secondAction)
+      ) {
+        return 2;
+      }
+
+      // this will happen when the either the connection is not writable or the
+      // preference is readonly, or shell is not enabled in which case we either
+      // do not show create-database action or open-shell action
+      if (
+        actionCanBeShownInline(firstAction) ||
+        actionCanBeShownInline(secondAction)
+      ) {
+        return 1;
+      }
+
+      return 0;
+    },
+    []
+  );
+
+  const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
       switch (item.type) {
         case 'placeholder':
-          return [];
+          return {
+            actions: [],
+          };
         case 'connection': {
           if (item.connectionStatus === ConnectionStatus.Connected) {
-            return connectedConnectionItemActions({
+            const actions = connectedConnectionItemActions({
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
+            return {
+              actions: actions,
+              config: {
+                collapseAfter: getCollapseAfterForConnectedItem(actions),
+              },
+            };
           } else {
-            return notConnectedConnectionItemActions({
-              connectionInfo: item.connectionInfo,
-            });
+            return {
+              actions: notConnectedConnectionItemActions({
+                connectionInfo: item.connectionInfo,
+              }),
+              config: {
+                collapseAfter: 0,
+              },
+            };
           }
         }
         case 'database':
-          return databaseItemActions({
-            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
-          });
+          return {
+            actions: databaseItemActions({
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+            }),
+          };
         default:
-          return collectionItemActions({
-            hasWriteActionsDisabled: item.hasWriteActionsDisabled,
-            type: item.type,
-            isRenameCollectionEnabled,
-          });
+          return {
+            actions: collectionItemActions({
+              hasWriteActionsDisabled: item.hasWriteActionsDisabled,
+              type: item.type,
+              isRenameCollectionEnabled,
+            }),
+          };
       }
     },
-    [isRenameCollectionEnabled]
+    [isRenameCollectionEnabled, getCollapseAfterForConnectedItem]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
@@ -166,7 +233,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             onDefaultAction={onDefaultAction}
             onItemAction={onItemAction}
             onItemExpand={onItemExpand}
-            getItemActions={getItemActions}
+            getItemActions={getItemActionsAndConfig}
             getItemKey={(item) => item.id}
             renderItem={({
               item,

@@ -2,7 +2,7 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 import { connectionsManagerLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstancesManagerLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { createTelemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { activatePlugin } from './stores';
 import AggregationsQueriesList from './components/aggregations-queries-list';
 import type { WorkspaceComponent } from '@mongodb-js/compass-workspaces';
@@ -18,7 +18,7 @@ const serviceLocators = {
   instancesManager: mongoDBInstancesManagerLocator,
   preferencesAccess: preferencesLocator,
   logger: createLoggerLocator('COMPASS-MY-QUERIES-UI'),
-  track: createTelemetryLocator(),
+  track: telemetryLocator,
   workspaces: workspacesServiceLocator,
   pipelineStorage: pipelineStorageLocator,
   favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,

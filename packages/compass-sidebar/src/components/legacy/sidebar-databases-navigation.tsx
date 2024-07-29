@@ -52,7 +52,8 @@ const filterDatabases = (
       results.push({
         ...db,
         isMatch,
-        collections: childMatches.length ? childMatches : db.collections,
+        collections:
+          !isMatch && childMatches.length ? childMatches : db.collections,
       });
     }
   }
@@ -115,7 +116,7 @@ type MapStateProps = {
 };
 
 type MapDispatchProps = {
-  fetchAllCollections(): void;
+  fetchAllCollections(connectionId: string): void;
   onNamespaceAction(
     connectionId: string,
     namespace: string,
@@ -219,7 +220,7 @@ function SidebarDatabasesNavigation({
       // When filtering, emit an event so that we can fetch all collections. This
       // is required as a workaround for the synchronous nature of the current
       // filtering feature
-      _fetchAllCollections();
+      _fetchAllCollections(connectionId);
 
       const results = filterDatabases(
         databasesButOnlyIfFilterIsActive,
@@ -229,6 +230,7 @@ function SidebarDatabasesNavigation({
       temporarilyExpand(results);
     }
   }, [
+    connectionId,
     filterRegex,
     databasesButOnlyIfFilterIsActive,
     setFilteredDatabases,
