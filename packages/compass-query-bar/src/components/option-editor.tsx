@@ -8,6 +8,7 @@ import {
   spacing,
   SignalPopover,
   rafraf,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -133,6 +134,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     hover: true,
   });
 
+  const darkMode = useDarkMode();
+
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
 
@@ -159,12 +162,16 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             .map((query) => ({
               lastExecuted: query._lastExecuted,
               queryProperties: getQueryAttributes(query),
-            })),
+            }))
+            .sort(
+              (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
+            ),
           {
             fields: schemaFields,
             serverVersion,
           },
-          onApplyQuery
+          onApplyQuery,
+          darkMode ? 'dark' : 'light'
         )
       : createQueryAutocompleter({
           fields: schemaFields,
@@ -176,16 +183,20 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     serverVersion,
     onApplyQuery,
     isQueryHistoryAutocompleteEnabled,
+    darkMode,
   ]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
-        if (editorRef.current?.editorContents === '') {
+        if (
+          editorRef.current?.editorContents === '' ||
+          editorRef.current?.editorContents === '{}'
+        ) {
           editorRef.current?.applySnippet('\\{${}}');
+          if (isQueryHistoryAutocompleteEnabled && editorRef.current?.editor)
+            editorRef.current?.startCompletion();
         }
-        if (isQueryHistoryAutocompleteEnabled && editorRef.current?.editor)
-          editorRef.current?.startCompletion();
       });
     }
   };

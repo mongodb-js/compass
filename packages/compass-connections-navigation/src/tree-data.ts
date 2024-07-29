@@ -159,18 +159,19 @@ const connectedConnectionToItems = ({
   connectionsLength,
   expandedItems = {},
   preferencesReadOnly,
+  preferencesShellEnabled,
 }: {
   connection: ConnectedConnection;
   connectionIndex: number;
   connectionsLength: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
+  preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[connectionInfo.id];
   const colorCode = connectionInfo.favorite?.color;
   const hasWriteActionsDisabled =
     preferencesReadOnly || isDataLake || !isWritable;
-  const isShellEnabled = !preferencesReadOnly;
   const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
     level: 1,
@@ -185,7 +186,7 @@ const connectedConnectionToItems = ({
     connectionStatus,
     isPerformanceTabSupported,
     hasWriteActionsDisabled,
-    isShellEnabled,
+    isShellEnabled: preferencesShellEnabled,
     isGenuineMongoDB,
     csfleMode,
   };
@@ -331,11 +332,13 @@ export function getVirtualTreeItems({
   isSingleConnection,
   expandedItems = {},
   preferencesReadOnly,
+  preferencesShellEnabled,
 }: {
   connections: (NotConnectedConnection | ConnectedConnection)[];
   isSingleConnection: boolean;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
+  preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
   if (!isSingleConnection) {
     return connections.flatMap((connection, connectionIndex) => {
@@ -346,6 +349,7 @@ export function getVirtualTreeItems({
           connectionIndex,
           connectionsLength: connections.length,
           preferencesReadOnly,
+          preferencesShellEnabled,
         });
       } else {
         return notConnectedConnectionToItems({

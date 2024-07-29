@@ -10,7 +10,8 @@ export async function openShell(
   if (TEST_MULTIPLE_CONNECTIONS) {
     await browser.selectConnectionMenuItem(
       connectionName,
-      Selectors.Multiple.OpenShellItem
+      Selectors.Multiple.OpenShellItem,
+      false // the item is not contained in the three-dot menu
     );
 
     // try and make sure the shell tab is active and ready

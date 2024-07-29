@@ -170,11 +170,10 @@ describe('Instance sidebar', function () {
 
     // open the create database modal from the sidebar
     if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(
-        Selectors.sidebarConnectionActionButton(
-          DEFAULT_CONNECTION_NAME,
-          Sidebar.CreateDatabaseButton
-        )
+      await browser.selectConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME,
+        Sidebar.CreateDatabaseButton,
+        false
       );
     } else {
       await browser.clickVisible(Sidebar.CreateDatabaseButton);

@@ -9,6 +9,7 @@ export const getQueryAttributes = ({
   limit,
   skip,
   update,
+  hint,
 }: Partial<FavoriteQuery>): Partial<FavoriteQuery> => {
   const attributes = {
     filter,
@@ -18,6 +19,7 @@ export const getQueryAttributes = ({
     limit,
     skip,
     update,
+    hint,
   };
   Object.keys(attributes).forEach((k) => {
     const key = k as keyof typeof attributes;

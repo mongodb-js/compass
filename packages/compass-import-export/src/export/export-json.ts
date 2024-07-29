@@ -5,7 +5,6 @@ import type { Writable } from 'stream';
 import toNS from 'mongodb-ns';
 import type { DataService } from 'mongodb-data-service';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { AggregationCursor, FindCursor } from 'mongodb';
 import { objectToIdiomaticEJSON } from 'hadron-document';
 
@@ -15,6 +14,7 @@ import type {
   ExportResult,
 } from './export-types';
 import { createDebug } from '../utils/logger';
+import { createAggregationCursor, createFindCursor } from './export-cursor';
 
 const debug = createDebug('export-json');
 
@@ -126,16 +126,12 @@ export async function exportJSONFromAggregation({
 }) {
   debug('exportJSONFromAggregation()', { ns: toNS(ns), aggregation });
 
-  const { stages, options: aggregationOptions = {} } = aggregation;
-  aggregationOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(
-    preferences,
-    aggregationOptions.maxTimeMS
-  );
-  const aggregationCursor = dataService.aggregateCursor(
+  const aggregationCursor = createAggregationCursor({
     ns,
-    stages,
-    aggregationOptions
-  );
+    aggregation,
+    dataService,
+    preferences,
+  });
 
   return await exportJSON({
     ...exportOptions,
@@ -155,12 +151,10 @@ export async function exportJSONFromQuery({
 }) {
   debug('exportJSONFromQuery()', { ns: toNS(ns), query });
 
-  const findCursor = dataService.findCursor(ns, query.filter ?? {}, {
-    projection: query.projection,
-    sort: query.sort,
-    limit: query.limit,
-    skip: query.skip,
-    collation: query.collation,
+  const findCursor = createFindCursor({
+    ns,
+    query,
+    dataService,
   });
 
   return await exportJSON({

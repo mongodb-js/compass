@@ -60,7 +60,8 @@ export async function selectConnection(
 export async function selectConnectionMenuItem(
   browser: CompassBrowser,
   connectionName: string,
-  itemSelector: string
+  itemSelector: string,
+  openMenu = true
 ) {
   const Sidebar = TEST_MULTIPLE_CONNECTIONS
     ? Selectors.Multiple
@@ -77,7 +78,7 @@ export async function selectConnectionMenuItem(
       return true;
     }
 
-    // It takes some time for the favourites to load
+    // It takes some time for the connections to load
     await browser.$(selector).waitForDisplayed();
 
     // workaround for weirdness in the ItemActionControls menu opener icon
@@ -92,10 +93,14 @@ export async function selectConnectionMenuItem(
     return false;
   });
 
-  await browser.clickVisible(
-    Selectors.sidebarConnectionMenuButton(connectionName)
-  );
-  await browser.$(Sidebar.ConnectionMenu).waitForDisplayed();
+  // if the action lives outside of the three-dot menu, then there's no need to open the menu
+  if (openMenu) {
+    await browser.clickVisible(
+      Selectors.sidebarConnectionMenuButton(connectionName)
+    );
+    await browser.$(Sidebar.ConnectionMenu).waitForDisplayed();
+  }
+
   await browser.clickVisible(itemSelector);
 }
 
@@ -125,4 +130,47 @@ export async function removeConnection(
     );
     await browser.$(selector).waitForExist({ reverse: true });
   }
+}
+
+export async function hasConnectionMenuItem(
+  browser: CompassBrowser,
+  connectionName: string,
+  itemSelector: string,
+  openMenu = true
+) {
+  const selector = Selectors.sidebarConnection(connectionName);
+
+  await browser.waitUntil(async () => {
+    if (
+      await browser
+        .$(Selectors.sidebarConnectionMenuButton(connectionName))
+        .isDisplayed()
+    ) {
+      return true;
+    }
+
+    // It takes some time for the connections to load
+    await browser.$(selector).waitForDisplayed();
+
+    // workaround for weirdness in the ItemActionControls menu opener icon
+    await browser.clickVisible(Selectors.Multiple.ConnectionsTitle);
+
+    // Hover over an arbitrary other element to ensure that the second hover will
+    // actually be a fresh one. This otherwise breaks if this function is called
+    // twice in a row.
+    await browser.hover(`*:not(${selector}, ${selector} *)`);
+
+    await browser.hover(selector);
+    return false;
+  });
+
+  // if the action lives outside of the three-dot menu, then there's no need to open the menu
+  if (openMenu) {
+    await browser.clickVisible(
+      Selectors.sidebarConnectionMenuButton(connectionName)
+    );
+    await browser.$(Selectors.Multiple.ConnectionMenu).waitForDisplayed();
+  }
+
+  return await browser.$(itemSelector).isExisting();
 }
