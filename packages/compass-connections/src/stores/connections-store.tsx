@@ -306,6 +306,13 @@ export function useConnections({
 
   removeAllRecentConnections: () => Promise<void>;
   showNonGenuineMongoDBWarningModal: (connectionId: string) => void;
+
+  // This state should not be here, but is the only way we can currently check
+  // when those are loaded (we shouldn't be checking this in tests directly
+  // either, but this is right now the only way for us to test some methods on
+  // this hook)
+  favoriteConnections: ConnectionInfo[];
+  recentConnections: ConnectionInfo[];
 } {
   const track = useTelemetry();
   // TODO(COMPASS-7397): services should not be used directly in render method,
@@ -314,6 +321,8 @@ export function useConnections({
   const connectionsManager = useConnectionsManagerContext();
   const connectionStorage = useConnectionStorageContext();
   const {
+    favoriteConnections,
+    nonFavoriteConnections: recentConnections,
     saveConnection,
     deleteConnection,
     getConnectionInfoById,
@@ -499,7 +508,7 @@ export function useConnections({
           const [name, count] = parseFavoriteNameToNameAndCopyCount(
             connectionInfo.favorite.name
           );
-          if (name === nameWithoutCount && count >= copyCount) {
+          if (name === nameWithoutCount && count >= topCount) {
             return count + 1;
           }
           return topCount;
@@ -840,5 +849,7 @@ export function useConnections({
     removeConnection,
     removeAllRecentConnections,
     showNonGenuineMongoDBWarningModal,
+    favoriteConnections,
+    recentConnections,
   };
 }
