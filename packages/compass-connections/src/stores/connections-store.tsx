@@ -780,10 +780,10 @@ export function useConnections({
           type: 'connection-attempt-errored',
           error: error as Error,
           // Autoconnect flow might fail before we can even load connection info
-          // so connectionInfo might be undefiend at this point. In
-          // single-conneciton mode this requires some special handling so that
-          // we can error back to the connection editing form, so we create a
-          // new connectionInfo if it's undefined
+          // so connectionInfo might be undefiend at this point. In single
+          // connection mode this requires some special handling so that we can
+          // error back to the connection editing form, so we create a new
+          // connectionInfo if it's undefined
           connectionInfo: connectionInfo ?? createNewConnectionInfo(),
           isAutoConnect: isAutoconnectAttempt,
         });
