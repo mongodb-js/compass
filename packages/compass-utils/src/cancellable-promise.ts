@@ -1,8 +1,7 @@
 class AbortError extends Error {
-  constructor() {
-    super('This operation was aborted');
+  constructor(message?: string) {
+    super(message ?? 'This operation was aborted');
   }
-
   name = 'AbortError';
 }
 
@@ -12,11 +11,20 @@ export const throwIfAborted = (signal?: AbortSignal) => {
   }
 };
 
-export const createCancelError = (): AbortError => {
+export const createCancelError = (message?: string): AbortError => {
   const controller = new AbortController();
   controller.abort();
+  if (message && controller.signal.reason) {
+    Object.defineProperty(controller.signal.reason, 'message', {
+      get() {
+        return message;
+      },
+      configurable: true,
+      enumerable: true,
+    });
+  }
   // .reason is not supported in all electron versions, so use AbortError as a fallback
-  return controller.signal.reason ?? new AbortError();
+  return controller.signal.reason ?? new AbortError(message);
 };
 
 export function isCancelError(error: any): error is AbortError {
