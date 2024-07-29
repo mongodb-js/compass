@@ -12,7 +12,7 @@ import Document, { type DocumentProps } from './document';
 import {
   useReactWindowListItemObserver,
   type ListItemObserver,
-} from './use-items-height-observer';
+} from './use-list-item-observer';
 
 const containerStyles = css({
   width: '100%',

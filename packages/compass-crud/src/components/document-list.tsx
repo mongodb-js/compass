@@ -247,6 +247,8 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
   );
   setCurrentViewInitialScrollTopRef.current = setCurrentViewInitialScrollTop;
 
+  // Preserve the scroll top for the current view when the entire component is
+  // being unmounted
   useLayoutEffect(() => {
     if (
       scrollRef.current &&
@@ -404,9 +406,13 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     (newDocsPerPage: number) => {
       const scrollTop = scrollRef.current?.scrollTop ?? 0;
       updateMaxDocumentsPerPage(newDocsPerPage);
+      // When new documents are added to the list we would like to preserve the
+      // scroll position
       if (newDocsPerPage > docsPerPage) {
         setCurrentViewInitialScrollTop(scrollTop);
       } else {
+        // When we decrease the number of documents per page, we would like to
+        // scroll all the way to the top
         setCurrentViewInitialScrollTop(0);
       }
     },

@@ -30,8 +30,16 @@ export const useReactWindowListItemObserver = <T, L extends VariableSizeList>({
   const itemsHeightsRef = useRef(itemsHeights);
   itemsHeightsRef.current = itemsHeights;
 
+  // A WeakMap of observed elements to their index in the virtual list so that
+  // when the observed element changes, we can update the respective index with
+  // the modified height.
   const observedElements = useRef(new WeakMap<HTMLDivElement, number>());
 
+  // It happens from time to time that the observed element changes its height
+  // while the resize notification is being delivered. This results in endless
+  // loop which gets terminated with an error event. To avoid having such
+  // situation we perform the side effect on resizes in the next frame to allow
+  // notification to get delivered.
   const oldRaf = useRef<number | undefined>();
 
   const resizeObserver = useMemo(() => {
@@ -76,6 +84,9 @@ export const useReactWindowListItemObserver = <T, L extends VariableSizeList>({
 
   const getItemSize = useCallback(
     (idx: number) => {
+      // It can happen that there are new items added to the list (when docs per
+      // page changes) in which case we won't have their heights in our state
+      // hence we fallback to estimating initial document heights.
       const height = itemsHeights[idx] ?? estimateItemInitialHeight(items[idx]);
       if (rowGap && idx !== items.length - 1) {
         return height + rowGap;

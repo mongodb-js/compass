@@ -11,7 +11,7 @@ import JSONEditor, { type JSONEditorProps } from './json-editor';
 import {
   type ListItemObserver,
   useReactWindowListItemObserver,
-} from './use-items-height-observer';
+} from './use-list-item-observer';
 
 const containerStyles = css({
   width: '100%',
@@ -135,6 +135,8 @@ const VirtualizedDocumentJsonView: React.FC<
             itemCount={docs.length}
             estimatedItemSize={estimatedItemSize}
             itemSize={getItemSize}
+            // Keeping the overscanCount low here helps us avoid scroll dangling
+            // issues
             overscanCount={1}
             initialScrollOffset={initialScrollTop}
             outerRef={scrollableContainerRef}
