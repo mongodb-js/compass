@@ -287,6 +287,7 @@ describe('CSFLE / QE', function () {
         );
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -426,6 +427,7 @@ describe('CSFLE / QE', function () {
         );
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -449,6 +451,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -511,6 +514,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -558,6 +562,7 @@ describe('CSFLE / QE', function () {
           await refresh(browser, connectionName);
 
           await browser.navigateToCollectionTab(
+            connectionName,
             databaseName,
             coll,
             'Documents'
@@ -627,6 +632,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -694,6 +700,7 @@ describe('CSFLE / QE', function () {
 
         await refresh(browser, connectionName);
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -776,6 +783,7 @@ describe('CSFLE / QE', function () {
 
         await refresh(browser, connectionName);
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -859,6 +867,7 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
 
         await browser.navigateToCollectionTab(
+          connectionName,
           databaseName,
           collectionName,
           'Documents'
@@ -1055,10 +1064,11 @@ describe('CSFLE / QE', function () {
         hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
         fleKey: 'A'.repeat(128),
-        connectionName: this.test?.fullTitle(),
+        connectionName,
       });
 
       await browser.navigateToCollectionTab(
+        connectionName,
         databaseName,
         collectionName,
         'Documents'

@@ -8,10 +8,12 @@ import {
   spacing,
   SignalPopover,
   rafraf,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
+  createQueryAutocompleter,
   createQueryWithHistoryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
@@ -122,12 +124,17 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
+  const isQueryHistoryAutocompleteEnabled = usePreference(
+    'enableQueryHistoryAutocomplete'
+  );
 
   const focusRingProps = useFocusRing({
     outer: true,
     focusWithin: true,
     hover: true,
   });
+
+  const darkMode = useDarkMode();
 
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
@@ -148,28 +155,48 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const schemaFields = useAutocompleteFields(namespace);
 
   const completer = useMemo(() => {
-    return createQueryWithHistoryAutocompleter(
-      savedQueries
-        .filter((query) => !('update' in query))
-        .map((query) => ({
-          lastExecuted: query._lastExecuted,
-          queryProperties: getQueryAttributes(query),
-        })),
-      {
-        fields: schemaFields,
-        serverVersion,
-      },
-      onApplyQuery
-    );
-  }, [savedQueries, schemaFields, serverVersion, onApplyQuery]);
+    return isQueryHistoryAutocompleteEnabled
+      ? createQueryWithHistoryAutocompleter(
+          savedQueries
+            .filter((query) => !('update' in query))
+            .map((query) => ({
+              lastExecuted: query._lastExecuted,
+              queryProperties: getQueryAttributes(query),
+            }))
+            .sort(
+              (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
+            ),
+          {
+            fields: schemaFields,
+            serverVersion,
+          },
+          onApplyQuery,
+          darkMode ? 'dark' : 'light'
+        )
+      : createQueryAutocompleter({
+          fields: schemaFields,
+          serverVersion,
+        });
+  }, [
+    savedQueries,
+    schemaFields,
+    serverVersion,
+    onApplyQuery,
+    isQueryHistoryAutocompleteEnabled,
+    darkMode,
+  ]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
-        if (editorRef.current?.editorContents === '') {
+        if (
+          editorRef.current?.editorContents === '' ||
+          editorRef.current?.editorContents === '{}'
+        ) {
           editorRef.current?.applySnippet('\\{${}}');
+          if (isQueryHistoryAutocompleteEnabled && editorRef.current?.editor)
+            editorRef.current?.startCompletion();
         }
-        if (editorRef.current?.editor) editorRef.current?.startCompletion();
       });
     }
   };

@@ -4,17 +4,30 @@ import type {
   default as HadronDocumentType,
   Element as HadronElementType,
 } from 'hadron-document';
-import { ElementEvents } from 'hadron-document';
+import {
+  DEFAULT_VISIBLE_DOCUMENT_ELEMENTS,
+  DocumentEvents,
+  ElementEvents,
+} from 'hadron-document';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
-import { HadronElement } from './element';
+import { calculateShowMoreToggleOffset, HadronElement } from './element';
 import { usePrevious } from './use-previous';
-import DocumentFieldsToggleGroup from './document-fields-toggle-group';
+import VisibleFieldsToggle from './visible-field-toggle';
 import { documentTypography } from './typography';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
   const forceUpdate = useForceUpdate();
+
+  const onVisibleElementsChanged = useCallback(
+    (document: HadronDocumentType) => {
+      if (document === doc) {
+        forceUpdate();
+      }
+    },
+    [doc, forceUpdate]
+  );
 
   const onDocumentFieldsAddedOrRemoved = useCallback(
     (
@@ -39,17 +52,20 @@ function useHadronDocument(doc: HadronDocumentType) {
   }, [prevDoc, doc, forceUpdate]);
 
   useEffect(() => {
+    doc.on(DocumentEvents.VisibleElementsChanged, onVisibleElementsChanged);
     doc.on(ElementEvents.Added, onDocumentFieldsAddedOrRemoved);
     doc.on(ElementEvents.Removed, onDocumentFieldsAddedOrRemoved);
 
     return () => {
+      doc.off(DocumentEvents.VisibleElementsChanged, onVisibleElementsChanged);
       doc.off(ElementEvents.Added, onDocumentFieldsAddedOrRemoved);
       doc.off(ElementEvents.Removed, onDocumentFieldsAddedOrRemoved);
     };
-  }, [doc, onDocumentFieldsAddedOrRemoved]);
+  }, [doc, onDocumentFieldsAddedOrRemoved, onVisibleElementsChanged]);
 
   return {
     elements: [...doc.elements],
+    visibleElements: doc.getVisibleElements(),
   };
 }
 
@@ -61,8 +77,6 @@ const hadronDocument = css({
   counterReset: 'line-number',
 });
 
-const INITIAL_FIELD_LIMIT = 25;
-
 // TODO: This element should implement treegrid aria role to be accessible
 // https://www.w3.org/TR/wai-aria-practices/examples/treegrid/treegrid-1.html
 // https://jira.mongodb.org/browse/COMPASS-5614
@@ -72,12 +86,7 @@ const HadronDocument: React.FunctionComponent<{
   editing?: boolean;
   onEditStart?: () => void;
 }> = ({ value: document, editable = false, editing = false, onEditStart }) => {
-  const { elements } = useHadronDocument(document);
-  const [visibleFieldsCount, setVisibleFieldsCount] =
-    useState(INITIAL_FIELD_LIMIT);
-  const visibleElements = useMemo(() => {
-    return elements.filter(Boolean).slice(0, visibleFieldsCount);
-  }, [elements, visibleFieldsCount]);
+  const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
     id: string;
     type: 'key' | 'value' | 'type';
@@ -88,6 +97,25 @@ const HadronDocument: React.FunctionComponent<{
       setAutoFocus(null);
     }
   }, [editing]);
+
+  const handleVisibleFieldsChanged = useCallback(
+    (totalVisibleFields: number) => {
+      document.setMaxVisibleElementsCount(totalVisibleFields);
+    },
+    [document]
+  );
+
+  // To render the "Show more" toggle for the document we need to calculate a
+  // proper offset so that it aligns with the expand icon of top level fields
+  const showMoreToggleOffset = useMemo(
+    () =>
+      calculateShowMoreToggleOffset({
+        editable,
+        level: 0,
+        alignWithNestedExpandIcon: false,
+      }),
+    [editable]
+  );
 
   return (
     <div>
@@ -124,20 +152,23 @@ const HadronDocument: React.FunctionComponent<{
           })}
         </AutoFocusContext.Provider>
       </div>
-      <DocumentFieldsToggleGroup
+      <VisibleFieldsToggle
         // TODO: "Hide items" button will only be shown when document is not
         // edited because it's not decided how to handle changes to the fields
         // that are changed but then hidden
         // https://jira.mongodb.org/browse/COMPASS-5587
         showHideButton={!editing}
-        currentSize={visibleFieldsCount}
+        currentSize={document.maxVisibleElementsCount}
         totalSize={elements.length}
-        minSize={INITIAL_FIELD_LIMIT}
+        minSize={DEFAULT_VISIBLE_DOCUMENT_ELEMENTS}
         // In the editing mode we allow to show / hide less fields because
         // historically Compass was doing this for "performance" reasons
         step={editing ? 100 : 1000}
-        onSizeChange={setVisibleFieldsCount}
-      ></DocumentFieldsToggleGroup>
+        onSizeChange={handleVisibleFieldsChanged}
+        style={{
+          paddingLeft: showMoreToggleOffset,
+        }}
+      ></VisibleFieldsToggle>
     </div>
   );
 };

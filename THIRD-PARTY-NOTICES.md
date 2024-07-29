@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Jul 17 2024.
+This document was automatically generated on Sun Jul 28 2024.
 
 ## List of dependencies
 
@@ -67,14 +67,14 @@ This document was automatically generated on Wed Jul 17 2024.
 | **[@babel/template](#ef18c1c6436909e23531dbcbec38f96a802b5afd1abc70021d4120c3d482b48b)**                                    | 7.24.7       | MIT                                 |
 | **[@babel/traverse](#3c1a6ee1bd670f57d01cdac781020feeeaa68b6f13cc9c563edb7ad9a8534db6)**                                    | 7.24.7       | MIT                                 |
 | **[@babel/types](#bd38638e5f891f96e48ad36d7f6accec78f050414ab2d461a206fbd1ba4536ce)**                                       | 7.24.7       | MIT                                 |
-| **[@codemirror/autocomplete](#59f5b71a895442ba713b6c1b14ce550d2fe78afaff4a99835e3d8b51aab211ba)**                           | 6.4.0        | MIT                                 |
+| **[@codemirror/autocomplete](#62d2362c07f0c11664969b60d0d7c3e081905838b8994675aaf0e6c67baf358d)**                           | 6.17.0       | MIT                                 |
 | **[@codemirror/commands](#e12a76404dd2d66430f2dff53a430449896e9b5c2558779497b855ba2ab9326a)**                               | 6.1.2        | MIT                                 |
 | **[@codemirror/lang-javascript](#d5fb6a843784efdc3ec06ae43bdf3ca13ec93a6bce802995a47cf7bddafc9628)**                        | 6.1.2        | MIT                                 |
 | **[@codemirror/lang-json](#8681100c5ce2bab822c877bc288cac59b84b13ff17735c301d4e1c7fa5924720)**                              | 6.0.1        | MIT                                 |
 | **[@codemirror/language](#5528845a8e28aec6e48cb76145e25db0921b87499dc07ab852cdeca48b9f87a6)**                               | 6.3.2        | MIT                                 |
 | **[@codemirror/lint](#9b9400c17e0d1474348d87ba1131d9609c3598ea4d575380f81fd746b02ec796)**                                   | 6.1.1        | MIT                                 |
-| **[@codemirror/state](#d67593eda08a8ef5ee2b96054cd6ef7b3b20dec9328540343564f17a4f00f533)**                                  | 6.1.4        | MIT                                 |
-| **[@codemirror/view](#bf39f793b99a6cbd45141d6c10a1026e4e91f38eadedf1a330849d8324bb74ce)**                                   | 6.7.1        | MIT                                 |
+| **[@codemirror/state](#7db8880200a14064e03a5e8dd0483aa16511fc8a0c4e09353d51816771f8b63d)**                                  | 6.4.1        | MIT                                 |
+| **[@codemirror/view](#f6bea8a649eb633e0e66739e6d3bee4d37893904778e421d126f1e5ae250c9fb)**                                   | 6.28.4       | MIT                                 |
 | **[@dnd-kit/accessibility](#bf712d0ed1df4df5829a9e9695c42e816564346a70cab60f6eaf9c141f8b510d)**                             | 3.0.1        | MIT                                 |
 | **[@dnd-kit/core](#6200777f2fce7fbea84b65146c30f3f882633a73ab4e85f62de992928bebd267)**                                      | 6.0.7        | MIT                                 |
 | **[@dnd-kit/sortable](#059a166729dc9306b37987bfa0eaa5e59b3ffc6928155d28750993d7178ea61e)**                                  | 7.0.2        | MIT                                 |
@@ -95,11 +95,11 @@ This document was automatically generated on Wed Jul 17 2024.
 | **[@jridgewell/set-array](#46727c727ad43ad8e382221964d27c475629a5635986edac6ea622c772311421)**                              | 1.2.1        | MIT                                 |
 | **[@jridgewell/sourcemap-codec](#48d1d40d908582402e2071de1ae38b57c21fc0e7615f8f82f3f5b1f0cad0dd93)**                        | 1.4.14       | MIT                                 |
 | **[@jridgewell/trace-mapping](#73923b51cccefe7db1ead00c09a18978443a238d51a858a7a0c86868a9a4ea3f)**                          | 0.3.25       | MIT                                 |
-| **[@lezer/common](#33be6cc05b8093348dc2c9a175b4a95de89b9b667c498550f1ab7c61230ab93e)**                                      | 1.0.2        | MIT                                 |
-| **[@lezer/highlight](#68c85fe3558f76d794df38e5e9759a04417a251601b15c7b3bc9ad03312ed267)**                                   | 1.1.3        | MIT                                 |
+| **[@lezer/common](#4bf054ecf9e3b46b5959ff484326d62af9e9d7698317b1e8a5f11a5ebf66534a)**                                      | 1.2.1        | MIT                                 |
+| **[@lezer/highlight](#30f07ec49dde0ce2f5c814903361f4d9c8b9fc2d8bb143d2e682e05d94a69ee6)**                                   | 1.2.0        | MIT                                 |
 | **[@lezer/javascript](#6f8d761b240b610d6ad180799f8b36219b20649cbce80bd3cb7e669082e92ef3)**                                  | 1.3.2        | MIT                                 |
 | **[@lezer/json](#7869bdb7c09e2ae1e28909eb504f475477cc5ed0750dc8ccee42886961975253)**                                        | 1.0.0        | MIT                                 |
-| **[@lezer/lr](#9518a62fa768ee63d368c92ac8ec9f78931053570ddb4232a3684da5a0e4c48f)**                                          | 1.2.5        | MIT                                 |
+| **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1        | MIT                                 |
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1        | MIT                                 |
 | **[@nicolo-ribaudo/semver-v6](#0db933ddbe9acfd097ee5ee08e4afb1f4f7a64ef9712f95fef7958494c8e02cd)**                          | 6.3.3        | ISC                                 |
 | **[@react-aria/focus](#e323ed10ad82d4ea6c64568bc119b1ffe8b002377c038d039dddf1128efc0c3b)**                                  | 3.6.1        | Apache-2.0                          |
@@ -237,7 +237,7 @@ This document was automatically generated on Wed Jul 17 2024.
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**                          | 1.0.1        | Apache-2.0                          |
-| **[electron](#23de25a47b9c95fe5de7e7d13e9ef6a17313dcbe5903b274bb4b85a165a056f2)**                                           | 29.4.3       | MIT                                 |
+| **[electron](#2d57f0e02aec4ac92532b06902fbe13af26292bde2d718c49f75a8fe02c85fdd)**                                           | 29.4.5       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -530,7 +530,7 @@ This document was automatically generated on Wed Jul 17 2024.
 | **[strip-final-newline](#0e84cc036056cb7e0b11c5f70c4d239d4adf3ca9253b0e215abd7e78639b1c61)**                                | 3.0.0        | MIT                                 |
 | **[strip-json-comments](#7e22a64e44ef0efd054f76d551df5305ac48eb5807079c025c8bf63c0a728c33)**                                | 3.1.1        | MIT                                 |
 | **[strnum](#84f6b71bdd647bcb9588183f13dc0b7a0c5b0a3103b2fc7e8e95012c0d6c631d)**                                             | 1.0.5        | MIT                                 |
-| **[style-mod](#1c5963b1ef8891c2cb4616f37cb95e9e771842967dcb38b2127f8a84c0efaefe)**                                          | 4.0.0        | MIT                                 |
+| **[style-mod](#65cbf3eb373755d5dd9f5c58cf62d48dd4a33349e67d644af61d8d5438dbc1b5)**                                          | 4.1.2        | MIT                                 |
 | **[stylis](#131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf)**                                             | 4.2.0        | MIT                                 |
 | **[supports-color](#113926f6cb42a3d41d1c11fb1209faf789d78f51fb458da90c61e5c1a2307a8e)**                                     | 5.5.0        | MIT                                 |
 | **[supports-color](#b97a30572cac0a03b8cf442bc01621a041d5714550984f25cb71fac2587edbd6)**                                     | 7.2.0        | MIT                                 |
@@ -6143,9 +6143,9 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="59f5b71a895442ba713b6c1b14ce550d2fe78afaff4a99835e3d8b51aab211ba"></a>
+<a id="62d2362c07f0c11664969b60d0d7c3e081905838b8994675aaf0e6c67baf358d"></a>
 
-### [@codemirror/autocomplete](https://www.npmjs.com/package/@codemirror/autocomplete) (version 6.4.0)
+### [@codemirror/autocomplete](https://www.npmjs.com/package/@codemirror/autocomplete) (version 6.17.0)
 
 License tags: MIT
 
@@ -6155,7 +6155,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -6335,9 +6335,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="d67593eda08a8ef5ee2b96054cd6ef7b3b20dec9328540343564f17a4f00f533"></a>
+<a id="7db8880200a14064e03a5e8dd0483aa16511fc8a0c4e09353d51816771f8b63d"></a>
 
-### [@codemirror/state](https://www.npmjs.com/package/@codemirror/state) (version 6.1.4)
+### [@codemirror/state](https://www.npmjs.com/package/@codemirror/state) (version 6.4.1)
 
 License tags: MIT
 
@@ -6347,7 +6347,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -6367,9 +6367,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="bf39f793b99a6cbd45141d6c10a1026e4e91f38eadedf1a330849d8324bb74ce"></a>
+<a id="f6bea8a649eb633e0e66739e6d3bee4d37893904778e421d126f1e5ae250c9fb"></a>
 
-### [@codemirror/view](https://www.npmjs.com/package/@codemirror/view) (version 6.7.1)
+### [@codemirror/view](https://www.npmjs.com/package/@codemirror/view) (version 6.28.4)
 
 License tags: MIT
 
@@ -6379,7 +6379,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018-2021 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018-2021 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -7028,9 +7028,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="33be6cc05b8093348dc2c9a175b4a95de89b9b667c498550f1ab7c61230ab93e"></a>
+<a id="4bf054ecf9e3b46b5959ff484326d62af9e9d7698317b1e8a5f11a5ebf66534a"></a>
 
-### [@lezer/common](https://www.npmjs.com/package/@lezer/common) (version 1.0.2)
+### [@lezer/common](https://www.npmjs.com/package/@lezer/common) (version 1.2.1)
 
 License tags: MIT
 
@@ -7040,7 +7040,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -7060,9 +7060,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="68c85fe3558f76d794df38e5e9759a04417a251601b15c7b3bc9ad03312ed267"></a>
+<a id="30f07ec49dde0ce2f5c814903361f4d9c8b9fc2d8bb143d2e682e05d94a69ee6"></a>
 
-### [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) (version 1.1.3)
+### [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) (version 1.2.0)
 
 License tags: MIT
 
@@ -7072,7 +7072,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -7156,9 +7156,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="9518a62fa768ee63d368c92ac8ec9f78931053570ddb4232a3684da5a0e4c48f"></a>
+<a id="1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b"></a>
 
-### [@lezer/lr](https://www.npmjs.com/package/@lezer/lr) (version 1.2.5)
+### [@lezer/lr](https://www.npmjs.com/package/@lezer/lr) (version 1.4.1)
 
 License tags: MIT
 
@@ -7168,7 +7168,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -19786,9 +19786,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="23de25a47b9c95fe5de7e7d13e9ef6a17313dcbe5903b274bb4b85a165a056f2"></a>
+<a id="2d57f0e02aec4ac92532b06902fbe13af26292bde2d718c49f75a8fe02c85fdd"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 29.4.3)
+### [electron](https://www.npmjs.com/package/electron) (version 29.4.5)
 
 License tags: MIT
 
@@ -37766,9 +37766,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="1c5963b1ef8891c2cb4616f37cb95e9e771842967dcb38b2127f8a84c0efaefe"></a>
+<a id="65cbf3eb373755d5dd9f5c58cf62d48dd4a33349e67d644af61d8d5438dbc1b5"></a>
 
-### [style-mod](https://www.npmjs.com/package/style-mod) (version 4.0.0)
+### [style-mod](https://www.npmjs.com/package/style-mod) (version 4.1.2)
 
 License tags: MIT
 
@@ -37776,7 +37776,7 @@ License files:
 
 - LICENSE:
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal

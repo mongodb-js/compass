@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { expect } from 'chai';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import DocumentFieldsToggleGroup from './document-fields-toggle-group';
+import VisibleFieldsToggle from './visible-field-toggle';
 
 function TestComponent({
   initialSize = 10,
@@ -10,20 +10,29 @@ function TestComponent({
   totalSize = Infinity,
   minSize = 10,
   step = 10,
+  parentFieldName,
+}: {
+  initialSize?: number;
+  showHideButton?: boolean;
+  totalSize?: number;
+  minSize?: number;
+  step?: number;
+  parentFieldName?: string;
 }) {
   const [size, setSize] = useState(initialSize);
 
   return (
     <div>
       <div>Showing {size} items</div>
-      <DocumentFieldsToggleGroup
+      <VisibleFieldsToggle
         currentSize={size}
         showHideButton={showHideButton}
         totalSize={totalSize}
         minSize={minSize}
         step={step}
         onSizeChange={setSize}
-      ></DocumentFieldsToggleGroup>
+        parentFieldName={parentFieldName}
+      ></VisibleFieldsToggle>
     </div>
   );
 }
@@ -39,6 +48,17 @@ describe('DocumentFieldsToggleGroup', function () {
   it('should show "Hide items" button displaying more items than minSize', function () {
     render(<TestComponent initialSize={10} minSize={0}></TestComponent>);
     expect(screen.getByText('Hide 10 fields')).to.exist;
+  });
+
+  it('should include parentFieldName in the label when provided', function () {
+    render(
+      <TestComponent
+        initialSize={10}
+        minSize={0}
+        parentFieldName="reviews"
+      ></TestComponent>
+    );
+    expect(screen.getByText('Hide 10 fields in reviews')).to.exist;
   });
 
   it('should show more items when "Show items" is clicked', function () {
