@@ -192,7 +192,7 @@ export function trackNewConnectionEvent(
       const trackEvent = {
         ...connectionData,
         is_atlas: isAtlas,
-        atlas_host_id: isAtlas ? resolvedHostname : null,
+        atlas_hostname: isAtlas ? resolvedHostname : null,
         is_local_atlas: isLocalAtlas,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,

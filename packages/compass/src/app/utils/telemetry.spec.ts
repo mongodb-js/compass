@@ -157,7 +157,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -201,7 +201,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -257,7 +257,7 @@ describe('connection tracking', function () {
         is_srv: is_srv,
         topology_type: 'Unknown',
         is_atlas: false,
-        atlas_host_id: null,
+        atlas_hostname: null,
         is_local_atlas: false,
         is_dataLake: false,
         is_enterprise: false,
@@ -332,7 +332,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: true,
       is_dataLake: false,
       is_enterprise: false,
@@ -377,7 +377,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -421,7 +421,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -464,7 +464,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -507,7 +507,7 @@ describe('connection tracking', function () {
       is_srv: true,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
@@ -647,7 +647,7 @@ describe('connection tracking', function () {
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
-    expect(properties.atlas_host_id).to.equal(
+    expect(properties.atlas_hostname).to.equal(
       'test-data-sets-a011bb.mongodb.net'
     );
     expect(properties.is_local_atlas).to.equal(false);
@@ -701,7 +701,7 @@ describe('connection tracking', function () {
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(false);
-    expect(properties.atlas_host_id).to.equal(null);
+    expect(properties.atlas_hostname).to.equal(null);
     expect(properties.is_local_atlas).to.equal(false);
     expect(properties.is_dataLake).to.equal(false);
     expect(properties.is_enterprise).to.equal(false);
@@ -784,7 +784,7 @@ describe('connection tracking', function () {
       is_srv: false,
       topology_type: 'Unknown',
       is_atlas: false,
-      atlas_host_id: null,
+      atlas_hostname: null,
       is_local_atlas: false,
       is_dataLake: false,
       is_enterprise: false,
