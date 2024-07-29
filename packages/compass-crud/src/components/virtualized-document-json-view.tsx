@@ -126,7 +126,7 @@ const VirtualizedDocumentJsonView: React.FC<
   return (
     <div className={cx(containerStyles, className)}>
       <Autosizer>
-        {({ width, height }) => (
+        {({ width, height }: { width: number; height: number }) => (
           <List<ItemData>
             ref={listRef}
             width={width}
