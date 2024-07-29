@@ -59,13 +59,8 @@ const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
-const docsPerPageSelectStyles = css({
-  width: '78px',
-});
-
 const docsPerPageOptionStyles = css({
-  paddingLeft: spacing[200],
-  paddingRight: spacing[200],
+  width: spacing[1600] + spacing[300],
 });
 
 type ExportDataOption = 'export-query' | 'export-full-collection';
@@ -245,7 +240,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             size="xsmall"
             disabled={isFetching}
             allowDeselect={false}
-            className={docsPerPageSelectStyles}
+            dropdownWidthBasis="option"
             aria-label="Update number of documents per page"
             value={`${docsPerPage}`}
             onChange={(value: string) =>
