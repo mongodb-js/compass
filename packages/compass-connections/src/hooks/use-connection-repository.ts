@@ -60,6 +60,15 @@ export type ConnectionRepository = {
       items: ConnectionInfo[]
     ) => boolean
   ) => ConnectionInfo[];
+  reduceConnectionInfo: <T>(
+    fn: (
+      previousValue: T,
+      value: ConnectionInfo,
+      index: number,
+      items: ConnectionInfo[]
+    ) => T,
+    initialValue: T
+  ) => T;
   getConnectionInfoById: (
     id: ConnectionInfo['id']
   ) => ConnectionInfo | undefined;
@@ -223,6 +232,26 @@ export function useConnectionRepository(): ConnectionRepository {
     []
   );
 
+  const reduceConnectionInfo = useCallback(
+    <T>(
+      fn: (
+        previousValue: T,
+        value: ConnectionInfo,
+        index: number,
+        items: ConnectionInfo[]
+      ) => T,
+      initialValue: T
+    ): T => {
+      const allConnections = [
+        ...favoriteConnectionsRef.current,
+        ...nonFavoriteConnectionsRef.current,
+        ...(autoConnectInfoRef.current ? [autoConnectInfoRef.current] : []),
+      ];
+      return allConnections.reduce(fn, initialValue);
+    },
+    []
+  );
+
   const getConnectionInfoById = useCallback(
     (connectionInfoId: ConnectionInfo['id']) => {
       return findConnectionInfo(({ id }) => id === connectionInfoId);
@@ -243,6 +272,7 @@ export function useConnectionRepository(): ConnectionRepository {
   return {
     findConnectionInfo,
     filterConnectionInfo,
+    reduceConnectionInfo,
     getConnectionInfoById,
     getConnectionTitleById,
     favoriteConnections,

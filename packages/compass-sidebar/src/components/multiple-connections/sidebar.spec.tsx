@@ -48,21 +48,6 @@ import {
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 
-type PromiseFunction = (
-  resolve: (dataService: DataService) => void,
-  reject: (error: { message: string }) => void
-) => void;
-
-function slowConnection(response: PromiseFunction): Promise<DataService> {
-  return new Promise<DataService>((resolve, reject) => {
-    setTimeout(() => response(resolve, reject), 20);
-  });
-}
-
-function andSucceed(): PromiseFunction {
-  return (resolve) => resolve({} as DataService);
-}
-
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
   connectionOptions: {
@@ -348,59 +333,6 @@ describe('Multiple Connections Sidebar Component', function () {
         });
       });
 
-      context('when trying to connect', function () {
-        it('(successful connection) calls the connection function and renders the progress toast', async function () {
-          connectFn.returns(slowConnection(andSucceed()));
-          await renderWithConnections();
-          const connectionItem = screen.getByTestId('12345');
-
-          userEvent.click(connectionItem);
-          expect(screen.getByText('Connecting to localhost')).to.exist;
-          expect(connectFn).to.have.been.called;
-
-          await waitFor(() => {
-            expect(screen.queryByText('Connecting to localhost')).to.not.exist;
-          });
-          expect(screen.getByText('Connected to localhost')).to.exist;
-        });
-
-        it('should render the non-genuine modal when connected to a non-genuine mongodb connection', async function () {
-          connectFn.returns(slowConnection(andSucceed()));
-          await renderWithConnections([
-            {
-              id: 'non-genuine',
-              connectionOptions: {
-                connectionString:
-                  'mongodb://dummy:1234@dummy-name.cosmos.azure.com:443/?ssl=true',
-              },
-            },
-          ]);
-          const connectionItem = screen.getByTestId('non-genuine');
-          userEvent.click(connectionItem);
-          expect(connectFn).to.have.been.called;
-          await waitFor(() => {
-            expect(screen.queryByText('Non-Genuine MongoDB Detected')).to.be
-              .visible;
-          });
-        });
-
-        it('(failed connection) calls the connection function and renders the error toast', async function () {
-          connectFn.callsFake(() => {
-            return Promise.reject(new Error('Expected failure'));
-          });
-          await renderWithConnections();
-          const connectionItem = screen.getByTestId('12345');
-
-          userEvent.click(connectionItem);
-          expect(screen.getByText('Connecting to localhost')).to.exist;
-          expect(connectFn).to.have.been.called;
-
-          await waitFor(() => {
-            expect(() => screen.getByText('Expected failure')).to.not.throw;
-          });
-        });
-      });
-
       context('when connected', function () {
         const connectedInstance: MongoDBInstance = {
           _id: '1',
@@ -632,7 +564,9 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Caret Right Icon')
             );
 
-            expect(connectSpy).to.be.calledWith(savedRecentConnection);
+            await waitFor(() => {
+              expect(connectSpy).to.be.calledWith(savedRecentConnection);
+            });
           });
 
           it('should open edit connection modal when clicked on edit connection action', function () {

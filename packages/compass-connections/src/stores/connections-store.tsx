@@ -15,6 +15,7 @@ import { isCancelError } from '@mongodb-js/compass-utils';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { getGenuineMongoDB } from 'mongodb-build-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
@@ -214,7 +215,7 @@ export const createConnectionsReducer = (preferences: PreferencesAccess) => {
         // errors on the previous one
         if (
           state.editingConnectionInfo &&
-          action.connectionInfo.id !== state.editingConnectionInfo?.id
+          action.connectionInfo.id !== state.editingConnectionInfo.id
         ) {
           delete connectionErrors[state.editingConnectionInfo.id];
         }
@@ -316,8 +317,8 @@ export function useConnections({
     saveConnection,
     deleteConnection,
     getConnectionInfoById,
-    findConnectionInfo,
     filterConnectionInfo,
+    reduceConnectionInfo,
   } = useConnectionRepository();
   const preferences = usePreferencesContext();
 
@@ -469,26 +470,44 @@ export function useConnections({
         return;
       }
 
-      const findConnectionByFavoriteName = (name: string) => {
-        return findConnectionInfo((connectionInfo) => {
-          return connectionInfo.favorite?.name === name;
-        });
-      };
+      function parseFavoriteNameToNameAndCopyCount(
+        favoriteName: string
+      ): [string, number] {
+        const { groups = {} } =
+          favoriteName.match(/^(?<name>.+?)(\s\((?<count>\d+)\))?$/) ?? {};
+        return [
+          groups.name ?? favoriteName,
+          groups.count ? Number(groups.count) : 0,
+        ];
+      }
 
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
         id: new UUID().toString(),
       };
 
-      if (duplicate.favorite?.name) {
-        const copyFormat = duplicate.favorite?.name.match(/(.*)\s\(([0-9])+\)/); // title (2) -> [title (2), title, 2]
-        const name = copyFormat ? copyFormat[1] : duplicate.favorite?.name;
-        let copyNumber = copyFormat ? parseInt(copyFormat[2]) : 1;
-        while (findConnectionByFavoriteName(`${name} (${copyNumber})`)) {
-          copyNumber++;
-        }
-        duplicate.favorite.name = `${name} (${copyNumber})`;
+      if (!duplicate.favorite) {
+        duplicate.favorite = { name: getConnectionTitle(duplicate) };
       }
+
+      const [nameWithoutCount, copyCount] = parseFavoriteNameToNameAndCopyCount(
+        duplicate.favorite.name
+      );
+
+      const newCount = reduceConnectionInfo((topCount, connectionInfo) => {
+        if (connectionInfo.favorite?.name) {
+          const [name, count] = parseFavoriteNameToNameAndCopyCount(
+            connectionInfo.favorite.name
+          );
+          if (name === nameWithoutCount && count >= copyCount) {
+            return count + 1;
+          }
+          return topCount;
+        }
+        return topCount;
+      }, copyCount + 1);
+
+      duplicate.favorite.name = `${nameWithoutCount} (${newCount})`;
 
       if (autoDuplicate) {
         await saveConnectionInfo(duplicate);
@@ -500,15 +519,15 @@ export function useConnections({
         autoDuplicate,
       });
     },
-    [findConnectionInfo, getConnectionInfoById, saveConnectionInfo]
+    [getConnectionInfoById, reduceConnectionInfo, saveConnectionInfo]
   );
 
   const removeConnection = useCallback(
     async (connectionId: string) => {
       const connectionInfo = getConnectionInfoById(connectionId);
       if (connectionInfo) {
-        await deleteConnection(connectionInfo);
         void disconnect(connectionId);
+        await deleteConnection(connectionInfo);
         dispatch({ type: 'delete-connection', connectionInfo });
       }
     },
@@ -586,7 +605,7 @@ export function useConnections({
           }
           connectionInfo = autoConnectInfo;
         } else {
-          connectionInfo = connectionInfoOrGetAutoconnectInfo;
+          connectionInfo = cloneDeep(connectionInfoOrGetAutoconnectInfo);
         }
 
         const {
@@ -610,17 +629,17 @@ export function useConnections({
         // This should not be required after we remove the need to save the
         // connection before we actually connect (or at all) for the application
         // to function
-        let isExistingConnection = false;
+        let existingConnectionInfo: ConnectionInfo | undefined;
         try {
-          isExistingConnection = !!(await connectionStorage.load({
+          existingConnectionInfo = await connectionStorage.load({
             id: connectionInfo.id,
-          }));
+          });
         } catch {
           // Assume connection doesn't exist yet
         }
 
         // Auto-connect info should never be saved, connection storage has other
-        // means to returning this info as part of the connections list
+        // means to returning this info as part of the connections list for now
         if (!isAutoconnectAttempt) {
           if (
             // In single connection mode we only update existing connection when
@@ -634,7 +653,7 @@ export function useConnections({
             // it can show up in the Compass UI and be picked up from connection
             // storage by various providers, this should not be required, but
             // we're preserving it for now to avoid even more refactoring
-            !isExistingConnection
+            !existingConnectionInfo
           ) {
             await saveConnectionInfo(connectionInfo);
           }
@@ -684,7 +703,17 @@ export function useConnections({
           // Auto-connect info should never be saved
           if (!isAutoconnectAttempt) {
             await saveConnectionInfo({
-              ...merge(connectionInfo, mergeConnectionInfo),
+              ...merge(
+                // In single connection mode we only update the last used
+                // timestamp and maybe an OIDC token, everything else is kept
+                // as-is so that "Connect" and "Save" are distinct features (as
+                // the button labels in the connection form suggest). In
+                // multiple connections we update everything
+                preferences.getPreferences().enableNewMultipleConnectionSystem
+                  ? connectionInfo
+                  : existingConnectionInfo,
+                mergeConnectionInfo
+              ),
               lastUsed: new Date(),
             });
           }
@@ -752,10 +781,10 @@ export function useConnections({
       }
     },
     [
+      connectionStorage,
       connectionsManager,
       disconnect,
       editConnection,
-      getConnectionInfoById,
       oidcAttemptConnectNotifyDeviceAuth,
       oidcUpdateSecrets,
       onConnectedRef,

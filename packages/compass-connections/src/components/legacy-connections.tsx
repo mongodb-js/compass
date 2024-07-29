@@ -135,7 +135,11 @@ function Connections({
     'enableNewMultipleConnectionSystem'
   );
 
-  const activeConnectionInfo = useActiveConnectionInfo(editingConnectionInfo);
+  const activeConnectionInfo = useActiveConnectionInfo(
+    [...favoriteConnections, ...recentConnections].find((info) => {
+      return info.id === editingConnectionInfo?.id;
+    }) ?? null
+  );
   const activeConnectionStatus = useConnectionInfoStatus(
     activeConnectionInfo.id
   );
