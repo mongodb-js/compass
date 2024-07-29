@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -15,9 +15,9 @@ import InsertDocumentDialog from './insert-document-dialog';
 import type { BulkUpdateModalProps } from './bulk-update-modal';
 import BulkUpdateModal from './bulk-update-modal';
 import type { DocumentListViewProps } from './document-list-view';
-import VirtualisedDocumentListView from './virtualised-document-list-view';
+import VirtualizedDocumentListView from './virtualized-document-list-view';
 import type { DocumentJsonViewProps } from './document-json-view';
-import DocumentJsonView from './document-json-view';
+import VirtualizedDocumentJsonView from './virtualized-document-json-view';
 import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
@@ -149,36 +149,136 @@ const DocumentViewComponent: React.FunctionComponent<
     isEditable: boolean;
     outdated: boolean;
     query: unknown;
-    scrollableContainerRef?: React.MutableRefObject<HTMLDivElement | null>;
     initialScrollTop?: number;
+    scrollTriggerRef?: React.Ref<HTMLDivElement>;
+    scrollableContainerRef?: React.Ref<HTMLDivElement>;
   }
-> = ({ initialScrollTop, scrollableContainerRef, ...props }) => {
+> = ({
+  initialScrollTop,
+  scrollTriggerRef,
+  scrollableContainerRef,
+  ...props
+}) => {
   if (props.docs?.length === 0) {
     return null;
   }
 
   if (props.view === 'List') {
     return (
-      <VirtualisedDocumentListView
+      <VirtualizedDocumentListView
         {...props}
-        className={listAndJsonStyles}
         initialScrollTop={initialScrollTop}
+        scrollTriggerRef={scrollTriggerRef}
         scrollableContainerRef={scrollableContainerRef}
+        className={listAndJsonStyles}
       />
     );
   } else if (props.view === 'Table') {
     return (
-      <DocumentTableView
-        // ag-grid would not refresh the theme for the elements that it renders
-        // directly otherwise (ie. CellEditor, CellRenderer ...)
-        key={props.darkMode ? 'dark' : 'light'}
-        {...props}
-        className={tableStyles}
-      />
+      <>
+        {/*
+          Table view handles scroll shadow at the AGGrid level so we're 
+          just planting an element that will always be in view to avoid
+          having shadow on the container element.
+        */}
+        <div ref={scrollTriggerRef} />
+        <DocumentTableView
+          // ag-grid would not refresh the theme for the elements that it renders
+          // directly otherwise (ie. CellEditor, CellRenderer ...)
+          key={props.darkMode ? 'dark' : 'light'}
+          {...props}
+          className={tableStyles}
+        />
+      </>
     );
   }
 
-  return <DocumentJsonView {...props} className={listAndJsonStyles} />;
+  return (
+    <VirtualizedDocumentJsonView
+      {...props}
+      initialScrollTop={initialScrollTop}
+      scrollTriggerRef={scrollTriggerRef}
+      scrollableContainerRef={scrollableContainerRef}
+      className={listAndJsonStyles}
+    />
+  );
+};
+
+/**
+ * Encapsulates the logic for preserving / restoring scroll top for the current
+ * view.
+ */
+const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [listViewScrollTop, setListViewScrollTop] = useTabState(
+    'list-view-initial-scroll-top',
+    0
+  );
+  const [jsonViewScrollTop, setJsonViewScrollTop] = useTabState(
+    'json-view-initial-scroll-top',
+    0
+  );
+
+  const currentViewInitialScrollTop = useMemo(() => {
+    if (view === 'List') {
+      return listViewScrollTop;
+    }
+    if (view === 'JSON') {
+      return jsonViewScrollTop;
+    }
+  }, [view, listViewScrollTop, jsonViewScrollTop]);
+
+  const currentViewInitialScrollTopRef = useRef(currentViewInitialScrollTop);
+  currentViewInitialScrollTopRef.current = currentViewInitialScrollTop;
+
+  const setCurrentViewInitialScrollTop = useCallback(
+    (scrollTop: number) => {
+      if (view === 'List') {
+        setListViewScrollTop(scrollTop);
+      } else if (view === 'JSON') {
+        setJsonViewScrollTop(scrollTop);
+      }
+    },
+    [view, setListViewScrollTop, setJsonViewScrollTop]
+  );
+
+  const setCurrentViewInitialScrollTopRef = useRef(
+    setCurrentViewInitialScrollTop
+  );
+  setCurrentViewInitialScrollTopRef.current = setCurrentViewInitialScrollTop;
+
+  useLayoutEffect(() => {
+    if (
+      scrollRef.current &&
+      currentViewInitialScrollTopRef.current !== undefined
+    ) {
+      scrollRef.current.scrollTop = currentViewInitialScrollTopRef.current;
+    }
+
+    return () => {
+      setCurrentViewInitialScrollTopRef.current(
+        scrollRef.current?.scrollTop ?? 0
+      );
+    };
+  }, []);
+
+  // Preserve the scroll top when documents are refreshed and loading List /
+  // JSON view unmounts in between
+  useLayoutEffect(() => {
+    if (
+      scrollRef.current &&
+      currentViewInitialScrollTopRef.current !== undefined &&
+      !isFetching
+    ) {
+      scrollRef.current.scrollTop = currentViewInitialScrollTopRef.current;
+    }
+  }, [isFetching]);
+
+  return {
+    scrollRef,
+    currentViewInitialScrollTop,
+    setCurrentViewInitialScrollTop,
+  };
 };
 
 const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
@@ -294,113 +394,130 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const isError = status === DOCUMENTS_STATUS_ERROR;
 
-  let content = null;
-
-  const [initialScrollTop, setInitialScrollTop] = useTabState(
-    'documents-list-initial-scroll-top',
-    0
-  );
-  const initialScrollTopRef = useRef(initialScrollTop);
-  initialScrollTopRef.current = initialScrollTop;
-
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  if (isFetching) {
-    content = (
-      <div className={loaderContainerStyles}>
-        <CancelLoader
-          data-testid="fetching-documents"
-          progressText="Fetching Documents"
-          cancelText="Stop"
-          onCancel={onCancelClicked}
-        />
-      </div>
-    );
-  } else if (!isError) {
-    if (isEmpty) {
-      if (isInitialFetch) {
-        content = (
-          <div data-testid="document-list-zero-state">
-            <EmptyContent
-              icon={DocumentIcon}
-              title="This collection has no data"
-              subTitle="It only takes a few seconds to import data from a JSON or CSV file."
-              callToAction={
-                isImportExportEnabled && (
-                  <Button
-                    disabled={!isEditable}
-                    onClick={() => {
-                      openImportFileDialog?.('empty-state');
-                    }}
-                    data-testid="import-data-button"
-                    variant="primary"
-                    size="small"
-                  >
-                    Import Data
-                  </Button>
-                )
-              }
-            />
-          </div>
-        );
-      } else {
-        content = (
-          <div data-testid="document-list-zero-state">
-            <EmptyContent
-              icon={DocumentIcon}
-              title="No results"
-              subTitle="Try modifying your query to get results."
-            />
-          </div>
-        );
-      }
-    } else {
-      content = (
-        <DocumentViewComponent
-          {...props}
-          isEditable={isEditable}
-          outdated={outdated}
-          query={query}
-          initialScrollTop={initialScrollTop}
-          scrollableContainerRef={scrollRef}
-        />
-      );
-    }
-  }
-
-  useLayoutEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = initialScrollTopRef.current;
-    }
-
-    return () => {
-      setInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
-    };
-  }, [setInitialScrollTop]);
-
-  // Preserve the scroll top when documents are refreshed
-  useLayoutEffect(() => {
-    if (scrollRef.current && !isFetching) {
-      scrollRef.current.scrollTop = initialScrollTopRef.current;
-    }
-  }, [isFetching]);
+  const {
+    scrollRef,
+    currentViewInitialScrollTop,
+    setCurrentViewInitialScrollTop,
+  } = useViewScrollTop(view, isFetching);
 
   const handleMaxDocsPerPageChanged = useCallback(
     (newDocsPerPage: number) => {
       const scrollTop = scrollRef.current?.scrollTop ?? 0;
       updateMaxDocumentsPerPage(newDocsPerPage);
       if (newDocsPerPage > docsPerPage) {
-        setInitialScrollTop(scrollTop);
+        setCurrentViewInitialScrollTop(scrollTop);
+      } else {
+        setCurrentViewInitialScrollTop(0);
       }
     },
-    [docsPerPage, setInitialScrollTop, updateMaxDocumentsPerPage]
+    [
+      scrollRef,
+      docsPerPage,
+      setCurrentViewInitialScrollTop,
+      updateMaxDocumentsPerPage,
+    ]
+  );
+
+  const renderContent = useCallback(
+    (scrollTriggerRef: React.Ref<HTMLDivElement>) => {
+      let content = null;
+      if (isFetching) {
+        content = (
+          <div className={loaderContainerStyles}>
+            <CancelLoader
+              data-testid="fetching-documents"
+              progressText="Fetching Documents"
+              cancelText="Stop"
+              onCancel={onCancelClicked}
+            />
+          </div>
+        );
+      } else if (!isError) {
+        if (isEmpty) {
+          if (isInitialFetch) {
+            content = (
+              <div data-testid="document-list-zero-state">
+                <EmptyContent
+                  icon={DocumentIcon}
+                  title="This collection has no data"
+                  subTitle="It only takes a few seconds to import data from a JSON or CSV file."
+                  callToAction={
+                    isImportExportEnabled && (
+                      <Button
+                        disabled={!isEditable}
+                        onClick={() => {
+                          openImportFileDialog?.('empty-state');
+                        }}
+                        data-testid="import-data-button"
+                        variant="primary"
+                        size="small"
+                      >
+                        Import Data
+                      </Button>
+                    )
+                  }
+                />
+              </div>
+            );
+          } else {
+            content = (
+              <div data-testid="document-list-zero-state">
+                <EmptyContent
+                  icon={DocumentIcon}
+                  title="No results"
+                  subTitle="Try modifying your query to get results."
+                />
+              </div>
+            );
+          }
+        } else {
+          content = (
+            <DocumentViewComponent
+              {...props}
+              isEditable={isEditable}
+              outdated={outdated}
+              query={query}
+              initialScrollTop={currentViewInitialScrollTop}
+              scrollableContainerRef={scrollRef}
+              scrollTriggerRef={scrollTriggerRef}
+            />
+          );
+        }
+      }
+      return content;
+    },
+    [
+      isFetching,
+      isError,
+      onCancelClicked,
+      isEmpty,
+      isInitialFetch,
+      isImportExportEnabled,
+      isEditable,
+      openImportFileDialog,
+      props,
+      outdated,
+      query,
+      scrollRef,
+      currentViewInitialScrollTop,
+    ]
+  );
+
+  const handleViewChanged = useCallback(
+    (newView: DocumentView) => {
+      if (view === 'List' || view === 'JSON') {
+        setCurrentViewInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
+      }
+      viewChanged(newView);
+    },
+    [view, setCurrentViewInitialScrollTop, scrollRef, viewChanged]
   );
 
   return (
     <div className={documentsContainerStyles} data-testid="compass-crud">
       <WorkspaceContainer
         scrollableContainerRef={scrollRef}
-        initialTopInView={initialScrollTop === 0}
+        initialTopInView={currentViewInitialScrollTop === 0}
         toolbar={
           <CrudToolbar
             activeDocumentView={view}
@@ -420,7 +537,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             openExportFileDialog={openExportFileDialog}
             outdated={outdated}
             readonly={!isEditable}
-            viewSwitchHandler={viewChanged}
+            viewSwitchHandler={handleViewChanged}
             isWritable={isWritable}
             instanceDescription={instanceDescription}
             refreshDocuments={refreshDocuments}
@@ -439,7 +556,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           />
         }
       >
-        {content}
+        {renderContent}
       </WorkspaceContainer>
 
       {isEditable && (
