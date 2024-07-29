@@ -66,6 +66,7 @@ describe.only('OIDC integration', function () {
   let oidcMockProviderConfig: OIDCMockProviderConfig;
   let oidcMockProvider: OIDCMockProvider;
   let oidcMockProviderEndpointAccesses: Record<string, number>;
+  let hostport: string;
 
   let i = 0;
   let tmpdir: string;
@@ -101,10 +102,13 @@ describe.only('OIDC integration', function () {
         port: process.env.OIDC_MOCK_PORT
           ? parseInt(process.env.OIDC_MOCK_PORT, 10)
           : undefined,
+        bindIpAll: process.env.OIDC_BIND_IP_ALL === 'true',
         getTokenPayload(metadata: Parameters<typeof getTokenPayload>[0]) {
+          console.log('getTokenPayload', metadata);
           return getTokenPayload(metadata);
         },
         overrideRequestHandler(url, req, res) {
+          console.log('overrideRequestHandler', url);
           const { pathname } = new URL(url);
           oidcMockProviderEndpointAccesses[pathname] ??= 0;
           oidcMockProviderEndpointAccesses[pathname]++;
@@ -130,6 +134,9 @@ describe.only('OIDC integration', function () {
     {
       if (process.env.OIDC_CONNECTION_STRING) {
         clusterConnectionString = process.env.OIDC_CONNECTION_STRING;
+
+        const cs = new ConnectionString(clusterConnectionString);
+        hostport = cs.hosts[0];
       } else {
         const serverOidcConfig = {
           issuer: oidcMockProvider.issuer,
@@ -157,6 +164,7 @@ describe.only('OIDC integration', function () {
 
         cluster = await startTestServer({ args });
         clusterConnectionString = cluster.connectionString;
+        hostport = cluster.hostport;
       }
 
       const cs = new ConnectionString(clusterConnectionString);
@@ -232,7 +240,7 @@ describe.only('OIDC integration', function () {
     expect(result).to.deep.equal(DEFAULT_AUTH_INFO);
   });
 
-  it('can cancel a connection attempt and then successfully connect', async function () {
+  it.only('can cancel a connection attempt and then successfully connect', async function () {
     const emitter = new EventEmitter();
     const secondConnectionEstablished = once(
       emitter,
@@ -250,15 +258,19 @@ describe.only('OIDC integration', function () {
       }
     };
 
-    {
-      await browser.setValueVisible(
-        Selectors.ConnectionFormStringInput,
-        connectionString
-      );
-      await browser.clickVisible(Selectors.ConnectButton);
-      await once(emitter, 'authorizeEndpointCalled');
-      await browser.closeConnectModal();
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     }
+    await browser.setValueVisible(
+      Selectors.ConnectionFormStringInput,
+      connectionString
+    );
+
+    await browser.clickVisible(Selectors.ConnectButton);
+    await once(emitter, 'authorizeEndpointCalled');
+
+    await browser.closeConnectModal();
 
     overrideRequestHandler = () => {};
     await browser.connectWithConnectionString(connectionString);
@@ -280,7 +292,7 @@ describe.only('OIDC integration', function () {
     };
 
     await browser.connectWithConnectionForm({
-      hosts: [cluster.hostport],
+      hosts: [hostport],
       authMethod: 'MONGODB-OIDC',
       connectionName: this.test?.fullTitle(),
     });
