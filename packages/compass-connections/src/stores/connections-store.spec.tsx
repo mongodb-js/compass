@@ -1,4 +1,3 @@
-import { promisify } from 'util';
 import { expect } from 'chai';
 import { waitFor, cleanup, screen, render } from '@testing-library/react';
 import sinon from 'sinon';
@@ -34,6 +33,12 @@ function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   });
 }
 
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 const mockConnections: ConnectionInfo[] = [
   {
     id: 'turtle',
@@ -57,7 +62,7 @@ const mockConnections: ConnectionInfo[] = [
   },
 ];
 
-describe('useConnections hook', function () {
+describe('useConnections', function () {
   let connectionsManager: ConnectionsManager;
   let mockConnectionStorage: ConnectionStorage;
   let preferences: PreferencesAccess;
@@ -102,7 +107,7 @@ describe('useConnections hook', function () {
     });
     mockConnectionStorage = new InMemoryConnectionStorage(mockConnections);
     connectionsManager = getConnectionsManager(async () => {
-      await promisify(setTimeout)(200);
+      await wait(200);
       return {
         mockDataService: 'yes',
         addReauthenticationHandler() {},
@@ -124,7 +129,7 @@ describe('useConnections hook', function () {
     sinon.stub(mockConnectionStorage, 'getAutoConnectInfo').resolves({
       id: 'new',
       connectionOptions: {
-        connectionString: 'mongodb://new-recent',
+        connectionString: 'mongodb://autoconnect',
       },
     });
     const saveSpy = sinon.spy(mockConnectionStorage, 'save');
@@ -328,4 +333,13 @@ describe('useConnections hook', function () {
       });
     });
   });
+
+  // describe('#disconnect', function () {
+  //   it('disconnect even if connection is in progress cleaning up progress toasts', async function () {
+  //     const connections = renderHookWithContext();
+
+  //     const connectionInfo = createNewConnectionInfo();
+  //     const connectPromise = connections.connect(connectionInfo);
+  //   });
+  // });
 });

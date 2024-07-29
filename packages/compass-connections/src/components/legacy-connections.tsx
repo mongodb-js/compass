@@ -136,9 +136,18 @@ function Connections({
   );
 
   const activeConnectionInfo = useActiveConnectionInfo(
+    // TODO(COMPASS-7397): Even though connection form interface expects
+    // connection info to only be "initial", some parts of the form UI actually
+    // read the values from the info as if they should be updated (favorite edit
+    // form), for that purpose instead of using state store directly, we will
+    // first try to find the connection in the list of connections that track
+    // the connection info updates instead of passing the store state directly.
+    // This should go away when we are normalizing this state and making sure
+    // that favorite form is correctly reading the state from a single store
     [...favoriteConnections, ...recentConnections].find((info) => {
+      // Might be missing in case of "New connection" when it's not saved yet
       return info.id === editingConnectionInfo?.id;
-    }) ?? null
+    }) ?? editingConnectionInfo
   );
   const activeConnectionStatus = useConnectionInfoStatus(
     activeConnectionInfo.id
