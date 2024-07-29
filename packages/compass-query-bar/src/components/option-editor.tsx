@@ -8,6 +8,7 @@ import {
   spacing,
   SignalPopover,
   rafraf,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -133,6 +134,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     hover: true,
   });
 
+  const darkMode = useDarkMode();
+
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
 
@@ -167,7 +170,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             fields: schemaFields,
             serverVersion,
           },
-          onApplyQuery
+          onApplyQuery,
+          darkMode ? 'dark' : 'light'
         )
       : createQueryAutocompleter({
           fields: schemaFields,
@@ -179,6 +183,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     serverVersion,
     onApplyQuery,
     isQueryHistoryAutocompleteEnabled,
+    darkMode,
   ]);
 
   const onFocus = () => {

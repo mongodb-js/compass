@@ -24,6 +24,7 @@ import {
 import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
 import type { DataService } from 'mongodb-data-service';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { ConnectionsProvider } from './connections-provider';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLogger();
@@ -75,7 +76,9 @@ describe('Connections Component', function () {
         <PreferencesProvider value={preferences}>
           <ConnectionStorageProvider value={mockStorage}>
             <ConnectionsManagerProvider value={getConnectionsManager()}>
-              <Connections appRegistry={{} as any} />
+              <ConnectionsProvider>
+                <Connections appRegistry={{} as any} />
+              </ConnectionsProvider>
             </ConnectionsManagerProvider>
           </ConnectionStorageProvider>
         </PreferencesProvider>

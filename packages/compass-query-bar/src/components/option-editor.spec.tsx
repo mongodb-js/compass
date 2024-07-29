@@ -204,7 +204,6 @@ describe('OptionEditor', function () {
       userEvent.click(screen.getByRole('textbox'));
       await waitFor(() => {
         expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
-        expect(screen.getAllByText('{ a: 1 }')[1]).to.be.visible;
         expect(screen.getByText('{ a: 2 }, sort: { a: -1 }')).to.be.visible;
       });
 

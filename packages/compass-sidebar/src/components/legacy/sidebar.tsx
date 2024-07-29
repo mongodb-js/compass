@@ -10,18 +10,16 @@ import {
   useToast,
 } from '@mongodb-js/compass-components';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
-import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
+import { useConnections } from '@mongodb-js/compass-connections/provider';
 
 import SidebarTitle from './sidebar-title';
 import NavigationItems from './navigation-items';
 import ConnectionInfoModal from '../connection-info-modal';
-import NonGenuineWarningModal from '../non-genuine-warning-modal';
 import CSFLEConnectionModal from '../csfle-connection-modal';
 import CSFLEMarker from '../csfle-marker';
 import NonGenuineMarker from '../non-genuine-marker';
 
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
-import { toggleIsGenuineMongoDBVisible } from '../../modules/is-genuine-mongodb-visible';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
@@ -61,8 +59,6 @@ export function Sidebar({
   showConnectionInfo = true,
   activeWorkspace,
   initialConnectionInfo,
-  isGenuineMongoDBVisible,
-  toggleIsGenuineMongoDBVisible,
   setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
@@ -71,17 +67,13 @@ export function Sidebar({
   showConnectionInfo?: boolean;
   activeWorkspace: WorkspaceTab | null;
   initialConnectionInfo: ConnectionInfo;
-  isGenuineMongoDBVisible: boolean;
-  toggleIsGenuineMongoDBVisible: (
-    connectionId: string,
-    isVisible: boolean
-  ) => void;
   setConnectionIsCSFLEEnabled: (connectionId: string, enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   onSidebarAction(action: string, ...rest: any[]): void;
 }) {
-  const { saveConnection } = useConnectionRepository();
+  const { saveEditedConnection, showNonGenuineMongoDBWarningModal } =
+    useConnections();
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
     useState(false);
@@ -90,13 +82,13 @@ export function Sidebar({
     (newFavoriteInfo) => {
       setIsFavoriteModalVisible(false);
 
-      return saveConnection({
+      return saveEditedConnection({
         ...cloneDeep(initialConnectionInfo),
         favorite: newFavoriteInfo,
         savedConnectionType: 'favorite',
-      }) as Promise<any> as Promise<void>;
+      });
     },
-    [initialConnectionInfo, saveConnection, setIsFavoriteModalVisible]
+    [initialConnectionInfo, saveEditedConnection]
   );
 
   const { openToast } = useToast('compass-connections');
@@ -168,10 +160,6 @@ export function Sidebar({
     ]
   );
 
-  const showNonGenuineModal = useCallback(() => {
-    toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, true);
-  }, [initialConnectionInfo.id, toggleIsGenuineMongoDBVisible]);
-
   const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
 
   const toggleCSFLEModalVisible = useCallback(() => {
@@ -195,7 +183,9 @@ export function Sidebar({
             <div className={connectionBadgesContainerStyles}>
               <NonGenuineMarker
                 isGenuine={isGenuine}
-                showNonGenuineModal={showNonGenuineModal}
+                showNonGenuineModal={() => {
+                  showNonGenuineMongoDBWarningModal(initialConnectionInfo.id);
+                }}
               />
               <CSFLEMarker
                 csfleMode={csfleMode}
@@ -218,12 +208,6 @@ export function Sidebar({
           open={isFavoriteModalVisible}
           onCancelClicked={() => setIsFavoriteModalVisible(false)}
           onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
-        />
-        <NonGenuineWarningModal
-          isVisible={isGenuineMongoDBVisible}
-          toggleIsVisible={(visible) =>
-            toggleIsGenuineMongoDBVisible(initialConnectionInfo.id, visible)
-          }
         />
         <CSFLEConnectionModal
           open={isCSFLEModalVisible}
@@ -252,8 +236,6 @@ const mapStateToProps = (
   }
 ) => {
   return {
-    isGenuineMongoDBVisible:
-      state.isGenuineMongoDBVisible[initialConnectionInfo.id],
     isGenuine:
       state.instance[initialConnectionInfo.id]?.genuineMongoDB.isGenuine,
     csfleMode: state.instance[initialConnectionInfo.id]?.csfleMode,
@@ -270,7 +252,6 @@ const onSidebarAction = (
 };
 
 const MappedSidebar = connect(mapStateToProps, {
-  toggleIsGenuineMongoDBVisible,
   setConnectionIsCSFLEEnabled,
   onSidebarAction,
 })(Sidebar);

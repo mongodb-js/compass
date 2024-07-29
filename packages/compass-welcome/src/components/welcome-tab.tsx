@@ -16,7 +16,7 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
+import { useConnections } from '@mongodb-js/compass-connections/provider';
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -217,12 +217,7 @@ function WelcomeImage() {
 }
 
 export default function WelcomeTab() {
-  const appRegistry = useGlobalAppRegistry();
-
-  function onNewConnection() {
-    // TODO(COMPASS-7397): don't hack this via the app registry
-    appRegistry.emit('open-new-connection');
-  }
+  const { createNewConnection } = useConnections();
 
   return (
     <div className={welcomeTabStyles}>
@@ -237,7 +232,7 @@ export default function WelcomeTab() {
           data-testid="add-new-connection-button"
           variant={ButtonVariant.Primary}
           leftGlyph={<Icon glyph="Plus" />}
-          onClick={onNewConnection}
+          onClick={createNewConnection}
         >
           Add new connection
         </Button>

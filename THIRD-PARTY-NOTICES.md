@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jul 23 2024.
+This document was automatically generated on Mon Jul 29 2024.
 
 ## List of dependencies
 
@@ -95,11 +95,11 @@ This document was automatically generated on Tue Jul 23 2024.
 | **[@jridgewell/set-array](#46727c727ad43ad8e382221964d27c475629a5635986edac6ea622c772311421)**                              | 1.2.1        | MIT                                 |
 | **[@jridgewell/sourcemap-codec](#48d1d40d908582402e2071de1ae38b57c21fc0e7615f8f82f3f5b1f0cad0dd93)**                        | 1.4.14       | MIT                                 |
 | **[@jridgewell/trace-mapping](#73923b51cccefe7db1ead00c09a18978443a238d51a858a7a0c86868a9a4ea3f)**                          | 0.3.25       | MIT                                 |
-| **[@lezer/common](#33be6cc05b8093348dc2c9a175b4a95de89b9b667c498550f1ab7c61230ab93e)**                                      | 1.0.2        | MIT                                 |
-| **[@lezer/highlight](#68c85fe3558f76d794df38e5e9759a04417a251601b15c7b3bc9ad03312ed267)**                                   | 1.1.3        | MIT                                 |
+| **[@lezer/common](#4bf054ecf9e3b46b5959ff484326d62af9e9d7698317b1e8a5f11a5ebf66534a)**                                      | 1.2.1        | MIT                                 |
+| **[@lezer/highlight](#30f07ec49dde0ce2f5c814903361f4d9c8b9fc2d8bb143d2e682e05d94a69ee6)**                                   | 1.2.0        | MIT                                 |
 | **[@lezer/javascript](#6f8d761b240b610d6ad180799f8b36219b20649cbce80bd3cb7e669082e92ef3)**                                  | 1.3.2        | MIT                                 |
 | **[@lezer/json](#7869bdb7c09e2ae1e28909eb504f475477cc5ed0750dc8ccee42886961975253)**                                        | 1.0.0        | MIT                                 |
-| **[@lezer/lr](#9518a62fa768ee63d368c92ac8ec9f78931053570ddb4232a3684da5a0e4c48f)**                                          | 1.2.5        | MIT                                 |
+| **[@lezer/lr](#1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b)**                                          | 1.4.1        | MIT                                 |
 | **[@lukeed/uuid](#82700fba068def47ea9842f28d700a387f59da805f74a6ed10a5eb7eece4cdab)**                                       | 2.0.1        | MIT                                 |
 | **[@nicolo-ribaudo/semver-v6](#0db933ddbe9acfd097ee5ee08e4afb1f4f7a64ef9712f95fef7958494c8e02cd)**                          | 6.3.3        | ISC                                 |
 | **[@react-aria/focus](#e323ed10ad82d4ea6c64568bc119b1ffe8b002377c038d039dddf1128efc0c3b)**                                  | 3.6.1        | Apache-2.0                          |
@@ -7028,9 +7028,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="33be6cc05b8093348dc2c9a175b4a95de89b9b667c498550f1ab7c61230ab93e"></a>
+<a id="4bf054ecf9e3b46b5959ff484326d62af9e9d7698317b1e8a5f11a5ebf66534a"></a>
 
-### [@lezer/common](https://www.npmjs.com/package/@lezer/common) (version 1.0.2)
+### [@lezer/common](https://www.npmjs.com/package/@lezer/common) (version 1.2.1)
 
 License tags: MIT
 
@@ -7040,7 +7040,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -7060,9 +7060,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="68c85fe3558f76d794df38e5e9759a04417a251601b15c7b3bc9ad03312ed267"></a>
+<a id="30f07ec49dde0ce2f5c814903361f4d9c8b9fc2d8bb143d2e682e05d94a69ee6"></a>
 
-### [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) (version 1.1.3)
+### [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) (version 1.2.0)
 
 License tags: MIT
 
@@ -7072,7 +7072,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -7156,9 +7156,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="9518a62fa768ee63d368c92ac8ec9f78931053570ddb4232a3684da5a0e4c48f"></a>
+<a id="1443872b0ea87b0af4967c9026094e634c83118fb811349742ca05bde397412b"></a>
 
-### [@lezer/lr](https://www.npmjs.com/package/@lezer/lr) (version 1.2.5)
+### [@lezer/lr](https://www.npmjs.com/package/@lezer/lr) (version 1.4.1)
 
 License tags: MIT
 
@@ -7168,7 +7168,7 @@ License files:
 
       MIT License
 
-      Copyright (C) 2018 by Marijn Haverbeke <marijnh@gmail.com> and others
+      Copyright (C) 2018 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal

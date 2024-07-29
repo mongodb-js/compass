@@ -61,7 +61,6 @@ describe('sidebar instance', function () {
     'remove:collections',
     'change:collections._id',
     'change:collections.status',
-    'change:genuineMongoDB.isGenuine',
   ]) {
     it(`subscribes to an existing instance event ${event}`, function () {
       setupInstance(instance._id, instance)(
