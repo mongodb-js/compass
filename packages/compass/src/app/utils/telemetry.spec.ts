@@ -640,14 +640,16 @@ describe('connection tracking', function () {
     const connection: ConnectionInfo = {
       ...connectionInfo,
       connectionOptions: {
-        connectionString: 'mongodb://test-data-sets-a011bb.test.net',
+        connectionString: 'mongodb://test-data-sets-a011bb.mongodb.net',
       },
     };
     trackNewConnectionEvent(connection, mockDataService, logger, track);
     const [{ properties }] = await trackEvent;
 
     expect(properties.is_atlas).to.equal(true);
-    expect(properties.atlas_host_id).to.equal('test-data-sets-a011bb.test.net');
+    expect(properties.atlas_host_id).to.equal(
+      'test-data-sets-a011bb.mongodb.net'
+    );
     expect(properties.is_local_atlas).to.equal(false);
     expect(properties.is_dataLake).to.equal(true);
     expect(properties.is_enterprise).to.equal(true);
