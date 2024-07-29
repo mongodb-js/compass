@@ -98,7 +98,6 @@ describe('Home [Component]', function () {
                 __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={() => {
                   return Promise.resolve(dataService);
                 }}
-                __TEST_INITIAL_CONNECTION_INFO={TEST_CONNECTION_INFO}
                 {...props}
               />
             </WithStorageProviders>
