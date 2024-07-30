@@ -21,15 +21,15 @@ const tabStyles = css({
   gridTemplateColumns: 'min-content 1fr min-content',
   alignItems: 'center',
   paddingLeft: 12,
-  paddingRight: spacing[1],
-  gap: spacing[2],
+  paddingRight: spacing[100],
+  gap: spacing[200],
 
   // same as the border at the top
   paddingBottom: '4px',
 
-  maxWidth: spacing[6] * 4,
-  minWidth: spacing[6] * 2,
-  height: 36,
+  maxWidth: spacing[800] * 6, // 192px
+  minWidth: spacing[1600] * 2, // 128px
+  height: spacing[1000],
   position: 'relative',
   outline: 'none',
 
@@ -39,7 +39,7 @@ const tabStyles = css({
   // leave space so the active and other tabs line up
   paddingTop: spacing[100],
 
-  backgroundColor: 'var(--workspace-tab-background-color)',
+  backgroundColor: 'var(--workspace-tab-background-color)', // TODO
   color: 'var(--workspace-tab-color)',
   boxShadow: 'inset -1px -1px 0 0 var(--workspace-tab-border-color)',
 
@@ -136,9 +136,9 @@ const tabTitleContainerStyles = css({
 });
 
 const tabTitleStyles = css({
-  fontSize: 12,
+  fontSize: '12px',
   lineHeight: '16px',
-  fontWeight: 700,
+  fontWeight: 'normal',
   color: 'currentColor',
 
   whiteSpace: 'nowrap',
@@ -175,10 +175,6 @@ const tabSubtitleStyles = css({
 
 const closeButtonStyles = css({
   visibility: 'hidden',
-});
-
-const selectedCloseButtonStyles = css({
-  visibility: 'visible',
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
@@ -291,11 +287,7 @@ function Tab({
       </div>
 
       <IconButton
-        className={cx(
-          closeButtonStyles,
-          isSelected && selectedCloseButtonStyles,
-          'workspace-tab-close-button'
-        )}
+        className={cx(closeButtonStyles, 'workspace-tab-close-button')}
         onClick={(e) => {
           e.stopPropagation();
           onClose();
