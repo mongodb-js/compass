@@ -21,10 +21,10 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import type { RecentQuery } from '@mongodb-js/my-queries-storage';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
 import type { BaseQuery } from '../constants/query-properties';
+import { SavedQuery } from '@mongodb-js/compass-editor/dist/codemirror/query-history-autocompleter';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -100,7 +100,7 @@ type OptionEditorProps = {
   ['data-testid']?: string;
   insights?: Signal | Signal[];
   disabled?: boolean;
-  savedQueries: RecentQuery[];
+  savedQueries: SavedQuery[];
   onApplyQuery: (query: BaseQuery) => void;
 };
 
@@ -160,8 +160,9 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
           savedQueries
             .filter((query) => !('update' in query))
             .map((query) => ({
-              lastExecuted: query._lastExecuted,
-              queryProperties: getQueryAttributes(query),
+              type: query.type,
+              lastExecuted: query.lastExecuted,
+              queryProperties: query.queryProperties,
             }))
             .sort(
               (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
@@ -264,8 +265,22 @@ const ConnectedOptionEditor = (state: RootState) => ({
   namespace: state.queryBar.namespace,
   serverVersion: state.queryBar.serverVersion,
   savedQueries: [
-    ...state.queryBar.recentQueries,
-    ...state.queryBar.favoriteQueries,
+    ...state.queryBar.recentQueries.map(
+      (query) =>
+        ({
+          type: 'recent',
+          lastExecuted: query._lastExecuted,
+          queryProperties: getQueryAttributes(query),
+        } as SavedQuery)
+    ),
+    ...state.queryBar.favoriteQueries.map(
+      (query) =>
+        ({
+          type: 'favorite',
+          lastExecuted: query._lastExecuted,
+          queryProperties: getQueryAttributes(query),
+        } as SavedQuery)
+    ),
   ],
 });
 
