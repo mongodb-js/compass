@@ -12,6 +12,29 @@ type ConnectionInfoWithStatus = {
   connectionStatus: ConnectionStatus;
 };
 
+export function useConnectionInfoStatus(
+  connectionId: string
+): ConnectionStatus | null {
+  const connectionsManager = useConnectionsManagerContext();
+  const [status, setStatus] = useState(() => {
+    return connectionsManager.statusOf(connectionId);
+  });
+  useEffect(() => {
+    const updateOnStatusChange = () => {
+      setStatus(connectionsManager.statusOf(connectionId));
+    };
+    for (const event of Object.values(ConnectionsManagerEvents)) {
+      connectionsManager.on(event, updateOnStatusChange);
+    }
+    return () => {
+      for (const event of Object.values(ConnectionsManagerEvents)) {
+        connectionsManager.off(event, updateOnStatusChange);
+      }
+    };
+  }, [connectionId, connectionsManager]);
+  return status;
+}
+
 export function useConnectionsWithStatus(): ConnectionInfoWithStatus[] {
   // TODO(COMPASS-7397): services should not be used directly in render method,
   // when this code is refactored to use the hadron plugin interface, storage
