@@ -48,7 +48,11 @@ export type WorkspacesService = {
   openShellWorkspace(
     this: void,
     connectionId: string,
-    tabOptions?: TabOptions
+    options?: TabOptions &
+      Pick<
+        Extract<OpenWorkspaceOptions, { type: 'Shell' }>,
+        'initialInput' | 'initialEvaluate'
+      >
   ): void;
   /**
    * Open "Databases" workspace showing list of all databases in the cluster
@@ -237,9 +241,13 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openShellWorkspace(connectionId, tabOptions) {
+      openShellWorkspace(connectionId, options = {}) {
+        const { newTab, ...workspaceOptions } = options;
         return void store.dispatch(
-          openWorkspaceAction({ type: 'Shell', connectionId }, tabOptions)
+          openWorkspaceAction(
+            { type: 'Shell', connectionId, ...workspaceOptions },
+            { newTab }
+          )
         );
       },
       openDatabasesWorkspace: (connectionId, tabOptions) => {

@@ -85,9 +85,11 @@ export const databasesChanged = (instance: MongoDBInstance) => ({
   databases: instance.databases.toJSON(),
 });
 
-export const refreshDatabases = (): DatabasesThunkAction<void> => {
+export const refreshDatabases = (
+  connectionId: string
+): DatabasesThunkAction<void> => {
   return (_dispatch, _getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('refresh-databases');
+    globalAppRegistry.emit('refresh-databases', { connectionId });
   };
 };
 

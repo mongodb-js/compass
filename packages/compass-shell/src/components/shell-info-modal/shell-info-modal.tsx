@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import {
   css,
@@ -76,10 +75,5 @@ function ShellInfoModal({
     </InfoModal>
   );
 }
-
-ShellInfoModal.propTypes = {
-  hideInfoModal: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
-};
 
 export default ShellInfoModal;

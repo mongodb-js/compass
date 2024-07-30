@@ -3,6 +3,12 @@ import { expect } from 'chai';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OptionEditor } from './option-editor';
+import type { SinonSpy } from 'sinon';
+import { applyFromHistory } from '../stores/query-bar-reducer';
+import sinon from 'sinon';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 class MockPasteEvent extends window.Event {
   constructor(private text: string) {
@@ -35,6 +41,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
 
@@ -54,6 +62,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value="{ foo: 1 }"
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
 
@@ -73,6 +83,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
 
@@ -98,6 +110,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
 
@@ -125,6 +139,8 @@ describe('OptionEditor', function () {
           insertEmptyDocOnFocus
           onChange={() => {}}
           value=""
+          savedQueries={[]}
+          onApplyQuery={applyFromHistory}
         ></OptionEditor>
       );
 
@@ -137,6 +153,67 @@ describe('OptionEditor', function () {
 
       await waitFor(() => {
         expect(screen.getByRole('textbox').textContent).to.eq('{ foo: 1 }');
+      });
+    });
+  });
+
+  describe('when render with the query history autocompleter', function () {
+    let onApplySpy: SinonSpy;
+    let preferencesAccess: PreferencesAccess;
+
+    beforeEach(async function () {
+      preferencesAccess = await createSandboxFromDefaultPreferences();
+      await preferencesAccess.savePreferences({
+        enableQueryHistoryAutocomplete: true,
+      });
+
+      onApplySpy = sinon.spy();
+      render(
+        <PreferencesProvider value={preferencesAccess}>
+          <OptionEditor
+            namespace="test.test"
+            insertEmptyDocOnFocus
+            onChange={() => {}}
+            value=""
+            savedQueries={[
+              {
+                _id: '1',
+                _ns: '1',
+                filter: { a: 1 },
+                _lastExecuted: new Date(),
+              },
+              {
+                _id: '1',
+                _ns: '1',
+                filter: { a: 2 },
+                sort: { a: -1 },
+                _lastExecuted: new Date(),
+              },
+            ]}
+            onApplyQuery={onApplySpy}
+          />
+        </PreferencesProvider>
+      );
+    });
+
+    afterEach(function () {
+      cleanup();
+    });
+
+    it('filter applied correctly when autocomplete option is clicked', async function () {
+      userEvent.click(screen.getByRole('textbox'));
+      await waitFor(() => {
+        expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
+        expect(screen.getByText('{ a: 2 }, sort: { a: -1 }')).to.be.visible;
+      });
+
+      // Simulate selecting the autocomplete option
+      userEvent.click(screen.getByText('{ a: 2 }, sort: { a: -1 }'));
+      await waitFor(() => {
+        expect(onApplySpy.lastCall).to.be.calledWithExactly({
+          filter: { a: 2 },
+          sort: { a: -1 },
+        });
       });
     });
   });

@@ -41,6 +41,7 @@ const getMockedStore = (
         preferences: defaultPreferencesInstance,
         logger: createNoopLogger(),
         track: createNoopTrack(),
+        connectionInfoAccess: { getCurrentConnectionInfo: () => {} },
       })
     )
   );

@@ -14,39 +14,7 @@ describe('hadron-build', () => {
     expect(hadronBuild).to.be.a('function');
   });
 
-  describe('::clean', () => {
-    it('should include options from commands::ui', () => {
-      expect(commands.clean.builder).to.have.property('less_cache');
-    });
-  });
-
-  describe('::develop', () => {
-    it('should include options from commands::ui', () => {
-      expect(commands.develop.builder).to.have.property('less_cache');
-    });
-
-    it('should include tasks from commands::ui');
-
-    it('should include options from commands::verify', () => {
-      expect(commands.develop.builder).to.have.property('nodejs_version');
-      expect(commands.develop.builder).to.have.property('npm_version');
-    });
-
-    it('should include tasks from commands::verify');
-
-
-    describe('::handler', () => {
-      it('should set `NODE_ENV` to development');
-      it('should set `DEVTOOLS` to `1` when --devtools is specified');
-      it('should spawn electron-prebuilt');
-    });
-  });
-
   describe('::release', () => {
-    it('should include options from commands::ui', () => {
-      expect(commands.release.builder).to.have.property('less_cache');
-    });
-
     it('should include options from commands::verify', () => {
       expect(commands.release.builder).to.have.property('nodejs_version');
       expect(commands.release.builder).to.have.property('npm_version');
@@ -115,18 +83,6 @@ describe('hadron-build', () => {
       it('should remove the user-data directory');
       it('should spawn electron-mocha');
     });
-  });
-  describe('::upload', () => {
-
-  });
-  describe('::ui', () => {
-    it('should include a `less_cache` option', () => {
-      expect(commands.ui.builder).to.have.property('less_cache');
-    });
-
-    it('should default `less_cache` to `src/app/less-cache`');
-
-    it('should generate the less cache');
   });
 
   describe('::verify', () => {

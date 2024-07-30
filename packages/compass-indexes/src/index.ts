@@ -13,6 +13,8 @@ import {
 } from './stores/store';
 import Indexes from './components/indexes/indexes';
 import {
+  type ConnectionInfoAccess,
+  connectionInfoAccessLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -21,7 +23,7 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import type { Logger } from '@mongodb-js/compass-logging';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
-  createTelemetryLocator,
+  telemetryLocator,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 
@@ -29,6 +31,7 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
   CollectionTabPluginMetadata,
   {
     dataService: () => IndexesDataService;
+    connectionInfoAccess: () => ConnectionInfoAccess;
     instance: () => MongoDBInstance;
     logger: () => Logger;
     track: () => TrackFunction;
@@ -42,9 +45,10 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin<
   {
     dataService:
       dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
+    connectionInfoAccess: connectionInfoAccessLocator,
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
   }
 );
 
@@ -62,7 +66,8 @@ export const CreateIndexPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );
 
@@ -75,6 +80,7 @@ export const DropIndexPlugin = registerHadronPlugin(
   {
     dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: createTelemetryLocator(),
+    track: telemetryLocator,
+    connectionInfoAccess: connectionInfoAccessLocator,
   }
 );

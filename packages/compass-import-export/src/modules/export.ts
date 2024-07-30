@@ -133,11 +133,15 @@ type OpenExportAction = {
 export const openExport = (
   exportOptions: Omit<OpenExportAction, 'type'>
 ): ExportThunkAction<void, OpenExportAction> => {
-  return (dispatch, _getState, { track }) => {
-    track('Export Opened', {
-      type: exportOptions.aggregation ? 'aggregation' : 'query',
-      origin: exportOptions.origin,
-    });
+  return (dispatch, _getState, { track, connectionRepository }) => {
+    track(
+      'Export Opened',
+      {
+        type: exportOptions.aggregation ? 'aggregation' : 'query',
+        origin: exportOptions.origin,
+      },
+      connectionRepository.getConnectionInfoById(exportOptions.connectionId)
+    );
     dispatch({
       type: ExportActionTypes.OpenExport,
       ...exportOptions,
@@ -147,6 +151,20 @@ export const openExport = (
 
 type CloseExportAction = {
   type: ExportActionTypes.CloseExport;
+};
+
+export const connectionDisconnected = (
+  connectionId: string
+): ExportThunkAction<void> => {
+  return (dispatch, getState, { logger: { debug } }) => {
+    const currentConnectionId = getState().export.connectionId;
+    debug('connectionDisconnected', { connectionId, currentConnectionId });
+    if (connectionId === currentConnectionId) {
+      // unlike cancelExport() close also cancels fieldsToExportAbortController
+      // and it hides the modal
+      dispatch(closeExport());
+    }
+  };
 };
 
 export const closeExport = (): CloseExportAction => ({
@@ -350,7 +368,13 @@ export const runExport = ({
   return async (
     dispatch,
     getState,
-    { connectionsManager, preferences, track, logger: { log, mongoLogId } }
+    {
+      connectionsManager,
+      connectionRepository,
+      preferences,
+      track,
+      logger: { log, mongoLogId },
+    }
   ) => {
     let outputWriteStream: fs.WriteStream;
     try {
@@ -515,36 +539,42 @@ export const runExport = ({
     const aborted = !!(
       exportAbortController.signal.aborted || exportResult?.aborted
     );
-    track('Export Completed', {
-      type: aggregation ? 'aggregation' : 'query',
-      all_docs: exportFullCollection,
-      has_projection:
-        exportFullCollection || aggregation || !_query
-          ? undefined
-          : queryHasProjection(_query),
-      field_option:
-        exportFullCollection ||
-        aggregation ||
-        (_query && queryHasProjection(_query))
-          ? undefined
-          : selectedFieldOption,
-      file_type: fileType,
-      json_format: fileType === 'json' ? jsonFormatVariant : undefined,
-      field_count:
-        selectedFieldOption === 'select-fields'
-          ? fieldsIncludedCount
-          : undefined,
-      fields_added_count:
-        selectedFieldOption === 'select-fields' ? fieldsAddedCount : undefined,
-      fields_not_selected_count:
-        selectedFieldOption === 'select-fields'
-          ? fieldsExcludedCount
-          : undefined,
-      number_of_docs: exportResult?.docsWritten,
-      success: exportSucceeded,
-      stopped: aborted,
-      duration: Date.now() - startTime,
-    });
+    track(
+      'Export Completed',
+      {
+        type: aggregation ? 'aggregation' : 'query',
+        all_docs: exportFullCollection,
+        has_projection:
+          exportFullCollection || aggregation || !_query
+            ? undefined
+            : queryHasProjection(_query),
+        field_option:
+          exportFullCollection ||
+          aggregation ||
+          (_query && queryHasProjection(_query))
+            ? undefined
+            : selectedFieldOption,
+        file_type: fileType,
+        json_format: fileType === 'json' ? jsonFormatVariant : undefined,
+        field_count:
+          selectedFieldOption === 'select-fields'
+            ? fieldsIncludedCount
+            : undefined,
+        fields_added_count:
+          selectedFieldOption === 'select-fields'
+            ? fieldsAddedCount
+            : undefined,
+        fields_not_selected_count:
+          selectedFieldOption === 'select-fields'
+            ? fieldsExcludedCount
+            : undefined,
+        number_of_docs: exportResult?.docsWritten,
+        success: exportSucceeded,
+        stopped: aborted,
+        duration: Date.now() - startTime,
+      },
+      connectionRepository.getConnectionInfoById(connectionId)
+    );
 
     if (!exportSucceeded) {
       return;

@@ -337,7 +337,7 @@ const FieldList: React.FunctionComponent<{
 const nbsp = '\u00a0';
 const title = 'Atlas’ Performance Advisor.';
 const PerformanceAdvisorBanner = () => {
-  const { atlasMetadata } = useConnectionInfo();
+  const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
   return (
     <Banner variant="info">
@@ -348,10 +348,12 @@ const PerformanceAdvisorBanner = () => {
         Insight
       </Badge>
       {nbsp}or{nbsp}
-      {atlasMetadata ? (
+      {connectionInfo.atlasMetadata ? (
         <Link
-          href={getAtlasPerformanceAdvisorLink(atlasMetadata)}
-          onClick={() => track('Performance Advisor Clicked')}
+          href={getAtlasPerformanceAdvisorLink(connectionInfo.atlasMetadata)}
+          onClick={() =>
+            track('Performance Advisor Clicked', {}, connectionInfo)
+          }
           hideExternalIcon
         >
           {title}

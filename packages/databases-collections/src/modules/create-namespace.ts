@@ -357,6 +357,7 @@ export const createNamespace = (
     {
       globalAppRegistry,
       connectionsManager,
+      connectionRepository,
       logger: { debug },
       track,
       workspaces,
@@ -391,7 +392,11 @@ export const createNamespace = (
         expires: !!data.options.expireAfterSeconds,
       };
 
-      track(`${kind} Created`, trackEvent);
+      track(
+        `${kind} Created`,
+        trackEvent,
+        connectionRepository.getConnectionInfoById(connectionId)
+      );
 
       globalAppRegistry.emit('collection-created', namespace, {
         connectionId,

@@ -25,8 +25,10 @@ import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { getAppName, getAppVersion } from '@mongodb-js/compass-utils';
 import Home, { type HomeProps } from './home';
-import { createIpcSendTrack } from '@mongodb-js/compass-telemetry';
-import type { TelemetryServiceOptions } from '@mongodb-js/compass-telemetry/dist/generic-track';
+import {
+  type TelemetryServiceOptions,
+  createIpcSendTrack,
+} from '@mongodb-js/compass-telemetry';
 
 const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   const loggerProviderValue = useRef({
@@ -89,10 +91,7 @@ export const WithStorageProviders: React.FC = ({ children }) => {
 };
 
 export const CompassElectron = (
-  props: Omit<
-    HomeProps,
-    '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN' | '__TEST_INITIAL_CONNECTION_INFO'
-  >
+  props: Omit<HomeProps, '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN'>
 ) => {
   return (
     <WithPreferencesAndLoggerProviders>

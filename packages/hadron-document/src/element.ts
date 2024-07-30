@@ -13,7 +13,7 @@ import type { TypeCastTypes } from 'hadron-type-checker';
 import type { ObjectId } from 'bson';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { getDefaultValueForType } from './utils';
-import { ElementEvents } from '.';
+import { DocumentEvents, ElementEvents } from '.';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
 export { Events };
@@ -46,6 +46,13 @@ const UNEDITABLE_TYPES = [
   'DBRef',
 ];
 
+export const DEFAULT_VISIBLE_ELEMENTS = 25;
+export function isValueExpandable(
+  value: BSONValue
+): value is BSONObject | BSONArray {
+  return isPlainObject(value) || isArray(value);
+}
+
 /**
  * Represents an element in a document.
  */
@@ -58,6 +65,11 @@ export class Element extends EventEmitter {
   added: boolean;
   removed: boolean;
   elements?: ElementList;
+  // With Arrays and Objects we store the value in the
+  // `elements` instead of currentValue. We use `originalExpandableValue`
+  // to store the original value that was passed in. This is necessary
+  // to be able to revert to the original value when the user cancels
+  // any changes.
   originalExpandableValue?: BSONObject | BSONArray;
   parent: Element | Document | null;
   type: TypeCastTypes;
@@ -67,6 +79,7 @@ export class Element extends EventEmitter {
   invalidTypeMessage?: string;
   decrypted: boolean;
   expanded = false;
+  maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
 
   /**
    * Cancel any modifications to the element.
@@ -116,7 +129,7 @@ export class Element extends EventEmitter {
       value = TypeChecker.cast(value, TypeChecker.type(value));
     }
 
-    if (this._isExpandable(value)) {
+    if (isValueExpandable(value)) {
       // NB: Important to set `originalExpandableValue` first as element
       // generation will depend on it
       this.originalExpandableValue = value;
@@ -168,10 +181,10 @@ export class Element extends EventEmitter {
    */
   edit(value: BSONValue): void {
     this.currentType = TypeChecker.type(value);
-    if (this._isExpandable(value) && !this._isExpandable(this.currentValue)) {
+    if (isValueExpandable(value) && !isValueExpandable(this.currentValue)) {
       this.currentValue = null;
       this.elements = this._generateElements(value);
-    } else if (!this._isExpandable(value) && this.elements) {
+    } else if (!isValueExpandable(value) && this.elements) {
       this.currentValue = value;
       this.elements = undefined;
     } else {
@@ -300,6 +313,7 @@ export class Element extends EventEmitter {
     }
     const newElement = this.elements.insertAfter(element, key, value);
     newElement!._bubbleUp(Events.Added, newElement, this);
+    this.emitVisibleElementsChanged();
     return newElement!;
   }
 
@@ -317,6 +331,7 @@ export class Element extends EventEmitter {
     }
     const newElement = this.elements.insertEnd(key, value, true);
     this._bubbleUp(Events.Added, newElement);
+    this.emitVisibleElementsChanged();
     return newElement;
   }
 
@@ -453,6 +468,10 @@ export class Element extends EventEmitter {
     } catch (_) {
       return false;
     }
+  }
+
+  _isExpandable(): boolean {
+    return this.currentType === 'Array' || this.currentType === 'Object';
   }
 
   /**
@@ -689,6 +708,7 @@ export class Element extends EventEmitter {
     this.removed = true;
     if (this.parent) {
       this._bubbleUp(Events.Removed, this, this.parent);
+      this.emitVisibleElementsChanged(this.parent);
     }
   }
 
@@ -699,6 +719,9 @@ export class Element extends EventEmitter {
     if (this.isAdded()) {
       this.parent?.elements?.remove(this);
       this._bubbleUp(Events.Removed, this, this.parent);
+      if (this.parent) {
+        this.emitVisibleElementsChanged(this.parent);
+      }
       delete (this as any).parent;
     } else {
       if (this.originalExpandableValue) {
@@ -726,7 +749,7 @@ export class Element extends EventEmitter {
    * will most expand the element itself.
    */
   expand(expandChildren = false): void {
-    if (!this._isExpandable(this.originalExpandableValue)) {
+    if (!this._isExpandable()) {
       return;
     }
 
@@ -737,13 +760,14 @@ export class Element extends EventEmitter {
       }
     }
     this.emit(ElementEvents.Expanded, this);
+    this.emitVisibleElementsChanged();
   }
 
   /**
    * Collapses only the target element
    */
   collapse(): void {
-    if (!this._isExpandable(this.originalExpandableValue)) {
+    if (!this._isExpandable()) {
       return;
     }
 
@@ -754,6 +778,7 @@ export class Element extends EventEmitter {
       }
     }
     this.emit(ElementEvents.Collapsed, this);
+    this.emitVisibleElementsChanged();
   }
 
   /**
@@ -802,17 +827,6 @@ export class Element extends EventEmitter {
   }
 
   /**
-   * Check if the value is expandable.
-   *
-   * @param value - The value to check.
-   *
-   * @returns If the value is expandable.
-   */
-  _isExpandable(value: BSONValue): value is BSONObject | BSONArray {
-    return isPlainObject(value) || isArray(value);
-  }
-
-  /**
    * Generates a sequence of child elements.
    *
    * @param object - The object to generate from.
@@ -833,6 +847,47 @@ export class Element extends EventEmitter {
           this.elements.remove(element);
         }
       }
+    }
+  }
+
+  getVisibleElements() {
+    if (!this.elements || !this.expanded) {
+      return [];
+    }
+    return [...this.elements].slice(0, this.maxVisibleElementsCount);
+  }
+
+  setMaxVisibleElementsCount(newCount: number) {
+    if (!this._isExpandable()) {
+      return;
+    }
+    this.maxVisibleElementsCount = newCount;
+    this.emitVisibleElementsChanged();
+  }
+
+  getTotalVisibleElementsCount(): number {
+    if (!this.elements || !this.expanded) {
+      return 0;
+    }
+    return this.getVisibleElements().reduce(
+      (totalVisibleChildElements, element) => {
+        return (
+          totalVisibleChildElements + 1 + element.getTotalVisibleElementsCount()
+        );
+      },
+      0
+    );
+  }
+
+  private emitVisibleElementsChanged(targetElement: Element | Document = this) {
+    if (targetElement.isRoot()) {
+      targetElement.emit(DocumentEvents.VisibleElementsChanged, targetElement);
+    } else if (targetElement.expanded) {
+      targetElement._bubbleUp(
+        Events.VisibleElementsChanged,
+        targetElement,
+        targetElement.getRoot()
+      );
     }
   }
 

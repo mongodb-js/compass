@@ -115,9 +115,14 @@ function WorkspaceContainer({
   initialTopInView = true,
   'data-testid': dataTestId,
   ...props
-}: React.PropsWithChildren<
-  WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>
->) {
+}: WorkspaceContainerProps &
+  React.HTMLProps<HTMLDivElement> & {
+    children:
+      | React.ReactNode
+      | ((
+          scrollTriggerRef: (node?: Element | null | undefined) => void
+        ) => React.ReactNode);
+  }) {
   const darkMode = useDarkMode();
 
   const scrollContainer = useRef(null);
@@ -158,8 +163,14 @@ function WorkspaceContainer({
           </div>
         )}
         <div ref={scrollableContainerRef} className={workspaceContentStyles}>
-          <div ref={scrollDetectionTrigger}></div>
-          {children}
+          {typeof children === 'function' ? (
+            children(scrollDetectionTrigger)
+          ) : (
+            <>
+              <div ref={scrollDetectionTrigger}></div>
+              {children}
+            </>
+          )}
         </div>
       </div>
     </div>

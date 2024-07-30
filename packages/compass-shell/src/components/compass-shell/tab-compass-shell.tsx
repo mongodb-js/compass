@@ -1,28 +1,26 @@
 import { connect } from 'react-redux';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useTabState } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useOnTabReplace,
+  useTabState,
+} from '@mongodb-js/compass-workspaces/provider';
 import {
   Banner,
   Link,
   css,
   getScrollbarStyles,
   palette,
+  rafraf,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { MapStateToProps } from 'react-redux';
-import type { Shell as ShellType } from '@mongosh/browser-repl';
 import type { WorkerRuntime } from '../../node-runtime-worker-thread';
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header/shell-header';
-import type { HistoryStorage } from '../../modules/history-storage';
-import type { RootState } from '../../modules';
 import { usePreference } from 'compass-preferences-model/provider';
-
-// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
-const { Shell } =
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
-  require('@mongosh/browser-repl') as typeof import('@mongosh/browser-repl');
+import { Shell as _Shell } from '@mongosh/browser-repl';
+import type { RootState } from '../../stores/store';
+import { selectRuntimeById, saveHistory } from '../../stores/store';
 
 const compassShellStyles = css(
   {
@@ -47,54 +45,88 @@ const compassShellContainerStyles = css({
   borderTop: `1px solid ${palette.gray.dark2}`,
 });
 
-type ShellOutputEntry = ShellType['state']['output'][number];
+type ShellProps = React.ComponentProps<typeof _Shell>;
+
+type ShellRef = Extract<Required<ShellProps>['ref'], { current: any }>;
+
+type ShellType = ShellRef['current'];
+
+type ShellOutputEntry = Required<ShellProps>['initialOutput'][number];
 
 type CompassShellProps = {
   runtime: WorkerRuntime | null;
-  historyStorage?: HistoryStorage;
-  emitShellPluginOpened?(): void;
+  initialHistory: string[] | null;
+  onHistoryChange: (history: string[]) => void;
+  initialEvaluate?: string | string[];
+  initialInput?: string;
 };
+
+function useInitialEval(initialEvaluate?: string | string[]) {
+  const [initialEvalApplied, setInitialEvalApplied] = useTabState(
+    'initialEvalApplied',
+    false
+  );
+  useEffect(() => {
+    setInitialEvalApplied(true);
+  }, [setInitialEvalApplied]);
+  return initialEvalApplied ? undefined : initialEvaluate;
+}
+
+const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
+  { initialEvaluate: _initialEvaluate, ...props },
+  ref
+) {
+  const shellRef = useRef<ShellType | null>(null);
+  const initialEvaluate = useInitialEval(_initialEvaluate);
+  const mergeRef = useCallback(
+    (shell: ShellType | null) => {
+      shellRef.current = shell;
+      if (typeof ref === 'function') {
+        ref(shell);
+      } else if (ref) {
+        ref.current = shell;
+      }
+    },
+    [ref]
+  );
+  useEffect(() => {
+    return rafraf(() => {
+      shellRef.current?.focusEditor();
+    });
+  }, []);
+  return (
+    <_Shell
+      ref={mergeRef}
+      initialEvaluate={initialEvaluate}
+      {...props}
+    ></_Shell>
+  );
+});
 
 const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
-  historyStorage,
-  emitShellPluginOpened,
+  initialHistory,
+  onHistoryChange,
+  initialEvaluate,
+  initialInput,
 }) => {
   const enableShell = usePreference('enableShell');
-  const shellRef = useRef<ShellType>(null);
-  const emitShellPluginOpenedRef = useRef(emitShellPluginOpened);
-  emitShellPluginOpenedRef.current =
-    emitShellPluginOpened ??
-    (() => {
-      // noop
-    });
-  const historyStorageRef = useRef(historyStorage);
-  historyStorageRef.current = historyStorage;
-
+  const shellRef: ShellRef = useRef(null);
   const [infoModalVisible, setInfoModalVisible] = useState(false);
   const [isOperationInProgress, setIsOperationInProgress] = useState(false);
-  const [initialHistory, setInitialHistory] = useState<string[] | null>(null);
   const [shellOutput, setShellOutput] = useTabState<
     readonly ShellOutputEntry[]
   >('shellOutput', []);
-  useEffect(() => {
-    async function loadHistory(historyStorage: HistoryStorage) {
-      try {
-        const history = await historyStorage.load();
-        setInitialHistory(history);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-        setInitialHistory([]);
-      }
-    }
+  const [shellInput, setShellInput] = useTabState(
+    'shellInput',
+    initialInput ?? ''
+  );
 
-    emitShellPluginOpenedRef.current?.();
-
-    if (historyStorageRef.current) {
-      void loadHistory(historyStorageRef.current);
-    }
-  }, []);
+  useOnTabReplace(() => {
+    // Never allow to replace the shell tab to avoid destroying the runtime
+    // unnecessarily
+    return false;
+  });
 
   const showInfoModal = useCallback(() => {
     setInfoModalVisible(true);
@@ -107,23 +139,8 @@ const CompassShell: React.FC<CompassShellProps> = ({
   const focusEditor = useCallback(() => {
     // @ts-expect-error test ignore window undef with web worker ts config.
     if (shellRef.current && window.getSelection()?.type !== 'Range') {
-      shellRef.current['focusEditor']();
+      shellRef.current.focusEditor();
     }
-  }, [shellRef]);
-
-  const saveHistory = useCallback((history: readonly string[]) => {
-    void (async (historyStorage: HistoryStorage | undefined) => {
-      if (!historyStorage) {
-        return;
-      }
-
-      try {
-        await historyStorage.save([...history]);
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      }
-    })(historyStorageRef.current);
   }, []);
 
   const updateShellOutput = useCallback(
@@ -141,6 +158,8 @@ const CompassShell: React.FC<CompassShellProps> = ({
     setIsOperationInProgress(false);
   }, []);
 
+  const canRenderShell = enableShell && initialHistory && runtime;
+
   if (!enableShell) {
     return (
       <div className={infoBannerContainerStyles}>
@@ -156,7 +175,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
     );
   }
 
-  if (!runtime || !initialHistory) {
+  if (!canRenderShell) {
     return <div className={compassShellStyles} />;
   }
 
@@ -186,12 +205,19 @@ const CompassShell: React.FC<CompassShellProps> = ({
           <Shell
             ref={shellRef}
             runtime={runtime}
-            initialHistory={initialHistory}
+            initialEvaluate={initialEvaluate}
+            initialInput={shellInput}
+            onInputChanged={setShellInput}
             initialOutput={shellOutput}
-            onHistoryChanged={saveHistory}
             onOutputChanged={updateShellOutput}
+            initialHistory={initialHistory}
+            onHistoryChanged={(history) => {
+              onHistoryChange([...history]);
+            }}
             onOperationStarted={notifyOperationStarted}
             onOperationEnd={notifyOperationEnd}
+            maxOutputLength={1000}
+            maxHistoryLength={1000}
           />
         </div>
       </div>
@@ -199,15 +225,12 @@ const CompassShell: React.FC<CompassShellProps> = ({
   );
 };
 
-const mapState: MapStateToProps<
-  Pick<CompassShellProps, 'runtime' | 'emitShellPluginOpened'>,
-  Pick<CompassShellProps, 'historyStorage'>,
-  RootState
-> = (state) => ({
-  emitShellPluginOpened() {
-    state.runtime.appRegistry?.emit('compass:compass-shell:opened');
+export default connect(
+  (state: RootState) => {
+    return {
+      runtime: selectRuntimeById(state),
+      initialHistory: state.history,
+    };
   },
-  runtime: state.runtime ? state.runtime.runtime : null,
-});
-
-export default connect(mapState)(CompassShell);
+  { onHistoryChange: saveHistory }
+)(CompassShell);

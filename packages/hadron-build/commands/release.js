@@ -23,7 +23,6 @@ const path = require('path');
 const del = require('del');
 const fs = require('fs-extra');
 const _ = require('lodash');
-const async = require('async');
 const asar = require('asar');
 const packager = require('electron-packager');
 const createApplicationZip = require('../lib/zip');
@@ -31,16 +30,11 @@ const run = require('./../lib/run');
 const rebuild = require('@electron/rebuild').rebuild;
 const { signArchive } = require('./../lib/signtool');
 
-const ui = require('./ui');
 const verify = require('./verify');
 
 exports.command = 'release';
 
 exports.describe = ':shipit:';
-
-const compileAssets = module.exports.compileAssets = (CONFIG, done) => {
-  run('npm', ['run', 'compile'], { cwd: CONFIG.dir }, done);
-};
 
 /**
  * Run `electron-packager`
@@ -165,6 +159,26 @@ const copy3rdPartyNoticesFile = (CONFIG, done) => {
   }
 };
 
+/**
+ * Copies the SBOM file from the compass dir to the root of the archive, similar to
+ * copy3rdPartyNoticesFile().
+ */
+const copySBOMFile = (CONFIG, done) => {
+  try {
+    const sbomPath = path.join(CONFIG.dir, '..', '..', '.sbom', 'sbom.json');
+    const contents = fs.readFileSync(sbomPath);
+    CONFIG.write('.sbom.json', contents).then(() => {
+      cli.debug(format('.sbom.json written'));
+    }).then(() => done(null, true));
+  } catch (err) {
+    if (err.code === 'ENOENT' && !process.env.COMPASS_WAS_COMPILED_AND_HAS_SBOM) {
+      cli.debug(format('Skipping sbom.json writing because the file is missing'));
+      return done(null, true);
+    }
+    done(err);
+  }
+};
+
 // Remove a malicious link from chromium license
 // See: COMPASS-5333
 const fixCompass5333 = (CONFIG, done) => {
@@ -277,7 +291,7 @@ const transformPackageJson = async(CONFIG, done) => {
       const depEdge = packageNode.edgesOut.get(depName);
       if (!depEdge.to && !depEdge.optional) {
         throw new Error(
-          `Couldn\'t find node for package ${depName} in arborist tree`
+          `Couldn't find node for package ${depName} in arborist tree`
         );
       }
       if (depEdge.to) {
@@ -439,7 +453,7 @@ const createApplicationAsar = (CONFIG, done) => {
     }, done);
   }).catch((err) => {
     if (err) {
-      console.error(err);
+      cli.error(err);
     }
     done();
   });
@@ -480,7 +494,7 @@ exports.builder = {
   }
 };
 
-_.assign(exports.builder, ui.builder, verify.builder);
+_.assign(exports.builder, verify.builder);
 
 
 /**
@@ -488,7 +502,7 @@ _.assign(exports.builder, ui.builder, verify.builder);
  * @param {Function} done Callback
  * @returns {any}
  */
-exports.run = (argv, done) => {
+exports.run = async (argv, done) => {
   cli.argv = argv;
 
   verifyDistro(argv);
@@ -498,17 +512,17 @@ exports.run = (argv, done) => {
   cli.debug(`Building distribution: ${target.distribution}`);
 
   const task = (name, fn) => {
-    return function(cb) {
+    return () => new Promise((resolve, reject) => {
       cli.debug(`start: ${name}`);
-      fn(target, function(err) {
+      fn(target, (err) => {
         if (err) {
           cli.error(err);
-          return cb(err);
+          return reject(err);
         }
         cli.debug(`completed: ${name}`);
-        cb();
+        return resolve();
       });
-    };
+    });
   };
 
   const skipInstaller =
@@ -517,11 +531,7 @@ exports.run = (argv, done) => {
   const noAsar = process.env.NO_ASAR === 'true' || argv.no_asar;
 
   const tasks = _.flatten([
-    function(cb) {
-      verify.tasks(argv)
-        .then(() => cb())
-        .catch(cb);
-    },
+    () => verify.tasks(argv),
     task('copy npmrc from root', ({ dir }, done) => {
       fs.cp(
         path.resolve(dir, '..', '..', '.npmrc'),
@@ -529,7 +539,6 @@ exports.run = (argv, done) => {
         done
       );
     }),
-    task('compile application assets with webpack', compileAssets),
     task('create branded application', createBrandedApplication),
     task('create executable symlink', symlinkExecutable),
     task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),
@@ -539,6 +548,7 @@ exports.run = (argv, done) => {
     task('fix COMPASS-5333', fixCompass5333),
     task('write license file', writeLicenseFile),
     task('write 3rd party notices file', copy3rdPartyNoticesFile),
+    task('write sbom file', copySBOMFile),
     task('remove development files', removeDevelopmentFiles),
     !noAsar && task('create application asar', createApplicationAsar),
     !skipInstaller && task('create branded installer', createBrandedInstaller),
@@ -547,21 +557,21 @@ exports.run = (argv, done) => {
     task('store build configuration as json', writeConfigToJson)
   ].filter(Boolean));
 
-  return async.series(tasks, (_err) => {
-    try {
-      if (_err) {
-        return done(_err);
-      }
-      done(null, target);
-    } finally {
-      // clean up copied npmrc
-      fs.rm(path.resolve(target.dir, '.npmrc'), (err) => {
-        if (err) {
-          cli.warn(err.message);
-        }
-      });
+  try {
+    for (const task of tasks) {
+      await task();
     }
-  });
+    done(null, target);
+  } catch (err) {
+    done(err);
+  } finally {
+    // clean up copied npmrc
+    fs.rm(path.resolve(target.dir, '.npmrc'), (err) => {
+      if (err) {
+        cli.warn(err.message);
+      }
+    });
+  }
 };
 
 exports.handler = (argv) => {

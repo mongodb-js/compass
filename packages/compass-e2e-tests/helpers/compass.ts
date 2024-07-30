@@ -12,10 +12,7 @@ import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
-import {
-  run as packageCompass,
-  compileAssets,
-} from 'hadron-build/commands/release';
+import { run as packageCompass } from 'hadron-build/commands/release';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors';
@@ -33,7 +30,6 @@ const debug = Debug('compass-e2e-tests');
 const { gunzip } = zlib;
 const { Z_SYNC_FLUSH } = zlib.constants;
 
-const compileAssetsAsync = promisify(compileAssets);
 const packageCompassAsync = promisify(packageCompass);
 
 export const COMPASS_PATH = path.dirname(
@@ -81,6 +77,9 @@ export const MONGODB_TEST_SERVER_PORT = Number(
 );
 
 export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+export const DEFAULT_CONNECTION_NAME = connectionNameFromString(
+  DEFAULT_CONNECTION_STRING
+);
 
 export function updateMongoDBServerInfo() {
   try {
@@ -873,9 +872,7 @@ export async function rebuildNativeModules(
 export async function compileCompassAssets(
   compassPath = COMPASS_PATH
 ): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore some weirdness from util-callbackify
-  await compileAssetsAsync({ dir: compassPath });
+  await promisify(execFile)('npm', ['run', 'compile'], { cwd: compassPath });
 }
 
 async function getCompassBuildMetadata(): Promise<BinPathOptions> {

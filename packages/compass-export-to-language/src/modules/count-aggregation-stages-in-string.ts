@@ -1,4 +1,4 @@
-import parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 
 export function countAggregationStagesInString(source: string): number {
   const parsed = parseShellBSON(source, { mode: ParseMode.Loose });
