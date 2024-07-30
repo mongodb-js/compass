@@ -196,7 +196,14 @@ class Target {
       arch: this.arch,
       electronVersion: this.electronVersion,
       sign: null,
-      afterExtract: [ffmpegAfterExtract]
+      afterExtract: [(buildPath, electronVersion, platform, arch, done) => {
+        // TODO(https://github.com/electron/electron/issues/43076): electron
+        // releases are pointing to a wrong version of ffmpeg codecs right now
+        // (platform mismatch), there is a fix in progress and we should switch
+        // asap when it's available, for now just use the ffmpeg from an older
+        // version
+        ffmpegAfterExtract(buildPath, '29.4.3', platform, arch, done)
+      }]
     };
 
     validateBuildConfig(this.platform, this.pkg.config.hadron.build[this.platform]);
