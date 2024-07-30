@@ -191,9 +191,9 @@ const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
 
   return (
     <>
-      {scrollTriggerRef && index === 0 && <div ref={scrollTriggerRef} />}
-      <div key={index} style={style}>
-        <KeylineCard data-testid="document-list-item" ref={documentRef}>
+      <div data-testid="document-list-item" key={index} style={style}>
+        {scrollTriggerRef && index === 0 && <div ref={scrollTriggerRef} />}
+        <KeylineCard ref={documentRef}>
           <Document
             doc={doc}
             editable={isEditable}

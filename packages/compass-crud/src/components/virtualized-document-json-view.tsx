@@ -183,13 +183,9 @@ const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
 
   return (
     <>
-      {scrollTriggerRef && index === 0 && <div ref={scrollTriggerRef} />}
-      <div key={index} style={style}>
-        <KeylineCard
-          data-testid="document-json-item"
-          className={keylineCardStyles}
-          ref={documentRef}
-        >
+      <div data-testid="document-json-item" key={index} style={style}>
+        <KeylineCard className={keylineCardStyles} ref={documentRef}>
+          {scrollTriggerRef && index === 0 && <div ref={scrollTriggerRef} />}
           <JSONEditor
             doc={doc}
             key={doc.uuid}
