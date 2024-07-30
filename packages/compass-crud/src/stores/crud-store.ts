@@ -525,8 +525,12 @@ class CrudStoreImpl
         this.localAppRegistry.emit('document-deleted', payload);
         this.connectionScopedAppRegistry.emit('document-deleted', payload);
         const index = this.findDocumentIndex(doc);
-        this.state.docs?.splice(index, 1);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1);
         this.setState({
+          docs: newDocs,
           count: this.state.count === null ? null : this.state.count - 1,
           end: Math.max(this.state.end - 1, 0),
         });
@@ -631,8 +635,13 @@ class CrudStoreImpl
       } else if (d) {
         doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
-        this.state.docs![index] = new HadronDocument(d);
-        this.trigger(this.state);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1, new HadronDocument(d));
+        this.setState({
+          docs: newDocs,
+        });
       } else {
         doc.onUpdateBlocked();
       }
@@ -724,8 +733,13 @@ class CrudStoreImpl
       } else {
         doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
-        this.state.docs![index] = new HadronDocument(d);
-        this.trigger(this.state);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1, new HadronDocument(d));
+        this.setState({
+          docs: newDocs,
+        });
       }
     } catch (err: any) {
       doc.onUpdateError(
