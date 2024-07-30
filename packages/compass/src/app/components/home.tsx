@@ -41,9 +41,6 @@ import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
-  trackConnectionDisconnectedEvent,
-  trackConnectionCreatedEvent,
-  trackConnectionRemovedEvent,
 } from '../utils/telemetry';
 // The only place where the app-stores plugin can be used as a plugin and not a
 // provider
@@ -303,9 +300,6 @@ function Home({
             onConnectionAttemptStarted={onConnectionAttemptStarted}
             onConnectionFailed={onConnectionFailed}
             onConnected={onConnected}
-            onDisconnected={onDisconnected}
-            onConnectionCreated={onConnectionCreated}
-            onConnectionRemoved={onConnectionRemoved}
           >
             <ConnectionImportExportProvider>
               <CompassInstanceStorePlugin>

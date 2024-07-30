@@ -16,6 +16,11 @@ import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal
 import { getGenuineMongoDB } from 'mongodb-build-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import {
+  trackConnectionCreatedEvent,
+  trackConnectionDisconnectedEvent,
+  trackConnectionRemovedEvent,
+} from '../utils/telemetry';
 
 const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
@@ -272,12 +277,9 @@ function useCurrentRef<T>(val: T): { current: T } {
 }
 
 export function useConnections({
-  onConnected,
+  onConnected, // TODO(COMPASS-7397): move connection-telemetry inside connections
   onConnectionFailed,
   onConnectionAttemptStarted,
-  onDisconnected,
-  onConnectionCreated,
-  onConnectionRemoved,
 }: {
   onConnected?: (
     connectionInfo: ConnectionInfo,
@@ -288,9 +290,6 @@ export function useConnections({
     error: Error
   ) => void;
   onConnectionAttemptStarted?: (connectionInfo: ConnectionInfo) => void;
-  onDisconnected?: (connectionInfo: ConnectionInfo | undefined) => void;
-  onConnectionCreated?: (connectionInfo: ConnectionInfo) => void;
-  onConnectionRemoved?: (connectionInfo: ConnectionInfo) => void;
 } = {}): {
   state: State;
 
@@ -366,7 +365,7 @@ export function useConnections({
         const isNewConnection = !getConnectionInfoById(connectionInfo.id);
         const savedConnectionInfo = await saveConnection(connectionInfo);
         if (isNewConnection) {
-          onConnectionCreated?.(savedConnectionInfo);
+          trackConnectionCreatedEvent(savedConnectionInfo, track);
         }
         return savedConnectionInfo;
       } catch (err) {
@@ -387,7 +386,7 @@ export function useConnections({
         return null;
       }
     },
-    [openToast, saveConnection, onConnectionCreated, getConnectionInfoById]
+    [openToast, saveConnection, getConnectionInfoById, track]
   );
 
   const oidcAttemptConnectNotifyDeviceAuth = useCallback(
@@ -443,7 +442,10 @@ export function useConnections({
       );
       try {
         await connectionsManager.closeConnection(connectionId);
-        onDisconnected?.(getConnectionInfoById(connectionId));
+        trackConnectionDisconnectedEvent(
+          getConnectionInfoById(connectionId),
+          track
+        );
       } catch (error) {
         log.error(
           mongoLogId(1_001_000_314),
@@ -460,7 +462,7 @@ export function useConnections({
       closeConnectionStatusToast,
       connectionsManager,
       getConnectionInfoById,
-      onDisconnected,
+      track,
     ]
   );
 
@@ -551,11 +553,11 @@ export function useConnections({
       if (connectionInfo) {
         void disconnect(connectionId);
         await deleteConnection(connectionInfo);
-        onConnectionRemoved?.(connectionInfo);
+        trackConnectionRemovedEvent(connectionInfo, track);
         dispatch({ type: 'delete-connection', connectionInfo });
       }
     },
-    [deleteConnection, disconnect, getConnectionInfoById, onConnectionRemoved]
+    [deleteConnection, disconnect, getConnectionInfoById, track]
   );
 
   const removeAllRecentConnections = useCallback(async () => {

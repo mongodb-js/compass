@@ -6,9 +6,6 @@ import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
   trackConnectionFailedEvent,
-  trackConnectionDisconnectedEvent,
-  trackConnectionCreatedEvent,
-  trackConnectionRemovedEvent,
 } from './telemetry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -798,49 +795,6 @@ describe('connection tracking', function () {
     };
 
     expect(event).to.equal('New Connection');
-    expect(properties).to.deep.equal(expected);
-  });
-
-  it('tracks a connection disconnected event', async function () {
-    const trackEvent = once(process, 'compass:track');
-
-    trackConnectionDisconnectedEvent(connectionInfo, track);
-    const [{ properties, event }] = await trackEvent;
-
-    const expected = {
-      connection_id: 'TEST',
-    };
-
-    expect(event).to.equal('Connection Disconnected');
-    expect(properties).to.deep.equal(expected);
-  });
-
-  it('tracks a connection created event', async function () {
-    const trackEvent = once(process, 'compass:track');
-
-    trackConnectionCreatedEvent(connectionInfo, track);
-    const [{ properties, event }] = await trackEvent;
-
-    const expected = {
-      connection_id: 'TEST',
-      color: connectionInfo.favorite?.color,
-    };
-
-    expect(event).to.equal('Connection Created');
-    expect(properties).to.deep.equal(expected);
-  });
-
-  it('tracks a connection removed event', async function () {
-    const trackEvent = once(process, 'compass:track');
-
-    trackConnectionRemovedEvent(connectionInfo, track);
-    const [{ properties, event }] = await trackEvent;
-
-    const expected = {
-      connection_id: 'TEST',
-    };
-
-    expect(event).to.equal('Connection Removed');
     expect(properties).to.deep.equal(expected);
   });
 });

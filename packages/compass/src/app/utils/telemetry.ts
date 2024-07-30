@@ -201,33 +201,6 @@ export function trackNewConnectionEvent(
   }
 }
 
-export function trackConnectionDisconnectedEvent(
-  connectionInfo: ConnectionInfo | undefined,
-  track: TrackFunction
-): void {
-  track('Connection Disconnected', {}, connectionInfo);
-}
-
-export function trackConnectionCreatedEvent(
-  connectionInfo: ConnectionInfo | undefined,
-  track: TrackFunction
-): void {
-  track(
-    'Connection Created',
-    {
-      color: connectionInfo?.favorite?.color,
-    },
-    connectionInfo
-  );
-}
-
-export function trackConnectionRemovedEvent(
-  connectionInfo: ConnectionInfo | undefined,
-  track: TrackFunction
-): void {
-  track('Connection Removed', {}, connectionInfo);
-}
-
 export function trackConnectionFailedEvent(
   connectionInfo: ConnectionInfo | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,

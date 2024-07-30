@@ -24,7 +24,10 @@ import {
   ConnectionsProvider,
   useConnections,
 } from '../components/connections-provider';
-import { update } from 'lodash';
+import {
+  TelemetryProvider,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLogger();
@@ -70,23 +73,31 @@ describe('useConnections', function () {
   let renderHookWithContext: (
     props?: ComponentProps<typeof ConnectionsProvider>
   ) => { current: ReturnType<typeof useConnections> };
+  let trackSpy: TrackFunction;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
+    trackSpy = sinon.spy();
     renderHookWithContext = (props) => {
       const wrapper: React.FC = ({ children }) => {
         return (
           <ToastArea>
             <ConfirmationModalArea>
-              <PreferencesProvider value={preferences}>
-                <ConnectionStorageProvider value={mockConnectionStorage}>
-                  <ConnectionsManagerProvider value={connectionsManager}>
-                    <ConnectionsProvider {...props}>
-                      {children}
-                    </ConnectionsProvider>
-                  </ConnectionsManagerProvider>
-                </ConnectionStorageProvider>
-              </PreferencesProvider>
+              <TelemetryProvider
+                options={{
+                  sendTrack: trackSpy,
+                }}
+              >
+                <PreferencesProvider value={preferences}>
+                  <ConnectionStorageProvider value={mockConnectionStorage}>
+                    <ConnectionsManagerProvider value={connectionsManager}>
+                      <ConnectionsProvider {...props}>
+                        {children}
+                      </ConnectionsProvider>
+                    </ConnectionsManagerProvider>
+                  </ConnectionStorageProvider>
+                </PreferencesProvider>
+              </TelemetryProvider>
             </ConfirmationModalArea>
           </ToastArea>
         );
@@ -124,6 +135,7 @@ describe('useConnections', function () {
 
   afterEach(() => {
     cleanup();
+    sinon.resetHistory();
     sinon.restore();
   });
 
@@ -339,8 +351,7 @@ describe('useConnections', function () {
 
   describe('#disconnect', function () {
     it('disconnect even if connection is in progress cleaning up progress toasts', async function () {
-      const onDisconnected = sinon.spy();
-      const connections = renderHookWithContext({ onDisconnected });
+      const connections = renderHookWithContext();
 
       sinon.spy(connectionsManager, 'closeConnection');
 
@@ -354,7 +365,7 @@ describe('useConnections', function () {
       await connections.current.disconnect(connectionInfo.id);
       await connectPromise;
 
-      expect(onDisconnected).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Disconnected');
       expect(() => screen.getByText(/Connecting to/)).to.throw;
       expect(connectionsManager).to.have.property('closeConnection').have.been
         .calledOnce;
@@ -398,8 +409,7 @@ describe('useConnections', function () {
   describe('#saveEditedConnection', function () {
     it('new connection: should call save and onConnectionCreated', async function () {
       const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-      const onConnectionCreated = sinon.spy();
-      const connections = renderHookWithContext({ onConnectionCreated });
+      const connections = renderHookWithContext();
 
       // Waiting for connections to load first
       await waitFor(() => {
@@ -417,7 +427,7 @@ describe('useConnections', function () {
       await connections.current.saveEditedConnection(newConnection);
 
       expect(saveSpy).to.have.been.calledOnce;
-      expect(onConnectionCreated).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Created');
 
       await waitFor(() => {
         expect(
@@ -430,8 +440,7 @@ describe('useConnections', function () {
 
     it('existing connection: should call save, not onConnectionCreated', async function () {
       const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-      const onConnectionCreated = sinon.spy();
-      const connections = renderHookWithContext({ onConnectionCreated });
+      const connections = renderHookWithContext();
 
       // Waiting for connections to load first
       await waitFor(() => {
@@ -446,7 +455,7 @@ describe('useConnections', function () {
       await connections.current.saveEditedConnection(updatedConnection);
 
       expect(saveSpy).to.have.been.calledOnce;
-      expect(onConnectionCreated).not.to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Created');
 
       await waitFor(() => {
         expect(
@@ -465,12 +474,7 @@ describe('useConnections', function () {
         connectionsManager,
         'closeConnection'
       );
-      const onConnectionRemoved = sinon.spy();
-      const onDisconnected = sinon.spy();
-      const connections = renderHookWithContext({
-        onConnectionRemoved,
-        onDisconnected,
-      });
+      const connections = renderHookWithContext();
 
       // Waiting for connections to load first
       await waitFor(() => {
@@ -480,9 +484,9 @@ describe('useConnections', function () {
       await connections.current.removeConnection(mockConnections[0].id);
 
       expect(closeConnectionSpy).to.have.been.calledOnce;
-      expect(onDisconnected).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Removed');
       expect(deleteSpy).to.have.been.calledOnce;
-      expect(onConnectionRemoved).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Disconnected');
 
       await waitFor(() => {
         expect(
