@@ -24,7 +24,7 @@ import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
 import type { BaseQuery } from '../constants/query-properties';
-import { SavedQuery } from '@mongodb-js/compass-editor/dist/codemirror/query-history-autocompleter';
+import type { SavedQuery } from '@mongodb-js/compass-editor';
 
 const editorContainerStyles = css({
   position: 'relative',
