@@ -134,6 +134,17 @@ describe('explain-plan-plan', function () {
           { fields: { a: 1, b: 1 }, index: 'a_1_b_1', shard: null },
         ]);
       });
+      it('should have the correct `isCovered` value in EXPRESS_IXSCAN', async function () {
+        {
+          plan = await loadExplainFixture('express_index_scan.json');
+          expect(plan.isCovered, 'totalDocsExamined is > 0').to.be.false;
+        }
+        {
+          plan = await loadExplainFixture('express_index_scan.json');
+          plan.totalDocsExamined = 0;
+          expect(plan.isCovered, 'totalDocsExamined is = 0').to.be.true;
+        }
+      });
     });
   });
 

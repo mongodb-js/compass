@@ -91,7 +91,9 @@ export class ExplainPlan {
       return false;
     }
     const ixscan = this.findStageByName('IXSCAN');
-    return ixscan?.parentName !== 'FETCH';
+    const expressIxscan = this.findStageByName('EXPRESS_IXSCAN');
+    const stage = ixscan || expressIxscan;
+    return stage?.parentName !== 'FETCH';
   }
 
   get isMultiKey(): boolean {

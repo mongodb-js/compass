@@ -247,6 +247,9 @@ const Highlight: React.FunctionComponent<{
   value: string;
   field: string;
 }> = ({ field, value }) => {
+  if (typeof value === 'undefined') {
+    return null;
+  }
   return (
     <li className={overflowTextStyles}>
       <span>{field}: </span>

@@ -78,9 +78,7 @@ const extractHighlights = (stage: Omit<ExplainTreeNodeData, 'highlights'>) => {
     case 'EXPRESS_IXSCAN':
       return {
         'Index Name': stage.details?.indexName,
-        ...('isMultiKey' in stage.details && {
-          'Multi Key Index': stage.details.isMultiKey,
-        }),
+        'Multi Key Index': stage.details.isMultiKey,
       };
     case 'PROJECTION':
       return {
