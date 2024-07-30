@@ -23,6 +23,6 @@ export { createAggregationAutocompleter } from './codemirror/aggregation-autocom
 export { createSearchIndexAutocompleter } from './codemirror/search-index-autocompleter';
 export {
   createQueryHistoryAutocompleter,
-  SavedQuery,
+  type SavedQuery,
 } from './codemirror/query-history-autocompleter';
 export { createQueryWithHistoryAutocompleter } from './codemirror/query-autocompleter-with-history';
