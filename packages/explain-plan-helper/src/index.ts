@@ -119,8 +119,22 @@ export class ExplainPlan {
       : 0;
   }
 
+  get isClusteredScan(): boolean {
+    return Boolean(
+      this.findStageByName('EXPRESS_CLUSTERED_IXSCAN') ||
+        this.findStageByName('CLUSTERED_IXSCAN')
+    );
+  }
+
   get indexType() {
     const indexes = this.usedIndexes;
+
+    // Currently the CLUSTERED_IXSCAN and EXPRESS_CLUSTERED_IXSCAN do not report
+    // any indexes in the winning stage. Even though the query clearly uses
+    // an index. And since we can't determine the index used, we will return CLUSTER.
+    if (this.isClusteredScan) {
+      return 'CLUSTERED';
+    }
 
     if (indexes.length === 0) {
       return 'UNAVAILABLE';
