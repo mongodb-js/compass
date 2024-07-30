@@ -52,10 +52,11 @@ export class ExplainPlan {
   get usedIndexes(): IndexInformation[] {
     const ixscan = this.findAllStagesByName('IXSCAN');
     const expressIxscan = this.findAllStagesByName('EXPRESS_IXSCAN');
+    const countScan = this.findAllStagesByName('COUNT_SCAN');
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
     const ret: IndexInformation[] = this.executionStats?.stageIndexes ?? [];
-    for (const stage of [...ixscan, ...expressIxscan, idhack]) {
+    for (const stage of [...ixscan, ...expressIxscan, ...countScan, idhack]) {
       if (!stage) continue;
       let shard: string | null = null;
       if (this.isSharded) {

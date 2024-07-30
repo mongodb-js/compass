@@ -1,0 +1,179 @@
+{
+  "explainVersion": "2",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "air.count_scan",
+          "parsedQuery": { "a": { "$eq": 1 } },
+          "indexFilterSet": false,
+          "queryHash": "E9070EFA",
+          "planCacheKey": "0005D496",
+          "optimizationTimeMillis": 1,
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "prunedSimilarIndexes": false,
+          "winningPlan": {
+            "isCached": false,
+            "queryPlan": {
+              "stage": "GROUP",
+              "planNodeId": 2,
+              "inputStage": {
+                "stage": "COUNT_SCAN",
+                "planNodeId": 1,
+                "keyPattern": { "a": 1 },
+                "indexName": "a_1",
+                "isMultiKey": true,
+                "multiKeyPaths": { "a": ["a"] },
+                "isUnique": false,
+                "isSparse": false,
+                "isPartial": false,
+                "indexVersion": 2,
+                "indexBounds": {
+                  "startKey": { "a": 1 },
+                  "startKeyInclusive": true,
+                  "endKey": { "a": 1 },
+                  "endKeyInclusive": true
+                }
+              }
+            },
+            "slotBasedPlan": {
+              "slots": "$$RESULT=s8 env: { s1 = KS(2B020104), s2 = KS(2B02FE04) }",
+              "stages": "[2] project [s8 = newObj(\"_id\", s6, \"count\", s7)] \n[2] project [s6 = null, s7 = (convert ( s5, int32) ?: s5)] \n[2] group [] [s5 = count()] spillSlots[s4] mergingExprs[sum(s4)] \n[1] unique [s3] \n[1] ixseek s1 s2 none s3 none none [] @\"df153405-add2-456a-a237-2a9a42cd8a81\" @\"a_1\" true "
+            }
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 1,
+          "executionTimeMillis": 2,
+          "totalKeysExamined": 2,
+          "totalDocsExamined": 0,
+          "executionStages": {
+            "stage": "project",
+            "planNodeId": 2,
+            "nReturned": 1,
+            "executionTimeMillisEstimate": 0,
+            "opens": 1,
+            "closes": 1,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "projections": {
+              "8": "newObj(\"_id\", s6, \"count\", s7) "
+            },
+            "inputStage": {
+              "stage": "project",
+              "planNodeId": 2,
+              "nReturned": 1,
+              "executionTimeMillisEstimate": 0,
+              "opens": 1,
+              "closes": 1,
+              "saveState": 1,
+              "restoreState": 1,
+              "isEOF": 1,
+              "projections": {
+                "6": "null ",
+                "7": "(convert ( s5, int32) ?: s5) "
+              },
+              "inputStage": {
+                "stage": "group",
+                "planNodeId": 2,
+                "nReturned": 1,
+                "executionTimeMillisEstimate": 0,
+                "opens": 1,
+                "closes": 1,
+                "saveState": 1,
+                "restoreState": 1,
+                "isEOF": 1,
+                "groupBySlots": [],
+                "expressions": {
+                  "5": "count() ",
+                  "initExprs": { "5": null }
+                },
+                "mergingExprs": {
+                  "4": "sum(s4) "
+                },
+                "usedDisk": false,
+                "spills": 0,
+                "spilledBytes": 0,
+                "spilledRecords": 0,
+                "spilledDataStorageSize": 0,
+                "inputStage": {
+                  "stage": "unique",
+                  "planNodeId": 1,
+                  "nReturned": 2,
+                  "executionTimeMillisEstimate": 0,
+                  "opens": 1,
+                  "closes": 1,
+                  "saveState": 1,
+                  "restoreState": 1,
+                  "isEOF": 1,
+                  "dupsTested": 2,
+                  "dupsDropped": 0,
+                  "keySlots": [3],
+                  "inputStage": {
+                    "stage": "ixseek",
+                    "planNodeId": 1,
+                    "nReturned": 2,
+                    "executionTimeMillisEstimate": 0,
+                    "opens": 1,
+                    "closes": 1,
+                    "saveState": 1,
+                    "restoreState": 1,
+                    "isEOF": 1,
+                    "indexName": "a_1",
+                    "keysExamined": 2,
+                    "seeks": 1,
+                    "numReads": 3,
+                    "recordIdSlot": 3,
+                    "outputSlots": [],
+                    "indexKeysToInclude": "00000000000000000000000000000000",
+                    "seekKeyLow": "s1 ",
+                    "seekKeyHigh": "s2 "
+                  }
+                }
+              }
+            }
+          },
+          "allPlansExecution": []
+        }
+      },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 2
+    },
+    {
+      "$project": { "count": true, "_id": false },
+      "nReturned": 1,
+      "executionTimeMillisEstimate": 2
+    }
+  ],
+  "serverInfo": {
+    "host": "M-N3QTPH34HC",
+    "port": 0,
+    "version": "8.0.0-rc15",
+    "gitVersion": "c478945a729858aa04ccdbe17a35d0841ae6af35"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "trySbeRestricted",
+    "internalQueryPlannerIgnoreIndexWithCollationForRegex": 1
+  },
+  "command": {
+    "aggregate": "count_scan",
+    "pipeline": [{ "$match": { "a": 1 } }, { "$count": "count" }],
+    "cursor": {},
+    "maxTimeMS": 60000,
+    "$db": "air"
+  },
+  "ok": 1
+}
