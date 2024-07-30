@@ -14,7 +14,7 @@ import { highlightCode } from '@lezer/highlight';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
 export type SavedQuery = {
-  type: 'recent' | 'favorite';
+  type: string;
   lastExecuted: Date;
   queryProperties: {
     [propertyName: string]: any;

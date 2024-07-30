@@ -265,22 +265,16 @@ const ConnectedOptionEditor = (state: RootState) => ({
   namespace: state.queryBar.namespace,
   serverVersion: state.queryBar.serverVersion,
   savedQueries: [
-    ...state.queryBar.recentQueries.map(
-      (query) =>
-        ({
-          type: 'recent',
-          lastExecuted: query._lastExecuted,
-          queryProperties: getQueryAttributes(query),
-        } as SavedQuery)
-    ),
-    ...state.queryBar.favoriteQueries.map(
-      (query) =>
-        ({
-          type: 'favorite',
-          lastExecuted: query._lastExecuted,
-          queryProperties: getQueryAttributes(query),
-        } as SavedQuery)
-    ),
+    ...state.queryBar.recentQueries.map((query) => ({
+      type: 'recent',
+      lastExecuted: query._lastExecuted,
+      queryProperties: getQueryAttributes(query),
+    })),
+    ...state.queryBar.favoriteQueries.map((query) => ({
+      type: 'favorite',
+      lastExecuted: query._lastExecuted,
+      queryProperties: getQueryAttributes(query),
+    })),
   ],
 });
 
