@@ -68,6 +68,8 @@ type ItemData = Omit<
   observer: ListItemObserver;
 };
 
+// TODO(COMPASS-8127): Refactor this component into a VirtualList component that
+// is reusable after fixing the problem mentioned in the ticket
 const VirtualizedDocumentListView: React.FC<
   VirtualizedDocumentListViewProps
 > = ({
