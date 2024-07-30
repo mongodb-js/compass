@@ -201,27 +201,6 @@ function Home({
     [logger, track]
   );
 
-  const onDisconnected = useCallback(
-    (connectionInfo: ConnectionInfo | undefined) => {
-      trackConnectionDisconnectedEvent(connectionInfo, track);
-    },
-    [track]
-  );
-
-  const onConnectionCreated = useCallback(
-    (connectionInfo: ConnectionInfo | undefined) => {
-      trackConnectionCreatedEvent(connectionInfo, track);
-    },
-    [track]
-  );
-
-  const onConnectionRemoved = useCallback(
-    (connectionInfo: ConnectionInfo | undefined) => {
-      trackConnectionRemovedEvent(connectionInfo, track);
-    },
-    [track]
-  );
-
   const onConnectionFailed = useCallback(
     (connectionInfo: ConnectionInfo | null, error: Error) => {
       trackConnectionFailedEvent(connectionInfo, error, logger, track);
