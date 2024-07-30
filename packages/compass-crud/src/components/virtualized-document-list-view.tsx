@@ -134,7 +134,7 @@ const VirtualizedDocumentListView: React.FC<
   );
 
   return (
-    <div className={cx(containerStyles, className)}>
+    <div className={cx(containerStyles, className)} data-testid="document-list">
       <Autosizer>
         {({ width, height }: { width: number; height: number }) => (
           <List<ItemData>
