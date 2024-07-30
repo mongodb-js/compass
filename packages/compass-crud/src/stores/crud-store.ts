@@ -221,6 +221,13 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
  */
 const COUNT_MAX_TIME_MS_CAP = 5000;
 
+/**
+ * The key we use to persist the user selected maximum documents per page for
+ * other tabs or for the next application start.
+ * Exported only for test purpose
+ */
+export const MAX_DOCS_PER_PAGE_STORAGE_KEY = 'compass_crud-max_docs_per_page';
+
 export type CrudStoreOptions = Pick<
   CollectionTabPluginMetadata,
   | 'query'
@@ -410,8 +417,18 @@ class CrudStoreImpl
       isSearchIndexesSupported: this.options.isSearchIndexesSupported,
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
-      docsPerPage: DEFAULT_NUM_PAGE_DOCS,
+      docsPerPage: this.getInitialDocsPerPage(),
     };
+  }
+
+  getInitialDocsPerPage(): number {
+    const lastUsedDocsPerPageString = localStorage.getItem(
+      MAX_DOCS_PER_PAGE_STORAGE_KEY
+    );
+    const lastUsedDocsPerPage = lastUsedDocsPerPageString
+      ? parseInt(lastUsedDocsPerPageString)
+      : null;
+    return lastUsedDocsPerPage ?? DEFAULT_NUM_PAGE_DOCS;
   }
 
   /**
@@ -495,6 +512,7 @@ class CrudStoreImpl
 
   updateMaxDocumentsPerPage(docsPerPage: number) {
     const previousDocsPerPage = this.state.docsPerPage;
+    localStorage.setItem(MAX_DOCS_PER_PAGE_STORAGE_KEY, String(docsPerPage));
     this.setState({
       docsPerPage,
     });

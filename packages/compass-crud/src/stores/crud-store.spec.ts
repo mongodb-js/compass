@@ -17,6 +17,7 @@ import {
   findAndModifyWithFLEFallback,
   fetchDocuments,
   activateDocumentsPlugin as _activate,
+  MAX_DOCS_PER_PAGE_STORAGE_KEY,
 } from './crud-store';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
@@ -2540,22 +2541,43 @@ describe('store', function () {
 
   describe('#updateMaxDocumentsPerPage', function () {
     let store: CrudStore;
+    let fakeLocalStorage: sinon.SinonStub;
+    let fakeGetItem: (key: string) => string | null;
+    let fakeSetItem: (key: string, value: string) => void;
 
     beforeEach(function () {
+      const localStorageValues: Record<string, string> = {};
+      fakeGetItem = sinon.fake((key: string) => {
+        return localStorageValues[key];
+      });
+      fakeSetItem = sinon.fake((key: string, value: any) => {
+        localStorageValues[key] = value.toString();
+      });
+
+      fakeLocalStorage = sinon.stub(global, 'localStorage').value({
+        getItem: fakeGetItem,
+        setItem: fakeSetItem,
+      });
       const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
     });
 
-    it('should update the number of documents per page in the state', async function () {
+    afterEach(function () {
+      fakeLocalStorage.restore();
+    });
+
+    it('should update the number of documents per page in the state and in localStorage', async function () {
       let listener = waitForState(store, (state) => {
         expect(state).to.have.property('docsPerPage', 50);
+        expect(fakeGetItem(MAX_DOCS_PER_PAGE_STORAGE_KEY)).to.equal('50');
       });
       store.updateMaxDocumentsPerPage(50);
       await listener;
 
       listener = waitForState(store, (state) => {
         expect(state).to.have.property('docsPerPage', 75);
+        expect(fakeGetItem(MAX_DOCS_PER_PAGE_STORAGE_KEY)).to.equal('75');
       });
       store.updateMaxDocumentsPerPage(75);
       await listener;
