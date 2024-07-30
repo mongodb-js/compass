@@ -132,11 +132,17 @@ const cardStylesDarkMode = css({
   borderColor: palette.gray.light2,
 });
 
-const stageTitleStyles = css({
+const stageTitleContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
   cursor: 'pointer',
+});
+
+const stageTitleStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const separatorStyles = css({
@@ -317,9 +323,9 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
 const StageView: React.FunctionComponent<StageViewProps> = (props) => {
   return (
     <>
-      <div className={stageTitleStyles}>
+      <div className={stageTitleContainerStyles}>
         <Icon glyph={props.detailsOpen ? 'ChevronDown' : 'ChevronRight'} />
-        <Subtitle>{props.name}</Subtitle>
+        <Subtitle className={stageTitleStyles}>{props.name}</Subtitle>
       </div>
 
       <ExecutionStats
