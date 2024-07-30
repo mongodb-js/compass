@@ -479,25 +479,6 @@ describe('ConnectionsManager', function () {
         ).to.equal(ConnectionStatus.Connected);
       });
 
-      it('#getConnectionIdsByStatus(ConnectionStatus.Connected) should return the connected connections', async function () {
-        await Promise.all([
-          connectionsManager.connect(
-            connectedConnectionInfo1,
-            getConnectionConfigurationOptions()
-          ),
-          connectionsManager.connect(
-            connectedConnectionInfo2,
-            getConnectionConfigurationOptions()
-          ),
-        ]);
-        const connections = connectionsManager.getConnectionIdsByStatus(
-          ConnectionStatus.Connected
-        );
-        expect(connections).to.have.length(2);
-        expect(connections).to.contain(connectedConnectionInfo1.id);
-        expect(connections).to.contain(connectedConnectionInfo2.id);
-      });
-
       it('#getDataServiceForConnection should be able to return connected dataService', async function () {
         await Promise.all([
           connectionsManager.connect(
@@ -583,20 +564,6 @@ describe('ConnectionsManager', function () {
       );
     });
 
-    it('#getConnectionIdsByStatus(ConnectionStatus.Failed) should return the failed connection', async function () {
-      try {
-        await connectionsManager.connect(
-          failedConnectionInfo,
-          getConnectionConfigurationOptions()
-        );
-      } catch (error) {
-        // nothing
-      }
-      expect(
-        connectionsManager.getConnectionIdsByStatus(ConnectionStatus.Failed)
-      ).to.deep.equal([failedConnectionInfo.id]);
-    });
-
     it('#getDataServiceForConnection should not return anything for failed connection', async function () {
       try {
         await connectionsManager.connect(
@@ -663,23 +630,6 @@ describe('ConnectionsManager', function () {
       expect(connectionsManager.statusOf(activeConnectionInfo.id)).to.equal(
         ConnectionStatus.Disconnected
       );
-    });
-
-    it('#getConnectionIdsByStatus(ConnectionStatus.Disconnected) should return the connection after disconnecting', async function () {
-      await connectionsManager.connect(
-        activeConnectionInfo,
-        getConnectionConfigurationOptions()
-      );
-      expect(
-        connectionsManager.getConnectionIdsByStatus(ConnectionStatus.Connected)
-      ).to.deep.equal([activeConnectionInfo.id]);
-
-      await connectionsManager.closeConnection(activeConnectionInfo.id);
-      expect(
-        connectionsManager.getConnectionIdsByStatus(
-          ConnectionStatus.Disconnected
-        )
-      ).to.deep.equal([activeConnectionInfo.id]);
     });
 
     it('#getDataServiceForConnection should not return anything for disconnected connection', async function () {
