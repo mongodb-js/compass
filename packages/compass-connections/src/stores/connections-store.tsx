@@ -361,16 +361,14 @@ export function useConnections({
   } = useConnectionStatusToasts();
 
   const saveConnectionInfo = useCallback(
-    async (
-      connectionInfo: RecursivePartial<ConnectionInfo> &
-        Pick<ConnectionInfo, 'id'>
-    ) => {
+    async (connectionInfo: PartialConnectionInfo) => {
       try {
         const isNewConnection = !getConnectionInfoById(connectionInfo.id);
         const savedConnectionInfo = await saveConnection(connectionInfo);
         if (isNewConnection) {
           onConnectionCreated?.(savedConnectionInfo);
         }
+        return savedConnectionInfo;
       } catch (err) {
         debug(
           `error saving connection with id ${connectionInfo.id || ''}: ${
@@ -578,7 +576,7 @@ export function useConnections({
       const updatedConnectionInfo = await saveConnectionInfo(connectionInfo);
       dispatch({
         type: 'save-edited-connection',
-        connectionInfo: updatedConnectionInfo || null,
+        connectionInfo: updatedConnectionInfo,
       });
     },
     [saveConnectionInfo]
