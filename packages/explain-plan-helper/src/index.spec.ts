@@ -126,6 +126,15 @@ describe('explain-plan-plan', function () {
         expect(plan.isCovered).to.equal(false);
       });
     });
+
+    describe('Express plans', function () {
+      it('should have the correct `usedIndexes` value in EXPRESS_IXSCAN', async function () {
+        plan = await loadExplainFixture('express_index_scan.json');
+        expect(plan.usedIndexes).to.deep.equal([
+          { fields: { a: 1, b: 1 }, index: 'a_1_b_1', shard: null },
+        ]);
+      });
+    });
   });
 
   context('Edge Cases', function () {

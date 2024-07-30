@@ -2,6 +2,7 @@ import convertExplainCompat from 'mongodb-explain-compat';
 import { getPlannerInfo } from './get-planner-info';
 import { getExecutionStats } from './get-execution-stats';
 import type { ExecutionStats } from './get-execution-stats';
+import { getStageIndexFields } from './utils';
 
 const kParent = Symbol('ExplainPlan.kParent');
 
@@ -50,10 +51,11 @@ export class ExplainPlan {
 
   get usedIndexes(): IndexInformation[] {
     const ixscan = this.findAllStagesByName('IXSCAN');
+    const expressIxscan = this.findAllStagesByName('EXPRESS_IXSCAN');
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
     const ret: IndexInformation[] = this.executionStats?.stageIndexes ?? [];
-    for (const stage of [...ixscan, idhack]) {
+    for (const stage of [...ixscan, ...expressIxscan, idhack]) {
       if (!stage) continue;
       let shard: string | null = null;
       if (this.isSharded) {
@@ -65,7 +67,7 @@ export class ExplainPlan {
         }
       }
       const index: string = stage === idhack ? '_id_' : stage.indexName;
-      const fields = stage === idhack ? { _id: 1 } : stage.keyPattern ?? {};
+      const fields = stage === idhack ? { _id: 1 } : getStageIndexFields(stage);
       ret.push({ index, shard, fields });
     }
     if (this.isSharded) {
