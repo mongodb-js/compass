@@ -53,7 +53,6 @@ export type VirtualizedDocumentJsonViewProps = {
   | 'replaceDocument'
   | 'updateDocument'
   | 'openInsertDocumentDialog'
-  | 'isExpanded'
 >;
 
 type ItemData = Omit<
@@ -70,7 +69,6 @@ const VirtualizedDocumentJsonView: React.FC<
   docs,
   namespace,
   isEditable,
-  isExpanded,
   className,
   isTimeSeries,
   initialScrollTop,
@@ -97,7 +95,6 @@ const VirtualizedDocumentJsonView: React.FC<
       docs,
       namespace,
       isEditable,
-      isExpanded,
       isTimeSeries,
       observer,
       scrollTriggerRef,
@@ -111,7 +108,6 @@ const VirtualizedDocumentJsonView: React.FC<
       docs,
       namespace,
       isEditable,
-      isExpanded,
       isTimeSeries,
       observer,
       scrollTriggerRef,
@@ -159,7 +155,6 @@ const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
     docs,
     namespace,
     isEditable,
-    isExpanded,
     isTimeSeries,
     observer,
     scrollTriggerRef,
@@ -199,7 +194,6 @@ const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
             namespace={namespace}
             editable={isEditable}
             isTimeSeries={isTimeSeries}
-            isExpanded={isExpanded}
             copyToClipboard={copyToClipboard}
             removeDocument={removeDocument}
             replaceDocument={replaceDocument}

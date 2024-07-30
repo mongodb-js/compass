@@ -59,7 +59,6 @@ export type JSONEditorProps = {
   updateDocument?: CrudActions['updateDocument'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  isExpanded?: boolean;
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
@@ -71,10 +70,10 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   replaceDocument,
   copyToClipboard,
   openInsertDocumentDialog,
-  isExpanded = false,
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorRef>(null);
+  const [expanded, setExpanded] = useState<boolean>(doc.expanded);
   const [editing, setEditing] = useState<boolean>(doc.editing);
   const [deleting, setDeleting] = useState<boolean>(doc.markedForDeletion);
   const [value, setValue] = useState<string>(() => doc.toEJSON());
@@ -145,6 +144,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     setDeleting(false);
   }, []);
 
+  const onExpanded = useCallback(() => {
+    setExpanded(true);
+  }, []);
+
+  const onCollapsed = useCallback(() => {
+    setExpanded(false);
+  }, []);
+
   const fields = useAutocompleteFields(namespace);
 
   const completer = useMemo(() => {
@@ -195,6 +202,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
 
   useEffect(() => {
     doc.on(HadronDocument.Events.Cancel, onCancel);
+    doc.on(HadronDocument.Events.Expanded, onExpanded);
+    doc.on(HadronDocument.Events.Collapsed, onCollapsed);
     doc.on(HadronDocument.Events.EditingStarted, onEditingStarted);
     doc.on(HadronDocument.Events.EditingFinished, onEditingFinished);
     doc.on(HadronDocument.Events.MarkedForDeletion, onDeletionStarted);
@@ -202,6 +211,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
 
     return () => {
       doc.removeListener(HadronDocument.Events.Cancel, onCancel);
+      doc.removeListener(HadronDocument.Events.Expanded, onExpanded);
+      doc.removeListener(HadronDocument.Events.Collapsed, onCollapsed);
       doc.removeListener(
         HadronDocument.Events.EditingStarted,
         onEditingStarted
@@ -222,23 +233,35 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, [
     doc,
     onCancel,
+    onExpanded,
+    onCollapsed,
     onEditingStarted,
     onEditingFinished,
     onDeletionStarted,
     onDeletionFinished,
   ]);
 
+  // Trying to change CodeMirror editor state when an update "effect" is in
+  // progress results in an error which is why we timeout the code mirror update
+  // itself.
+  const editorFoldUnfoldTimeoutRef = useRef<NodeJS.Timeout | undefined>();
   useEffect(() => {
-    if (!editorRef.current) {
-      return;
+    if (editorFoldUnfoldTimeoutRef.current) {
+      clearTimeout(editorFoldUnfoldTimeoutRef.current);
     }
 
-    if (isExpanded) {
-      editorRef.current.unfoldAll();
-    } else {
-      editorRef.current.foldAll();
-    }
-  }, [isExpanded]);
+    editorFoldUnfoldTimeoutRef.current = setTimeout(() => {
+      if (!editorRef.current) {
+        return;
+      }
+
+      if (expanded) {
+        editorRef.current.unfoldAll();
+      } else {
+        editorRef.current.foldAll();
+      }
+    }, 0);
+  }, [expanded]);
 
   return (
     <div data-testid="editable-json">
