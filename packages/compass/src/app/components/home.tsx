@@ -147,7 +147,6 @@ export type HomeProps = {
   showSettings: () => void;
   connectionStorage: ConnectionStorage;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 };
 
 function SingleConnectionFormWithConnectionImportExport({
@@ -179,7 +178,6 @@ function Home({
   showSettings,
   connectionStorage,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-  __TEST_INITIAL_CONNECTION_INFO,
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const logger = useLogger('COMPASS-CONNECT-UI');
@@ -308,7 +306,6 @@ function Home({
             onDisconnected={onDisconnected}
             onConnectionCreated={onConnectionCreated}
             onConnectionRemoved={onConnectionRemoved}
-            __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
           >
             <ConnectionImportExportProvider>
               <CompassInstanceStorePlugin>

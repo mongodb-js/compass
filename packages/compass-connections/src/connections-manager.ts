@@ -14,6 +14,7 @@ import { cloneDeep, merge } from 'lodash';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 import mongodbBuildInfo from 'mongodb-build-info';
 import { openToast } from '@mongodb-js/compass-components';
+import { createCancelError, isCancelError } from '@mongodb-js/compass-utils';
 
 type ConnectFn = typeof connect;
 type ConnectionInfoId = ConnectionInfo['id'];
@@ -236,7 +237,7 @@ export class ConnectionsManager extends EventEmitter {
       );
 
       if (!dataService || connectionAttempt.isClosed()) {
-        throw new Error(CONNECTION_CANCELED_ERR);
+        throw createCancelError(CONNECTION_CANCELED_ERR);
       }
 
       dataService.on?.('connectionInfoSecretsChanged', () => {
@@ -272,7 +273,7 @@ export class ConnectionsManager extends EventEmitter {
 
       return dataService;
     } catch (error) {
-      if ((error as Error).message === CONNECTION_CANCELED_ERR) {
+      if (isCancelError(error)) {
         this.updateAndNotifyConnectionStatus(
           connectionId,
           ConnectionsManagerEvents.ConnectionAttemptCancelled,
@@ -337,6 +338,20 @@ export class ConnectionsManager extends EventEmitter {
         return this.closeConnection(connectionId);
       })
     );
+  }
+
+  /**
+   * Returns the number of active connections. We count in-progress connections
+   * as "active" to make sure that the maximum connection allowed check takes
+   * those into account and doesn't allow to open more connections than allowed
+   * by starting too many connections in parallel
+   */
+  getActiveConnectionsCount(): number {
+    return Array.from(this.connectionStatuses.values()).filter((status) => {
+      return [ConnectionStatus.Connected, ConnectionStatus.Connecting].includes(
+        status
+      );
+    }).length;
   }
 
   on<T extends ConnectionsManagerEvents>(
