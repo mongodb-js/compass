@@ -5,11 +5,6 @@ import databases from './databases';
 import type { InstanceAction, InstanceState } from './instance';
 import instance from './instance';
 import type {
-  IsGenuineMongoDBVisibleAction,
-  IsGenuineMongoDBVisibleState,
-} from './is-genuine-mongodb-visible';
-import isGenuineMongoDBVisible from './is-genuine-mongodb-visible';
-import type {
   ConnectionOptionsAction,
   ConnectionOptionsState,
 } from './connection-options';
@@ -29,7 +24,6 @@ export interface RootState {
   connectionOptions: ConnectionOptionsState;
   databases: AllDatabasesState;
   instance: InstanceState;
-  isGenuineMongoDBVisible: IsGenuineMongoDBVisibleState;
   isPerformanceTabSupported: IsPerformanceTabSupportedState;
 }
 
@@ -37,7 +31,6 @@ export type RootAction =
   | ConnectionOptionsAction
   | DatabasesAction
   | InstanceAction
-  | IsGenuineMongoDBVisibleAction
   | SetIsPerformanceTabSupportedAction;
 
 export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -59,7 +52,6 @@ const reducer = combineReducers<RootState, RootAction>({
   databases,
   connectionOptions,
   instance,
-  isGenuineMongoDBVisible,
   isPerformanceTabSupported,
 });
 
