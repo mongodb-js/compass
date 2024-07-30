@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 /* ^^^ we test the dist directly, so istanbul can't calculate the coverage correctly */
 
-import { parentPort, isMainThread } from 'worker_threads';
 import type {
   Completion,
   Runtime,
@@ -12,23 +11,21 @@ import { ElectronRuntime } from '@mongosh/browser-runtime-electron';
 import type { ServiceProvider } from '@mongosh/service-provider-core';
 import { CompassServiceProvider } from '@mongosh/service-provider-server';
 import { exposeAll, createCaller } from './rpc';
-import {
-  serializeEvaluationResult,
-  deserializeConnectOptions,
-} from './serializer';
 import type { MongoshBus } from '@mongosh/types';
 import type { UNLOCKED } from './lock';
 import { Lock } from './lock';
 import type { InterruptHandle } from 'interruptor';
 import { runInterruptible } from 'interruptor';
 
-type DevtoolsConnectOptions = Parameters<
-  (typeof CompassServiceProvider)['connect']
->[1];
+const mainProcessMessageBus = {
+  addEventListener: addEventListener.bind(self),
+  removeEventListener: removeEventListener.bind(self),
+  postMessage: postMessage.bind(self),
+};
 
-if (!parentPort || isMainThread) {
-  throw new Error('Worker runtime can be used only in a worker thread');
-}
+type DevtoolsConnectOptions = Parameters<
+  typeof CompassServiceProvider['connect']
+>[1];
 
 let runtime: Runtime | null = null;
 let provider: ServiceProvider | null = null;
@@ -62,7 +59,7 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
     'onExit',
     'onRunInterruptible',
   ],
-  parentPort,
+  mainProcessMessageBus,
   {
     onPrint: function (
       results: RuntimeEvaluationResult[]
@@ -71,14 +68,13 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
       // args. onPrint only takes one arg which is an array of
       // RuntimeEvaluationResult so in this case it will just return a
       // single-element array that itself is an array.
-      return [results.map(serializeEvaluationResult)];
+      return [results];
     },
   }
 );
 
 const messageBus: MongoshBus = Object.assign(
-  // TODO: Is this setting it on the main process or the worker?
-  createCaller(['emit'], parentPort),
+  createCaller(['emit'], mainProcessMessageBus),
   {
     on() {
       throw new Error("Can't call `on` method on worker runtime MongoshBus");
@@ -113,13 +109,14 @@ const workerRuntime: WorkerRuntime = {
     //       TS2589: Type instantiation is excessively deep and possibly infinite.
     // I could not figure out why exactly that was the case, so 'as any'
     // will have to do for now.
-    provider = await (CompassServiceProvider as any).connect(
+    // TODO: Do we still need error?
+    provider = await CompassServiceProvider.connect(
       uri,
-      deserializeConnectOptions(driverOptions),
+      driverOptions,
       cliOptions,
       messageBus
     );
-    runtime = new ElectronRuntime(provider as ServiceProvider, messageBus);
+    runtime = new ElectronRuntime(provider, messageBus);
     runtime.setEvaluationListener(evaluationListener);
   },
 
@@ -176,7 +173,7 @@ const workerRuntime: WorkerRuntime = {
       throw new Error('Script execution was interrupted');
     }
 
-    return serializeEvaluationResult(result);
+    return result;
   },
 
   getCompletions(code: string): Promise<Completion[]> {
@@ -198,16 +195,9 @@ const workerRuntime: WorkerRuntime = {
   },
 };
 
-// We expect the amount of listeners to be more than the default value of 10 but
-// probably not more than ~25 (all exposed methods on
-// ChildProcessEvaluationListener and ChildProcessMongoshBus + any concurrent
-// in-flight calls on ChildProcessRuntime) at once
-parentPort.setMaxListeners(25);
+exposeAll(workerRuntime, global);
 
-exposeAll(workerRuntime, parentPort);
-
+// eslint-disable-next-line no-restricted-syntax
 process.nextTick(() => {
-  if (parentPort) {
-    parentPort.postMessage('ready');
-  }
+  mainProcessMessageBus.postMessage('ready');
 });

@@ -105,6 +105,7 @@ const CompassShell: React.FC<CompassShellProps> = ({
   }, []);
 
   const focusEditor = useCallback(() => {
+    // @ts-expect-error test ignore window undef with web worker ts config.
     if (shellRef.current && window.getSelection()?.type !== 'Range') {
       shellRef.current['focusEditor']();
     }

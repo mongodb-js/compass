@@ -51,6 +51,7 @@ const shellHeightClosed = 32;
 const shellMinHeightOpened = 100;
 
 function getMaxShellHeight() {
+  // @ts-expect-error test ignore window undef with web worker ts config.
   return Math.max(defaultShellHeightOpened, window.innerHeight - 100);
 }
 
@@ -117,6 +118,7 @@ export class CompassShell extends Component<
 
   componentDidMount() {
     void this.loadHistory();
+    // @ts-expect-error test ignore window undef with web worker ts config.
     window.addEventListener('beforeunload', this.terminateRuntime);
   }
 
@@ -134,6 +136,7 @@ export class CompassShell extends Component<
   }
 
   componentWillUnmount() {
+    // @ts-expect-error test ignore window undef with web worker ts config.
     window.removeEventListener('beforeunload', this.terminateRuntime);
   }
 
@@ -213,6 +216,7 @@ export class CompassShell extends Component<
   }
 
   focusEditor() {
+    // @ts-expect-error test ignore window undef with web worker ts config.
     if (this.shellRef.current && window.getSelection()?.type !== 'Range') {
       (this.shellRef.current as any) /* private ... */
         .focusEditor();

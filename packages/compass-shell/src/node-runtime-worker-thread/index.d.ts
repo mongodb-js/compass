@@ -15,15 +15,15 @@ declare module 'postmsg-rpc' {
   export type MessageData = ClientMessageData | ServerMessageData;
 
   export type PostmsgRpcOptions = {
-    addListener(name: 'message', fn: Function): void;
-    removeListener(name: 'message', fn: Function): void;
+    addListener(name: 'message', fn: (...args: unknown[]) => unknown): void;
+    removeListener(name: 'message', fn: (...args: unknown[]) => unknown): void;
     postMessage(data: MessageData): void;
     getMessageData(message: unknown): unknown;
   };
 
   export function expose(
     funcName: string,
-    func: Function,
+    func: (...args: unknown[]) => unknown,
     opts: PostmsgRpcOptions
   ): { close: () => void };
 

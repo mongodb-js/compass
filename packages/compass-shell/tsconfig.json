@@ -2,6 +2,7 @@
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
   "compilerOptions": {
     "outDir": "dist",
+    "lib": ["webworker"],
     "allowJs": true
   },
   "files": ["src/node-runtime-worker-thread/index.d.ts"],

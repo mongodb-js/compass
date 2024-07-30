@@ -151,14 +151,15 @@ function createWorkerRuntime(
     ...dataService.getMongoClientConnectionOptions(),
   };
 
+  if (!driverOptions) {
+    throw new Error('No driver options provided for the shell runtime');
+  }
+
   return new WorkerRuntime(
     driverUrl,
-    driverOptions as any,
+    driverOptions,
     cliOptions ?? {},
-    {
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
-      // serialization: 'advanced',
-    },
+    {},
     appRegistry
   );
 }

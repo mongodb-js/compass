@@ -1,4 +1,4 @@
-import type { Worker } from 'worker_threads';
+// import type { Worker } from 'worker_threads';
 import type { MongoshBus } from '@mongosh/types';
 import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';

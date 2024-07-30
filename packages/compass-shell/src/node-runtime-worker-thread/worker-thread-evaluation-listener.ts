@@ -1,8 +1,6 @@
-import type { Worker } from 'worker_threads';
 import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
 import type { WorkerRuntime } from './index';
-import { deserializeEvaluationResult } from './serializer';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
 
 export class WorkerThreadEvaluationListener {
@@ -21,7 +19,6 @@ export class WorkerThreadEvaluationListener {
           );
         },
         onPrint(values) {
-          values = values.map(deserializeEvaluationResult);
           return workerRuntime.evaluationListener?.onPrint?.(values);
         },
         setConfig(key, value) {

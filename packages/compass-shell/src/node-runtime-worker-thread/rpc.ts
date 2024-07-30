@@ -1,30 +1,11 @@
-import v8 from 'v8';
 import { expose, caller } from 'postmsg-rpc';
-import { deserializeError, serializeError } from './serializer';
-import type {
-  MessageData,
-  PostmsgRpcOptions,
-  ServerMessageData,
-  ClientMessageData,
-} from 'postmsg-rpc';
+import type { PostmsgRpcOptions } from 'postmsg-rpc';
 
-export function serialize(data: unknown): string {
-  return `data:;base64,${v8.serialize(data).toString('base64')}`;
-}
-
-export function deserialize<T = unknown>(str: string): T | string {
-  if (/^data:;base64,.+/.test(str)) {
-    return v8.deserialize(
-      Buffer.from(str.replace('data:;base64,', ''), 'base64')
-    );
-  }
-  return str;
-}
-
-type RPCMessageBus = { on: Function; off: Function } & (
-  | { postMessage: Function; send?: never }
-  | { postMessage?: never; send?: Function }
-);
+type RPCMessageBus = {
+  postMessage: typeof Worker.prototype['postMessage'];
+  addEventListener: typeof Worker.prototype['addEventListener'];
+  removeEventListener: typeof Worker.prototype['addEventListener'];
+};
 
 enum RPCMessageTypes {
   Message,
@@ -47,81 +28,15 @@ function isRPCError(data: any): data is RPCError {
   );
 }
 
-function isMessageData(data: any): data is MessageData {
-  return data && typeof data === 'object' && 'id' in data && 'sender' in data;
-}
-
-function isServerMessageData(data: any): data is ServerMessageData {
-  return isMessageData(data) && data.sender === 'postmsg-rpc/server';
-}
-
-function isClientMessageData(data: any): data is ClientMessageData {
-  return isMessageData(data) && data.sender === 'postmsg-rpc/client';
-}
-
-export function removeTrailingUndefined(arr: unknown[]): unknown[] {
-  if (Array.isArray(arr)) {
-    arr = [...arr];
-    while (arr.length > 0 && arr[arr.length - 1] === undefined) {
-      arr.pop();
-    }
-  }
-  return arr;
-}
-
-function send(messageBus: RPCMessageBus, data: any): void {
-  if (
-    'postMessage' in messageBus &&
-    typeof messageBus.postMessage === 'function'
-  ) {
-    messageBus.postMessage(data);
-  }
-
-  if ('send' in messageBus && typeof messageBus.send === 'function') {
-    messageBus.send(data);
-  }
-}
-
 function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
   return {
-    addListener: messageBus.on.bind(messageBus),
-    removeListener: messageBus.off.bind(messageBus),
+    addListener: messageBus.addEventListener.bind(messageBus),
+    removeListener: messageBus.removeEventListener.bind(messageBus),
     postMessage(data) {
-      if (isClientMessageData(data) && Array.isArray(data.args)) {
-        data.args = serialize(removeTrailingUndefined(data.args));
-      }
-
-      if (isServerMessageData(data)) {
-        // If serialization of the response failed for some reason (e.g., the
-        // value is not serializable) we want to propagate the error back to the
-        // client that issued the remote call instead of throwing on the server
-        // that was executing the method.
-        try {
-          data.res = serialize(data.res);
-        } catch (e: any) {
-          data.res = serialize({
-            type: RPCMessageTypes.Error,
-            payload: serializeError(e),
-          });
-        }
-      }
-
-      return send(messageBus, data);
+      return messageBus.postMessage(data);
     },
     getMessageData(data) {
-      if (
-        isClientMessageData(data) &&
-        data.args &&
-        typeof data.args === 'string'
-      ) {
-        data.args = deserialize(data.args);
-      }
-
-      if (isServerMessageData(data) && typeof data.res === 'string') {
-        data.res = deserialize(data.res);
-      }
-
-      return data;
+      return (data as { data?: unknown })?.data ?? data;
     },
   };
 }
@@ -146,12 +61,13 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
           // the execution, we want to propagate error to the client (whatever
           // issued the call) and re-throw there. We will do this with a special
           // return type.
-          return { type: RPCMessageTypes.Error, payload: serializeError(e) };
+          // TODO: Error msg
+          return { type: RPCMessageTypes.Error, payload: e };
         }
       },
       getRPCOptions(messageBus)
     );
-    (val as any).close = close;
+    val.close = close;
   });
   Object.defineProperty(obj, close, {
     enumerable: false,
@@ -171,7 +87,7 @@ export type Caller<
   Keys extends keyof Impl = keyof Impl
 > = CancelableMethods<Pick<Impl, Keys>> & { [cancel]: () => void };
 
-export function createCaller<Impl extends {}>(
+export function createCaller<Impl extends object>(
   methodNames: Extract<keyof Impl, string>[],
   messageBus: RPCMessageBus,
   processors: Partial<
@@ -191,7 +107,7 @@ export function createCaller<Impl extends {}>(
       inflight.add(promise);
       const result = (await promise) as RPCError | RPCMessage;
       inflight.delete(promise);
-      if (isRPCError(result)) throw deserializeError(result.payload);
+      if (isRPCError(result)) throw result.payload;
       return result.payload;
     };
   });
