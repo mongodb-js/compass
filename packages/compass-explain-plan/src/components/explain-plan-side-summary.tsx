@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { ReactHTML, ReactElement, ReactNode } from 'react';
 import {
   InlineDefinition,
@@ -131,6 +131,73 @@ const indexIconDescriptionStyles = css({
   verticalAlign: 'text-top',
 });
 
+const indexTypeToMessage = {
+  COVERED: 'Query covered by index:',
+  MULTIPLE: 'Query used the following indexes (shard results differ):',
+  INDEX: 'Query used the following index:',
+} as const;
+
+const IndexDetails = ({
+  indexType,
+  indexKeys,
+  onCreateIndexInsightClick,
+}: Pick<
+  ExplainPlanSummaryProps,
+  'indexType' | 'indexKeys' | 'onCreateIndexInsightClick'
+>) => {
+  const darkMode = useDarkMode();
+  const showInsights = usePreference('showInsights');
+  const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
+
+  if (indexType === 'CLUSTERED') {
+    return null;
+  }
+
+  if (indexType === 'COLLSCAN' || indexType === 'UNAVAILABLE') {
+    return (
+      <div className={statsStyles} style={{ color: warningColor }}>
+        <Icon glyph="Warning"></Icon>
+        <span>No index available for this query.</span>
+        {showInsights && (
+          <SignalPopover
+            signals={{
+              ...PerformanceSignals.get('explain-plan-without-index'),
+              onPrimaryActionButtonClick: onCreateIndexInsightClick,
+            }}
+          ></SignalPopover>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className={indexesSummaryStyles}>
+      <ExplainPlanSummaryStat
+        as="div"
+        label={indexTypeToMessage[indexType]}
+        definition={
+          <>
+            The index(es) used to fulfill the query. A value of{' '}
+            <IndexIcon className={indexIconDescriptionStyles} direction={1} />{' '}
+            indicates an ascending index, and a value of{' '}
+            <IndexIcon className={indexIconDescriptionStyles} direction={-1} />{' '}
+            indicates a descending index.
+          </>
+        }
+      ></ExplainPlanSummaryStat>
+      {indexKeys.map(([field, value]) => {
+        return (
+          <IndexBadge
+            key={`${field}:${String(value)}`}
+            field={field}
+            value={value}
+          ></IndexBadge>
+        );
+      })}
+    </div>
+  );
+};
+
 export const ExplainPlanSummary: React.FunctionComponent<
   ExplainPlanSummaryProps
 > = ({
@@ -144,23 +211,6 @@ export const ExplainPlanSummary: React.FunctionComponent<
   onCreateIndexInsightClick,
 }) => {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights');
-
-  const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
-
-  const indexMessageText = useMemo(() => {
-    const typeToMessage = {
-      COLLSCAN: 'No index available for this query.',
-      COVERED: 'Query covered by index:',
-      MULTIPLE: 'Query used the following indexes (shard results differ):',
-      INDEX: 'Query used the following index:',
-      UNAVAILABLE: '',
-    };
-    return typeToMessage[indexType];
-  }, [indexType]);
-
-  const hasNoIndex = ['COLLSCAN', 'UNAVAILABLE'].includes(indexType);
-
   return (
     <KeylineCard
       className={summaryCardStyles}
@@ -258,53 +308,11 @@ export const ExplainPlanSummary: React.FunctionComponent<
           definition="Number of indexes examined to fulfill the query."
         ></ExplainPlanSummaryStat>
 
-        {!hasNoIndex && (
-          <div className={indexesSummaryStyles}>
-            <ExplainPlanSummaryStat
-              as="div"
-              label={indexMessageText}
-              definition={
-                <>
-                  The index(es) used to fulfill the query. A value of{' '}
-                  <IndexIcon
-                    className={indexIconDescriptionStyles}
-                    direction={1}
-                  />{' '}
-                  indicates an ascending index, and a value of{' '}
-                  <IndexIcon
-                    className={indexIconDescriptionStyles}
-                    direction={-1}
-                  />{' '}
-                  indicates a descending index.
-                </>
-              }
-            ></ExplainPlanSummaryStat>
-            {indexKeys.map(([field, value]) => {
-              return (
-                <IndexBadge
-                  key={`${field}:${String(value)}`}
-                  field={field}
-                  value={value}
-                ></IndexBadge>
-              );
-            })}
-          </div>
-        )}
-
-        {hasNoIndex && (
-          <div className={statsStyles} style={{ color: warningColor }}>
-            <Icon glyph="Warning"></Icon>
-            <span>No index available for this query.</span>
-            {showInsights && (
-              <SignalPopover
-                signals={{
-                  ...PerformanceSignals.get('explain-plan-without-index'),
-                  onPrimaryActionButtonClick: onCreateIndexInsightClick,
-                }}
-              ></SignalPopover>
-            )}
-          </div>
-        )}
+        <IndexDetails
+          indexType={indexType}
+          indexKeys={indexKeys}
+          onCreateIndexInsightClick={onCreateIndexInsightClick}
+        ></IndexDetails>
       </ul>
     </KeylineCard>
   );
