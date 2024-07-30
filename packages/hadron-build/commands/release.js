@@ -333,7 +333,10 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     // so building addons during `npm install`/`electron rebuild` can realistically
     // fail because of that. As a workaround, copy the app to a temporary directory
     // with a shorter name.
-    appPackagePath = path.join(process.env.EVERGREEN_WORKDIR.replace(/^\/cygdrive\/(\w)\//, '$1:\\'), 'app')
+    appPackagePath = path.join(
+      process.env.EVERGREEN_WORKDIR.replace(/^\/cygdrive\/(\w)\//, '$1:\\'),
+      'src',
+      'app');
     cli.debug(`Moving app package path from ${originalPackagePath} to ${appPackagePath}`);
     await fs.promises.rename(originalPackagePath, appPackagePath);
   }
