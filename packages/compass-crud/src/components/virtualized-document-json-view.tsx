@@ -195,6 +195,7 @@ const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
         >
           <JSONEditor
             doc={doc}
+            key={doc.uuid}
             namespace={namespace}
             editable={isEditable}
             isTimeSeries={isTimeSeries}

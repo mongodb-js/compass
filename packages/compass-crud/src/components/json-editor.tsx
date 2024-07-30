@@ -75,37 +75,11 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
 }) => {
   const darkMode = useDarkMode();
   const editorRef = useRef<EditorRef>(null);
-  const [editing, setEditing] = useState<boolean>(false);
-  const [deleting, setDeleting] = useState<boolean>(false);
+  const [editing, setEditing] = useState<boolean>(doc.editing);
+  const [deleting, setDeleting] = useState<boolean>(doc.markedForDeletion);
   const [value, setValue] = useState<string>(() => doc.toEJSON());
   const [initialValue] = useState<string>(() => doc.toEJSON());
   const [containsErrors, setContainsErrors] = useState<boolean>(false);
-
-  const handleUpdateSuccess = useCallback(() => {
-    if (editing) {
-      setTimeout(() => {
-        setEditing(false);
-      }, 500);
-    }
-  }, [editing]);
-
-  const handleRemoveSuccess = useCallback(() => {
-    if (deleting) {
-      setTimeout(() => {
-        setDeleting(false);
-      }, 500);
-    }
-  }, [deleting]);
-
-  useEffect(() => {
-    doc.on('remove-success', handleRemoveSuccess);
-    doc.on('update-success', handleUpdateSuccess);
-
-    return () => {
-      doc.removeListener('remove-success', handleRemoveSuccess);
-      doc.removeListener('update-success', handleUpdateSuccess);
-    };
-  }, [doc, handleRemoveSuccess, handleUpdateSuccess]);
 
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc);
@@ -118,21 +92,6 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     openInsertDocumentDialog?.(clonedDoc, true);
   }, [doc, openInsertDocumentDialog]);
 
-  const onCancel = useCallback(() => {
-    setEditing(false);
-    setDeleting(false);
-    setValue(doc.toEJSON());
-  }, [doc]);
-
-  const onUpdate = useCallback(() => {
-    doc.apply(HadronDocument.FromEJSON(value || ''));
-    replaceDocument?.(doc);
-  }, [doc, replaceDocument, value]);
-
-  const onDelete = useCallback(() => {
-    removeDocument?.(doc);
-  }, [doc, removeDocument]);
-
   const onChange = useCallback((value: string) => {
     let containsErrors = false;
     try {
@@ -144,17 +103,47 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     setValue(value);
   }, []);
 
-  useEffect(() => {
-    if (!editorRef.current) {
-      return;
+  const onCancel = useCallback(() => {
+    if (editing) {
+      doc.finishEditing();
+    } else if (deleting) {
+      doc.finishDeletion();
     }
+    setValue(doc.toEJSON());
+  }, [doc, editing, deleting]);
 
-    if (isExpanded) {
-      editorRef.current.unfoldAll();
-    } else {
-      editorRef.current.foldAll();
-    }
-  }, [isExpanded]);
+  const onEdit = useCallback(() => {
+    doc.startEditing();
+  }, [doc]);
+
+  const onEditingStarted = useCallback(() => {
+    setEditing(true);
+  }, []);
+
+  const onUpdate = useCallback(() => {
+    doc.apply(HadronDocument.FromEJSON(value || ''));
+    replaceDocument?.(doc);
+  }, [doc, replaceDocument, value]);
+
+  const onEditingFinished = useCallback(() => {
+    setEditing(false);
+  }, []);
+
+  const onMarkForDeletion = useCallback(() => {
+    doc.markForDeletion();
+  }, [doc]);
+
+  const onDeletionStarted = useCallback(() => {
+    setDeleting(true);
+  }, []);
+
+  const onDelete = useCallback(() => {
+    removeDocument?.(doc);
+  }, [doc, removeDocument]);
+
+  const onDeletionFinished = useCallback(() => {
+    setDeleting(false);
+  }, []);
 
   const fields = useAutocompleteFields(namespace);
 
@@ -178,7 +167,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         icon: 'Edit',
         label: 'Edit',
         action() {
-          setEditing(true);
+          onEdit();
         },
       },
       {
@@ -198,11 +187,58 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         icon: 'Trash',
         label: 'Delete',
         action() {
-          setDeleting(true);
+          onMarkForDeletion();
         },
       },
     ].filter(Boolean) as Action[];
-  }, [editing, handleClone, handleCopy, isEditable]);
+  }, [editing, onEdit, onMarkForDeletion, handleClone, handleCopy, isEditable]);
+
+  useEffect(() => {
+    doc.on(HadronDocument.Events.Cancel, onCancel);
+    doc.on(HadronDocument.Events.EditingStarted, onEditingStarted);
+    doc.on(HadronDocument.Events.EditingFinished, onEditingFinished);
+    doc.on(HadronDocument.Events.MarkedForDeletion, onDeletionStarted);
+    doc.on(HadronDocument.Events.DeletionFinished, onDeletionFinished);
+
+    return () => {
+      doc.removeListener(HadronDocument.Events.Cancel, onCancel);
+      doc.removeListener(
+        HadronDocument.Events.EditingStarted,
+        onEditingStarted
+      );
+      doc.removeListener(
+        HadronDocument.Events.EditingFinished,
+        onEditingFinished
+      );
+      doc.removeListener(
+        HadronDocument.Events.MarkedForDeletion,
+        onDeletionStarted
+      );
+      doc.removeListener(
+        HadronDocument.Events.DeletionFinished,
+        onDeletionFinished
+      );
+    };
+  }, [
+    doc,
+    onCancel,
+    onEditingStarted,
+    onEditingFinished,
+    onDeletionStarted,
+    onDeletionFinished,
+  ]);
+
+  useEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
+
+    if (isExpanded) {
+      editorRef.current.unfoldAll();
+    } else {
+      editorRef.current.foldAll();
+    }
+  }, [isExpanded]);
 
   return (
     <div data-testid="editable-json">
