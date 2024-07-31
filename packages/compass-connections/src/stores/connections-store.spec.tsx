@@ -467,7 +467,7 @@ describe('useConnections', function () {
           connections.current.recentConnections.find((info) => {
             return info.favorite.name === 'localhost:27017 (1)';
           })
-        ).to.exist;
+        ).to.exist.and.to.have.nested.property('favorite.color', 'color2');
       });
     });
 
