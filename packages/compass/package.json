@@ -181,7 +181,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongosh/node-runtime-worker-thread": "^2.2.12",
+    "@mongosh/node-runtime-worker-thread": "^2.2.15",
     "clipboard": "^2.0.6",
     "kerberos": "^2.1.0",
     "keytar": "^7.9.0",
@@ -256,7 +256,7 @@
     "local-links": "^1.4.0",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
-    "mongodb": "^6.7.0",
+    "mongodb": "^6.8.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-cloud-info": "^2.1.2",
     "mongodb-connection-string-url": "^3.0.1",

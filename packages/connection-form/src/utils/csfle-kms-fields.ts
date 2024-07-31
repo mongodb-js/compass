@@ -1,10 +1,11 @@
-import type { AutoEncryptionOptions } from 'mongodb';
+import type { AutoEncryptionOptions, CSFLEKMSTlsOptions } from 'mongodb';
 import type { ConnectionFormError } from './validation';
 import { errorMessageByFieldName, fieldNameHasError } from './validation';
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
 export type KMSProviderName = keyof KMSProviders;
+export type KMSTLSProviderName = keyof CSFLEKMSTlsOptions;
 export type KMSOption<KMSProvider extends KMSProviderName> = KeysOfUnion<
   NonNullable<KMSProviders[KMSProvider]>
 >;
