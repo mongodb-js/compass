@@ -6,7 +6,7 @@ import type {
   RenderHookResult,
 } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useExportConnections } from './use-export';
+import { useExportConnections } from './use-export-connections';
 import type { ImportExportResult } from './common';
 import os from 'os';
 import path from 'path';

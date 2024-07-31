@@ -141,6 +141,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.match(/^(x64|arm64)$/);
+            expect(actual.missingOptionalDeps).to.deep.equal([]);
           },
         },
         {
