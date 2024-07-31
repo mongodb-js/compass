@@ -156,7 +156,7 @@ describe('useConnections', function () {
     });
 
     // autoconnect info should never be saved
-    expect(saveSpy).to.not.have.been.calledOnce;
+    expect(saveSpy).to.not.have.been.called;
   });
 
   describe('#connect', function () {
@@ -301,7 +301,7 @@ describe('useConnections', function () {
         });
 
         expect(onConnectionFailed).to.have.been.calledOnce;
-        expect(saveSpy).to.not.have.been.calledOnce;
+        expect(saveSpy).to.not.have.been.called;
       });
     });
 
@@ -407,7 +407,7 @@ describe('useConnections', function () {
   });
 
   describe('#saveEditedConnection', function () {
-    it('new connection: should call save and onConnectionCreated', async function () {
+    it('new connection: should call save and track the creation', async function () {
       const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       const connections = renderHookWithContext();
 
@@ -438,7 +438,7 @@ describe('useConnections', function () {
       });
     });
 
-    it('existing connection: should call save, not onConnectionCreated', async function () {
+    it('existing connection: should call save and should not track the creation', async function () {
       const saveSpy = sinon.spy(mockConnectionStorage, 'save');
       const connections = renderHookWithContext();
 
@@ -468,7 +468,7 @@ describe('useConnections', function () {
   });
 
   describe('#removeConnection', function () {
-    it('should disconnect and call delete and onConnectionRemoved', async function () {
+    it('should disconnect and call delete and track the deletion', async function () {
       const deleteSpy = sinon.spy(mockConnectionStorage, 'delete');
       const closeConnectionSpy = sinon.spy(
         connectionsManager,
@@ -540,6 +540,34 @@ describe('useConnections', function () {
           return info.favorite.name === 'peaches (30)';
         })
       ).to.exist;
+    });
+
+    it.only('should copy connection and skip the appendix if name is empty', async function () {
+      const connectionWithoutName = {
+        ...mockConnections[0],
+        favorite: undefined,
+      };
+      mockConnectionStorage = new InMemoryConnectionStorage([
+        connectionWithoutName,
+      ]);
+      const connections = renderHookWithContext();
+
+      // Waiting for connections to load first
+      await waitFor(() => {
+        expect(connections.current.favoriteConnections).to.have.lengthOf.gt(0);
+      });
+      console.log(connections.current.favoriteConnections);
+
+      await connections.current.duplicateConnection(connectionWithoutName.id, {
+        autoDuplicate: true,
+      });
+
+      console.log(connections.current.favoriteConnections);
+      await waitFor(() => {
+        expect(connections.current.favoriteConnections).to.have.lengthOf(2);
+      });
+
+      console.log(connections.current.favoriteConnections);
     });
 
     it('should only look for copy number at the end of the connection name', async function () {
