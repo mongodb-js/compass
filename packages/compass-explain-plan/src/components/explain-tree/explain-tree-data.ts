@@ -75,6 +75,7 @@ const parseExplainTree = (
 const extractHighlights = (stage: Omit<ExplainTreeNodeData, 'highlights'>) => {
   switch (stage.name) {
     case 'IXSCAN':
+    case 'EXPRESS_IXSCAN':
       return {
         'Index Name': stage.details?.indexName,
         'Multi Key Index': stage.details?.isMultiKey,
