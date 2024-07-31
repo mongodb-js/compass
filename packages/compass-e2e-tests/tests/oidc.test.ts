@@ -309,11 +309,6 @@ describe('OIDC integration', function () {
   });
 
   it('can successfully re-authenticate', async function () {
-    // TODO: not working for multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     let afterReauth = false;
     getTokenPayload = () => {
       return {
@@ -332,6 +327,19 @@ describe('OIDC integration', function () {
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
+
+    await browser.pause(10_000);
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // we have to browse somewhere that will fire off commands that require
+      // authentication so that those commands get rejected due to the expired
+      // auth and then that will trigger the confirmation modal we expect.
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.OpenShellItem,
+        false
+      );
+    }
 
     // TODO: selectors
     const modal = '[role=dialog]';
@@ -352,11 +360,6 @@ describe('OIDC integration', function () {
   });
 
   it('can decline re-authentication if wanted', async function () {
-    // TODO: not working for multiple connections
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     let afterReauth = false;
     getTokenPayload = () => {
       return {
@@ -375,6 +378,19 @@ describe('OIDC integration', function () {
       connectionString
     );
     await browser.clickVisible(Selectors.ConnectButton);
+
+    await browser.pause(10_000);
+
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      // we have to browse somewhere that will fire off commands that require
+      // authentication so that those commands get rejected due to the expired
+      // auth and then that will trigger the confirmation modal we expect
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.OpenShellItem,
+        false
+      );
+    }
 
     // TODO: selectors
     const modal = '[role=dialog]';
