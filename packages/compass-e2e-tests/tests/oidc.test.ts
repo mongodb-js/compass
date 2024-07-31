@@ -398,11 +398,6 @@ describe('OIDC integration', function () {
   });
 
   it('saves tokens across connections for favorites if asked to do so', async function () {
-    // TODO: port saveConnectionStringAsFavorite
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
@@ -410,6 +405,7 @@ describe('OIDC integration', function () {
       connectionString
     );
 
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnectAll();
 
@@ -425,11 +421,6 @@ describe('OIDC integration', function () {
   });
 
   it('does not save tokens across connections for favorites if asked to do so', async function () {
-    // TODO: port saveConnectionStringAsFavorite
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     await browser.setFeature('persistOIDCTokens', false);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
@@ -439,6 +430,7 @@ describe('OIDC integration', function () {
 
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnectAll();
 
@@ -459,11 +451,6 @@ describe('OIDC integration', function () {
   });
 
   it('saves tokens across Compass sessions for favorites if asked to do so', async function () {
-    // TODO: port saveConnectionStringAsFavorite
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     await browser.setFeature('persistOIDCTokens', true);
     await browser.setFeature('enableShell', false); // TODO(COMPASS-6897)
 
@@ -471,6 +458,7 @@ describe('OIDC integration', function () {
       connectionString
     );
 
+    await browser.selectConnection(favoriteName);
     await browser.doConnect();
     await browser.disconnectAll();
 
