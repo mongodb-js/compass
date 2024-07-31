@@ -104,11 +104,9 @@ describe('OIDC integration', function () {
           : undefined,
         bindIpAll: process.env.OIDC_BIND_IP_ALL === 'true',
         getTokenPayload(metadata: Parameters<typeof getTokenPayload>[0]) {
-          console.log('getTokenPayload', metadata);
           return getTokenPayload(metadata);
         },
         overrideRequestHandler(url, req, res) {
-          console.log('overrideRequestHandler', url);
           const { pathname } = new URL(url);
           oidcMockProviderEndpointAccesses[pathname] ??= 0;
           oidcMockProviderEndpointAccesses[pathname]++;
@@ -172,7 +170,6 @@ describe('OIDC integration', function () {
 
       connectionString = cs.toString();
 
-      console.log('OIDC connectionString', connectionString);
       connectionName = connectionNameFromString(connectionString);
     }
 
@@ -191,12 +188,9 @@ describe('OIDC integration', function () {
   beforeEach(async function () {
     oidcMockProviderEndpointAccesses = {};
     getTokenPayload = () => {
-      console.log('getTokenPayload()');
       return DEFAULT_TOKEN_PAYLOAD;
     };
-    overrideRequestHandler = () => {
-      console.log('overrideRequestHandler()');
-    };
+    overrideRequestHandler = () => {};
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature(
