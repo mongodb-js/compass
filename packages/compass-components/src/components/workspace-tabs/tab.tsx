@@ -18,7 +18,10 @@ const tabTransition = '.16s ease-in-out';
 
 const tabStyles = css({
   display: 'grid',
-  gridTemplateColumns: 'min-content 1fr min-content',
+  gridTemplateColumns: 'min-content 1fr min-content', // TODO
+  '&:hover, &:focus-visible, &:focus-within:not(:focus)': {
+    gridTemplateColumns: 'min-content 1fr min-content',
+  },
   alignItems: 'center',
   paddingLeft: 12,
   paddingRight: spacing[100],
@@ -52,8 +55,15 @@ const tabStyles = css({
     boxShadow: 'inset 0 0 0 1px var(--workspace-tab-border-color)',
   },
 
+  [focusedChild('.workspace-tab-title-container')]: {
+    maxWidth: `calc(100% - ${spacing[600]}px)`,
+  },
   [focusedChild('.workspace-tab-close-button')]: {
-    visibility: 'visible',
+    // TODO
+    display: 'inline-block',
+    position: 'absolute',
+    right: spacing[100],
+    bottom: spacing[100] + spacing[50],
   },
 });
 
@@ -174,7 +184,8 @@ const tabSubtitleStyles = css({
 });
 
 const closeButtonStyles = css({
-  visibility: 'hidden',
+  // TODO
+  display: 'none',
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
@@ -277,7 +288,9 @@ function Tab({
         />
       )}
 
-      <div className={tabTitleContainerStyles}>
+      <div
+        className={cx(tabTitleContainerStyles, 'workspace-tab-title-container')}
+      >
         <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>
         {subtitle && (
           <div className={cx(tabSubtitleStyles, 'workspace-tab-subtitle')}>
