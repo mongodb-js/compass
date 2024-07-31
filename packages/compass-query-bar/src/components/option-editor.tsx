@@ -83,7 +83,7 @@ const insightsBadgeStyles = css({
 });
 
 type OptionEditorProps = {
-  barName: string;
+  optionName: string;
   namespace: string;
   id?: string;
   hasError?: boolean;
@@ -106,7 +106,7 @@ type OptionEditorProps = {
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
-  barName,
+  optionName,
   namespace,
   id,
   hasError = false,
@@ -161,10 +161,12 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       ? createQueryWithHistoryAutocompleter(
           savedQueries
             .filter((query) => {
-              const isBarNameInQuery =
-                barName !== 'filter' ? barName in query.queryProperties : true;
+              const isOptionNameInQuery =
+                optionName !== 'filter'
+                  ? optionName in query.queryProperties
+                  : true;
               const isUpdateNotInQuery = !('update' in query.queryProperties);
-              return isBarNameInQuery && isUpdateNotInQuery;
+              return isOptionNameInQuery && isUpdateNotInQuery;
             })
             .map((query) => ({
               type: query.type,
