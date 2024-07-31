@@ -8,21 +8,22 @@ describe('utils', function () {
         stage: 'IXSCAN',
         keyPattern: { a: 1, b: 1 },
         expected: { a: 1, b: 1 },
-        testName: 'returns the indexs for a stage when keyPattern is an object',
+        testName:
+          'returns the indexes for a stage when keyPattern is an object',
       },
       {
         stage: 'EXPRESS_IXSCAN',
         keyPattern: '{"a": 1, "b": 1}',
         expected: { a: 1, b: 1 },
         testName:
-          'returns the indexs for a stage when keyPattern is a valid json object string',
+          'returns the indexes for a stage when keyPattern is a valid json object string',
       },
       {
         stage: 'EXPRESS_IXSCAN',
         keyPattern: '{"a": 1, "b": 1}',
         expected: { a: 1, b: 1 },
         testName:
-          'returns the indexs for a stage when keyPattern is a valid js object string',
+          'returns the indexes for a stage when keyPattern is a valid js object string',
       },
       {
         stage: 'EXPRESS_IXSCAN',
