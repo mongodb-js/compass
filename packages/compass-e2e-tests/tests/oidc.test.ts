@@ -335,16 +335,12 @@ describe('OIDC integration', function () {
       );
     }
 
-    // TODO: selectors
-    const modal = '[role=dialog]';
-    const confirmButton = 'button:nth-of-type(1)';
-    await browser.waitUntil(async () => {
-      const modalHeader = await browser.$(`${modal} h1`);
-      return (await modalHeader.getText()).includes('Authentication expired');
-    });
+    await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
+    const modalHeader = await browser.$(Selectors.ConfirmationModalHeading);
+    expect(await modalHeader.getText()).to.include('Authentication expired');
 
     afterReauth = true;
-    await browser.clickVisible(`${modal} ${confirmButton}`);
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     const result: any = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 }).authInfo',
@@ -386,16 +382,12 @@ describe('OIDC integration', function () {
       );
     }
 
-    // TODO: selectors
-    const modal = '[role=dialog]';
-    const cancelButton = 'button:nth-of-type(2)';
-    await browser.waitUntil(async () => {
-      const modalHeader = await browser.$(`${modal} h1`);
-      return (await modalHeader.getText()).includes('Authentication expired');
-    });
+    await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
+    const modalHeader = await browser.$(Selectors.ConfirmationModalHeading);
+    expect(await modalHeader.getText()).to.include('Authentication expired');
 
     afterReauth = true;
-    await browser.clickVisible(`${modal} ${cancelButton}`);
+    await browser.clickVisible(Selectors.confirmationModalCancelButton());
     const errorBanner = await browser.$(
       '[data-testid="toast-oidc-auth-failed"]'
     );

@@ -185,7 +185,7 @@ describe('Collection indexes tab', function () {
         'columnstore'
       );
 
-      const ConfirmButtonSelector = Selectors.ConfirmationModalConfirmButton(
+      const ConfirmButtonSelector = Selectors.confirmationModalConfirmButton(
         Selectors.DropIndexModal
       );
       await browser.clickVisible(ConfirmButtonSelector);

@@ -116,7 +116,7 @@ async function dropSearchIndex(browser: CompassBrowser, indexName: string) {
 
   await browser.setValueVisible(Selectors.ConfirmationModalInput, indexName);
 
-  await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+  await browser.clickVisible(Selectors.confirmationModalConfirmButton());
   await modal.waitForDisplayed({ reverse: true });
 
   await indexRow.waitForExist({
