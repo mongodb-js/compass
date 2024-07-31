@@ -191,6 +191,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
         {isDocumentEditor ? (
           <OptionEditor
+            barName={name}
             hasError={hasError}
             id={id}
             onChange={onValueChange}
