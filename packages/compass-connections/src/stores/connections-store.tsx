@@ -495,7 +495,7 @@ export function useConnections({
         id: new UUID().toString(),
       };
 
-      if (!duplicate.favorite) {
+      if (!duplicate.favorite || !duplicate.favorite.name) {
         duplicate.favorite = { name: getConnectionTitle(duplicate) };
       }
 
