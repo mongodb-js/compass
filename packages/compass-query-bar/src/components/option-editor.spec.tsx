@@ -168,10 +168,6 @@ describe('OptionEditor', function () {
 
     beforeEach(async function () {
       preferencesAccess = await createSandboxFromDefaultPreferences();
-      await preferencesAccess.savePreferences({
-        enableQueryHistoryAutocomplete: true,
-      });
-
       onApplySpy = sinon.spy();
       render(
         <PreferencesProvider value={preferencesAccess}>
@@ -244,10 +240,6 @@ describe('OptionEditor', function () {
 
     beforeEach(async function () {
       preferencesAccess = await createSandboxFromDefaultPreferences();
-      await preferencesAccess.savePreferences({
-        enableQueryHistoryAutocomplete: true,
-      });
-
       onApplySpy = sinon.spy();
       render(
         <PreferencesProvider value={preferencesAccess}>
