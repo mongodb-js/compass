@@ -511,8 +511,11 @@ export function useConnections({
         id: new UUID().toString(),
       };
 
-      if (!duplicate.favorite) {
-        duplicate.favorite = { name: getConnectionTitle(duplicate) };
+      if (!duplicate.favorite || !duplicate.favorite.name) {
+        duplicate.favorite = {
+          ...duplicate.favorite,
+          name: getConnectionTitle(duplicate),
+        };
       }
 
       const [nameWithoutCount, copyCount] = parseFavoriteNameToNameAndCopyCount(

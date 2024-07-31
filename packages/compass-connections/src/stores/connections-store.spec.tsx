@@ -542,6 +542,41 @@ describe('useConnections', function () {
       ).to.exist;
     });
 
+    it('should create a name if there is none', async function () {
+      const connectionWithoutName: ConnectionInfo = {
+        id: '123',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+        favorite: {
+          name: '',
+          color: 'color2',
+        },
+        savedConnectionType: 'recent',
+      };
+      mockConnectionStorage = new InMemoryConnectionStorage([
+        connectionWithoutName,
+      ]);
+      const connections = renderHookWithContext();
+
+      // Waiting for connections to load first
+      await waitFor(() => {
+        expect(connections.current.recentConnections).to.have.lengthOf.gt(0);
+      });
+
+      await connections.current.duplicateConnection(connectionWithoutName.id, {
+        autoDuplicate: true,
+      });
+
+      await waitFor(() => {
+        expect(
+          connections.current.recentConnections.find((info) => {
+            return info.favorite.name === 'localhost:27017 (1)';
+          })
+        ).to.exist.and.to.have.nested.property('favorite.color', 'color2');
+      });
+    });
+
     it('should only look for copy number at the end of the connection name', async function () {
       const connections = renderHookWithContext();
 
