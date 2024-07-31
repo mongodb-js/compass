@@ -31,6 +31,13 @@ describe('utils', function () {
         expected: {},
         testName: 'returns empty object when keyPattern is not parsable',
       },
+      {
+        stage: 'EXPRESS_IXSCAN',
+        keyPattern: '{ key: "foo:bar" }',
+        expected: { key: 'foo:bar' },
+        testName:
+          'returns the indexes for a stage when keyPattern is a valid js object string - 2',
+      },
     ];
 
     for (const useCase of useCases) {
