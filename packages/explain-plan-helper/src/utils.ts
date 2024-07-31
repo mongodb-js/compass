@@ -1,9 +1,7 @@
 import parse, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { Stage } from '.';
 //github.com/mongodb-js/compass/pull/6071/commits/5f47eebb58485a0f7cc697c317f4d5e2890ae17c
-https: export function getStageIndexFields(
-  stage: Stage
-): Record<string, string> {
+export function getStageIndexFields(stage: Stage): Record<string, string> {
   if (
     stage.stage === 'EXPRESS_IXSCAN' &&
     typeof stage.keyPattern === 'string'
