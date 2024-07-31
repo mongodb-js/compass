@@ -101,8 +101,14 @@ function getCsfleInformation(
 }
 
 async function getHostnameForConnection(
-  connectionStringData: ConnectionString
+  connectionInfo: ConnectionInfo
 ): Promise<string | null> {
+  let connectionStringData = new ConnectionString(
+    connectionInfo.connectionOptions.connectionString,
+    {
+      looseValidation: true,
+    }
+  );
   if (connectionStringData.isSRV) {
     const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
       () => {
@@ -120,11 +126,12 @@ async function getHostnameForConnection(
   return connectionStringData.hosts[0];
 }
 
-async function getConnectionData({
-  connectionOptions: { connectionString, sshTunnel, fleOptions },
-}: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
-  Record<string, unknown>
-> {
+async function getConnectionData(
+  {
+    connectionOptions: { connectionString, sshTunnel, fleOptions },
+  }: Pick<ConnectionInfo, 'connectionOptions'>,
+  resolvedHostname: string | null
+): Promise<Record<string, unknown>> {
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
@@ -138,8 +145,6 @@ async function getConnectionData({
     ? 'DEFAULT'
     : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
-
-  const resolvedHostname = await getHostnameForConnection(connectionStringData);
 
   return {
     ...(await getHostInformation(resolvedHostname)),
@@ -179,10 +184,15 @@ export function trackNewConnectionEvent(
     const callback = async () => {
       const { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas } =
         await dataService.instance();
-      const connectionData = await getConnectionData(connectionInfo);
+      const resolvedHostname = await getHostnameForConnection(connectionInfo);
+      const connectionData = await getConnectionData(
+        connectionInfo,
+        resolvedHostname
+      );
       const trackEvent = {
         ...connectionData,
         is_atlas: isAtlas,
+        atlas_hostname: isAtlas ? resolvedHostname : null,
         is_local_atlas: isLocalAtlas,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
@@ -209,8 +219,14 @@ export function trackConnectionFailedEvent(
 ): void {
   try {
     const callback = async () => {
-      const connectionData =
-        connectionInfo !== null ? await getConnectionData(connectionInfo) : {};
+      let connectionData: Record<string, unknown> = {};
+      if (connectionInfo !== null) {
+        const resolvedHostname = await getHostnameForConnection(connectionInfo);
+        connectionData = await getConnectionData(
+          connectionInfo,
+          resolvedHostname
+        );
+      }
       const trackEvent = {
         ...connectionData,
         error_code: connectionError.code,

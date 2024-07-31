@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "mongodb": "^6.7.0",
+    "mongodb": "^6.8.0",
     "mongodb-connection-string-url": "^3.0.1",
     "mongodb-data-service": "^22.22.2"
   },

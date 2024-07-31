@@ -177,17 +177,19 @@ describe('OptionEditor', function () {
             value=""
             savedQueries={[
               {
-                _id: '1',
-                _ns: '1',
-                filter: { a: 1 },
-                _lastExecuted: new Date(),
+                type: 'recent',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 1 },
+                },
               },
               {
-                _id: '1',
-                _ns: '1',
-                filter: { a: 2 },
-                sort: { a: -1 },
-                _lastExecuted: new Date(),
+                type: 'recent',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 2 },
+                  sort: { a: -1 },
+                },
               },
             ]}
             onApplyQuery={onApplySpy}

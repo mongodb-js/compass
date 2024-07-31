@@ -11,12 +11,14 @@ describe('query history autocompleter', function () {
 
   const savedQueries: SavedQuery[] = [
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-01T12:00:00Z'),
       queryProperties: {
         filter: { status: 'active' },
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-02T14:00:00Z'),
       queryProperties: {
         filter: { age: { $gt: 30 } },
@@ -29,6 +31,7 @@ describe('query history autocompleter', function () {
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-03T16:00:00Z'),
       queryProperties: {
         filter: { score: { $gte: 85 } },
@@ -40,6 +43,7 @@ describe('query history autocompleter', function () {
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-04T18:00:00Z'),
       queryProperties: {
         filter: { isActive: true },
@@ -51,6 +55,7 @@ describe('query history autocompleter', function () {
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-05T20:00:00Z'),
       queryProperties: {
         filter: { category: 'electronics' },
