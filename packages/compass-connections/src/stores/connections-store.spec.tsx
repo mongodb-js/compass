@@ -542,34 +542,6 @@ describe('useConnections', function () {
       ).to.exist;
     });
 
-    it.only('should copy connection and skip the appendix if name is empty', async function () {
-      const connectionWithoutName = {
-        ...mockConnections[0],
-        favorite: undefined,
-      };
-      mockConnectionStorage = new InMemoryConnectionStorage([
-        connectionWithoutName,
-      ]);
-      const connections = renderHookWithContext();
-
-      // Waiting for connections to load first
-      await waitFor(() => {
-        expect(connections.current.favoriteConnections).to.have.lengthOf.gt(0);
-      });
-      console.log(connections.current.favoriteConnections);
-
-      await connections.current.duplicateConnection(connectionWithoutName.id, {
-        autoDuplicate: true,
-      });
-
-      console.log(connections.current.favoriteConnections);
-      await waitFor(() => {
-        expect(connections.current.favoriteConnections).to.have.lengthOf(2);
-      });
-
-      console.log(connections.current.favoriteConnections);
-    });
-
     it('should only look for copy number at the end of the connection name', async function () {
       const connections = renderHookWithContext();
 
