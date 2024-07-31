@@ -12,6 +12,7 @@ import type { MongoLogWriter } from 'mongodb-log-writer';
 import { mongoLogId, MongoLogManager } from 'mongodb-log-writer';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
+import { missingOptionalDeps } from './optional-deps';
 
 const debug = createDebug('mongodb-compass:main:logging');
 
@@ -90,6 +91,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
         arch: os.arch(),
         ...osReleaseInfo,
         pendingEarlyLogEventCount: earlyLogEvents.length,
+        missingOptionalDeps: missingOptionalDeps(),
       }
     );
 
