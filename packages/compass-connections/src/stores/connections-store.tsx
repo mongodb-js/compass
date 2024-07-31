@@ -496,7 +496,10 @@ export function useConnections({
       };
 
       if (!duplicate.favorite || !duplicate.favorite.name) {
-        duplicate.favorite = { ...duplicate.favorite, name: getConnectionTitle(duplicate) };
+        duplicate.favorite = {
+          ...duplicate.favorite,
+          name: getConnectionTitle(duplicate),
+        };
       }
 
       const [nameWithoutCount, copyCount] = parseFavoriteNameToNameAndCopyCount(
