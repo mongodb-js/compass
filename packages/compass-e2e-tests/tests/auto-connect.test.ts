@@ -7,6 +7,7 @@ import {
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
   screenshotPathName,
+  connectionNameFromString,
 } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import os from 'os';
@@ -93,6 +94,7 @@ describe('Automatically connecting from the command line', function () {
       .getText();
     expect(sidebarTitle).to.eq(expectedTitle);
     const result = await compass.browser.shellEval(
+      connectionNameFromString(connectionStringSuccess),
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -216,7 +218,7 @@ describe('Automatically connecting from the command line', function () {
         location.reload();
       });
       await browser.waitForConnectionResult('success');
-      await browser.disconnect();
+      await browser.disconnectAll();
       await browser.execute(() => {
         location.reload();
       });
@@ -274,7 +276,7 @@ describe('Automatically connecting from the command line', function () {
     try {
       const browser = compass.browser;
       await browser.waitForConnectionResult('success');
-      await browser.disconnect();
+      await browser.disconnectAll();
 
       // this is not the ideal check because by default the recent connections
       // list doesn't exist either

@@ -1,7 +1,11 @@
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { OpenWorkspaceOptions, WorkspaceTab } from './stores/workspaces';
+import type {
+  OpenWorkspaceOptions,
+  WorkspaceTab,
+  CollectionTabInfo,
+} from './stores/workspaces';
 import workspacesReducer, {
   collectionRemoved,
   collectionRenamed,
@@ -201,7 +205,7 @@ const WorkspacesPlugin = registerHadronPlugin(
 
 export default WorkspacesPlugin;
 export { WorkspacesProvider } from './components/workspaces-provider';
-export type { OpenWorkspaceOptions, WorkspaceTab };
+export type { OpenWorkspaceOptions, WorkspaceTab, CollectionTabInfo };
 export type {
   WelcomeWorkspace,
   MyQueriesWorkspace,

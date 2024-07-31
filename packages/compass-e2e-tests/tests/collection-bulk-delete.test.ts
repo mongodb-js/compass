@@ -2,7 +2,12 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -26,7 +31,12 @@ describe('Bulk Delete', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
   });
 
   afterEach(async function () {
@@ -45,6 +55,10 @@ describe('Bulk Delete', function () {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Delete Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({});
 
     // Make sure the query is shown in the modal.
@@ -75,6 +89,12 @@ describe('Bulk Delete', function () {
 
     // Check the telemetry
     const executedEvent = await telemetryEntry('Bulk Delete Executed');
+
+    // this id is always different, because the connection is not a saved one
+    // so we just check it exists for simplicity
+    expect(executedEvent.connection_id).to.exist;
+    delete executedEvent.connection_id;
+
     expect(executedEvent).to.deep.equal({});
 
     // The success toast is displayed
@@ -153,6 +173,10 @@ describe('Bulk Delete', function () {
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Delete Export Opened');
+
+    expect(openedEvent.connection_id).to.exist;
+    delete openedEvent.connection_id; // connection_id varies
+
     expect(openedEvent).to.deep.equal({});
 
     const text = await browser.exportToLanguage('Python', {

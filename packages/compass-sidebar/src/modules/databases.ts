@@ -118,10 +118,12 @@ export const changeDatabases = (
   databases,
 });
 
+// Receives connectionId only to support filtering for single connections
+// navigation tree
 export const fetchAllCollections =
-  (): SidebarThunkAction<void, DatabasesAction> =>
+  (connectionId?: string): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('sidebar-filter-navigation-list');
+    globalAppRegistry.emit('sidebar-filter-navigation-list', { connectionId });
     dispatch({ type: FETCH_ALL_COLLECTIONS });
   };
 
@@ -131,6 +133,8 @@ export const onDatabaseExpand =
     databaseId: string
   ): SidebarThunkAction<void, DatabasesAction> =>
   (dispatch, getState, { globalAppRegistry }) => {
-    globalAppRegistry.emit('sidebar-expand-database', connectionId, databaseId);
+    globalAppRegistry.emit('sidebar-expand-database', databaseId, {
+      connectionId,
+    });
     dispatch({ type: EXPAND_DATABASE, connectionId, databaseId });
   };

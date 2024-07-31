@@ -9,6 +9,7 @@ import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
 import { CompassElectron } from './components/entrypoint';
+import { openToast } from '@mongodb-js/compass-components';
 
 // https://github.com/nodejs/node/issues/40537
 dns.setDefaultResultOrder('ipv4first');
@@ -114,6 +115,10 @@ async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences
   return await ipcRenderer?.call('compass:get-window-auto-connect-preferences');
 }
 
+async function checkSecretStorageIsAvailable(): Promise<boolean> {
+  return await ipcRenderer?.call('compass:check-secret-storage-is-available');
+}
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -212,6 +217,7 @@ const Application = View.extend({
       (): Promise<AutoConnectPreferences> => {
         return Promise.resolve(initialAutoConnectPreferences);
       };
+    const isSecretStorageAvailable = await checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(
       ipcRenderer,
       getInitialAutoConnectPreferences
@@ -252,6 +258,15 @@ const Application = View.extend({
       </React.StrictMode>,
       this.queryByHook('layout-container')
     );
+
+    if (!isSecretStorageAvailable) {
+      openToast('secret-storage-not-available', {
+        variant: 'warning',
+        title:
+          'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
+      });
+      track('Secret Storage Not Available');
+    }
 
     document.querySelector('#loading-placeholder')?.remove();
   },

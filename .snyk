@@ -4,14 +4,21 @@ version: v1.25.0
 ignore:
   SNYK-JS-AGGRIDCOMMUNITY-1932011:
     - '*':
-        reason: Not applicable as we do not use a valueFormatter or cellRenderer function
-        expires: 2024-07-17T18:27:24.346Z
+        reason: >-
+          Not applicable as we do not use a valueFormatter or cellRenderer
+          function
+        expires: 2024-08-17T18:27:24.346Z
         created: 2024-01-18T18:27:24.353Z
   SNYK-JS-AXIOS-6032459:
     - '*':
         reason: Not applicable to axios usage inside node-analytics package
         expires: 2024-10-30T10:18:43.435Z
         created: 2023-10-30T10:18:43.435Z
+  SNYK-JS-ELECTRON-7443355:
+    - '*':
+        reason: Not applicable as we do not open / allow opening random webpages in our Electron app.
+        expires: 2024-07-25T12:41:36.996Z
+        created: 2024-07-19T12:41:36.999Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':

@@ -1,48 +1,31 @@
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  useEffect,
-} from 'react';
+import React, { useCallback, useState } from 'react';
 import { type MapStateToProps, connect } from 'react-redux';
 import {
   ConnectionStatus,
-  useActiveConnections,
   useConnections,
   useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
-import {
-  type ConnectionInfo,
-  getConnectionTitle,
-} from '@mongodb-js/connection-info';
+import { useConnectionFormPreferences } from '@mongodb-js/compass-connections';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   ResizableSidebar,
   css,
-  Link,
-  useToast,
   spacing,
   openToast,
   HorizontalRule,
 } from '@mongodb-js/compass-components';
-import { getGenuineMongoDB } from 'mongodb-build-info';
 import { SidebarHeader } from './header/sidebar-header';
 import { ConnectionFormModal } from '@mongodb-js/connection-form';
-import { cloneDeep } from 'lodash';
-import { usePreference } from 'compass-preferences-model/provider';
 import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
 import ConnectionsNavigation from './connections-navigation';
-import NonGenuineWarningModal from '../non-genuine-warning-modal';
 import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
-
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 type MappedCsfleModalProps = {
@@ -81,45 +64,6 @@ const sidebarStyles = css({
   gap: spacing[200],
 });
 
-type ConnectionErrorToastBodyProps = {
-  info: ConnectionInfo | null;
-  onReview: () => void;
-};
-
-const connectionErrorToastBodyStyles = css({
-  display: 'flex',
-  alignItems: 'start',
-  gap: spacing[2],
-});
-
-const connectionErrorToastActionMessageStyles = css({
-  marginTop: spacing[1],
-  flexGrow: 0,
-});
-
-function ConnectionErrorToastBody({
-  info,
-  onReview,
-}: ConnectionErrorToastBodyProps): React.ReactElement {
-  return (
-    <span className={connectionErrorToastBodyStyles}>
-      <span>
-        There was a problem connecting{' '}
-        {info ? `to ${getConnectionTitle(info)}` : ''}
-      </span>
-      {info && (
-        <Link
-          className={connectionErrorToastActionMessageStyles}
-          hideExternalIcon={true}
-          onClick={onReview}
-        >
-          REVIEW
-        </Link>
-      )}
-    </span>
-  );
-}
-
 async function copyConnectionString(connectionString: string) {
   try {
     await navigator.clipboard.writeText(connectionString);
@@ -140,76 +84,38 @@ async function copyConnectionString(connectionString: string) {
   }
 }
 
-function useMemoisedFormPreferences() {
-  const protectConnectionStrings = usePreference('protectConnectionStrings');
-  const forceConnectionOptions = usePreference('forceConnectionOptions');
-  const showKerberosPasswordField = usePreference('showKerberosPasswordField');
-  const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow');
-  const enableOidc = usePreference('enableOidc');
-  const enableDebugUseCsfleSchemaMap = usePreference(
-    'enableDebugUseCsfleSchemaMap'
-  );
-  const protectConnectionStringsForNewConnections = usePreference(
-    'protectConnectionStringsForNewConnections'
-  );
-
-  return useMemo(
-    () => ({
-      protectConnectionStrings,
-      forceConnectionOptions,
-      showKerberosPasswordField,
-      showOIDCDeviceAuthFlow,
-      enableOidc,
-      enableDebugUseCsfleSchemaMap,
-      protectConnectionStringsForNewConnections,
-    }),
-    [
-      protectConnectionStrings,
-      forceConnectionOptions,
-      showKerberosPasswordField,
-      showOIDCDeviceAuthFlow,
-      enableOidc,
-      enableDebugUseCsfleSchemaMap,
-      protectConnectionStringsForNewConnections,
-    ]
-  );
-}
-
 export function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
   onConnectionCsfleModeChanged,
 }: MultipleConnectionSidebarProps) {
-  const [genuineMongoDBModalVisible, setGenuineMongoDBModalVisible] =
-    useState(false);
   const [csfleModalConnectionId, setCsfleModalConnectionId] = useState<
     string | undefined
   >(undefined);
   const [activeConnectionsFilterRegex, setActiveConnectionsFilterRegex] =
     useState<RegExp | null>(null);
-  const [isConnectionFormOpen, setIsConnectionFormOpen] = useState(false);
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
 
-  const appRegistry = useGlobalAppRegistry();
-  const formPreferences = useMemoisedFormPreferences();
-  const { openToast, closeToast } = useToast('multiple-connection-status');
+  const formPreferences = useConnectionFormPreferences();
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
-  const activeConnections = useActiveConnections();
-  const maxConcurrentConnections = usePreference(
-    'maximumNumberOfActiveConnections'
-  ) as number;
   const {
-    setActiveConnectionById,
     connect,
-    closeConnection,
-    cancelConnectionAttempt,
-    removeConnection,
-    saveConnection,
-    duplicateConnection,
+    disconnect,
     createNewConnection,
-    state: { activeConnectionId, activeConnectionInfo, connectionErrorMessage },
+    editConnection,
+    cancelEditConnection,
+    removeConnection,
+    duplicateConnection,
+    saveEditedConnection,
+    toggleConnectionFavoritedStatus,
+    showNonGenuineMongoDBWarningModal,
+    state: {
+      editingConnectionInfo,
+      isEditingConnectionInfoModalOpen,
+      connectionErrors,
+    },
   } = useConnections();
 
   const findActiveConnection = (id: string) => {
@@ -223,202 +129,19 @@ export function MultipleConnectionSidebar({
     )?.connectionInfo;
   };
 
-  const cancelCurrentConnectionRef = useRef<(id: string) => Promise<void>>();
-  cancelCurrentConnectionRef.current = cancelConnectionAttempt;
-
   const onActiveConnectionFilterChange = useCallback(
     (filterRegex: RegExp | null) =>
       setActiveConnectionsFilterRegex(filterRegex),
     [setActiveConnectionsFilterRegex]
   );
 
-  const onConnected = useCallback(
-    (info: ConnectionInfo) => {
-      openToast(`connection-status-${info.id}`, {
-        title: `Connected to ${getConnectionTitle(info)}`,
-        variant: 'success',
-        timeout: 3_000,
-      });
+  const onOpenConnectionInfo = useCallback((connectionId: string) => {
+    return setConnectionInfoModalConnectionId(connectionId);
+  }, []);
 
-      const { isGenuine } = getGenuineMongoDB(
-        info.connectionOptions.connectionString
-      );
-      if (!isGenuine) {
-        setGenuineMongoDBModalVisible(true);
-      }
-    },
-    [openToast]
-  );
-
-  const onConnectionAttemptStarted = useCallback(
-    (info: ConnectionInfo) => {
-      const cancelAndCloseToast = () => {
-        void cancelCurrentConnectionRef.current?.(info.id);
-        closeToast(`connection-status-${info.id}`);
-      };
-
-      openToast(`connection-status-${info.id}`, {
-        title: `Connecting to ${getConnectionTitle(info)}`,
-        dismissible: true,
-        variant: 'progress',
-        actionElement: (
-          <Link hideExternalIcon={true} onClick={cancelAndCloseToast}>
-            CANCEL
-          </Link>
-        ),
-      });
-    },
-    [openToast, closeToast]
-  );
-
-  const onConnectionFailed = useCallback(
-    (info: ConnectionInfo | null, error: Error) => {
-      const reviewAndCloseToast = () => {
-        closeToast(`connection-status-${info?.id ?? ''}`);
-        setIsConnectionFormOpen(true);
-      };
-
-      openToast(`connection-status-${info?.id ?? ''}`, {
-        title: `${error.message}`,
-        description: (
-          <ConnectionErrorToastBody
-            info={info}
-            onReview={reviewAndCloseToast}
-          />
-        ),
-        variant: 'warning',
-      });
-    },
-    [openToast, closeToast, setIsConnectionFormOpen]
-  );
-
-  const onMaxConcurrentConnectionsLimitReached = useCallback(
-    (
-      currentActiveConnections: number,
-      maxConcurrentConnections: number,
-      connectionId: string
-    ) => {
-      const message = `Only ${maxConcurrentConnections} connection${
-        currentActiveConnections > 1 ? 's' : ''
-      } can be connected to at the same time. First disconnect from another connection.`;
-
-      openToast(`connection-status-${connectionId}`, {
-        title: 'Maximum concurrent connections limit reached',
-        description: message,
-        variant: 'warning',
-        timeout: 5_000,
-      });
-    },
-    [openToast]
-  );
-
-  const onConnect = useCallback(
-    (info: ConnectionInfo) => {
-      if (activeConnections.length >= maxConcurrentConnections) {
-        onMaxConcurrentConnectionsLimitReached(
-          activeConnections.length,
-          maxConcurrentConnections,
-          info.id
-        );
-        return;
-      }
-      setActiveConnectionById(info.id);
-      onConnectionAttemptStarted(info);
-      void connect(info).then(
-        () => {
-          onConnected(info);
-        },
-        (err: Error) => {
-          void onConnectionFailed(info, err);
-        }
-      );
-    },
-    [
-      maxConcurrentConnections,
-      activeConnections,
-      onMaxConcurrentConnectionsLimitReached,
-      connect,
-      onConnected,
-      onConnectionAttemptStarted,
-      onConnectionFailed,
-      setActiveConnectionById,
-    ]
-  );
-
-  const onNewConnectionOpen = useCallback(() => {
-    createNewConnection();
-    setIsConnectionFormOpen(true);
-  }, [createNewConnection]);
-
-  const onNewConnectionClose = useCallback(
-    () => setIsConnectionFormOpen(false),
-    []
-  );
-
-  const onNewConnectionToggle = useCallback(
-    (open: boolean) => setIsConnectionFormOpen(open),
-    []
-  );
-
-  const onNewConnectionConnect = useCallback(
-    (connectionInfo: ConnectionInfo) => {
-      void connect({
-        ...cloneDeep(connectionInfo),
-      }).then(() => setIsConnectionFormOpen(false));
-    },
-    [connect]
-  );
-
-  const onSaveNewConnection = useCallback(
-    async (connectionInfo: ConnectionInfo) => {
-      await saveConnection(connectionInfo);
-      setIsConnectionFormOpen(false);
-    },
-    [saveConnection]
-  );
-
-  const onRemoveConnection = useCallback(
-    (info: ConnectionInfo) => {
-      void removeConnection(info);
-    },
-    [removeConnection]
-  );
-
-  const onEditConnection = useCallback(
-    (info: ConnectionInfo) => {
-      setActiveConnectionById(info.id);
-      setIsConnectionFormOpen(true);
-    },
-    [setActiveConnectionById, setIsConnectionFormOpen]
-  );
-
-  const onDuplicateConnection = useCallback(
-    (info: ConnectionInfo) => {
-      duplicateConnection(info);
-      setIsConnectionFormOpen(true);
-    },
-    [duplicateConnection, setIsConnectionFormOpen]
-  );
-
-  const onToggleFavoriteConnectionInfo = useCallback(
-    (info: ConnectionInfo) => {
-      info.savedConnectionType =
-        info.savedConnectionType === 'favorite' ? 'recent' : 'favorite';
-
-      void saveConnection(info);
-    },
-    [saveConnection]
-  );
-
-  const onOpenConnectionInfo = useCallback(
-    (connectionId: string) => setConnectionInfoModalConnectionId(connectionId),
-    []
-  );
-
-  const onCloseConnectionInfo = useCallback(
-    () => setConnectionInfoModalConnectionId(undefined),
-    []
-  );
+  const onCloseConnectionInfo = useCallback(() => {
+    return setConnectionInfoModalConnectionId(undefined);
+  }, []);
 
   const onCopyConnectionString = useCallback(
     (connectionInfo: ConnectionInfo) => {
@@ -429,13 +152,6 @@ export function MultipleConnectionSidebar({
       );
     },
     [maybeProtectConnectionString]
-  );
-
-  const onDisconnect = useCallback(
-    (connectionId: string) => {
-      void closeConnection(connectionId);
-    },
-    [closeConnection]
   );
 
   const onOpenCsfleModal = useCallback((connectionId: string) => {
@@ -455,18 +171,6 @@ export function MultipleConnectionSidebar({
     [csfleModalConnectionId, onConnectionCsfleModeChanged]
   );
 
-  const onOpenNonGenuineMongoDBModal = useCallback(() => {
-    setGenuineMongoDBModalVisible(true);
-  }, []);
-
-  useEffect(() => {
-    // TODO(COMPASS-7397): don't hack this via the app registry
-    appRegistry.on('open-new-connection', onNewConnectionOpen);
-    return () => {
-      appRegistry.removeListener('open-new-connection', onNewConnectionOpen);
-    };
-  }, [appRegistry, onNewConnectionOpen]);
-
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -478,33 +182,57 @@ export function MultipleConnectionSidebar({
           activeWorkspace={activeWorkspace}
           filterRegex={activeConnectionsFilterRegex}
           onFilterChange={onActiveConnectionFilterChange}
-          onConnect={onConnect}
-          onNewConnection={onNewConnectionOpen}
-          onEditConnection={onEditConnection}
-          onRemoveConnection={onRemoveConnection}
-          onDuplicateConnection={onDuplicateConnection}
+          onConnect={(connectionInfo) => {
+            void connect(connectionInfo);
+          }}
+          onNewConnection={createNewConnection}
+          onEditConnection={(connectionInfo) => {
+            editConnection(connectionInfo.id);
+          }}
+          onRemoveConnection={(connectionInfo) => {
+            void removeConnection(connectionInfo.id);
+          }}
+          onDuplicateConnection={(connectionInfo) => {
+            void duplicateConnection(connectionInfo.id);
+          }}
           onCopyConnectionString={onCopyConnectionString}
-          onToggleFavoriteConnectionInfo={onToggleFavoriteConnectionInfo}
+          onToggleFavoriteConnectionInfo={(connectionInfo) => {
+            void toggleConnectionFavoritedStatus(connectionInfo.id);
+          }}
           onOpenConnectionInfo={onOpenConnectionInfo}
-          onDisconnect={onDisconnect}
+          onDisconnect={(id) => {
+            void disconnect(id);
+          }}
           onOpenCsfleModal={onOpenCsfleModal}
-          onOpenNonGenuineMongoDBModal={onOpenNonGenuineMongoDBModal}
+          onOpenNonGenuineMongoDBModal={(connectionId: string) => {
+            showNonGenuineMongoDBWarningModal(connectionId);
+          }}
         />
-        <ConnectionFormModal
-          isOpen={isConnectionFormOpen}
-          setOpen={onNewConnectionToggle}
-          onCancel={onNewConnectionClose}
-          onConnectClicked={onNewConnectionConnect}
-          key={activeConnectionId}
-          onSaveConnectionClicked={onSaveNewConnection}
-          initialConnectionInfo={activeConnectionInfo}
-          connectionErrorMessage={connectionErrorMessage}
-          preferences={formPreferences}
-        />
-        <NonGenuineWarningModal
-          isVisible={genuineMongoDBModalVisible}
-          toggleIsVisible={setGenuineMongoDBModalVisible}
-        />
+        {editingConnectionInfo && (
+          <ConnectionFormModal
+            isOpen={isEditingConnectionInfoModalOpen}
+            setOpen={(newOpen) => {
+              // This is how leafygreen propagates `X` button click
+              if (newOpen === false) {
+                cancelEditConnection(editingConnectionInfo.id);
+              }
+            }}
+            initialConnectionInfo={editingConnectionInfo}
+            onSaveAndConnectClicked={(connectionInfo) => {
+              void connect(connectionInfo);
+            }}
+            onSaveClicked={(connectionInfo) => {
+              return saveEditedConnection(connectionInfo);
+            }}
+            onCancel={() => {
+              cancelEditConnection(editingConnectionInfo.id);
+            }}
+            connectionErrorMessage={
+              connectionErrors[editingConnectionInfo.id]?.message
+            }
+            preferences={formPreferences}
+          />
+        )}
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}
           onClose={onCloseCsfleModal}

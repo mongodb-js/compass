@@ -171,6 +171,7 @@ describe('PipelineAI Component', function () {
               {
                 event: 'PipelineAI Feedback',
                 properties: {
+                  connection_id: 'TEST',
                   feedback: 'positive',
                   request_id: 'pineapple',
                   text: 'this is the pipeline I was looking for',

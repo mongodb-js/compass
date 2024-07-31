@@ -46,7 +46,7 @@ describe('ConnectionForm Component', function () {
                 'mongodb://pineapple:orangutans@localhost:27019',
             },
           }}
-          onSaveConnectionClicked={noop}
+          onSaveClicked={noop}
           {...props}
         />
       </PreferencesProvider>
@@ -264,7 +264,7 @@ describe('ConnectionForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        onSaveConnectionClicked={noop}
+        onSaveClicked={noop}
       />
     );
     expect(screen.getByText('Invalid connection string "pineapples"')).to.be
@@ -281,7 +281,7 @@ describe('ConnectionForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        onSaveConnectionClicked={noop}
+        onSaveClicked={noop}
       />
     );
     expect(screen.getByText(favoriteText).closest('button')).to.be.visible;
@@ -297,7 +297,7 @@ describe('ConnectionForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        onSaveConnectionClicked={noop}
+        onSaveClicked={noop}
       />
     );
 
@@ -321,7 +321,7 @@ describe('ConnectionForm Component', function () {
             connectionString: 'mongodb://localhost:27017',
           },
         }}
-        onSaveConnectionClicked={noop}
+        onSaveClicked={noop}
       />
     );
 
@@ -338,7 +338,7 @@ describe('ConnectionForm Component', function () {
             connectionString: 'pineapples',
           },
         }}
-        onSaveConnectionClicked={noop}
+        onSaveClicked={noop}
       />
     );
 
@@ -369,7 +369,7 @@ describe('ConnectionForm Component', function () {
             name: 'foo',
           },
         }}
-        onSaveConnectionClicked={noop}
+        onSaveClicked={noop}
       />
     );
 

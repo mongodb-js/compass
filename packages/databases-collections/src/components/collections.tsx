@@ -17,7 +17,6 @@ import type Collection from 'mongodb-collection-model';
 import toNS from 'mongodb-ns';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
   useTrackOnChange,
@@ -57,14 +56,14 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }, [isCompassInWritableMode, isInstanceWritable]);
   const connectionInfo = useConnectionInfo();
   const { id: connectionId } = connectionInfo;
-  const { openDatabasesWorkspace, openCollectionWorkspace } =
-    useOpenWorkspace();
+  const { openCollectionWorkspace } = useOpenWorkspace();
 
-  const parsedNS = toNS(namespace);
-
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'collections' });
-  }, []);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track('Screen', { name: 'collections' }, connectionInfo);
+    },
+    [connectionInfo]
+  );
 
   const onCollectionClick = useCallback(
     (ns: string) => {
@@ -84,10 +83,6 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
     [connectionId, _onDeleteCollectionClick]
   );
 
-  const onClickConnectionBreadcrumb = useCallback(() => {
-    openDatabasesWorkspace(connectionId);
-  }, [connectionId, openDatabasesWorkspace]);
-
   if (collectionsLoadingStatus === 'error') {
     return (
       <div className={collectionsErrorStyles}>
@@ -101,10 +96,7 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   }
 
   const actions = Object.assign(
-    {
-      onCollectionClick,
-      onRefreshClick,
-    },
+    { onCollectionClick, onRefreshClick },
     isEditable
       ? {
           onCreateCollectionClick,
@@ -115,10 +107,8 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
 
   return (
     <CollectionsList
+      namespace={namespace}
       collections={collections}
-      databaseName={parsedNS.database}
-      connectionTitle={getConnectionTitle(connectionInfo)}
-      onClickConnectionBreadcrumb={onClickConnectionBreadcrumb}
       {...actions}
     />
   );

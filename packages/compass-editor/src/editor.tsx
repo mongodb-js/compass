@@ -47,6 +47,7 @@ import {
   closeBrackets,
   closeBracketsKeymap,
   snippetCompletion,
+  startCompletion,
 } from '@codemirror/autocomplete';
 import type { IconGlyph } from '@mongodb-js/compass-components';
 import {
@@ -143,7 +144,7 @@ const tabKeymap: KeyBinding[] = [
   indentWithTab,
 ];
 
-type CodemirrorThemeType = 'light' | 'dark';
+export type CodemirrorThemeType = 'light' | 'dark';
 
 export const editorPalette = {
   light: {
@@ -323,6 +324,10 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-tooltip.cm-tooltip-autocomplete > ul': {
         fontFamily: fontFamilies.code,
+        boxShadow: `0 ${spacing[50]}px ${spacing[200]}px rgba(0, 0, 0, 0.25)`,
+      },
+      '& .cm-tooltip-autocomplete ul li': {
+        display: 'flex',
       },
       '& .cm-tooltip-autocomplete ul li[aria-selected]': {
         color: editorPalette[theme].autocompleteColor,
@@ -332,18 +337,34 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-completionIcon': {
         display: 'none',
       },
+      '& .cm-completionLabel': {
+        flex: 1,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+      },
       '& .cm-completionDetail': {
         color: rgba(editorPalette[theme].autocompleteColor, 0.5),
         fontStyle: 'normal',
         marginRight: '1em',
+        marginLeft: '1em',
       },
       '& .cm-completionMatchedText': {
         color: editorPalette[theme].autocompleteMatchColor,
         fontWeight: 'bold',
         textDecoration: 'none',
       },
+      '.cm-tooltip.cm-completionInfo': {
+        boxShadow: `0 ${spacing[50]}px ${spacing[200]}px rgba(0, 0, 0, 0.25)`,
+        overflow: 'auto',
+        marginTop: 0,
+        paddingTop: 0,
+        fontSize: '12px',
+        maxHeight: '70vh',
+      },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
+        marginRight: `${spacing[2]}px`,
         marginTop: `${spacing[2]}px`,
         marginBottom: `${spacing[2]}px`,
       },
@@ -604,6 +625,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
+  startCompletion: () => boolean;
   readonly editorContents: string | null;
   readonly editor: EditorView | null;
 };
@@ -712,6 +734,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           editorViewRef.current.focus();
           return true;
+        },
+        startCompletion() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return startCompletion(editorViewRef.current);
         },
         get editorContents() {
           if (!editorViewRef.current) {
@@ -1353,6 +1381,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           applySnippet(template: string) {
             return editorRef.current?.applySnippet(template) ?? false;
           },
+          startCompletion() {
+            return editorRef.current?.startCompletion() ?? false;
+          },
           get editorContents() {
             return editorRef.current?.editorContents ?? null;
           },
@@ -1509,3 +1540,4 @@ export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };
 export { getCodemirrorEditorValue };
 export type { CompletionSource as Completer };
+export { highlightStyles };

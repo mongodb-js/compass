@@ -9,30 +9,44 @@ async function getOutputText(browser: CompassBrowser): Promise<string[]> {
 
 export async function shellEval(
   browser: CompassBrowser,
-  str: string,
+  connectionName: string,
+  input: string | string[],
   parse = false
 ): Promise<string> {
-  await browser.showShell();
+  // Keep in mind that for multiple connections this will open a new tab and
+  // focus it.
+  await browser.openShell(connectionName);
 
-  const numLines = (await getOutputText(browser)).length;
+  const strings = Array.isArray(input) ? input : [input];
 
-  const command = parse === true ? `JSON.stringify(${str})` : str;
+  for (const str of strings) {
+    const numLines = (await getOutputText(browser)).length;
 
-  await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
-  await browser.keys(['Enter']);
+    const command = parse === true ? `JSON.stringify(${str})` : str;
 
-  // wait until more output appears
-  await browser.waitUntil(async () => {
-    const lines = await getOutputText(browser);
-    return (
-      lines.length >
-      /**
-       * input line becomes an output line on enter press, so we are waiting
-       * for two new lines to appear, not just one
-       */
-      numLines + 1
-    );
-  });
+    await browser.setCodemirrorEditorValue(Selectors.ShellInputEditor, command);
+    await browser.keys(['Enter']);
+
+    // wait until more output appears
+    await browser.waitUntil(async () => {
+      const lines = await getOutputText(browser);
+      if (
+        lines.length >
+        /**
+         * input line becomes an output line on enter press, so we are waiting
+         * for two new lines to appear, not just one
+         */
+        numLines + 1
+      ) {
+        // make sure the prompt shows up before entering another line or continueing on
+        await browser
+          .$(`${Selectors.ShellInput} [aria-label="Chevron Right Icon"]`)
+          .waitForDisplayed();
+        return true;
+      }
+      return false;
+    });
+  }
 
   const output = await getOutputText(browser);
 
@@ -52,7 +66,11 @@ export async function shellEval(
     }
   }
 
-  await browser.hideShell();
+  // For multiple connections we're currently making the assumption that closing
+  // the shell will put the user back on the tab they were on before
+  // opening the shell tab. This might not stay true as we start testing more
+  // complicated user flows.
+  await browser.closeShell(connectionName);
 
   return result as string;
 }

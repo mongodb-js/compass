@@ -18,7 +18,7 @@
 import { MongoCluster } from 'mongodb-runner';
 import os from 'os';
 import assert from 'assert';
-import ejsonShellParser from 'ejson-shell-parser';
+import ejsonShellParser from '@mongodb-js/shell-bson-parser';
 import { MongoClient } from 'mongodb';
 import { EJSON } from 'bson';
 import type { Document } from 'bson';
