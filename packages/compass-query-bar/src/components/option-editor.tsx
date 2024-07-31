@@ -161,10 +161,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       ? createQueryWithHistoryAutocompleter(
           savedQueries
             .filter((query) => {
-              const isOptionNameInQuery =
-                optionName !== 'filter'
-                  ? optionName in query.queryProperties
-                  : true;
+              const isOptionNameInQuery = optionName === 'filter' || optionName in query.queryProperties;
               const isUpdateNotInQuery = !('update' in query.queryProperties);
               return isOptionNameInQuery && isUpdateNotInQuery;
             })
