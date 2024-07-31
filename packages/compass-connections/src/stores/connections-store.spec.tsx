@@ -24,6 +24,10 @@ import {
   ConnectionsProvider,
   useConnections,
 } from '../components/connections-provider';
+import {
+  TelemetryProvider,
+  type TrackFunction,
+} from '@mongodb-js/compass-telemetry/provider';
 
 function getConnectionsManager(mockTestConnectFn?: typeof connect) {
   const { log } = createNoopLogger();
@@ -69,23 +73,31 @@ describe('useConnections', function () {
   let renderHookWithContext: (
     props?: ComponentProps<typeof ConnectionsProvider>
   ) => { current: ReturnType<typeof useConnections> };
+  let trackSpy: TrackFunction;
 
   before(async function () {
     preferences = await createSandboxFromDefaultPreferences();
+    trackSpy = sinon.spy();
     renderHookWithContext = (props) => {
       const wrapper: React.FC = ({ children }) => {
         return (
           <ToastArea>
             <ConfirmationModalArea>
-              <PreferencesProvider value={preferences}>
-                <ConnectionStorageProvider value={mockConnectionStorage}>
-                  <ConnectionsManagerProvider value={connectionsManager}>
-                    <ConnectionsProvider {...props}>
-                      {children}
-                    </ConnectionsProvider>
-                  </ConnectionsManagerProvider>
-                </ConnectionStorageProvider>
-              </PreferencesProvider>
+              <TelemetryProvider
+                options={{
+                  sendTrack: trackSpy,
+                }}
+              >
+                <PreferencesProvider value={preferences}>
+                  <ConnectionStorageProvider value={mockConnectionStorage}>
+                    <ConnectionsManagerProvider value={connectionsManager}>
+                      <ConnectionsProvider {...props}>
+                        {children}
+                      </ConnectionsProvider>
+                    </ConnectionsManagerProvider>
+                  </ConnectionStorageProvider>
+                </PreferencesProvider>
+              </TelemetryProvider>
             </ConfirmationModalArea>
           </ToastArea>
         );
@@ -123,6 +135,7 @@ describe('useConnections', function () {
 
   afterEach(() => {
     cleanup();
+    sinon.resetHistory();
     sinon.restore();
   });
 
@@ -139,7 +152,7 @@ describe('useConnections', function () {
     renderHookWithContext({ onConnected });
 
     await waitFor(() => {
-      expect(onConnected).to.have.been.called;
+      expect(onConnected).to.have.been.calledOnce;
     });
 
     // autoconnect info should never be saved
@@ -287,7 +300,7 @@ describe('useConnections', function () {
           favorite: { name: 'foobar' },
         });
 
-        expect(onConnectionFailed).to.have.been.called;
+        expect(onConnectionFailed).to.have.been.calledOnce;
         expect(saveSpy).to.not.have.been.called;
       });
     });
@@ -330,8 +343,8 @@ describe('useConnections', function () {
           },
         });
 
-        expect(onConnectionFailed).to.have.been.called;
-        expect(saveSpy).to.have.been.called;
+        expect(onConnectionFailed).to.have.been.calledOnce;
+        expect(saveSpy).to.have.been.calledOnce;
       });
     });
   });
@@ -352,9 +365,10 @@ describe('useConnections', function () {
       await connections.current.disconnect(connectionInfo.id);
       await connectPromise;
 
+      expect(trackSpy).to.have.been.calledWith('Connection Disconnected');
       expect(() => screen.getByText(/Connecting to/)).to.throw;
       expect(connectionsManager).to.have.property('closeConnection').have.been
-        .called;
+        .calledOnce;
     });
   });
 
@@ -389,6 +403,98 @@ describe('useConnections', function () {
 
       expect(conn1).to.not.deep.eq(conn2);
       expect(conn1).to.not.deep.eq(conn3);
+    });
+  });
+
+  describe('#saveEditedConnection', function () {
+    it('new connection: should call save and track the creation', async function () {
+      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+      const connections = renderHookWithContext();
+
+      // Waiting for connections to load first
+      await waitFor(() => {
+        expect(connections.current.favoriteConnections).to.have.lengthOf.gt(0);
+      });
+
+      const newConnection = {
+        ...createNewConnectionInfo(),
+        favorite: {
+          name: 'peaches (50) peaches',
+        },
+        savedConnectionType: 'favorite',
+      };
+
+      await connections.current.saveEditedConnection(newConnection);
+
+      expect(saveSpy).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Created');
+
+      await waitFor(() => {
+        expect(
+          connections.current.favoriteConnections.find((info) => {
+            return info.id === newConnection.id;
+          })
+        ).to.exist;
+      });
+    });
+
+    it('existing connection: should call save and should not track the creation', async function () {
+      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+      const connections = renderHookWithContext();
+
+      // Waiting for connections to load first
+      await waitFor(() => {
+        expect(connections.current.favoriteConnections).to.have.lengthOf.gt(0);
+      });
+
+      const updatedConnection = {
+        ...mockConnections[0],
+        savedConnectionType: 'recent',
+      };
+
+      await connections.current.saveEditedConnection(updatedConnection);
+
+      expect(saveSpy).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Created');
+
+      await waitFor(() => {
+        expect(
+          connections.current.recentConnections.find((info) => {
+            return info.id === updatedConnection.id;
+          })
+        ).to.exist;
+      });
+    });
+  });
+
+  describe('#removeConnection', function () {
+    it('should disconnect and call delete and track the deletion', async function () {
+      const deleteSpy = sinon.spy(mockConnectionStorage, 'delete');
+      const closeConnectionSpy = sinon.spy(
+        connectionsManager,
+        'closeConnection'
+      );
+      const connections = renderHookWithContext();
+
+      // Waiting for connections to load first
+      await waitFor(() => {
+        expect(connections.current.favoriteConnections).to.have.lengthOf.gt(0);
+      });
+
+      await connections.current.removeConnection(mockConnections[0].id);
+
+      expect(closeConnectionSpy).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Removed');
+      expect(deleteSpy).to.have.been.calledOnce;
+      expect(trackSpy).to.have.been.calledWith('Connection Disconnected');
+
+      await waitFor(() => {
+        expect(
+          connections.current.favoriteConnections.find((info) => {
+            return info.id === mockConnections[0].id;
+          })
+        ).not.to.exist;
+      });
     });
   });
 
