@@ -307,6 +307,7 @@ describe('OIDC integration', function () {
     getTokenPayload = () => {
       return {
         ...DEFAULT_TOKEN_PAYLOAD,
+        // make the token expire in less than a minute so it have time to be refreshed
         ...(afterReauth ? {} : { expires_in: 10 }),
       };
     };
@@ -322,6 +323,7 @@ describe('OIDC integration', function () {
     );
     await browser.clickVisible(Selectors.ConnectButton);
 
+    // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
 
     if (TEST_MULTIPLE_CONNECTIONS) {
@@ -354,6 +356,7 @@ describe('OIDC integration', function () {
     getTokenPayload = () => {
       return {
         ...DEFAULT_TOKEN_PAYLOAD,
+        // make the token expire in less than a minute so it have time to be refreshed
         ...(afterReauth ? {} : { expires_in: 10 }),
       };
     };
@@ -369,6 +372,7 @@ describe('OIDC integration', function () {
     );
     await browser.clickVisible(Selectors.ConnectButton);
 
+    // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
 
     if (TEST_MULTIPLE_CONNECTIONS) {
