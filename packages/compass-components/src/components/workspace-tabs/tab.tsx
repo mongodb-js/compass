@@ -6,9 +6,10 @@ import type { glyphs } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import { useDarkMode } from '../../hooks/use-theme';
-import { Icon, IconButton, MongoDBLogoMark } from '../leafygreen';
+import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
+import { LogoIcon } from '../icons/logo-icon';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -273,8 +274,13 @@ function Tab({
       {...tabProps}
     >
       {iconGlyph === 'Logo' && (
-        <MongoDBLogoMark
+        <LogoIcon
           height={16}
+          color={
+            isSelected
+              ? 'var(--workspace-tab-selected-color)'
+              : 'var(--workspace-tab-color)'
+          }
           role="presentation"
           className={tabIconStyles}
           data-testid={`workspace-tab-icon-${iconGlyph}`}
