@@ -51,9 +51,17 @@ const tabStyles = css({
     boxShadow: 'inset 0 0 0 1px var(--workspace-tab-border-color)',
   },
 
+  /*
+    the text makes space for the button, 
+    because the button takes no space
+   */
   [focusedChild('.workspace-tab-title-container')]: {
     maxWidth: `calc(100% - ${spacing[600]}px)`,
   },
+  /*
+    the button takes no space,
+    so that the width does not jump as it shows/hides
+   */
   [focusedChild('.workspace-tab-close-button')]: {
     display: 'inline-block',
     position: 'absolute',
@@ -123,6 +131,7 @@ const selectedTabStyles = css({
     cursor: 'default',
   },
 
+  // this borderTop is a pseudoelement, so that we can use filter to adjust the colors
   borderTop: 'none',
   gridTemplateAreas: `
     "top top top"
