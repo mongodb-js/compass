@@ -55,7 +55,7 @@ const containerStylesLight = css({
   backgroundColor: 'var(--bg-color)',
 });
 
-export const defaultSidebarWidth = spacing[6] * 4;
+export const defaultSidebarWidth = 300;
 
 const ResizableSidebar = ({
   initialWidth = defaultSidebarWidth,
