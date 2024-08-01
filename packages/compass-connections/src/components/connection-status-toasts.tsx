@@ -1,5 +1,13 @@
 import React, { useCallback } from 'react';
-import { css, Link, spacing, useToast } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Code,
+  css,
+  Link,
+  showConfirmation,
+  spacing,
+  useToast,
+} from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -69,6 +77,13 @@ function ConnectionErrorToastBody({
 }
 
 const noop = () => undefined;
+
+const deviceAuthModalContentStyles = css({
+  textAlign: 'center',
+  '& > *:not(:last-child)': {
+    paddingBottom: spacing[150],
+  },
+});
 
 export function useConnectionStatusToasts() {
   const enableNewMultipleConnectionSystem = usePreference(
@@ -155,8 +170,55 @@ export function useConnectionStatusToasts() {
     [openToast]
   );
 
+  const openNotifyDeviceAuthModal = useCallback(
+    (
+      connectionInfo: ConnectionInfo,
+      verificationUrl: string,
+      userCode: string,
+      onCancel: () => void,
+      signal: AbortSignal
+    ) => {
+      void showConfirmation({
+        title: `Complete authentication in the browser`,
+        description: (
+          <div className={deviceAuthModalContentStyles}>
+            <Body>
+              Visit the following URL to complete authentication for{' '}
+              <b>{getConnectionTitle(connectionInfo)}</b>:
+            </Body>
+            <Body>
+              <Link href={verificationUrl} target="_blank">
+                {verificationUrl}
+              </Link>
+            </Body>
+            <br></br>
+            <Body>Enter the following code on that page:</Body>
+            <Body as="div">
+              <Code language="none" copyable>
+                {userCode}
+              </Code>
+            </Body>
+          </div>
+        ),
+        hideConfirmButton: true,
+        signal,
+      }).then(
+        (result) => {
+          if (result === false) {
+            onCancel?.();
+          }
+        },
+        () => {
+          // Abort signal was triggered
+        }
+      );
+    },
+    []
+  );
+
   return enableNewMultipleConnectionSystem
     ? {
+        openNotifyDeviceAuthModal,
         openConnectionStartedToast,
         openConnectionSucceededToast,
         openConnectionFailedToast,
@@ -164,6 +226,7 @@ export function useConnectionStatusToasts() {
         closeConnectionStatusToast: closeToast,
       }
     : {
+        openNotifyDeviceAuthModal: noop,
         openConnectionStartedToast: noop,
         openConnectionSucceededToast: noop,
         openConnectionFailedToast: noop,

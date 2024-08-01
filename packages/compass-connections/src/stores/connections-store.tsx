@@ -352,6 +352,7 @@ export function useConnections({
 
   const { openToast } = useToast('compass-connections');
   const {
+    openNotifyDeviceAuthModal,
     openConnectionStartedToast,
     openConnectionSucceededToast,
     openConnectionFailedToast,
@@ -387,24 +388,6 @@ export function useConnections({
       }
     },
     [openToast, saveConnection, getConnectionInfoById, track]
-  );
-
-  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
-    (
-      connectionInfo: ConnectionInfo,
-      {
-        verificationUrl,
-        userCode,
-      }: { verificationUrl: string; userCode: string }
-    ) => {
-      dispatch({
-        type: 'oidc-attempt-connect-notify-device-auth',
-        connectionInfo,
-        verificationUrl,
-        userCode,
-      });
-    },
-    []
   );
 
   const oidcUpdateSecrets = useCallback(
@@ -464,6 +447,38 @@ export function useConnections({
       getConnectionInfoById,
       track,
     ]
+  );
+
+  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
+    (
+      connectionInfo: ConnectionInfo,
+      {
+        verificationUrl,
+        userCode,
+      }: { verificationUrl: string; userCode: string },
+      signal: AbortSignal
+    ) => {
+      // For single connection store the device auth info so that we can append
+      // it to the "Connecting..." modal
+      dispatch({
+        type: 'oidc-attempt-connect-notify-device-auth',
+        connectionInfo,
+        verificationUrl,
+        userCode,
+      });
+
+      // For multiple connection we show a special type of the confirmation modal
+      openNotifyDeviceAuthModal(
+        connectionInfo,
+        verificationUrl,
+        userCode,
+        () => {
+          void disconnect(connectionInfo.id);
+        },
+        signal
+      );
+    },
+    [disconnect, openNotifyDeviceAuthModal]
   );
 
   const createNewConnection = useCallback(() => {
@@ -619,6 +634,8 @@ export function useConnections({
       const isAutoconnectAttempt =
         typeof connectionInfoOrGetAutoconnectInfo === 'function';
 
+      const deviceAuthAbortController = new AbortController();
+
       let connectionInfo: ConnectionInfo | undefined;
 
       try {
@@ -711,16 +728,21 @@ export function useConnections({
           { isAutoconnectAttempt }
         );
 
+        const currentConnectionInfo = connectionInfo;
+
         const dataService = await connectionsManager.connect(connectionInfo, {
           forceConnectionOptions,
           browserCommandForOIDCAuth,
           onDatabaseSecretsChange: (...args) => {
             void oidcUpdateSecrets(...args);
           },
-          onNotifyOIDCDeviceFlow: oidcAttemptConnectNotifyDeviceAuth.bind(
-            null,
-            connectionInfo
-          ),
+          onNotifyOIDCDeviceFlow: (deviceFlowInfo) => {
+            oidcAttemptConnectNotifyDeviceAuth(
+              currentConnectionInfo,
+              deviceFlowInfo,
+              deviceAuthAbortController.signal
+            );
+          },
         });
 
         try {
@@ -809,6 +831,9 @@ export function useConnections({
           connectionInfo: connectionInfo ?? createNewConnectionInfo(),
           isAutoConnect: isAutoconnectAttempt,
         });
+      } finally {
+        // Auto close device auth modal
+        deviceAuthAbortController.abort();
       }
     },
     [
