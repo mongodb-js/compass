@@ -18,7 +18,7 @@ const tabTransition = '.16s ease-in-out';
 
 const tabStyles = css({
   display: 'grid',
-  gridTemplateColumns: 'min-content 1fr min-content', // TODO
+  gridTemplateColumns: 'min-content 1fr min-content',
   '&:hover, &:focus-visible, &:focus-within:not(:focus)': {
     gridTemplateColumns: 'min-content 1fr min-content',
   },
@@ -27,8 +27,8 @@ const tabStyles = css({
   paddingRight: spacing[100],
   gap: spacing[200],
 
-  // same as the border at the top
-  paddingBottom: '4px',
+  borderTop: `${spacing[100]}px solid var(--workspace-tab-top-border-color)`,
+  paddingBottom: spacing[100], // same as the top border
 
   maxWidth: spacing[800] * 6, // 192px
   minWidth: spacing[1600] * 2, // 128px
@@ -59,7 +59,6 @@ const tabStyles = css({
     maxWidth: `calc(100% - ${spacing[600]}px)`,
   },
   [focusedChild('.workspace-tab-close-button')]: {
-    // TODO
     display: 'inline-block',
     position: 'absolute',
     right: spacing[100],
@@ -95,8 +94,9 @@ const tabLightThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.light3,
   '--workspace-tab-selected-background-color': palette.white,
   '--workspace-tab-border-color': palette.gray.light2,
+  '--workspace-tab-top-border-color': 'transparent',
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.green.dark2,
+  '--workspace-tab-selected-color': palette.gray.dark3,
   '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.base,
@@ -108,12 +108,13 @@ const tabDarkThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.dark3,
   '--workspace-tab-selected-background-color': palette.black,
   '--workspace-tab-border-color': palette.gray.dark2,
+  '--workspace-tab-top-border-color': 'transparent',
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.green.base,
+  '--workspace-tab-selected-color': palette.white,
   '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.light1,
-    '--workspace-tab-border-color': palette.blue.light1,
+    '--workspace-tab-`border-color`': palette.blue.light1,
   },
 });
 
@@ -128,7 +129,7 @@ const selectedTabStyles = css({
 });
 
 const selectedThemedTabStyles = css({
-  borderTop: `${spacing[100]}px solid var(--workspace-tab-selected-border-color)`,
+  borderTop: `${spacing[100]}px solid var(--workspace-tab-selected-top-border-color)`,
   paddingTop: 0,
 });
 
@@ -143,6 +144,7 @@ const tabIconStyles = css({
 const tabTitleContainerStyles = css({
   position: 'relative',
   minWidth: 0,
+  marginRight: spacing[100],
 });
 
 const tabTitleStyles = css({
