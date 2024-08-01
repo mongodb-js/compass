@@ -42,6 +42,13 @@ import {
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 
+type Tooltip = Partial<
+  Record<
+    'Connection' | 'Database' | 'Collection' | 'View' | 'Derived from',
+    string
+  >
+>[];
+
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
   alignSelf: 'center',
@@ -213,12 +220,14 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           const { database, collection, ns } = toNS(tab.namespace);
           const info = collectionInfo[ns] ?? {};
           const { isTimeSeries, isReadonly, sourceName } = info;
+          const connectionName = getConnectionTitleById(tab.connectionId);
           const collectionType = isTimeSeries
             ? 'timeseries'
             : isReadonly
             ? 'view'
             : 'collection';
           // Similar to what we have in the collection breadcrumbs.
+          console.log({ sourceName, editViewName: tab.editViewName });
           const subtitle = sourceName
             ? `${database} > ${toNS(sourceName).collection} > ${collection}`
             : tab.editViewName
@@ -226,12 +235,27 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
                 toNS(tab.editViewName).collection
               }`
             : `${database} > ${collection}`;
+          const tooltip: Tooltip = [
+            { Connection: connectionName },
+            { Database: database },
+          ];
+          if (sourceName) {
+            tooltip.push({ 'Derived from': toNS(sourceName).collection });
+            tooltip.push({ View: collection });
+          } else if (tab.editViewName) {
+            tooltip.push({ 'Derived from': collection });
+            tooltip.push({ View: toNS(tab.editViewName).collection });
+          } else {
+            tooltip.push({ Collection: collection });
+          }
+          console.log({ tooltip });
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: collection,
             subtitle,
+            tooltip,
             iconGlyph:
               collectionType === 'view'
                 ? 'Visibility'

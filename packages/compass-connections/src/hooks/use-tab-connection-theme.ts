@@ -40,6 +40,9 @@ export function useTabConnectionTheme(): ThemeProvider {
 
       return {
         '--workspace-tab-top-border-color': bgColor,
+        '--workspace-tab-border-color': darkTheme
+          ? palette.gray.dark2
+          : palette.gray.light2,
         '--workspace-tab-color': darkTheme
           ? palette.gray.base
           : palette.gray.dark1,

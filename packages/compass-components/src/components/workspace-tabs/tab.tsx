@@ -10,6 +10,7 @@ import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
+import { Tooltip } from '../tooltip';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -56,7 +57,7 @@ const tabStyles = css({
     because the button takes no space
    */
   [focusedChild('.workspace-tab-title-container')]: {
-    maxWidth: `calc(100% - ${spacing[600]}px)`,
+    maxWidth: `calc(100% - ${spacing[600]}px - ${spacing[150]}px)`,
   },
   /*
     the button takes no space,
@@ -67,18 +68,6 @@ const tabStyles = css({
     position: 'absolute',
     right: spacing[100],
     bottom: spacing[100] + spacing[50],
-  },
-});
-
-const animatedSubtitleStyles = css({
-  [focusedChild('.workspace-tab-title')]: {
-    transform: 'translateY(6px)',
-  },
-
-  [focusedChild('.workspace-tab-subtitle')]: {
-    opacity: 1,
-    transform: 'translateY(-4px)',
-    pointerEvents: 'auto',
   },
 });
 
@@ -185,29 +174,6 @@ const tabTitleStyles = css({
   transitionProperty: 'opacity, transform',
 });
 
-const tabSubtitleStyles = css({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-
-  fontSize: 10,
-  lineHeight: '12px',
-  color: 'var(--workspace-tab-color)',
-
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-
-  opacity: 0,
-  transform: 'translateY(0)',
-  transition: tabTransition,
-  transitionProperty: 'opacity, transform',
-
-  pointerEvents: 'none',
-});
-
 const closeButtonStyles = css({
   display: 'none',
   marginRight: spacing[100],
@@ -225,7 +191,7 @@ type TabProps = {
   onClose: () => void;
   iconGlyph: IconGlyph | 'Logo';
   tabContentId: string;
-  subtitle?: string;
+  tooltip?: string;
   tabTheme?: TabTheme;
 };
 
@@ -233,13 +199,13 @@ function Tab({
   connectionName,
   type,
   title,
+  tooltip,
   isSelected,
   isDragging,
   onSelect,
   onClose,
   tabContentId,
   iconGlyph,
-  subtitle,
   tabTheme,
   ...props
 }: TabProps & React.HTMLProps<HTMLDivElement>) {
@@ -267,81 +233,89 @@ function Tab({
     transform: cssDndKit.Transform.toString(transform),
     transition,
     cursor: 'grabbing !important',
-    // For tabs with longer subtitles we want base width to be bigger so that
-    // the subtitle that shows up on hover has a bit more space for it
-    minWidth: (subtitle?.length ?? 0) > 16 ? spacing[6] * 3 : undefined,
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cx(
-        tabStyles,
-        themeClass,
-        isSelected && selectedTabStyles,
-        isSelected && tabTheme && selectedThemedTabStyles,
-        isDragging && draggingTabStyles,
-        subtitle && animatedSubtitleStyles
-      )}
-      aria-selected={isSelected}
-      role="tab"
-      // Catch navigation on the active tab when a user tabs through Compass.
-      tabIndex={isSelected ? 0 : -1}
-      aria-controls={tabContentId}
-      data-testid="workspace-tab-button"
-      data-connectionName={connectionName}
-      data-type={type}
-      title={subtitle ? subtitle : title}
-      {...tabProps}
-    >
-      {iconGlyph === 'Logo' && (
-        <LogoIcon
-          height={16}
-          color={
-            isSelected
-              ? 'var(--workspace-tab-selected-color)'
-              : 'var(--workspace-tab-color)'
-          }
-          role="presentation"
-          className={tabIconStyles}
-          data-testid={`workspace-tab-icon-${iconGlyph}`}
-        />
-      )}
-      {iconGlyph !== 'Logo' && (
-        <Icon
-          size="small"
-          role="presentation"
-          className={tabIconStyles}
-          glyph={iconGlyph}
-          data-testid={`workspace-tab-icon-${iconGlyph}`}
-        />
-      )}
+    <Tooltip
+      isDisabled={!tooltip}
+      delay={100}
+      trigger={({ children, ...props }) => {
+        return (
+          <div
+            {...props}
+            ref={setNodeRef}
+            style={style}
+            className={cx(
+              tabStyles,
+              themeClass,
+              isSelected && selectedTabStyles,
+              isSelected && tabTheme && selectedThemedTabStyles,
+              isDragging && draggingTabStyles
+            )}
+            aria-selected={isSelected}
+            role="tab"
+            // Catch navigation on the active tab when a user tabs through Compass.
+            tabIndex={isSelected ? 0 : -1}
+            aria-controls={tabContentId}
+            data-testid="workspace-tab-button"
+            data-connectionName={connectionName}
+            data-type={type}
+            title={title}
+            {...tabProps}
+          >
+            {children}
+            {iconGlyph === 'Logo' && (
+              <LogoIcon
+                height={16}
+                color={
+                  isSelected
+                    ? 'var(--workspace-tab-selected-color)'
+                    : 'var(--workspace-tab-color)'
+                }
+                role="presentation"
+                className={tabIconStyles}
+                data-testid={`workspace-tab-icon-${iconGlyph}`}
+              />
+            )}
+            {iconGlyph !== 'Logo' && (
+              <Icon
+                size="small"
+                role="presentation"
+                className={tabIconStyles}
+                glyph={iconGlyph}
+                data-testid={`workspace-tab-icon-${iconGlyph}`}
+              />
+            )}
 
-      <div
-        className={cx(tabTitleContainerStyles, 'workspace-tab-title-container')}
-      >
-        <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>
-        {subtitle && (
-          <div className={cx(tabSubtitleStyles, 'workspace-tab-subtitle')}>
-            {subtitle}
+            <div
+              className={cx(
+                tabTitleContainerStyles,
+                'workspace-tab-title-container'
+              )}
+            >
+              <div className={cx(tabTitleStyles, 'workspace-tab-title')}>
+                {title}
+              </div>
+            </div>
+
+            <IconButton
+              className={cx(closeButtonStyles, 'workspace-tab-close-button')}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              aria-label="Close Tab"
+              data-testid="close-workspace-tab"
+            >
+              <Icon glyph="X" role="presentation" />
+            </IconButton>
           </div>
-        )}
-      </div>
-
-      <IconButton
-        className={cx(closeButtonStyles, 'workspace-tab-close-button')}
-        onClick={(e) => {
-          e.stopPropagation();
-          onClose();
-        }}
-        aria-label="Close Tab"
-        data-testid="close-workspace-tab"
-      >
-        <Icon glyph="X" role="presentation" />
-      </IconButton>
-    </div>
-  );
+        );
+      }}
+    >
+      {JSON.stringify(tooltip)}
+    </Tooltip>
+  ); // TODO
 }
 
 export { Tab };

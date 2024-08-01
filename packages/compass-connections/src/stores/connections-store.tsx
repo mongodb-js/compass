@@ -536,8 +536,6 @@ export function useConnections({
         duplicate.favorite.name
       );
 
-      console.log({ connectionInfo, duplicate, nameWithoutCount, copyCount });
-
       const newCount = reduceConnectionInfo((topCount, connectionInfo) => {
         if (connectionInfo.favorite?.name) {
           const [name, count] = parseFavoriteNameToNameAndCopyCount(
