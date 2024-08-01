@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
 import { palette } from '@leafygreen-ui/palette';
-import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { useDarkMode } from '../hooks/use-theme';
 import { ResizeDirection, ResizeHandle } from './resize-handle';
