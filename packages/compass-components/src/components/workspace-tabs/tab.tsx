@@ -24,8 +24,6 @@ const tabStyles = css({
     gridTemplateColumns: 'min-content 1fr min-content',
   },
   alignItems: 'center',
-  paddingLeft: 12,
-  paddingRight: spacing[100],
   gap: spacing[200],
 
   borderTop: `${spacing[100]}px solid var(--workspace-tab-top-border-color)`,
@@ -39,9 +37,6 @@ const tabStyles = css({
 
   // hide the close button until it animates in
   overflow: 'hidden',
-
-  // leave space so the active and other tabs line up
-  paddingTop: spacing[100],
 
   backgroundColor: 'var(--workspace-tab-background-color)', // TODO
   color: 'var(--workspace-tab-color)',
@@ -127,10 +122,27 @@ const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
   },
+
+  borderTop: 'none',
+  gridTemplateAreas: `
+    "top top top"
+    "icon text close"
+  `,
+  gridRowGap: 0,
+  gridTemplateRows: `${spacing[100]}px 1fr`,
+  '&::before': {
+    content: '""',
+    backgroundColor: 'var(--workspace-tab-selected-top-border-color)',
+    height: spacing[100],
+    width: '100%',
+    display: 'block',
+    filter: 'brightness(0.85) saturate(2)',
+    gridArea: 'top',
+  },
 });
 
 const selectedThemedTabStyles = css({
-  borderTop: `${spacing[100]}px solid var(--workspace-tab-selected-top-border-color)`,
+  borderTop: 'transparent',
   paddingTop: 0,
 });
 
@@ -140,6 +152,7 @@ const draggingTabStyles = css({
 
 const tabIconStyles = css({
   color: 'currentColor',
+  marginLeft: spacing[300],
 });
 
 const tabTitleContainerStyles = css({
@@ -187,8 +200,8 @@ const tabSubtitleStyles = css({
 });
 
 const closeButtonStyles = css({
-  // TODO
   display: 'none',
+  marginRight: spacing[100],
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
