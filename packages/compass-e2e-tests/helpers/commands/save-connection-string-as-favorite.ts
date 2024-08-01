@@ -11,6 +11,11 @@ export async function saveConnectionStringAsFavorite(
   favoriteName?: string,
   color: `color${number}` | string = 'color1'
 ): Promise<string> {
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    // open the connection modal so we can fill in the connection string
+    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+  }
+
   if (TEST_MULTIPLE_CONNECTIONS && color === 'color1') {
     color = 'Red';
   }

@@ -91,6 +91,7 @@ export function useConnectionStatusToasts() {
               closeToast(connectionInfo.id);
               onCancelClick();
             }}
+            data-testid="cancel-connection-button"
           >
             CANCEL
           </Link>

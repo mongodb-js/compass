@@ -1292,13 +1292,14 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
-export const ConfirmationModalInput =
-  '[data-testid="confirmation-modal"] input';
-export const ConfirmationModalConfirmButton = (
+export const ConfirmationModalHeading = `${ConfirmationModal} h1`;
+export const ConfirmationModalInput = `${ConfirmationModal} input`;
+
+export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
 
-export const ConfirmationModalCancelButton = (
+export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
 
