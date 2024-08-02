@@ -1,26 +1,16 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import Autosizer from 'react-virtualized-auto-sizer';
-import {
-  VariableSizeList as List,
-  type ListChildComponentProps,
-} from 'react-window';
+import React, { useCallback, useMemo } from 'react';
 import HadronDocument from 'hadron-document';
-import { css, cx, KeylineCard, spacing } from '@mongodb-js/compass-components';
+import {
+  KeylineCard,
+  spacing,
+  VirtualList,
+  type VirtualListItemRenderer,
+} from '@mongodb-js/compass-components';
 
 import { type BSONObject } from '../stores/crud-store';
 import Document, { type DocumentProps } from './document';
-import {
-  useReactWindowListItemObserver,
-  type ListItemObserver,
-} from './use-list-item-observer';
 
-const containerStyles = css({
-  width: '100%',
-  height: '100%',
-  position: 'relative',
-});
-
-const calculateInitialDocumentCardHeight = (doc: HadronDocument) => {
+const estimateDocumentInitialHeight = (doc: HadronDocument) => {
   const DEFAULT_VISIBLE_FIELDS = 25;
   const keylineCardBorder = spacing[25] + spacing[25];
   // top and bottom padding taken up by the document card
@@ -60,16 +50,6 @@ type VirtualizedDocumentListViewProps = {
   | 'openInsertDocumentDialog'
 >;
 
-type ItemData = Omit<
-  VirtualizedDocumentListViewProps,
-  'docs' | 'className' | 'initialScrollTop' | 'scrollableContainerRef'
-> & {
-  docs: HadronDocument[];
-  observer: ListItemObserver;
-};
-
-// TODO(COMPASS-8127): Refactor this component into a VirtualList component that
-// is reusable after fixing the problem mentioned in the ticket
 const VirtualizedDocumentListView: React.FC<
   VirtualizedDocumentListViewProps
 > = ({
@@ -86,7 +66,6 @@ const VirtualizedDocumentListView: React.FC<
   updateDocument,
   openInsertDocumentDialog,
 }) => {
-  const listRef = useRef<List | null>(null);
   const docs = useMemo(() => {
     return _docs.map((_doc) => {
       // COMPASS-5872 If doc is a plain js object rather than an instance of hadron-document Document
@@ -98,115 +77,50 @@ const VirtualizedDocumentListView: React.FC<
     });
   }, [_docs]);
 
-  const { observer, estimatedItemSize, getItemSize } =
-    useReactWindowListItemObserver({
-      rowGap: spacing[200],
-      listRef,
-      items: docs,
-      estimateItemInitialHeight: calculateInitialDocumentCardHeight,
-    });
-
-  const itemData: ItemData = useMemo(
-    () => ({
-      docs,
-      isEditable,
-      isTimeSeries,
-      observer,
-      scrollTriggerRef,
-      copyToClipboard,
-      removeDocument,
-      replaceDocument,
-      updateDocument,
-      openInsertDocumentDialog,
-    }),
+  const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
+    (doc, docRef, docIndex) => {
+      return (
+        <>
+          {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
+          <KeylineCard ref={docRef}>
+            <Document
+              doc={doc}
+              editable={isEditable}
+              isTimeSeries={isTimeSeries}
+              copyToClipboard={copyToClipboard}
+              removeDocument={removeDocument}
+              replaceDocument={replaceDocument}
+              updateDocument={updateDocument}
+              openInsertDocumentDialog={openInsertDocumentDialog}
+            />
+          </KeylineCard>
+        </>
+      );
+    },
     [
-      docs,
       isEditable,
       isTimeSeries,
-      observer,
       scrollTriggerRef,
       copyToClipboard,
+      openInsertDocumentDialog,
       removeDocument,
       replaceDocument,
       updateDocument,
-      openInsertDocumentDialog,
     ]
   );
 
   return (
-    <div className={cx(containerStyles, className)} data-testid="document-list">
-      <Autosizer>
-        {({ width, height }: { width: number; height: number }) => (
-          <List<ItemData>
-            ref={listRef}
-            width={width}
-            height={height}
-            itemData={itemData}
-            itemCount={docs.length}
-            estimatedItemSize={estimatedItemSize}
-            itemSize={getItemSize}
-            initialScrollOffset={initialScrollTop}
-            outerRef={scrollableContainerRef}
-          >
-            {DocumentRow}
-          </List>
-        )}
-      </Autosizer>
-    </div>
-  );
-};
-
-const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
-  index,
-  style,
-  data,
-}) => {
-  const documentRef = useRef<HTMLDivElement>(null);
-  const {
-    docs,
-    isEditable,
-    isTimeSeries,
-    observer,
-    scrollTriggerRef,
-    copyToClipboard,
-    removeDocument,
-    replaceDocument,
-    updateDocument,
-    openInsertDocumentDialog,
-  } = data;
-  const doc = docs[index];
-
-  useLayoutEffect(() => {
-    const documentRefCurrent = documentRef.current;
-    if (documentRefCurrent) {
-      observer.observe(documentRefCurrent, index);
-    }
-
-    return () => {
-      if (documentRefCurrent) {
-        observer.unobserve(documentRefCurrent, index);
-      }
-    };
-  }, [observer, index]);
-
-  return (
-    <>
-      <div data-testid="document-list-item" key={index} style={style}>
-        {scrollTriggerRef && index === 0 && <div ref={scrollTriggerRef} />}
-        <KeylineCard ref={documentRef}>
-          <Document
-            doc={doc}
-            editable={isEditable}
-            isTimeSeries={isTimeSeries}
-            copyToClipboard={copyToClipboard}
-            removeDocument={removeDocument}
-            replaceDocument={replaceDocument}
-            updateDocument={updateDocument}
-            openInsertDocumentDialog={openInsertDocumentDialog}
-          />
-        </KeylineCard>
-      </div>
-    </>
+    <VirtualList
+      items={docs}
+      renderItem={renderItem}
+      estimateItemInitialHeight={estimateDocumentInitialHeight}
+      rowGap={spacing[200]}
+      className={className}
+      dataTestId="document-list"
+      itemDataTestId="document-list-item"
+      initialScrollTop={initialScrollTop}
+      scrollableContainerRef={scrollableContainerRef}
+    ></VirtualList>
   );
 };
 

@@ -1,30 +1,21 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import Autosizer from 'react-virtualized-auto-sizer';
-import {
-  VariableSizeList as List,
-  type ListChildComponentProps,
-} from 'react-window';
+import React, { useCallback } from 'react';
 import type HadronDocument from 'hadron-document';
-import { css, cx, KeylineCard, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  KeylineCard,
+  spacing,
+  VirtualList,
+  type VirtualListItemRenderer,
+} from '@mongodb-js/compass-components';
 
 import JSONEditor, { type JSONEditorProps } from './json-editor';
-import {
-  type ListItemObserver,
-  useReactWindowListItemObserver,
-} from './use-list-item-observer';
-
-const containerStyles = css({
-  width: '100%',
-  height: '100%',
-  position: 'relative',
-});
 
 const keylineCardStyles = css({
   overflow: 'hidden',
   position: 'relative',
 });
 
-const calculateInitialDocumentCardHeight = (doc: HadronDocument) => {
+const estimateDocumentInitialHeight = (doc: HadronDocument) => {
   const keylineCardBorder = spacing[25] + spacing[25];
   const codeMirrorPadding = spacing[100] + spacing[100];
   const openingClosingBracketsHeight = spacing[400] + spacing[400];
@@ -55,16 +46,6 @@ export type VirtualizedDocumentJsonViewProps = {
   | 'openInsertDocumentDialog'
 >;
 
-type ItemData = Omit<
-  VirtualizedDocumentJsonViewProps,
-  'docs' | 'className' | 'initialScrollTop' | 'scrollableContainerRef'
-> & {
-  docs: HadronDocument[];
-  observer: ListItemObserver;
-};
-
-// TODO(COMPASS-8127): Refactor this component into a VirtualList component that
-// is reusable after fixing the problem mentioned in the ticket
 const VirtualizedDocumentJsonView: React.FC<
   VirtualizedDocumentJsonViewProps
 > = ({
@@ -82,110 +63,11 @@ const VirtualizedDocumentJsonView: React.FC<
   updateDocument,
   openInsertDocumentDialog,
 }) => {
-  const listRef = useRef<List | null>(null);
-
-  const { observer, estimatedItemSize, getItemSize } =
-    useReactWindowListItemObserver({
-      rowGap: spacing[200],
-      listRef,
-      items: docs,
-      estimateItemInitialHeight: calculateInitialDocumentCardHeight,
-    });
-
-  const itemData: ItemData = useMemo(
-    () => ({
-      docs,
-      namespace,
-      isEditable,
-      isTimeSeries,
-      observer,
-      scrollTriggerRef,
-      copyToClipboard,
-      removeDocument,
-      replaceDocument,
-      updateDocument,
-      openInsertDocumentDialog,
-    }),
-    [
-      docs,
-      namespace,
-      isEditable,
-      isTimeSeries,
-      observer,
-      scrollTriggerRef,
-      copyToClipboard,
-      removeDocument,
-      replaceDocument,
-      updateDocument,
-      openInsertDocumentDialog,
-    ]
-  );
-
-  return (
-    <div className={cx(containerStyles, className)}>
-      <Autosizer>
-        {({ width, height }: { width: number; height: number }) => (
-          <List<ItemData>
-            ref={listRef}
-            width={width}
-            height={height}
-            itemData={itemData}
-            itemCount={docs.length}
-            estimatedItemSize={estimatedItemSize}
-            itemSize={getItemSize}
-            // Keeping the overscanCount low here helps us avoid scroll dangling
-            // issues
-            overscanCount={1}
-            initialScrollOffset={initialScrollTop}
-            outerRef={scrollableContainerRef}
-          >
-            {DocumentRow}
-          </List>
-        )}
-      </Autosizer>
-    </div>
-  );
-};
-
-const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
-  index,
-  style,
-  data,
-}) => {
-  const documentRef = useRef<HTMLDivElement>(null);
-  const {
-    docs,
-    namespace,
-    isEditable,
-    isTimeSeries,
-    observer,
-    scrollTriggerRef,
-    copyToClipboard,
-    removeDocument,
-    replaceDocument,
-    updateDocument,
-    openInsertDocumentDialog,
-  } = data;
-  const doc = docs[index];
-
-  useLayoutEffect(() => {
-    const documentRefCurrent = documentRef.current;
-    if (documentRefCurrent) {
-      observer.observe(documentRefCurrent, index);
-    }
-
-    return () => {
-      if (documentRefCurrent) {
-        observer.unobserve(documentRefCurrent, index);
-      }
-    };
-  }, [observer, index]);
-
-  return (
-    <>
-      <div data-testid="document-json-item" key={index} style={style}>
-        <KeylineCard className={keylineCardStyles} ref={documentRef}>
-          {scrollTriggerRef && index === 0 && <div ref={scrollTriggerRef} />}
+  const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
+    (doc, docRef, docIndex) => {
+      return (
+        <KeylineCard className={keylineCardStyles} ref={docRef}>
+          {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
           <JSONEditor
             doc={doc}
             key={doc.uuid}
@@ -199,8 +81,35 @@ const DocumentRow: React.FC<ListChildComponentProps<ItemData>> = ({
             openInsertDocumentDialog={openInsertDocumentDialog}
           />
         </KeylineCard>
-      </div>
-    </>
+      );
+    },
+    [
+      isEditable,
+      isTimeSeries,
+      namespace,
+      scrollTriggerRef,
+      copyToClipboard,
+      openInsertDocumentDialog,
+      removeDocument,
+      replaceDocument,
+      updateDocument,
+    ]
+  );
+
+  return (
+    <VirtualList
+      items={docs}
+      renderItem={renderItem}
+      estimateItemInitialHeight={estimateDocumentInitialHeight}
+      rowGap={spacing[200]}
+      className={className}
+      itemDataTestId="document-json-item"
+      // Keeping the overscanCount low here helps us avoid scroll dangling
+      // issues
+      overScanCount={1}
+      initialScrollTop={initialScrollTop}
+      scrollableContainerRef={scrollableContainerRef}
+    ></VirtualList>
   );
 };
 

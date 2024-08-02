@@ -14,7 +14,7 @@ export type ListItemObserver = {
   unobserve(this: void, element: HTMLDivElement, index: number): void;
 };
 
-export const useReactWindowListItemObserver = <T, L extends VariableSizeList>({
+export const useVirtualListItemObserver = <T, L extends VariableSizeList>({
   rowGap,
   listRef,
   items,

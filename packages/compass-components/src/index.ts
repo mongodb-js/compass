@@ -200,3 +200,8 @@ export {
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
 export { formatDate } from './utils/format-date';
+export {
+  VirtualList,
+  type VirtualListProps,
+  type ItemRenderer as VirtualListItemRenderer,
+} from './components/virtual-list';
