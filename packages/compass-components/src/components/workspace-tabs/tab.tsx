@@ -282,7 +282,6 @@ function Tab({
                     ? 'var(--workspace-tab-selected-color)'
                     : 'var(--workspace-tab-color)'
                 }
-                role="presentation"
                 className={tabIconStyles}
                 data-testid={`workspace-tab-icon-${iconGlyph}`}
               />

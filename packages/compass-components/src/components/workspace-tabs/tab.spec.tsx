@@ -20,12 +20,14 @@ describe('Tab', function () {
     beforeEach(function () {
       render(
         <Tab
+          type="Databases"
           onClose={onCloseSpy}
           onSelect={onSelectSpy}
           title="docs"
           isSelected
+          isDragging={false}
           tabContentId="1"
-          subtitle="test.collection"
+          tooltip={[['Connection', 'ABC']]}
           iconGlyph="Folder"
         />
       );
@@ -67,12 +69,14 @@ describe('Tab', function () {
     beforeEach(function () {
       render(
         <Tab
+          type="Databases"
           onClose={onCloseSpy}
           onSelect={onSelectSpy}
           title="docs"
           isSelected={false}
+          isDragging={false}
           tabContentId="1"
-          subtitle="test.collection"
+          tooltip={[['Connection', 'ABC']]}
           iconGlyph="Folder"
         />
       );
@@ -87,6 +91,6 @@ describe('Tab', function () {
       const tabToFocus = await screen.findByRole('tab');
       tabToFocus.focus();
       expect(await screen.findByLabelText('Close Tab')).to.be.visible;
-    });
+    }); // TODO: try to fix & add tooltip
   });
 });

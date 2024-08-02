@@ -9,6 +9,16 @@ import type { AnyWorkspaceComponent } from './components/workspaces-provider';
 import { useOpenWorkspace } from './provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
+import {
+  InMemoryConnectionStorage,
+  ConnectionStorageProvider,
+  type ConnectionStorage,
+  ConnectionStorageEvents,
+} from '@mongodb-js/connection-storage/provider';
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function mockWorkspace(name: string) {
   return {
@@ -44,6 +54,16 @@ describe('WorkspacesPlugin', function () {
     { disableChildPluginRendering: true }
   );
   const onTabChangeSpy = sandbox.spy();
+  let connectionStorage: ConnectionStorage;
+  const TEST_CONNECTION_INFO = {
+    id: '1',
+    favorite: {
+      name: 'Test Connection',
+    },
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27017',
+    },
+  };
 
   function renderPlugin() {
     const Modals: React.FC = () => {
@@ -51,23 +71,25 @@ describe('WorkspacesPlugin', function () {
       return null;
     };
     return render(
-      <WorkspacesProvider
-        value={[
-          mockWorkspace('Welcome'),
-          mockWorkspace('My Queries'),
-          mockWorkspace('Databases'),
-          mockWorkspace('Performance'),
-          mockWorkspace('Collections'),
-          mockWorkspace('Collection'),
-        ]}
-      >
-        <Plugin
-          onActiveWorkspaceTabChange={onTabChangeSpy}
-          renderModals={() => {
-            return <Modals />;
-          }}
-        ></Plugin>
-      </WorkspacesProvider>
+      <ConnectionStorageProvider value={connectionStorage}>
+        <WorkspacesProvider
+          value={[
+            mockWorkspace('Welcome'),
+            mockWorkspace('My Queries'),
+            mockWorkspace('Databases'),
+            mockWorkspace('Performance'),
+            mockWorkspace('Collections'),
+            mockWorkspace('Collection'),
+          ]}
+        >
+          <Plugin
+            onActiveWorkspaceTabChange={onTabChangeSpy}
+            renderModals={() => {
+              return <Modals />;
+            }}
+          ></Plugin>
+        </WorkspacesProvider>
+      </ConnectionStorageProvider>
     );
   }
 
@@ -78,6 +100,7 @@ describe('WorkspacesPlugin', function () {
     sandbox
       .stub(instancesManager, 'getMongoDBInstanceForConnection')
       .returns(instance);
+    connectionStorage = new InMemoryConnectionStorage([TEST_CONNECTION_INFO]);
   });
 
   afterEach(function () {
@@ -87,20 +110,25 @@ describe('WorkspacesPlugin', function () {
     cleanup();
   });
 
+  const connection = TEST_CONNECTION_INFO.favorite.name;
   const tabs = [
     ['My Queries', () => openFns.openMyQueriesWorkspace()],
-    ['Databases', () => openFns.openDatabasesWorkspace('1')],
-    ['Performance', () => openFns.openPerformanceWorkspace('1')],
+    [connection, () => openFns.openDatabasesWorkspace('1')], // Databases
+    [`Performance: ${connection}`, () => openFns.openPerformanceWorkspace('1')],
     ['db', () => openFns.openCollectionsWorkspace('1', 'db')],
-    ['db > coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
+    ['coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
   ] as const;
 
   for (const suite of tabs) {
     const [tabName, fn] = suite;
-    it(`should open "${tabName}" tab when corresponding open method is called`, function () {
+    it(`should open "${tabName}" tab when corresponding open method is called`, async function () {
       renderPlugin();
+      connectionStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
+      await sleep(1);
       fn();
-      expect(screen.getByRole('tab', { name: tabName })).to.exist;
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: tabName })).to.exist;
+      });
     });
   }
 
@@ -113,19 +141,19 @@ describe('WorkspacesPlugin', function () {
     openFns.openCollectionWorkspace('1', 'db.coll2', { newTab: true });
     openFns.openCollectionWorkspace('1', 'db.coll3', { newTab: true });
 
-    expect(screen.getByRole('tab', { name: 'db > coll3' })).to.have.attribute(
+    expect(screen.getByRole('tab', { name: 'coll3' })).to.have.attribute(
       'aria-selected',
       'true'
     );
 
-    userEvent.click(screen.getByRole('tab', { name: 'db > coll1' }));
+    userEvent.click(screen.getByRole('tab', { name: 'coll1' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: 'db > coll3' })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: 'coll3' })).to.have.attribute(
         'aria-selected',
         'false'
       );
-      expect(screen.getByRole('tab', { name: 'db > coll1' })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: 'coll1' })).to.have.attribute(
         'aria-selected',
         'true'
       );

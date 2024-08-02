@@ -3,7 +3,6 @@ import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
   MongoDBLogoMark,
-  ServerIcon,
   WorkspaceTabs,
   css,
   rafraf,
@@ -42,6 +41,8 @@ import {
   useTabConnectionTheme,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
+
+type Tooltip = [string, string][];
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -175,7 +176,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           } as const;
         case 'Shell': {
           const connectionName = getConnectionTitleById(tab.connectionId) || '';
-          const tooltip = [];
+          const tooltip: Tooltip = [];
           if (connectionName) {
             tooltip.push(['mongosh', connectionName || '']);
           }
@@ -198,7 +199,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             connectionName,
             type: tab.type,
             title: connectionName,
-            tooltip: [['Connection', connectionName || '']],
+            tooltip: [['Connection', connectionName || '']] as Tooltip,
             iconGlyph: 'Server',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
@@ -210,7 +211,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             connectionName,
             type: tab.type,
             title: `Performance: ${connectionName}`,
-            tooltip: [['Performance', connectionName || '']],
+            tooltip: [['Performance', connectionName || '']] as Tooltip,
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
@@ -226,7 +227,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             tooltip: [
               ['Connection', connectionName || ''],
               ['Database', database],
-            ],
+            ] as Tooltip,
             iconGlyph: 'Database',
             'data-namespace': tab.namespace,
             tabTheme: getThemeOf(tab.connectionId),
@@ -243,16 +244,16 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             ? 'view'
             : 'collection';
           // Similar to what we have in the collection breadcrumbs.
-          const tooltip = [
+          const tooltip: Tooltip = [
             ['Connection', connectionName || ''],
             ['Database', database],
           ];
           if (sourceName) {
-            tooltip.push(['Derived from', toNS(sourceName).collection]);
             tooltip.push(['View', collection]);
+            tooltip.push(['Derived from', toNS(sourceName).collection]);
           } else if (tab.editViewName) {
-            tooltip.push(['Derived from', collection]);
             tooltip.push(['View', toNS(tab.editViewName).collection]);
+            tooltip.push(['Derived from', collection]);
           } else {
             tooltip.push(['Collection', collection]);
           }
