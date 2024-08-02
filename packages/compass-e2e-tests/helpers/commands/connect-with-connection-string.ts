@@ -5,6 +5,8 @@ import {
 } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
+import Debug from 'debug';
+const debug = Debug('compass-e2e-tests');
 
 export async function connectWithConnectionString(
   browser: CompassBrowser,
@@ -22,7 +24,11 @@ export async function connectWithConnectionString(
     // if a connection with this name already exists, remove it otherwise we'll
     // add a duplicate and things will get complicated fast
     const connectionName = connectionNameFromString(connectionString);
-    await browser.removeConnection(connectionName);
+    if (await browser.removeConnection(connectionName)) {
+      debug('Removing existing connection so we do not create a duplicate', {
+        connectionName,
+      });
+    }
 
     await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
     await browser.$(Selectors.ConnectionModal).waitForDisplayed();

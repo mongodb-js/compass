@@ -107,9 +107,9 @@ export async function selectConnectionMenuItem(
 export async function removeConnection(
   browser: CompassBrowser,
   connectionName: string
-): Promise<void> {
+): Promise<boolean> {
   if (!TEST_MULTIPLE_CONNECTIONS) {
-    return;
+    return false;
   }
 
   // make sure there's no filter because if the connection is not displayed then we can't remove it
@@ -129,7 +129,9 @@ export async function removeConnection(
       Selectors.Multiple.RemoveConnectionItem
     );
     await browser.$(selector).waitForExist({ reverse: true });
+    return true;
   }
+  return false;
 }
 
 export async function hasConnectionMenuItem(
