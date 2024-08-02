@@ -11,6 +11,7 @@ import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
 import { Tooltip } from '../tooltip';
+import { ServerIcon } from '../icons/server-icon';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -35,9 +36,6 @@ const tabStyles = css({
   height: spacing[1000],
   position: 'relative',
   outline: 'none',
-
-  // hide the close button until it animates in
-  overflow: 'hidden',
 
   backgroundColor: 'var(--workspace-tab-background-color)', // TODO
   color: 'var(--workspace-tab-color)',
@@ -189,7 +187,7 @@ type TabProps = {
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: IconGlyph | 'Logo';
+  iconGlyph: IconGlyph | 'Logo' | 'Server';
   tabContentId: string;
   tooltip?: [string, string][];
   tabTheme?: TabTheme;
@@ -238,7 +236,7 @@ function Tab({
   return (
     <Tooltip
       isDisabled={!tooltip}
-      delay={100}
+      delay={300}
       trigger={({ children, ...props }) => {
         return (
           <div
@@ -277,7 +275,19 @@ function Tab({
                 data-testid={`workspace-tab-icon-${iconGlyph}`}
               />
             )}
-            {iconGlyph !== 'Logo' && (
+            {iconGlyph === 'Server' && (
+              <ServerIcon
+                color={
+                  isSelected
+                    ? 'var(--workspace-tab-selected-color)'
+                    : 'var(--workspace-tab-color)'
+                }
+                role="presentation"
+                className={tabIconStyles}
+                data-testid={`workspace-tab-icon-${iconGlyph}`}
+              />
+            )}
+            {!['Logo', 'Server'].includes(iconGlyph) && (
               <Icon
                 size="small"
                 role="presentation"

@@ -3,6 +3,7 @@ import { AppRegistryProvider } from 'hadron-app-registry';
 import {
   ErrorBoundary,
   MongoDBLogoMark,
+  ServerIcon,
   WorkspaceTabs,
   css,
   rafraf,
@@ -41,11 +42,6 @@ import {
   useTabConnectionTheme,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
-
-type Tooltip = [
-  'Connection' | 'Database' | 'Collection' | 'View' | 'Derived from',
-  string
-][];
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -177,53 +173,60 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             title: tab.type,
             iconGlyph: 'CurlyBraces',
           } as const;
-        case 'Shell':
-          return {
-            id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
-            type: tab.type,
-            title: getConnectionTitleById(tab.connectionId) ?? 'MongoDB Shell',
-            iconGlyph: 'Shell',
-            tabTheme: getThemeOf(tab.connectionId),
-          } as const;
-        case 'Databases': {
-          const connectionName = getConnectionTitleById(tab.connectionId);
-          const tooltip: Tooltip = [['Connection', connectionName || '']];
+        case 'Shell': {
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const tooltip = [];
+          if (connectionName) {
+            tooltip.push(['mongosh', connectionName || '']);
+          }
           return {
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: tab.type,
+            title: connectionName
+              ? `mongosh: ${connectionName}`
+              : 'MongoDB Shell',
             tooltip,
-            iconGlyph: 'Database',
+            iconGlyph: 'Shell',
+            tabTheme: getThemeOf(tab.connectionId),
+          } as const;
+        }
+        case 'Databases': {
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          return {
+            id: tab.id,
+            connectionName,
+            type: tab.type,
+            title: connectionName,
+            tooltip: [['Connection', connectionName || '']],
+            iconGlyph: 'Server',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
         case 'Performance': {
-          const connectionName = getConnectionTitleById(tab.connectionId);
-          const tooltip: Tooltip = [['Connection', connectionName || '']];
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
           return {
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: tab.type,
-            tooltip,
+            title: `Performance: ${connectionName}`,
+            tooltip: [['Performance', connectionName || '']],
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
         }
         case 'Collections': {
-          const connectionName = getConnectionTitleById(tab.connectionId);
-          const tooltip: Tooltip = [
-            ['Connection', connectionName || ''],
-            ['Database', tab.namespace],
-          ];
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const database = tab.namespace;
           return {
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: tab.namespace,
-            tooltip,
+            title: database,
+            tooltip: [
+              ['Connection', connectionName || ''],
+              ['Database', database],
+            ],
             iconGlyph: 'Database',
             'data-namespace': tab.namespace,
             tabTheme: getThemeOf(tab.connectionId),
@@ -233,15 +236,14 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
           const { database, collection, ns } = toNS(tab.namespace);
           const info = collectionInfo[ns] ?? {};
           const { isTimeSeries, isReadonly, sourceName } = info;
-          const connectionName = getConnectionTitleById(tab.connectionId);
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
           const collectionType = isTimeSeries
             ? 'timeseries'
             : isReadonly
             ? 'view'
             : 'collection';
           // Similar to what we have in the collection breadcrumbs.
-          console.log({ sourceName, editViewName: tab.editViewName });
-          const tooltip: Tooltip = [
+          const tooltip = [
             ['Connection', connectionName || ''],
             ['Database', database],
           ];

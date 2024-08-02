@@ -1,23 +1,33 @@
 import React from 'react';
 import { useDarkMode } from '../../hooks/use-theme';
 import { palette } from '@leafygreen-ui/palette';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 const iconStyles = css({
   flex: 'none',
 });
 
-const ServerIcon = () => {
+const ServerIcon = ({
+  color,
+  size = 16,
+  className,
+}: {
+  size?: number;
+  color?: string;
+  className?: string;
+}) => {
   const darkMode = useDarkMode();
-  const stroke = darkMode ? palette.white : palette.gray.dark2;
+  const stroke = color || (darkMode ? palette.white : palette.gray.dark2);
   return (
     <svg
-      className={iconStyles}
-      width="16"
-      height="16"
+      className={cx(iconStyles, className)}
+      width={size}
+      height={size}
       viewBox="0 0 16 16"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Server Icon"
     >
       <g clipPath="url(#clip0_842_15453)">
         <path

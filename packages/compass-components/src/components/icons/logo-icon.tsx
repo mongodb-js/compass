@@ -16,7 +16,6 @@ const LogoIcon = ({
 }: {
   height: number;
   color?: string;
-  size?: number;
   className?: string;
 } & React.SVGProps<SVGSVGElement>) => {
   const darkMode = useDarkMode();
