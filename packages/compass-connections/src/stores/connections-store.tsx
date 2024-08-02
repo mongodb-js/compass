@@ -10,7 +10,7 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { usePreferencesContext } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
-import { useConnectionStatusToasts } from '../components/connection-status-toasts';
+import { useConnectionStatusNotifications } from '../components/connection-status-notifications';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { getGenuineMongoDB } from 'mongodb-build-info';
@@ -358,7 +358,7 @@ export function useConnections({
     openConnectionFailedToast,
     openMaximumConnectionsReachedToast,
     closeConnectionStatusToast,
-  } = useConnectionStatusToasts();
+  } = useConnectionStatusNotifications();
 
   const saveConnectionInfo = useCallback(
     async (connectionInfo: PartialConnectionInfo) => {
@@ -467,7 +467,6 @@ export function useConnections({
         userCode,
       });
 
-      // For multiple connection we show a special type of the confirmation modal
       openNotifyDeviceAuthModal(
         connectionInfo,
         verificationUrl,

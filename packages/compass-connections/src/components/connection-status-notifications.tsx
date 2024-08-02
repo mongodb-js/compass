@@ -85,7 +85,16 @@ const deviceAuthModalContentStyles = css({
   },
 });
 
-export function useConnectionStatusToasts() {
+/**
+ * Returns triggers for various notifications (toasts and modals) that are
+ * supposed to be displayed every time connection flow is happening in the
+ * application.
+ * 
+ * All toasts and modals are only applicable in multiple connections mode. Right
+ * now it's gated by the feature flag, the flag check can be removed when this
+ * is the default behavior
+ */
+export function useConnectionStatusNotifications() {
   const enableNewMultipleConnectionSystem = usePreference(
     'enableNewMultipleConnectionSystem'
   );
@@ -216,6 +225,9 @@ export function useConnectionStatusToasts() {
     []
   );
 
+  // Gated by the feature flag: if flag is on, we return trigger functions, if
+  // flag is off, we return noop functions so that we can call them
+  // unconditionally in the actual flow
   return enableNewMultipleConnectionSystem
     ? {
         openNotifyDeviceAuthModal,
