@@ -70,6 +70,7 @@
     "@mongodb-js/eslint-config-compass": "^1.1.3",
     "@mongodb-js/mocha-config-compass": "^1.3.9",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
+    "@mongodb-js/connection-storage": "^0.16.1",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^7.0.2",

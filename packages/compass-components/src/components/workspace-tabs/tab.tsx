@@ -258,7 +258,6 @@ function Tab({
             data-testid="workspace-tab-button"
             data-connectionName={connectionName}
             data-type={type}
-            title={title}
             {...tabProps}
           >
             {children}
