@@ -191,7 +191,7 @@ type TabProps = {
   onClose: () => void;
   iconGlyph: IconGlyph | 'Logo';
   tabContentId: string;
-  tooltip?: string;
+  tooltip?: [string, string][];
   tabTheme?: TabTheme;
 };
 
@@ -313,9 +313,14 @@ function Tab({
         );
       }}
     >
-      {JSON.stringify(tooltip)}
+      {tooltip &&
+        tooltip.map(([label, value]) => (
+          <div key={label}>
+            <b>{label}:</b> {value}
+          </div>
+        ))}
     </Tooltip>
-  ); // TODO
+  );
 }
 
 export { Tab };

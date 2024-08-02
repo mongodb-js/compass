@@ -42,12 +42,10 @@ import {
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 
-type Tooltip = Partial<
-  Record<
-    'Connection' | 'Database' | 'Collection' | 'View' | 'Derived from',
-    string
-  >
->[];
+type Tooltip = [
+  'Connection' | 'Database' | 'Collection' | 'View' | 'Derived from',
+  string
+][];
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -188,34 +186,49 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             iconGlyph: 'Shell',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Databases':
+        case 'Databases': {
+          const connectionName = getConnectionTitleById(tab.connectionId);
+          const tooltip: Tooltip = [['Connection', connectionName || '']];
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: tab.type,
+            tooltip,
             iconGlyph: 'Database',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Performance':
+        }
+        case 'Performance': {
+          const connectionName = getConnectionTitleById(tab.connectionId);
+          const tooltip: Tooltip = [['Connection', connectionName || '']];
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: tab.type,
+            tooltip,
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Collections':
+        }
+        case 'Collections': {
+          const connectionName = getConnectionTitleById(tab.connectionId);
+          const tooltip: Tooltip = [
+            ['Connection', connectionName || ''],
+            ['Database', tab.namespace],
+          ];
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: tab.namespace,
+            tooltip,
             iconGlyph: 'Database',
             'data-namespace': tab.namespace,
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
+        }
         case 'Collection': {
           const { database, collection, ns } = toNS(tab.namespace);
           const info = collectionInfo[ns] ?? {};
@@ -228,33 +241,24 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             : 'collection';
           // Similar to what we have in the collection breadcrumbs.
           console.log({ sourceName, editViewName: tab.editViewName });
-          const subtitle = sourceName
-            ? `${database} > ${toNS(sourceName).collection} > ${collection}`
-            : tab.editViewName
-            ? `${database} > ${collection} > ${
-                toNS(tab.editViewName).collection
-              }`
-            : `${database} > ${collection}`;
           const tooltip: Tooltip = [
-            { Connection: connectionName },
-            { Database: database },
+            ['Connection', connectionName || ''],
+            ['Database', database],
           ];
           if (sourceName) {
-            tooltip.push({ 'Derived from': toNS(sourceName).collection });
-            tooltip.push({ View: collection });
+            tooltip.push(['Derived from', toNS(sourceName).collection]);
+            tooltip.push(['View', collection]);
           } else if (tab.editViewName) {
-            tooltip.push({ 'Derived from': collection });
-            tooltip.push({ View: toNS(tab.editViewName).collection });
+            tooltip.push(['Derived from', collection]);
+            tooltip.push(['View', toNS(tab.editViewName).collection]);
           } else {
-            tooltip.push({ Collection: collection });
+            tooltip.push(['Collection', collection]);
           }
-          console.log({ tooltip });
           return {
             id: tab.id,
             connectionName,
             type: tab.type,
             title: collection,
-            subtitle,
             tooltip,
             iconGlyph:
               collectionType === 'view'
