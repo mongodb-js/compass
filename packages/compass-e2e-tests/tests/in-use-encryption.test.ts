@@ -237,6 +237,10 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
       });
 
+      beforeEach(async function () {
+        await browser.disconnectAll();
+      });
+
       after(async function () {
         if (compass) {
           await cleanup(compass);
@@ -319,6 +323,7 @@ describe('CSFLE / QE', function () {
       });
 
       beforeEach(async function () {
+        await browser.disconnectAll();
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -960,6 +965,10 @@ describe('CSFLE / QE', function () {
 
       compass = await init(this.test?.fullTitle());
       browser = compass.browser;
+    });
+
+    beforeEach(async function () {
+      await browser.disconnectAll();
     });
 
     afterEach(async function () {

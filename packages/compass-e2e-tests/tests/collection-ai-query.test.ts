@@ -56,6 +56,7 @@ describe('Collection ai query', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME,

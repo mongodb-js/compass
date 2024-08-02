@@ -122,6 +122,7 @@ describe('Collection documents tab', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await createNestedDocumentsCollection('nestedDocs', 10);
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME,

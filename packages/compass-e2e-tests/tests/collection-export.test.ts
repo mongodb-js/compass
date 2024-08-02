@@ -67,6 +67,7 @@ describe('Collection export', function () {
   describe('with the numbers collection', function () {
     beforeEach(async function () {
       await createNumbersCollection();
+      await browser.disconnectAll();
       await browser.connectWithConnectionString();
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME,
@@ -883,6 +884,7 @@ describe('Collection export', function () {
   describe('with the number-strings collection', function () {
     beforeEach(async function () {
       await createNumbersStringCollection();
+      await browser.disconnectAll();
       await browser.connectWithConnectionString();
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME,

@@ -52,6 +52,7 @@ describe('My Queries tab', function () {
   });
   beforeEach(async function () {
     await createNumbersCollection();
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
   });
   after(async function () {

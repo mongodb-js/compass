@@ -28,6 +28,7 @@ describe('Collection schema tab', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await createGeospatialCollection();
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
   });
 

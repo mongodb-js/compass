@@ -28,6 +28,7 @@ describe('Instance sidebar', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
     connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
   });

@@ -29,6 +29,7 @@ describe('Instance databases tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
     await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
   });

@@ -98,6 +98,7 @@ describe('Collection Rename Modal', () => {
     await createBlankCollection(databaseName, initialName);
     await createBlankCollection(databaseName, 'bar');
 
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
     connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
   });

@@ -297,6 +297,10 @@ describe('Connection string', function () {
     browser = compass.browser;
   });
 
+  beforeEach(async function () {
+    await browser.disconnectAll();
+  });
+
   after(function () {
     return cleanup(compass);
   });
@@ -666,6 +670,10 @@ describe('Connection form', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+  });
+
+  beforeEach(async function () {
+    await browser.disconnectAll();
   });
 
   after(function () {
@@ -1092,6 +1100,10 @@ describe('FLE2', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+  });
+
+  beforeEach(async function () {
+    await browser.disconnectAll();
   });
 
   afterEach(async function () {

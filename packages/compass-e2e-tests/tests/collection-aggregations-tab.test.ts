@@ -127,6 +127,7 @@ describe('Collection aggregations tab', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await createNestedDocumentsCollection('nestedDocs', 10);
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
     // set guide cue to not show up
     await browser.execute((key) => {

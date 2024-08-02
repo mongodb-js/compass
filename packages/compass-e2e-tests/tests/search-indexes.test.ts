@@ -191,6 +191,7 @@ describe.skip('Search Indexes', function () {
       await dbInstance.createCollection(collectionName);
     }
 
+    await browser.disconnectAll();
     await browser.connectWithConnectionString(currentConnectionString);
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME,

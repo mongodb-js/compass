@@ -29,6 +29,10 @@ describe('Shell', function () {
     await browser.setFeature('enableShell', true);
   });
 
+  beforeEach(async function () {
+    await browser.disconnectAll();
+  });
+
   after(async function () {
     if (TEST_COMPASS_WEB) {
       return;

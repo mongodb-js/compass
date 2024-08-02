@@ -27,6 +27,7 @@ describe('Global Tabs', function () {
       await createNumbersCollection(collName, 1);
       await createNumbersCollection(collName, 1);
     }
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
   });
 

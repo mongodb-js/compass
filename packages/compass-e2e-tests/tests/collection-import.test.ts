@@ -109,6 +109,7 @@ describe('Collection import', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await createDummyCollections();
+    await browser.disconnectAll();
     await browser.connectWithConnectionString();
   });
 

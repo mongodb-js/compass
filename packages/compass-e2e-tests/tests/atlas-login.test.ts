@@ -273,6 +273,7 @@ describe('Atlas Login', function () {
   describe('in CRUD view', function () {
     beforeEach(async function () {
       await createNumbersCollection();
+      await browser.disconnectAll();
       await browser.connectWithConnectionString();
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME,
@@ -305,6 +306,7 @@ describe('Atlas Login', function () {
   describe('in Aggregation Builder view', function () {
     beforeEach(async function () {
       await createNumbersCollection();
+      await browser.disconnectAll();
       await browser.connectWithConnectionString();
       await browser.navigateToCollectionTab(
         DEFAULT_CONNECTION_NAME,
