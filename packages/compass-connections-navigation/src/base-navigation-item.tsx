@@ -76,6 +76,7 @@ const labelAndIconWrapperStyles = css({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
+  fontSize: '12px',
 });
 
 const actionControlsWrapperStyles = css({

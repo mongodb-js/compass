@@ -1,6 +1,6 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
-import { css, cx, Icon } from '@mongodb-js/compass-components';
+import { css, cx, Icon, spacing } from '@mongodb-js/compass-components';
 
 const buttonReset = css({
   padding: 0,
@@ -16,6 +16,12 @@ const expandButton = css({
   '&:hover': {
     cursor: 'pointer',
   },
+  // we're sizing the icon down below but we still want the button to take up
+  // 16px so that the grid lines up
+  minWidth: spacing[400],
+  height: spacing[400],
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 const expanded = css({
@@ -42,7 +48,7 @@ export const ExpandButton: React.FunctionComponent<{
       onClick={onClick}
       className={cx(buttonReset, expandButton, isExpanded && expanded)}
     >
-      <Icon width={16} height={16} glyph="CaretRight" size="small"></Icon>
+      <Icon width={14} height={14} glyph="CaretRight" size="small"></Icon>
     </button>
   );
 };
