@@ -71,7 +71,7 @@
     "@leafygreen-ui/toast": "^6.1.23",
     "@leafygreen-ui/toggle": "^10.0.19",
     "@leafygreen-ui/tokens": "^2.5.1",
-    "@leafygreen-ui/tooltip": "^11.0.2",
+    "@leafygreen-ui/tooltip": "^11.1.0",
     "@leafygreen-ui/typography": "^18.2.3",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/utils": "^3.13.1",

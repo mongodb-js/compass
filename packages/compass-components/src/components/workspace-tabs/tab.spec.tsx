@@ -1,9 +1,14 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { Tab } from './tab';
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 describe('Tab', function () {
   let onCloseSpy: sinon.SinonSpy;
@@ -33,10 +38,6 @@ describe('Tab', function () {
       );
     });
 
-    it('should render the subtitle', async function () {
-      expect(await screen.findByText('test.collection')).to.be.visible;
-    });
-
     it('should render the title', async function () {
       expect(await screen.findByText('docs')).to.be.visible;
     });
@@ -59,7 +60,7 @@ describe('Tab', function () {
 
     it('should call "onSelect" when the tab is clicked', async function () {
       expect(onSelectSpy.callCount).to.equal(0);
-      const tabContent = await screen.findByText('test.collection');
+      const tabContent = await screen.findByText('docs');
       tabContent.click();
       expect(onSelectSpy.callCount).to.equal(1);
     });
@@ -86,11 +87,10 @@ describe('Tab', function () {
       expect(await screen.findByLabelText('Close Tab')).to.not.be.visible;
     });
 
-    // Focus visible is not working proper in jsdom environment
-    it.skip('should render the close tab button visible when the tab is focused', async function () {
-      const tabToFocus = await screen.findByRole('tab');
-      tabToFocus.focus();
+    it('should render the close tab button visible when the tab is hovered', async function () {
+      const tab = await screen.findByRole('tab');
+      userEvent.hover(tab);
       expect(await screen.findByLabelText('Close Tab')).to.be.visible;
-    }); // TODO: try to fix & add tooltip
+    });
   });
 });
