@@ -89,7 +89,7 @@ const deviceAuthModalContentStyles = css({
  * Returns triggers for various notifications (toasts and modals) that are
  * supposed to be displayed every time connection flow is happening in the
  * application.
- * 
+ *
  * All toasts and modals are only applicable in multiple connections mode. Right
  * now it's gated by the feature flag, the flag check can be removed when this
  * is the default behavior
