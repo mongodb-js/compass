@@ -10,7 +10,7 @@ type ThemeProvider = {
   getThemeOf(
     this: void,
     connectionId: ConnectionInfo['id']
-  ): TabTheme | undefined;
+  ): Partial<TabTheme> | undefined;
 };
 
 export function useTabConnectionTheme(): ThemeProvider {

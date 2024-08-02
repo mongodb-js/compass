@@ -72,6 +72,8 @@ const tabStyles = css({
 export type TabTheme = {
   '--workspace-tab-background-color': string;
   '--workspace-tab-selected-background-color': string;
+  '--workspace-tab-top-border-color': string;
+  '--workspace-tab-selected-top-border-color': string;
   '--workspace-tab-border-color': string;
   '--workspace-tab-color': string;
   '--workspace-tab-selected-color': string;
@@ -190,7 +192,7 @@ type TabProps = {
   iconGlyph: IconGlyph | 'Logo' | 'Server';
   tabContentId: string;
   tooltip?: [string, string][];
-  tabTheme?: TabTheme;
+  tabTheme?: Partial<TabTheme>;
 };
 
 function Tab({
@@ -236,12 +238,16 @@ function Tab({
   return (
     <Tooltip
       isDisabled={!tooltip}
-      delay={300}
-      trigger={({ children, ...props }) => {
+      delay={0}
+      closeDelay={0}
+      trigger={({ children, ref: setTriggerRef, ...props }) => {
         return (
           <div
             {...props}
-            ref={setNodeRef}
+            ref={(element) => {
+              setNodeRef(element);
+              setTriggerRef(element);
+            }}
             style={style}
             className={cx(
               tabStyles,
