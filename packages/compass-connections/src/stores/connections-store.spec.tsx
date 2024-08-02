@@ -43,6 +43,17 @@ function wait(ms: number) {
   });
 }
 
+function createMockDataService() {
+  return {
+    mockDataService: 'yes',
+    addReauthenticationHandler() {},
+    getUpdatedSecrets() {
+      return Promise.resolve({});
+    },
+    disconnect() {},
+  } as unknown as DataService;
+}
+
 const mockConnections: ConnectionInfo[] = [
   {
     id: 'turtle',
@@ -122,14 +133,7 @@ describe('useConnections', function () {
     mockConnectionStorage = new InMemoryConnectionStorage([...mockConnections]);
     connectionsManager = getConnectionsManager(async () => {
       await wait(200);
-      return {
-        mockDataService: 'yes',
-        addReauthenticationHandler() {},
-        getUpdatedSecrets() {
-          return Promise.resolve({});
-        },
-        disconnect() {},
-      } as unknown as DataService;
+      return createMockDataService();
     });
   });
 
@@ -245,8 +249,6 @@ describe('useConnections', function () {
       const connections = renderHookWithContext();
       const connectionInfo = createNewConnectionInfo();
 
-      sinon.spy(connectionsManager, 'connect');
-
       const connectPromise = connections.current.connect(connectionInfo);
 
       await waitFor(() => {
@@ -256,6 +258,50 @@ describe('useConnections', function () {
 
       // Await just not to leave the hanging promise in the test
       await connectPromise;
+    });
+
+    it('should show device auth code modal when OIDC flow triggers the notification', async function () {
+      const connections = renderHookWithContext();
+      let resolveConnect;
+      const spy = sinon.stub(connectionsManager, 'connect').returns(
+        new Promise((resolve) => {
+          resolveConnect = () => resolve(createMockDataService());
+        })
+      );
+      const connectPromise = connections.current.connect(
+        createNewConnectionInfo()
+      );
+
+      await waitFor(() => {
+        expect(spy).to.have.been.calledOnce;
+      });
+
+      spy.getCall(0).lastArg.onNotifyOIDCDeviceFlow({
+        verificationUrl: 'http://example.com/device-auth',
+        userCode: 'ABCabc123',
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Visit the following URL to complete authentication/)
+        ).to.exist;
+
+        expect(
+          screen.getByRole('link', { name: 'http://example.com/device-auth' })
+        ).to.exist;
+
+        expect(screen.getByText('ABCabc123')).to.exist;
+      });
+
+      resolveConnect();
+
+      await connectPromise;
+
+      await waitFor(() => {
+        expect(() =>
+          screen.getByText('Complete authentication in the browser')
+        ).to.throw();
+      });
     });
 
     describe('saving connections during connect in single connection mode', function () {

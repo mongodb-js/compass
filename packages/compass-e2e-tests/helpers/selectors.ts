@@ -828,8 +828,8 @@ export const AggregationResultsCancelButton =
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
 export const AggregationWriteOperationConfirmationModal =
   '[data-testid="write-operation-confirmation-modal"]';
-export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm-button"]`;
-export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel-button"]`;
+export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm_button"]`;
+export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel_button"]`;
 export const AggregationWriteOperationConfirmationModalDescription = `${AggregationWriteOperationConfirmationModal} [data-testid="confirmation-description"]`;
 
 export const AggregationSettingsButton =

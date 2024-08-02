@@ -28,7 +28,7 @@ import { createNewConnectionInfo } from '../stores/connections-store';
 import {
   getConnectingStatusText,
   getConnectionErrorMessage,
-} from './connection-status-toasts';
+} from './connection-status-notifications';
 import { useConnectionFormPreferences } from '../hooks/use-connection-form-preferences';
 
 type ConnectFn = typeof connect;

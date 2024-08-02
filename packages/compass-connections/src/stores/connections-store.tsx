@@ -10,7 +10,7 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { usePreferencesContext } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
-import { useConnectionStatusToasts } from '../components/connection-status-toasts';
+import { useConnectionStatusNotifications } from '../components/connection-status-notifications';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { getGenuineMongoDB } from 'mongodb-build-info';
@@ -352,12 +352,13 @@ export function useConnections({
 
   const { openToast } = useToast('compass-connections');
   const {
+    openNotifyDeviceAuthModal,
     openConnectionStartedToast,
     openConnectionSucceededToast,
     openConnectionFailedToast,
     openMaximumConnectionsReachedToast,
     closeConnectionStatusToast,
-  } = useConnectionStatusToasts();
+  } = useConnectionStatusNotifications();
 
   const saveConnectionInfo = useCallback(
     async (connectionInfo: PartialConnectionInfo) => {
@@ -387,24 +388,6 @@ export function useConnections({
       }
     },
     [openToast, saveConnection, getConnectionInfoById, track]
-  );
-
-  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
-    (
-      connectionInfo: ConnectionInfo,
-      {
-        verificationUrl,
-        userCode,
-      }: { verificationUrl: string; userCode: string }
-    ) => {
-      dispatch({
-        type: 'oidc-attempt-connect-notify-device-auth',
-        connectionInfo,
-        verificationUrl,
-        userCode,
-      });
-    },
-    []
   );
 
   const oidcUpdateSecrets = useCallback(
@@ -464,6 +447,37 @@ export function useConnections({
       getConnectionInfoById,
       track,
     ]
+  );
+
+  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
+    (
+      connectionInfo: ConnectionInfo,
+      {
+        verificationUrl,
+        userCode,
+      }: { verificationUrl: string; userCode: string },
+      signal: AbortSignal
+    ) => {
+      // For single connection store the device auth info so that we can append
+      // it to the "Connecting..." modal
+      dispatch({
+        type: 'oidc-attempt-connect-notify-device-auth',
+        connectionInfo,
+        verificationUrl,
+        userCode,
+      });
+
+      openNotifyDeviceAuthModal(
+        connectionInfo,
+        verificationUrl,
+        userCode,
+        () => {
+          void disconnect(connectionInfo.id);
+        },
+        signal
+      );
+    },
+    [disconnect, openNotifyDeviceAuthModal]
   );
 
   const createNewConnection = useCallback(() => {
@@ -619,6 +633,8 @@ export function useConnections({
       const isAutoconnectAttempt =
         typeof connectionInfoOrGetAutoconnectInfo === 'function';
 
+      const deviceAuthAbortController = new AbortController();
+
       let connectionInfo: ConnectionInfo | undefined;
 
       try {
@@ -711,16 +727,21 @@ export function useConnections({
           { isAutoconnectAttempt }
         );
 
+        const currentConnectionInfo = connectionInfo;
+
         const dataService = await connectionsManager.connect(connectionInfo, {
           forceConnectionOptions,
           browserCommandForOIDCAuth,
           onDatabaseSecretsChange: (...args) => {
             void oidcUpdateSecrets(...args);
           },
-          onNotifyOIDCDeviceFlow: oidcAttemptConnectNotifyDeviceAuth.bind(
-            null,
-            connectionInfo
-          ),
+          onNotifyOIDCDeviceFlow: (deviceFlowInfo) => {
+            oidcAttemptConnectNotifyDeviceAuth(
+              currentConnectionInfo,
+              deviceFlowInfo,
+              deviceAuthAbortController.signal
+            );
+          },
         });
 
         try {
@@ -809,6 +830,9 @@ export function useConnections({
           connectionInfo: connectionInfo ?? createNewConnectionInfo(),
           isAutoConnect: isAutoconnectAttempt,
         });
+      } finally {
+        // Auto close device auth modal
+        deviceAuthAbortController.abort();
       }
     },
     [
