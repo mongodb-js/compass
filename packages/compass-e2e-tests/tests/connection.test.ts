@@ -342,6 +342,16 @@ describe('Connection string', function () {
         .getText();
       expect(errorMessage).to.equal('Authentication failed.');
     }
+
+    // for multiple connections click the review button in the toast
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      const errorText = await browser
+        .$(Selectors.ConnectionFormErrorMessage)
+        .getText();
+      expect(errorText).to.equal('Authentication failed.');
+    }
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
