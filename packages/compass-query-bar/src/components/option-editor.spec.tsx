@@ -37,6 +37,7 @@ describe('OptionEditor', function () {
     it('fills the input with an empty object "{}" when empty on focus', async function () {
       render(
         <OptionEditor
+          optionName="filter"
           namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
@@ -58,6 +59,7 @@ describe('OptionEditor', function () {
     it('does not change input value when empty on focus', async function () {
       render(
         <OptionEditor
+          optionName="filter"
           namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
@@ -79,6 +81,7 @@ describe('OptionEditor', function () {
     it('should adjust pasted query if pasting over empty brackets with the cursor in the middle', async function () {
       render(
         <OptionEditor
+          optionName="filter"
           namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
@@ -106,6 +109,7 @@ describe('OptionEditor', function () {
     it('should not modify user text whe pasting when cursor moved', async function () {
       render(
         <OptionEditor
+          optionName="filter"
           namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
@@ -135,6 +139,7 @@ describe('OptionEditor', function () {
     it('should not modify user text when pasting in empty input', async function () {
       render(
         <OptionEditor
+          optionName="filter"
           namespace="test.test"
           insertEmptyDocOnFocus
           onChange={() => {}}
@@ -157,37 +162,45 @@ describe('OptionEditor', function () {
     });
   });
 
-  describe('when render with the query history autocompleter', function () {
+  describe('when render filter bar with the query history autocompleter', function () {
     let onApplySpy: SinonSpy;
     let preferencesAccess: PreferencesAccess;
 
     beforeEach(async function () {
       preferencesAccess = await createSandboxFromDefaultPreferences();
-      await preferencesAccess.savePreferences({
-        enableQueryHistoryAutocomplete: true,
-      });
-
       onApplySpy = sinon.spy();
       render(
         <PreferencesProvider value={preferencesAccess}>
           <OptionEditor
+            optionName="filter"
             namespace="test.test"
             insertEmptyDocOnFocus
             onChange={() => {}}
             value=""
             savedQueries={[
               {
-                _id: '1',
-                _ns: '1',
-                filter: { a: 1 },
-                _lastExecuted: new Date(),
+                type: 'recent',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 1 },
+                },
               },
               {
-                _id: '1',
-                _ns: '1',
-                filter: { a: 2 },
-                sort: { a: -1 },
-                _lastExecuted: new Date(),
+                type: 'favorite',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 2 },
+                  sort: { a: -1 },
+                },
+              },
+              {
+                type: 'recent',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 2 },
+                  sort: { a: -1 },
+                  update: { a: 10 },
+                },
               },
             ]}
             onApplyQuery={onApplySpy}
@@ -204,8 +217,10 @@ describe('OptionEditor', function () {
       userEvent.click(screen.getByRole('textbox'));
       await waitFor(() => {
         expect(screen.getAllByText('{ a: 1 }')[0]).to.be.visible;
-        expect(screen.getAllByText('{ a: 1 }')[1]).to.be.visible;
         expect(screen.getByText('{ a: 2 }, sort: { a: -1 }')).to.be.visible;
+        expect(
+          screen.queryByText('{ a: 2 }, sort: { a: -1 }, update: { a: 10 }')
+        ).to.be.null;
       });
 
       // Simulate selecting the autocomplete option
@@ -214,6 +229,80 @@ describe('OptionEditor', function () {
         expect(onApplySpy.lastCall).to.be.calledWithExactly({
           filter: { a: 2 },
           sort: { a: -1 },
+        });
+      });
+    });
+  });
+
+  describe('when render project bar with the query history autocompleter', function () {
+    let onApplySpy: SinonSpy;
+    let preferencesAccess: PreferencesAccess;
+
+    beforeEach(async function () {
+      preferencesAccess = await createSandboxFromDefaultPreferences();
+      onApplySpy = sinon.spy();
+      render(
+        <PreferencesProvider value={preferencesAccess}>
+          <OptionEditor
+            optionName="project"
+            namespace="test.test"
+            insertEmptyDocOnFocus
+            onChange={() => {}}
+            value=""
+            savedQueries={[
+              {
+                type: 'favorite',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  project: { a: 1 },
+                },
+              },
+              {
+                type: 'favorite',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 2 },
+                  sort: { a: -1 },
+                },
+              },
+              {
+                type: 'recent',
+                lastExecuted: new Date(),
+                queryProperties: {
+                  filter: { a: 2 },
+                  sort: { a: -1 },
+                  project: { a: 0 },
+                },
+              },
+            ]}
+            onApplyQuery={onApplySpy}
+          />
+        </PreferencesProvider>
+      );
+    });
+
+    afterEach(function () {
+      cleanup();
+    });
+
+    it('only queries with project property are shown in project editor', async function () {
+      userEvent.click(screen.getByRole('textbox'));
+      await waitFor(() => {
+        expect(screen.getAllByText('project: { a: 1 }')[0]).to.be.visible;
+        expect(screen.queryByText('{ a: 2 }, sort: { a: -1 }')).to.be.null;
+        expect(screen.getByText('{ a: 2 }, sort: { a: -1 }, project: { a: 0 }'))
+          .to.be.visible;
+      });
+
+      // Simulate selecting the autocomplete option
+      userEvent.click(
+        screen.getByText('{ a: 2 }, sort: { a: -1 }, project: { a: 0 }')
+      );
+      await waitFor(() => {
+        expect(onApplySpy.lastCall).to.be.calledWithExactly({
+          filter: { a: 2 },
+          sort: { a: -1 },
+          project: { a: 0 },
         });
       });
     });

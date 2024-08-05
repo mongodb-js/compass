@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -49,11 +49,12 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.28.0",
-    "@mongodb-js/compass-logging": "^1.4.1",
-    "@mongodb-js/compass-telemetry": "^1.1.1",
-    "@mongodb-js/compass-workspaces": "^0.17.0",
-    "compass-preferences-model": "^2.25.0",
+    "@mongodb-js/compass-components": "^1.28.1",
+    "@mongodb-js/compass-connections": "^1.36.0",
+    "@mongodb-js/compass-logging": "^1.4.2",
+    "@mongodb-js/compass-telemetry": "^1.1.2",
+    "@mongodb-js/compass-workspaces": "^0.18.0",
+    "compass-preferences-model": "^2.25.1",
     "hadron-app-registry": "^9.2.1",
     "react": "^17.0.2",
     "redux": "^4.2.1",

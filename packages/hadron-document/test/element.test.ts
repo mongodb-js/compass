@@ -12,7 +12,12 @@ import {
 } from 'bson';
 import { expect } from 'chai';
 import { Document, Element, ElementEvents } from '../src/';
-import { DATE_FORMAT, isValueExpandable } from '../src/element';
+import type { ElementList } from '../src/element';
+import {
+  DATE_FORMAT,
+  DEFAULT_VISIBLE_ELEMENTS,
+  isValueExpandable,
+} from '../src/element';
 import moment from 'moment';
 import Sinon from 'sinon';
 
@@ -2777,6 +2782,233 @@ describe('Element', function () {
           expect(el.expanded).to.be.true;
         }
       }
+    });
+  });
+
+  describe('#getVisibleElements', function () {
+    context('when element is not expandable', function () {
+      it('should return an empty list', function () {
+        expect(new Element('name', 'A').getVisibleElements()).to.have.lengthOf(
+          0
+        );
+        expect(new Element('count', 1).getVisibleElements()).to.have.lengthOf(
+          0
+        );
+        expect(
+          new Element('_id', new ObjectId()).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('_id', new Binary()).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new Code('')).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new MaxKey()).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new MinKey()).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new Timestamp({ t: 1, i: 1 })).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new Int32(32)).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new Long(32)).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new Double(0.2)).getVisibleElements()
+        ).to.have.lengthOf(0);
+        expect(
+          new Element('x', new Decimal128('0.2')).getVisibleElements()
+        ).to.have.lengthOf(0);
+      });
+    });
+
+    context('when element is expandable', function () {
+      it("should return total nested elements if nested elements are less than element's visible element count", function () {
+        const listElement = new Element('list', [1, 2, 3]);
+        expect(listElement.getVisibleElements()).to.have.lengthOf(0); // because it is not expanded
+        listElement.expand();
+        expect(listElement.getVisibleElements()).to.have.lengthOf(3);
+
+        const obElement = new Element('ob', { prop1: '1', prop2: '2' });
+        expect(obElement.getVisibleElements()).to.have.lengthOf(0); // because it is not expanded
+        obElement.expand();
+        expect(obElement.getVisibleElements()).to.have.lengthOf(2);
+      });
+
+      it("should return sliced list of nested elements if nested elements are more than element's visible element count", function () {
+        const listElement = new Element('list', [1, 2, 3]);
+        listElement.expand();
+        listElement.setMaxVisibleElementsCount(1);
+        const listVisibleElements = listElement.getVisibleElements();
+        expect(listVisibleElements).to.have.lengthOf(1);
+        expect(
+          listVisibleElements.map((element) => element.value)
+        ).to.deep.equal([{ value: 1 }]);
+        listElement.setMaxVisibleElementsCount(25);
+        expect(listElement.getVisibleElements()).to.have.lengthOf(3);
+
+        const obElement = new Element('ob', {
+          prop1: '1',
+          prop2: '2',
+          prop3: '3',
+        });
+        obElement.expand();
+        obElement.setMaxVisibleElementsCount(1);
+        const obVisibleElement = obElement.getVisibleElements();
+        expect(obVisibleElement).to.have.lengthOf(1);
+        expect(obVisibleElement.map((element) => element.value)).to.deep.equal([
+          '1',
+        ]);
+        obElement.setMaxVisibleElementsCount(25);
+        expect(obElement.getVisibleElements()).to.have.lengthOf(3);
+      });
+    });
+  });
+
+  describe('#setVisibleElementsCount', function () {
+    context('when element is not expandable', function () {
+      it('should not do anything', function () {
+        const element = new Element('name', 'string');
+        const spy = Sinon.spy();
+        element.on(ElementEvents.VisibleElementsChanged, spy);
+        element.setMaxVisibleElementsCount(10);
+        expect(element.maxVisibleElementsCount).to.equal(
+          DEFAULT_VISIBLE_ELEMENTS
+        );
+        expect(spy).to.not.be.called;
+      });
+    });
+
+    context('when element is expandable', function () {
+      it('should update the visible count and bubble up the event', function () {
+        const spy = Sinon.spy();
+        const rootElement = new Element('nestedOb', {
+          address: {
+            zip: '111111',
+          },
+        });
+        const [addressElement] = [...(rootElement.elements as ElementList)];
+        rootElement.on(ElementEvents.VisibleElementsChanged, spy);
+        addressElement.setMaxVisibleElementsCount(10);
+        expect(addressElement.maxVisibleElementsCount).to.equal(10);
+        expect(spy).to.not.be.called; // not called because the element was not expanded and hence no visible changes
+
+        rootElement.expand(true);
+        addressElement.setMaxVisibleElementsCount(11);
+        expect(addressElement.maxVisibleElementsCount).to.equal(11);
+        expect(spy).to.be.calledWithExactly(addressElement, rootElement);
+      });
+    });
+  });
+
+  describe('#getTotalVisibleElementsCount', function () {
+    context('if the element is not expandable', function () {
+      it('should return 0', function () {
+        expect(
+          new Element('name', 'A').getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(new Element('count', 1).getTotalVisibleElementsCount()).to.equal(
+          0
+        );
+        expect(
+          new Element('_id', new ObjectId()).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('_id', new Binary()).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new Code('')).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new MaxKey()).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new MinKey()).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element(
+            'x',
+            new Timestamp({ t: 1, i: 1 })
+          ).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new Int32(32)).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new Long(32)).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new Double(0.2)).getTotalVisibleElementsCount()
+        ).to.equal(0);
+        expect(
+          new Element('x', new Decimal128('0.2')).getTotalVisibleElementsCount()
+        ).to.equal(0);
+      });
+    });
+    context('if element is expandable', function () {
+      it('should still return 0 if the item is not expanded', function () {
+        const nestedObElement = new Element('nestedOb', {
+          prop1: {
+            prop2: {
+              prop3: {
+                prop4: {
+                  prop5: 'Yup',
+                },
+              },
+            },
+          },
+        });
+        expect(nestedObElement.getTotalVisibleElementsCount()).to.equal(0);
+      });
+      it('should do a recursive tree traversal for providing the total visible elements count', function () {
+        const nestedObElement = new Element('nestedOb', {
+          prop1: {
+            prop2: {
+              prop3: {
+                prop4: {
+                  prop5: 'Yup',
+                },
+              },
+            },
+          },
+        });
+        // we need to expand the element all the way to its children to make it
+        // visible
+        nestedObElement.expand(true);
+        expect(nestedObElement.getTotalVisibleElementsCount()).to.equal(5);
+      });
+      context(
+        'and total child elements are less than the allowed visible elements',
+        function () {
+          it('should return the count for number of child elements', function () {
+            const nestedObElement = new Element('nestedOb', {
+              prop1: 'x',
+              prop2: 'y',
+            });
+            nestedObElement.expand();
+            expect(nestedObElement.getTotalVisibleElementsCount()).to.equal(2);
+          });
+        }
+      );
+      context(
+        'and total child elements are more than the allowed visible elements',
+        function () {
+          it('should return the count for allowed visible elements', function () {
+            const nestedObElement = new Element('nestedOb', {
+              prop1: 'x',
+              prop2: 'y',
+            });
+            nestedObElement.expand();
+            nestedObElement.setMaxVisibleElementsCount(1);
+            expect(nestedObElement.getTotalVisibleElementsCount()).to.equal(1);
+          });
+        }
+      );
     });
   });
 

@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { createQueryWithHistoryAutocompleter } from './query-autocompleter-with-history';
 import { setupCodemirrorCompleter } from '../../test/completer';
 import type { SavedQuery } from '../../dist/codemirror/query-history-autocompleter';
+import { createQuery } from './query-history-autocompleter';
 
 describe('query history autocompleter', function () {
   const { getCompletions, cleanup } = setupCodemirrorCompleter(
@@ -10,12 +11,14 @@ describe('query history autocompleter', function () {
 
   const savedQueries: SavedQuery[] = [
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-01T12:00:00Z'),
       queryProperties: {
         filter: { status: 'active' },
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-02T14:00:00Z'),
       queryProperties: {
         filter: { age: { $gt: 30 } },
@@ -28,6 +31,7 @@ describe('query history autocompleter', function () {
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-03T16:00:00Z'),
       queryProperties: {
         filter: { score: { $gte: 85 } },
@@ -39,6 +43,7 @@ describe('query history autocompleter', function () {
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-04T18:00:00Z'),
       queryProperties: {
         filter: { isActive: true },
@@ -50,6 +55,7 @@ describe('query history autocompleter', function () {
       },
     },
     {
+      type: 'recent',
       lastExecuted: new Date('2023-06-05T20:00:00Z'),
       queryProperties: {
         filter: { category: 'electronics' },
@@ -65,26 +71,32 @@ describe('query history autocompleter', function () {
 
   const mockOnApply: (query: SavedQuery['queryProperties']) => any = () => {};
 
-  it('returns all saved queries as completions on click', function () {
+  it('returns all saved queries as completions on click', async function () {
     expect(
-      getCompletions('{}', savedQueries, undefined, mockOnApply)
+      await getCompletions('{}', savedQueries, undefined, mockOnApply, 'light')
     ).to.have.lengthOf(5);
   });
 
-  it('returns normal autocompletion when user starts typing', function () {
+  it('returns combined completions when user starts typing', async function () {
     expect(
-      getCompletions('foo', savedQueries, undefined, mockOnApply)
-    ).to.have.lengthOf(45);
+      await getCompletions('foo', savedQueries, undefined, mockOnApply, 'light')
+    ).to.have.lengthOf(50);
   });
 
-  it('completes "any text" when inside a string', function () {
+  it('completes "any text" when inside a string', async function () {
+    const prettifiedSavedQueries = savedQueries.map((query) =>
+      createQuery(query)
+    );
     expect(
-      getCompletions(
-        '{ bar: 1, buz: 2, foo: "b',
-        savedQueries,
-        undefined,
-        mockOnApply
+      (
+        await getCompletions(
+          '{ bar: 1, buz: 2, foo: "b',
+          savedQueries,
+          undefined,
+          mockOnApply,
+          'light'
+        )
       ).map((completion) => completion.label)
-    ).to.deep.eq(['bar', '1', 'buz', '2', 'foo']);
+    ).to.deep.eq(['bar', '1', 'buz', '2', 'foo', ...prettifiedSavedQueries]);
   });
 });

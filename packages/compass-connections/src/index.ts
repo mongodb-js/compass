@@ -1,5 +1,4 @@
-import SingleConnectionForm from './components/legacy-connections';
-import { ConnectionsProvider } from './components/connections-provider';
+export { default as SingleConnectionForm } from './components/legacy-connections';
+export { ConnectionsProvider as default } from './components/connections-provider';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
-export { SingleConnectionForm };
-export default ConnectionsProvider;
+export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';

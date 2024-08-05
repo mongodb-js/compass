@@ -20,7 +20,6 @@ import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
-import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
@@ -37,7 +36,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import updateTitle from '../utils/update-title';
 import Workspace from './workspace';
 import {
   trackConnectionAttemptEvent,
@@ -146,7 +144,6 @@ export type HomeProps = {
   showSettings: () => void;
   connectionStorage: ConnectionStorage;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
-  __TEST_INITIAL_CONNECTION_INFO?: ConnectionInfo;
 };
 
 function SingleConnectionFormWithConnectionImportExport({
@@ -178,7 +175,6 @@ function Home({
   showSettings,
   connectionStorage,
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-  __TEST_INITIAL_CONNECTION_INFO,
 }: HomeProps): React.ReactElement | null {
   const appRegistry = useLocalAppRegistry();
   const logger = useLogger('COMPASS-CONNECT-UI');
@@ -243,34 +239,21 @@ function Home({
 
   const onWorkspaceChange = useCallback(
     (ws: WorkspaceTab | null, collectionInfo) => {
-      const namespace =
-        ws?.type === 'Collection' || ws?.type === 'Collections'
-          ? ws.namespace
-          : undefined;
-
-      updateTitle(
-        appName,
-        connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
-        ws?.type,
-        namespace
-      );
-
       if (ws?.type === 'Collection') {
         showCollectionSubMenu({ isReadOnly: !!collectionInfo?.isReadonly });
       } else {
         hideCollectionSubMenu();
       }
     },
-    [appName, connectionInfo, showCollectionSubMenu, hideCollectionSubMenu]
+    [showCollectionSubMenu, hideCollectionSubMenu]
   );
 
   useEffectOnChange(() => {
     if (!isConnected) {
-      updateTitle(appName);
       hideCollectionSubMenu();
       onDisconnect();
     }
-  }, [appName, isConnected, onDisconnect, hideCollectionSubMenu]);
+  }, [isConnected, onDisconnect, hideCollectionSubMenu]);
 
   const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
 
@@ -296,7 +279,6 @@ function Home({
             onConnectionAttemptStarted={onConnectionAttemptStarted}
             onConnectionFailed={onConnectionFailed}
             onConnected={onConnected}
-            __TEST_INITIAL_CONNECTION_INFO={__TEST_INITIAL_CONNECTION_INFO}
           >
             <ConnectionImportExportProvider>
               <CompassInstanceStorePlugin>
@@ -304,6 +286,7 @@ function Home({
                   {multiConnectionsEnabled && (
                     <AppRegistryProvider scopeName="Multiple Connections">
                       <Workspace
+                        appName={appName}
                         onActiveWorkspaceTabChange={onWorkspaceChange}
                       />
                     </AppRegistryProvider>
@@ -312,6 +295,7 @@ function Home({
                     (isConnected ? (
                       <AppRegistryProvider scopeName="Single Connection">
                         <Workspace
+                          appName={appName}
                           onActiveWorkspaceTabChange={onWorkspaceChange}
                         />
                       </AppRegistryProvider>

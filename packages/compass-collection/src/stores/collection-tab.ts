@@ -89,6 +89,10 @@ export function activatePlugin(
     }
   });
 
+  on(localAppRegistry, 'refresh-collection-stats', () => {
+    void collectionModel.fetch({ dataService, force: true });
+  });
+
   void collectionModel.fetchMetadata({ dataService }).then((metadata) => {
     store.dispatch(collectionMetadataFetched(metadata));
   });

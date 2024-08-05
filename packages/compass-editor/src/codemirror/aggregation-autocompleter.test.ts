@@ -12,30 +12,30 @@ describe('query autocompleter', function () {
 
   context('when autocompleting outside of stage', function () {
     context('with empty pipeline', function () {
-      it('should return stages', function () {
+      it('should return stages', async function () {
         const completions = getCompletions('[{ $');
 
         expect(
-          completions.map((completion) => completion.label).sort()
+          (await completions).map((completion) => completion.label).sort()
         ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
       });
     });
 
     context('with other stages in the pipeline', function () {
-      it('should return stages', function () {
+      it('should return stages', async function () {
         const completions = getCompletions('[{$match:{foo: 1}},{$');
 
         expect(
-          completions.map((completion) => completion.label).sort()
+          (await completions).map((completion) => completion.label).sort()
         ).to.deep.eq([...STAGE_OPERATOR_NAMES].sort());
       });
     });
 
     context('inside block', function () {
-      it('should not suggest blocks in snippets', function () {
+      it('should not suggest blocks in snippets', async function () {
         const completions = getCompletions(`[{ /** comment */ $`);
 
-        completions.forEach((completion) => {
+        (await completions).forEach((completion) => {
           const snippet = applySnippet(completion);
           expect(snippet).to.match(
             /^[^{]/,
@@ -46,10 +46,10 @@ describe('query autocompleter', function () {
     });
 
     context('outside block', function () {
-      it('should have blocks in snippets', function () {
+      it('should have blocks in snippets', async function () {
         const completions = getCompletions(`[{ $match: {foo: 1} }, $`);
 
-        completions.forEach((completion) => {
+        (await completions).forEach((completion) => {
           const snippet = applySnippet(completion);
           expect(snippet).to.match(
             /^{/,
@@ -61,15 +61,14 @@ describe('query autocompleter', function () {
   });
 
   context('when autocompleting inside the stage', function () {
-    it('should return stage completer results', function () {
+    it('should return stage completer results', async function () {
       const completions = getCompletions('[{$bucket: { _id: "$', {
         fields: [{ name: 'foo' }, { name: 'bar' }],
       });
 
-      expect(completions.map((completion) => completion.label)).to.deep.eq([
-        '$foo',
-        '$bar',
-      ]);
+      expect(
+        (await completions).map((completion) => completion.label)
+      ).to.deep.eq(['$foo', '$bar']);
     });
   });
 });

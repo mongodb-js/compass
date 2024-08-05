@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { css } from '@mongodb-js/compass-components';
 import {
   CompassShellPlugin,
@@ -8,6 +8,11 @@ import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
 } from '@mongodb-js/compass-collection';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/compass-workspaces';
+
 import WorkspacesPlugin, {
   WorkspacesProvider,
 } from '@mongodb-js/compass-workspaces';
@@ -41,8 +46,11 @@ import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-la
 import {
   ConnectionInfoProvider,
   useActiveConnections,
+  useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import updateTitle from '../utils/update-title';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -58,8 +66,10 @@ const shellContainerStyles = css({
 });
 
 export default function Workspace({
+  appName,
   onActiveWorkspaceTabChange,
 }: {
+  appName: string;
   onActiveWorkspaceTabChange: React.ComponentProps<
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
@@ -68,6 +78,35 @@ export default function Workspace({
   const multiConnectionsEnabled = usePreference(
     'enableNewMultipleConnectionSystem'
   );
+
+  const { getConnectionInfoById } = useConnectionRepository();
+
+  const onWorkspaceTabChange = useCallback(
+    (ws: WorkspaceTab | null, collectionInfo: CollectionTabInfo | null) => {
+      onActiveWorkspaceTabChange(ws, collectionInfo);
+
+      const namespace =
+        ws && (ws.type === 'Collection' || ws.type === 'Collections')
+          ? ws.namespace
+          : undefined;
+      const connectionInfo =
+        ws && ws.type !== 'My Queries' && ws.type !== 'Welcome'
+          ? getConnectionInfoById(ws.connectionId)
+          : undefined;
+      updateTitle(
+        appName,
+        connectionInfo ? getConnectionTitle(connectionInfo) : undefined,
+        ws?.type,
+        namespace
+      );
+    },
+    [appName, getConnectionInfoById, onActiveWorkspaceTabChange]
+  );
+
+  useEffect(() => {
+    updateTitle(appName);
+  }, [appName]);
+
   return (
     <div data-testid="home" className={verticalSplitStyles}>
       <WorkspacesProvider
@@ -101,7 +140,7 @@ export default function Workspace({
             initialWorkspaceTabs={[
               { type: multiConnectionsEnabled ? 'Welcome' : 'My Queries' },
             ]}
-            onActiveWorkspaceTabChange={onActiveWorkspaceTabChange}
+            onActiveWorkspaceTabChange={onWorkspaceTabChange}
             renderSidebar={() => <CompassSidebarPlugin />}
             renderModals={() => (
               <>

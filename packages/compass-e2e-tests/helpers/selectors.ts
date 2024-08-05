@@ -828,8 +828,8 @@ export const AggregationResultsCancelButton =
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
 export const AggregationWriteOperationConfirmationModal =
   '[data-testid="write-operation-confirmation-modal"]';
-export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm-button"]`;
-export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel-button"]`;
+export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm_button"]`;
+export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel_button"]`;
 export const AggregationWriteOperationConfirmationModalDescription = `${AggregationWriteOperationConfirmationModal} [data-testid="confirmation-description"]`;
 
 export const AggregationSettingsButton =
@@ -1292,13 +1292,14 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
-export const ConfirmationModalInput =
-  '[data-testid="confirmation-modal"] input';
-export const ConfirmationModalConfirmButton = (
+export const ConfirmationModalHeading = `${ConfirmationModal} h1`;
+export const ConfirmationModalInput = `${ConfirmationModal} input`;
+
+export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
 
-export const ConfirmationModalCancelButton = (
+export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
 
