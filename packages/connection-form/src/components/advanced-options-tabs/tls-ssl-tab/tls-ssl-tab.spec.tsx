@@ -25,10 +25,6 @@ describe('SchemaInput', function () {
       const component = render(
         <SSLTab
           connectionStringUrl={testUrl}
-          connectionOptions={{
-            connectionString: testUrl.href,
-            useSystemCA: false,
-          }}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
@@ -170,10 +166,6 @@ describe('SchemaInput', function () {
         rerender(
           <SSLTab
             connectionStringUrl={testUrl}
-            connectionOptions={{
-              connectionString: testUrl.href,
-              useSystemCA: false,
-            }}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
@@ -190,10 +182,6 @@ describe('SchemaInput', function () {
         rerender(
           <SSLTab
             connectionStringUrl={testUrl}
-            connectionOptions={{
-              connectionString: testUrl.href,
-              useSystemCA: false,
-            }}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
@@ -213,10 +201,6 @@ describe('SchemaInput', function () {
         rerender(
           <SSLTab
             connectionStringUrl={testUrl}
-            connectionOptions={{
-              connectionString: testUrl.href,
-              useSystemCA: false,
-            }}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
@@ -276,10 +260,6 @@ describe('SchemaInput', function () {
             rerender(
               <SSLTab
                 connectionStringUrl={testUrl}
-                connectionOptions={{
-                  connectionString: testUrl.href,
-                  useSystemCA: false,
-                }}
                 updateConnectionFormField={updateConnectionFormFieldSpy}
               />
             );
@@ -322,10 +302,6 @@ describe('SchemaInput', function () {
       render(
         <SSLTab
           connectionStringUrl={connectionStringUrl}
-          connectionOptions={{
-            connectionString: connectionStringUrl.href,
-            useSystemCA: false,
-          }}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );

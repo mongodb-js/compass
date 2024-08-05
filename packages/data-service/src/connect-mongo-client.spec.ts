@@ -68,7 +68,6 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
@@ -115,7 +114,6 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         autoEncryption,
         authMechanismProperties: {},
         oidc: {
@@ -152,7 +150,6 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,

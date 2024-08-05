@@ -1,34 +1,16 @@
 import React from 'react';
-import {
-  FormFieldContainer,
-  Checkbox,
-  Description,
-  Label,
-  FileInput,
-  cx,
-} from '@mongodb-js/compass-components';
-import {
-  checkboxDescriptionStyles,
-  disabledCheckboxDescriptionStyles,
-} from './tls-ssl-tab';
+import { FormFieldContainer, FileInput } from '@mongodb-js/compass-components';
 
 function TLSCertificateAuthority({
   tlsCAFile,
-  useSystemCA,
   disabled,
   displayDatabaseConnectionUserHints = true,
   handleTlsOptionChanged,
-  hideUseSystemCA,
 }: {
   tlsCAFile?: string | null;
-  useSystemCA: boolean;
-  hideUseSystemCA?: boolean;
   disabled: boolean;
   displayDatabaseConnectionUserHints?: boolean;
-  handleTlsOptionChanged: (
-    key: 'tlsCAFile' | 'useSystemCA',
-    value: string | null
-  ) => void;
+  handleTlsOptionChanged: (key: 'tlsCAFile', value: string | null) => void;
 }): React.ReactElement {
   return (
     <>
@@ -37,7 +19,7 @@ function TLSCertificateAuthority({
           description={
             displayDatabaseConnectionUserHints ? 'Learn More' : undefined
           }
-          disabled={disabled || useSystemCA}
+          disabled={disabled}
           id="tlsCAFile"
           dataTestId="tlsCAFile-input"
           label="Certificate Authority (.pem)"
@@ -55,40 +37,6 @@ function TLSCertificateAuthority({
           optional
         />
       </FormFieldContainer>
-
-      {
-        /* TODO(COMPASS-5635): Enable unconditionally */ !hideUseSystemCA && (
-          <FormFieldContainer>
-            {' '}
-            <Checkbox
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                handleTlsOptionChanged(
-                  'useSystemCA',
-                  event.target.checked ? 'true' : null
-                );
-              }}
-              data-testid="useSystemCA-input"
-              id="useSystemCA-input"
-              label={
-                <>
-                  <Label htmlFor="useSystemCA-input">
-                    Use System Certificate Authority
-                  </Label>
-                  <Description
-                    className={cx(checkboxDescriptionStyles, {
-                      [disabledCheckboxDescriptionStyles]: disabled,
-                    })}
-                  >
-                    Use the operating system’s Certificate Authority store.
-                  </Description>
-                </>
-              }
-              disabled={disabled}
-              checked={useSystemCA}
-            />
-          </FormFieldContainer>
-        )
-      }
     </>
   );
 }

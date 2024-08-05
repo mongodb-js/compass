@@ -58,7 +58,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -92,7 +91,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -131,7 +129,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -170,7 +167,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -215,7 +211,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -260,7 +255,6 @@ describe('Connection form', function () {
       tlsInsecure: true,
       tlsAllowInvalidHostnames: true,
       tlsAllowInvalidCertificates: true,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -289,26 +283,6 @@ describe('Connection form', function () {
     );
   });
 
-  it('parses and formats a URI for TLS with system CA', async function () {
-    const fixturesPath = path.resolve(__dirname, '..', 'fixtures');
-    const tlsCAFile = path.join(fixturesPath, 'ca.pem');
-
-    await browser.setConnectFormState({
-      hosts: ['localhost:27017'],
-      sslConnection: 'ON',
-      tlsCAFile,
-      useSystemCA: true,
-    });
-
-    const state = await browser.getConnectFormState();
-    expect(state.tlsCAFile).to.equal(undefined); // tlsCAFile is unset by useSystemCA
-    expect(state.useSystemCA).to.equal(true);
-
-    expect(
-      await browser.$(Selectors.ConnectionFormStringInput).getValue()
-    ).to.equal('mongodb://localhost:27017/?tls=true');
-  });
-
   it('parses and formats a URI for Kerberos authentication', async function () {
     const connectionString =
       'mongodb://principal@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
@@ -333,7 +307,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -375,7 +348,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -419,7 +391,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -465,7 +436,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -506,7 +476,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'primary',
       replicaSet: 'replica-set',
       defaultDatabase: 'default-db',
@@ -559,7 +528,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -606,7 +574,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -651,7 +618,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -778,7 +744,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -831,7 +796,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
     });
   });
 

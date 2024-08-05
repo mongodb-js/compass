@@ -78,7 +78,7 @@
     "@mongodb-js/compass-telemetry": "^1.1.2",
     "@mongodb-js/compass-user-data": "^0.3.2",
     "@mongodb-js/compass-utils": "^0.6.8",
-    "@mongodb-js/devtools-connect": "^3.0.1",
+    "@mongodb-js/devtools-connect": "^3.2.2",
     "@mongodb-js/oidc-plugin": "^1.0.0",
     "hadron-app-registry": "^9.2.1",
     "compass-preferences-model": "^2.25.1",

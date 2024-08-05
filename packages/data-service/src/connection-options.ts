@@ -27,11 +27,6 @@ export interface ConnectionOptions {
   sshTunnel?: ConnectionSshOptions;
 
   /**
-   * If true, the connection uses the system CA store instead of tlsCAFile or the default Node.js store.
-   */
-  useSystemCA?: boolean;
-
-  /**
    * If present the connection should use OIDC authentication.
    */
   oidc?: OIDCOptions;
