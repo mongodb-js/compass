@@ -20,6 +20,7 @@ import type {
 import SshTunnelIdentity from './ssh-tunnel-identity';
 import SshTunnelPassword from './ssh-tunnel-password';
 import Socks from './socks';
+import { AppLevelProxy } from './app-proxy';
 import type { ConnectionFormError } from '../../../utils/validation';
 
 interface TabOption {
@@ -61,6 +62,12 @@ const options: TabOption[] = [
     type: 'socks',
     component: Socks,
   },
+  {
+    title: 'Application-level Proxy',
+    id: 'app-proxy',
+    type: 'app-proxy',
+    component: AppLevelProxy,
+  },
 ];
 
 const contentStyles = css({
@@ -73,13 +80,13 @@ const getSelectedTunnelType = (
 ): TunnelType => {
   const searchParams =
     connectionStringUrl.typedSearchParams<MongoClientOptions>();
-  const isUsingProxy =
+  const isUsingSocksProxy =
     searchParams.get('proxyHost') ||
     searchParams.get('proxyPort') ||
     searchParams.get('proxyUsername') ||
     searchParams.get('proxyPassword');
 
-  if (isUsingProxy) {
+  if (isUsingSocksProxy) {
     return 'socks';
   }
 
