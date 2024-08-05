@@ -15,6 +15,11 @@ import {
   type ConnectionStorage,
   ConnectionStorageEvents,
 } from '@mongodb-js/connection-storage/provider';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -64,6 +69,7 @@ describe('WorkspacesPlugin', function () {
       connectionString: 'mongodb://localhost:27017',
     },
   };
+  let preferences: PreferencesAccess;
 
   function renderPlugin() {
     const Modals: React.FC = () => {
@@ -71,29 +77,31 @@ describe('WorkspacesPlugin', function () {
       return null;
     };
     return render(
-      <ConnectionStorageProvider value={connectionStorage}>
-        <WorkspacesProvider
-          value={[
-            mockWorkspace('Welcome'),
-            mockWorkspace('My Queries'),
-            mockWorkspace('Databases'),
-            mockWorkspace('Performance'),
-            mockWorkspace('Collections'),
-            mockWorkspace('Collection'),
-          ]}
-        >
-          <Plugin
-            onActiveWorkspaceTabChange={onTabChangeSpy}
-            renderModals={() => {
-              return <Modals />;
-            }}
-          ></Plugin>
-        </WorkspacesProvider>
-      </ConnectionStorageProvider>
+      <PreferencesProvider value={preferences}>
+        <ConnectionStorageProvider value={connectionStorage}>
+          <WorkspacesProvider
+            value={[
+              mockWorkspace('Welcome'),
+              mockWorkspace('My Queries'),
+              mockWorkspace('Databases'),
+              mockWorkspace('Performance'),
+              mockWorkspace('Collections'),
+              mockWorkspace('Collection'),
+            ]}
+          >
+            <Plugin
+              onActiveWorkspaceTabChange={onTabChangeSpy}
+              renderModals={() => {
+                return <Modals />;
+              }}
+            ></Plugin>
+          </WorkspacesProvider>
+        </ConnectionStorageProvider>
+      </PreferencesProvider>
     );
   }
 
-  beforeEach(function () {
+  beforeEach(async function () {
     sandbox
       .stub(connectionsManager, 'getDataServiceForConnection')
       .returns(dataService);
@@ -101,6 +109,10 @@ describe('WorkspacesPlugin', function () {
       .stub(instancesManager, 'getMongoDBInstanceForConnection')
       .returns(instance);
     connectionStorage = new InMemoryConnectionStorage([TEST_CONNECTION_INFO]);
+    preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences({
+      enableNewMultipleConnectionSystem: true,
+    });
   });
 
   afterEach(function () {

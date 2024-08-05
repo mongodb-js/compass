@@ -281,7 +281,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [tabs, collectionInfo, getThemeOf, getConnectionTitleById]);
+  }, [
+    tabs,
+    collectionInfo,
+    getThemeOf,
+    getConnectionTitleById,
+    multipleConnectionsEnabled,
+  ]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
