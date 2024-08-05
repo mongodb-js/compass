@@ -37,7 +37,7 @@ const tabStyles = css({
   paddingBottom: spacing[100], // same as the top border
 
   maxWidth: spacing[800] * 6, // 192px
-  minWidth: spacing[1600] * 2, // 128px
+  minWidth: spacing[1600] + spacing[800], // 96px
   height: spacing[1000],
   position: 'relative',
   outline: 'none',
