@@ -19,7 +19,7 @@ const estimateDocumentInitialHeight = (doc: HadronDocument) => {
   // total size occupied by the "Show more fields" button whenever visible
   const showMoreButtonSize =
     DEFAULT_VISIBLE_FIELDS < doc.elements.size
-      ? 38 //spacing[400] + spacing[400]
+      ? spacing[400] + spacing[200]
       : 0;
   // total size occupied by initially rendered fields
   const visibleFieldsSize =
