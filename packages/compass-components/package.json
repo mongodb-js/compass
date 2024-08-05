@@ -40,7 +40,7 @@
     "@leafygreen-ui/card": "^10.0.6",
     "@leafygreen-ui/checkbox": "^12.1.1",
     "@leafygreen-ui/code": "^14.3.1",
-    "@leafygreen-ui/confirmation-modal": "^5.0.11",
+    "@leafygreen-ui/confirmation-modal": "^5.2.0",
     "@leafygreen-ui/emotion": "^4.0.7",
     "@leafygreen-ui/guide-cue": "^5.0.6",
     "@leafygreen-ui/hooks": "^8.1.2",

@@ -40,6 +40,10 @@ const connectionInfo: ConnectionInfo = {
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
   },
+  favorite: {
+    name: 'localhost',
+    color: 'color_2',
+  },
   savedConnectionType: 'recent',
 };
 
@@ -772,7 +776,7 @@ describe('connection tracking', function () {
     };
 
     trackNewConnectionEvent(connection, dataService, logger, track);
-    const [{ properties }] = await trackEvent;
+    const [{ properties, event }] = await trackEvent;
 
     const expected = {
       is_localhost: true,
@@ -803,6 +807,7 @@ describe('connection tracking', function () {
       connection_id: 'TEST',
     };
 
+    expect(event).to.equal('New Connection');
     expect(properties).to.deep.equal(expected);
   });
 });

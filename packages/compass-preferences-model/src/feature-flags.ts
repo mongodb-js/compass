@@ -79,7 +79,7 @@ export const featureFlags: Required<{
    * Feature flag for adding query history items to the query bar autocompletion. COMPASS-8096
    */
   enableQueryHistoryAutocomplete: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short:
         'Enables showing query history items in the query bar autocomplete.',

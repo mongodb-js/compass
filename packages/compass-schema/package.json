@@ -91,7 +91,7 @@
     "leaflet-draw": "^1.0.4",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "mongodb": "^6.7.0",
+    "mongodb": "^6.8.0",
     "mongodb-query-util": "^2.2.4",
     "mongodb-schema": "^12.2.0",
     "numeral": "^1.5.6",
