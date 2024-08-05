@@ -101,11 +101,9 @@ describe('databases and collections list', function () {
 
       render(
         <CollectionsList
-          connectionTitle="My Connection"
-          databaseName="My Database"
+          namespace="db"
           collections={colls}
           onCollectionClick={clickSpy}
-          onClickConnectionBreadcrumb={() => {}}
         ></CollectionsList>
       );
 
@@ -122,32 +120,11 @@ describe('databases and collections list', function () {
       expect(clickSpy).to.be.calledWith('bar.bar');
     });
 
-    it('should notify when the connection name is clicked', function () {
-      const clickSpy = Sinon.spy();
-      const connectionClickSpy = Sinon.spy();
-
-      render(
-        <CollectionsList
-          connectionTitle="My Connection"
-          databaseName="My Database"
-          collections={colls}
-          onClickConnectionBreadcrumb={connectionClickSpy}
-          onCollectionClick={clickSpy}
-        ></CollectionsList>
-      );
-
-      userEvent.click(screen.getByText('My Connection'));
-
-      expect(connectionClickSpy).to.be.called;
-    });
-
     it('should not display statistics (except storage size) on timeseries collection card', function () {
       render(
         <CollectionsList
-          connectionTitle="My Connection"
-          databaseName="My Database"
+          namespace="db"
           collections={colls}
-          onClickConnectionBreadcrumb={() => {}}
           onCollectionClick={() => {}}
         ></CollectionsList>
       );

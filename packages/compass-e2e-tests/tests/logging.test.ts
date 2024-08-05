@@ -5,6 +5,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -13,11 +14,6 @@ import type { Telemetry, LogEntry } from '../helpers/telemetry';
 describe('Logging and Telemetry integration', function () {
   before(function () {
     skipForWeb(this, 'telemetry not yet available in compass-web');
-
-    // TODO(COMPASS-8004): skipping for multiple connections due to the use of shellEval for now
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
   });
 
   describe('after running an example path through Compass', function () {
@@ -31,8 +27,17 @@ describe('Logging and Telemetry integration', function () {
 
       try {
         await browser.connectWithConnectionString();
-        await browser.shellEval('use test');
-        await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
+
+        if (TEST_MULTIPLE_CONNECTIONS) {
+          // make sure we generate the screen event that the tests expect
+          await browser.navigateToMyQueries();
+        }
+
+        await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
+        await browser.shellEval(
+          DEFAULT_CONNECTION_NAME,
+          'db.runCommand({ connectionStatus: 1 })'
+        );
       } finally {
         await cleanup(compass);
         await telemetry.stop();
@@ -136,6 +141,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.match(/^(x64|arm64)$/);
+            expect(actual.missingOptionalDeps).to.deep.equal([]);
           },
         },
         {

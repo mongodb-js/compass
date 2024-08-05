@@ -126,6 +126,46 @@ describe('explain-plan-plan', function () {
         expect(plan.isCovered).to.equal(false);
       });
     });
+
+    describe('Express plans', function () {
+      it('should have the correct `usedIndexes` value in EXPRESS_IXSCAN', async function () {
+        plan = await loadExplainFixture('express_index_scan.json');
+        expect(plan.usedIndexes).to.deep.equal([
+          { fields: { a: 1, b: 1 }, index: 'a_1_b_1', shard: null },
+        ]);
+      });
+      it('should have the correct `isCovered` value in EXPRESS_IXSCAN', async function () {
+        plan = await loadExplainFixture('express_index_scan.json');
+        expect(plan.isCovered, 'totalDocsExamined is > 0').to.be.false;
+        plan.totalDocsExamined = 0;
+        expect(plan.isCovered, 'totalDocsExamined is = 0').to.be.true;
+      });
+
+      it('returns CLUSTERED indexType for EXPRESS_CLUSTERED_IXSCAN', async function () {
+        plan = await loadExplainFixture('express_clustered_scan.json');
+        expect(plan.isClusteredScan).to.be.true;
+        expect(plan.indexType).to.equal('CLUSTERED');
+        expect(plan.usedIndexes).to.deep.equal([]);
+      });
+
+      it('returns CLUSTERED indexType for CLUSTERED_IXSCAN', async function () {
+        plan = await loadExplainFixture('clustered_scan.json');
+        expect(plan.isClusteredScan).to.be.true;
+        expect(plan.indexType).to.equal('CLUSTERED');
+        expect(plan.usedIndexes).to.deep.equal([]);
+      });
+    });
+
+    describe('Count Scan', function () {
+      beforeEach(async function () {
+        plan = await loadExplainFixture('count_scan.json');
+      });
+      it('should have the correct `usedIndexes` value from COUNT_SCAN stage', function () {
+        expect(plan.usedIndexes).to.deep.equal([
+          { fields: { a: 1 }, index: 'a_1', shard: null },
+        ]);
+      });
+    });
   });
 
   context('Edge Cases', function () {

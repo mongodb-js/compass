@@ -9,42 +9,44 @@ describe('validation autocompleter', function () {
 
   after(cleanup);
 
-  it('returns $jsonSchema by default', function () {
+  it('returns $jsonSchema by default', async function () {
     const completions = getCompletions('');
-    expect(completions.map((x) => x.label)).to.deep.equal(['$jsonSchema']);
+    expect((await completions).map((x) => x.label)).to.deep.equal([
+      '$jsonSchema',
+    ]);
   });
 
-  it('returns query operators when completing at root', function () {
+  it('returns query operators when completing at root', async function () {
     const completions = getCompletions('{ $');
-    expect(completions).to.have.lengthOf(33);
+    expect(await completions).to.have.lengthOf(33);
   });
 
-  it('returns field names when autocompleting required', function () {
+  it('returns field names when autocompleting required', async function () {
     const completions = getCompletions('{ $jsonSchema: { required: ["i', {
       fields: ['_id', 'name', 'age'],
     });
-    expect(completions.map((x) => x.label)).to.deep.equal([
+    expect((await completions).map((x) => x.label)).to.deep.equal([
       '_id',
       'name',
       'age',
     ]);
   });
 
-  it('returns bson type when autocompleting bsonType as a string', function () {
+  it('returns bson type when autocompleting bsonType as a string', async function () {
     const completions = getCompletions('{ $jsonSchema: { bsonType: "a');
-    expect(completions).to.have.lengthOf(19);
+    expect(await completions).to.have.lengthOf(19);
   });
 
-  it('returns bson type when autocompleting bsonType as a array', function () {
+  it('returns bson type when autocompleting bsonType as a array', async function () {
     const completions = getCompletions('{ $jsonSchema: { bsonType: ["a');
-    expect(completions).to.have.lengthOf(19);
+    expect(await completions).to.have.lengthOf(19);
   });
 
-  it('returns field names when autocompleting properties', function () {
+  it('returns field names when autocompleting properties', async function () {
     const completions = getCompletions('{ $jsonSchema: { properties: { "a', {
       fields: ['_id', 'name', 'age'],
     });
-    expect(completions.map((x) => x.label)).to.deep.equal([
+    expect((await completions).map((x) => x.label)).to.deep.equal([
       '_id',
       'name',
       'age',

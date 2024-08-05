@@ -161,18 +161,22 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         case 'Welcome':
           return {
             id: tab.id,
+            type: tab.type,
             title: tab.type,
             iconGlyph: 'Logo',
           } as const;
         case 'My Queries':
           return {
             id: tab.id,
+            type: tab.type,
             title: tab.type,
             iconGlyph: 'CurlyBraces',
           } as const;
         case 'Shell':
           return {
             id: tab.id,
+            connectionName: getConnectionTitleById(tab.connectionId),
+            type: tab.type,
             title: getConnectionTitleById(tab.connectionId) ?? 'MongoDB Shell',
             iconGlyph: 'Shell',
             tabTheme: getThemeOf(tab.connectionId),
@@ -180,6 +184,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         case 'Databases':
           return {
             id: tab.id,
+            connectionName: getConnectionTitleById(tab.connectionId),
+            type: tab.type,
             title: tab.type,
             iconGlyph: 'Database',
             tabTheme: getThemeOf(tab.connectionId),
@@ -187,6 +193,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         case 'Performance':
           return {
             id: tab.id,
+            connectionName: getConnectionTitleById(tab.connectionId),
+            type: tab.type,
             title: tab.type,
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
@@ -194,6 +202,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         case 'Collections':
           return {
             id: tab.id,
+            connectionName: getConnectionTitleById(tab.connectionId),
+            type: tab.type,
             title: tab.namespace,
             iconGlyph: 'Database',
             'data-namespace': tab.namespace,
@@ -218,6 +228,8 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             : `${database} > ${collection}`;
           return {
             id: tab.id,
+            connectionName: getConnectionTitleById(tab.connectionId),
+            type: tab.type,
             title: collection,
             subtitle,
             iconGlyph:
@@ -243,8 +255,17 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         const Component = getWorkspacePluginByName(activeTab.type);
         return <Component></Component>;
       }
-
-      case 'Shell':
+      case 'Shell': {
+        const Component = getWorkspacePluginByName(activeTab.type);
+        return (
+          <ConnectionInfoProvider connectionInfoId={activeTab.connectionId}>
+            <Component
+              initialEvaluate={activeTab.initialEvaluate}
+              initialInput={activeTab.initialInput}
+            ></Component>
+          </ConnectionInfoProvider>
+        );
+      }
       case 'Performance':
       case 'Databases': {
         const Component = getWorkspacePluginByName(activeTab.type);

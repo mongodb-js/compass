@@ -10,6 +10,8 @@ import { activateIndexesPlugin } from '../src/stores/store';
 import { createActivateHelpers } from 'hadron-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { ConnectionInfo } from '../../connection-info/dist';
+import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -79,6 +81,10 @@ export const setupStore = (
     getStore: Sinon.spy(),
   } as unknown as AppRegistry;
 
+  const connectionInfoAccess: ConnectionInfoAccess = {
+    getCurrentConnectionInfo: () => ({ id: 'TEST' } as ConnectionInfo),
+  };
+
   return activateIndexesPlugin(
     {
       namespace: 'citibike.trips',
@@ -94,6 +100,7 @@ export const setupStore = (
       instance: fakeInstance as any,
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
+      connectionInfoAccess,
       ...services,
     },
     createActivateHelpers()

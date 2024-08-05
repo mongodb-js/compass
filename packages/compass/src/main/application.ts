@@ -101,6 +101,9 @@ class CompassApplication {
       safeStorage.setUsePlainTextEncryption(true);
     }
 
+    // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
+    // https://github.com/electron/electron/issues/33640
+    await app.whenReady();
     log.info(
       mongoLogId(1_001_000_307),
       'Application',
@@ -229,6 +232,12 @@ class CompassApplication {
       'license:disagree': function () {
         debug('Did not agree to license, quitting app.');
         app.quit();
+      },
+      'compass:check-secret-storage-is-available': async function () {
+        // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
+        // https://github.com/electron/electron/issues/33640
+        await app.whenReady();
+        return safeStorage.isEncryptionAvailable();
       },
     });
 

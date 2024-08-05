@@ -1,17 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation-modal';
 import ConfirmationModal from '../components/modals/confirmation-modal';
+import { css } from '@leafygreen-ui/emotion';
 
 export { ConfirmationModalVariant };
 
 type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
 
 type ConfirmationProperties = Partial<
-  Pick<
-    ConfirmationModalProps,
-    'title' | 'buttonText' | 'variant' | 'requiredInputText'
-  >
+  Pick<ConfirmationModalProps, 'title' | 'variant' | 'requiredInputText'>
 > & {
+  buttonText?: React.ReactNode;
+  cancelButtonText?: React.ReactNode;
+  hideConfirmButton?: boolean;
+  hideCancelButton?: boolean;
   description?: React.ReactNode;
   signal?: AbortSignal;
   'data-testid'?: string;
@@ -84,6 +86,10 @@ const ConfirmationModalContext =
 type ConfirmationModalAreaProps = Partial<
   ShowConfirmationEventDetail['props']
 > & { open: boolean };
+
+const hideButtonStyles = css({
+  display: 'none !important',
+});
 
 export const ConfirmationModalArea: React.FC = ({ children }) => {
   const hasParentContext = useContext(ConfirmationModalContext).isMounted;
@@ -159,10 +165,21 @@ export const ConfirmationModalArea: React.FC = ({ children }) => {
         open={confirmationProps.open}
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
-        buttonText={confirmationProps.buttonText ?? 'Confirm'}
+        confirmButtonProps={{
+          className: confirmationProps.hideConfirmButton
+            ? hideButtonStyles
+            : undefined,
+          children: confirmationProps.buttonText ?? 'Confirm',
+          onClick: handleConfirm,
+        }}
+        cancelButtonProps={{
+          className: confirmationProps.hideCancelButton
+            ? hideButtonStyles
+            : undefined,
+          children: confirmationProps.cancelButtonText ?? 'Cancel',
+          onClick: handleCancel,
+        }}
         requiredInputText={confirmationProps.requiredInputText ?? undefined}
-        onConfirm={handleConfirm}
-        onCancel={handleCancel}
       >
         {confirmationProps.description}
       </ConfirmationModal>

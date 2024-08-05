@@ -5,6 +5,9 @@
   "double": {
     "$numberDouble": "1.2"
   },
+  "doubleThatIsAlsoAnInteger": {
+    "$numberDouble": "1.0"
+  },
   "string": "Hello, world!",
   "object": {
     "key": "value"
@@ -45,7 +48,9 @@
   "javascript": {
     "$code": "function() {}"
   },
-  "symbol": "symbol",
+  "symbol": {
+    "$symbol": "symbol"
+  },
   "javascriptWithScope": {
     "$code": "function() {}",
     "$scope": {

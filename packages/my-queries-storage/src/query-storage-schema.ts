@@ -8,6 +8,7 @@ const queryProps = {
   skip: z.number().optional(),
   limit: z.number().optional(),
   update: z.any().optional(),
+  hint: z.any().optional(),
 };
 
 const commonMetadata = {

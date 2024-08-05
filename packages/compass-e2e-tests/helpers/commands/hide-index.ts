@@ -22,7 +22,7 @@ export async function hideIndex(
     await browser.screenshot(screenshotName);
   }
 
-  await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+  await browser.clickVisible(Selectors.confirmationModalConfirmButton());
 
   await hideModal.waitForDisplayed({ reverse: true });
 

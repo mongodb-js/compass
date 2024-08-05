@@ -6,9 +6,11 @@ import type {
   ClientEncryptionTlsOptions,
   Document,
 } from 'mongodb';
-import type { KMSProviderName } from './csfle-kms-fields';
+import type { KMSProviderName, KMSTLSProviderName } from './csfle-kms-fields';
 import { toJSString } from 'mongodb-query-parser';
-import parseShellStringToEJSON, { ParseMode } from 'ejson-shell-parser';
+import parseShellStringToEJSON, {
+  ParseMode,
+} from '@mongodb-js/shell-bson-parser';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
@@ -38,7 +40,7 @@ export interface UpdateCsfleKmsAction {
 
 export interface UpdateCsfleKmsTlsAction {
   type: 'update-csfle-kms-tls-param';
-  kmsProvider: KMSProviderName;
+  kmsProvider: KMSTLSProviderName;
   key: keyof ClientEncryptionTlsOptions;
   value?: string;
 }

@@ -9,6 +9,7 @@ import {
   screenshotIfFailed,
   TEST_COMPASS_WEB,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -122,7 +123,12 @@ describe('Collection documents tab', function () {
     await createNumbersCollection();
     await createNestedDocumentsCollection('nestedDocs', 10);
     await browser.connectWithConnectionString();
-    await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Documents'
+    );
 
     if (!TEST_COMPASS_WEB) {
       // setFeature/getFeature is not supported in compass-web yet
@@ -155,6 +161,10 @@ describe('Collection documents tab', function () {
 
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
+
+    expect(queryExecutedEvent.connection_id).to.exist;
+    delete queryExecutedEvent.connection_id; // connection_id varies
+
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
       collection_type: 'collection',
@@ -190,6 +200,10 @@ describe('Collection documents tab', function () {
 
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
+
+    expect(queryExecutedEvent.connection_id).to.exist;
+    delete queryExecutedEvent.connection_id; // connection_id varies
+
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
       collection_type: 'collection',
@@ -622,7 +636,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
-      await browser.navigateToCollectionTab('test', 'nestedDocs', 'Documents');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'test',
+        'nestedDocs',
+        'Documents'
+      );
     });
 
     it('expands and collapses all fields in a document', async function () {
