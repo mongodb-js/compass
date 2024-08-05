@@ -21,14 +21,19 @@ const tabTransition = '.16s ease-in-out';
 
 const tabStyles = css({
   display: 'grid',
+  gridTemplateAreas: `
+    "top top top"
+    "icon text close"
+  `,
+  gridRowGap: 0,
+  gridColumnGap: spacing[200],
+  gridTemplateRows: `${spacing[100]}px 1fr`,
   gridTemplateColumns: 'min-content 1fr min-content',
   '&:hover, &:focus-visible, &:focus-within:not(:focus)': {
     gridTemplateColumns: 'min-content 1fr min-content',
   },
   alignItems: 'center',
-  gap: spacing[200],
 
-  borderTop: `${spacing[100]}px solid var(--workspace-tab-top-border-color)`,
   paddingBottom: spacing[100], // same as the top border
 
   maxWidth: spacing[800] * 6, // 192px
@@ -66,6 +71,16 @@ const tabStyles = css({
     position: 'absolute',
     right: spacing[100],
     bottom: spacing[100] + spacing[50],
+  },
+
+  // instead of topBorder we use a pseudoelement, so that we can programmaticaly adjust the colors
+  '&::before': {
+    content: '""',
+    backgroundColor: 'var(--workspace-tab-top-border-color)',
+    height: spacing[100],
+    width: '100%',
+    display: 'block',
+    gridArea: 'top',
   },
 });
 
@@ -120,22 +135,9 @@ const selectedTabStyles = css({
     cursor: 'default',
   },
 
-  // this borderTop is a pseudoelement, so that we can use filter to adjust the colors
-  borderTop: 'none',
-  gridTemplateAreas: `
-    "top top top"
-    "icon text close"
-  `,
-  gridRowGap: 0,
-  gridTemplateRows: `${spacing[100]}px 1fr`,
   '&::before': {
-    content: '""',
     backgroundColor: 'var(--workspace-tab-selected-top-border-color)',
-    height: spacing[100],
-    width: '100%',
-    display: 'block',
     filter: 'brightness(0.85) saturate(2)',
-    gridArea: 'top',
   },
 });
 
@@ -238,16 +240,12 @@ function Tab({
   return (
     <Tooltip
       isDisabled={!tooltip}
-      delay={0}
-      closeDelay={0}
-      trigger={({ children, ref: setTriggerRef, ...props }) => {
+      delay={300}
+      trigger={({ children, ...props }) => {
         return (
           <div
             {...props}
-            ref={(element) => {
-              setNodeRef(element);
-              setTriggerRef(element);
-            }}
+            ref={setNodeRef}
             style={style}
             className={cx(
               tabStyles,

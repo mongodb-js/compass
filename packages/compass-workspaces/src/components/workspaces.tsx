@@ -41,6 +41,7 @@ import {
   useTabConnectionTheme,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 type Tooltip = [string, string][];
 
@@ -156,6 +157,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionTitleById } = useConnectionRepository();
+  const multipleConnectionsEnabled = usePreference(
+    'enableNewMultipleConnectionSystem'
+  );
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -198,7 +202,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: connectionName,
+            title: multipleConnectionsEnabled ? connectionName : tab.type,
             tooltip: [['Connection', connectionName || '']] as Tooltip,
             iconGlyph: 'Server',
             tabTheme: getThemeOf(tab.connectionId),
@@ -210,7 +214,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             id: tab.id,
             connectionName,
             type: tab.type,
-            title: `Performance: ${connectionName}`,
+            title: multipleConnectionsEnabled
+              ? `Performance: ${connectionName}`
+              : tab.type,
             tooltip: [['Performance', connectionName || '']] as Tooltip,
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
