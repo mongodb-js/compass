@@ -175,7 +175,7 @@ export type TabProps = {
   tooltip?: [string, string][];
   connectionId?: string;
   iconGlyph: Extract<keyof typeof glyphs, string> | 'Logo' | 'Server';
-} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'>;
+} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,

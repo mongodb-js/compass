@@ -141,10 +141,7 @@ const selectedTabStyles = css({
   },
 });
 
-const selectedThemedTabStyles = css({
-  borderTop: 'transparent',
-  paddingTop: 0,
-});
+const selectedThemedTabStyles = css({});
 
 const draggingTabStyles = css({
   cursor: 'grabbing !important',
