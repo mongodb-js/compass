@@ -23,7 +23,12 @@ export {
   getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
-export { getActiveUser, isAIFeatureEnabled } from './utils';
+export {
+  getActiveUser,
+  isAIFeatureEnabled,
+  proxyPreferenceToProxyOptions,
+  proxyOptionsToProxyPreference,
+} from './utils';
 export { setupPreferencesAndUser } from './compass-utils';
 export type { User, UserStorage } from './user-storage';
 export type { PreferencesAccess };
@@ -33,3 +38,4 @@ export const defaultPreferencesInstance: PreferencesAccess =
 export function createSandboxFromDefaultPreferences(): Promise<PreferencesAccess> {
   return defaultPreferencesInstance.createSandbox();
 }
+export type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
