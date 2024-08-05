@@ -5,6 +5,7 @@ import {
   KeylineCard,
   spacing,
   VirtualList,
+  type VirtualListRef,
   type VirtualListItemRenderer,
 } from '@mongodb-js/compass-components';
 
@@ -36,6 +37,9 @@ export type VirtualizedDocumentJsonViewProps = {
   initialScrollTop?: number;
   scrollTriggerRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
+  __TEST_OVERSCAN_COUNT?: number;
+  __TEST_LIST_HEIGHT?: number;
+  __TEST_LIST_REF?: VirtualListRef;
 } & Pick<
   JSONEditorProps,
   | 'isTimeSeries'
@@ -62,6 +66,9 @@ const VirtualizedDocumentJsonView: React.FC<
   replaceDocument,
   updateDocument,
   openInsertDocumentDialog,
+  __TEST_OVERSCAN_COUNT,
+  __TEST_LIST_HEIGHT,
+  __TEST_LIST_REF,
 }) => {
   const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
     (doc, docRef, docIndex) => {
@@ -106,9 +113,11 @@ const VirtualizedDocumentJsonView: React.FC<
       itemDataTestId="document-json-item"
       // Keeping the overscanCount low here helps us avoid scroll dangling
       // issues
-      overScanCount={1}
+      overScanCount={__TEST_OVERSCAN_COUNT ?? 1}
       initialScrollTop={initialScrollTop}
       scrollableContainerRef={scrollableContainerRef}
+      __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
+      __TEST_LIST_REF={__TEST_LIST_REF}
     ></VirtualList>
   );
 };

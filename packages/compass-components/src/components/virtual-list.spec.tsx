@@ -83,4 +83,16 @@ describe('VirtualList', function () {
     expect(listItems[1].style.height).to.equal('14px');
     expect(listItems[2].style.height).to.equal('500px');
   });
+
+  it('applies the initialScrollTop', function () {
+    const scrollRef = React.createRef<HTMLDivElement>();
+    render(
+      <VirtualList
+        {...defaultProps}
+        initialScrollTop={100}
+        scrollableContainerRef={scrollRef}
+      />
+    );
+    expect(scrollRef.current?.scrollTop).to.equal(100);
+  });
 });

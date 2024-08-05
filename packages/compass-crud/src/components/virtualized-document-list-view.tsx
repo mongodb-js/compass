@@ -5,6 +5,7 @@ import {
   spacing,
   VirtualList,
   type VirtualListItemRenderer,
+  type VirtualListRef,
 } from '@mongodb-js/compass-components';
 
 import { type BSONObject } from '../stores/crud-store';
@@ -40,6 +41,9 @@ type VirtualizedDocumentListViewProps = {
   initialScrollTop?: number;
   scrollTriggerRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
+  __TEST_OVERSCAN_COUNT?: number;
+  __TEST_LIST_HEIGHT?: number;
+  __TEST_LIST_REF?: VirtualListRef;
 } & Pick<
   DocumentProps,
   | 'isTimeSeries'
@@ -65,6 +69,9 @@ const VirtualizedDocumentListView: React.FC<
   replaceDocument,
   updateDocument,
   openInsertDocumentDialog,
+  __TEST_OVERSCAN_COUNT,
+  __TEST_LIST_HEIGHT,
+  __TEST_LIST_REF,
 }) => {
   const docs = useMemo(() => {
     return _docs.map((_doc) => {
@@ -85,6 +92,7 @@ const VirtualizedDocumentListView: React.FC<
           <KeylineCard ref={docRef}>
             <Document
               doc={doc}
+              key={doc.uuid}
               editable={isEditable}
               isTimeSeries={isTimeSeries}
               copyToClipboard={copyToClipboard}
@@ -120,6 +128,9 @@ const VirtualizedDocumentListView: React.FC<
       itemDataTestId="document-list-item"
       initialScrollTop={initialScrollTop}
       scrollableContainerRef={scrollableContainerRef}
+      overScanCount={__TEST_OVERSCAN_COUNT}
+      __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
+      __TEST_LIST_REF={__TEST_LIST_REF}
     ></VirtualList>
   );
 };

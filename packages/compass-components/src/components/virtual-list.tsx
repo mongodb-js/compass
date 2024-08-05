@@ -30,6 +30,8 @@ type ItemData<T> = {
   itemDataTestId?: string;
 };
 
+export type VirtualListRef = React.MutableRefObject<List | null>;
+
 export type VirtualListProps<T> = {
   /** Items to render using the virtual list */
   items: T[];
@@ -96,9 +98,28 @@ export type VirtualListProps<T> = {
    */
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
 
-  // Test only props, not to be used in actual usage ever
+  /**
+   * WARNING: Use only when testing because the AutoSizer will be
+   * disabled during tests
+   *
+   * Renders the VirtualList with the provided width
+   */
   __TEST_LIST_WIDTH?: number;
+
+  /**
+   * WARNING: Use only when testing because the AutoSizer will be
+   * disabled during tests
+   *
+   * Renders the VirtualList with the provided height
+   */
   __TEST_LIST_HEIGHT?: number;
+
+  /**
+   * WARNING: Use only when testing
+   *
+   * Mutable Ref object to hold the reference to the VariableSizeList
+   */
+  __TEST_LIST_REF?: VirtualListRef;
 };
 
 export function VirtualList<T>({
@@ -115,12 +136,14 @@ export function VirtualList<T>({
   scrollableContainerRef,
   __TEST_LIST_WIDTH = 1024,
   __TEST_LIST_HEIGHT = 768,
+  __TEST_LIST_REF,
 }: VirtualListProps<T>) {
   const listRef = useRef<List | null>(null);
+  const inUseListRef = __TEST_LIST_REF ?? listRef;
   const { observer, estimatedItemSize, getItemSize } =
     useVirtualListItemObserver({
       rowGap,
-      listRef,
+      listRef: inUseListRef,
       items,
       estimateItemInitialHeight,
     });
@@ -147,7 +170,7 @@ export function VirtualList<T>({
       <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
         {({ width, height }: { width: number; height: number }) => (
           <List<ItemData<T>>
-            ref={listRef}
+            ref={inUseListRef}
             width={isTestEnv ? __TEST_LIST_WIDTH : width}
             height={isTestEnv ? __TEST_LIST_HEIGHT : height}
             itemData={itemData}
