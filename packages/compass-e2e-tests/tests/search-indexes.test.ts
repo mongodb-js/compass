@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  MONGODB_TEST_SERVER_PORT,
+  DEFAULT_CONNECTION_STRING,
   Selectors,
   serverSatisfies,
   skipForWeb,
@@ -22,7 +22,7 @@ type Connection = {
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    connectionString: `mongodb://localhost:${MONGODB_TEST_SERVER_PORT}/test`,
+    connectionString: DEFAULT_CONNECTION_STRING,
   },
   {
     name: 'Atlas Free Cluster',
