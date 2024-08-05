@@ -7,6 +7,7 @@ import thunk from 'redux-thunk';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
 import { PreferencesSandbox } from './preferences-sandbox';
+import type { SettingsTabId } from './settings';
 import { openModal, reducer as settingsReducer } from './settings';
 import atlasLoginReducer, {
   getUserInfo,
@@ -87,17 +88,19 @@ const onActivated = (_: unknown, services: SettingsPluginServices) => {
   const store = configureStore(services);
   const { globalAppRegistry } = services;
 
-  const onOpenSettings = () => {
-    void store.dispatch(openModal());
+  const onOpenSettings = (tabId?: SettingsTabId) => {
+    void store.dispatch(openModal(tabId));
   };
 
-  ipcRenderer?.on('window:show-settings', onOpenSettings);
+  ipcRenderer?.on('window:show-settings', () => onOpenSettings());
   globalAppRegistry.on('open-compass-settings', onOpenSettings);
 
   return {
     store,
     deactivate() {
-      ipcRenderer?.removeListener('window:show-settings', onOpenSettings);
+      ipcRenderer?.removeListener('window:show-settings', () =>
+        onOpenSettings()
+      );
       globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
     },
   };
