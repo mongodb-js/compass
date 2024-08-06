@@ -6,7 +6,7 @@ import type {
   RenderHookResult,
 } from '@testing-library/react-hooks';
 import { renderHook, act } from '@testing-library/react-hooks';
-import { useImportConnections } from './use-import';
+import { useImportConnections } from './use-import-connections';
 import type { ImportExportResult } from './common';
 import os from 'os';
 import path from 'path';
@@ -334,7 +334,10 @@ describe('useImportConnections', function () {
     expect(await finishedPromise).to.equal('succeeded');
     expect(importConnectionsStub).to.have.been.calledOnce;
     const arg = importConnectionsStub.firstCall.args[0];
-    expect(arg?.options?.trackingProps).to.deep.equal({ context: 'Tests' });
+    expect(arg?.options?.trackingProps).to.deep.equal({
+      context: 'Tests',
+      connection_ids: ['id2'],
+    });
     expect(arg?.options?.filterConnectionIds).to.deep.equal(['id2']);
   });
 

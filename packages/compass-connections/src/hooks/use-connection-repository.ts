@@ -104,11 +104,12 @@ export function useConnectionRepository(): ConnectionRepository {
   useEffect(() => {
     async function updateListsOfConnections() {
       const allConnections = (await storage.loadAll()) || [];
-      const favoriteConnections = allConnections
+
+      const newFavoriteConnections = allConnections
         .filter((connection) => connection.savedConnectionType === 'favorite')
         .sort(sortedAlphabetically);
 
-      const nonFavoriteConnections = allConnections
+      const newNonFavoriteConnections = allConnections
         .filter(
           ({ savedConnectionType }) =>
             savedConnectionType !== 'favorite' &&
@@ -121,18 +122,18 @@ export function useConnectionRepository(): ConnectionRepository {
       );
 
       setFavoriteConnections((prevList) => {
-        if (areConnectionsEqual(prevList, favoriteConnections)) {
+        if (areConnectionsEqual(prevList, newFavoriteConnections)) {
           return prevList;
         } else {
-          return favoriteConnections;
+          return newFavoriteConnections;
         }
       });
 
       setNonFavoriteConnections((prevList) => {
-        if (areConnectionsEqual(prevList, nonFavoriteConnections)) {
+        if (areConnectionsEqual(prevList, newNonFavoriteConnections)) {
           return prevList;
         } else {
-          return nonFavoriteConnections;
+          return newNonFavoriteConnections;
         }
       });
 

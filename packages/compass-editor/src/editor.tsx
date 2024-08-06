@@ -351,6 +351,23 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
           backgroundPosition: 'center',
         },
       },
+      '& .cm-completionIcon-favorite': {
+        marginRight: `${spacing[200]}px`,
+        '&:after': {
+          content: '""',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '16px',
+          height: '16px',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.65373 0.832474C5.78183 0.524491 6.21813 0.52449 6.34622 0.832474L7.49904 3.60417C7.55301 3.73401 7.67511 3.82272 7.81528 3.83396L10.8076 4.07385C11.1401 4.1005 11.2749 4.51545 11.0216 4.73244L8.74176 6.68534C8.63496 6.77682 8.58839 6.92036 8.62101 7.05714L9.31746 9.9771C9.39486 10.3015 9.04191 10.558 8.75729 10.3841L6.19545 8.8194C6.07544 8.74612 5.92451 8.74612 5.80451 8.8194L3.2427 10.3841C2.95804 10.558 2.60507 10.3015 2.68246 9.9771L3.37898 7.05714C3.41161 6.92036 3.36497 6.77682 3.25817 6.68534L0.978375 4.73244C0.725048 4.51545 0.859867 4.1005 1.19236 4.07385L4.18464 3.83396C4.32481 3.82272 4.44691 3.73401 4.50092 3.60417L5.65373 0.832474Z' fill='${encodeURIComponent(
+            editorPalette[theme].autocompleteColor
+          )}'/%3E%3C/svg%3E")`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        },
+      },
       '& .cm-completionIcon-field': {
         marginRight: `${spacing[50]}px`,
         display: 'flex',
@@ -912,6 +929,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         ? autocompletion({
             activateOnTyping: true,
             override: [completer],
+            maxRenderedOptions: 50,
           })
         : [];
     },

@@ -1,0 +1,74 @@
+{
+  "explainVersion": "1",
+  "queryPlanner": {
+    "namespace": "airbnb.cs",
+    "parsedQuery": { "_id": { "$eq": 0 } },
+    "indexFilterSet": false,
+    "queryHash": "9B5DE45B",
+    "planCacheKey": "869EB007",
+    "optimizationTimeMillis": 0,
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "prunedSimilarIndexes": false,
+    "winningPlan": {
+      "isCached": false,
+      "stage": "EXPRESS_CLUSTERED_IXSCAN"
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": 1,
+    "executionTimeMillis": 0,
+    "totalKeysExamined": 0,
+    "totalDocsExamined": 1,
+    "executionStages": {
+      "isCached": false,
+      "stage": "EXPRESS_CLUSTERED_IXSCAN",
+      "keysExamined": 0,
+      "docsExamined": 1,
+      "nReturned": 1
+    },
+    "allPlansExecution": []
+  },
+  "command": {
+    "find": "cs",
+    "filter": { "_id": 0 },
+    "skip": 0,
+    "limit": 0,
+    "maxTimeMS": 60000,
+    "$db": "airbnb"
+  },
+  "serverInfo": {
+    "host": "M-N3QTPH34HC",
+    "port": 0,
+    "version": "8.0.0-rc15",
+    "gitVersion": "c478945a729858aa04ccdbe17a35d0841ae6af35"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600,
+    "internalQueryFrameworkControl": "trySbeRestricted",
+    "internalQueryPlannerIgnoreIndexWithCollationForRegex": 1
+  },
+  "ok": 1,
+  "$clusterTime": {
+    "clusterTime": {
+      "$timestamp": "7397415198321016833"
+    },
+    "signature": {
+      "hash": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "keyId": 0
+    }
+  },
+  "operationTime": {
+    "$timestamp": "7397415198321016833"
+  }
+}

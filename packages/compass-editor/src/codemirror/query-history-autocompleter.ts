@@ -14,6 +14,7 @@ import { highlightCode } from '@lezer/highlight';
 import { type CodemirrorThemeType, highlightStyles } from '../editor';
 
 export type SavedQuery = {
+  type: string;
   lastExecuted: Date;
   queryProperties: {
     [propertyName: string]: any;
@@ -36,7 +37,7 @@ export const createQueryHistoryAutocompleter = (
 
     const options = savedQueries.map((query) => ({
       label: createQuery(query),
-      type: 'query-history',
+      type: query.type === 'recent' ? 'query-history' : 'favorite',
       detail: formatDate(query.lastExecuted.getTime()),
       info: () => createInfo(query, theme).dom,
       apply: () => {

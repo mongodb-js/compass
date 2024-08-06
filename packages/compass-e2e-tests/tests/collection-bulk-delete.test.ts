@@ -84,7 +84,7 @@ describe('Bulk Delete', function () {
       .waitForDisplayed({ reverse: true });
 
     // Press delete in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Check the telemetry
@@ -144,7 +144,7 @@ describe('Bulk Delete', function () {
       .waitForDisplayed({ reverse: true });
 
     // Press cancel in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalCancelButton());
+    await browser.clickVisible(Selectors.confirmationModalCancelButton());
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
 

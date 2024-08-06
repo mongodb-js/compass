@@ -206,7 +206,7 @@ describe('My Queries tab', function () {
     const deleteModal = await browser.$(Selectors.ConfirmationModal);
     await deleteModal.waitForDisplayed();
     const confirmDeleteButton = await browser.$(
-      Selectors.ConfirmationModalConfirmButton()
+      Selectors.confirmationModalConfirmButton()
     );
     await confirmDeleteButton.waitForEnabled();
 
