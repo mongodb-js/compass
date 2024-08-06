@@ -163,4 +163,29 @@ describe('Global Tabs', function () {
       return exists === false;
     });
   });
+
+  it('Should leave open the My Queries tab when disconnecting', async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
+    await browser.navigateToMyQueries();
+
+    const workspaceOptions = {
+      type: 'My Queries',
+    };
+
+    expect(
+      await browser.$(Selectors.workspaceTab(workspaceOptions)).isExisting()
+    ).to.be.true;
+
+    await browser.disconnectAll();
+
+    // give it a moment to see if it got closed in that time
+    await browser.pause(1000);
+
+    expect(
+      await browser.$(Selectors.workspaceTab(workspaceOptions)).isExisting()
+    ).to.be.true;
+  });
 });
