@@ -125,7 +125,10 @@ type ApplyQueryAction = {
 
 export const applyQuery = (
   source: string
-): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
+): QueryBarThunkAction<
+  false | { query: BaseQuery; isFavorite?: boolean },
+  ApplyQueryAction
+> => {
   return (dispatch, getState, { preferences }) => {
     const {
       queryBar: { fields, favoriteQueries },
@@ -141,10 +144,11 @@ export const applyQuery = (
     });
     if (existingFavoriteQuery) {
       void dispatch(updateFavoriteQuery(existingFavoriteQuery));
+      return { query, isFavorite: true };
     } else {
       void dispatch(saveRecentQuery(query));
+      return { query, isFavorite: false };
     }
-    return query;
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
@@ -7,6 +7,7 @@ import {
   palette,
   spacing,
   SignalPopover,
+  StarQuery,
   rafraf,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -141,6 +142,19 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
 
+  const [isFavoriteQuery, setIsFavoriteQuery] = useState<boolean | null>(null);
+  onApply === null
+    ? setIsFavoriteQuery(null)
+    : setIsFavoriteQuery(onApply().attributes.isFavorite);
+  // const handleApply = () => {
+  //   const result = onApply();
+  //   if (result && result === false) {
+  //     setIsFavoriteQuery(null);
+  //   } else {
+  //     setIsFavoriteQuery(result.isFavorite);
+  //   }
+  // };
+
   const commands = useMemo<Command[]>(() => {
     return [
       {
@@ -264,6 +278,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
           ></SignalPopover>
         </div>
       )}
+      <StarQuery showStar={isFavoriteQuery} />
     </div>
   );
 };
