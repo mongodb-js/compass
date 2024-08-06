@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import HadronDocument from 'hadron-document';
 import {
+  css,
   KeylineCard,
   spacing,
   VirtualList,
@@ -10,6 +11,12 @@ import {
 
 import { type BSONObject } from '../stores/crud-store';
 import Document, { type DocumentProps } from './document';
+
+const spacingStyles = css({
+  padding: spacing[400],
+  paddingTop: 0,
+  paddingRight: spacing[150],
+});
 
 const estimateDocumentInitialHeight = (doc: HadronDocument) => {
   const DEFAULT_VISIBLE_FIELDS = 25;
@@ -119,14 +126,9 @@ const VirtualizedDocumentListView: React.FC<
       renderItem={renderItem}
       estimateItemInitialHeight={estimateDocumentInitialHeight}
       rowGap={spacing[200]}
-      useStableScrollbarGutter={true}
-      paddingLeft={spacing[400]}
-      // paddingRight is only 6px because we are using stable scrollbar gutter
-      // which takes 10px already
-      paddingRight={spacing[150]}
-      paddingBottom={spacing[400]}
       dataTestId="document-list"
       itemDataTestId="document-list-item"
+      listOuterContainerClassName={spacingStyles}
       initialScrollTop={initialScrollTop}
       scrollableContainerRef={scrollableContainerRef}
       overScanCount={__TEST_OVERSCAN_COUNT}

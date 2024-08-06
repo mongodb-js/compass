@@ -78,75 +78,11 @@ describe('VirtualList', function () {
     );
 
     const listItems = screen.getAllByTestId('list-item');
-    // The top of each list item is <rowGap> + previous item size
-    expect(listItems[0].style.top).to.equal('0px');
-    expect(listItems[1].style.top).to.equal(`${200 + 4}px`);
-    // top of previous items also gets applied
-    expect(listItems[2].style.top).to.equal(`${200 + 4 + (10 + 4)}px`);
-  });
-
-  it('respects the paddingTop and paddingBottom', function () {
-    render(
-      <VirtualList {...defaultProps} paddingTop={10} paddingBottom={10} />
-    );
-
-    const overflowedContainer = screen.getByTestId(
-      'virtual-list-overflowed-container'
-    );
-    const totalHeightOfDocs = docs.reduce(
-      (totalHeight, { renderHeight }) => totalHeight + renderHeight,
-      0
-    );
-    const totalHeightAddedByPadding = 10 + 10;
-    const expectedHeight = totalHeightOfDocs + totalHeightAddedByPadding;
-    expect(overflowedContainer.style.height).to.equal(`${expectedHeight}px`);
-  });
-
-  it('respects the paddingTop and paddingBottom in conjunction with rowGap', function () {
-    render(
-      <VirtualList
-        {...defaultProps}
-        rowGap={10}
-        paddingTop={10}
-        paddingBottom={10}
-      />
-    );
-
-    const overflowedContainer = screen.getByTestId(
-      'virtual-list-overflowed-container'
-    );
-    const totalHeightOfDocs = docs.reduce(
-      (totalHeight, { renderHeight }) => totalHeight + renderHeight,
-      0
-    );
-    const totalHeightAddedByPadding = 10 + 10;
-    // Because gaps are inserted after first item
-    const totalHeightAddedByRowGap = 10 * (docs.length - 1);
-    const expectedHeight =
-      totalHeightOfDocs + totalHeightAddedByPadding + totalHeightAddedByRowGap;
-    expect(overflowedContainer.style.height).to.equal(`${expectedHeight}px`);
-  });
-
-  it('respects the paddingLeft and paddingRight', function () {
-    render(
-      <VirtualList
-        {...defaultProps}
-        paddingLeft={10}
-        paddingRight={10}
-        itemDataTestId="list-item"
-      />
-    );
-
-    const listItems = screen.getAllByTestId('list-item');
-    // The top of each list item is <rowGap> + previous item size
-    expect(listItems[0].style.left).to.equal('10px');
-    expect(listItems[0].style.width).to.equal('calc(100% - 20px)');
-
-    expect(listItems[1].style.left).to.equal('10px');
-    expect(listItems[1].style.width).to.equal('calc(100% - 20px)');
-
-    expect(listItems[2].style.left).to.equal('10px');
-    expect(listItems[2].style.width).to.equal('calc(100% - 20px)');
+    // The height of each list item is <rowGap> + item size
+    expect(listItems[0].style.height).to.equal(`${200 + 4}px`);
+    expect(listItems[1].style.height).to.equal(`${10 + 4}px`);
+    // last item does not get a height change
+    expect(listItems[2].style.height).to.equal('500px');
   });
 
   it('applies the initialScrollTop', function () {

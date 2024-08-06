@@ -4,28 +4,12 @@ import {
   type ListChildComponentProps,
 } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { css, cx } from '@leafygreen-ui/emotion';
+import { css } from '@leafygreen-ui/emotion';
 
 import {
   type ListItemObserver,
   useVirtualListItemObserver,
 } from '../hooks/use-virtual-list-item-observer';
-
-const flexContainerStyles = css({
-  width: '100%',
-  height: '100%',
-  position: 'relative',
-  display: 'flex',
-  overflow: 'hidden',
-});
-
-const flexItemStyles = css({
-  flex: 1,
-});
-
-const stableScrollbarGutterStyles = css({
-  scrollbarGutter: 'stable',
-});
 
 export type ItemRenderer<T> = (
   item: T,
@@ -38,11 +22,6 @@ type ItemData<T> = {
   observer: ListItemObserver;
   renderItem: ItemRenderer<T>;
   itemDataTestId?: string;
-  rowGap?: number;
-  paddingTop?: number;
-  paddingBottom?: number;
-  paddingLeft?: number;
-  paddingRight?: number;
 };
 
 export type VirtualListRef = React.MutableRefObject<List | null>;
@@ -83,50 +62,17 @@ export type VirtualListProps<T> = {
   rowGap?: number;
 
   /**
-   * The padding (in pixels) to be applied at the top of the list.
+   * The class applied to the outer container of the virtual list.
    *
-   * Note: It is advisable to use this prop instead of trying to apply padding /
-   * margin using css because the list is of calculated height based on its
-   * items, rowGaps, etc and its items are absolutely positioned within it.
-   * Setting this number takes care of considering that calculation.
+   * VirtualList renders two containers:
+   * - an outer container which is rendered with a particular width and height
+   *   provided by the AutoSizer, which never exceeds the visible and available
+   *   viewport. This is the scrollable container as well
+   * - an inner container which has a calculated height equal to that of the
+   *   total size of the items rendered within it and this is the container that
+   *   scrolls within the outer container
    */
-  paddingTop?: number;
-
-  /**
-   * The padding (in pixels) to be applied at the bottom of the list.
-   *
-   * Note: It is advisable to use this prop instead of trying to apply padding /
-   * margin using css because the list is of calculated height based on its
-   * items, rowGaps, etc and its items are absolutely positioned within it.
-   * Setting this number takes care of considering that calculation.
-   */
-  paddingBottom?: number;
-
-  /**
-   * The padding (in pixels) to be applied to the left of the list.
-   *
-   * Note: It is advisable to use this prop instead of trying to apply padding /
-   * margin using css because the list is of calculated height based on its
-   * items, rowGaps, etc and its items are absolutely positioned within it.
-   * Setting this number takes care of considering that calculation.
-   */
-  paddingLeft?: number;
-
-  /**
-   * The padding (in pixels) to be applied at the right of the list.
-   *
-   * Note: It is advisable to use this prop instead of trying to apply padding /
-   * margin using css because the list is of calculated height based on its
-   * items, rowGaps, etc and its items are absolutely positioned within it.
-   * Setting this number takes care of considering that calculation.
-   */
-  paddingRight?: number;
-
-  /**
-   * Wether to set scrollbar-gutter to 'stable'. Useful when we want to apply
-   * predictable paddingRight on the container. Defaults to false
-   */
-  useStableScrollbarGutter?: boolean;
+  listOuterContainerClassName?: string;
 
   /**
    * Attribute value for data-testid for the root container of the list
@@ -177,6 +123,18 @@ export type VirtualListProps<T> = {
   __TEST_LIST_REF?: VirtualListRef;
 };
 
+const flexContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  position: 'relative',
+  display: 'flex',
+  overflow: 'hidden',
+});
+
+const flexItemStyles = css({
+  flex: 1,
+});
+
 export function VirtualList<T>({
   items,
   estimateItemInitialHeight,
@@ -184,11 +142,7 @@ export function VirtualList<T>({
 
   overScanCount,
   rowGap,
-  paddingTop,
-  paddingBottom,
-  paddingLeft,
-  paddingRight,
-  useStableScrollbarGutter = false,
+  listOuterContainerClassName,
   dataTestId,
   itemDataTestId,
   initialScrollTop,
@@ -202,6 +156,7 @@ export function VirtualList<T>({
   const { observer, estimatedItemSize, getItemSize } =
     useVirtualListItemObserver({
       listRef: inUseListRef,
+      rowGap,
       items,
       estimateItemInitialHeight,
     });
@@ -212,34 +167,8 @@ export function VirtualList<T>({
       observer,
       itemDataTestId,
       renderItem,
-      rowGap,
-      paddingTop,
-      paddingBottom,
-      paddingLeft,
-      paddingRight,
     }),
-    [
-      items,
-      observer,
-      itemDataTestId,
-      rowGap,
-      paddingTop,
-      paddingBottom,
-      paddingLeft,
-      paddingRight,
-      renderItem,
-    ]
-  );
-
-  const innerElementType = useMemo(
-    () =>
-      createInnerElement({
-        rowGap,
-        paddingTop,
-        paddingBottom,
-        itemsLength: items.length,
-      }),
-    [rowGap, paddingTop, paddingBottom, items.length]
+    [items, observer, itemDataTestId, renderItem]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
@@ -269,10 +198,8 @@ export function VirtualList<T>({
               overscanCount={overScanCount}
               initialScrollOffset={initialScrollTop}
               outerRef={scrollableContainerRef}
-              innerElementType={innerElementType}
-              className={cx({
-                [stableScrollbarGutterStyles]: useStableScrollbarGutter,
-              })}
+              innerElementType={InnerElementType}
+              className={listOuterContainerClassName}
             >
               {DocumentRow}
             </List>
@@ -289,16 +216,7 @@ function DocumentRow<T>({
   data,
 }: ListChildComponentProps<ItemData<T>>) {
   const itemRef = useRef<HTMLDivElement>(null);
-  const {
-    items,
-    observer,
-    itemDataTestId,
-    rowGap = 0,
-    paddingTop = 0,
-    paddingLeft = 0,
-    paddingRight = 0,
-    renderItem,
-  } = data;
+  const { items, observer, itemDataTestId, renderItem } = data;
   const item = items[index];
 
   useLayoutEffect(() => {
@@ -314,104 +232,31 @@ function DocumentRow<T>({
     };
   }, [observer, index]);
 
-  const { appliedTop, appliedLeft, appliedWidth } = useMemo(() => {
-    // Reference for all the calculation below:
-    // https://github.com/bvaughn/react-window#can-i-add-gutter-or-padding-between-items
-
-    // A row gap, if provided, can only by applied after the first list item
-    const appliedRowGap = index !== 0 ? index * rowGap : 0;
-
-    // We mimick a padding left and padding right by essentially deducting the
-    // total padding amount from the width of the lest item and then adjusting
-    // the left applied on the list item
-    const consideredWidthDeductions = paddingLeft + paddingRight;
-
-    // The appliedTop of this list item considers both the paddingTop and rowGap
-    const appliedTop =
-      typeof style.top !== 'undefined'
-        ? parseFloat(style.top.toString()) + paddingTop + appliedRowGap
-        : style.top;
-
-    const appliedLeft =
-      typeof style.left !== 'undefined'
-        ? parseFloat(style.left.toString()) + paddingLeft
-        : style.left;
-
-    const appliedWidth =
-      typeof style.width !== 'undefined'
-        ? `calc(100% - ${consideredWidthDeductions}px)`
-        : style.width;
-    return {
-      appliedTop,
-      appliedLeft,
-      appliedWidth,
-    };
-  }, [
-    index,
-    style.top,
-    style.left,
-    style.width,
-    rowGap,
-    paddingTop,
-    paddingLeft,
-    paddingRight,
-  ]);
-
   return (
-    <div
-      data-testid={itemDataTestId}
-      key={index}
-      style={{
-        ...style,
-        top: appliedTop,
-        left: appliedLeft,
-        width: appliedWidth,
-      }}
-    >
+    <div data-testid={itemDataTestId} key={index} style={style}>
       {renderItem(item, itemRef, index)}
     </div>
   );
 }
 
-function createInnerElement({
-  itemsLength,
-  rowGap = 0,
-  paddingTop = 0,
-  paddingBottom = 0,
-}: {
-  itemsLength: number;
-  rowGap?: number;
-  paddingTop?: number;
-  paddingBottom?: number;
-}) {
-  return forwardRef<HTMLDivElement, { style: React.CSSProperties }>(
-    function InnerElementType({ style, ...rest }, ref) {
-      // Since the inner list items are absolutely positioned within this
-      // seemingly scrollable container we need to increase the applied height of
-      // this container by the amount of padding on top and bottom and also by the
-      // amount of rowGap inserted in between list items which shifted their top
-      // values
-      //
-      // Reference: https://github.com/bvaughn/react-window#can-i-add-padding-to-the-top-and-bottom-of-a-list
-      const consideredHeightIncrements =
-        paddingTop + paddingBottom + rowGap * (itemsLength - 1);
-      const appliedHeight =
-        typeof style.height !== 'undefined'
-          ? `${
-              parseFloat(style.height.toString()) + consideredHeightIncrements
-            }px`
-          : style.height;
-      return (
-        <div
-          data-testid="virtual-list-overflowed-container"
-          ref={ref}
-          style={{
-            ...style,
-            height: appliedHeight,
-          }}
-          {...rest}
-        />
-      );
-    }
+const innerElementStyles = css({
+  // Important because we want the list items rendered within this container to
+  // be absolutely positioned relative to this container so that the outer
+  // container can apply spacing freely
+  position: 'relative',
+});
+
+const InnerElementType = forwardRef<
+  HTMLDivElement,
+  { style: React.CSSProperties }
+>(function InnerElementType({ style, ...rest }, ref) {
+  return (
+    <div
+      data-testid="virtual-list-inner-container"
+      className={innerElementStyles}
+      ref={ref}
+      style={style}
+      {...rest}
+    />
   );
-}
+});

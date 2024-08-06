@@ -16,6 +16,12 @@ const keylineCardStyles = css({
   position: 'relative',
 });
 
+const spacingStyles = css({
+  padding: spacing[400],
+  paddingTop: 0,
+  paddingRight: spacing[150],
+});
+
 const estimateDocumentInitialHeight = (doc: HadronDocument) => {
   const keylineCardBorder = spacing[25] + spacing[25];
   const codeMirrorPadding = spacing[100] + spacing[100];
@@ -107,16 +113,11 @@ const VirtualizedDocumentJsonView: React.FC<
       renderItem={renderItem}
       estimateItemInitialHeight={estimateDocumentInitialHeight}
       rowGap={spacing[200]}
-      useStableScrollbarGutter={true}
-      paddingLeft={spacing[400]}
-      // paddingRight is only 6px because we are using stable scrollbar gutter
-      // which takes 10px already
-      paddingRight={spacing[150]}
-      paddingBottom={spacing[400]}
       itemDataTestId="document-json-item"
       // Keeping the overscanCount low here helps us avoid scroll dangling
       // issues
       overScanCount={__TEST_OVERSCAN_COUNT ?? 1}
+      listOuterContainerClassName={spacingStyles}
       initialScrollTop={initialScrollTop}
       scrollableContainerRef={scrollableContainerRef}
       __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
