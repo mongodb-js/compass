@@ -27,7 +27,6 @@ const ServerIcon = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="Server Icon"
     >
       <g clipPath="url(#clip0_842_15453)">
         <path

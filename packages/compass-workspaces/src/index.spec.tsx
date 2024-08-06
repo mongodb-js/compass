@@ -144,7 +144,7 @@ describe('WorkspacesPlugin', function () {
       await sleep(1);
       fn();
       await waitFor(() => {
-        expect(screen.getByRole('tab', { name: new RegExp(tabName) })).to.exist;
+        expect(screen.getByRole('tab', { name: tabName })).to.exist;
       });
     });
   }
