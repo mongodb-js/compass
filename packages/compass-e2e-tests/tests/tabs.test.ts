@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -129,5 +130,37 @@ describe('Global Tabs', function () {
 
     // When confirmed, should remove the tab
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(0);
+  });
+
+  it("should close a connection's tabs when disconnecting", async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'a',
+      'Aggregations'
+    );
+
+    const workspaceOptions = {
+      connectionName: DEFAULT_CONNECTION_NAME,
+      type: 'Collection',
+      namespace: 'test.a',
+    };
+
+    expect(
+      await browser.$(Selectors.workspaceTab(workspaceOptions)).isExisting()
+    ).to.be.true;
+
+    await browser.disconnectAll();
+
+    await browser.waitUntil(async () => {
+      const exists = await browser
+        .$(Selectors.workspaceTab(workspaceOptions))
+        .isExisting();
+      return exists === false;
+    });
   });
 });
