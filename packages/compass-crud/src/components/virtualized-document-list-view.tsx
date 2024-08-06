@@ -37,7 +37,6 @@ const estimateDocumentInitialHeight = (doc: HadronDocument) => {
 type VirtualizedDocumentListViewProps = {
   docs: (HadronDocument | BSONObject)[];
   isEditable: boolean;
-  className?: string;
   initialScrollTop?: number;
   scrollTriggerRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
@@ -59,7 +58,6 @@ const VirtualizedDocumentListView: React.FC<
 > = ({
   docs: _docs,
   isEditable,
-  className,
   isTimeSeries,
   initialScrollTop,
   scrollTriggerRef,
@@ -87,22 +85,20 @@ const VirtualizedDocumentListView: React.FC<
   const renderItem: VirtualListItemRenderer<HadronDocument> = useCallback(
     (doc, docRef, docIndex) => {
       return (
-        <>
+        <KeylineCard ref={docRef}>
           {scrollTriggerRef && docIndex === 0 && <div ref={scrollTriggerRef} />}
-          <KeylineCard ref={docRef}>
-            <Document
-              doc={doc}
-              key={doc.uuid}
-              editable={isEditable}
-              isTimeSeries={isTimeSeries}
-              copyToClipboard={copyToClipboard}
-              removeDocument={removeDocument}
-              replaceDocument={replaceDocument}
-              updateDocument={updateDocument}
-              openInsertDocumentDialog={openInsertDocumentDialog}
-            />
-          </KeylineCard>
-        </>
+          <Document
+            doc={doc}
+            key={doc.uuid}
+            editable={isEditable}
+            isTimeSeries={isTimeSeries}
+            copyToClipboard={copyToClipboard}
+            removeDocument={removeDocument}
+            replaceDocument={replaceDocument}
+            updateDocument={updateDocument}
+            openInsertDocumentDialog={openInsertDocumentDialog}
+          />
+        </KeylineCard>
       );
     },
     [
@@ -123,7 +119,12 @@ const VirtualizedDocumentListView: React.FC<
       renderItem={renderItem}
       estimateItemInitialHeight={estimateDocumentInitialHeight}
       rowGap={spacing[200]}
-      className={className}
+      useStableScrollbarGutter={true}
+      paddingLeft={spacing[400]}
+      // paddingRight is only 6px because we are using stable scrollbar gutter
+      // which takes 10px already
+      paddingRight={spacing[150]}
+      paddingBottom={spacing[400]}
       dataTestId="document-list"
       itemDataTestId="document-list-item"
       initialScrollTop={initialScrollTop}

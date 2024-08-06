@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type VariableSizeList } from 'react-window';
 
 export type VirtualListItemObserverParams<T> = {
-  rowGap?: number;
   listRef: React.RefObject<VariableSizeList>;
   items: T[];
   estimateItemInitialHeight(item: T): number;
@@ -15,7 +14,6 @@ export type ListItemObserver = {
 };
 
 export const useVirtualListItemObserver = <T>({
-  rowGap,
   listRef,
   items,
   estimateItemInitialHeight,
@@ -102,13 +100,9 @@ export const useVirtualListItemObserver = <T>({
       // It can happen that there are new items added to the list (when docs per
       // page changes) in which case we won't have their heights in our state
       // hence we fallback to estimating initial document heights.
-      const height = itemsHeights[idx] ?? estimateItemInitialHeight(items[idx]);
-      if (rowGap && idx !== items.length - 1) {
-        return height + rowGap;
-      }
-      return height;
+      return itemsHeights[idx] ?? estimateItemInitialHeight(items[idx]);
     },
-    [rowGap, itemsHeights, items, estimateItemInitialHeight]
+    [itemsHeights, items, estimateItemInitialHeight]
   );
 
   const estimatedItemSize = useMemo(() => {

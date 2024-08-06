@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import React, { forwardRef, useLayoutEffect, useMemo, useRef } from 'react';
 import {
   VariableSizeList as List,
   type ListChildComponentProps,
@@ -11,10 +11,20 @@ import {
   useVirtualListItemObserver,
 } from '../hooks/use-virtual-list-item-observer';
 
-const containerStyles = css({
+const flexContainerStyles = css({
   width: '100%',
   height: '100%',
   position: 'relative',
+  display: 'flex',
+  overflow: 'hidden',
+});
+
+const flexItemStyles = css({
+  flex: 1,
+});
+
+const stableScrollbarGutterStyles = css({
+  scrollbarGutter: 'stable',
 });
 
 export type ItemRenderer<T> = (
@@ -28,6 +38,11 @@ type ItemData<T> = {
   observer: ListItemObserver;
   renderItem: ItemRenderer<T>;
   itemDataTestId?: string;
+  rowGap?: number;
+  paddingTop?: number;
+  paddingBottom?: number;
+  paddingLeft?: number;
+  paddingRight?: number;
 };
 
 export type VirtualListRef = React.MutableRefObject<List | null>;
@@ -68,10 +83,50 @@ export type VirtualListProps<T> = {
   rowGap?: number;
 
   /**
-   * The class applied to the root container of the list. This container also
-   * renders an AutoSizer component
+   * The padding (in pixels) to be applied at the top of the list.
+   *
+   * Note: It is advisable to use this prop instead of trying to apply padding /
+   * margin using css because the list is of calculated height based on its
+   * items, rowGaps, etc and its items are absolutely positioned within it.
+   * Setting this number takes care of considering that calculation.
    */
-  className?: string;
+  paddingTop?: number;
+
+  /**
+   * The padding (in pixels) to be applied at the bottom of the list.
+   *
+   * Note: It is advisable to use this prop instead of trying to apply padding /
+   * margin using css because the list is of calculated height based on its
+   * items, rowGaps, etc and its items are absolutely positioned within it.
+   * Setting this number takes care of considering that calculation.
+   */
+  paddingBottom?: number;
+
+  /**
+   * The padding (in pixels) to be applied to the left of the list.
+   *
+   * Note: It is advisable to use this prop instead of trying to apply padding /
+   * margin using css because the list is of calculated height based on its
+   * items, rowGaps, etc and its items are absolutely positioned within it.
+   * Setting this number takes care of considering that calculation.
+   */
+  paddingLeft?: number;
+
+  /**
+   * The padding (in pixels) to be applied at the right of the list.
+   *
+   * Note: It is advisable to use this prop instead of trying to apply padding /
+   * margin using css because the list is of calculated height based on its
+   * items, rowGaps, etc and its items are absolutely positioned within it.
+   * Setting this number takes care of considering that calculation.
+   */
+  paddingRight?: number;
+
+  /**
+   * Wether to set scrollbar-gutter to 'stable'. Useful when we want to apply
+   * predictable paddingRight on the container. Defaults to false
+   */
+  useStableScrollbarGutter?: boolean;
 
   /**
    * Attribute value for data-testid for the root container of the list
@@ -129,7 +184,11 @@ export function VirtualList<T>({
 
   overScanCount,
   rowGap,
-  className,
+  paddingTop,
+  paddingBottom,
+  paddingLeft,
+  paddingRight,
+  useStableScrollbarGutter = false,
   dataTestId,
   itemDataTestId,
   initialScrollTop,
@@ -142,7 +201,6 @@ export function VirtualList<T>({
   const inUseListRef = __TEST_LIST_REF ?? listRef;
   const { observer, estimatedItemSize, getItemSize } =
     useVirtualListItemObserver({
-      rowGap,
       listRef: inUseListRef,
       items,
       estimateItemInitialHeight,
@@ -154,37 +212,73 @@ export function VirtualList<T>({
       observer,
       itemDataTestId,
       renderItem,
+      rowGap,
+      paddingTop,
+      paddingBottom,
+      paddingLeft,
+      paddingRight,
     }),
-    [items, observer, itemDataTestId, renderItem]
+    [
+      items,
+      observer,
+      itemDataTestId,
+      rowGap,
+      paddingTop,
+      paddingBottom,
+      paddingLeft,
+      paddingRight,
+      renderItem,
+    ]
+  );
+
+  const innerElementType = useMemo(
+    () =>
+      createInnerElement({
+        rowGap,
+        paddingTop,
+        paddingBottom,
+        itemsLength: items.length,
+      }),
+    [rowGap, paddingTop, paddingBottom, items.length]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
 
   return (
-    <div className={cx(containerStyles, className)} data-testid={dataTestId}>
-      {/* AutoSizer types does not allow both width and height to be disabled
-        considering that to be a pointless usecase and hence the type
-        definitions are pretty strict. We require these disabled to avoid
-        tests flaking out hence ignoring the usage here.
-        @ts-ignore */}
-      <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
-        {({ width, height }: { width: number; height: number }) => (
-          <List<ItemData<T>>
-            ref={inUseListRef}
-            width={isTestEnv ? __TEST_LIST_WIDTH : width}
-            height={isTestEnv ? __TEST_LIST_HEIGHT : height}
-            itemData={itemData}
-            itemCount={items.length}
-            estimatedItemSize={estimatedItemSize}
-            itemSize={getItemSize}
-            overscanCount={overScanCount}
-            initialScrollOffset={initialScrollTop}
-            outerRef={scrollableContainerRef}
-          >
-            {DocumentRow}
-          </List>
-        )}
-      </AutoSizer>
+    // For AutoSizer to grow and fill the available space we need to provide
+    // appropriate flex container and flex item styles
+    //
+    // Reference: https://github.com/bvaughn/react-virtualized/blob/master/docs/usingAutoSizer.md#can-i-use-autosizer-within-a-flex-container
+    <div className={flexContainerStyles} data-testid={dataTestId}>
+      <div className={flexItemStyles}>
+        {/* AutoSizer types does not allow both width and height to be disabled
+          considering that to be a pointless usecase and hence the type
+          definitions are pretty strict. We require these disabled to avoid
+          tests flaking out hence ignoring the usage here.
+          @ts-ignore */}
+        <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
+          {({ width, height }: { width: number; height: number }) => (
+            <List<ItemData<T>>
+              ref={inUseListRef}
+              width={isTestEnv ? __TEST_LIST_WIDTH : width}
+              height={isTestEnv ? __TEST_LIST_HEIGHT : height}
+              itemData={itemData}
+              itemCount={items.length}
+              estimatedItemSize={estimatedItemSize}
+              itemSize={getItemSize}
+              overscanCount={overScanCount}
+              initialScrollOffset={initialScrollTop}
+              outerRef={scrollableContainerRef}
+              innerElementType={innerElementType}
+              className={cx({
+                [stableScrollbarGutterStyles]: useStableScrollbarGutter,
+              })}
+            >
+              {DocumentRow}
+            </List>
+          )}
+        </AutoSizer>
+      </div>
     </div>
   );
 }
@@ -195,7 +289,16 @@ function DocumentRow<T>({
   data,
 }: ListChildComponentProps<ItemData<T>>) {
   const itemRef = useRef<HTMLDivElement>(null);
-  const { items, observer, itemDataTestId, renderItem } = data;
+  const {
+    items,
+    observer,
+    itemDataTestId,
+    rowGap = 0,
+    paddingTop = 0,
+    paddingLeft = 0,
+    paddingRight = 0,
+    renderItem,
+  } = data;
   const item = items[index];
 
   useLayoutEffect(() => {
@@ -211,9 +314,104 @@ function DocumentRow<T>({
     };
   }, [observer, index]);
 
+  const { appliedTop, appliedLeft, appliedWidth } = useMemo(() => {
+    // Reference for all the calculation below:
+    // https://github.com/bvaughn/react-window#can-i-add-gutter-or-padding-between-items
+
+    // A row gap, if provided, can only by applied after the first list item
+    const appliedRowGap = index !== 0 ? index * rowGap : 0;
+
+    // We mimick a padding left and padding right by essentially deducting the
+    // total padding amount from the width of the lest item and then adjusting
+    // the left applied on the list item
+    const consideredWidthDeductions = paddingLeft + paddingRight;
+
+    // The appliedTop of this list item considers both the paddingTop and rowGap
+    const appliedTop =
+      typeof style.top !== 'undefined'
+        ? parseFloat(style.top.toString()) + paddingTop + appliedRowGap
+        : style.top;
+
+    const appliedLeft =
+      typeof style.left !== 'undefined'
+        ? parseFloat(style.left.toString()) + paddingLeft
+        : style.left;
+
+    const appliedWidth =
+      typeof style.width !== 'undefined'
+        ? `calc(100% - ${consideredWidthDeductions}px)`
+        : style.width;
+    return {
+      appliedTop,
+      appliedLeft,
+      appliedWidth,
+    };
+  }, [
+    index,
+    style.top,
+    style.left,
+    style.width,
+    rowGap,
+    paddingTop,
+    paddingLeft,
+    paddingRight,
+  ]);
+
   return (
-    <div data-testid={itemDataTestId} key={index} style={style}>
+    <div
+      data-testid={itemDataTestId}
+      key={index}
+      style={{
+        ...style,
+        top: appliedTop,
+        left: appliedLeft,
+        width: appliedWidth,
+      }}
+    >
       {renderItem(item, itemRef, index)}
     </div>
+  );
+}
+
+function createInnerElement({
+  itemsLength,
+  rowGap = 0,
+  paddingTop = 0,
+  paddingBottom = 0,
+}: {
+  itemsLength: number;
+  rowGap?: number;
+  paddingTop?: number;
+  paddingBottom?: number;
+}) {
+  return forwardRef<HTMLDivElement, { style: React.CSSProperties }>(
+    function InnerElementType({ style, ...rest }, ref) {
+      // Since the inner list items are absolutely positioned within this
+      // seemingly scrollable container we need to increase the applied height of
+      // this container by the amount of padding on top and bottom and also by the
+      // amount of rowGap inserted in between list items which shifted their top
+      // values
+      //
+      // Reference: https://github.com/bvaughn/react-window#can-i-add-padding-to-the-top-and-bottom-of-a-list
+      const consideredHeightIncrements =
+        paddingTop + paddingBottom + rowGap * (itemsLength - 1);
+      const appliedHeight =
+        typeof style.height !== 'undefined'
+          ? `${
+              parseFloat(style.height.toString()) + consideredHeightIncrements
+            }px`
+          : style.height;
+      return (
+        <div
+          data-testid="virtual-list-overflowed-container"
+          ref={ref}
+          style={{
+            ...style,
+            height: appliedHeight,
+          }}
+          {...rest}
+        />
+      );
+    }
   );
 }

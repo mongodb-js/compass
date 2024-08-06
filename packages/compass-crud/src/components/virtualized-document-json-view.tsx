@@ -33,7 +33,6 @@ export type VirtualizedDocumentJsonViewProps = {
   namespace: string;
   docs: HadronDocument[];
   isEditable: boolean;
-  className?: string;
   initialScrollTop?: number;
   scrollTriggerRef?: React.Ref<HTMLDivElement>;
   scrollableContainerRef?: React.Ref<HTMLDivElement>;
@@ -56,7 +55,6 @@ const VirtualizedDocumentJsonView: React.FC<
   docs,
   namespace,
   isEditable,
-  className,
   isTimeSeries,
   initialScrollTop,
   scrollTriggerRef,
@@ -109,7 +107,12 @@ const VirtualizedDocumentJsonView: React.FC<
       renderItem={renderItem}
       estimateItemInitialHeight={estimateDocumentInitialHeight}
       rowGap={spacing[200]}
-      className={className}
+      useStableScrollbarGutter={true}
+      paddingLeft={spacing[400]}
+      // paddingRight is only 6px because we are using stable scrollbar gutter
+      // which takes 10px already
+      paddingRight={spacing[150]}
+      paddingBottom={spacing[400]}
       itemDataTestId="document-json-item"
       // Keeping the overscanCount low here helps us avoid scroll dangling
       // issues

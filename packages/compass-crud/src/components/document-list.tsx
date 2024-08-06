@@ -43,11 +43,6 @@ import {
 } from '@mongodb-js/compass-query-bar';
 import { usePreference } from 'compass-preferences-model/provider';
 
-const listAndJsonStyles = css({
-  padding: spacing[3],
-  paddingTop: 0,
-});
-
 // Table has its own scrollable container.
 const tableStyles = css({
   paddingTop: 0,
@@ -170,7 +165,6 @@ const DocumentViewComponent: React.FunctionComponent<
         initialScrollTop={initialScrollTop}
         scrollTriggerRef={scrollTriggerRef}
         scrollableContainerRef={scrollableContainerRef}
-        className={listAndJsonStyles}
       />
     );
   } else if (props.view === 'Table') {
@@ -199,7 +193,6 @@ const DocumentViewComponent: React.FunctionComponent<
       initialScrollTop={initialScrollTop}
       scrollTriggerRef={scrollTriggerRef}
       scrollableContainerRef={scrollableContainerRef}
-      className={listAndJsonStyles}
     />
   );
 };
