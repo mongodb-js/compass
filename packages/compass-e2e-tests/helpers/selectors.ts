@@ -5,7 +5,6 @@ export type WorkspaceTabSelectorOptions = {
   connectionName?: string;
   namespace?: string;
   type?: string;
-  title?: string;
   active?: boolean;
 };
 
