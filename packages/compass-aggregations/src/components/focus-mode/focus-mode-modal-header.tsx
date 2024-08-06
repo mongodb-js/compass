@@ -229,7 +229,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Select>
 
         <Tooltip
-          enabled={isLast}
+          enabled={!isLast}
           trigger={
             <Button
               size="xsmall"
