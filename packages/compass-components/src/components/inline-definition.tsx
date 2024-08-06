@@ -2,8 +2,7 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { Body } from './leafygreen';
-import { Tooltip } from './tooltip';
-import { mergeProps } from '../utils/merge-props';
+import Tooltip from '@leafygreen-ui/tooltip';
 
 const underline = css({
   backgroundRepeat: 'repeat-x',
@@ -29,19 +28,11 @@ const InlineDefinition: React.FunctionComponent<
     <Tooltip
       justify="middle"
       spacing={5}
-      trigger={({ children: tooltip, ...triggerProps }) => {
-        const merged = mergeProps(
-          { className: underline },
-          triggerProps,
-          props
-        );
-        return (
-          <span {...merged}>
-            {children}
-            {tooltip}
-          </span>
-        );
-      }}
+      trigger={
+        <span className={underline} {...props}>
+          {children}
+        </span>
+      }
       {...tooltipProps}
     >
       <Body className={maxWidth}>{definition}</Body>

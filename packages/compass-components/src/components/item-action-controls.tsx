@@ -13,12 +13,11 @@ import {
   MenuItem,
   MenuSeparator,
 } from './leafygreen';
-import { Tooltip } from './tooltip';
-import type { TooltipProps } from './tooltip';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
+import Tooltip from '@leafygreen-ui/tooltip';
 
 export type ItemAction<Action extends string> = {
   action: Action;
@@ -35,7 +34,7 @@ export type ItemSeparator = { separator: true };
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
   tooltip?: string;
-  tooltipProps?: TooltipProps;
+  tooltipProps?: Parameters<typeof Tooltip>;
 };
 
 export type MenuAction<Action extends string> =
@@ -369,16 +368,14 @@ export function ItemActionGroup<Action extends string>({
             <Tooltip
               key={action}
               {...tooltipProps}
-              trigger={({ children, ...props }) => (
+              trigger={
                 <div
-                  {...props}
                   className={actionGroupButtonStyle}
                   style={{ display: 'inherit' }}
                 >
                   {button}
-                  {children}
                 </div>
-              )}
+              }
             >
               {tooltip}
             </Tooltip>

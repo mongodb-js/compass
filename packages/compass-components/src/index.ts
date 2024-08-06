@@ -79,7 +79,6 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 export { useToast, openToast, closeToast, ToastArea } from './hooks/use-toast';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
-export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
@@ -89,6 +88,8 @@ export { ModalBody } from './components/modals/modal-body';
 export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
+
+export { default as Tooltip } from '@leafygreen-ui/tooltip';
 
 export type {
   FileInputBackend,

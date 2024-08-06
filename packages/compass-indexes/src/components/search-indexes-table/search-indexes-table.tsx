@@ -144,12 +144,9 @@ function VectorSearchIndexDetails({ definition }: { definition: Document }) {
             align="top"
             key={field.path}
             justify="middle"
-            trigger={({ children, ...props }) => (
-              <Badge {...props} className={searchIndexFieldStyles}>
-                {children}
-                {field.path}
-              </Badge>
-            )}
+            trigger={
+              <Badge className={searchIndexFieldStyles}>{field.path}</Badge>
+            }
           >
             {JSON.stringify(field, null, 2)}
           </Tooltip>

@@ -138,11 +138,7 @@ const CardBadge: React.FunctionComponent<BadgeProp> = ({
   );
 
   if (hint) {
-    return (
-      <Tooltip delay={500} trigger={badge}>
-        {hint}
-      </Tooltip>
-    );
+    return <Tooltip trigger={badge}>{hint}</Tooltip>;
   }
 
   return badge();

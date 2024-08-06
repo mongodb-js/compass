@@ -44,11 +44,9 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
         data-testid="collection-stats-tooltip"
         align="bottom"
         justify="middle"
-        delay={500}
-        trigger={({ children, ...props }) => (
+        trigger={
           // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <span
-            {...props}
             onClick={() => {
               // We use these stats in the Collection Tab, and LG does not
               // bubble up the click event to the parent component, so we
@@ -56,9 +54,8 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
             }}
           >
             <Badge>{text}</Badge>
-            {children}
           </span>
-        )}
+        }
       >
         <ol className={tooltipDocumentsListStyles}>
           {details.map((detail, i) => (

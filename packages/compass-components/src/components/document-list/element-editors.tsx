@@ -6,11 +6,11 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { BSONValueContainer } from '../bson-value';
-import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
+import Tooltip from '@leafygreen-ui/tooltip';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -80,12 +80,10 @@ export const KeyEditor: React.FunctionComponent<{
       {editing ? (
         <Tooltip
           darkMode
-          isDisabled={valid}
-          delay={600}
+          enabled={!valid}
           usePortal={false}
           trigger={({
             className,
-            children,
             // Having a tooltip connected to the input elements is not the most
             // accessible thing ever and so a lot of event listeners of the
             // tooltip conflict with the textarea default behavior (due to
@@ -97,8 +95,6 @@ export const KeyEditor: React.FunctionComponent<{
             onPointerUp,
             onPointerDown,
             onMouseDown,
-            /* eslint-enable @typescript-eslint/no-unused-vars */
-            ...triggerProps
           }: React.HTMLProps<HTMLInputElement>) => {
             return (
               <div className={className}>
@@ -124,9 +120,7 @@ export const KeyEditor: React.FunctionComponent<{
                   )}
                   style={{ width }}
                   spellCheck="false"
-                  {...triggerProps}
                 ></input>
-                {children}
               </div>
             );
           }}
@@ -229,8 +223,7 @@ export const ValueEditor: React.FunctionComponent<{
       {editing ? (
         <Tooltip
           darkMode
-          isDisabled={valid}
-          delay={600}
+          enabled={!valid}
           usePortal={false}
           trigger={({
             className,
