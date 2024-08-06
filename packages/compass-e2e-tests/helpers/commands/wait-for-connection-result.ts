@@ -18,10 +18,10 @@ export async function waitForConnectionResult(
     // indicator that we are connected to the server
     // TODO(COMPASS-8023): wait for the specific connection to appear in the
     // sidebar and be connected
-    selector = TEST_COMPASS_WEB
-      ? '[data-testid="workspace-tab-button"][title=Databases]'
-      : TEST_MULTIPLE_CONNECTIONS
+    selector = TEST_MULTIPLE_CONNECTIONS
       ? `${Selectors.SidebarTreeItems}[aria-expanded=true]`
+      : TEST_COMPASS_WEB
+      ? '[data-testid="workspace-tab-button"][title=Databases]'
       : Selectors.MyQueriesList;
   } else {
     // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't

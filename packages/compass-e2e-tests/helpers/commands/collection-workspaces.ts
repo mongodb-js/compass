@@ -104,6 +104,7 @@ async function waitUntilActiveCollectionTab(
     | null = null
 ) {
   const options: WorkspaceTabSelectorOptions = {
+    type: 'Collection',
     namespace: `${dbName}.${collectionName}`,
     active: true,
   };
