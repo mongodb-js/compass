@@ -1,6 +1,10 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
+import Debug from 'debug';
+
+const debug = Debug('compass-e2e-tests');
+
 export async function hideAllVisibleToasts(
   browser: CompassBrowser
 ): Promise<void> {
@@ -18,6 +22,7 @@ export async function hideAllVisibleToasts(
       if (!isToastVisible) {
         continue;
       }
+      debug('closing toast', await toast.getAttribute('data-testid'));
       await browser.clickVisible(toast.$(Selectors.LGToastCloseButton));
       await toast.waitForExist({ reverse: true });
     } catch (err) {

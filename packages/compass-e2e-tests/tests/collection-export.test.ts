@@ -10,7 +10,7 @@ import {
   outputFilename,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -68,9 +68,9 @@ describe('Collection export', function () {
     beforeEach(async function () {
       await createNumbersCollection();
       await browser.disconnectAll();
-      await browser.connectWithConnectionString();
+      await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'numbers',
         'Documents'
@@ -885,9 +885,9 @@ describe('Collection export', function () {
     beforeEach(async function () {
       await createNumbersStringCollection();
       await browser.disconnectAll();
-      await browser.connectWithConnectionString();
+      await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'numbers-strings',
         'Documents'

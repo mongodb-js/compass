@@ -5,7 +5,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -21,9 +21,9 @@ describe('Instance performance tab', function () {
     browser = compass.browser;
 
     await browser.disconnectAll();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'Performance'
     );
   });

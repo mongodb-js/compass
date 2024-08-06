@@ -82,7 +82,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
     }
 
     try {
-      await browser.connectWithConnectionString();
+      await browser.connectToDefaults();
     } finally {
       await cleanup(compass);
     }

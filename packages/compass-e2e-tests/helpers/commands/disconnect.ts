@@ -3,10 +3,6 @@ import type { CompassBrowser } from '../compass-browser';
 import delay from '../delay';
 import * as Selectors from '../selectors';
 
-import Debug from 'debug';
-
-const debug = Debug('compass-e2e-tests');
-
 export async function disconnectAll(
   browser: CompassBrowser,
   {
@@ -64,15 +60,7 @@ export async function disconnectAll(
       // retrieve server info" or similar, there might be an error or warning
       // toast by now. If so, just close it otherwise the next test or connection
       // attempt will be confused by it.
-      if (await browser.$(Selectors.LGToastCloseButton).isExisting()) {
-        try {
-          const toastText = await browser.$('#lg-toast-region').getText();
-          debug('Closing toast', toastText);
-          await browser.clickVisible(Selectors.LGToastCloseButton);
-        } catch (error) {
-          debug('ignoring', error);
-        }
-      }
+      await browser.hideAllVisibleToasts();
     }
 
     // NOTE: unlike the single connection flow this doesn't make sure the New

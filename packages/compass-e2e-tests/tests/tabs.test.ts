@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -11,7 +11,7 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
 
-describe('Global Tabs', function () {
+describe.only('Global Tabs', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -29,7 +29,7 @@ describe('Global Tabs', function () {
       await createNumbersCollection(collName, 1);
     }
     await browser.disconnectAll();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
   });
 
   afterEach(async function () {
@@ -43,7 +43,7 @@ describe('Global Tabs', function () {
   it('should open tabs over each other when not modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         collName,
         'Documents',
@@ -56,7 +56,7 @@ describe('Global Tabs', function () {
   it('should open new tabs when modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         collName,
         'Documents',
@@ -73,7 +73,7 @@ describe('Global Tabs', function () {
   it('should close tabs without warning even when "modified" by interacting with the tab', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         collName,
         'Documents',
@@ -90,7 +90,7 @@ describe('Global Tabs', function () {
 
   it('should ask for confirmation when closing modified Aggregations tab', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'a',
       'Aggregations'
@@ -138,14 +138,14 @@ describe('Global Tabs', function () {
     }
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'a',
       'Aggregations'
     );
 
     const workspaceOptions = {
-      connectionName: DEFAULT_CONNECTION_NAME,
+      connectionName: DEFAULT_CONNECTION_NAME_1,
       type: 'Collection',
       namespace: 'test.a',
     };
@@ -164,7 +164,7 @@ describe('Global Tabs', function () {
     });
   });
 
-  it('Should leave open the My Queries tab when disconnecting', async function () {
+  it('should leave open the My Queries tab when disconnecting', async function () {
     if (!TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }

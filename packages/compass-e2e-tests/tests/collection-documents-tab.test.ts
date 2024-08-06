@@ -9,7 +9,7 @@ import {
   screenshotIfFailed,
   TEST_COMPASS_WEB,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -123,9 +123,9 @@ describe('Collection documents tab', function () {
     await createNumbersCollection();
     await createNestedDocumentsCollection('nestedDocs', 10);
     await browser.disconnectAll();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'
@@ -638,7 +638,7 @@ FindIterable<Document> result = collection.find(filter);`);
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'nestedDocs',
         'Documents'

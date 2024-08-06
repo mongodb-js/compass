@@ -15,7 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
   MONGODB_TEST_SERVER_PORT,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -311,10 +311,10 @@ describe('Connection string', function () {
   });
 
   it('can connect using connection string', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -328,7 +328,7 @@ describe('Connection string', function () {
 
     await browser.connectWithConnectionString(
       `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
-      'failure'
+      { connectionStatus: 'failure' }
     );
     if (TEST_MULTIPLE_CONNECTIONS) {
       const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
@@ -984,7 +984,7 @@ describe('SRV connectivity', function () {
       // (Unless you have a server listening on port 27017)
       await browser.connectWithConnectionString(
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-        'either'
+        { connectionStatus: 'either' }
       );
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit

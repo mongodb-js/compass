@@ -8,7 +8,7 @@ import {
   outputFilename,
   serverSatisfies,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -128,7 +128,7 @@ describe('Collection aggregations tab', function () {
     await createNumbersCollection();
     await createNestedDocumentsCollection('nestedDocs', 10);
     await browser.disconnectAll();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
     // set guide cue to not show up
     await browser.execute((key) => {
       localStorage.setItem(key, 'true');
@@ -136,7 +136,7 @@ describe('Collection aggregations tab', function () {
 
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Aggregations'
@@ -433,7 +433,7 @@ describe('Collection aggregations tab', function () {
 
     // choose Duplicate view
     await browser.selectCollectionMenuItem(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'my-view-from-pipeline',
       'duplicate-view'
@@ -461,7 +461,7 @@ describe('Collection aggregations tab', function () {
 
     // now select modify view of the non-duplicate
     await browser.selectCollectionMenuItem(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'my-view-from-pipeline',
       'modify-view'
@@ -1592,7 +1592,7 @@ describe('Collection aggregations tab', function () {
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'nestedDocs',
         'Aggregations'

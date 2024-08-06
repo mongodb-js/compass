@@ -4,7 +4,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
@@ -40,14 +40,14 @@ describe('readOnly: true / Read-Only Edition', function () {
       ? Selectors.Multiple
       : Selectors.Single;
     await browser.setFeature('readOnly', true);
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       // navigate to the databases tab so that the connection is
       // active/highlighted and then the add button and three dot menu will
       // display without needing to hover
       await browser.navigateToConnectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'Databases'
       );
     }
@@ -55,7 +55,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
       expect(
         await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           Sidebar.CreateDatabaseButton,
           false
         )
@@ -79,7 +79,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.navigateToConnectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'Databases'
       );
     }
@@ -87,7 +87,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
       expect(
         await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           Sidebar.CreateDatabaseButton,
           false
         )
@@ -101,10 +101,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     const connectionId = await browser.getConnectionIdByName(
-      DEFAULT_CONNECTION_NAME
+      DEFAULT_CONNECTION_NAME_1
     );
 
     const dbName = 'test'; // existing db
@@ -143,9 +143,12 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('shows and hides the create database button on the instance tab', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
-    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
     let instanceCreateDatabaseButton = await browser.$(
       Selectors.InstanceCreateDatabaseButton
@@ -175,10 +178,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the create collection button on the instance tab', async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test'
     );
 
@@ -210,10 +213,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the add data button on the documents tab', async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'
@@ -241,11 +244,11 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the $out aggregation stage', async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Aggregations'
@@ -295,10 +298,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the create index button', async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Indexes'
@@ -330,10 +333,10 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('enables and disables validation actions', async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Validation'

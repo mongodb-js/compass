@@ -76,9 +76,17 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
-export const DEFAULT_CONNECTION_NAME = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING
+export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
+  DEFAULT_CONNECTION_STRING_1
+);
+
+// for testing multiple connections
+export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${
+  MONGODB_TEST_SERVER_PORT + 1
+}/test`;
+export const DEFAULT_CONNECTION_NAME_2 = connectionNameFromString(
+  DEFAULT_CONNECTION_STRING_2
 );
 
 export function updateMongoDBServerInfo() {
