@@ -8,9 +8,8 @@ import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { BSONValueContainer } from '../bson-value';
 import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
-import { Icon } from '../leafygreen';
+import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-import Tooltip from '@leafygreen-ui/tooltip';
 
 const maxWidth = css({
   maxWidth: '100%',

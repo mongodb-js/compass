@@ -12,12 +12,12 @@ import {
   Menu,
   MenuItem,
   MenuSeparator,
+  Tooltip,
 } from './leafygreen';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import Tooltip from '@leafygreen-ui/tooltip';
 
 export type ItemAction<Action extends string> = {
   action: Action;

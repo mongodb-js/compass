@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon } from '../leafygreen';
+import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
-import Tooltip from '@leafygreen-ui/tooltip';
 
 const actionsGroupContainer = css({
   position: 'absolute',

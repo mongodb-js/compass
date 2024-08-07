@@ -1,8 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
-import { Body } from './leafygreen';
-import Tooltip from '@leafygreen-ui/tooltip';
+import { Body, Tooltip } from './leafygreen';
 
 const underline = css({
   backgroundRepeat: 'repeat-x',

@@ -89,8 +89,6 @@ export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
-export { default as Tooltip } from '@leafygreen-ui/tooltip';
-
 export type {
   FileInputBackend,
   ItemAction,
