@@ -19,6 +19,8 @@ async function closeTab(
   // wait until the tab goes away and if the confirmation modal opens, maybe confirm
   await browser.waitUntil(
     async () => {
+      // first hover the tab so that the close button shows up
+      await browser.hover(Selectors.workspaceTab(selectorOptions));
       // keep retrying the click :(
       await browser.clickVisible(
         browser
