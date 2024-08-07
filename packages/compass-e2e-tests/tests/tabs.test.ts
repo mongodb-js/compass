@@ -137,6 +137,8 @@ describe.only('Global Tabs', function () {
       this.skip();
     }
 
+    // TODO: connect to two connections' Documents tabs and the My Queries tab
+
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME_1,
       'test',
@@ -162,6 +164,8 @@ describe.only('Global Tabs', function () {
         .isExisting();
       return exists === false;
     });
+
+    // TODO: make sure that the other connection's tabs are still around and also the My Queries tab
   });
 
   it('should leave open the My Queries tab when disconnecting', async function () {
