@@ -1,3 +1,4 @@
+import { BSON } from 'bson';
 import { expose, caller } from 'postmsg-rpc';
 import type { PostmsgRpcOptions } from 'postmsg-rpc';
 
@@ -33,10 +34,12 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
     addListener: messageBus.addEventListener.bind(messageBus),
     removeListener: messageBus.removeEventListener.bind(messageBus),
     postMessage(data) {
-      return messageBus.postMessage(data);
+      return messageBus.postMessage(BSON.serialize(data));
     },
     getMessageData(data) {
-      return (data as { data?: unknown })?.data ?? data;
+      return BSON.deserialize(
+        ((data as { data?: unknown })?.data ?? data) as any
+      );
     },
   };
 }
@@ -61,8 +64,14 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
           // the execution, we want to propagate error to the client (whatever
           // issued the call) and re-throw there. We will do this with a special
           // return type.
-          // TODO: Error msg
-          return { type: RPCMessageTypes.Error, payload: e };
+          return {
+            type: RPCMessageTypes.Error,
+            payload: {
+              name: (e as Error).name,
+              message: (e as Error).message,
+              stack: (e as Error).stack,
+            },
+          };
         }
       },
       getRPCOptions(messageBus)
