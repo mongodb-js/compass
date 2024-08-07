@@ -69,6 +69,14 @@ const defaultCSP = {
   ],
   'object-src': ["'none'"],
   'font-src': ['*', 'https://js.intercomcdn.com'],
+  // TODO: evaluate if this is all safe
+  'worker-src': [
+    "'self'",
+    "'unsafe-eval'",
+    "'unsafe-inline'",
+    'blob:',
+    'data:',
+  ],
 };
 
 function injectCSP() {
