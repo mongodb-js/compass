@@ -140,11 +140,12 @@ export async function waitForConnectionResult(
         .$('[data-testid="workspace-tab-button"][title=Databases]')
         .waitForDisplayed();
     } else if (TEST_MULTIPLE_CONNECTIONS) {
-      // For multiple connections, make sure the exact named connection is expanded
+      // For multiple connections, make sure the exact named connection is
+      // expanded. We're assuming that expanded means connected, although it is
+      // technically possible to collapse a connected connection. Something we
+      // might want to improve on later.
       await browser
-        .$(
-          `${Selectors.SidebarTreeItems}[aria-expanded=true] [data-testid="base-navigation-item"][data-connection-name="${connectionName}"]}`
-        )
+        .$(Selectors.Multiple.connectionItemByName(connectionName, true))
         .waitForDisplayed();
     } else {
       // In the single connection world we land on the My Queries page
