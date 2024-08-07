@@ -1,4 +1,3 @@
-import { BSON } from 'bson';
 import { expose, caller } from 'postmsg-rpc';
 import type { PostmsgRpcOptions } from 'postmsg-rpc';
 
@@ -34,12 +33,10 @@ function getRPCOptions(messageBus: RPCMessageBus): PostmsgRpcOptions {
     addListener: messageBus.addEventListener.bind(messageBus),
     removeListener: messageBus.removeEventListener.bind(messageBus),
     postMessage(data) {
-      return messageBus.postMessage(BSON.serialize(data));
+      return messageBus.postMessage(data);
     },
     getMessageData(data) {
-      return BSON.deserialize(
-        ((data as { data?: unknown })?.data ?? data) as any
-      );
+      return (data as { data?: unknown })?.data ?? data;
     },
   };
 }
@@ -66,11 +63,7 @@ export function exposeAll<O>(obj: O, messageBus: RPCMessageBus): Exposed<O> {
           // return type.
           return {
             type: RPCMessageTypes.Error,
-            payload: {
-              name: (e as Error).name,
-              message: (e as Error).message,
-              stack: (e as Error).stack,
-            },
+            payload: e,
           };
         }
       },

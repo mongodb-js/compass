@@ -2,6 +2,7 @@ import type { Exposed } from './rpc';
 import { exposeAll, close } from './rpc';
 import type { WorkerRuntime } from './index';
 import type { RuntimeEvaluationListener } from '@mongosh/browser-runtime-core';
+import { deserializeEvaluationResult } from './serializer';
 
 export class WorkerThreadEvaluationListener {
   exposedListener: Exposed<
@@ -19,6 +20,7 @@ export class WorkerThreadEvaluationListener {
           );
         },
         onPrint(values) {
+          values = values.map(deserializeEvaluationResult);
           return workerRuntime.evaluationListener?.onPrint?.(values);
         },
         setConfig(key, value) {

@@ -16,6 +16,10 @@ import type { InterruptHandle } from 'interruptor';
 import { interrupt as nativeInterrupt } from 'interruptor';
 import { WorkerThreadEvaluationListener } from './worker-thread-evaluation-listener';
 import { WorkerProcessMongoshBus } from './worker-process-mongosh-bus';
+import {
+  deserializeEvaluationResult,
+  serializeConnectOptions,
+} from './serializer';
 
 type DevtoolsConnectOptions = Parameters<
   typeof CompassServiceProvider['connect']
@@ -147,14 +151,16 @@ class WorkerRuntime implements Runtime {
 
     await this.workerProcessRuntime.init(
       this.initOptions.uri,
-      this.initOptions.driverOptions,
+      serializeConnectOptions(this.initOptions.driverOptions),
       this.initOptions.cliOptions
     );
   }
 
   async evaluate(code: string): Promise<RuntimeEvaluationResult> {
     await this.initWorkerPromise;
-    return await this.workerProcessRuntime.evaluate(code);
+    return deserializeEvaluationResult(
+      await this.workerProcessRuntime.evaluate(code)
+    );
   }
 
   async getCompletions(code: string) {

@@ -16,6 +16,10 @@ import type { UNLOCKED } from './lock';
 import { Lock } from './lock';
 import type { InterruptHandle } from 'interruptor';
 import { runInterruptible } from 'interruptor';
+import {
+  deserializeConnectOptions,
+  serializeEvaluationResult,
+} from './serializer';
 
 const mainProcessMessageBus = {
   addEventListener: addEventListener.bind(self),
@@ -68,7 +72,7 @@ const evaluationListener = createCaller<WorkerRuntimeEvaluationListener>(
       // args. onPrint only takes one arg which is an array of
       // RuntimeEvaluationResult so in this case it will just return a
       // single-element array that itself is an array.
-      return [results];
+      return [results.map(serializeEvaluationResult)];
     },
   }
 );
@@ -112,7 +116,7 @@ const workerRuntime: WorkerRuntime = {
     // TODO: Do we still need error?
     provider = await CompassServiceProvider.connect(
       uri,
-      driverOptions,
+      deserializeConnectOptions(driverOptions),
       cliOptions,
       messageBus
     );
@@ -173,7 +177,7 @@ const workerRuntime: WorkerRuntime = {
       throw new Error('Script execution was interrupted');
     }
 
-    return result;
+    return serializeEvaluationResult(result);
   },
 
   getCompletions(code: string): Promise<Completion[]> {
