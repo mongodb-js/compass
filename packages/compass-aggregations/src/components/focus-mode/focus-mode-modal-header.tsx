@@ -181,26 +181,23 @@ export const FocusModeModalHeader: React.FunctionComponent<
     <div className={controlsContainerStyles}>
       <div className={controlContainerStyles}>
         <Tooltip
-          isDisabled={isFirst}
-          trigger={({ children, ...props }) => (
-            <span {...props}>
-              {children}
-              <Button
+          enabled={!isFirst}
+          trigger={
+            <Button
+              size="xsmall"
+              disabled={isFirst}
+              onClick={onPreviousStage}
+              data-testid="previous-stage-button"
+              aria-label="Edit previous stage"
+            >
+              <Icon
                 size="xsmall"
-                disabled={isFirst}
-                onClick={onPreviousStage}
-                data-testid="previous-stage-button"
-                aria-label="Edit previous stage"
-              >
-                <Icon
-                  size="xsmall"
-                  title={null}
-                  role="presentation"
-                  glyph="ChevronLeft"
-                ></Icon>
-              </Button>
-            </span>
-          )}
+                title={null}
+                role="presentation"
+                glyph="ChevronLeft"
+              ></Icon>
+            </Button>
+          }
         >
           <Body className={tooltipContentStyles}>
             <span className={tooltipContentItemStyles}>
@@ -232,26 +229,23 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Select>
 
         <Tooltip
-          isDisabled={isLast}
-          trigger={({ children, ...props }) => (
-            <span {...props}>
-              {children}
-              <Button
+          enabled={!isLast}
+          trigger={
+            <Button
+              size="xsmall"
+              disabled={isLast}
+              onClick={onNextStage}
+              aria-label="Edit next stage"
+              data-testid="next-stage-button"
+            >
+              <Icon
                 size="xsmall"
-                disabled={isLast}
-                onClick={onNextStage}
-                aria-label="Edit next stage"
-                data-testid="next-stage-button"
-              >
-                <Icon
-                  size="xsmall"
-                  title={null}
-                  role="presentation"
-                  glyph="ChevronRight"
-                ></Icon>
-              </Button>
-            </span>
-          )}
+                title={null}
+                role="presentation"
+                glyph="ChevronRight"
+              ></Icon>
+            </Button>
+          }
         >
           <Body className={tooltipContentStyles}>
             <span>Go to next stage</span>

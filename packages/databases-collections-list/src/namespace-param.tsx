@@ -149,7 +149,6 @@ export const NamespaceParam: React.FunctionComponent<{
             tooltipProps={{
               align: 'top',
               justify: 'start',
-              delay: 500,
             }}
             definition={hint}
           >
