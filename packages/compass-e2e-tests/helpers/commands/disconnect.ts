@@ -92,6 +92,12 @@ export async function disconnectByName(
   browser: CompassBrowser,
   connectionName: string
 ) {
+  if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
+    // Clear the filter to make sure every connection shows
+    await browser.clickVisible(Selectors.SidebarFilterInput);
+    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+  }
+
   await browser.selectConnectionMenuItem(
     connectionName,
     Selectors.Multiple.DisconnectConnectionItem

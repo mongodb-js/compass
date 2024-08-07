@@ -4,6 +4,7 @@ import {
   cleanup,
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
+  DEFAULT_CONNECTION_NAME_2,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -11,7 +12,7 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
 
-describe.only('Global Tabs', function () {
+describe('Global Tabs', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -28,6 +29,7 @@ describe.only('Global Tabs', function () {
       await createNumbersCollection(collName, 1);
       await createNumbersCollection(collName, 1);
     }
+    await browser.screenshot('before-disconnect.png');
     await browser.disconnectAll();
     await browser.connectToDefaults();
   });
@@ -137,59 +139,90 @@ describe.only('Global Tabs', function () {
       this.skip();
     }
 
-    // TODO: connect to two connections' Documents tabs and the My Queries tab
-
+    // workspace 1: connection 1, Documents tab
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME_1,
       'test',
       'a',
-      'Aggregations'
+      'Documents',
+      false
     );
 
-    const workspaceOptions = {
+    // Click something to make sure we "modified" tab 1
+    await browser.clickVisible(
+      Selectors.queryBarApplyFilterButton('Documents')
+    );
+
+    // workspace 2: connection 2, Documents tab
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_2,
+      'test',
+      'a',
+      'Documents',
+      false
+    );
+
+    // Click something to make sure we "modified" tab 2
+    await browser.clickVisible(
+      Selectors.queryBarApplyFilterButton('Documents')
+    );
+
+    // workspace 3: My Qeries
+    await browser.navigateToMyQueries();
+
+    const workspace1Options = {
       connectionName: DEFAULT_CONNECTION_NAME_1,
       type: 'Collection',
       namespace: 'test.a',
     };
 
+    // check that they are all there
+
     expect(
-      await browser.$(Selectors.workspaceTab(workspaceOptions)).isExisting()
+      await browser.$(Selectors.workspaceTab(workspace1Options)).isExisting()
     ).to.be.true;
 
-    await browser.disconnectAll();
+    const workspace2Options = {
+      connectionName: DEFAULT_CONNECTION_NAME_2,
+      type: 'Collection',
+      namespace: 'test.a',
+    };
 
-    await browser.waitUntil(async () => {
-      const exists = await browser
-        .$(Selectors.workspaceTab(workspaceOptions))
-        .isExisting();
-      return exists === false;
-    });
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace2Options)).isExisting()
+    ).to.be.true;
 
-    // TODO: make sure that the other connection's tabs are still around and also the My Queries tab
-  });
-
-  it('should leave open the My Queries tab when disconnecting', async function () {
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
-    await browser.navigateToMyQueries();
-
-    const workspaceOptions = {
+    const workspace3Options = {
       type: 'My Queries',
     };
 
     expect(
-      await browser.$(Selectors.workspaceTab(workspaceOptions)).isExisting()
+      await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
     ).to.be.true;
 
-    await browser.disconnectAll();
+    // disconnect one connection
 
-    // give it a moment to see if it got closed in that time
+    await browser.disconnectByName(DEFAULT_CONNECTION_NAME_1);
+
+    // the workspace for connection 1 should go away
+    await browser.waitUntil(async () => {
+      const exists = await browser
+        .$(Selectors.workspaceTab(workspace1Options))
+        .isExisting();
+      return exists === false;
+    });
+
+    // give it a moment in case it takes time for workspaces to go away
     await browser.pause(1000);
 
+    // the workspace for connection 2 should still be there
     expect(
-      await browser.$(Selectors.workspaceTab(workspaceOptions)).isExisting()
+      await browser.$(Selectors.workspaceTab(workspace2Options)).isExisting()
+    ).to.be.true;
+
+    // the My Queries workspace should still be there
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
     ).to.be.true;
   });
 });

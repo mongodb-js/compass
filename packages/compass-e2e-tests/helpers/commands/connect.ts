@@ -144,6 +144,11 @@ export async function waitForConnectionResult(
       // expanded. We're assuming that expanded means connected, although it is
       // technically possible to collapse a connected connection. Something we
       // might want to improve on later.
+      if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
+        // Clear the filter to make sure every connection shows
+        await browser.clickVisible(Selectors.SidebarFilterInput);
+        await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+      }
       await browser
         .$(Selectors.Multiple.connectionItemByName(connectionName, true))
         .waitForDisplayed();
