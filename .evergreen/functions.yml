@@ -589,10 +589,14 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
+          ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          # Start atlas local to test Atlas Search
+          source .evergreen/start-atlas-local.sh
 
           echo "Running E2E tests while collecting coverage..."
 

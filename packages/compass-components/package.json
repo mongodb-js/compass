@@ -40,7 +40,7 @@
     "@leafygreen-ui/card": "^10.0.6",
     "@leafygreen-ui/checkbox": "^12.1.1",
     "@leafygreen-ui/code": "^14.3.1",
-    "@leafygreen-ui/confirmation-modal": "^5.0.11",
+    "@leafygreen-ui/confirmation-modal": "^5.2.0",
     "@leafygreen-ui/emotion": "^4.0.7",
     "@leafygreen-ui/guide-cue": "^5.0.6",
     "@leafygreen-ui/hooks": "^8.1.2",
@@ -89,6 +89,7 @@
     "react": "^17.0.2",
     "react-hotkeys-hook": "^4.3.7",
     "react-intersection-observer": "^8.34.0",
+    "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"
   },
   "devDependencies": {

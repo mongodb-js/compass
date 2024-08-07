@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
 import { palette } from '@leafygreen-ui/palette';
-import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { useDarkMode } from '../hooks/use-theme';
 import { ResizeDirection, ResizeHandle } from './resize-handle';
@@ -55,7 +54,7 @@ const containerStylesLight = css({
   backgroundColor: 'var(--bg-color)',
 });
 
-export const defaultSidebarWidth = spacing[6] * 4;
+export const defaultSidebarWidth = 300;
 
 const ResizableSidebar = ({
   initialWidth = defaultSidebarWidth,
