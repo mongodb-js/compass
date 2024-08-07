@@ -10,7 +10,7 @@ import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
 import { LogoIcon } from '../icons/logo-icon';
-import { Tooltip } from '../tooltip';
+import { Tooltip } from '../leafygreen';
 import { ServerIcon } from '../icons/server-icon';
 
 function focusedChild(className: string) {
@@ -236,91 +236,86 @@ function Tab({
 
   return (
     <Tooltip
-      isDisabled={!tooltip}
-      delay={300}
-      trigger={({ children, ...props }) => {
-        return (
+      enabled={!!tooltip}
+      trigger={
+        <div
+          ref={setNodeRef}
+          style={style}
+          className={cx(
+            tabStyles,
+            themeClass,
+            isSelected && selectedTabStyles,
+            isSelected && tabTheme && selectedThemedTabStyles,
+            isDragging && draggingTabStyles
+          )}
+          aria-selected={isSelected}
+          role="tab"
+          // Catch navigation on the active tab when a user tabs through Compass.
+          tabIndex={isSelected ? 0 : -1}
+          aria-controls={tabContentId}
+          data-testid="workspace-tab-button"
+          data-connectionName={connectionName}
+          data-type={type}
+          {...tabProps}
+        >
+          {iconGlyph === 'Logo' && (
+            <LogoIcon
+              height={16}
+              color={
+                isSelected
+                  ? 'var(--workspace-tab-selected-color)'
+                  : 'var(--workspace-tab-color)'
+              }
+              role="presentation"
+              className={tabIconStyles}
+              data-testid={`workspace-tab-icon-${iconGlyph}`}
+            />
+          )}
+          {iconGlyph === 'Server' && (
+            <ServerIcon
+              color={
+                isSelected
+                  ? 'var(--workspace-tab-selected-color)'
+                  : 'var(--workspace-tab-color)'
+              }
+              className={tabIconStyles}
+              data-testid={`workspace-tab-icon-${iconGlyph}`}
+            />
+          )}
+          {!['Logo', 'Server'].includes(iconGlyph) && (
+            <Icon
+              size="small"
+              role="presentation"
+              className={tabIconStyles}
+              glyph={iconGlyph}
+              data-testid={`workspace-tab-icon-${iconGlyph}`}
+            />
+          )}
+
           <div
-            {...props}
-            ref={setNodeRef}
-            style={style}
             className={cx(
-              tabStyles,
-              themeClass,
-              isSelected && selectedTabStyles,
-              isSelected && tabTheme && selectedThemedTabStyles,
-              isDragging && draggingTabStyles
+              tabTitleContainerStyles,
+              'workspace-tab-title-container'
             )}
-            aria-selected={isSelected}
-            role="tab"
-            // Catch navigation on the active tab when a user tabs through Compass.
-            tabIndex={isSelected ? 0 : -1}
-            aria-controls={tabContentId}
-            data-testid="workspace-tab-button"
-            data-connectionName={connectionName}
-            data-type={type}
-            {...tabProps}
           >
-            {children}
-            {iconGlyph === 'Logo' && (
-              <LogoIcon
-                height={16}
-                color={
-                  isSelected
-                    ? 'var(--workspace-tab-selected-color)'
-                    : 'var(--workspace-tab-color)'
-                }
-                role="presentation"
-                className={tabIconStyles}
-                data-testid={`workspace-tab-icon-${iconGlyph}`}
-              />
-            )}
-            {iconGlyph === 'Server' && (
-              <ServerIcon
-                color={
-                  isSelected
-                    ? 'var(--workspace-tab-selected-color)'
-                    : 'var(--workspace-tab-color)'
-                }
-                className={tabIconStyles}
-                data-testid={`workspace-tab-icon-${iconGlyph}`}
-              />
-            )}
-            {!['Logo', 'Server'].includes(iconGlyph) && (
-              <Icon
-                size="small"
-                role="presentation"
-                className={tabIconStyles}
-                glyph={iconGlyph}
-                data-testid={`workspace-tab-icon-${iconGlyph}`}
-              />
-            )}
-
-            <div
-              className={cx(
-                tabTitleContainerStyles,
-                'workspace-tab-title-container'
-              )}
-            >
-              <div className={cx(tabTitleStyles, 'workspace-tab-title')}>
-                {title}
-              </div>
+            <div className={cx(tabTitleStyles, 'workspace-tab-title')}>
+              {title}
             </div>
-
-            <IconButton
-              className={cx(closeButtonStyles, 'workspace-tab-close-button')}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              aria-label="Close Tab"
-              data-testid="close-workspace-tab"
-            >
-              <Icon glyph="X" role="presentation" />
-            </IconButton>
           </div>
-        );
-      }}
+
+          <IconButton
+            className={cx(closeButtonStyles, 'workspace-tab-close-button')}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Close Tab"
+            data-testid="close-workspace-tab"
+          >
+            <Icon glyph="X" role="presentation" />
+          </IconButton>
+        </div>
+      }
     >
       {tooltip &&
         tooltip.map(([label, value]) => (
