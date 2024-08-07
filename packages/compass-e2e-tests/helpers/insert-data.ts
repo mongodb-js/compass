@@ -3,32 +3,6 @@ import type { Db, MongoServerError } from 'mongodb';
 
 const CONNECTION_URI = 'mongodb://127.0.0.1:27091';
 
-export async function dropDatabase(db: Db | string) {
-  const database = typeof db === 'string' ? client.db(db) : db;
-  try {
-    await database.dropDatabase();
-  } catch (err) {
-    const codeName = (err as MongoServerError).codeName;
-    if (codeName !== 'NamespaceNotFound') {
-      throw err;
-    }
-  }
-}
-
-export async function createBlankCollection(db: Db | string, name: string) {
-  const database = typeof db === 'string' ? client.db(db) : db;
-  try {
-    await database.createCollection(name);
-  } catch (err) {
-    const codeName = (err as MongoServerError).codeName;
-    if (codeName === 'NamespaceExists') {
-      await database.collection(name).deleteMany({});
-    } else {
-      throw err;
-    }
-  }
-}
-
 let client: MongoClient;
 
 before(async () => {
@@ -42,8 +16,7 @@ after(async () => {
 });
 
 beforeEach(async () => {
-  // Drop the databases that get created by tests just in case tests failed to
-  // clean them up.
+  // Drop the databases that get created by tests or the functions below
   await Promise.all(
     [
       'test',
@@ -51,8 +24,7 @@ beforeEach(async () => {
       'my-instance-database',
       'fle-test',
       'db-for-fle',
-      'multiple-collections',
-    ].map((db) => dropDatabase(client.db(db)))
+    ].map((db) => _dropDatabase(client.db(db)))
   );
 });
 
@@ -63,23 +35,23 @@ export async function createDummyCollections(): Promise<void> {
   // Create some empty collections for the import tests so each one won't have
   // to possibly drop and create via the UI every time.
   // (named loosely after the relevant test)
-  promises.push(createBlankCollection(db, 'json-array'));
-  promises.push(createBlankCollection(db, 'json-file'));
-  promises.push(createBlankCollection(db, 'extended-json-file'));
-  promises.push(createBlankCollection(db, 'csv-file'));
-  promises.push(createBlankCollection(db, 'array-documents'));
-  promises.push(createBlankCollection(db, 'bom-csv-file'));
-  promises.push(createBlankCollection(db, 'latin1'));
-  promises.push(createBlankCollection(db, 'broken-delimiter'));
-  promises.push(createBlankCollection(db, 'numbers'));
-  promises.push(createBlankCollection(db, 'import-stop-first-error'));
-  promises.push(createBlankCollection(db, 'import-with-errors'));
-  promises.push(createBlankCollection(db, 'compass-import-abort-e2e-test'));
+  promises.push(_createBlankCollection(db, 'json-array'));
+  promises.push(_createBlankCollection(db, 'json-file'));
+  promises.push(_createBlankCollection(db, 'extended-json-file'));
+  promises.push(_createBlankCollection(db, 'csv-file'));
+  promises.push(_createBlankCollection(db, 'array-documents'));
+  promises.push(_createBlankCollection(db, 'bom-csv-file'));
+  promises.push(_createBlankCollection(db, 'latin1'));
+  promises.push(_createBlankCollection(db, 'broken-delimiter'));
+  promises.push(_createBlankCollection(db, 'numbers'));
+  promises.push(_createBlankCollection(db, 'import-stop-first-error'));
+  promises.push(_createBlankCollection(db, 'import-with-errors'));
+  promises.push(_createBlankCollection(db, 'compass-import-abort-e2e-test'));
 
   // lots of collections to test virtual scrolling
   for (let i = 0; i < 26; ++i) {
     promises.push(
-      createBlankCollection(
+      _createBlankCollection(
         db,
         'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
       )
@@ -142,18 +114,6 @@ export async function createNumbersStringCollection(
   );
 }
 
-export async function createMultipleCollections(): Promise<void> {
-  const db = client.db('multiple-collections');
-
-  await db
-    .collection('one')
-    .insertMany([...Array(10).keys()].map((i) => ({ i, j: 0 })));
-
-  await db
-    .collection('two')
-    .insertMany([...Array(10).keys()].map((i) => ({ i, j: 0 })));
-}
-
 export async function createGeospatialCollection(): Promise<void> {
   const db = client.db('test');
 
@@ -165,4 +125,42 @@ export async function createGeospatialCollection(): Promise<void> {
       location: { type: 'Point', coordinates: [lon(), lat()] },
     }))
   );
+}
+
+// WARNING: please don't export _dropDatabase because this file is written to
+// manage ALL test databases and collections and clean them up. If we start
+// creating arbitrary databases and collections in tests then those tests have
+// to start managing arbitrary cleanup too, defeating the purpose.
+// Anything you put in the beforeEach hook above will be dropped automatically.
+export async function _dropDatabase(db: Db | string) {
+  const database = typeof db === 'string' ? client.db(db) : db;
+  try {
+    await database.dropDatabase();
+  } catch (err) {
+    const codeName = (err as MongoServerError).codeName;
+    if (codeName !== 'NamespaceNotFound') {
+      throw err;
+    }
+  }
+}
+
+// WARNING: please don't export _createBlankCollection because this file is
+// written to manage ALL test dataases and collections and clean them up. If we
+// start creating arbitrary databases and collections in tests then those tests
+// have to start managing arbitrary cleanup too, defeating the purpose.
+// Just add more to createDummyCollections(), but really anything you put inside
+// one of the databases that get dropped in the beforeEach hook above will be
+// dropped automatically.
+async function _createBlankCollection(db: Db | string, name: string) {
+  const database = typeof db === 'string' ? client.db(db) : db;
+  try {
+    await database.createCollection(name);
+  } catch (err) {
+    const codeName = (err as MongoServerError).codeName;
+    if (codeName === 'NamespaceExists') {
+      await database.collection(name).deleteMany({});
+    } else {
+      throw err;
+    }
+  }
 }
