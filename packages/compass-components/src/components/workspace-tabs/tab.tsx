@@ -42,7 +42,7 @@ const tabStyles = css({
   position: 'relative',
   outline: 'none',
 
-  backgroundColor: 'var(--workspace-tab-background-color)', // TODO
+  backgroundColor: 'var(--workspace-tab-background-color)',
   color: 'var(--workspace-tab-color)',
   boxShadow: 'inset -1px -1px 0 0 var(--workspace-tab-border-color)',
 

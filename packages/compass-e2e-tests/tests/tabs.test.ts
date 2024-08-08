@@ -9,7 +9,6 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
-import { closeWorkspaceTab } from '../helpers/commands';
 
 describe('Global Tabs', function () {
   let compass: Compass;
