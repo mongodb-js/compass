@@ -52,6 +52,8 @@ async function resetForDisconnect(browser: CompassBrowser) {
     await browser.clickVisible(Selectors.SidebarFilterInput);
     await browser.setValueVisible(Selectors.SidebarFilterInput, '');
   }
+
+  await browser.hideAllVisibleToasts();
 }
 
 export async function disconnectAll(
@@ -62,6 +64,10 @@ export async function disconnectAll(
     closeToasts?: boolean;
   } = {}
 ): Promise<void> {
+  // This command is mostly intended for use inside a beforeEach() hook,
+  // probably in conjunction with browser.connectToDefaults() so that each test
+  // will start off with multiple connections already connected.
+
   if (TEST_COMPASS_WEB) {
     return await disconnectAllWeb(browser);
   }
@@ -70,6 +76,8 @@ export async function disconnectAll(
     return await disconnectAllSingle(browser);
   }
 
+  // The previous test could have ended with modals and/or toasts left open and
+  // a search filter in the sidebar. Reset those so we can get to a known state.
   await resetForDisconnect(browser);
 
   // The potential problem here is that the list is virtual, so it is possible
