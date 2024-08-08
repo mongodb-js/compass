@@ -9,6 +9,7 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { expect } from 'chai';
+import { closeWorkspaceTab } from '../helpers/commands';
 
 describe('Global Tabs', function () {
   let compass: Compass;
@@ -103,6 +104,12 @@ describe('Global Tabs', function () {
       '[{$match: { i: 0 }}]'
     );
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
@@ -116,6 +123,12 @@ describe('Global Tabs', function () {
     // Checking first that cancel leaves the tab on the screen
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 

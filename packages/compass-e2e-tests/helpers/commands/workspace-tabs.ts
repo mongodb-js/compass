@@ -85,19 +85,5 @@ export async function closeWorkspaceTab(
   browser: CompassBrowser,
   selectorOptions: WorkspaceTabSelectorOptions
 ): Promise<void> {
-  const currentTabId = await browser
-    .$(Selectors.workspaceTab({ active: true }))
-    .getAttribute('id');
-  const targetTabId = await browser
-    .$(Selectors.workspaceTab(selectorOptions))
-    .getAttribute('id');
-
-  if (currentTabId !== targetTabId) {
-    // The tab we want to close isn't the active one so the close button isn't
-    // visible. We can either focus it which would have the side-effect of
-    // changing the tab focus or we can try and hover over it.
-    await browser.hover(Selectors.workspaceTab(selectorOptions));
-  }
-
   await closeTab(browser, selectorOptions, true);
 }
