@@ -87,6 +87,10 @@ export async function navigateWithinCurrentCollectionTabs(
 
   // otherwise select the tab and wait for it to become selected
   await browser.clickVisible(tab);
+
+  // clicking on the tab displays the tooltip, we need to move out of there before other actions
+  await browser.hover(Selectors.Sidebar);
+
   await waitUntilActiveCollectionSubTab(browser, tabName);
 }
 
