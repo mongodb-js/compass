@@ -27,6 +27,7 @@ describe('Shell', function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('enableShell', true);
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {

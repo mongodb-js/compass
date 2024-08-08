@@ -1,6 +1,7 @@
 import {
+  DEFAULT_CONNECTION_NAME_1,
+  DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_STRING_2,
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
@@ -41,10 +42,19 @@ export async function getConnectFormConnectionString(
   return await inputElem.getValue();
 }
 
+type ConnectionResultOptions = {
+  connectionStatus?: 'success' | 'failure' | 'either';
+  timeout?: number;
+};
+
+type ConnectOptions = ConnectionResultOptions & {
+  removeConnections?: boolean;
+};
+
 export async function connectWithConnectionString(
   browser: CompassBrowser,
   connectionString = DEFAULT_CONNECTION_STRING_1,
-  options: ConnectionResultOptions = {}
+  options: ConnectOptions = {}
 ): Promise<void> {
   if (TEST_MULTIPLE_CONNECTIONS) {
     // if the modal is still animating away when we're connecting again, things
@@ -79,7 +89,7 @@ export async function connectWithConnectionString(
 export async function connectWithConnectionForm(
   browser: CompassBrowser,
   state: ConnectFormState,
-  options: ConnectionResultOptions = {}
+  options: ConnectOptions = {}
 ): Promise<void> {
   // If a connectionName is specified and a connection already exists with this
   // name, make sure we don't add a duplicate so that tests can always address
@@ -103,11 +113,6 @@ export async function connectWithConnectionForm(
   const connectionName = state.connectionName;
   await browser.doConnect(connectionName, options);
 }
-
-type ConnectionResultOptions = {
-  connectionStatus?: 'success' | 'failure' | 'either';
-  timeout?: number;
-};
 
 export async function doConnect(
   browser: CompassBrowser,
@@ -184,11 +189,27 @@ export async function waitForConnectionResult(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
-  await browser.connectWithConnectionString(DEFAULT_CONNECTION_STRING_1);
-
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.connectWithConnectionString(DEFAULT_CONNECTION_STRING_2);
+  await browser.clickVisible(
+    Selectors.sidebarConnectionButton(DEFAULT_CONNECTION_NAME_1)
+  );
+  if (!TEST_MULTIPLE_CONNECTIONS) {
+    // for single connections it only fills the connection form and we still
+    // have to click connect. For multiple connections clicking the connection
+    // connects
+    await browser.pause(1000);
+    await browser.clickVisible(Selectors.ConnectButton);
   }
 
+  await browser.waitForConnectionResult(DEFAULT_CONNECTION_NAME_1);
+
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    await browser.clickVisible(
+      Selectors.sidebarConnectionButton(DEFAULT_CONNECTION_NAME_2)
+    );
+    await browser.waitForConnectionResult(DEFAULT_CONNECTION_NAME_2);
+  }
+
+  // we assume that we connected successfully, so just close the success toasts
+  // early to make sure they aren't in the way of tests
   await browser.hideAllVisibleToasts();
 }

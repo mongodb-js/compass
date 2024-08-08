@@ -107,7 +107,7 @@ async function getFormattedDocument(browser: CompassBrowser) {
     .replace(/\s+/g, ' ');
 }
 
-describe('Collection documents tab', function () {
+describe.only('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -117,6 +117,7 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {

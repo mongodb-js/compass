@@ -77,6 +77,8 @@ export const MONGODB_TEST_SERVER_PORT = Number(
 );
 
 export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
+// explicit name, so it gets a calculated one based off the connection string
 export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
   DEFAULT_CONNECTION_STRING_1
 );
@@ -85,9 +87,8 @@ export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
 export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${
   MONGODB_TEST_SERVER_PORT + 1
 }/test`;
-export const DEFAULT_CONNECTION_NAME_2 = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING_2
-);
+// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
+export const DEFAULT_CONNECTION_NAME_2 = 'connection-2';
 
 export function updateMongoDBServerInfo() {
   try {

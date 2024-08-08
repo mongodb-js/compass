@@ -19,6 +19,7 @@ describe('Instance performance tab', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
 
     await browser.disconnectAll();
     await browser.connectToDefaults();

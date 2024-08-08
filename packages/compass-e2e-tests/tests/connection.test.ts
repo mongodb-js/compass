@@ -311,7 +311,7 @@ describe('Connection string', function () {
   });
 
   it('can connect using connection string', async function () {
-    await browser.connectToDefaults();
+    await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
         DEFAULT_CONNECTION_NAME_1,

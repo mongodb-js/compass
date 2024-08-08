@@ -87,6 +87,7 @@ describe('Collection Rename Modal', () => {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
 
     await browser.setFeature('enableRenameCollectionModal', true);
   });

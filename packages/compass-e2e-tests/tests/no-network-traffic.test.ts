@@ -68,6 +68,8 @@ describe('networkTraffic: false / Isolated Edition', function () {
     });
     const browser = compass.browser;
 
+    await browser.setupDefaultConnections();
+
     {
       // TODO: Remove this once we are including https://github.com/mongodb-js/mongosh/pull/1349
       const exitOnDisconnectFile = path.join(tmpdir, 'exitOnDisconnect.js');

@@ -124,6 +124,7 @@ describe('Atlas Login', function () {
       'browserCommandForOIDCAuth',
       getTestBrowserShellCommand()
     );
+    await browser.setupDefaultConnections();
   });
 
   afterEach(async function () {

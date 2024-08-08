@@ -25,6 +25,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('readOnly', false);
+    await browser.setupDefaultConnections();
   });
 
   afterEach(async function () {

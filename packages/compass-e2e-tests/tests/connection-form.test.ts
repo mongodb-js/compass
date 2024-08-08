@@ -26,6 +26,7 @@ describe('Connection form', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   after(async function () {

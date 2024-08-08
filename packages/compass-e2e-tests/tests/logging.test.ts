@@ -24,6 +24,7 @@ describe('Logging and Telemetry integration', function () {
       telemetry = await startTelemetryServer();
       const compass = await init(this.test?.fullTitle(), { firstRun: true });
       const { browser } = compass;
+      await browser.setupDefaultConnections();
 
       try {
         await browser.connectToDefaults();
@@ -411,8 +412,9 @@ describe('Logging and Telemetry integration', function () {
     before(async function () {
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
+      const { browser } = compass;
 
-      await compass.browser.setFeature('telemetryAtlasUserId', auid);
+      await browser.setFeature('telemetryAtlasUserId', auid);
     });
 
     afterEach(async function () {

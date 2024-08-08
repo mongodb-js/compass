@@ -49,6 +49,7 @@ describe('My Queries tab', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
   beforeEach(async function () {
     await createNumbersCollection();
