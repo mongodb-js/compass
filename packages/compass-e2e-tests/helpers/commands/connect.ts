@@ -56,6 +56,10 @@ export async function connectWithConnectionString(
   connectionString = DEFAULT_CONNECTION_STRING_1,
   options: ConnectOptions = {}
 ): Promise<void> {
+  // Use this command when you need to add a new connection with a specific
+  // connection string. Most test files should just be using
+  // browser.connectToDefaults()
+
   if (TEST_MULTIPLE_CONNECTIONS) {
     // if the modal is still animating away when we're connecting again, things
     // are going to get confused
@@ -66,7 +70,6 @@ export async function connectWithConnectionString(
     // if a connection with this name already exists, remove it otherwise we'll
     // add a duplicate and things will get complicated fast
     const connectionName = connectionNameFromString(connectionString);
-    // TODO: remove this or at least make it optional
     if (await browser.removeConnection(connectionName)) {
       debug('Removing existing connection so we do not create a duplicate', {
         connectionName,
@@ -91,11 +94,14 @@ export async function connectWithConnectionForm(
   state: ConnectFormState,
   options: ConnectOptions = {}
 ): Promise<void> {
+  // Use this command when you need to add a new connection with specific
+  // connect form field values. Most test files should just be using
+  // browser.connectToDefaults()
+
   // If a connectionName is specified and a connection already exists with this
   // name, make sure we don't add a duplicate so that tests can always address
   // this new connection.
   if (state.connectionName) {
-    // TODO: remove this or at least make it optional
     if (await browser.removeConnection(state.connectionName)) {
       debug('Removing existing connection so we do not create a duplicate', {
         connectionName: state.connectionName,
@@ -189,9 +195,12 @@ export async function waitForConnectionResult(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
+  // See setupDefaultConnections() for the details behind the thinking here.
+
   await browser.clickVisible(
     Selectors.sidebarConnectionButton(DEFAULT_CONNECTION_NAME_1)
   );
+
   if (!TEST_MULTIPLE_CONNECTIONS) {
     // for single connections it only fills the connection form and we still
     // have to click connect. For multiple connections clicking the connection
@@ -209,7 +218,8 @@ export async function connectToDefaults(browser: CompassBrowser) {
     await browser.waitForConnectionResult(DEFAULT_CONNECTION_NAME_2);
   }
 
-  // we assume that we connected successfully, so just close the success toasts
-  // early to make sure they aren't in the way of tests
+  // We assume that we connected successfully, so just close the success toasts
+  // early to make sure they aren't in the way of tests. Tests that care about
+  // those toasts don't and shouldn't be using this command.
   await browser.hideAllVisibleToasts();
 }

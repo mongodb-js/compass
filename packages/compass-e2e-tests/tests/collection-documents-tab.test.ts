@@ -107,7 +107,7 @@ async function getFormattedDocument(browser: CompassBrowser) {
     .replace(/\s+/g, ' ');
 }
 
-describe.only('Collection documents tab', function () {
+describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;

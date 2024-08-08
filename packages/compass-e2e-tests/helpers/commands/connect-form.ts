@@ -890,6 +890,29 @@ export async function saveConnection(
 }
 
 export async function setupDefaultConnections(browser: CompassBrowser) {
+  /*
+  This is intended to be used by most test files (ones that don't care too much
+  about the intricacies about connections) in a before() hook after starting
+  compass.
+  
+  A beforeEach() hook can then use await browser.disconnectAll() to
+  disconnect all connections and use browser.connectToDefaults() to connect
+  to the existing connections without having to create them again via the
+  connection form.
+  
+  Then every test in that file starts with two connections that have the same
+  databases and collections. This forces tests to always encounter the "worst
+  case" where there are multiple connections connected and the database and
+  collection names are ambiguous.
+
+  There is no good reason for this command to use the UI to create the
+  connections. It could also import them from a file, for example. Alternatively
+  we could have used the CLI to import connections from a file, but then that
+  affects the way we start compass and ties up the optional CLI parameters
+  whereas we do have some tests that try and use those. We can easily change
+  this in future if needed, though.
+  */
+
   for (const connectionName of [
     DEFAULT_CONNECTION_NAME_1,
     DEFAULT_CONNECTION_NAME_2,
