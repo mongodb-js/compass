@@ -15,7 +15,6 @@ describe('#handleUpdateOIDCParam', function () {
       },
       connectionOptions: {
         connectionString: 'http://localhost:27017',
-        useSystemCA: true,
         oidc: {
           redirectURI: 'https://mongodb.com',
         },
@@ -24,7 +23,6 @@ describe('#handleUpdateOIDCParam', function () {
     expect(res).to.deep.equal({
       connectionOptions: {
         connectionString: 'http://localhost:27017',
-        useSystemCA: true,
         oidc: {
           allowedFlows: ['device-auth'],
           redirectURI: 'https://mongodb.com',
@@ -42,7 +40,6 @@ describe('#handleUpdateOIDCParam', function () {
       },
       connectionOptions: {
         connectionString: 'http://localhost:27017',
-        useSystemCA: true,
         oidc: {
           allowedFlows: ['device-auth'],
           redirectURI: 'https://mongodb.com',
@@ -52,7 +49,6 @@ describe('#handleUpdateOIDCParam', function () {
     expect(res).to.deep.equal({
       connectionOptions: {
         connectionString: 'http://localhost:27017',
-        useSystemCA: true,
         oidc: {
           redirectURI: 'https://mongodb.com',
         },
@@ -70,7 +66,6 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
       notifyDeviceFlow: notifyDeviceFlowMock,
     })({
       connectionString: 'http://localhost:27017',
-      useSystemCA: true,
       oidc: {
         redirectURI: 'https://mongodb.com',
       },
@@ -78,7 +73,6 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
 
     expect(result).to.deep.equal({
       connectionString: 'http://localhost:27017',
-      useSystemCA: true,
       oidc: {
         redirectURI: 'https://mongodb.com',
         notifyDeviceFlow: notifyDeviceFlowMock,
@@ -89,7 +83,6 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
   it('returns oidc options without notify device flow when not supplied', function () {
     const result = adjustOIDCConnectionOptionsBeforeConnect({})({
       connectionString: 'http://localhost:27017',
-      useSystemCA: true,
       oidc: {
         redirectURI: 'https://mongodb.com',
       },
@@ -97,7 +90,6 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
 
     expect(result).to.deep.equal({
       connectionString: 'http://localhost:27017',
-      useSystemCA: true,
       oidc: {
         redirectURI: 'https://mongodb.com',
       },
@@ -112,7 +104,6 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
         browserCommandForOIDCAuth: mockBrowserCommand,
       })({
         connectionString: 'http://localhost:27017',
-        useSystemCA: true,
         oidc: {
           redirectURI: 'https://mongodb.com',
         },
@@ -120,7 +111,6 @@ describe('#adjustOIDCConnectionOptionsBeforeConnect', function () {
 
       expect(result).to.deep.equal({
         connectionString: 'http://localhost:27017',
-        useSystemCA: true,
         oidc: {
           redirectURI: 'https://mongodb.com',
           openBrowser: {

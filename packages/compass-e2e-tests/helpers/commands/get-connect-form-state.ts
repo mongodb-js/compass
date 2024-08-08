@@ -140,10 +140,6 @@ export async function getConnectFormState(
       browser,
       Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
     ),
-    useSystemCA: getCheckboxValue(
-      browser,
-      Selectors.ConnectionFormTlsUseSystemCACheckbox
-    ),
   });
 
   // Proxy/SSH

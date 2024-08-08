@@ -14,7 +14,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
-import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import TLSClientCertificate from './tls-client-certificate';
@@ -85,11 +84,9 @@ export function getTLSOptionForConnectionString(
 
 function TLSTab({
   connectionStringUrl,
-  connectionOptions,
   updateConnectionFormField,
 }: {
   connectionStringUrl: ConnectionStringUrl;
-  connectionOptions: ConnectionOptions;
   updateConnectionFormField: UpdateConnectionFormField;
 }): React.ReactElement {
   const tlsOption = getTLSOptionForConnectionString(connectionStringUrl);
@@ -170,7 +167,6 @@ function TLSTab({
       </FormFieldContainer>
       <TLSCertificateAuthority
         tlsCAFile={searchParams.get('tlsCAFile')}
-        useSystemCA={!!connectionOptions.useSystemCA}
         disabled={tlsOptionsDisabled}
         handleTlsOptionChanged={handleTlsOptionChanged}
       />

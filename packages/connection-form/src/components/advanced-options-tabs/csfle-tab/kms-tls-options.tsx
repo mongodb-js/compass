@@ -38,14 +38,9 @@ function KMSTLSOptions({
     <>
       <TLSCertificateAuthority
         tlsCAFile={currentOptions.tlsCAFile}
-        useSystemCA={false /* TODO(COMPASS-5635) */}
-        hideUseSystemCA={true /* TODO(COMPASS-5635) */}
         disabled={false}
         handleTlsOptionChanged={(key, value) =>
-          handleFieldChanged(
-            key as 'tlsCAFile' /* COMPASS-5635 */,
-            value ?? undefined
-          )
+          handleFieldChanged(key, value ?? undefined)
         }
         displayDatabaseConnectionUserHints={false}
       />
