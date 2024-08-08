@@ -304,41 +304,55 @@ describe('useConnections', function () {
       });
     });
 
-    it('should NOT update existing connection with new props when existing connection is successfull', async function () {
-      const connections = renderHookWithContext();
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+    for (const multipleConnectionsEnabled of [true, false]) {
+      describe(`when multiple connections ${
+        multipleConnectionsEnabled ? 'enabled' : 'disabled'
+      }`, function () {
+        it('should NOT update existing connection with new props when existing connection is successfull', async function () {
+          await preferences.savePreferences({
+            enableNewMultipleConnectionSystem: multipleConnectionsEnabled,
+          });
 
-      await connections.current.connect({
-        ...mockConnections[0],
-        favorite: { name: 'foobar' },
+          const connections = renderHookWithContext();
+          const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+
+          await connections.current.connect({
+            ...mockConnections[0],
+            favorite: { name: 'foobar' },
+          });
+
+          // Only once on success so that we're not updating existing connections if
+          // they failed
+          expect(saveSpy).to.have.been.calledOnce;
+          expect(saveSpy.getCall(0)).to.have.nested.property(
+            'args[0].connectionInfo.favorite.name',
+            'turtles'
+          );
+        });
+
+        it('should not update existing connection if connection failed', async function () {
+          await preferences.savePreferences({
+            enableNewMultipleConnectionSystem: multipleConnectionsEnabled,
+          });
+
+          const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+          const onConnectionFailed = sinon.spy();
+          const connections = renderHookWithContext({ onConnectionFailed });
+
+          sinon
+            .stub(connectionsManager, 'connect')
+            .rejects(new Error('Failed to connect'));
+
+          await connections.current.connect({
+            ...mockConnections[0],
+            favorite: { name: 'foobar' },
+          });
+
+          expect(onConnectionFailed).to.have.been.calledOnce;
+          expect(saveSpy).to.not.have.been.called;
+        });
       });
-
-      // Only once on success so that we're not updating existing connections if
-      // they failed
-      expect(saveSpy).to.have.been.calledOnce;
-      expect(saveSpy.getCall(0)).to.have.nested.property(
-        'args[0].connectionInfo.favorite.name',
-        'turtles'
-      );
-    });
-
-    it('should not update existing connection if connection failed', async function () {
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-      const onConnectionFailed = sinon.spy();
-      const connections = renderHookWithContext({ onConnectionFailed });
-
-      sinon
-        .stub(connectionsManager, 'connect')
-        .rejects(new Error('Failed to connect'));
-
-      await connections.current.connect({
-        ...mockConnections[0],
-        favorite: { name: 'foobar' },
-      });
-
-      expect(onConnectionFailed).to.have.been.calledOnce;
-      expect(saveSpy).to.not.have.been.called;
-    });
+    }
   });
 
   describe('#disconnect', function () {
