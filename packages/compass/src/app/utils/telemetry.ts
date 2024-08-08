@@ -115,15 +115,15 @@ async function getHostnameForConnection(
         return null;
       }
     );
-    if (!uri) {
-      return null;
+    if (uri) {
+      connectionStringData = new ConnectionString(uri, {
+        looseValidation: true,
+      });
     }
-    connectionStringData = new ConnectionString(uri, {
-      looseValidation: true,
-    });
   }
 
-  return connectionStringData.hosts[0];
+  const [hostname] = (connectionStringData.hosts[0] ?? '').split(':');
+  return hostname;
 }
 
 async function getConnectionData(

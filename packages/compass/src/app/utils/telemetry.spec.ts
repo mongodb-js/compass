@@ -717,6 +717,104 @@ describe('connection tracking', function () {
     expect(properties.topology_type).to.equal('Sharded');
   });
 
+  it('tracks hostname without port', async function () {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          isLocalAtlas: false,
+          featureCompatibilityVersion: null,
+        } as any);
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+    const trackEvent = once(process, 'compass:track');
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        connectionString:
+          'mongodb://test-000-shard-00-00.test.mongodb.net:27017',
+      },
+    };
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    const [{ properties }] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.atlas_hostname).to.equal(
+      'test-000-shard-00-00.test.mongodb.net'
+    );
+  });
+
+  it('falls back to original url if cannot resolve srv', async function () {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          isLocalAtlas: false,
+          featureCompatibilityVersion: null,
+        } as any);
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+    const trackEvent = once(process, 'compass:track');
+
+    // The fake srv connection string cannot be resolved,
+    // But expected to fall back to the original hostname from uri
+    // When retrieving atlas_hostname for telemetry
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        connectionString:
+          'mongodb+srv://test-000-shard-00-00.test.mongodb.net:27017',
+      },
+    };
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    const [{ properties }] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.atlas_hostname).to.equal(
+      'test-000-shard-00-00.test.mongodb.net'
+    );
+  });
+
   it('tracks connection error event', async function () {
     const trackEvent = once(process, 'compass:track');
     const connection: ConnectionInfo = {
