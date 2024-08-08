@@ -47,7 +47,7 @@ export type Cue = {
   isVisited: boolean;
 };
 
-export class GuideCueService extends EventTarget {
+export class GuideCueService extends window.EventTarget {
   private _cues: Cue[] = [];
 
   private _activeGroupId: GroupName | null = null;
@@ -88,19 +88,16 @@ export class GuideCueService extends EventTarget {
     if (!this._activeCue) {
       return;
     }
-    try {
-      return this.dispatchEvent(
-        new CustomEvent('show-cue', {
-          detail: {
-            cueId: this._activeCue.cueId,
-            groupId: this._activeCue.groupId,
-          },
-        })
-      );
-    } catch (ex) {
-      // TODO(COMPASS-7357): this seems to be a temporary error happening sometimes during test.
-      // In that case, assume the event is not dispatched
-    }
+    return this.dispatchEvent(
+      // COMPASS-7357: jsdom `EventTarget` doesn't play nicely with Node.js `CustomEvent` yet,
+      // so always pick the `window`/jsdom-based variant
+      new window.CustomEvent('show-cue', {
+        detail: {
+          cueId: this._activeCue.cueId,
+          groupId: this._activeCue.groupId,
+        },
+      })
+    );
   }
 
   private validateCueData(groupId: GroupName, step: number) {

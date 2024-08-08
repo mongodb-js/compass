@@ -57,17 +57,20 @@ interface GlobalConfirmation extends EventTarget {
 
 let confirmationId = 0;
 
-class GlobalConfirmation extends EventTarget {
+class GlobalConfirmation extends window.EventTarget {
   showConfirmation(props: ConfirmationProperties) {
     return new Promise<boolean>((resolve, reject) => {
       this.dispatchEvent(
-        new CustomEvent<ShowConfirmationEventDetail>('show-confirmation', {
-          detail: {
-            props: { ...props, confirmationId: ++confirmationId },
-            resolve,
-            reject,
-          },
-        })
+        new window.CustomEvent<ShowConfirmationEventDetail>(
+          'show-confirmation',
+          {
+            detail: {
+              props: { ...props, confirmationId: ++confirmationId },
+              resolve,
+              reject,
+            },
+          }
+        )
       );
     });
   }
