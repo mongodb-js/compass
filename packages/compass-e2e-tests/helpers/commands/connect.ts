@@ -56,6 +56,7 @@ export async function connectWithConnectionString(
     // if a connection with this name already exists, remove it otherwise we'll
     // add a duplicate and things will get complicated fast
     const connectionName = connectionNameFromString(connectionString);
+    // TODO: remove this or at least make it optional
     if (await browser.removeConnection(connectionName)) {
       debug('Removing existing connection so we do not create a duplicate', {
         connectionName,
@@ -84,6 +85,7 @@ export async function connectWithConnectionForm(
   // name, make sure we don't add a duplicate so that tests can always address
   // this new connection.
   if (state.connectionName) {
+    // TODO: remove this or at least make it optional
     if (await browser.removeConnection(state.connectionName)) {
       debug('Removing existing connection so we do not create a duplicate', {
         connectionName: state.connectionName,

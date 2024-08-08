@@ -40,6 +40,20 @@ async function disconnectAllSingle(browser: CompassBrowser) {
   await delay(100);
 }
 
+async function resetForDisconnect(browser: CompassBrowser) {
+  if (await browser.$(Selectors.LGModal).isDisplayed()) {
+    // close any modals that might be in the way
+    await browser.clickVisible(Selectors.LGModalClose);
+    await browser.$(Selectors.LGModal).waitForDisplayed({ reverse: true });
+  }
+
+  if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
+    // Clear the filter to make sure every connection shows
+    await browser.clickVisible(Selectors.SidebarFilterInput);
+    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+  }
+}
+
 export async function disconnectAll(
   browser: CompassBrowser,
   {
@@ -56,11 +70,7 @@ export async function disconnectAll(
     return await disconnectAllSingle(browser);
   }
 
-  if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
-    // Clear the filter to make sure every connection shows
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
-  }
+  await resetForDisconnect(browser);
 
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered.
@@ -92,11 +102,7 @@ export async function disconnectByName(
   browser: CompassBrowser,
   connectionName: string
 ) {
-  if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
-    // Clear the filter to make sure every connection shows
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
-  }
+  await resetForDisconnect(browser);
 
   await browser.selectConnectionMenuItem(
     connectionName,

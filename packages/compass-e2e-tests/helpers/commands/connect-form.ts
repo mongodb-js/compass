@@ -5,7 +5,6 @@ import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
 import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 
-
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
   const Sidebar = TEST_MULTIPLE_CONNECTIONS
     ? Selectors.Multiple
@@ -38,7 +37,6 @@ export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
     );
   });
 }
-
 
 export async function getConnectFormState(
   browser: CompassBrowser,
