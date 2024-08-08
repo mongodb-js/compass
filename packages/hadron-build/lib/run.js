@@ -1,5 +1,4 @@
 'use strict';
-var fs = require('fs');
 var { promisify } = require('util');
 var spawn = require('child_process').spawn;
 var debug = require('debug')('hadron-build:run');
@@ -60,7 +59,6 @@ function run(cmd, args, opts, fn) {
         cmd: cmd,
         output: Buffer.concat(output).toString('utf-8')
       });
-      console.log(cmd,args, Buffer.concat(output).toString('utf-8'))
       fn(new Error('Command failed!  '
         + 'Please try again with debugging enabled.'), Buffer.concat(output).toString('utf-8'));
       return;
