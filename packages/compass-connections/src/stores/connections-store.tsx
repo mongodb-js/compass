@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useRef } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import { useConnectionsManagerContext } from '../provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
-import { cloneDeep, merge } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { UUID } from 'bson';
 import { useToast } from '@mongodb-js/compass-components';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -687,11 +687,6 @@ export function useConnections({
         // means to returning this info as part of the connections list for now
         if (!isAutoconnectAttempt) {
           if (
-            // In single connection mode we only update existing connection when
-            // we successfully connected. In multiple connections we don't care
-            // if existing connection fails with errors and update it either way
-            // before we finished connecting
-            preferences.getPreferences().enableNewMultipleConnectionSystem ||
             // TODO(COMPASS-7397): The way the whole connection logic is set up
             // right now it is required that we save connection before starting
             // the connection process even if we don't need or want to so that
@@ -745,28 +740,16 @@ export function useConnections({
         });
 
         try {
-          const mergeConnectionInfo = preferences.getPreferences()
-            .persistOIDCTokens
-            ? { connectionOptions: await dataService.getUpdatedSecrets() }
-            : {};
-
           // Auto-connect info should never be saved
           if (!isAutoconnectAttempt) {
+            // After connection is established we only update lastUsed time and
+            // maybe an OIDC token if preferences allow
             await saveConnectionInfo({
-              ...merge(
-                // In single connection mode we only update the last used
-                // timestamp and maybe an OIDC token, everything else is kept
-                // as-is so that "Connect" and "Save" are distinct features (as
-                // the button labels in the connection form suggest). In
-                // multiple connections we update everything
-                preferences.getPreferences().enableNewMultipleConnectionSystem
-                  ? connectionInfo
-                  : // Existing connection info might be missing when connecting
-                    // to a new connection for the first time
-                    existingConnectionInfo ?? connectionInfo,
-                mergeConnectionInfo
-              ),
+              id: connectionInfo.id,
               lastUsed: new Date(),
+              ...(preferences.getPreferences().persistOIDCTokens
+                ? { connectionOptions: await dataService.getUpdatedSecrets() }
+                : {}),
             });
           }
         } catch (err) {

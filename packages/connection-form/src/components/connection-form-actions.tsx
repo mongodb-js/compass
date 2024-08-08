@@ -184,7 +184,7 @@ export function ConnectionFormModalActions({
           variant={ButtonVariant.Primary}
           onClick={onSaveAndConnect}
         >
-          Save &amp; Connect
+          Connect
         </Button>
       </div>
     </div>
