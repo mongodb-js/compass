@@ -3,6 +3,10 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { WorkspaceTabSelectorOptions } from '../selectors';
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function navigateToCollection(
   browser: CompassBrowser,
   connectionName: string,
@@ -90,6 +94,7 @@ export async function navigateWithinCurrentCollectionTabs(
 
   // clicking on the tab displays the tooltip, we need to move out of there before other actions
   await browser.hover(Selectors.Sidebar);
+  await sleep(50);
 
   await waitUntilActiveCollectionSubTab(browser, tabName);
 }
