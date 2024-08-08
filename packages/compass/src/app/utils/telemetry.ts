@@ -122,8 +122,13 @@ async function getHostnameForConnection(
     }
   }
 
-  const [hostname] = (connectionStringData.hosts[0] ?? '').split(':');
-  return hostname;
+  const firstHost = connectionStringData.hosts[0] ?? '';
+
+  if (firstHost.startsWith('[')) {
+    return firstHost.slice(1).split(']')[0]; // IPv6
+  }
+
+  return firstHost.split(':')[0];
 }
 
 async function getConnectionData(

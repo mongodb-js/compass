@@ -764,6 +764,50 @@ describe('connection tracking', function () {
     );
   });
 
+  it('tracks IPv6 hostname without port', async function () {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          isLocalAtlas: false,
+          featureCompatibilityVersion: null,
+        } as any);
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+    const trackEvent = once(process, 'compass:track');
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        connectionString: 'mongodb://[3fff:0:a88:15a3::ac2f]:8001/',
+      },
+    };
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    const [{ properties }] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.atlas_hostname).to.equal('3fff:0:a88:15a3::ac2f');
+  });
+
   it('falls back to original url if cannot resolve srv', async function () {
     const mockDataService: Pick<
       DataService,
