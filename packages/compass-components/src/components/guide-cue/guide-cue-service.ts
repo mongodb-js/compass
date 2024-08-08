@@ -11,6 +11,11 @@ import {
 } from './guide-cue-storage';
 import { uniq } from 'lodash';
 
+// COMPASS-7357: jsdom `EventTarget` doesn't play nicely with Node.js `CustomEvent` yet,
+// so always pick the `window`/jsdom-based variant
+const EventTarget = globalThis.window?.EventTarget ?? globalThis.EventTarget;
+const CustomEvent = globalThis.window?.CustomEvent ?? globalThis.CustomEvent;
+
 export type ShowCueEventDetail = CustomEvent<{
   cueId: string;
   groupId?: GroupName;
@@ -47,7 +52,7 @@ export type Cue = {
   isVisited: boolean;
 };
 
-export class GuideCueService extends window.EventTarget {
+export class GuideCueService extends EventTarget {
   private _cues: Cue[] = [];
 
   private _activeGroupId: GroupName | null = null;
@@ -89,9 +94,7 @@ export class GuideCueService extends window.EventTarget {
       return;
     }
     return this.dispatchEvent(
-      // COMPASS-7357: jsdom `EventTarget` doesn't play nicely with Node.js `CustomEvent` yet,
-      // so always pick the `window`/jsdom-based variant
-      new window.CustomEvent('show-cue', {
+      new CustomEvent('show-cue', {
         detail: {
           cueId: this._activeCue.cueId,
           groupId: this._activeCue.groupId,

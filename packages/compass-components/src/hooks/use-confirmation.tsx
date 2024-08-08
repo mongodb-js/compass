@@ -3,6 +3,9 @@ import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
 
+const EventTarget = globalThis.window?.EventTarget ?? globalThis.EventTarget;
+const CustomEvent = globalThis.window?.CustomEvent ?? globalThis.CustomEvent;
+
 export { ConfirmationModalVariant };
 
 type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;
@@ -57,20 +60,17 @@ interface GlobalConfirmation extends EventTarget {
 
 let confirmationId = 0;
 
-class GlobalConfirmation extends window.EventTarget {
+class GlobalConfirmation extends EventTarget {
   showConfirmation(props: ConfirmationProperties) {
     return new Promise<boolean>((resolve, reject) => {
       this.dispatchEvent(
-        new window.CustomEvent<ShowConfirmationEventDetail>(
-          'show-confirmation',
-          {
-            detail: {
-              props: { ...props, confirmationId: ++confirmationId },
-              resolve,
-              reject,
-            },
-          }
-        )
+        new CustomEvent<ShowConfirmationEventDetail>('show-confirmation', {
+          detail: {
+            props: { ...props, confirmationId: ++confirmationId },
+            resolve,
+            reject,
+          },
+        })
       );
     });
   }
