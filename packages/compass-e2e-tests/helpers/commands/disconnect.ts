@@ -54,6 +54,10 @@ async function resetForDisconnect(
     await browser.$(Selectors.LGModal).waitForDisplayed({ reverse: true });
   }
 
+  // Collapse all the connections so that they will all hopefully fit on screen
+  // and therefore be rendered.
+  await browser.clickVisible(Selectors.CollapseConnectionsButton);
+
   if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
     // Clear the filter to make sure every connection shows
     await browser.clickVisible(Selectors.SidebarFilterInput);
@@ -84,10 +88,6 @@ export async function disconnectAll(
   if (!TEST_MULTIPLE_CONNECTIONS) {
     return await disconnectAllSingle(browser);
   }
-
-  // Collapse all the connections so that they will all hopefully fit on screen
-  // and therefore be rendered.
-  await browser.clickVisible(Selectors.CollapseConnectionsButton);
 
   // The previous test could have ended with modals and/or toasts left open and
   // a search filter in the sidebar. Reset those so we can get to a known state.
