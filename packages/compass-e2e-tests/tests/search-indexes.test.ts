@@ -8,7 +8,7 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
+  connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { expect } from 'chai';
@@ -143,7 +143,7 @@ async function verifyIndexDetails(
   });
 }
 
-describe('Search Indexes', function () {
+describe.only('Search Indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let mongoClient: MongoClient;
@@ -195,7 +195,7 @@ describe('Search Indexes', function () {
     await browser.disconnectAll();
     await browser.connectWithConnectionString(currentConnectionString);
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      connectionNameFromString(currentConnectionString),
       DB_NAME,
       collectionName,
       'Indexes'
