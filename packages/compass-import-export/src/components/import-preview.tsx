@@ -254,14 +254,8 @@ function MixedWarning({
     <Tooltip
       align="top"
       justify="middle"
-      delay={500}
       style={{ display: 'block' }}
-      trigger={({ children: tooltipChildren, ...props }) => (
-        <div {...props}>
-          {tooltipChildren}
-          {triggerChildren}
-        </div>
-      )}
+      trigger={<div>{triggerChildren}</div>}
     >
       <>
         <Body>
@@ -311,14 +305,8 @@ function TypeWarning({
     <Tooltip
       align="top"
       justify="middle"
-      delay={500}
       style={{ display: 'block' }}
-      trigger={({ children: tooltipChildren, ...props }) => (
-        <div {...props}>
-          {tooltipChildren}
-          {triggerChildren}
-        </div>
-      )}
+      trigger={<div>{triggerChildren}</div>}
     >
       <>
         <Body>This field has these detected types:</Body>

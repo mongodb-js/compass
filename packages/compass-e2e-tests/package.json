@@ -72,7 +72,7 @@
     "semver": "^7.6.2",
     "tree-kill": "^1.2.2",
     "ts-node": "^10.9.1",
-    "webdriverio": "^8.32.3",
+    "webdriverio": "^8.40.0",
     "xvfb-maybe": "^0.2.1"
   }
 }

@@ -62,7 +62,6 @@ function Summary({ messages }: { messages: string[] }): React.ReactElement {
         tooltipProps={{
           align: 'top',
           justify: 'start',
-          delay: 500,
         }}
         definition={tooltipErrors}
       >
