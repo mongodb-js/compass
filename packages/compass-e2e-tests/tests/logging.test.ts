@@ -24,10 +24,9 @@ describe('Logging and Telemetry integration', function () {
       telemetry = await startTelemetryServer();
       const compass = await init(this.test?.fullTitle(), { firstRun: true });
       const { browser } = compass;
-      await browser.setupDefaultConnections();
 
       try {
-        await browser.connectToDefaults();
+        await browser.connectWithConnectionString();
 
         if (TEST_MULTIPLE_CONNECTIONS) {
           // make sure we generate the screen event that the tests expect
