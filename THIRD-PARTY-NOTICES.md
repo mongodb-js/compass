@@ -347,7 +347,7 @@ This document was automatically generated on Fri Aug 09 2024.
 | **[jsesc](#253e8a44fc188759c5ce35330e4f20aacf1d0253d7e8d7dffd4a1f884a10ce1e)**                                              | 2.5.2        | MIT                                 |
 | **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**                                              | 2.2.3        | MIT                                 |
 | **[jsondiffpatch](#2cc3b990f6692cd23f883319a727b42a76a3a9d6675d1ebd8a05241eb7edc4ac)**                                      | 0.5.0        | MIT                                 |
-| **[kerberos](#05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e)**                                           | 2.1.0        | Apache-2.0                          |
+| **[kerberos](#e9b8ef28e3d246d5071f34b07b67580523cda7bd0d7d74dc2e422d79d30c238d)**                                           | 2.1.1        | Apache-2.0                          |
 | **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**                                     | 1.3.0        | MIT                                 |
 | **[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**                                             | 7.9.0        | MIT                                 |
 | **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**                  | 0.1.1        | BSD-2-Clause                        |
@@ -488,7 +488,7 @@ This document was automatically generated on Fri Aug 09 2024.
 | **[picocolors](#87994c8f4d800603a2cf449baca40fcaf984088237be5cebbfbc79de0d95da98)**                                         | 1.0.1        | ISC                                 |
 | **[polished](#a7a5d1244e48a082dbc54de31b5309caf950b12aa6bd9fefbba39e362e705f06)**                                           | 4.2.2        | MIT                                 |
 | **[possible-typed-array-names](#5ba4283f5512abd5d57e79c0a75acb3818d98d169df979afb01ad6867cefd312)**                         | 1.0.0        | MIT                                 |
-| **[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**                                   | 7.1.1        | MIT                                 |
+| **[prebuild-install](#93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5)**                                   | 7.1.2        | MIT                                 |
 | **[prettier](#2e1e2077936be4bb5f075fd4d279f9ece641322ccd12a8116edb3f99f08f7411)**                                           | 2.7.1        | MIT                                 |
 | **[pretty-format](#0c53580441217a6c2b9c885eb1ec35adde420c312ccf9f408c856dc3845cce8b)**                                      | 27.5.1       | MIT                                 |
 | **[prop-types](#e4dd0bb5b6f98fbf52f0ad7062b8514aadc56a47a692bf6d8aab369786b6039f)**                                         | 15.8.1       | MIT                                 |
@@ -23086,9 +23086,9 @@ License files:
 
 License tags: MIT
 
-<a id="05c7d2f17faccacb505a07f79ccba22ce089aa668a8bef64de84cf5dcd4f585e"></a>
+<a id="e9b8ef28e3d246d5071f34b07b67580523cda7bd0d7d74dc2e422d79d30c238d"></a>
 
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.0)
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.1)
 
 License tags: Apache-2.0
 
@@ -29576,9 +29576,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d"></a>
+<a id="93d13a9b3a51a6a802fcd35aa031d3ae7369aa6fd47d3a89f28a6d31ea3c9dc5"></a>
 
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.1)
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.2)
 
 License tags: MIT
 
