@@ -117,8 +117,10 @@ describe('Instance sidebar', function () {
 
     await browser.waitUntil(async () => {
       const treeItems = await browser.$$(Selectors.SidebarTreeItems);
-      // connection, database, collection for multiple connections, otherwise just database and collection
-      const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 3 : 2;
+      // connection, database, collection for multiple connections (twice
+      // because there are two connections), otherwise just database and
+      // collection
+      const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 6 : 2;
       return treeItems.length === expectedCount;
     });
 
