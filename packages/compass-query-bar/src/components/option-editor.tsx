@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import type { Signal } from '@mongodb-js/compass-components';
 import {
   css,
@@ -7,7 +7,6 @@ import {
   palette,
   spacing,
   SignalPopover,
-  StarQuery,
   rafraf,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -26,6 +25,8 @@ import { applyFromHistory } from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
 import type { BaseQuery } from '../constants/query-properties';
 import type { SavedQuery } from '@mongodb-js/compass-editor';
+import ConnectedStarQuery from './star-query';
+import { isQueryValid } from '../utils/query';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -104,6 +105,7 @@ type OptionEditorProps = {
   disabled?: boolean;
   savedQueries: SavedQuery[];
   onApplyQuery: (query: BaseQuery) => void;
+  isValid: boolean;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -123,6 +125,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   disabled = false,
   savedQueries,
   onApplyQuery,
+  isValid,
 }) => {
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
@@ -141,19 +144,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
-
-  const [isFavoriteQuery, setIsFavoriteQuery] = useState<boolean | null>(null);
-  onApply === null
-    ? setIsFavoriteQuery(null)
-    : setIsFavoriteQuery(onApply().attributes.isFavorite);
-  // const handleApply = () => {
-  //   const result = onApply();
-  //   if (result && result === false) {
-  //     setIsFavoriteQuery(null);
-  //   } else {
-  //     setIsFavoriteQuery(result.isFavorite);
-  //   }
-  // };
 
   const commands = useMemo<Command[]>(() => {
     return [
@@ -278,7 +268,9 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
           ></SignalPopover>
         </div>
       )}
-      <StarQuery showStar={isFavoriteQuery} />
+      {isValid &&
+        editorRef.current?.editorContents !== '' &&
+        editorRef.current?.editorContents !== '{}' && <ConnectedStarQuery />}
     </div>
   );
 };
@@ -298,6 +290,7 @@ const ConnectedOptionEditor = (state: RootState) => ({
       queryProperties: getQueryAttributes(query),
     })),
   ],
+  isValid: isQueryValid(state.queryBar.fields),
 });
 
 const mapDispatchToProps = {

@@ -146,7 +146,6 @@ export {
   SignalHooksProvider,
 } from './components/signal-popover';
 export type { Signal } from './components/signal-popover';
-export { StarQuery } from './components/star-query';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 export { EmptyContent } from './components/empty-content';
