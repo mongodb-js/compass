@@ -360,7 +360,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   }, [onCreateTab, openOnEmptyWorkspace]);
 
   return (
-    <div className={workspacesContainerStyles}>
+    <div
+      className={workspacesContainerStyles}
+      data-testid="workspace-tabs-container"
+    >
       <WorkspaceTabs
         aria-label="Workspace Tabs"
         onSelectTab={onSelectTab}
