@@ -3,9 +3,6 @@ import { Variant as ConfirmationModalVariant } from '@leafygreen-ui/confirmation
 import ConfirmationModal from '../components/modals/confirmation-modal';
 import { css } from '@leafygreen-ui/emotion';
 
-const EventTarget = globalThis.window?.EventTarget ?? globalThis.EventTarget;
-const CustomEvent = globalThis.window?.CustomEvent ?? globalThis.CustomEvent;
-
 export { ConfirmationModalVariant };
 
 type ConfirmationModalProps = React.ComponentProps<typeof ConfirmationModal>;

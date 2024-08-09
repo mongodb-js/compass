@@ -11,11 +11,6 @@ import {
 } from './guide-cue-storage';
 import { uniq } from 'lodash';
 
-// COMPASS-7357: jsdom `EventTarget` doesn't play nicely with Node.js `CustomEvent` yet,
-// so always pick the `window`/jsdom-based variant
-const EventTarget = globalThis.window?.EventTarget ?? globalThis.EventTarget;
-const CustomEvent = globalThis.window?.CustomEvent ?? globalThis.CustomEvent;
-
 export type ShowCueEventDetail = CustomEvent<{
   cueId: string;
   groupId?: GroupName;
