@@ -309,13 +309,11 @@ export const Multiple = {
 
   InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
 
-  // Assume that all connected connections are expanded. It is technically
-  // possible to collapse a connected collection, though.
   ConnectedConnectionItems:
-    '[role="treeitem"][aria-level="1"][aria-expanded="true"] [data-connection-name]',
+    '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
 
-  connectionItemByName: (connectionName: string, expanded: boolean) => {
-    return `[role="treeitem"][aria-level="1"][aria-expanded="${expanded.toString()}"] [data-connection-name="${connectionName}"]`;
+  connectionItemByName: (connectionName: string, connected: boolean) => {
+    return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"][data-is-connected="${connected.toString()}"]`;
   },
 };
 

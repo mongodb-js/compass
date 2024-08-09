@@ -194,12 +194,12 @@ export async function waitForConnectionResult(
   }
 }
 
-export async function connectToDefaults(browser: CompassBrowser) {
-  // See setupDefaultConnections() for the details behind the thinking here.
-
-  await browser.clickVisible(
-    Selectors.sidebarConnectionButton(DEFAULT_CONNECTION_NAME_1)
-  );
+export async function connectByName(
+  browser: CompassBrowser,
+  connectionName: string,
+  options: ConnectionResultOptions = {}
+) {
+  await browser.clickVisible(Selectors.sidebarConnectionButton(connectionName));
 
   if (!TEST_MULTIPLE_CONNECTIONS) {
     // for single connections it only fills the connection form and we still
@@ -209,13 +209,15 @@ export async function connectToDefaults(browser: CompassBrowser) {
     await browser.clickVisible(Selectors.ConnectButton);
   }
 
-  await browser.waitForConnectionResult(DEFAULT_CONNECTION_NAME_1);
+  await browser.waitForConnectionResult(connectionName, options);
+}
+
+export async function connectToDefaults(browser: CompassBrowser) {
+  // See setupDefaultConnections() for the details behind the thinking here.
+  await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
 
   if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.clickVisible(
-      Selectors.sidebarConnectionButton(DEFAULT_CONNECTION_NAME_2)
-    );
-    await browser.waitForConnectionResult(DEFAULT_CONNECTION_NAME_2);
+    await browser.connectByName(DEFAULT_CONNECTION_NAME_2);
   }
 
   // We assume that we connected successfully, so just close the success toasts

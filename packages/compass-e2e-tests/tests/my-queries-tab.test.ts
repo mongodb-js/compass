@@ -54,7 +54,6 @@ describe('My Queries tab', function () {
   beforeEach(async function () {
     await createNumbersCollection();
     await browser.disconnectAll();
-    await browser.connectToDefaults();
   });
   after(async function () {
     if (TEST_COMPASS_WEB) {
@@ -68,6 +67,8 @@ describe('My Queries tab', function () {
   });
 
   it('opens a saved query', async function () {
+    await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+
     const favoriteQueryName = 'list of numbers greater than 10 - query';
     const newFavoriteQueryName = 'my renamed query';
 
@@ -158,6 +159,8 @@ describe('My Queries tab', function () {
       DEFAULT_CONNECTION_NAME_1,
       'db.numbers.renameCollection("numbers-renamed")'
     );
+    //await browser.setValueVisible(Selectors.SidebarFilterInput, 'numbers-renamed');
+
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
         DEFAULT_CONNECTION_NAME_1,
@@ -225,6 +228,8 @@ describe('My Queries tab', function () {
   });
 
   it('opens a saved aggregation', async function () {
+    await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+
     const savedAggregationName =
       'list of numbers greater than 10 - aggregation';
 
@@ -286,6 +291,8 @@ describe('My Queries tab', function () {
       const newCollectionName = 'numbers-renamed';
 
       it('users can permanently associate a new namespace for an aggregation/query', async function () {
+        await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+
         // save a query and rename the collection associated with the query, so that the query must be opened with the "select namespace" modal
 
         // Run a query
@@ -356,6 +363,7 @@ describe('My Queries tab', function () {
           DEFAULT_CONNECTION_NAME_1,
           `db.numbers.renameCollection('${newCollectionName}')`
         );
+        //await browser.setValueVisible(Selectors.SidebarFilterInput, newCollectionName);
 
         if (TEST_MULTIPLE_CONNECTIONS) {
           await browser.selectConnectionMenuItem(

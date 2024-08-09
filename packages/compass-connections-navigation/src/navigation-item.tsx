@@ -187,6 +187,7 @@ export function NavigationItem({
         'data-is-active': `${isActive}`,
         'data-connection-id': item.connectionInfo.id,
         'data-connection-name': item.name,
+        'data-is-connected': item.connectionStatus === 'connected',
       };
     }
     if (item.type === 'database') {

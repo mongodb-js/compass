@@ -122,9 +122,6 @@ export async function disconnectByName(
     Selectors.Multiple.DisconnectConnectionItem
   );
 
-  // Assume that once the connection is collapsed it is disconnected. It is
-  // technically possible to collapse a connected connection, so we might want
-  // to improve on this in future.
   await browser
     .$(Selectors.Multiple.connectionItemByName(connectionName, false))
     .waitForDisplayed();
