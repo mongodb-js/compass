@@ -157,7 +157,6 @@ describe('My Queries tab', function () {
       DEFAULT_CONNECTION_NAME_1,
       'db.numbers.renameCollection("numbers-renamed")'
     );
-    //await browser.setValueVisible(Selectors.SidebarFilterInput, 'numbers-renamed');
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
@@ -355,7 +354,6 @@ describe('My Queries tab', function () {
           DEFAULT_CONNECTION_NAME_1,
           `db.numbers.renameCollection('${newCollectionName}')`
         );
-        //await browser.setValueVisible(Selectors.SidebarFilterInput, newCollectionName);
 
         if (TEST_MULTIPLE_CONNECTIONS) {
           await browser.selectConnectionMenuItem(
