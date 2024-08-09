@@ -2,6 +2,7 @@
 var { promisify } = require('util');
 var spawn = require('child_process').spawn;
 var debug = require('debug')('hadron-build:run');
+var util = require('util');
 
 /**
  * Use me when you want to run an external command instead
@@ -55,12 +56,14 @@ function run(cmd, args, opts, fn) {
 
   proc.on('exit', function(code) {
     if (code !== 0) {
-      debug('command failed!', {
-        cmd: cmd,
-        output: Buffer.concat(output).toString('utf-8')
-      });
-      fn(new Error('Command failed!  '
-        + 'Please try again with debugging enabled.'), Buffer.concat(output).toString('utf-8'));
+      const output = Buffer.concat(output).toString('utf-8');
+      debug('command failed!', { cmd, output });
+      const error = new Error(`Command failed with exit code ${code}: ${cmd} ${args.join(' ')} [enable line-by-line output via 'DEBUG=hadron*']`);
+      error.output = {
+        output,
+        [util.inspect.custom]() { return util.inspect(output, { maxStringLength: Infinity }); }
+      };
+      fn(error);
       return;
     }
     debug('completed! %j', {
