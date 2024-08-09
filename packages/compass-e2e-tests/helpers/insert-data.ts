@@ -185,7 +185,7 @@ export async function createGeospatialCollection(): Promise<void> {
 // creating arbitrary databases and collections in tests then those tests have
 // to start managing arbitrary cleanup too, defeating the purpose.
 // Anything you put in the beforeEach hook above will be dropped automatically.
-export async function _dropDatabase(db: Db) {
+async function _dropDatabase(db: Db) {
   try {
     await db.dropDatabase();
   } catch (err) {
