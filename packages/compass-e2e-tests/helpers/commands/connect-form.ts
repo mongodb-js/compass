@@ -465,6 +465,9 @@ export async function setConnectFormState(
 ): Promise<void> {
   await browser.resetConnectForm();
 
+  // Something to keep in mind is that if you specify both connectionString AND
+  // other options, then the other options are going to override the
+  // connectionString. You probably want just one or the other.
   if (state.connectionString) {
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -521,343 +524,396 @@ export async function setConnectFormState(
   }
 
   // Authentication
-  await browser.navigateToConnectTab('Authentication');
+  if (
+    state.authMethod ||
+    state.defaultUsername ||
+    state.defaultAuthSource ||
+    state.defaultAuthMechanism ||
+    state.kerberosPrincipal ||
+    state.kerberosPrincipal ||
+    state.kerberosServiceName ||
+    state.kerberosCanonicalizeHostname ||
+    state.kerberosServiceRealm ||
+    state.kerberosProvidePassword ||
+    state.kerberosPassword
+  ) {
+    await browser.navigateToConnectTab('Authentication');
 
-  if (state.authMethod) {
-    await browser.clickParent(
-      Selectors.connectionFormAuthenticationMethodRadio(state.authMethod)
-    );
-  }
+    if (state.authMethod) {
+      await browser.clickParent(
+        Selectors.connectionFormAuthenticationMethodRadio(state.authMethod)
+      );
+    }
 
-  // Username/Password
-  if (state.defaultUsername && state.defaultPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputUsername,
-      state.defaultUsername
-    );
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputPassword,
-      state.defaultPassword
-    );
-  }
-  if (state.defaultAuthSource) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputAuthSource,
-      state.defaultAuthSource
-    );
-  }
-  if (state.defaultAuthMechanism) {
-    await browser.clickParent(
-      Selectors.connectionFormAuthMechanismRadio(state.defaultAuthMechanism)
-    );
-  }
+    // Username/Password
+    if (state.defaultUsername && state.defaultPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputUsername,
+        state.defaultUsername
+      );
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputPassword,
+        state.defaultPassword
+      );
+    }
+    if (state.defaultAuthSource) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputAuthSource,
+        state.defaultAuthSource
+      );
+    }
+    if (state.defaultAuthMechanism) {
+      await browser.clickParent(
+        Selectors.connectionFormAuthMechanismRadio(state.defaultAuthMechanism)
+      );
+    }
 
-  // Kerberos
-  if (state.kerberosPrincipal) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputGssApiPrincipal,
-      state.kerberosPrincipal
-    );
-  }
-  if (state.kerberosServiceName) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputGssApiServiceName,
-      state.kerberosServiceName
-    );
-  }
-  if (state.kerberosCanonicalizeHostname) {
-    await browser.clickParent(
-      Selectors.connectionFormCanonicalizeHostNameRadio(
-        state.kerberosCanonicalizeHostname
-      )
-    );
-  }
-  if (state.kerberosServiceRealm) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputGssApiServiceRealm,
-      state.kerberosServiceRealm
-    );
-  }
-  if (state.kerberosProvidePassword) {
-    await browser.clickParent(Selectors.ConnectionFormGssApiPasswordCheckbox);
-  }
-  if (state.kerberosPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputGssApiPassword,
-      state.kerberosPassword
-    );
-  }
+    // Kerberos
+    if (state.kerberosPrincipal) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputGssApiPrincipal,
+        state.kerberosPrincipal
+      );
+    }
+    if (state.kerberosServiceName) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputGssApiServiceName,
+        state.kerberosServiceName
+      );
+    }
+    if (state.kerberosCanonicalizeHostname) {
+      await browser.clickParent(
+        Selectors.connectionFormCanonicalizeHostNameRadio(
+          state.kerberosCanonicalizeHostname
+        )
+      );
+    }
+    if (state.kerberosServiceRealm) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputGssApiServiceRealm,
+        state.kerberosServiceRealm
+      );
+    }
+    if (state.kerberosProvidePassword) {
+      await browser.clickParent(Selectors.ConnectionFormGssApiPasswordCheckbox);
+    }
+    if (state.kerberosPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputGssApiPassword,
+        state.kerberosPassword
+      );
+    }
 
-  // LDAP
-  if (state.ldapUsername && state.ldapPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputPlainUsername,
-      state.ldapUsername
-    );
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputPlainPassword,
-      state.ldapPassword
-    );
-  }
+    // LDAP
+    if (state.ldapUsername && state.ldapPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputPlainUsername,
+        state.ldapUsername
+      );
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputPlainPassword,
+        state.ldapPassword
+      );
+    }
 
-  // AWS IAM
-  if (state.awsAccessKeyId && state.awsSecretAccessKey) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputAWSAccessKeyId,
-      state.awsAccessKeyId
-    );
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputAWSSecretAccessKey,
-      state.awsSecretAccessKey
-    );
-  }
-  if (state.awsSessionToken) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputAWSSessionToken,
-      state.awsSessionToken
-    );
-  }
-  if (state.awsSessionToken) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputAWSSessionToken,
-      state.awsSessionToken
-    );
-  }
+    // AWS IAM
+    if (state.awsAccessKeyId && state.awsSecretAccessKey) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputAWSAccessKeyId,
+        state.awsAccessKeyId
+      );
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputAWSSecretAccessKey,
+        state.awsSecretAccessKey
+      );
+    }
+    if (state.awsSessionToken) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputAWSSessionToken,
+        state.awsSessionToken
+      );
+    }
+    if (state.awsSessionToken) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputAWSSessionToken,
+        state.awsSessionToken
+      );
+    }
 
-  // OIDC
-  if (state.oidcUsername) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputOIDCUsername,
-      state.oidcUsername
-    );
+    // OIDC
+    if (state.oidcUsername) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputOIDCUsername,
+        state.oidcUsername
+      );
+    }
   }
 
   // FLE2
-  await browser.navigateToConnectTab('In-Use Encryption');
+  if (
+    state.fleKeyVaultNamespace ||
+    state.fleKey ||
+    state.fleEncryptedFieldsMap
+  ) {
+    await browser.navigateToConnectTab('In-Use Encryption');
 
-  if (state.fleKeyVaultNamespace) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputFLEKeyVaultNamespace,
-      state.fleKeyVaultNamespace
-    );
-  }
-  if (state.fleKey) {
-    await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputFLELocalKey,
-      state.fleKey
-    );
-  }
-  if (state.fleEncryptedFieldsMap) {
-    // set the text in the editor
-    await browser.setCodemirrorEditorValue(
-      Selectors.ConnectionFormInputFLEEncryptedFieldsMapEditor,
-      state.fleEncryptedFieldsMap
-    );
+    if (state.fleKeyVaultNamespace) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputFLEKeyVaultNamespace,
+        state.fleKeyVaultNamespace
+      );
+    }
+    if (state.fleKey) {
+      await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputFLELocalKey,
+        state.fleKey
+      );
+    }
+    if (state.fleEncryptedFieldsMap) {
+      // set the text in the editor
+      await browser.setCodemirrorEditorValue(
+        Selectors.ConnectionFormInputFLEEncryptedFieldsMapEditor,
+        state.fleEncryptedFieldsMap
+      );
+    }
   }
 
   // TLS/SSL
-  await browser.navigateToConnectTab('TLS/SSL');
+  if (
+    state.sslConnection ||
+    state.tlsCAFile ||
+    state.tlsCertificateKeyFile ||
+    state.clientKeyPassword ||
+    state.tlsInsecure ||
+    state.tlsAllowInvalidHostnames ||
+    state.tlsAllowInvalidCertificates ||
+    state.useSystemCA
+  ) {
+    await browser.navigateToConnectTab('TLS/SSL');
 
-  if (state.sslConnection) {
-    await browser.clickParent(
-      Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
-    );
-  }
-  if (state.tlsCAFile) {
-    await browser.selectFile(
-      Selectors.ConnectionFormTlsCaFile,
-      state.tlsCAFile
-    );
-  }
-  if (state.tlsCertificateKeyFile) {
-    await browser.selectFile(
-      Selectors.ConnectionFormTlsCertificateKeyFile,
-      state.tlsCertificateKeyFile
-    );
-  }
-  if (state.clientKeyPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputTlsCertificateKeyFilePassword,
-      state.clientKeyPassword
-    );
-  }
-  if (state.tlsInsecure) {
-    await browser.clickParent(Selectors.ConnectionFormTlsInsecureCheckbox);
-  }
-  if (state.tlsAllowInvalidHostnames) {
-    await browser.clickParent(
-      Selectors.ConnectionFormTlsAllowInvalidHostnamesCheckbox
-    );
-  }
-  if (state.tlsAllowInvalidCertificates) {
-    await browser.clickParent(
-      Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
-    );
-  }
-  if (state.useSystemCA) {
-    await browser.clickParent(Selectors.ConnectionFormTlsUseSystemCACheckbox);
+    if (state.sslConnection) {
+      await browser.clickParent(
+        Selectors.connectionFormSSLConnectionRadio(state.sslConnection)
+      );
+    }
+    if (state.tlsCAFile) {
+      await browser.selectFile(
+        Selectors.ConnectionFormTlsCaFile,
+        state.tlsCAFile
+      );
+    }
+    if (state.tlsCertificateKeyFile) {
+      await browser.selectFile(
+        Selectors.ConnectionFormTlsCertificateKeyFile,
+        state.tlsCertificateKeyFile
+      );
+    }
+    if (state.clientKeyPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputTlsCertificateKeyFilePassword,
+        state.clientKeyPassword
+      );
+    }
+    if (state.tlsInsecure) {
+      await browser.clickParent(Selectors.ConnectionFormTlsInsecureCheckbox);
+    }
+    if (state.tlsAllowInvalidHostnames) {
+      await browser.clickParent(
+        Selectors.ConnectionFormTlsAllowInvalidHostnamesCheckbox
+      );
+    }
+    if (state.tlsAllowInvalidCertificates) {
+      await browser.clickParent(
+        Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
+      );
+    }
+    if (state.useSystemCA) {
+      await browser.clickParent(Selectors.ConnectionFormTlsUseSystemCACheckbox);
+    }
   }
 
   // Proxy/SSH
-  await browser.navigateToConnectTab('Proxy/SSH');
+  if (
+    state.proxyMethod ||
+    state.sshPasswordHost ||
+    state.sshPasswordUsername ||
+    state.sshPasswordPassword ||
+    state.sshIdentityHost ||
+    state.sshIdentityUsername ||
+    state.sshIdentityKeyFile ||
+    state.sshIdentityPassword ||
+    state.socksHost ||
+    state.socksPort ||
+    state.socksUsername ||
+    state.socksPassword
+  ) {
+    await browser.navigateToConnectTab('Proxy/SSH');
 
-  //proxyMethod
-  if (state.proxyMethod) {
-    await browser.clickParent(
-      Selectors.connectionFormProxyMethodRadio(state.proxyMethod)
-    );
-  }
+    //proxyMethod
+    if (state.proxyMethod) {
+      await browser.clickParent(
+        Selectors.connectionFormProxyMethodRadio(state.proxyMethod)
+      );
+    }
 
-  // SSH with Password
-  // NOTE: these don't affect the URI
-  if (state.sshPasswordHost && state.sshPasswordPort) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshPasswordHost,
-      state.sshPasswordHost
-    );
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshPasswordPort,
-      state.sshPasswordPort
-    );
-  }
-  if (state.sshPasswordUsername) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshPasswordUsername,
-      state.sshPasswordUsername
-    );
-  }
-  if (state.sshPasswordPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshPasswordPassword,
-      state.sshPasswordPassword
-    );
-  }
+    // SSH with Password
+    // NOTE: these don't affect the URI
+    if (state.sshPasswordHost && state.sshPasswordPort) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshPasswordHost,
+        state.sshPasswordHost
+      );
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshPasswordPort,
+        state.sshPasswordPort
+      );
+    }
+    if (state.sshPasswordUsername) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshPasswordUsername,
+        state.sshPasswordUsername
+      );
+    }
+    if (state.sshPasswordPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshPasswordPassword,
+        state.sshPasswordPassword
+      );
+    }
 
-  // SSH with Identity File
-  // NOTE: these don't affect the URI
-  if (state.sshIdentityHost && state.sshIdentityPort) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshIdentityHost,
-      state.sshIdentityHost
-    );
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshIdentityPort,
-      state.sshIdentityPort
-    );
-  }
-  if (state.sshIdentityUsername) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshIdentityUsername,
-      state.sshIdentityUsername
-    );
-  }
-  if (state.sshIdentityKeyFile) {
-    await browser.selectFile(
-      Selectors.ConnectionFormSshIdentityKeyFile,
-      state.sshIdentityKeyFile
-    );
-  }
-  if (state.sshIdentityPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSshIdentityPassword,
-      state.sshIdentityPassword
-    );
-  }
+    // SSH with Identity File
+    // NOTE: these don't affect the URI
+    if (state.sshIdentityHost && state.sshIdentityPort) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshIdentityHost,
+        state.sshIdentityHost
+      );
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshIdentityPort,
+        state.sshIdentityPort
+      );
+    }
+    if (state.sshIdentityUsername) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshIdentityUsername,
+        state.sshIdentityUsername
+      );
+    }
+    if (state.sshIdentityKeyFile) {
+      await browser.selectFile(
+        Selectors.ConnectionFormSshIdentityKeyFile,
+        state.sshIdentityKeyFile
+      );
+    }
+    if (state.sshIdentityPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSshIdentityPassword,
+        state.sshIdentityPassword
+      );
+    }
 
-  // Socks5
-  if (state.socksHost) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSocksHost,
-      state.socksHost
-    );
-  }
-  if (state.socksPort) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSocksPort,
-      state.socksPort
-    );
-  }
-  if (state.socksUsername) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSocksUsername,
-      state.socksUsername
-    );
-  }
-  if (state.socksPassword) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputSocksPassword,
-      state.socksPassword
-    );
+    // Socks5
+    if (state.socksHost) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSocksHost,
+        state.socksHost
+      );
+    }
+    if (state.socksPort) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSocksPort,
+        state.socksPort
+      );
+    }
+    if (state.socksUsername) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSocksUsername,
+        state.socksUsername
+      );
+    }
+    if (state.socksPassword) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputSocksPassword,
+        state.socksPassword
+      );
+    }
   }
 
   // Advanced
-  await browser.navigateToConnectTab('Advanced');
+  if (
+    state.readPreference ||
+    state.replicaSet ||
+    state.defaultDatabase ||
+    state.urlOptions
+  ) {
+    await browser.navigateToConnectTab('Advanced');
 
-  if (state.readPreference) {
-    await browser.clickParent(
-      Selectors.connectionFormReadPreferenceRadio(state.readPreference)
-    );
-  }
-  if (state.replicaSet) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputReplicaset,
-      state.replicaSet
-    );
-  }
-  if (state.defaultDatabase) {
-    await browser.setValueVisible(
-      Selectors.ConnectionFormInputDefaultDatabase,
-      state.defaultDatabase
-    );
-  }
-  if (state.urlOptions) {
-    for (const [index, [key, value]] of Object.entries(
-      state.urlOptions
-    ).entries()) {
-      // key
-      await browser.clickVisible(
-        Selectors.connectionFormUrlOptionKeyButton(index)
+    if (state.readPreference) {
+      await browser.clickParent(
+        Selectors.connectionFormReadPreferenceRadio(state.readPreference)
       );
-
-      let found = false;
-      let allText: string[] = [];
-
-      // for whatever reasons sometimes the first one or two come through as empty strings
-      await browser.waitUntil(async () => {
-        allText = [];
-        const options = await browser.$$('#select-key-menu [role="option"]');
-        for (const option of options) {
-          const _text = await option.getText();
-          const text = _text.trim();
-          allText.push(text);
-          if (text === key) {
-            found = true;
-            await option.scrollIntoView();
-            await option.waitForDisplayed();
-            await waitForElementAnimations(browser, option);
-            await option.click();
-            break;
-          }
-        }
-        return found;
-      });
-
-      // make sure we found and clicked on an option
-      expect(
-        found,
-        `Could not find URL option "${key}". Found "${allText.join(', ')}"`
-      ).to.be.true;
-
-      // make sure the menu goes away once we clicked on the option
-      const menu = await browser.$('#select-key-menu');
-      await menu.waitForExist({ reverse: true });
-
-      // value
+    }
+    if (state.replicaSet) {
       await browser.setValueVisible(
-        Selectors.connectionFormUrlOptionValueInput(index),
-        value
+        Selectors.ConnectionFormInputReplicaset,
+        state.replicaSet
       );
+    }
+    if (state.defaultDatabase) {
+      await browser.setValueVisible(
+        Selectors.ConnectionFormInputDefaultDatabase,
+        state.defaultDatabase
+      );
+    }
+    if (state.urlOptions) {
+      for (const [index, [key, value]] of Object.entries(
+        state.urlOptions
+      ).entries()) {
+        // key
+        await browser.clickVisible(
+          Selectors.connectionFormUrlOptionKeyButton(index)
+        );
+
+        let found = false;
+        let allText: string[] = [];
+
+        // for whatever reasons sometimes the first one or two come through as empty strings
+        await browser.waitUntil(async () => {
+          allText = [];
+          const options = await browser.$$('#select-key-menu [role="option"]');
+          for (const option of options) {
+            const _text = await option.getText();
+            const text = _text.trim();
+            allText.push(text);
+            if (text === key) {
+              found = true;
+              await option.scrollIntoView();
+              await option.waitForDisplayed();
+              await waitForElementAnimations(browser, option);
+              await option.click();
+              break;
+            }
+          }
+          return found;
+        });
+
+        // make sure we found and clicked on an option
+        expect(
+          found,
+          `Could not find URL option "${key}". Found "${allText.join(', ')}"`
+        ).to.be.true;
+
+        // make sure the menu goes away once we clicked on the option
+        const menu = await browser.$('#select-key-menu');
+        await menu.waitForExist({ reverse: true });
+
+        // value
+        await browser.setValueVisible(
+          Selectors.connectionFormUrlOptionValueInput(index),
+          value
+        );
+      }
     }
   }
 }
