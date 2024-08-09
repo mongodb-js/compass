@@ -40,7 +40,14 @@ async function disconnectAllSingle(browser: CompassBrowser) {
   await delay(100);
 }
 
-async function resetForDisconnect(browser: CompassBrowser) {
+async function resetForDisconnect(
+  browser: CompassBrowser,
+  {
+    closeToasts = true,
+  }: {
+    closeToasts?: boolean;
+  } = {}
+) {
   if (await browser.$(Selectors.LGModal).isDisplayed()) {
     // close any modals that might be in the way
     await browser.clickVisible(Selectors.LGModalClose);
@@ -53,7 +60,9 @@ async function resetForDisconnect(browser: CompassBrowser) {
     await browser.setValueVisible(Selectors.SidebarFilterInput, '');
   }
 
-  await browser.hideAllVisibleToasts();
+  if (closeToasts) {
+    await browser.hideAllVisibleToasts();
+  }
 }
 
 export async function disconnectAll(
@@ -82,7 +91,7 @@ export async function disconnectAll(
 
   // The previous test could have ended with modals and/or toasts left open and
   // a search filter in the sidebar. Reset those so we can get to a known state.
-  await resetForDisconnect(browser);
+  await resetForDisconnect(browser, { closeToasts });
 
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered. Collapsing them all helps a little
@@ -115,7 +124,7 @@ export async function disconnectByName(
   browser: CompassBrowser,
   connectionName: string
 ) {
-  await resetForDisconnect(browser);
+  await resetForDisconnect(browser, { closeToasts: false });
 
   await browser.selectConnectionMenuItem(
     connectionName,
