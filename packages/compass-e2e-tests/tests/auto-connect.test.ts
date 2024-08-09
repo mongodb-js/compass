@@ -15,10 +15,15 @@ import path from 'path';
 import { promises as fs } from 'fs';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
+const connectionNameSuccess = connectionNameFromString(connectionStringSuccess);
 const connectionStringSuccessTitle = '127.0.0.1:27091';
 const connectionStringUnreachable =
   'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
+const connectionNameUnreachable = connectionNameFromString(
+  connectionStringUnreachable
+);
 const connectionStringInvalid = 'http://example.com';
+const connectionNameInvalid = connectionNameFromString(connectionStringInvalid);
 
 describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
@@ -26,7 +31,7 @@ describe('Automatically connecting from the command line', function () {
 
   before(function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
-    // TODO(COMPASS-8010): pory these tests
+    // TODO(COMPASS-8010): port these tests
     if (TEST_MULTIPLE_CONNECTIONS) {
       this.skip();
     }
@@ -88,13 +93,16 @@ describe('Automatically connecting from the command line', function () {
     compass: Compass,
     expectedTitle = connectionStringSuccessTitle
   ) {
-    await compass.browser.waitForConnectionResult('success');
+    const connectionName = connectionNameFromString(connectionStringSuccess);
+    await compass.browser.waitForConnectionResult(connectionName, {
+      connectionStatus: 'success',
+    });
     const sidebarTitle = await compass.browser
       .$(Selectors.SidebarTitle)
       .getText();
     expect(sidebarTitle).to.eq(expectedTitle);
     const result = await compass.browser.shellEval(
-      connectionNameFromString(connectionStringSuccess),
+      connectionName,
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -141,7 +149,10 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs(args),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await compass.browser.waitForConnectionResult(
+        connectionNameUnreachable,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.match(
         /ECONNRESET|Server selection timed out|Client network socket disconnected/i
       );
@@ -163,7 +174,10 @@ describe('Automatically connecting from the command line', function () {
     });
     const { browser } = compass;
     try {
-      const error = await browser.waitForConnectionResult('failure');
+      const error = await browser.waitForConnectionResult(
+        connectionNameSuccess,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.include('Authentication failed');
       const connectFormState = await browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
@@ -185,7 +199,10 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs(args),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await compass.browser.waitForConnectionResult(
+        connectionNameInvalid,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.include('Invalid scheme');
     } finally {
       await cleanup(compass);
@@ -198,8 +215,13 @@ describe('Automatically connecting from the command line', function () {
         `--file=${path.join(tmpdir, 'doesnotexist.json')}`,
       ]),
     });
+    const connectionName =
+      'no connection can appear because the file is invalid';
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await compass.browser.waitForConnectionResult(
+        connectionName,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.include('ENOENT');
     } finally {
       await cleanup(compass);
@@ -213,11 +235,15 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const { browser } = compass;
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(connectionNameSuccess, {
+        connectionStatus: 'success',
+      });
       await browser.execute(() => {
         location.reload();
       });
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(connectionNameSuccess, {
+        connectionStatus: 'success',
+      });
       await browser.disconnectAll();
       await browser.execute(() => {
         location.reload();
@@ -242,7 +268,9 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const { browser } = compass;
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(connectionNameSuccess, {
+        connectionStatus: 'success',
+      });
       await browser.execute(() => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         require('electron').ipcRenderer.call('test:show-connect-window');
@@ -275,7 +303,9 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const browser = compass.browser;
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(connectionNameSuccess, {
+        connectionStatus: 'success',
+      });
       await browser.disconnectAll();
 
       // this is not the ideal check because by default the recent connections

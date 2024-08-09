@@ -104,12 +104,34 @@ export async function selectConnectionMenuItem(
   await browser.clickVisible(itemSelector);
 }
 
+// TODO(COMPASS-8023): Just remove this once the single connection code is removed
+async function removeConnectionSingle(
+  browser: CompassBrowser,
+  connectionName: string
+): Promise<boolean> {
+  const selector = Selectors.sidebarConnection(connectionName);
+
+  if (await browser.$(selector).isExisting()) {
+    await browser.selectConnection(connectionName);
+
+    await browser.selectConnectionMenuItem(
+      connectionName,
+      Selectors.Single.RemoveConnectionItem
+    );
+
+    await browser.$(selector).waitForDisplayed({ reverse: true });
+    return true;
+  }
+
+  return false;
+}
+
 export async function removeConnection(
   browser: CompassBrowser,
   connectionName: string
-): Promise<void> {
+): Promise<boolean> {
   if (!TEST_MULTIPLE_CONNECTIONS) {
-    return;
+    return await removeConnectionSingle(browser, connectionName);
   }
 
   // make sure there's no filter because if the connection is not displayed then we can't remove it
@@ -129,7 +151,9 @@ export async function removeConnection(
       Selectors.Multiple.RemoveConnectionItem
     );
     await browser.$(selector).waitForExist({ reverse: true });
+    return true;
   }
+  return false;
 }
 
 export async function hasConnectionMenuItem(

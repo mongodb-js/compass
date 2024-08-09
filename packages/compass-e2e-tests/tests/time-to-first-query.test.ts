@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -45,7 +45,7 @@ describe('Time to first query', function () {
     await browser.connectWithConnectionString();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'
@@ -70,7 +70,7 @@ describe('Time to first query', function () {
     await browser.connectWithConnectionString();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'

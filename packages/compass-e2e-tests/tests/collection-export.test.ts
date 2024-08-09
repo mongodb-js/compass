@@ -10,7 +10,7 @@ import {
   outputFilename,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -49,6 +49,7 @@ describe('Collection export', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   after(async function () {
@@ -67,9 +68,10 @@ describe('Collection export', function () {
   describe('with the numbers collection', function () {
     beforeEach(async function () {
       await createNumbersCollection();
-      await browser.connectWithConnectionString();
+      await browser.disconnectAll();
+      await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'numbers',
         'Documents'
@@ -883,9 +885,10 @@ describe('Collection export', function () {
   describe('with the number-strings collection', function () {
     beforeEach(async function () {
       await createNumbersStringCollection();
-      await browser.connectWithConnectionString();
+      await browser.disconnectAll();
+      await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'numbers-strings',
         'Documents'

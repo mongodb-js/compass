@@ -11,7 +11,6 @@ export async function closeSettingsModal(
   const settingsModalElement = await browser.$(Selectors.SettingsModal);
 
   await settingsModalElement.waitForDisplayed();
-  await browser.screenshot('settings-modal.png');
 
   await browser.clickVisible(Selectors.CloseSettingsModalButton);
   await settingsModalElement.waitForDisplayed({

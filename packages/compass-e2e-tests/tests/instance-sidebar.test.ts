@@ -5,10 +5,10 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING,
+  DEFAULT_CONNECTION_STRING_1,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -24,12 +24,16 @@ describe('Instance sidebar', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
-    connectionId = await browser.getConnectionIdByName(DEFAULT_CONNECTION_NAME);
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    connectionId = await browser.getConnectionIdByName(
+      DEFAULT_CONNECTION_NAME_1
+    );
   });
 
   after(async function () {
@@ -45,7 +49,7 @@ describe('Instance sidebar', function () {
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         Selectors.Multiple.ClusterInfoItem
       );
     } else {
@@ -55,8 +59,6 @@ describe('Instance sidebar', function () {
 
     const modal = await browser.$(Selectors.ConnectionInfoModal);
     await modal.waitForDisplayed();
-
-    await browser.screenshot('connection-info-modal.png');
 
     await browser.clickVisible(Selectors.ConnectionInfoModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });
@@ -113,8 +115,10 @@ describe('Instance sidebar', function () {
 
     await browser.waitUntil(async () => {
       const treeItems = await browser.$$(Selectors.SidebarTreeItems);
-      // connection, database, collection for multiple connections, otherwise just database and collection
-      const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 3 : 2;
+      // connection, database, collection for multiple connections (twice
+      // because there are two connections), otherwise just database and
+      // collection
+      const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 6 : 2;
       return treeItems.length === expectedCount;
     });
 
@@ -163,7 +167,7 @@ describe('Instance sidebar', function () {
       // active/highlighted and then the add button and three dot menu will
       // display without needing to hover
       await browser.navigateToConnectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'Databases'
       );
     }
@@ -171,7 +175,7 @@ describe('Instance sidebar', function () {
     // open the create database modal from the sidebar
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         Sidebar.CreateDatabaseButton,
         false
       );
@@ -196,7 +200,7 @@ describe('Instance sidebar', function () {
     );
     await collectionElement.waitForDisplayed();
 
-    await browser.dropDatabaseFromSidebar(DEFAULT_CONNECTION_NAME, dbName);
+    await browser.dropDatabaseFromSidebar(DEFAULT_CONNECTION_NAME_1, dbName);
   });
 
   it('can create a collection and drop it', async function () {
@@ -224,7 +228,7 @@ describe('Instance sidebar', function () {
     await browser.$(tabSelectedSelector).waitForDisplayed();
 
     await browser.dropCollectionFromSidebar(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       dbName,
       collectionName
     );
@@ -243,7 +247,7 @@ describe('Instance sidebar', function () {
     );
     await numbersCollectionElement.waitForDisplayed();
 
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
+    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);
@@ -254,7 +258,7 @@ describe('Instance sidebar', function () {
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         Selectors.Multiple.RefreshDatabasesItem
       );
     } else {

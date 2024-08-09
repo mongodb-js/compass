@@ -65,8 +65,6 @@ export async function exportToLanguage(
   // buttons in the modal and it's hard to coordinate the flow to avoid
   const text = await browser.$(Selectors.ExportToLanguageQueryOutput).getText();
 
-  await browser.screenshot('export-to-language-modal.png');
-
   // close the modal again
   await browser.clickVisible(Selectors.ExportToLanguageCloseButton);
   await exportModal.waitForDisplayed({ reverse: true });

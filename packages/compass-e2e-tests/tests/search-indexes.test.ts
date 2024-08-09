@@ -3,11 +3,11 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING,
   Selectors,
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
+  DEFAULT_CONNECTION_STRING_1,
   connectionNameFromString,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -22,7 +22,7 @@ type Connection = {
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    connectionString: DEFAULT_CONNECTION_STRING,
+    connectionString: DEFAULT_CONNECTION_STRING_1,
   },
   {
     name: 'Atlas Free Cluster',
@@ -192,6 +192,7 @@ describe('Search Indexes', function () {
       await dbInstance.createCollection(collectionName);
     }
 
+    await browser.disconnectAll();
     await browser.connectWithConnectionString(currentConnectionString);
     await browser.navigateToCollectionTab(
       connectionNameFromString(currentConnectionString),

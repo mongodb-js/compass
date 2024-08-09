@@ -28,10 +28,6 @@ export async function setValueVisible(
     await element.setValue(value); // basically clearValue() then addValue()
 
     const actualValue = (await element.getValue()) ?? '';
-    if (actualValue !== value) {
-      console.log(actualValue, '!==', value);
-      await browser.screenshot('setValueVisible.png');
-    }
     return actualValue === value;
   });
 }

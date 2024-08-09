@@ -22,6 +22,10 @@ export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
 
+// LG Modals
+export const LGModal = '[data-testid="lg-modal"]';
+export const LGModalClose = '[data-testid="lg-modal-close_button"]';
+
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
 export const LGToastCloseButton = '[data-testid="lg-toast-dismiss-button"]';
@@ -304,6 +308,13 @@ export const Multiple = {
     '[data-testid="connections-list-title-actions-import-saved-connections-action"]',
 
   InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
+
+  ConnectedConnectionItems:
+    '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
+
+  connectionItemByName: (connectionName: string, connected: boolean) => {
+    return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"][data-is-connected="${connected.toString()}"]`;
+  },
 };
 
 // Rename Collection Modal
@@ -333,6 +344,8 @@ export const RenameCollectionButton =
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
+export const CollapseConnectionsButton =
+  '[data-testid="connections-list-title-actions-collapse-all-connections-action"]';
 
 export const sidebarDatabase = (
   // TODO(COMPASS-7906): don't allow undefined connectionId

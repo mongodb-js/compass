@@ -8,7 +8,7 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -49,10 +49,11 @@ describe('My Queries tab', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
   });
   after(async function () {
     if (TEST_COMPASS_WEB) {
@@ -66,12 +67,14 @@ describe('My Queries tab', function () {
   });
 
   it('opens a saved query', async function () {
+    await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+
     const favoriteQueryName = 'list of numbers greater than 10 - query';
     const newFavoriteQueryName = 'my renamed query';
 
     // Run a query
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'
@@ -99,7 +102,10 @@ describe('My Queries tab', function () {
     await browser.clickVisible(Selectors.QueryHistorySaveFavoriteItemButton);
 
     await browser.closeWorkspaceTabs();
-    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
     await browser.navigateToMyQueries();
 
     // open the menu
@@ -142,20 +148,19 @@ describe('My Queries tab', function () {
     );
     await confirmRenameButton.waitForEnabled();
 
-    await browser.screenshot('rename-saved-item-modal.png');
-
     await confirmRenameButton.click();
     await renameModal.waitForDisplayed({ reverse: true });
 
     // rename the collection associated with the query to force the open item modal
-    await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
+    await browser.shellEval(DEFAULT_CONNECTION_NAME_1, 'use test');
     await browser.shellEval(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'db.numbers.renameCollection("numbers-renamed")'
     );
+
     if (TEST_MULTIPLE_CONNECTIONS) {
       await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         Selectors.Multiple.RefreshDatabasesItem
       );
 
@@ -184,8 +189,6 @@ describe('My Queries tab', function () {
     );
     await confirmOpenButton.waitForEnabled();
 
-    await browser.screenshot('open-saved-item-modal.png');
-
     await confirmOpenButton.click();
     await openModal.waitForDisplayed({ reverse: true });
 
@@ -195,7 +198,10 @@ describe('My Queries tab', function () {
 
     // back to my queries
     await browser.closeWorkspaceTabs();
-    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
     await browser.navigateToMyQueries();
 
     // open the menu
@@ -210,19 +216,19 @@ describe('My Queries tab', function () {
     );
     await confirmDeleteButton.waitForEnabled();
 
-    await browser.screenshot('delete-saved-item-modal.png');
-
     await confirmDeleteButton.click();
     await renameModal.waitForDisplayed({ reverse: true });
   });
 
   it('opens a saved aggregation', async function () {
+    await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+
     const savedAggregationName =
       'list of numbers greater than 10 - aggregation';
 
     // Navigate to aggregation
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Aggregations'
@@ -254,8 +260,6 @@ describe('My Queries tab', function () {
       savedAggregationName
     );
 
-    await browser.screenshot('save-pipeline-modal.png');
-
     // click save button
     const createButton = await browser
       .$(Selectors.SavePipelineModal)
@@ -278,11 +282,13 @@ describe('My Queries tab', function () {
       const newCollectionName = 'numbers-renamed';
 
       it('users can permanently associate a new namespace for an aggregation/query', async function () {
+        await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+
         // save a query and rename the collection associated with the query, so that the query must be opened with the "select namespace" modal
 
         // Run a query
         await browser.navigateToCollectionTab(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           'test',
           'numbers',
           'Documents'
@@ -313,7 +319,7 @@ describe('My Queries tab', function () {
 
         await browser.closeWorkspaceTabs();
         await browser.navigateToConnectionTab(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           'Databases'
         );
         await browser.navigateToMyQueries();
@@ -343,15 +349,15 @@ describe('My Queries tab', function () {
         }
 
         // rename the collection associated with the query to force the open item modal
-        await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
+        await browser.shellEval(DEFAULT_CONNECTION_NAME_1, 'use test');
         await browser.shellEval(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           `db.numbers.renameCollection('${newCollectionName}')`
         );
 
         if (TEST_MULTIPLE_CONNECTIONS) {
           await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME,
+            DEFAULT_CONNECTION_NAME_1,
             Selectors.Multiple.RefreshDatabasesItem
           );
         } else {

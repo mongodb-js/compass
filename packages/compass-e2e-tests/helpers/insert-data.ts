@@ -1,12 +1,193 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
 
-const CONNECTION_URI = 'mongodb://127.0.0.1:27091';
+import {
+  DEFAULT_CONNECTION_STRING_1,
+  DEFAULT_CONNECTION_STRING_2,
+  TEST_MULTIPLE_CONNECTIONS,
+} from './compass';
 
-export async function dropDatabase(db: Db | string) {
-  const database = typeof db === 'string' ? client.db(db) : db;
+// This is a list of all the known database names that get created by tests so
+// that we can know what to drop when we clean up before every test. If a new
+// test starts to create another database, add it here so that it will also be
+// cleaned up.
+const dbNames = [
+  'test',
+  'my-sidebar-database',
+  'my-instance-database',
+  'fle-test',
+  'db-for-fle',
+];
+
+// These get added to the 'test' database for each client in
+// createDummyCollections(). It is sometimes handy to have an empty collection
+// already created so that the test can operate on it without first having to
+// create it itself.
+const testCollectionNames = [
+  'json-array',
+  'json-file',
+  'extended-json-file',
+  'csv-file',
+  'array-documents',
+  'bom-csv-file',
+  'latin1',
+  'broken-delimiter',
+  'numbers',
+  'import-stop-first-error',
+  'import-with-errors',
+  'compass-import-abort-e2e-test',
+];
+
+// lots of collections to test virtual scrolling
+for (let i = 0; i < 26; ++i) {
+  testCollectionNames.push('zzz' + String.fromCharCode('a'.charCodeAt(0) + i));
+}
+
+let clients: MongoClient[];
+let test_dbs: Db[];
+
+before(async () => {
+  // Insert data on both connections so that the same databases and collections
+  // will exist on both servers and then anything that's not properly scoped to
+  // the correct connection has a chance to operate on the wrong one and
+  // hopefully fail a test.
+  // This should also mean that the database or collection name that we try and
+  // use is always ambiguous, so we're forced to deal with it early in tests.
+  const connectionStrings = [DEFAULT_CONNECTION_STRING_1];
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    connectionStrings.push(DEFAULT_CONNECTION_STRING_2);
+  }
+  clients = connectionStrings.map(
+    (connectionString) => new MongoClient(connectionString)
+  );
+
+  await Promise.all(clients.map((client) => client.connect()));
+
+  console.log(
+    `Connected successfully to ${connectionStrings.join(
+      ' and '
+    )} for inserting data`
+  );
+
+  test_dbs = clients.map((client) => client.db('test'));
+});
+
+after(async () => {
+  await Promise.all(clients.map((client) => client.close()));
+});
+
+beforeEach(async () => {
+  // Drop the databases that get created by tests or the functions below
+  const promises = [];
+
+  for (const client of clients) {
+    for (const dbName of dbNames) {
+      promises.push(_dropDatabase(client.db(dbName)));
+    }
+  }
+
+  await Promise.all(promises);
+});
+
+export async function createDummyCollections(): Promise<void> {
+  const promises = [];
+
+  for (const db of test_dbs) {
+    // Create some empty collections for the import tests so each one won't have
+    // to possibly drop and create via the UI every time.
+    // (named loosely after the relevant test)
+    for (const collectionName of testCollectionNames) {
+      promises.push(_createBlankCollection(db, collectionName));
+    }
+  }
+  await Promise.all(promises);
+}
+
+export async function createNestedDocumentsCollection(
+  name = 'nestedDocs',
+  numberOfRecords = 1000
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.collection(name).insertMany(
+        [...Array(numberOfRecords).keys()].map((i) => ({
+          names: {
+            firstName: `${i}-firstName`,
+            lastName: `${i}-lastName`,
+          },
+          addresses: [`${i}-address1`, `${i}-address2`],
+          phoneNumbers: [
+            {
+              label: `${i}-home`,
+              number: `${i}-12345`,
+            },
+            {
+              label: `${i}-work`,
+              number: `${i}-6789`,
+            },
+          ],
+        }))
+      );
+    })
+  );
+}
+
+export async function createNumbersCollection(
+  name = 'numbers',
+  numberOfRecords = 1000
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db
+        .collection(name)
+        .insertMany(
+          [...Array(numberOfRecords).keys()].map((i) => ({ i, j: 0 }))
+        );
+    })
+  );
+}
+
+// Useful for testing collation with `numericOrdering`.
+export async function createNumbersStringCollection(
+  name = 'numbers-strings',
+  numberOfRecords = 10
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.collection(name).insertMany(
+        [...Array(numberOfRecords).keys()].map((i) => ({
+          i,
+          iString: `${i * 20}`,
+          j: 0,
+        }))
+      );
+    })
+  );
+}
+
+export async function createGeospatialCollection(): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      const lon = () => Math.random() * 360 - 180;
+      const lat = () => Math.random() * 180 - 90;
+
+      await db.collection('geospatial').insertMany(
+        [...Array(1000).keys()].map(() => ({
+          location: { type: 'Point', coordinates: [lon(), lat()] },
+        }))
+      );
+    })
+  );
+}
+
+// WARNING: please don't export _dropDatabase because this file is written to
+// manage ALL test databases and collections and clean them up. If we start
+// creating arbitrary databases and collections in tests then those tests have
+// to start managing arbitrary cleanup too, defeating the purpose.
+// Anything you put in the beforeEach hook above will be dropped automatically.
+async function _dropDatabase(db: Db) {
   try {
-    await database.dropDatabase();
+    await db.dropDatabase();
   } catch (err) {
     const codeName = (err as MongoServerError).codeName;
     if (codeName !== 'NamespaceNotFound') {
@@ -15,154 +196,22 @@ export async function dropDatabase(db: Db | string) {
   }
 }
 
-export async function createBlankCollection(db: Db | string, name: string) {
-  const database = typeof db === 'string' ? client.db(db) : db;
+// WARNING: please don't export _createBlankCollection because this file is
+// written to manage ALL test dataases and collections and clean them up. If we
+// start creating arbitrary databases and collections in tests then those tests
+// have to start managing arbitrary cleanup too, defeating the purpose.
+// Just add more to createDummyCollections(), but really anything you put inside
+// one of the databases that get dropped in the beforeEach hook above will be
+// dropped automatically.
+async function _createBlankCollection(db: Db, name: string) {
   try {
-    await database.createCollection(name);
+    await db.createCollection(name);
   } catch (err) {
     const codeName = (err as MongoServerError).codeName;
     if (codeName === 'NamespaceExists') {
-      await database.collection(name).deleteMany({});
+      await db.collection(name).deleteMany({});
     } else {
       throw err;
     }
   }
-}
-
-let client: MongoClient;
-
-before(async () => {
-  client = new MongoClient(CONNECTION_URI);
-  await client.connect();
-  console.log(`Connected successfully to ${CONNECTION_URI} for inserting data`);
-});
-
-after(async () => {
-  await client.close();
-});
-
-beforeEach(async () => {
-  // Drop the databases that get created by tests just in case tests failed to
-  // clean them up.
-  await Promise.all(
-    [
-      'test',
-      'my-sidebar-database',
-      'my-instance-database',
-      'fle-test',
-      'db-for-fle',
-      'multiple-collections',
-    ].map((db) => dropDatabase(client.db(db)))
-  );
-});
-
-export async function createDummyCollections(): Promise<void> {
-  const db = client.db('test');
-  const promises = [];
-
-  // Create some empty collections for the import tests so each one won't have
-  // to possibly drop and create via the UI every time.
-  // (named loosely after the relevant test)
-  promises.push(createBlankCollection(db, 'json-array'));
-  promises.push(createBlankCollection(db, 'json-file'));
-  promises.push(createBlankCollection(db, 'extended-json-file'));
-  promises.push(createBlankCollection(db, 'csv-file'));
-  promises.push(createBlankCollection(db, 'array-documents'));
-  promises.push(createBlankCollection(db, 'bom-csv-file'));
-  promises.push(createBlankCollection(db, 'latin1'));
-  promises.push(createBlankCollection(db, 'broken-delimiter'));
-  promises.push(createBlankCollection(db, 'numbers'));
-  promises.push(createBlankCollection(db, 'import-stop-first-error'));
-  promises.push(createBlankCollection(db, 'import-with-errors'));
-  promises.push(createBlankCollection(db, 'compass-import-abort-e2e-test'));
-
-  // lots of collections to test virtual scrolling
-  for (let i = 0; i < 26; ++i) {
-    promises.push(
-      createBlankCollection(
-        db,
-        'zzz' + String.fromCharCode('a'.charCodeAt(0) + i)
-      )
-    );
-  }
-
-  await Promise.all(promises);
-}
-
-export async function createNestedDocumentsCollection(
-  name = 'nestedDocs',
-  numberOfRecords = 1000
-): Promise<void> {
-  const db = client.db('test');
-  await db.collection(name).insertMany(
-    [...Array(numberOfRecords).keys()].map((i) => ({
-      names: {
-        firstName: `${i}-firstName`,
-        lastName: `${i}-lastName`,
-      },
-      addresses: [`${i}-address1`, `${i}-address2`],
-      phoneNumbers: [
-        {
-          label: `${i}-home`,
-          number: `${i}-12345`,
-        },
-        {
-          label: `${i}-work`,
-          number: `${i}-6789`,
-        },
-      ],
-    }))
-  );
-}
-
-export async function createNumbersCollection(
-  name = 'numbers',
-  numberOfRecords = 1000
-): Promise<void> {
-  const db = client.db('test');
-
-  await db
-    .collection(name)
-    .insertMany([...Array(numberOfRecords).keys()].map((i) => ({ i, j: 0 })));
-}
-
-// Useful for testing collation with `numericOrdering`.
-export async function createNumbersStringCollection(
-  name = 'numbers-strings',
-  numberOfRecords = 10
-): Promise<void> {
-  const db = client.db('test');
-
-  await db.collection(name).insertMany(
-    [...Array(numberOfRecords).keys()].map((i) => ({
-      i,
-      iString: `${i * 20}`,
-      j: 0,
-    }))
-  );
-}
-
-export async function createMultipleCollections(): Promise<void> {
-  const db = client.db('multiple-collections');
-
-  await db
-    .collection('one')
-    .insertMany([...Array(10).keys()].map((i) => ({ i, j: 0 })));
-
-  await db
-    .collection('two')
-    .insertMany([...Array(10).keys()].map((i) => ({ i, j: 0 })));
-}
-
-export async function createGeospatialCollection(): Promise<void> {
-  const db = client.db('test');
-
-  const lon = () => Math.random() * 360 - 180;
-  const lat = () => Math.random() * 180 - 90;
-
-  await db.collection('geospatial').insertMany(
-    [...Array(1000).keys()].map(() => ({
-      location: { type: 'Point', coordinates: [lon(), lat()] },
-    }))
-  );
 }
