@@ -166,7 +166,6 @@ describe('CSFLE / QE', function () {
 
       // extra pause to make very sure that it loaded the connections
       await delay(10000);
-      await browser.screenshot('saved-connections-after-disconnect.png');
 
       if (TEST_MULTIPLE_CONNECTIONS) {
         // in the multiple connections world, if we clicked the connection it

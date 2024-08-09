@@ -148,8 +148,6 @@ describe('My Queries tab', function () {
     );
     await confirmRenameButton.waitForEnabled();
 
-    await browser.screenshot('rename-saved-item-modal.png');
-
     await confirmRenameButton.click();
     await renameModal.waitForDisplayed({ reverse: true });
 
@@ -192,8 +190,6 @@ describe('My Queries tab', function () {
     );
     await confirmOpenButton.waitForEnabled();
 
-    await browser.screenshot('open-saved-item-modal.png');
-
     await confirmOpenButton.click();
     await openModal.waitForDisplayed({ reverse: true });
 
@@ -220,8 +216,6 @@ describe('My Queries tab', function () {
       Selectors.confirmationModalConfirmButton()
     );
     await confirmDeleteButton.waitForEnabled();
-
-    await browser.screenshot('delete-saved-item-modal.png');
 
     await confirmDeleteButton.click();
     await renameModal.waitForDisplayed({ reverse: true });
@@ -266,8 +260,6 @@ describe('My Queries tab', function () {
       Selectors.SavePipelineNameInput,
       savedAggregationName
     );
-
-    await browser.screenshot('save-pipeline-modal.png');
 
     // click save button
     const createButton = await browser

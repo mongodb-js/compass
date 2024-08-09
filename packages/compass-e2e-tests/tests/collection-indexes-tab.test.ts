@@ -161,8 +161,6 @@ describe('Collection indexes tab', function () {
         'columnstore'
       );
 
-      await browser.screenshot('create-index-modal-columnstore.png');
-
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
       await createModal.waitForDisplayed({ reverse: true });

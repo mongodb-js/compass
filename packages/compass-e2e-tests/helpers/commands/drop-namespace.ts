@@ -14,8 +14,6 @@ export async function dropNamespace(
   const confirmButton = await browser.$(Selectors.DropNamespaceDropButton);
   await confirmButton.waitForEnabled();
 
-  await browser.screenshot('drop-namespace-modal.png');
-
   await confirmButton.click();
 
   const successToast = browser.$(Selectors.DropNamespaceSuccessToast);

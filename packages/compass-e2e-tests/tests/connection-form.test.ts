@@ -747,8 +747,6 @@ describe('Connection form', function () {
     const confirmModal = await browser.$(Selectors.ConfirmationModal);
     await confirmModal.waitForDisplayed();
 
-    await browser.screenshot('edit-uri-confirmation-modal.png');
-
     await browser.clickVisible(Selectors.confirmationModalConfirmButton());
 
     await confirmModal.waitForDisplayed({ reverse: true });
@@ -866,8 +864,6 @@ describe('Connection form', function () {
     );
 
     await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-
-    await browser.screenshot('save-favorite-modal-new.png');
 
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });

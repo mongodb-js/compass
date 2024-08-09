@@ -425,8 +425,6 @@ describe('Collection aggregations tab', function () {
       'my-view-from-pipeline'
     );
 
-    await browser.screenshot('create-view-modal.png');
-
     // click create button
     const createButton = await browser
       .$(Selectors.CreateViewModal)
@@ -456,8 +454,6 @@ describe('Collection aggregations tab', function () {
       Selectors.DuplicateViewModalConfirmButton
     );
     await confirmDuplicateButton.waitForEnabled();
-
-    await browser.screenshot('duplicate-view-modal.png');
 
     await confirmDuplicateButton.click();
     await duplicateModal.waitForDisplayed({ reverse: true });
@@ -959,8 +955,6 @@ describe('Collection aggregations tab', function () {
     const exportModal = await browser.$(Selectors.ExportModal);
     await exportModal.waitForDisplayed();
 
-    await browser.screenshot('export-modal.png');
-
     // Make sure the aggregation is shown in the modal.
     const exportModalAggregationTextElement = await browser.$(
       Selectors.ExportModalCodePreview
@@ -1011,8 +1005,6 @@ describe('Collection aggregations tab', function () {
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
     expect(await modal.getText()).to.contain('Query Performance Summary');
-
-    await browser.screenshot('aggregation-explain-modal.png');
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });

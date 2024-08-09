@@ -31,7 +31,6 @@ async function waitForCollectionAndBadge(
 
   // Hit refresh because depending on timing the card might appear without the
   // badge at first. Especially in Firefox for whatever reason.
-  await browser.screenshot('click-refresh.png');
   await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
   await browser.scrollToVirtualItem(

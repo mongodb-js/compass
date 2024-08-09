@@ -30,7 +30,6 @@ describe('Global Tabs', function () {
       await createNumbersCollection(collName, 1);
       await createNumbersCollection(collName, 1);
     }
-    await browser.screenshot('before-disconnect.png');
     await browser.disconnectAll();
     await browser.connectToDefaults();
   });
