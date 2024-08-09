@@ -107,6 +107,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -146,6 +147,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -185,6 +187,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -230,6 +233,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -283,6 +287,7 @@ describe('Connection form', function () {
     expectedState.tlsCAFile = tlsCAFile;
     expectedState.tlsCertificateKeyFile = tlsCertificateKeyFile;
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -348,6 +353,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -390,6 +396,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -434,6 +441,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -480,6 +488,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -527,6 +536,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -666,6 +676,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(false);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(false)).to.equal(
       redactedConnectionString
@@ -791,6 +802,9 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
+
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       `${connectionString}&authSource=%24external`
