@@ -159,6 +159,7 @@ const GridControls: React.FunctionComponent<{
     openCollectionsWorkspace,
     openShellWorkspace,
   } = useOpenWorkspace();
+  const track = useTelemetry();
   const { enableShell, enableNewMultipleConnectionSystem } = usePreferences([
     'enableShell',
     'enableNewMultipleConnectionSystem',
@@ -214,6 +215,11 @@ const GridControls: React.FunctionComponent<{
                   namespace
                     ? { initialEvaluate: `use ${namespace}` }
                     : undefined
+                );
+                track(
+                  'Shell Show',
+                  { entrypoint: `${itemType}s` },
+                  connectionInfo
                 );
               }}
               leftGlyph={<Icon glyph="Shell"></Icon>}

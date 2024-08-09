@@ -45,6 +45,7 @@ import {
   type ConnectionImportExportAction,
   useOpenConnectionImportExportModal,
 } from '@mongodb-js/compass-connection-import-export';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -176,6 +177,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
+  const track = useTelemetry();
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
 
@@ -291,6 +293,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'open-shell':
           openShellWorkspace(item.connectionInfo.id, { newTab: true });
+          track('Shell Show', { entrypoint: 'sidebar' }, item.connectionInfo);
           return;
         case 'connection-performance-metrics':
           openPerformanceWorkspace(item.connectionInfo.id);
@@ -343,6 +346,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onRemoveConnection,
       onOpenCsfleModal,
       onOpenNonGenuineMongoDBModal,
+      track,
     ]
   );
 
