@@ -14,16 +14,19 @@ import { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
 import { createServiceLocator } from 'hadron-app-registry';
 import { pick } from 'lodash';
 
-const PreferencesContext = createContext<PreferencesAccess>(
-  // Our context starts with our read-only preference access but we expect
-  // different runtimes to provide their own access implementation at render.
-  new ReadOnlyPreferenceAccess()
-);
+const PreferencesContext = createContext<PreferencesAccess | null>(null);
+// Lazily initialized to avoid a cyclic dependency.
+let defaultPreferences: ReadOnlyPreferenceAccess | null;
 
 export const PreferencesProvider = PreferencesContext.Provider;
 
-export function usePreferencesContext() {
-  return useContext(PreferencesContext);
+export function usePreferencesContext(): PreferencesAccess {
+  // We fall back to our read-only preference access but we expect
+  // different runtimes to provide their own access implementation at render.
+  return (
+    useContext(PreferencesContext) ??
+    (defaultPreferences ??= new ReadOnlyPreferenceAccess())
+  );
 }
 
 export const preferencesLocator = createServiceLocator(

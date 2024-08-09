@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import GeneralSettings from './settings/general';
+import { ProxySettings } from './settings/proxy-settings';
 import OIDCSettings from './settings/oidc-settings';
 import GenAISettings from './settings/gen-ai-settings';
 import PrivacySettings from './settings/privacy';
@@ -17,12 +18,14 @@ import FeaturePreviewSettings, {
   useShouldShowFeaturePreviewSettings,
 } from './settings/feature-preview';
 import Sidebar from './sidebar';
-import { saveSettings, closeModal } from '../stores/settings';
+import type { SettingsTabId } from '../stores/settings';
+import { saveSettings, closeModal, selectTab } from '../stores/settings';
 import type { RootState } from '../stores';
 import { getUserInfo } from '../stores/atlas-login';
 import { useHasAIFeatureCloudRolloutAccess } from 'compass-preferences-model/provider';
 
 type Settings = {
+  tabId: SettingsTabId;
   name: string;
   component: React.ComponentType;
 };
@@ -31,9 +34,12 @@ type SettingsModalProps = {
   isAIFeatureEnabled: boolean;
   isOpen: boolean;
   isOIDCEnabled: boolean;
+  isProxySupportEnabled: boolean;
+  selectedTab: SettingsTabId | undefined;
   onMount?: () => void;
   onClose: () => void;
   onSave: () => void;
+  onSelectTab: (tab: SettingsTabId) => void;
   hasChangedSettings: boolean;
 };
 
@@ -59,10 +65,13 @@ const settingsStyles = css(
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isAIFeatureEnabled,
+  isProxySupportEnabled,
   isOpen,
+  selectedTab,
   onMount,
   onClose,
   onSave,
+  onSelectTab,
   isOIDCEnabled,
   hasChangedSettings,
 }) => {
@@ -74,9 +83,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   }, []);
 
   const settings: Settings[] = [
-    { name: 'General', component: GeneralSettings },
-    { name: 'Theme', component: ThemeSettings },
-    { name: 'Privacy', component: PrivacySettings },
+    { tabId: 'general', name: 'General', component: GeneralSettings },
+    { tabId: 'theme', name: 'Theme', component: ThemeSettings },
+    { tabId: 'privacy', name: 'Privacy', component: PrivacySettings },
   ];
 
   if (
@@ -85,6 +94,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     isAIFeatureEnabled
   ) {
     settings.push({
+      tabId: 'oidc',
       name: 'OIDC',
       component: OIDCSettings,
     });
@@ -92,22 +102,31 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 
   if (aiFeatureHasCloudRolloutAccess) {
     settings.push({
+      tabId: 'ai',
       name: 'Artificial Intelligence',
       component: GenAISettings,
     });
   }
 
+  if (isProxySupportEnabled) {
+    settings.push({
+      tabId: 'proxy',
+      name: 'Proxy Configuration',
+      component: ProxySettings,
+    });
+  }
+
   if (useShouldShowFeaturePreviewSettings()) {
     settings.push({
+      tabId: 'preview',
       name: 'Feature Preview',
       component: FeaturePreviewSettings,
     });
   }
 
-  const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
-
+  selectedTab ??= settings[0].tabId;
   const SettingComponent =
-    settings.find((x) => x.name === selectedSetting)?.component ?? null;
+    settings.find((x) => x.tabId === selectedTab)?.component ?? null;
 
   return (
     <FormModal
@@ -124,9 +143,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
-            activeItem={selectedSetting}
-            onSelectItem={setSelectedSettings}
-            items={settings.map((x) => x.name)}
+            activeItem={selectedTab}
+            onSelectItem={onSelectTab}
+            items={settings.map((x) => [x.tabId, x.name])}
           />
         </div>
         <div
@@ -134,8 +153,8 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           data-testid="settings-modal-content"
           role="tabpanel"
           tabIndex={0}
-          id={`${selectedSetting} Section`}
-          aria-labelledby={`${selectedSetting} Tab`}
+          id={`${selectedTab}-section`}
+          aria-labelledby={`${selectedTab}-tab`}
         >
           {SettingComponent && <SettingComponent />}
         </div>
@@ -151,12 +170,15 @@ export default connect(
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
       isAIFeatureEnabled: !!state.settings.settings.enableGenAIFeatures,
       isOIDCEnabled: !!state.settings.settings.enableOidc,
+      isProxySupportEnabled: !!state.settings.settings.enableProxySupport,
       hasChangedSettings: state.settings.updatedFields.length > 0,
+      selectedTab: state.settings.tab,
     };
   },
   {
     onMount: getUserInfo,
     onClose: closeModal,
     onSave: saveSettings,
+    onSelectTab: selectTab,
   }
 )(SettingsModal);

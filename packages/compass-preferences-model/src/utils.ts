@@ -1,5 +1,6 @@
 import { usePreference } from './react';
 import type { AllPreferences, PreferencesAccess, User } from '.';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 export function getActiveUserId(
   preferences: Pick<PreferencesAccess, 'getPreferences'>
@@ -55,4 +56,24 @@ export function useIsAIFeatureEnabled() {
 export function useHasAIFeatureCloudRolloutAccess() {
   const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
   return !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
+}
+
+export function proxyPreferenceToProxyOptions(
+  proxy: string
+): DevtoolsProxyOptions {
+  if (!proxy)
+    return {
+      useEnvironmentVariableProxies: true,
+    };
+  try {
+    return JSON.parse(proxy);
+  } catch {
+    return { proxy: new URL(proxy).href, useEnvironmentVariableProxies: true };
+  }
+}
+
+export function proxyOptionsToProxyPreference(
+  proxyOptions: DevtoolsProxyOptions
+): string {
+  return JSON.stringify(proxyOptions);
 }
