@@ -317,12 +317,15 @@ function Tab({
         </div>
       }
     >
-      {tooltip &&
-        tooltip.map(([label, value]) => (
-          <div key={label}>
-            <b>{label}:</b> {value}
-          </div>
-        ))}
+      {tooltip && (
+        <div data-testid="workspace-tab-tooltip">
+          {tooltip.map(([label, value]) => (
+            <div key={label}>
+              <b>{label}:</b> {value}
+            </div>
+          ))}
+        </div>
+      )}
     </Tooltip>
   );
 }

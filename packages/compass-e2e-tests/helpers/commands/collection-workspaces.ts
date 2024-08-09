@@ -3,10 +3,6 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { WorkspaceTabSelectorOptions } from '../selectors';
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 async function navigateToCollection(
   browser: CompassBrowser,
   connectionName: string,
@@ -71,9 +67,15 @@ export async function navigateToCollectionTab(
     closeExistingTabs
   );
 
-  // get tooltip out of the way
+  // wait for the tooltip to appear
+  await browser.$(Selectors.WorkspaceTabTooltip).waitForDisplayed();
+  // move the focus out so that the tooltip closes
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  await sleep(50);
+  // wait for it to be gone
+  await browser
+    .$(Selectors.WorkspaceTabTooltip)
+    .waitForDisplayed({ reverse: true });
+  console.log('IT IS GONE');
 
   await navigateWithinCurrentCollectionTabs(browser, tabName);
 }

@@ -1208,6 +1208,7 @@ export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 // Workspace tabs
 export const WorkspaceTabsContainer =
   '[data-testid="workspace-tabs-container"]';
+export const WorkspaceTabTooltip = '[data-testid=workspace-tab-tooltip]';
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 export const sidebarInstanceNavigationItem = (
   tabName: 'Performance' | 'Databases'
