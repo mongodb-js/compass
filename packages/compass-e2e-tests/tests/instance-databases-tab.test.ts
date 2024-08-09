@@ -17,7 +17,7 @@ import {
 
 const INITIAL_DATABASE_NAMES = ['admin', 'config', 'local', 'test'];
 
-describe.only('Instance databases tab', function () {
+describe('Instance databases tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
