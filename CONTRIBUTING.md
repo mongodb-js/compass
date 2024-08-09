@@ -3,7 +3,7 @@
 
 ## Getting Started
 
-You'll need node `^18` and npm `^10` installed on your machine to work with the repository locally.
+You'll need node `^20` and npm `^10` installed on your machine to work with the repository locally.
 After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally. Alternatively you can start a web version of the app by running `npm run start-web`.
