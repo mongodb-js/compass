@@ -72,7 +72,7 @@ export async function navigateToCollectionTab(
   );
 
   // get tooltip out of the way
-  await browser.clickVisible(Selectors.WorkspaceTabsContainer);
+  await browser.clickVisible(Selectors.SidebarFilterInput);
   await sleep(50);
 
   await navigateWithinCurrentCollectionTabs(browser, tabName);
