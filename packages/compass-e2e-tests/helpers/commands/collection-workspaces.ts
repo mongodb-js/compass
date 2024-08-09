@@ -3,6 +3,10 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { WorkspaceTabSelectorOptions } from '../selectors';
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function navigateToCollection(
   browser: CompassBrowser,
   connectionName: string,
@@ -67,17 +71,19 @@ export async function navigateToCollectionTab(
     closeExistingTabs
   );
 
-  // wait for the tooltip to appear
-  await browser.$(Selectors.WorkspaceTabTooltip).waitForDisplayed();
-  // move the focus out so that the tooltip closes
+  // wait for the tooltip to be gone
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  // wait for it to be gone
   await browser
     .$(Selectors.WorkspaceTabTooltip)
     .waitForDisplayed({ reverse: true });
-  console.log('IT IS GONE');
 
   await navigateWithinCurrentCollectionTabs(browser, tabName);
+
+  // I don't know why, but sometimes the tooltip is shown at this point again
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser
+    .$(Selectors.WorkspaceTabTooltip)
+    .waitForDisplayed({ reverse: true });
 }
 
 export async function navigateWithinCurrentCollectionTabs(
