@@ -76,12 +76,17 @@ export async function disconnectAll(
     return await disconnectAllSingle(browser);
   }
 
+  // Collapse all the connections so that they will all hopefully fit on screen
+  // and therefore be rendered.
+  await browser.clickVisible(Selectors.CollapseConnectionsButton);
+
   // The previous test could have ended with modals and/or toasts left open and
   // a search filter in the sidebar. Reset those so we can get to a known state.
   await resetForDisconnect(browser);
 
   // The potential problem here is that the list is virtual, so it is possible
-  // that not every connection is rendered.
+  // that not every connection is rendered. Collapsing them all helps a little
+  // bit, though.
   const connectionItems = await browser.$$(
     Selectors.Multiple.ConnectedConnectionItems
   );

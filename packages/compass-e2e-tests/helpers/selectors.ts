@@ -346,6 +346,8 @@ export const RenameCollectionButton =
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
+export const CollapseConnectionsButton =
+  '[data-testid="connections-list-title-actions-collapse-all-connections-action"]';
 
 export const sidebarDatabase = (
   // TODO(COMPASS-7906): don't allow undefined connectionId
