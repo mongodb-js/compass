@@ -114,7 +114,7 @@ export const reducer: Reducer<State, Action> = (
     return {
       ...state,
       isModalOpen: true,
-      tab: action.tab ?? state.tab,
+      tab: action.tab,
     };
   }
   if (isAction<SelectTabAction>(action, ActionTypes.SelectTab)) {
@@ -129,7 +129,6 @@ export const reducer: Reducer<State, Action> = (
     return {
       ...state,
       isModalOpen: false,
-      tab: undefined,
     };
   }
   if (
