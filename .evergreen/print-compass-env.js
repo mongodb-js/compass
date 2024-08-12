@@ -107,6 +107,13 @@ function printCompassEnv() {
   printVar('DEV_VERSION_IDENTIFIER', process.env.DEV_VERSION_IDENTIFIER);
   printVar('EVERGREEN_REVISION', process.env.EVERGREEN_REVISION);
   printVar('EVERGREEN_REVISION_ORDER_ID', process.env.EVERGREEN_REVISION_ORDER_ID);
+
+  if (process.platform === 'darwin') {
+    // Without this, kerberos 2.1.1 is broken on macOS, but this flag is only
+    // really relevant for Linux.
+    // https://jira.mongodb.org/browse/NODE-6320
+    printVar('GYP_DEFINES', 'kerberos_use_rtld=false');
+  }
 }
 
 printCompassEnv();

@@ -150,7 +150,7 @@ export async function waitForConnectionResult(
     if (TEST_COMPASS_WEB) {
       // In compass-web, for now, we land on the Databases tab after connecting
       await browser
-        .$('[data-testid="workspace-tab-button"][title=Databases]')
+        .$('[data-testid="workspace-tab-button"][data-type=Databases]')
         .waitForDisplayed();
     } else if (TEST_MULTIPLE_CONNECTIONS) {
       // For multiple connections, make sure the exact named connection is

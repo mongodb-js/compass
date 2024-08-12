@@ -38,7 +38,7 @@ exports.checkNpmAndNodejsVersions = async(opts) => {
   const expectNodeVersion = opts.nodejs_version;
   const expectNpmVersion = opts.npm_version;
   const args = ['version', '--json', '--loglevel', 'error'];
-  const stdout = await runAsync('npm', args, {env: process.env});
+  const stdout = await runAsync('npm', args, {env: process.env, shell: true});
   const versions = JSON.parse(stdout);
 
   if (!semver.satisfies(versions.node, expectNodeVersion)) {

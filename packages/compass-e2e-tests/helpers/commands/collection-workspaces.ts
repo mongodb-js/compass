@@ -66,7 +66,20 @@ export async function navigateToCollectionTab(
     collectionName,
     closeExistingTabs
   );
+
+  // wait for the tooltip to be gone
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser
+    .$(Selectors.WorkspaceTabTooltip)
+    .waitForDisplayed({ reverse: true });
+
   await navigateWithinCurrentCollectionTabs(browser, tabName);
+
+  // I don't know why, but sometimes the tooltip is shown at this point again
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser
+    .$(Selectors.WorkspaceTabTooltip)
+    .waitForDisplayed({ reverse: true });
 }
 
 export async function navigateWithinCurrentCollectionTabs(
@@ -87,6 +100,7 @@ export async function navigateWithinCurrentCollectionTabs(
 
   // otherwise select the tab and wait for it to become selected
   await browser.clickVisible(tab);
+
   await waitUntilActiveCollectionSubTab(browser, tabName);
 }
 
@@ -104,6 +118,7 @@ async function waitUntilActiveCollectionTab(
     | null = null
 ) {
   const options: WorkspaceTabSelectorOptions = {
+    type: 'Collection',
     namespace: `${dbName}.${collectionName}`,
     active: true,
   };

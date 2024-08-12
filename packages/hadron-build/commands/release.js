@@ -344,7 +344,8 @@ const installDependencies = util.callbackify(async(CONFIG) => {
   cli.debug('Installing dependencies and rebuilding native modules');
 
   const opts = {
-    cwd: appPackagePath
+    cwd: appPackagePath,
+    shell: true
   };
 
   await run.async('npm', ['install', '--production'], opts);

@@ -5,7 +5,6 @@ export type WorkspaceTabSelectorOptions = {
   connectionName?: string;
   namespace?: string;
   type?: string;
-  title?: string;
   active?: boolean;
 };
 
@@ -1220,6 +1219,9 @@ export const QueryBarAIGenerateQueryButton =
 export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
+export const WorkspaceTabsContainer =
+  '[data-testid="workspace-tabs-container"]';
+export const WorkspaceTabTooltip = '[data-testid=workspace-tab-tooltip]';
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 export const sidebarInstanceNavigationItem = (
   tabName: 'Performance' | 'Databases'
@@ -1234,7 +1236,6 @@ export const workspaceTab = ({
   connectionName,
   namespace,
   type,
-  title,
   active,
 }: WorkspaceTabSelectorOptions = {}) => {
   const parts: string[] = [WorkspaceTab];
@@ -1249,9 +1250,6 @@ export const workspaceTab = ({
   }
   if (type !== undefined) {
     parts.push(`[data-type="${type}"]`);
-  }
-  if (title !== undefined) {
-    parts.push(`[title="${title}"]`);
   }
   if (active !== undefined) {
     parts.push(`[aria-selected="${String(active)}"]`);
