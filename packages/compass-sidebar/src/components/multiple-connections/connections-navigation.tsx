@@ -293,7 +293,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'open-shell':
           openShellWorkspace(item.connectionInfo.id, { newTab: true });
-          track('Shell Open', { entrypoint: 'sidebar' }, item.connectionInfo);
+          track('Open Shell', { entrypoint: 'sidebar' }, item.connectionInfo);
           return;
         case 'connection-performance-metrics':
           openPerformanceWorkspace(item.connectionInfo.id);

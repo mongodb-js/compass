@@ -512,7 +512,7 @@ describe('Multiple Connections Sidebar Component', function () {
             );
 
             await waitFor(() => {
-              expect(track).to.have.been.calledWith('Shell Open');
+              expect(track).to.have.been.calledWith('Open Shell');
             });
           });
 
