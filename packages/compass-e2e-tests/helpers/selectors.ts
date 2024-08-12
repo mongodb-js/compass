@@ -15,7 +15,7 @@ export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close mod
 export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
 export const SettingsModalTabSelector = (name: string) =>
   `${SettingsModal} [data-testid="sidebar-${name}-item"]`;
-export const GeneralSettingsButton = SettingsModalTabSelector('General');
+export const GeneralSettingsButton = SettingsModalTabSelector('general');
 export const GeneralSettingsContent = `${SettingsModal} [data-testid="general-settings"]`;
 
 export const SettingsInputElement = (settingName: string): string => {
