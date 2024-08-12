@@ -106,6 +106,7 @@ export const reducer: Reducer<State, Action> = (
       ...INITIAL_STATE,
       // ... and preserving current modal state
       isModalOpen: state.isModalOpen,
+      tab: state.tab,
     };
   }
   if (
