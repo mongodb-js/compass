@@ -43,3 +43,9 @@ if (!window.document.queryCommandSupported) {
       return ['copy', 'cut'].includes(command);
     };
 }
+
+// COMPASS-7357: jsdom `EventTarget` doesn't play nicely with Node.js `CustomEvent` yet,
+// so always pick the `window`/jsdom-based variant
+globalThis.EventTarget = window.EventTarget;
+globalThis.CustomEvent = window.CustomEvent;
+globalThis.Event = window.Event;

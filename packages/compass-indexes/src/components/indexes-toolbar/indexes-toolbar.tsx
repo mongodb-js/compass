@@ -10,7 +10,6 @@ import {
   Tooltip,
   WarningSummary,
   css,
-  mergeProps,
   spacing,
   Icon,
   SpinLoader,
@@ -103,15 +102,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 enabled={!isWritable}
                 align="top"
                 justify="middle"
-                trigger={({ children, ...props }) => (
-                  <div
-                    {...mergeProps(
-                      {
-                        className: createIndexButtonContainerStyles,
-                      },
-                      props
-                    )}
-                  >
+                trigger={
+                  <div className={createIndexButtonContainerStyles}>
                     <CreateIndexButton
                       isSearchManagementActive={isSearchManagementActive}
                       isAtlasSearchSupported={isAtlasSearchSupported}
@@ -119,9 +111,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       onCreateRegularIndex={onCreateRegularIndex}
                       onCreateSearchIndex={onCreateSearchIndex}
                     ></CreateIndexButton>
-                    {children}
                   </div>
-                )}
+                }
               >
                 {writeStateDescription}
               </Tooltip>
@@ -161,18 +152,15 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     align="top"
                     justify="middle"
                     enabled={true}
-                    delay={500}
-                    trigger={({ children, ...props }) => (
+                    trigger={
                       <SegmentedControlOption
-                        {...props}
                         data-testid="search-indexes-tab"
                         value="search-indexes"
                         disabled={true}
                       >
                         Search Indexes
-                        {children}
                       </SegmentedControlOption>
-                    )}
+                    }
                   >
                     <p>
                       The Atlas Search index management in Compass is only

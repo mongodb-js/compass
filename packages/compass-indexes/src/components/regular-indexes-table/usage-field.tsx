@@ -23,22 +23,19 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
 }) => {
   return (
     <Tooltip
-      trigger={({ children, ...props }) => (
-        <span {...props}>
-          {children}
-          <Body>
-            {usage === null || usage === undefined ? (
-              'Usage data unavailable'
-            ) : (
-              <>
-                {usage}
-                {nbsp}
-                {since ? `(since ${since.toDateString()})` : ''}
-              </>
-            )}
-          </Body>
-        </span>
-      )}
+      trigger={
+        <Body>
+          {usage === null || usage === undefined ? (
+            'Usage data unavailable'
+          ) : (
+            <>
+              {usage}
+              {nbsp}
+              {since ? `(since ${since.toDateString()})` : ''}
+            </>
+          )}
+        </Body>
+      }
     >
       <Body>{getUsageTooltip(usage)}</Body>
     </Tooltip>

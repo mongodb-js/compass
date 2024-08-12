@@ -298,16 +298,15 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
           <Tooltip
             align="top"
             justify="middle"
-            trigger={({ children, ...props }) => (
-              <div {...props} className={clockStyles}>
-                {children}
+            trigger={
+              <div className={clockStyles}>
                 <Clock
                   prevStageExecTimeMS={prevStageExecTimeMS}
                   curStageExecTimeMS={curStageExecTimeMS}
                   totalExecTimeMS={totalExecTimeMS}
                 />
               </div>
-            )}
+            }
           >
             The clock represents the total time the query took to complete. The
             blue clock segment is the time taken by the highlighted stage (

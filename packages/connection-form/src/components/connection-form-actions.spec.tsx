@@ -38,7 +38,7 @@ describe('<ConnectionFormModalActions />', function () {
           onSaveAndConnect={onSaveAndConnectSpy}
         ></ConnectionFormModalActions>
       );
-      const saveButton = screen.getByText('Save & Connect');
+      const saveButton = screen.getByText('Connect');
       fireEvent(
         saveButton,
         new MouseEvent('click', {
