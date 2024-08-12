@@ -103,6 +103,12 @@ describe('Global Tabs', function () {
       '[{$match: { i: 0 }}]'
     );
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
@@ -116,6 +122,12 @@ describe('Global Tabs', function () {
     // Checking first that cancel leaves the tab on the screen
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
