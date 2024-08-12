@@ -235,7 +235,7 @@ describe('Automatically connecting from the command line', function () {
     }
   });
 
-  it.only('does not enter auto-connect mode in new windows', async function () {
+  it('does not enter auto-connect mode in new windows', async function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,

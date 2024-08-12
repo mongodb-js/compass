@@ -2,15 +2,11 @@ import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 import { ProxySettingsCustom } from './proxy-settings-custom';
-import configureStore from '../../../test/configure-store';
-import { fetchSettings } from '../../stores/settings';
-import { proxyPreferenceToProxyOptions } from 'compass-preferences-model';
 import type { DevtoolsProxyOptions } from 'compass-preferences-model';
 import sinon from 'sinon';
 
-describe.only('ProxySettingsCustom', function () {
+describe('ProxySettingsCustom', function () {
   let container: HTMLElement;
   let proxyOptions: DevtoolsProxyOptions;
   let setProxyOptions: sinon.SinonStub;
