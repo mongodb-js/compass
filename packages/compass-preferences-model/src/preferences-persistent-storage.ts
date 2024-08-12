@@ -9,25 +9,28 @@ import type {
   StoredPreferences,
   StoredPreferencesValidator,
 } from './preferences-schema';
-import { safeStorage } from 'electron';
+import type { SafeStorage } from 'electron';
 
 import type { PreferencesStorage } from './preferences-storage';
+
+export type PreferencesSafeStorage = Pick<
+  SafeStorage,
+  'decryptString' | 'encryptString'
+>;
 
 export class PersistentStorage implements PreferencesStorage {
   private readonly file = 'General';
   private readonly defaultPreferences = getDefaultsForStoredPreferences();
   private readonly userData: UserData<StoredPreferencesValidator>;
   private preferences: StoredPreferences = getDefaultsForStoredPreferences();
-  private safeStorage: Pick<
-    Electron.SafeStorage,
-    'decryptString' | 'encryptString'
-  > = safeStorage;
+  private safeStorage?: PreferencesSafeStorage;
 
-  constructor(basePath?: string) {
+  constructor(basePath?: string, safeStorage?: PreferencesSafeStorage) {
     this.userData = new UserData(getPreferencesValidator(), {
       subdir: 'AppPreferences',
       basePath,
     });
+    this.safeStorage = safeStorage;
   }
 
   async setup() {
@@ -56,7 +59,9 @@ export class PersistentStorage implements PreferencesStorage {
         const { remainder, secrets } = extract(copy[key] as string);
         (copy as any)[key] = JSON.stringify({
           remainder,
-          secrets: this.safeStorage.encryptString(secrets).toString('base64'),
+          secrets: this.getSafeStorage()
+            .encryptString(secrets)
+            .toString('base64'),
         });
       }
     }
@@ -72,13 +77,22 @@ export class PersistentStorage implements PreferencesStorage {
         const { remainder, secrets } = JSON.parse(copy[key] as string);
         (copy as any)[key] = merge({
           remainder,
-          secrets: this.safeStorage.decryptString(
+          secrets: this.getSafeStorage().decryptString(
             Buffer.from(secrets, 'base64')
           ),
         });
       }
     }
     return copy;
+  }
+
+  private getSafeStorage(): PreferencesSafeStorage {
+    if (!this.safeStorage) {
+      throw new Error(
+        'This instance of PersistentStorage has not been configured with a safeStorage provider'
+      );
+    }
+    return this.safeStorage;
   }
 
   getPreferences(): StoredPreferences {

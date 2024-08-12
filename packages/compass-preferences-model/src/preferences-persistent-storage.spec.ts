@@ -134,9 +134,7 @@ describe('PersistentStorage', function () {
   });
 
   it('encrypts and decrypts sensitive fields', async function () {
-    const storage = new PersistentStorage(tmpDir);
-    await storage.setup();
-    storage['safeStorage'] = {
+    const storage = new PersistentStorage(tmpDir, {
       encryptString: (str: string) =>
         crypto
           .createCipheriv('aes-256-gcm', 'asdf'.repeat(8), '0'.repeat(32))
@@ -146,7 +144,8 @@ describe('PersistentStorage', function () {
           .createDecipheriv('aes-256-gcm', 'asdf'.repeat(8), '0'.repeat(32))
           .update(str)
           .toString('utf8'),
-    };
+    });
+    await storage.setup();
 
     const proxyOptions: DevtoolsProxyOptions = {
       proxy: 'socks5://AzureDiamond:hunter2@example.com/',

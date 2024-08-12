@@ -76,7 +76,10 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    const { preferences } = await setupPreferencesAndUser(globalPreferences);
+    const { preferences } = await setupPreferencesAndUser(
+      globalPreferences,
+      safeStorage
+    );
     this.preferences = preferences;
     await this.setupLogging();
     // need to happen after setupPreferencesAndUser
