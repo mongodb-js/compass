@@ -109,7 +109,7 @@ describe('Global Tabs', function () {
 
     await browser.hover(
       Selectors.workspaceTab({
-        connectionName: DEFAULT_CONNECTION_NAME,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
         namespace: 'test.a',
       })
     );
@@ -128,7 +128,7 @@ describe('Global Tabs', function () {
 
     await browser.hover(
       Selectors.workspaceTab({
-        connectionName: DEFAULT_CONNECTION_NAME,
+        connectionName: DEFAULT_CONNECTION_NAME_1,
         namespace: 'test.a',
       })
     );
