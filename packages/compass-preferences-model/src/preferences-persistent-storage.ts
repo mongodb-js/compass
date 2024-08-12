@@ -9,14 +9,14 @@ import type {
   StoredPreferences,
   StoredPreferencesValidator,
 } from './preferences-schema';
-import type { SafeStorage } from 'electron';
 
 import type { PreferencesStorage } from './preferences-storage';
 
-export type PreferencesSafeStorage = Pick<
-  SafeStorage,
-  'decryptString' | 'encryptString'
->;
+export type PreferencesSafeStorage = {
+  // ~ partial Electron.SafeStorage
+  decryptString(encrypted: Buffer): string;
+  encryptString(plainText: string): Buffer;
+};
 
 export class PersistentStorage implements PreferencesStorage {
   private readonly file = 'General';
