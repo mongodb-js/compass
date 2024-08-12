@@ -251,12 +251,8 @@ export const openModal = (
   };
 };
 
-export const selectTab = (
-  tab?: SettingsTabId
-): SettingsThunkAction<void, SelectTabAction> => {
-  return (dispatch) => {
-    dispatch({ type: ActionTypes.SelectTab, tab });
-  };
+export const selectTab = (tab?: SettingsTabId): SelectTabAction => {
+  return { type: ActionTypes.SelectTab, tab };
 };
 
 export const closeModal = (): SettingsThunkAction<
