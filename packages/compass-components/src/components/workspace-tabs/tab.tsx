@@ -6,9 +6,12 @@ import type { glyphs } from '@leafygreen-ui/icon';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import { useDarkMode } from '../../hooks/use-theme';
-import { Icon, IconButton, MongoDBLogoMark } from '../leafygreen';
+import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { useDefaultAction } from '../../hooks/use-default-action';
+import { LogoIcon } from '../icons/logo-icon';
+import { Tooltip } from '../leafygreen';
+import { ServerIcon } from '../icons/server-icon';
 
 function focusedChild(className: string) {
   return `&:hover ${className}, &:focus-visible ${className}, &:focus-within:not(:focus) ${className}`;
@@ -18,26 +21,26 @@ const tabTransition = '.16s ease-in-out';
 
 const tabStyles = css({
   display: 'grid',
+  gridTemplateAreas: `
+    "top top top"
+    "icon text close"
+  `,
+  gridRowGap: 0,
+  gridColumnGap: spacing[200],
+  gridTemplateRows: `${spacing[100]}px 1fr`,
   gridTemplateColumns: 'min-content 1fr min-content',
+  '&:hover, &:focus-visible, &:focus-within:not(:focus)': {
+    gridTemplateColumns: 'min-content 1fr min-content',
+  },
   alignItems: 'center',
-  paddingLeft: 12,
-  paddingRight: spacing[1],
-  gap: spacing[2],
 
-  // same as the border at the top
-  paddingBottom: '4px',
+  paddingBottom: spacing[100], // same as the top border
 
-  maxWidth: spacing[6] * 4,
-  minWidth: spacing[6] * 2,
-  height: 36,
+  maxWidth: spacing[800] * 6, // 192px
+  minWidth: spacing[1600] + spacing[800], // 96px
+  height: spacing[1000],
   position: 'relative',
   outline: 'none',
-
-  // hide the close button until it animates in
-  overflow: 'hidden',
-
-  // leave space so the active and other tabs line up
-  paddingTop: spacing[100],
 
   backgroundColor: 'var(--workspace-tab-background-color)',
   color: 'var(--workspace-tab-color)',
@@ -52,26 +55,40 @@ const tabStyles = css({
     boxShadow: 'inset 0 0 0 1px var(--workspace-tab-border-color)',
   },
 
+  /*
+    the text makes space for the button, 
+    because the button takes no space
+   */
+  [focusedChild('.workspace-tab-title-container')]: {
+    maxWidth: `calc(100% - ${spacing[600]}px - ${spacing[150]}px)`,
+  },
+  /*
+    the button takes no space,
+    so that the width does not jump as it shows/hides
+   */
   [focusedChild('.workspace-tab-close-button')]: {
-    visibility: 'visible',
-  },
-});
-
-const animatedSubtitleStyles = css({
-  [focusedChild('.workspace-tab-title')]: {
-    transform: 'translateY(6px)',
+    display: 'inline-block',
+    position: 'absolute',
+    right: spacing[100],
+    bottom: spacing[100] + spacing[50],
   },
 
-  [focusedChild('.workspace-tab-subtitle')]: {
-    opacity: 1,
-    transform: 'translateY(-4px)',
-    pointerEvents: 'auto',
+  // instead of topBorder we use a pseudoelement, so that we can programmaticaly adjust the colors
+  '&::before': {
+    content: '""',
+    backgroundColor: 'var(--workspace-tab-top-border-color)',
+    height: spacing[100],
+    width: '100%',
+    display: 'block',
+    gridArea: 'top',
   },
 });
 
 export type TabTheme = {
   '--workspace-tab-background-color': string;
   '--workspace-tab-selected-background-color': string;
+  '--workspace-tab-top-border-color': string;
+  '--workspace-tab-selected-top-border-color': string;
   '--workspace-tab-border-color': string;
   '--workspace-tab-color': string;
   '--workspace-tab-selected-color': string;
@@ -85,8 +102,9 @@ const tabLightThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.light3,
   '--workspace-tab-selected-background-color': palette.white,
   '--workspace-tab-border-color': palette.gray.light2,
+  '--workspace-tab-top-border-color': 'transparent',
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.green.dark2,
+  '--workspace-tab-selected-color': palette.gray.dark3,
   '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.base,
@@ -98,12 +116,13 @@ const tabDarkThemeStyles = css({
   '--workspace-tab-background-color': palette.gray.dark3,
   '--workspace-tab-selected-background-color': palette.black,
   '--workspace-tab-border-color': palette.gray.dark2,
+  '--workspace-tab-top-border-color': 'transparent',
   '--workspace-tab-color': palette.gray.base,
-  '--workspace-tab-selected-color': palette.green.base,
+  '--workspace-tab-selected-color': palette.white,
   '--workspace-tab-selected-border-color': 'transparent',
   '&:focus-visible': {
     '--workspace-tab-selected-color': palette.blue.light1,
-    '--workspace-tab-border-color': palette.blue.light1,
+    '--workspace-tab-`border-color`': palette.blue.light1,
   },
 });
 
@@ -115,12 +134,14 @@ const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
   },
+
+  '&::before': {
+    backgroundColor: 'var(--workspace-tab-selected-top-border-color)',
+    filter: 'brightness(0.85) saturate(2)',
+  },
 });
 
-const selectedThemedTabStyles = css({
-  borderTop: `${spacing[100]}px solid var(--workspace-tab-selected-border-color)`,
-  paddingTop: 0,
-});
+const selectedThemedTabStyles = css({});
 
 const draggingTabStyles = css({
   cursor: 'grabbing !important',
@@ -128,17 +149,19 @@ const draggingTabStyles = css({
 
 const tabIconStyles = css({
   color: 'currentColor',
+  marginLeft: spacing[300],
 });
 
 const tabTitleContainerStyles = css({
   position: 'relative',
   minWidth: 0,
+  marginRight: spacing[100],
 });
 
 const tabTitleStyles = css({
-  fontSize: 12,
+  fontSize: '12px',
   lineHeight: '16px',
-  fontWeight: 700,
+  fontWeight: 'normal',
   color: 'currentColor',
 
   whiteSpace: 'nowrap',
@@ -150,35 +173,9 @@ const tabTitleStyles = css({
   transitionProperty: 'opacity, transform',
 });
 
-const tabSubtitleStyles = css({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-
-  fontSize: 10,
-  lineHeight: '12px',
-  color: 'var(--workspace-tab-color)',
-
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-
-  opacity: 0,
-  transform: 'translateY(0)',
-  transition: tabTransition,
-  transitionProperty: 'opacity, transform',
-
-  pointerEvents: 'none',
-});
-
 const closeButtonStyles = css({
-  visibility: 'hidden',
-});
-
-const selectedCloseButtonStyles = css({
-  visibility: 'visible',
+  display: 'none',
+  marginRight: spacing[100],
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;
@@ -191,23 +188,23 @@ type TabProps = {
   isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
-  iconGlyph: IconGlyph | 'Logo';
+  iconGlyph: IconGlyph | 'Logo' | 'Server';
   tabContentId: string;
-  subtitle?: string;
-  tabTheme?: TabTheme;
+  tooltip?: [string, string][];
+  tabTheme?: Partial<TabTheme>;
 };
 
 function Tab({
   connectionName,
   type,
   title,
+  tooltip,
   isSelected,
   isDragging,
   onSelect,
   onClose,
   tabContentId,
   iconGlyph,
-  subtitle,
   tabTheme,
   ...props
 }: TabProps & React.HTMLProps<HTMLDivElement>) {
@@ -235,77 +232,101 @@ function Tab({
     transform: cssDndKit.Transform.toString(transform),
     transition,
     cursor: 'grabbing !important',
-    // For tabs with longer subtitles we want base width to be bigger so that
-    // the subtitle that shows up on hover has a bit more space for it
-    minWidth: (subtitle?.length ?? 0) > 16 ? spacing[6] * 3 : undefined,
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={cx(
-        tabStyles,
-        themeClass,
-        isSelected && selectedTabStyles,
-        isSelected && tabTheme && selectedThemedTabStyles,
-        isDragging && draggingTabStyles,
-        subtitle && animatedSubtitleStyles
-      )}
-      aria-selected={isSelected}
-      role="tab"
-      // Catch navigation on the active tab when a user tabs through Compass.
-      tabIndex={isSelected ? 0 : -1}
-      aria-controls={tabContentId}
-      data-testid="workspace-tab-button"
-      data-connectionName={connectionName}
-      data-type={type}
-      title={subtitle ? subtitle : title}
-      {...tabProps}
-    >
-      {iconGlyph === 'Logo' && (
-        <MongoDBLogoMark
-          height={16}
-          role="presentation"
-          className={tabIconStyles}
-          data-testid={`workspace-tab-icon-${iconGlyph}`}
-        />
-      )}
-      {iconGlyph !== 'Logo' && (
-        <Icon
-          size="small"
-          role="presentation"
-          className={tabIconStyles}
-          glyph={iconGlyph}
-          data-testid={`workspace-tab-icon-${iconGlyph}`}
-        />
-      )}
+    <Tooltip
+      enabled={!!tooltip}
+      trigger={
+        <div
+          ref={setNodeRef}
+          style={style}
+          className={cx(
+            tabStyles,
+            themeClass,
+            isSelected && selectedTabStyles,
+            isSelected && tabTheme && selectedThemedTabStyles,
+            isDragging && draggingTabStyles
+          )}
+          aria-selected={isSelected}
+          role="tab"
+          // Catch navigation on the active tab when a user tabs through Compass.
+          tabIndex={isSelected ? 0 : -1}
+          aria-controls={tabContentId}
+          data-testid="workspace-tab-button"
+          data-connectionName={connectionName}
+          data-type={type}
+          {...tabProps}
+        >
+          {iconGlyph === 'Logo' && (
+            <LogoIcon
+              height={16}
+              color={
+                isSelected
+                  ? 'var(--workspace-tab-selected-color)'
+                  : 'var(--workspace-tab-color)'
+              }
+              role="presentation"
+              className={tabIconStyles}
+              data-testid={`workspace-tab-icon-${iconGlyph}`}
+            />
+          )}
+          {iconGlyph === 'Server' && (
+            <ServerIcon
+              color={
+                isSelected
+                  ? 'var(--workspace-tab-selected-color)'
+                  : 'var(--workspace-tab-color)'
+              }
+              className={tabIconStyles}
+              data-testid={`workspace-tab-icon-${iconGlyph}`}
+            />
+          )}
+          {!['Logo', 'Server'].includes(iconGlyph) && (
+            <Icon
+              size="small"
+              role="presentation"
+              className={tabIconStyles}
+              glyph={iconGlyph}
+              data-testid={`workspace-tab-icon-${iconGlyph}`}
+            />
+          )}
 
-      <div className={tabTitleContainerStyles}>
-        <div className={cx(tabTitleStyles, 'workspace-tab-title')}>{title}</div>
-        {subtitle && (
-          <div className={cx(tabSubtitleStyles, 'workspace-tab-subtitle')}>
-            {subtitle}
+          <div
+            className={cx(
+              tabTitleContainerStyles,
+              'workspace-tab-title-container'
+            )}
+          >
+            <div className={cx(tabTitleStyles, 'workspace-tab-title')}>
+              {title}
+            </div>
           </div>
-        )}
-      </div>
 
-      <IconButton
-        className={cx(
-          closeButtonStyles,
-          isSelected && selectedCloseButtonStyles,
-          'workspace-tab-close-button'
-        )}
-        onClick={(e) => {
-          e.stopPropagation();
-          onClose();
-        }}
-        aria-label="Close Tab"
-        data-testid="close-workspace-tab"
-      >
-        <Icon glyph="X" role="presentation" />
-      </IconButton>
-    </div>
+          <IconButton
+            className={cx(closeButtonStyles, 'workspace-tab-close-button')}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Close Tab"
+            data-testid="close-workspace-tab"
+          >
+            <Icon glyph="X" role="presentation" />
+          </IconButton>
+        </div>
+      }
+    >
+      {tooltip && (
+        <div data-testid="workspace-tab-tooltip">
+          {tooltip.map(([label, value]) => (
+            <div key={label}>
+              <b>{label}:</b> {value}
+            </div>
+          ))}
+        </div>
+      )}
+    </Tooltip>
   );
 }
 
