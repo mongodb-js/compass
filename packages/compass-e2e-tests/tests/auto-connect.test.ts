@@ -245,7 +245,7 @@ describe('Automatically connecting from the command line', function () {
       await browser.waitForConnectionResult('success');
       await browser.execute(() => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require('electron').ipcRenderer.call('test:show-connect-window');
+        require('electron').ipcRenderer.invoke('test:show-connect-window');
       });
 
       // Switch to the other window
