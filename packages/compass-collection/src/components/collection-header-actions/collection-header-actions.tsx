@@ -83,7 +83,7 @@ const CollectionHeaderActions: React.FunctionComponent<
               initialEvaluate: `use ${database}`,
               initialInput: `db[${wrapField(collection, true)}].find()`,
             });
-            track('Shell Show', { entrypoint: 'collection' }, connectionInfo);
+            track('Shell Open', { entrypoint: 'collection' }, connectionInfo);
           }}
           leftGlyph={<Icon glyph="Shell"></Icon>}
         >

@@ -217,7 +217,7 @@ const GridControls: React.FunctionComponent<{
                     : undefined
                 );
                 track(
-                  'Shell Show',
+                  'Shell Open',
                   { entrypoint: `${itemType}s` },
                   connectionInfo
                 );
