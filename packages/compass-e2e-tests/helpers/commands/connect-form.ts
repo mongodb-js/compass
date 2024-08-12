@@ -8,6 +8,7 @@ import {
   DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
   DEFAULT_CONNECTION_STRING_2,
+  TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../compass';
 import Debug from 'debug';
@@ -968,6 +969,11 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   whereas we do have some tests that try and use those. We can easily change
   this in future if needed, though.
   */
+
+  if (TEST_COMPASS_WEB) {
+    // we can't save connections in compass-web yet
+    return;
+  }
 
   for (const connectionName of [
     DEFAULT_CONNECTION_NAME_1,

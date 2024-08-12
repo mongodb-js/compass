@@ -213,6 +213,12 @@ export async function connectByName(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
+  if (TEST_COMPASS_WEB) {
+    // we can't connect by name with compass-web because we can't save connections yet
+    await browser.connectWithConnectionString();
+    return;
+  }
+
   // See setupDefaultConnections() for the details behind the thinking here.
   await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
 
