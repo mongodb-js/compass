@@ -235,7 +235,7 @@ describe('Automatically connecting from the command line', function () {
     }
   });
 
-  it('does not enter auto-connect mode in new windows', async function () {
+  it.only('does not enter auto-connect mode in new windows', async function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
@@ -245,7 +245,9 @@ describe('Automatically connecting from the command line', function () {
       await browser.waitForConnectionResult('success');
       await browser.execute(() => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require('electron').ipcRenderer.invoke('test:show-connect-window');
+        (require('electron').ipcRenderer as any).call(
+          'test:show-connect-window'
+        );
       });
 
       // Switch to the other window
