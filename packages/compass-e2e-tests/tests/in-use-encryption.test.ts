@@ -238,10 +238,6 @@ describe('CSFLE / QE', function () {
         await refresh(browser, connectionName);
       });
 
-      beforeEach(async function () {
-        await browser.disconnectAll();
-      });
-
       after(async function () {
         if (compass) {
           await cleanup(compass);
