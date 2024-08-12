@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
@@ -87,69 +87,82 @@ type ChangeFieldValueAction<K extends keyof UserConfigurablePreferences> = {
   value: UserConfigurablePreferences[K];
 };
 
-export type Actions =
-  | SettingsFetchedAction
-  | SaveSettingsAction
-  | SettingsFetchStartAction
-  | OpenSettingsModalAction
-  | SelectTabAction
-  | CloseSettingsModalAction
-  | ChangeFieldValueAction<keyof UserConfigurablePreferences>;
+export function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
-export const reducer: Reducer<State, Actions> = (
+export const reducer: Reducer<State, Action> = (
   state = INITIAL_STATE,
   action
 ): State => {
-  switch (action.type) {
-    case ActionTypes.SettingsFetchedStart:
-      return {
-        // Updating settings to loading state that is the same as initial one
-        ...INITIAL_STATE,
-        // ... and preserving current modal state
-        isModalOpen: state.isModalOpen,
-      };
-    case ActionTypes.OpenSettingsModal:
-      return {
-        ...state,
-        isModalOpen: true,
-        tab: action.tab ?? state.tab,
-      };
-    case ActionTypes.SelectTab:
-      return {
-        ...state,
-        tab: action.tab ?? state.tab,
-      };
-    case ActionTypes.CloseSettingsModal:
-      return {
-        ...state,
-        isModalOpen: false,
-        tab: undefined,
-      };
-    case ActionTypes.ChangeFieldValue:
-      if (state.loadingState !== 'ready') return { ...state };
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          [action.field]: action.value,
-        },
-      };
-    case ActionTypes.SettingsFetched:
-      return {
-        ...state,
-        loadingState: 'ready',
-        settings: action.settings,
-        preferenceStates: action.preferenceStates,
-        updatedFields: action.updatedFields,
-      };
-    case ActionTypes.SettingsSaved:
-      return {
-        ...state,
-        isModalOpen: false,
-      };
-    default:
-      return state;
+  if (
+    isAction<SettingsFetchStartAction>(action, ActionTypes.SettingsFetchedStart)
+  ) {
+    return {
+      // Updating settings to loading state that is the same as initial one
+      ...INITIAL_STATE,
+      // ... and preserving current modal state
+      isModalOpen: state.isModalOpen,
+    };
   }
+  if (
+    isAction<OpenSettingsModalAction>(action, ActionTypes.OpenSettingsModal)
+  ) {
+    return {
+      ...state,
+      isModalOpen: true,
+      tab: action.tab ?? state.tab,
+    };
+  }
+  if (isAction<SelectTabAction>(action, ActionTypes.SelectTab)) {
+    return {
+      ...state,
+      tab: action.tab ?? state.tab,
+    };
+  }
+  if (
+    isAction<CloseSettingsModalAction>(action, ActionTypes.CloseSettingsModal)
+  ) {
+    return {
+      ...state,
+      isModalOpen: false,
+      tab: undefined,
+    };
+  }
+  if (
+    isAction<ChangeFieldValueAction<keyof UserConfigurablePreferences>>(
+      action,
+      ActionTypes.ChangeFieldValue
+    )
+  ) {
+    if (state.loadingState !== 'ready') return state;
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        [action.field]: action.value,
+      },
+    };
+  }
+  if (isAction<SettingsFetchedAction>(action, ActionTypes.SettingsFetched)) {
+    return {
+      ...state,
+      loadingState: 'ready',
+      settings: action.settings,
+      preferenceStates: action.preferenceStates,
+      updatedFields: action.updatedFields,
+    };
+  }
+  if (isAction<SaveSettingsAction>(action, ActionTypes.SettingsSaved)) {
+    return {
+      ...state,
+      isModalOpen: false,
+    };
+  }
+  return state;
 };
 
 const syncSandboxStateToStore = (): SettingsThunkAction<Promise<void>> => {
