@@ -15,7 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
   MONGODB_TEST_SERVER_PORT,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -237,8 +237,6 @@ async function assertCannotCreateDb(
     `not authorized on ${dbName} to execute command`
   );
 
-  await browser.screenshot('create-database-modal-error.png');
-
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
   await createModalElement.waitForDisplayed({ reverse: true });
@@ -278,8 +276,6 @@ async function assertCannotCreateCollection(
     `not authorized on ${dbName} to execute command`
   );
 
-  await browser.screenshot('create-collection-modal-error.png');
-
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateCollectionCancelButton);
   await createModalElement.waitForDisplayed({ reverse: true });
@@ -297,6 +293,10 @@ describe('Connection string', function () {
     browser = compass.browser;
   });
 
+  beforeEach(async function () {
+    await browser.disconnectAll();
+  });
+
   after(function () {
     return cleanup(compass);
   });
@@ -310,7 +310,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -324,7 +324,7 @@ describe('Connection string', function () {
 
     await browser.connectWithConnectionString(
       `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
-      'failure'
+      { connectionStatus: 'failure' }
     );
     if (TEST_MULTIPLE_CONNECTIONS) {
       const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
@@ -341,6 +341,16 @@ describe('Connection string', function () {
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
       expect(errorMessage).to.equal('Authentication failed.');
+    }
+
+    // for multiple connections click the review button in the toast
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      const errorText = await browser
+        .$(Selectors.ConnectionFormErrorMessage)
+        .getText();
+      expect(errorText).to.equal('Authentication failed.');
     }
   });
 
@@ -388,7 +398,6 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString(connectionString);
 
     if (!TEST_COMPASS_WEB) {
-      await browser.screenshot('direct-connection-shell.png');
       const result = await browser.shellEval(
         connectionNameFromString(connectionString),
         'db.runCommand({ connectionStatus: 1 })',
@@ -658,6 +667,10 @@ describe('Connection form', function () {
     browser = compass.browser;
   });
 
+  beforeEach(async function () {
+    await browser.disconnectAll();
+  });
+
   after(function () {
     if (TEST_COMPASS_WEB) {
       return;
@@ -701,7 +714,6 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    await browser.screenshot('SCDAM-SHA1-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -768,7 +780,6 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    await browser.screenshot('without-session-token-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -805,7 +816,6 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    await browser.screenshot('including-session-token-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -835,8 +845,6 @@ describe('Connection form', function () {
       useSystemCA: true,
       connectionName,
     });
-
-    await browser.screenshot('tlsUseSystemCA-shell.png');
 
     // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
     const result = await browser.shellEval(
@@ -954,7 +962,8 @@ describe('SRV connectivity', function () {
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
-      // TODO(COMPAS-8009): we have to add support in custom commands for when connections fail
+      // TODO(COMPASS-8153): we have to add support in custom commands for when
+      // connections fail
       this.skip();
     }
 
@@ -966,7 +975,7 @@ describe('SRV connectivity', function () {
       // (Unless you have a server listening on port 27017)
       await browser.connectWithConnectionString(
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-        'either'
+        { connectionStatus: 'either' }
       );
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit
@@ -1082,6 +1091,10 @@ describe('FLE2', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+  });
+
+  beforeEach(async function () {
+    await browser.disconnectAll();
   });
 
   afterEach(async function () {
