@@ -27,15 +27,15 @@ async function waitForElementAnimations(browser: CompassBrowser, element: any) {
 
 const colorMap: Record<string, string> = {
   'no-color': 'No Color',
-  color1: 'Red',
-  color2: 'Pink',
-  color3: 'Orange',
-  color4: 'Yellow',
-  color5: 'Green',
-  color6: 'Teal',
-  color7: 'Blue',
-  color8: 'Iris',
-  color9: 'Purple',
+  color1: 'Green',
+  color2: 'Teal',
+  color3: 'Blue',
+  color4: 'Iris',
+  color5: 'Purple',
+  color6: 'Red',
+  color7: 'Pink',
+  color8: 'Orange',
+  color9: 'Yellow',
 };
 
 function colorValueToName(color: string): string {

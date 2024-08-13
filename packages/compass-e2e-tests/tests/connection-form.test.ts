@@ -683,7 +683,7 @@ describe('Connection form', function () {
     // save
     await browser.saveFavorite(
       favoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Red' : 'color1'
+      TEST_MULTIPLE_CONNECTIONS ? 'Green' : 'color1'
     );
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
