@@ -8,7 +8,7 @@ import { parseRecord } from './parse-record';
 import {
   extractProxySecrets,
   mergeProxySecrets,
-} from '@mongodb-js/devtools-proxy-support';
+} from '@mongodb-js/devtools-proxy-support/proxy-options';
 import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
