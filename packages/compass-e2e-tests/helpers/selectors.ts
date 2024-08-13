@@ -1250,7 +1250,7 @@ export const workspaceTab = ({
     parts.push(`[id="${id}"]`);
   }
   if (connectionName !== undefined) {
-    parts.push(`[data-connectionName="${connectionName}"]`);
+    parts.push(`[data-connection-name="${connectionName}"]`);
   }
   if (namespace !== undefined) {
     parts.push(`[data-namespace="${namespace}"]`);
@@ -1350,9 +1350,17 @@ export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="
 
 // Open saved item
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
+export const OpenSavedItemConnectionField = `${OpenSavedItemModal} [data-testid="connection-select-field"]`;
 export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
 export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
 export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[type="submit"]`;
+
+// Select connection
+export const SelectConnectionModal = '[data-testid="select-connection-modal"]';
+export const selectConnectionRadioButton = function (connectionId: string) {
+  return `${SelectConnectionModal} input[data-testid="connection-item-${connectionId}"]`;
+};
+export const SelectConnectionModalConfirmButton = `${SelectConnectionModal} [data-testid="submit-button"]`;
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="create-view-modal"]';

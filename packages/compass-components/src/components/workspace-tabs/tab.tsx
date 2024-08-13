@@ -254,7 +254,7 @@ function Tab({
           tabIndex={isSelected ? 0 : -1}
           aria-controls={tabContentId}
           data-testid="workspace-tab-button"
-          data-connectionName={connectionName}
+          data-connection-name={connectionName}
           data-type={type}
           {...tabProps}
         >
