@@ -1,6 +1,3 @@
 {
-  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.common.json",
-  "compilerOptions": {
-    "moduleResolution": "node16"
-  }
+  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.common.json"
 }
