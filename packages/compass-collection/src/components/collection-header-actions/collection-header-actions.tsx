@@ -11,6 +11,7 @@ import React from 'react';
 import { usePreferences } from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
 import { wrapField } from '@mongodb-js/mongodb-constants';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
@@ -50,7 +51,8 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
 }: CollectionHeaderActionsProps) => {
-  const { id: connectionId, atlasMetadata } = useConnectionInfo();
+  const connectionInfo = useConnectionInfo();
+  const { id: connectionId, atlasMetadata } = connectionInfo;
   const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
     useOpenWorkspace();
   const {
@@ -62,6 +64,7 @@ const CollectionHeaderActions: React.FunctionComponent<
     'enableShell',
     'enableNewMultipleConnectionSystem',
   ]);
+  const track = useTelemetry();
 
   const { database, collection } = toNS(namespace);
 
@@ -80,6 +83,7 @@ const CollectionHeaderActions: React.FunctionComponent<
               initialEvaluate: `use ${database}`,
               initialInput: `db[${wrapField(collection, true)}].find()`,
             });
+            track('Open Shell', { entrypoint: 'collection' }, connectionInfo);
           }}
           leftGlyph={<Icon glyph="Shell"></Icon>}
         >
