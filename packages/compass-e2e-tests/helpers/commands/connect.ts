@@ -153,10 +153,6 @@ export async function waitForConnectionResult(
         .$('[data-testid="workspace-tab-button"][data-type=Databases]')
         .waitForDisplayed();
     } else if (TEST_MULTIPLE_CONNECTIONS) {
-      // For multiple connections, make sure the exact named connection is
-      // expanded. We're assuming that expanded means connected, although it is
-      // technically possible to collapse a connected connection. Something we
-      // might want to improve on later.
       if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
         // Clear the filter to make sure every connection shows
         await browser.clickVisible(Selectors.SidebarFilterInput);
