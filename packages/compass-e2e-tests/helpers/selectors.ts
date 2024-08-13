@@ -386,7 +386,7 @@ export const sidebarCollection = (
 
 export const sidebarConnection = (connectionName: string): string => {
   if (TEST_MULTIPLE_CONNECTIONS) {
-    return `[data-connection-name="${connectionName}"]`;
+    return `${Sidebar} [data-connection-name="${connectionName}"]`;
   }
 
   return sidebarFavorite(connectionName);
