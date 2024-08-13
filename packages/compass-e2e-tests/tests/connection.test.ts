@@ -962,7 +962,8 @@ describe('SRV connectivity', function () {
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
-      // TODO(COMPAS-8009): we have to add support in custom commands for when connections fail
+      // TODO(COMPASS-8153): we have to add support in custom commands for when
+      // connections fail
       this.skip();
     }
 

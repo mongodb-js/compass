@@ -311,8 +311,15 @@ export const Multiple = {
   ConnectedConnectionItems:
     '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
 
-  connectionItemByName: (connectionName: string, connected: boolean) => {
-    return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"][data-is-connected="${connected.toString()}"]`;
+  connectionItemByName: (
+    connectionName: string,
+    { connected }: { connected?: boolean } = {}
+  ) => {
+    const connectedFilter =
+      connected !== undefined
+        ? `[data-is-connected="${connected.toString()}"]`
+        : '';
+    return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"]${connectedFilter}`;
   },
 };
 

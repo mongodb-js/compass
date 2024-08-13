@@ -137,9 +137,9 @@ export async function waitForConnectionResult(
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;
 
   if (connectionStatus === 'either') {
-    // TODO(COMPASS-7600): this doesn't support compass-web yet, but also isn't
-    // encountered yet For the rare cases where we don't care whether it fails
-    // or succeeds
+    // TODO(COMPASS-7600,COMPASS-8153): this doesn't support compass-web or
+    // multiple connections yet, but also isn't encountered yet For the rare
+    // cases where we don't care whether it fails or succeeds
     await browser
       .$(`${Selectors.DatabasesTable},${Selectors.ConnectionFormErrorMessage}`)
       .waitForDisplayed();
@@ -159,7 +159,11 @@ export async function waitForConnectionResult(
         await browser.setValueVisible(Selectors.SidebarFilterInput, '');
       }
       await browser
-        .$(Selectors.Multiple.connectionItemByName(connectionName, true))
+        .$(
+          Selectors.Multiple.connectionItemByName(connectionName, {
+            connected: true,
+          })
+        )
         .waitForDisplayed();
     } else {
       // In the single connection world we land on the My Queries page

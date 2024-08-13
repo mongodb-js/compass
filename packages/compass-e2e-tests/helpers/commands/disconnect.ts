@@ -132,6 +132,10 @@ export async function disconnectByName(
   );
 
   await browser
-    .$(Selectors.Multiple.connectionItemByName(connectionName, false))
+    .$(
+      Selectors.Multiple.connectionItemByName(connectionName, {
+        connected: false,
+      })
+    )
     .waitForDisplayed();
 }
