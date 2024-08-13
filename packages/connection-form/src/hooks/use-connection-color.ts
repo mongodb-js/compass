@@ -61,7 +61,6 @@ const PALETTE = {
 } as const;
 
 const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
-  color1: palette.green.dark1,
   color2: palette.green.light1,
   color3: palette.blue.base,
   color4: palette.blue.light1,
@@ -70,6 +69,17 @@ const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
   color7: palette.purple.base,
   color8: palette.purple.light2,
   color9: palette.gray.base,
+  // COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP is used as the list of color codes
+  // in the UI via CONNECTION_COLOR_CODES as connectionColorCodes and color1 is
+  // Red in light mode. We don't want Red to be too prominent because it might
+  // look like an error, but some users specifically want a Red option to
+  // highlight something like a production server so we don't want to remove it
+  // either. So we move it from the start of the color wheel to the end, taking
+  // advantage of how it wraps around. That way it is still there for when users
+  // need it, but not the most prominent one.
+  color1: palette.green.dark1,
+  // NOTE: color 10 gets sliced off for the multiple connections world in
+  // connectionColorCodes below
   color10: palette.gray.light1,
 };
 
