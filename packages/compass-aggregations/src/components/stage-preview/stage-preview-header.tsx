@@ -19,21 +19,16 @@ const OperatorLink: React.FunctionComponent<{
   return (
     <span>
       <Tooltip
-        delay={300}
-        isDisabled={!description}
-        trigger={({ children, ...props }) => {
-          return (
-            <Link
-              data-testid="stage-preview-toolbar-link"
-              {...props}
-              target="_blank"
-              href={link}
-            >
-              {children}
-              {stageOperator}
-            </Link>
-          );
-        }}
+        enabled={!!description}
+        trigger={
+          <Link
+            data-testid="stage-preview-toolbar-link"
+            target="_blank"
+            href={link}
+          >
+            {stageOperator}
+          </Link>
+        }
       >
         {description}
       </Tooltip>

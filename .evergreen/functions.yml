@@ -40,11 +40,7 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    # WARN: This version is behind our electron runtime, but updating it will
-    # drop support for some older linux platforms, so we are keeping them out of
-    # sync for now
-    # TODO: https://jira.mongodb.org/browse/COMPASS-6915
-    NODE_JS_VERSION: '18.19.1'
+    NODE_JS_VERSION: '20.16.0'
     NPM_VERSION: '10.2.4'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
@@ -589,10 +585,14 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
+          ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          # Start atlas local to test Atlas Search
+          source .evergreen/start-atlas-local.sh
 
           echo "Running E2E tests while collecting coverage..."
 

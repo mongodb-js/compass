@@ -101,6 +101,7 @@ export function activateIndexesPlugin(
   );
 
   on(localAppRegistry, 'refresh-regular-indexes', () => {
+    localAppRegistry.emit('refresh-collection-stats');
     void store.dispatch(fetchIndexes());
   });
 

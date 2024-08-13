@@ -324,12 +324,28 @@ const transformPackageJson = async(CONFIG, done) => {
  * @api public
  */
 const installDependencies = util.callbackify(async(CONFIG) => {
-  const appPackagePath = CONFIG.resourcesAppDir;
+  let originalPackagePath = CONFIG.resourcesAppDir;
+  let appPackagePath = originalPackagePath;
+
+  if (process.platform === 'win32' && process.env.EVERGREEN_WORKDIR) {
+    // https://jira.mongodb.org/browse/COMPASS-8051
+    // Windows has a relatively short "maximum path length" restriction,
+    // so building addons during `npm install`/`electron rebuild` can realistically
+    // fail because of that. As a workaround, copy the app to a temporary directory
+    // with a shorter name.
+    appPackagePath = path.join(
+      process.env.EVERGREEN_WORKDIR.replace(/^\/cygdrive\/(\w)\//, '$1:\\'),
+      'src',
+      'app');
+    cli.debug(`Moving app package path from ${originalPackagePath} to ${appPackagePath}`);
+    await fs.promises.rename(originalPackagePath, appPackagePath);
+  }
 
   cli.debug('Installing dependencies and rebuilding native modules');
 
   const opts = {
-    cwd: appPackagePath
+    cwd: appPackagePath,
+    shell: true
   };
 
   await run.async('npm', ['install', '--production'], opts);
@@ -366,6 +382,10 @@ const installDependencies = util.callbackify(async(CONFIG) => {
   await rebuild(rebuildConfig);
 
   cli.debug('Native modules rebuilt against Electron.');
+  if (originalPackagePath !== appPackagePath) {
+    cli.debug(`Moving app package back to ${originalPackagePath} from ${appPackagePath}`);
+    await fs.promises.rename(appPackagePath, originalPackagePath)
+  }
 });
 
 /**

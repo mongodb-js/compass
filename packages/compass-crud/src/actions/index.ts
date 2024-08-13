@@ -37,6 +37,7 @@ const configureActions = () => {
     'updateJsonDoc',
     'viewChanged',
     'updateComment',
+    'updateMaxDocumentsPerPage',
   ]);
 
   return actions;

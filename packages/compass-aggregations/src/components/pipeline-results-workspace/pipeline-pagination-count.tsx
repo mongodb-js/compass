@@ -97,9 +97,8 @@ export const PipelinePaginationCount: React.FunctionComponent<
   return (
     <div data-testid={testId}>
       <Tooltip
-        trigger={({ children, ...props }) => (
+        trigger={
           <Link
-            {...props}
             aria-label={'count results'}
             as="button"
             data-testid="pipeline-pagination-count-action"
@@ -107,10 +106,9 @@ export const PipelinePaginationCount: React.FunctionComponent<
             className={countButtonStyles}
             onClick={() => onCount()}
           >
-            {children}
             count results
           </Link>
-        )}
+        }
       >
         <Body>{countDefinition}</Body>
       </Tooltip>

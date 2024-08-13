@@ -10,7 +10,7 @@ type ThemeProvider = {
   getThemeOf(
     this: void,
     connectionId: ConnectionInfo['id']
-  ): TabTheme | undefined;
+  ): Partial<TabTheme> | undefined;
 };
 
 export function useTabConnectionTheme(): ThemeProvider {
@@ -39,7 +39,7 @@ export function useTabConnectionTheme(): ThemeProvider {
       }
 
       return {
-        '--workspace-tab-background-color': bgColor,
+        '--workspace-tab-top-border-color': bgColor,
         '--workspace-tab-border-color': darkTheme
           ? palette.gray.dark2
           : palette.gray.light2,
@@ -49,7 +49,7 @@ export function useTabConnectionTheme(): ThemeProvider {
         '--workspace-tab-selected-background-color': darkTheme
           ? palette.black
           : palette.white,
-        '--workspace-tab-selected-border-color': activeBgColor,
+        '--workspace-tab-selected-top-border-color': activeBgColor,
         '--workspace-tab-selected-color': darkTheme
           ? palette.white
           : palette.gray.dark3,

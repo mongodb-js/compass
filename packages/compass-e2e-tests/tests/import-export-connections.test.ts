@@ -108,7 +108,7 @@ describe('Connection Import / Export', function () {
   ) {
     await browser.selectConnection(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     const cs = await browser.getConnectFormConnectionString(true);
     const expected =
       variant === 'protected'

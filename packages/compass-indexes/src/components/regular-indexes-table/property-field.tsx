@@ -47,12 +47,7 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
   return (
     <Tooltip
       enabled={!!tooltip}
-      trigger={({ children, ...props }) => (
-        <span {...props}>
-          {children}
-          <BadgeWithIconLink link={link} text={text} />
-        </span>
-      )}
+      trigger={<BadgeWithIconLink link={link} text={text} />}
     >
       <Body>{tooltip}</Body>
     </Tooltip>
@@ -67,13 +62,7 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
     <Tooltip
       enabled={!!tooltip}
       darkMode={darkMode}
-      delay={500}
-      trigger={({ children, ...props }) => (
-        <span {...props}>
-          {children}
-          <Badge variant={BadgeVariant.Red}>Failed</Badge>
-        </span>
-      )}
+      trigger={<Badge variant={BadgeVariant.Red}>Failed</Badge>}
     >
       <Body>{tooltip}</Body>
     </Tooltip>

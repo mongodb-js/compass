@@ -196,7 +196,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('1 – 20 of 50');
+    expect(text).to.equal('1 – 25 of 50');
 
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');

@@ -162,9 +162,16 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
       },
     };
 
+    // When an inprogress index fails to create, we also have to update it in
+    // the state.indexes list to correctly update the UI with error state.
+    const newIndexes = _mergeInProgressIndexes(
+      state.indexes,
+      newInProgressIndexes
+    );
     return {
       ...state,
       inProgressIndexes: newInProgressIndexes,
+      indexes: newIndexes,
     };
   }
 
@@ -279,8 +286,7 @@ export const dropIndex = (name: string): IndexesThunkAction<void> => {
     }
 
     if (index.extra.status === 'failed') {
-      // todo: COMPASS-7084 (existing bug)
-      dispatch(inProgressIndexRemoved(String(index.extra.id)));
+      dispatch(inProgressIndexRemoved(String((index as InProgressIndex).id)));
       void dispatch(fetchIndexes());
       return;
     }

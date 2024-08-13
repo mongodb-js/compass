@@ -18,8 +18,13 @@ import {
 } from '../helpers/insert-data';
 import { getStageOperators } from '../helpers/read-stage-operators';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
+import { Key } from 'webdriverio';
 
 const { expect } = chai;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 const OUT_STAGE_PREVIEW_TEXT =
   'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.';
@@ -1018,7 +1023,7 @@ describe('Collection aggregations tab', function () {
     const modalElement = await browser.$(Selectors.ConfirmationModal);
     await modalElement.waitForDisplayed();
 
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     await modalElement.waitForDisplayed({ reverse: true });
   });
 
@@ -1266,7 +1271,7 @@ describe('Collection aggregations tab', function () {
 
       const confirmOpenModal = await browser.$(Selectors.ConfirmationModal);
       await confirmOpenModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       await confirmOpenModal.waitForDisplayed({ reverse: true });
     });
 
@@ -1286,7 +1291,7 @@ describe('Collection aggregations tab', function () {
 
       const confirmDeleteModal = await browser.$(Selectors.ConfirmationModal);
       await confirmDeleteModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });
@@ -1385,10 +1390,16 @@ describe('Collection aggregations tab', function () {
         );
         return (await activeStage.getText()) === 'Stage 1: $match';
       });
-
       await browser.waitForAriaDisabled(previousButton, true);
 
-      await browser.keys('Escape');
+      // previousButton has a tooltip, to close it we press Escape
+      // and wait a bit (for the debounced close to kick in)
+      await browser.keys([Key.Escape]);
+      await sleep(50);
+
+      // the next Escape is for the modal to close
+      await browser.keys([Key.Escape]);
+
       await modal.waitForDisplayed({ reverse: true });
     });
 

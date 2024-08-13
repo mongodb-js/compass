@@ -5,7 +5,6 @@ export type WorkspaceTabSelectorOptions = {
   connectionName?: string;
   namespace?: string;
   type?: string;
-  title?: string;
   active?: boolean;
 };
 
@@ -828,8 +827,8 @@ export const AggregationResultsCancelButton =
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
 export const AggregationWriteOperationConfirmationModal =
   '[data-testid="write-operation-confirmation-modal"]';
-export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm-button"]`;
-export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel-button"]`;
+export const AggregationWriteOperationConfirmButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="confirm_button"]`;
+export const AggregationWriteOperationCancelButton = `${AggregationWriteOperationConfirmationModal} [data-testid*="cancel_button"]`;
 export const AggregationWriteOperationConfirmationModalDescription = `${AggregationWriteOperationConfirmationModal} [data-testid="confirmation-description"]`;
 
 export const AggregationSettingsButton =
@@ -1207,6 +1206,9 @@ export const QueryBarAIGenerateQueryButton =
 export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
+export const WorkspaceTabsContainer =
+  '[data-testid="workspace-tabs-container"]';
+export const WorkspaceTabTooltip = '[data-testid=workspace-tab-tooltip]';
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 export const sidebarInstanceNavigationItem = (
   tabName: 'Performance' | 'Databases'
@@ -1221,7 +1223,6 @@ export const workspaceTab = ({
   connectionName,
   namespace,
   type,
-  title,
   active,
 }: WorkspaceTabSelectorOptions = {}) => {
   const parts: string[] = [WorkspaceTab];
@@ -1236,9 +1237,6 @@ export const workspaceTab = ({
   }
   if (type !== undefined) {
     parts.push(`[data-type="${type}"]`);
-  }
-  if (title !== undefined) {
-    parts.push(`[title="${title}"]`);
   }
   if (active !== undefined) {
     parts.push(`[aria-selected="${String(active)}"]`);
@@ -1292,13 +1290,14 @@ export const ExportToLanguageQueryOutput =
 
 // Confirmation modal
 export const ConfirmationModal = '[data-testid="confirmation-modal"]';
-export const ConfirmationModalInput =
-  '[data-testid="confirmation-modal"] input';
-export const ConfirmationModalConfirmButton = (
+export const ConfirmationModalHeading = `${ConfirmationModal} h1`;
+export const ConfirmationModalInput = `${ConfirmationModal} input`;
+
+export const confirmationModalConfirmButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(1)`;
 
-export const ConfirmationModalCancelButton = (
+export const confirmationModalCancelButton = (
   modalSelector = ConfirmationModal
 ) => `${modalSelector} [role=dialog] button:nth-of-type(2)`;
 

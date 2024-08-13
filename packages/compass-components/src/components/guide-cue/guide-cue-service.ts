@@ -88,19 +88,14 @@ export class GuideCueService extends EventTarget {
     if (!this._activeCue) {
       return;
     }
-    try {
-      return this.dispatchEvent(
-        new CustomEvent('show-cue', {
-          detail: {
-            cueId: this._activeCue.cueId,
-            groupId: this._activeCue.groupId,
-          },
-        })
-      );
-    } catch (ex) {
-      // TODO(COMPASS-7357): this seems to be a temporary error happening sometimes during test.
-      // In that case, assume the event is not dispatched
-    }
+    return this.dispatchEvent(
+      new CustomEvent('show-cue', {
+        detail: {
+          cueId: this._activeCue.cueId,
+          groupId: this._activeCue.groupId,
+        },
+      })
+    );
   }
 
   private validateCueData(groupId: GroupName, step: number) {

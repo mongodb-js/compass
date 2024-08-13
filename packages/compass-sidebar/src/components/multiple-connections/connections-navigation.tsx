@@ -45,6 +45,7 @@ import {
   type ConnectionImportExportAction,
   useOpenConnectionImportExportModal,
 } from '@mongodb-js/compass-connection-import-export';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -116,7 +117,7 @@ type ConnectionsNavigationComponentProps = {
   onCopyConnectionString(info: ConnectionInfo): void;
   onToggleFavoriteConnectionInfo(info: ConnectionInfo): void;
   onOpenCsfleModal(connectionId: string): void;
-  onOpenNonGenuineMongoDBModal(): void;
+  onOpenNonGenuineMongoDBModal(connectionId: string): void;
 
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
@@ -159,7 +160,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onCopyConnectionString,
   onToggleFavoriteConnectionInfo,
   onOpenCsfleModal,
-  onOpenNonGenuineMongoDBModal: onOpenNonGenuinineMongoDBModal,
+  onOpenNonGenuineMongoDBModal,
 
   onOpenConnectionInfo,
   onDisconnect,
@@ -176,6 +177,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
+  const track = useTelemetry();
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
 
@@ -291,6 +293,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           return;
         case 'open-shell':
           openShellWorkspace(item.connectionInfo.id, { newTab: true });
+          track('Open Shell', { entrypoint: 'sidebar' }, item.connectionInfo);
           return;
         case 'connection-performance-metrics':
           openPerformanceWorkspace(item.connectionInfo.id);
@@ -317,16 +320,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           onDuplicateConnection(item.connectionInfo);
           return;
         case 'remove-connection':
-          if (item.connectionStatus === ConnectionStatus.Connected) {
-            onDisconnect(item.connectionInfo.id);
-          }
           onRemoveConnection(item.connectionInfo);
           return;
         case 'open-csfle-modal':
           onOpenCsfleModal(item.connectionInfo.id);
           return;
         case 'open-non-genuine-mongodb-modal':
-          onOpenNonGenuinineMongoDBModal();
+          onOpenNonGenuineMongoDBModal(item.connectionInfo.id);
           return;
       }
     },
@@ -345,7 +345,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onDuplicateConnection,
       onRemoveConnection,
       onOpenCsfleModal,
-      onOpenNonGenuinineMongoDBModal,
+      onOpenNonGenuineMongoDBModal,
+      track,
     ]
   );
 

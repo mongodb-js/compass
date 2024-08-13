@@ -13,11 +13,6 @@ const documentElementsContainerStyles = css({
   position: 'relative',
 });
 
-/**
- * The initial field limit.
- */
-const INITIAL_FIELD_LIMIT = 25;
-
 export type EditableDocumentProps = {
   doc: Document;
   removeDocument?: CrudActions['removeDocument'];
@@ -32,7 +27,6 @@ type EditableDocumentState = {
   editing: boolean;
   deleting: boolean;
   expanded: boolean;
-  renderSize?: number;
 };
 
 /**
@@ -45,8 +39,8 @@ class EditableDocument extends React.Component<
   constructor(props: EditableDocumentProps) {
     super(props);
     this.state = {
-      editing: false,
-      deleting: false,
+      editing: props.doc.editing,
+      deleting: props.doc.markedForDeletion,
       expanded: props.doc.expanded,
     };
   }
@@ -94,8 +88,10 @@ class EditableDocument extends React.Component<
     doc.on(HadronDocument.Events.Cancel, this.handleCancel);
     doc.on(HadronDocument.Events.Expanded, this.handleExpanded);
     doc.on(HadronDocument.Events.Collapsed, this.handleCollapsed);
-    doc.on('remove-success', this.handleRemoveSuccess);
-    doc.on('update-success', this.handleUpdateSuccess);
+    doc.on(HadronDocument.Events.EditingStarted, this.handleEditingStarted);
+    doc.on(HadronDocument.Events.EditingFinished, this.handleEditingFinished);
+    doc.on(HadronDocument.Events.MarkedForDeletion, this.handleDeletionStarted);
+    doc.on(HadronDocument.Events.DeletionFinished, this.handleDeletionFinished);
   }
 
   /**
@@ -107,42 +103,23 @@ class EditableDocument extends React.Component<
     doc.removeListener(HadronDocument.Events.Cancel, this.handleCancel);
     doc.removeListener(HadronDocument.Events.Expanded, this.handleExpanded);
     doc.removeListener(HadronDocument.Events.Collapsed, this.handleCollapsed);
-    doc.removeListener('remove-success', this.handleRemoveSuccess);
-    doc.removeListener('update-success', this.handleUpdateSuccess);
+    doc.removeListener(
+      HadronDocument.Events.EditingStarted,
+      this.handleEditingStarted
+    );
+    doc.removeListener(
+      HadronDocument.Events.EditingFinished,
+      this.handleEditingFinished
+    );
+    doc.removeListener(
+      HadronDocument.Events.MarkedForDeletion,
+      this.handleDeletionStarted
+    );
+    doc.removeListener(
+      HadronDocument.Events.DeletionFinished,
+      this.handleDeletionFinished
+    );
   }
-
-  /**
-   * Fires when the document update was successful.
-   */
-  handleUpdateSuccess = () => {
-    this.setState({ editing: false });
-  };
-
-  /**
-   * Handle the successful remove.
-   */
-  handleRemoveSuccess = () => {
-    this.setState({ deleting: false });
-  };
-
-  /**
-   * Handles canceling edits to the document.
-   */
-  handleCancel = () => {
-    this.setState({
-      editing: false,
-      deleting: false,
-      renderSize: INITIAL_FIELD_LIMIT,
-    });
-  };
-
-  handleExpanded = () => {
-    this.setState({ expanded: true });
-  };
-
-  handleCollapsed = () => {
-    this.setState({ expanded: false });
-  };
 
   /**
    * Handle copying JSON to clipboard of the document.
@@ -162,22 +139,35 @@ class EditableDocument extends React.Component<
   }
 
   /**
+   * Handles canceling edits to the document.
+   */
+  handleCancel = () => {
+    if (this.state.editing) {
+      this.props.doc.finishEditing();
+    } else if (this.state.deleting) {
+      this.props.doc.finishDeletion();
+    }
+  };
+
+  /**
    * Handles document deletion.
    */
   handleDelete() {
-    this.setState({
-      deleting: true,
-      editing: false,
-      renderSize: INITIAL_FIELD_LIMIT,
-    });
+    this.props.doc.markForDeletion();
   }
 
-  /**
-   * Handle the edit click.
-   */
-  handleEdit() {
-    this.setState({ editing: true });
-  }
+  handleDeletionStarted = () => {
+    this.setState({
+      editing: false,
+      deleting: true,
+    });
+  };
+
+  handleDeletionFinished = () => {
+    this.setState({
+      deleting: false,
+    });
+  };
 
   /**
    * Handle clicking the expand all button.
@@ -191,6 +181,37 @@ class EditableDocument extends React.Component<
     }
   }
 
+  handleExpanded = () => {
+    this.setState({ expanded: true });
+  };
+
+  handleCollapsed = () => {
+    this.setState({ expanded: false });
+  };
+
+  /**
+   * Handle the edit click.
+   */
+  handleStartEditing() {
+    this.props.doc.startEditing();
+  }
+
+  /**
+   * Update state when editing starts
+   */
+  handleEditingStarted = () => {
+    this.setState({ editing: true });
+  };
+
+  /**
+   * Update state when editing starts
+   */
+  handleEditingFinished = () => {
+    this.setState({
+      editing: false,
+    });
+  };
+
   /**
    * Render the actions component.
    *
@@ -200,7 +221,7 @@ class EditableDocument extends React.Component<
     if (!this.state.editing && !this.state.deleting) {
       return (
         <DocumentList.DocumentActionsGroup
-          onEdit={this.handleEdit.bind(this)}
+          onEdit={this.handleStartEditing.bind(this)}
           onCopy={this.handleCopy.bind(this)}
           onRemove={this.handleDelete.bind(this)}
           onClone={this.handleClone.bind(this)}
@@ -228,7 +249,7 @@ class EditableDocument extends React.Component<
         value={this.props.doc}
         editable
         editing={this.state.editing}
-        onEditStart={this.handleEdit.bind(this)}
+        onEditStart={this.handleStartEditing.bind(this)}
       />
     );
   }
