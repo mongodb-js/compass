@@ -184,20 +184,21 @@ export function NavigationItem({
     }
     if (item.type === 'connection') {
       return {
-        'data-is-active': `${isActive}`,
+        'data-is-active': isActive.toString(),
         'data-connection-id': item.connectionInfo.id,
         'data-connection-name': item.name,
+        'data-is-connected': (item.connectionStatus === 'connected').toString(),
       };
     }
     if (item.type === 'database') {
       return {
-        'data-is-active': `${isActive}`,
+        'data-is-active': isActive.toString(),
         'data-connection-id': item.connectionId,
         'data-database-name': item.dbName,
       };
     }
     return {
-      'data-is-active': `${isActive}`,
+      'data-is-active': isActive.toString(),
       'data-connection-id': item.connectionId,
       'data-namespace': item.namespace,
     };

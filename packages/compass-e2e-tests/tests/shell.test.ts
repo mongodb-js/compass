@@ -7,7 +7,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -27,6 +27,11 @@ describe('Shell', function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setFeature('enableShell', true);
+    await browser.setupDefaultConnections();
+  });
+
+  beforeEach(async function () {
+    await browser.disconnectAll();
   });
 
   after(async function () {
@@ -44,9 +49,9 @@ describe('Shell', function () {
   });
 
   it('has an info modal', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
-    await browser.openShell(DEFAULT_CONNECTION_NAME);
+    await browser.openShell(DEFAULT_CONNECTION_NAME_1);
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     const infoModalElement = await browser.$(Selectors.ShellInfoModal);
@@ -55,16 +60,16 @@ describe('Shell', function () {
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
-    await browser.closeShell(DEFAULT_CONNECTION_NAME);
+    await browser.closeShell(DEFAULT_CONNECTION_NAME_1);
   });
 
   it('shows and hides shell based on settings', async function () {
-    await browser.connectWithConnectionString();
+    await browser.connectToDefaults();
 
     if (TEST_MULTIPLE_CONNECTIONS) {
       expect(
         await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           Selectors.Multiple.OpenShellItem
         )
       ).to.be.equal(true);
@@ -87,7 +92,7 @@ describe('Shell', function () {
     if (TEST_MULTIPLE_CONNECTIONS) {
       expect(
         await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           Selectors.Multiple.OpenShellItem
         )
       ).to.be.equal(false);
