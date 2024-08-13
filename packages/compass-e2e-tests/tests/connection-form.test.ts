@@ -826,7 +826,7 @@ describe('Connection form', function () {
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
       authMethod: 'DEFAULT',
-      connectionColor: 'color1',
+      connectionColor: 'color6',
       connectionFavorite: true,
       connectionName: 'my-connection',
       connectionString: 'mongodb://localhost:27017/',
