@@ -1,5 +1,10 @@
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { init, cleanup, screenshotIfFailed } from '../helpers/compass';
+import {
+  init,
+  cleanup,
+  screenshotIfFailed,
+  DEFAULT_CONNECTION_NAME,
+} from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
@@ -36,18 +41,20 @@ describe('Global Tabs', function () {
   it('should open tabs over each other when not modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         collName,
         'Documents',
         false
       );
     }
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(1);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
   });
 
-  it('should open tabs over each other when not modified', async function () {
+  it('should open new tabs when modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         collName,
         'Documents',
@@ -58,12 +65,13 @@ describe('Global Tabs', function () {
         Selectors.queryBarApplyFilterButton('Documents')
       );
     }
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(3);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(3);
   });
 
   it('should close tabs without warning even when "modified" by interacting with the tab', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         collName,
         'Documents',
@@ -75,11 +83,16 @@ describe('Global Tabs', function () {
       );
     }
     await browser.closeWorkspaceTabs(false);
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(0);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(0);
   });
 
   it('should ask for confirmation when closing modified Aggregations tab', async function () {
-    await browser.navigateToCollectionTab('test', 'a', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'a',
+      'Aggregations'
+    );
 
     await browser.clickVisible(
       Selectors.aggregationPipelineModeToggle('as-text')
@@ -90,6 +103,12 @@ describe('Global Tabs', function () {
       '[{$match: { i: 0 }}]'
     );
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
@@ -101,8 +120,14 @@ describe('Global Tabs', function () {
       .waitForExist({ reverse: true });
 
     // Checking first that cancel leaves the tab on the screen
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(1);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
@@ -114,6 +139,6 @@ describe('Global Tabs', function () {
       .waitForExist({ reverse: true });
 
     // When confirmed, should remove the tab
-    expect(await browser.$$(Selectors.workspaceTab(null))).to.have.lengthOf(0);
+    expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(0);
   });
 });

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon } from '../leafygreen';
-import { Tooltip } from '../tooltip';
+import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
 
@@ -87,16 +86,12 @@ function ActionButton({
       // the container isn't hovered, which causes the tooltips to reset
       // their position to 0,0 and glitch visually without enabled.
       enabled={tooltipEnabled}
-      trigger={({ children, ...tooltipProps }) => {
-        return (
-          <div data-action-item {...tooltipProps}>
-            <Button {...props} />
-            {children}
-          </div>
-        );
-      }}
+      trigger={
+        <div data-action-item>
+          <Button {...props} />
+        </div>
+      }
       justify="middle"
-      delay={200} // The copy and clone buttons look alike so we keep the delay short.
     >
       {tooltipText}
     </Tooltip>
@@ -195,7 +190,7 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onCopy && (
         <Tooltip
           open={showCopyButtonTooltip}
-          trigger={({ children }) => (
+          trigger={
             <div data-action-item>
               <ActionButton
                 tooltipEnabled={isActive}
@@ -210,9 +205,8 @@ const DocumentActionsGroup: React.FunctionComponent<
                 className={actionsGroupItem}
                 tooltipText="Copy to clipboard"
               />
-              {children}
             </div>
-          )}
+          }
           justify="middle"
         >
           Copied!

@@ -9,8 +9,8 @@ import type { TabProps } from './workspace-tabs';
 
 function mockTab(tabId: number): TabProps {
   return {
+    type: 'Documents',
     title: `mock-tab-${tabId}`,
-    subtitle: `Documents - ${tabId}`,
     id: `${tabId}-content`,
     iconGlyph: 'Folder',
   };
@@ -85,12 +85,6 @@ describe('WorkspaceTabs', function () {
       expect(screen.getByText('mock-tab-1')).to.be.visible;
       expect(screen.getByText('mock-tab-2')).to.be.visible;
       expect(screen.getByText('mock-tab-3')).to.be.visible;
-    });
-
-    it('should render all of the tab subtitles', function () {
-      expect(screen.getByText('Documents - 1')).to.be.visible;
-      expect(screen.getByText('Documents - 2')).to.be.visible;
-      expect(screen.getByText('Documents - 3')).to.be.visible;
     });
 
     it('should render the active tab aria-selected', function () {

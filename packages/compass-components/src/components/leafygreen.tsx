@@ -71,6 +71,7 @@ export type { ToastProps } from '@leafygreen-ui/toast';
 export { ToastProvider, useToast } from '@leafygreen-ui/toast';
 export { usePrevious } from '@leafygreen-ui/hooks';
 import Toggle from '@leafygreen-ui/toggle';
+import Tooltip from '@leafygreen-ui/tooltip';
 import {
   H1,
   H2,
@@ -155,6 +156,7 @@ export {
   TextArea,
   TextInput,
   Toggle,
+  Tooltip,
   H1,
   H2,
   H3,

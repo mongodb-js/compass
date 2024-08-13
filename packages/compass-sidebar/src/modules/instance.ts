@@ -4,7 +4,6 @@ import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import throttle from 'lodash/throttle';
 import { type Database, changeDatabases } from './databases';
 import { changeConnectionOptions } from './connection-options';
-import { toggleIsGenuineMongoDBVisible } from './is-genuine-mongodb-visible';
 import { setIsPerformanceTabSupported } from './is-performance-tab-supported';
 import type { MongoServerError } from 'mongodb';
 
@@ -187,20 +186,6 @@ export const setupInstance =
 
     const connectionOptions = dataService.getConnectionOptions();
     dispatch(changeConnectionOptions(connectionId, connectionOptions)); // stores ssh tunnel status
-
-    dispatch(
-      toggleIsGenuineMongoDBVisible(
-        connectionId,
-        !instance.genuineMongoDB.isGenuine
-      )
-    );
-
-    instance.on(
-      'change:genuineMongoDB.isGenuine',
-      (_model: unknown, isGenuine: boolean) => {
-        dispatch(toggleIsGenuineMongoDBVisible(connectionId, !isGenuine));
-      }
-    );
 
     void Promise.all([dataService.currentOp(), dataService.top()]).then(
       () => {

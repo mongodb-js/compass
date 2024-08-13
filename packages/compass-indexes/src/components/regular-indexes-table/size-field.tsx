@@ -21,14 +21,7 @@ const SizeField: React.FunctionComponent<SizeFieldProps> = ({
   size,
 }) => {
   return (
-    <Tooltip
-      trigger={({ children, ...props }) => (
-        <span {...props}>
-          {children}
-          <Body>{formatSize(size)}</Body>
-        </span>
-      )}
-    >
+    <Tooltip trigger={<Body>{formatSize(size)}</Body>}>
       <Body>{getSizeTooltip(relativeSize)}</Body>
     </Tooltip>
   );

@@ -54,12 +54,16 @@ const Collections: React.FunctionComponent<CollectionsListProps> = ({
   const isEditable = useMemo(() => {
     return isCompassInWritableMode && isInstanceWritable;
   }, [isCompassInWritableMode, isInstanceWritable]);
-  const { id: connectionId } = useConnectionInfo();
+  const connectionInfo = useConnectionInfo();
+  const { id: connectionId } = connectionInfo;
   const { openCollectionWorkspace } = useOpenWorkspace();
 
-  useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'collections' });
-  }, []);
+  useTrackOnChange(
+    (track: TrackFunction) => {
+      track('Screen', { name: 'collections' }, connectionInfo);
+    },
+    [connectionInfo]
+  );
 
   const onCollectionClick = useCallback(
     (ns: string) => {

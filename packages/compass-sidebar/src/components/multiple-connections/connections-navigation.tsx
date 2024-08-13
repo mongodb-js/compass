@@ -45,6 +45,7 @@ import {
   type ConnectionImportExportAction,
   useOpenConnectionImportExportModal,
 } from '@mongodb-js/compass-connection-import-export';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -116,7 +117,7 @@ type ConnectionsNavigationComponentProps = {
   onCopyConnectionString(info: ConnectionInfo): void;
   onToggleFavoriteConnectionInfo(info: ConnectionInfo): void;
   onOpenCsfleModal(connectionId: string): void;
-  onOpenNonGenuineMongoDBModal(): void;
+  onOpenNonGenuineMongoDBModal(connectionId: string): void;
 
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
@@ -131,6 +132,7 @@ type MapStateProps = {
 type MapDispatchProps = {
   fetchAllCollections(): void;
   onDatabaseExpand(connectionId: string, dbId: string): void;
+  onRefreshDatabases(connectionId: string): void;
   onNamespaceAction(
     connectionId: string,
     namespace: string,
@@ -158,12 +160,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onCopyConnectionString,
   onToggleFavoriteConnectionInfo,
   onOpenCsfleModal,
-  onOpenNonGenuineMongoDBModal: onOpenNonGenuinineMongoDBModal,
+  onOpenNonGenuineMongoDBModal,
 
   onOpenConnectionInfo,
   onDisconnect,
   onDatabaseExpand,
   fetchAllCollections,
+  onRefreshDatabases: _onRefreshDatabases,
   onNamespaceAction: _onNamespaceAction,
 }) => {
   const {
@@ -174,6 +177,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
+  const track = useTelemetry();
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
 
@@ -281,11 +285,15 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'select-connection':
           openDatabasesWorkspace(item.connectionInfo.id);
           return;
+        case 'refresh-databases':
+          _onRefreshDatabases(item.connectionInfo.id);
+          return;
         case 'create-database':
           _onNamespaceAction(item.connectionInfo.id, '', action);
           return;
         case 'open-shell':
           openShellWorkspace(item.connectionInfo.id, { newTab: true });
+          track('Open Shell', { entrypoint: 'sidebar' }, item.connectionInfo);
           return;
         case 'connection-performance-metrics':
           openPerformanceWorkspace(item.connectionInfo.id);
@@ -312,20 +320,18 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           onDuplicateConnection(item.connectionInfo);
           return;
         case 'remove-connection':
-          if (item.connectionStatus === ConnectionStatus.Connected) {
-            onDisconnect(item.connectionInfo.id);
-          }
           onRemoveConnection(item.connectionInfo);
           return;
         case 'open-csfle-modal':
           onOpenCsfleModal(item.connectionInfo.id);
           return;
         case 'open-non-genuine-mongodb-modal':
-          onOpenNonGenuinineMongoDBModal();
+          onOpenNonGenuineMongoDBModal(item.connectionInfo.id);
           return;
       }
     },
     [
+      _onRefreshDatabases,
       _onNamespaceAction,
       openShellWorkspace,
       openDatabasesWorkspace,
@@ -339,7 +345,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onDuplicateConnection,
       onRemoveConnection,
       onOpenCsfleModal,
-      onOpenNonGenuinineMongoDBModal,
+      onOpenNonGenuineMongoDBModal,
+      track,
     ]
   );
 
@@ -497,6 +504,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   );
 };
 
+const onRefreshDatabases = (connectionId: string): SidebarThunkAction<void> => {
+  return (_dispatch, getState, { globalAppRegistry }) => {
+    globalAppRegistry.emit('refresh-databases', { connectionId });
+  };
+};
+
 const onNamespaceAction = (
   connectionId: string,
   namespace: string,
@@ -567,6 +580,7 @@ const mapDispatchToProps: MapDispatchToProps<
   MapDispatchProps,
   ConnectionsNavigationComponentProps
 > = {
+  onRefreshDatabases,
   onNamespaceAction,
   onDatabaseExpand,
   fetchAllCollections,

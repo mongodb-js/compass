@@ -38,7 +38,7 @@ const saveAndConnectStyles = css({
   justifyContent: 'flex-end',
 });
 
-function ConnectFormActions({
+export function LegacyConnectionFormActions({
   errors,
   warnings,
   onConnectClicked,
@@ -124,15 +124,19 @@ export type ConnectionFormModalActionsProps = {
 
   onCancel?(): void;
   onSave(): void;
-  onConnect(): void;
+  onSaveAndConnect(): void;
 };
 
+// TODO(COMPASS-8098): Make sure these work for VSCode, for example add:
+// saveButton: 'enabled' | 'disabled' | 'hidden';
+// saveAndConnectButton: 'enabled' | 'disabled' | 'hidden';
+// cancelButton: 'enabled' | 'disabled' | 'hidden';
 export function ConnectionFormModalActions({
   errors,
   warnings,
   onCancel,
   onSave,
-  onConnect,
+  onSaveAndConnect,
 }: ConnectionFormModalActionsProps): React.ReactElement {
   return (
     <div className={cx(formActionStyles)}>
@@ -178,7 +182,7 @@ export function ConnectionFormModalActions({
         <Button
           data-testid="connect-button"
           variant={ButtonVariant.Primary}
-          onClick={onConnect}
+          onClick={onSaveAndConnect}
         >
           Connect
         </Button>
@@ -186,5 +190,3 @@ export function ConnectionFormModalActions({
     </div>
   );
 }
-
-export default ConnectFormActions;

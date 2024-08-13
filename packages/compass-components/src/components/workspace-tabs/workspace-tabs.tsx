@@ -170,11 +170,12 @@ type WorkspaceTabsProps = {
 
 export type TabProps = {
   id: string;
+  type: string;
   title: string;
-  subtitle?: string;
+  tooltip?: [string, string][];
   connectionId?: string;
-  iconGlyph: Extract<keyof typeof glyphs, string> | 'Logo';
-} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title' | 'subtitle'>;
+  iconGlyph: Extract<keyof typeof glyphs, string> | 'Logo' | 'Server';
+} & Omit<React.HTMLProps<HTMLDivElement>, 'id' | 'title'>;
 
 export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,

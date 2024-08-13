@@ -19,6 +19,8 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 
 type Item = { _id: string } & Record<string, unknown>;
 
@@ -152,8 +154,18 @@ const GridControls: React.FunctionComponent<{
 }) => {
   const connectionInfo = useConnectionInfo();
   const connectionTitle = getConnectionTitle(connectionInfo);
-  const { openDatabasesWorkspace, openCollectionsWorkspace } =
-    useOpenWorkspace();
+  const {
+    openDatabasesWorkspace,
+    openCollectionsWorkspace,
+    openShellWorkspace,
+  } = useOpenWorkspace();
+  const track = useTelemetry();
+  const { enableShell, enableNewMultipleConnectionSystem } = usePreferences([
+    'enableShell',
+    'enableNewMultipleConnectionSystem',
+  ]);
+
+  const showOpenShellButton = enableShell && enableNewMultipleConnectionSystem;
 
   const breadcrumbs = useMemo(() => {
     const { database } = toNS(namespace ?? '');
@@ -194,18 +206,26 @@ const GridControls: React.FunctionComponent<{
         </div>
 
         <div className={cx(controlRowStyles, controlStyles, pushRightStyles)}>
-          {onCreateItemClick && (
-            <div className={controlStyles} data-testid="create-controls">
-              <Button
-                variant="primary"
-                leftGlyph={<Icon role="presentation" glyph="Plus" />}
-                onClick={onCreateItemClick}
-                className={createButtonStyles}
-                size="small"
-              >
-                Create {itemType}
-              </Button>
-            </div>
+          {showOpenShellButton && (
+            <Button
+              size="small"
+              onClick={() => {
+                openShellWorkspace(
+                  connectionInfo.id,
+                  namespace
+                    ? { initialEvaluate: `use ${namespace}` }
+                    : undefined
+                );
+                track(
+                  'Open Shell',
+                  { entrypoint: `${itemType}s` },
+                  connectionInfo
+                );
+              }}
+              leftGlyph={<Icon glyph="Shell"></Icon>}
+            >
+              Open MongoDB shell
+            </Button>
           )}
 
           {connectionInfo.atlasMetadata && (
@@ -223,6 +243,20 @@ const GridControls: React.FunctionComponent<{
             >
               Visualize your data
             </Button>
+          )}
+
+          {onCreateItemClick && (
+            <div className={controlStyles} data-testid="create-controls">
+              <Button
+                variant="primary"
+                leftGlyph={<Icon role="presentation" glyph="Plus" />}
+                onClick={onCreateItemClick}
+                className={createButtonStyles}
+                size="small"
+              >
+                Create {itemType}
+              </Button>
+            </div>
           )}
 
           {onRefreshClick && (
@@ -274,11 +308,16 @@ export const ItemsGrid = <T extends Item>({
   renderLoadSampleDataBanner,
 }: ItemsGridProps<T>): React.ReactElement => {
   const track = useTelemetry();
+  const connectionInfoAccess = useConnectionInfoAccess();
   const onViewTypeChange = useCallback(
     (newType) => {
-      track('Switch View Type', { view_type: newType, item_type: itemType });
+      track(
+        'Switch View Type',
+        { view_type: newType, item_type: itemType },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
     },
-    [itemType, track]
+    [itemType, track, connectionInfoAccess]
   );
 
   const [sortControls, sortState] = useSortControls(sortBy);

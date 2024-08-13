@@ -59,9 +59,10 @@ const filterConnections = (
         isMatch,
         ...(connection.connectionStatus === ConnectionStatus.Connected
           ? {
-              databases: childMatches.length
-                ? childMatches
-                : connection.databases,
+              databases:
+                !isMatch && childMatches.length
+                  ? childMatches
+                  : connection.databases,
             }
           : {}),
       });
@@ -80,10 +81,21 @@ const filterDatabases = (
     const childMatches = filterCollections(db.collections, regex);
 
     if (isMatch || childMatches.length) {
+      // If the db doesn't match, we want to use just the matching collections.
+      // if the db does match we include all the collections but we still record
+      // if they match because if something does match then we want to expand
+      // the database in temporarilyExpand below.
+      const collections =
+        !isMatch && childMatches.length
+          ? childMatches
+          : db.collections.map((collection) => ({
+              ...collection,
+              isMatch: regex.test(collection.name),
+            }));
       results.push({
         ...db,
         isMatch,
-        collections: childMatches.length ? childMatches : db.collections,
+        collections,
       });
     }
   }
@@ -127,7 +139,7 @@ const temporarilyExpand = (
       }
       databases.forEach(({ _id: databaseId, collections }) => {
         const childrenCollsAreMatch =
-          collections.length && collections[0].isMatch;
+          collections.length && collections.some((col) => col.isMatch);
         if (childrenCollsAreMatch && collections.length) {
           if (newExpanded[connectionId].state === 'collapsed') {
             newExpanded[connectionId].state = 'tempExpanded';

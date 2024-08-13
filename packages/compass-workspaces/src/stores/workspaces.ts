@@ -318,10 +318,23 @@ const reducer: Reducer<WorkspacesState> = (
           : state;
       }
 
-      // ... otherwise check if we can replace the current tab based on its
-      // replace handlers and force new tab opening if we can't
       if (currentActiveTab) {
-        forceNewTab = canReplaceTab(currentActiveTab) === false;
+        // if both the new workspace and the existing one are connection scoped,
+        // make sure we do not replace tabs between different connections
+        if (
+          action.workspace.type !== 'Welcome' &&
+          action.workspace.type !== 'My Queries' &&
+          currentActiveTab.type !== 'Welcome' &&
+          currentActiveTab.type !== 'My Queries'
+        ) {
+          forceNewTab =
+            action.workspace.connectionId !== currentActiveTab.connectionId;
+        }
+
+        // ... check if we can replace the current tab based on its
+        // replace handlers and force new tab opening if we can't
+        if (!forceNewTab)
+          forceNewTab = canReplaceTab(currentActiveTab) === false;
       }
     }
 
@@ -599,7 +612,10 @@ export const getActiveTab = (state: WorkspacesState): WorkspaceTab | null => {
 export type OpenWorkspaceOptions =
   | Pick<Workspace<'Welcome'>, 'type'>
   | Pick<Workspace<'My Queries'>, 'type'>
-  | Pick<Workspace<'Shell'>, 'type' | 'connectionId'>
+  | Pick<
+      Workspace<'Shell'>,
+      'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'
+    >
   | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>

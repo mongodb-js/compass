@@ -37,8 +37,6 @@ const menuStyles = css({
 });
 
 const itemContainerStyles = css({
-  paddingLeft: spacing[300],
-  paddingRight: spacing[300],
   cursor: 'pointer',
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
@@ -59,10 +57,8 @@ const itemWrapperStyles = css({
   display: 'flex',
   height: ROW_HEIGHT,
   alignItems: 'center',
-  paddingLeft: spacing[100],
-  paddingRight: spacing[100],
+  paddingRight: spacing[400],
   gap: spacing[50],
-  borderRadius: spacing[100],
 });
 
 const labelAndIconWrapperStyles = css({
@@ -76,6 +72,7 @@ const labelAndIconWrapperStyles = css({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
   },
+  fontSize: '12px',
 });
 
 const actionControlsWrapperStyles = css({

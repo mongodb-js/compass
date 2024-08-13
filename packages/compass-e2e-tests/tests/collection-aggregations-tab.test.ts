@@ -8,6 +8,7 @@ import {
   outputFilename,
   serverSatisfies,
   skipForWeb,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -17,8 +18,13 @@ import {
 } from '../helpers/insert-data';
 import { getStageOperators } from '../helpers/read-stage-operators';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
+import { Key } from 'webdriverio';
 
 const { expect } = chai;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 const OUT_STAGE_PREVIEW_TEXT =
   'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.';
@@ -67,49 +73,6 @@ async function getDocuments(browser: CompassBrowser) {
   return documents.map((text) => {
     return JSON.parse(text);
   });
-}
-
-async function chooseCollectionAction(
-  browser: CompassBrowser,
-  dbName: string,
-  collectionName: string,
-  actionName: string
-) {
-  // search for the view in the sidebar
-  await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
-
-  const collectionSelector = Selectors.sidebarCollection(
-    dbName,
-    collectionName
-  );
-
-  // scroll to the collection if necessary
-  await browser.scrollToVirtualItem(
-    Selectors.SidebarNavigationTree,
-    collectionSelector,
-    'tree'
-  );
-
-  const collectionElement = await browser.$(collectionSelector);
-  await collectionElement.waitForDisplayed();
-
-  // hover over the collection
-  await browser.hover(collectionSelector);
-
-  // click the show collections button
-  // NOTE: This assumes it is currently closed
-  await browser.clickVisible(Selectors.SidebarNavigationItemShowActionsButton);
-
-  const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
-
-  const actionButton = await browser.$(actionSelector);
-
-  // click the action
-  await browser.clickVisible(actionSelector);
-
-  // make sure the menu closed
-  await actionButton.waitForDisplayed({ reverse: true });
 }
 
 async function waitForTab(browser: CompassBrowser, namespace: string) {
@@ -176,7 +139,12 @@ describe('Collection aggregations tab', function () {
     }, STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY);
 
     // Some tests navigate away from the numbers collection aggregations tab
-    await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME,
+      'test',
+      'numbers',
+      'Aggregations'
+    );
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
     await browser.clickVisible(Selectors.CreateNewPipelineButton);
@@ -468,8 +436,8 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.my-view-from-pipeline');
 
     // choose Duplicate view
-    await chooseCollectionAction(
-      browser,
+    await browser.selectCollectionMenuItem(
+      DEFAULT_CONNECTION_NAME,
       'test',
       'my-view-from-pipeline',
       'duplicate-view'
@@ -496,8 +464,8 @@ describe('Collection aggregations tab', function () {
     await waitForTab(browser, 'test.duplicated-view');
 
     // now select modify view of the non-duplicate
-    await chooseCollectionAction(
-      browser,
+    await browser.selectCollectionMenuItem(
+      DEFAULT_CONNECTION_NAME,
       'test',
       'my-view-from-pipeline',
       'modify-view'
@@ -509,6 +477,7 @@ describe('Collection aggregations tab', function () {
     // make sure we're on the aggregations tab, in edit mode
     const modifyBanner = await browser.$(Selectors.ModifySourceBanner);
     await modifyBanner.waitForDisplayed();
+
     expect(await modifyBanner.getText()).to.equal(
       'MODIFYING PIPELINE BACKING "TEST.MY-VIEW-FROM-PIPELINE"'
     );
@@ -1054,7 +1023,7 @@ describe('Collection aggregations tab', function () {
     const modalElement = await browser.$(Selectors.ConfirmationModal);
     await modalElement.waitForDisplayed();
 
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     await modalElement.waitForDisplayed({ reverse: true });
   });
 
@@ -1302,7 +1271,7 @@ describe('Collection aggregations tab', function () {
 
       const confirmOpenModal = await browser.$(Selectors.ConfirmationModal);
       await confirmOpenModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       await confirmOpenModal.waitForDisplayed({ reverse: true });
     });
 
@@ -1322,7 +1291,7 @@ describe('Collection aggregations tab', function () {
 
       const confirmDeleteModal = await browser.$(Selectors.ConfirmationModal);
       await confirmDeleteModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
       await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });
@@ -1421,10 +1390,16 @@ describe('Collection aggregations tab', function () {
         );
         return (await activeStage.getText()) === 'Stage 1: $match';
       });
-
       await browser.waitForAriaDisabled(previousButton, true);
 
-      await browser.keys('Escape');
+      // previousButton has a tooltip, to close it we press Escape
+      // and wait a bit (for the debounced close to kick in)
+      await browser.keys([Key.Escape]);
+      await sleep(50);
+
+      // the next Escape is for the modal to close
+      await browser.keys([Key.Escape]);
+
       await modal.waitForDisplayed({ reverse: true });
     });
 
@@ -1627,6 +1602,7 @@ describe('Collection aggregations tab', function () {
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         'nestedDocs',
         'Aggregations'

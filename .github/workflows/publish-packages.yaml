@@ -34,7 +34,7 @@ jobs:
     - name: "Use Node.js 14"
       uses: actions/setup-node@v3
       with:
-        node-version: 18.19.1
+        node-version: 20.16.0
 
     - name: Install npm@10.2.4
       run: npm install -g npm@10.2.4

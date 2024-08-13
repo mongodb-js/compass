@@ -10,7 +10,7 @@ import {
   outputFilename,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
+  DEFAULT_CONNECTION_NAME,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -68,7 +68,12 @@ describe('Collection export', function () {
     beforeEach(async function () {
       await createNumbersCollection();
       await browser.connectWithConnectionString();
-      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+      await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
+        'test',
+        'numbers',
+        'Documents'
+      );
     });
 
     it('supports collection to CSV with a query filter with a subset of fields', async function () {
@@ -136,6 +141,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         has_projection: false,
@@ -205,6 +212,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         has_projection: false,
@@ -272,6 +281,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         has_projection: true,
@@ -324,6 +335,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'csv',
@@ -396,6 +409,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
@@ -463,6 +478,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
@@ -515,6 +532,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'json',
@@ -569,6 +588,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: true,
         file_type: 'json',
@@ -658,6 +679,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
@@ -743,6 +766,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',
@@ -761,13 +786,6 @@ describe('Collection export', function () {
     });
 
     it('aborts an in progress CSV export when disconnected', async function () {
-      // TODO(COMPASS-8008): this is not working in multiple connections and the
-      // code below checking for the sidebar title to go away is wrong in that
-      // world anyway
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        this.skip();
-      }
-
       const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
       // Set a query that we'll use.
@@ -810,10 +828,7 @@ describe('Collection export', function () {
       const exportAbortButton = await browser.$(Selectors.ExportToastAbort);
       await exportAbortButton.waitForDisplayed();
 
-      await browser.disconnect();
-      await browser
-        .$(Selectors.SidebarTitle)
-        .waitForDisplayed({ reverse: true });
+      await browser.disconnectAll({ closeToasts: false });
 
       // Wait for the aborted toast to appear.
       const toastElement = await browser.$(Selectors.ExportToast);
@@ -846,6 +861,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
@@ -868,6 +885,7 @@ describe('Collection export', function () {
       await createNumbersStringCollection();
       await browser.connectWithConnectionString();
       await browser.navigateToCollectionTab(
+        DEFAULT_CONNECTION_NAME,
         'test',
         'numbers-strings',
         'Documents'
@@ -957,6 +975,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'csv',
@@ -1058,6 +1078,8 @@ describe('Collection export', function () {
 
       const exportCompletedEvent = await telemetryEntry('Export Completed');
       delete exportCompletedEvent.duration; // Duration varies.
+      expect(exportCompletedEvent.connection_id).to.exist;
+      delete exportCompletedEvent.connection_id; // connection_id varies
       expect(exportCompletedEvent).to.deep.equal({
         all_docs: false,
         file_type: 'json',

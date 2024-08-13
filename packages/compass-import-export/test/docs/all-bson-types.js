@@ -19,6 +19,7 @@ export default [
   {
     _id: new ObjectId('642d766b7300158b1f22e972'),
     double: new Double(1.2), // Double, 1, double
+    doubleThatIsAlsoAnInteger: new Double(1), // Double, 1, double
     string: 'Hello, world!', // String, 2, string
     object: { key: 'value' }, // Object, 3, object
     array: [1, 2, 3], // Array, 4, array

@@ -142,6 +142,21 @@ describe('tabs behavior', function () {
       expect(state).to.have.property('activeTabId', state.tabs[1].id);
     });
 
+    it('when the connection differs from the active tab, it should open a workspace in new tab', function () {
+      const store = configureStore();
+      store.dispatch(
+        openWorkspace({ type: 'Databases', connectionId: 'connectionA' })
+      );
+      store.dispatch(
+        openWorkspace({ type: 'Databases', connectionId: 'connectionB' })
+      );
+      const state = store.getState();
+      expect(state).to.have.property('tabs').have.lengthOf(2);
+      expect(state).to.have.nested.property('tabs[0].type', 'Databases');
+      expect(state).to.have.nested.property('tabs[1].type', 'Databases');
+      expect(state).to.have.property('activeTabId', state.tabs[1].id);
+    });
+
     it('should select already opened tab when trying to open a new one with the same attributes', function () {
       const store = configureStore();
       openTabs(store);

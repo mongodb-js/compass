@@ -40,11 +40,7 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    # WARN: This version is behind our electron runtime, but updating it will
-    # drop support for some older linux platforms, so we are keeping them out of
-    # sync for now
-    # TODO: https://jira.mongodb.org/browse/COMPASS-6915
-    NODE_JS_VERSION: '18.19.1'
+    NODE_JS_VERSION: '20.16.0'
     NPM_VERSION: '10.2.4'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
@@ -410,19 +406,15 @@ functions:
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
           COMPASS_DISTRIBUTION: ${compass_distribution}
-          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
-          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
-          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
-          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
-          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
-          GITHUB_PR_NUMBER: ${github_pr_number}
-          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
-          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
         script: |
           set -e
+
+          # Ensure .sbom is always created with fresh data
+          rm -rvf .sbom && mkdir -pv .sbom
+
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          .evergreen/compass_package.sh
+          cd packages/compass && npm run prepackage-compass
     - command: shell.exec
       params:
         working_dir: src
@@ -443,6 +435,29 @@ functions:
           set -e
 
           .evergreen/create-sbom.sh
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+          npm_config_loglevel: ${npm_loglevel}
+          COMPASS_DISTRIBUTION: ${compass_distribution}
+          SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
+          SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
+          SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
+          SIGNING_SERVER_USERNAME: ${SIGNING_SERVER_USERNAME}
+          SIGNING_SERVER_PORT: ${SIGNING_SERVER_PORT}
+          GITHUB_PR_NUMBER: ${github_pr_number}
+          PAPERTRAIL_KEY_ID: ${papertrail_key_id}
+          PAPERTRAIL_SECRET_KEY: ${papertrail_secret_key}
+          COMPASS_WAS_COMPILED_AND_HAS_SBOM: '1'
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          .evergreen/compass_package.sh
 
   get_first_party_dependency_list:
     - command: s3.get
@@ -570,10 +585,14 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
+          ATLAS_LOCAL_VERSION: latest
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          # Start atlas local to test Atlas Search
+          source .evergreen/start-atlas-local.sh
 
           echo "Running E2E tests while collecting coverage..."
 

@@ -12,7 +12,7 @@ import { Passphrase } from './passphrase';
 import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
-import { useExportConnections } from '../hooks/use-export';
+import { useExportConnections } from '../hooks/use-export-connections';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;

@@ -11,7 +11,10 @@ import {
 import userEvent from '@testing-library/user-event';
 import MultipleConnectionSidebar from './sidebar';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { ToastArea } from '@mongodb-js/compass-components';
+import {
+  ConfirmationModalArea,
+  ToastArea,
+} from '@mongodb-js/compass-components';
 import {
   InMemoryConnectionStorage,
   ConnectionStorageProvider,
@@ -44,26 +47,12 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-
-type PromiseFunction = (
-  resolve: (dataService: DataService) => void,
-  reject: (error: { message: string }) => void
-) => void;
-
-function slowConnection(response: PromiseFunction): Promise<DataService> {
-  return new Promise<DataService>((resolve, reject) => {
-    setTimeout(() => response(resolve, reject), 20);
-  });
-}
-
-function andSucceed(): PromiseFunction {
-  return (resolve) => resolve({} as DataService);
-}
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
   connectionOptions: {
-    connectionString: 'mongodb://localhost:27017',
+    connectionString: 'mongodb://localhost:12345/',
   },
   favorite: {
     name: 'localhost',
@@ -75,7 +64,7 @@ const savedFavoriteConnection: ConnectionInfo = {
 const savedRecentConnection: ConnectionInfo = {
   id: '54321',
   connectionOptions: {
-    connectionString: 'mongodb://localhost:27020',
+    connectionString: 'mongodb://localhost:27020/',
   },
 };
 
@@ -107,7 +96,8 @@ describe('Multiple Connections Sidebar Component', function () {
   let instancesManager: MongoDBInstancesManager;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  let connectFn = sinon.stub();
+  let connectFn: sinon.SinonStub;
+  let track: sinon.SinonStub;
 
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
@@ -115,23 +105,31 @@ describe('Multiple Connections Sidebar Component', function () {
   ) {
     return render(
       <ToastArea>
-        <PreferencesProvider value={preferences}>
-          <WorkspacesServiceProvider value={workspaceService}>
-            <WorkspacesProvider
-              value={[{ name: 'My Queries', component: () => null }]}
+        <ConfirmationModalArea>
+          <PreferencesProvider value={preferences}>
+            <TelemetryProvider
+              options={{
+                sendTrack: track,
+              }}
             >
-              <ConnectionStorageProvider value={connectionStorage}>
-                <ConnectionsManagerProvider value={connectionsManager}>
-                  <Provider store={store}>
-                    <MultipleConnectionSidebar
-                      activeWorkspace={activeWorkspace}
-                    />
-                  </Provider>
-                </ConnectionsManagerProvider>
-              </ConnectionStorageProvider>
-            </WorkspacesProvider>
-          </WorkspacesServiceProvider>
-        </PreferencesProvider>
+              <WorkspacesServiceProvider value={workspaceService}>
+                <WorkspacesProvider
+                  value={[{ name: 'My Queries', component: () => null }]}
+                >
+                  <ConnectionStorageProvider value={connectionStorage}>
+                    <ConnectionsManagerProvider value={connectionsManager}>
+                      <Provider store={store}>
+                        <MultipleConnectionSidebar
+                          activeWorkspace={activeWorkspace}
+                        />
+                      </Provider>
+                    </ConnectionsManagerProvider>
+                  </ConnectionStorageProvider>
+                </WorkspacesProvider>
+              </WorkspacesServiceProvider>
+            </TelemetryProvider>
+          </PreferencesProvider>
+        </ConfirmationModalArea>
       </ToastArea>,
       { wrapper }
     );
@@ -139,6 +137,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
   beforeEach(async function () {
     connectFn = sinon.stub();
+    track = sinon.stub();
     instancesManager = new TestMongoDBInstanceManager();
     connectionsManager = new ConnectionsManager({
       logger: createNoopLogger().log.unbound,
@@ -343,59 +342,6 @@ describe('Multiple Connections Sidebar Component', function () {
         });
       });
 
-      context('when trying to connect', function () {
-        it('(successful connection) calls the connection function and renders the progress toast', async function () {
-          connectFn.returns(slowConnection(andSucceed()));
-          await renderWithConnections();
-          const connectionItem = screen.getByTestId('12345');
-
-          userEvent.click(connectionItem);
-          expect(screen.getByText('Connecting to localhost')).to.exist;
-          expect(connectFn).to.have.been.called;
-
-          await waitFor(() => {
-            expect(screen.queryByText('Connecting to localhost')).to.not.exist;
-          });
-          expect(screen.getByText('Connected to localhost')).to.exist;
-        });
-
-        it('should render the non-genuine modal when connected to a non-genuine mongodb connection', async function () {
-          connectFn.returns(slowConnection(andSucceed()));
-          await renderWithConnections([
-            {
-              id: 'non-genuine',
-              connectionOptions: {
-                connectionString:
-                  'mongodb://dummy:1234@dummy-name.cosmos.azure.com:443/?ssl=true',
-              },
-            },
-          ]);
-          const connectionItem = screen.getByTestId('non-genuine');
-          userEvent.click(connectionItem);
-          expect(connectFn).to.have.been.called;
-          await waitFor(() => {
-            expect(screen.queryByText('Non-Genuine MongoDB Detected')).to.be
-              .visible;
-          });
-        });
-
-        it('(failed connection) calls the connection function and renders the error toast', async function () {
-          connectFn.callsFake(() => {
-            return Promise.reject(new Error('Expected failure'));
-          });
-          await renderWithConnections();
-          const connectionItem = screen.getByTestId('12345');
-
-          userEvent.click(connectionItem);
-          expect(screen.getByText('Connecting to localhost')).to.exist;
-          expect(connectFn).to.have.been.called;
-
-          await waitFor(() => {
-            expect(() => screen.getByText('Expected failure')).to.not.throw;
-          });
-        });
-      });
-
       context('when connected', function () {
         const connectedInstance: MongoDBInstance = {
           _id: '1',
@@ -505,9 +451,10 @@ describe('Multiple Connections Sidebar Component', function () {
           );
 
           expect(screen.getByLabelText('Create database')).to.be.visible;
+          expect(screen.getByLabelText('Open MongoDB shell')).to.be.visible;
 
           userEvent.click(screen.getByLabelText('Show actions'));
-          expect(screen.getByText('Open MongoDB shell')).to.be.visible;
+
           expect(screen.getByText('View performance metrics')).to.be.visible;
           expect(screen.getByText('Show connection info')).to.be.visible;
           expect(screen.getByText('Disconnect')).to.be.visible;
@@ -549,7 +496,7 @@ describe('Multiple Connections Sidebar Component', function () {
             });
           });
 
-          it('should open shell workspace when clicked on open shell action', function () {
+          it('should open shell workspace when clicked on open shell action', async function () {
             const connectionItem = screen.getByTestId(
               savedFavoriteConnection.id
             );
@@ -557,14 +504,16 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByTestId('base-navigation-item')
             );
 
-            userEvent.click(screen.getByLabelText('Show actions'));
-
-            userEvent.click(screen.getByText('Open MongoDB shell'));
+            userEvent.click(screen.getByLabelText('Open MongoDB shell'));
 
             expect(workspaceService.openShellWorkspace).to.have.been.calledWith(
               savedFavoriteConnection.id,
               { newTab: true }
             );
+
+            await waitFor(() => {
+              expect(track).to.have.been.calledWith('Open Shell');
+            });
           });
 
           it('should open performance workspace when clicked on view performance action', function () {
@@ -628,7 +577,9 @@ describe('Multiple Connections Sidebar Component', function () {
               within(connectionItem).getByLabelText('Caret Right Icon')
             );
 
-            expect(connectSpy).to.be.calledWith(savedRecentConnection);
+            await waitFor(() => {
+              expect(connectSpy).to.be.calledWith(savedRecentConnection);
+            });
           });
 
           it('should open edit connection modal when clicked on edit connection action', function () {
@@ -693,7 +644,7 @@ describe('Multiple Connections Sidebar Component', function () {
             });
           });
 
-          it('should duplicate connection when clicked on duplicate action', async function () {
+          it('should open a connection form when clicked on duplicate action', async function () {
             const saveSpy = sinon.spy(connectionStorage, 'save');
 
             const connectionItem = screen.getByTestId(
@@ -709,16 +660,18 @@ describe('Multiple Connections Sidebar Component', function () {
 
             userEvent.click(screen.getByText('Duplicate'));
 
+            // Does not save the duplicate yet
             await waitFor(() => {
-              expect(saveSpy).to.have.been.called;
+              expect(saveSpy).not.to.have.been.called;
             });
 
-            await waitFor(() => {
-              // 3 connections and one database from the connected one
-              return expect(screen.getAllByRole('treeitem')).to.have.lengthOf(
-                4
-              );
-            });
+            // We see the connect button in the form modal
+            expect(screen.getByTestId('connect-button')).to.be.visible;
+
+            // Connection string is pre-filled with a duplicate
+            expect(screen.getByTestId('connectionString')).to.have.value(
+              savedFavoriteConnection.connectionOptions.connectionString
+            );
           });
 
           it('should disconnect and remove the connection when clicked on remove action', async function () {

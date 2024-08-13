@@ -393,16 +393,13 @@ describe('ConnectionsNavigationTree', function () {
       const connection = screen.getByTestId('connection_ready');
 
       expect(within(connection).getByTitle('Create database')).to.be.visible;
+      expect(within(connection).getByTitle('Open MongoDB shell')).to.be.visible;
 
       const otherActions = within(connection).getByTitle('Show actions');
       expect(otherActions).to.exist;
 
       userEvent.click(otherActions);
 
-      expect(screen.getByText('Open MongoDB shell')).to.be.visible;
-      expect(
-        screen.getByTestId('sidebar-navigation-item-actions-open-shell-action')
-      ).not.to.have.attribute('disabled');
       expect(screen.getByText('View performance metrics')).to.be.visible;
       expect(screen.getByText('Show connection info')).to.be.visible;
       expect(screen.getByText('Copy connection string')).to.be.visible;
@@ -565,26 +562,19 @@ describe('ConnectionsNavigationTree', function () {
         const connection = screen.getByTestId('connection_ready');
 
         expect(within(connection).queryByTitle('Create database')).not.to.exist;
+        if (name !== 'when preferences is readonly') {
+          expect(within(connection).getByLabelText('Open MongoDB shell')).to.be
+            .visible;
+        } else {
+          expect(within(connection).queryByLabelText('Open MongoDB shell')).not
+            .to.exist;
+        }
 
         const otherActions = within(connection).getByTitle('Show actions');
         expect(otherActions).to.exist;
 
         userEvent.click(otherActions);
 
-        expect(screen.getByText('Open MongoDB shell')).to.be.visible;
-        if (name !== 'when connection is datalake') {
-          expect(
-            screen.getByTestId(
-              'sidebar-navigation-item-actions-open-shell-action'
-            )
-          ).to.have.attribute('disabled');
-        } else {
-          expect(
-            screen.getByTestId(
-              'sidebar-navigation-item-actions-open-shell-action'
-            )
-          ).not.to.have.attribute('disabled');
-        }
         expect(screen.getByText('View performance metrics')).to.be.visible;
         expect(screen.getByText('Show connection info')).to.be.visible;
         expect(screen.getByText('Copy connection string')).to.be.visible;
@@ -625,6 +615,40 @@ describe('ConnectionsNavigationTree', function () {
         const collection = screen.getByTestId('connection_ready.db_ready.bwok');
 
         expect(within(collection).getByTitle('Open in new tab')).to.exist;
+      });
+    });
+  });
+
+  describe('shell action', function () {
+    it('should show shell action in the sidebar on hover of connected item', async function () {
+      await renderConnectionsNavigationTree();
+      userEvent.hover(screen.getByText('turtles'));
+      expect(screen.getByLabelText('Open MongoDB shell')).to.be.visible;
+    });
+
+    context('when preferences is readonly', function () {
+      it('should not render shell action at all', async function () {
+        await renderConnectionsNavigationTree(
+          {},
+          {
+            readOnly: true,
+          }
+        );
+        userEvent.hover(screen.getByText('turtles'));
+        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw;
+      });
+    });
+
+    context('when shell is disabled', function () {
+      it('should not render shell action at all', async function () {
+        await renderConnectionsNavigationTree(
+          {},
+          {
+            enableShell: false,
+          }
+        );
+        userEvent.hover(screen.getByText('turtles'));
+        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw;
       });
     });
   });

@@ -3,10 +3,10 @@
 
 ## Getting Started
 
-You'll need node `^16` and npm `^8` installed on your machine to work with the repository locally.
+You'll need node `^20` and npm `^10` installed on your machine to work with the repository locally.
 After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
-After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
+After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally. Alternatively you can start a web version of the app by running `npm run start-web`.
 
 Compass uses a monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
 
@@ -80,7 +80,7 @@ DEBUG=hadron* npm run package-compass
 To speed up the process you might want to disable creating installer for the application. To do that you can set `HADRON_SKIP_INSTALLER` environmental variable to `true` when running the script
 
 ```sh
-HADRON_SKIP_INSTALLER=true npm run test-package-compass
+HADRON_SKIP_INSTALLER=true npm run package-compass
 ```
 
 ### Publishing Packages

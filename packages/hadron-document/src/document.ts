@@ -11,6 +11,7 @@ import ObjectGenerator from './object-generator';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';
+import { DocumentEvents } from '.';
 
 /**
  * The event constant.
@@ -19,12 +20,19 @@ export const Events = {
   Cancel: 'Document::Cancel',
   Expanded: 'Document::Expanded',
   Collapsed: 'Document::Collapsed',
+  VisibleElementsChanged: 'Document::VisibleElementsChanged',
+  EditingStarted: 'Document::EditingStarted',
+  EditingFinished: 'Document::EditingFinished',
+  MarkedForDeletion: 'Document::MarkedForDeletion',
+  DeletionFinished: 'Document::DeletionFinished',
 };
 
 /**
  * The id field.
  */
 const ID = '_id';
+
+export const DEFAULT_VISIBLE_ELEMENTS = 25;
 
 /**
  * Represents a document.
@@ -39,6 +47,9 @@ export class Document extends EventEmitter {
   currentType: 'Document';
   size: number | null = null;
   expanded = false;
+  maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
+  editing = false;
+  markedForDeletion = false;
 
   /**
    * Send cancel event.
@@ -262,6 +273,7 @@ export class Document extends EventEmitter {
   insertBeginning(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertBeginning(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -276,6 +288,7 @@ export class Document extends EventEmitter {
   insertEnd(key: string | number, value: BSONValue): Element {
     const newElement = this.elements.insertEnd(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -295,6 +308,7 @@ export class Document extends EventEmitter {
   ): Element | undefined {
     const newElement = this.elements.insertAfter(element, key, value);
     newElement?._bubbleUp(ElementEvents.Added, newElement, this);
+    this.emit(Events.VisibleElementsChanged, this);
     return newElement;
   }
 
@@ -399,6 +413,7 @@ export class Document extends EventEmitter {
       element.expand(true);
     }
     this.emit(Events.Expanded);
+    this.emit(Events.VisibleElementsChanged, this);
   }
 
   /**
@@ -410,6 +425,83 @@ export class Document extends EventEmitter {
       element.collapse();
     }
     this.emit(Events.Collapsed);
+    this.emit(Events.VisibleElementsChanged, this);
+  }
+
+  getVisibleElements() {
+    return [...this.elements].slice(0, this.maxVisibleElementsCount);
+  }
+
+  setMaxVisibleElementsCount(newCount: number) {
+    this.maxVisibleElementsCount = newCount;
+    this.emit(Events.VisibleElementsChanged, this);
+  }
+
+  getTotalVisibleElementsCount() {
+    const visibleElements = this.getVisibleElements();
+    return visibleElements.reduce((totalVisibleChildElements, element) => {
+      return (
+        totalVisibleChildElements + 1 + element.getTotalVisibleElementsCount()
+      );
+    }, 0);
+  }
+
+  startEditing(elementId?: string, field?: 'key' | 'value' | 'type'): void {
+    if (!this.editing) {
+      this.editing = true;
+      this.emit(DocumentEvents.EditingStarted, elementId, field);
+    }
+  }
+
+  finishEditing() {
+    if (this.editing) {
+      this.editing = false;
+      this.emit(DocumentEvents.EditingFinished);
+    }
+  }
+
+  onUpdateStart() {
+    this.emit('update-start');
+  }
+
+  onUpdateSuccess(doc: Record<string, unknown>) {
+    this.emit('update-success', doc);
+    this.finishEditing();
+  }
+
+  onUpdateBlocked() {
+    this.emit('update-blocked');
+  }
+
+  onUpdateError(error: Error) {
+    this.emit('update-error', error.message);
+  }
+
+  markForDeletion() {
+    if (!this.markedForDeletion) {
+      this.markedForDeletion = true;
+      this.emit(DocumentEvents.MarkedForDeletion);
+    }
+  }
+
+  finishDeletion() {
+    if (this.markedForDeletion) {
+      this.markedForDeletion = false;
+      this.emit(DocumentEvents.DeletionFinished);
+    }
+  }
+
+  onRemoveStart() {
+    this.emit('remove-start');
+  }
+
+  onRemoveSuccess() {
+    this.emit('remove-success');
+    this.finishDeletion();
+  }
+
+  onRemoveError(error: Error) {
+    this.emit('remove-error', error.message);
   }
 }
 

@@ -64,7 +64,15 @@ type RenderItem<T> = (props: {
     item: SidebarActionableItem,
     isExpanded: boolean
   ): void;
-  getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
+  getItemActions(
+    this: void,
+    item: SidebarTreeItem
+  ): {
+    actions: NavigationItemActions;
+    config?: {
+      collapseAfter: number;
+    };
+  };
 }) => React.ReactNode;
 export type OnDefaultAction<T> = (
   item: T,
@@ -87,7 +95,15 @@ type VirtualTreeProps<T extends VirtualItem> = {
     isExpanded: boolean
   ): void;
   onItemAction(this: void, item: SidebarActionableItem, action: Actions): void;
-  getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
+  getItemActions(
+    this: void,
+    item: SidebarTreeItem
+  ): {
+    actions: NavigationItemActions;
+    config?: {
+      collapseAfter: number;
+    };
+  };
 
   __TEST_OVER_SCAN_COUNT?: number;
 };
@@ -216,7 +232,15 @@ type VirtualItemData<T extends VirtualItem> = {
     item: SidebarActionableItem,
     isExpanded: boolean
   ): void;
-  getItemActions(this: void, item: SidebarTreeItem): NavigationItemActions;
+  getItemActions(
+    this: void,
+    item: SidebarTreeItem
+  ): {
+    actions: NavigationItemActions;
+    config?: {
+      collapseAfter: number;
+    };
+  };
 };
 function TreeItem<T extends VirtualItem>({
   index,

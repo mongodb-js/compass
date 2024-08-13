@@ -89,7 +89,10 @@ export {
 export {
   type ConnectionRepository,
   useConnectionRepository,
+  withConnectionRepository,
   areConnectionsEqual,
+  connectionRepositoryAccessLocator,
+  type ConnectionRepositoryAccess,
 } from './components/connections-provider';
 export * from './connection-info-provider';
 

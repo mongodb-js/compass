@@ -1,9 +1,11 @@
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
+import type { WorkspaceTabSelectorOptions } from '../selectors';
 
 async function navigateToCollection(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
+  connectionName: string,
   dbName: string,
   collectionName: string,
 
@@ -12,7 +14,10 @@ async function navigateToCollection(
   // state of Schema, and Validation tabs without re-connecting.
   closeExistingTabs = true
 ): Promise<void> {
+  const connectionId = await browser.getConnectionIdByName(connectionName);
+
   const collectionSelector = Selectors.sidebarCollection(
+    connectionId,
     dbName,
     collectionName
   );
@@ -23,19 +28,27 @@ async function navigateToCollection(
 
   // search for the collection and wait for the collection to be there and visible
   await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, collectionName);
+  await browser.setValueVisible(
+    Selectors.SidebarFilterInput,
+    `^(${dbName}|${collectionName})$`
+  );
   const collectionElement = await browser.$(collectionSelector);
 
   await collectionElement.waitForDisplayed();
 
   // click it and wait for the collection header to become visible
   await browser.clickVisible(collectionSelector);
-  await waitUntilActiveCollectionTab(browser, dbName, collectionName);
+  await waitUntilActiveCollectionTab(
+    browser,
+    connectionName,
+    dbName,
+    collectionName
+  );
 }
 
 export async function navigateToCollectionTab(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
+  connectionName: string,
   dbName: string,
   collectionName: string,
   tabName:
@@ -48,16 +61,29 @@ export async function navigateToCollectionTab(
 ): Promise<void> {
   await navigateToCollection(
     browser,
+    connectionName,
     dbName,
     collectionName,
     closeExistingTabs
   );
+
+  // wait for the tooltip to be gone
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser
+    .$(Selectors.WorkspaceTabTooltip)
+    .waitForDisplayed({ reverse: true });
+
   await navigateWithinCurrentCollectionTabs(browser, tabName);
+
+  // I don't know why, but sometimes the tooltip is shown at this point again
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser
+    .$(Selectors.WorkspaceTabTooltip)
+    .waitForDisplayed({ reverse: true });
 }
 
 export async function navigateWithinCurrentCollectionTabs(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'
@@ -74,12 +100,13 @@ export async function navigateWithinCurrentCollectionTabs(
 
   // otherwise select the tab and wait for it to become selected
   await browser.clickVisible(tab);
+
   await waitUntilActiveCollectionSubTab(browser, tabName);
 }
 
-export async function waitUntilActiveCollectionTab(
+async function waitUntilActiveCollectionTab(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
+  connectionName: string,
   dbName: string,
   collectionName: string,
   tabName:
@@ -90,9 +117,18 @@ export async function waitUntilActiveCollectionTab(
     | 'Validation'
     | null = null
 ) {
-  await browser
-    .$(Selectors.collectionWorkspaceTab(`${dbName}.${collectionName}`, true))
-    .waitForDisplayed();
+  const options: WorkspaceTabSelectorOptions = {
+    type: 'Collection',
+    namespace: `${dbName}.${collectionName}`,
+    active: true,
+  };
+  // Only add the connectionName for multiple connections because for some
+  // reason this sometimes flakes in single connections even though the tab is
+  // definitely there in the screenshot.
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    options.connectionName = connectionName;
+  }
+  await browser.$(Selectors.workspaceTab(options)).waitForDisplayed();
   if (tabName) {
     await waitUntilActiveCollectionSubTab(browser, tabName);
   }
@@ -100,7 +136,6 @@ export async function waitUntilActiveCollectionTab(
 
 export async function waitUntilActiveCollectionSubTab(
   browser: CompassBrowser,
-  // TODO(COMPASS-8002): take connectionName into account
   tabName:
     | 'Documents'
     | 'Aggregations'
@@ -113,7 +148,7 @@ export async function waitUntilActiveCollectionSubTab(
 
 export async function getActiveTabNamespace(browser: CompassBrowser) {
   const activeWorkspaceNamespace = await browser
-    .$(Selectors.workspaceTab(null, true))
+    .$(Selectors.workspaceTab({ active: true }))
     .getAttribute('data-namespace');
   return activeWorkspaceNamespace || null;
 }

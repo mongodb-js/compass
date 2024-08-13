@@ -8,17 +8,23 @@ import {
   spacing,
   SignalPopover,
   rafraf,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Command, EditorRef } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryAutocompleter,
+  createQueryWithHistoryAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { applyFromHistory } from '../stores/query-bar-reducer';
+import { getQueryAttributes } from '../utils';
+import type { BaseQuery } from '../constants/query-properties';
+import type { SavedQuery } from '@mongodb-js/compass-editor';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -77,6 +83,7 @@ const insightsBadgeStyles = css({
 });
 
 type OptionEditorProps = {
+  optionName: string;
   namespace: string;
   id?: string;
   hasError?: boolean;
@@ -94,9 +101,12 @@ type OptionEditorProps = {
   ['data-testid']?: string;
   insights?: Signal | Signal[];
   disabled?: boolean;
+  savedQueries: SavedQuery[];
+  onApplyQuery: (query: BaseQuery) => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
+  optionName,
   namespace,
   id,
   hasError = false,
@@ -110,16 +120,23 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   ['data-testid']: dataTestId,
   insights,
   disabled = false,
+  savedQueries,
+  onApplyQuery,
 }) => {
   const showInsights = usePreference('showInsights');
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
+  const isQueryHistoryAutocompleteEnabled = usePreference(
+    'enableQueryHistoryAutocomplete'
+  );
 
   const focusRingProps = useFocusRing({
     outer: true,
     focusWithin: true,
     hover: true,
   });
+
+  const darkMode = useDarkMode();
 
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
@@ -140,17 +157,53 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const schemaFields = useAutocompleteFields(namespace);
 
   const completer = useMemo(() => {
-    return createQueryAutocompleter({
-      fields: schemaFields,
-      serverVersion,
-    });
-  }, [schemaFields, serverVersion]);
+    return isQueryHistoryAutocompleteEnabled
+      ? createQueryWithHistoryAutocompleter(
+          savedQueries
+            .filter((query) => {
+              const isOptionNameInQuery =
+                optionName === 'filter' || optionName in query.queryProperties;
+              const isUpdateNotInQuery = !('update' in query.queryProperties);
+              return isOptionNameInQuery && isUpdateNotInQuery;
+            })
+            .map((query) => ({
+              type: query.type,
+              lastExecuted: query.lastExecuted,
+              queryProperties: query.queryProperties,
+            }))
+            .sort(
+              (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
+            ),
+          {
+            fields: schemaFields,
+            serverVersion,
+          },
+          onApplyQuery,
+          darkMode ? 'dark' : 'light'
+        )
+      : createQueryAutocompleter({
+          fields: schemaFields,
+          serverVersion,
+        });
+  }, [
+    savedQueries,
+    schemaFields,
+    serverVersion,
+    onApplyQuery,
+    isQueryHistoryAutocompleteEnabled,
+    darkMode,
+  ]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
-        if (editorRef.current?.editorContents === '') {
+        if (
+          editorRef.current?.editorContents === '' ||
+          editorRef.current?.editorContents === '{}'
+        ) {
           editorRef.current?.applySnippet('\\{${}}');
+          if (isQueryHistoryAutocompleteEnabled && editorRef.current?.editor)
+            editorRef.current?.startCompletion();
         }
       });
     }
@@ -215,11 +268,25 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   );
 };
 
-const ConnectedOptionEditor = connect((state: RootState) => {
-  return {
-    namespace: state.queryBar.namespace,
-    serverVersion: state.queryBar.serverVersion,
-  };
-})(OptionEditor);
+const ConnectedOptionEditor = (state: RootState) => ({
+  namespace: state.queryBar.namespace,
+  serverVersion: state.queryBar.serverVersion,
+  savedQueries: [
+    ...state.queryBar.recentQueries.map((query) => ({
+      type: 'recent',
+      lastExecuted: query._lastExecuted,
+      queryProperties: getQueryAttributes(query),
+    })),
+    ...state.queryBar.favoriteQueries.map((query) => ({
+      type: 'favorite',
+      lastExecuted: query._lastExecuted,
+      queryProperties: getQueryAttributes(query),
+    })),
+  ],
+});
 
-export default ConnectedOptionEditor;
+const mapDispatchToProps = {
+  onApplyQuery: applyFromHistory,
+};
+
+export default connect(ConnectedOptionEditor, mapDispatchToProps)(OptionEditor);

@@ -101,30 +101,42 @@ function getCsfleInformation(
 }
 
 async function getHostnameForConnection(
-  connectionStringData: ConnectionString
+  connectionInfo: ConnectionInfo
 ): Promise<string | null> {
+  let connectionStringData = new ConnectionString(
+    connectionInfo.connectionOptions.connectionString,
+    {
+      looseValidation: true,
+    }
+  );
   if (connectionStringData.isSRV) {
     const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
       () => {
         return null;
       }
     );
-    if (!uri) {
-      return null;
+    if (uri) {
+      connectionStringData = new ConnectionString(uri, {
+        looseValidation: true,
+      });
     }
-    connectionStringData = new ConnectionString(uri, {
-      looseValidation: true,
-    });
   }
 
-  return connectionStringData.hosts[0];
+  const firstHost = connectionStringData.hosts[0] ?? '';
+
+  if (firstHost.startsWith('[')) {
+    return firstHost.slice(1).split(']')[0]; // IPv6
+  }
+
+  return firstHost.split(':')[0];
 }
 
-async function getConnectionData({
-  connectionOptions: { connectionString, sshTunnel, fleOptions },
-}: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
-  Record<string, unknown>
-> {
+async function getConnectionData(
+  {
+    connectionOptions: { connectionString, sshTunnel, fleOptions },
+  }: Pick<ConnectionInfo, 'connectionOptions'>,
+  resolvedHostname: string | null
+): Promise<Record<string, unknown>> {
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
@@ -139,8 +151,6 @@ async function getConnectionData({
     : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
-  const resolvedHostname = await getHostnameForConnection(connectionStringData);
-
   return {
     ...(await getHostInformation(resolvedHostname)),
     auth_type: authType.toUpperCase(),
@@ -151,24 +161,26 @@ async function getConnectionData({
 }
 
 export function trackConnectionAttemptEvent(
-  { favorite, lastUsed }: Pick<ConnectionInfo, 'favorite' | 'lastUsed'>,
+  connectionInfo: ConnectionInfo,
   { debug }: Logger,
   track: TrackFunction
 ): void {
   try {
+    const { lastUsed, savedConnectionType } = connectionInfo;
+    const isFavorite = savedConnectionType === 'favorite';
     const trackEvent = {
-      is_favorite: Boolean(favorite),
-      is_recent: Boolean(lastUsed && !favorite),
+      is_favorite: isFavorite,
+      is_recent: Boolean(lastUsed && !isFavorite),
       is_new: !lastUsed,
     };
-    track('Connection Attempt', trackEvent);
+    track('Connection Attempt', trackEvent, connectionInfo);
   } catch (error) {
     debug('trackConnectionAttemptEvent failed', error);
   }
 }
 
 export function trackNewConnectionEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'>,
+  connectionInfo: ConnectionInfo,
   dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
   { debug }: Logger,
   track: TrackFunction
@@ -177,10 +189,15 @@ export function trackNewConnectionEvent(
     const callback = async () => {
       const { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas } =
         await dataService.instance();
-      const connectionData = await getConnectionData(connectionInfo);
+      const resolvedHostname = await getHostnameForConnection(connectionInfo);
+      const connectionData = await getConnectionData(
+        connectionInfo,
+        resolvedHostname
+      );
       const trackEvent = {
         ...connectionData,
         is_atlas: isAtlas,
+        atlas_hostname: isAtlas ? resolvedHostname : null,
         is_local_atlas: isLocalAtlas,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
@@ -193,22 +210,28 @@ export function trackNewConnectionEvent(
       };
       return trackEvent;
     };
-    track('New Connection', callback);
+    track('New Connection', callback, connectionInfo);
   } catch (error) {
     debug('trackNewConnectionEvent failed', error);
   }
 }
 
 export function trackConnectionFailedEvent(
-  connectionInfo: Pick<ConnectionInfo, 'connectionOptions'> | null,
+  connectionInfo: ConnectionInfo | null,
   connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
   { debug }: Logger,
   track: TrackFunction
 ): void {
   try {
     const callback = async () => {
-      const connectionData =
-        connectionInfo !== null ? await getConnectionData(connectionInfo) : {};
+      let connectionData: Record<string, unknown> = {};
+      if (connectionInfo !== null) {
+        const resolvedHostname = await getHostnameForConnection(connectionInfo);
+        connectionData = await getConnectionData(
+          connectionInfo,
+          resolvedHostname
+        );
+      }
       const trackEvent = {
         ...connectionData,
         error_code: connectionError.code,
@@ -216,7 +239,7 @@ export function trackConnectionFailedEvent(
       };
       return trackEvent;
     };
-    track('Connection Failed', callback);
+    track('Connection Failed', callback, connectionInfo ?? undefined);
   } catch (error) {
     debug('trackConnectionFailedEvent failed', error);
   }
