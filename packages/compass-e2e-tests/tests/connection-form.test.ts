@@ -694,7 +694,7 @@ describe('Connection form', function () {
     // save
     await browser.saveFavorite(
       favoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Red' : 'color1'
+      TEST_MULTIPLE_CONNECTIONS ? 'Green' : 'color1'
     );
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
@@ -826,7 +826,7 @@ describe('Connection form', function () {
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
       authMethod: 'DEFAULT',
-      connectionColor: 'color1',
+      connectionColor: 'color6',
       connectionFavorite: true,
       connectionName: 'my-connection',
       connectionString: 'mongodb://localhost:27017/',

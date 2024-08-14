@@ -17,7 +17,7 @@ export async function saveConnectionStringAsFavorite(
   }
 
   if (TEST_MULTIPLE_CONNECTIONS && color === 'color1') {
-    color = 'Red';
+    color = 'Green';
   }
 
   favoriteName ??= new UUID().toHexString();
