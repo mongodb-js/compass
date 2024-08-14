@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
@@ -16,7 +16,7 @@ type State = number | null;
 
 export const INITIAL_STATE: State = null;
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<MaxTimeMSChangedAction>(action, MAX_TIME_MS_CHANGED)) {
     return action.maxTimeMS;
   }

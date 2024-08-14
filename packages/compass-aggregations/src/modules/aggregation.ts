@@ -1,5 +1,5 @@
 import HadronDocument from 'hadron-document';
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
@@ -125,7 +125,7 @@ export const INITIAL_STATE: State = {
   resultsViewType: 'document',
 };
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<WorkspaceChangedAction>(
       action,
