@@ -961,12 +961,6 @@ describe('SRV connectivity', function () {
   });
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // TODO(COMPASS-8153): we have to add support in custom commands for when
-      // connections fail
-      this.skip();
-    }
-
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
