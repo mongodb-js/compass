@@ -203,6 +203,8 @@ describe('Search Indexes', function () {
   });
 
   afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
+
     // Drop the collection
     {
       try {
@@ -213,7 +215,6 @@ describe('Search Indexes', function () {
     }
     void mongoClient.close();
     await browser.disconnectAll();
-    await screenshotIfFailed(compass, this.currentTest);
   });
 
   for (const { name, connectionString } of connectionsWithNoSearchSupport) {
