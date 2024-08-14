@@ -356,7 +356,7 @@ describe('My Queries tab', function () {
   context(
     'when a user has a saved query associated with a collection that does not exist in the single connection',
     function () {
-      it('opens a model where users can permanently associate a new namespace for an aggregation/query', async function () {
+      it('opens a modal where users can permanently associate a new namespace for an aggregation/query', async function () {
         const favoriteQueryName =
           'another list of numbers greater than 10 - query';
         const newCollectionName = 'numbers-renamed';
@@ -506,7 +506,7 @@ describe('My Queries tab', function () {
   context(
     'when a user has multiple connections and none of them contain the namespace',
     function () {
-      it('opens a model where users can select a connection and permanently associate a new namespace for an aggregation/query', async function () {
+      it('opens a modal where users can select a connection and permanently associate a new namespace for an aggregation/query', async function () {
         if (!TEST_MULTIPLE_CONNECTIONS) {
           this.skip();
         }
