@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import reducer, { fetchIndexes, ActionTypes } from './search-indexes';
 import configureStore from '../../test/configure-store';
 import sinon from 'sinon';
+import type { AnyAction } from 'redux';
 
 describe('search-indexes module', function () {
   describe('#reducer', function () {
@@ -31,8 +32,8 @@ describe('search-indexes module', function () {
       expect(
         reducer(undefined, {
           type: ActionTypes.FetchIndexesFinished,
-          indexes: [{ name: 'default' }, { name: 'vector_index' }] as any,
-        })
+          indexes: [{ name: 'default' }, { name: 'vector_index' }],
+        } as AnyAction)
       ).to.deep.equal({
         isSearchIndexesSupported: false,
         indexes: [{ name: 'default' }, { name: 'vector_index' }],
