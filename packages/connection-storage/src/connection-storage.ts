@@ -10,17 +10,6 @@ import type { AllPreferences } from 'compass-preferences-model';
 
 export type { ConnectionInfo, AtlasClusterMetadata };
 
-export const ConnectionStorageEvents = {
-  ConnectionsChanged: 'ConnectionsChanged',
-} as const;
-
-export type ConnectionStorageEvent =
-  typeof ConnectionStorageEvents[keyof typeof ConnectionStorageEvents];
-
-export type ConnectionStorageEventListeners = {
-  [ConnectionStorageEvents.ConnectionsChanged]: () => void;
-};
-
 export type AutoConnectPreferences = Partial<
   Pick<
     AllPreferences,
@@ -34,21 +23,6 @@ export type AutoConnectPreferences = Partial<
 > & { shouldAutoConnect: boolean };
 
 export interface ConnectionStorage {
-  on<T extends ConnectionStorageEvent>(
-    eventName: T,
-    listener: ConnectionStorageEventListeners[T]
-  ): ConnectionStorage;
-
-  off<T extends ConnectionStorageEvent>(
-    eventName: T,
-    listener: ConnectionStorageEventListeners[T]
-  ): ConnectionStorage;
-
-  emit<T extends ConnectionStorageEvent>(
-    eventName: T,
-    ...args: Parameters<ConnectionStorageEventListeners[T]>
-  ): boolean;
-
   loadAll(options?: { signal?: AbortSignal }): Promise<ConnectionInfo[]>;
 
   load(options: {
@@ -64,7 +38,7 @@ export interface ConnectionStorage {
   delete?(options: { id: string; signal?: AbortSignal }): Promise<void>;
 
   getAutoConnectInfo?(
-    autoConnectPreferences?: AutoConnectPreferences
+    autoConnectPreferences: AutoConnectPreferences
   ): Promise<ConnectionInfo | undefined>;
 
   getLegacyConnections?(options?: {

@@ -11,7 +11,6 @@ import {
 } from '../modules/import';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import { ConnectionsManagerEvents } from '@mongodb-js/compass-connections/provider';
 import type {
   ConnectionRepositoryAccess,
   ConnectionsManager,
@@ -97,13 +96,9 @@ export function activatePlugin(
     }
   );
 
-  on(
-    connectionsManager,
-    ConnectionsManagerEvents.ConnectionDisconnected,
-    function (connectionId: string) {
-      store.dispatch(connectionDisconnected(connectionId));
-    }
-  );
+  on(connectionsManager, 'disconnected', function (connectionId: string) {
+    store.dispatch(connectionDisconnected(connectionId));
+  });
 
   return {
     store,

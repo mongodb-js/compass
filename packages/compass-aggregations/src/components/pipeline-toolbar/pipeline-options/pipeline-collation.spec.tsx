@@ -1,21 +1,17 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import configureStore from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 import PipelineCollation from './pipeline-collation';
+import type { AggregationsStore } from '../../../stores/store';
 
 describe('PipelineCollation', function () {
-  let store: ReturnType<typeof configureStore>;
-  beforeEach(function () {
-    store = configureStore();
-    render(
-      <Provider store={store}>
-        <PipelineCollation />
-      </Provider>
-    );
+  let store: AggregationsStore;
+  beforeEach(async function () {
+    const result = await renderWithStore(<PipelineCollation />);
+    store = result.plugin.store;
   });
 
   it('renders the collation toolbar', function () {

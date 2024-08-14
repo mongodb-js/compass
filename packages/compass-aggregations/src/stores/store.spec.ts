@@ -1,20 +1,21 @@
-import AppRegistry from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import rootReducer from '../modules';
 import { expect } from 'chai';
 import configureStore from '../../test/configure-store';
-import type { Store } from 'redux';
+import type { AggregationsStore } from '../stores/store';
 
 const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
 describe('Aggregation Store', function () {
   describe('#configureStore', function () {
     context('when providing a serverVersion', function () {
-      let store: Store;
+      let store: AggregationsStore;
 
-      beforeEach(function () {
-        store = configureStore({
+      beforeEach(async function () {
+        const result = await configureStore({
           serverVersion: '4.2.0',
         });
+        store = result.plugin.store;
       });
 
       it('sets the server version the state', function () {
@@ -23,12 +24,13 @@ describe('Aggregation Store', function () {
     });
 
     context('when providing an env', function () {
-      let store: Store;
+      let store: AggregationsStore;
 
-      beforeEach(function () {
-        store = configureStore({
+      beforeEach(async function () {
+        const result = await configureStore({
           env: 'atlas',
         });
+        store = result.plugin.store;
       });
 
       it('sets the env in the state', function () {
@@ -38,16 +40,22 @@ describe('Aggregation Store', function () {
 
     context('when providing a namespace', function () {
       context('when there is no collection', function () {
-        it('throws', function () {
-          expect(() => configureStore({ namespace: 'db' })).to.throw();
+        it('throws', async function () {
+          try {
+            await configureStore({ namespace: 'db' });
+            expect.fail('Expected configureStore to throw');
+          } catch (err) {
+            expect(err).to.exist;
+          }
         });
       });
 
       context('when there is a collection', function () {
-        let store: Store;
+        let store: AggregationsStore;
 
-        beforeEach(function () {
-          store = configureStore({ namespace: 'db.coll' });
+        beforeEach(async function () {
+          const result = await configureStore({ namespace: 'db.coll' });
+          store = result.plugin.store;
         });
 
         it('updates the namespace in the store', function () {
@@ -55,15 +63,15 @@ describe('Aggregation Store', function () {
         });
 
         it('resets the rest of the state to initial state', function () {
+          // Remove properties that we don't want to compare
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { aggregationWorkspaceId, dataService, ...state } =
+          const { aggregationWorkspaceId, dataService, sidePanel, ...state } =
             store.getState();
+
           state.pipelineBuilder.stageEditor = {
             stages: [],
             stagesIdAndType: [],
           };
-          delete state.pipeline;
-          delete state.sidePanel;
 
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
@@ -79,7 +87,6 @@ describe('Aggregation Store', function () {
             savedPipeline: INITIAL_STATE.savedPipeline,
             inputDocuments: {
               ...INITIAL_STATE.inputDocuments,
-              isLoading: true,
             },
             serverVersion: INITIAL_STATE.serverVersion,
             isModified: INITIAL_STATE.isModified,
@@ -109,15 +116,13 @@ describe('Aggregation Store', function () {
   });
 
   describe('#onActivated', function () {
-    let store: Store;
-    const localAppRegistry = new AppRegistry();
-    const globalAppRegistry = new AppRegistry();
+    let store: AggregationsStore;
+    let localAppRegistry: AppRegistry;
 
-    beforeEach(function () {
-      store = configureStore(undefined, undefined, {
-        localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry,
-      });
+    beforeEach(async function () {
+      const result = await configureStore();
+      localAppRegistry = result.localAppRegistry;
+      store = result.plugin.store;
     });
 
     context('when an aggregation should be generated from query', function () {

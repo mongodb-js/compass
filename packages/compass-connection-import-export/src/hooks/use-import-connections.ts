@@ -13,7 +13,10 @@ import type {
   ConnectionShortInfo,
   CommonImportExportState,
 } from './common';
-import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionActions,
+  useConnectionRepository,
+} from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
@@ -105,6 +108,7 @@ export function useImportConnections({
   );
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();
+  const { importConnections } = useConnectionActions();
   const existingConnections = useMemo(() => {
     // in case of multiple connections all the connections are saved (that used
     // to be favorites in the single connection world) so we need to account for
@@ -116,11 +120,9 @@ export function useImportConnections({
     }
   }, [multipleConnectionsEnabled, favoriteConnections, nonFavoriteConnections]);
   const connectionStorage = useConnectionStorageContext();
-  const importConnectionsImpl =
-    connectionStorage.importConnections?.bind(connectionStorage);
   const deserializeConnectionsImpl =
     connectionStorage.deserializeConnections?.bind(connectionStorage);
-  if (!importConnectionsImpl || !deserializeConnectionsImpl) {
+  if (!deserializeConnectionsImpl) {
     throw new Error(
       'Import Connections feature requires the provided ConnectionStorage to implement importConnections and deserializeConnections'
     );
@@ -153,7 +155,7 @@ export function useImportConnections({
         .filter((x) => x.selected)
         .map((x) => x.id);
       try {
-        await importConnectionsImpl({
+        await importConnections({
           content: fileContents,
           options: {
             passphrase,

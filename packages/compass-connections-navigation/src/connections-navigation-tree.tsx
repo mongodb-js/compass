@@ -91,6 +91,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         if (item.connectionStatus === ConnectionStatus.Connected) {
           onItemAction(item, 'select-connection');
         } else if (
+          item.connectionStatus === 'initial' ||
           item.connectionStatus === ConnectionStatus.Disconnected ||
           item.connectionStatus === ConnectionStatus.Failed
         ) {

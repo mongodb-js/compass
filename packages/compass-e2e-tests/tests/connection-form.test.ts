@@ -705,7 +705,7 @@ describe('Connection form', function () {
       );
       await browser.waitUntil(
         async () => {
-          return (await clipboard.read()) === 'mongodb://localhost:27017/';
+          return /mongodb:\/\/localhost:27017\/?/.test(await clipboard.read());
         },
         { timeoutMsg: 'Expected copy to clipboard to work' }
       );

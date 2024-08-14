@@ -1,19 +1,17 @@
-import AppRegistry, { createActivateHelpers } from 'hadron-app-registry';
 import type {
   AggregationsPluginServices,
   ConfigureStoreOptions,
 } from '../src/stores/store';
-import { activateAggregationsPlugin } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
-import type { DataService } from '../src/modules/data-service';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import {
-  ConnectionScopedAppRegistryImpl,
-  TEST_CONNECTION_INFO,
-} from '@mongodb-js/compass-connections/provider';
+  activatePluginWithActiveConnection,
+  renderPluginComponentWithActiveConnection,
+} from '@mongodb-js/compass-connections/test';
+import { CompassAggregationsHadronPlugin } from '../src/index';
+import type { DataService } from '@mongodb-js/compass-connections/provider';
+import React from 'react';
+import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
 
 export class MockAtlasAuthService extends AtlasAuthService {
   isAuthenticated() {
@@ -42,30 +40,24 @@ export class MockAtlasAiService {
   }
 }
 
-export default function configureStore(
-  options: Partial<ConfigureStoreOptions> = {},
-  dataService: DataService = mockDataService(),
+function getMockedPluginArgs(
+  initialProps: Partial<ConfigureStoreOptions> = {},
+  dataService: Partial<DataService> = mockDataService(),
   services: Partial<AggregationsPluginServices> = {}
 ) {
-  const preferences = new ReadOnlyPreferenceAccess();
-  const logger = createNoopLogger();
-  const track = createNoopTrack();
-
   const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();
-  const globalAppRegistry = new AppRegistry();
-  const connectionInfoAccess = {
-    getCurrentConnectionInfo() {
-      return TEST_CONNECTION_INFO;
-    },
-  };
-  const connectionScopedAppRegistry =
-    new ConnectionScopedAppRegistryImpl<'open-export'>(
-      globalAppRegistry.emit.bind(globalAppRegistry),
-      connectionInfoAccess
-    );
-
-  return activateAggregationsPlugin(
+  return [
+    CompassAggregationsHadronPlugin.withMockServices({
+      atlasAuthService,
+      atlasAiService,
+      collection: {
+        toJSON: () => ({}),
+        on: () => {},
+        removeListener: () => {},
+      } as any,
+      ...services,
+    } as any),
     {
       namespace: 'test.test',
       isReadonly: false,
@@ -76,27 +68,50 @@ export default function configureStore(
       isDataLake: false,
       isAtlas: false,
       serverVersion: '4.0.0',
-      ...options,
+      ...initialProps,
     },
     {
-      dataService,
-      instance: {} as any,
-      preferences,
-      globalAppRegistry,
-      localAppRegistry: new AppRegistry(),
-      workspaces: {} as any,
-      logger,
-      track,
-      atlasAiService: atlasAiService as any,
-      atlasAuthService,
-      connectionInfoAccess,
-      collection: {
-        toJSON: () => ({}),
-        on: () => {},
-      } as any,
-      connectionScopedAppRegistry,
-      ...services,
+      id: 'TEST',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27020',
+      },
     },
-    createActivateHelpers()
-  ).store;
+    {
+      connectFn(connectionOptions: any, MockDataServiceCtor: any) {
+        return Object.assign(
+          new MockDataServiceCtor(connectionOptions),
+          dataService
+        ) as unknown as DataService;
+      },
+      preferences: services.preferences
+        ? services.preferences.getPreferences()
+        : undefined,
+    },
+  ] as unknown as Parameters<typeof activatePluginWithActiveConnection>;
+}
+
+/**
+ * @deprecated use renderWithStore and test store through UI instead
+ */
+export default function configureStore(
+  ...args: Parameters<typeof getMockedPluginArgs>
+) {
+  return activatePluginWithActiveConnection(...getMockedPluginArgs(...args));
+}
+
+export function renderWithStore(
+  ui: React.ReactElement,
+  ...args: Parameters<typeof configureStore>
+) {
+  ui = args[2]?.pipelineStorage
+    ? React.createElement(PipelineStorageProvider, {
+        value: args[2].pipelineStorage,
+        children: ui,
+      })
+    : ui;
+
+  return renderPluginComponentWithActiveConnection(
+    ui,
+    ...getMockedPluginArgs(...args)
+  );
 }

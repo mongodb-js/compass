@@ -23,6 +23,7 @@ import { EJSON } from 'bson';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { AggregationsStore } from '../stores/store';
 
 const getMockedStore = (
   aggregation: AggregateState,
@@ -68,14 +69,16 @@ describe('aggregation module', function () {
 
   it('runs an aggregation', async function () {
     const mockDocuments = [{ id: 1 }, { id: 2 }];
-    const store: Store<RootState> = configureStore(
-      { pipeline: [] },
-      new (class {
-        aggregate() {
-          return Promise.resolve(mockDocuments);
+    const store: AggregationsStore = (
+      await configureStore(
+        { pipeline: [] },
+        {
+          aggregate() {
+            return Promise.resolve(mockDocuments);
+          },
         }
-      })() as any
-    );
+      )
+    ).plugin.store;
 
     await store.dispatch(runAggregation() as any);
     const aggregation = store.getState().aggregation;
@@ -111,14 +114,14 @@ describe('aggregation module', function () {
         page: 2,
         resultsViewType: 'document',
       },
-      new (class {
+      {
         aggregate() {
           throw createCancelError();
-        }
+        },
         isCancelError() {
           return true;
-        }
-      })() as any
+        },
+      } as any
     );
 
     store.dispatch(fetchNextPage() as any);
@@ -153,11 +156,11 @@ describe('aggregation module', function () {
           page: 2,
           resultsViewType: 'document',
         },
-        new (class {
+        {
           aggregate() {
             return Promise.resolve(mockDocuments);
-          }
-        })() as any
+          },
+        } as any
       );
 
       await store.dispatch(fetchNextPage() as any);
@@ -214,11 +217,11 @@ describe('aggregation module', function () {
           page: 2,
           resultsViewType: 'document',
         },
-        new (class {
+        {
           aggregate() {
             return Promise.resolve(mockDocuments);
-          }
-        })() as any
+          },
+        } as any
       );
 
       await store.dispatch(fetchPrevPage() as any);

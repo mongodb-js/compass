@@ -5,10 +5,7 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
-import {
-  ConnectionsManagerEvents,
-  type ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
+import { type ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import { MongoDBInstancesManager } from '../instances-manager';
 
 function serversArray(
@@ -256,79 +253,73 @@ export function createInstancesStore(
     }
   };
 
-  on(
-    connectionsManager,
-    ConnectionsManagerEvents.ConnectionDisconnected,
-    function (connectionInfoId: string) {
-      try {
-        const instance =
-          instancesManager.getMongoDBInstanceForConnection(connectionInfoId);
-        instance.removeAllListeners();
-      } catch (error) {
-        log.warn(
-          mongoLogId(1_001_000_322),
-          'Instance Store',
-          'Failed to remove instance listeners upon disconnect',
-          {
-            message: (error as Error).message,
-            connectionId: connectionInfoId,
-          }
-        );
+  on(connectionsManager, 'disconnected', function (connectionInfoId: string) {
+    try {
+      const instance =
+        instancesManager.getMongoDBInstanceForConnection(connectionInfoId);
+      instance.removeAllListeners();
+    } catch (error) {
+      log.warn(
+        mongoLogId(1_001_000_322),
+        'Instance Store',
+        'Failed to remove instance listeners upon disconnect',
+        {
+          message: (error as Error).message,
+          connectionId: connectionInfoId,
+        }
+      );
+    }
+    instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
+  });
+
+  on(connectionsManager, 'connected', function (instanceConnectionId: string) {
+    const dataService =
+      connectionsManager.getDataServiceForConnection(instanceConnectionId);
+    const connectionString = dataService.getConnectionString();
+    const firstHost = connectionString.hosts[0] || '';
+    const [hostname, port] = firstHost.split(':');
+
+    const initialInstanceProps: Partial<MongoDBInstanceProps> = {
+      _id: firstHost,
+      hostname: hostname,
+      port: port ? +port : undefined,
+      topologyDescription: getTopologyDescription(
+        dataService.getLastSeenTopology()
+      ),
+    };
+    const instance = instancesManager.createMongoDBInstanceForConnection(
+      instanceConnectionId,
+      initialInstanceProps as MongoDBInstanceProps
+    );
+
+    addCleanup(() => {
+      instance.removeAllListeners();
+    });
+
+    void refreshInstance(
+      {
+        fetchDatabases: true,
+        fetchDbStats: true,
+      },
+      {
+        connectionId: instanceConnectionId,
       }
-      instancesManager.removeMongoDBInstanceForConnection(connectionInfoId);
-    }
-  );
+    );
 
-  on(
-    connectionsManager,
-    ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    function (instanceConnectionId: string, dataService: DataService) {
-      const connectionString = dataService.getConnectionString();
-      const firstHost = connectionString.hosts[0] || '';
-      const [hostname, port] = firstHost.split(':');
-
-      const initialInstanceProps: Partial<MongoDBInstanceProps> = {
-        _id: firstHost,
-        hostname: hostname,
-        port: port ? +port : undefined,
-        topologyDescription: getTopologyDescription(
-          dataService.getLastSeenTopology()
-        ),
-      };
-      const instance = instancesManager.createMongoDBInstanceForConnection(
-        instanceConnectionId,
-        initialInstanceProps as MongoDBInstanceProps
-      );
-
-      addCleanup(() => {
-        instance.removeAllListeners();
-      });
-
-      void refreshInstance(
-        {
-          fetchDatabases: true,
-          fetchDbStats: true,
-        },
-        {
-          connectionId: instanceConnectionId,
-        }
-      );
-
-      on(
-        dataService,
-        'topologyDescriptionChanged',
-        ({
-          newDescription,
-        }: {
-          newDescription: ReturnType<DataService['getLastSeenTopology']>;
-        }) => {
-          instance.set({
-            topologyDescription: getTopologyDescription(newDescription),
-          });
-        }
-      );
-    }
-  );
+    on(
+      dataService,
+      'topologyDescriptionChanged',
+      ({
+        newDescription,
+      }: {
+        newDescription: ReturnType<DataService['getLastSeenTopology']>;
+      }) => {
+        instance.set({
+          topologyDescription: getTopologyDescription(newDescription),
+        });
+      }
+    );
+  });
 
   on(
     globalAppRegistry,

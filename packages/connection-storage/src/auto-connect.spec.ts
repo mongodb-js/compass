@@ -8,10 +8,7 @@ import {
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import type {
-  AutoConnectPreferences,
-  ConnectionStorage,
-} from './connection-storage';
+import type { ConnectionStorage } from './connection-storage';
 
 let connectionStorage: ReturnType<typeof initCompassMainConnectionStorage>;
 

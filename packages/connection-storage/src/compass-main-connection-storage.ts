@@ -87,7 +87,6 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
 
 class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: UserData<typeof ConnectionSchema>;
-  private autoConnectInfo: ConnectionInfo | undefined | null = null;
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
@@ -125,13 +124,12 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       const connections = await this.getConnections();
       const loadedConnections = connections
         // Ignore legacy connections and make sure connection has a connection string.
-        .filter((x) => x.connectionInfo?.connectionOptions?.connectionString)
+        .filter((x) => {
+          return x.connectionInfo?.connectionOptions?.connectionString;
+        })
         .map((connection) =>
           this.mapStoredConnectionToConnectionInfo(connection)
         );
-      if (this.autoConnectInfo) {
-        return [this.autoConnectInfo, ...loadedConnections];
-      }
       return loadedConnections;
     } catch (err) {
       log.error(
@@ -155,10 +153,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     if (!id) {
       return undefined;
     }
-    if (id === this.autoConnectInfo?.id) {
-      return this.autoConnectInfo;
-    }
-
     const connections = await this.loadAll();
     return connections.find((connection) => id === connection.id);
   }
@@ -171,18 +165,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     signal?: AbortSignal;
   }): Promise<void> {
     throwIfAborted(signal);
-    if (
-      connectionInfo.id === this.autoConnectInfo?.id ||
-      connectionInfo.savedConnectionType === 'autoConnectInfo'
-    ) {
-      log.warn(
-        mongoLogId(1_001_000_311),
-        'Connection Storage',
-        'Attempted to save autoConnectInfo, ignoring the call'
-      );
-      return;
-    }
-
     try {
       // While saving connections, we also save `_id` property
       // in order to support the downgrade of Compass to a version
@@ -233,15 +215,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     if (!id) {
       return;
     }
-    if (id === this.autoConnectInfo?.id) {
-      log.warn(
-        mongoLogId(1_001_000_312),
-        'Connection Storage',
-        'Attempted to save autoConnectInfo, ignoring the call'
-      );
-      return;
-    }
-
     try {
       await this.userData.delete(id);
     } catch (err) {
@@ -269,11 +242,7 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       shouldAutoConnect,
     } = autoConnectPreferences;
 
-    if (!shouldAutoConnect) return (this.autoConnectInfo = undefined);
-
-    if (this.autoConnectInfo !== null) {
-      return this.autoConnectInfo;
-    }
+    if (!shouldAutoConnect) return undefined;
 
     const getConnectionStringFromArgs = (args?: string[]) => args?.[0];
 
@@ -324,29 +293,22 @@ class CompassMainConnectionStorage implements ConnectionStorage {
           `Could not find connection with id '${id}' in connection file '${file}'`
         );
       }
-      return (this.autoConnectInfo = applyUsernameAndPassword(
-        {
-          ...connectionInfo,
-          savedConnectionType: 'autoConnectInfo',
-        },
-        {
-          username,
-          password,
-        }
-      ));
+      return applyUsernameAndPassword(connectionInfo, {
+        username,
+        password,
+      });
     } else {
       const connectionString = getConnectionStringFromArgs(positionalArguments);
       if (!connectionString) {
         throw new Error('Could not find a connection string');
       }
-      return (this.autoConnectInfo = applyUsernameAndPassword(
+      return applyUsernameAndPassword(
         {
           connectionOptions: { connectionString },
           id: new UUID().toString(),
-          savedConnectionType: 'autoConnectInfo',
         },
         { username, password }
-      ));
+      );
     }
   }
 
@@ -543,21 +505,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         num_failed_connections: numFailedToMigrate,
       });
     }
-  }
-
-  on(): ConnectionStorage {
-    // noop
-    return this;
-  }
-
-  off(): ConnectionStorage {
-    // noop
-    return this;
-  }
-
-  emit(): boolean {
-    // noop
-    return false;
   }
 
   // This method is only called when compass tries to migrate connections to a new version.

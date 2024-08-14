@@ -455,6 +455,8 @@ function ConnectionForm({
     (action: 'saveAndConnect' | 'connect') => {
       // TODO(COMPASS-7906): cleanup
       const updatedConnectionOptions = cloneDeep(connectionOptions);
+      // TODO: this method throws on malformed connection strings instead of
+      // returning errors
       const formErrors = validateConnectionOptionsErrors(
         updatedConnectionOptions
       );

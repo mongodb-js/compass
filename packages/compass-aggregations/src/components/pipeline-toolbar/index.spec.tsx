@@ -1,31 +1,25 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 import { expect } from 'chai';
-
-import configureStore from '../../../test/configure-store';
+import { renderWithStore } from '../../../test/configure-store';
 import { PipelineToolbar } from './index';
-import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
 import { CompassPipelineStorage } from '@mongodb-js/my-queries-storage';
 
 describe('PipelineToolbar', function () {
   describe('renders with setting row - visible', function () {
     let toolbar: HTMLElement;
-    beforeEach(function () {
-      render(
-        <PipelineStorageProvider value={new CompassPipelineStorage()}>
-          <Provider
-            store={configureStore({ pipeline: [{ $match: { _id: 1 } }] })}
-          >
-            <PipelineToolbar
-              isBuilderView
-              showExportButton
-              showRunButton
-              showExplainButton
-            />
-          </Provider>
-        </PipelineStorageProvider>
+    beforeEach(async function () {
+      await renderWithStore(
+        <PipelineToolbar
+          isBuilderView
+          showExportButton
+          showRunButton
+          showExplainButton
+        />,
+        { pipeline: [{ $match: { _id: 1 } }] },
+        undefined,
+        { pipelineStorage: new CompassPipelineStorage() }
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
     });
@@ -125,16 +119,14 @@ describe('PipelineToolbar', function () {
   });
 
   describe('renders with setting row - hidden', function () {
-    it('does not render toolbar settings', function () {
-      render(
-        <Provider store={configureStore()}>
-          <PipelineToolbar
-            isBuilderView
-            showExplainButton
-            showExportButton
-            showRunButton
-          />
-        </Provider>
+    it('does not render toolbar settings', async function () {
+      await renderWithStore(
+        <PipelineToolbar
+          isBuilderView
+          showExplainButton
+          showExportButton
+          showRunButton
+        />
       );
       const toolbar = screen.getByTestId('pipeline-toolbar');
       expect(() => within(toolbar).getByTestId('pipeline-settings')).to.throw;
