@@ -481,7 +481,8 @@ async function getCompassExecutionParameters(): Promise<{
   );
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
+    : // eslint-disable-next-line @typescript-eslint/no-var-requires
+      (require('electron') as unknown as string);
   return { testPackagedApp, binary };
 }
 

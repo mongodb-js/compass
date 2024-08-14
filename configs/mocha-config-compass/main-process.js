@@ -1,6 +1,6 @@
 'use strict';
 const { initialize, enable } = require('@electron/remote/main');
-const { app } = require('electron');
+const { app, safeStorage } = require('electron');
 app.on('web-contents-created', function (_, webContents) {
   enable(webContents);
 });
@@ -14,4 +14,4 @@ initialize();
 process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX =
   process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX ?? 'true';
 // NB: Not adding this as a dep in package.json to avoid circular dependency
-require('compass-preferences-model').setupPreferences();
+require('compass-preferences-model').setupPreferences(undefined, safeStorage);

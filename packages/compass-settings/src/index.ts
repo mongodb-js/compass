@@ -6,6 +6,8 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import SettingsPlugin from './components/index';
 import { onActivated } from './stores';
 
+export type { SettingsTabId } from './stores/settings';
+
 export const CompassSettingsPlugin = registerHadronPlugin(
   {
     name: 'CompassSettings',

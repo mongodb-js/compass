@@ -149,7 +149,7 @@ describe('Atlas Login', function () {
 
   describe('in settings', function () {
     it('should sign in user when clicking on "Log in with Atlas" button', async function () {
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
 
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
@@ -180,7 +180,7 @@ describe('Atlas Login', function () {
         );
         expect(atlasUserIdBefore).to.not.exist;
 
-        await browser.openSettingsModal('Artificial Intelligence');
+        await browser.openSettingsModal('ai');
 
         await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
@@ -206,7 +206,7 @@ describe('Atlas Login', function () {
     });
 
     it('should sign out user when "Disconnect" clicked', async function () {
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const loginStatus = browser.$(Selectors.AtlasLoginStatus);
@@ -228,7 +228,7 @@ describe('Atlas Login', function () {
     });
 
     it('should sign in user when disconnected and clicking again on "Log in with Atlas" button', async function () {
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       let loginStatus = browser.$(Selectors.AtlasLoginStatus);
@@ -259,7 +259,7 @@ describe('Atlas Login', function () {
         return Promise.reject(new Error('Auth failed'));
       };
 
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const errorToast = browser.$(Selectors.AtlasLoginErrorToast);
