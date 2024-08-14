@@ -1,22 +1,19 @@
-export type EventsPayload = Record<string, any>;
+import type { TelemetryEvent } from './telemetry-events';
+export type { TelemetryEvent } from './telemetry-events';
 
-export type TelemetryConnectionInfo = {
+type TelemetryConnectionInfo = {
   id: string;
 };
 
-export type TrackParameters =
-  | EventsPayload
-  | (() => Promise<EventsPayload>)
-  | (() => EventsPayload);
+type TelemetryEventPayload<E extends TelemetryEvent> =
+  | E['payload']
+  | (<E extends TelemetryEvent>() => TelemetryEventPayload<E>)
+  | (<E extends TelemetryEvent>() => Promise<TelemetryEventPayload<E>>);
 
-export type TrackFunction = (
-  event: string,
-  parameters?: TrackParameters,
-  connectionInfo?: TelemetryConnectionInfo
-) => void;
-
-export type AsyncTrackFunction = (
-  event: string,
-  parameters?: TrackParameters,
-  connectionInfo?: TelemetryConnectionInfo
-) => Promise<void>;
+export interface TrackFunction {
+  (
+    eventName: TelemetryEvent['name'],
+    payload: Omit<TelemetryEventPayload<E>, 'connection_id'>,
+    connectionInfo?: TelemetryConnectionInfo | undefined
+  ): void;
+}
