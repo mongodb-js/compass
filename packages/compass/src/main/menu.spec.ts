@@ -310,7 +310,7 @@ describe('CompassMenu', function () {
           ],
         },
         {
-          label: '&Connect',
+          label: '&Connections',
           submenu: [
             { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
             { label: '&Disconnect' },
@@ -397,7 +397,7 @@ describe('CompassMenu', function () {
           ],
         },
         {
-          label: '&Connect',
+          label: '&Connections',
           submenu: [
             { label: '&Import Saved Connections' },
             { label: '&Export Saved Connections' },
@@ -462,7 +462,7 @@ describe('CompassMenu', function () {
 
         expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
           {
-            label: '&Connect',
+            label: '&Connections',
             submenu: [
               { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
               { label: '&Disconnect' },
@@ -529,7 +529,7 @@ describe('CompassMenu', function () {
 
         expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
           {
-            label: '&Connect',
+            label: '&Connections',
             submenu: [
               { label: '&Import Saved Connections' },
               { label: '&Export Saved Connections' },
