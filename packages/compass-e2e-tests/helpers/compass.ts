@@ -544,7 +544,8 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
 }
 
 async function processCommonOpts({
-  firstRun = false,
+  // true unless otherwise specified
+  firstRun = true,
 }: StartCompassOptions = {}) {
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
