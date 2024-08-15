@@ -133,16 +133,38 @@ export async function waitForConnectionResult(
   browser: CompassBrowser,
   connectionName: string,
   { connectionStatus = 'success', timeout }: ConnectionResultOptions = {}
-) {
+): Promise<string | undefined> {
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;
 
+  if (TEST_MULTIPLE_CONNECTIONS) {
+    if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
+      // Clear the filter to make sure every connection shows
+      await browser.clickVisible(Selectors.SidebarFilterInput);
+      await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+    }
+  }
+
   if (connectionStatus === 'either') {
-    // TODO(COMPASS-7600,COMPASS-8153): this doesn't support compass-web or
-    // multiple connections yet, but also isn't encountered yet For the rare
-    // cases where we don't care whether it fails or succeeds
-    await browser
-      .$(`${Selectors.DatabasesTable},${Selectors.ConnectionFormErrorMessage}`)
-      .waitForDisplayed();
+    // For the very rare cases where we don't care whether it fails or succeeds.
+    // Usually because the exact result is a race condition.
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      const successSelector = Selectors.Multiple.connectionItemByName(
+        connectionName,
+        {
+          connected: true,
+        }
+      );
+      const failureSelector = Selectors.ConnectionToastErrorText;
+      await browser
+        .$(`${successSelector},${failureSelector}`)
+        .waitForDisplayed(waitOptions);
+    } else {
+      // TODO(COMPASS-7600): this doesn't support compass-web yet, but also
+      // isn't encountered yet
+      await browser
+        .$(`${Selectors.MyQueriesList},${Selectors.ConnectionFormErrorMessage}`)
+        .waitForDisplayed();
+    }
   } else if (connectionStatus === 'success') {
     // Wait for the first meaningful thing on the screen after being connected
     // and assume that's a good enough indicator that we are connected to the
@@ -151,13 +173,8 @@ export async function waitForConnectionResult(
       // In compass-web, for now, we land on the Databases tab after connecting
       await browser
         .$('[data-testid="workspace-tab-button"][data-type=Databases]')
-        .waitForDisplayed();
+        .waitForDisplayed({ timeout });
     } else if (TEST_MULTIPLE_CONNECTIONS) {
-      if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
-        // Clear the filter to make sure every connection shows
-        await browser.clickVisible(Selectors.SidebarFilterInput);
-        await browser.setValueVisible(Selectors.SidebarFilterInput, '');
-      }
       await browser
         .$(
           Selectors.Multiple.connectionItemByName(connectionName, {

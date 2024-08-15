@@ -235,6 +235,9 @@ export const ConnectionFormConnectionColor =
   '[data-testid="personalization-color-input"]';
 export const ConnectionFormFavoriteCheckbox =
   '[data-testid="personalization-favorite-checkbox"]';
+export const connectionToastById = (connectionId: string) => {
+  return `[data-testid="toast-connection-status--${connectionId}"]`;
+};
 export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';

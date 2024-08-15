@@ -158,17 +158,6 @@ describe('My Queries tab', function () {
 
   let client_1: MongoClient;
   let client_2: MongoClient;
-  /*
-  const connectionStrings = [DEFAULT_CONNECTION_STRING_1];
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    connectionStrings.push(DEFAULT_CONNECTION_STRING_2);
-  }
-  clients = connectionStrings.map(
-    (connectionString) => new MongoClient(connectionString)
-  );
-
-  await Promise.all(clients.map((client) => client.connect()));
-  */
 
   before(async function () {
     skipForWeb(this, 'saved queries not yet available in compass-web');
