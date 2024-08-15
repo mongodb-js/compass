@@ -6,7 +6,7 @@ import {
   Selectors,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -124,6 +124,7 @@ describe('Atlas Login', function () {
       'browserCommandForOIDCAuth',
       getTestBrowserShellCommand()
     );
+    await browser.setupDefaultConnections();
   });
 
   afterEach(async function () {
@@ -148,7 +149,7 @@ describe('Atlas Login', function () {
 
   describe('in settings', function () {
     it('should sign in user when clicking on "Log in with Atlas" button', async function () {
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
 
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
@@ -179,7 +180,7 @@ describe('Atlas Login', function () {
         );
         expect(atlasUserIdBefore).to.not.exist;
 
-        await browser.openSettingsModal('Artificial Intelligence');
+        await browser.openSettingsModal('ai');
 
         await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
@@ -205,7 +206,7 @@ describe('Atlas Login', function () {
     });
 
     it('should sign out user when "Disconnect" clicked', async function () {
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const loginStatus = browser.$(Selectors.AtlasLoginStatus);
@@ -227,7 +228,7 @@ describe('Atlas Login', function () {
     });
 
     it('should sign in user when disconnected and clicking again on "Log in with Atlas" button', async function () {
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       let loginStatus = browser.$(Selectors.AtlasLoginStatus);
@@ -258,7 +259,7 @@ describe('Atlas Login', function () {
         return Promise.reject(new Error('Auth failed'));
       };
 
-      await browser.openSettingsModal('Artificial Intelligence');
+      await browser.openSettingsModal('ai');
       await browser.clickVisible(Selectors.LogInWithAtlasButton);
 
       const errorToast = browser.$(Selectors.AtlasLoginErrorToast);
@@ -273,9 +274,10 @@ describe('Atlas Login', function () {
   describe('in CRUD view', function () {
     beforeEach(async function () {
       await createNumbersCollection();
-      await browser.connectWithConnectionString();
+      await browser.disconnectAll();
+      await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'numbers',
         'Documents'
@@ -305,9 +307,10 @@ describe('Atlas Login', function () {
   describe('in Aggregation Builder view', function () {
     beforeEach(async function () {
       await createNumbersCollection();
-      await browser.connectWithConnectionString();
+      await browser.disconnectAll();
+      await browser.connectToDefaults();
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'numbers',
         'Aggregations'

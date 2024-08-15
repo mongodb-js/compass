@@ -3,7 +3,9 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
+  DEFAULT_CONNECTION_NAME_2,
+  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -19,6 +21,7 @@ describe('Global Tabs', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
@@ -27,7 +30,8 @@ describe('Global Tabs', function () {
       await createNumbersCollection(collName, 1);
       await createNumbersCollection(collName, 1);
     }
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
   });
 
   afterEach(async function () {
@@ -41,7 +45,7 @@ describe('Global Tabs', function () {
   it('should open tabs over each other when not modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         collName,
         'Documents',
@@ -54,7 +58,7 @@ describe('Global Tabs', function () {
   it('should open new tabs when modified', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         collName,
         'Documents',
@@ -71,7 +75,7 @@ describe('Global Tabs', function () {
   it('should close tabs without warning even when "modified" by interacting with the tab', async function () {
     for (const collName of collections) {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         collName,
         'Documents',
@@ -88,7 +92,7 @@ describe('Global Tabs', function () {
 
   it('should ask for confirmation when closing modified Aggregations tab', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'a',
       'Aggregations'
@@ -103,6 +107,12 @@ describe('Global Tabs', function () {
       '[{$match: { i: 0 }}]'
     );
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
@@ -116,6 +126,12 @@ describe('Global Tabs', function () {
     // Checking first that cancel leaves the tab on the screen
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(1);
 
+    await browser.hover(
+      Selectors.workspaceTab({
+        connectionName: DEFAULT_CONNECTION_NAME_1,
+        namespace: 'test.a',
+      })
+    );
     await browser.clickVisible(Selectors.CloseWorkspaceTab);
     await browser.$(Selectors.ConfirmTabCloseModal).waitForDisplayed();
 
@@ -128,5 +144,97 @@ describe('Global Tabs', function () {
 
     // When confirmed, should remove the tab
     expect(await browser.$$(Selectors.workspaceTab())).to.have.lengthOf(0);
+  });
+
+  it("should close a connection's tabs when disconnecting", async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
+    // workspace 1: connection 1, Documents tab
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'test',
+      'a',
+      'Documents',
+      false
+    );
+
+    // Click something to make sure we "modified" tab 1
+    await browser.clickVisible(
+      Selectors.queryBarApplyFilterButton('Documents')
+    );
+
+    // workspace 2: connection 2, Documents tab
+    await browser.navigateToCollectionTab(
+      DEFAULT_CONNECTION_NAME_2,
+      'test',
+      'a',
+      'Documents',
+      false
+    );
+
+    // Click something to make sure we "modified" tab 2
+    await browser.clickVisible(
+      Selectors.queryBarApplyFilterButton('Documents')
+    );
+
+    // workspace 3: My Qeries
+    await browser.navigateToMyQueries();
+
+    const workspace1Options = {
+      connectionName: DEFAULT_CONNECTION_NAME_1,
+      type: 'Collection',
+      namespace: 'test.a',
+    };
+
+    // check that they are all there
+
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace1Options)).isExisting()
+    ).to.be.true;
+
+    const workspace2Options = {
+      connectionName: DEFAULT_CONNECTION_NAME_2,
+      type: 'Collection',
+      namespace: 'test.a',
+    };
+
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace2Options)).isExisting()
+    ).to.be.true;
+
+    const workspace3Options = {
+      type: 'My Queries',
+    };
+
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
+    ).to.be.true;
+
+    // disconnect one connection
+
+    await browser.disconnectByName(DEFAULT_CONNECTION_NAME_1);
+
+    // the workspace for connection 1 should go away
+    await browser.waitUntil(async () => {
+      const exists = await browser
+        .$(Selectors.workspaceTab(workspace1Options))
+        .isExisting();
+      return exists === false;
+    });
+
+    // give it a moment in case it takes time for workspaces to go away
+    await browser.pause(1000);
+
+    // the workspace for connection 2 should still be there
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace2Options)).isExisting()
+    ).to.be.true;
+
+    // the My Queries workspace should still be there
+    expect(
+      await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
+    ).to.be.true;
   });
 });

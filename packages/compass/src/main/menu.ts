@@ -182,7 +182,7 @@ function connectSubMenu(
   }
 
   return {
-    label: '&Connect',
+    label: '&Connections',
     submenu: subMenu,
   };
 }

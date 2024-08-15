@@ -10,6 +10,7 @@ import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import { getActiveUser, type PreferencesAccess } from '.';
+import type { PreferencesSafeStorage } from './preferences-persistent-storage';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -18,7 +19,8 @@ const compassPreferencesLogger = createLogger('COMPASS-PREFERENCES');
 let preferencesSingleton: Preferences | undefined;
 
 export async function setupPreferences(
-  globalPreferences: ParsedGlobalPreferencesResult
+  globalPreferences: ParsedGlobalPreferencesResult,
+  safeStorage: PreferencesSafeStorage
 ): Promise<PreferencesAccess> {
   if (preferencesSingleton) {
     throw new Error('Preferences setup already been called!');
@@ -27,7 +29,7 @@ export async function setupPreferences(
   const preferencesStorage =
     process.env.COMPASS_TEST_USE_PREFERENCES_SANDBOX === 'true'
       ? new InMemoryStorage()
-      : new PersistentStorage();
+      : new PersistentStorage(undefined, safeStorage);
 
   const preferences = (preferencesSingleton = new Preferences({
     logger: compassPreferencesLogger,

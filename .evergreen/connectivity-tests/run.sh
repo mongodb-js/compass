@@ -7,7 +7,7 @@ MONOREPO_ROOT_DIR="$(cd $(dirname "$0")/../..; pwd)"
 cd $MONOREPO_ROOT_DIR
 
 echo "building connectivity tests image from ${PWD}"
-docker build -t devtools-connectivity-tests -f "./.evergreen/connectivity-tests/Dockerfile" .
+docker build -t devtools-connectivity-tests --build-arg "NODE_JS_VERSION=$NODE_JS_VERSION" -f "./.evergreen/connectivity-tests/Dockerfile" .
 echo "connectivity tests image built"
 
 echo running connectivity tests image

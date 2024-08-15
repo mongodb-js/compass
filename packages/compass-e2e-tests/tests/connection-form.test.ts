@@ -105,6 +105,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -143,6 +144,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -181,6 +183,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -225,6 +228,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -277,6 +281,7 @@ describe('Connection form', function () {
     expectedState.tlsCAFile = tlsCAFile;
     expectedState.tlsCertificateKeyFile = tlsCertificateKeyFile;
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -321,6 +326,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -362,6 +368,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -405,6 +412,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -450,6 +458,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -496,6 +505,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -632,6 +642,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(false);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(false)).to.equal(
       redactedConnectionString
@@ -649,7 +660,7 @@ describe('Connection form', function () {
     // save
     await browser.saveFavorite(
       favoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Red' : 'color1'
+      TEST_MULTIPLE_CONNECTIONS ? 'Green' : 'color1'
     );
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
@@ -713,8 +724,6 @@ describe('Connection form', function () {
     const confirmModal = await browser.$(Selectors.ConfirmationModal);
     await confirmModal.waitForDisplayed();
 
-    await browser.screenshot('edit-uri-confirmation-modal.png');
-
     await browser.clickVisible(Selectors.confirmationModalConfirmButton());
 
     await confirmModal.waitForDisplayed({ reverse: true });
@@ -758,6 +767,9 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
+
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       `${connectionString}&authSource=%24external`
@@ -779,7 +791,7 @@ describe('Connection form', function () {
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
       authMethod: 'DEFAULT',
-      connectionColor: 'color1',
+      connectionColor: 'color6',
       connectionFavorite: true,
       connectionName: 'my-connection',
       connectionString: 'mongodb://localhost:27017/',
@@ -830,8 +842,6 @@ describe('Connection form', function () {
     );
 
     await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-
-    await browser.screenshot('save-favorite-modal-new.png');
 
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });

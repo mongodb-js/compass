@@ -96,12 +96,12 @@ describe('useTabConnectionTheme', function () {
             '--workspace-tab-border-color': '#016BF8',
             '--workspace-tab-selected-color': '#016BF8',
           },
-          '--workspace-tab-background-color': '#FFDFB5',
           '--workspace-tab-border-color': '#E8EDEB',
           '--workspace-tab-color': '#5C6C75',
           '--workspace-tab-selected-background-color': '#FFFFFF',
-          '--workspace-tab-selected-border-color': '#FFD19A',
           '--workspace-tab-selected-color': '#1C2D38',
+          '--workspace-tab-selected-top-border-color': '#C2E5FF',
+          '--workspace-tab-top-border-color': '#D5EFFF',
         });
       });
     });

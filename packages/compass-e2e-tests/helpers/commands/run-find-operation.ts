@@ -155,7 +155,7 @@ export async function expandOptions(browser: CompassBrowser, tabName: string) {
   await waitUntilExpanded(browser, tabName);
 }
 
-type QueryOptions = {
+export type QueryOptions = {
   project?: string;
   sort?: string;
   maxTimeMS?: string;

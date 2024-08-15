@@ -20,6 +20,7 @@ export type FeatureFlags = {
   enableRenameCollectionModal: boolean;
   enableNewMultipleConnectionSystem: boolean;
   enableQueryHistoryAutocomplete: boolean;
+  enableProxySupport: boolean;
 };
 
 export const featureFlags: Required<{
@@ -83,6 +84,17 @@ export const featureFlags: Required<{
     description: {
       short:
         'Enables showing query history items in the query bar autocomplete.',
+    },
+  },
+
+  /**
+   * Feature flag for explicit proxy configuration support.
+   */
+  enableProxySupport: {
+    stage: 'development',
+    description: {
+      short: 'Enables support for explicit proxy configuration.',
+      long: 'Allows users to specify proxy configuration for the entire Compass application.',
     },
   },
 };

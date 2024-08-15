@@ -76,10 +76,19 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
-export const DEFAULT_CONNECTION_NAME = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING
+export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
+// explicit name, so it gets a calculated one based off the connection string
+export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
+  DEFAULT_CONNECTION_STRING_1
 );
+
+// for testing multiple connections
+export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${
+  MONGODB_TEST_SERVER_PORT + 1
+}/test`;
+// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
+export const DEFAULT_CONNECTION_NAME_2 = 'connection-2';
 
 export function updateMongoDBServerInfo() {
   try {
@@ -472,7 +481,8 @@ async function getCompassExecutionParameters(): Promise<{
   );
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
+    : // eslint-disable-next-line @typescript-eslint/no-var-requires
+      (require('electron') as unknown as string);
   return { testPackagedApp, binary };
 }
 

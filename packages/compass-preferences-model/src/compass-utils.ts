@@ -4,11 +4,13 @@ import type { UserStorage } from './user-storage';
 import { UserStorageImpl } from './user-storage';
 import { getActiveUserId } from './utils';
 import { setupPreferences } from './setup-preferences';
+import type { PreferencesSafeStorage } from './preferences-persistent-storage';
 
 export async function setupPreferencesAndUser(
-  globalPreferences: ParsedGlobalPreferencesResult
+  globalPreferences: ParsedGlobalPreferencesResult,
+  safeStorage: PreferencesSafeStorage
 ): Promise<{ userStorage: UserStorage; preferences: PreferencesAccess }> {
-  const preferences = await setupPreferences(globalPreferences);
+  const preferences = await setupPreferences(globalPreferences, safeStorage);
   const userStorage = new UserStorageImpl();
   const user = await userStorage.getOrCreate(getActiveUserId(preferences));
   // update user info (telemetryAnonymousId and userCreatedAt) in preferences to
