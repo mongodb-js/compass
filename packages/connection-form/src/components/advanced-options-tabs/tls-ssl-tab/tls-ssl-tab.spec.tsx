@@ -59,7 +59,7 @@ describe('SchemaInput', function () {
 
     it('should render all of the checkboxes unchecked', function () {
       const checkboxes: HTMLInputElement[] = screen.getAllByRole('checkbox');
-      expect(checkboxes.length).to.equal(4);
+      expect(checkboxes.length).to.equal(3);
       expect(checkboxes.find((checkbox) => checkbox.checked)).to.equal(
         undefined
       );
