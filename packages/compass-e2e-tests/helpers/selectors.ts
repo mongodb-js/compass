@@ -311,8 +311,12 @@ export const Multiple = {
 
   InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
 
+  ConnectionItems: '[role="treeitem"][aria-level="1"]',
   ConnectedConnectionItems:
     '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
+
+  NoDeploymentsText: '[data-testid="no-deployments-text"]',
+  AddNewConnectionButton: '[data-testid="add-new-connection-button"]',
 
   connectionItemByName: (
     connectionName: string,
