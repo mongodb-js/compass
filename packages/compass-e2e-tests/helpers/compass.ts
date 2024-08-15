@@ -543,13 +543,15 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   return { stdout, stderr };
 }
 
-async function processCommonOpts(opts: StartCompassOptions = {}) {
+async function processCommonOpts({
+  firstRun = false,
+}: StartCompassOptions = {}) {
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
-  if (defaultUserDataDir && opts.firstRun) {
+  if (defaultUserDataDir && firstRun) {
     removeUserDataDir();
     // windows seems to be weird about us deleting and recreating this dir, so
     // just make a new one for next time
@@ -559,7 +561,7 @@ async function processCommonOpts(opts: StartCompassOptions = {}) {
     // Need to close the welcome modal if firstRun is undefined or true, because
     // in those cases we do not pass --showed-network-opt-in=true, but only
     // if Compass hasn't been run before (i.e. defaultUserDataDir is defined)
-    needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
+    needsCloseWelcomeModal = !defaultUserDataDir && firstRun;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
