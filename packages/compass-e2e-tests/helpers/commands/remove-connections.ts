@@ -58,8 +58,6 @@ export async function removeConnectionByName(
     return;
   }
 
-  console.log('removing', connectionName);
-
   await resetForRemove(browser);
 
   await browser.selectConnectionMenuItem(
