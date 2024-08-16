@@ -477,7 +477,7 @@ describe.only('OIDC integration', function () {
     {
       // Restart Compass
       await cleanup(compass);
-      compass = await init(this.test?.fullTitle());
+      compass = await init(this.test?.fullTitle(), { firstRun: false });
       browser = compass.browser;
     }
 

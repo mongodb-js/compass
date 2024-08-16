@@ -39,7 +39,7 @@ function waitForConnections() {
  * the application informs the user about what this feature does, and in particular
  * that encryption for credentials is correctly applied.
  */
-describe.only('Connection Import / Export', function () {
+describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
   let telemetry: Telemetry;
