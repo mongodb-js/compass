@@ -7,6 +7,7 @@ export * from './close-welcome-modal';
 export * from './connect';
 export * from './connect-form';
 export * from './disconnect';
+export * from './remove-connections';
 export * from './shell-eval';
 export * from './connection-workspaces';
 export * from './database-workspaces';
