@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
@@ -48,7 +48,7 @@ export const INITIAL_STATE: State = {
   status: SearchIndexesStatuses.INITIAL,
 };
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
   ) {

@@ -341,8 +341,6 @@ describe('Automatically connecting from the command line', function () {
     let compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
-      // fresh new user directory so we start off with no connections
-      firstRun: true,
     });
     try {
       browser = compass.browser;

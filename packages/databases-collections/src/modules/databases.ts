@@ -3,6 +3,13 @@ import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 
+function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
+
 export type Database = MongoDBInstance['databases'] extends Array<infer Db>
   ? Db
   : never;
@@ -41,18 +48,21 @@ const INITIAL_STATE = {
   },
 };
 
-const reducer: Reducer<DatabasesState> = (state = INITIAL_STATE, action) => {
-  if (action.type === INSTANCE_CHANGED) {
+const reducer: Reducer<DatabasesState, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
+  if (isAction<InstanceChangedAction>(action, INSTANCE_CHANGED)) {
     return {
       ...state,
       instance: {
         isWritable: action.isWritable,
         isDataLake: action.isDataLake,
-        isGenuineMongoDB: action.isGenuine,
+        isGenuineMongoDB: action.isGenuineMongoDB,
       },
     };
   }
-  if (action.type === DATABASES_CHANGED) {
+  if (isAction<DatabasesChangedAction>(action, DATABASES_CHANGED)) {
     return {
       ...state,
       databases: action.databases,
@@ -65,9 +75,17 @@ const reducer: Reducer<DatabasesState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const INSTANCE_CHANGED = 'databases-workspace/instance-changed';
+const INSTANCE_CHANGED = 'databases-workspace/instance-changed' as const;
+interface InstanceChangedAction {
+  type: typeof INSTANCE_CHANGED;
+  isWritable: boolean;
+  isDataLake: boolean;
+  isGenuineMongoDB: boolean;
+}
 
-export const instanceChanged = (instance: MongoDBInstance) => {
+export const instanceChanged = (
+  instance: MongoDBInstance
+): InstanceChangedAction => {
   return {
     type: INSTANCE_CHANGED,
     isWritable: instance.isWritable,
@@ -76,9 +94,17 @@ export const instanceChanged = (instance: MongoDBInstance) => {
   };
 };
 
-const DATABASES_CHANGED = 'databases-workspaces/databases-changed';
+const DATABASES_CHANGED = 'databases-workspaces/databases-changed' as const;
+interface DatabasesChangedAction {
+  type: typeof DATABASES_CHANGED;
+  status: string;
+  error: string | null;
+  databases: ReturnType<Database['toJSON']>[];
+}
 
-export const databasesChanged = (instance: MongoDBInstance) => ({
+export const databasesChanged = (
+  instance: MongoDBInstance
+): DatabasesChangedAction => ({
   type: DATABASES_CHANGED,
   status: instance.databasesStatus,
   error: instance.databasesStatusError,

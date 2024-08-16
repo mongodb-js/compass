@@ -1,6 +1,13 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import { fetchItems } from './aggregations-queries-items';
+
+function isAction<A extends Action>(
+  action: Action,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 export type UpdateItemAttributes = {
   name: string;
@@ -39,20 +46,21 @@ export type Actions =
   | EditItemCancelledAction
   | EditItemUpdatedAction;
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ActionTypes.EditItemClicked:
-      return {
-        id: action.id,
-      };
-    case ActionTypes.EditItemCancelled:
-    case ActionTypes.EditItemUpdated:
-      return {
-        id: undefined,
-      };
-    default:
-      return state;
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
+  if (isAction<EditItemClickedAction>(action, ActionTypes.EditItemClicked)) {
+    return {
+      id: action.id,
+    };
   }
+  if (
+    isAction<EditItemCancelledAction>(action, ActionTypes.EditItemCancelled) ||
+    isAction<EditItemUpdatedAction>(action, ActionTypes.EditItemUpdated)
+  ) {
+    return {
+      id: undefined,
+    };
+  }
+  return state;
 };
 
 export const editItem = (id: string): EditItemClickedAction => ({

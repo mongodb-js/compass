@@ -920,6 +920,7 @@ function csvFields(fields: (FieldFromCSV | FieldFromJSON)[]): FieldFromCSV[] {
 /**
  * The import module reducer.
  */
+// TODO: Use Recuder<ImportState, Action> + isAction
 export const importReducer: Reducer<ImportState> = (
   state = INITIAL_STATE,
   action

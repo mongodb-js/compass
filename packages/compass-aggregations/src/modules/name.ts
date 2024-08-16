@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
@@ -20,7 +20,7 @@ export const INITIAL_STATE: NameState = '';
 /**
  * Reducer function for handle state changes to name.
  */
-const reducer: Reducer<NameState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<NameState, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<SavingPipelineApplyAction>(action, SAVING_PIPELINE_APPLY)) {
     return action.name;
   }

@@ -1,4 +1,4 @@
-import type { Reducer, AnyAction } from 'redux';
+import type { Reducer, AnyAction, Action } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
@@ -286,7 +286,7 @@ const cleanupRemovedTabs = (
   }
 };
 
-const reducer: Reducer<WorkspacesState> = (
+const reducer: Reducer<WorkspacesState, Action> = (
   state = getInitialState(),
   action
 ) => {

@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
@@ -49,7 +49,7 @@ export function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-const reducer: Reducer<State> = (
+const reducer: Reducer<State, Action> = (
   state = { runtimeId: null, history: null },
   action
 ) => {
