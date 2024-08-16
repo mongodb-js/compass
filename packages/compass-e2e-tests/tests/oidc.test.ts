@@ -58,7 +58,7 @@ function getTestBrowserShellCommand() {
  * Additionally, we verify that Compass stores credentials in a way that is consistent with
  * what the user has previously specified.
  */
-describe.only('OIDC integration', function () {
+describe('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;

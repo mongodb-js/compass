@@ -17,7 +17,7 @@ import os from 'os';
  * if it comes with a reduced feature set.
  * We ensure that no such network calls happen when this setting is enabled.
  */
-describe.only('networkTraffic: false / Isolated Edition', function () {
+describe('networkTraffic: false / Isolated Edition', function () {
   let tmpdir: string;
   let i = 0;
 
@@ -65,8 +65,13 @@ describe.only('networkTraffic: false / Isolated Edition', function () {
     const compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: ['--no-network-traffic'],
       wrapBinary,
+      // TODO(COMPASS-8166): firstRun: true seems to result in network traffic.
+      // Probably the welcome modal.
+      firstRun: false,
     });
     const browser = compass.browser;
+
+    await browser.setupDefaultConnections();
 
     {
       // TODO: Remove this once we are including https://github.com/mongodb-js/mongosh/pull/1349
@@ -82,7 +87,7 @@ describe.only('networkTraffic: false / Isolated Edition', function () {
     }
 
     try {
-      await browser.connectWithConnectionString();
+      await browser.connectToDefaults();
     } finally {
       await cleanup(compass);
     }
