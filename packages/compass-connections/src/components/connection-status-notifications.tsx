@@ -42,14 +42,16 @@ type ConnectionErrorToastBodyProps = {
 };
 
 const connectionErrorToastBodyStyles = css({
-  display: 'flex',
-  alignItems: 'start',
-  gap: spacing[2],
+  display: 'grid',
+  gridAutoFlow: 'column',
+  gap: spacing[200],
 });
 
-const connectionErrorToastActionMessageStyles = css({
-  marginTop: spacing[1],
-  flexGrow: 0,
+const connectionErrorToastActionMessageStyles = css({});
+
+const connectionErrorTextStyles = css({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 function ConnectionErrorToastBody({
@@ -58,7 +60,10 @@ function ConnectionErrorToastBody({
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
     <span className={connectionErrorToastBodyStyles}>
-      <span data-testid="connection-error-text">
+      <span
+        data-testid="connection-error-text"
+        className={connectionErrorTextStyles}
+      >
         There was a problem connecting{' '}
         {info ? `to ${getConnectionTitle(info)}` : ''}
       </span>
