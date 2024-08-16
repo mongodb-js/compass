@@ -489,7 +489,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         </>
       ) : (
         <div className={noDeploymentStyles}>
-          <Body>You have not connected to any deployments.</Body>
+          <Body data-testid="no-deployments-text">
+            You have not connected to any deployments.
+          </Body>
           <Button
             data-testid="add-new-connection-button"
             variant={ButtonVariant.Primary}

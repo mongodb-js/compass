@@ -188,9 +188,10 @@ export async function waitForConnectionResult(
     }
   } else if (connectionStatus === 'failure') {
     if (TEST_MULTIPLE_CONNECTIONS) {
-      const element = await browser.$(Selectors.ConnectionToastErrorText);
-      await element.waitForDisplayed(waitOptions);
-      return await element.getText();
+      await browser
+        .$(Selectors.ConnectionToastErrorText)
+        .waitForDisplayed(waitOptions);
+      return await browser.$(Selectors.LGToastTitle).getText();
     } else {
       // TODO(COMPASS-7600): this doesn't support compass-web yet, but also
       // isn't encountered yet
