@@ -183,7 +183,7 @@ This document was automatically generated on Fri Aug 16 2024.
 | **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**                                          | 1.5.1        | MIT                                 |
 | **[basic-ftp](#2893c6a2ae0507b9073fc65146e8902587fef3bfeb9e94a67ea34cb09124b902)**                                          | 5.0.5        | MIT                                 |
 | **[bcrypt-pbkdf](#b6b5900f1e48a933591abc1c918fbcc9c890b3d071f607c59d704bc1c13b3937)**                                       | 1.0.2        | BSD-3-Clause                        |
-| **[big-integer](#d95bbdb85fef6a0472cf8cdb5702b5f12c61716bebdace731d7894cf83f1382a)**                                        | 1.6.51       | Unlicense                           |
+| **[big-integer](#eb3eaa39f6d9126fdf0b39f43641e13908ba5ab8b70af073669d23cc768335b5)**                                        | 1.6.52       | Unlicense                           |
 | **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**                                           | 1.5.0        | MIT                                 |
 | **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**                                                 | 4.1.0        | MIT                                 |
 | **[body-parser](#6b44aee8dd5ecc9ca689f12bdce5cd72765171cc2d1b935f50040be51871621a)**                                        | 1.20.2       | MIT                                 |
@@ -270,7 +270,7 @@ This document was automatically generated on Fri Aug 16 2024.
 | **[eventemitter3](#344ac4a1404cf0768bccce4529868ee2081bb2d49637269457647deab073e298)**                                      | 4.0.7        | MIT                                 |
 | **[events-mixin](#5db5de476dd54dc255312e4dcdb45fb765e1b7d0622d9b9ba86b65527de02a1c)**                                       | 1.3.0        | MIT                                 |
 | **[execa](#4172423d3420d919e31613f23914ef325af8a3bf9ed3c6110a4053369b1cfddd)**                                              | 5.1.1        | MIT                                 |
-| **[execa](#5447206133d68ca6e364d599f6111e0a75400f94dce6556d9c03ee6992ac0b08)**                                              | 7.1.1        | MIT                                 |
+| **[execa](#099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012)**                                              | 7.2.0        | MIT                                 |
 | **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**                                    | 2.0.3        | (MIT OR WTFPL)                      |
 | **[express](#2f6758d3407b167482b6e5939a39adfae4627f3ca3939e7ebd8f944423a1e069)**                                            | 4.19.2       | MIT                                 |
 | **[ext-list](#84470edae99e3ac5a9fdf9da513cd9a1ea7e479ca5fca13b6abecbb4c522f97c)**                                           | 2.2.2        | MIT                                 |
@@ -486,7 +486,7 @@ This document was automatically generated on Fri Aug 16 2024.
 | **[node-fetch](#23d7d5a419e9a25e6384dee4aa24f7162544418f0cdc2d92e94e2cf924507b8c)**                                         | 2.7.0        | MIT                                 |
 | **[node-fetch](#22edb8ba3fe3457e8c1a02e497e6a8cb54e89775224f0c7680ea43772b5c1638)**                                         | 3.3.2        | MIT                                 |
 | **[npm-run-path](#b21248abecb88119fcf2885e5471cd9235f40d356cba189a348def4b8a6046bd)**                                       | 4.0.1        | MIT                                 |
-| **[npm-run-path](#372e960fd5d56ee0c4a7a39def16250bd3e0f663ebda006c18afe5c9d2ef4bec)**                                       | 5.1.0        | MIT                                 |
+| **[npm-run-path](#17c35569bae8ecfc9314730bb16dde145a190d68c6fe6a29c78873c9c5520ed1)**                                       | 5.3.0        | MIT                                 |
 | **[numeral](#b3c90be596160f7dccbd1ff771ddbffb9a1b19d0bb9456553d8822903386573e)**                                            | 1.5.6        | MIT                                 |
 | **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**                                            | 2.0.6        | MIT                                 |
 | **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**                                      | 4.1.1        | MIT                                 |
@@ -17175,9 +17175,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
       OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="d95bbdb85fef6a0472cf8cdb5702b5f12c61716bebdace731d7894cf83f1382a"></a>
+<a id="eb3eaa39f6d9126fdf0b39f43641e13908ba5ab8b70af073669d23cc768335b5"></a>
 
-### [big-integer](https://www.npmjs.com/package/big-integer) (version 1.6.51)
+### [big-integer](https://www.npmjs.com/package/big-integer) (version 1.6.52)
 
 License tags: Unlicense
 
@@ -20202,9 +20202,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="5447206133d68ca6e364d599f6111e0a75400f94dce6556d9c03ee6992ac0b08"></a>
+<a id="099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012"></a>
 
-### [execa](https://www.npmjs.com/package/execa) (version 7.1.1)
+### [execa](https://www.npmjs.com/package/execa) (version 7.2.0)
 
 License tags: MIT
 
@@ -29527,9 +29527,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="372e960fd5d56ee0c4a7a39def16250bd3e0f663ebda006c18afe5c9d2ef4bec"></a>
+<a id="17c35569bae8ecfc9314730bb16dde145a190d68c6fe6a29c78873c9c5520ed1"></a>
 
-### [npm-run-path](https://www.npmjs.com/package/npm-run-path) (version 5.1.0)
+### [npm-run-path](https://www.npmjs.com/package/npm-run-path) (version 5.3.0)
 
 License tags: MIT
 
