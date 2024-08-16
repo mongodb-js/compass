@@ -32,8 +32,7 @@ module.exports = async (env, args) => {
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
-        '@mongodb-js/ssh-tunnel': false,
-        ssh2: false,
+        '@mongodb-js/devtools-proxy-support': false,
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect

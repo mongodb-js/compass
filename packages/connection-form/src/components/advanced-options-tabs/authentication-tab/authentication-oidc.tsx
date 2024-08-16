@@ -5,6 +5,7 @@ import {
   Description,
   FormFieldContainer,
   Label,
+  Link,
   TextInput,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -16,6 +17,8 @@ import { errorMessageByFieldName } from '../../../utils/validation';
 import { getConnectionStringUsername } from '../../../utils/connection-string-helpers';
 import type { OIDCOptions } from '../../../utils/oidc-handler';
 import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
+import { usePreference } from 'compass-preferences-model/provider';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
@@ -51,6 +54,14 @@ function AuthenticationOIDC({
     'showOIDCDeviceAuthFlow'
   );
 
+  const globalAppRegistry = useGlobalAppRegistry();
+  const openProxySettings = useCallback(() => {
+    globalAppRegistry.emit('open-compass-settings', 'proxy');
+  }, [globalAppRegistry]);
+  const enableProxySupport = usePreference('enableProxySupport');
+  const showProxySettings =
+    useConnectionFormPreference('showProxySettings') && enableProxySupport;
+  console.log(connectionOptions.oidc);
   return (
     <>
       <FormFieldContainer>
@@ -152,6 +163,40 @@ function AuthenticationOIDC({
               checked={!!connectionOptions.oidc?.passIdTokenAsAccessToken}
             />
           </FormFieldContainer>
+
+          {showProxySettings && (
+            <FormFieldContainer>
+              <Checkbox
+                onChange={({
+                  target: { checked },
+                }: React.ChangeEvent<HTMLInputElement>) => {
+                  return handleFieldChanged(
+                    'shareProxyWithConnection',
+                    !checked
+                  );
+                }}
+                data-testid="oidc-use-application-level-proxy"
+                id="oidc-use-application-level-proxy"
+                label={
+                  <>
+                    <Label htmlFor="oidc-use-application-level-proxy">
+                      Use Application-Level Proxy Settings
+                    </Label>
+                    <Description>
+                      Use the{' '}
+                      <Link onClick={openProxySettings}>
+                        application-level proxy settings
+                      </Link>{' '}
+                      for communicating with the identity provider. If not
+                      chosen, the same proxy (if any) is used for connecting to
+                      both the cluster and the identity provider.
+                    </Description>
+                  </>
+                }
+                checked={!connectionOptions.oidc?.shareProxyWithConnection}
+              />
+            </FormFieldContainer>
+          )}
 
           {showOIDCDeviceAuthFlow && (
             <FormFieldContainer>

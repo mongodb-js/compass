@@ -1,4 +1,4 @@
-import type SshTunnel from '@mongodb-js/ssh-tunnel';
+import type { Tunnel } from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -942,7 +942,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
-  private _tunnel?: SshTunnel;
+  private _tunnel?: Tunnel;
   private _state?: DevtoolsConnectionState;
   private _reauthenticationHandlers = new Set<ReauthenticationHandler>();
 

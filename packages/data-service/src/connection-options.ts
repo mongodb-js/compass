@@ -10,6 +10,10 @@ export type OIDCOptions = Omit<
   // to match the connection string hosts, including possible SRV "sibling" domains.
   enableUntrustedEndpoints?: boolean;
 
+  // Set either devtools-connect's applyProxyToOIDC flag or create a custom Agent
+  // based on application-level HTTP settings. Defaults to 'false', i.e. app-level proxying.
+  shareProxyWithConnection?: boolean;
+
   allowedFlows?: ExtractArrayEntryType<
     NonNullable<DevtoolsConnectOptions['oidc']>['allowedFlows']
   >[];
@@ -25,6 +29,12 @@ export interface ConnectionOptions {
    * If present the connection should be established via an SSH tunnel according to the provided SSH options.
    */
   sshTunnel?: ConnectionSshOptions;
+
+  /**
+   * Alternative to Socks5 proxying / SSH tunnel: If set, inherit Compass's application-level
+   * proxy settings.
+   */
+  useApplicationLevelProxy?: boolean;
 
   /**
    * If present the connection should use OIDC authentication.
