@@ -7,7 +7,7 @@ export async function connectMongoClient(
   logger: any,
   MongoClient: any
 ): Promise<any> {
-  // Remove options not understood by the plain Node.js drive
+  // Remove options not understood by the plain Node.js driver
   delete options.proxy;
   delete options.applyProxyToOIDC;
   delete options.productDocsLink;
