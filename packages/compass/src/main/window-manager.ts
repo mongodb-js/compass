@@ -147,12 +147,17 @@ function showConnectWindow(
   }
 
   enable(window.webContents);
+  const unsubscribeProxyListenerPromise = compassApp.setupProxySupport(
+    window.webContents.session,
+    'BrowserWindow'
+  );
 
   compassApp.emit('new-window', window);
 
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
     window = null;
+    void unsubscribeProxyListenerPromise.then((unsubscribe) => unsubscribe());
   };
 
   window.once('closed', onWindowClosed);

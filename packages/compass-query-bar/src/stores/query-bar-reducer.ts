@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { cloneDeep, isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
 import {
@@ -479,7 +479,7 @@ const updateFavoriteQuery = (
   };
 };
 
-export const queryBarReducer: Reducer<QueryBarState> = (
+export const queryBarReducer: Reducer<QueryBarState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {

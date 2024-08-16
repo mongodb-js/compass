@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import fs from 'fs';
 import _ from 'lodash';
 import {
@@ -599,7 +599,7 @@ export const runExport = ({
   };
 };
 
-export const exportReducer: Reducer<ExportState> = (
+export const exportReducer: Reducer<ExportState, Action> = (
   state = initialState,
   action
 ) => {
