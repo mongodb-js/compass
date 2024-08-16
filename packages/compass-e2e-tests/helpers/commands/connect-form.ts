@@ -184,10 +184,6 @@ export async function getConnectFormState(
       browser,
       Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
     ),
-    useSystemCA: getCheckboxValue(
-      browser,
-      Selectors.ConnectionFormTlsUseSystemCACheckbox
-    ),
   });
 
   // Proxy/SSH
@@ -688,8 +684,7 @@ export async function setConnectFormState(
     state.clientKeyPassword ||
     state.tlsInsecure ||
     state.tlsAllowInvalidHostnames ||
-    state.tlsAllowInvalidCertificates ||
-    state.useSystemCA
+    state.tlsAllowInvalidCertificates
   ) {
     await browser.navigateToConnectTab('TLS/SSL');
 
@@ -728,9 +723,6 @@ export async function setConnectFormState(
       await browser.clickParent(
         Selectors.ConnectionFormTlsAllowInvalidCertificatesCheckbox
       );
-    }
-    if (state.useSystemCA) {
-      await browser.clickParent(Selectors.ConnectionFormTlsUseSystemCACheckbox);
     }
   }
 
@@ -951,12 +943,12 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   This is intended to be used by most test files (ones that don't care too much
   about the intricacies about connections) in a before() hook after starting
   compass.
-  
+
   A beforeEach() hook can then use await browser.disconnectAll() to
   disconnect all connections and use browser.connectToDefaults() to connect
   to the existing connections without having to create them again via the
   connection form.
-  
+
   Then every test in that file starts with two connections that have the same
   databases and collections. This forces tests to always encounter the "worst
   case" where there are multiple connections connected and the database and

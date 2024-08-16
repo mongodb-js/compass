@@ -834,38 +834,6 @@ describe('Connection form', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to an Atlas with tlsUseSystemCA', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
-    const connectionName = this.test?.fullTitle() ?? '';
-
-    await browser.connectWithConnectionForm({
-      scheme: 'MONGODB_SRV',
-      authMethod: 'DEFAULT',
-      defaultUsername: username,
-      defaultPassword: password,
-      hosts: [host],
-      sslConnection: 'ON',
-      useSystemCA: true,
-      connectionName,
-    });
-
-    // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
-    const result = await browser.shellEval(
-      connectionName,
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    await new Promise((resolve) => setTimeout(resolve, 10000));
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-  });
-
   it('can connect to Atlas Serverless', async function () {
     if (!hasAtlasEnvironmentVariables()) {
       return this.skip();
@@ -1155,7 +1123,6 @@ describe('System CA access', function () {
       await browser.connectWithConnectionForm({
         hosts: ['127.0.0.1:27091'],
         sslConnection: 'DEFAULT',
-        useSystemCA: true,
         connectionName,
       });
       const result = await browser.shellEval(
@@ -1192,6 +1159,7 @@ describe('System CA access', function () {
       } else {
         expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
       }
+      expect(systemCALogs[i].attr.systemCertsError).to.equal(null);
     }
   });
 });

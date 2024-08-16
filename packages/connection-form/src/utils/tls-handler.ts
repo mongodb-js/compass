@@ -4,17 +4,15 @@ import type { MongoClientOptions } from 'mongodb';
 import { cloneDeep } from 'lodash';
 
 export type TLS_OPTIONS = 'DEFAULT' | 'ON' | 'OFF';
-export type TLSOptionName =
-  | keyof Pick<
-      MongoClientOptions,
-      | 'tlsCAFile'
-      | 'tlsCertificateKeyFile'
-      | 'tlsCertificateKeyFilePassword'
-      | 'tlsInsecure'
-      | 'tlsAllowInvalidHostnames'
-      | 'tlsAllowInvalidCertificates'
-    >
-  | 'useSystemCA';
+export type TLSOptionName = keyof Pick<
+  MongoClientOptions,
+  | 'tlsCAFile'
+  | 'tlsCertificateKeyFile'
+  | 'tlsCertificateKeyFilePassword'
+  | 'tlsInsecure'
+  | 'tlsAllowInvalidHostnames'
+  | 'tlsAllowInvalidCertificates'
+>;
 export interface UpdateTlsAction {
   type: 'update-tls';
   tlsOption: TLS_OPTIONS;
@@ -76,14 +74,7 @@ export function handleUpdateTlsOption({
   const updatedSearchParams =
     updatedConnectionString.typedSearchParams<MongoClientOptions>();
 
-  if (action.key === 'useSystemCA') {
-    if (action.value) {
-      updatedSearchParams.delete('tlsCAFile');
-      updatedConnectionOptions.useSystemCA = true;
-    } else {
-      delete updatedConnectionOptions.useSystemCA;
-    }
-  } else if (!action.value) {
+  if (!action.value) {
     updatedSearchParams.delete(action.key);
   } else {
     // When setting an option, we set tls to true
@@ -92,10 +83,6 @@ export function handleUpdateTlsOption({
     updatedSearchParams.set('tls', 'true');
 
     updatedSearchParams.set(action.key, action.value);
-
-    if (action.key === 'tlsCAFile') {
-      delete updatedConnectionOptions.useSystemCA;
-    }
   }
 
   return {
