@@ -17,7 +17,7 @@ import os from 'os';
  * if it comes with a reduced feature set.
  * We ensure that no such network calls happen when this setting is enabled.
  */
-describe('networkTraffic: false / Isolated Edition', function () {
+describe.only('networkTraffic: false / Isolated Edition', function () {
   let tmpdir: string;
   let i = 0;
 

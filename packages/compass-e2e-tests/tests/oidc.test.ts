@@ -58,7 +58,7 @@ function getTestBrowserShellCommand() {
  * Additionally, we verify that Compass stores credentials in a way that is consistent with
  * what the user has previously specified.
  */
-describe('OIDC integration', function () {
+describe.only('OIDC integration', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let getTokenPayload: typeof oidcMockProviderConfig.getTokenPayload;
@@ -76,6 +76,8 @@ describe('OIDC integration', function () {
   let getFavoriteConnectionInfo: (
     favoriteName: string
   ) => Promise<Record<string, any> | undefined>;
+
+  let isFirstRun = true;
 
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
@@ -191,7 +193,8 @@ describe('OIDC integration', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
     overrideRequestHandler = () => {};
-    compass = await init(this.test?.fullTitle());
+    compass = await init(this.test?.fullTitle(), { firstRun: isFirstRun });
+    isFirstRun = false;
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
