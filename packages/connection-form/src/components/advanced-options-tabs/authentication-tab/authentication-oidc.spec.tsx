@@ -118,6 +118,27 @@ describe('Authentication OIDC Connection Form', function () {
       });
     });
 
+    it('handles the Use ID token instead of Access Token checkbox', async function () {
+      fireEvent.click(screen.getByText('Use ID token instead of Access Token'));
+      await expectToConnectWith({
+        connectionString:
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
+        oidc: {
+          passIdTokenAsAccessToken: true,
+        },
+      });
+    });
+
+    it('handles the Use ID token instead of Access Token checkbox on and off', async function () {
+      fireEvent.click(screen.getByText('Use ID token instead of Access Token'));
+      fireEvent.click(screen.getByText('Use ID token instead of Access Token'));
+      await expectToConnectWith({
+        connectionString:
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
+        oidc: {},
+      });
+    });
+
     it('handles the Consider Target Endpoint Trusted checkbox', async function () {
       fireEvent.click(screen.getByText('Consider Target Endpoint Trusted'));
       await expectToConnectWith({
