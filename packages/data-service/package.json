@@ -85,6 +85,6 @@
     "typescript": "^5.0.4"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^6.0.0"
+    "mongodb-client-encryption": "6.0.0"
   }
 }

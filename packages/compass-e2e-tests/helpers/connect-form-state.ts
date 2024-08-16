@@ -55,7 +55,6 @@ export interface ConnectFormState {
   tlsInsecure?: boolean;
   tlsAllowInvalidHostnames?: boolean;
   tlsAllowInvalidCertificates?: boolean;
-  useSystemCA?: boolean;
 
   // Proxy/SSH
   proxyMethod?: 'none' | 'password' | 'identity' | 'socks';
