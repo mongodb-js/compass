@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
@@ -164,7 +164,7 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-const reducer: Reducer<CreateNamespaceState> = (
+const reducer: Reducer<CreateNamespaceState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {

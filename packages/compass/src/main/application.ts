@@ -1,7 +1,7 @@
 import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
-import type { BrowserWindow, Event } from 'electron';
+import type { BrowserWindow, Event, ProxyConfig } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
@@ -15,7 +15,10 @@ import type {
   ParsedGlobalPreferencesResult,
   PreferencesAccess,
 } from 'compass-preferences-model';
-import { setupPreferencesAndUser } from 'compass-preferences-model';
+import {
+  proxyPreferenceToProxyOptions,
+  setupPreferencesAndUser,
+} from 'compass-preferences-model';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
@@ -25,6 +28,10 @@ import {
   getCompassMainConnectionStorage,
 } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import {
+  extractProxySecrets,
+  translateToElectronProxyConfig,
+} from '@mongodb-js/devtools-proxy-support';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -82,7 +89,8 @@ class CompassApplication {
     );
     this.preferences = preferences;
     await this.setupLogging();
-    // need to happen after setupPreferencesAndUser
+    await this.setupProxySupport(app, 'Application');
+    // need to happen after setupPreferencesAndUser and setupProxySupport
     await this.setupTelemetry();
     await setupProtocolHandlers(
       process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install',
@@ -269,6 +277,41 @@ class CompassApplication {
     app.setAppLogsPath(logDir);
 
     await CompassLogging.init(this);
+  }
+
+  public static async setupProxySupport(
+    target: { setProxy(config: ProxyConfig): Promise<void> | void },
+    logContext: string
+  ): Promise<() => void> {
+    const onChange = async (value: string) => {
+      try {
+        const proxyOptions = proxyPreferenceToProxyOptions(value);
+        await app.whenReady();
+        await target.setProxy(translateToElectronProxyConfig(proxyOptions));
+        log.info(mongoLogId(1_001_000_327), logContext, 'Configured proxy', {
+          options: extractProxySecrets(proxyOptions).proxyOptions,
+        });
+      } catch (err) {
+        log.warn(
+          mongoLogId(1_001_000_326),
+          logContext,
+          'Unable to set proxy configuration',
+          {
+            error: String(
+              err && typeof err === 'object' && 'message' in err
+                ? err.message
+                : err
+            ),
+          }
+        );
+      }
+    };
+    const unsubscribe = this.preferences.onPreferenceValueChanged(
+      'proxy',
+      (value) => void onChange(value)
+    );
+    await onChange(this.preferences.getPreferences().proxy);
+    return unsubscribe;
   }
 
   private static async setupTelemetry(): Promise<void> {

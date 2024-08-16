@@ -311,6 +311,7 @@ export const Multiple = {
 
   InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
 
+  ConnectionItems: '[role="treeitem"][aria-level="1"] [data-is-connected]',
   ConnectedConnectionItems:
     '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
 

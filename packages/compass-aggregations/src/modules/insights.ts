@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
@@ -26,7 +26,7 @@ export type InsightsAction = FetchExplainPlanSuccessAction;
 
 const INITIAL_STATE = { isCollectionScan: false };
 
-const reducer: Reducer<{ isCollectionScan: boolean }> = (
+const reducer: Reducer<{ isCollectionScan: boolean }, Action> = (
   state = INITIAL_STATE,
   action
 ) => {

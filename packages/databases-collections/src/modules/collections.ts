@@ -6,6 +6,13 @@ import type { ThunkAction } from 'redux-thunk';
 import type { CollectionsThunkExtraArg } from '../stores/collections-store';
 import toNS from 'mongodb-ns';
 
+function isAction<A extends Action>(
+  action: Action,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
+
 export type CollectionsState = {
   collections: ReturnType<Collection['toJSON']>[];
   collectionsLoadingStatus: {
@@ -35,9 +42,17 @@ const INITIAL_STATE = {
   },
 };
 
-const COLLECTIONS_CHANGED = 'compass-collections/COLLECTIONS_CHANGED';
+const COLLECTIONS_CHANGED = 'compass-collections/COLLECTIONS_CHANGED' as const;
+interface CollectionsChangedAction {
+  type: typeof COLLECTIONS_CHANGED;
+  status: Database['collectionsStatus'];
+  error: string | null;
+  collections: ReturnType<Collection['toJSON']>[];
+}
 
-export const collectionsChanged = (database: Database) => {
+export const collectionsChanged = (
+  database: Database
+): CollectionsChangedAction => {
   return {
     type: COLLECTIONS_CHANGED,
     status: database.collectionsStatus,
@@ -46,9 +61,16 @@ export const collectionsChanged = (database: Database) => {
   };
 };
 
-const INSTANCE_CHANGED = 'compass-collections/INSTANCE_CHANGED';
+const INSTANCE_CHANGED = 'compass-collections/INSTANCE_CHANGED' as const;
+interface InstanceChangedAction {
+  type: typeof INSTANCE_CHANGED;
+  isWritable: boolean;
+  isDataLake: boolean;
+}
 
-export const instanceChanged = (instance: MongoDBInstance) => {
+export const instanceChanged = (
+  instance: MongoDBInstance
+): InstanceChangedAction => {
   return {
     type: INSTANCE_CHANGED,
     isWritable: instance.isWritable,
@@ -56,8 +78,11 @@ export const instanceChanged = (instance: MongoDBInstance) => {
   };
 };
 
-const reducer: Reducer<CollectionsState> = (state = INITIAL_STATE, action) => {
-  if (action.type === COLLECTIONS_CHANGED) {
+const reducer: Reducer<CollectionsState, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
+  if (isAction<CollectionsChangedAction>(action, COLLECTIONS_CHANGED)) {
     return {
       ...state,
       collections: action.collections,
@@ -67,7 +92,7 @@ const reducer: Reducer<CollectionsState> = (state = INITIAL_STATE, action) => {
           : { status: action.status, error: action.error },
     };
   }
-  if (action.type === INSTANCE_CHANGED) {
+  if (isAction<InstanceChangedAction>(action, INSTANCE_CHANGED)) {
     return {
       ...state,
       instance: {

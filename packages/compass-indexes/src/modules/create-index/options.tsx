@@ -1,6 +1,6 @@
 import { Badge } from '@mongodb-js/compass-components';
 import React from 'react';
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { RESET_FORM } from '../reset-form';
 import { isAction } from '../../utils/is-action';
 
@@ -135,7 +135,7 @@ export const INITIAL_STATE = Object.fromEntries(
   })
 ) as State;
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<ChangeOptionAction>(action, Actions.ChangeOption)) {
     return {
       ...state,

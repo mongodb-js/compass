@@ -1,4 +1,4 @@
-import type { ActionCreator, AnyAction, Reducer } from 'redux';
+import type { Action, ActionCreator, AnyAction, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -145,7 +145,7 @@ export type Actions =
   | LoadCollectionsSuccessAction
   | UpdateNamespaceCheckedAction;
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<OpenModalAction>(action, ActionTypes.OpenModal)) {
     return {
       ...state,
