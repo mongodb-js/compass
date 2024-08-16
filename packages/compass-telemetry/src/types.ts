@@ -5,15 +5,15 @@ type TelemetryConnectionInfo = {
   id: string;
 };
 
-type TelemetryEventPayload<E extends TelemetryEvent> =
-  | E['payload']
-  | (<E extends TelemetryEvent>() => TelemetryEventPayload<E>)
-  | (<E extends TelemetryEvent>() => Promise<TelemetryEventPayload<E>>);
+type TelemetryEventPayload =
+  | TelemetryEvent['payload']
+  | (() => TelemetryEvent['payload'])
+  | (() => Promise<TelemetryEvent['payload']>);
 
 export interface TrackFunction {
   (
     eventName: TelemetryEvent['name'],
-    payload: Omit<TelemetryEventPayload<E>, 'connection_id'>,
+    payload: Omit<TelemetryEventPayload, 'connection_id'>,
     connectionInfo?: TelemetryConnectionInfo | undefined
   ): void;
 }
