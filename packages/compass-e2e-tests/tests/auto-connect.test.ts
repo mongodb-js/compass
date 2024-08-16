@@ -301,7 +301,6 @@ describe('Automatically connecting from the command line', function () {
     const compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
-      firstRun: true,
     });
     try {
       const browser = compass.browser;

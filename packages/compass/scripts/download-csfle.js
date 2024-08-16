@@ -42,7 +42,7 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
     // but since it only depends on glibc, we can just download
     // a CSFLE library from a distro with a low glibc version
     // such as RHEL8.
-    downloadOptions.distro = 'rhel80';
+    downloadOptions.distro = 'rhel8';
   }
 
   const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo(

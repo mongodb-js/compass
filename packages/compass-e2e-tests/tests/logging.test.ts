@@ -22,7 +22,7 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      const compass = await init(this.test?.fullTitle(), { firstRun: true });
+      const compass = await init(this.test?.fullTitle());
       const { browser } = compass;
 
       try {

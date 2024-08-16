@@ -300,7 +300,7 @@ describe('Connection string', function () {
   });
 
   beforeEach(async function () {
-    await browser.disconnectAll();
+    await browser.removeAllConnections();
   });
 
   after(function () {
@@ -677,7 +677,7 @@ describe('Connection form', function () {
   });
 
   beforeEach(async function () {
-    await browser.disconnectAll();
+    await browser.removeAllConnections();
   });
 
   after(function () {
@@ -1048,6 +1048,8 @@ describe('SRV connectivity', function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
+    await browser.removeAllConnections();
+
     try {
       // Does not actually succeed at connecting, but that’s fine for us here
       // (Unless you have a server listening on port 27017)
@@ -1113,6 +1115,8 @@ describe('System CA access', function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
+    await browser.removeAllConnections();
+
     const connectionName = this.test?.fullTitle() ?? '';
 
     try {
@@ -1172,7 +1176,7 @@ describe('FLE2', function () {
   });
 
   beforeEach(async function () {
-    await browser.disconnectAll();
+    await browser.removeAllConnections();
   });
 
   afterEach(async function () {

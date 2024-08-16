@@ -77,6 +77,8 @@ describe('OIDC integration', function () {
     favoriteName: string
   ) => Promise<Record<string, any> | undefined>;
 
+  let isFirstRun = true;
+
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
@@ -191,7 +193,8 @@ describe('OIDC integration', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
     overrideRequestHandler = () => {};
-    compass = await init(this.test?.fullTitle());
+    compass = await init(this.test?.fullTitle(), { firstRun: isFirstRun });
+    isFirstRun = false;
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
@@ -474,7 +477,7 @@ describe('OIDC integration', function () {
     {
       // Restart Compass
       await cleanup(compass);
-      compass = await init(this.test?.fullTitle());
+      compass = await init(this.test?.fullTitle(), { firstRun: false });
       browser = compass.browser;
     }
 
