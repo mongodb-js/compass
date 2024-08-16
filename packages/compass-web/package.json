@@ -107,7 +107,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "dns-query": "^0.11.2",
-    "electron": "^29.4.5",
+    "electron": "^31.4.0",
     "eslint": "^7.25.0",
     "events": "^3.3.0",
     "express": "^4.19.2",

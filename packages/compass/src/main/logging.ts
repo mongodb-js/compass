@@ -147,7 +147,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
     process.on('compass:log', (meta) => {
       writer.target.write(meta.line);
     });
-    process.off('compass:log', earlyLoggingListener);
+    process.off('compass:log' as any, earlyLoggingListener);
 
     for (const ev of earlyLogEvents) {
       // @ts-expect-error electron types are conflicting with Node.js ones here
