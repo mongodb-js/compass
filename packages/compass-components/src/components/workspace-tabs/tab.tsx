@@ -47,6 +47,7 @@ const tabStyles = css({
   boxShadow: 'inset -1px -1px 0 0 var(--workspace-tab-border-color)',
 
   '&:hover': {
+    backgroundColor: 'inherit',
     cursor: 'pointer',
     zIndex: 1,
   },
@@ -132,6 +133,7 @@ const selectedTabStyles = css({
   boxShadow: 'inset -1px 0 0 0 var(--workspace-tab-border-color)',
 
   '&:hover': {
+    backgroundColor: 'var(--workspace-tab-selected-background-color)',
     cursor: 'default',
   },
 
