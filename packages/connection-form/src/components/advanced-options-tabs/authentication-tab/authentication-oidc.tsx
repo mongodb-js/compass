@@ -61,7 +61,6 @@ function AuthenticationOIDC({
   const enableProxySupport = usePreference('enableProxySupport');
   const showProxySettings =
     useConnectionFormPreference('showProxySettings') && enableProxySupport;
-  console.log(connectionOptions.oidc);
   return (
     <>
       <FormFieldContainer>
