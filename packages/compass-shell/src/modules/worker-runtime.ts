@@ -59,13 +59,13 @@ export function createWorkerRuntime(
       identify: () => {
         /* not needed */
       },
-      // Forward Segment events from the shell.
+      // Prefix Segment events with `Shell ` to avoid event name collisions.
       // We always enable telemetry here, since the track call will
       // already check whether Compass telemetry is enabled or not.
       track: ({ event, properties }) => {
         return track(
           `Shell ${event}`,
-          { ...properties },
+          properties,
           connectionInfo.getCurrentConnectionInfo()
         );
       },
