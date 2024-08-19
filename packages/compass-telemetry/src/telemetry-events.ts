@@ -3,17 +3,6 @@ type ConnectionScoped<E extends { payload: unknown }> = E & {
 };
 
 /**
- * This event is fired when we fail to track another event due to an exception
- * while building the attributes
- *
- * @category Other
- */
-type ErrorFetchingAttributesEvent = {
-  name: 'Error Fetching Attributes';
-  payload: { event_name: string };
-};
-
-/**
  * This event is fired when user successfully signed in to their Atlas account
  *
  * @category Atlas
@@ -54,16 +43,6 @@ type AggregationUseCaseAddedEvent = ConnectionScoped<{
 }>;
 
 /**
- * This event is fired when user activates (i.e. goes to) a screen
- *
- * @category General
- */
-type ScreenEvent = ConnectionScoped<{
-  name: 'Screen';
-  payload: { name?: string };
-}>;
-
-/**
  * This event is fired when user adds/remove a stage or changes the stage name in the stage editor view
  *
  * @category Aggregation Builder
@@ -78,30 +57,6 @@ type AggregationEditedEvent = ConnectionScoped<{
     stage_name?: string;
   };
 }>;
-
-/**
- * This event is fired when a user submits feedback for a pipeline generation
- *
- * @category Gen AI
- */
-type PipelineAiFeedbackEvent = ConnectionScoped<{
-  name: 'PipelineAI Feedback';
-  payload: {
-    feedback: 'positive' | 'negative';
-    request_id: string;
-    text: string;
-  };
-}>;
-
-/**
- * This event is fired when user clicks on Atlas CTA
- *
- * @category Other
- */
-type AtlasLinkClickedEvent = {
-  name: 'Atlas Link Clicked';
-  payload: { screen?: string };
-};
 
 /**
  * This event is fired when user runs the aggregation
@@ -163,52 +118,6 @@ type FocusModeOpenedEvent = ConnectionScoped<{
 type FocusModeClosedEvent = ConnectionScoped<{
   name: 'Focus Mode Closed';
   payload: { num_stages: number; duration: number };
-}>;
-
-/**
- * This event is fired when a query generation request fails with an error
- *
- * @category Gen AI
- */
-type AiResponseFailedEvent = ConnectionScoped<{
-  name: 'AI Response Failed';
-  payload: {
-    editor_view_type: 'text' | 'stages' | 'find';
-    error_code?: string;
-    status_code?: number;
-    error_name?: string;
-    request_id?: string;
-  };
-}>;
-
-/**
- * This event is fired when user enters a prompt in the generative AI textbox and hits "enter
- *
- * @category Gen AI
- */
-type AiPromptSubmittedEvent = ConnectionScoped<{
-  name: 'AI Prompt Submitted';
-  payload: {
-    editor_view_type: 'text' | 'stages' | 'find';
-    user_input_length?: number;
-    request_id?: string;
-    has_sample_documents?: boolean;
-  };
-}>;
-
-/**
- * This event is fired when AI query or aggregation generated and successfully rendered in the UI
- *
- * @category Gen AI
- */
-type AiResponseGeneratedEvent = ConnectionScoped<{
-  name: 'AI Response Generated';
-  payload: {
-    editor_view_type: 'text' | 'stages' | 'find';
-    syntax_errors?: boolean;
-    query_shape?: string[];
-    request_id?: string;
-  };
 }>;
 
 /**
@@ -294,13 +203,82 @@ type ViewUpdatedEvent = ConnectionScoped<{
 }>;
 
 /**
+ * This event is fired when user runs the explain plan for an aggregation
+ *
+ * @category Aggregation Builder
+ */
+type AggregationExplainedEvent = ConnectionScoped<{
+  name: 'Aggregation Explained';
+  payload: { num_stages: number; index_used: boolean };
+}>;
+
+/**
+ * This event is fired when user opens the export to language dialog
+ *
+ * @category Aggregation Builder
+ */
+type AggregationExportOpenedEvent = ConnectionScoped<{
+  name: 'Aggregation Export Opened';
+  payload: { num_stages: undefined | number };
+}>;
+
+/**
+ * This event is fired when user copies to clipboard the aggregation to export
+ *
+ * @category Aggregation Builder
+ */
+type AggregationExportedEvent = ConnectionScoped<{
+  name: 'Aggregation Exported';
+  payload: {
+    num_stages: undefined | number;
+    language?:
+      | 'java'
+      | 'javascript'
+      | 'csharp'
+      | 'python'
+      | 'ruby'
+      | 'go'
+      | 'rust'
+      | 'php';
+    with_import_statements?: boolean;
+    with_drivers_syntax?: boolean;
+    with_builders?: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user copied the pipeline to clipboard
+ *
+ * @category Aggregation Builder
+ */
+type AggregationCopiedEvent = {
+  name: 'Aggregation Copied';
+  payload: { id: string; screen: string };
+};
+
+/**
  * This event is fired when the shell is open
  *
- * @category Embedded Shell
+ * @category Shell
  */
 type OpenShellEvent = ConnectionScoped<{
   name: 'Open Shell';
   payload: { entrypoint?: string };
+}>;
+
+/**
+ * This is a group of events forwarded from the embedded shell.
+ * Every event from the shell is forwarded adding the "Shell " prefix to the original
+ * event name.
+ *
+ * @category Shell
+ */
+type ShellEventEvent = ConnectionScoped<{
+  name: `Shell ${string}`;
+  payload: {
+    mongosh_version: string;
+    session_id: string;
+  };
 }>;
 
 /**
@@ -338,16 +316,71 @@ type ConnectionRemovedEvent = ConnectionScoped<{
 }>;
 
 /**
- * This event is fired when user clicks the refresh button in the UI to refresh the query results
+ * This event is fired when users attempts to connect to a server/cluster.
  *
- * @category Find Queries
+ * @category Connection
  */
-type QueryResultsRefreshedEvent = ConnectionScoped<{
-  name: 'Query Results Refreshed';
+type ConnectionAttemptEvent = ConnectionScoped<{
+  name: 'Connection Attempt';
+  payload: { is_favorite: boolean; is_recent: boolean; is_new: boolean };
+}>;
+
+/**
+ * This event is fired when user successfully connects to a new server/cluster.
+ *
+ * @category Connection
+ */
+type NewConnectionEvent = ConnectionScoped<{
+  name: 'New Connection';
   payload: {
-    //
+    is_atlas: boolean;
+    atlas_hostname: string;
+    is_local_atlas: boolean;
+    is_dataLake: boolean;
+    is_enterprise: boolean;
+    is_genuine: boolean;
+    non_genuine_server_name: string;
+    server_version: string;
+    server_arch: string;
+    server_os_family: string;
+    topology_type: string;
   };
 }>;
+
+/**
+ * This event is fired when a connection attempt fails.
+ *
+ * @category Connection
+ */
+type ConnectionFailedEvent = ConnectionScoped<{
+  name: 'Connection Failed';
+  payload: { error_code: string | number; error_name: string };
+}>;
+
+/**
+ * This event is fired when connections export initiated from either UI or CLI
+ *
+ * @category Connection
+ */
+type ConnectionExportedEvent = {
+  name: 'Connection Exported';
+  payload: { count: number };
+};
+
+/**
+ * This event is fired when connections import initiated from either UI or CLI
+ *
+ * @category Connection
+ */
+type ConnectionImportedEvent = {
+  name: 'Connection Imported';
+  payload: {
+    /**
+     * The count of imported connections.
+     */
+    count: any;
+  };
+};
 
 /**
  * This event is fired when user copies a document to the clipboard
@@ -390,6 +423,26 @@ type DocumentClonedEvent = ConnectionScoped<{
 }>;
 
 /**
+ * This event is fired when user inserts a document
+ *
+ * @category Documents
+ */
+type DocumentInsertedEvent = ConnectionScoped<{
+  name: 'Document Inserted';
+  payload: { mode?: string; multiple?: boolean };
+}>;
+
+/**
+ * This event is fired when user explains a query
+ *
+ * @category Explain
+ */
+type ExplainPlanExecutedEvent = ConnectionScoped<{
+  name: 'Explain Plan Executed';
+  payload: { with_filter: boolean; index_used: boolean };
+}>;
+
+/**
  * This event is fired when a user opens the bulk update modal
  *
  * @category Bulk Operations
@@ -407,35 +460,6 @@ type BulkUpdateOpenedEvent = ConnectionScoped<{
 type BulkUpdateExecutedEvent = ConnectionScoped<{
   name: 'Bulk Update Executed';
   payload: { isUpdatePreviewSupported: boolean };
-}>;
-
-/**
- * This event is fired when user inserts a document
- *
- * @category Documents
- */
-type DocumentInsertedEvent = ConnectionScoped<{
-  name: 'Document Inserted';
-  payload: { mode?: string; multiple?: boolean };
-}>;
-
-/**
- * This event is fired when user executes a query
- *
- * @category Find Queries
- */
-type QueryExecutedEvent = ConnectionScoped<{
-  name: 'Query Executed';
-  payload: {
-    has_projection: boolean;
-    has_skip: boolean;
-    has_sort: boolean;
-    has_limit: boolean;
-    has_collation: boolean;
-    changed_maxtimems: boolean;
-    collection_type: string;
-    used_regex: boolean;
-  };
 }>;
 
 /**
@@ -475,26 +499,6 @@ type BulkUpdateFavoritedEvent = ConnectionScoped<{
 }>;
 
 /**
- * This event is fired when user runs the explain plan for an aggregation
- *
- * @category Aggregation Builder
- */
-type AggregationExplainedEvent = ConnectionScoped<{
-  name: 'Aggregation Explained';
-  payload: { num_stages: number; index_used: boolean };
-}>;
-
-/**
- * This event is fired when user explains a query
- *
- * @category Explain
- */
-type ExplainPlanExecutedEvent = ConnectionScoped<{
-  name: 'Explain Plan Executed';
-  payload: { with_filter: boolean; index_used: boolean };
-}>;
-
-/**
  * NOTE: NOT IMPLEMENTED YET.
  * This event is fired when the export to language dialog is open for an update operation.
  * TODO: https://jira.mongodb.org/browse/COMPASS-7334
@@ -515,26 +519,6 @@ type UpdateExportOpenedEvent = ConnectionScoped<{
  */
 type DeleteExportOpenedEvent = ConnectionScoped<{
   name: 'Delete Export Opened';
-  payload: { num_stages: undefined | number };
-}>;
-
-/**
- * This event is fired when user opens the export to language dialog
- *
- * @category Find Queries
- */
-type QueryExportOpenedEvent = ConnectionScoped<{
-  name: 'Query Export Opened';
-  payload: { num_stages: undefined | number };
-}>;
-
-/**
- * This event is fired when user opens the export to language dialog
- *
- * @category Aggregation Builder
- */
-type AggregationExportOpenedEvent = ConnectionScoped<{
-  name: 'Aggregation Export Opened';
   payload: { num_stages: undefined | number };
 }>;
 
@@ -573,54 +557,6 @@ type UpdateExportedEvent = ConnectionScoped<{
  */
 type DeleteExportedEvent = ConnectionScoped<{
   name: 'Delete Exported';
-  payload: {
-    num_stages: undefined | number;
-    language?:
-      | 'java'
-      | 'javascript'
-      | 'csharp'
-      | 'python'
-      | 'ruby'
-      | 'go'
-      | 'rust'
-      | 'php';
-    with_import_statements?: boolean;
-    with_drivers_syntax?: boolean;
-    with_builders?: boolean;
-  };
-}>;
-
-/**
- * This event is fired when user copies to clipboard the query to export
- *
- * @category Find Queries
- */
-type QueryExportedEvent = ConnectionScoped<{
-  name: 'Query Exported';
-  payload: {
-    num_stages: undefined | number;
-    language?:
-      | 'java'
-      | 'javascript'
-      | 'csharp'
-      | 'python'
-      | 'ruby'
-      | 'go'
-      | 'rust'
-      | 'php';
-    with_import_statements?: boolean;
-    with_drivers_syntax?: boolean;
-    with_builders?: boolean;
-  };
-}>;
-
-/**
- * This event is fired when user copies to clipboard the aggregation to export
- *
- * @category Aggregation Builder
- */
-type AggregationExportedEvent = ConnectionScoped<{
-  name: 'Aggregation Exported';
   payload: {
     num_stages: undefined | number;
     language?:
@@ -782,6 +718,172 @@ type AiQueryFeedbackEvent = ConnectionScoped<{
 }>;
 
 /**
+ * This event is fired when a query generation request fails with an error
+ *
+ * @category Gen AI
+ */
+type AiResponseFailedEvent = ConnectionScoped<{
+  name: 'AI Response Failed';
+  payload: {
+    editor_view_type: 'text' | 'stages' | 'find';
+    error_code?: string;
+    status_code?: number;
+    error_name?: string;
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when user enters a prompt in the generative AI textbox and hits "enter
+ *
+ * @category Gen AI
+ */
+type AiPromptSubmittedEvent = ConnectionScoped<{
+  name: 'AI Prompt Submitted';
+  payload: {
+    editor_view_type: 'text' | 'stages' | 'find';
+    user_input_length?: number;
+    request_id?: string;
+    has_sample_documents?: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when AI query or aggregation generated and successfully rendered in the UI
+ *
+ * @category Gen AI
+ */
+type AiResponseGeneratedEvent = ConnectionScoped<{
+  name: 'AI Response Generated';
+  payload: {
+    editor_view_type: 'text' | 'stages' | 'find';
+    syntax_errors?: boolean;
+    query_shape?: string[];
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when a user submits feedback for a pipeline generation
+ *
+ * @category Gen AI
+ */
+type PipelineAiFeedbackEvent = ConnectionScoped<{
+  name: 'PipelineAI Feedback';
+  payload: {
+    feedback: 'positive' | 'negative';
+    request_id: string;
+    text: string;
+  };
+}>;
+
+/**
+ * This event is fired when user filters queries using db / coll filter
+ *
+ * @category My Queries
+ */
+type MyQueriesFilterEvent = {
+  name: 'My Queries Filter';
+  payload: { type?: string };
+};
+
+/**
+ * This event is fired when user sorts items in the list using one of the sort options
+ *
+ * @category My Queries
+ */
+type MyQueriesSortEvent = {
+  name: 'My Queries Sort';
+  payload: {
+    sort_by:
+      | 'name'
+      | 'id'
+      | 'type'
+      | 'database'
+      | 'collection'
+      | 'lastModified';
+    order: string;
+  };
+};
+
+/**
+ * This event is fired when user filters queries using search input (fires only on input blur)
+ *
+ * @category My Queries
+ */
+type MyQueriesSearchEvent = {
+  name: 'My Queries Search';
+  payload: {
+    //
+  };
+};
+
+/**
+ * This event is fired when user copies to clipboard the query to export
+ *
+ * @category Find Queries
+ */
+type QueryExportedEvent = ConnectionScoped<{
+  name: 'Query Exported';
+  payload: {
+    num_stages: undefined | number;
+    language?:
+      | 'java'
+      | 'javascript'
+      | 'csharp'
+      | 'python'
+      | 'ruby'
+      | 'go'
+      | 'rust'
+      | 'php';
+    with_import_statements?: boolean;
+    with_drivers_syntax?: boolean;
+    with_builders?: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user opens the export to language dialog
+ *
+ * @category Find Queries
+ */
+type QueryExportOpenedEvent = ConnectionScoped<{
+  name: 'Query Export Opened';
+  payload: { num_stages: undefined | number };
+}>;
+
+/**
+ * This event is fired when user executes a query
+ *
+ * @category Find Queries
+ */
+type QueryExecutedEvent = ConnectionScoped<{
+  name: 'Query Executed';
+  payload: {
+    has_projection: boolean;
+    has_skip: boolean;
+    has_sort: boolean;
+    has_limit: boolean;
+    has_collation: boolean;
+    changed_maxtimems: boolean;
+    collection_type: string;
+    used_regex: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the refresh button in the UI to refresh the query results
+ *
+ * @category Find Queries
+ */
+type QueryResultsRefreshedEvent = ConnectionScoped<{
+  name: 'Query Results Refreshed';
+  payload: {
+    //
+  };
+}>;
+
+/**
  * This event is fired when user opens query history panel
  *
  * @category Find Queries
@@ -880,57 +982,6 @@ type QueryEditedEvent = ConnectionScoped<{
 }>;
 
 /**
- * This event is fired when user filters queries using db / coll filter
- *
- * @category My Queries
- */
-type MyQueriesFilterEvent = {
-  name: 'My Queries Filter';
-  payload: { type?: string };
-};
-
-/**
- * This event is fired when user sorts items in the list using one of the sort options
- *
- * @category My Queries
- */
-type MyQueriesSortEvent = {
-  name: 'My Queries Sort';
-  payload: {
-    sort_by:
-      | 'name'
-      | 'id'
-      | 'type'
-      | 'database'
-      | 'collection'
-      | 'lastModified';
-    order: string;
-  };
-};
-
-/**
- * This event is fired when user filters queries using search input (fires only on input blur)
- *
- * @category My Queries
- */
-type MyQueriesSearchEvent = {
-  name: 'My Queries Search';
-  payload: {
-    //
-  };
-};
-
-/**
- * This event is fired when user copied the pipeline to clipboard
- *
- * @category Aggregation Builder
- */
-type AggregationCopiedEvent = {
-  name: 'Aggregation Copied';
-  payload: { id: string; screen: string };
-};
-
-/**
  * This event is fired when user copied query to clipboard
  *
  * @category Find Queries
@@ -970,18 +1021,6 @@ type SchemaValidationUpdatedEvent = ConnectionScoped<{
  */
 type SchemaValidationAddedEvent = ConnectionScoped<{
   name: 'Schema Validation Added';
-  payload: {
-    //
-  };
-}>;
-
-/**
- * This event is fired when a user clicks on the Performance Advisor CTA
- *
- * @category Other
- */
-type PerformanceAdvisorClickedEvent = ConnectionScoped<{
-  name: 'Performance Advisor Clicked';
   payload: {
     //
   };
@@ -1064,21 +1103,6 @@ type PerformancePausedEvent = ConnectionScoped<{
 }>;
 
 /**
- * This is a group of events forwarded from the embedded shell.
- * Every event from the shell is forwarded adding the "Shell " prefix to the original
- * event name.
- *
- * @category Shell
- */
-type ShellEventEvent = ConnectionScoped<{
-  name: `Shell ${string}`;
-  payload: {
-    mongosh_version: string;
-    session_id: string;
-  };
-}>;
-
-/**
  * This event is fired when a user clicks "next" on a guide cue.
  *
  * @category Guide Cues
@@ -1102,7 +1126,7 @@ type GuideCueGroupDismissedEvent = {
 /**
  * This event is fired when signal icon badge is rendered on the screen visible to the user.
  *
- * @category Signals
+ * @category Proactive Performance Insights
  */
 type SignalShownEvent = {
   name: 'Signal Shown';
@@ -1112,7 +1136,7 @@ type SignalShownEvent = {
 /**
  * This event is fired when signal badge is clicked and popup is opened.
  *
- * @category Signals
+ * @category Proactive Performance Insights
  */
 type SignalOpenedEvent = {
   name: 'Signal Opened';
@@ -1122,7 +1146,7 @@ type SignalOpenedEvent = {
 /**
  * This event is fired when Action button for the signal is clicked inside the popup.
  *
- * @category Signals
+ * @category Proactive Performance Insights
  */
 type SignalActionButtonClickedEvent = {
   name: 'Signal Action Button Clicked';
@@ -1132,7 +1156,7 @@ type SignalActionButtonClickedEvent = {
 /**
  * This event is fired when "Learn more" link is clicked inside the signal popup.
  *
- * @category Signals
+ * @category Proactive Performance Insights
  */
 type SignalLinkClickedEvent = {
   name: 'Signal Link Clicked';
@@ -1142,72 +1166,11 @@ type SignalLinkClickedEvent = {
 /**
  * This event is fired when user clicked the close button or outside the signal and closed the popup.
  *
- * @category Signals
+ * @category Proactive Performance Insights
  */
 type SignalClosedEvent = {
   name: 'Signal Closed';
   payload: { id: any };
-};
-
-/**
- * This event is fired when users attempts to connect to a server/cluster.
- *
- * @category Connection
- */
-type ConnectionAttemptEvent = ConnectionScoped<{
-  name: 'Connection Attempt';
-  payload: { is_favorite: boolean; is_recent: boolean; is_new: boolean };
-}>;
-
-/**
- * This event is fired when user successfully connects to a new server/cluster.
- *
- * @category Connection
- */
-type NewConnectionEvent = ConnectionScoped<{
-  name: 'New Connection';
-  payload: {
-    is_atlas: boolean;
-    atlas_hostname: string;
-    is_local_atlas: boolean;
-    is_dataLake: boolean;
-    is_enterprise: boolean;
-    is_genuine: boolean;
-    non_genuine_server_name: string;
-    server_version: string;
-    server_arch: string;
-    server_os_family: string;
-    topology_type: string;
-  };
-}>;
-
-/**
- * This event is fired when a connection attempt fails.
- *
- * @category Connection
- */
-type ConnectionFailedEvent = ConnectionScoped<{
-  name: 'Connection Failed';
-  payload: { error_code: string | number; error_name: string };
-}>;
-
-/**
- * This event is fired when application launch initiated.
- *
- * @category Enterprise Usage
- */
-type ApplicationLaunchedEvent = {
-  name: 'Application Launched';
-  payload: {
-    context: string;
-    launch_connection: string;
-    protected: boolean;
-    readOnly: boolean;
-    maxTimeMS: number;
-    global_config: boolean;
-    cli_args: boolean;
-    legacy_connections: boolean;
-  };
 };
 
 /**
@@ -1232,54 +1195,6 @@ type AutoupdateAcceptedEvent = {
 type AutoupdateDismissedEvent = {
   name: 'Autoupdate Dismissed';
   payload: { update_version: string };
-};
-
-/**
- * This event is fired when a user changes theme.
- *
- * @category Other
- */
-type ThemeChangedEvent = {
-  name: 'Theme Changed';
-  payload: { theme: 'DARK' | 'LIGHT' | 'OS_THEME' };
-};
-
-/**
- * This event is fired when the keytar migration fails for a user.
- * See: https://jira.mongodb.org/browse/COMPASS-6856.
- *
- * NOTE: should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
- *
- * @category Other
- */
-type KeytarSecretsMigrationFailedEvent = {
-  name: 'Keytar Secrets Migration Failed';
-  payload: { num_saved_connections: number; num_failed_connections: number };
-};
-
-/**
- * This event is fired when connections export initiated from either UI or CLI
- *
- * @category Connection
- */
-type ConnectionExportedEvent = {
-  name: 'Connection Exported';
-  payload: { count: number };
-};
-
-/**
- * This event is fired when connections import initiated from either UI or CLI
- *
- * @category Connection
- */
-type ConnectionImportedEvent = {
-  name: 'Connection Imported';
-  payload: {
-    /**
-     * The count of imported connections.
-     */
-    count: any;
-  };
 };
 
 /**
@@ -1326,110 +1241,195 @@ type DatabaseCreatedEvent = ConnectionScoped<{
   };
 }>;
 
+/**
+ * This event is fired when a user changes theme.
+ *
+ * @category Settings
+ */
+type ThemeChangedEvent = {
+  name: 'Theme Changed';
+  payload: { theme: 'DARK' | 'LIGHT' | 'OS_THEME' };
+};
+
+/**
+ * This event is fired when user clicks on Atlas CTA
+ *
+ * @category Other
+ */
+type AtlasLinkClickedEvent = {
+  name: 'Atlas Link Clicked';
+  payload: { screen?: string };
+};
+
+/**
+ * This event is fired when application launch initiated.
+ *
+ * @category Other
+ */
+type ApplicationLaunchedEvent = {
+  name: 'Application Launched';
+  payload: {
+    context: string;
+    launch_connection: string;
+    protected: boolean;
+    readOnly: boolean;
+    maxTimeMS: number;
+    global_config: boolean;
+    cli_args: boolean;
+    legacy_connections: boolean;
+  };
+};
+
+/**
+ * This event is fired when the keytar migration fails for a user.
+ * See: https://jira.mongodb.org/browse/COMPASS-6856.
+ *
+ * NOTE: should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
+ *
+ * @category Other
+ */
+type KeytarSecretsMigrationFailedEvent = {
+  name: 'Keytar Secrets Migration Failed';
+  payload: { num_saved_connections: number; num_failed_connections: number };
+};
+
+/**
+ * This event is fired when we fail to track another event due to an exception
+ * while building the attributes
+ *
+ * @category Other
+ */
+type ErrorFetchingAttributesEvent = {
+  name: 'Error Fetching Attributes';
+  payload: { event_name: string };
+};
+
+/**
+ * This event is fired when user activates (i.e. goes to) a screen
+ *
+ * @category Other
+ */
+type ScreenEvent = ConnectionScoped<{
+  name: 'Screen';
+  payload: { name?: string };
+}>;
+
+/**
+ * This event is fired when a user clicks on the Performance Advisor CTA
+ *
+ * @category Other
+ */
+type PerformanceAdvisorClickedEvent = ConnectionScoped<{
+  name: 'Performance Advisor Clicked';
+  payload: {
+    //
+  };
+}>;
+
 export type TelemetryEvent =
-  | ErrorFetchingAttributesEvent
-  | AtlasSignInSuccessEvent
-  | AtlasSignInErrorEvent
-  | AtlasSignOutEvent
-  | AggregationUseCaseAddedEvent
-  | ScreenEvent
-  | AggregationEditedEvent
-  | PipelineAiFeedbackEvent
-  | AtlasLinkClickedEvent
-  | AggregationExecutedEvent
   | AggregationCanceledEvent
-  | AggregationTimedOutEvent
-  | AggregationSavedAsViewEvent
-  | FocusModeOpenedEvent
-  | FocusModeClosedEvent
-  | AiResponseFailedEvent
-  | AiPromptSubmittedEvent
-  | AiResponseGeneratedEvent
-  | EditorTypeChangedEvent
-  | AggregationUseCaseSavedEvent
-  | AggregationSavedEvent
-  | AggregationOpenedEvent
+  | AggregationCopiedEvent
   | AggregationDeletedEvent
+  | AggregationEditedEvent
+  | AggregationExecutedEvent
+  | AggregationExplainedEvent
+  | AggregationExportedEvent
+  | AggregationExportOpenedEvent
+  | AggregationOpenedEvent
+  | AggregationSavedAsViewEvent
+  | AggregationSavedEvent
   | AggregationSidePanelOpenedEvent
-  | ViewUpdatedEvent
-  | OpenShellEvent
-  | ConnectionDisconnectedEvent
+  | AggregationTimedOutEvent
+  | AggregationUseCaseAddedEvent
+  | AggregationUseCaseSavedEvent
+  | AiPromptSubmittedEvent
+  | AiQueryFeedbackEvent
+  | AiResponseFailedEvent
+  | AiResponseGeneratedEvent
+  | ApplicationLaunchedEvent
+  | AtlasLinkClickedEvent
+  | AtlasSignInErrorEvent
+  | AtlasSignInSuccessEvent
+  | AtlasSignOutEvent
+  | AutoupdateAcceptedEvent
+  | AutoupdateDismissedEvent
+  | BulkDeleteExecutedEvent
+  | BulkDeleteOpenedEvent
+  | BulkUpdateExecutedEvent
+  | BulkUpdateFavoritedEvent
+  | BulkUpdateOpenedEvent
+  | CollectionCreatedEvent
+  | ConnectionAttemptEvent
   | ConnectionCreatedEvent
+  | ConnectionDisconnectedEvent
+  | ConnectionExportedEvent
+  | ConnectionFailedEvent
+  | ConnectionImportedEvent
   | ConnectionRemovedEvent
-  | QueryResultsRefreshedEvent
+  | CurrentOpShowOperationDetailsEvent
+  | DatabaseCreatedEvent
+  | DeleteExportedEvent
+  | DeleteExportOpenedEvent
+  | DetailViewHideOperationDetailsEvent
+  | DetailViewKillOpEvent
+  | DocumentClonedEvent
   | DocumentCopiedEvent
   | DocumentDeletedEvent
-  | DocumentUpdatedEvent
-  | DocumentClonedEvent
-  | BulkUpdateOpenedEvent
-  | BulkUpdateExecutedEvent
   | DocumentInsertedEvent
-  | QueryExecutedEvent
-  | BulkDeleteOpenedEvent
-  | BulkDeleteExecutedEvent
-  | BulkUpdateFavoritedEvent
-  | AggregationExplainedEvent
+  | DocumentUpdatedEvent
+  | EditorTypeChangedEvent
+  | ErrorFetchingAttributesEvent
   | ExplainPlanExecutedEvent
-  | UpdateExportOpenedEvent
-  | DeleteExportOpenedEvent
-  | QueryExportOpenedEvent
-  | AggregationExportOpenedEvent
-  | UpdateExportedEvent
-  | DeleteExportedEvent
-  | QueryExportedEvent
-  | AggregationExportedEvent
-  | ExportOpenedEvent
   | ExportCompletedEvent
+  | ExportOpenedEvent
+  | FocusModeClosedEvent
+  | FocusModeOpenedEvent
+  | GuideCueDismissedEvent
+  | GuideCueGroupDismissedEvent
   | ImportCompletedEvent
   | ImportErrorLogOpenedEvent
   | ImportOpenedEvent
-  | IndexCreateOpenedEvent
   | IndexCreatedEvent
-  | IndexEditedEvent
+  | IndexCreateOpenedEvent
   | IndexDroppedEvent
-  | AiQueryFeedbackEvent
-  | QueryHistoryOpenedEvent
+  | IndexEditedEvent
+  | KeytarSecretsMigrationFailedEvent
+  | MyQueriesFilterEvent
+  | MyQueriesSearchEvent
+  | MyQueriesSortEvent
+  | NewConnectionEvent
+  | OpenShellEvent
+  | PerformanceAdvisorClickedEvent
+  | PerformancePausedEvent
+  | PerformanceResumedEvent
+  | PipelineAiFeedbackEvent
+  | QueryEditedEvent
+  | QueryExecutedEvent
+  | QueryExportedEvent
+  | QueryExportOpenedEvent
   | QueryHistoryClosedEvent
-  | QueryHistoryFavoriteUsedEvent
+  | QueryHistoryFavoriteAddedEvent
+  | QueryHistoryFavoriteCopiedEvent
   | QueryHistoryFavoriteRemovedEvent
   | QueryHistoryFavoritesEvent
+  | QueryHistoryFavoriteUsedEvent
+  | QueryHistoryOpenedEvent
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
-  | QueryHistoryFavoriteAddedEvent
-  | QueryEditedEvent
-  | MyQueriesFilterEvent
-  | MyQueriesSortEvent
-  | MyQueriesSearchEvent
-  | AggregationCopiedEvent
-  | QueryHistoryFavoriteCopiedEvent
+  | QueryResultsRefreshedEvent
+  | SchemaAnalyzedEvent
+  | SchemaValidationAddedEvent
   | SchemaValidationEditedEvent
   | SchemaValidationUpdatedEvent
-  | SchemaValidationAddedEvent
-  | PerformanceAdvisorClickedEvent
-  | SchemaAnalyzedEvent
-  | CurrentOpShowOperationDetailsEvent
-  | DetailViewHideOperationDetailsEvent
-  | DetailViewKillOpEvent
-  | PerformanceResumedEvent
-  | PerformancePausedEvent
+  | ScreenEvent
   | ShellEventEvent
-  | GuideCueDismissedEvent
-  | GuideCueGroupDismissedEvent
-  | SignalShownEvent
-  | SignalOpenedEvent
   | SignalActionButtonClickedEvent
-  | SignalLinkClickedEvent
   | SignalClosedEvent
-  | ConnectionAttemptEvent
-  | NewConnectionEvent
-  | ConnectionFailedEvent
-  | ApplicationLaunchedEvent
-  | AutoupdateAcceptedEvent
-  | AutoupdateDismissedEvent
-  | ThemeChangedEvent
-  | KeytarSecretsMigrationFailedEvent
-  | ConnectionExportedEvent
-  | ConnectionImportedEvent
+  | SignalLinkClickedEvent
+  | SignalOpenedEvent
+  | SignalShownEvent
   | SwitchViewTypeEvent
-  | CollectionCreatedEvent
-  | DatabaseCreatedEvent;
+  | ThemeChangedEvent
+  | UpdateExportedEvent
+  | UpdateExportOpenedEvent
+  | ViewUpdatedEvent;
