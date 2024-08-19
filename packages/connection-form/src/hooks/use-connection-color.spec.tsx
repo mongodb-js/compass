@@ -27,7 +27,7 @@ describe('useConnectionColor', function () {
   it('converts a color code to hex', function () {
     for (const colorCode of CONNECTION_COLOR_CODES) {
       const { container } = render(<TestComponent colorCode={colorCode} />);
-      expect(container.firstChild.textContent).to.match(
+      expect(container.firstChild?.textContent).to.match(
         /^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/
       );
     }
@@ -54,8 +54,9 @@ describe('useConnectionColor', function () {
       const { container: container2 } = render(
         <TestComponent colorCode={colorCode} />
       );
-      expect(container1.firstChild.textContent).to.equal(
-        container2.firstChild.textContent
+      expect(container1.firstChild?.textContent).to.be.not.be.undefined;
+      expect(container1.firstChild?.textContent).to.equal(
+        container2.firstChild?.textContent
       );
     }
   });
@@ -64,12 +65,12 @@ describe('useConnectionColor', function () {
     const { container } = render(
       <TestComponent colorCode={'someKindOfColor'} />
     );
-    expect(container.firstChild.textContent).to.be.empty;
+    expect(container.firstChild?.textContent).to.be.empty;
   });
 
   it('does not convert an unknown hex code', function () {
     const { container } = render(<TestComponent colorCode={'#100000'} />);
-    expect(container.firstChild.textContent).to.be.empty;
+    expect(container.firstChild?.textContent).to.be.empty;
   });
 
   describe('connection color names', function () {

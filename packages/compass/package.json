@@ -185,7 +185,7 @@
     "clipboard": "^2.0.6",
     "kerberos": "^2.1.1",
     "keytar": "^7.9.0",
-    "mongodb-client-encryption": "6.0.0",
+    "mongodb-client-encryption": "~6.0.1",
     "os-dns-native": "^1.2.1",
     "system-ca": "^2.0.0"
   },
@@ -244,7 +244,7 @@
     "compass-preferences-model": "^2.26.0",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^29.4.5",
+    "electron": "^29.4.6",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^12.2.0",

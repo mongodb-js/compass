@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Aug 18 2024.
+This document was automatically generated on Mon Aug 19 2024.
 
 ## List of dependencies
 
@@ -251,7 +251,7 @@ This document was automatically generated on Sun Aug 18 2024.
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**                          | 1.0.1        | Apache-2.0                          |
-| **[electron](#2d57f0e02aec4ac92532b06902fbe13af26292bde2d718c49f75a8fe02c85fdd)**                                           | 29.4.5       | MIT                                 |
+| **[electron](#1b77ef5315dcb6395aa0d23cf4102e27f69a3f9ec263bcd2be3fb84c337064cc)**                                           | 29.4.6       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -464,7 +464,7 @@ This document was automatically generated on Sun Aug 18 2024.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[moment](#94975b5423311209f3beed9c2c6bb6157f622312a3f8563d507b52e804bf6285)**                                             | 2.29.4       | MIT                                 |
 | **[mongodb-build-info](#f0a98c22ae0766702726f79e058ac6dc4e4bead8557b67b816f40bd13fb54170)**                                 | 1.7.2        | Apache-2.0                          |
-| **[mongodb-client-encryption](#6e0ac1e457fd6c68a4a91ede36be521cd2cf275fc1748e1f3b540e2ccd3b2791)**                          | 6.0.0        | Apache-2.0                          |
+| **[mongodb-client-encryption](#42ba122fc0db7791e33e6160aff7213f42c4a34a8e891e78cd07c606555c2bb9)**                          | 6.0.1        | Apache-2.0                          |
 | **[mongodb-cloud-info](#a784f3b401cf51746f49964e044db933529b3e3791e557702715730f5a3f1e46)**                                 | 2.1.2        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#2e1146256a89ebd24e3398881e03807fe363d58444e6b7952ea50bd6108707bc)**                      | 3.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#c4945018f8490fc8e56e1414e262fcf1b802800e05cd15f2bd6b7a9d0b94af85)**                                 | 1.4.2        | Apache-2.0                          |
@@ -19655,9 +19655,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="2d57f0e02aec4ac92532b06902fbe13af26292bde2d718c49f75a8fe02c85fdd"></a>
+<a id="1b77ef5315dcb6395aa0d23cf4102e27f69a3f9ec263bcd2be3fb84c337064cc"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 29.4.5)
+### [electron](https://www.npmjs.com/package/electron) (version 29.4.6)
 
 License tags: MIT
 
@@ -27449,9 +27449,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="6e0ac1e457fd6c68a4a91ede36be521cd2cf275fc1748e1f3b540e2ccd3b2791"></a>
+<a id="42ba122fc0db7791e33e6160aff7213f42c4a34a8e891e78cd07c606555c2bb9"></a>
 
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.0.0)
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 6.0.1)
 
 License tags: Apache-2.0
 

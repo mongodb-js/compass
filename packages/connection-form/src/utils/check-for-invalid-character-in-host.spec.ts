@@ -11,7 +11,7 @@ describe('#checkForInvalidCharacterInHost', function () {
     let errorThrown;
     try {
       checkForInvalidCharacterInHost('aaAA@@aa', false);
-    } catch (e) {
+    } catch (e: any) {
       // Expected to throw.
       errorThrown = e.message;
     }
@@ -23,7 +23,7 @@ describe('#checkForInvalidCharacterInHost', function () {
     let errorThrown;
     try {
       checkForInvalidCharacterInHost('localhost,,', true);
-    } catch (e) {
+    } catch (e: any) {
       // Expected to throw.
       errorThrown = e.message;
     }
@@ -35,7 +35,7 @@ describe('#checkForInvalidCharacterInHost', function () {
     let errorThrown;
     try {
       checkForInvalidCharacterInHost('localhost:222', true);
-    } catch (e) {
+    } catch (e: any) {
       // Expected to throw.
       errorThrown = e.message;
     }
