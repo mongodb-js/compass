@@ -600,30 +600,6 @@ functions:
 
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
-  test-single-connection:
-    - command: shell.exec
-      # Fail the task if it's idle for 10 mins
-      timeout_secs: 600
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-          DEBUG: ${debug|}
-          MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
-        script: |
-          set -e
-          # Load environment variables
-          eval $(.evergreen/print-compass-env.sh)
-
-          echo "Running E2E tests for single connection"
-
-          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-single-connection
-
-
   test-packaged-app:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins

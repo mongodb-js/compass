@@ -25,7 +25,6 @@ const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
   '--test-compass-web',
-  '--test-single-connection',
   '--no-compile',
   '--no-native-modules',
   '--test-packaged-app',

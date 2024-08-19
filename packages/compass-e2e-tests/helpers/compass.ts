@@ -46,10 +46,8 @@ let MONGODB_USE_ENTERPRISE =
 
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
-// multiple connections is now the default when we're not testing compass-web,
-// so set it unless we're explicitly testing single connections
-export const TEST_MULTIPLE_CONNECTIONS =
-  !TEST_COMPASS_WEB && !process.argv.includes('--test-single-connection');
+// multiple connections is now the default when we're not testing compass-web
+export const TEST_MULTIPLE_CONNECTIONS = !TEST_COMPASS_WEB;
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
@@ -997,24 +995,6 @@ export async function init(
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
   name = pathName(name ?? formattedDate());
-
-  if (!process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING) {
-    // But be careful not to override the env var because there are tests that
-    // set it.
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING = path.join(
-        __dirname,
-        '..',
-        'multiple-connections.yaml'
-      );
-    } else if (!TEST_COMPASS_WEB) {
-      process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING = path.join(
-        __dirname,
-        '..',
-        'single-connection.yaml'
-      );
-    }
-  }
 
   // Unfortunately mocha's type is that this.test inside a test or hook is
   // optional even though it always exists. So we have a lot of

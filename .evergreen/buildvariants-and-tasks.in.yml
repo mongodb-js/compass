@@ -246,14 +246,6 @@ buildvariants:
     - name: e2e-coverage-<%= group.number %>
     <% } %>
 
-  - name: e2e-single-connection
-    display_name: E2E Multiple Connections
-    run_on: ubuntu2004-large
-    tasks:
-    <% for(const group of E2E_TEST_GROUPS) { %>
-    - name: e2e-single-connection-<%= group.number %>
-    <% } %>
-
   - name: csfle-tests
     display_name: CSFLE Tests
     run_on: ubuntu2004-large
@@ -338,21 +330,6 @@ tasks:
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-<% } %>
-
-<% for(const group of E2E_TEST_GROUPS) { %>
-  - name: e2e-single-connection-<%= group.number %>
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-      - func: test-single-connection
-        vars:
-          e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
-          e2e_test_group: <%= group.number %>
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-          mongodb_version: latest-enterprise
 <% } %>
 
   - name: generate-vulnerability-report
