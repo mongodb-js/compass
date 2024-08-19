@@ -104,6 +104,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -141,6 +147,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -180,6 +192,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -215,6 +233,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -248,6 +272,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -284,6 +314,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -327,6 +363,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -365,6 +407,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -403,6 +451,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -439,6 +493,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -481,6 +541,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -523,6 +589,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -566,6 +638,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -611,6 +689,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -652,6 +736,12 @@ describe('use-connect-form hook', function () {
             },
             {
               connectionString: connectionStringUrl.toString(),
+            },
+            {
+              name: 'does not matter',
+              color: 'color1',
+              isFavorite: false,
+              isNameDirty: false,
             }
           );
         });
@@ -699,6 +789,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
 
@@ -720,6 +816,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -740,6 +842,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -766,6 +874,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -788,6 +902,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -815,6 +935,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -833,6 +959,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -853,6 +985,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -873,6 +1011,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -893,6 +1037,12 @@ describe('use-connect-form hook', function () {
           },
           {
             connectionString: connectionStringUrl.toString(),
+          },
+          {
+            name: 'does not matter',
+            color: 'color1',
+            isFavorite: false,
+            isNameDirty: false,
           }
         );
         expect(
@@ -915,7 +1065,7 @@ describe('use-connect-form hook', function () {
           color: 'color4',
         },
         savedConnectionType: 'favorite',
-      };
+      } as const;
 
       it('should inherit the initial information from the connection information', function () {
         const { result } = renderHook(() =>
@@ -945,8 +1095,8 @@ describe('use-connect-form hook', function () {
           initialState.current[0].personalizationOptions
         );
 
-        expect(result.personalizationOptions.name).to.equal('turtles');
-        expect(result.personalizationOptions.isNameDirty).to.be.true;
+        expect(result.personalizationOptions?.name).to.equal('turtles');
+        expect(result.personalizationOptions?.isNameDirty).to.be.true;
       });
     });
 
@@ -985,8 +1135,8 @@ describe('use-connect-form hook', function () {
           initialState.current[0].personalizationOptions
         );
 
-        expect(result.personalizationOptions.name).to.equal('localhost:27019');
-        expect(result.personalizationOptions.isNameDirty).to.be.false;
+        expect(result.personalizationOptions?.name).to.equal('localhost:27019');
+        expect(result.personalizationOptions?.isNameDirty).to.be.false;
       });
 
       it('should not be inferred when the name is dirty', function () {
@@ -1007,8 +1157,8 @@ describe('use-connect-form hook', function () {
           }
         );
 
-        expect(result.personalizationOptions.name).to.equal('webscale');
-        expect(result.personalizationOptions.isNameDirty).to.be.true;
+        expect(result.personalizationOptions?.name).to.equal('webscale');
+        expect(result.personalizationOptions?.isNameDirty).to.be.true;
       });
 
       it('should support empty names', function () {
@@ -1029,8 +1179,8 @@ describe('use-connect-form hook', function () {
           }
         );
 
-        expect(result.personalizationOptions.name).to.equal('');
-        expect(result.personalizationOptions.isNameDirty).to.be.true;
+        expect(result.personalizationOptions?.name).to.equal('');
+        expect(result.personalizationOptions?.isNameDirty).to.be.true;
       });
     });
   });
