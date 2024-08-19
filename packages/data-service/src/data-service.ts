@@ -1033,7 +1033,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._mongoClientConnectionOptions,
       'options.oidc.notifyDeviceFlow',
       'options.oidc.signal',
-      'options.oidc.allowedFlows'
+      'options.oidc.allowedFlows',
+      'options.oidc.customHttpOptions.agent'
     );
   }
 

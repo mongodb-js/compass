@@ -193,7 +193,6 @@ export async function connectMongoClientDataService({
     'generate-credentials',
     'mongodb://'
   );
-  console.log(getTunnelOptions(connectionOptions), connectionOptions);
   if (tunnel && logger)
     hookProxyLogger(tunnel.logger, logger, 'compass-tunnel');
   const tunnelForwardingErrors: Error[] = [];
