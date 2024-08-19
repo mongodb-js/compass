@@ -600,7 +600,7 @@ functions:
 
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
-  test-multiple-connections:
+  test-single-connection:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
       timeout_secs: 600
@@ -619,9 +619,9 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          echo "Running E2E tests for multiple connections"
+          echo "Running E2E tests for single connection"
 
-          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-multiple-connections
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-single-connection
 
 
   test-packaged-app:

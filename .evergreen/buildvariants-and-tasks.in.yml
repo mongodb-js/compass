@@ -246,12 +246,12 @@ buildvariants:
     - name: e2e-coverage-<%= group.number %>
     <% } %>
 
-  - name: e2e-multiple-connections
+  - name: e2e-single-connection
     display_name: E2E Multiple Connections
     run_on: ubuntu2004-large
     tasks:
     <% for(const group of E2E_TEST_GROUPS) { %>
-    - name: e2e-multiple-connections-<%= group.number %>
+    - name: e2e-single-connection-<%= group.number %>
     <% } %>
 
   - name: csfle-tests
@@ -341,13 +341,13 @@ tasks:
 <% } %>
 
 <% for(const group of E2E_TEST_GROUPS) { %>
-  - name: e2e-multiple-connections-<%= group.number %>
+  - name: e2e-single-connection-<%= group.number %>
     tags: ['required-for-publish', 'run-on-pr']
     commands:
       - func: prepare
       - func: install
       - func: bootstrap
-      - func: test-multiple-connections
+      - func: test-single-connection
         vars:
           e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
           e2e_test_group: <%= group.number %>

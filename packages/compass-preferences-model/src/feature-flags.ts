@@ -69,7 +69,7 @@ export const featureFlags: Required<{
    * Epic: COMPASS-6410
    */
   enableNewMultipleConnectionSystem: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enables support for multiple connections.',
       long: 'Allows users to open multiple connections in the same window.',
