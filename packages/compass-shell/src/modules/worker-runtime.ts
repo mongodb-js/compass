@@ -64,8 +64,8 @@ export function createWorkerRuntime(
       // already check whether Compass telemetry is enabled or not.
       track: ({ event, properties }) => {
         return track(
-          'Shell Event',
-          { ...properties, shell_event_name: event },
+          `Shell ${event}`,
+          { ...properties },
           connectionInfo.getCurrentConnectionInfo()
         );
       },

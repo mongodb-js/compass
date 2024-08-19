@@ -139,7 +139,7 @@ function trackAndLogFailed({
   track(
     'AI Response Failed',
     () => ({
-      editor_view_type: 'find',
+      editor_view_type: 'find' as const,
       error_name: errorName,
       status_code: statusCode,
       error_code: errorCode ?? '',
@@ -178,7 +178,7 @@ export const runAIQuery = (
     track(
       'AI Prompt Submitted',
       () => ({
-        editor_view_type: 'find',
+        editor_view_type: 'find' as const,
         user_input_length: userInput.length,
         has_sample_documents: provideSampleDocuments,
         request_id: requestId,
