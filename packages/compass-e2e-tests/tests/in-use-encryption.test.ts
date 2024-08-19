@@ -150,7 +150,9 @@ describe('CSFLE / QE', function () {
       }
 
       // Wait for it to connect
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(connectionName, {
+        connectionStatus: 'success',
+      });
 
       // extra pause to make very sure that it saved the connection before we disconnect
       await delay(10000);
@@ -164,7 +166,6 @@ describe('CSFLE / QE', function () {
 
       // extra pause to make very sure that it loaded the connections
       await delay(10000);
-      await browser.screenshot('saved-connections-after-disconnect.png');
 
       if (TEST_MULTIPLE_CONNECTIONS) {
         // in the multiple connections world, if we clicked the connection it
@@ -319,6 +320,7 @@ describe('CSFLE / QE', function () {
       });
 
       beforeEach(async function () {
+        await browser.disconnectAll();
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -960,6 +962,10 @@ describe('CSFLE / QE', function () {
 
       compass = await init(this.test?.fullTitle());
       browser = compass.browser;
+    });
+
+    beforeEach(async function () {
+      await browser.disconnectAll();
     });
 
     afterEach(async function () {

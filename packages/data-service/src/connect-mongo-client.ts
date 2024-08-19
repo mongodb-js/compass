@@ -136,7 +136,6 @@ export async function connectMongoClientDataService({
     productName: productName ?? 'MongoDB Compass',
     productDocsLink: productDocsLink ?? 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
-    useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
     ...oidcOptions,
   };

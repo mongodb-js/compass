@@ -5,7 +5,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -23,12 +23,14 @@ describe('Collection schema tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
     await createGeospatialCollection();
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
   });
 
   after(async function () {
@@ -41,7 +43,7 @@ describe('Collection schema tab', function () {
 
   it('analyzes a schema', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Schema'
@@ -77,7 +79,7 @@ describe('Collection schema tab', function () {
 
       await browser.setFeature('enableMaps', enableMaps);
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'geospatial',
         'Schema'

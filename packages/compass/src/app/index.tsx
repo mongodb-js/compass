@@ -85,6 +85,7 @@ import {
   CompassRendererConnectionStorage,
   type AutoConnectPreferences,
 } from '@mongodb-js/connection-storage/renderer';
+import type { SettingsTabId } from '@mongodb-js/compass-settings';
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
@@ -107,8 +108,8 @@ function notifyMainProcessOfDisconnect() {
   void ipcRenderer?.call('compass:disconnected');
 }
 
-function showSettingsModal() {
-  ipcRenderer?.emit('window:show-settings');
+function showSettingsModal(tab?: SettingsTabId) {
+  globalAppRegistry?.emit('open-compass-settings', tab);
 }
 
 async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {

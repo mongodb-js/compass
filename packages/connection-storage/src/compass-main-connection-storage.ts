@@ -74,7 +74,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
             .string()
             .nonempty('Connection string is required.'),
           sshTunnel: z.any().optional(),
-          useSystemCA: z.boolean().optional(),
+          useSystemCA: z.boolean().optional(), // Unused but may be present in legacy files
           oidc: z.any().optional(),
           fleOptions: z.any().optional(),
         }),

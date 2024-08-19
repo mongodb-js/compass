@@ -6,6 +6,7 @@ import {
   palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import type { SettingsTabId } from '../stores/settings';
 
 const buttonStyles = css({
   borderRadius: spacing[1],
@@ -52,9 +53,9 @@ const activeStylesDark = css({
 });
 
 type SidebarProps = {
-  activeItem: string;
-  onSelectItem: (item: string) => void;
-  items: string[];
+  activeItem: SettingsTabId;
+  onSelectItem: (item: SettingsTabId) => void;
+  items: [SettingsTabId, string][];
 };
 
 const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
@@ -69,24 +70,24 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
       role="tablist"
       aria-labelledby="modal-title"
     >
-      {items.map((item) => (
+      {items.map(([tabId, name]) => (
         <button
           type="button"
-          key={item}
+          key={tabId}
           role="tab"
-          aria-controls={`${item} Section`}
-          aria-selected={activeItem === item}
+          aria-controls={`${tabId}-section`}
+          aria-selected={activeItem === tabId}
           className={cx(buttonStyles, {
             [darkMode ? hoverStylesDark : hoverStylesLight]:
-              item !== activeItem,
+              tabId !== activeItem,
             [darkMode ? activeStylesDark : activeStylesLight]:
-              item === activeItem,
+              tabId === activeItem,
           })}
-          id={`${item} Tab`}
-          data-testid={`sidebar-${item}-item`}
-          onClick={() => onSelectItem(item)}
+          id={`${tabId}-tab`}
+          data-testid={`sidebar-${tabId}-item`}
+          onClick={() => onSelectItem(tabId)}
         >
-          {item}
+          {name}
         </button>
       ))}
     </div>

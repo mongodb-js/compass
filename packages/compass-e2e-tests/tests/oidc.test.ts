@@ -77,6 +77,8 @@ describe('OIDC integration', function () {
     favoriteName: string
   ) => Promise<Record<string, any> | undefined>;
 
+  let isFirstRun = true;
+
   before(async function () {
     skipForWeb(this, 'feature flags not yet available in compass-web');
 
@@ -191,7 +193,8 @@ describe('OIDC integration', function () {
       return DEFAULT_TOKEN_PAYLOAD;
     };
     overrideRequestHandler = () => {};
-    compass = await init(this.test?.fullTitle());
+    compass = await init(this.test?.fullTitle(), { firstRun: isFirstRun });
+    isFirstRun = false;
     browser = compass.browser;
     await browser.setFeature(
       'browserCommandForOIDCAuth',
@@ -410,11 +413,11 @@ describe('OIDC integration', function () {
     );
 
     await browser.selectConnection(favoriteName);
-    await browser.doConnect();
+    await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
     await browser.selectConnection(favoriteName);
-    await browser.doConnect();
+    await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
@@ -435,7 +438,7 @@ describe('OIDC integration', function () {
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
     await browser.selectConnection(favoriteName);
-    await browser.doConnect();
+    await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
     await browser.screenshot(
@@ -444,7 +447,7 @@ describe('OIDC integration', function () {
 
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
     await browser.selectConnection(favoriteName);
-    await browser.doConnect();
+    await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
@@ -463,7 +466,7 @@ describe('OIDC integration', function () {
     );
 
     await browser.selectConnection(favoriteName);
-    await browser.doConnect();
+    await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
     const connectionInfo = await getFavoriteConnectionInfo(favoriteName);
@@ -474,12 +477,12 @@ describe('OIDC integration', function () {
     {
       // Restart Compass
       await cleanup(compass);
-      compass = await init(this.test?.fullTitle());
+      compass = await init(this.test?.fullTitle(), { firstRun: false });
       browser = compass.browser;
     }
 
     await browser.selectConnection(favoriteName);
-    await browser.doConnect();
+    await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);

@@ -15,29 +15,35 @@ describe('Sidebar', function () {
     render(
       <Sidebar
         activeItem="theme"
-        items={['theme', 'profile']}
+        items={[
+          ['theme', 'Theme'],
+          ['general', 'General'],
+        ]}
         onSelectItem={() => {}}
       />
     );
     const sidebar = screen.getByTestId('settings-modal-sidebar');
     expect(sidebar).to.exist;
     expect(within(sidebar).getByTestId('sidebar-theme-item')).to.exist;
-    expect(within(sidebar).getByTestId('sidebar-profile-item')).to.exist;
+    expect(within(sidebar).getByTestId('sidebar-general-item')).to.exist;
   });
 
-  it('selects an items', function () {
+  it('selects items', function () {
     const onSelectItemSpy = spy();
     render(
       <Sidebar
         activeItem="theme"
-        items={['theme', 'profile']}
+        items={[
+          ['theme', 'Theme'],
+          ['general', 'General'],
+        ]}
         onSelectItem={onSelectItemSpy}
       />
     );
     expect(onSelectItemSpy.calledOnce).to.be.false;
     const sidebar = screen.getByTestId('settings-modal-sidebar');
 
-    const profileItem = within(sidebar).getByTestId('sidebar-profile-item');
+    const profileItem = within(sidebar).getByTestId('sidebar-general-item');
     userEvent.click(profileItem);
     expect(onSelectItemSpy.calledOnce).to.be.true;
   });

@@ -11,11 +11,13 @@
   "compass:main": "lib/index.js",
   "exports": {
     "import": "./.esm-wrapper.mjs",
-    "require": "./lib/index.js"
+    "require": "./lib/index.js",
+    "types": "./index.d.ts"
   },
   "compass:exports": {
     ".": "./lib/index.js"
   },
+  "types": "./index.d.ts",
   "files": [
     "LICENSE",
     "lib",

@@ -15,10 +15,12 @@ import path from 'path';
 import { promises as fs } from 'fs';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
-const connectionStringSuccessTitle = '127.0.0.1:27091';
+const connectionNameSuccess = 'Success';
 const connectionStringUnreachable =
   'mongodb://127.0.0.1:27091/test?tls=true&serverSelectionTimeoutMS=10';
+const connectionNameUnreachable = 'Unreachable';
 const connectionStringInvalid = 'http://example.com';
+const connectionNameInvalid = 'Invalid';
 
 describe('Automatically connecting from the command line', function () {
   let tmpdir: string;
@@ -26,10 +28,6 @@ describe('Automatically connecting from the command line', function () {
 
   before(function () {
     skipForWeb(this, 'cli parameters not supported in compass-web');
-    // TODO(COMPASS-8010): pory these tests
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
   });
 
   beforeEach(async function () {
@@ -86,15 +84,19 @@ describe('Automatically connecting from the command line', function () {
 
   async function waitForConnectionSuccessAndCheckConnection(
     compass: Compass,
-    expectedTitle = connectionStringSuccessTitle
+    connectionName: string
   ) {
-    await compass.browser.waitForConnectionResult('success');
-    const sidebarTitle = await compass.browser
-      .$(Selectors.SidebarTitle)
-      .getText();
-    expect(sidebarTitle).to.eq(expectedTitle);
+    await compass.browser.waitForConnectionResult(connectionName, {
+      connectionStatus: 'success',
+    });
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      const sidebarTitle = await compass.browser
+        .$(Selectors.SidebarTitle)
+        .getText();
+      expect(sidebarTitle).to.eq(connectionName);
+    }
     const result = await compass.browser.shellEval(
-      connectionNameFromString(connectionStringSuccess),
+      connectionName,
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
@@ -107,7 +109,10 @@ describe('Automatically connecting from the command line', function () {
       noWaitForConnectionScreen: true,
     });
     try {
-      await waitForConnectionSuccessAndCheckConnection(compass);
+      await waitForConnectionSuccessAndCheckConnection(
+        compass,
+        connectionNameFromString(connectionStringSuccess)
+      );
     } finally {
       await cleanup(compass);
     }
@@ -141,7 +146,10 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs(args),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await compass.browser.waitForConnectionResult(
+        connectionNameUnreachable,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.match(
         /ECONNRESET|Server selection timed out|Client network socket disconnected/i
       );
@@ -163,8 +171,15 @@ describe('Automatically connecting from the command line', function () {
     });
     const { browser } = compass;
     try {
-      const error = await browser.waitForConnectionResult('failure');
+      const error = await browser.waitForConnectionResult(
+        connectionNameSuccess,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.include('Authentication failed');
+      if (TEST_MULTIPLE_CONNECTIONS) {
+        await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
+        await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      }
       const connectFormState = await browser.getConnectFormState();
       expect(connectFormState.defaultUsername).to.equal('doesnotexist');
       expect(connectFormState.defaultPassword).to.equal('asdf/');
@@ -185,7 +200,10 @@ describe('Automatically connecting from the command line', function () {
       wrapBinary: positionalArgs(args),
     });
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await compass.browser.waitForConnectionResult(
+        connectionNameInvalid,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.include('Invalid scheme');
     } finally {
       await cleanup(compass);
@@ -198,8 +216,13 @@ describe('Automatically connecting from the command line', function () {
         `--file=${path.join(tmpdir, 'doesnotexist.json')}`,
       ]),
     });
+    const connectionName =
+      'no connection can appear because the file is invalid';
     try {
-      const error = await compass.browser.waitForConnectionResult('failure');
+      const error = await compass.browser.waitForConnectionResult(
+        connectionName,
+        { connectionStatus: 'failure' }
+      );
       expect(error).to.include('ENOENT');
     } finally {
       await cleanup(compass);
@@ -213,11 +236,21 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const { browser } = compass;
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(
+        connectionNameFromString(connectionStringSuccess),
+        {
+          connectionStatus: 'success',
+        }
+      );
       await browser.execute(() => {
         location.reload();
       });
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(
+        connectionNameFromString(connectionStringSuccess),
+        {
+          connectionStatus: 'success',
+        }
+      );
       await browser.disconnectAll();
       await browser.execute(() => {
         location.reload();
@@ -242,10 +275,21 @@ describe('Automatically connecting from the command line', function () {
     });
     try {
       const { browser } = compass;
-      await browser.waitForConnectionResult('success');
+      await browser.waitForConnectionResult(
+        connectionNameFromString(connectionStringSuccess),
+        {
+          connectionStatus: 'success',
+        }
+      );
+
+      // make sure the Welcome tab (if any) is gone
+      await browser.closeWorkspaceTabs();
+
       await browser.execute(() => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require('electron').ipcRenderer.call('test:show-connect-window');
+        (require('electron').ipcRenderer as any).call(
+          'test:show-connect-window'
+        );
       });
 
       // Switch to the other window
@@ -257,32 +301,85 @@ describe('Automatically connecting from the command line', function () {
         currentWindow = allWindows.find((w) => w !== currentWindow) as string;
         await browser.switchToWindow(currentWindow);
 
-        const connectScreenElement = await browser.$(Selectors.ConnectSection);
-        return await connectScreenElement.isDisplayed();
+        if (TEST_MULTIPLE_CONNECTIONS) {
+          // the new window should open on the welcome tab
+          const currentActiveTab = await browser.$(
+            Selectors.workspaceTab({ active: true })
+          );
+          const type = await currentActiveTab.getAttribute('data-type');
+          return type === 'Welcome';
+        } else {
+          // the new window should land on the connect screen
+          const connectScreenElement = await browser.$(
+            Selectors.ConnectSection
+          );
+          return await connectScreenElement.isDisplayed();
+        }
       });
 
-      await browser.waitForConnectionScreen();
+      if (TEST_MULTIPLE_CONNECTIONS) {
+        // no toasts to signify that anything is connecting
+        const toasts = await browser.$(Selectors.LGToastContainer).$$('div');
+        expect(toasts).to.have.lengthOf(0);
+
+        // no active connections
+        const connectionItems = await browser.$$(
+          Selectors.Multiple.ConnectedConnectionItems
+        );
+        expect(connectionItems).to.have.lengthOf(0);
+      } else {
+        // this should always be true because we already waited for it in the waitUntil above
+        await browser.waitForConnectionScreen();
+      }
     } finally {
       await cleanup(compass);
     }
   });
 
   it('does not store the connection information as a recent connection', async function () {
-    const compass = await init(this.test?.fullTitle(), {
+    let browser;
+    let compass = await init(this.test?.fullTitle(), {
       wrapBinary: positionalArgs([connectionStringSuccess]),
       noWaitForConnectionScreen: true,
-      firstRun: true,
     });
     try {
-      const browser = compass.browser;
-      await browser.waitForConnectionResult('success');
-      await browser.disconnectAll();
+      browser = compass.browser;
+      await browser.waitForConnectionResult(
+        connectionNameFromString(connectionStringSuccess),
+        {
+          connectionStatus: 'success',
+        }
+      );
 
-      // this is not the ideal check because by default the recent connections
-      // list doesn't exist either
-      await browser
-        .$(Selectors.Single.RecentConnections)
-        .waitForDisplayed({ reverse: true });
+      // close compass
+      await cleanup(compass);
+
+      // open compass again
+      compass = await init(this.test?.fullTitle(), {
+        // reuse the same user directory so we'd get the same connections
+        firstRun: false,
+      });
+
+      browser = compass.browser;
+
+      // there should be no connection items
+      if (TEST_MULTIPLE_CONNECTIONS) {
+        const connectionItems = await browser.$$(
+          Selectors.Multiple.ConnectionItems
+        );
+        expect(connectionItems).to.have.lengthOf(0);
+
+        await browser
+          .$(Selectors.Multiple.NoDeploymentsText)
+          .waitForDisplayed();
+        await browser
+          .$(Selectors.Multiple.AddNewConnectionButton)
+          .waitForDisplayed();
+      } else {
+        await browser
+          .$(Selectors.Single.RecentConnections)
+          .waitForDisplayed({ reverse: true });
+      }
     } finally {
       await cleanup(compass);
     }

@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
@@ -6,7 +6,16 @@ import type {
 } from 'compass-preferences-model';
 import { cancelAtlasLoginAttempt } from './atlas-login';
 
-export type State = { isModalOpen: boolean } & (
+export type SettingsTabId =
+  | 'general'
+  | 'theme'
+  | 'privacy'
+  | 'oidc'
+  | 'ai'
+  | 'proxy'
+  | 'preview';
+
+export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
   | {
       loadingState: 'loading';
       settings: Record<string, never>;
@@ -27,6 +36,7 @@ export const INITIAL_STATE: State = {
   preferenceStates: {},
   updatedFields: [],
   loadingState: 'loading',
+  tab: undefined,
 };
 
 export enum ActionTypes {
@@ -38,6 +48,7 @@ export enum ActionTypes {
   FieldUpdated = 'compass-settings/settingsFieldUpdated',
   SettingsSaved = 'compass-settings/settingsUpdated',
   OpenSettingsModal = 'compass-settings/OpenSettingsModal',
+  SelectTab = 'compass-settings/SelectTab',
   CloseSettingsModal = 'compass-settings/CloseSettingsModal',
 }
 
@@ -52,51 +63,106 @@ type SaveSettingsAction = {
   type: ActionTypes.SettingsSaved;
 };
 
-export type Actions = SettingsFetchedAction | SaveSettingsAction;
+type SettingsFetchStartAction = {
+  type: ActionTypes.SettingsFetchedStart;
+};
 
-export const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
-  switch (action.type) {
-    case ActionTypes.SettingsFetchedStart:
-      return {
-        // Updating settings to loading state that is the same as initial one
-        ...INITIAL_STATE,
-        // ... and preserving current modal state
-        isModalOpen: state.isModalOpen,
-      };
-    case ActionTypes.OpenSettingsModal:
-      return {
-        ...state,
-        isModalOpen: true,
-      };
-    case ActionTypes.CloseSettingsModal:
-      return {
-        ...state,
-        isModalOpen: false,
-      };
-    case ActionTypes.ChangeFieldValue:
-      return {
-        ...state,
-        settings: {
-          ...state.settings,
-          [action.field]: action.value,
-        },
-      };
-    case ActionTypes.SettingsFetched:
-      return {
-        ...state,
-        loadingState: 'ready',
-        settings: action.settings,
-        preferenceStates: action.preferenceStates,
-        updatedFields: action.updatedFields,
-      };
-    case ActionTypes.SettingsSaved:
-      return {
-        ...state,
-        isModalOpen: false,
-      };
-    default:
-      return state;
+type OpenSettingsModalAction = {
+  type: ActionTypes.OpenSettingsModal;
+  tab?: SettingsTabId;
+};
+
+type SelectTabAction = {
+  type: ActionTypes.SelectTab;
+  tab?: SettingsTabId;
+};
+
+type CloseSettingsModalAction = {
+  type: ActionTypes.CloseSettingsModal;
+};
+
+type ChangeFieldValueAction<K extends keyof UserConfigurablePreferences> = {
+  type: ActionTypes.ChangeFieldValue;
+  field: K;
+  value: UserConfigurablePreferences[K];
+};
+
+export function isAction<A extends AnyAction>(
+  action: AnyAction,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
+
+export const reducer: Reducer<State, Action> = (
+  state = INITIAL_STATE,
+  action
+): State => {
+  if (
+    isAction<SettingsFetchStartAction>(action, ActionTypes.SettingsFetchedStart)
+  ) {
+    return {
+      // Updating settings to loading state that is the same as initial one
+      ...INITIAL_STATE,
+      // ... and preserving current modal state
+      isModalOpen: state.isModalOpen,
+      tab: state.tab,
+    };
   }
+  if (
+    isAction<OpenSettingsModalAction>(action, ActionTypes.OpenSettingsModal)
+  ) {
+    return {
+      ...state,
+      isModalOpen: true,
+      tab: action.tab,
+    };
+  }
+  if (isAction<SelectTabAction>(action, ActionTypes.SelectTab)) {
+    return {
+      ...state,
+      tab: action.tab ?? state.tab,
+    };
+  }
+  if (
+    isAction<CloseSettingsModalAction>(action, ActionTypes.CloseSettingsModal)
+  ) {
+    return {
+      ...state,
+      isModalOpen: false,
+    };
+  }
+  if (
+    isAction<ChangeFieldValueAction<keyof UserConfigurablePreferences>>(
+      action,
+      ActionTypes.ChangeFieldValue
+    )
+  ) {
+    if (state.loadingState !== 'ready') return state;
+    return {
+      ...state,
+      settings: {
+        ...state.settings,
+        [action.field]: action.value,
+      },
+    };
+  }
+  if (isAction<SettingsFetchedAction>(action, ActionTypes.SettingsFetched)) {
+    return {
+      ...state,
+      loadingState: 'ready',
+      settings: action.settings,
+      preferenceStates: action.preferenceStates,
+      updatedFields: action.updatedFields,
+    };
+  }
+  if (isAction<SaveSettingsAction>(action, ActionTypes.SettingsSaved)) {
+    return {
+      ...state,
+      isModalOpen: false,
+    };
+  }
+  return state;
 };
 
 const syncSandboxStateToStore = (): SettingsThunkAction<Promise<void>> => {
@@ -116,7 +182,10 @@ const syncSandboxStateToStore = (): SettingsThunkAction<Promise<void>> => {
   };
 };
 
-export const fetchSettings = (): SettingsThunkAction<Promise<void>> => {
+export const fetchSettings = (): SettingsThunkAction<
+  Promise<void>,
+  SettingsFetchStartAction
+> => {
   return async (
     dispatch,
     _getState,
@@ -140,7 +209,7 @@ export const fetchSettings = (): SettingsThunkAction<Promise<void>> => {
 export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
   field: K,
   value: UserConfigurablePreferences[K]
-): SettingsThunkAction<Promise<void>> => {
+): SettingsThunkAction<Promise<void>, ChangeFieldValueAction<K>> => {
   return async (
     dispatch,
     getState,
@@ -173,21 +242,33 @@ export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
   };
 };
 
-export const openModal = (): SettingsThunkAction<Promise<void>> => {
+export const openModal = (
+  tab?: SettingsTabId
+): SettingsThunkAction<Promise<void>, OpenSettingsModalAction> => {
   return async (dispatch) => {
-    dispatch({ type: ActionTypes.OpenSettingsModal });
+    dispatch({ type: ActionTypes.OpenSettingsModal, tab });
     await dispatch(fetchSettings());
   };
 };
 
-export const closeModal = (): SettingsThunkAction<void> => {
+export const selectTab = (tab?: SettingsTabId): SelectTabAction => {
+  return { type: ActionTypes.SelectTab, tab };
+};
+
+export const closeModal = (): SettingsThunkAction<
+  void,
+  CloseSettingsModalAction
+> => {
   return (dispatch) => {
     dispatch(cancelAtlasLoginAttempt());
     dispatch({ type: ActionTypes.CloseSettingsModal });
   };
 };
 
-export const saveSettings = (): SettingsThunkAction<Promise<void>> => {
+export const saveSettings = (): SettingsThunkAction<
+  Promise<void>,
+  SaveSettingsAction
+> => {
   return async (
     dispatch,
     getState,

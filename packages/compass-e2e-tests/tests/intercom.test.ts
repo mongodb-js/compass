@@ -13,7 +13,7 @@ describe('Intercom integration', function () {
   before(async function () {
     skipForWeb(this, 'not available in compass-web yet');
 
-    compass = await init(this.test?.fullTitle(), { firstRun: true });
+    compass = await init(this.test?.fullTitle());
   });
 
   afterEach(async function () {

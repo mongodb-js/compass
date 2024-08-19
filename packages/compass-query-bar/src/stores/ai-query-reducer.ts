@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
@@ -429,7 +429,7 @@ export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
   };
 };
 
-const aiQueryReducer: Reducer<AIQueryState> = (
+const aiQueryReducer: Reducer<AIQueryState, Action> = (
   state = initialState,
   action
 ) => {

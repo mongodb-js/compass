@@ -5,7 +5,6 @@ export type WorkspaceTabSelectorOptions = {
   connectionName?: string;
   namespace?: string;
   type?: string;
-  title?: string;
   active?: boolean;
 };
 
@@ -15,12 +14,16 @@ export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close mod
 export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
 export const SettingsModalTabSelector = (name: string) =>
   `${SettingsModal} [data-testid="sidebar-${name}-item"]`;
-export const GeneralSettingsButton = SettingsModalTabSelector('General');
+export const GeneralSettingsButton = SettingsModalTabSelector('general');
 export const GeneralSettingsContent = `${SettingsModal} [data-testid="general-settings"]`;
 
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
+
+// LG Modals
+export const LGModal = '[data-testid="lg-modal"]';
+export const LGModalClose = '[data-testid="lg-modal-close_button"]';
 
 // LG Toasts container (these test ids are used by LG in the toast and are not in the code anywhere).
 export const LGToastContainer = '[data-testid="lg-toast-scroll-container"]';
@@ -135,8 +138,6 @@ export const ConnectionFormTlsAllowInvalidHostnamesCheckbox =
   '[data-testid="tlsAllowInvalidHostnames-input"]';
 export const ConnectionFormTlsAllowInvalidCertificatesCheckbox =
   '[data-testid="tlsAllowInvalidCertificates-input"]';
-export const ConnectionFormTlsUseSystemCACheckbox =
-  '[data-testid="useSystemCA-input"]';
 export const ConnectionFormProxyMethodRadios =
   '#ssh-options-radio-box-group input[type="radio"]';
 export const ConnectionFormInputSshPasswordHost =
@@ -232,6 +233,9 @@ export const ConnectionFormConnectionColor =
   '[data-testid="personalization-color-input"]';
 export const ConnectionFormFavoriteCheckbox =
   '[data-testid="personalization-favorite-checkbox"]';
+export const connectionToastById = (connectionId: string) => {
+  return `[data-testid="toast-connection-status--${connectionId}"]`;
+};
 export const ConnectionToastErrorText = '[data-testid="connection-error-text"]';
 export const ConnectionToastErrorReviewButton =
   '[data-testid="connection-error-review"]';
@@ -304,6 +308,24 @@ export const Multiple = {
     '[data-testid="connections-list-title-actions-import-saved-connections-action"]',
 
   InUseEncryptionMarker: '[data-action="open-csfle-modal"]',
+
+  ConnectionItems: '[role="treeitem"][aria-level="1"] [data-is-connected]',
+  ConnectedConnectionItems:
+    '[role="treeitem"][aria-level="1"] [data-is-connected=true]',
+
+  NoDeploymentsText: '[data-testid="no-deployments-text"]',
+  AddNewConnectionButton: '[data-testid="add-new-connection-button"]',
+
+  connectionItemByName: (
+    connectionName: string,
+    { connected }: { connected?: boolean } = {}
+  ) => {
+    const connectedFilter =
+      connected !== undefined
+        ? `[data-is-connected="${connected.toString()}"]`
+        : '';
+    return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"]${connectedFilter}`;
+  },
 };
 
 // Rename Collection Modal
@@ -333,6 +355,8 @@ export const RenameCollectionButton =
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
+export const CollapseConnectionsButton =
+  '[data-testid="connections-list-title-actions-collapse-all-connections-action"]';
 
 export const sidebarDatabase = (
   // TODO(COMPASS-7906): don't allow undefined connectionId
@@ -367,7 +391,7 @@ export const sidebarCollection = (
 
 export const sidebarConnection = (connectionName: string): string => {
   if (TEST_MULTIPLE_CONNECTIONS) {
-    return `[data-connection-name="${connectionName}"]`;
+    return `${Sidebar} [data-connection-name="${connectionName}"]`;
   }
 
   return sidebarFavorite(connectionName);
@@ -1207,6 +1231,9 @@ export const QueryBarAIGenerateQueryButton =
 export const QueryBarAIErrorMessageBanner = '[data-testid="ai-error-msg"]';
 
 // Workspace tabs
+export const WorkspaceTabsContainer =
+  '[data-testid="workspace-tabs-container"]';
+export const WorkspaceTabTooltip = '[data-testid=workspace-tab-tooltip]';
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 export const sidebarInstanceNavigationItem = (
   tabName: 'Performance' | 'Databases'
@@ -1221,7 +1248,6 @@ export const workspaceTab = ({
   connectionName,
   namespace,
   type,
-  title,
   active,
 }: WorkspaceTabSelectorOptions = {}) => {
   const parts: string[] = [WorkspaceTab];
@@ -1229,16 +1255,13 @@ export const workspaceTab = ({
     parts.push(`[id="${id}"]`);
   }
   if (connectionName !== undefined) {
-    parts.push(`[data-connectionName="${connectionName}"]`);
+    parts.push(`[data-connection-name="${connectionName}"]`);
   }
   if (namespace !== undefined) {
     parts.push(`[data-namespace="${namespace}"]`);
   }
   if (type !== undefined) {
     parts.push(`[data-type="${type}"]`);
-  }
-  if (title !== undefined) {
-    parts.push(`[title="${title}"]`);
   }
   if (active !== undefined) {
     parts.push(`[aria-selected="${String(active)}"]`);
@@ -1332,9 +1355,17 @@ export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="
 
 // Open saved item
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
+export const OpenSavedItemConnectionField = `${OpenSavedItemModal} [data-testid="connection-select-field"]`;
 export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
 export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
 export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[type="submit"]`;
+
+// Select connection
+export const SelectConnectionModal = '[data-testid="select-connection-modal"]';
+export const selectConnectionRadioButton = function (connectionId: string) {
+  return `${SelectConnectionModal} input[data-testid="connection-item-${connectionId}"]`;
+};
+export const SelectConnectionModalConfirmButton = `${SelectConnectionModal} [data-testid="submit-button"]`;
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="create-view-modal"]';
