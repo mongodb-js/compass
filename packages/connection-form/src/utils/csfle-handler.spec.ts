@@ -262,6 +262,9 @@ describe('csfle-handler', function () {
         const obj = textToEncryptedFieldConfig(
           encryptedFieldConfigToText(exampleObject)
         );
+        if (!obj) {
+          throw new Error('expected obj');
+        }
         expect(obj).to.deep.equal({
           ...exampleObject,
           '$compass.error': null,

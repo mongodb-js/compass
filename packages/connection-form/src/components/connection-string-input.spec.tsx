@@ -222,7 +222,9 @@ describe('ConnectionStringInput Component', function () {
         screen.getByRole('switch').click();
 
         // Click confirm on the modal that opens.
-        const confirmButton = screen.getByText('Confirm').closest('button');
+        const confirmButton = screen
+          .getByText('Confirm')
+          .closest('button') as HTMLButtonElement;
         fireEvent(
           confirmButton,
           new MouseEvent('click', {
@@ -248,7 +250,9 @@ describe('ConnectionStringInput Component', function () {
         screen.getByRole('switch').click();
 
         // Click cancel on the modal that opens.
-        const cancelButton = screen.getByText('Cancel').closest('button');
+        const cancelButton = screen
+          .getByText('Cancel')
+          .closest('button') as HTMLButtonElement;
         fireEvent(
           cancelButton,
           new MouseEvent('click', {

@@ -8,7 +8,10 @@ import SSHTunnelIdentity from './ssh-tunnel-identity';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
 
-const formFields = [
+const formFields: {
+  key: keyof SSHConnectionOptions;
+  value: string;
+}[] = [
   {
     key: 'host',
     value: 'host',
@@ -61,7 +64,7 @@ describe('SSHTunnelIdentity', function () {
 
       if (key !== 'identityKeyFile') {
         expect(el.getAttribute('value'), `renders ${key} value`).to.equal(
-          sshTunnelOptions[key].toString()
+          sshTunnelOptions[key]?.toString()
         );
       }
     });
@@ -92,14 +95,17 @@ describe('SSHTunnelIdentity', function () {
       {
         fieldName: 'sshHostname',
         message: 'Invalid host',
+        fieldTab: 'authentication',
       },
       {
         fieldName: 'sshUsername',
         message: 'Invalid username',
+        fieldTab: 'authentication',
       },
       {
         fieldName: 'sshIdentityKeyFile',
         message: 'Invalid file',
+        fieldTab: 'authentication',
       },
     ];
 
@@ -112,17 +118,23 @@ describe('SSHTunnelIdentity', function () {
     );
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshHostname')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshHostname') as string
+      ),
       'renders sshHostname field error'
     ).to.exist;
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshUsername')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshUsername') as string
+      ),
       'renders sshUsername field error'
     ).to.exist;
 
     expect(
-      screen.getByText(errorMessageByFieldName(errors, 'sshIdentityKeyFile')),
+      screen.getByText(
+        errorMessageByFieldName(errors, 'sshIdentityKeyFile') as string
+      ),
       'renders sshIdentityKeyFile field error'
     ).to.exist;
   });
