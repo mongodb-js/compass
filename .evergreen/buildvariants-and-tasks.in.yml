@@ -289,7 +289,11 @@ tasks:
       - func: check
 
   - name: test
-    tags: ['required-for-publish', 'run-on-pr']
+    tags: 
+      - required-for-publish
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_creates_breaking_commit
     commands:
       - func: prepare
       - func: install
@@ -457,8 +461,10 @@ tasks:
 <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-packaged-app-<%= group.number %>
     tags:
-    - required-for-publish
-    - run-on-pr
+      - required-for-publish
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -483,7 +489,11 @@ tasks:
 <% for (const browser of BROWSERS) { %>
   <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-web-sandbox-<%= browser %>-<%= group.number %>
-    tags: ['required-for-publish', 'run-on-pr']
+    tags:
+      - required-for-publish
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install

@@ -261,6 +261,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_creates_breaking_commit
     commands:
       - func: prepare
       - func: install
@@ -1531,6 +1533,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1554,6 +1558,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1577,6 +1583,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1600,6 +1608,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1621,6 +1631,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1642,6 +1654,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1663,6 +1677,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1684,6 +1700,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
@@ -1705,6 +1723,8 @@ tasks:
     tags:
       - required-for-publish
       - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
     commands:
       - func: prepare
       - func: install
