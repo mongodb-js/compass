@@ -63,7 +63,7 @@ describe('CompassShellPlugin', function () {
     wrapper = null;
   });
 
-  // TODO
+  // TODO(COMPASS-7906): remove
   it.skip('returns a renderable plugin', async function () {
     connectionsManager['connectionStatuses'].set('1', 'connected');
     wrapper = mount(

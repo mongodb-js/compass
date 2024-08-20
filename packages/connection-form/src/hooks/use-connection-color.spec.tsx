@@ -33,7 +33,7 @@ describe('useConnectionColor', function () {
     }
   });
 
-  // TODO
+  // TODO(COMPASS-7906): remove
   it.skip('converts legacy colors', function () {
     const legacyColors = {
       '#5fc86e': 'color1',

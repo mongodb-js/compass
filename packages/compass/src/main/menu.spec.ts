@@ -287,7 +287,7 @@ describe('CompassMenu', function () {
       }
     });
 
-    // TODO
+    // TODO(COMPASS-7906): remove
     it.skip('[single-connection] should generate a menu template for darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
       expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
@@ -458,7 +458,7 @@ describe('CompassMenu', function () {
     });
 
     ['linux', 'win32'].forEach((platform) => {
-      // TODO
+      // TODO(COMPASS-7906): remove
       it.skip(`[single-connection] should generate a menu template for ${platform}`, function () {
         sinon.stub(process, 'platform').value(platform);
 

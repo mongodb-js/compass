@@ -93,7 +93,7 @@ function renderComponent(
   );
 }
 
-// TODO: a bunch of these don't work
+// TODO(COMPASS-7906): remove
 describe.skip('ConnectionsNavigationTree -- Single connection usage', function () {
   let preferences: PreferencesAccess;
   afterEach(cleanup);

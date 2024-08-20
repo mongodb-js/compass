@@ -54,7 +54,7 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
   await waitFor(() => expect(screen.queryByText('Cancel')).to.not.exist);
 }
 
-// TODO: basically nothing in here works
+// TODO(COMPASS-7906): remove
 describe.skip('Connections Component', function () {
   let preferences: PreferencesAccess;
 

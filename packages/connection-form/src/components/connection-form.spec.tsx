@@ -242,9 +242,7 @@ describe('ConnectionForm Component', function () {
     );
   });
 
-  // TODO: with enableNewMultipleConnectionSystem: true
-  // LegacyConnectionFormActions never gets rendered and not favoriteText,
-  // etc.
+  // TODO(COMPASS-7762)
   context.skip('when preferences.showFavoriteActions === false', function () {
     it('should not render the favorite button', function () {
       renderForm({
@@ -272,7 +270,7 @@ describe('ConnectionForm Component', function () {
       .visible;
   });
 
-  // TODO
+  // TODO(COMPASS-7762)
   it.skip('should show a button to save a connection', function () {
     render(
       <ConnectionForm
@@ -288,7 +286,7 @@ describe('ConnectionForm Component', function () {
     expect(screen.getByText(favoriteText).closest('button')).to.be.visible;
   });
 
-  // TODO
+  // TODO(COMPASS-7762)
   it.skip('should show the saved connection modal when the favorite button is clicked', function () {
     render(
       <ConnectionForm
@@ -329,7 +327,7 @@ describe('ConnectionForm Component', function () {
     expect(screen.getByText('connection error')).to.be.visible;
   });
 
-  // TODO
+  // TODO(COMPASS-7762)
   it.skip('should show a Save & Connect button when there is no existing connection', function () {
     render(
       <ConnectionForm
