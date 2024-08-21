@@ -6,7 +6,6 @@ import {
   activatePluginWithConnections,
   cleanup,
 } from '@mongodb-js/compass-connections/test';
-import type { DataService } from 'mongodb-data-service';
 import { CreateViewPlugin } from '../index';
 
 const TEST_CONNECTION = {
@@ -44,11 +43,8 @@ describe('CreateViewStore [Store]', function () {
         {},
         {
           connections: [TEST_CONNECTION],
-          connectFn(connectionOptions, MockDataService) {
-            return Object.assign(
-              new MockDataService(connectionOptions),
-              dataService
-            ) as unknown as DataService;
+          connectFn() {
+            return dataService;
           },
         }
       );

@@ -77,11 +77,8 @@ function getMockedPluginArgs(
       },
     },
     {
-      connectFn(connectionOptions: any, MockDataServiceCtor: any) {
-        return Object.assign(
-          new MockDataServiceCtor(connectionOptions),
-          dataService
-        ) as unknown as DataService;
+      connectFn() {
+        return dataService;
       },
       preferences: services.preferences
         ? services.preferences.getPreferences()

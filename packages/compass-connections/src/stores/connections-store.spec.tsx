@@ -9,7 +9,6 @@ import {
   createDefaultConnectionInfo,
   wait,
 } from '../test';
-import type { DataService } from 'mongodb-data-service';
 
 const mockConnections = [
   {
@@ -80,11 +79,9 @@ describe('useConnections', function () {
       const { result, connectionStorage, track } =
         await renderHookWithConnections(useConnections, {
           preferences: defaultPreferences,
-          connectFn: async (connectionOptions, MockDataService) => {
+          connectFn: async () => {
             await wait(100);
-            return new MockDataService(
-              connectionOptions
-            ) as unknown as DataService;
+            return {};
           },
         });
 
@@ -188,14 +185,11 @@ describe('useConnections', function () {
 
     it('should show device auth code modal when OIDC flow triggers the notification', async function () {
       let resolveConnect;
-      const connectFn = sinon
-        .stub()
-        .callsFake((connectionOptions, MockDataService) => {
-          return new Promise((resolve) => {
-            resolveConnect = () =>
-              resolve(new MockDataService(connectionOptions));
-          });
+      const connectFn = sinon.stub().callsFake(() => {
+        return new Promise((resolve) => {
+          resolveConnect = () => resolve({});
         });
+      });
 
       const { result } = await renderHookWithConnections(useConnections, {
         preferences: defaultPreferences,

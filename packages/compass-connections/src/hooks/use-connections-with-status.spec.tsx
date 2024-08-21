@@ -51,8 +51,8 @@ describe('useConnectionsWithStatus', function () {
       .onSecondCall()
       .rejects(new Error('Failed to connect'))
       .onThirdCall()
-      .callsFake((connectionOptions, MockDataService) => {
-        return new MockDataService(connectionOptions);
+      .callsFake(() => {
+        return {};
       });
 
     const { result, connectionsStore } = await renderHookWithConnections(

@@ -110,11 +110,7 @@ describe('Connections Component', function () {
         },
       ];
 
-      connectSpyFn = sinon
-        .stub()
-        .callsFake((connectionOptions, MockDataService) => {
-          return new MockDataService(connectionOptions);
-        });
+      connectSpyFn = sinon.stub().returns({});
 
       const { connectionsStore, connectionStorage } =
         await renderWithConnections(<Connections appRegistry={{} as any} />, {
@@ -234,8 +230,8 @@ describe('Connections Component', function () {
           })
           // On second call connect successfully without blocking
           .onSecondCall()
-          .callsFake((connectionOptions, MockDataService) => {
-            return new MockDataService(connectionOptions);
+          .callsFake(() => {
+            return {};
           });
 
         const { connectionStorage } = await renderWithConnections(

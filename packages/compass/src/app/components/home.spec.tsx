@@ -16,29 +16,30 @@ import {
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
-const createDataService = () => ({
-  getConnectionString() {
-    return { hosts: ['localhost:27020'] };
-  },
-  getConnectionOptions() {
-    return {};
-  },
-  getMongoClientConnectionOptions() {
-    return {};
-  },
-  getLastSeenTopology() {
-    return {
-      type: 'Unknown',
-      servers: ['localhost:27020'],
-      setName: 'foo',
-    };
-  },
-  configuredKMSProviders() {
-    return [];
-  },
-  currentOp() {},
-  top() {},
-});
+const createDataService = () =>
+  ({
+    getConnectionString() {
+      return { hosts: ['localhost:27020'] };
+    },
+    getConnectionOptions() {
+      return {};
+    },
+    getMongoClientConnectionOptions() {
+      return {};
+    },
+    getLastSeenTopology() {
+      return {
+        type: 'Unknown',
+        servers: ['localhost:27020'],
+        setName: 'foo',
+      };
+    },
+    configuredKMSProviders() {
+      return [];
+    },
+    currentOp() {},
+    top() {},
+  } as unknown as DataService);
 
 const HOME_PROPS = {
   appName: 'home-testing',
@@ -69,11 +70,8 @@ describe('Home [Component]', function () {
           enableNewMultipleConnectionSystem: false,
           ...preferences,
         },
-        connectFn: (connectionOptions, MockDataService) => {
-          return Object.assign(
-            new MockDataService(connectionOptions),
-            dataService
-          ) as unknown as DataService;
+        connectFn: () => {
+          return dataService;
         },
         connections,
       }

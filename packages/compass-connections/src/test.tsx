@@ -38,7 +38,10 @@ import {
 } from 'compass-preferences-model/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { CompassComponentsProvider } from '@mongodb-js/compass-components';
-import { ConnectionInfoProvider } from './connection-info-provider';
+import {
+  ConnectionInfoProvider,
+  TEST_CONNECTION_INFO,
+} from './connection-info-provider';
 import type { State } from './stores/connections-store-redux';
 import { createDefaultConnectionInfo } from './stores/connections-store-redux';
 import { getDataServiceForConnection } from './stores/connections-store-redux';
@@ -74,9 +77,8 @@ type ConnectionsOptions = {
    * connections store to function
    */
   connectFn?: (
-    connectionOptions: ConnectionInfo['connectionOptions'],
-    MockDataServiceCtor: typeof MockDataService
-  ) => DataService | Promise<DataService>;
+    connectionOptions: ConnectionInfo['connectionOptions']
+  ) => Partial<DataService> | Promise<Partial<DataService>>;
 } & Partial<Omit<React.ComponentProps<typeof CompassConnections>, 'children'>>;
 
 class MockDataService
@@ -93,12 +95,34 @@ class MockDataService
 {
   constructor(private connectionOptions: ConnectionInfo['connectionOptions']) {
     super();
+    this.setMaxListeners(0);
   }
   addReauthenticationHandler(): void {
     // noop
   }
   getCurrentTopologyType(): ReturnType<DataService['getCurrentTopologyType']> {
     return 'Unknown';
+  }
+  getLastSeenTopology(): ReturnType<DataService['getLastSeenTopology']> {
+    return {
+      type: 'Unknown',
+      servers: new Map(),
+      setName: null,
+      maxSetVersion: null,
+      maxElectionId: null,
+      stale: false,
+      compatible: false,
+      logicalSessionTimeoutMinutes: null,
+      heartbeatFrequencyMS: 0,
+      localThresholdMS: 0,
+      commonWireVersion: 0,
+      error: null,
+      hasKnownServers: false,
+      hasDataBearingServers: false,
+      toJSON() {
+        return JSON.parse(JSON.stringify(this));
+      },
+    };
   }
   getUpdatedSecrets(): Promise<Partial<ConnectionOptions>> {
     return Promise.resolve({});
@@ -191,10 +215,18 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
     }: {
       connectionOptions: ConnectionInfo['connectionOptions'];
     }) => {
-      return (
-        (await options.connectFn?.(connectionOptions, MockDataService)) ??
-        (new MockDataService(connectionOptions) as unknown as DataService)
-      );
+      if (options.connectFn) {
+        const mockDataService = await options.connectFn?.(connectionOptions);
+
+        return Object.assign(
+          // Make sure the mock always has the minimum required functions, but
+          // also allow for them to be overriden
+          new MockDataService(connectionOptions),
+          mockDataService
+        ) as unknown as DataService;
+      } else {
+        return new MockDataService(connectionOptions) as unknown as DataService;
+      }
     },
     getDataServiceForConnection,
   };
@@ -398,7 +430,7 @@ async function renderWithActiveConnection<
   BE extends Element | DocumentFragment = C
 >(
   ui: React.ReactElement,
-  connectionInfo: ConnectionInfo,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
   options: RenderConnectionsOptions<C, BE> = {}
 ) {
   function UiWithConnectionInfo() {
@@ -434,7 +466,7 @@ async function renderHookWithActiveConnection<
   BE extends Element | DocumentFragment = C
 >(
   cb: () => HookResult,
-  connectionInfo: ConnectionInfo,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
   options: RenderConnectionsOptions<C, BE> = {}
 ) {
   const result = { current: null } as { current: HookResult };
@@ -468,7 +500,7 @@ async function activatePluginWithActiveConnection<
 >(
   Plugin: HadronPluginComponent<T, S, A>,
   initialProps: T,
-  connectionInfo: ConnectionInfo,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
   options: RenderConnectionsOptions<C, BE> = {}
 ) {
   const { result, ...rest } = await renderHookWithActiveConnection(
@@ -491,7 +523,7 @@ async function renderPluginComponentWithActiveConnection<
   ui: React.ReactElement,
   Plugin: HadronPluginComponent<T, S, A>,
   initialProps: T,
-  connectionInfo: ConnectionInfo,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
   options: RenderConnectionsOptions<C, BE> = {}
 ) {
   let plugin;
