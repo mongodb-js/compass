@@ -109,7 +109,7 @@ class Target {
       );
     }
 
-    if (!supportedDistributions.has(distribution)) {
+    if (!supportedDistributions.includes(distribution)) {
       throw new Error(
         `Unknown distribution "${distribution}". Available distributions: ${supportedDistributions.join(
           ', '
