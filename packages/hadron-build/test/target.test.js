@@ -39,7 +39,7 @@ describe('target', () => {
 
   it('allows to override distribution config with env vars', () => {
     Object.assign(process.env, {
-      HADRON_DISTRIBUTION: 'my-custom-distribution',
+      HADRON_DISTRIBUTION: 'foo-bar',
       HADRON_PRODUCT: 'compass-compass',
       HADRON_PRODUCT_NAME: 'MongoDB Compass My Awesome Edition',
       HADRON_READONLY: 'true',
@@ -49,7 +49,7 @@ describe('target', () => {
 
     const target = new Target(path.join(__dirname, 'fixtures', 'hadron-app'));
 
-    expect(target).to.have.property('distribution', 'my-custom-distribution');
+    expect(target).to.have.property('distribution', 'foo-bar');
     expect(target).to.have.property('name', 'compass-compass');
     expect(target).to.have.property(
       'productName',
