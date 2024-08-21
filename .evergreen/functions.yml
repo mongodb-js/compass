@@ -587,6 +587,7 @@ functions:
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
           ATLAS_LOCAL_VERSION: latest
+          HADRON_DISTRIBUTION: compass
         script: |
           set -e
           # Load environment variables
@@ -615,6 +616,7 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
+          HADRON_DISTRIBUTION: compass
         script: |
           set -e
           # Load environment variables
@@ -623,7 +625,6 @@ functions:
           echo "Running E2E tests for multiple connections"
 
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-multiple-connections
-
 
   test-packaged-app:
     - command: shell.exec
@@ -947,6 +948,7 @@ functions:
           DEBUG: ${debug}
           SNYK_TOKEN: ${snyk_token}
           JIRA_API_TOKEN: ${jira_api_token}
+          HADRON_DISTRIBUTION: compass
         script: |
           set -e
           # Load environment variables
