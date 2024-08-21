@@ -5,6 +5,7 @@ import { parseSchema } from 'mongodb-schema';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';
+import type { ThunkAction } from 'redux-thunk';
 
 function isAction<A extends Action>(
   action: Action,
@@ -75,17 +76,28 @@ interface DocumentsUpdatedAction {
   schemaFields: SchemaField[];
 }
 
-export const documentsUpdated = async (
+export const documentsUpdated = (
   connectionInfoId: ConnectionInfo['id'],
   namespace: string,
   documents: Array<Record<string, any>>
-): Promise<DocumentsUpdatedAction> => {
-  const { fields } = await parseSchema(documents);
-  return {
-    type: DOCUMENTS_UPDATED,
-    connectionInfoId,
-    namespace,
-    schemaFields: fields,
+): ThunkAction<
+  Promise<void>,
+  ConnectionNamespacesState,
+  Record<string, never>,
+  DocumentsUpdatedAction
+> => {
+  return async (dispatch) => {
+    try {
+      const { fields } = await parseSchema(documents);
+      dispatch({
+        type: DOCUMENTS_UPDATED,
+        connectionInfoId,
+        namespace,
+        schemaFields: fields,
+      });
+    } catch {
+      // ignore errors
+    }
   };
 };
 

@@ -403,6 +403,37 @@ async function renderPluginComponentWithConnections<
   };
 }
 
+async function renderPluginHookWithConnections<
+  HookResult,
+  T,
+  S extends Record<string, () => unknown>,
+  A extends HadronPlugin,
+  C extends Element | DocumentFragment = HTMLElement,
+  BE extends Element | DocumentFragment = C
+>(
+  cb: () => HookResult,
+  Plugin: HadronPluginComponent<T, S, A>,
+  initialProps: T,
+  options: RenderConnectionsOptions<C, BE> = {}
+) {
+  const result = { current: null } as { current: HookResult };
+  function HookResultGetter() {
+    result.current = cb();
+    return null;
+  }
+  const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    result: _renderResult,
+    ...rest
+  } = await renderPluginComponentWithConnections(
+    <HookResultGetter></HookResultGetter>,
+    Plugin,
+    initialProps,
+    options
+  );
+  return { ...rest, result };
+}
+
 /**
  * @deprecated instead of testing the store directly, test it through the UI as
  * the redux documentation recommends
@@ -450,13 +481,22 @@ async function renderWithActiveConnection<
   await renderResult.connectionsStore.actions.connect(connectionInfo);
   // For ConnectionInfoProvider to render your input, we need to be connected
   // successfully
-  expect(
-    renderResult.connectionsStore.getState().connections.byId[connectionInfo.id]
-  ).to.have.property(
-    'status',
-    'connected',
-    'Expected connection to connect before rendering rest of the tested UI, but connection failed to connect'
-  );
+  const connectionState =
+    renderResult.connectionsStore.getState().connections.byId[
+      connectionInfo.id
+    ];
+  if (connectionState.status !== 'connected') {
+    if (connectionState.error) {
+      connectionState.error.message =
+        'Failed to connect when rendering with active connect:\n\n' +
+        connectionState.error.message;
+      throw connectionState.error;
+    } else {
+      throw new Error(
+        `Expected to connect when renderering with active connection, instead the connection status is ${connectionState.status}`
+      );
+    }
+  }
   return renderResult;
 }
 
@@ -484,33 +524,6 @@ async function renderHookWithActiveConnection<
     options
   );
   return { ...rest, result };
-}
-
-/**
- * @deprecated instead of testing the store directly, test it through the UI as
- * the redux documentation recommends
- * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
- */
-async function activatePluginWithActiveConnection<
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
-  options: RenderConnectionsOptions<C, BE> = {}
-) {
-  const { result, ...rest } = await renderHookWithActiveConnection(
-    () => {
-      return Plugin.useActivate(initialProps);
-    },
-    connectionInfo,
-    options
-  );
-  return { plugin: result.current, ...rest };
 }
 
 async function renderPluginComponentWithActiveConnection<
@@ -546,6 +559,66 @@ async function renderPluginComponentWithActiveConnection<
   };
 }
 
+async function renderPluginHookWithActiveConnection<
+  HookResult,
+  T,
+  S extends Record<string, () => unknown>,
+  A extends HadronPlugin,
+  C extends Element | DocumentFragment = HTMLElement,
+  BE extends Element | DocumentFragment = C
+>(
+  cb: () => HookResult,
+  Plugin: HadronPluginComponent<T, S, A>,
+  initialProps: T extends Record<string, never> ? T | undefined : T,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
+  options: RenderConnectionsOptions<C, BE> = {}
+) {
+  const result = { current: null } as { current: HookResult };
+  function HookResultGetter() {
+    result.current = cb();
+    return null;
+  }
+  const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    result: _renderResult,
+    ...rest
+  } = await renderPluginComponentWithActiveConnection(
+    <HookResultGetter></HookResultGetter>,
+    Plugin,
+    initialProps as T,
+    connectionInfo,
+    options
+  );
+  return { ...rest, result };
+}
+
+/**
+ * @deprecated instead of testing the store directly, test it through the UI as
+ * the redux documentation recommends
+ * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
+ */
+async function activatePluginWithActiveConnection<
+  T,
+  S extends Record<string, () => unknown>,
+  A extends HadronPlugin,
+  C extends Element | DocumentFragment = HTMLElement,
+  BE extends Element | DocumentFragment = C
+>(
+  Plugin: HadronPluginComponent<T, S, A>,
+  initialProps: T,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
+  options: RenderConnectionsOptions<C, BE> = {}
+) {
+  const { result, ...rest } = await renderHookWithActiveConnection(
+    () => {
+      return Plugin.useActivate(initialProps);
+    },
+    connectionInfo,
+    options
+  );
+  return { plugin: result.current, ...rest };
+}
+
 export {
   // There is never a good reason not to have these wrapper providers when
   // rendering something in compass for testing. Using them requires render call
@@ -566,6 +639,8 @@ export {
   renderHookWithActiveConnection,
   renderPluginComponentWithConnections,
   renderPluginComponentWithActiveConnection,
+  renderPluginHookWithConnections,
+  renderPluginHookWithActiveConnection,
   activatePluginWithConnections,
   activatePluginWithActiveConnection,
   act,
