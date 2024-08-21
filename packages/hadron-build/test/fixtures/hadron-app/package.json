@@ -42,6 +42,9 @@
           "productName": "MongoDB Compass Enterprise super long test name",
           "plugins": [],
           "styles": [ "index" ]
+        },
+        "foo-bar": {
+          "name": "foo-bar"
         }
       },
       "endpoint": "https://hadron-app.herokuapp.com",

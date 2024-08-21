@@ -83,7 +83,7 @@
     "@mongodb-js/oidc-plugin": "^1.1.1",
     "hadron-app-registry": "^9.2.2",
     "compass-preferences-model": "^2.26.0",
-    "electron": "^29.4.5",
+    "electron": "^30.4.0",
     "hadron-ipc": "^3.2.20",
     "lodash": "^4.17.21",
     "react": "^17.0.2",

@@ -14,13 +14,6 @@ describe('hadron-build', () => {
     expect(hadronBuild).to.be.a('function');
   });
 
-  describe('::release', () => {
-    it('should include options from commands::verify', () => {
-      expect(commands.release.builder).to.have.property('nodejs_version');
-      expect(commands.release.builder).to.have.property('npm_version');
-    });
-  });
-
   describe('::test', () => {
     const DEFAULT_ARGS = {
       _: [],
@@ -82,25 +75,6 @@ describe('hadron-build', () => {
       it('should set the TEST_WITH_PREBUILT environment variable if --release specified');
       it('should remove the user-data directory');
       it('should spawn electron-mocha');
-    });
-  });
-
-  describe('::verify', () => {
-    it('should have a `nodejs_version` option', () => {
-      expect(commands.verify.builder).to.have.property('nodejs_version');
-    });
-
-    it('should have a `npm_version` option', () => {
-      expect(commands.verify.builder).to.have.property('npm_version');
-    });
-
-    it('should use `engines.node` for the default `nodejs_version` option');
-
-    it('should use `engines.npm` for the default `npm_version` option');
-
-    describe('::handler', () => {
-      it('should check the environment\'s npm installation');
-      it('should check the environment\'s node.js installation');
     });
   });
 });
