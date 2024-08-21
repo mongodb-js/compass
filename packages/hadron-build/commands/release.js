@@ -15,7 +15,6 @@
  */
 
 const Target = require('../lib/target');
-const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const format = util.format;
@@ -29,8 +28,6 @@ const createApplicationZip = require('../lib/zip');
 const run = require('./../lib/run');
 const rebuild = require('@electron/rebuild').rebuild;
 const { signArchive } = require('./../lib/signtool');
-
-const verify = require('./verify');
 
 exports.command = 'release';
 
@@ -514,8 +511,6 @@ exports.builder = {
   }
 };
 
-_.assign(exports.builder, verify.builder);
-
 
 /**
  * @param {any} argv Parsed command arguments
@@ -524,8 +519,6 @@ _.assign(exports.builder, verify.builder);
  */
 exports.run = async (argv, done) => {
   cli.argv = argv;
-
-  verifyDistro(argv);
 
   const target = new Target(argv.dir);
 
@@ -551,7 +544,6 @@ exports.run = async (argv, done) => {
   const noAsar = process.env.NO_ASAR === 'true' || argv.no_asar;
 
   const tasks = _.flatten([
-    () => verify.tasks(argv),
     task('copy npmrc from root', ({ dir }, done) => {
       fs.cp(
         path.resolve(dir, '..', '..', '.npmrc'),

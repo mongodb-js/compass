@@ -101,12 +101,27 @@ class Target {
     this.pkg = pkg;
 
     const distributions = pkg.config.hadron.distributions;
+    const distribution = opts.distribution ?? process.env.HADRON_DISTRIBUTION;
+
+    if (!distribution) {
+      throw new Error(
+        'You need to explicitly set HADRON_DISTRIBUTION or pass `distribution` option to Target constructor before building Compass'
+      );
+    }
+
+    if (!supportedDistributions.includes(distribution)) {
+      throw new Error(
+        `Unknown distribution "${distribution}". Available distributions: ${supportedDistributions.join(
+          ', '
+        )}`
+      );
+    }
 
     _.defaults(opts, { version: process.env.HADRON_APP_VERSION }, pkg, {
       platform: process.platform,
       arch: process.arch,
       sign: true,
-      distribution: process.env.HADRON_DISTRIBUTION || distributions.default
+      distribution,
     });
 
     this.distribution = opts.distribution;
