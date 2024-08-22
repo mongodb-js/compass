@@ -2061,7 +2061,7 @@ export const importConnections = (
 };
 
 export function configureStore(
-  initialState = INITIAL_STATE,
+  initialState: Partial<State> = {},
   thunkArg: ThunkExtraArg
 ) {
   return createStore(
@@ -2072,7 +2072,7 @@ export function configureStore(
     //   return newState;
     // },
     reducer,
-    initialState,
+    merge(initialState, INITIAL_STATE),
     applyMiddleware(thunk.withExtraArgument(thunkArg))
   );
 }

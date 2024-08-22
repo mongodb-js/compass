@@ -8,6 +8,7 @@ import {
   AppRegistryProvider,
   useGlobalAppRegistry,
   useLocalAppRegistry,
+  useIsTopLevelProvider,
 } from './react-context';
 
 class ActivateHelpersImpl {
@@ -485,13 +486,27 @@ export function registerHadronPlugin<
         ...options,
       };
       function MockPluginWithContext(props: T) {
+        const isTopLevelProvider = useIsTopLevelProvider();
+        const hasCustomAppRegistries =
+          !!mockServices.localAppRegistry || !!mockServices.globalAppRegistry;
+        // Only render these providers if there are no providers for app
+        // registry set up higher in the rendering tree or if user explicitly
+        // passed some mocks here. In other cases we're probably be interferring
+        // with some custom providers setup by the test code
+        const shouldRenderRegistryProviders =
+          isTopLevelProvider || hasCustomAppRegistries;
+
         return (
           <MockOptionsContext.Provider value={mockOptions}>
-            <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
-              <AppRegistryProvider localAppRegistry={localAppRegistry}>
-                <Plugin {...(props as any)}></Plugin>
-              </AppRegistryProvider>
-            </GlobalAppRegistryContext.Provider>
+            {shouldRenderRegistryProviders ? (
+              <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
+                <AppRegistryProvider localAppRegistry={localAppRegistry}>
+                  <Plugin {...(props as any)}></Plugin>
+                </AppRegistryProvider>
+              </GlobalAppRegistryContext.Provider>
+            ) : (
+              <Plugin {...(props as any)}></Plugin>
+            )}
           </MockOptionsContext.Provider>
         );
       }

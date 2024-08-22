@@ -1,50 +1,30 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { CreateNamespacePlugin } from '../index';
-import AppRegistry from 'hadron-app-registry';
-import {
-  render,
-  cleanup,
-  screen,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import type AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
-import {
-  ConnectionsManager,
-  type DataService,
-} from '@mongodb-js/compass-connections/provider';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { type DataService } from '@mongodb-js/compass-connections/provider';
 import {
   type MongoDBInstance,
   TestMongoDBInstanceManager,
 } from '@mongodb-js/compass-app-stores/provider';
+import {
+  renderWithConnections,
+  cleanup,
+  screen,
+  waitForElementToBeRemoved,
+  userEvent,
+  createDefaultConnectionInfo,
+  waitFor,
+} from '@mongodb-js/compass-connections/test';
+
+const mockConnections = [
+  { ...createDefaultConnectionInfo(), id: '1' },
+  { ...createDefaultConnectionInfo(), id: '2' },
+];
 
 describe('CreateNamespacePlugin', function () {
   const sandbox = Sinon.createSandbox();
-  const appRegistry = sandbox.spy(new AppRegistry());
-  const dataService1 = {
-    createCollection() {
-      return Promise.resolve({});
-    },
-    createDataKey() {
-      return Promise.resolve({});
-    },
-    configuredKMSProviders() {
-      return Promise.resolve([]);
-    },
-  } as unknown as DataService;
-  const dataService2 = {
-    createCollection() {
-      return Promise.resolve({});
-    },
-    createDataKey() {
-      return Promise.resolve({});
-    },
-    configuredKMSProviders() {
-      return Promise.resolve([]);
-    },
-  } as unknown as DataService;
   const instance1 = {
     on: sandbox.stub(),
     off: sandbox.stub(),
@@ -62,22 +42,10 @@ describe('CreateNamespacePlugin', function () {
   const workspaces = {
     openCollectionWorkspace() {},
   };
+  let appRegistry: AppRegistry;
+  let getDataService: (id: string) => DataService;
 
-  beforeEach(function () {
-    const connectionsManager = new ConnectionsManager({
-      logger: createNoopLogger().log.unbound,
-    });
-    sandbox
-      .stub(connectionsManager, 'getDataServiceForConnection')
-      .callsFake((id) => {
-        if (id === '1') {
-          return dataService1;
-        } else if (id === '2') {
-          return dataService2;
-        }
-        throw new Error('unknown id provided');
-      });
-
+  beforeEach(async function () {
     const instancesManager = new TestMongoDBInstanceManager();
     sandbox
       .stub(instancesManager, 'getMongoDBInstanceForConnection')
@@ -90,12 +58,30 @@ describe('CreateNamespacePlugin', function () {
       }) as () => MongoDBInstance);
 
     const Plugin = CreateNamespacePlugin.withMockServices({
-      globalAppRegistry: appRegistry,
-      connectionsManager,
       instancesManager,
       workspaces: workspaces as any,
     });
-    render(<Plugin></Plugin>);
+    const result = await renderWithConnections(<Plugin></Plugin>, {
+      connections: mockConnections,
+      connectFn() {
+        return {
+          createCollection() {
+            return Promise.resolve({} as any);
+          },
+          createDataKey() {
+            return Promise.resolve({});
+          },
+          configuredKMSProviders() {
+            return [];
+          },
+        };
+      },
+    });
+    appRegistry = result.globalAppRegistry;
+    getDataService = result.getDataServiceForConnection;
+    for (const connectionInfo of mockConnections) {
+      await result.connectionsStore.actions.connect(connectionInfo);
+    }
   });
 
   afterEach(function () {
@@ -105,9 +91,14 @@ describe('CreateNamespacePlugin', function () {
   });
 
   it('should dismiss the modal not do anything when modal is dismissed', async function () {
-    const createCollectionSpy = sandbox.spy(dataService1, 'createCollection');
+    const createCollectionSpy = sandbox.spy(
+      getDataService('1'),
+      'createCollection'
+    );
     appRegistry.emit('open-create-database', { connectionId: '1' });
-    expect(screen.getByRole('heading', { name: 'Create Database' })).to.exist;
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Create Database' })).to.exist;
+    });
 
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await waitForElementToBeRemoved(
@@ -126,7 +117,10 @@ describe('CreateNamespacePlugin', function () {
 
     it('should handle create database flow on `open-create-database` event', async function () {
       const emitSpy = sandbox.spy(appRegistry, 'emit');
-      const createCollectionSpy = sandbox.spy(dataService1, 'createCollection');
+      const createCollectionSpy = sandbox.spy(
+        getDataService('1'),
+        'createCollection'
+      );
       const openCollectionWorkspaceSpy = sandbox.spy(
         workspaces,
         'openCollectionWorkspace'
@@ -178,7 +172,10 @@ describe('CreateNamespacePlugin', function () {
 
     it('should handle create collection flow on `open-create-collection` event', async function () {
       const emitSpy = sandbox.spy(appRegistry, 'emit');
-      const createCollectionSpy = sandbox.spy(dataService2, 'createCollection');
+      const createCollectionSpy = sandbox.spy(
+        getDataService('2'),
+        'createCollection'
+      );
       const openCollectionWorkspaceSpy = sandbox.spy(
         workspaces,
         'openCollectionWorkspace'
