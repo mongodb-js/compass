@@ -34,9 +34,6 @@ export async function saveFavorite(
   expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
     'Save'
   );
-
-  await browser.screenshot('save-favorite-modal.png');
-
   await browser.clickVisible(Selectors.FavoriteSaveButton);
   await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 }

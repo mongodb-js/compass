@@ -101,12 +101,27 @@ class Target {
     this.pkg = pkg;
 
     const distributions = pkg.config.hadron.distributions;
+    const distribution = opts.distribution ?? process.env.HADRON_DISTRIBUTION;
+
+    if (!distribution) {
+      throw new Error(
+        'You need to explicitly set HADRON_DISTRIBUTION or pass `distribution` option to Target constructor before building Compass'
+      );
+    }
+
+    if (!supportedDistributions.includes(distribution)) {
+      throw new Error(
+        `Unknown distribution "${distribution}". Available distributions: ${supportedDistributions.join(
+          ', '
+        )}`
+      );
+    }
 
     _.defaults(opts, { version: process.env.HADRON_APP_VERSION }, pkg, {
       platform: process.platform,
       arch: process.arch,
       sign: true,
-      distribution: process.env.HADRON_DISTRIBUTION || distributions.default
+      distribution,
     });
 
     this.distribution = opts.distribution;
@@ -196,14 +211,7 @@ class Target {
       arch: this.arch,
       electronVersion: this.electronVersion,
       sign: null,
-      afterExtract: [(buildPath, electronVersion, platform, arch, done) => {
-        // TODO(https://github.com/electron/electron/issues/43076): electron
-        // releases are pointing to a wrong version of ffmpeg codecs right now
-        // (platform mismatch), there is a fix in progress and we should switch
-        // asap when it's available, for now just use the ffmpeg from an older
-        // version
-        ffmpegAfterExtract(buildPath, '29.4.3', platform, arch, done)
-      }]
+      afterExtract: [ffmpegAfterExtract]
     };
 
     validateBuildConfig(this.platform, this.pkg.config.hadron.build[this.platform]);

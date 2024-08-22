@@ -40,6 +40,10 @@ const connectionInfo: ConnectionInfo = {
   connectionOptions: {
     connectionString: 'mongodb://localhost:27017',
   },
+  favorite: {
+    name: 'localhost',
+    color: 'color_2',
+  },
   savedConnectionType: 'recent',
 };
 
@@ -713,6 +717,148 @@ describe('connection tracking', function () {
     expect(properties.topology_type).to.equal('Sharded');
   });
 
+  it('tracks hostname without port', async function () {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          isLocalAtlas: false,
+          featureCompatibilityVersion: null,
+        } as any);
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+    const trackEvent = once(process, 'compass:track');
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        connectionString:
+          'mongodb://test-000-shard-00-00.test.mongodb.net:27017',
+      },
+    };
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    const [{ properties }] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.atlas_hostname).to.equal(
+      'test-000-shard-00-00.test.mongodb.net'
+    );
+  });
+
+  it('tracks IPv6 hostname without port', async function () {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          isLocalAtlas: false,
+          featureCompatibilityVersion: null,
+        } as any);
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+    const trackEvent = once(process, 'compass:track');
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        connectionString: 'mongodb://[3fff:0:a88:15a3::ac2f]:8001/',
+      },
+    };
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    const [{ properties }] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.atlas_hostname).to.equal('3fff:0:a88:15a3::ac2f');
+  });
+
+  it('falls back to original url if cannot resolve srv', async function () {
+    const mockDataService: Pick<
+      DataService,
+      'instance' | 'getCurrentTopologyType'
+    > = {
+      instance: () => {
+        return Promise.resolve({
+          dataLake: {
+            isDataLake: true,
+            version: '1.2.3',
+          },
+          genuineMongoDB: {
+            dbType: 'mongo',
+            isGenuine: false,
+          },
+          host: {
+            arch: 'darwin',
+            os_family: 'mac',
+          },
+          build: {
+            isEnterprise: true,
+            version: '4.3.2',
+          },
+          isAtlas: true,
+          isLocalAtlas: false,
+          featureCompatibilityVersion: null,
+        } as any);
+      },
+      getCurrentTopologyType: () => 'Unknown',
+    };
+    const trackEvent = once(process, 'compass:track');
+
+    // The fake srv connection string cannot be resolved,
+    // But expected to fall back to the original hostname from uri
+    // When retrieving atlas_hostname for telemetry
+    const connection: ConnectionInfo = {
+      ...connectionInfo,
+      connectionOptions: {
+        connectionString:
+          'mongodb+srv://test-000-shard-00-00.test.mongodb.net:27017',
+      },
+    };
+    trackNewConnectionEvent(connection, mockDataService, logger, track);
+    const [{ properties }] = await trackEvent;
+
+    expect(properties.is_atlas).to.equal(true);
+    expect(properties.atlas_hostname).to.equal(
+      'test-000-shard-00-00.test.mongodb.net'
+    );
+  });
+
   it('tracks connection error event', async function () {
     const trackEvent = once(process, 'compass:track');
     const connection: ConnectionInfo = {
@@ -772,7 +918,7 @@ describe('connection tracking', function () {
     };
 
     trackNewConnectionEvent(connection, dataService, logger, track);
-    const [{ properties }] = await trackEvent;
+    const [{ properties, event }] = await trackEvent;
 
     const expected = {
       is_localhost: true,
@@ -803,6 +949,7 @@ describe('connection tracking', function () {
       connection_id: 'TEST',
     };
 
+    expect(event).to.equal('New Connection');
     expect(properties).to.deep.equal(expected);
   });
 });

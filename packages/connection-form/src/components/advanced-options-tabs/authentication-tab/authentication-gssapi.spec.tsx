@@ -118,7 +118,7 @@ describe('AuthenticationGssapi Component', function () {
         .getByTestId('gssapi-canonicalize-host-name-none')
         .closest('input');
 
-      expect(radio.checked).to.be.true;
+      expect(radio?.checked).to.be.true;
     });
 
     it('updates the form field with CANONICALIZE_HOST_NAME forward', function () {
@@ -188,7 +188,7 @@ describe('AuthenticationGssapi Component', function () {
       it('allows to edit the password when enter password directly is enabled', function () {
         expect(screen.queryByTestId('gssapi-password-input')).to.not.exist;
         const checkbox = screen.getByTestId('gssapi-password-checkbox');
-        expect(checkbox.closest('input').checked).to.be.false;
+        expect(checkbox.closest('input')?.checked).to.be.false;
 
         fireEvent.click(checkbox);
 
@@ -220,15 +220,17 @@ describe('AuthenticationGssapi Component', function () {
 
       it('enables the checkbox and shows the password input', function () {
         const checkbox = screen.getByTestId('gssapi-password-checkbox');
-        expect(checkbox.closest('input').checked).to.be.true;
+        expect(checkbox.closest('input')?.checked).to.be.true;
         const passwordInput = screen.queryByTestId('gssapi-password-input');
         expect(passwordInput).to.exist;
-        expect(passwordInput.closest('input').value).to.equal('password');
+        expect(passwordInput && passwordInput.closest('input')?.value).to.equal(
+          'password'
+        );
       });
 
       it('resets the password when the checkbox is unchecked', function () {
         const checkbox = screen.getByTestId('gssapi-password-checkbox');
-        expect(checkbox.closest('input').checked).to.be.true;
+        expect(checkbox.closest('input')?.checked).to.be.true;
         fireEvent.click(checkbox);
 
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);

@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { abort, getAbortSignal, isAction } from './utils';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
 import type { SettingsThunkAction } from '.';
@@ -75,7 +75,7 @@ type AtlasServiceSignedOutAction = {
   type: AtlasLoginSettingsActionTypes.AtlasServiceSignedOut;
 };
 
-const reducer: Reducer<AtlasLoginSettingsState> = (
+const reducer: Reducer<AtlasLoginSettingsState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {

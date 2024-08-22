@@ -2,7 +2,7 @@ import { useCallback, useEffect, useReducer, useRef } from 'react';
 import type { DataService, connect } from 'mongodb-data-service';
 import { useConnectionsManagerContext } from '../provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
-import { cloneDeep, merge } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { UUID } from 'bson';
 import { useToast } from '@mongodb-js/compass-components';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -10,12 +10,17 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { usePreferencesContext } from 'compass-preferences-model/provider';
 import { useConnectionRepository } from '../provider';
 import { useConnectionStorageContext } from '@mongodb-js/connection-storage/provider';
-import { useConnectionStatusToasts } from '../components/connection-status-toasts';
+import { useConnectionStatusNotifications } from '../components/connection-status-notifications';
 import { isCancelError } from '@mongodb-js/compass-utils';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import { getGenuineMongoDB } from 'mongodb-build-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import {
+  trackConnectionCreatedEvent,
+  trackConnectionDisconnectedEvent,
+  trackConnectionRemovedEvent,
+} from '../utils/telemetry';
 
 const { debug, mongoLogId, log } = createLogger('COMPASS-CONNECTIONS');
 
@@ -272,7 +277,7 @@ function useCurrentRef<T>(val: T): { current: T } {
 }
 
 export function useConnections({
-  onConnected,
+  onConnected, // TODO(COMPASS-7397): move connection-telemetry inside connections
   onConnectionFailed,
   onConnectionAttemptStarted,
 }: {
@@ -347,20 +352,23 @@ export function useConnections({
 
   const { openToast } = useToast('compass-connections');
   const {
+    openNotifyDeviceAuthModal,
     openConnectionStartedToast,
     openConnectionSucceededToast,
     openConnectionFailedToast,
     openMaximumConnectionsReachedToast,
     closeConnectionStatusToast,
-  } = useConnectionStatusToasts();
+  } = useConnectionStatusNotifications();
 
   const saveConnectionInfo = useCallback(
-    async (
-      connectionInfo: RecursivePartial<ConnectionInfo> &
-        Pick<ConnectionInfo, 'id'>
-    ) => {
+    async (connectionInfo: PartialConnectionInfo) => {
       try {
-        return await saveConnection(connectionInfo);
+        const isNewConnection = !getConnectionInfoById(connectionInfo.id);
+        const savedConnectionInfo = await saveConnection(connectionInfo);
+        if (isNewConnection) {
+          trackConnectionCreatedEvent(savedConnectionInfo, track);
+        }
+        return savedConnectionInfo;
       } catch (err) {
         debug(
           `error saving connection with id ${connectionInfo.id || ''}: ${
@@ -379,25 +387,7 @@ export function useConnections({
         return null;
       }
     },
-    [openToast, saveConnection]
-  );
-
-  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
-    (
-      connectionInfo: ConnectionInfo,
-      {
-        verificationUrl,
-        userCode,
-      }: { verificationUrl: string; userCode: string }
-    ) => {
-      dispatch({
-        type: 'oidc-attempt-connect-notify-device-auth',
-        connectionInfo,
-        verificationUrl,
-        userCode,
-      });
-    },
-    []
+    [openToast, saveConnection, getConnectionInfoById, track]
   );
 
   const oidcUpdateSecrets = useCallback(
@@ -435,6 +425,10 @@ export function useConnections({
       );
       try {
         await connectionsManager.closeConnection(connectionId);
+        trackConnectionDisconnectedEvent(
+          getConnectionInfoById(connectionId),
+          track
+        );
       } catch (error) {
         log.error(
           mongoLogId(1_001_000_314),
@@ -447,7 +441,43 @@ export function useConnections({
       }
       debug('connection closed', connectionId);
     },
-    [closeConnectionStatusToast, connectionsManager]
+    [
+      closeConnectionStatusToast,
+      connectionsManager,
+      getConnectionInfoById,
+      track,
+    ]
+  );
+
+  const oidcAttemptConnectNotifyDeviceAuth = useCallback(
+    (
+      connectionInfo: ConnectionInfo,
+      {
+        verificationUrl,
+        userCode,
+      }: { verificationUrl: string; userCode: string },
+      signal: AbortSignal
+    ) => {
+      // For single connection store the device auth info so that we can append
+      // it to the "Connecting..." modal
+      dispatch({
+        type: 'oidc-attempt-connect-notify-device-auth',
+        connectionInfo,
+        verificationUrl,
+        userCode,
+      });
+
+      openNotifyDeviceAuthModal(
+        connectionInfo,
+        verificationUrl,
+        userCode,
+        () => {
+          void disconnect(connectionInfo.id);
+        },
+        signal
+      );
+    },
+    [disconnect, openNotifyDeviceAuthModal]
   );
 
   const createNewConnection = useCallback(() => {
@@ -495,8 +525,11 @@ export function useConnections({
         id: new UUID().toString(),
       };
 
-      if (!duplicate.favorite) {
-        duplicate.favorite = { name: getConnectionTitle(duplicate) };
+      if (!duplicate.favorite || !duplicate.favorite.name) {
+        duplicate.favorite = {
+          ...duplicate.favorite,
+          name: getConnectionTitle(duplicate),
+        };
       }
 
       const [nameWithoutCount, copyCount] = parseFavoriteNameToNameAndCopyCount(
@@ -537,10 +570,11 @@ export function useConnections({
       if (connectionInfo) {
         void disconnect(connectionId);
         await deleteConnection(connectionInfo);
+        trackConnectionRemovedEvent(connectionInfo, track);
         dispatch({ type: 'delete-connection', connectionInfo });
       }
     },
-    [deleteConnection, disconnect, getConnectionInfoById]
+    [deleteConnection, disconnect, getConnectionInfoById, track]
   );
 
   const removeAllRecentConnections = useCallback(async () => {
@@ -599,6 +633,8 @@ export function useConnections({
       const isAutoconnectAttempt =
         typeof connectionInfoOrGetAutoconnectInfo === 'function';
 
+      const deviceAuthAbortController = new AbortController();
+
       let connectionInfo: ConnectionInfo | undefined;
 
       try {
@@ -651,11 +687,6 @@ export function useConnections({
         // means to returning this info as part of the connections list for now
         if (!isAutoconnectAttempt) {
           if (
-            // In single connection mode we only update existing connection when
-            // we successfully connected. In multiple connections we don't care
-            // if existing connection fails with errors and update it either way
-            // before we finished connecting
-            preferences.getPreferences().enableNewMultipleConnectionSystem ||
             // TODO(COMPASS-7397): The way the whole connection logic is set up
             // right now it is required that we save connection before starting
             // the connection process even if we don't need or want to so that
@@ -691,41 +722,34 @@ export function useConnections({
           { isAutoconnectAttempt }
         );
 
+        const currentConnectionInfo = connectionInfo;
+
         const dataService = await connectionsManager.connect(connectionInfo, {
           forceConnectionOptions,
           browserCommandForOIDCAuth,
           onDatabaseSecretsChange: (...args) => {
             void oidcUpdateSecrets(...args);
           },
-          onNotifyOIDCDeviceFlow: oidcAttemptConnectNotifyDeviceAuth.bind(
-            null,
-            connectionInfo
-          ),
+          onNotifyOIDCDeviceFlow: (deviceFlowInfo) => {
+            oidcAttemptConnectNotifyDeviceAuth(
+              currentConnectionInfo,
+              deviceFlowInfo,
+              deviceAuthAbortController.signal
+            );
+          },
         });
 
         try {
-          const mergeConnectionInfo = preferences.getPreferences()
-            .persistOIDCTokens
-            ? { connectionOptions: await dataService.getUpdatedSecrets() }
-            : {};
-
           // Auto-connect info should never be saved
           if (!isAutoconnectAttempt) {
+            // After connection is established we only update lastUsed time and
+            // maybe an OIDC token if preferences allow
             await saveConnectionInfo({
-              ...merge(
-                // In single connection mode we only update the last used
-                // timestamp and maybe an OIDC token, everything else is kept
-                // as-is so that "Connect" and "Save" are distinct features (as
-                // the button labels in the connection form suggest). In
-                // multiple connections we update everything
-                preferences.getPreferences().enableNewMultipleConnectionSystem
-                  ? connectionInfo
-                  : // Existing connection info might be missing when connecting
-                    // to a new connection for the first time
-                    existingConnectionInfo ?? connectionInfo,
-                mergeConnectionInfo
-              ),
+              id: connectionInfo.id,
               lastUsed: new Date(),
+              ...(preferences.getPreferences().persistOIDCTokens
+                ? { connectionOptions: await dataService.getUpdatedSecrets() }
+                : {}),
             });
           }
         } catch (err) {
@@ -789,6 +813,9 @@ export function useConnections({
           connectionInfo: connectionInfo ?? createNewConnectionInfo(),
           isAutoConnect: isAutoconnectAttempt,
         });
+      } finally {
+        // Auto close device auth modal
+        deviceAuthAbortController.abort();
       }
     },
     [

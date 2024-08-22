@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasUserInfo } from '../util';
@@ -157,7 +157,7 @@ export function getAttempt(id?: number | null): AttemptState {
   return attemptState;
 }
 
-const reducer: Reducer<AtlasSignInState> = (
+const reducer: Reducer<AtlasSignInState, Action> = (
   state = { ...INITIAL_STATE },
   action
 ) => {

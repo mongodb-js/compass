@@ -15,7 +15,7 @@ import {
   TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
   MONGODB_TEST_SERVER_PORT,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -237,8 +237,6 @@ async function assertCannotCreateDb(
     `not authorized on ${dbName} to execute command`
   );
 
-  await browser.screenshot('create-database-modal-error.png');
-
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
   await createModalElement.waitForDisplayed({ reverse: true });
@@ -278,11 +276,15 @@ async function assertCannotCreateCollection(
     `not authorized on ${dbName} to execute command`
   );
 
-  await browser.screenshot('create-collection-modal-error.png');
-
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateCollectionCancelButton);
   await createModalElement.waitForDisplayed({ reverse: true });
+}
+
+function assertNotError(result: any) {
+  if (typeof result === 'string' && result.includes('MongoNetworkError')) {
+    expect.fail(result);
+  }
 }
 
 /**
@@ -295,6 +297,10 @@ describe('Connection string', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+  });
+
+  beforeEach(async function () {
+    await browser.removeAllConnections();
   });
 
   after(function () {
@@ -310,7 +316,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -322,10 +328,13 @@ describe('Connection string', function () {
   it('fails for authentication errors', async function () {
     skipForWeb(this, 'connect happens on the outside');
 
+    // connect
     await browser.connectWithConnectionString(
       `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
-      'failure'
+      { connectionStatus: 'failure' }
     );
+
+    // check the error
     if (TEST_MULTIPLE_CONNECTIONS) {
       const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
       expect(toastTitle).to.equal('Authentication failed.');
@@ -341,6 +350,16 @@ describe('Connection string', function () {
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
       expect(errorMessage).to.equal('Authentication failed.');
+    }
+
+    // for multiple connections click the review button in the toast
+    if (TEST_MULTIPLE_CONNECTIONS) {
+      await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      const errorText = await browser
+        .$(Selectors.ConnectionFormErrorMessage)
+        .getText();
+      expect(errorText).to.equal('Authentication failed.');
     }
   });
 
@@ -388,7 +407,6 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString(connectionString);
 
     if (!TEST_COMPASS_WEB) {
-      await browser.screenshot('direct-connection-shell.png');
       const result = await browser.shellEval(
         connectionNameFromString(connectionString),
         'db.runCommand({ connectionStatus: 1 })',
@@ -658,6 +676,10 @@ describe('Connection form', function () {
     browser = compass.browser;
   });
 
+  beforeEach(async function () {
+    await browser.removeAllConnections();
+  });
+
   after(function () {
     if (TEST_COMPASS_WEB) {
       return;
@@ -701,7 +723,6 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    await browser.screenshot('SCDAM-SHA1-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -768,7 +789,6 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    await browser.screenshot('without-session-token-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
@@ -805,46 +825,11 @@ describe('Connection form', function () {
       ...atlasConnectionOptions,
       connectionName,
     });
-    await browser.screenshot('including-session-token-shell.png');
     const result = await browser.shellEval(
       connectionName,
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-  });
-
-  it('can connect to an Atlas with tlsUseSystemCA', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
-    const connectionName = this.test?.fullTitle() ?? '';
-
-    await browser.connectWithConnectionForm({
-      scheme: 'MONGODB_SRV',
-      authMethod: 'DEFAULT',
-      defaultUsername: username,
-      defaultPassword: password,
-      hosts: [host],
-      sslConnection: 'ON',
-      useSystemCA: true,
-      connectionName,
-    });
-
-    await browser.screenshot('tlsUseSystemCA-shell.png');
-
-    // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
-    const result = await browser.shellEval(
-      connectionName,
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    await new Promise((resolve) => setTimeout(resolve, 10000));
     assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
@@ -941,6 +926,113 @@ describe('Connection form', function () {
     assertNotError(result);
     expect(result).to.have.property('ok', 1);
   });
+
+  it('fails for multiple authentication errors', async function () {
+    if (!TEST_MULTIPLE_CONNECTIONS) {
+      this.skip();
+    }
+
+    const connection1Name = 'error-1';
+    const connection2Name = 'error-2';
+
+    const connections: {
+      state: ConnectFormState;
+      connectionId?: string;
+      connectionError: string;
+      toastErrorText: string;
+    }[] = [
+      {
+        state: {
+          hosts: ['127.0.0.1:27091'],
+          defaultUsername: 'a',
+          defaultPassword: 'b',
+          connectionName: connection1Name,
+        },
+        connectionError: 'Authentication failed.',
+        toastErrorText: `There was a problem connecting to ${connection1Name}`,
+      },
+      {
+        state: {
+          hosts: ['127.0.0.1:16666'],
+          connectionName: connection2Name,
+        },
+        connectionError: 'connect ECONNREFUSED 127.0.0.1:16666',
+        toastErrorText: `There was a problem connecting to ${connection2Name}`,
+      },
+    ];
+
+    // connect to two connections that will both fail
+    // This actually connects back to back rather than truly simultaneously, but
+    // we can only really check that both toasts display and work anyway.
+    for (const connection of connections) {
+      await browser.connectWithConnectionForm(connection.state, {
+        connectionStatus: 'failure',
+      });
+    }
+
+    // pull the connection ids out of the sidebar
+    for (const connection of connections) {
+      if (!connection.state.connectionName) {
+        throw new Error('expected connectionName');
+      }
+      connection.connectionId = await browser.getConnectionIdByName(
+        connection.state.connectionName
+      );
+    }
+
+    // the last connection to be connected's toast appears on top, so we have to
+    // deal with the toasts in reverse
+    const expectedConnections = connections.slice().reverse();
+
+    for (const expected of expectedConnections) {
+      if (!expected.connectionId) {
+        throw new Error('expected connectionId');
+      }
+
+      // the toast should appear
+      const toastSelector = Selectors.connectionToastById(
+        expected.connectionId
+      );
+      await browser.$(toastSelector).waitForDisplayed();
+
+      // check the toast title
+      const toastTitle = await browser
+        .$(`${toastSelector} ${Selectors.LGToastTitle}`)
+        .getText();
+      expect(toastTitle).to.equal(expected.connectionError);
+
+      // check the toast body text
+      const errorMessage = await browser
+        .$(`${toastSelector} ${Selectors.ConnectionToastErrorText}`)
+        .getText();
+      expect(errorMessage).to.equal(expected.toastErrorText);
+
+      // click the review button in the toast
+      await browser.clickVisible(
+        `${toastSelector} ${Selectors.ConnectionToastErrorReviewButton}`
+      );
+
+      // the toast should go away because the action was clicked
+      await browser.$(toastSelector).waitForDisplayed({ reverse: true });
+
+      // make sure the connection form is populated with this connection
+      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      const errorText = await browser
+        .$(Selectors.ConnectionFormErrorMessage)
+        .getText();
+      expect(errorText).to.equal(expected.connectionError);
+
+      const state = await browser.getConnectFormState();
+      expect(state.hosts).to.deep.equal(expected.state.hosts);
+      expect(state.connectionName).to.equal(expected.state.connectionName);
+
+      // close the modal
+      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+      await browser
+        .$(Selectors.ConnectionModal)
+        .waitForDisplayed({ reverse: true });
+    }
+  });
 });
 
 // eslint-disable-next-line mocha/max-top-level-suites
@@ -953,20 +1045,17 @@ describe('SRV connectivity', function () {
   });
 
   it('resolves SRV connection string using OS DNS APIs', async function () {
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // TODO(COMPAS-8009): we have to add support in custom commands for when connections fail
-      this.skip();
-    }
-
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
+
+    await browser.removeAllConnections();
 
     try {
       // Does not actually succeed at connecting, but that’s fine for us here
       // (Unless you have a server listening on port 27017)
       await browser.connectWithConnectionString(
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-        'either'
+        { connectionStatus: 'either' }
       );
     } finally {
       // make sure the browser gets closed otherwise if this fails the process wont exit
@@ -1026,13 +1115,14 @@ describe('System CA access', function () {
     const compass = await init(this.test?.fullTitle());
     const browser = compass.browser;
 
+    await browser.removeAllConnections();
+
     const connectionName = this.test?.fullTitle() ?? '';
 
     try {
       await browser.connectWithConnectionForm({
         hosts: ['127.0.0.1:27091'],
         sslConnection: 'DEFAULT',
-        useSystemCA: true,
         connectionName,
       });
       const result = await browser.shellEval(
@@ -1069,6 +1159,7 @@ describe('System CA access', function () {
       } else {
         expect(systemCALogs[i].attr.asyncFallbackError).to.equal(null);
       }
+      expect(systemCALogs[i].attr.systemCertsError).to.equal(null);
     }
   });
 });
@@ -1082,6 +1173,10 @@ describe('FLE2', function () {
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+  });
+
+  beforeEach(async function () {
+    await browser.removeAllConnections();
   });
 
   afterEach(async function () {
@@ -1128,9 +1223,3 @@ describe('FLE2', function () {
     expect(result).to.be.equal('test');
   });
 });
-
-function assertNotError(result: any) {
-  if (typeof result === 'string' && result.includes('MongoNetworkError')) {
-    expect.fail(result);
-  }
-}

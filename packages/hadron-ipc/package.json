@@ -1,7 +1,7 @@
 {
   "name": "hadron-ipc",
   "description": "Simplified IPC for electron apps.",
-  "version": "3.2.19",
+  "version": "3.2.20",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -50,8 +50,8 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.1.3",
-    "@mongodb-js/mocha-config-compass": "^1.3.9",
+    "@mongodb-js/eslint-config-compass": "^1.1.4",
+    "@mongodb-js/mocha-config-compass": "^1.3.10",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
     "@types/chai": "^4.2.21",
@@ -69,7 +69,7 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "electron": "^29.4.5",
+    "electron": "^30.4.0",
     "is-electron-renderer": "^2.0.1"
   }
 }

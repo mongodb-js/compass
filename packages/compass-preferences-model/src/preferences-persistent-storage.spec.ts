@@ -1,9 +1,15 @@
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import crypto from 'crypto';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { getDefaultsForStoredPreferences } from './preferences-schema';
 import { expect } from 'chai';
+import {
+  proxyOptionsToProxyPreference,
+  proxyPreferenceToProxyOptions,
+} from './utils';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 const getPreferencesFolder = (tmpDir: string) => {
   return path.join(tmpDir, 'AppPreferences');
@@ -22,7 +28,7 @@ describe('PersistentStorage', function () {
   });
 
   afterEach(async function () {
-    await fs.rmdir(tmpDir, { recursive: true });
+    await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
   it('sets up the storage', async function () {
@@ -43,7 +49,7 @@ describe('PersistentStorage', function () {
     expect(async () => await fs.access(preferencesFile)).to.not.throw;
 
     expect(
-      JSON.parse((await fs.readFile(preferencesFile)).toString())
+      JSON.parse(await fs.readFile(preferencesFile, 'utf8'))
     ).to.deep.equal(getDefaultsForStoredPreferences());
   });
 
@@ -60,7 +66,7 @@ describe('PersistentStorage', function () {
     await storage.setup();
 
     expect(
-      JSON.parse((await fs.readFile(preferencesFile)).toString())
+      JSON.parse(await fs.readFile(preferencesFile, 'utf8'))
     ).to.deep.equal(getDefaultsForStoredPreferences());
   });
 
@@ -125,5 +131,49 @@ describe('PersistentStorage', function () {
     expect(storage.getPreferences()).to.deep.equal(
       getDefaultsForStoredPreferences()
     );
+  });
+
+  it('encrypts and decrypts sensitive fields', async function () {
+    const storage = new PersistentStorage(tmpDir, {
+      encryptString: (str: string) =>
+        crypto
+          .createCipheriv('aes-256-gcm', 'asdf'.repeat(8), '0'.repeat(32))
+          .update(str),
+      decryptString: (str: Buffer) =>
+        crypto
+          .createDecipheriv('aes-256-gcm', 'asdf'.repeat(8), '0'.repeat(32))
+          .update(str)
+          .toString('utf8'),
+    });
+    await storage.setup();
+
+    const proxyOptions: DevtoolsProxyOptions = {
+      proxy: 'socks5://AzureDiamond:hunter2@example.com/',
+      sshOptions: {
+        identityKeyFile: 'asdf',
+        identityKeyPassphrase: 's3cr3t',
+      },
+    };
+
+    await storage.updatePreferences({
+      proxy: proxyOptionsToProxyPreference(proxyOptions),
+    });
+
+    const newPreferences = storage.getPreferences();
+
+    expect(proxyPreferenceToProxyOptions(newPreferences.proxy)).to.deep.equal(
+      proxyOptions
+    );
+
+    const preferencesFile = getPreferencesFile(tmpDir);
+    const onDisk = JSON.parse(await fs.readFile(preferencesFile, 'utf8')).proxy;
+
+    // Non-secrets are visible, secrets are not
+    expect(onDisk).to.be.a('string');
+    expect(onDisk).to.include('AzureDiamond');
+    expect(onDisk).to.include('example.com');
+    expect(onDisk).to.include('asdf');
+    expect(onDisk).not.to.include('hunter2');
+    expect(onDisk).not.to.include('s3cr3t');
   });
 });

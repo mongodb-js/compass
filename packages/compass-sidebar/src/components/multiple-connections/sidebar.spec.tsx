@@ -47,6 +47,7 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
@@ -95,7 +96,8 @@ describe('Multiple Connections Sidebar Component', function () {
   let instancesManager: MongoDBInstancesManager;
   let store: ReturnType<typeof createSidebarStore>['store'];
   let deactivate: () => void;
-  let connectFn = sinon.stub();
+  let connectFn: sinon.SinonStub;
+  let track: sinon.SinonStub;
 
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
@@ -105,21 +107,27 @@ describe('Multiple Connections Sidebar Component', function () {
       <ToastArea>
         <ConfirmationModalArea>
           <PreferencesProvider value={preferences}>
-            <WorkspacesServiceProvider value={workspaceService}>
-              <WorkspacesProvider
-                value={[{ name: 'My Queries', component: () => null }]}
-              >
-                <ConnectionStorageProvider value={connectionStorage}>
-                  <ConnectionsManagerProvider value={connectionsManager}>
-                    <Provider store={store}>
-                      <MultipleConnectionSidebar
-                        activeWorkspace={activeWorkspace}
-                      />
-                    </Provider>
-                  </ConnectionsManagerProvider>
-                </ConnectionStorageProvider>
-              </WorkspacesProvider>
-            </WorkspacesServiceProvider>
+            <TelemetryProvider
+              options={{
+                sendTrack: track,
+              }}
+            >
+              <WorkspacesServiceProvider value={workspaceService}>
+                <WorkspacesProvider
+                  value={[{ name: 'My Queries', component: () => null }]}
+                >
+                  <ConnectionStorageProvider value={connectionStorage}>
+                    <ConnectionsManagerProvider value={connectionsManager}>
+                      <Provider store={store}>
+                        <MultipleConnectionSidebar
+                          activeWorkspace={activeWorkspace}
+                        />
+                      </Provider>
+                    </ConnectionsManagerProvider>
+                  </ConnectionStorageProvider>
+                </WorkspacesProvider>
+              </WorkspacesServiceProvider>
+            </TelemetryProvider>
           </PreferencesProvider>
         </ConfirmationModalArea>
       </ToastArea>,
@@ -129,6 +137,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
   beforeEach(async function () {
     connectFn = sinon.stub();
+    track = sinon.stub();
     instancesManager = new TestMongoDBInstanceManager();
     connectionsManager = new ConnectionsManager({
       logger: createNoopLogger().log.unbound,
@@ -487,7 +496,7 @@ describe('Multiple Connections Sidebar Component', function () {
             });
           });
 
-          it('should open shell workspace when clicked on open shell action', function () {
+          it('should open shell workspace when clicked on open shell action', async function () {
             const connectionItem = screen.getByTestId(
               savedFavoriteConnection.id
             );
@@ -501,6 +510,10 @@ describe('Multiple Connections Sidebar Component', function () {
               savedFavoriteConnection.id,
               { newTab: true }
             );
+
+            await waitFor(() => {
+              expect(track).to.have.been.calledWith('Open Shell');
+            });
           });
 
           it('should open performance workspace when clicked on view performance action', function () {

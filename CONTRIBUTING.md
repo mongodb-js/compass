@@ -3,7 +3,7 @@
 
 ## Getting Started
 
-You'll need node `^18` and npm `^10` installed on your machine to work with the repository locally.
+You'll need node `^20` and npm `^10` installed on your machine to work with the repository locally.
 After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally. Alternatively you can start a web version of the app by running `npm run start-web`.
@@ -56,10 +56,10 @@ In addition to running lerna commands directly, there are a few convenient npm s
 To build compass you can run `package-compass` script:
 
 ```sh
-npm run package-compass
+HADRON_DISTRIBUTION='compass' npm run package-compass
 ```
 
-You can change the type of distribution you are building with `HADRON_DISTRIBUTION` environmental variable:
+It is required to provide `HADRON_DISTRIBUTION` env variable explicitly. You can change the type of distribution you are building by setting a different `HADRON_DISTRIBUTION` value:
 
 ```sh
 HADRON_DISTRIBUTION='compass-readonly' npm run package-compass

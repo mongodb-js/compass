@@ -10,6 +10,8 @@ import {
   spacing,
   WarningSummary,
   ErrorSummary,
+  Select,
+  Option,
 } from '@mongodb-js/compass-components';
 import type { MenuAction, Signal } from '@mongodb-js/compass-components';
 import { ViewSwitcher } from './view-switcher';
@@ -57,6 +59,10 @@ const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const docsPerPageOptionStyles = css({
+  width: spacing[1600] + spacing[300],
+});
+
 type ExportDataOption = 'export-query' | 'export-full-collection';
 const exportDataActions: MenuAction<ExportDataOption>[] = [
   { action: 'export-query', label: 'Export query results' },
@@ -95,6 +101,7 @@ export type CrudToolbarProps = {
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;
   isWritable: boolean;
+  isFetching: boolean;
   loadingCount: boolean;
   onApplyClicked: () => void;
   onResetClicked: () => void;
@@ -111,6 +118,8 @@ export type CrudToolbarProps = {
   insights?: Signal;
   queryLimit?: number;
   querySkip?: number;
+  docsPerPage: number;
+  updateMaxDocumentsPerPage: (docsPerPage: number) => void;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -122,6 +131,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   insertDataHandler,
   instanceDescription,
   isWritable,
+  isFetching,
   loadingCount,
   onApplyClicked,
   onResetClicked,
@@ -138,6 +148,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   insights,
   queryLimit,
   querySkip,
+  docsPerPage,
+  updateMaxDocumentsPerPage,
 }) => {
   const track = useTelemetry();
   const connectionInfoAccess = useConnectionInfoAccess();
@@ -224,6 +236,27 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           )}
         </div>
         <div className={toolbarRightActionStyles}>
+          <Select
+            size="xsmall"
+            disabled={isFetching}
+            allowDeselect={false}
+            dropdownWidthBasis="option"
+            aria-label="Update number of documents per page"
+            value={`${docsPerPage}`}
+            onChange={(value: string) =>
+              updateMaxDocumentsPerPage(parseInt(value))
+            }
+          >
+            {['25', '50', '75', '100'].map((value) => (
+              <Option
+                className={docsPerPageOptionStyles}
+                key={value}
+                value={value}
+              >
+                {value}
+              </Option>
+            ))}
+          </Select>
           <Body data-testid="crud-document-count-display">
             {start} – {end}{' '}
             {displayedDocumentCount && `of ${displayedDocumentCount}`}
@@ -231,7 +264,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           {loadingCount && (
             <SpinLoader size="12px" title="Fetching document count…" />
           )}
-          {!loadingCount && (
+          {!loadingCount && !isFetching && (
             <IconButton
               aria-label="Refresh documents"
               title="Refresh documents"

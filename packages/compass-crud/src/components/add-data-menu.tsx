@@ -87,9 +87,8 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
         </div>
       )}
       // Disable the tooltip when the instance is in a writable state.
-      isDisabled={isWritable}
+      enabled={!isWritable}
       justify="middle"
-      delay={500}
     >
       {instanceDescription}
     </Tooltip>

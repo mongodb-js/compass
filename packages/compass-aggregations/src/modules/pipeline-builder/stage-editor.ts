@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
@@ -1027,7 +1027,7 @@ export function mapStoreStagesToStageIdAndType(
   return stages.map(({ id, type }) => ({ id, type }));
 }
 
-const reducer: Reducer<StageEditorState> = (
+const reducer: Reducer<StageEditorState, Action> = (
   state: StageEditorState = { stagesIdAndType: [], stages: [] },
   action
 ) => {

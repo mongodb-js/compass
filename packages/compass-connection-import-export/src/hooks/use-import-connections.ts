@@ -158,7 +158,10 @@ export function useImportConnections({
           options: {
             passphrase,
             filterConnectionIds,
-            trackingProps,
+            trackingProps: {
+              ...trackingProps,
+              connection_ids: filterConnectionIds,
+            },
           },
         });
       } catch (err: any) {

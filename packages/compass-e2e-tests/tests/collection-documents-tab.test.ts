@@ -9,7 +9,7 @@ import {
   screenshotIfFailed,
   TEST_COMPASS_WEB,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -117,14 +117,16 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
     await createNestedDocumentsCollection('nestedDocs', 10);
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'
@@ -196,7 +198,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('1 – 20 of 50');
+    expect(text).to.equal('1 – 25 of 50');
 
     // Check the telemetry
     const queryExecutedEvent = await telemetryEntry('Query Executed');
@@ -637,7 +639,7 @@ FindIterable<Document> result = collection.find(filter);`);
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'nestedDocs',
         'Documents'

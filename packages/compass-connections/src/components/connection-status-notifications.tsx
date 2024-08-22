@@ -1,5 +1,13 @@
 import React, { useCallback } from 'react';
-import { css, Link, spacing, useToast } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Code,
+  css,
+  Link,
+  showConfirmation,
+  spacing,
+  useToast,
+} from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -34,14 +42,16 @@ type ConnectionErrorToastBodyProps = {
 };
 
 const connectionErrorToastBodyStyles = css({
-  display: 'flex',
-  alignItems: 'start',
-  gap: spacing[2],
+  display: 'grid',
+  gridAutoFlow: 'column',
+  gap: spacing[200],
 });
 
-const connectionErrorToastActionMessageStyles = css({
-  marginTop: spacing[1],
-  flexGrow: 0,
+const connectionErrorToastActionMessageStyles = css({});
+
+const connectionErrorTextStyles = css({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 function ConnectionErrorToastBody({
@@ -50,7 +60,10 @@ function ConnectionErrorToastBody({
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
     <span className={connectionErrorToastBodyStyles}>
-      <span data-testid="connection-error-text">
+      <span
+        data-testid="connection-error-text"
+        className={connectionErrorTextStyles}
+      >
         There was a problem connecting{' '}
         {info ? `to ${getConnectionTitle(info)}` : ''}
       </span>
@@ -70,7 +83,23 @@ function ConnectionErrorToastBody({
 
 const noop = () => undefined;
 
-export function useConnectionStatusToasts() {
+const deviceAuthModalContentStyles = css({
+  textAlign: 'center',
+  '& > *:not(:last-child)': {
+    paddingBottom: spacing[150],
+  },
+});
+
+/**
+ * Returns triggers for various notifications (toasts and modals) that are
+ * supposed to be displayed every time connection flow is happening in the
+ * application.
+ *
+ * All toasts and modals are only applicable in multiple connections mode. Right
+ * now it's gated by the feature flag, the flag check can be removed when this
+ * is the default behavior
+ */
+export function useConnectionStatusNotifications() {
   const enableNewMultipleConnectionSystem = usePreference(
     'enableNewMultipleConnectionSystem'
   );
@@ -91,6 +120,7 @@ export function useConnectionStatusToasts() {
               closeToast(connectionInfo.id);
               onCancelClick();
             }}
+            data-testid="cancel-connection-button"
           >
             CANCEL
           </Link>
@@ -155,8 +185,58 @@ export function useConnectionStatusToasts() {
     [openToast]
   );
 
+  const openNotifyDeviceAuthModal = useCallback(
+    (
+      connectionInfo: ConnectionInfo,
+      verificationUrl: string,
+      userCode: string,
+      onCancel: () => void,
+      signal: AbortSignal
+    ) => {
+      void showConfirmation({
+        title: `Complete authentication in the browser`,
+        description: (
+          <div className={deviceAuthModalContentStyles}>
+            <Body>
+              Visit the following URL to complete authentication for{' '}
+              <b>{getConnectionTitle(connectionInfo)}</b>:
+            </Body>
+            <Body>
+              <Link href={verificationUrl} target="_blank">
+                {verificationUrl}
+              </Link>
+            </Body>
+            <br></br>
+            <Body>Enter the following code on that page:</Body>
+            <Body as="div">
+              <Code language="none" copyable>
+                {userCode}
+              </Code>
+            </Body>
+          </div>
+        ),
+        hideConfirmButton: true,
+        signal,
+      }).then(
+        (result) => {
+          if (result === false) {
+            onCancel?.();
+          }
+        },
+        () => {
+          // Abort signal was triggered
+        }
+      );
+    },
+    []
+  );
+
+  // Gated by the feature flag: if flag is on, we return trigger functions, if
+  // flag is off, we return noop functions so that we can call them
+  // unconditionally in the actual flow
   return enableNewMultipleConnectionSystem
     ? {
+        openNotifyDeviceAuthModal,
         openConnectionStartedToast,
         openConnectionSucceededToast,
         openConnectionFailedToast,
@@ -164,6 +244,7 @@ export function useConnectionStatusToasts() {
         closeConnectionStatusToast: closeToast,
       }
     : {
+        openNotifyDeviceAuthModal: noop,
         openConnectionStartedToast: noop,
         openConnectionSucceededToast: noop,
         openConnectionFailedToast: noop,

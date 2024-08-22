@@ -5,7 +5,7 @@ export const getTreeItemStyles = ({
   level,
   isExpandable,
 }: Pick<SidebarTreeItem, 'isExpandable' | 'level'>): React.CSSProperties => {
-  const DEFAULT_PADDING = spacing[100];
+  const DEFAULT_PADDING = spacing[400];
   const EXPAND_ICON_WIDTH = spacing[400];
   const EXPAND_ICON_GAP = spacing[50];
   const EXPAND_ICON_SIZE = EXPAND_ICON_WIDTH + EXPAND_ICON_GAP;

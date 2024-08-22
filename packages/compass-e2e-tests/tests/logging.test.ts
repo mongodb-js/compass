@@ -5,7 +5,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_MULTIPLE_CONNECTIONS,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -22,7 +22,7 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      const compass = await init(this.test?.fullTitle(), { firstRun: true });
+      const compass = await init(this.test?.fullTitle());
       const { browser } = compass;
 
       try {
@@ -33,9 +33,9 @@ describe('Logging and Telemetry integration', function () {
           await browser.navigateToMyQueries();
         }
 
-        await browser.shellEval(DEFAULT_CONNECTION_NAME, 'use test');
+        await browser.shellEval(DEFAULT_CONNECTION_NAME_1, 'use test');
         await browser.shellEval(
-          DEFAULT_CONNECTION_NAME,
+          DEFAULT_CONNECTION_NAME_1,
           'db.runCommand({ connectionStatus: 1 })'
         );
       } finally {
@@ -141,6 +141,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
             expect(actual.arch).to.match(/^(x64|arm64)$/);
+            expect(actual.missingOptionalDeps).to.deep.equal([]);
           },
         },
         {
@@ -410,8 +411,9 @@ describe('Logging and Telemetry integration', function () {
     before(async function () {
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
+      const { browser } = compass;
 
-      await compass.browser.setFeature('telemetryAtlasUserId', auid);
+      await browser.setFeature('telemetryAtlasUserId', auid);
     });
 
     afterEach(async function () {

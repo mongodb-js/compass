@@ -71,7 +71,7 @@ export const INITIAL_STATE: ExplainPlanModalState = {
   explainPlanFetchId: -1,
 };
 
-export const reducer: Reducer<ExplainPlanModalState> = (
+export const reducer: Reducer<ExplainPlanModalState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {

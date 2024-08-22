@@ -15,7 +15,9 @@ import ConnectionForm from '../../../';
 const deviceAuthFlowText = 'Enable Device Authentication Flow';
 
 async function renderConnectionForm(
-  connectSpy,
+  connectSpy: (
+    expected: ConnectionOptions | ((expected: ConnectionOptions) => void)
+  ) => Promise<void>,
   { showOIDCDeviceAuthFlow }: { showOIDCDeviceAuthFlow: boolean }
 ) {
   render(
@@ -27,9 +29,12 @@ async function renderConnectionForm(
         },
       }}
       onConnectClicked={(connectionInfo) => {
-        connectSpy(connectionInfo.connectionOptions);
+        void connectSpy(connectionInfo.connectionOptions);
       }}
       preferences={{ enableOidc: true, showOIDCDeviceAuthFlow }}
+      onSaveClicked={() => {
+        return Promise.resolve();
+      }}
     />
   );
 
@@ -57,13 +62,15 @@ const openOptionsAccordion = () =>
   fireEvent.click(screen.getByText('OIDC Options'));
 
 describe('Authentication OIDC Connection Form', function () {
-  let expectToConnectWith;
+  let expectToConnectWith: (
+    expected: ConnectionOptions | ((expected: ConnectionOptions) => void)
+  ) => Promise<void>;
   let connectSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     connectSpy = sinon.spy();
     expectToConnectWith = async (
-      expected: ConnectionOptions | ((ConnectionOptions) => void)
+      expected: ConnectionOptions | ((expected: ConnectionOptions) => void)
     ): Promise<void> => {
       connectSpy.resetHistory();
       fireEvent.click(screen.getByTestId('connect-button'));
@@ -115,6 +122,27 @@ describe('Authentication OIDC Connection Form', function () {
         oidc: {
           redirectURI: 'goodSandwiches',
         },
+      });
+    });
+
+    it('handles the Use ID token instead of Access Token checkbox', async function () {
+      fireEvent.click(screen.getByText('Use ID token instead of Access Token'));
+      await expectToConnectWith({
+        connectionString:
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
+        oidc: {
+          passIdTokenAsAccessToken: true,
+        },
+      });
+    });
+
+    it('handles the Use ID token instead of Access Token checkbox on and off', async function () {
+      fireEvent.click(screen.getByText('Use ID token instead of Access Token'));
+      fireEvent.click(screen.getByText('Use ID token instead of Access Token'));
+      await expectToConnectWith({
+        connectionString:
+          'mongodb://localhost:27017/?authMechanism=MONGODB-OIDC&authSource=%24external',
+        oidc: {},
       });
     });
 

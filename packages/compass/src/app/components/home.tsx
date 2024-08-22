@@ -17,6 +17,7 @@ import CompassConnections, {
 } from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
+import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
@@ -141,7 +142,7 @@ export type HomeProps = {
   onDisconnect: () => void;
   showCollectionSubMenu: (args: { isReadOnly: boolean }) => void;
   hideCollectionSubMenu: () => void;
-  showSettings: () => void;
+  showSettings: (tab?: SettingsTabId) => void;
   connectionStorage: ConnectionStorage;
   __TEST_MONGODB_DATA_SERVICE_CONNECT_FN?: () => Promise<DataService>;
 };
@@ -261,7 +262,7 @@ function Home({
     (showSettingsModal?: boolean) => {
       setIsWelcomeOpen(false);
       if (showSettingsModal) {
-        showSettings();
+        showSettings('privacy');
       }
     },
     [setIsWelcomeOpen, showSettings]
