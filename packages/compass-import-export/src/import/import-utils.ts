@@ -1,29 +1,28 @@
 import os from 'os';
-import { Transform } from 'stream';
-import type { Writable } from 'stream';
-
-import type { ImportResult, ErrorJSON } from './import-types';
-
-import type { WritableCollectionStream } from '../utils/collection-stream';
-
+import type { Document } from 'bson';
+import type { Readable, Writable, Duplex } from 'stream';
+import { addAbortSignal } from 'stream';
+import type { ImportResult, ErrorJSON, ImportOptions } from './import-types';
+import { ImportWriter } from './import-writer';
 import { createDebug } from '../utils/logger';
+import { Utf8Validator } from '../utils/utf8-validator';
+import { ByteCounter } from '../utils/byte-counter';
+import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('import');
 
 export function makeImportResult(
-  collectionStream: WritableCollectionStream,
+  importWriter: ImportWriter,
   numProcessed: number,
-  docStatsStream: DocStatsStream,
+  docStatsStream: DocStatsCollector,
   aborted?: boolean
 ): ImportResult {
   const result: ImportResult = {
-    dbErrors: collectionStream.getErrors(),
-    dbStats: collectionStream.getStats(),
-    docsWritten: collectionStream.docsWritten,
+    docsErrored: importWriter.docsErrored,
+    docsWritten: importWriter.docsWritten,
     ...docStatsStream.getStats(),
-    // docsProcessed is not on collectionStream so that it includes docs that
-    // produced parse errors and therefore never made it to the collection
-    // stream.
+    // docsProcessed is not on importWriter so that it includes docs that
+    // produced parse errors and therefore never made it that far
     docsProcessed: numProcessed,
   };
 
@@ -46,92 +45,19 @@ export function errorToJSON(error: any): ErrorJSON {
     }
   }
 
-  // For bulk write errors we include the number of errors that were in the
-  // batch. So one error actually maps to (potentially) many failed documents.
-  if (error.writeErrors && Array.isArray(error.writeErrors)) {
-    obj.numErrors = error.writeErrors.length;
-  }
-
   return obj;
 }
 
-export async function processWriteStreamErrors({
-  collectionStream,
-  output,
-}: {
-  collectionStream: WritableCollectionStream;
-  output?: Writable;
-  errorCallback?: (err: ErrorJSON) => void;
-}) {
-  // This is temporary until we change WritableCollectionStream so it can pipe
-  // us its errors as they occur.
-
-  const errors = collectionStream.getErrors();
-  const stats = collectionStream.getStats();
-  const allErrors = errors
-    .concat(stats.writeErrors)
-    .concat(stats.writeConcernErrors);
-
-  for (const error of allErrors) {
-    debug('write error', error);
-
-    const transformedError = errorToJSON(error);
-
-    if (!output) {
-      continue;
-    }
-
-    try {
-      await new Promise<void>((resolve) => {
-        output.write(JSON.stringify(transformedError) + os.EOL, 'utf8', () =>
-          resolve()
-        );
-      });
-    } catch (err: any) {
-      debug('error while writing error', err);
-    }
-  }
-}
-
-export function processParseError({
-  annotation,
-  stopOnErrors,
-  err,
-  output,
-  errorCallback,
-  callback,
-}: {
-  annotation: string;
-  stopOnErrors?: boolean;
-  err: unknown;
-  output?: Writable;
-  errorCallback?: (error: ErrorJSON) => void;
-  callback: (err?: any) => void;
-}) {
-  // rethrow with the line number / array index appended to aid debugging
-  (err as Error).message = `${(err as Error).message}${annotation}`;
-
-  if (stopOnErrors) {
-    callback(err as Error);
-  } else {
-    const transformedError = errorToJSON(err);
-    debug('transform error', transformedError);
-    errorCallback?.(transformedError);
-    if (output) {
-      output.write(
-        JSON.stringify(transformedError) + os.EOL,
-        'utf8',
-        (err: any) => {
-          if (err) {
-            debug('error while writing error', err);
-          }
-          callback();
-        }
-      );
-    } else {
-      callback();
-    }
-  }
+export function writeErrorToLog(output: Writable, error: any): Promise<void> {
+  return new Promise(function (resolve) {
+    output.write(JSON.stringify(error) + os.EOL, 'utf8', (err: unknown) => {
+      if (err) {
+        debug('error while writing error', err);
+      }
+      // we always resolve because we ignore the error
+      resolve();
+    });
+  });
 }
 
 function hasArrayOfLength(
@@ -158,31 +84,196 @@ function hasArrayOfLength(
 
 type DocStats = { biggestDocSize: number; hasUnboundArray: boolean };
 
-export class DocStatsStream extends Transform {
+export class DocStatsCollector {
   private stats: DocStats = { biggestDocSize: 0, hasUnboundArray: false };
 
-  constructor() {
-    super({
-      objectMode: true,
-      transform: (doc, encoding, callback) => {
-        this.stats.hasUnboundArray =
-          this.stats.hasUnboundArray || hasArrayOfLength(doc, 250);
-        try {
-          const docString = JSON.stringify(doc);
-          this.stats.biggestDocSize = Math.max(
-            this.stats.biggestDocSize,
-            docString.length
-          );
-        } catch (error) {
-          // We ignore the JSON stringification error
-        } finally {
-          callback(null, doc);
-        }
-      },
-    });
+  collect(doc: Document) {
+    this.stats.hasUnboundArray =
+      this.stats.hasUnboundArray || hasArrayOfLength(doc, 250);
+    try {
+      const docString = JSON.stringify(doc);
+      this.stats.biggestDocSize = Math.max(
+        this.stats.biggestDocSize,
+        docString.length
+      );
+    } catch (error) {
+      // We ignore the JSON stringification error
+    }
   }
 
-  getStats(): Readonly<DocStats> {
+  getStats() {
     return this.stats;
   }
+}
+
+type Transformer = {
+  transform: (chunk: any) => Document;
+};
+
+export async function doImport(
+  input: Readable,
+  streams: Duplex[],
+  transformer: Transformer,
+  {
+    dataService,
+    ns,
+    output,
+    abortSignal,
+    progressCallback,
+    errorCallback,
+    stopOnErrors,
+  }: ImportOptions
+) {
+  if (abortSignal) {
+    input = addAbortSignal(abortSignal, input);
+  }
+
+  const byteCounter = new ByteCounter();
+
+  let stream: Duplex = input.pipe(new Utf8Validator());
+  stream = stream.pipe(byteCounter);
+  stream = stream.pipe(stripBomStream());
+
+  for (const s of streams) {
+    stream = stream.pipe(s);
+  }
+
+  const docStatsCollector = new DocStatsCollector();
+
+  const importWriter = new ImportWriter(dataService, ns, stopOnErrors);
+
+  let numProcessed = 0;
+
+  try {
+    for await (const chunk of stream as Readable) {
+      // Call progress and increase the number processed even if it errors
+      // below. The import writer stats at the end stores how many got written.
+      // This way progress updates continue even if every row fails to parse.
+      ++numProcessed;
+      if (!abortSignal?.aborted) {
+        progressCallback?.({
+          bytesProcessed: byteCounter.total,
+          docsProcessed: numProcessed,
+          docsWritten: importWriter.docsWritten,
+        });
+      }
+
+      let doc: Document;
+      try {
+        doc = transformer.transform(chunk);
+      } catch (err: unknown) {
+        // deal with transform error
+
+        // rethrow with the line number / array index appended to aid debugging
+        (err as Error).message = `${
+          (err as Error).message
+        }[Row ${numProcessed}]`;
+
+        // TODO: if it is an unknown error we should probably also throw
+
+        if (stopOnErrors) {
+          throw err;
+        } else {
+          const transformedError = errorToJSON(err);
+          debug('transform error', transformedError);
+          errorCallback?.(transformedError);
+          if (output) {
+            await writeErrorToLog(output, transformedError);
+          }
+        }
+        continue;
+      }
+
+      docStatsCollector.collect(doc);
+
+      try {
+        // write
+        await importWriter.write(doc);
+      } catch (err: any) {
+        // if there is no writeErrors property, then it isn't an
+        // ImportWriteError, so probably not recoverable
+        if (!err.writeErrors) {
+          throw err;
+        }
+
+        // deal with write error
+        debug('write error', err);
+
+        if (stopOnErrors) {
+          throw err;
+        }
+
+        if (!output) {
+          continue;
+        }
+
+        const errors = err.writeErrors;
+        for (const error of errors) {
+          const transformedError = errorToJSON(error);
+          errorCallback?.(transformedError);
+          await writeErrorToLog(output, transformedError);
+        }
+      }
+    }
+
+    // also insert the remaining partial batch
+    try {
+      await importWriter.finish();
+    } catch (err: any) {
+      // if there is no writeErrors property, then it isn't an
+      // ImportWriteError, so probably not recoverable
+      if (!err.writeErrors) {
+        throw err;
+      }
+
+      // deal with write error
+      debug('write error', err);
+
+      if (stopOnErrors) {
+        throw err;
+      }
+
+      if (output) {
+        const errors = err.writeErrors;
+        for (const error of errors) {
+          const transformedError = errorToJSON(error);
+          errorCallback?.(transformedError);
+          await writeErrorToLog(output, transformedError);
+        }
+      }
+    }
+  } catch (err: any) {
+    if (err.code === 'ABORT_ERR') {
+      debug('import:aborting');
+
+      const result = makeImportResult(
+        importWriter,
+        numProcessed,
+        docStatsCollector,
+        true
+      );
+      debug('import:aborted', result);
+      return result;
+    }
+
+    // stick the result onto the error so that we can tell how far it got
+    err.result = makeImportResult(
+      importWriter,
+      numProcessed,
+      docStatsCollector
+    );
+
+    throw err;
+  }
+
+  debug('import:completing');
+
+  const result = makeImportResult(
+    importWriter,
+    numProcessed,
+    docStatsCollector
+  );
+  debug('import:completed', result);
+
+  return result;
 }
