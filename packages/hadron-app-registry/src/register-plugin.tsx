@@ -350,7 +350,7 @@ export type HadronPluginComponent<
   withMockServices(
     mocks: Partial<Registries & Services<S>>,
     options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
-  ): Omit<HadronPluginComponent<T, S, A>, 'withMockServices'>;
+  ): HadronPluginComponent<T, S, A>;
 };
 
 /**
@@ -464,7 +464,7 @@ export function registerHadronPlugin<
     withMockServices(
       mocks: Partial<Registries & Services<S>> = {},
       options?: Partial<Pick<MockOptions, 'disableChildPluginRendering'>>
-    ): Omit<HadronPluginComponent<T, S, A>, 'withMockServices'> {
+    ): HadronPluginComponent<T, S, A> {
       const {
         // In case globalAppRegistry mock is not provided, we use the one
         // created in scope so that plugins don't leak their events and
@@ -484,30 +484,31 @@ export function registerHadronPlugin<
         mockServices,
         ...options,
       };
-      return Object.assign(
-        function MockPluginWithContext(props: T) {
-          return (
-            <MockOptionsContext.Provider value={mockOptions}>
-              <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
-                <AppRegistryProvider localAppRegistry={localAppRegistry}>
-                  <Plugin {...(props as any)}></Plugin>
-                </AppRegistryProvider>
-              </GlobalAppRegistryContext.Provider>
-            </MockOptionsContext.Provider>
-          );
+      function MockPluginWithContext(props: T) {
+        return (
+          <MockOptionsContext.Provider value={mockOptions}>
+            <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
+              <AppRegistryProvider localAppRegistry={localAppRegistry}>
+                <Plugin {...(props as any)}></Plugin>
+              </AppRegistryProvider>
+            </GlobalAppRegistryContext.Provider>
+          </MockOptionsContext.Provider>
+        );
+      }
+      return Object.assign(MockPluginWithContext, {
+        displayName: config.name,
+        useActivate: (props: T): A => {
+          return useHadronPluginActivate(
+            config,
+            services,
+            props,
+            mockOptions
+          ) as A;
         },
-        {
-          displayName: config.name,
-          useActivate: (props: T): A => {
-            return useHadronPluginActivate(
-              config,
-              services,
-              props,
-              mockOptions
-            ) as A;
-          },
-        }
-      );
+        withMockServices() {
+          return MockPluginWithContext as any;
+        },
+      });
     },
   });
 }

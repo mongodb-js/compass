@@ -11,6 +11,7 @@ import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
+import type { RenderResult } from '@testing-library/react';
 import {
   render,
   cleanup,
@@ -488,7 +489,7 @@ async function renderWithActiveConnection<
   if (connectionState.status !== 'connected') {
     if (connectionState.error) {
       connectionState.error.message =
-        'Failed to connect when rendering with active connect:\n\n' +
+        'Failed to connect when rendering with active connection:\n\n' +
         connectionState.error.message;
       throw connectionState.error;
     } else {
@@ -558,6 +559,14 @@ async function renderPluginComponentWithActiveConnection<
     ...result,
   };
 }
+
+export type RenderWithConnectionsResult = ReturnType<
+  typeof createWrapper
+>['wrapperState'] & { result: RenderResult };
+
+export type RenderWithConnectionsHookResult<HookResult> = ReturnType<
+  typeof createWrapper
+>['wrapperState'] & { result: HookResult };
 
 async function renderPluginHookWithActiveConnection<
   HookResult,
