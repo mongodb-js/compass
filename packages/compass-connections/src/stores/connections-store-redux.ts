@@ -1258,7 +1258,7 @@ export const refreshConnections = (): ConnectionsThunkAction<
 > => {
   return async (dispatch, getState, { connectionStorage }) => {
     if (
-      getState().connections.status !== 'ready' ||
+      getState().connections.status !== 'ready' &&
       getState().connections.status !== 'error'
     ) {
       return;

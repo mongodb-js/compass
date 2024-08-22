@@ -30,6 +30,7 @@ import {
   showNonGenuineMongoDBWarningModal,
   toggleConnectionFavoritedStatus,
   importConnections,
+  refreshConnections,
 } from './connections-store-redux';
 import type { Store } from 'redux';
 import {
@@ -120,6 +121,9 @@ export function useConnectionActions() {
       },
       importConnections: (...args: Parameters<typeof importConnections>) => {
         return dispatch(importConnections(...args));
+      },
+      refreshConnections: () => {
+        return dispatch(refreshConnections());
       },
     };
   });

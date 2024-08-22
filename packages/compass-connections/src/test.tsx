@@ -7,6 +7,7 @@ import {
   LoggerProvider,
 } from '@mongodb-js/compass-logging/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
@@ -206,7 +207,9 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
     preferences: new InMemoryPreferencesAccess(options.preferences),
     track: Sinon.stub(),
     logger: createNoopLogger(),
-    connectionStorage: new InMemoryConnectionStorage(options.connections),
+    connectionStorage: new InMemoryConnectionStorage(
+      options.connections
+    ) as ConnectionStorage,
     connectionsStore: {
       getState: undefined as unknown as () => State,
       actions: {} as ReturnType<typeof useConnectionActions>,
@@ -288,7 +291,7 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
   return { wrapperState, wrapper };
 }
 
-type RenderConnectionsOptions<
+export type RenderConnectionsOptions<
   C extends Element | DocumentFragment = HTMLElement,
   BE extends Element | DocumentFragment = C
 > = {
