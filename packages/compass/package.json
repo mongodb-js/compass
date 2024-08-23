@@ -31,7 +31,6 @@
         }
       ],
       "distributions": {
-        "default": "compass",
         "compass": {
           "name": "mongodb-compass",
           "productName": "MongoDB Compass",
@@ -143,7 +142,7 @@
     "install": "node scripts/download-fonts.js && node scripts/download-csfle.js",
     "electron-rebuild": "electron-rebuild --only kerberos,keytar,interruptor,os-dns-native,win-export-certificate-and-key,macos-export-certificate-and-key --prebuild-tag-prefix not-real-prefix-to-force-rebuild",
     "prestart": "npm run electron-rebuild",
-    "start": "npm run webpack serve -- --mode development",
+    "start": "HADRON_DISTRIBUTION=${HADRON_DISTRIBUTION:-compass} npm run webpack serve -- --mode development",
     "test-electron": "npm run test-main && npm run test-renderer",
     "test-main": "xvfb-maybe electron-mocha --no-sandbox \"./src/main/**/*.spec.*\"  \"./src/main/**/*.test.*\"",
     "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.*\"",
@@ -158,7 +157,7 @@
     "package-compass-nocompile": "hadron-build release",
     "prepackage-compass": "npm run compile",
     "package-compass": "npm run package-compass-nocompile",
-    "package-compass-debug": "DEBUG='*' HADRON_SKIP_INSTALLER=true NO_ASAR=true npm run package-compass",
+    "package-compass-debug": "DEBUG='hadron*,compass*' HADRON_SKIP_INSTALLER=true NO_ASAR=true npm run package-compass",
     "upload": "hadron-build upload",
     "download": "hadron-build download",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
@@ -244,7 +243,7 @@
     "compass-preferences-model": "^2.26.0",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^29.4.6",
+    "electron": "^30.4.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-dl": "^3.5.0",
     "electron-mocha": "^12.2.0",
