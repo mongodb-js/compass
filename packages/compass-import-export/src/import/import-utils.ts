@@ -108,6 +108,7 @@ export class DocStatsCollector {
 
 type Transformer = {
   transform: (chunk: any) => Document;
+  lineAnnotation: (numProcessed: number) => string;
 };
 
 export async function doImport(
@@ -123,26 +124,44 @@ export async function doImport(
     errorCallback,
     stopOnErrors,
   }: ImportOptions
-) {
-  if (abortSignal) {
-    input = addAbortSignal(abortSignal, input);
-  }
-
+): Promise<ImportResult> {
   const byteCounter = new ByteCounter();
 
-  let stream: Duplex = input.pipe(new Utf8Validator());
-  stream = stream.pipe(byteCounter);
-  stream = stream.pipe(stripBomStream());
-
-  for (const s of streams) {
-    stream = stream.pipe(s);
-  }
+  let stream: Readable | Duplex;
 
   const docStatsCollector = new DocStatsCollector();
 
   const importWriter = new ImportWriter(dataService, ns, stopOnErrors);
 
   let numProcessed = 0;
+
+  // Stream errors just get thrown synchronously unless we listen for the event
+  // on each stream we use in the pipeline. By destroying the stream we're
+  // iterating on and passing the error, the "for await line" will throw inside
+  // the try/catch below. Relevant test: "errors if a file is truncated utf8"
+  function streamErrorListener(error: Error) {
+    stream.destroy(error);
+  }
+
+  input.once('error', streamErrorListener);
+
+  stream = input;
+
+  const allStreams = [
+    new Utf8Validator(),
+    byteCounter,
+    stripBomStream(),
+    ...streams,
+  ];
+
+  for (const s of allStreams) {
+    stream = stream.pipe(s);
+    stream.once('error', streamErrorListener);
+  }
+
+  if (abortSignal) {
+    stream = addAbortSignal(abortSignal, stream);
+  }
 
   try {
     for await (const chunk of stream as Readable) {
@@ -167,9 +186,11 @@ export async function doImport(
         // rethrow with the line number / array index appended to aid debugging
         (err as Error).message = `${
           (err as Error).message
-        }[Row ${numProcessed}]`;
+        }${transformer.lineAnnotation(numProcessed)}`;
 
-        // TODO: if it is an unknown error we should probably also throw
+        // TODO: if it is an unknown error we should probably also throw,
+        // otherwise some programming errors will be treated like parsing
+        // errors..
 
         if (stopOnErrors) {
           throw err;
@@ -214,6 +235,11 @@ export async function doImport(
           await writeErrorToLog(output, transformedError);
         }
       }
+    }
+
+    input.removeListener('error', streamErrorListener);
+    for (const s of allStreams) {
+      s.removeListener('error', streamErrorListener);
     }
 
     // also insert the remaining partial batch

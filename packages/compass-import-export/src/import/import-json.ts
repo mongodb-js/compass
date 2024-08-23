@@ -31,6 +31,10 @@ class JSONTransformer {
       relaxed: false,
     });
   }
+
+  lineAnnotation(numProcessed: number): string {
+    return ` [Index ${numProcessed - 1}]`;
+  }
 }
 
 export async function importJSON({
@@ -63,7 +67,7 @@ export async function importJSON({
     streams.push(StreamArray.streamArray());
   }
 
-  return doImport(input, streams, transformer, {
+  return await doImport(input, streams, transformer, {
     dataService,
     ns,
     output,

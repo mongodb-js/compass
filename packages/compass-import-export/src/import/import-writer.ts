@@ -137,6 +137,10 @@ export class ImportWriter {
 
         bulkWriteResult = await this._insertOneByOne();
       } else {
+        if (this.stopOnErrors) {
+          throw bulkWriteError;
+        }
+
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
@@ -176,12 +180,12 @@ export class ImportWriter {
         await this.dataService.insertOne(this.ns, doc);
         insertedCount += 1;
       } catch (insertOneByOneError: any) {
+        if (this.stopOnErrors) {
+          throw insertOneByOneError;
+        }
+
         errors.push(insertOneByOneError as WriteError);
         this.docsErrored += 1;
-
-        if (this.stopOnErrors) {
-          break;
-        }
       }
     }
 

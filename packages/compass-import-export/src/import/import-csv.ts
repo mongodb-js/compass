@@ -80,6 +80,10 @@ class CSVTransformer {
       }
     );
   }
+
+  lineAnnotation(numProcessed: number): string {
+    return `[Row ${numProcessed}]`;
+  }
 }
 
 export async function importCSV({
@@ -118,7 +122,7 @@ export async function importCSV({
 
   const streams = [parseStream];
 
-  return doImport(input, streams, transformer, {
+  return await doImport(input, streams, transformer, {
     dataService,
     ns,
     output,
