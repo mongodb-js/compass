@@ -39,8 +39,8 @@ describe('Connections Component', function () {
   });
 
   context('when rendered', function () {
-    beforeEach(async function () {
-      await renderWithConnections(<Connections appRegistry={{} as any} />);
+    beforeEach(function () {
+      renderWithConnections(<Connections appRegistry={{} as any} />);
     });
 
     it('renders the connect button from the connect-form', function () {
@@ -112,11 +112,13 @@ describe('Connections Component', function () {
 
       connectSpyFn = sinon.stub().returns({});
 
-      const { connectionsStore, connectionStorage } =
-        await renderWithConnections(<Connections appRegistry={{} as any} />, {
+      const { connectionsStore, connectionStorage } = renderWithConnections(
+        <Connections appRegistry={{} as any} />,
+        {
           connections,
           connectFn: connectSpyFn,
-        });
+        }
+      );
 
       saveConnectionSpy = sinon.spy(connectionStorage, 'save');
       getState = connectionsStore.getState;
@@ -234,7 +236,7 @@ describe('Connections Component', function () {
             return {};
           });
 
-        const { connectionStorage } = await renderWithConnections(
+        const { connectionStorage } = renderWithConnections(
           <Connections appRegistry={{} as any} />,
           { connections, connectFn: connectSpyFn }
         );

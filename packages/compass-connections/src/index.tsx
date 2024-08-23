@@ -3,7 +3,6 @@ import {
   autoconnectCheck,
   configureStore,
   loadConnections,
-  getInitialConnectionsStateForConnectionInfos,
 } from './stores/connections-store-redux';
 import React, { useContext, useRef } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';

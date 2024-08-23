@@ -350,21 +350,37 @@ function renderWithConnections<
 }
 
 function renderHookWithConnections<
+  HookProps,
   HookResult,
   C extends Element | DocumentFragment = HTMLElement,
   BE extends Element | DocumentFragment = C
->(cb: () => HookResult, options: RenderConnectionsOptions<C, BE> = {}) {
+>(
+  cb: (props: HookProps) => HookResult,
+  {
+    initialProps,
+    ...options
+  }: RenderConnectionsOptions<C, BE> & {
+    initialProps?: HookProps;
+  } = {}
+) {
   const result = { current: null } as { current: HookResult };
-  function HookResultGetter() {
-    result.current = cb();
+  function HookResultGetter(props: HookProps) {
+    result.current = cb(props);
     return null;
   }
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    result: _renderResult,
-    ...rest
-  } = renderWithConnections(<HookResultGetter></HookResultGetter>, options);
-  return { ...rest, result };
+  const { result: renderResult, ...rest } = renderWithConnections(
+    <HookResultGetter {...(initialProps as any)}></HookResultGetter>,
+    options
+  );
+  return {
+    ...rest,
+    rerender: (props?: HookProps) => {
+      return renderResult.rerender(
+        <HookResultGetter {...(props as any)}></HookResultGetter>
+      );
+    },
+    result,
+  };
 }
 
 function renderPluginComponentWithConnections<
@@ -496,29 +512,39 @@ async function renderWithActiveConnection<
 }
 
 async function renderHookWithActiveConnection<
+  HookProps,
   HookResult,
   C extends Element | DocumentFragment = HTMLElement,
   BE extends Element | DocumentFragment = C
 >(
-  cb: () => HookResult,
+  cb: (props: HookProps) => HookResult,
   connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
-  options: RenderConnectionsOptions<C, BE> = {}
+  {
+    initialProps,
+    ...options
+  }: RenderConnectionsOptions<C, BE> & {
+    initialProps?: HookProps;
+  } = {}
 ) {
   const result = { current: null } as { current: HookResult };
-  function HookResultGetter() {
-    result.current = cb();
+  function HookResultGetter(props: HookProps) {
+    result.current = cb(props);
     return null;
   }
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    result: _renderResult,
-    ...rest
-  } = await renderWithActiveConnection(
-    <HookResultGetter></HookResultGetter>,
+  const { result: renderResult, ...rest } = await renderWithActiveConnection(
+    <HookResultGetter {...(initialProps as any)}></HookResultGetter>,
     connectionInfo,
     options
   );
-  return { ...rest, result };
+  return {
+    ...rest,
+    rerender: (props?: HookResult) => {
+      return renderResult.rerender(
+        <HookResultGetter {...(props as any)}></HookResultGetter>
+      );
+    },
+    result,
+  };
 }
 
 async function renderPluginComponentWithActiveConnection<
@@ -558,9 +584,13 @@ export type RenderWithConnectionsResult = ReturnType<
   typeof createWrapper
 >['wrapperState'] & { result: RenderResult };
 
-export type RenderWithConnectionsHookResult<HookResult> = ReturnType<
-  typeof createWrapper
->['wrapperState'] & { result: HookResult };
+export type RenderWithConnectionsHookResult<
+  HookProps = unknown,
+  HookResult = unknown
+> = ReturnType<typeof createWrapper>['wrapperState'] & {
+  result: HookResult;
+  rerender: (props: HookProps) => void;
+};
 
 async function renderPluginHookWithActiveConnection<
   HookResult,

@@ -23,9 +23,11 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "compass:main": "src/index.ts",
   "exports": {
-    "require": "./dist/index.js"
+    "require": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
   "compass:exports": {
     ".": "./src/index.ts"
