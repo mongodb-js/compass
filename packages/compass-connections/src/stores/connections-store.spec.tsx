@@ -46,8 +46,9 @@ describe('useConnections', function () {
   });
 
   it('autoconnects on mount and does not save autoconnect info', async function () {
-    const { connectionsStore, connectionStorage } =
-      await renderHookWithConnections(useConnections, {
+    const { connectionsStore, connectionStorage } = renderHookWithConnections(
+      useConnections,
+      {
         preferences: defaultPreferences,
         connections: mockConnections,
         onAutoconnectInfoRequest() {
@@ -58,7 +59,8 @@ describe('useConnections', function () {
             },
           });
         },
-      });
+      }
+    );
 
     await waitFor(() => {
       expect(connectionsStore.getState().connections.byId)
@@ -76,14 +78,16 @@ describe('useConnections', function () {
 
   describe('#connect', function () {
     it('should show notifications throughout connection flow and save connection to persistent store', async function () {
-      const { result, connectionStorage, track } =
-        await renderHookWithConnections(useConnections, {
+      const { result, connectionStorage, track } = renderHookWithConnections(
+        useConnections,
+        {
           preferences: defaultPreferences,
           connectFn: async () => {
             await wait(100);
             return {};
           },
-        });
+        }
+      );
 
       const connectionInfo = createDefaultConnectionInfo();
 
@@ -119,7 +123,7 @@ describe('useConnections', function () {
     });
 
     it('should show error toast if connection failed', async function () {
-      const { result } = await renderHookWithConnections(useConnections, {
+      const { result } = renderHookWithConnections(useConnections, {
         preferences: defaultPreferences,
         connectFn: sinon
           .stub()
@@ -144,7 +148,7 @@ describe('useConnections', function () {
     });
 
     it('should show non-genuine modal at the end of connection if non genuine mongodb detected', async function () {
-      const { result } = await renderHookWithConnections(useConnections, {
+      const { result } = renderHookWithConnections(useConnections, {
         preferences: defaultPreferences,
       });
 
@@ -163,7 +167,7 @@ describe('useConnections', function () {
     });
 
     it('should show max connections toast if maximum connections number reached', async function () {
-      const { result } = await renderHookWithConnections(useConnections, {
+      const { result } = renderHookWithConnections(useConnections, {
         preferences: {
           ...defaultPreferences,
           maximumNumberOfActiveConnections: 0,
@@ -191,7 +195,7 @@ describe('useConnections', function () {
         });
       });
 
-      const { result } = await renderHookWithConnections(useConnections, {
+      const { result } = renderHookWithConnections(useConnections, {
         preferences: defaultPreferences,
         connectFn,
       });
@@ -239,7 +243,7 @@ describe('useConnections', function () {
         multipleConnectionsEnabled ? 'enabled' : 'disabled'
       }`, function () {
         it('should NOT update existing connection with new props when existing connection is successfull', async function () {
-          const { result, connectionStorage } = await renderHookWithConnections(
+          const { result, connectionStorage } = renderHookWithConnections(
             useConnections,
             {
               connections: mockConnections,
@@ -262,7 +266,7 @@ describe('useConnections', function () {
         });
 
         it('should not update existing connection if connection failed', async function () {
-          const { result, connectionStorage } = await renderHookWithConnections(
+          const { result, connectionStorage } = renderHookWithConnections(
             useConnections,
             {
               connections: mockConnections,
@@ -290,17 +294,14 @@ describe('useConnections', function () {
 
   describe('#disconnect', function () {
     it('disconnect even if connection is in progress cleaning up progress toasts', async function () {
-      const { result, track } = await renderHookWithConnections(
-        useConnections,
-        {
-          preferences: defaultPreferences,
-          connectFn() {
-            return new Promise(() => {
-              // going to cancel this one
-            });
-          },
-        }
-      );
+      const { result, track } = renderHookWithConnections(useConnections, {
+        preferences: defaultPreferences,
+        connectFn() {
+          return new Promise(() => {
+            // going to cancel this one
+          });
+        },
+      });
 
       const connectionInfo = createDefaultConnectionInfo();
       const connectPromise = result.current.connect(connectionInfo);
@@ -318,8 +319,8 @@ describe('useConnections', function () {
   });
 
   describe('#createNewConnection', function () {
-    it('in single connection mode should "open" connection form create new connection info for editing every time', async function () {
-      const { result } = await renderHookWithConnections(useConnections, {
+    it('in single connection mode should "open" connection form create new connection info for editing every time', function () {
+      const { result } = renderHookWithConnections(useConnections, {
         preferences: { enableNewMultipleConnectionSystem: false },
       });
 
@@ -349,10 +350,12 @@ describe('useConnections', function () {
 
   describe('#saveEditedConnection', function () {
     it('new connection: should call save and track the creation', async function () {
-      const { result, track, connectionStorage } =
-        await renderHookWithConnections(useConnections, {
+      const { result, track, connectionStorage } = renderHookWithConnections(
+        useConnections,
+        {
           preferences: defaultPreferences,
-        });
+        }
+      );
 
       // We can't save non-existent connections, create new one before
       // proceeding
@@ -374,11 +377,13 @@ describe('useConnections', function () {
     });
 
     it('existing connection: should call save and should not track the creation', async function () {
-      const { result, track, connectionStorage } =
-        await renderHookWithConnections(useConnections, {
+      const { result, track, connectionStorage } = renderHookWithConnections(
+        useConnections,
+        {
           connections: mockConnections,
           preferences: defaultPreferences,
-        });
+        }
+      );
 
       const updatedConnection = {
         ...mockConnections[0],
@@ -398,7 +403,7 @@ describe('useConnections', function () {
   describe('#removeConnection', function () {
     it('should disconnect and call delete and track the deletion', async function () {
       const { result, connectionsStore, connectionStorage, track } =
-        await renderHookWithConnections(useConnections, {
+        renderHookWithConnections(useConnections, {
           connections: mockConnections,
           preferences: defaultPreferences,
         });
@@ -419,8 +424,8 @@ describe('useConnections', function () {
   });
 
   describe('#editConnection', function () {
-    it('should only allow to edit existing connections', async function () {
-      const { result } = await renderHookWithConnections(useConnections, {
+    it('should only allow to edit existing connections', function () {
+      const { result } = renderHookWithConnections(useConnections, {
         connections: mockConnections,
         preferences: defaultPreferences,
       });
@@ -444,8 +449,8 @@ describe('useConnections', function () {
   });
 
   describe('#duplicateConnection', function () {
-    it('should copy connection and add a copy number at the end', async function () {
-      const { result, connectionsStore } = await renderHookWithConnections(
+    it('should copy connection and add a copy number at the end', function () {
+      const { result, connectionsStore } = renderHookWithConnections(
         useConnections,
         {
           connections: mockConnections,
@@ -469,7 +474,7 @@ describe('useConnections', function () {
     });
 
     it('should create a name if there is none', async function () {
-      const { result, connectionsStore } = await renderHookWithConnections(
+      const { result, connectionsStore } = renderHookWithConnections(
         useConnections,
         {
           connections: [
@@ -513,7 +518,7 @@ describe('useConnections', function () {
         savedConnectionType: 'favorite',
       };
 
-      const { result, connectionsStore } = await renderHookWithConnections(
+      const { result, connectionsStore } = renderHookWithConnections(
         useConnections,
         {
           connections: [newConnection],

@@ -53,8 +53,8 @@ describe('InstanceStore [Store]', function () {
     });
   }
 
-  beforeEach(async function () {
-    const result = await activatePluginWithConnections(
+  beforeEach(function () {
+    const result = activatePluginWithConnections(
       CompassInstanceStorePlugin,
       {},
       {

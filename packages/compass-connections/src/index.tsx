@@ -3,6 +3,7 @@ import {
   autoconnectCheck,
   configureStore,
   loadConnections,
+  getInitialConnectionsStateForConnectionInfos,
 } from './stores/connections-store-redux';
 import React, { useContext, useRef } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -23,6 +24,7 @@ const ConnectionsComponent: React.FunctionComponent<{
   ) => Promise<[Record<string, unknown>, string | null]>;
   onAutoconnectInfoRequest?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: typeof devtoolsConnect | undefined;
+  preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
   return <>{children}</>;
 };
@@ -36,7 +38,7 @@ const CompassConnectionsPlugin = registerHadronPlugin(
       { logger, preferences, connectionStorage, track },
       helpers
     ) {
-      const store = configureStore(undefined, {
+      const store = configureStore(initialProps.preloadStorageConnectionInfos, {
         logger,
         preferences,
         connectionStorage,

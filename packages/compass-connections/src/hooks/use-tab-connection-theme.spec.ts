@@ -36,25 +36,21 @@ const CONNECTION_INFO_INVALID_COLOR = {
 
 describe('useTabConnectionTheme', function () {
   describe('when a connection does not exist', function () {
-    it('should not return a theme', async function () {
-      const { result } = await renderHookWithConnections(
-        useTabConnectionTheme,
-        { preferences: { enableNewMultipleConnectionSystem: true } }
-      );
+    it('should not return a theme', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        preferences: { enableNewMultipleConnectionSystem: true },
+      });
 
       expect(result.current.getThemeOf('NON_EXISTING')).to.be.undefined;
     });
   });
 
   describe('when a connection exists', function () {
-    it('should return the theme with the connection colors', async function () {
-      const { result } = await renderHookWithConnections(
-        useTabConnectionTheme,
-        {
-          preferences: { enableNewMultipleConnectionSystem: true },
-          connections: [CONNECTION_INFO],
-        }
-      );
+    it('should return the theme with the connection colors', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        preferences: { enableNewMultipleConnectionSystem: true },
+        connections: [CONNECTION_INFO],
+      });
 
       expect(result.current.getThemeOf(CONNECTION_INFO.id)).to.deep.equal({
         '&:focus-visible': {
@@ -70,28 +66,22 @@ describe('useTabConnectionTheme', function () {
       });
     });
 
-    it('should not return a theme when there is no color', async function () {
-      const { result } = await renderHookWithConnections(
-        useTabConnectionTheme,
-        {
-          preferences: { enableNewMultipleConnectionSystem: true },
-          connections: [CONNECTION_INFO_NO_COLOR],
-        }
-      );
+    it('should not return a theme when there is no color', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        preferences: { enableNewMultipleConnectionSystem: true },
+        connections: [CONNECTION_INFO_NO_COLOR],
+      });
 
       expect(result.current.getThemeOf(CONNECTION_INFO_NO_COLOR.id)).to.equal(
         undefined
       );
     });
 
-    it('should not return a theme when the color is invalid', async function () {
-      const { result } = await renderHookWithConnections(
-        useTabConnectionTheme,
-        {
-          preferences: { enableNewMultipleConnectionSystem: true },
-          connections: [CONNECTION_INFO_INVALID_COLOR],
-        }
-      );
+    it('should not return a theme when the color is invalid', function () {
+      const { result } = renderHookWithConnections(useTabConnectionTheme, {
+        preferences: { enableNewMultipleConnectionSystem: true },
+        connections: [CONNECTION_INFO_INVALID_COLOR],
+      });
 
       expect(
         result.current.getThemeOf(CONNECTION_INFO_INVALID_COLOR.id)

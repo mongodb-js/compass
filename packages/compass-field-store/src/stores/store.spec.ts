@@ -29,8 +29,8 @@ describe('FieldStore', function () {
     return store.dispatch(schemaUpdated(connectionId, ns, schema));
   };
 
-  beforeEach(async function () {
-    const result = await activatePluginWithConnections(FieldStorePlugin, {});
+  beforeEach(function () {
+    const result = activatePluginWithConnections(FieldStorePlugin, {});
     store = result.plugin.store;
     connectionsStore = result.connectionsStore;
   });

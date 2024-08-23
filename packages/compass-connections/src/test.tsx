@@ -81,7 +81,12 @@ type ConnectionsOptions = {
   connectFn?: (
     connectionOptions: ConnectionInfo['connectionOptions']
   ) => Partial<DataService> | Promise<Partial<DataService>>;
-} & Partial<Omit<React.ComponentProps<typeof CompassConnections>, 'children'>>;
+} & Partial<
+  Omit<
+    React.ComponentProps<typeof CompassConnections>,
+    'children' | 'preloadConnectionInfos'
+  >
+>;
 
 class MockDataService
   extends EventEmitter
@@ -275,6 +280,7 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
                         onAutoconnectInfoRequest={
                           options.onAutoconnectInfoRequest
                         }
+                        preloadStorageConnectionInfos={options.connections}
                       >
                         <StoreGetter>{children}</StoreGetter>
                       </CompassConnections>
@@ -300,27 +306,18 @@ export type RenderConnectionsOptions<
   wrapper?: React.JSXElementConstructor<{ children?: React.ReactElement }>;
 } & ConnectionsOptions;
 
-async function renderWithConnections<
+function renderWithConnections<
   C extends Element | DocumentFragment = HTMLElement,
   BE extends Element | DocumentFragment = C
 >(
   ui: React.ReactElement,
   {
     wrapper: RenderWrapper,
-    container: _container,
-    baseElement: _baseElement,
+    container,
+    baseElement,
     ...connectionsOptions
   }: RenderConnectionsOptions<C, BE> = {}
 ) {
-  const container =
-    _container ??
-    (() => {
-      const div = document.createElement('div');
-      div.dataset.renderContainer = 'true';
-      document.body.appendChild(div);
-      return div;
-    })();
-  const baseElement = _baseElement ?? document.body;
   const { wrapper: Wrapper, wrapperState } = createWrapper(
     connectionsOptions,
     container as HTMLElement
@@ -339,23 +336,20 @@ async function renderWithConnections<
     container,
     baseElement,
   });
-  // Wait for connections to load from storage before returning
-  await waitFor(() => {
-    expect(
-      (connectionsOptions.connections ?? []).every((info) => {
-        return !!wrapperState.connectionsStore.getState().connections.byId[
-          info.id
-        ];
-      })
-    ).to.eq(
-      true,
-      'Expected initial connections to load before rendering rest of the tested UI, but it did not happen'
-    );
-  });
+  expect(
+    (connectionsOptions.connections ?? []).every((info) => {
+      return !!wrapperState.connectionsStore.getState().connections.byId[
+        info.id
+      ];
+    })
+  ).to.eq(
+    true,
+    'Expected initial connections to load before rendering rest of the tested UI, but it did not happen'
+  );
   return { ...wrapperState, result };
 }
 
-async function renderHookWithConnections<
+function renderHookWithConnections<
   HookResult,
   C extends Element | DocumentFragment = HTMLElement,
   BE extends Element | DocumentFragment = C
@@ -369,14 +363,11 @@ async function renderHookWithConnections<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     result: _renderResult,
     ...rest
-  } = await renderWithConnections(
-    <HookResultGetter></HookResultGetter>,
-    options
-  );
+  } = renderWithConnections(<HookResultGetter></HookResultGetter>, options);
   return { ...rest, result };
 }
 
-async function renderPluginComponentWithConnections<
+function renderPluginComponentWithConnections<
   T,
   S extends Record<string, () => unknown>,
   A extends HadronPlugin,
@@ -397,7 +388,7 @@ async function renderPluginComponentWithConnections<
       </Provider>
     );
   }
-  const result = await renderWithConnections(
+  const result = renderWithConnections(
     <ComponentWithProvider></ComponentWithProvider>,
     options
   );
@@ -407,7 +398,7 @@ async function renderPluginComponentWithConnections<
   };
 }
 
-async function renderPluginHookWithConnections<
+function renderPluginHookWithConnections<
   HookResult,
   T,
   S extends Record<string, () => unknown>,
@@ -429,7 +420,7 @@ async function renderPluginHookWithConnections<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     result: _renderResult,
     ...rest
-  } = await renderPluginComponentWithConnections(
+  } = renderPluginComponentWithConnections(
     <HookResultGetter></HookResultGetter>,
     Plugin,
     initialProps,
@@ -443,7 +434,7 @@ async function renderPluginHookWithConnections<
  * the redux documentation recommends
  * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
  */
-async function activatePluginWithConnections<
+function activatePluginWithConnections<
   T,
   S extends Record<string, () => unknown>,
   A extends HadronPlugin,
@@ -454,7 +445,7 @@ async function activatePluginWithConnections<
   initialProps: T,
   options: RenderConnectionsOptions<C, BE> = {}
 ) {
-  const { result, ...rest } = await renderHookWithConnections(() => {
+  const { result, ...rest } = renderHookWithConnections(() => {
     return Plugin.useActivate(initialProps);
   }, options);
   return { plugin: result.current, ...rest };
@@ -475,7 +466,7 @@ async function renderWithActiveConnection<
       </ConnectionInfoProvider>
     );
   }
-  const renderResult = await renderWithConnections(
+  const renderResult = renderWithConnections(
     <UiWithConnectionInfo></UiWithConnectionInfo>,
     {
       ...options,
@@ -633,11 +624,9 @@ async function activatePluginWithActiveConnection<
 
 export {
   // There is never a good reason not to have these wrapper providers when
-  // rendering something in compass for testing. Using them requires render call
-  // to be async, but not having them will lead to code breaking in runtime when
-  // rendered due to missing contexts of all sorts in most cases. This is why we
-  // don't export default render methods from testing-library and always export
-  // these ones instead
+  // rendering something in compass for testing. Using these render methods
+  // introduces a bit more run time, but most of the code in the application is
+  // not expecting those to be missing
   renderWithConnections as render,
   renderHookWithConnections as renderHook,
   cleanup,

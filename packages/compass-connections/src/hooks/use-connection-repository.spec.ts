@@ -50,11 +50,10 @@ describe('useConnectionRepository', function () {
   });
 
   describe('favoriteConnections', function () {
-    it('should return favourite connections sorted by name alphabetically', async function () {
-      const { result } = await renderHookWithConnections(
-        useConnectionRepository,
-        { connections: favoriteMockConnections }
-      );
+    it('should return favourite connections sorted by name alphabetically', function () {
+      const { result } = renderHookWithConnections(useConnectionRepository, {
+        connections: favoriteMockConnections,
+      });
 
       const connections = result.current.favoriteConnections;
 
@@ -64,7 +63,7 @@ describe('useConnectionRepository', function () {
     });
 
     it('should not change if only non favourite connections change', async function () {
-      const { result, connectionsStore } = await renderHookWithConnections(
+      const { result, connectionsStore } = renderHookWithConnections(
         useConnectionRepository,
         { connections: favoriteMockConnections }
       );
@@ -85,11 +84,10 @@ describe('useConnectionRepository', function () {
   });
 
   describe('nonFavoriteConnections', function () {
-    it('should return non favourite connections sorted by name alphabetically', async function () {
-      const { result } = await renderHookWithConnections(
-        useConnectionRepository,
-        { connections: nonFavoriteMockConnections }
-      );
+    it('should return non favourite connections sorted by name alphabetically', function () {
+      const { result } = renderHookWithConnections(useConnectionRepository, {
+        connections: nonFavoriteMockConnections,
+      });
 
       const connections = result.current.nonFavoriteConnections;
 
@@ -100,7 +98,7 @@ describe('useConnectionRepository', function () {
     });
 
     it('should not change if only favourite connections change', async function () {
-      const { result, connectionsStore } = await renderHookWithConnections(
+      const { result, connectionsStore } = renderHookWithConnections(
         useConnectionRepository,
         { connections: nonFavoriteMockConnections }
       );
@@ -124,7 +122,7 @@ describe('useConnectionRepository', function () {
     it('should save a new connection if it has a valid connection string', async function () {
       const connectionInfo = createDefaultConnectionInfo();
       const { result, connectionsStore, connectionStorage } =
-        await renderHookWithConnections(useConnectionRepository, {
+        renderHookWithConnections(useConnectionRepository, {
           // We don't allow to save connections that are not in state with
           // actions, so put one in the store
           connections: [connectionInfo],
@@ -152,7 +150,7 @@ describe('useConnectionRepository', function () {
     it('should not save a new connection if it has an invalid connection string', async function () {
       const connectionInfo = createDefaultConnectionInfo();
       const { result, connectionsStore, connectionStorage } =
-        await renderHookWithConnections(useConnectionRepository, {
+        renderHookWithConnections(useConnectionRepository, {
           // We don't allow to save connections that are not in state with
           // actions, so put one in the store
           connections: [connectionInfo],
@@ -177,10 +175,10 @@ describe('useConnectionRepository', function () {
   });
 
   describe('store.removeConnection', function () {
-    it('should delete a saved connection from the underlying storage', async function () {
+    it('should delete a saved connection from the underlying storage', function () {
       const connectionInfo = createDefaultConnectionInfo();
       const { result, connectionsStore, connectionStorage } =
-        await renderHookWithConnections(useConnectionRepository, {
+        renderHookWithConnections(useConnectionRepository, {
           // We don't allow to save connections that are not in state with
           // actions, so put one in the store
           connections: [connectionInfo],

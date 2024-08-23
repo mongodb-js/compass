@@ -1,47 +1,30 @@
 import { expect } from 'chai';
-import { createSandbox } from 'sinon';
 import type { Workspace } from '../index';
-import { activateWorkspacePlugin } from '../index';
+import WorkspacesPlugin from '../index';
+import type { activateWorkspacePlugin } from '../index';
 import * as workspacesSlice from './workspaces';
 import { _bulkTabsClose } from './workspaces';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 import type { ConnectionInfo } from '../../../connection-info/dist';
 import type { WorkspaceTab } from '../../dist';
 import { setTabDestroyHandler } from '../components/workspace-close-handler';
+import { activatePluginWithConnections } from '@mongodb-js/compass-connections/test';
+
+type WorkspacesStore = ReturnType<typeof activateWorkspacePlugin>['store'];
 
 describe('tabs behavior', function () {
-  const instance = {
-    on() {},
-    removeListener() {},
-    getNamespace() {
-      return Promise.resolve(null);
-    },
-  } as any;
-  const globalAppRegistry = { on() {}, removeListener() {} } as any;
-  const helpers = { on() {}, cleanup() {}, addCleanup() {} } as any;
-  const dataService = {} as any;
-  const instancesManager = new TestMongoDBInstanceManager();
-  const connectionsManager = new ConnectionsManager({
-    logger: (() => {}) as any,
-  });
-  const sandbox = createSandbox();
-
   function configureStore() {
-    return activateWorkspacePlugin(
-      {},
-      {
-        globalAppRegistry,
-        instancesManager,
-        connectionsManager,
-        logger: {} as any,
-      },
-      helpers
-    ).store;
+    const result = activatePluginWithConnections(
+      WorkspacesPlugin.withMockServices({
+        instancesManager: new TestMongoDBInstanceManager(),
+      }),
+      { onActiveWorkspaceTabChange: () => undefined }
+    );
+    return result.plugin.store as WorkspacesStore;
   }
 
   function openTabs(
-    store: ReturnType<typeof configureStore>,
+    store: WorkspacesStore,
     connectionNamespaces: Record<ConnectionInfo['id'], string[]> = {
       connection1: ['test.foo', 'test.bar', 'test.buz'],
     }
@@ -76,19 +59,6 @@ describe('tabs behavior', function () {
     openFallbackWorkspace: openFallbackTab,
     getActiveTab,
   } = workspacesSlice;
-
-  beforeEach(function () {
-    sandbox
-      .stub(connectionsManager, 'getDataServiceForConnection')
-      .returns(dataService);
-    sandbox
-      .stub(instancesManager, 'getMongoDBInstanceForConnection')
-      .returns(instance);
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-  });
 
   describe('openWorkspace', function () {
     it('should open a tab and make it active', function () {

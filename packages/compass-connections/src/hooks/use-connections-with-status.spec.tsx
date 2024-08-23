@@ -28,13 +28,10 @@ const mockConnections: ConnectionInfo[] = [
 ];
 
 describe('useConnectionsWithStatus', function () {
-  it('should return all connections with initial state', async function () {
-    const { result } = await renderHookWithConnections(
-      useConnectionsWithStatus,
-      {
-        connections: mockConnections,
-      }
-    );
+  it('should return all connections with initial state', function () {
+    const { result } = renderHookWithConnections(useConnectionsWithStatus, {
+      connections: mockConnections,
+    });
     expect(result.current).to.have.lengthOf(2);
     expect(result.current[0]).to.have.property('connectionStatus', 'initial');
     expect(result.current[1]).to.have.property('connectionStatus', 'initial');
@@ -55,7 +52,7 @@ describe('useConnectionsWithStatus', function () {
         return {};
       });
 
-    const { result, connectionsStore } = await renderHookWithConnections(
+    const { result, connectionsStore } = renderHookWithConnections(
       useConnectionsWithStatus,
       {
         connectFn: connectFnStub,

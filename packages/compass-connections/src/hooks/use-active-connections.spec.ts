@@ -29,15 +29,15 @@ const mockConnections: ConnectionInfo[] = [
 describe('useActiveConnections', function () {
   afterEach(cleanup);
 
-  it('should return empty list of connections', async function () {
-    const { result } = await renderHookWithConnections(useActiveConnections, {
+  it('should return empty list of connections', function () {
+    const { result } = renderHookWithConnections(useActiveConnections, {
       connections: mockConnections,
     });
     expect(result.current).to.have.length(0);
   });
 
   it('should return active connections', async function () {
-    const { result, connectionsStore } = await renderHookWithConnections(
+    const { result, connectionsStore } = renderHookWithConnections(
       useActiveConnections,
       { connections: mockConnections }
     );
@@ -49,7 +49,7 @@ describe('useActiveConnections', function () {
   });
 
   it('should listen to connections status updates', async function () {
-    const { result, connectionsStore } = await renderHookWithConnections(
+    const { result, connectionsStore } = renderHookWithConnections(
       useActiveConnections,
       { connections: mockConnections }
     );
@@ -64,7 +64,7 @@ describe('useActiveConnections', function () {
   });
 
   it('should listen to connections state updates', async function () {
-    const { result, connectionsStore } = await renderHookWithConnections(
+    const { result, connectionsStore } = renderHookWithConnections(
       useActiveConnections,
       { connections: mockConnections }
     );

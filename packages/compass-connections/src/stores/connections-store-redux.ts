@@ -467,6 +467,27 @@ const INITIAL_STATE: State = {
   isEditingConnectionFavoriteInfoModalOpen: false,
 };
 
+export function getInitialConnectionsStateForConnectionInfos(
+  connectionInfos: ConnectionInfo[] = []
+): State['connections'] {
+  const byId = Object.fromEntries<ConnectionState>(
+    [
+      [INITIAL_CONNECTION_STATE.info.id, INITIAL_CONNECTION_STATE] as const,
+    ].concat(
+      connectionInfos.map((info) => {
+        return [info.id, createDefaultConnectionState(info)];
+      })
+    )
+  );
+  return {
+    byId,
+    ids: getSortedIdsForConnections(Object.values(byId)),
+    // Keep initial state if we're not preloading any connections
+    status: connectionInfos.length > 0 ? 'ready' : 'initial',
+    error: null,
+  };
+}
+
 function savedTypeCompare(a: ConnectionInfo, b: ConnectionInfo) {
   const isFavA = a.savedConnectionType === 'favorite';
   const isFavB = b.savedConnectionType === 'favorite';
@@ -2061,7 +2082,7 @@ export const importConnections = (
 };
 
 export function configureStore(
-  initialState: Partial<State> = {},
+  preloadConnectionInfos: ConnectionInfo[] = [],
   thunkArg: ThunkExtraArg
 ) {
   return createStore(
@@ -2072,7 +2093,12 @@ export function configureStore(
     //   return newState;
     // },
     reducer,
-    merge(initialState, INITIAL_STATE),
+    {
+      ...INITIAL_STATE,
+      connections: getInitialConnectionsStateForConnectionInfos(
+        preloadConnectionInfos
+      ),
+    },
     applyMiddleware(thunk.withExtraArgument(thunkArg))
   );
 }

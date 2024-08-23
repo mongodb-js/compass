@@ -1,7 +1,7 @@
 import {
   renderHook,
   cleanup as cleanupHooks,
-} from '@testing-library/react-hooks';
+} from '@mongodb-js/compass-connections/test';
 import {
   useTabState,
   tabStateStore,
@@ -11,8 +11,8 @@ import {
 import { expect } from 'chai';
 
 describe('useTabState', function () {
-  afterEach(async function () {
-    await cleanupHooks();
+  afterEach(function () {
+    cleanupHooks();
     resetTabState();
   });
 

@@ -38,7 +38,7 @@ describe('CreateViewStore [Store]', function () {
 
   beforeEach(async function () {
     const { plugin, globalAppRegistry, connectionsStore } =
-      await activatePluginWithConnections(
+      activatePluginWithConnections(
         CreateViewPlugin.withMockServices({ workspaces }) as any,
         {},
         {
