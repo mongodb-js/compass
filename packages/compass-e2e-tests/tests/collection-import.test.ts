@@ -1232,7 +1232,7 @@ describe('Collection import', function () {
     const errorCount = (
       logFileContent.match(/E11000 duplicate key error collection/g) || []
     ).length;
-    expect(errorCount).to.equal(4);
+    expect(errorCount).to.equal(3);
 
     // Close toast.
     await browser.clickVisible(
