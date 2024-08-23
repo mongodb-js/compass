@@ -47,7 +47,7 @@ function writeErrorToJSError({
   code,
   index,
 }: WriteError): ImportWriterProgressError {
-  const op = err.op;
+  const op = err?.op;
 
   const e: ImportWriterProgressError = new Error(errmsg) as any;
   e.index = index;
@@ -112,6 +112,8 @@ export class ImportWriter {
   async _executeBatch() {
     const documents = this.batch;
 
+    this.docsProcessed += documents.length;
+
     this.batch = [];
 
     let bulkWriteResult: PartialBulkWriteResult;
@@ -136,12 +138,8 @@ export class ImportWriter {
       if (bulkWriteError.code === 6371202) {
         this.BATCH_SIZE = 1;
 
-        bulkWriteResult = await this._insertOneByOne();
+        bulkWriteResult = await this._insertOneByOne(documents);
       } else {
-        if (this.stopOnErrors) {
-          throw bulkWriteError;
-        }
-
         // If we are writing with `ordered: false`, bulkWrite will throw and
         // will not return any result, but server might write some docs and bulk
         // result can still be accessed on the error instance
@@ -150,7 +148,15 @@ export class ImportWriter {
         // when the operation ends in error, instead of relying on
         // `_mergeBulkOpResult` default argument substitution, we need to keep
         // this OR expression here
-        bulkWriteResult = (bulkWriteError as MongoBulkWriteError).result || {};
+        bulkWriteResult = ((bulkWriteError as MongoBulkWriteError).result ||
+          {}) as PartialBulkWriteResult;
+
+        if (this.stopOnErrors) {
+          this.docsWritten += bulkWriteResult.insertedCount || 0;
+          this.docsErrored +=
+            (bulkWriteResult.getWriteErrors?.() || []).length || 0;
+          throw bulkWriteError;
+        }
       }
     }
 
@@ -161,7 +167,6 @@ export class ImportWriter {
     );
 
     this.docsWritten += bulkOpResult.insertedCount;
-    this.docsProcessed += documents.length;
     this.docsErrored += bulkOpResult.numWriteErrors;
     this._batchCounter++;
 
@@ -170,9 +175,9 @@ export class ImportWriter {
     }
   }
 
-  async _insertOneByOne(): Promise<PartialBulkWriteResult> {
-    const documents = this.batch;
-
+  async _insertOneByOne(
+    documents: Document[]
+  ): Promise<PartialBulkWriteResult> {
     let insertedCount = 0;
     const errors: WriteError[] = [];
 
@@ -182,11 +187,12 @@ export class ImportWriter {
         insertedCount += 1;
       } catch (insertOneByOneError: any) {
         if (this.stopOnErrors) {
+          this.docsWritten += insertedCount;
+          this.docsErrored += 1;
           throw insertOneByOneError;
         }
 
         errors.push(insertOneByOneError as WriteError);
-        this.docsErrored += 1;
       }
     }
 
