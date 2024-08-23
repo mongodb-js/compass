@@ -14,11 +14,12 @@ const debug = createDebug('import');
 export function makeImportResult(
   importWriter: ImportWriter,
   numProcessed: number,
+  numParseErrors: number,
   docStatsStream: DocStatsCollector,
   aborted?: boolean
 ): ImportResult {
   const result: ImportResult = {
-    docsErrored: importWriter.docsErrored,
+    docsErrored: numParseErrors + importWriter.docsErrored,
     docsWritten: importWriter.docsWritten,
     ...docStatsStream.getStats(),
     // docsProcessed is not on importWriter so that it includes docs that
@@ -134,6 +135,7 @@ export async function doImport(
   const importWriter = new ImportWriter(dataService, ns, stopOnErrors);
 
   let numProcessed = 0;
+  let numParseErrors = 0;
 
   // Stream errors just get thrown synchronously unless we listen for the event
   // on each stream we use in the pipeline. By destroying the stream we're
@@ -181,6 +183,7 @@ export async function doImport(
       try {
         doc = transformer.transform(chunk);
       } catch (err: unknown) {
+        ++numParseErrors;
         // deal with transform error
 
         // rethrow with the line number / array index appended to aid debugging
@@ -271,6 +274,7 @@ export async function doImport(
       const result = makeImportResult(
         importWriter,
         numProcessed,
+        numParseErrors,
         docStatsCollector,
         true
       );
@@ -282,6 +286,7 @@ export async function doImport(
     err.result = makeImportResult(
       importWriter,
       numProcessed,
+      numParseErrors,
       docStatsCollector
     );
 
@@ -293,6 +298,7 @@ export async function doImport(
   const result = makeImportResult(
     importWriter,
     numProcessed,
+    numParseErrors,
     docStatsCollector
   );
   debug('import:completed', result);

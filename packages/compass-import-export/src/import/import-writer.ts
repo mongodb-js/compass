@@ -40,23 +40,24 @@ type ImportWriterProgressError = Error & {
   errInfo: MongoServerError['errInfo'];
 };
 
-function mongodbServerErrorToJSError({
-  index,
-  code,
-  errmsg,
-  op,
+function writeErrorToJSError({
   errInfo,
-}: Pick<MongoServerError, 'code' | 'errInfo'> &
-  Partial<
-    Pick<MongoServerError, 'index' | 'errmsg' | 'op'>
-  >): ImportWriterProgressError {
+  errmsg,
+  err,
+  code,
+  index,
+}: WriteError): ImportWriterProgressError {
+  const op = err.op;
+
   const e: ImportWriterProgressError = new Error(errmsg) as any;
   e.index = index;
   e.code = code;
   e.op = op;
   e.errInfo = errInfo;
+
   // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/#mongodb-data-BulkWriteResult.writeErrors
-  e.name = index && op ? 'WriteError' : 'WriteConcernError';
+  e.name = index !== undefined && op ? 'WriteError' : 'WriteConcernError';
+
   return e;
 }
 
@@ -156,7 +157,7 @@ export class ImportWriter {
     const bulkOpResult = this._getBulkOpResult(bulkWriteResult);
 
     const writeErrors = (bulkWriteResult?.getWriteErrors?.() || []).map(
-      mongodbServerErrorToJSError
+      writeErrorToJSError
     );
 
     this.docsWritten += bulkOpResult.insertedCount;

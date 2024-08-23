@@ -630,7 +630,12 @@ describe('importCSV', function () {
       errorCallback,
     });
 
-    expect(result.docsWritten).to.equal(1);
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsErrored: 2,
+      docsProcessed: 3,
+      docsWritten: 1,
+      hasUnboundArray: false,
+    });
 
     expect(progressCallback.callCount).to.equal(3);
     expect(errorCallback.callCount).to.equal(2);
@@ -738,26 +743,31 @@ describe('importCSV', function () {
       errorCallback,
     });
 
-    expect(result.docsWritten).to.equal(0);
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsErrored: 3,
+      docsProcessed: 3,
+      docsWritten: 0,
+      hasUnboundArray: false,
+    });
 
     expect(progressCallback.callCount).to.equal(3);
     expect(errorCallback.callCount).to.equal(3);
 
     const expectedErrors: ErrorJSON[] = [
       {
-        name: 'WriteConcernError',
+        name: 'WriteError',
         message: 'Document failed validation',
         index: 0,
         code: 121,
       },
       {
-        name: 'WriteConcernError',
+        name: 'WriteError',
         message: 'Document failed validation',
         index: 1,
         code: 121,
       },
       {
-        name: 'WriteConcernError',
+        name: 'WriteError',
         message: 'Document failed validation',
         index: 2,
         code: 121,
@@ -765,6 +775,11 @@ describe('importCSV', function () {
     ];
 
     const errors = errorCallback.args.map((args) => args[0]);
+    for (const [index, error] of errors.entries()) {
+      expect(error.op).to.exist;
+      // cheat and copy them over because it is big and with buffers
+      expectedErrors[index].op = error.op;
+    }
     expect(errors).to.deep.equal(expectedErrors);
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
