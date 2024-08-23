@@ -188,10 +188,6 @@ export async function doImport(
           (err as Error).message
         }${transformer.lineAnnotation(numProcessed)}`;
 
-        // TODO: if it is an unknown error we should probably also throw,
-        // otherwise some programming errors will be treated like parsing
-        // errors..
-
         if (stopOnErrors) {
           throw err;
         } else {
