@@ -89,7 +89,7 @@ describe('In-Use Encryption', function () {
             connectionString: 'mongodb://localhost:27017',
           },
         }}
-        onConnectClicked={(connectionInfo) => {
+        onSaveAndConnectClicked={(connectionInfo) => {
           connectSpy(connectionInfo.connectionOptions);
         }}
         onSaveClicked={() => {

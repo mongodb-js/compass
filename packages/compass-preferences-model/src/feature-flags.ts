@@ -18,7 +18,6 @@ export type FeatureFlags = {
   newExplainPlan: boolean;
   showInsights: boolean;
   enableRenameCollectionModal: boolean;
-  enableNewMultipleConnectionSystem: boolean;
   enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
 };
@@ -61,18 +60,6 @@ export const featureFlags: Required<{
     description: {
       short: 'Enables renaming a collection',
       long: 'Allows users to rename a collection from the sidebar',
-    },
-  },
-
-  /**
-   * Feature flag for the new multiple connection UI.
-   * Epic: COMPASS-6410
-   */
-  enableNewMultipleConnectionSystem: {
-    stage: 'development',
-    description: {
-      short: 'Enables support for multiple connections.',
-      long: 'Allows users to open multiple connections in the same window.',
     },
   },
 

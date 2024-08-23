@@ -28,7 +28,7 @@ async function renderConnectionForm(
           connectionString: 'mongodb://localhost:27017',
         },
       }}
-      onConnectClicked={(connectionInfo) => {
+      onSaveAndConnectClicked={(connectionInfo) => {
         void connectSpy(connectionInfo.connectionOptions);
       }}
       preferences={{ enableOidc: true, showOIDCDeviceAuthFlow }}
@@ -77,6 +77,7 @@ describe('Authentication OIDC Connection Form', function () {
       try {
         await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
       } catch (e) {
+        // this only finds something if it is a validation error
         const errors = screen.getByTestId(
           'connection-error-summary'
         ).textContent;
@@ -101,7 +102,7 @@ describe('Authentication OIDC Connection Form', function () {
     });
 
     it('handles principal (username) changes', async function () {
-      fireEvent.change(screen.getAllByRole('textbox')[1], {
+      fireEvent.change(screen.getByTestId('connection-oidc-username-input'), {
         target: { value: 'goodSandwich' },
       });
 
@@ -112,9 +113,12 @@ describe('Authentication OIDC Connection Form', function () {
     });
 
     it('handles the auth redirect flow uri changes', async function () {
-      fireEvent.change(screen.getAllByRole('textbox')[2], {
-        target: { value: 'goodSandwiches' },
-      });
+      fireEvent.change(
+        screen.getByTestId('connection-oidc-auth-code-flow-redirect-uri-input'),
+        {
+          target: { value: 'goodSandwiches' },
+        }
+      );
 
       await expectToConnectWith({
         connectionString:
