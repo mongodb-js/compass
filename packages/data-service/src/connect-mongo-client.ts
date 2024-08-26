@@ -108,7 +108,8 @@ export function prepareOIDCOptions(
     options.applyProxyToOIDC = true;
   } else {
     options.oidc.customHttpOptions = {
-      agent: createAgent(getCurrentApplicationProxyOptions()),
+      // ?. because this can be false-y in compass-web
+      agent: createAgent?.(getCurrentApplicationProxyOptions()),
     };
   }
 
@@ -188,7 +189,8 @@ export async function connectMongoClientDataService({
   //
   // If connectionOptions.sshTunnel is not defined, the tunnel
   // will also be undefined.
-  const tunnel = createSocks5Tunnel(
+  // (?. because this can be false-y in compass-web)
+  const tunnel = createSocks5Tunnel?.(
     getTunnelOptions(connectionOptions),
     'generate-credentials',
     'mongodb://'
