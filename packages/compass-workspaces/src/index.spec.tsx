@@ -116,7 +116,7 @@ describe('WorkspacesPlugin', function () {
     connectionStorage = new InMemoryConnectionStorage([TEST_CONNECTION_INFO]);
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
     });
   });
 

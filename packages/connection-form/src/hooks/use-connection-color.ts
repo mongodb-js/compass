@@ -189,7 +189,7 @@ export function useConnectionColor(): {
   );
 
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const connectionColorCodes = () => {

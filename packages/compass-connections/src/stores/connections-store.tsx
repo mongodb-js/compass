@@ -200,7 +200,7 @@ export const createConnectionsReducer = (preferences: PreferencesAccess) => {
         if (
           // In multiple connections mode we don't allow to start another edit
           // when one is already in progress
-          preferences.getPreferences().enableNewMultipleConnectionSystem &&
+          preferences.getPreferences().enableMultipleConnectionSystem &&
           state.isEditingConnectionInfoModalOpen
         ) {
           return state;

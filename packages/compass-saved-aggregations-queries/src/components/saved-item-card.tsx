@@ -144,7 +144,7 @@ const CardActions: React.FunctionComponent<{
   onAction: SavedItemCardProps['onAction'];
 }> = ({ itemId, isVisible, onAction }) => {
   const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const actions: MenuAction<SavedItemAction>[] = useMemo(() => {
     return multiConnectionsEnabled

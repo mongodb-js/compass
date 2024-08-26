@@ -100,8 +100,8 @@ const deviceAuthModalContentStyles = css({
  * is the default behavior
  */
 export function useConnectionStatusNotifications() {
-  const enableNewMultipleConnectionSystem = usePreference(
-    'enableNewMultipleConnectionSystem'
+  const enableMultipleConnectionSystem = usePreference(
+    'enableMultipleConnectionSystem'
   );
   const { openToast, closeToast } = useToast('connection-status');
 
@@ -234,7 +234,7 @@ export function useConnectionStatusNotifications() {
   // Gated by the feature flag: if flag is on, we return trigger functions, if
   // flag is off, we return noop functions so that we can call them
   // unconditionally in the actual flow
-  return enableNewMultipleConnectionSystem
+  return enableMultipleConnectionSystem
     ? {
         openNotifyDeviceAuthModal,
         openConnectionStartedToast,

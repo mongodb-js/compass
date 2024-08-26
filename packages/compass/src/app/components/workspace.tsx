@@ -76,7 +76,7 @@ export default function Workspace({
 }): React.ReactElement {
   const [activeConnection] = useActiveConnections();
   const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const { getConnectionInfoById } = useConnectionRepository();
