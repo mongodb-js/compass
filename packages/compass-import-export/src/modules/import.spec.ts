@@ -112,13 +112,13 @@ describe('import [module]', function () {
       const noExistFile = path.join(__dirname, 'no-exist.json');
 
       expect(mockStore.getState().import.fileName).to.equal('');
-      expect(mockStore.getState().import.errors.length).to.equal(0);
+      expect(mockStore.getState().import.firstErrors.length).to.equal(0);
 
       await mockStore.dispatch(selectImportFileName(noExistFile) as any);
 
       expect(mockStore.getState().import.fileName).to.equal('');
 
-      expect(mockStore.getState().import.errors.length).to.equal(1);
+      expect(mockStore.getState().import.firstErrors.length).to.equal(1);
     });
   });
 });

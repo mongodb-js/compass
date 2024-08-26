@@ -1210,12 +1210,13 @@ describe('Collection import', function () {
       .$(Selectors.closeToastButton(Selectors.ImportToast))
       .waitForDisplayed();
 
-    // Displays first error in the toast and view log.
+    // Displays first two errors in the toast and view log.
+    // (It tries to display two, but it also limits the text)
     const toastText = await toastElement.getText();
     expect(toastText).to.include('Import completed 0/3 with errors:');
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
-    ).to.equal(1);
+    ).to.equal(2);
     expect(toastText).to.include('VIEW LOG');
 
     const logFilePath = path.resolve(
@@ -1231,7 +1232,7 @@ describe('Collection import', function () {
     const errorCount = (
       logFileContent.match(/E11000 duplicate key error collection/g) || []
     ).length;
-    expect(errorCount).to.equal(4);
+    expect(errorCount).to.equal(3);
 
     // Close toast.
     await browser.clickVisible(
