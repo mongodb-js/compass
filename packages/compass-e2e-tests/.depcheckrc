@@ -5,4 +5,3 @@ ignores:
   - 'mongodb-compass'
   - 'ps-list'
   - 'mongodb-runner'
-  - '@electron/remote'

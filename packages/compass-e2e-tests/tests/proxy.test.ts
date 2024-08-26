@@ -94,14 +94,6 @@ describe('Proxy support', function () {
       compass = await init(this.test?.fullTitle());
       browser = compass.browser;
 
-      await browser.execute(function () {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const { safeStorage } = require('@electron/remote');
-        if (!safeStorage.isEncryptionAvailable())
-          safeStorage.setUsePlainTextEncryption(true);
-        if (!safeStorage.isEncryptionAvailable())
-          throw new Error('encryption not available on this platform');
-      });
       await browser.setFeature('proxy', '');
       await browser.setFeature('enableProxySupport', true);
       httpProxyServer1.removeAllListeners('request');
