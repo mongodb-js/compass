@@ -54,7 +54,7 @@ export default function Workspace({
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
   const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const { getConnectionInfoById } = useConnectionRepository();

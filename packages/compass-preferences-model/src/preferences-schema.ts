@@ -67,7 +67,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     enableShowDialogOnQuit: boolean;
-    enableNewMultipleConnectionSystem: boolean;
+    enableMultipleConnectionSystem: boolean;
     enableProxySupport: boolean;
     proxy: string;
   };
@@ -781,7 +781,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
-  enableNewMultipleConnectionSystem: {
+  enableMultipleConnectionSystem: {
     ui: true,
     cli: true,
     global: true,

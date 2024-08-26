@@ -248,7 +248,7 @@ describe('useExportConnections', function () {
       const { result } = renderUseExportConnectionsHook(
         {},
         {
-          preferences: { enableNewMultipleConnectionSystem: true },
+          preferences: { enableMultipleConnectionSystem: true },
           connections: [
             {
               id: 'id1',

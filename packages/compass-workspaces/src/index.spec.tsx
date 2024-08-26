@@ -68,7 +68,7 @@ describe('WorkspacesPlugin', function () {
       </WorkspacesProvider>,
       {
         preferences: {
-          enableNewMultipleConnectionSystem: true,
+          enableMultipleConnectionSystem: true,
         },
         connections: [TEST_CONNECTION_INFO],
         connectFn() {

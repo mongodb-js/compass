@@ -113,7 +113,7 @@ describe('Multiple Connections Sidebar Component', function () {
       CompassSidebarPlugin.withMockServices({ instancesManager }),
       {},
       {
-        preferences: { enableNewMultipleConnectionSystem: true },
+        preferences: { enableMultipleConnectionSystem: true },
         connections,
         connectFn() {
           return {

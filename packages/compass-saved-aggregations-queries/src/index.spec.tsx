@@ -86,7 +86,7 @@ describe('AggregationsQueriesList', function () {
     const result = renderWithConnections(<PluginWithMocks></PluginWithMocks>, {
       connections: [connectionOne.connectionInfo, connectionTwo.connectionInfo],
       preferences: {
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       },
     });
     connectionsStore = result.connectionsStore;

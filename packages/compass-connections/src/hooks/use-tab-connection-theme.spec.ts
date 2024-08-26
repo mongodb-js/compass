@@ -38,7 +38,7 @@ describe('useTabConnectionTheme', function () {
   describe('when a connection does not exist', function () {
     it('should not return a theme', function () {
       const { result } = renderHookWithConnections(useTabConnectionTheme, {
-        preferences: { enableNewMultipleConnectionSystem: true },
+        preferences: { enableMultipleConnectionSystem: true },
       });
 
       expect(result.current.getThemeOf('NON_EXISTING')).to.be.undefined;
@@ -48,7 +48,7 @@ describe('useTabConnectionTheme', function () {
   describe('when a connection exists', function () {
     it('should return the theme with the connection colors', function () {
       const { result } = renderHookWithConnections(useTabConnectionTheme, {
-        preferences: { enableNewMultipleConnectionSystem: true },
+        preferences: { enableMultipleConnectionSystem: true },
         connections: [CONNECTION_INFO],
       });
 
@@ -69,7 +69,7 @@ describe('useTabConnectionTheme', function () {
 
     it('should not return a theme when there is no color', function () {
       const { result } = renderHookWithConnections(useTabConnectionTheme, {
-        preferences: { enableNewMultipleConnectionSystem: true },
+        preferences: { enableMultipleConnectionSystem: true },
         connections: [CONNECTION_INFO_NO_COLOR],
       });
 
@@ -80,7 +80,7 @@ describe('useTabConnectionTheme', function () {
 
     it('should not return a theme when the color is invalid', function () {
       const { result } = renderHookWithConnections(useTabConnectionTheme, {
-        preferences: { enableNewMultipleConnectionSystem: true },
+        preferences: { enableMultipleConnectionSystem: true },
         connections: [CONNECTION_INFO_INVALID_COLOR],
       });
 

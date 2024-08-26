@@ -1307,7 +1307,7 @@ const connectionAttemptError = (
     { preferences, track, getExtraConnectionData }
   ) => {
     const { openConnectionFailedToast } = getNotificationTriggers(
-      preferences.getPreferences().enableNewMultipleConnectionSystem
+      preferences.getPreferences().enableMultipleConnectionSystem
     );
 
     openConnectionFailedToast(connectionInfo, err, () => {
@@ -1471,11 +1471,11 @@ export const connect = (
         forceConnectionOptions,
         browserCommandForOIDCAuth,
         maximumNumberOfActiveConnections,
-        enableNewMultipleConnectionSystem,
+        enableMultipleConnectionSystem,
       } = preferences.getPreferences();
 
       const connectionProgress = getNotificationTriggers(
-        enableNewMultipleConnectionSystem
+        enableMultipleConnectionSystem
       );
 
       if (
@@ -1805,7 +1805,7 @@ export const createNewConnection = (): ConnectionsThunkAction<
     // In multiple connections mode we don't allow another edit to start while
     // there is one in progress
     if (
-      preferences.getPreferences().enableNewMultipleConnectionSystem &&
+      preferences.getPreferences().enableMultipleConnectionSystem &&
       getState().isEditingConnectionInfoModalOpen
     ) {
       return;
@@ -1821,7 +1821,7 @@ export const editConnection = (
     // In multiple connections mode we don't allow another edit to start while
     // there is one in progress
     if (
-      preferences.getPreferences().enableNewMultipleConnectionSystem &&
+      preferences.getPreferences().enableMultipleConnectionSystem &&
       getState().isEditingConnectionInfoModalOpen
     ) {
       return;
@@ -1838,7 +1838,7 @@ export const duplicateConnection = (
     // In multiple connections mode we don't allow another edit to start while
     // there is one in progress
     if (
-      preferences.getPreferences().enableNewMultipleConnectionSystem &&
+      preferences.getPreferences().enableMultipleConnectionSystem &&
       getState().isEditingConnectionInfoModalOpen
     ) {
       return;
@@ -1903,7 +1903,7 @@ const cleanupConnection = (
     );
 
     const { closeConnectionStatusToast } = getNotificationTriggers(
-      preferences.getPreferences().enableNewMultipleConnectionSystem
+      preferences.getPreferences().enableMultipleConnectionSystem
     );
 
     const connectionInfo = getCurrentConnectionInfo(getState(), connectionId);

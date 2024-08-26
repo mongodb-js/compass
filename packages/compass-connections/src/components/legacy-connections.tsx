@@ -114,7 +114,7 @@ function Connections({
   const darkMode = useDarkMode();
   const connectionFormPreferences = useConnectionFormPreferences();
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const onConnectClick = (connectionInfo: ConnectionInfo) => {

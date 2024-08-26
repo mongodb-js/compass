@@ -23,7 +23,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
 }) => {
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const { connectionInfo } = useSingleConnectionModeConnectionInfoStatus();
 

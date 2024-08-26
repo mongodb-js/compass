@@ -67,7 +67,7 @@ describe('Home [Component]', function () {
         preferences: {
           showedNetworkOptIn: true,
           networkTraffic: true,
-          enableNewMultipleConnectionSystem: false,
+          enableMultipleConnectionSystem: false,
           ...preferences,
         },
         connectFn: () => {
@@ -130,7 +130,7 @@ describe('Home [Component]', function () {
     describe('and multi connections is enabled', function () {
       it('renders only the workspaces', function () {
         renderHome({}, [], createDataService(), {
-          enableNewMultipleConnectionSystem: true,
+          enableMultipleConnectionSystem: true,
         });
         expect(screen.getByTestId('home')).to.be.displayed;
         expect(() => screen.getByTestId('connections-wrapper')).to.throw;

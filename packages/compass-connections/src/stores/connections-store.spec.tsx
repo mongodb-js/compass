@@ -34,7 +34,7 @@ const mockConnections = [
 ];
 
 const defaultPreferences = {
-  enableNewMultipleConnectionSystem: true,
+  enableMultipleConnectionSystem: true,
   maximumNumberOfActiveConnections: undefined,
 };
 
@@ -249,7 +249,7 @@ describe('useConnections', function () {
               connections: mockConnections,
               preferences: {
                 ...defaultPreferences,
-                enableNewMultipleConnectionSystem: multipleConnectionsEnabled,
+                enableMultipleConnectionSystem: multipleConnectionsEnabled,
               },
             }
           );
@@ -272,7 +272,7 @@ describe('useConnections', function () {
               connections: mockConnections,
               preferences: {
                 ...defaultPreferences,
-                enableNewMultipleConnectionSystem: multipleConnectionsEnabled,
+                enableMultipleConnectionSystem: multipleConnectionsEnabled,
               },
               connectFn: sinon.stub().rejects(new Error('Failed to connect')),
             }
@@ -321,7 +321,7 @@ describe('useConnections', function () {
   describe('#createNewConnection', function () {
     it('in single connection mode should "open" connection form create new connection info for editing every time', function () {
       const { result } = renderHookWithConnections(useConnections, {
-        preferences: { enableNewMultipleConnectionSystem: false },
+        preferences: { enableMultipleConnectionSystem: false },
       });
 
       expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(
