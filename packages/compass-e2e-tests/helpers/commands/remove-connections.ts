@@ -3,11 +3,7 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
 async function resetForRemove(browser: CompassBrowser) {
-  if (await browser.$(Selectors.LGModal).isDisplayed()) {
-    // close any modals that might be in the way
-    await browser.clickVisible(Selectors.LGModalClose);
-    await browser.$(Selectors.LGModal).waitForDisplayed({ reverse: true });
-  }
+  await browser.hideVisibleModal();
 
   // Collapse all the connections so that they will all hopefully fit on screen
   // and therefore be rendered.
