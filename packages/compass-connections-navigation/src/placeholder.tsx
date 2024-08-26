@@ -23,9 +23,7 @@ export const PlaceholderItem: React.FunctionComponent<{
   level: number;
   style?: CSSProperties;
 }> = ({ level, style }) => {
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
+  const isSingleConnection = !usePreference('enableMultipleConnectionSystem');
   const itemPaddingStyles = useMemo(
     () => getTreeItemStyles({ level, isExpandable: false }),
     [level]

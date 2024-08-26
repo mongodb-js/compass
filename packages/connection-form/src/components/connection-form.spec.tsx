@@ -384,7 +384,7 @@ describe('ConnectionForm Component', function () {
     beforeEach(async function () {
       onCancel = Sinon.spy();
       await preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
       renderForm({
         initialConnectionInfo: DEFAULT_CONNECTION,

@@ -27,7 +27,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
 }) => {
   const [activeConnection] = useActiveConnections();
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const activeWorkspace = useActiveWorkspace();

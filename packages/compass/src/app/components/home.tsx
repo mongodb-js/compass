@@ -269,7 +269,7 @@ function Home({
   );
 
   const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   return (

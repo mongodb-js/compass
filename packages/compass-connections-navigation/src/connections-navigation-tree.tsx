@@ -60,9 +60,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 }) => {
   const preferencesShellEnabled = usePreference('enableShell');
   const preferencesReadOnly = usePreference('readOnly');
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
+  const isSingleConnection = !usePreference('enableMultipleConnectionSystem');
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );

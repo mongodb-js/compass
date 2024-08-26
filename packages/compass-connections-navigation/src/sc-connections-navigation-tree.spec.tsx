@@ -67,7 +67,7 @@ const activeWorkspace = {
 const dummyPreferences = {
   getPreferences() {
     return {
-      enableNewMultipleConnectionSystem: false,
+      enableMultipleConnectionSystem: false,
     };
   },
   onPreferenceValueChanged() {},
@@ -107,7 +107,7 @@ describe.skip('ConnectionsNavigationTree -- Single connection usage', function (
     beforeEach(async function () {
       await preferences.savePreferences({
         enableRenameCollectionModal: true,
-        enableNewMultipleConnectionSystem: false,
+        enableMultipleConnectionSystem: false,
       });
 
       renderComponent(
