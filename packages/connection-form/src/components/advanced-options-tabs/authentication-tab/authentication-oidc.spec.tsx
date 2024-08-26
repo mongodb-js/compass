@@ -15,7 +15,9 @@ import ConnectionForm from '../../../';
 const deviceAuthFlowText = 'Enable Device Authentication Flow';
 
 async function renderConnectionForm(
-  connectSpy,
+  connectSpy: (
+    expected: ConnectionOptions | ((expected: ConnectionOptions) => void)
+  ) => Promise<void>,
   { showOIDCDeviceAuthFlow }: { showOIDCDeviceAuthFlow: boolean }
 ) {
   render(
@@ -26,10 +28,13 @@ async function renderConnectionForm(
           connectionString: 'mongodb://localhost:27017',
         },
       }}
-      onConnectClicked={(connectionInfo) => {
-        connectSpy(connectionInfo.connectionOptions);
+      onSaveAndConnectClicked={(connectionInfo) => {
+        void connectSpy(connectionInfo.connectionOptions);
       }}
       preferences={{ enableOidc: true, showOIDCDeviceAuthFlow }}
+      onSaveClicked={() => {
+        return Promise.resolve();
+      }}
     />
   );
 
@@ -57,19 +62,22 @@ const openOptionsAccordion = () =>
   fireEvent.click(screen.getByText('OIDC Options'));
 
 describe('Authentication OIDC Connection Form', function () {
-  let expectToConnectWith;
+  let expectToConnectWith: (
+    expected: ConnectionOptions | ((expected: ConnectionOptions) => void)
+  ) => Promise<void>;
   let connectSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     connectSpy = sinon.spy();
     expectToConnectWith = async (
-      expected: ConnectionOptions | ((ConnectionOptions) => void)
+      expected: ConnectionOptions | ((expected: ConnectionOptions) => void)
     ): Promise<void> => {
       connectSpy.resetHistory();
       fireEvent.click(screen.getByTestId('connect-button'));
       try {
         await waitFor(() => expect(connectSpy).to.have.been.calledOnce);
       } catch (e) {
+        // this only finds something if it is a validation error
         const errors = screen.getByTestId(
           'connection-error-summary'
         ).textContent;
@@ -94,7 +102,7 @@ describe('Authentication OIDC Connection Form', function () {
     });
 
     it('handles principal (username) changes', async function () {
-      fireEvent.change(screen.getAllByRole('textbox')[1], {
+      fireEvent.change(screen.getByTestId('connection-oidc-username-input'), {
         target: { value: 'goodSandwich' },
       });
 
@@ -105,9 +113,12 @@ describe('Authentication OIDC Connection Form', function () {
     });
 
     it('handles the auth redirect flow uri changes', async function () {
-      fireEvent.change(screen.getAllByRole('textbox')[2], {
-        target: { value: 'goodSandwiches' },
-      });
+      fireEvent.change(
+        screen.getByTestId('connection-oidc-auth-code-flow-redirect-uri-input'),
+        {
+          target: { value: 'goodSandwiches' },
+        }
+      );
 
       await expectToConnectWith({
         connectionString:

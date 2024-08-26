@@ -83,6 +83,7 @@ describe('AuthenticationAws Component', function () {
         {
           fieldName: 'username',
           message: 'username error',
+          fieldTab: 'general',
         },
       ],
       updateConnectionFormField: updateConnectionFormFieldSpy,
@@ -97,6 +98,7 @@ describe('AuthenticationAws Component', function () {
         {
           fieldName: 'password',
           message: 'password error',
+          fieldTab: 'general',
         },
       ],
       updateConnectionFormField: updateConnectionFormFieldSpy,
