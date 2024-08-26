@@ -82,7 +82,7 @@ function AuthenticationOIDC({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Accordion text="OIDC Options">
+        <Accordion text="OIDC Options" data-testid="oidc-advanced-options">
           <FormFieldContainer>
             <TextInput
               data-testid="connection-oidc-auth-code-flow-redirect-uri-input"

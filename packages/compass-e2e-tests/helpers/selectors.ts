@@ -103,6 +103,10 @@ export const ConnectionFormInputPlainPassword =
   '[data-testid="connection-plain-password-input"]';
 export const ConnectionFormInputOIDCUsername =
   '[data-testid="connection-oidc-username-input"]';
+export const ConnectionFormOIDCAdvancedToggle =
+  '[data-testid="oidc-advanced-options"]';
+export const ConnectionFormOIDCUseApplicationProxyCheckbox =
+  '[data-testid="oidc-use-application-level-proxy"]';
 export const ConnectionFormInputAWSAccessKeyId =
   '[data-testid="connection-form-aws-access-key-id-input"]';
 export const ConnectionFormInputAWSSecretAccessKey =
@@ -1386,6 +1390,12 @@ export const DisconnectAtlasAccountButton = 'button=Log Out';
 export const AtlasLoginStatus = '[data-testid="atlas-login-status"]';
 export const AtlasLoginErrorToast = '#atlas-sign-in-error';
 export const AgreeAndContinueButton = 'button=Agree and continue';
+
+// Proxy settings
+export const ProxyUrl =
+  '[data-testid="proxy-settings"] [data-testid="proxy-url"]';
+export const ProxyCustomButton =
+  '[data-testid="proxy-settings"] [data-testid="custom-radio"]';
 
 // Close tab confirmation
 export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';

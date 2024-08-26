@@ -10,6 +10,7 @@ import {
   connectionNameFromString,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
+import { setupProxyServer } from '../helpers/proxy';
 import * as Selectors from '../helpers/selectors';
 import type { Compass } from '../helpers/compass';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
@@ -18,6 +19,9 @@ import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
 import { once, EventEmitter } from 'events';
+import type { Server as HTTPServer, IncomingMessage } from 'http';
+import { createServer as createHTTPServer } from 'http';
+import type { Socket, AddressInfo } from 'net';
 import { expect } from 'chai';
 import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
@@ -486,5 +490,82 @@ describe('OIDC integration', function () {
     await browser.disconnectAll();
 
     expect(oidcMockProviderEndpointAccesses['/authorize']).to.equal(1);
+  });
+
+  context('when using a proxy', function () {
+    let httpServer: HTTPServer;
+    let connectRequests: IncomingMessage[];
+    let httpForwardRequests: IncomingMessage[];
+    let connections: Socket[];
+
+    beforeEach(async function () {
+      await browser.execute(function () {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { safeStorage } = require('@electron/remote');
+        if (!safeStorage.isEncryptionAvailable())
+          safeStorage.setUsePlainTextEncryption(true);
+        if (!safeStorage.isEncryptionAvailable())
+          throw new Error('encryption not available on this platform');
+      });
+      await browser.setFeature('proxy', '');
+      await browser.setFeature('enableProxySupport', true);
+      httpServer = createHTTPServer();
+      ({ connectRequests, httpForwardRequests, connections } =
+        setupProxyServer(httpServer));
+      httpServer.listen(0);
+      await once(httpServer, 'listening');
+    });
+
+    afterEach(async function () {
+      await browser.setFeature('proxy', '');
+      httpServer?.close?.();
+      for (const conn of connections) {
+        if (!conn.destroyed) conn.destroy();
+      }
+    });
+
+    it('can proxy both HTTP and MongoDB traffic through a proxy', async function () {
+      await browser.openSettingsModal('proxy');
+      await browser.clickParent(Selectors.ProxyCustomButton);
+      await browser.setValueVisible(
+        Selectors.ProxyUrl,
+        `http://localhost:${(httpServer.address() as AddressInfo).port}`
+      );
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      await browser.connectWithConnectionForm({
+        hosts: [hostport],
+        authMethod: 'MONGODB-OIDC',
+        connectionName,
+        oidcUseApplicationProxy: true,
+        proxyMethod: 'app-proxy',
+      });
+
+      expect(connectRequests.map((c) => c.url)).to.include(hostport);
+      expect(httpForwardRequests.map((c) => c.url)).to.include(
+        `${oidcMockProvider.issuer}/.well-known/openid-configuration`
+      );
+    });
+
+    it('can choose not to forward OIDC HTTP traffic', async function () {
+      await browser.openSettingsModal('proxy');
+      await browser.clickParent(Selectors.ProxyCustomButton);
+      await browser.setValueVisible(
+        Selectors.ProxyUrl,
+        `http://localhost:${(httpServer.address() as AddressInfo).port}`
+      );
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      await browser.connectWithConnectionForm({
+        hosts: [hostport],
+        authMethod: 'MONGODB-OIDC',
+        connectionName,
+        oidcUseApplicationProxy: false,
+        proxyMethod: 'app-proxy',
+      });
+
+      expect(connectRequests.map((c) => c.url)).to.include(hostport);
+      expect(httpForwardRequests.map((c) => c.url)).to.be.empty;
+    });
   });
 });

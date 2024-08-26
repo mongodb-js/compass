@@ -195,6 +195,10 @@ export async function connectMongoClientDataService({
     'generate-credentials',
     'mongodb://'
   );
+  // TODO: Not urgent, but it might be helpful to properly implement redaction
+  // and then actually log this to the log file, it's been helpful for debugging
+  // e2e tests for sure
+  // console.log({tunnel, tunnelOptions: getTunnelOptions(connectionOptions), connectionOptions, oidcOptions})
   if (tunnel && logger)
     hookProxyLogger(tunnel.logger, logger, 'compass-tunnel');
   const tunnelForwardingErrors: Error[] = [];
