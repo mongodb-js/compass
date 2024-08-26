@@ -78,6 +78,7 @@
     "eslint": "^7.25.0",
     "kerberos": "^2.1.1",
     "mocha": "^10.2.0",
+    "mongodb-log-writer": "^1.4.2",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "sinon": "^9.2.3",
