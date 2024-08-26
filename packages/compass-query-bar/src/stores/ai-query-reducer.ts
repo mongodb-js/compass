@@ -372,7 +372,7 @@ export const runAIQuery = (
     track(
       'AI Response Generated',
       () => ({
-        editor_view_type: 'find',
+        editor_view_type: 'find' as const,
         query_shape: Object.keys(generatedFields),
         request_id: requestId,
       }),

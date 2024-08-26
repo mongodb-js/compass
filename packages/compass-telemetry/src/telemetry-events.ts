@@ -1,5 +1,10 @@
 type ConnectionScoped<E extends { payload: unknown }> = E & {
-  payload: E['payload'] & { connection_id: string };
+  payload: E['payload'] & {
+    /**
+     * The id of the connection associated to this event.
+     */
+    connection_id: string;
+  };
 };
 
 /**
@@ -9,7 +14,12 @@ type ConnectionScoped<E extends { payload: unknown }> = E & {
  */
 type AtlasSignInSuccessEvent = {
   name: 'Atlas Sign In Success';
-  payload: { auid: string };
+  payload: {
+    /**
+     * The id of the atlas user who signed in.
+     */
+    auid: string;
+  };
 };
 
 /**
@@ -54,7 +64,7 @@ type AggregationEditedEvent = ConnectionScoped<{
     editor_view_type?: string | 'stage' | 'text' | 'focus';
     stage_index?: number;
     stage_action?: string;
-    stage_name?: string;
+    stage_name?: string | null;
   };
 }>;
 
@@ -87,7 +97,9 @@ type AggregationCanceledEvent = ConnectionScoped<{
  */
 type AggregationTimedOutEvent = ConnectionScoped<{
   name: 'Aggregation Timed Out';
-  payload: { max_time_ms: number };
+  payload: {
+    max_time_ms: number | null;
+  };
 }>;
 
 /**
@@ -97,7 +109,12 @@ type AggregationTimedOutEvent = ConnectionScoped<{
  */
 type AggregationSavedAsViewEvent = ConnectionScoped<{
   name: 'Aggregation Saved As View';
-  payload: { num_stages: number };
+  payload: {
+    /**
+     * The number of stages in the aggregation.
+     */
+    num_stages: number;
+  };
 }>;
 
 /**
@@ -137,7 +154,7 @@ type EditorTypeChangedEvent = ConnectionScoped<{
  */
 type AggregationUseCaseSavedEvent = ConnectionScoped<{
   name: 'Aggregation Use Case Saved';
-  payload: { stage_name: string };
+  payload: { stage_name: string | null };
 }>;
 
 /**
@@ -149,7 +166,7 @@ type AggregationSavedEvent = ConnectionScoped<{
   name: 'Aggregation Saved';
   payload: {
     id: string;
-    num_stages: number;
+    num_stages?: number;
     editor_view_type: 'stage' | 'text' | 'focus';
   };
 }>;
@@ -300,7 +317,7 @@ type ConnectionDisconnectedEvent = ConnectionScoped<{
  */
 type ConnectionCreatedEvent = ConnectionScoped<{
   name: 'Connection Created';
-  payload: { color: string };
+  payload: { color?: string };
 }>;
 
 /**
@@ -334,19 +351,18 @@ type NewConnectionEvent = ConnectionScoped<{
   name: 'New Connection';
   payload: {
     is_atlas: boolean;
-    atlas_hostname: string;
+    atlas_hostname: string | null;
     is_local_atlas: boolean;
     is_dataLake: boolean;
     is_enterprise: boolean;
     is_genuine: boolean;
     non_genuine_server_name: string;
     server_version: string;
-    server_arch: string;
-    server_os_family: string;
+    server_arch: string | undefined;
+    server_os_family: string | undefined;
     topology_type: string;
   };
 }>;
-
 /**
  * This event is fired when a connection attempt fails.
  *
@@ -354,7 +370,10 @@ type NewConnectionEvent = ConnectionScoped<{
  */
 type ConnectionFailedEvent = ConnectionScoped<{
   name: 'Connection Failed';
-  payload: { error_code: string | number; error_name: string };
+  payload: {
+    error_code: string | number | undefined;
+    error_name: string;
+  };
 }>;
 
 /**
@@ -596,15 +615,15 @@ type ExportCompletedEvent = ConnectionScoped<{
   name: 'Export Completed';
   payload: {
     type: string;
-    all_docs: boolean;
-    has_projection: boolean;
-    field_option: 'all-fields' | 'select-fields';
+    all_docs?: boolean;
+    has_projection?: boolean;
+    field_option?: 'all-fields' | 'select-fields';
     file_type: 'csv' | 'json';
-    json_format: 'default' | 'relaxed' | 'canonical';
-    field_count: number;
-    fields_added_count: number;
-    fields_not_selected_count: number;
-    number_of_docs: number;
+    json_format?: 'default' | 'relaxed' | 'canonical';
+    field_count?: number;
+    fields_added_count?: number;
+    fields_not_selected_count?: number;
+    number_of_docs?: number;
     success: boolean;
     stopped: boolean;
     duration: number;
@@ -758,7 +777,7 @@ type AiResponseGeneratedEvent = ConnectionScoped<{
   payload: {
     editor_view_type: 'text' | 'stages' | 'find';
     syntax_errors?: boolean;
-    query_shape?: string[];
+    query_shape?: (string | null)[];
     request_id?: string;
   };
 }>;
@@ -801,7 +820,8 @@ type MyQueriesSortEvent = {
       | 'type'
       | 'database'
       | 'collection'
-      | 'lastModified';
+      | 'lastModified'
+      | null;
     order: string;
   };
 };
@@ -1326,6 +1346,13 @@ type PerformanceAdvisorClickedEvent = ConnectionScoped<{
   };
 }>;
 
+type SecretStorageNotAvailable = {
+  name: 'Secret Storage Not Available';
+  payload: {
+    //
+  };
+};
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -1432,4 +1459,5 @@ export type TelemetryEvent =
   | ThemeChangedEvent
   | UpdateExportedEvent
   | UpdateExportOpenedEvent
-  | ViewUpdatedEvent;
+  | ViewUpdatedEvent
+  | SecretStorageNotAvailable;

@@ -1,5 +1,5 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction } from './types';
+import type { TrackFunction, TrackFunctionPayload } from './types';
 
 export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
@@ -37,7 +37,8 @@ export const createTrack = ({
       return;
     }
 
-    let parameters: Record<string, unknown> = parametersOrFn;
+    let parameters: TrackFunctionPayload<Record<string, unknown>> =
+      parametersOrFn;
 
     if (typeof parametersOrFn === 'function') {
       try {
