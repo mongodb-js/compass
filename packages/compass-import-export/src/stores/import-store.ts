@@ -105,3 +105,5 @@ export function activatePlugin(
     deactivate: cleanup,
   };
 }
+
+export type ImportStore = ReturnType<typeof configureStore>;

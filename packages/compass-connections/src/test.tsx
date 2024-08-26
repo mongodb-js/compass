@@ -225,13 +225,23 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
       connectionOptions: ConnectionInfo['connectionOptions'];
     }) => {
       if (options.connectFn) {
-        const mockDataService = await options.connectFn?.(connectionOptions);
+        const dataService = await options.connectFn?.(connectionOptions);
+
+        // Presumably we are dealing with the real data service here based on
+        // this property being present, do not mess with it and just return it
+        // straight away.
+        //
+        // TODO: This check can probably be more robust, maybe we add some
+        // special prop for this on DataServiceImpl?
+        if (Object.prototype.hasOwnProperty.call(dataService, '_id')) {
+          return dataService;
+        }
 
         return Object.assign(
           // Make sure the mock always has the minimum required functions, but
           // also allow for them to be overriden
           new MockDataService(connectionOptions),
-          mockDataService
+          dataService
         ) as unknown as DataService;
       } else {
         return new MockDataService(connectionOptions) as unknown as DataService;

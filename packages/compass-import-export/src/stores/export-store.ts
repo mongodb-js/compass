@@ -130,3 +130,5 @@ export function activatePlugin(
     deactivate: cleanup,
   };
 }
+
+export type ExportStore = ReturnType<typeof configureStore>;
