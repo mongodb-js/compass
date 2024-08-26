@@ -3,10 +3,6 @@ import type { CompassBrowser } from '../compass-browser';
 import delay from '../delay';
 import * as Selectors from '../selectors';
 
-import Debug from 'debug';
-
-const debug = Debug('compass-e2e-tests');
-
 async function disconnectAllWeb(browser: CompassBrowser): Promise<void> {
   const url = new URL(await browser.getUrl());
   url.pathname = '/';
@@ -52,20 +48,7 @@ async function resetForDisconnect(
     closeToasts?: boolean;
   } = {}
 ) {
-  if (await browser.$(Selectors.LGModal).isDisplayed()) {
-    // close any modals that might be in the way
-    // If there's some race condition where something else is closing the modal at
-    // the same time we're trying to close the modal, then make it error out
-    // quickly so it can be ignored and we move on.
-    const waitOptions = { timeout: 2_000 };
-    try {
-      await browser.clickVisible(Selectors.LGModalClose, waitOptions);
-      await browser.$(Selectors.LGModal).waitForDisplayed({ reverse: true });
-    } catch (err) {
-      // if the modal disappears by itself in the meantime, that's fine
-      debug('ignoring', err);
-    }
-  }
+  await browser.hideVisibleModal();
 
   // Collapse all the connections so that they will all hopefully fit on screen
   // and therefore be rendered.
