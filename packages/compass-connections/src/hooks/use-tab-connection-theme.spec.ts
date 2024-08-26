@@ -55,7 +55,7 @@ describe('useTabConnectionTheme', function () {
   beforeEach(async function () {
     preferencesAccess = await createSandboxFromDefaultPreferences();
     await preferencesAccess.savePreferences({
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
     });
 
     mockStorage = new InMemoryConnectionStorage([CONNECTION_INFO]);

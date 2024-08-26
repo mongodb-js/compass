@@ -345,7 +345,7 @@ describe('useImportConnections', function () {
     beforeEach(async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
       const wrapper: React.FC = ({ children }) =>
         React.createElement(PreferencesProvider, {

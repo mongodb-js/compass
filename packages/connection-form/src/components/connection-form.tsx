@@ -361,7 +361,7 @@ function ConnectionForm({
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const onAdvancedChange = useCallback(

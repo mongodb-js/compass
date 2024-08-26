@@ -58,17 +58,17 @@ const CollectionHeaderActions: React.FunctionComponent<
   const {
     readOnly: preferencesReadOnly,
     enableShell,
-    enableNewMultipleConnectionSystem,
+    enableMultipleConnectionSystem,
   } = usePreferences([
     'readOnly',
     'enableShell',
-    'enableNewMultipleConnectionSystem',
+    'enableMultipleConnectionSystem',
   ]);
   const track = useTelemetry();
 
   const { database, collection } = toNS(namespace);
 
-  const showOpenShellButton = enableShell && enableNewMultipleConnectionSystem;
+  const showOpenShellButton = enableShell && enableMultipleConnectionSystem;
 
   return (
     <div

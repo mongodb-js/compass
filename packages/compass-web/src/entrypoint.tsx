@@ -262,7 +262,7 @@ const CompassWeb = ({
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
       enableGenAIFeatures: false,
-      enableNewMultipleConnectionSystem: false,
+      enableMultipleConnectionSystem: false,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,

@@ -19,7 +19,7 @@ export function useTabConnectionTheme(): ThemeProvider {
   const { getConnectionInfoById } = useConnectionRepository();
   const darkTheme = useDarkMode();
   const isMultipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const getThemeOf = useCallback(

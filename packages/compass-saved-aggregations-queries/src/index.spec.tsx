@@ -161,7 +161,7 @@ describe('AggregationsQueriesList', function () {
     instancesManager = new TestMongoDBInstanceManager();
     preferencesAccess = await createSandboxFromDefaultPreferences();
     await preferencesAccess.savePreferences({
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
     });
     workspaces = {
       openCollectionWorkspace() {},
