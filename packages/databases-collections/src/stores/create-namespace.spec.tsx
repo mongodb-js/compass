@@ -61,7 +61,7 @@ describe('CreateNamespacePlugin', function () {
       instancesManager,
       workspaces: workspaces as any,
     });
-    const result = await renderWithConnections(<Plugin></Plugin>, {
+    const result = renderWithConnections(<Plugin></Plugin>, {
       connections: mockConnections,
       connectFn() {
         return {

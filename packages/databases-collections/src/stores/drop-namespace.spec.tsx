@@ -22,7 +22,7 @@ describe('DropNamespacePlugin', function () {
   let dataService: Sinon.SinonSpiedInstance<DataService>;
 
   beforeEach(async function () {
-    const result = await renderWithConnections(
+    const result = renderWithConnections(
       <DropNamespacePlugin></DropNamespacePlugin>,
       {
         connections: [mockConnectionInfo],

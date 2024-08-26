@@ -5,8 +5,6 @@ import {
   DropIndexComponent,
 } from './stores/drop-index';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { IndexesDataService } from './stores/store';
 import {
   activateIndexesPlugin,
   type IndexesDataServiceProps,

@@ -58,8 +58,7 @@ describe('useImportConnections', function () {
   });
 
   it('updates filename if changed', async function () {
-    const { result, connectionStorage } =
-      await renderUseImportConnectionsHook();
+    const { result, connectionStorage } = renderUseImportConnectionsHook();
 
     const deserializeStub = sandbox
       .stub(connectionStorage, 'deserializeConnections')
@@ -100,8 +99,7 @@ describe('useImportConnections', function () {
   });
 
   it('updates passphrase if changed', async function () {
-    const { result, connectionStorage } =
-      await renderUseImportConnectionsHook();
+    const { result, connectionStorage } = renderUseImportConnectionsHook();
 
     sandbox
       .stub(connectionStorage, 'deserializeConnections')
@@ -164,7 +162,7 @@ describe('useImportConnections', function () {
 
   it('does not select existing favorites by default', async function () {
     const { result, connectionStorage, connectionsStore } =
-      await renderUseImportConnectionsHook(
+      renderUseImportConnectionsHook(
         {},
         {
           connections: [
@@ -252,8 +250,7 @@ describe('useImportConnections', function () {
   });
 
   it('handles actual import', async function () {
-    const { result, connectionStorage } =
-      await renderUseImportConnectionsHook();
+    const { result, connectionStorage } = renderUseImportConnectionsHook();
 
     const connections = [
       {
@@ -304,25 +301,24 @@ describe('useImportConnections', function () {
 
   context('when multiple connections is enabled', function () {
     it('does not select existing connections (including non-favorites) by default', async function () {
-      const { result, connectionStorage } =
-        await renderUseImportConnectionsHook(
-          {},
-          {
-            preferences: { enableNewMultipleConnectionSystem: true },
-            connections: [
-              {
-                id: 'id1',
-                connectionOptions: {
-                  connectionString: 'mongodb://localhost:2020',
-                },
-                favorite: {
-                  name: 'name1',
-                },
-                savedConnectionType: 'recent',
+      const { result, connectionStorage } = renderUseImportConnectionsHook(
+        {},
+        {
+          preferences: { enableNewMultipleConnectionSystem: true },
+          connections: [
+            {
+              id: 'id1',
+              connectionOptions: {
+                connectionString: 'mongodb://localhost:2020',
               },
-            ],
-          }
-        );
+              favorite: {
+                name: 'name1',
+              },
+              savedConnectionType: 'recent',
+            },
+          ],
+        }
+      );
 
       sandbox
         .stub(connectionStorage, 'deserializeConnections')

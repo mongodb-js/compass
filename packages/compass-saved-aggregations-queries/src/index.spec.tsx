@@ -72,7 +72,7 @@ describe('AggregationsQueriesList', function () {
   let workspaces: Sinon.SinonSpiedInstance<WorkspacesService>;
   let connectionsStore: RenderWithConnectionsResult['connectionsStore'];
 
-  const renderPlugin = async () => {
+  const renderPlugin = () => {
     const PluginWithMocks = MyQueriesPlugin.withMockServices({
       instancesManager,
       favoriteQueryStorageAccess: {
@@ -83,18 +83,12 @@ describe('AggregationsQueriesList', function () {
       pipelineStorage: pipelineStorage,
       workspaces,
     });
-    const result = await renderWithConnections(
-      <PluginWithMocks></PluginWithMocks>,
-      {
-        connections: [
-          connectionOne.connectionInfo,
-          connectionTwo.connectionInfo,
-        ],
-        preferences: {
-          enableNewMultipleConnectionSystem: true,
-        },
-      }
-    );
+    const result = renderWithConnections(<PluginWithMocks></PluginWithMocks>, {
+      connections: [connectionOne.connectionInfo, connectionTwo.connectionInfo],
+      preferences: {
+        enableNewMultipleConnectionSystem: true,
+      },
+    });
     connectionsStore = result.connectionsStore;
   };
 
@@ -157,20 +151,20 @@ describe('AggregationsQueriesList', function () {
   });
 
   it('should display no saved items when user has no saved queries/aggregations', async function () {
-    await renderPlugin();
+    renderPlugin();
     expect(await screen.findByText('No saved queries yet.')).to.exist;
   });
 
   it('should load queries and display them in the list', async function () {
     sandbox.stub(queryStorage, 'loadAll').resolves([query]);
-    await renderPlugin();
+    renderPlugin();
     expect(await screen.findByText('Query')).to.exist;
     await waitFor(() => expect(screen.findByText(query._name)).to.exist);
   });
 
   it('should load aggregations and display them in the list', async function () {
     sandbox.stub(pipelineStorage, 'loadAll').resolves([aggregation]);
-    await renderPlugin();
+    renderPlugin();
     expect(await screen.findByText('Aggregation')).to.exist;
     await waitFor(() => expect(screen.findByText(aggregation.name)).to.exist);
   });
@@ -178,7 +172,7 @@ describe('AggregationsQueriesList', function () {
   describe('copy to clipboard', function () {
     it('should copy query to the clipboard', async function () {
       sandbox.stub(queryStorage, 'loadAll').resolves([query]);
-      await renderPlugin();
+      renderPlugin();
       expect(await screen.findByText(query._name)).to.exist;
 
       selectContextMenuItem(query._id, 'copy');
@@ -199,7 +193,7 @@ describe('AggregationsQueriesList', function () {
 
     it('should copy aggregation to the clipboard', async function () {
       sandbox.stub(pipelineStorage, 'loadAll').resolves([aggregation]);
-      await renderPlugin();
+      renderPlugin();
       expect(await screen.findByText(aggregation.name)).to.exist;
 
       selectContextMenuItem(aggregation.id, 'copy');
@@ -224,7 +218,7 @@ describe('AggregationsQueriesList', function () {
         .stub(pipelineStorage, 'loadAll')
         .resolves(pipelines.map((item) => item.aggregation));
 
-      await renderPlugin();
+      renderPlugin();
 
       // Wait for the items to "load"
       await screen.findByText(queries[0].name);
@@ -341,7 +335,7 @@ describe('AggregationsQueriesList', function () {
 
   context('with possible multiple connections', function () {
     const renderPluginWithWait = async () => {
-      await renderPlugin();
+      renderPlugin();
       await screen.findByText(query._name);
     };
 

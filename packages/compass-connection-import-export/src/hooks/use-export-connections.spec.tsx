@@ -55,8 +55,8 @@ describe('useExportConnections', function () {
   });
 
   // Security-relevant test -- description is in the protect-connection-strings e2e test.
-  it('sets removeSecrets if protectConnectionStrings is set', async function () {
-    const { result } = await renderUseExportConnectionsHook();
+  it('sets removeSecrets if protectConnectionStrings is set', function () {
+    const { result } = renderUseExportConnectionsHook();
 
     expect(result.current.state.removeSecrets).to.equal(false);
     act(() => {
@@ -67,11 +67,10 @@ describe('useExportConnections', function () {
     expect(result.current.state.removeSecrets).to.equal(true);
     cleanup();
 
-    const { result: resultInProtectedMode } =
-      await renderUseExportConnectionsHook(
-        {},
-        { preferences: { protectConnectionStrings: true } }
-      );
+    const { result: resultInProtectedMode } = renderUseExportConnectionsHook(
+      {},
+      { preferences: { protectConnectionStrings: true } }
+    );
 
     expect(resultInProtectedMode.current.state.removeSecrets).to.equal(true);
     act(() => {
@@ -86,11 +85,8 @@ describe('useExportConnections', function () {
     const connectionInfo1 = createDefaultConnectionInfo();
     const connectionInfo2 = createDefaultConnectionInfo();
 
-    const { result, connectionsStore } = await renderUseExportConnectionsHook(
-      {},
-      { connections: [connectionInfo1, connectionInfo2] }
-    );
-    expect(result.current.state.connectionList).to.deep.equal([]);
+    const { result, connectionsStore, connectionStorage } =
+      renderUseExportConnectionsHook({}, { connections: [connectionInfo1] });
 
     await act(async () => {
       await connectionsStore.actions.saveEditedConnection({
@@ -101,27 +97,40 @@ describe('useExportConnections', function () {
         savedConnectionType: 'favorite',
       });
     });
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: connectionInfo1.id, name: 'name1', selected: true },
-    ]);
+
+    expect(result.current.state.connectionList).to.deep.equal(
+      [
+        {
+          id: connectionInfo1.id,
+          name: 'name1',
+          selected: true,
+        },
+      ],
+      'expected name of connection 1 to get updated after save'
+    );
 
     act(() => {
       result.current.onChangeConnectionList([
         { id: connectionInfo1.id, name: 'name1', selected: false },
       ]);
     });
-    expect(result.current.state.connectionList).to.deep.equal([
-      { id: connectionInfo1.id, name: 'name1', selected: false },
-    ]);
+
+    expect(result.current.state.connectionList).to.deep.equal(
+      [{ id: connectionInfo1.id, name: 'name1', selected: false }],
+      'expected selected status of connection 1 to change'
+    );
 
     await act(async () => {
-      await connectionsStore.actions.saveEditedConnection({
-        ...connectionInfo2,
-        favorite: {
-          name: 'name2',
+      await connectionStorage.save?.({
+        connectionInfo: {
+          ...connectionInfo2,
+          favorite: {
+            name: 'name2',
+          },
+          savedConnectionType: 'favorite',
         },
-        savedConnectionType: 'favorite',
       });
+      await connectionsStore.actions.refreshConnections();
     });
 
     expect(result.current.state.connectionList).to.deep.equal([
@@ -130,8 +139,8 @@ describe('useExportConnections', function () {
     ]);
   });
 
-  it('updates filename if changed', async function () {
-    const { result } = await renderUseExportConnectionsHook();
+  it('updates filename if changed', function () {
+    const { result } = renderUseExportConnectionsHook();
 
     act(() => {
       result.current.onChangeFilename('filename1234');
@@ -140,7 +149,7 @@ describe('useExportConnections', function () {
   });
 
   it('handles actual export', async function () {
-    const { result, connectionStorage } = await renderUseExportConnectionsHook(
+    const { result, connectionStorage } = renderUseExportConnectionsHook(
       {},
       {
         connections: [
@@ -201,8 +210,7 @@ describe('useExportConnections', function () {
   });
 
   it('resets errors if filename changes', async function () {
-    const { result, connectionStorage } =
-      await renderUseExportConnectionsHook();
+    const { result, connectionStorage } = renderUseExportConnectionsHook();
 
     const filename = path.join(tmpdir, 'nonexistent', 'connections.json');
     const exportConnectionsStub = sandbox
@@ -236,8 +244,8 @@ describe('useExportConnections', function () {
   });
 
   context('when multiple connections is enabled', function () {
-    it('includes also the non-favorites connections in the export list', async function () {
-      const { result } = await renderUseExportConnectionsHook(
+    it('includes also the non-favorites connections in the export list', function () {
+      const { result } = renderUseExportConnectionsHook(
         {},
         {
           preferences: { enableNewMultipleConnectionSystem: true },

@@ -6,7 +6,6 @@ import type {
 import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
-  ConnectionStorageEvents,
 } from '@mongodb-js/connection-storage/provider';
 import ConnectionString from 'mongodb-connection-string-url';
 import { createServiceProvider } from 'hadron-app-registry';
@@ -235,19 +234,6 @@ class AtlasCloudConnectionStorage
     return (this.loadAllPromise ??=
       this._loadAndNormalizeClusterDescriptionInfo());
   }
-
-  startPolling() {
-    clearInterval(this.pollingInterval);
-    this.pollingInterval = setInterval(() => {
-      delete this.loadAllPromise;
-      void this.loadAll().then(() => {
-        this.emit(ConnectionStorageEvents.ConnectionsChanged);
-      });
-    }, /* Matches default polling intervals in mms codebase */ 60_000);
-    return () => {
-      clearInterval(this.pollingInterval);
-    };
-  }
 }
 
 const SandboxAutoconnectContext = React.createContext<ConnectionInfo | null>(
@@ -284,9 +270,6 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
         sandboxAutoconnectInfo
       )
     );
-    useEffect(() => {
-      return storage.current.startPolling();
-    }, []);
     return (
       <ConnectionStorageProvider value={storage.current}>
         {children}

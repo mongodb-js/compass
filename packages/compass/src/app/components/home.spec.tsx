@@ -53,13 +53,13 @@ const HOME_PROPS = {
 } as const;
 
 describe('Home [Component]', function () {
-  async function renderHome(
+  function renderHome(
     props: Partial<ComponentProps<typeof ThemedHome>> = {},
     connections: ConnectionInfo[] = [],
     dataService = createDataService(),
     preferences: Partial<AllPreferences> = {}
   ) {
-    const result = await renderWithConnections(
+    const result = renderWithConnections(
       <WithAtlasProviders>
         <ThemedHome {...HOME_PROPS} {...props} />
       </WithAtlasProviders>,
@@ -96,14 +96,14 @@ describe('Home [Component]', function () {
   });
 
   describe('is not connected', function () {
-    it('renders the connect screen', async function () {
-      await renderHome();
+    it('renders the connect screen', function () {
+      renderHome();
       expect(() => screen.getByTestId('home')).to.throw;
       expect(screen.getByTestId('connections-wrapper')).to.be.displayed;
     });
 
     it('renders welcome modal and hides it', async function () {
-      await renderHome({ showWelcomeModal: true });
+      renderHome({ showWelcomeModal: true });
       const modal = screen.getByTestId('welcome-modal');
       expect(modal).to.be.visible;
       within(modal).getByRole('button', { name: 'Start' }).click();
@@ -114,7 +114,7 @@ describe('Home [Component]', function () {
 
     it('calls openSettings when user clicks on settings', async function () {
       const showSettingsSpy = sinon.spy();
-      await renderHome({
+      renderHome({
         showSettings: showSettingsSpy,
         showWelcomeModal: true,
       });
@@ -128,8 +128,8 @@ describe('Home [Component]', function () {
     });
 
     describe('and multi connections is enabled', function () {
-      it('renders only the workspaces', async function () {
-        await renderHome({}, [], createDataService(), {
+      it('renders only the workspaces', function () {
+        renderHome({}, [], createDataService(), {
           enableNewMultipleConnectionSystem: true,
         });
         expect(screen.getByTestId('home')).to.be.displayed;
@@ -154,7 +154,7 @@ describe('Home [Component]', function () {
           disconnect: dataServiceDisconnectedSpy,
           addReauthenticationHandler: sinon.stub(),
         };
-        await renderHome(
+        renderHome(
           {
             hideCollectionSubMenu: hideCollectionSubMenuSpy,
             onDisconnect: onDisconnectSpy,

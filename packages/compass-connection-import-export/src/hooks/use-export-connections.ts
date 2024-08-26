@@ -86,19 +86,14 @@ export function useExportConnections({
   useEffect(() => {
     // If `connectionsToExport` changes, update the list of connections
     // that are displayed in our table.
-    if (
-      connectionsToExport.map(({ id }) => id).join(',') !==
-      state.connectionList.map(({ id }) => id).join(',')
-    ) {
-      setState((prevState) => ({
-        ...prevState,
-        connectionList: connectionInfosToConnectionShortInfos(
-          connectionsToExport,
-          state.connectionList
-        ),
-      }));
-    }
-  }, [connectionsToExport, state.connectionList]);
+    setState((prevState) => ({
+      ...prevState,
+      connectionList: connectionInfosToConnectionShortInfos(
+        connectionsToExport,
+        prevState.connectionList
+      ),
+    }));
+  }, [connectionsToExport]);
 
   const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   useEffect(() => {
