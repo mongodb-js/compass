@@ -460,8 +460,6 @@ describe('Multiple Connections Sidebar Component', function () {
           });
 
           it('should connect when the user tries to expand an inactive connection', async function () {
-            await renderAndWaitForNavigationTree();
-
             const connectionItem = screen.getByTestId(savedRecentConnection.id);
 
             userEvent.click(

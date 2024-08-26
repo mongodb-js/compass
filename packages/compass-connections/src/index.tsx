@@ -10,7 +10,10 @@ import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
-import { ConnectionsStoreContext } from './stores/store-context';
+import {
+  ConnectionActionsProvider,
+  ConnectionsStoreContext,
+} from './stores/store-context';
 export { default as SingleConnectionForm } from './components/legacy-connections';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
@@ -25,7 +28,7 @@ const ConnectionsComponent: React.FunctionComponent<{
   connectFn?: typeof devtoolsConnect | undefined;
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
-  return <>{children}</>;
+  return <ConnectionActionsProvider>{children}</ConnectionActionsProvider>;
 };
 
 const CompassConnectionsPlugin = registerHadronPlugin(

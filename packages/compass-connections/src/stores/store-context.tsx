@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import type {
   MapStateToProps,
   ReactReduxContextValue,
@@ -53,17 +53,22 @@ export const ConnectionsStoreContext = React.createContext<
 >(null);
 
 /**
- * @internal exported only for testing purposes, should never be used outside
- * this file otherwise
+ * @internal should not be directly exported from this package
  */
 export const useStore = createStoreHook(
   ConnectionsStoreContext
 ) as () => ReturnType<typeof configureStore>;
 
-const useDispatch = createDispatchHook(
+/**
+ * @internal should not be directly exported from this package
+ */
+export const useDispatch = createDispatchHook(
   ConnectionsStoreContext
 ) as () => ConnectionsStore['dispatch'];
 
+/**
+ * @internal should not be directly exported from this package
+ */
 const useSelector: TypedUseSelectorHook<ConnectionsStore['state']> =
   createSelectorHook(ConnectionsStoreContext);
 
@@ -77,56 +82,86 @@ export const connect = ((
   });
 }) as typeof reduxConnect;
 
-export function useConnectionActions() {
+function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
+  return {
+    connect: (connectionInfo: ConnectionInfo) => {
+      return dispatch(connectionsConnect(connectionInfo));
+    },
+    disconnect: (connectionId: ConnectionId) => {
+      return dispatch(disconnect(connectionId));
+    },
+    createNewConnection: () => {
+      return dispatch(createNewConnection());
+    },
+    editConnection: (connectionId: ConnectionId) => {
+      return dispatch(editConnection(connectionId));
+    },
+    duplicateConnection: (
+      connectionId: ConnectionId,
+      options?: {
+        autoDuplicate: boolean;
+      }
+    ) => {
+      return dispatch(duplicateConnection(connectionId, options));
+    },
+    saveEditedConnection: (connectionInfo: ConnectionInfo) => {
+      return dispatch(saveEditedConnectionInfo(connectionInfo));
+    },
+    cancelEditConnection: (connectionId: ConnectionId) => {
+      return dispatch(cancelEditConnection(connectionId));
+    },
+    toggleFavoritedConnectionStatus: (connectionId: ConnectionId) => {
+      return dispatch(toggleConnectionFavoritedStatus(connectionId));
+    },
+    removeConnection: (connectionId: ConnectionId) => {
+      return dispatch(removeConnection(connectionId));
+    },
+    removeAllRecentConnections: () => {
+      return dispatch(removeAllRecentConnections());
+    },
+    showNonGenuineMongoDBWarningModal: (connectionId: ConnectionId) => {
+      return dispatch(showNonGenuineMongoDBWarningModal(connectionId));
+    },
+    importConnections: (...args: Parameters<typeof importConnections>) => {
+      return dispatch(importConnections(...args));
+    },
+    refreshConnections: () => {
+      return dispatch(refreshConnections());
+    },
+  };
+}
+
+const ConnectionActionsContext = createContext<ReturnType<
+  typeof getConnectionsActions
+> | null>(null);
+
+/**
+ * @internal We're using a provider here so that in test environment we can make
+ * sure we're using the same object reference in all renders and so can safely
+ * spy on the actions if test requires it. Should not be exported from this
+ * package
+ */
+export const ConnectionActionsProvider: React.FunctionComponent = ({
+  children,
+}) => {
   const dispatch = useDispatch();
   const [actions] = useState(() => {
-    return {
-      connect: (connectionInfo: ConnectionInfo) => {
-        return dispatch(connectionsConnect(connectionInfo));
-      },
-      disconnect: (connectionId: ConnectionId) => {
-        return dispatch(disconnect(connectionId));
-      },
-      createNewConnection: () => {
-        return dispatch(createNewConnection());
-      },
-      editConnection: (connectionId: ConnectionId) => {
-        return dispatch(editConnection(connectionId));
-      },
-      duplicateConnection: (
-        connectionId: ConnectionId,
-        options?: {
-          autoDuplicate: boolean;
-        }
-      ) => {
-        return dispatch(duplicateConnection(connectionId, options));
-      },
-      saveEditedConnection: (connectionInfo: ConnectionInfo) => {
-        return dispatch(saveEditedConnectionInfo(connectionInfo));
-      },
-      cancelEditConnection: (connectionId: ConnectionId) => {
-        return dispatch(cancelEditConnection(connectionId));
-      },
-      toggleFavoritedConnectionStatus: (connectionId: ConnectionId) => {
-        return dispatch(toggleConnectionFavoritedStatus(connectionId));
-      },
-      removeConnection: (connectionId: ConnectionId) => {
-        return dispatch(removeConnection(connectionId));
-      },
-      removeAllRecentConnections: () => {
-        return dispatch(removeAllRecentConnections());
-      },
-      showNonGenuineMongoDBWarningModal: (connectionId: ConnectionId) => {
-        return dispatch(showNonGenuineMongoDBWarningModal(connectionId));
-      },
-      importConnections: (...args: Parameters<typeof importConnections>) => {
-        return dispatch(importConnections(...args));
-      },
-      refreshConnections: () => {
-        return dispatch(refreshConnections());
-      },
-    };
+    return getConnectionsActions(dispatch);
   });
+  return (
+    <ConnectionActionsContext.Provider value={actions}>
+      {children}
+    </ConnectionActionsContext.Provider>
+  );
+};
+
+export function useConnectionActions() {
+  const actions = useContext(ConnectionActionsContext);
+  if (!actions) {
+    throw new Error(
+      "Can't find connection actions in context. Are you using useConnectionActions hook in correct environment?"
+    );
+  }
   return actions;
 }
 
