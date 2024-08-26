@@ -234,7 +234,7 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
         // TODO: This check can probably be more robust, maybe we add some
         // special prop for this on DataServiceImpl?
         if (Object.prototype.hasOwnProperty.call(dataService, '_id')) {
-          return dataService;
+          return dataService as DataService;
         }
 
         return Object.assign(
