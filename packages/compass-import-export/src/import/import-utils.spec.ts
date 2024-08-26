@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { Readable, Writable } from 'stream';
-import { pipeline } from 'stream/promises';
+import { Readable } from 'stream';
+import type { Document } from 'bson';
 
-import { DocStatsStream } from './import-utils';
+import { DocStatsCollector } from './import-utils';
 
 const SIMPLE_DOC_1 = {
   name: 'Compass',
@@ -79,53 +79,24 @@ const createMockReadable = (readFn?: (readable: Readable) => void) => {
   });
 };
 
-const createMockWritable = (
-  writeFn = (
-    c: any,
-    e: string,
-    callback: (error?: Error, chunk?: any) => void
-  ) => callback()
-) =>
-  new Writable({
-    objectMode: true,
-    write: writeFn,
-  });
+async function iteratePipeline(
+  stream: Readable,
+  docStatsCollector: DocStatsCollector
+) {
+  for await (const doc of stream) {
+    docStatsCollector.collect(doc as Document);
+  }
+}
 
 describe('import-utils', function () {
-  describe('DocStatsStream', function () {
+  describe('DocStatsCollector', function () {
     it('should track the size of biggest doc encountered', async function () {
-      const docStatsStream = new DocStatsStream();
-      await pipeline([
-        createMockReadable(),
-        docStatsStream,
-        createMockWritable(),
-      ]);
+      const docStatsCollector = new DocStatsCollector();
+      await iteratePipeline(createMockReadable(), docStatsCollector);
 
-      expect(docStatsStream.getStats().biggestDocSize).to.equal(
+      expect(docStatsCollector.getStats().biggestDocSize).to.equal(
         JSON.stringify(COMPLEX_DOC).length
       );
-    });
-
-    it('should pass through the input unaltered', async function () {
-      const mockReadableStream = createMockReadable(function (
-        readable: Readable
-      ) {
-        readable.push(COMPLEX_DOC);
-        readable.push(null);
-      });
-
-      const docStatsStream = new DocStatsStream();
-
-      const mockWritableStream = createMockWritable(function (
-        chunk,
-        encoding,
-        callback
-      ) {
-        expect(chunk).to.deep.equal(COMPLEX_DOC);
-        callback();
-      });
-
-      await pipeline([mockReadableStream, docStatsStream, mockWritableStream]);
     });
 
     context('when there is an error while calculating doc stats', function () {
@@ -143,25 +114,11 @@ describe('import-utils', function () {
           readable.push(null);
         });
 
-        const docStatsStream = new DocStatsStream();
-
-        const mockWritableStream = createMockWritable(function (
-          chunk,
-          encoding,
-          callback
-        ) {
-          expect(chunk).to.deep.equal(CIRCULAR_REF_DOC);
-          callback();
-        });
-
-        await pipeline([
-          mockReadableStream,
-          docStatsStream,
-          mockWritableStream,
-        ]);
+        const docStatsCollector = new DocStatsCollector();
+        await iteratePipeline(mockReadableStream, docStatsCollector);
 
         // Since the stringify will fail we will always have doc size set to 0
-        expect(docStatsStream.getStats().biggestDocSize).to.equal(0);
+        expect(docStatsCollector.getStats().biggestDocSize).to.equal(0);
       });
     });
   });

@@ -121,6 +121,38 @@ function AuthenticationOIDC({
             />
           </FormFieldContainer>
 
+          <FormFieldContainer>
+            <Checkbox
+              onChange={({
+                target: { checked },
+              }: React.ChangeEvent<HTMLInputElement>) => {
+                if (checked) {
+                  return handleFieldChanged('passIdTokenAsAccessToken', true);
+                }
+
+                return handleFieldChanged(
+                  'passIdTokenAsAccessToken',
+                  undefined
+                );
+              }}
+              data-testid="oidc-pass-id-token-as-access-token"
+              id="oidc-pass-id-token-as-access-token"
+              label={
+                <>
+                  <Label htmlFor="oidc-pass-id-token-as-access-token">
+                    Use ID token instead of Access Token
+                  </Label>
+                  <Description>
+                    Use ID tokens instead of access tokens to work around
+                    misconfigured or broken identity providers. This will only
+                    work if the server is configured correspondingly.
+                  </Description>
+                </>
+              }
+              checked={!!connectionOptions.oidc?.passIdTokenAsAccessToken}
+            />
+          </FormFieldContainer>
+
           {showOIDCDeviceAuthFlow && (
             <FormFieldContainer>
               <Checkbox

@@ -5,7 +5,10 @@ class AbortError extends Error {
   name = 'AbortError';
 }
 
-export const throwIfAborted = (signal?: AbortSignal) => {
+export const throwIfAborted = (signal?: {
+  aborted: boolean;
+  reason?: Error;
+}) => {
   if (signal?.aborted) {
     throw signal.reason ?? createCancelError();
   }

@@ -57,6 +57,7 @@ describe('useTabConnectionTheme', function () {
           '--workspace-tab-border-color': '#016BF8',
           '--workspace-tab-selected-color': '#016BF8',
         },
+        '--workspace-tab-background-color': '#D5EFFF',
         '--workspace-tab-border-color': '#E8EDEB',
         '--workspace-tab-color': '#5C6C75',
         '--workspace-tab-selected-background-color': '#FFFFFF',

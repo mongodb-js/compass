@@ -13,7 +13,8 @@ describe('CompassShellPlugin', function () {
     cleanup();
   });
 
-  it('returns a renderable plugin', async function () {
+  // TODO(COMPASS-7906): remove
+  it.skip('returns a renderable plugin', async function () {
     await renderWithActiveConnection(<CompassShellPlugin />, undefined, {
       connectFn() {
         return {

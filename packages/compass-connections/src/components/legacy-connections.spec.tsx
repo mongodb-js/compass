@@ -20,7 +20,7 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 
   // Wait for the connection to load in the form.
   await waitFor(() =>
-    expect(screen.queryByRole('textbox')?.textContent).to.equal(
+    expect(screen.queryByTestId('connectionString')?.textContent).to.equal(
       connectionInfo.connectionOptions.connectionString
     )
   );
@@ -32,7 +32,8 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
   await waitFor(() => expect(screen.queryByText('Cancel')).to.not.exist);
 }
 
-describe('Connections Component', function () {
+// TODO(COMPASS-7906): remove
+describe.skip('Connections Component', function () {
   afterEach(function () {
     sinon.restore();
     cleanup();
@@ -148,7 +149,7 @@ describe('Connections Component', function () {
       function () {
         beforeEach(async function () {
           await loadSavedConnectionAndConnect(
-            connections.find(({ id }) => id === savedConnectionId)
+            connections.find(({ id }) => id === savedConnectionId)!
           );
         });
 
@@ -259,7 +260,9 @@ describe('Connections Component', function () {
 
         // Wait for the connection to load in the form.
         await waitFor(() =>
-          expect(screen.queryByRole('textbox')?.textContent).to.equal(
+          expect(
+            screen.queryByTestId('connectionString')?.textContent
+          ).to.equal(
             'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
           )
         );

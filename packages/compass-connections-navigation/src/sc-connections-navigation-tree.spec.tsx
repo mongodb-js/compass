@@ -93,7 +93,8 @@ function renderComponent(
   );
 }
 
-describe('ConnectionsNavigationTree -- Single connection usage', function () {
+// TODO(COMPASS-7906): remove
+describe.skip('ConnectionsNavigationTree -- Single connection usage', function () {
   let preferences: PreferencesAccess;
   afterEach(cleanup);
 
