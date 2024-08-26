@@ -1,7 +1,6 @@
 import { type HadronIpcMain, ipcMain } from 'hadron-ipc';
 import keytar from 'keytar';
 import { safeStorage } from 'electron';
-import { UUID } from 'bson';
 import fsPromises from 'fs/promises';
 import ConnectionString from 'mongodb-connection-string-url';
 
@@ -305,7 +304,9 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       return applyUsernameAndPassword(
         {
           connectionOptions: { connectionString },
-          id: new UUID().toString(),
+          // Same connection id if we're not loading it from disk where id
+          // should exist already either in file or positional args
+          id: 'autoconnection',
         },
         { username, password }
       );
