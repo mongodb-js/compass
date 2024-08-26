@@ -149,7 +149,7 @@ describe('Multiple Connections Sidebar Component', function () {
     ]);
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
     });
     ({ store, deactivate } = createSidebarStore(
       {

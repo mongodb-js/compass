@@ -122,7 +122,7 @@ describe('SavedItemCard', function () {
     it('should render an "Open in" action', async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
       const onAction = Sinon.spy();
 

@@ -101,7 +101,7 @@ export function useImportConnections({
   state: ImportConnectionsState;
 } {
   const multipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();

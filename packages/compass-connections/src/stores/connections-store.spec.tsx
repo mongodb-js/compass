@@ -127,7 +127,7 @@ describe('useConnections', function () {
 
   beforeEach(async function () {
     await preferences.savePreferences({
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
       maximumNumberOfActiveConnections: undefined,
     });
     mockConnectionStorage = new InMemoryConnectionStorage([...mockConnections]);
@@ -310,7 +310,7 @@ describe('useConnections', function () {
       }`, function () {
         it('should NOT update existing connection with new props when existing connection is successfull', async function () {
           await preferences.savePreferences({
-            enableNewMultipleConnectionSystem: multipleConnectionsEnabled,
+            enableMultipleConnectionSystem: multipleConnectionsEnabled,
           });
 
           const connections = renderHookWithContext();
@@ -332,7 +332,7 @@ describe('useConnections', function () {
 
         it('should not update existing connection if connection failed', async function () {
           await preferences.savePreferences({
-            enableNewMultipleConnectionSystem: multipleConnectionsEnabled,
+            enableMultipleConnectionSystem: multipleConnectionsEnabled,
           });
 
           const saveSpy = sinon.spy(mockConnectionStorage, 'save');

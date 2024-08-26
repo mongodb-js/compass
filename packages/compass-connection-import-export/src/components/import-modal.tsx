@@ -39,7 +39,7 @@ export function ImportConnectionsModal({
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
   const multipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(
