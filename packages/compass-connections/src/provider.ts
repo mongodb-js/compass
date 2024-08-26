@@ -3,8 +3,8 @@ import { useConnectionInfo } from './connection-info-provider';
 import type { DataService } from 'mongodb-data-service';
 import {
   useConnectionActions,
+  useConnectionForId,
   useConnectionIds,
-  useConnectionInfoForId,
   useConnections,
 } from './stores/store-context';
 import { useConnections as useConnectionsStore } from './stores/connections-store';
@@ -124,22 +124,29 @@ export { ConnectionStatus };
  */
 export function useSingleConnectionModeConnectionInfoStatus() {
   const [connectionId = '-1'] = useConnectionIds((connection) => {
-    return connection.status === 'connected';
+    return (
+      connection.status === 'connected' ||
+      connection.status === 'connecting' ||
+      connection.status === 'failed'
+    );
   });
-  const connectionInfo = useConnectionInfoForId(connectionId);
+  const connectionState = useConnectionForId(connectionId);
   const { disconnect } = useConnectionActions();
-  return connectionInfo
+  return connectionState && connectionState.status === 'connected'
     ? {
         isConnected: true as const,
-        connectionInfo,
+        connectionInfo: connectionState.info,
+        connectionError: null,
         disconnect: () => {
-          disconnect(connectionInfo.id);
+          disconnect(connectionState.info.id);
           return undefined;
         },
       }
     : {
         isConnected: false as const,
-        connectionInfo: null,
+        connectionInfo: connectionState?.info ?? null,
+        connectionError:
+          connectionState?.status === 'failed' ? connectionState.error : null,
         disconnect: () => undefined,
       };
 }

@@ -90,12 +90,7 @@ export const WithStorageProviders: React.FC = ({ children }) => {
   );
 };
 
-export const CompassElectron = (
-  props: Omit<
-    React.ComponentProps<typeof Home>,
-    '__TEST_MONGODB_DATA_SERVICE_CONNECT_FN'
-  >
-) => {
+export const CompassElectron = (props: React.ComponentProps<typeof Home>) => {
   return (
     <WithPreferencesAndLoggerProviders>
       <WithAtlasProviders>

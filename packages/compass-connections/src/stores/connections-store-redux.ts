@@ -1701,16 +1701,17 @@ export const connect = (
 
         connectionProgress.openConnectionSucceededToast(connectionInfo);
 
-        dispatch({
-          type: ActionTypes.ConnectionAttemptSuccess,
-          connectionId: connectionInfo.id,
-        });
-
+        // Emit before changing state because some plugins rely on this
         connectionsEventEmitter.emit(
           'connected',
           connectionInfo.id,
           connectionInfo
         );
+
+        dispatch({
+          type: ActionTypes.ConnectionAttemptSuccess,
+          connectionId: connectionInfo.id,
+        });
 
         if (
           getGenuineMongoDB(connectionInfo.connectionOptions.connectionString)

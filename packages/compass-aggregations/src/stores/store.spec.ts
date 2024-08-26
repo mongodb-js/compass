@@ -39,17 +39,6 @@ describe('Aggregation Store', function () {
     });
 
     context('when providing a namespace', function () {
-      context('when there is no collection', function () {
-        it('throws', async function () {
-          try {
-            await configureStore({ namespace: 'db' });
-            expect.fail('Expected configureStore to throw');
-          } catch (err) {
-            expect(err).to.exist;
-          }
-        });
-      });
-
       context('when there is a collection', function () {
         let store: AggregationsStore;
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import type {
   ConnectionStorage,
   ConnectionInfo,
@@ -152,25 +152,13 @@ class AtlasCloudConnectionStorage
   extends InMemoryConnectionStorage
   implements ConnectionStorage
 {
-  private pollingInterval: ReturnType<typeof setInterval> | undefined;
   private loadAllPromise: Promise<ConnectionInfo[]> | undefined;
   constructor(
     private atlasService: AtlasService,
     private orgId: string,
-    private projectId: string,
-    private autoConnectConnectionId: string | undefined,
-    private __sandboxAutoconnectInfo: ConnectionInfo | null = null
+    private projectId: string
   ) {
     super();
-  }
-  async getAutoConnectInfo(): Promise<ConnectionInfo | undefined> {
-    if (this.__sandboxAutoconnectInfo) {
-      return Promise.resolve(this.__sandboxAutoconnectInfo);
-    }
-    if (!this.autoConnectConnectionId) {
-      return Promise.resolve(undefined);
-    }
-    return this.load({ id: this.autoConnectConnectionId });
   }
   async load({ id }: { id: string }): Promise<ConnectionInfo | undefined> {
     return (await this.loadAll()).find((info) => {
@@ -228,9 +216,6 @@ class AtlasCloudConnectionStorage
   }
 
   loadAll(): Promise<ConnectionInfo[]> {
-    if (this.__sandboxAutoconnectInfo) {
-      return Promise.resolve([this.__sandboxAutoconnectInfo]);
-    }
     return (this.loadAllPromise ??=
       this._loadAndNormalizeClusterDescriptionInfo());
   }
@@ -247,28 +232,23 @@ const SandboxAutoconnectContext = React.createContext<ConnectionInfo | null>(
  */
 export const SandboxAutoconnectProvider = SandboxAutoconnectContext.Provider;
 
+export const useSandboxAutoconnectInfo = () => {
+  return useContext(SandboxAutoconnectContext);
+};
+
 export const AtlasCloudConnectionStorageProvider = createServiceProvider(
   function AtlasCloudConnectionStorageProvider({
     orgId,
     projectId,
-    autoConnectConnectionId,
     children,
   }: {
     orgId: string;
     projectId: string;
-    autoConnectConnectionId?: string;
     children: React.ReactChild;
   }) {
     const atlasService = atlasServiceLocator();
-    const sandboxAutoconnectInfo = useContext(SandboxAutoconnectContext);
     const storage = useRef(
-      new AtlasCloudConnectionStorage(
-        atlasService,
-        orgId,
-        projectId,
-        autoConnectConnectionId,
-        sandboxAutoconnectInfo
-      )
+      new AtlasCloudConnectionStorage(atlasService, orgId, projectId)
     );
     return (
       <ConnectionStorageProvider value={storage.current}>
