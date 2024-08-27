@@ -80,7 +80,14 @@ export function useExportConnections({
   }
 
   const [state, setState] = useState<ExportConnectionsState>(INITIAL_STATE);
-  useEffect(() => setState(INITIAL_STATE), [open]);
+  useEffect(() => {
+    setState((prevState) => {
+      return {
+        ...INITIAL_STATE,
+        connectionList: prevState.connectionList,
+      };
+    });
+  }, [open]);
   const { passphrase, filename, connectionList, removeSecrets } = state;
 
   useEffect(() => {

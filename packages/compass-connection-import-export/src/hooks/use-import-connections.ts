@@ -129,7 +129,15 @@ export function useImportConnections({
   }
 
   const [state, setState] = useState<ImportConnectionsState>(INITIAL_STATE);
-  useEffect(() => setState(INITIAL_STATE), [open]);
+  useEffect(() => {
+    // Reset the form state to initial when modal is open, but keep the list
+    setState((prevState) => {
+      return {
+        ...INITIAL_STATE,
+        connectionList: prevState.connectionList,
+      };
+    });
+  }, [open]);
   const { passphrase, filename, fileContents, connectionList } = state;
 
   const existingConnectionIds = existingConnections.map(({ id }) => id);
