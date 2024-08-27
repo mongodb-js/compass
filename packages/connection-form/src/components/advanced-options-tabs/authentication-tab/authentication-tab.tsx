@@ -30,6 +30,7 @@ interface TabOption {
     connectionStringUrl: ConnectionStringUrl;
     updateConnectionFormField: UpdateConnectionFormField;
     connectionOptions: ConnectionOptions;
+    openSettingsModal?: (tab?: string) => void;
   }>;
 }
 
@@ -90,11 +91,13 @@ function AuthenticationTab({
   updateConnectionFormField,
   connectionStringUrl,
   connectionOptions,
+  openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   // enableOIDC is the feature flag, showOIDC is the connection form preference.
   const enableOIDC = !!useConnectionFormPreference('enableOidc');
@@ -173,6 +176,7 @@ function AuthenticationTab({
           connectionStringUrl={connectionStringUrl}
           updateConnectionFormField={updateConnectionFormField}
           connectionOptions={connectionOptions}
+          openSettingsModal={openSettingsModal}
         />
       </div>
     </>

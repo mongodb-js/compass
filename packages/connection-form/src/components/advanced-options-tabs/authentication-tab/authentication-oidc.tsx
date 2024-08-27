@@ -18,7 +18,6 @@ import { getConnectionStringUsername } from '../../../utils/connection-string-he
 import type { OIDCOptions } from '../../../utils/oidc-handler';
 import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
 
 type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
@@ -27,11 +26,13 @@ function AuthenticationOIDC({
   updateConnectionFormField,
   errors,
   connectionOptions,
+  openSettingsModal,
 }: {
   connectionStringUrl: ConnectionStringUrl;
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const username = getConnectionStringUsername(connectionStringUrl);
   const usernameError = errorMessageByFieldName(errors, 'username');
@@ -54,13 +55,15 @@ function AuthenticationOIDC({
     'showOIDCDeviceAuthFlow'
   );
 
-  const globalAppRegistry = useGlobalAppRegistry();
-  const openProxySettings = useCallback(() => {
-    globalAppRegistry.emit('open-compass-settings', 'proxy');
-  }, [globalAppRegistry]);
+  const openProxySettings = useCallback(
+    () => openSettingsModal?.('proxy'),
+    [openSettingsModal]
+  );
   const enableProxySupport = usePreference('enableProxySupport');
   const showProxySettings =
-    useConnectionFormPreference('showProxySettings') && enableProxySupport;
+    useConnectionFormPreference('showProxySettings') &&
+    enableProxySupport &&
+    openSettingsModal;
   return (
     <>
       <FormFieldContainer>

@@ -34,6 +34,7 @@ interface TabOption {
     updateConnectionFormField: UpdateConnectionFormField;
     connectionStringUrl: ConnectionStringUrl;
     errors: ConnectionFormError[];
+    openSettingsModal?: (tab?: string) => void;
   }>;
 }
 
@@ -114,12 +115,14 @@ function ProxyAndSshTunnelTab({
   errors,
   connectionStringUrl,
   _showProxySettingsForTesting,
+  openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
   _showProxySettingsForTesting?: boolean;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const selectedTunnelType: TunnelType = getSelectedTunnelType(
     connectionStringUrl,
@@ -230,6 +233,7 @@ function ProxyAndSshTunnelTab({
             sshTunnelOptions={connectionOptions.sshTunnel}
             updateConnectionFormField={updateConnectionFormField}
             connectionStringUrl={connectionStringUrl}
+            openSettingsModal={openSettingsModal}
           />
         </div>
       )}

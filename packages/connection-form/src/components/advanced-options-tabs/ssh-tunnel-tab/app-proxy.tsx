@@ -1,12 +1,16 @@
 import { Body, Link } from '@mongodb-js/compass-components';
-import { useGlobalAppRegistry } from 'hadron-app-registry';
 import React, { useCallback } from 'react';
 
-export function AppProxy(): React.ReactElement {
-  const globalAppRegistry = useGlobalAppRegistry();
+export function AppProxy({
+  openSettingsModal,
+}: {
+  openSettingsModal?: (tab?: string) => void;
+}): React.ReactElement {
   const openProxySettings = useCallback(() => {
-    globalAppRegistry.emit('open-compass-settings', 'proxy');
-  }, [globalAppRegistry]);
+    openSettingsModal?.('proxy');
+  }, [openSettingsModal]);
+
+  if (!openSettingsModal) return <></>;
 
   return (
     <Body>
