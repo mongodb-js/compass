@@ -49,7 +49,13 @@ type AtlasSignOutEvent = {
  */
 type AggregationUseCaseAddedEvent = ConnectionScoped<{
   name: 'Aggregation Use Case Added';
-  payload: { drag_and_drop?: boolean; stage_name?: string };
+  payload: {
+    /**
+     * Specifies if the use case was added via drag and drop
+     */
+    drag_and_drop?: boolean;
+    stage_name?: string;
+  };
 }>;
 
 /**
@@ -1272,6 +1278,61 @@ type ThemeChangedEvent = {
 };
 
 /**
+ * This event is fired at startup to report the First Contentful Paint metric.
+ * See: https://web.dev/articles/vitals.
+ *
+ * @category Web Vitals
+ */
+type FirstContentfulPaintEvent = {
+  name: 'First Contentful Paint';
+  payload: { value: number };
+};
+
+/**
+ * This event is fired at startup to report the Largest Contentful Paint metric.
+ * See: https://web.dev/articles/vitals.
+ *
+ * @category Web Vitals
+ */
+type LargestContentfulPaintEvent = {
+  name: 'Largest Contentful Paint';
+  payload: { value: number };
+};
+
+/**
+ * This event is fired at startup to report the First Input Delay metric.
+ * See: https://web.dev/articles/vitals.
+ *
+ * @category Web Vitals
+ */
+type FirstInputDelayEvent = {
+  name: 'First Input Delay';
+  payload: { value: number };
+};
+
+/**
+ * This event is fired at startup to report the Cumulative Layout Shift metric.
+ * See: https://web.dev/articles/vitals.
+ *
+ * @category Web Vitals
+ */
+type CumulativeLayoutShiftEvent = {
+  name: 'Cumulative Layout Shift';
+  payload: { value: number };
+};
+
+/**
+ * This event is fired at startup to report the Time to First Byte metric.
+ * See: https://web.dev/articles/vitals.
+ *
+ * @category Web Vitals
+ */
+type TimeToFirstByteEvent = {
+  name: 'Time to First Byte';
+  payload: { value: number };
+};
+
+/**
  * This event is fired when user clicks on Atlas CTA
  *
  * @category Other
@@ -1346,6 +1407,12 @@ type PerformanceAdvisorClickedEvent = ConnectionScoped<{
   };
 }>;
 
+/**
+ * This event is fired at startup when we detect that the application is running on
+ * a system that doesn't offer a suitable secret storage backend.
+ *
+ * @category Other
+ */
 type SecretStorageNotAvailable = {
   name: 'Secret Storage Not Available';
   payload: {
@@ -1460,4 +1527,9 @@ export type TelemetryEvent =
   | UpdateExportedEvent
   | UpdateExportOpenedEvent
   | ViewUpdatedEvent
-  | SecretStorageNotAvailable;
+  | SecretStorageNotAvailable
+  | FirstContentfulPaintEvent
+  | LargestContentfulPaintEvent
+  | FirstInputDelayEvent
+  | CumulativeLayoutShiftEvent
+  | TimeToFirstByteEvent;

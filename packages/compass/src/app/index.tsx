@@ -167,14 +167,15 @@ const Application = View.extend({
       name,
       value,
     }: Pick<webvitals.Metric, 'name' | 'value'>) {
-      const fullName = {
+      const events = {
         FCP: 'First Contentful Paint',
         LCP: 'Largest Contentful Paint',
         FID: 'First Input Delay',
         CLS: 'Cumulative Layout Shift',
         TTFB: 'Time to First Byte',
-      }[name];
-      track(fullName, { value });
+      } as const;
+
+      track(events[name], { value });
     }
 
     webvitals.getFCP(trackPerfEvent);
