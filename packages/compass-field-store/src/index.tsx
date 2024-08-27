@@ -2,6 +2,7 @@ import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { activatePlugin } from './stores/store';
 import { connectionsManagerLocator } from '@mongodb-js/compass-connections/provider';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 
 const FieldStoreComponent: React.FunctionComponent = ({ children }) => {
   // FieldStore plugin doesn't render anything, but keeps track of changes to
@@ -18,6 +19,7 @@ const FieldStorePlugin = registerHadronPlugin(
   },
   {
     connectionsManager: connectionsManagerLocator,
+    logger: createLoggerLocator('COMPASS-FIELDS-STORE'),
   }
 );
 

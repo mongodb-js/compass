@@ -6,6 +6,7 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';
 import type { ThunkAction } from 'redux-thunk';
+import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 function isAction<A extends Action>(
   action: Action,
@@ -83,10 +84,10 @@ export const documentsUpdated = (
 ): ThunkAction<
   Promise<void>,
   ConnectionNamespacesState,
-  Record<string, never>,
+  { logger: Logger },
   DocumentsUpdatedAction
 > => {
-  return async (dispatch) => {
+  return async (dispatch, _getState, { logger: { mongoLogId, log } }) => {
     try {
       const { fields } = await parseSchema(documents);
       dispatch({
@@ -95,8 +96,13 @@ export const documentsUpdated = (
         namespace,
         schemaFields: fields,
       });
-    } catch {
-      // ignore errors
+    } catch (err) {
+      log.warn(
+        mongoLogId(1_001_000_315),
+        'Field Store',
+        'Failed to generate schema for documents',
+        { error: (err as Error).message }
+      );
     }
   };
 };
