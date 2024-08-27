@@ -20,7 +20,9 @@ import type {
 import SshTunnelIdentity from './ssh-tunnel-identity';
 import SshTunnelPassword from './ssh-tunnel-password';
 import Socks from './socks';
+import { AppProxy } from './app-proxy';
 import type { ConnectionFormError } from '../../../utils/validation';
+import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
 interface TabOption {
   id: string;
@@ -31,10 +33,11 @@ interface TabOption {
     updateConnectionFormField: UpdateConnectionFormField;
     connectionStringUrl: ConnectionStringUrl;
     errors: ConnectionFormError[];
+    openSettingsModal?: (tab?: string) => void;
   }>;
 }
 
-const options: TabOption[] = [
+const tabOptions: TabOption[] = [
   {
     title: 'None',
     id: 'none',
@@ -83,6 +86,10 @@ const getSelectedTunnelType = (
     return 'socks';
   }
 
+  if (connectionOptions?.useApplicationLevelProxy) {
+    return 'app-proxy';
+  }
+
   if (
     !connectionOptions ||
     !connectionOptions?.sshTunnel ||
@@ -106,16 +113,29 @@ function ProxyAndSshTunnelTab({
   updateConnectionFormField,
   errors,
   connectionStringUrl,
+  openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const selectedTunnelType: TunnelType = getSelectedTunnelType(
     connectionStringUrl,
     connectionOptions
   );
+
+  const options = [...tabOptions];
+  const showProxySettings = useConnectionFormPreference('showProxySettings');
+  if (showProxySettings) {
+    options.push({
+      title: 'Application-level Proxy',
+      id: 'app-proxy',
+      type: 'app-proxy',
+      component: AppProxy,
+    });
+  }
 
   const selectedOptionIndex =
     options.findIndex((x) => x.type === selectedTunnelType) ?? 0;
@@ -125,18 +145,30 @@ function ProxyAndSshTunnelTab({
 
   const handleOptionChanged = useCallback(
     (oldType: TunnelType, newType: TunnelType) => {
-      let type: 'remove-proxy-options' | 'remove-ssh-options';
+      let type:
+        | 'remove-proxy-options-and-app-proxy'
+        | 'remove-ssh-options-and-app-proxy'
+        | 'remove-proxy-options-and-set-app-proxy'
+        | 'remove-app-proxy';
       switch (newType) {
         case 'socks':
-          type = 'remove-ssh-options';
+          type = 'remove-ssh-options-and-app-proxy';
           break;
         case 'ssh-identity':
         case 'ssh-password':
-          type = 'remove-proxy-options';
+          type = 'remove-proxy-options-and-app-proxy';
           break;
+        case 'app-proxy':
+          type = 'remove-proxy-options-and-set-app-proxy';
+          break;
+        case 'none':
         default:
           type =
-            oldType === 'socks' ? 'remove-proxy-options' : 'remove-ssh-options';
+            oldType === 'socks'
+              ? 'remove-proxy-options-and-app-proxy'
+              : oldType === 'app-proxy'
+              ? 'remove-app-proxy'
+              : 'remove-ssh-options-and-app-proxy';
           break;
       }
       updateConnectionFormField({ type });
@@ -195,6 +227,7 @@ function ProxyAndSshTunnelTab({
             sshTunnelOptions={connectionOptions.sshTunnel}
             updateConnectionFormField={updateConnectionFormField}
             connectionStringUrl={connectionStringUrl}
+            openSettingsModal={openSettingsModal}
           />
         </div>
       )}
