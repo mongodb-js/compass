@@ -77,6 +77,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
           useSystemCA: z.boolean().optional(), // Unused but may be present in legacy files
           oidc: z.any().optional(),
           fleOptions: z.any().optional(),
+          useApplicationLevelProxy: z.boolean().optional(),
         }),
       })
       .optional(),
