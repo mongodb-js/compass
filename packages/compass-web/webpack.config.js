@@ -32,7 +32,12 @@ module.exports = async (env, args) => {
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
-        '@mongodb-js/devtools-proxy-support': false,
+        '@mongodb-js/devtools-proxy-support/proxy-options': require.resolve(
+          '@mongodb-js/devtools-proxy-support/proxy-options'
+        ),
+        '@mongodb-js/devtools-proxy-support': localPolyfill(
+          '@mongodb-js/devtools-proxy-support'
+        ),
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
