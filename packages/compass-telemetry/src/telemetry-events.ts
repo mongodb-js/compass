@@ -1213,8 +1213,37 @@ type AutoupdateAcceptedEvent = {
   };
 };
 
+/** This event is fired when the user accepts to restart the application from
+ * the update popup.
+ *
+ * @category Autoupdates
+ */
+type ApplicationRestartAcceptedEvent = {
+  name: 'Application Restart Accepted';
+  payload: Record<string, never>;
+};
+
+/** This event is fired when the auto-update feature is enabled.
+ *
+ * @category Autoupdates
+ */
+type AutoupdateEnabledEvent = {
+  name: 'Autoupdate Enabled';
+  payload: Record<string, never>;
+};
+
+/** This event is fired when the auto-update feature is disabled.
+ *
+ * @category Autoupdates
+ */
+type AutoupdateDisabledEvent = {
+  name: 'Autoupdate Disabled';
+  payload: Record<string, never>;
+};
+
 /**
- * This event is fired when "Update available" popup is shown and user rejects the update.
+ * This event is fired when "Update available" popup is shown and user rejects
+ * the update.
  *
  * @category Autoupdates
  */
@@ -1224,7 +1253,7 @@ type AutoupdateDismissedEvent = {
 };
 
 /**
- * This event is fired when user changes items view type betweet list and grid
+ * This event is fired when user changes items view type between list and grid.
  *
  * @category Database / Collection List
  */
@@ -1402,9 +1431,7 @@ type ScreenEvent = ConnectionScoped<{
  */
 type PerformanceAdvisorClickedEvent = ConnectionScoped<{
   name: 'Performance Advisor Clicked';
-  payload: {
-    //
-  };
+  payload: Record<string, never>;
 }>;
 
 /**
@@ -1415,9 +1442,7 @@ type PerformanceAdvisorClickedEvent = ConnectionScoped<{
  */
 type SecretStorageNotAvailable = {
   name: 'Secret Storage Not Available';
-  payload: {
-    //
-  };
+  payload: Record<string, never>;
 };
 
 export type TelemetryEvent =
@@ -1447,6 +1472,9 @@ export type TelemetryEvent =
   | AtlasSignOutEvent
   | AutoupdateAcceptedEvent
   | AutoupdateDismissedEvent
+  | ApplicationRestartAcceptedEvent
+  | AutoupdateEnabledEvent
+  | AutoupdateDisabledEvent
   | BulkDeleteExecutedEvent
   | BulkDeleteOpenedEvent
   | BulkUpdateExecutedEvent

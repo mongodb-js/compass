@@ -493,7 +493,9 @@ const STATE_UPDATE: Record<
 
       this.maybeInterrupt();
 
-      track('Application Restart Accepted');
+      track('Application Restart Accepted', {
+        //
+      });
 
       this.maybeInterrupt();
 
@@ -801,12 +803,16 @@ class CompassAutoUpdateManager {
       );
 
       if (enabled) {
-        track('Autoupdate Enabled');
+        track('Autoupdate Enabled', {
+          //
+        });
         this.setState(
           AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
         );
       } else {
-        track('Autoupdate Disabled');
+        track('Autoupdate Disabled', {
+          //
+        });
         this.setState(AutoUpdateManagerState.Disabled);
       }
     });
