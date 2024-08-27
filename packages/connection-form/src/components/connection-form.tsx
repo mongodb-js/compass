@@ -343,6 +343,7 @@ type ConnectionFormPropsWithoutPreferences = {
   onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
   onSaveClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
   onAdvancedOptionsToggle?: (newState: boolean) => void;
+  openSettingsModal?: (tab?: string) => void;
 };
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
@@ -357,6 +358,7 @@ function ConnectionForm({
   onSaveClicked,
   onCancel,
   onAdvancedOptionsToggle,
+  openSettingsModal,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
@@ -611,6 +613,7 @@ function ConnectionForm({
                 disabled={!!connectionStringInvalidError}
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
+                openSettingsModal={openSettingsModal}
               />
             )}
           </div>

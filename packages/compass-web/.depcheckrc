@@ -16,6 +16,8 @@ ignores:
  - 'events'
  - 'process'
  - 'util'
+# web-compatible exports re-exported from local polyfill
+ - '@mongodb-js/devtools-proxy-support'
 # Not explicitly used, but helpful to have them in devDeps to make sure
 # compass-web is on the same version as other package in the monorepo
  - 'mongodb'

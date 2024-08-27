@@ -5,6 +5,7 @@ import {
   Description,
   FormFieldContainer,
   Label,
+  Link,
   TextInput,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -24,11 +25,13 @@ function AuthenticationOIDC({
   updateConnectionFormField,
   errors,
   connectionOptions,
+  openSettingsModal,
 }: {
   connectionStringUrl: ConnectionStringUrl;
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const username = getConnectionStringUsername(connectionStringUrl);
   const usernameError = errorMessageByFieldName(errors, 'username');
@@ -51,6 +54,12 @@ function AuthenticationOIDC({
     'showOIDCDeviceAuthFlow'
   );
 
+  const openProxySettings = useCallback(
+    () => openSettingsModal?.('proxy'),
+    [openSettingsModal]
+  );
+  const showProxySettings =
+    useConnectionFormPreference('showProxySettings') && openSettingsModal;
   return (
     <>
       <FormFieldContainer>
@@ -72,7 +81,7 @@ function AuthenticationOIDC({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Accordion text="OIDC Options">
+        <Accordion text="OIDC Options" data-testid="oidc-advanced-options">
           <FormFieldContainer>
             <TextInput
               data-testid="connection-oidc-auth-code-flow-redirect-uri-input"
@@ -152,6 +161,40 @@ function AuthenticationOIDC({
               checked={!!connectionOptions.oidc?.passIdTokenAsAccessToken}
             />
           </FormFieldContainer>
+
+          {showProxySettings && (
+            <FormFieldContainer>
+              <Checkbox
+                onChange={({
+                  target: { checked },
+                }: React.ChangeEvent<HTMLInputElement>) => {
+                  return handleFieldChanged(
+                    'shareProxyWithConnection',
+                    !checked
+                  );
+                }}
+                data-testid="oidc-use-application-level-proxy"
+                id="oidc-use-application-level-proxy"
+                label={
+                  <>
+                    <Label htmlFor="oidc-use-application-level-proxy">
+                      Use Application-Level Proxy Settings
+                    </Label>
+                    <Description>
+                      Use the{' '}
+                      <Link onClick={openProxySettings}>
+                        application-level proxy settings
+                      </Link>{' '}
+                      for communicating with the identity provider. If not
+                      chosen, the same proxy (if any) is used for connecting to
+                      both the cluster and the identity provider.
+                    </Description>
+                  </>
+                }
+                checked={!connectionOptions.oidc?.shareProxyWithConnection}
+              />
+            </FormFieldContainer>
+          )}
 
           {showOIDCDeviceAuthFlow && (
             <FormFieldContainer>

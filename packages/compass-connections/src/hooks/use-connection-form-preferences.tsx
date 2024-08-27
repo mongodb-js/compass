@@ -13,6 +13,7 @@ export function useConnectionFormPreferences() {
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
   );
+  const showProxySettings = usePreference('enableProxySupport');
 
   return useMemo(
     () => ({
@@ -23,6 +24,7 @@ export function useConnectionFormPreferences() {
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      showProxySettings,
     }),
     [
       protectConnectionStrings,
@@ -32,6 +34,7 @@ export function useConnectionFormPreferences() {
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      showProxySettings,
     ]
   );
 }

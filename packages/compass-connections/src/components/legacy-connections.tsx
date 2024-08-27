@@ -11,7 +11,7 @@ import {
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type AppRegistry from 'hadron-app-registry';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '../provider';
 import { useConnectionRepository } from '../hooks/use-connection-repository';
@@ -133,6 +133,11 @@ function Connections({
   const activeConnectionOidcAuthState =
     oidcDeviceAuthState[activeConnectionInfo.id];
 
+  const openSettingsModal = useCallback(
+    (tab?: string) => appRegistry.emit('open-compass-settings', tab),
+    [appRegistry]
+  );
+
   return (
     <div data-testid="connections-wrapper" className={connectStyles}>
       <ResizableSidebar>
@@ -187,6 +192,7 @@ function Connections({
                   initialConnectionInfo={activeConnectionInfo}
                   connectionErrorMessage={connectionErrorMessage}
                   preferences={connectionFormPreferences}
+                  openSettingsModal={openSettingsModal}
                 />
               </Card>
             </div>
