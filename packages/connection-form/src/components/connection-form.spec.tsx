@@ -418,7 +418,9 @@ describe('ConnectionForm Component', function () {
 
     describe('name input', function () {
       it('should sync with the href of the connection string unless it has been edited', async function () {
-        const connectionString = screen.getByTestId('connectionString');
+        const connectionString = screen.getByTestId(
+          'connectionString'
+        ) as HTMLInputElement;
         userEvent.clear(connectionString);
 
         await waitFor(() => expect(connectionString.value).to.equal(''));
@@ -431,15 +433,17 @@ describe('ConnectionForm Component', function () {
 
         const personalizationName = screen.getByTestId(
           'personalization-name-input'
-        );
+        ) as HTMLInputElement;
         expect(personalizationName.value).to.equal('myserver:27017');
       });
 
       it('should not sync with the href of the connection string when it has been edited', async function () {
-        const connectionString = screen.getByTestId('connectionString');
+        const connectionString = screen.getByTestId(
+          'connectionString'
+        ) as HTMLInputElement;
         const personalizationName = screen.getByTestId(
           'personalization-name-input'
-        );
+        ) as HTMLInputElement;
 
         userEvent.clear(personalizationName);
         userEvent.clear(connectionString);
