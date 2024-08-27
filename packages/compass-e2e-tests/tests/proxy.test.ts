@@ -95,7 +95,6 @@ describe('Proxy support', function () {
       browser = compass.browser;
 
       await browser.setFeature('proxy', '');
-      await browser.setFeature('enableProxySupport', true);
       httpProxyServer1.removeAllListeners('request');
       ({ connectRequests, connections } = setupProxyServer(httpProxyServer1));
     });

@@ -495,7 +495,6 @@ describe('OIDC integration', function () {
 
     beforeEach(async function () {
       await browser.setFeature('proxy', '');
-      await browser.setFeature('enableProxySupport', true);
       httpServer = createHTTPServer();
       ({ connectRequests, httpForwardRequests, connections } =
         setupProxyServer(httpServer));
