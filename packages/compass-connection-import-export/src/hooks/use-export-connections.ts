@@ -83,6 +83,7 @@ export function useExportConnections({
   useEffect(() => {
     setState((prevState) => {
       return {
+        // Reset the form state to initial when modal is open, but keep the list
         ...INITIAL_STATE,
         connectionList: prevState.connectionList,
       };

@@ -96,7 +96,7 @@ const openConnectionStartedToast = (
   onCancelClick: () => void
 ) => {
   const { title, description } = getConnectingStatusText(connectionInfo);
-  openToast(`connection-status:${connectionInfo.id}`, {
+  openToast(`connection-status--${connectionInfo.id}`, {
     title,
     description,
     dismissible: true,
@@ -105,7 +105,7 @@ const openConnectionStartedToast = (
       <Link
         hideExternalIcon={true}
         onClick={() => {
-          closeToast(`connection-status:${connectionInfo.id}`);
+          closeToast(`connection-status--${connectionInfo.id}`);
           onCancelClick();
         }}
         data-testid="cancel-connection-button"
@@ -117,7 +117,7 @@ const openConnectionStartedToast = (
 };
 
 const openConnectionSucceededToast = (connectionInfo: ConnectionInfo) => {
-  openToast(`connection-status:${connectionInfo.id}`, {
+  openToast(`connection-status--${connectionInfo.id}`, {
     title: `Connected to ${getConnectionTitle(connectionInfo)}`,
     variant: 'success',
     timeout: 3_000,
@@ -134,13 +134,13 @@ const openConnectionFailedToast = (
 ) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
 
-  openToast(`connection-status:${failedToastId}`, {
+  openToast(`connection-status--${failedToastId}`, {
     title: error.message,
     description: (
       <ConnectionErrorToastBody
         info={connectionInfo}
         onReview={() => {
-          closeToast(`connection-status:${failedToastId}`);
+          closeToast(`connection-status--${failedToastId}`);
           onReviewClick();
         }}
       />
@@ -218,7 +218,7 @@ export function getNotificationTriggers(
         openConnectionFailedToast,
         openMaximumConnectionsReachedToast,
         closeConnectionStatusToast: (connectionId: string) => {
-          return closeToast(`connection-status:${connectionId}`);
+          return closeToast(`connection-status--${connectionId}`);
         },
       }
     : {
