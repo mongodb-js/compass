@@ -1,3 +1,6 @@
+/**
+ * Events that are connection scoped are associated with one connection.
+ */
 type ConnectionScoped<E extends { payload: unknown }> = E & {
   payload: E['payload'] & {
     /**
@@ -1381,9 +1384,9 @@ type ApplicationLaunchedEvent = {
   payload: {
     context: string;
     launch_connection: string;
-    protected: boolean;
+    protected: boolean | undefined;
     readOnly: boolean;
-    maxTimeMS: number;
+    maxTimeMS: number | undefined;
     global_config: boolean;
     cli_args: boolean;
     legacy_connections: boolean;
