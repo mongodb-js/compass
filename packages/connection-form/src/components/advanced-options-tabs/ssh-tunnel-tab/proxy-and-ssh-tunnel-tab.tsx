@@ -22,7 +22,6 @@ import SshTunnelPassword from './ssh-tunnel-password';
 import Socks from './socks';
 import { AppProxy } from './app-proxy';
 import type { ConnectionFormError } from '../../../utils/validation';
-import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
 
 interface TabOption {
@@ -114,14 +113,12 @@ function ProxyAndSshTunnelTab({
   updateConnectionFormField,
   errors,
   connectionStringUrl,
-  _showProxySettingsForTesting,
   openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   connectionStringUrl: ConnectionStringUrl;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions?: ConnectionOptions;
-  _showProxySettingsForTesting?: boolean;
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const selectedTunnelType: TunnelType = getSelectedTunnelType(
@@ -130,10 +127,7 @@ function ProxyAndSshTunnelTab({
   );
 
   const options = [...tabOptions];
-  const enableProxySupport = usePreference('enableProxySupport');
-  const showProxySettings =
-    (useConnectionFormPreference('showProxySettings') && enableProxySupport) ||
-    _showProxySettingsForTesting;
+  const showProxySettings = useConnectionFormPreference('showProxySettings');
   if (showProxySettings) {
     options.push({
       title: 'Application-level Proxy',

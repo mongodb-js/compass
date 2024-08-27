@@ -17,7 +17,6 @@ import { errorMessageByFieldName } from '../../../utils/validation';
 import { getConnectionStringUsername } from '../../../utils/connection-string-helpers';
 import type { OIDCOptions } from '../../../utils/oidc-handler';
 import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
-import { usePreference } from 'compass-preferences-model/provider';
 
 type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
@@ -59,11 +58,8 @@ function AuthenticationOIDC({
     () => openSettingsModal?.('proxy'),
     [openSettingsModal]
   );
-  const enableProxySupport = usePreference('enableProxySupport');
   const showProxySettings =
-    useConnectionFormPreference('showProxySettings') &&
-    enableProxySupport &&
-    openSettingsModal;
+    useConnectionFormPreference('showProxySettings') && openSettingsModal;
   return (
     <>
       <FormFieldContainer>

@@ -19,7 +19,6 @@ const renderWithOptionsAndUrl = (
       connectionOptions={connectionOptions}
       connectionStringUrl={connectionStringUrl}
       updateConnectionFormField={updateConnectionFormField}
-      _showProxySettingsForTesting={true}
     />
   );
 };
