@@ -5,5 +5,5 @@
     "lib": ["ES2020", "DOM"]
   },
   "include": ["src/**/*"],
-  "exclude": ["./src/**/*.{spec,test}.*"]
+  "exclude": ["./src/**/*.spec.*", "./src/**/*.test.*"]
 }
