@@ -4,7 +4,12 @@ import { defaultSshPort } from '../constants/default-connection';
 
 export type SSHConnectionOptions = NonNullable<ConnectionOptions['sshTunnel']>;
 
-export type TunnelType = 'none' | 'ssh-password' | 'ssh-identity' | 'socks';
+export type TunnelType =
+  | 'none'
+  | 'ssh-password'
+  | 'ssh-identity'
+  | 'socks'
+  | 'app-proxy';
 
 export interface UpdateSshOptions {
   type: 'update-ssh-options';
