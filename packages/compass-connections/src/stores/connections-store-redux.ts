@@ -1353,19 +1353,25 @@ const connectionAttemptError = (
 };
 
 export const autoconnectCheck = (
-  getAutoconnectInfo: () => Promise<ConnectionInfo | undefined>
+  getAutoconnectInfo: (
+    connectionStorage: ConnectionStorage
+  ) => Promise<ConnectionInfo | undefined>
 ): ConnectionsThunkAction<
   Promise<void>,
   ConnectionAutoconnectCheckAction | ConnectionAttemptErrorAction
 > => {
-  return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
+  return async (
+    dispatch,
+    _getState,
+    { logger: { log, mongoLogId }, connectionStorage }
+  ) => {
     try {
       log.info(
         mongoLogId(1_001_000_160),
         'Connection Store',
         'Performing automatic connection attempt'
       );
-      const connectionInfo = await getAutoconnectInfo();
+      const connectionInfo = await getAutoconnectInfo(connectionStorage);
       dispatch({
         type: ActionTypes.ConnectionAutoconnectCheck,
         connectionInfo: connectionInfo,

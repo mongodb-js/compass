@@ -16,11 +16,11 @@ const errorBoundaryStyles = css({
 });
 
 export interface SidebarPluginProps {
-  showConnectionInfo?: boolean;
+  showSidebarHeader?: boolean;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
-  showConnectionInfo,
+  showSidebarHeader,
 }) => {
   const isMultiConnectionEnabled = usePreference(
     'enableMultipleConnectionSystem'
@@ -44,11 +44,14 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
       }}
     >
       {isMultiConnectionEnabled && (
-        <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />
+        <MultipleConnectionSidebar
+          showSidebarHeader={showSidebarHeader}
+          activeWorkspace={activeWorkspace}
+        />
       )}
       {!isMultiConnectionEnabled && connectionInfo && (
         <Sidebar
-          showConnectionInfo={showConnectionInfo}
+          showSidebarHeader={showSidebarHeader}
           activeWorkspace={activeWorkspace}
         />
       )}
