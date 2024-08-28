@@ -819,11 +819,23 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         state.connections,
         action.connectionInfo.id,
         {
-          // For new connections, update the state with new info right away (we
-          // will also save it to the storage at the end)
-          ...(isNewConnection(state, action.connectionInfo.id) && {
-            info: action.connectionInfo,
-          }),
+          ...(isNewConnection(state, action.connectionInfo.id)
+            ? {
+                // For new connections, update the state with new info right
+                // away (we will also save it to the storage at the end)
+                info: action.connectionInfo,
+              }
+            : {
+                info: {
+                  // For existing connections only update favorite info when
+                  // connection starts. That way it immediately updates in UI
+                  // and then also gets saved at the end of successfull
+                  // connection
+                  favorite: action.connectionInfo.favorite,
+                  savedConnectionType:
+                    action.connectionInfo.savedConnectionType,
+                },
+              }),
           status: 'connecting',
           error: null,
         }
