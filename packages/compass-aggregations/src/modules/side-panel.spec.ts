@@ -11,8 +11,8 @@ describe('side-panel module', function () {
     let store: Store<RootState>;
     let fakeLocalStorage: SinonStub;
 
-    beforeEach(function () {
-      store = configureStore();
+    beforeEach(async function () {
+      store = (await configureStore()).plugin.store;
 
       const localStorageValues: Record<string, string> = {};
 
@@ -41,14 +41,14 @@ describe('side-panel module', function () {
       expect(store.getState().sidePanel.isPanelOpen).to.equal(false);
     });
 
-    it('persists the last state', function () {
-      const store1 = configureStore();
+    it('persists the last state', async function () {
+      const store1 = (await configureStore()).plugin.store;
       expect(store1.getState().sidePanel.isPanelOpen).to.equal(false);
 
       store1.dispatch(toggleSidePanel() as any);
       expect(store1.getState().sidePanel.isPanelOpen).to.equal(true);
 
-      const store2 = configureStore();
+      const store2 = (await configureStore()).plugin.store;
       expect(store2.getState().sidePanel.isPanelOpen).to.equal(true);
     });
   });

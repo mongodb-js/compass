@@ -24,10 +24,7 @@ const serviceLocators = {
   favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
 };
 
-export const MyQueriesPlugin = registerHadronPlugin<
-  React.ComponentProps<typeof AggregationsQueriesList>,
-  typeof serviceLocators
->(
+export const MyQueriesPlugin = registerHadronPlugin(
   {
     name: 'MyQueries',
     component: AggregationsQueriesList,

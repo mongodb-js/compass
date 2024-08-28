@@ -281,6 +281,9 @@ function ConnectedApp({ connectionInfo }: { connectionInfo: ConnectionInfo }) {
             ? {
                 orgId: connectionInfo.atlasMetadata.orgId,
                 projectId: connectionInfo.atlasMetadata.projectId,
+                onAutoconnectInfoRequest() {
+                  return Promise.resolve(connectionInfo);
+                },
               }
             : {
                 // We don't want to make those props optional as they are

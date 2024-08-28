@@ -1,8 +1,6 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
-  ConnectionsManagerEvents,
   type ConnectionsManager,
-  type DataService,
   type ConnectionRepositoryAccess,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
@@ -87,13 +85,9 @@ export function activatePlugin(
     });
   };
 
-  const onDataServiceProvided = (
-    connectionId: string,
-    dataService: Pick<
-      DataService,
-      'createCollection' | 'createDataKey' | 'configuredKMSProviders'
-    >
-  ) => {
+  const onDataServiceProvided = (connectionId: string) => {
+    const dataService =
+      connectionsManager.getDataServiceForConnection(connectionId);
     store.dispatch(
       kmsProvidersRetrieved(connectionId, dataService.configuredKMSProviders())
     );
@@ -103,16 +97,8 @@ export function activatePlugin(
     connectionId,
     instance,
   ] of instancesManager.listMongoDBInstances()) {
-    const dataService =
-      connectionsManager.getDataServiceForConnection(connectionId);
     onInstanceProvided(connectionId, instance);
-    onDataServiceProvided(
-      connectionId,
-      dataService as Pick<
-        DataService,
-        'createCollection' | 'createDataKey' | 'configuredKMSProviders'
-      >
-    );
+    onDataServiceProvided(connectionId);
   }
 
   on(
@@ -120,11 +106,7 @@ export function activatePlugin(
     MongoDBInstancesManagerEvents.InstanceCreated,
     onInstanceProvided
   );
-  on(
-    connectionsManager,
-    ConnectionsManagerEvents.ConnectionAttemptSuccessful,
-    onDataServiceProvided
-  );
+  on(connectionsManager, 'connected', onDataServiceProvided);
 
   on(
     globalAppRegistry,

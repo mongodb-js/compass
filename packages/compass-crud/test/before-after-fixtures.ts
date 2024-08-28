@@ -412,6 +412,37 @@ export const fixtureGroups: FixtureGroup[] = [
         before: { foo: [0, { bar: 'baz' }] },
         after: { foo: [0, { bar: 'bazz' }] },
       },
+      {
+        name: 'many items',
+        before: {
+          foo: [
+            { i: 0 },
+            { i: 1 },
+            { i: 2 },
+            { i: 3 },
+            { i: 4 },
+            { i: 5 },
+            { i: 6 },
+            { i: 7 },
+            { i: 8 },
+            { i: 9 },
+          ],
+        },
+        after: {
+          foo: [
+            { i: 0, newField: 1 },
+            { i: 1, newField: 1 },
+            { i: 2, newField: 1 },
+            { i: 3, newField: 1 },
+            { i: 4, newField: 1 },
+            { i: 5, newField: 1 },
+            { i: 6, newField: 1 },
+            { i: 7, newField: 1 },
+            { i: 8, newField: 1 },
+            { i: 9, newField: 1 },
+          ],
+        },
+      },
     ],
   },
   {

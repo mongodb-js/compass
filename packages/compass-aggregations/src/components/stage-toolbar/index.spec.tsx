@@ -1,54 +1,48 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../test/configure-store';
+import { renderWithStore } from '../../../test/configure-store';
 import StageToolbar from './';
 import {
   changeStageCollapsed,
   changeStageDisabled,
 } from '../../modules/pipeline-builder/stage-editor';
 
-const renderStageToolbar = () => {
-  const store = configureStore({
+const renderStageToolbar = async () => {
+  const result = await renderWithStore(<StageToolbar index={0} />, {
     pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   });
-  render(
-    <Provider store={store}>
-      <StageToolbar index={0} />
-    </Provider>
-  );
-  return store;
+  return result.plugin.store;
 };
 
 describe('StageToolbar', function () {
-  it('renders collapse button', function () {
-    renderStageToolbar();
+  it('renders collapse button', async function () {
+    await renderStageToolbar();
     expect(screen.getByLabelText('Collapse')).to.exist;
   });
-  it('renders stage number text', function () {
-    renderStageToolbar();
+  it('renders stage number text', async function () {
+    await renderStageToolbar();
     expect(screen.getByText('Stage 1')).to.exist;
   });
-  it('render stage operator select', function () {
-    renderStageToolbar();
+  it('render stage operator select', async function () {
+    await renderStageToolbar();
     expect(screen.getByTestId('stage-operator-combobox')).to.exist;
   });
-  it('renders stage enable/disable toggle', function () {
-    renderStageToolbar();
+  it('renders stage enable/disable toggle', async function () {
+    await renderStageToolbar();
     expect(screen.getByLabelText('Exclude stage from pipeline')).to.exist;
   });
   context('renders stage text', function () {
-    it('when stage is disabled', function () {
-      const store = renderStageToolbar();
+    it('when stage is disabled', async function () {
+      const store = await renderStageToolbar();
       store.dispatch(changeStageDisabled(0, true));
       expect(
         screen.getByText('Stage disabled. Results not passed in the pipeline.')
       ).to.exist;
     });
-    it('when stage is collapsed', function () {
-      const store = renderStageToolbar();
+    it('when stage is collapsed', async function () {
+      const store = await renderStageToolbar();
       store.dispatch(changeStageCollapsed(0, true));
       expect(
         screen.getByText(
@@ -57,8 +51,8 @@ describe('StageToolbar', function () {
       ).to.exist;
     });
   });
-  it('renders option menu', function () {
-    renderStageToolbar();
+  it('renders option menu', async function () {
+    await renderStageToolbar();
     expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
 });

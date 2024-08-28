@@ -1,12 +1,17 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
-import configureStore from '../../../../test/configure-store';
-import { Provider } from 'react-redux';
+import { renderWithStore } from '../../../../test/configure-store';
 import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
 import {
   type PreferencesAccess,
@@ -230,32 +235,24 @@ describe('PipelineActions', function () {
   });
 
   describe('with store', function () {
-    function renderPipelineActions(options = {}) {
-      const store = configureStore(options);
-
-      const component = (
-        <Provider store={store}>
-          <ConnectedPipelineActions
-            showExplainButton={true}
-            showExportButton={true}
-            showRunButton={true}
-            onToggleOptions={() => {}}
-          ></ConnectedPipelineActions>
-        </Provider>
+    async function renderPipelineActions(options = {}) {
+      const result = await renderWithStore(
+        <ConnectedPipelineActions
+          showExplainButton={true}
+          showExportButton={true}
+          showRunButton={true}
+          onToggleOptions={() => {}}
+        ></ConnectedPipelineActions>,
+        options
       );
-
-      const result = render(component);
       return {
         ...result,
-        store,
-        rerender: () => {
-          result.rerender(component);
-        },
+        store: result.plugin.store,
       };
     }
 
-    it('should disable actions when pipeline contains errors', function () {
-      renderPipelineActions({ pipeline: [42] });
+    it('should disable actions when pipeline contains errors', async function () {
+      await renderPipelineActions({ pipeline: [42] });
 
       expect(
         screen
@@ -276,8 +273,8 @@ describe('PipelineActions', function () {
       ).to.equal('true');
     });
 
-    it('should disable actions while ai is fetching', function () {
-      const { store, rerender } = renderPipelineActions({
+    it('should disable actions while ai is fetching', async function () {
+      const { store } = await renderPipelineActions({
         pipeline: [{ $match: { _id: 1 } }],
       });
 
@@ -285,29 +282,30 @@ describe('PipelineActions', function () {
         type: AIPipelineActionTypes.AIPipelineStarted,
         requestId: 'pineapples',
       });
-      rerender();
 
-      expect(
-        screen
-          .getByTestId('pipeline-toolbar-explain-aggregation-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
+      await waitFor(() => {
+        expect(
+          screen
+            .getByTestId('pipeline-toolbar-explain-aggregation-button')
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
 
-      expect(
-        screen
-          .getByTestId('pipeline-toolbar-export-aggregation-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
+        expect(
+          screen
+            .getByTestId('pipeline-toolbar-export-aggregation-button')
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
 
-      expect(
-        screen
-          .getByTestId('pipeline-toolbar-run-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
+        expect(
+          screen
+            .getByTestId('pipeline-toolbar-run-button')
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
+      });
     });
 
-    it('should disable export button when pipeline is $out / $merge', function () {
-      renderPipelineActions({
+    it('should disable export button when pipeline is $out / $merge', async function () {
+      await renderPipelineActions({
         pipeline: [{ $out: 'foo' }],
       });
 
@@ -318,20 +316,20 @@ describe('PipelineActions', function () {
       ).to.equal('true');
     });
 
-    it('should disable export button when last enabled stage is $out / $merge', function () {
-      const { store, rerender } = renderPipelineActions({
+    it('should disable export button when last enabled stage is $out / $merge', async function () {
+      const { store } = await renderPipelineActions({
         pipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
       });
 
-      store.dispatch(changeStageDisabled(1, true) as any);
+      store.dispatch(changeStageDisabled(1, true));
 
-      rerender();
-
-      expect(
-        screen
-          .getByTestId('pipeline-toolbar-export-aggregation-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
+      await waitFor(() => {
+        expect(
+          screen
+            .getByTestId('pipeline-toolbar-export-aggregation-button')
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
+      });
     });
   });
 });

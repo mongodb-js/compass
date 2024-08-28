@@ -25,6 +25,7 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
+    "types": "./dist/index.d.ts",
     "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },

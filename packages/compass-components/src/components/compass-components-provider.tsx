@@ -15,6 +15,7 @@ type CompassComponentsProviderProps = {
    * value will be derived from the system settings
    */
   darkMode?: boolean;
+  popoverPortalContainer?: HTMLElement;
   /**
    * Either React children or a render callback that will get the darkMode
    * property passed as function properties
@@ -97,6 +98,7 @@ export const CompassComponentsProvider = ({
   utmSource,
   utmMedium,
   stackedElementsZIndex,
+  popoverPortalContainer: _popoverPortalContainer,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -107,7 +109,7 @@ export const CompassComponentsProvider = ({
   // is literally no way around it with how leafygreen popover works and lucky
   // for us, this will usually cause a state update only once
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
-    null
+    _popoverPortalContainer ?? null
   );
   const [scrollContainer, setScrollContainer] = useState<HTMLElement | null>(
     null
