@@ -177,11 +177,7 @@ export function handleUpdateCsfleKmsTlsParam<T extends KMSTLSProviderType>({
     tls[action.key] = action.value;
   }
   const tlsOptions = autoEncryption.tlsOptions ?? {};
-  if (Object.keys(tls).length === 0) {
-    delete tlsOptions[action.kmsProviderName];
-  } else {
-    tlsOptions[action.kmsProviderName] = tls;
-  }
+  tlsOptions[action.kmsProviderName] = tls;
   return {
     connectionOptions: {
       ...connectionOptions,
@@ -197,13 +193,19 @@ export function handleUpdateCsfleKmsTlsParam<T extends KMSTLSProviderType>({
   };
 }
 
+// The driver creates an AutoEncrypter object if `.autoEncryption` has been set
+// as an option, regardless of whether it is filled. Consequently, we need
+// to set it to undefined explicitly if the user wants to disable automatic
+// CSFLE entirely (indicated by removing all CSFLE options).
 export function unsetFleOptionsIfEmptyAutoEncryption(
   connectionOptions: Readonly<ConnectionOptions>
 ): ConnectionOptions {
   connectionOptions = cloneDeep(connectionOptions);
-  const autoEncryption = unsetAutoEncryptionIfEmpty(
-    connectionOptions.fleOptions?.autoEncryption
-  );
+  const autoEncryption =
+    connectionOptions.fleOptions?.autoEncryption &&
+    hasAnyCsfleOption(connectionOptions.fleOptions?.autoEncryption)
+      ? connectionOptions.fleOptions?.autoEncryption
+      : undefined;
 
   if (!autoEncryption) {
     return {
@@ -220,16 +222,6 @@ export function unsetFleOptionsIfEmptyAutoEncryption(
       autoEncryption,
     },
   };
-}
-
-// The driver creates an AutoEncrypter object if `.autoEncryption` has been set
-// as an option, regardless of whether it is filled. Consequently, we need
-// to set it to undefined explicitly if the user wants to disable automatic
-// CSFLE entirely (indicated by removing all CSFLE options).
-export function unsetAutoEncryptionIfEmpty(
-  o?: AutoEncryptionOptions
-): AutoEncryptionOptions | undefined {
-  return o && hasAnyCsfleOption(o) ? o : undefined;
 }
 
 export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {

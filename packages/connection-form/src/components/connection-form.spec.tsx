@@ -411,7 +411,6 @@ describe('ConnectionForm Component', function () {
     });
 
     it('should show a Cancel button', function () {
-      screen.debug(screen.getByTestId('cancel-button'));
       const button = screen.queryByRole('button', { name: 'Cancel' });
 
       expect(button).to.be.visible;
