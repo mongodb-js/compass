@@ -8,6 +8,7 @@ import {
   screen,
   waitFor,
   fireEvent,
+  within,
 } from '@testing-library/react';
 
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -357,6 +358,85 @@ describe('In-Use Encryption', function () {
           },
         },
       },
+    });
+  });
+
+  context('supports multiple kms providers from same type', function () {
+    it('allows to have multiple KMS providers from same type', async function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+      fireEvent.click(screen.getByText('Add item'));
+
+      const kmsProviders = {};
+
+      for (const kmsProviderName of ['local', 'local:1'] as const) {
+        const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
+
+        expect(
+          within(kmsCard).getByTestId('csfle-kms-local-key').closest('input')
+            ?.value
+        ).to.equal('');
+
+        fireEvent.click(
+          within(kmsCard).getByTestId('generate-local-key-button')
+        );
+
+        const generatedLocalKey = within(kmsCard)
+          .getByTestId('csfle-kms-local-key')
+          .closest('input')?.value;
+
+        if (!generatedLocalKey) {
+          throw new Error('expected generatedLocalKey');
+        }
+
+        expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
+
+        kmsProviders[kmsProviderName] = {
+          key: generatedLocalKey,
+        };
+      }
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders,
+          },
+        },
+      });
+    });
+
+    it('allows user to remove a kms provider', function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+
+      // When its only one card, we do not show the card header
+      expect(() =>
+        within(screen.getByTestId('local-kms-card-item')).findByTestId(
+          'kms-card-header'
+        )
+      ).to.throw;
+
+      fireEvent.click(screen.getByText('Add item'));
+
+      expect(
+        within(screen.getByTestId('local-kms-card-item')).findByTestId(
+          'kms-card-header'
+        )
+      ).to.exist;
+      expect(
+        within(screen.getByTestId('local:1-kms-card-item')).findByTestId(
+          'kms-card-header'
+        )
+      ).to.exist;
+
+      fireEvent.click(
+        within(screen.getByTestId('local-kms-card-item')).getByRole('button', {
+          name: /trash icon/i,
+        })
+      );
+
+      expect(() => screen.getByTestId('local-kms-card-item')).to.throw;
     });
   });
 });

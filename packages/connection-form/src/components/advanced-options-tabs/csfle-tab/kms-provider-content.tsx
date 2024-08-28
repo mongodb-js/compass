@@ -94,9 +94,13 @@ function KMSProviderContent<T extends KMSProviderType>({
   return (
     <>
       {kmsProviderNames.map((kmsProviderName) => (
-        <Card key={kmsProviderName} className={cardStyles}>
+        <Card
+          data-testid={`${kmsProviderName}-kms-card-item`}
+          key={kmsProviderName}
+          className={cardStyles}
+        >
           {kmsProviderNames.length > 1 && (
-            <div className={flexContainerStyles}>
+            <div data-testid="kms-card-header" className={flexContainerStyles}>
               <h4>{kmsProviderName}</h4>
               <Button
                 className={pushRightStyles}

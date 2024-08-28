@@ -214,12 +214,35 @@ export function unsetFleOptionsIfEmptyAutoEncryption(
     };
   }
 
+  function filterEmptyValues(obj: Record<string, any> | undefined) {
+    const values = Object.fromEntries(
+      Object.entries(obj ?? {})
+        .filter(([, v]) => Object.keys(v ?? {}).length > 0)
+        .map(([k, v]) => [k, v])
+    );
+    return Object.keys(values).length > 0 ? values : undefined;
+  }
+  // Filter out the empty kmsProviders or the tlsOptions
+  const kmsProviders = filterEmptyValues(autoEncryption.kmsProviders);
+  const tlsOptions = filterEmptyValues(autoEncryption.tlsOptions);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {
+    kmsProviders: _1,
+    tlsOptions: _2,
+    ...restOfTheAutoEncryption
+  } = autoEncryption;
+
   return {
     ...connectionOptions,
     fleOptions: {
       ...DEFAULT_FLE_OPTIONS,
       ...connectionOptions.fleOptions,
-      autoEncryption,
+      autoEncryption: {
+        ...restOfTheAutoEncryption,
+        ...(kmsProviders ? { kmsProviders } : {}),
+        ...(tlsOptions ? { tlsOptions } : {}),
+      },
     },
   };
 }

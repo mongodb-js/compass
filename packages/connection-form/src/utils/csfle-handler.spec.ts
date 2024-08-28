@@ -12,6 +12,7 @@ import {
   encryptedFieldConfigToText,
   adjustCSFLEParams,
   randomLocalKey,
+  unsetFleOptionsIfEmptyAutoEncryption,
 } from './csfle-handler';
 
 describe('csfle-handler', function () {
@@ -359,6 +360,54 @@ describe('csfle-handler', function () {
             },
           },
         });
+      });
+    });
+  });
+
+  describe('unsetFleOptionsIfEmptyAutoEncryption', function () {
+    it('unsets fleOptions if options are empty', function () {
+      (connectionOptions.fleOptions as any).autoEncryption = {
+        kmsProviders: {
+          aws: {},
+          'aws:1': {},
+        },
+        tlsOptions: {
+          local: {},
+        },
+      };
+      expect(
+        unsetFleOptionsIfEmptyAutoEncryption(connectionOptions)
+      ).to.deep.equal({
+        connectionString: 'mongodb://localhost/',
+        fleOptions: undefined,
+      });
+    });
+    it('does not unset fleOptions if options are not empty', function () {
+      (connectionOptions.fleOptions as any).autoEncryption = {
+        kmsProviders: {
+          aws: {
+            accessKeyId: 'asdf',
+          },
+          'aws:1': {},
+        },
+        tlsOptions: {
+          local: {},
+        },
+      };
+      expect(
+        unsetFleOptionsIfEmptyAutoEncryption(connectionOptions)
+      ).to.deep.equal({
+        connectionString: 'mongodb://localhost/',
+        fleOptions: {
+          autoEncryption: {
+            kmsProviders: {
+              aws: {
+                accessKeyId: 'asdf',
+              },
+            },
+          },
+          storeCredentials: false,
+        },
       });
     });
   });
