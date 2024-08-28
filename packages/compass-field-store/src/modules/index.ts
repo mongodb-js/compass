@@ -98,7 +98,7 @@ export const documentsUpdated = (
       });
     } catch (err) {
       log.warn(
-        mongoLogId(1_001_000_315),
+        mongoLogId(1_001_000_328),
         'Field Store',
         'Failed to generate schema for documents',
         { error: (err as Error).message }
