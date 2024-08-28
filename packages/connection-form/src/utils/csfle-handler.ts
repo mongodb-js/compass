@@ -351,7 +351,6 @@ export function handleAddKmsProvider<T extends KMSProviderType>({
 
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   const kmsProviders = autoEncryption.kmsProviders ?? {};
-  // TODO: KMSProviders[T]
   kmsProviders[action.name] = {} as any;
 
   return {
