@@ -140,7 +140,7 @@ describe('ConnectionsNavigationTree', function () {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableRenameCollectionModal: true,
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
       ...preferencesOverrides,
     });
     return render(
@@ -659,7 +659,7 @@ describe('ConnectionsNavigationTree', function () {
       preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
         enableRenameCollectionModal: true,
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
     });
 

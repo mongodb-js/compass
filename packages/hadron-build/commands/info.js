@@ -1,7 +1,6 @@
 'use strict';
 const _ = require('lodash');
 const Target = require('../lib/target');
-const verifyDistro = require('../lib/distro');
 const Table = require('cli-table');
 const yaml = require('js-yaml');
 const inspect = require('util').inspect;
@@ -74,8 +73,6 @@ const toTable = (target) => {
 };
 
 exports.handler = (argv) => {
-  verifyDistro(argv);
-
   let target = new Target(argv.dir, {
     version: argv.version,
     platform: argv.platform,

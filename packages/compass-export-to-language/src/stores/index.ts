@@ -79,7 +79,9 @@ function getCurrentlyConnectedUri(
   }
 
   if (
-    /^mongodb compass/i.exec(
+    // TODO: we should probably remove the default app name in place that knows
+    // what is default app name, like data service or compass-connections plugin
+    /^(mongodb compass|compass web)/i.exec(
       connectionStringUrl.searchParams.get('appName') || ''
     )
   ) {

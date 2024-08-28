@@ -343,6 +343,7 @@ type ConnectionFormPropsWithoutPreferences = {
   onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
   onSaveClicked: (connectionInfo: ConnectionInfo) => Promise<void>;
   onAdvancedOptionsToggle?: (newState: boolean) => void;
+  openSettingsModal?: (tab?: string) => void;
 };
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
@@ -357,11 +358,12 @@ function ConnectionForm({
   onSaveClicked,
   onCancel,
   onAdvancedOptionsToggle,
+  openSettingsModal,
 }: ConnectionFormPropsWithoutPreferences): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const onAdvancedChange = useCallback(
@@ -455,6 +457,8 @@ function ConnectionForm({
     (action: 'saveAndConnect' | 'connect') => {
       // TODO(COMPASS-7906): cleanup
       const updatedConnectionOptions = cloneDeep(connectionOptions);
+      // TODO: this method throws on malformed connection strings instead of
+      // returning errors
       const formErrors = validateConnectionOptionsErrors(
         updatedConnectionOptions
       );
@@ -609,6 +613,7 @@ function ConnectionForm({
                 disabled={!!connectionStringInvalidError}
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
+                openSettingsModal={openSettingsModal}
               />
             )}
           </div>

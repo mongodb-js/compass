@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   Body,
   Code,
@@ -6,7 +6,8 @@ import {
   Link,
   showConfirmation,
   spacing,
-  useToast,
+  openToast,
+  closeToast,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -90,6 +91,146 @@ const deviceAuthModalContentStyles = css({
   },
 });
 
+const openConnectionStartedToast = (
+  connectionInfo: ConnectionInfo,
+  onCancelClick: () => void
+) => {
+  const { title, description } = getConnectingStatusText(connectionInfo);
+  openToast(`connection-status--${connectionInfo.id}`, {
+    title,
+    description,
+    dismissible: true,
+    variant: 'progress',
+    actionElement: (
+      <Link
+        hideExternalIcon={true}
+        onClick={() => {
+          closeToast(`connection-status--${connectionInfo.id}`);
+          onCancelClick();
+        }}
+        data-testid="cancel-connection-button"
+      >
+        CANCEL
+      </Link>
+    ),
+  });
+};
+
+const openConnectionSucceededToast = (connectionInfo: ConnectionInfo) => {
+  openToast(`connection-status--${connectionInfo.id}`, {
+    title: `Connected to ${getConnectionTitle(connectionInfo)}`,
+    variant: 'success',
+    timeout: 3_000,
+  });
+};
+
+const openConnectionFailedToast = (
+  // Connection info might be missing if we failed connecting before we
+  // could even resolve connection info. Currently the only case where this
+  // can happen is autoconnect flow
+  connectionInfo: ConnectionInfo | null | undefined,
+  error: Error,
+  onReviewClick: () => void
+) => {
+  const failedToastId = connectionInfo?.id ?? 'failed';
+
+  openToast(`connection-status--${failedToastId}`, {
+    title: error.message,
+    description: (
+      <ConnectionErrorToastBody
+        info={connectionInfo}
+        onReview={() => {
+          closeToast(`connection-status--${failedToastId}`);
+          onReviewClick();
+        }}
+      />
+    ),
+    variant: 'warning',
+  });
+};
+
+const openMaximumConnectionsReachedToast = (
+  maxConcurrentConnections: number
+) => {
+  const message = `Only ${maxConcurrentConnections} connection${
+    maxConcurrentConnections > 1 ? 's' : ''
+  } can be connected to at the same time. First disconnect from another connection.`;
+
+  openToast('max-connections-reached', {
+    title: 'Maximum concurrent connections limit reached',
+    description: message,
+    variant: 'warning',
+    timeout: 5_000,
+  });
+};
+
+const openNotifyDeviceAuthModal = (
+  connectionInfo: ConnectionInfo,
+  verificationUrl: string,
+  userCode: string,
+  onCancel: () => void,
+  signal: AbortSignal
+) => {
+  void showConfirmation({
+    title: `Complete authentication in the browser`,
+    description: (
+      <div className={deviceAuthModalContentStyles}>
+        <Body>
+          Visit the following URL to complete authentication for{' '}
+          <b>{getConnectionTitle(connectionInfo)}</b>:
+        </Body>
+        <Body>
+          <Link href={verificationUrl} target="_blank">
+            {verificationUrl}
+          </Link>
+        </Body>
+        <br></br>
+        <Body>Enter the following code on that page:</Body>
+        <Body as="div">
+          <Code language="none" copyable>
+            {userCode}
+          </Code>
+        </Body>
+      </div>
+    ),
+    hideConfirmButton: true,
+    signal,
+  }).then(
+    (result) => {
+      if (result === false) {
+        onCancel?.();
+      }
+    },
+    () => {
+      // Abort signal was triggered
+    }
+  );
+};
+
+export function getNotificationTriggers(
+  enableMultipleConnectionSystem: boolean
+) {
+  return enableMultipleConnectionSystem
+    ? {
+        openNotifyDeviceAuthModal,
+        openConnectionStartedToast,
+        openConnectionSucceededToast,
+        openConnectionFailedToast,
+        openMaximumConnectionsReachedToast,
+        closeConnectionStatusToast: (connectionId: string) => {
+          return closeToast(`connection-status--${connectionId}`);
+        },
+      }
+    : {
+        openNotifyDeviceAuthModal: noop,
+        openConnectionStartedToast: noop,
+        openConnectionSucceededToast: noop,
+        openConnectionFailedToast: noop,
+        openMaximumConnectionsReachedToast: noop,
+        closeConnectionStatusToast: noop,
+      };
+}
+
 /**
  * Returns triggers for various notifications (toasts and modals) that are
  * supposed to be displayed every time connection flow is happening in the
@@ -100,155 +241,12 @@ const deviceAuthModalContentStyles = css({
  * is the default behavior
  */
 export function useConnectionStatusNotifications() {
-  const enableNewMultipleConnectionSystem = usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
-  const { openToast, closeToast } = useToast('connection-status');
-
-  const openConnectionStartedToast = useCallback(
-    (connectionInfo: ConnectionInfo, onCancelClick: () => void) => {
-      const { title, description } = getConnectingStatusText(connectionInfo);
-      openToast(connectionInfo.id, {
-        title,
-        description,
-        dismissible: true,
-        variant: 'progress',
-        actionElement: (
-          <Link
-            hideExternalIcon={true}
-            onClick={() => {
-              closeToast(connectionInfo.id);
-              onCancelClick();
-            }}
-            data-testid="cancel-connection-button"
-          >
-            CANCEL
-          </Link>
-        ),
-      });
-    },
-    [closeToast, openToast]
-  );
-
-  const openConnectionSucceededToast = useCallback(
-    (connectionInfo: ConnectionInfo) => {
-      openToast(connectionInfo.id, {
-        title: `Connected to ${getConnectionTitle(connectionInfo)}`,
-        variant: 'success',
-        timeout: 3_000,
-      });
-    },
-    [openToast]
-  );
-
-  const openConnectionFailedToast = useCallback(
-    (
-      // Connection info might be missing if we failed connecting before we
-      // could even resolve connection info. Currently the only case where this
-      // can happen is autoconnect flow
-      connectionInfo: ConnectionInfo | null | undefined,
-      error: Error,
-      onReviewClick: () => void
-    ) => {
-      const failedToastId = connectionInfo?.id ?? 'failed';
-
-      openToast(failedToastId, {
-        title: error.message,
-        description: (
-          <ConnectionErrorToastBody
-            info={connectionInfo}
-            onReview={() => {
-              closeToast(failedToastId);
-              onReviewClick();
-            }}
-          />
-        ),
-        variant: 'warning',
-      });
-    },
-    [closeToast, openToast]
-  );
-
-  const openMaximumConnectionsReachedToast = useCallback(
-    (maxConcurrentConnections: number) => {
-      const message = `Only ${maxConcurrentConnections} connection${
-        maxConcurrentConnections > 1 ? 's' : ''
-      } can be connected to at the same time. First disconnect from another connection.`;
-
-      openToast('max-connections-reached', {
-        title: 'Maximum concurrent connections limit reached',
-        description: message,
-        variant: 'warning',
-        timeout: 5_000,
-      });
-    },
-    [openToast]
-  );
-
-  const openNotifyDeviceAuthModal = useCallback(
-    (
-      connectionInfo: ConnectionInfo,
-      verificationUrl: string,
-      userCode: string,
-      onCancel: () => void,
-      signal: AbortSignal
-    ) => {
-      void showConfirmation({
-        title: `Complete authentication in the browser`,
-        description: (
-          <div className={deviceAuthModalContentStyles}>
-            <Body>
-              Visit the following URL to complete authentication for{' '}
-              <b>{getConnectionTitle(connectionInfo)}</b>:
-            </Body>
-            <Body>
-              <Link href={verificationUrl} target="_blank">
-                {verificationUrl}
-              </Link>
-            </Body>
-            <br></br>
-            <Body>Enter the following code on that page:</Body>
-            <Body as="div">
-              <Code language="none" copyable>
-                {userCode}
-              </Code>
-            </Body>
-          </div>
-        ),
-        hideConfirmButton: true,
-        signal,
-      }).then(
-        (result) => {
-          if (result === false) {
-            onCancel?.();
-          }
-        },
-        () => {
-          // Abort signal was triggered
-        }
-      );
-    },
-    []
+  const enableMultipleConnectionSystem = usePreference(
+    'enableMultipleConnectionSystem'
   );
 
   // Gated by the feature flag: if flag is on, we return trigger functions, if
   // flag is off, we return noop functions so that we can call them
   // unconditionally in the actual flow
-  return enableNewMultipleConnectionSystem
-    ? {
-        openNotifyDeviceAuthModal,
-        openConnectionStartedToast,
-        openConnectionSucceededToast,
-        openConnectionFailedToast,
-        openMaximumConnectionsReachedToast,
-        closeConnectionStatusToast: closeToast,
-      }
-    : {
-        openNotifyDeviceAuthModal: noop,
-        openConnectionStartedToast: noop,
-        openConnectionSucceededToast: noop,
-        openConnectionFailedToast: noop,
-        openMaximumConnectionsReachedToast: noop,
-        closeConnectionStatusToast: noop,
-      };
+  return getNotificationTriggers(enableMultipleConnectionSystem);
 }

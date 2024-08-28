@@ -158,7 +158,7 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionTitleById } = useConnectionRepository();
   const multipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const tabDescriptions = useMemo(() => {

@@ -184,10 +184,16 @@ type ConnectionFormFieldActions =
       value: string;
     }
   | {
-      type: 'remove-ssh-options';
+      type: 'remove-ssh-options-and-app-proxy';
     }
   | {
-      type: 'remove-proxy-options';
+      type: 'remove-proxy-options-and-app-proxy';
+    }
+  | {
+      type: 'remove-proxy-options-and-set-app-proxy';
+    }
+  | {
+      type: 'remove-app-proxy';
     }
   | AddCsfleProviderAction
   | RemoveCsfleProviderAction
@@ -613,7 +619,8 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
-    case 'remove-proxy-options': {
+    case 'remove-proxy-options-and-app-proxy':
+    case 'remove-proxy-options-and-set-app-proxy': {
       const proxyOptions: (keyof ProxyOptions)[] = [
         'proxyHost',
         'proxyPort',
@@ -625,14 +632,25 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: {
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
+          useApplicationLevelProxy:
+            action.type === 'remove-proxy-options-and-set-app-proxy',
         },
       };
     }
-    case 'remove-ssh-options': {
+    case 'remove-ssh-options-and-app-proxy': {
       return {
         connectionOptions: {
           ...currentConnectionOptions,
           sshTunnel: undefined,
+          useApplicationLevelProxy: false,
+        },
+      };
+    }
+    case 'remove-app-proxy': {
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          useApplicationLevelProxy: false,
         },
       };
     }

@@ -12,6 +12,7 @@ import type {
   AutoConnectPreferences,
   ConnectionStorage,
 } from './connection-storage';
+import { omit } from 'lodash';
 
 let connectionStorage: ReturnType<typeof initCompassMainConnectionStorage>;
 
@@ -19,7 +20,9 @@ const createGetAutoConnectInfoFnWithConnections = async (
   connectPreferences: Record<string, unknown> = {},
   connections: ConnectionInfo[] = [],
   exportOptions: ExportConnectionOptions = {}
-): Promise<Required<ConnectionStorage>['getAutoConnectInfo']> => {
+): Promise<
+  () => ReturnType<Required<ConnectionStorage>['getAutoConnectInfo']>
+> => {
   const tmpDir = await fs.mkdtemp(
     path.join(os.tmpdir(), 'connection-storage-tests')
   );
@@ -98,10 +101,7 @@ describe('auto connection argument parsing', function () {
       [connectionInfo]
     );
     const info = await fn?.();
-    expect(info).to.deep.equal({
-      ...connectionInfo,
-      savedConnectionType: 'autoConnectInfo',
-    });
+    expect(omit(info, 'savedConnectionType')).to.deep.equal(connectionInfo);
   });
 
   it('rejects a multi-connection file if one has been specified without an id', async function () {
@@ -175,10 +175,9 @@ describe('auto connection argument parsing', function () {
       ]
     );
     const info = await fn?.();
-    expect(info).to.deep.equal({
+    expect(omit(info, 'savedConnectionType')).to.deep.equal({
       ...connectionInfo,
       id: '9036dd5f-719b-46d1-b812-7e6348e1e9c9',
-      savedConnectionType: 'autoConnectInfo',
     });
   });
 
@@ -237,10 +236,7 @@ describe('auto connection argument parsing', function () {
       [connectionInfo]
     );
     const info = await fn?.();
-    expect(info).to.deep.equal({
-      ...connectionInfo,
-      savedConnectionType: 'autoConnectInfo',
-    });
+    expect(omit(info, 'savedConnectionType')).to.deep.equal(connectionInfo);
   });
 
   it('applies username and password if requested', async function () {

@@ -30,7 +30,7 @@ type ShellPluginProps = {
 
 export function ShellPlugin(props: ShellPluginProps) {
   const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const ShellComponent = multiConnectionsEnabled ? TabShell : Shell;
   return (

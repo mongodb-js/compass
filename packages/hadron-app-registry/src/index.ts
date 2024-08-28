@@ -17,4 +17,5 @@ export {
   createServiceLocator,
   createServiceProvider,
 } from './register-plugin';
+export type { Plugin as HadronPlugin } from './app-registry';
 export default AppRegistry;
