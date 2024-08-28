@@ -1,10 +1,10 @@
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
-import { useConnectionRepository } from './use-connection-repository';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { useCallback } from 'react';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionsColorList } from '../stores/store-context';
 
 type ThemeProvider = {
   getThemeOf(
@@ -16,20 +16,17 @@ type ThemeProvider = {
 export function useTabConnectionTheme(): ThemeProvider {
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
-  const { getConnectionInfoById } = useConnectionRepository();
+  const connectionColorsList = useConnectionsColorList();
   const darkTheme = useDarkMode();
   const isMultipleConnectionsEnabled = usePreference(
     'enableMultipleConnectionSystem'
   );
 
-  // TODO: this method is not reactive and works only by accident, refactor the
-  // hook to explicitly track changes to color in connections, otherwise the
-  // value of the theme might be stale when we remove `useConnectionRepository`
-  // hook completely
   const getThemeOf = useCallback(
     (connectionId: ConnectionInfo['id']) => {
-      const connectionInfo = getConnectionInfoById(connectionId);
-      const color = connectionInfo?.favorite?.color;
+      const color = connectionColorsList.find((connection) => {
+        return connection.id === connectionId;
+      })?.color;
       const bgColor = connectionColorToHex(color);
       const activeBgColor = connectionColorToHexActive(color);
 
@@ -70,7 +67,7 @@ export function useTabConnectionTheme(): ThemeProvider {
     },
     [
       palette,
-      getConnectionInfoById,
+      connectionColorsList,
       connectionColorToHex,
       connectionColorToHexActive,
       darkTheme,

@@ -335,3 +335,17 @@ export function useConnectionsState() {
     noopCheck: 'never',
   });
 }
+
+export function useConnectionsColorList(): {
+  id: ConnectionId;
+  color: string | undefined;
+}[] {
+  return useSelector((state) => {
+    return Object.values(state.connections.byId).map((connection) => {
+      return {
+        id: connection.info.id,
+        color: connection.info.favorite?.color,
+      };
+    });
+  }, isEqual);
+}
