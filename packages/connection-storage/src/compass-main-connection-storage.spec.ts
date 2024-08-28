@@ -786,6 +786,36 @@ describe('ConnectionStorage', function () {
       expect(JSON.parse(content).connectionInfo.id).to.be.equal(id);
     });
 
+    it('saves a connection with all ConnectionOptions set', async function () {
+      const id = new UUID().toString();
+      const connectionOptions: Required<ConnectionInfo['connectionOptions']> = {
+        connectionString: 'mongodb://localhost:27017/',
+        sshTunnel: { host: 'localhost', port: 2222, username: 'foobar' },
+        useApplicationLevelProxy: true,
+        oidc: {},
+        fleOptions: { storeCredentials: false },
+        lookup: () => ({} as any),
+      };
+      await connectionStorage.save({
+        connectionInfo: {
+          id,
+          connectionOptions,
+        },
+      });
+      delete (connectionOptions as any).lookup; // intentionally not stored
+
+      const content = await fs.readFile(
+        getConnectionFilePath(tmpDir, id),
+        'utf-8'
+      );
+      expect(
+        JSON.parse(content).connectionInfo.connectionOptions
+      ).to.deep.equal(connectionOptions);
+      expect(
+        (await connectionStorage.load({ id }))?.connectionOptions
+      ).to.deep.equal(connectionOptions);
+    });
+
     it('saves a connection with arbitrary authMechanism', async function () {
       const id = new UUID().toString();
       await connectionStorage.save({

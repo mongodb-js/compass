@@ -78,7 +78,7 @@ export const featureFlags: Required<{
    * Feature flag for explicit proxy configuration support.
    */
   enableProxySupport: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enables support for explicit proxy configuration.',
       long: 'Allows users to specify proxy configuration for the entire Compass application.',

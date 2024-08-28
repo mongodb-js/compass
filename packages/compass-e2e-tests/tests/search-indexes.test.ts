@@ -234,7 +234,10 @@ describe('Search Indexes', function () {
         await browser.dropIndex(indexName);
       });
 
-      it('renders search indexes tab disabled', async function () {
+      // TODO(COMPASS-8220): Un-skip this test
+      (name === 'Atlas Free Cluster'
+        ? it.skip
+        : it)('renders search indexes tab disabled', async function () {
         const searchTab = await browser.$(
           Selectors.indexesSegmentedTab('search-indexes')
         );
