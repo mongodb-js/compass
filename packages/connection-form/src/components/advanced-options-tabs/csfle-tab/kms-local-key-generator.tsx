@@ -10,15 +10,18 @@ import {
 } from '@mongodb-js/compass-components';
 import { randomLocalKey } from '../../../utils/csfle-handler';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import type { KMSProviderName } from '../../../utils/csfle-kms-fields';
 
 const bannerContainerStyles = css({
   marginTop: spacing[3],
 });
 
 function KMSLocalKeyGenerator({
+  kmsProviderName,
   connectionOptions,
   handleFieldChanged,
 }: {
+  kmsProviderName: KMSProviderName<'local'>;
   handleFieldChanged: (key: 'key', value?: string) => void;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
@@ -40,14 +43,15 @@ function KMSLocalKeyGenerator({
           data-testid="generate-local-key-button"
           variant={ButtonVariant.Default}
           disabled={
-            (autoEncryptionOptions.kmsProviders?.local?.key?.length || 0) > 0
+            (autoEncryptionOptions.kmsProviders?.[kmsProviderName]?.key
+              ?.length || 0) > 0
           }
           onClick={generateRandomKey}
         >
           Generate Random Key
         </Button>
         {generatedKeyMaterial ===
-          autoEncryptionOptions.kmsProviders?.local?.key && (
+          autoEncryptionOptions.kmsProviders?.[kmsProviderName]?.key && (
           <>
             <div className={bannerContainerStyles}>
               <Banner variant={BannerVariant.Info}>

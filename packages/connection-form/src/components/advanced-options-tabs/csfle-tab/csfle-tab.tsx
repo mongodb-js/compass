@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Accordion,
@@ -19,7 +19,7 @@ import type { Document, AutoEncryptionOptions } from 'mongodb';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 import KMSProviderStatusIndicator from './kms-provider-status-indicator';
-import KMSProviderFieldsForm from './kms-provider-fields';
+import KMSProviderContent from './kms-provider-content';
 import EncryptedFieldConfigInput from './encrypted-field-config-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
@@ -28,8 +28,9 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 import type {
-  KMSProviderName,
+  KMSProviderType,
   KMSField,
+  KMSProviderName,
 } from '../../../utils/csfle-kms-fields';
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
 import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
@@ -40,7 +41,7 @@ const kmsProviderComponentWrapperStyles = css({
 });
 
 interface KMSProviderMetadata {
-  kmsProvider: KMSProviderName;
+  kmsProviderType: KMSProviderType;
   title: string;
   noTLS?: boolean;
   clientCertIsOptional?: boolean;
@@ -49,24 +50,24 @@ interface KMSProviderMetadata {
 const options: KMSProviderMetadata[] = [
   {
     title: 'Local KMS',
-    kmsProvider: 'local',
+    kmsProviderType: 'local',
     noTLS: true,
   },
   {
     title: 'AWS',
-    kmsProvider: 'aws',
+    kmsProviderType: 'aws',
   },
   {
     title: 'GCP',
-    kmsProvider: 'gcp',
+    kmsProviderType: 'gcp',
   },
   {
     title: 'Azure',
-    kmsProvider: 'azure',
+    kmsProviderType: 'azure',
   },
   {
     title: 'KMIP',
-    kmsProvider: 'kmip',
+    kmsProviderType: 'kmip',
     clientCertIsOptional: false,
   },
 ];
@@ -78,6 +79,7 @@ const accordionContainerStyles = css({
 const titleStyles = css({
   display: 'flex',
   alignItems: 'center',
+  gap: spacing[50],
 });
 
 function CSFLETab({
@@ -105,7 +107,7 @@ function CSFLETab({
     ) => {
       return updateConnectionFormField({
         type: 'update-csfle-param',
-        key: key,
+        key,
         value,
       });
     },
@@ -121,6 +123,39 @@ function CSFLETab({
     },
     [updateConnectionFormField]
   );
+
+  const onOpenAccordion = useCallback(
+    (kmsProviderType: KMSProviderType, isOpen: boolean) => {
+      // When we are expanding an accordion the first time, we should add a new empty KMS provider
+      // in the connection form state.
+      const hasExistingKmsType = Object.keys(
+        connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
+      ).some((kmsProvider) => kmsProvider.match(kmsProviderType));
+      if (isOpen && !hasExistingKmsType) {
+        return updateConnectionFormField({
+          type: 'add-new-csfle-kms-provider',
+          name: kmsProviderType,
+        });
+      }
+    },
+    [
+      updateConnectionFormField,
+      connectionOptions.fleOptions?.autoEncryption?.kmsProviders,
+    ]
+  );
+
+  const kmsProviders = useMemo(() => {
+    return Object.keys(
+      connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
+    ).reduce((acc, kmsProvider) => {
+      const type = kmsProvider.split(':')[0] as KMSProviderType;
+      if (!acc[type]) {
+        acc[type] = [];
+      }
+      acc[type].push(kmsProvider as KMSProviderName<KMSProviderType>);
+      return acc;
+    }, {} as Partial<Record<KMSProviderType, KMSProviderName<KMSProviderType>[]>>);
+  }, [connectionOptions.fleOptions?.autoEncryption?.kmsProviders]);
 
   return (
     <>
@@ -182,43 +217,52 @@ function CSFLETab({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        {options.map(({ title, kmsProvider, ...kmsFieldComponentOptions }) => {
-          const accordionTitle = (
-            <span className={titleStyles}>
-              {title}
-              <KMSProviderStatusIndicator
-                errors={errors}
-                autoEncryptionOptions={autoEncryptionOptions}
-                fields={
-                  KMSProviderFields[kmsProvider] as KMSField<KMSProviderName>[]
-                }
-              />
-            </span>
-          );
-          return (
-            <div className={accordionContainerStyles} key={kmsProvider}>
-              <Accordion
-                data-testid={`csfle-kms-provider-${kmsProvider}`}
-                text={accordionTitle}
-              >
-                <div className={kmsProviderComponentWrapperStyles}>
-                  <KMSProviderFieldsForm
-                    errors={errors}
-                    connectionOptions={connectionOptions}
-                    updateConnectionFormField={updateConnectionFormField}
-                    kmsProvider={kmsProvider}
-                    fields={
-                      KMSProviderFields[
-                        kmsProvider
-                      ] as KMSField<KMSProviderName>[]
-                    }
-                    {...kmsFieldComponentOptions}
-                  />
-                </div>
-              </Accordion>
-            </div>
-          );
-        })}
+        {options.map(
+          ({ title, kmsProviderType, ...kmsFieldComponentOptions }) => {
+            const accordionTitle = (
+              <span className={titleStyles}>
+                {title}
+                {(kmsProviders[kmsProviderType]?.length ?? 0) > 1 && (
+                  <span>({kmsProviders[kmsProviderType]?.length})</span>
+                )}
+                <KMSProviderStatusIndicator
+                  errors={errors}
+                  autoEncryptionOptions={autoEncryptionOptions}
+                  kmsProviders={kmsProviders[kmsProviderType] ?? []}
+                  fields={
+                    KMSProviderFields[
+                      kmsProviderType
+                    ] as KMSField<KMSProviderType>[]
+                  }
+                />
+              </span>
+            );
+            return (
+              <div className={accordionContainerStyles} key={kmsProviderType}>
+                <Accordion
+                  setOpen={(open) => onOpenAccordion(kmsProviderType, open)}
+                  data-testid={`csfle-kms-provider-${kmsProviderType}`}
+                  text={accordionTitle}
+                >
+                  <div className={kmsProviderComponentWrapperStyles}>
+                    <KMSProviderContent
+                      errors={errors}
+                      connectionOptions={connectionOptions}
+                      updateConnectionFormField={updateConnectionFormField}
+                      kmsProviderType={kmsProviderType}
+                      fields={
+                        KMSProviderFields[
+                          kmsProviderType
+                        ] as KMSField<KMSProviderType>[]
+                      }
+                      {...kmsFieldComponentOptions}
+                    />
+                  </div>
+                </Accordion>
+              </div>
+            );
+          }
+        )}
       </FormFieldContainer>
       <FormFieldContainer>
         <EncryptedFieldConfigInput

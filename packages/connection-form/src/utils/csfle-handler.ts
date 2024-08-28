@@ -6,7 +6,12 @@ import type {
   ClientEncryptionTlsOptions,
   Document,
 } from 'mongodb';
-import type { KMSProviderName, KMSTLSProviderName } from './csfle-kms-fields';
+import type {
+  KMSProviderName,
+  KMSProviderType,
+  KMSTLSProviderName,
+  KMSTLSProviderType,
+} from './csfle-kms-fields';
 import { toJSString } from 'mongodb-query-parser';
 import parseShellStringToEJSON, {
   ParseMode,
@@ -29,18 +34,34 @@ export interface UpdateCsfleAction {
   key: keyof AutoEncryptionOptions;
   value?: AutoEncryptionOptions[keyof AutoEncryptionOptions];
 }
+export interface AddCsfleProviderAction<
+  T extends KMSProviderType = KMSProviderType
+> {
+  type: 'add-new-csfle-kms-provider';
+  name: KMSProviderName<T>;
+}
+export interface RemoveCsfleProviderAction<
+  T extends KMSProviderType = KMSProviderType
+> {
+  type: 'remove-csfle-kms-provider';
+  name: KMSProviderName<T>;
+}
 
 type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
-export interface UpdateCsfleKmsAction {
+export interface UpdateCsfleKmsAction<
+  T extends KMSProviderType = KMSProviderType
+> {
   type: 'update-csfle-kms-param';
-  kmsProvider: KMSProviderName;
+  kmsProviderName: KMSProviderName<T>;
   key: KeysOfUnion<KMSProviders[keyof KMSProviders]>;
   value?: string;
 }
 
-export interface UpdateCsfleKmsTlsAction {
+export interface UpdateCsfleKmsTlsAction<
+  T extends KMSTLSProviderType = KMSTLSProviderType
+> {
   type: 'update-csfle-kms-tls-param';
-  kmsProvider: KMSTLSProviderName;
+  kmsProviderName: KMSTLSProviderName<T>;
   key: keyof ClientEncryptionTlsOptions;
   value?: string;
 }
@@ -92,17 +113,17 @@ export function handleUpdateCsfleParam({
       fleOptions: {
         ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
-        autoEncryption: unsetAutoEncryptionIfEmpty(autoEncryption),
+        autoEncryption,
       },
     },
   };
 }
 
-export function handleUpdateCsfleKmsParam({
+export function handleUpdateCsfleKmsParam<T extends KMSProviderType>({
   action,
   connectionOptions,
 }: {
-  action: UpdateCsfleKmsAction;
+  action: UpdateCsfleKmsAction<T>;
   connectionOptions: ConnectionOptions;
 }): {
   connectionOptions: ConnectionOptions;
@@ -111,7 +132,7 @@ export function handleUpdateCsfleKmsParam({
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const kms: any = {
-    ...(autoEncryption.kmsProviders?.[action.kmsProvider] ?? {}),
+    ...(autoEncryption.kmsProviders?.[action.kmsProviderName] ?? {}),
   };
   if (!action.value) {
     delete kms[action.key];
@@ -119,31 +140,27 @@ export function handleUpdateCsfleKmsParam({
     kms[action.key] = action.value;
   }
   const kmsProviders = autoEncryption.kmsProviders ?? {};
-  if (Object.keys(kms).length === 0) {
-    delete kmsProviders[action.kmsProvider];
-  } else {
-    kmsProviders[action.kmsProvider] = kms;
-  }
+  kmsProviders[action.kmsProviderName] = kms;
   return {
     connectionOptions: {
       ...connectionOptions,
       fleOptions: {
         ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
-        autoEncryption: unsetAutoEncryptionIfEmpty({
+        autoEncryption: {
           ...autoEncryption,
           kmsProviders,
-        }),
+        },
       },
     },
   };
 }
 
-export function handleUpdateCsfleKmsTlsParam({
+export function handleUpdateCsfleKmsTlsParam<T extends KMSTLSProviderType>({
   action,
   connectionOptions,
 }: {
-  action: UpdateCsfleKmsTlsAction;
+  action: UpdateCsfleKmsTlsAction<T>;
   connectionOptions: ConnectionOptions;
 }): {
   connectionOptions: ConnectionOptions;
@@ -152,7 +169,7 @@ export function handleUpdateCsfleKmsTlsParam({
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tls: any = {
-    ...(autoEncryption.tlsOptions?.[action.kmsProvider] ?? {}),
+    ...(autoEncryption.tlsOptions?.[action.kmsProviderName] ?? {}),
   };
   if (!action.value) {
     delete tls[action.key];
@@ -161,9 +178,9 @@ export function handleUpdateCsfleKmsTlsParam({
   }
   const tlsOptions = autoEncryption.tlsOptions ?? {};
   if (Object.keys(tls).length === 0) {
-    delete tlsOptions[action.kmsProvider];
+    delete tlsOptions[action.kmsProviderName];
   } else {
-    tlsOptions[action.kmsProvider] = tls;
+    tlsOptions[action.kmsProviderName] = tls;
   }
   return {
     connectionOptions: {
@@ -171,11 +188,36 @@ export function handleUpdateCsfleKmsTlsParam({
       fleOptions: {
         ...DEFAULT_FLE_OPTIONS,
         ...connectionOptions.fleOptions,
-        autoEncryption: unsetAutoEncryptionIfEmpty({
+        autoEncryption: {
           ...autoEncryption,
           tlsOptions,
-        }),
+        },
       },
+    },
+  };
+}
+
+export function unsetFleOptionsIfEmptyAutoEncryption(
+  connectionOptions: Readonly<ConnectionOptions>
+): ConnectionOptions {
+  connectionOptions = cloneDeep(connectionOptions);
+  const autoEncryption = unsetAutoEncryptionIfEmpty(
+    connectionOptions.fleOptions?.autoEncryption
+  );
+
+  if (!autoEncryption) {
+    return {
+      ...connectionOptions,
+      fleOptions: undefined,
+    };
+  }
+
+  return {
+    ...connectionOptions,
+    fleOptions: {
+      ...DEFAULT_FLE_OPTIONS,
+      ...connectionOptions.fleOptions,
+      autoEncryption,
     },
   };
 }
@@ -278,4 +320,63 @@ export function adjustCSFLEParams(
 
 export function randomLocalKey(): string {
   return randomBytes(96).toString('base64');
+}
+
+export function handleAddKmsProvider<T extends KMSProviderType>({
+  action,
+  connectionOptions,
+}: {
+  action: AddCsfleProviderAction<T>;
+  connectionOptions: ConnectionOptions;
+}): {
+  connectionOptions: ConnectionOptions;
+} {
+  connectionOptions = cloneDeep(connectionOptions);
+
+  const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
+  const kmsProviders = autoEncryption.kmsProviders ?? {};
+  // TODO: KMSProviders[T]
+  kmsProviders[action.name] = {} as any;
+
+  return {
+    connectionOptions: {
+      ...connectionOptions,
+      fleOptions: {
+        ...DEFAULT_FLE_OPTIONS,
+        ...connectionOptions.fleOptions,
+        autoEncryption: {
+          ...autoEncryption,
+          kmsProviders,
+        },
+      },
+    },
+  };
+}
+
+export function handleRemoveKmsProvider<T extends KMSProviderType>({
+  action,
+  connectionOptions,
+}: {
+  action: RemoveCsfleProviderAction<T>;
+  connectionOptions: ConnectionOptions;
+}): {
+  connectionOptions: ConnectionOptions;
+} {
+  connectionOptions = cloneDeep(connectionOptions);
+  const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
+  const kmsProviders = autoEncryption.kmsProviders ?? {};
+  delete kmsProviders[action.name];
+  return {
+    connectionOptions: {
+      ...connectionOptions,
+      fleOptions: {
+        ...DEFAULT_FLE_OPTIONS,
+        ...connectionOptions.fleOptions,
+        autoEncryption: {
+          ...autoEncryption,
+          kmsProviders,
+        },
+      },
+    },
+  };
 }

@@ -13,7 +13,9 @@ export type FieldName =
   | 'kerberosPrincipal'
   | 'keyVaultNamespace'
   | 'kmip.endpoint'
+  | `kmip:${string}.endpoint`
   | 'local.key'
+  | `local:${string}.key`
   | 'password'
   | 'schema'
   | 'proxyHostname'

@@ -193,12 +193,14 @@ export class ConnectionsManager extends EventEmitter {
         [connectionId]
       );
 
+      const { connectionOptions, ...restOfTheConnectionInfo } =
+        originalConnectionInfo;
       const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-        cloneDeep({ id: connectionId, ...originalConnectionInfo }),
+        cloneDeep({ id: connectionId, ...restOfTheConnectionInfo }),
         {
           connectionOptions: adjustConnectionOptionsBeforeConnect({
             connectionOptions: merge(
-              cloneDeep(originalConnectionInfo.connectionOptions),
+              cloneDeep(connectionOptions),
               this.oidcState.get(connectionId) ?? {}
             ),
             defaultAppName: this.appName,

@@ -46,12 +46,17 @@ import {
   handleUpdateCsfleKmsParam,
   handleUpdateCsfleKmsTlsParam,
   adjustCSFLEParams,
+  handleAddKmsProvider,
+  handleRemoveKmsProvider,
+  unsetFleOptionsIfEmptyAutoEncryption,
 } from '../utils/csfle-handler';
 import type {
   UpdateCsfleStoreCredentialsAction,
   UpdateCsfleAction,
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
+  AddCsfleProviderAction,
+  RemoveCsfleProviderAction,
 } from '../utils/csfle-handler';
 import {
   handleUpdateOIDCParam,
@@ -184,6 +189,8 @@ type ConnectionFormFieldActions =
   | {
       type: 'remove-proxy-options';
     }
+  | AddCsfleProviderAction
+  | RemoveCsfleProviderAction
   | UpdateCsfleStoreCredentialsAction
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
@@ -659,6 +666,18 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: currentConnectionOptions,
       });
     }
+    case 'add-new-csfle-kms-provider': {
+      return handleAddKmsProvider({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'remove-csfle-kms-provider': {
+      return handleRemoveKmsProvider({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
   }
 }
 
@@ -817,6 +836,7 @@ export function adjustConnectionOptionsBeforeConnect({
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
+    unsetFleOptionsIfEmptyAutoEncryption,
     setAppNameParamIfMissing(defaultAppName),
     adjustOIDCConnectionOptionsBeforeConnect({
       browserCommandForOIDCAuth: preferences.browserCommandForOIDCAuth,
