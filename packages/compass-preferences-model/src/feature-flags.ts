@@ -18,7 +18,6 @@ export type FeatureFlags = {
   newExplainPlan: boolean;
   showInsights: boolean;
   enableRenameCollectionModal: boolean;
-  enableNewMultipleConnectionSystem: boolean;
   enableQueryHistoryAutocomplete: boolean;
   enableProxySupport: boolean;
 };
@@ -65,18 +64,6 @@ export const featureFlags: Required<{
   },
 
   /**
-   * Feature flag for the new multiple connection UI.
-   * Epic: COMPASS-6410
-   */
-  enableNewMultipleConnectionSystem: {
-    stage: 'development',
-    description: {
-      short: 'Enables support for multiple connections.',
-      long: 'Allows users to open multiple connections in the same window.',
-    },
-  },
-
-  /**
    * Feature flag for adding query history items to the query bar autocompletion. COMPASS-8096
    */
   enableQueryHistoryAutocomplete: {
@@ -91,7 +78,7 @@ export const featureFlags: Required<{
    * Feature flag for explicit proxy configuration support.
    */
   enableProxySupport: {
-    stage: 'development',
+    stage: 'released',
     description: {
       short: 'Enables support for explicit proxy configuration.',
       long: 'Allows users to specify proxy configuration for the entire Compass application.',

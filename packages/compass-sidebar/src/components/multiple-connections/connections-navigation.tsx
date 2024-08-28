@@ -30,8 +30,8 @@ import {
 } from '@mongodb-js/connection-info';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import {
-  ConnectionStatus,
   type useConnectionsWithStatus,
+  ConnectionStatus,
 } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {

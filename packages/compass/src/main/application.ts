@@ -28,7 +28,14 @@ import {
   getCompassMainConnectionStorage,
 } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import type {
+  AgentWithInitialize,
+  RequestInit,
+  Response,
+} from '@mongodb-js/devtools-proxy-support';
 import {
+  createAgent,
+  createFetch,
   extractProxySecrets,
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
@@ -61,6 +68,12 @@ const hasConfig = (
   return !!Object.keys(globalPreferences[source]).length;
 };
 
+// The properties of this object are changed when proxy options change
+interface CompassProxyClient {
+  agent: AgentWithInitialize | undefined;
+  fetch: (url: string, fetchOptions?: RequestInit) => Promise<Response>;
+}
+
 class CompassApplication {
   private constructor() {
     // marking constructor as private to disallow usage
@@ -71,6 +84,7 @@ class CompassApplication {
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
   public static preferences: PreferencesAccess;
+  public static httpClient: CompassProxyClient;
 
   private static async _init(
     mode: CompassApplicationMode,
@@ -82,6 +96,15 @@ class CompassApplication {
       );
     }
     this.mode = mode;
+
+    const enablePlainTextEncryption =
+      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
+    if (enablePlainTextEncryption) {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
 
     const { preferences } = await setupPreferencesAndUser(
       globalPreferences,
@@ -101,15 +124,6 @@ class CompassApplication {
     if ((await import('electron-squirrel-startup')).default) {
       debug('electron-squirrel-startup event handled sucessfully\n');
       return;
-    }
-
-    const enablePlainTextEncryption =
-      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
-    if (enablePlainTextEncryption) {
-      // When testing we want to use plain text encryption to avoid having to
-      // deal with keychain popups or setting up keychain for test on CI (Linux env).
-      // This method is only available on Linux and is no-op on other platforms.
-      safeStorage.setUsePlainTextEncryption(true);
     }
 
     // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
@@ -168,7 +182,7 @@ class CompassApplication {
   }
 
   private static async setupCompassAuthService() {
-    await CompassAuthService.init(this.preferences);
+    await CompassAuthService.init(this.preferences, this.httpClient);
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
@@ -288,6 +302,15 @@ class CompassApplication {
         const proxyOptions = proxyPreferenceToProxyOptions(value);
         await app.whenReady();
         await target.setProxy(translateToElectronProxyConfig(proxyOptions));
+
+        const agent = createAgent(proxyOptions);
+        const fetch = createFetch(agent || {});
+        this.httpClient?.agent?.destroy();
+        this.httpClient = Object.assign(this.httpClient ?? {}, {
+          agent,
+          fetch,
+        });
+
         log.info(mongoLogId(1_001_000_327), logContext, 'Configured proxy', {
           options: extractProxySecrets(proxyOptions).proxyOptions,
         });

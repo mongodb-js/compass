@@ -47,11 +47,20 @@ describe('forceConnectionOptions', function () {
       await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
     }
 
-    const warnings = await browser
-      .$('[data-testid="connection-warnings-summary"]')
-      .getText();
-    expect(warnings.trim()).to.equal(
-      'Some connection options have been overridden through settings: appName'
+    await browser.waitUntil(
+      async () => {
+        const warnings = await browser
+          .$('[data-testid="connection-warnings-summary"]')
+          .getText();
+
+        return (
+          warnings.trim() ===
+          'Some connection options have been overridden through settings: appName'
+        );
+      },
+      {
+        timeoutMsg: 'Expected connection warnings to mention overriden options',
+      }
     );
 
     if (TEST_MULTIPLE_CONNECTIONS) {

@@ -7,7 +7,7 @@ ignore:
         reason: >-
           Not applicable as we do not use a valueFormatter or cellRenderer
           function
-        expires: 2024-08-17T18:27:24.346Z
+        expires: 2024-11-15T18:27:24.346Z
         created: 2024-01-18T18:27:24.353Z
   SNYK-JS-AXIOS-6032459:
     - '*':

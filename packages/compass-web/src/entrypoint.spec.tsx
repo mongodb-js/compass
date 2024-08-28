@@ -7,6 +7,7 @@ import Sinon from 'sinon';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import { SandboxAutoconnectProvider } from './connection-storage';
+import { ConnectFnProvider } from '@mongodb-js/compass-connections';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -72,21 +73,24 @@ describe('CompassWeb', function () {
           },
         }}
       >
-        <CompassWeb
-          onActiveWorkspaceTabChange={() => {}}
-          renderConnecting={(connectionInfo) => {
-            let host = 'cluster';
-            if (connectionInfo) {
-              [host] = new ConnectionString(
-                connectionInfo.connectionOptions.connectionString
-              ).hosts;
-            }
-            return <div>Connecting to {host}…</div>;
-          }}
-          {...props}
-          // @ts-expect-error see component props description
-          __TEST_MONGODB_DATA_SERVICE_CONNECT_FN={connectFn}
-        ></CompassWeb>
+        <ConnectFnProvider connect={connectFn as any}>
+          <CompassWeb
+            orgId=""
+            projectId=""
+            initialWorkspace={undefined as any}
+            onActiveWorkspaceTabChange={() => {}}
+            renderConnecting={(connectionInfo) => {
+              let host = 'cluster';
+              if (connectionInfo) {
+                [host] = new ConnectionString(
+                  connectionInfo.connectionOptions.connectionString
+                ).hosts;
+              }
+              return <div>Connecting to {host}…</div>;
+            }}
+            {...props}
+          ></CompassWeb>
+        </ConnectFnProvider>
       </SandboxAutoconnectProvider>
     );
   }
@@ -102,7 +106,7 @@ describe('CompassWeb', function () {
 
     expect(mockConnectFn.getCall(0).args[0].connectionOptions).to.have.property(
       'connectionString',
-      'mongodb://localhost:27017/'
+      'mongodb://localhost:27017/?appName=Compass+Web'
     );
 
     // Wait for connection to happen and navigation tree to render

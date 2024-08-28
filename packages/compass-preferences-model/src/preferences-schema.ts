@@ -67,6 +67,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     enableShowDialogOnQuit: boolean;
+    enableMultipleConnectionSystem: boolean;
     enableProxySupport: boolean;
     proxy: string;
   };
@@ -213,7 +214,7 @@ const featureFlagsProps: Required<{
 }> = Object.fromEntries(
   Object.entries(featureFlags).map(([key, value]) => [
     key as keyof FeatureFlags,
-    featureFlagToPreferenceDefinition(value),
+    featureFlagToPreferenceDefinition(key, value),
   ])
 ) as unknown as Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
@@ -780,6 +781,18 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
+  enableMultipleConnectionSystem: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enables support for multiple connections.',
+      long: 'Allows users to open multiple connections in the same window.',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   proxy: {
     ui: true,
     cli: true,
@@ -1026,6 +1039,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
 
 // Helper to convert feature flag definitions to preference definitions
 function featureFlagToPreferenceDefinition(
+  key: string,
   featureFlag: FeatureFlagDefinition
 ): PreferenceDefinition<keyof FeatureFlags> {
   return {

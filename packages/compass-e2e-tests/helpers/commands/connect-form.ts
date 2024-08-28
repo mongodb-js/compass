@@ -644,6 +644,12 @@ export async function setConnectFormState(
         state.oidcUsername
       );
     }
+    if (state.oidcUseApplicationProxy === false) {
+      await browser.expandAccordion(Selectors.ConnectionFormOIDCAdvancedToggle);
+      await browser.clickParent(
+        Selectors.ConnectionFormOIDCUseApplicationProxyCheckbox
+      );
+    }
   }
 
   // FLE2

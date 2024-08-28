@@ -1,5 +1,6 @@
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { Preferences, type PreferencesAccess } from './preferences';
+import type { UserPreferences } from './preferences-schema';
 import { type AllPreferences } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
@@ -13,7 +14,10 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
     });
   }
 
-  savePreferences() {
+  // Not used, but we extend this interface elsewhere so need to provide those
+  // for types
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  savePreferences(_attributes: Partial<UserPreferences>) {
     return Promise.resolve(this._preferences.getPreferences());
   }
 
@@ -37,7 +41,10 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
     return Promise.resolve(this._preferences.getPreferenceStates());
   }
 
-  onPreferenceValueChanged() {
+  // Not used, but we extend this interface elsewhere so need to provide those
+  // for types
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onPreferenceValueChanged(_key: any, _cb: (value: any) => void) {
     return () => {
       // noop
     };

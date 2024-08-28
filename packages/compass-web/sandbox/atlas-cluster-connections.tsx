@@ -67,6 +67,14 @@ export function useAtlasClusterConnectionsList(): AtlasClusterConnectionsListRet
             id: cluster.uniqueId,
             connectionOptions: {
               connectionString: connectionString.toString(),
+              lookup() {
+                return {
+                  wsURL: 'ws://localhost:1337',
+                  projectId: projectId,
+                  clusterName: cluster.name,
+                  srvAddress: cluster.srvAddress,
+                };
+              },
             },
             atlasMetadata: {
               orgId: '',

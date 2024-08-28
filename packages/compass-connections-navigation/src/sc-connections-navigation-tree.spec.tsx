@@ -67,7 +67,7 @@ const activeWorkspace = {
 const dummyPreferences = {
   getPreferences() {
     return {
-      enableNewMultipleConnectionSystem: false,
+      enableMultipleConnectionSystem: false,
     };
   },
   onPreferenceValueChanged() {},
@@ -93,7 +93,8 @@ function renderComponent(
   );
 }
 
-describe('ConnectionsNavigationTree -- Single connection usage', function () {
+// TODO(COMPASS-7906): remove
+describe.skip('ConnectionsNavigationTree -- Single connection usage', function () {
   let preferences: PreferencesAccess;
   afterEach(cleanup);
 
@@ -106,7 +107,7 @@ describe('ConnectionsNavigationTree -- Single connection usage', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
         enableRenameCollectionModal: true,
-        enableNewMultipleConnectionSystem: false,
+        enableMultipleConnectionSystem: false,
       });
 
       renderComponent(

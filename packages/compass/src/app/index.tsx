@@ -81,11 +81,9 @@ import {
   onAutoupdateSuccess,
 } from './components/update-toasts';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
-import {
-  CompassRendererConnectionStorage,
-  type AutoConnectPreferences,
-} from '@mongodb-js/connection-storage/renderer';
+import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
+import type { AutoConnectPreferences } from '../main/auto-connect';
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
@@ -215,15 +213,9 @@ const Application = View.extend({
     await defaultPreferencesInstance.refreshPreferences();
     const initialAutoConnectPreferences =
       await getWindowAutoConnectPreferences();
-    const getInitialAutoConnectPreferences =
-      (): Promise<AutoConnectPreferences> => {
-        return Promise.resolve(initialAutoConnectPreferences);
-      };
     const isSecretStorageAvailable = await checkSecretStorageIsAvailable();
-    const connectionStorage = new CompassRendererConnectionStorage(
-      ipcRenderer,
-      getInitialAutoConnectPreferences
-    );
+    const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
+
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -256,6 +248,15 @@ const Application = View.extend({
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}
           connectionStorage={connectionStorage}
+          onAutoconnectInfoRequest={
+            initialAutoConnectPreferences.shouldAutoConnect
+              ? () => {
+                  return connectionStorage.getAutoConnectInfo(
+                    initialAutoConnectPreferences
+                  );
+                }
+              : undefined
+          }
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')

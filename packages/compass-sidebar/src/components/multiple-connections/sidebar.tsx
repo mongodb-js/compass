@@ -26,6 +26,7 @@ import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,
 } from '../csfle-connection-modal';
 import { setConnectionIsCSFLEEnabled } from '../../modules/data-service';
+import { useGlobalAppRegistry } from 'hadron-app-registry';
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 type MappedCsfleModalProps = {
@@ -171,6 +172,12 @@ export function MultipleConnectionSidebar({
     [csfleModalConnectionId, onConnectionCsfleModeChanged]
   );
 
+  const globalAppRegistry = useGlobalAppRegistry();
+  const openSettingsModal = useCallback(
+    (tab?: string) => globalAppRegistry.emit('open-compass-settings', tab),
+    [globalAppRegistry]
+  );
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -231,6 +238,7 @@ export function MultipleConnectionSidebar({
               connectionErrors[editingConnectionInfo.id]?.message
             }
             preferences={formPreferences}
+            openSettingsModal={openSettingsModal}
           />
         )}
         <MappedCsfleModal

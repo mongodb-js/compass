@@ -44,14 +44,16 @@ const setFileInputValue = (testId: string, value: string) =>
   });
 
 describe('In-Use Encryption', function () {
-  let expectToConnectWith;
-  let expectConnectionError;
+  let expectToConnectWith: (
+    expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
+  ) => Promise<void>;
+  let expectConnectionError: (expectedErrorText: string) => Promise<void>;
 
   beforeEach(async function () {
     const connectSpy = sinon.spy();
 
     expectToConnectWith = async (
-      expected: ConnectionOptions | ((ConnectionOptions) => void)
+      expected: ConnectionOptions | ((opts: ConnectionOptions) => void)
     ): Promise<void> => {
       connectSpy.resetHistory();
       fireEvent.click(screen.getByTestId('connect-button'));
@@ -87,8 +89,11 @@ describe('In-Use Encryption', function () {
             connectionString: 'mongodb://localhost:27017',
           },
         }}
-        onConnectClicked={(connectionInfo) => {
+        onSaveAndConnectClicked={(connectionInfo) => {
           connectSpy(connectionInfo.connectionOptions);
+        }}
+        onSaveClicked={() => {
+          return Promise.resolve();
         }}
       />
     );
@@ -191,6 +196,10 @@ describe('In-Use Encryption', function () {
     const generatedLocalKey = screen
       .getByTestId('csfle-kms-local-key')
       .closest('input')?.value;
+
+    if (!generatedLocalKey) {
+      throw new Error('expected generatedLocalKey');
+    }
 
     expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
 

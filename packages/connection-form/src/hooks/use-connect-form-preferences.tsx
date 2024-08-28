@@ -13,6 +13,7 @@ export type ConnectionFormPreferences = {
   showOIDCAuth: boolean;
   showKerberosAuth: boolean;
   showCSFLE: boolean;
+  showProxySettings: boolean;
 };
 
 const defaultPreferences = {
@@ -27,6 +28,7 @@ const defaultPreferences = {
   showOIDCAuth: true,
   showKerberosAuth: true,
   showCSFLE: true,
+  showProxySettings: true,
 };
 
 export const ConnectionFormPreferencesContext = createContext<

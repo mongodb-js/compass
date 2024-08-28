@@ -1,11 +1,10 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
 
-import configureStore from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 
 import { PipelinePreview } from './pipeline-preview';
 import HadronDocument from 'hadron-document';
@@ -14,38 +13,37 @@ const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
   storeOptions: any = {}
 ) => {
-  render(
-    <Provider store={configureStore(storeOptions)}>
-      <PipelinePreview
-        isPreviewStale={false}
-        isMergeStage={false}
-        isOutStage={false}
-        isLoading={false}
-        previewDocs={null}
-        isMissingAtlasSupport={false}
-        atlasOperator=""
-        onExpand={() => {}}
-        onCollapse={() => {}}
-        {...props}
-      />
-    </Provider>
+  return renderWithStore(
+    <PipelinePreview
+      isPreviewStale={false}
+      isMergeStage={false}
+      isOutStage={false}
+      isLoading={false}
+      previewDocs={null}
+      isMissingAtlasSupport={false}
+      atlasOperator=""
+      onExpand={() => {}}
+      onCollapse={() => {}}
+      {...props}
+    />,
+    storeOptions
   );
 };
 
 describe('PipelinePreview', function () {
-  it('renders editor workspace', function () {
-    renderPipelineEditor({});
+  it('renders editor workspace', async function () {
+    await renderPipelineEditor({});
     const container = screen.getByTestId('pipeline-as-text-preview');
     expect(container).to.exist;
   });
 
-  it('renders header', function () {
-    renderPipelineEditor({});
+  it('renders header', async function () {
+    await renderPipelineEditor({});
     expect(screen.getByText(/Pipeline Output/)).to.exist;
   });
 
-  it('renders text when pipeline is not run yet', function () {
-    renderPipelineEditor({ previewDocs: null });
+  it('renders text when pipeline is not run yet', async function () {
+    await renderPipelineEditor({ previewDocs: null });
     expect(
       screen.getByText(
         /Preview results to see a sample of the aggregated results from this pipeline./
@@ -53,13 +51,13 @@ describe('PipelinePreview', function () {
     ).to.exist;
   });
 
-  it('renders text when preview docs are empty', function () {
-    renderPipelineEditor({ previewDocs: [] });
+  it('renders text when preview docs are empty', async function () {
+    await renderPipelineEditor({ previewDocs: [] });
     expect(screen.getByText(/No preview documents/)).to.exist;
   });
 
-  it('renders document list', function () {
-    renderPipelineEditor({
+  it('renders document list', async function () {
+    await renderPipelineEditor({
       previewDocs: [{ _id: 1 }, { _id: 2 }].map(
         (doc) => new HadronDocument(doc)
       ),
@@ -70,7 +68,7 @@ describe('PipelinePreview', function () {
     ).to.have.lengthOf(2);
   });
 
-  it('renders pipeline output menu', function () {
+  it('renders pipeline output menu', async function () {
     const previewDocs = [
       new HadronDocument({
         _id: 1,
@@ -88,7 +86,7 @@ describe('PipelinePreview', function () {
         ],
       }),
     ];
-    renderPipelineEditor({
+    await renderPipelineEditor({
       previewDocs,
       onExpand: () => {
         previewDocs[0].expand();
@@ -150,8 +148,8 @@ describe('PipelinePreview', function () {
     expect(() => within(docList).getByText(/document/)).to.throw;
   });
 
-  it('renders output stage preview', function () {
-    renderPipelineEditor(
+  it('renders output stage preview', async function () {
+    await renderPipelineEditor(
       {
         previewDocs: [{ _id: 1 }, { _id: 2 }, { _id: 3 }].map(
           (doc) => new HadronDocument(doc)
@@ -170,8 +168,8 @@ describe('PipelinePreview', function () {
     expect(within(container).getByTestId('output-stage-preview')).to.exist;
   });
 
-  it('renders atlas stage preview', function () {
-    renderPipelineEditor({
+  it('renders atlas stage preview', async function () {
+    await renderPipelineEditor({
       isMissingAtlasSupport: true,
       atlasOperator: '$search',
     });
@@ -181,18 +179,18 @@ describe('PipelinePreview', function () {
 
   describe('stale preview', function () {
     const staleMessage = /Output outdated and no longer in sync./;
-    it('does not render stale banner when preview docs is null', function () {
-      renderPipelineEditor({ isPreviewStale: true, previewDocs: null });
+    it('does not render stale banner when preview docs is null', async function () {
+      await renderPipelineEditor({ isPreviewStale: true, previewDocs: null });
       expect(screen.queryByText(staleMessage)).to.not.exist;
     });
 
-    it('does not render stale banner when preview docs is empty', function () {
-      renderPipelineEditor({ isPreviewStale: true, previewDocs: [] });
+    it('does not render stale banner when preview docs is empty', async function () {
+      await renderPipelineEditor({ isPreviewStale: true, previewDocs: [] });
       expect(screen.queryByText(staleMessage)).to.not.exist;
     });
 
-    it('renders stale banner when preview is stale', function () {
-      renderPipelineEditor({
+    it('renders stale banner when preview is stale', async function () {
+      await renderPipelineEditor({
         isPreviewStale: true,
         previewDocs: [new HadronDocument({ _id: 1 })],
       });

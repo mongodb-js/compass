@@ -1,13 +1,13 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, screen, waitFor } from '@testing-library/react';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import userEvent from '@testing-library/user-event';
 import PipelineAI from './pipeline-ai';
-import configureStore, {
+import {
   MockAtlasAiService,
+  renderWithStore,
 } from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
@@ -15,68 +15,44 @@ import {
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
-import {
-  LoggerProvider,
-  createNoopLogger,
-} from '@mongodb-js/compass-logging/provider';
-import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
+import type { AggregationsStore } from '../../stores/store';
+import type Sinon from 'sinon';
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
 const thumbsUpId = 'ai-feedback-thumbs-up';
 
 describe('PipelineAI Component', function () {
   let preferences: PreferencesAccess;
-  let store: ReturnType<typeof configureStore>;
-  let trackingEvents: any[] = [];
-  const track = (event: any, properties: any) => {
-    trackingEvents.push({
-      event,
-      properties: typeof properties === 'function' ? properties() : properties,
-    });
-  };
+  let store: AggregationsStore;
+  let track: Sinon.SinonSpy;
 
-  const renderPipelineAI = () => {
+  const renderPipelineAI = async () => {
     const atlasAiService = new MockAtlasAiService();
-    const store = configureStore({}, undefined, {
-      preferences,
-      atlasAiService: atlasAiService as any,
-    });
-    render(
+    const result = await renderWithStore(
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>
-        <LoggerProvider
-          value={
-            {
-              createLogger() {
-                return createNoopLogger();
-              },
-            } as any
-          }
-        >
-          <TelemetryProvider
-            options={{
-              sendTrack: track,
-            }}
-          >
-            <Provider store={store}>
-              <PipelineAI />
-            </Provider>
-          </TelemetryProvider>
-        </LoggerProvider>
-      </PreferencesProvider>
+        <PipelineAI />
+      </PreferencesProvider>,
+      {},
+      undefined,
+      {
+        preferences,
+        atlasAiService: atlasAiService as any,
+        track,
+      }
     );
+    store = result.plugin.store;
+    track = result.track;
     return store;
   };
 
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
-    store = renderPipelineAI();
+    await renderPipelineAI();
     await store.dispatch(showInput());
   });
 
   afterEach(function () {
-    trackingEvents = [];
-    (store as any) = null;
     cleanup();
   });
 
@@ -131,7 +107,7 @@ describe('PipelineAI Component', function () {
       beforeEach(async function () {
         // Elements will render only if `trackUsageStatistics` is true
         await preferences.savePreferences({ trackUsageStatistics: true });
-        store = renderPipelineAI();
+        await renderPipelineAI();
         await store.dispatch(showInput());
       });
 
@@ -151,6 +127,10 @@ describe('PipelineAI Component', function () {
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
 
+        await waitFor(() => {
+          screen.getByRole('button', { name: 'Submit positive feedback' });
+        });
+
         userEvent.click(
           screen.getByRole('button', { name: 'Submit positive feedback' })
         );
@@ -162,25 +142,17 @@ describe('PipelineAI Component', function () {
 
         userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-        await waitFor(
-          () => {
-            // No feedback popover is shown.
-            expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not
-              .exist;
-            expect(trackingEvents).to.deep.equal([
-              {
-                event: 'PipelineAI Feedback',
-                properties: {
-                  connection_id: 'TEST',
-                  feedback: 'positive',
-                  request_id: 'pineapple',
-                  text: 'this is the pipeline I was looking for',
-                },
-              },
-            ]);
-          },
-          { interval: 10 }
-        );
+        await waitFor(() => {
+          // No feedback popover is shown.
+          expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
+
+          expect(track).to.have.been.calledWith('PipelineAI Feedback', {
+            connection_id: 'TEST',
+            feedback: 'positive',
+            request_id: 'pineapple',
+            text: 'this is the pipeline I was looking for',
+          });
+        });
       });
     });
 
@@ -189,7 +161,7 @@ describe('PipelineAI Component', function () {
         await preferences.savePreferences({
           trackUsageStatistics: false,
         });
-        store = renderPipelineAI();
+        await renderPipelineAI();
       });
 
       it('should not show the feedback items', function () {

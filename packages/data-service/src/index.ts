@@ -29,3 +29,4 @@ export type {
   SearchIndex,
   SearchIndexStatus,
 } from './search-index-detail-helper';
+export type { InstanceDetails } from './instance-detail-helper';

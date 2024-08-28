@@ -7,7 +7,7 @@ import SaveConnectionModal from './save-connection-modal';
 
 describe('SaveConnectionModal Component', function () {
   let onSaveSpy: sinon.SinonSpy;
-  let onCancelSpy;
+  let onCancelSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onSaveSpy = sinon.spy();
