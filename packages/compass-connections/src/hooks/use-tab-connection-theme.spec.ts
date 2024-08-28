@@ -89,4 +89,29 @@ describe('useTabConnectionTheme', function () {
       ).to.equal(undefined);
     });
   });
+
+  it('tracks updates of connection color state and returns a new method when they are changed', async function () {
+    const { result, connectionsStore } = renderHookWithConnections(
+      useTabConnectionTheme,
+      {
+        preferences: { enableMultipleConnectionSystem: true },
+        connections: [CONNECTION_INFO],
+      }
+    );
+
+    const getThemeOf = result.current.getThemeOf;
+
+    await connectionsStore.actions.saveEditedConnection({
+      ...CONNECTION_INFO,
+      favorite: {
+        ...CONNECTION_INFO.favorite,
+        color: 'color1',
+      },
+    });
+
+    expect(result.current.getThemeOf).to.not.eq(getThemeOf);
+    expect(result.current.getThemeOf(CONNECTION_INFO.id)).to.not.eq(
+      getThemeOf(CONNECTION_INFO.id)
+    );
+  });
 });
