@@ -19,7 +19,7 @@ const mockConnections = [
     favorite: {
       name: 'turtles',
     },
-    savedConnectionType: 'favorite',
+    savedConnectionType: 'favorite' as const,
   },
   {
     id: 'oranges',
@@ -29,7 +29,7 @@ const mockConnections = [
     favorite: {
       name: 'peaches',
     },
-    savedConnectionType: 'favorite',
+    savedConnectionType: 'favorite' as const,
   },
 ];
 
@@ -242,7 +242,7 @@ describe('useConnections', function () {
       describe(`when multiple connections ${
         multipleConnectionsEnabled ? 'enabled' : 'disabled'
       }`, function () {
-        it('should NOT update existing connection with new props when existing connection is successfull', async function () {
+        it('should only update favorite info for existing connection with new props when existing connection is successfull', async function () {
           const { result, connectionStorage } = renderHookWithConnections(
             useConnections,
             {
@@ -256,13 +256,28 @@ describe('useConnections', function () {
 
           await result.current.connect({
             ...mockConnections[0],
+            connectionOptions: {
+              ...mockConnections[0].connectionOptions,
+              connectionString: 'mongodb://foobar',
+            },
             favorite: { name: 'foobar' },
           });
 
-          // Connection in the storage wasn't updated
-          expect(
-            await connectionStorage.load({ id: mockConnections[0].id })
-          ).to.have.nested.property('favorite.name', 'turtles');
+          const storedConnection = await connectionStorage.load({
+            id: mockConnections[0].id,
+          });
+
+          // Connection string in the storage wasn't updated
+          expect(storedConnection).to.have.nested.property(
+            'connectionOptions.connectionString',
+            'mongodb://turtle'
+          );
+
+          // Connection favorite name was updated
+          expect(storedConnection).to.have.nested.property(
+            'favorite.name',
+            'foobar'
+          );
         });
 
         it('should not update existing connection if connection failed', async function () {
@@ -366,7 +381,7 @@ describe('useConnections', function () {
         favorite: {
           name: 'peaches (50) peaches',
         },
-        savedConnectionType: 'favorite',
+        savedConnectionType: 'favorite' as const,
       };
 
       await result.current.saveEditedConnection(newConnection);
@@ -387,7 +402,7 @@ describe('useConnections', function () {
 
       const updatedConnection = {
         ...mockConnections[0],
-        savedConnectionType: 'recent',
+        savedConnectionType: 'recent' as const,
       };
 
       await result.current.saveEditedConnection(updatedConnection);
@@ -487,7 +502,7 @@ describe('useConnections', function () {
                 name: '',
                 color: 'color2',
               },
-              savedConnectionType: 'recent',
+              savedConnectionType: 'recent' as const,
             },
           ],
           preferences: defaultPreferences,
@@ -515,7 +530,7 @@ describe('useConnections', function () {
         favorite: {
           name: 'peaches (50) peaches',
         },
-        savedConnectionType: 'favorite',
+        savedConnectionType: 'favorite' as const,
       };
 
       const { result, connectionsStore } = renderHookWithConnections(
