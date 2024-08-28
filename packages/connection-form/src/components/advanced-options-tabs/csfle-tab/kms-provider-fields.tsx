@@ -14,6 +14,7 @@ import type {
   KMSProviderName,
   KMSOption,
   KMSField,
+  KMSTLSProviderName,
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -93,7 +94,7 @@ function KMSProviderFieldsForm<T extends KMSProviderType>({
       )}
       {!noTLS && (
         <KMSTLSOptions
-          kmsProviderName={kmsProviderName}
+          kmsProviderName={kmsProviderName as KMSTLSProviderName<T>}
           autoEncryptionOptions={autoEncryptionOptions}
           updateConnectionFormField={updateConnectionFormField}
           clientCertIsOptional={clientCertIsOptional}

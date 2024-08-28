@@ -11,7 +11,6 @@ export type KMSProviderType = Extract<
   'aws' | 'gcp' | 'azure' | 'kmip' | 'local'
 >;
 export type KMSProviderName<T extends KMSProviderType> = T | `${T}:${string}`;
-// TODO: extract these types from driver csfle tls
 export type KMSTLSProviderType = KMSProviderType;
 export type KMSTLSProviderName<T extends KMSProviderType> = KMSProviderName<T>;
 

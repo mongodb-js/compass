@@ -43,8 +43,10 @@ function KMSLocalKeyGenerator({
           data-testid="generate-local-key-button"
           variant={ButtonVariant.Default}
           disabled={
-            (autoEncryptionOptions.kmsProviders?.[kmsProviderName]?.key
-              ?.length || 0) > 0
+            Number(
+              autoEncryptionOptions.kmsProviders?.[kmsProviderName]?.key
+                ?.length || 0
+            ) > 0
           }
           onClick={generateRandomKey}
         >

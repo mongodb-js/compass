@@ -152,7 +152,7 @@ function CSFLETab({
       if (!acc[type]) {
         acc[type] = [];
       }
-      acc[type].push(kmsProvider as KMSProviderName<KMSProviderType>);
+      acc[type]!.push(kmsProvider as KMSProviderName<KMSProviderType>);
       return acc;
     }, {} as Partial<Record<KMSProviderType, KMSProviderName<KMSProviderType>[]>>);
   }, [connectionOptions.fleOptions?.autoEncryption?.kmsProviders]);

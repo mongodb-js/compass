@@ -226,10 +226,11 @@ export function unsetFleOptionsIfEmptyAutoEncryption(
   const kmsProviders = filterEmptyValues(autoEncryption.kmsProviders);
   const tlsOptions = filterEmptyValues(autoEncryption.tlsOptions);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     kmsProviders: _1,
     tlsOptions: _2,
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     ...restOfTheAutoEncryption
   } = autoEncryption;
 
