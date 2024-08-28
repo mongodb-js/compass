@@ -50,9 +50,9 @@
         {
           "implicitChangeType": "unchanged",
           "changeType": "added",
-          "index": "0",
+          "index": 0,
           "right": {
-            "path": ["foo", "0"],
+            "path": ["foo", 0],
             "value": "a"
           },
           "delta": null
@@ -60,9 +60,9 @@
         {
           "implicitChangeType": "unchanged",
           "changeType": "added",
-          "index": "1",
+          "index": 1,
           "right": {
-            "path": ["foo", "1"],
+            "path": ["foo", 1],
             "value": "b"
           },
           "delta": null
@@ -70,9 +70,9 @@
         {
           "implicitChangeType": "unchanged",
           "changeType": "added",
-          "index": "2",
+          "index": 2,
           "right": {
-            "path": ["foo", "2"],
+            "path": ["foo", 2],
             "value": "c"
           },
           "delta": null
