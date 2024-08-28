@@ -404,13 +404,6 @@ function itemsWithChanges({
       } else {
         assert(false, `item with index "${index}" does not exist`);
       }
-
-      // adjust the indexes of all items after this one
-      for (const item of items) {
-        if (item.index > index) {
-          item.index = item.index - 1;
-        }
-      }
     }
 
     for (const [_index, change] of Object.entries(delta)) {

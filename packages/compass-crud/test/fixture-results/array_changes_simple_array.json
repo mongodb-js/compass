@@ -89,7 +89,7 @@
         },
         {
           "implicitChangeType": "unchanged",
-          "index": 0,
+          "index": 1,
           "delta": null,
           "changeType": "removed",
           "left": {
@@ -99,7 +99,7 @@
         },
         {
           "implicitChangeType": "unchanged",
-          "index": 1,
+          "index": 2,
           "delta": null,
           "changeType": "removed",
           "left": {
