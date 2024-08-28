@@ -106,12 +106,3 @@ it is cryptographically protected through an OS keychain encryption integration.
 
 <!-- Source File: `packages/connection-info/src/connection-secrets.spec.ts` -->
 
-
-## SSH Tunnel Support Testing
-
-We ensure that, when the application opens an SSH Tunnel in response to a user
-request to do so, it does so securely. For example, we verify that no other application
-is able to use the same tunnel.
-
-<!-- Source File: `packages/ssh-tunnel/src/index.spec.ts` -->
-
