@@ -257,7 +257,7 @@ const mapStateToProps = (
   return {
     infos: getInfos({
       instance: instance,
-      databases: databases.databases ?? [],
+      databases: databases?.databases ?? [],
       connectionInfo: connectionInfo,
       connectionOptions: connectionOptions || {},
     }),

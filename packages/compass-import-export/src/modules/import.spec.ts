@@ -1,38 +1,32 @@
 import { expect } from 'chai';
 import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
-import {
-  type ImportPluginServices,
-  configureStore,
-} from '../stores/import-store';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import {
-  type ConnectionRepository,
-  ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
-import { AppRegistry } from 'hadron-app-registry';
-import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { ImportStore } from '../stores/import-store';
+import { ImportPlugin } from '../index';
+import { activatePluginWithConnections } from '@mongodb-js/compass-connections/test';
 
-const logger = createNoopLogger();
-const track = createNoopTrack();
-
-const mockServices = {
-  globalAppRegistry: new AppRegistry(),
-  logger,
-  track,
-  connectionsManager: new ConnectionsManager({ logger: logger.log.unbound }),
-  workspaces: {} as WorkspacesService,
-  connectionRepository: {
-    getConnectionInfoById: () => ({ id: 'TEST' }),
-  } as unknown as ConnectionRepository,
-} as ImportPluginServices;
+function activatePlugin(
+  dataService = {
+    findCursor() {},
+    aggregateCursor() {},
+  } as any
+) {
+  return activatePluginWithConnections(
+    ImportPlugin,
+    {},
+    {
+      connectFn() {
+        return dataService;
+      },
+    }
+  );
+}
 
 describe('import [module]', function () {
-  // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
-  let mockStore = configureStore(mockServices);
+  let mockStore: ImportStore;
+
   beforeEach(function () {
-    mockStore = configureStore(mockServices);
+    mockStore = activatePlugin().plugin.store;
   });
 
   describe('#openImport', function () {

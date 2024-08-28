@@ -27,7 +27,6 @@ import {
   databaseItemActions,
   notConnectedConnectionItemActions,
 } from './item-actions';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 const MCContainer = css({
   display: 'flex',
@@ -86,12 +85,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        if (item.connectionStatus === ConnectionStatus.Connected) {
+        if (item.connectionStatus === 'connected') {
           onItemAction(item, 'select-connection');
-        } else if (
-          item.connectionStatus === ConnectionStatus.Disconnected ||
-          item.connectionStatus === ConnectionStatus.Failed
-        ) {
+        } else {
           onItemAction(item, 'connection-connect');
         }
       } else if (item.type === 'database') {
@@ -171,7 +167,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             actions: [],
           };
         case 'connection': {
-          if (item.connectionStatus === ConnectionStatus.Connected) {
+          if (item.connectionStatus === 'connected') {
             const actions = connectedConnectionItemActions({
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,

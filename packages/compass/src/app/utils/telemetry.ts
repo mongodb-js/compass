@@ -1,12 +1,10 @@
-import { type DataService, configuredKMSProviders } from 'mongodb-data-service';
+import { configuredKMSProviders } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';
 import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
-import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
-import type { Logger } from '@mongodb-js/compass-logging';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { MongoClientOptions } from 'mongodb';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -160,87 +158,14 @@ async function getConnectionData(
   };
 }
 
-export function trackConnectionAttemptEvent(
-  connectionInfo: ConnectionInfo,
-  { debug }: Logger,
-  track: TrackFunction
-): void {
-  try {
-    const { lastUsed, savedConnectionType } = connectionInfo;
-    const isFavorite = savedConnectionType === 'favorite';
-    const trackEvent = {
-      is_favorite: isFavorite,
-      is_recent: Boolean(lastUsed && !isFavorite),
-      is_new: !lastUsed,
-    };
-    track('Connection Attempt', trackEvent, connectionInfo);
-  } catch (error) {
-    debug('trackConnectionAttemptEvent failed', error);
-  }
-}
-
-export function trackNewConnectionEvent(
-  connectionInfo: ConnectionInfo,
-  dataService: Pick<DataService, 'instance' | 'getCurrentTopologyType'>,
-  { debug }: Logger,
-  track: TrackFunction
-): void {
-  try {
-    const callback = async () => {
-      const { dataLake, genuineMongoDB, host, build, isAtlas, isLocalAtlas } =
-        await dataService.instance();
-      const resolvedHostname = await getHostnameForConnection(connectionInfo);
-      const connectionData = await getConnectionData(
-        connectionInfo,
-        resolvedHostname
-      );
-      const trackEvent = {
-        ...connectionData,
-        is_atlas: isAtlas,
-        atlas_hostname: isAtlas ? resolvedHostname : null,
-        is_local_atlas: isLocalAtlas,
-        is_dataLake: dataLake.isDataLake,
-        is_enterprise: build.isEnterprise,
-        is_genuine: genuineMongoDB.isGenuine,
-        non_genuine_server_name: genuineMongoDB.dbType,
-        server_version: build.version,
-        server_arch: host.arch,
-        server_os_family: host.os_family,
-        topology_type: dataService.getCurrentTopologyType(),
-      };
-      return trackEvent;
-    };
-    track('New Connection', callback, connectionInfo);
-  } catch (error) {
-    debug('trackNewConnectionEvent failed', error);
-  }
-}
-
-export function trackConnectionFailedEvent(
-  connectionInfo: ConnectionInfo | null,
-  connectionError: Error & Partial<Pick<MongoServerError, 'code' | 'codeName'>>,
-  { debug }: Logger,
-  track: TrackFunction
-): void {
-  try {
-    const callback = async () => {
-      let connectionData: Record<string, unknown> = {};
-      if (connectionInfo !== null) {
-        const resolvedHostname = await getHostnameForConnection(connectionInfo);
-        connectionData = await getConnectionData(
-          connectionInfo,
-          resolvedHostname
-        );
-      }
-      const trackEvent = {
-        ...connectionData,
-        error_code: connectionError.code,
-        error_name: connectionError.codeName ?? connectionError.name,
-      };
-      return trackEvent;
-    };
-    track('Connection Failed', callback, connectionInfo ?? undefined);
-  } catch (error) {
-    debug('trackConnectionFailedEvent failed', error);
-  }
+export async function getExtraConnectionData(connectionInfo: ConnectionInfo) {
+  const resolvedHostname = await getHostnameForConnection(connectionInfo);
+  const connectionData = await getConnectionData(
+    connectionInfo,
+    resolvedHostname
+  );
+  return [connectionData, resolvedHostname] as [
+    Record<string, unknown>,
+    string
+  ];
 }

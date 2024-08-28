@@ -148,9 +148,13 @@ async function getImportsForPackage(pkgJson, cwd = process.cwd()) {
   }
 
   return await collectAllAbsoluteImports(
-    entryPoints.map((entry) => {
-      return path.resolve(cwd, entry);
-    })
+    entryPoints
+      .filter((entry) => {
+        return !/(test|spec).tsx?$/.test(entry);
+      })
+      .map((entry) => {
+        return path.resolve(cwd, entry);
+      })
   );
 }
 

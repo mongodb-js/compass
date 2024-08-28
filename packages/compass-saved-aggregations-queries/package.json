@@ -68,7 +68,6 @@
     "redux-thunk": "^2.4.2"
   },
   "devDependencies": {
-    "@mongodb-js/connection-storage": "^0.18.0",
     "@mongodb-js/eslint-config-compass": "^1.1.5",
     "@mongodb-js/mocha-config-compass": "^1.4.0",
     "@mongodb-js/prettier-config-compass": "^1.0.2",

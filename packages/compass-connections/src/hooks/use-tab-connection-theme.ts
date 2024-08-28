@@ -1,6 +1,6 @@
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useConnectionColor } from '@mongodb-js/connection-form';
-import { useConnectionRepository } from '../provider';
+import { useConnectionRepository } from './use-connection-repository';
 import { useDarkMode, type TabTheme } from '@mongodb-js/compass-components';
 import { palette } from '@mongodb-js/compass-components';
 import { useCallback } from 'react';
@@ -22,6 +22,10 @@ export function useTabConnectionTheme(): ThemeProvider {
     'enableMultipleConnectionSystem'
   );
 
+  // TODO: this method is not reactive and works only by accident, refactor the
+  // hook to explicitly track changes to color in connections, otherwise the
+  // value of the theme might be stale when we remove `useConnectionRepository`
+  // hook completely
   const getThemeOf = useCallback(
     (connectionId: ConnectionInfo['id']) => {
       const connectionInfo = getConnectionInfoById(connectionId);

@@ -1,9 +1,12 @@
-import type { Store as RefluxStore } from 'reflux';
 import type { Store as ReduxStore } from 'redux';
 import EventEmitter from 'eventemitter3';
 import type { ReactReduxContext } from 'react-redux';
 
-export type Store = (ReduxStore | Partial<RefluxStore>) & {
+// This type is very generic on purpose so that registerPlugin function generic
+// type can derive it automatically based on the passed activate function. This
+// is helpful when using useActivate hook to get the stricter type of returned
+// activate store elsewhere in the code
+export type Store = any & {
   onActivated?: (appRegistry: AppRegistry) => void;
 };
 

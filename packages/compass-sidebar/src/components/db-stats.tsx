@@ -86,7 +86,7 @@ const mapStateToProps = (
   { connectionId }: { connectionId: string }
 ) => ({
   refreshingStatus: state.instance[connectionId]?.refreshingStatus ?? 'initial',
-  databases: state.databases[connectionId].databases,
+  databases: state.databases[connectionId]?.databases ?? [],
 });
 
 const MappedDBStats = connect(mapStateToProps, {})(DBStats);

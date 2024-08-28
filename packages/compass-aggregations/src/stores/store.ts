@@ -316,3 +316,7 @@ const handleDatabaseCollections = (
       onDatabaseCollectionStatusChange
     );
 };
+
+export type AggregationsStore = ReturnType<
+  typeof activateAggregationsPlugin
+>['store'];

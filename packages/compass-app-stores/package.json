@@ -57,8 +57,6 @@
     "@mongodb-js/mocha-config-compass": "^1.4.0",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
-    "@testing-library/dom": "^8.20.1",
-    "@testing-library/react": "^12.1.5",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
