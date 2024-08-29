@@ -290,7 +290,7 @@ function assertNotError(result: any) {
 /**
  * Connection tests
  */
-describe.only('Connection string', function () {
+describe('Connection string', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
