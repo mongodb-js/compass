@@ -83,6 +83,14 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
       .catch(() => {
         if (mounted) {
           setStatus('signed-out');
+          if (
+            process.env.ci ||
+            process.env.CI ||
+            process.env.IS_CI ||
+            process.env.NODE_ENV === 'test'
+          ) {
+            return;
+          }
           openToast('atlas-proxy', {
             title: 'Sign in to Atlas Cloud',
             description: (

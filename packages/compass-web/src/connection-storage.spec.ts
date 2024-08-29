@@ -85,7 +85,7 @@ describe('buildConnectionInfoFromClusterDescription', function () {
         deployment
       );
 
-      expect(connectionInfo).to.have.property('id', '123abc');
+      expect(connectionInfo).to.have.property('id', clusterDescription.name);
 
       expect(connectionInfo).to.have.nested.property(
         'connectionOptions.connectionString',
