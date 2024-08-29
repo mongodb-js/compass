@@ -290,7 +290,7 @@ function assertNotError(result: any) {
 /**
  * Connection tests
  */
-describe('Connection string', function () {
+describe.only('Connection string', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
@@ -326,8 +326,6 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
-    skipForWeb(this, 'connect happens on the outside');
-
     // connect
     await browser.connectWithConnectionString(
       `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,

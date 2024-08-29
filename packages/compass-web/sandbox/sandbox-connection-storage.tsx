@@ -49,6 +49,13 @@ class SandboxConnectionStorage implements ConnectionStorage {
     }, 0);
     return Promise.resolve();
   }
+  delete({ id }: { id: string }): Promise<void> {
+    this._connections.delete(id);
+    setTimeout(() => {
+      saveHistory(Array.from(this._connections.values()));
+    }, 0);
+    return Promise.resolve();
+  }
 }
 
 export const sandboxConnectionStorage = new SandboxConnectionStorage();
