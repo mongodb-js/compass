@@ -2,9 +2,13 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { css, Link, openToast } from '@mongodb-js/compass-components';
 
 // eslint-disable-next-line no-console
-console.info('call window.__signIn() to sign in to Atlas Cloud proxy');
+console.info(
+  '[compass-web sandbox] call window.__signIn() to sign in to Atlas Cloud proxy'
+);
 // eslint-disable-next-line no-console
-console.info('call window.__signOut() to sign out from Atlas Cloud proxy');
+console.info(
+  '[compass-web sandbox] call window.__signOut() to sign out from Atlas Cloud proxy'
+);
 
 type SignInStatus = 'checking' | 'signed-in' | 'signed-out';
 
@@ -54,6 +58,35 @@ function ToastBodyWithAction({
 export function useAtlasProxySignIn(): AtlasLoginReturnValue {
   const [status, setStatus] = useState<SignInStatus>('checking');
   const [projectId, setProjectId] = useState<string | null>(null);
+
+  const signIn = ((window as any).__signIn = useCallback(async () => {
+    try {
+      const { projectId } = await fetch('/authenticate', {
+        method: 'POST',
+      }).then((res) => {
+        return res.json() as Promise<{ projectId: string }>;
+      });
+      if (projectId) {
+        window.location.reload();
+      }
+    } catch (err) {
+      openToast('atlas-proxy', {
+        title: 'Failed to sign in',
+        description: (err as any).message,
+      });
+    }
+  }, []));
+
+  const signOut = ((window as any).__signOut = useCallback(() => {
+    return fetch('/logout').then(
+      () => {
+        window.location.reload();
+      },
+      () => {
+        // noop
+      }
+    );
+  }, []));
 
   useEffect(() => {
     let mounted = true;
@@ -109,36 +142,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
     return () => {
       mounted = false;
     };
-  });
-
-  const signIn = ((window as any).__signIn = useCallback(async () => {
-    try {
-      const { projectId } = await fetch('/authenticate', {
-        method: 'POST',
-      }).then((res) => {
-        return res.json() as Promise<{ projectId: string }>;
-      });
-      if (projectId) {
-        window.location.reload();
-      }
-    } catch (err) {
-      openToast('atlas-proxy', {
-        title: 'Failed to sign in',
-        description: (err as any).message,
-      });
-    }
-  }, []));
-
-  const signOut = ((window as any).__signOut = useCallback(() => {
-    return fetch('/logout').then(
-      () => {
-        window.location.reload();
-      },
-      () => {
-        // noop
-      }
-    );
-  }, []));
+  }, [signIn, signOut]);
 
   if (status === 'checking' || status === 'signed-out') {
     return {
