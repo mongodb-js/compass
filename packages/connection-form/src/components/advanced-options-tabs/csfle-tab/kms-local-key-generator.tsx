@@ -33,7 +33,7 @@ function KMSLocalKeyGenerator({
       connectionOptions.fleOptions?.autoEncryption ?? {};
     return autoEncryptionOptions.kmsProviders?.[
       kmsProviderName as keyof typeof autoEncryptionOptions.kmsProviders
-    ] as LocalKMSProviderConfiguration;
+    ] as LocalKMSProviderConfiguration | undefined;
   }, [connectionOptions.fleOptions?.autoEncryption, kmsProviderName]);
 
   const [generatedKeyMaterial, setGeneratedKeyMaterial] = useState('');
@@ -50,12 +50,12 @@ function KMSLocalKeyGenerator({
         <Button
           data-testid="generate-local-key-button"
           variant={ButtonVariant.Default}
-          disabled={Number(kmsConfig.key?.length || 0) > 0}
+          disabled={Number(kmsConfig?.key?.length || 0) > 0}
           onClick={generateRandomKey}
         >
           Generate Random Key
         </Button>
-        {generatedKeyMaterial === kmsConfig.key && (
+        {generatedKeyMaterial === kmsConfig?.key && (
           <>
             <div className={bannerContainerStyles}>
               <Banner variant={BannerVariant.Info}>
