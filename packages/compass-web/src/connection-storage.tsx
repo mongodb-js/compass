@@ -126,7 +126,10 @@ export function buildConnectionInfoFromClusterDescription(
   );
 
   return {
-    id: description.uniqueId,
+    // Cluster name is unique inside the project (hence using it in the backend
+    // urls as identifier) and using it as an id makes our job of mapping routes
+    // to compass state easier
+    id: description.name,
     connectionOptions: {
       connectionString: connectionString.toString(),
       lookup: () => {
@@ -182,17 +185,28 @@ class AtlasCloudConnectionStorage
         })
         .then((descriptions) => {
           return Promise.all(
-            descriptions.map((description) => {
-              return this.atlasService
-                .authenticatedFetch(
+            descriptions
+              .filter((description) => {
+                // Only list fully deployed clusters
+                // TODO(COMPASS-8228): We should probably list all and just
+                // account in the UI for a special state of a deployment as
+                // clusters can become inactive during their runtime and it's
+                // valuable UI info to display
+                return !!description.srvAddress;
+              })
+              .map(async (description) => {
+                // Even though nds/clusters will list serverless clusters, to get
+                // the regional description we need to change the url
+                const clusterType = isServerless(description)
+                  ? 'serverless'
+                  : 'clusters';
+                const res = await this.atlasService.authenticatedFetch(
                   this.atlasService.cloudEndpoint(
-                    `nds/clusters/${this.projectId}/${description.name}/regional/clusterDescription`
+                    `nds/${clusterType}/${this.projectId}/${description.name}/regional/clusterDescription`
                   )
-                )
-                .then((res) => {
-                  return res.json() as Promise<ClusterDescriptionWithDataProcessingRegion>;
-                });
-            })
+                );
+                return await (res.json() as Promise<ClusterDescriptionWithDataProcessingRegion>);
+              })
           );
         }),
       this.atlasService
@@ -221,20 +235,16 @@ class AtlasCloudConnectionStorage
   }
 }
 
-const SandboxAutoconnectContext = React.createContext<ConnectionInfo | null>(
-  null
-);
+const SandboxConnectionStorageContext =
+  React.createContext<ConnectionStorage | null>(null);
 
 /**
  * Only used in the sandbox to provide connection info when connecting to the
  * non-Atlas deployment
  * @internal
  */
-export const SandboxAutoconnectProvider = SandboxAutoconnectContext.Provider;
-
-export const useSandboxAutoconnectInfo = () => {
-  return useContext(SandboxAutoconnectContext);
-};
+export const SandboxConnectionStorageProviver =
+  SandboxConnectionStorageContext.Provider;
 
 export const AtlasCloudConnectionStorageProvider = createServiceProvider(
   function AtlasCloudConnectionStorageProvider({
@@ -250,8 +260,13 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
     const storage = useRef(
       new AtlasCloudConnectionStorage(atlasService, orgId, projectId)
     );
+    const sandboxConnectionStorage = useContext(
+      SandboxConnectionStorageContext
+    );
     return (
-      <ConnectionStorageProvider value={storage.current}>
+      <ConnectionStorageProvider
+        value={sandboxConnectionStorage ?? storage.current}
+      >
         {children}
       </ConnectionStorageProvider>
     );

@@ -1,15 +1,7 @@
-import { TEST_COMPASS_WEB, TEST_MULTIPLE_CONNECTIONS } from '../compass';
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import delay from '../delay';
 import * as Selectors from '../selectors';
-
-async function disconnectAllWeb(browser: CompassBrowser): Promise<void> {
-  const url = new URL(await browser.getUrl());
-  url.pathname = '/';
-  await browser.navigateTo(url.toString());
-  const element = await browser.$(Selectors.ConnectionFormStringInput);
-  await element.waitForDisplayed();
-}
 
 async function disconnectAllSingle(browser: CompassBrowser) {
   const cancelConnectionButtonElement = await browser.$(
@@ -76,10 +68,6 @@ export async function disconnectAll(
   // This command is mostly intended for use inside a beforeEach() hook,
   // probably in conjunction with browser.connectToDefaults() so that each test
   // will start off with multiple connections already connected.
-
-  if (TEST_COMPASS_WEB) {
-    return await disconnectAllWeb(browser);
-  }
 
   if (!TEST_MULTIPLE_CONNECTIONS) {
     return await disconnectAllSingle(browser);

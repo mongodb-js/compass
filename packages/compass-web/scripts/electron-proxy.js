@@ -121,8 +121,9 @@ class AtlasCloudAuthenticator {
   }
 
   async getCloudHeaders() {
-    const cookie = (await this.#getCloudSessionCookies()).join('; ');
+    // Order is important, fetching project id can update the cookies
     const projectId = await this.fetchProjectId();
+    const cookie = (await this.#getCloudSessionCookies()).join('; ');
     const { csrfToken, csrfTime } = await fetch(
       `${CLOUD_ORIGIN}/v2/${projectId}/params`,
       { headers: { cookie } }
@@ -314,6 +315,28 @@ proxyWebServer.use('/x509', async (req, res) => {
     const cert = await atlasCloudAuthenticator.getX509Cert();
     res.setHeader('Content-Type', 'text/plain');
     res.send(cert);
+  } catch (err) {
+    res.statusCode = 500;
+    res.send(err.stack ?? err.message);
+  }
+  res.end();
+});
+
+proxyWebServer.use('/projectId', async (req, res) => {
+  if (req.method !== 'GET') {
+    res.statusCode = 400;
+    res.end();
+    return;
+  }
+
+  try {
+    const projectId = await atlasCloudAuthenticator.fetchProjectId();
+    if (!projectId) {
+      res.statusCode = 403;
+    } else {
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(projectId);
+    }
   } catch (err) {
     res.statusCode = 500;
     res.send(err.stack ?? err.message);
