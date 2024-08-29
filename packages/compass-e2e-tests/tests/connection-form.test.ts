@@ -22,7 +22,10 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'no connect form in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

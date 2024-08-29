@@ -4,7 +4,6 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
@@ -83,13 +82,9 @@ describe('Collection Rename Modal', () => {
   let connectionId: string | undefined;
 
   before(async function () {
-    skipForWeb(this, 'feature flags not yet available in compass-web');
-
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setupDefaultConnections();
-
-    await browser.setFeature('enableRenameCollectionModal', true);
   });
 
   beforeEach(async function () {
