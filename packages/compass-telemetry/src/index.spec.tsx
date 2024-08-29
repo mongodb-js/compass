@@ -8,7 +8,7 @@ describe('Telemetry', () => {
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
 
-    track('Test Event1', {
+    track('Test Event1' as any, {
       some_attribute: 123,
     });
 
@@ -30,7 +30,7 @@ describe('Telemetry', () => {
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
 
-    track('Test Event2', async () => {
+    track('Test Event2' as any, async () => {
       await new Promise((resolve) => setTimeout(resolve, 3));
 
       return {
@@ -57,7 +57,7 @@ describe('Telemetry', () => {
     const trackingLogs: any[] = [];
     process.on('compass:track', (event) => trackingLogs.push(event));
 
-    track('Test Event3', () => {
+    track('Test Event3' as any, () => {
       throw new Error('test error');
     });
 
