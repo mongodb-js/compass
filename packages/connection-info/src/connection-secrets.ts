@@ -4,6 +4,7 @@ import ConnectionString, {
 } from 'mongodb-connection-string-url';
 import type { ConnectionInfo } from './connection-info';
 import type {
+  Document,
   MongoClientOptions,
   AuthMechanismProperties,
   AutoEncryptionOptions,
@@ -153,21 +154,11 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
 
   if (connectionOptions.fleOptions?.autoEncryption) {
     const { autoEncryption } = connectionOptions.fleOptions;
-    const kmsProviders = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
-    const secretPaths = [
-      'kmsProviders.aws.secretAccessKey',
-      'kmsProviders.aws.sessionToken',
-      'kmsProviders.local.key',
-      'kmsProviders.azure.clientSecret',
-      'kmsProviders.gcp.privateKey',
-      ...kmsProviders.map(
-        (p) => `tlsOptions.${p}.tlsCertificateKeyFilePassword`
-      ),
-    ];
-    connectionOptions.fleOptions.autoEncryption = _.omit(
-      autoEncryption,
-      secretPaths
-    );
+    const {
+      data: autoEncryptionWithoutSecrets,
+      secrets: autoEncryptionSecrets,
+    } = extractAutoEncryptionSecrets(autoEncryption);
+    connectionOptions.fleOptions.autoEncryption = autoEncryptionWithoutSecrets;
     // Remove potentially empty KMS provider options objects,
     // since libmongocrypt assumes that, if a KMS provider options
     // object is present but empty, the caller will be able
@@ -178,7 +169,7 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
           connectionOptions.fleOptions.autoEncryption.kmsProviders
         );
     if (connectionOptions.fleOptions.storeCredentials) {
-      secrets.autoEncryption = _.pick(autoEncryption, secretPaths);
+      secrets.autoEncryption = autoEncryptionSecrets;
     }
   }
 
@@ -196,4 +187,66 @@ function omitPropertiesWhoseValuesAreEmptyObjects<
   return Object.fromEntries(
     Object.entries(obj).filter(([, value]) => Object.keys(value).length > 0)
   ) as Partial<T>;
+}
+
+function extractAutoEncryptionSecrets(data: Document) {
+  function flattenObject(
+    obj: Document,
+    path = '',
+    result: Document = {}
+  ): Record<string, unknown> {
+    _.forEach(obj, (value, key) => {
+      const newKey = path ? `${path}.${key}` : key;
+      if (_.isObject(value)) {
+        flattenObject(value, newKey, result);
+      } else {
+        result[newKey] = value;
+      }
+    });
+    return result;
+  }
+
+  function unFlattenObject(obj: Record<string, unknown>): Document {
+    const result = {};
+    _.forEach(obj, (value, key) => {
+      _.set(result, key.split('.'), value);
+    });
+    return result;
+  }
+
+  function itemMatchesPath(item: string, path: string | RegExp) {
+    if (typeof path === 'string') {
+      return item === path;
+    }
+    return path.test(item);
+  }
+
+  const kmsProviders = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
+  const secretPaths = [
+    /kmsProviders\.aws(:[a-zA-Z0-9]+)?\.secretAccessKey/,
+    /kmsProviders\.aws(:[a-zA-Z0-9]+)?\.sessionToken/,
+    /kmsProviders\.local(:[a-zA-Z0-9]+)?\.key/,
+    /kmsProviders\.azure(:[a-zA-Z0-9]+)?\.clientSecret/,
+    /kmsProviders\.gcp(:[a-zA-Z0-9]+)?\.privateKey/,
+    ...kmsProviders.map(
+      (p) =>
+        new RegExp(
+          `tlsOptions\\.${p}(:[a-zA-Z0-9]+)?\\.tlsCertificateKeyFilePassword`
+        )
+    ),
+  ];
+
+  const secrets: Record<string, unknown> = {};
+  const result: Record<string, unknown> = {};
+
+  const flattenedData = flattenObject(data);
+
+  for (const item in flattenedData) {
+    if (secretPaths.some((path) => itemMatchesPath(item, path))) {
+      secrets[item] = flattenedData[item];
+    } else {
+      result[item] = flattenedData[item];
+    }
+  }
+  return { data: unFlattenObject(result), secrets: unFlattenObject(secrets) };
 }
