@@ -1,15 +1,7 @@
-import { TEST_COMPASS_WEB, TEST_MULTIPLE_CONNECTIONS } from '../compass';
+import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import delay from '../delay';
 import * as Selectors from '../selectors';
-
-async function disconnectAllWeb(browser: CompassBrowser): Promise<void> {
-  const url = new URL(await browser.getUrl());
-  url.pathname = '/';
-  await browser.navigateTo(url.toString());
-  const element = await browser.$(Selectors.ConnectionFormStringInput);
-  await element.waitForDisplayed();
-}
 
 async function disconnectAllSingle(browser: CompassBrowser) {
   const cancelConnectionButtonElement = await browser.$(
