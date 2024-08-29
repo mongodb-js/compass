@@ -165,14 +165,15 @@ const Application = View.extend({
       name,
       value,
     }: Pick<webvitals.Metric, 'name' | 'value'>) {
-      const fullName = {
+      const events = {
         FCP: 'First Contentful Paint',
         LCP: 'Largest Contentful Paint',
         FID: 'First Input Delay',
         CLS: 'Cumulative Layout Shift',
         TTFB: 'Time to First Byte',
-      }[name];
-      track(fullName, { value });
+      } as const;
+
+      track(events[name], { value });
     }
 
     webvitals.getFCP(trackPerfEvent);
@@ -267,7 +268,9 @@ const Application = View.extend({
         title:
           'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
       });
-      track('Secret Storage Not Available');
+      track('Secret Storage Not Available', {
+        //
+      });
     }
 
     document.querySelector('#loading-placeholder')?.remove();

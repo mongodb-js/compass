@@ -1,5 +1,5 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction, AsyncTrackFunction } from './types';
+import type { TrackFunction, TrackFunctionPayload } from './types';
 
 export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
@@ -14,14 +14,18 @@ export interface TelemetryServiceOptions {
   useConnectionInfo?: TelemetryConnectionInfoHook;
 }
 
+type AsyncFn<T extends (...args: any[]) => any> = (
+  ...args: Parameters<T>
+) => Promise<ReturnType<T>>;
+
 export const createTrack = ({
   sendTrack,
   logger: { log, debug },
   preferences,
 }: TelemetryServiceOptions & { logger: Logger }) => {
-  const trackAsync: AsyncTrackFunction = async (
+  const trackAsync: AsyncFn<TrackFunction> = async (
     event,
-    parameters,
+    parametersOrFn,
     connectionInfo
   ) => {
     // Note that this preferences check is mainly a performance optimization,
@@ -33,9 +37,12 @@ export const createTrack = ({
       return;
     }
 
-    if (typeof parameters === 'function') {
+    let parameters: TrackFunctionPayload<Record<string, unknown>> =
+      parametersOrFn;
+
+    if (typeof parametersOrFn === 'function') {
       try {
-        parameters = await parameters();
+        parameters = await parametersOrFn();
       } catch (error) {
         // When an error arises during the fetching of properties,
         // for instance if we can't fetch host information,
@@ -66,11 +73,11 @@ export const createTrack = ({
     sendTrack(event, parameters || {});
   };
 
-  const track: TrackFunction = (...args) => {
+  const track = (...args: Parameters<typeof trackAsync>): void => {
     void Promise.resolve()
       .then(() => trackAsync(...args))
       .catch((error) => debug('track failed', error));
   };
 
-  return track;
+  return track as TrackFunction;
 };
