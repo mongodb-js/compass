@@ -77,10 +77,6 @@ export async function disconnectAll(
   // probably in conjunction with browser.connectToDefaults() so that each test
   // will start off with multiple connections already connected.
 
-  if (TEST_COMPASS_WEB) {
-    return await disconnectAllWeb(browser);
-  }
-
   if (!TEST_MULTIPLE_CONNECTIONS) {
     return await disconnectAllSingle(browser);
   }

@@ -87,7 +87,8 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             process.env.ci ||
             process.env.CI ||
             process.env.IS_CI ||
-            process.env.NODE_ENV === 'test'
+            process.env.NODE_ENV === 'test' ||
+            process.env.APP_ENV === 'webdriverio'
           ) {
             return;
           }
