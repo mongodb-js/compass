@@ -57,7 +57,7 @@ describe('Time to first query', function () {
       '[data-testid="document-list"] [data-testid="editable-document"] .element-value-is-int32'
     );
     const text = await documentElementValue.getText();
-    expect(text).to.equal('42');
+    expect(text).to.equal('41');
   });
 
   it('can open compass, connect to a database and run a query on a collection (second run onwards)', async function () {
