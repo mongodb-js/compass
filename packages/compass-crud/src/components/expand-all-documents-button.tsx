@@ -7,6 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 type ExpandAllDocumentsButtonProps = {
+  allDocumentsExpanded: boolean;
   onClick: () => void;
 };
 
@@ -19,16 +20,18 @@ const hiddenOnNarrowStyles = css({
 
 const ExpandAllDocumentsButton: React.FunctionComponent<
   ExpandAllDocumentsButtonProps
-> = ({ onClick }) => {
+> = ({ allDocumentsExpanded, onClick }) => {
+  const buttonText = allDocumentsExpanded ? 'Collapse' : 'Expand';
+
   return (
     <Button
-      value="Expand all documents"
+      value={`${buttonText} all documents`}
       size="xsmall"
       onClick={onClick}
       leftGlyph={<Icon glyph="Edit"></Icon>}
       data-testid="crud-update"
     >
-      <span className={hiddenOnNarrowStyles}>Expand All</span>
+      <span className={hiddenOnNarrowStyles}>{buttonText} All</span>
     </Button>
   );
 };

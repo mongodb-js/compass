@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { ObjectId } from 'bson';
 import {
   Button,
@@ -276,6 +282,36 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
   };
 };
 
+const useAllDocumentsExpanded = (docs: Document[]) => {
+  const [allDocumentsExpanded, setAllDocumentsExpanded] = useState(false);
+
+  const handleExpandAllDocuments = () => {
+    for (const doc of docs) {
+      if (!doc.expanded) {
+        doc.expand();
+      }
+    }
+
+    setAllDocumentsExpanded(true);
+  };
+
+  const handleCollapseAllDocuments = () => {
+    for (const doc of docs) {
+      if (doc.expanded) {
+        doc.collapse();
+      }
+    }
+
+    setAllDocumentsExpanded(false);
+  };
+
+  return {
+    allDocumentsExpanded,
+    handleExpandAllDocuments,
+    handleCollapseAllDocuments,
+  };
+};
+
 const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   const {
     view,
@@ -320,6 +356,13 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  const {
+    allDocumentsExpanded,
+    handleExpandAllDocuments,
+    handleCollapseAllDocuments,
+  } = useAllDocumentsExpanded(docs);
+  console.log(`🚀 ~ allDocumentsExpanded:`, allDocumentsExpanded);
+
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
       if (key === 'insert-document') {
@@ -352,14 +395,14 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   }, [store]);
 
   const onExpandAllDocumentsButtonClicked = useCallback(() => {
-    docs.forEach((doc) => {
-      if (doc.expanded) {
-        doc.collapse();
-      } else {
-        doc.expand();
-      }
-    });
-  }, [docs]);
+    allDocumentsExpanded
+      ? handleCollapseAllDocuments()
+      : handleExpandAllDocuments();
+  }, [
+    allDocumentsExpanded,
+    handleExpandAllDocuments,
+    handleCollapseAllDocuments,
+  ]);
 
   const onSaveUpdateQuery = useCallback(
     (name: string) => {
@@ -518,8 +561,15 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
         setCurrentViewInitialScrollTop(scrollRef.current?.scrollTop ?? 0);
       }
       viewChanged(newView);
+      handleCollapseAllDocuments();
     },
-    [view, setCurrentViewInitialScrollTop, scrollRef, viewChanged]
+    [
+      view,
+      setCurrentViewInitialScrollTop,
+      scrollRef,
+      viewChanged,
+      handleCollapseAllDocuments,
+    ]
   );
 
   return (
@@ -565,6 +615,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             )}
             docsPerPage={docsPerPage}
             updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
+            allDocumentsExpanded={allDocumentsExpanded}
           />
         }
       >

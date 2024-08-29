@@ -122,6 +122,7 @@ export type CrudToolbarProps = {
   querySkip?: number;
   docsPerPage: number;
   updateMaxDocumentsPerPage: (docsPerPage: number) => void;
+  allDocumentsExpanded: boolean;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -153,6 +154,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   querySkip,
   docsPerPage,
   updateMaxDocumentsPerPage,
+  allDocumentsExpanded,
 }) => {
   const track = useTelemetry();
   const connectionInfoAccess = useConnectionInfoAccess();
@@ -237,9 +239,12 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
           )}
-          <ExpandAllDocumentsButton
-            onClick={onExpandAllDocumentsButtonClicked}
-          ></ExpandAllDocumentsButton>
+          {(activeDocumentView === 'List' || activeDocumentView === 'JSON') && (
+            <ExpandAllDocumentsButton
+              allDocumentsExpanded={allDocumentsExpanded}
+              onClick={onExpandAllDocumentsButtonClicked}
+            ></ExpandAllDocumentsButton>
+          )}
         </div>
         <div className={toolbarRightActionStyles}>
           <Select
