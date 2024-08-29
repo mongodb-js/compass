@@ -20,6 +20,7 @@ import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import UpdateMenu from './update-data-menu';
 import DeleteMenu from './delete-data-menu';
+import ExpandAllDocumentsButton from './expand-all-documents-button';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
@@ -107,6 +108,7 @@ export type CrudToolbarProps = {
   onResetClicked: () => void;
   onUpdateButtonClicked: () => void;
   onDeleteButtonClicked: () => void;
+  onExpandAllDocumentsButtonClicked: () => void;
   openExportFileDialog: (exportFullCollection?: boolean) => void;
   outdated: boolean;
   page: number;
@@ -137,6 +139,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onResetClicked,
   onUpdateButtonClicked,
   onDeleteButtonClicked,
+  onExpandAllDocumentsButtonClicked,
   openExportFileDialog,
   outdated,
   page,
@@ -234,6 +237,9 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               onClick={onDeleteButtonClicked}
             ></DeleteMenu>
           )}
+          <ExpandAllDocumentsButton
+            onClick={onExpandAllDocumentsButtonClicked}
+          ></ExpandAllDocumentsButton>
         </div>
         <div className={toolbarRightActionStyles}>
           <Select

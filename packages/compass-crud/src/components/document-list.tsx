@@ -351,6 +351,16 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     store.openBulkDeleteDialog();
   }, [store]);
 
+  const onExpandAllDocumentsButtonClicked = useCallback(() => {
+    docs.forEach((doc) => {
+      if (doc.expanded) {
+        doc.collapse();
+      } else {
+        doc.expand();
+      }
+    });
+  }, [docs]);
+
   const onSaveUpdateQuery = useCallback(
     (name: string) => {
       void store.saveUpdateQuery(name);
@@ -533,6 +543,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             onResetClicked={onResetClicked}
             onUpdateButtonClicked={onUpdateButtonClicked}
             onDeleteButtonClicked={onDeleteButtonClicked}
+            onExpandAllDocumentsButtonClicked={
+              onExpandAllDocumentsButtonClicked
+            }
             openExportFileDialog={openExportFileDialog}
             outdated={outdated}
             readonly={!isEditable}
