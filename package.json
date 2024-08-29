@@ -93,6 +93,6 @@
     "scripts"
   ],
   "overrides": {
-    "mongodb-client-encryption": "~6.0.1"
+    "mongodb-client-encryption": "^6.1.0"
   }
 }
