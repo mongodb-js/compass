@@ -181,12 +181,10 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
   return { connectionInfo: connectionInfoWithoutSecrets, secrets };
 }
 
-function omitPropertiesWhoseValuesAreEmptyObjects<
-  T extends Record<string, Record<string, unknown>>
->(obj: T): Partial<T> {
+function omitPropertiesWhoseValuesAreEmptyObjects<T extends Document>(obj: T) {
   return Object.fromEntries(
     Object.entries(obj).filter(([, value]) => Object.keys(value).length > 0)
-  ) as Partial<T>;
+  );
 }
 
 function extractAutoEncryptionSecrets(data: Document) {

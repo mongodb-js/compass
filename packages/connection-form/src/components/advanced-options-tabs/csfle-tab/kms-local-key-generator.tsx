@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   FormFieldContainer,
   css,
@@ -10,7 +10,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { randomLocalKey } from '../../../utils/csfle-handler';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { KMSProviderName } from '../../../utils/csfle-kms-fields';
+import type {
+  KMSProviderName,
+  LocalKMSProviderConfiguration,
+} from '../../../utils/csfle-kms-fields';
 
 const bannerContainerStyles = css({
   marginTop: spacing[3],
@@ -25,8 +28,13 @@ function KMSLocalKeyGenerator({
   handleFieldChanged: (key: 'key', value?: string) => void;
   connectionOptions: ConnectionOptions;
 }): React.ReactElement {
-  const autoEncryptionOptions =
-    connectionOptions.fleOptions?.autoEncryption ?? {};
+  const kmsConfig = useMemo(() => {
+    const autoEncryptionOptions =
+      connectionOptions.fleOptions?.autoEncryption ?? {};
+    return autoEncryptionOptions.kmsProviders?.[
+      kmsProviderName as keyof typeof autoEncryptionOptions.kmsProviders
+    ] as LocalKMSProviderConfiguration;
+  }, [connectionOptions.fleOptions?.autoEncryption, kmsProviderName]);
 
   const [generatedKeyMaterial, setGeneratedKeyMaterial] = useState('');
 
@@ -42,18 +50,12 @@ function KMSLocalKeyGenerator({
         <Button
           data-testid="generate-local-key-button"
           variant={ButtonVariant.Default}
-          disabled={
-            Number(
-              autoEncryptionOptions.kmsProviders?.[kmsProviderName]?.key
-                ?.length || 0
-            ) > 0
-          }
+          disabled={Number(kmsConfig.key?.length || 0) > 0}
           onClick={generateRandomKey}
         >
           Generate Random Key
         </Button>
-        {generatedKeyMaterial ===
-          autoEncryptionOptions.kmsProviders?.[kmsProviderName]?.key && (
+        {generatedKeyMaterial === kmsConfig.key && (
           <>
             <div className={bannerContainerStyles}>
               <Banner variant={BannerVariant.Info}>
