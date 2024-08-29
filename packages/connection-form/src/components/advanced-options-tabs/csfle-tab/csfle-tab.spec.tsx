@@ -432,7 +432,7 @@ describe('In-Use Encryption', function () {
 
       fireEvent.click(
         within(screen.getByTestId('local-kms-card-item')).getByRole('button', {
-          name: /trash icon/i,
+          name: /Remove KMS provider/i,
         })
       );
 

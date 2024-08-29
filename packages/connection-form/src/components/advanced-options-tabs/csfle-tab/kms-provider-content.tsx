@@ -4,6 +4,7 @@ import {
   Card,
   css,
   Icon,
+  IconButton,
   spacing,
 } from '@mongodb-js/compass-components';
 
@@ -24,6 +25,7 @@ const cardStyles = css({
 
 const flexContainerStyles = css({
   display: 'flex',
+  alignItems: 'center',
 });
 
 const pushRightStyles = css({
@@ -102,15 +104,15 @@ function KMSProviderContent<T extends KMSProviderType>({
           {kmsProviderNames.length > 1 && (
             <div data-testid="kms-card-header" className={flexContainerStyles}>
               <h4>{kmsProviderName}</h4>
-              <Button
+              <IconButton
+                aria-label="Remove KMS provider"
                 className={pushRightStyles}
-                variant="dangerOutline"
                 onClick={() => {
                   removeKmsProvider(kmsProviderName);
                 }}
               >
-                <Icon size="xsmall" glyph="Trash" />
-              </Button>
+                <Icon glyph="Trash" />
+              </IconButton>
             </div>
           )}
           <KMSProviderFieldsForm
