@@ -236,7 +236,7 @@ describe('connection secrets', function () {
                 'kmip:1': {
                   endpoint: 'endpoint',
                 },
-              },
+              } as any,
               tlsOptions: {
                 aws: {
                   tlsCertificateKeyFile: 'file',
