@@ -130,6 +130,6 @@ describe('AtlasService', function () {
       'Authorization',
       'Bearer super-secret'
     );
-    expect(getAuthHeadersFn.calledOnce).to.be.false;
+    expect(getAuthHeadersFn.calledOnce).to.be.true;
   });
 });
