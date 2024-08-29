@@ -5,7 +5,12 @@ import type {
   DevtoolsConnectOptions,
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
-import type SSHTunnel from '@mongodb-js/ssh-tunnel';
+import {
+  createSocks5Tunnel,
+  hookLogger as hookProxyLogger,
+  createAgent,
+} from '@mongodb-js/devtools-proxy-support';
+import type { Tunnel } from '@mongodb-js/devtools-proxy-support';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
@@ -13,10 +18,10 @@ import _ from 'lodash';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import type { ConnectionOptions } from './connection-options';
 import {
-  forceCloseTunnel,
-  openSshTunnel,
+  getCurrentApplicationProxyOptions,
+  getTunnelOptions,
   waitForTunnelError,
-} from './ssh-tunnel';
+} from './ssh-tunnel-helpers';
 import { runCommand } from './run-command';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { debug as _debug } from './logger';
@@ -64,12 +69,21 @@ export function prepareOIDCOptions(
   connectionOptions: Readonly<ConnectionOptions>,
   signal?: AbortSignal,
   reauthenticationHandler?: ReauthenticationHandler
-): Required<Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>> {
+): Required<
+  Pick<
+    DevtoolsConnectOptions,
+    'oidc' | 'authMechanismProperties' | 'applyProxyToOIDC'
+  >
+> {
   const options: Required<
-    Pick<DevtoolsConnectOptions, 'oidc' | 'authMechanismProperties'>
+    Pick<
+      DevtoolsConnectOptions,
+      'oidc' | 'authMechanismProperties' | 'applyProxyToOIDC'
+    >
   > = {
     oidc: { ...connectionOptions.oidc },
     authMechanismProperties: {},
+    applyProxyToOIDC: false,
   };
 
   const allowedFlows = connectionOptions.oidc?.allowedFlows ?? ['auth-code'];
@@ -88,6 +102,14 @@ export function prepareOIDCOptions(
     // to match the connection string hosts, including possible SRV "sibling" domains.
     options.authMechanismProperties.ALLOWED_HOSTS =
       matchingAllowedHosts(connectionOptions);
+  }
+
+  if (connectionOptions.oidc?.shareProxyWithConnection) {
+    options.applyProxyToOIDC = true;
+  } else {
+    options.oidc.customHttpOptions = {
+      agent: createAgent(getCurrentApplicationProxyOptions()),
+    };
   }
 
   options.oidc.signal = signal;
@@ -115,7 +137,7 @@ export async function connectMongoClientDataService({
   [
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
-    sshTunnel: SSHTunnel | undefined,
+    tunnel: Tunnel | undefined,
     connectionState: DevtoolsConnectionState,
     options: { url: string; options: DevtoolsConnectOptions }
   ]
@@ -136,7 +158,6 @@ export async function connectMongoClientDataService({
     productName: productName ?? 'MongoDB Compass',
     productDocsLink: productDocsLink ?? 'https://www.mongodb.com/docs/compass/',
     monitorCommands: true,
-    useSystemCA: connectionOptions.useSystemCA,
     autoEncryption: connectionOptions.fleOptions?.autoEncryption,
     ...oidcOptions,
   };
@@ -167,17 +188,25 @@ export async function connectMongoClientDataService({
   //
   // If connectionOptions.sshTunnel is not defined, the tunnel
   // will also be undefined.
-  const [tunnel, socks5Options] = await openSshTunnel(
-    connectionOptions.sshTunnel,
-    logger
+  const tunnel = createSocks5Tunnel(
+    getTunnelOptions(connectionOptions),
+    'generate-credentials',
+    'mongodb://'
   );
+  // TODO: Not urgent, but it might be helpful to properly implement redaction
+  // and then actually log this to the log file, it's been helpful for debugging
+  // e2e tests for sure
+  // console.log({tunnel, tunnelOptions: getTunnelOptions(connectionOptions), connectionOptions, oidcOptions})
+  if (tunnel && logger)
+    hookProxyLogger(tunnel.logger, logger, 'compass-tunnel');
   const tunnelForwardingErrors: Error[] = [];
   tunnel?.on('forwardingError', (err: Error) =>
     tunnelForwardingErrors.push(err)
   );
+  await tunnel?.listen();
 
-  if (socks5Options) {
-    Object.assign(options, socks5Options);
+  if (tunnel?.config) {
+    Object.assign(options, tunnel.config);
   }
   class CompassMongoClient extends MongoClient {
     constructor(url: string, options?: MongoClientOptions) {
@@ -288,7 +317,7 @@ export async function connectMongoClientDataService({
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
     await Promise.all([
-      forceCloseTunnel(tunnel, logger),
+      tunnel?.close(),
       crudClient?.close(),
       metadataClient?.close(),
     ]).catch(() => {

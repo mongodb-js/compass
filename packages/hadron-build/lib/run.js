@@ -55,13 +55,13 @@ function run(cmd, args, opts, fn) {
   });
 
   proc.on('exit', function(code) {
+    const _output = Buffer.concat(output).toString('utf-8');
     if (code !== 0) {
-      const output = Buffer.concat(output).toString('utf-8');
-      debug('command failed!', { cmd, output });
+      debug('command failed!', { cmd, output: _output });
       const error = new Error(`Command failed with exit code ${code}: ${cmd} ${args.join(' ')} [enable line-by-line output via 'DEBUG=hadron*']`);
       error.output = {
-        output,
-        [util.inspect.custom]() { return util.inspect(output, { maxStringLength: Infinity }); }
+        output: _output,
+        [util.inspect.custom]() { return util.inspect(_output, { maxStringLength: Infinity }); }
       };
       fn(error);
       return;
@@ -70,7 +70,7 @@ function run(cmd, args, opts, fn) {
       cmd: cmd
     });
 
-    fn(null, Buffer.concat(output).toString('utf-8'));
+    fn(null, _output);
   });
 }
 

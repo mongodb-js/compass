@@ -68,14 +68,15 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
+          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -115,14 +116,15 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         autoEncryption,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
+          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         parentHandle: options.parentHandle,
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -152,14 +154,15 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
+          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([

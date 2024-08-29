@@ -137,8 +137,6 @@ export async function addCollection(
           timeoutMsg: `Failed to select a value "${valStr}" for "${key}" in Select after ${clickAttempt} attempt(s)`,
         }
       );
-
-      await browser.screenshot(`custom-collation-${key}-${valStr}.png`);
     }
 
     // scroll to the locale one so the screenshot will include it.

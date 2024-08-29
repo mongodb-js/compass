@@ -56,6 +56,7 @@ interface TabObject {
     connectionStringUrl: ConnectionStringUrl;
     updateConnectionFormField: UpdateConnectionFormField;
     connectionOptions: ConnectionOptions;
+    openSettingsModal?: (tab?: string) => void;
   }>;
 }
 
@@ -63,10 +64,12 @@ function AdvancedOptionsTabs({
   errors,
   updateConnectionFormField,
   connectionOptions,
+  openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
   const showCSFLE = useConnectionFormPreference('showCSFLE');
@@ -145,6 +148,7 @@ function AdvancedOptionsTabs({
                 connectionStringUrl={connectionStringUrl}
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
+                openSettingsModal={openSettingsModal}
               />
             </div>
           </Tab>

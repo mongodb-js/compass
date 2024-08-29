@@ -18,9 +18,11 @@ type DatabaseOrCollectionStatus =
   | 'error';
 
 export type NotConnectedConnectionStatus =
-  | ConnectionStatus.Connecting
-  | ConnectionStatus.Disconnected
-  | ConnectionStatus.Failed;
+  | 'initial'
+  | 'connecting'
+  | 'disconnected'
+  | 'canceled'
+  | 'failed';
 
 export type NotConnectedConnection = {
   name: string;
@@ -31,7 +33,7 @@ export type NotConnectedConnection = {
 export type ConnectedConnection = {
   name: string;
   connectionInfo: ConnectionInfo;
-  connectionStatus: ConnectionStatus.Connected;
+  connectionStatus: 'connected';
   isReady: boolean;
   isDataLake: boolean;
   isWritable: boolean;
@@ -80,7 +82,7 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   colorCode?: string;
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
-  connectionStatus: ConnectionStatus.Connected;
+  connectionStatus: 'connected';
   isPerformanceTabSupported: boolean;
   hasWriteActionsDisabled: boolean;
   isShellEnabled: boolean;

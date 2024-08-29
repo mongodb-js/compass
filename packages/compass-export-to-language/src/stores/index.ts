@@ -1,3 +1,4 @@
+import type { Action } from 'redux';
 import { createStore, type Reducer } from 'redux';
 import type { QueryExpression, InputExpression } from '../modules/transpiler';
 import { isValidExportMode } from '../modules/transpiler';
@@ -5,6 +6,13 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
+
+function isAction<A extends Action>(
+  action: Action,
+  type: A['type']
+): action is A {
+  return action.type === type;
+}
 
 type ExportToLanguageState = {
   inputExpression: InputExpression;
@@ -20,30 +28,37 @@ const INITIAL_STATE = {
   namespace: '',
 };
 
-const OPEN_MODAL = 'export-to-language/OPEN_MODAL';
+const OPEN_MODAL = 'export-to-language/OPEN_MODAL' as const;
+interface OpenModalAction {
+  type: typeof OPEN_MODAL;
+  inputExpression: InputExpression;
+}
 
-export function openModal(inputExpression: InputExpression) {
+export function openModal(inputExpression: InputExpression): OpenModalAction {
   return { type: OPEN_MODAL, inputExpression };
 }
 
-const CLOSE_MODAL = 'export-to-language/CLOSE_MODAL';
+const CLOSE_MODAL = 'export-to-language/CLOSE_MODAL' as const;
+interface CloseModalAction {
+  type: typeof CLOSE_MODAL;
+}
 
-export function closeModal() {
+export function closeModal(): CloseModalAction {
   return { type: CLOSE_MODAL };
 }
 
-const reducer: Reducer<ExportToLanguageState> = (
+const reducer: Reducer<ExportToLanguageState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (action.type === OPEN_MODAL) {
+  if (isAction<OpenModalAction>(action, OPEN_MODAL)) {
     return {
       ...state,
       modalOpen: true,
       inputExpression: action.inputExpression,
     };
   }
-  if (action.type === CLOSE_MODAL) {
+  if (isAction<CloseModalAction>(action, CLOSE_MODAL)) {
     return {
       ...state,
       modalOpen: false,
@@ -64,7 +79,9 @@ function getCurrentlyConnectedUri(
   }
 
   if (
-    /^mongodb compass/i.exec(
+    // TODO: we should probably remove the default app name in place that knows
+    // what is default app name, like data service or compass-connections plugin
+    /^(mongodb compass|compass web)/i.exec(
       connectionStringUrl.searchParams.get('appName') || ''
     )
   ) {

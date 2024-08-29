@@ -46,9 +46,8 @@ let MONGODB_USE_ENTERPRISE =
 
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
-export const TEST_MULTIPLE_CONNECTIONS = process.argv.includes(
-  '--test-multiple-connections'
-);
+// multiple connections is now the default when we're not testing compass-web
+export const TEST_MULTIPLE_CONNECTIONS = !TEST_COMPASS_WEB;
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
@@ -76,10 +75,19 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
-export const DEFAULT_CONNECTION_NAME = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING
+export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
+// explicit name, so it gets a calculated one based off the connection string
+export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
+  DEFAULT_CONNECTION_STRING_1
 );
+
+// for testing multiple connections
+export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${
+  MONGODB_TEST_SERVER_PORT + 1
+}/test`;
+// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
+export const DEFAULT_CONNECTION_NAME_2 = 'connection-2';
 
 export function updateMongoDBServerInfo() {
   try {
@@ -472,7 +480,8 @@ async function getCompassExecutionParameters(): Promise<{
   );
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
+    : // eslint-disable-next-line @typescript-eslint/no-var-requires
+      (require('electron') as unknown as string);
   return { testPackagedApp, binary };
 }
 
@@ -533,13 +542,16 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   return { stdout, stderr };
 }
 
-async function processCommonOpts(opts: StartCompassOptions = {}) {
+async function processCommonOpts({
+  // true unless otherwise specified
+  firstRun = true,
+}: StartCompassOptions = {}) {
   const nowFormatted = formattedDate();
   let needsCloseWelcomeModal: boolean;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
-  if (defaultUserDataDir && opts.firstRun) {
+  if (defaultUserDataDir && firstRun) {
     removeUserDataDir();
     // windows seems to be weird about us deleting and recreating this dir, so
     // just make a new one for next time
@@ -549,7 +561,7 @@ async function processCommonOpts(opts: StartCompassOptions = {}) {
     // Need to close the welcome modal if firstRun is undefined or true, because
     // in those cases we do not pass --showed-network-opt-in=true, but only
     // if Compass hasn't been run before (i.e. defaultUserDataDir is defined)
-    needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
+    needsCloseWelcomeModal = !defaultUserDataDir && firstRun;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
@@ -983,20 +995,6 @@ export async function init(
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
   name = pathName(name ?? formattedDate());
-
-  // Use the multiple connections feature flag when testing multiple connections
-  // so that compass starts up with it already enabled. But be careful not to
-  // override the env var because there are tests that set it.
-  if (
-    TEST_MULTIPLE_CONNECTIONS &&
-    !process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING
-  ) {
-    process.env.COMPASS_GLOBAL_CONFIG_FILE_FOR_TESTING = path.join(
-      __dirname,
-      '..',
-      'multiple-connections.yaml'
-    );
-  }
 
   // Unfortunately mocha's type is that this.test inside a test or hook is
   // optional even though it always exists. So we have a lot of

@@ -5,38 +5,21 @@ import {
   DropIndexComponent,
 } from './stores/drop-index';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
-import type { IndexesDataService } from './stores/store';
 import {
   activateIndexesPlugin,
   type IndexesDataServiceProps,
 } from './stores/store';
 import Indexes from './components/indexes/indexes';
 import {
-  type ConnectionInfoAccess,
   connectionInfoAccessLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
-import type { Logger } from '@mongodb-js/compass-logging';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import {
-  telemetryLocator,
-  type TrackFunction,
-} from '@mongodb-js/compass-telemetry/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 
-export const CompassIndexesHadronPlugin = registerHadronPlugin<
-  CollectionTabPluginMetadata,
-  {
-    dataService: () => IndexesDataService;
-    connectionInfoAccess: () => ConnectionInfoAccess;
-    instance: () => MongoDBInstance;
-    logger: () => Logger;
-    track: () => TrackFunction;
-  }
->(
+export const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassIndexes',
     component: Indexes as React.FunctionComponent,

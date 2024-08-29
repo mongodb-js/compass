@@ -56,10 +56,10 @@ In addition to running lerna commands directly, there are a few convenient npm s
 To build compass you can run `package-compass` script:
 
 ```sh
-npm run package-compass
+HADRON_DISTRIBUTION='compass' npm run package-compass
 ```
 
-You can change the type of distribution you are building with `HADRON_DISTRIBUTION` environmental variable:
+It is required to provide `HADRON_DISTRIBUTION` env variable explicitly. You can change the type of distribution you are building by setting a different `HADRON_DISTRIBUTION` value:
 
 ```sh
 HADRON_DISTRIBUTION='compass-readonly' npm run package-compass

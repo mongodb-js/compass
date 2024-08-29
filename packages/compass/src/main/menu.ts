@@ -151,7 +151,7 @@ function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const { enableNewMultipleConnectionSystem: isMultiConnectionsEnabled } =
+  const { enableMultipleConnectionSystem: isMultiConnectionsEnabled } =
     app.preferences.getPreferences();
 
   const singleConnectionItems: MenuTemplate = [
@@ -182,7 +182,7 @@ function connectSubMenu(
   }
 
   return {
-    label: '&Connect',
+    label: '&Connections',
     submenu: subMenu,
   };
 }
@@ -440,7 +440,7 @@ function viewSubMenu(
 function windowSubMenu(
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const { enableNewMultipleConnectionSystem: isMultiConnectionsEnabled } =
+  const { enableMultipleConnectionSystem: isMultiConnectionsEnabled } =
     app.preferences.getPreferences();
 
   const submenu: MenuTemplate = [

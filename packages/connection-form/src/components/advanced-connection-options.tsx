@@ -35,11 +35,13 @@ function AdvancedConnectionOptions({
   connectionOptions,
   open,
   setOpen,
+  openSettingsModal,
 }: {
   errors: ConnectionFormError[];
   disabled: boolean;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
 } & Pick<
   React.ComponentProps<typeof Accordion>,
   'open' | 'setOpen'
@@ -62,6 +64,7 @@ function AdvancedConnectionOptions({
           errors={errors}
           updateConnectionFormField={updateConnectionFormField}
           connectionOptions={connectionOptions}
+          openSettingsModal={openSettingsModal}
         />
       </div>
     </Accordion>

@@ -84,6 +84,9 @@ function injectCSP() {
     extraAllowed.push('http://localhost:*');
     // WS allowed for webpack hot update
     extraAllowed.push('ws://localhost:*');
+    // Used by proxy tests, since Chrome does not like proxying localhost
+    // (this does not result in actual outgoing HTTP requests)
+    extraAllowed.push('http://compass.mongodb.com/');
   }
   const cspContent =
     Object.entries(defaultCSP)

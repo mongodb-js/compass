@@ -12,10 +12,7 @@ const serviceLocators = {
   workspaces: workspacesServiceLocator,
 };
 
-export const WelcomePlugin = registerHadronPlugin<
-  React.ComponentProps<typeof WelcomeTab>,
-  typeof serviceLocators
->(
+export const WelcomePlugin = registerHadronPlugin(
   {
     name: 'Welcome',
     component: WelcomeTab,

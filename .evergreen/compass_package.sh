@@ -8,7 +8,7 @@ if [[ "$OSTYPE" == "cygwin" ]]; then
 fi
 
 echo "Creating signed release build..."
-npm run package-compass-nocompile $COMPASS_DISTRIBUTION
+npm run package-compass-nocompile
 npm run generate-first-party-deps-json
 
 ls -la packages/compass/dist

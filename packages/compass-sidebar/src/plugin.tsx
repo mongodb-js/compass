@@ -9,10 +9,7 @@ import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/legacy/sidebar';
 import { usePreference } from 'compass-preferences-model/provider';
 import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
-import {
-  ConnectionInfoProvider,
-  useActiveConnections,
-} from '@mongodb-js/compass-connections/provider';
+import { useSingleConnectionModeConnectionInfoStatus } from '@mongodb-js/compass-connections/provider';
 
 const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
@@ -25,32 +22,13 @@ export interface SidebarPluginProps {
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showConnectionInfo,
 }) => {
-  const [activeConnection] = useActiveConnections();
   const isMultiConnectionEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
+  const { connectionInfo } = useSingleConnectionModeConnectionInfoStatus();
 
   const activeWorkspace = useActiveWorkspace();
   const { log, mongoLogId } = useLogger('COMPASS-SIDEBAR-UI');
-
-  let sidebar;
-  if (isMultiConnectionEnabled) {
-    sidebar = <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />;
-  } else {
-    sidebar = (
-      <ConnectionInfoProvider connectionInfoId={activeConnection?.id}>
-        {(connectionInfo) => {
-          return (
-            <Sidebar
-              showConnectionInfo={showConnectionInfo}
-              initialConnectionInfo={connectionInfo}
-              activeWorkspace={activeWorkspace}
-            />
-          );
-        }}
-      </ConnectionInfoProvider>
-    );
-  }
 
   return (
     <ErrorBoundary
@@ -65,7 +43,15 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
         );
       }}
     >
-      {sidebar}
+      {isMultiConnectionEnabled && (
+        <MultipleConnectionSidebar activeWorkspace={activeWorkspace} />
+      )}
+      {!isMultiConnectionEnabled && connectionInfo && (
+        <Sidebar
+          showConnectionInfo={showConnectionInfo}
+          activeWorkspace={activeWorkspace}
+        />
+      )}
     </ErrorBoundary>
   );
 };

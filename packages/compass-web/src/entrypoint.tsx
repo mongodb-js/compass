@@ -1,13 +1,13 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from 'hadron-app-registry';
 import {
-  ConnectionsManager,
-  ConnectionsManagerProvider,
   type ConnectionInfo,
   ConnectionInfoProvider,
+  useConnectionActions,
+  useSingleConnectionModeConnectionInfoStatus,
 } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
@@ -55,7 +55,10 @@ import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provid
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
-import { AtlasCloudConnectionStorageProvider } from './connection-storage';
+import {
+  AtlasCloudConnectionStorageProvider,
+  useSandboxAutoconnectInfo,
+} from './connection-storage';
 import { AtlasCloudAuthServiceProvider } from './atlas-auth-service';
 import type {
   TrackFunction,
@@ -107,6 +110,8 @@ type CompassWebProps = {
   onLog?: LogFunction;
   onDebug?: DebugFunction;
   onTrack?: TrackFunction;
+
+  onAutoconnectInfoRequest?: () => Promise<ConnectionInfo>;
 };
 
 function CompassWorkspace({
@@ -173,6 +178,24 @@ function CompassWorkspace({
   );
 }
 
+const WithSingleConnectionState: React.FunctionComponent<{
+  children: (
+    status: ReturnType<typeof useSingleConnectionModeConnectionInfoStatus>
+  ) => React.ReactNode;
+}> = ({ children }) => {
+  const status = useSingleConnectionModeConnectionInfoStatus();
+  const actions = useConnectionActions();
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      void actions.refreshConnections();
+    }, /* Matches default polling intervals in mms codebase */ 60_000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [actions]);
+  return <>{children(status)}</>;
+};
+
 const LINK_PROPS = {
   utmSource: 'DE',
   utmMedium: 'product',
@@ -197,62 +220,13 @@ const CompassWeb = ({
   onLog,
   onDebug,
   onTrack,
-  // @ts-expect-error not an interface we want to expose in any way, only for
-  // testing purposes, should never be used otherwise
-  __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
+  onAutoconnectInfoRequest,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
   const logger = useCompassWebLoggerAndTelemetry({
     onLog,
     onDebug,
   });
-
-  const connectionsManager = useRef(
-    new ConnectionsManager({
-      appName,
-      logger: logger.log.unbound,
-      __TEST_CONNECT_FN: __TEST_MONGODB_DATA_SERVICE_CONNECT_FN,
-    })
-  );
-
-  const [{ connectionInfo, isConnected, connectionError }, setConnectedState] =
-    useState<{
-      connectionInfo: ConnectionInfo | null;
-      isConnected: boolean;
-      connectionError: any | null;
-    }>({ connectionInfo: null, isConnected: false, connectionError: null });
-
-  const onConnected = useCallback((connectionInfo: ConnectionInfo) => {
-    setConnectedState({
-      isConnected: true,
-      connectionInfo,
-      connectionError: null,
-    });
-  }, []);
-
-  const onConnectionFailed = useCallback(
-    (connectionInfo: ConnectionInfo | null, error: Error) => {
-      setConnectedState((prevState) => {
-        return {
-          isConnected: false,
-          connectionInfo: connectionInfo ?? prevState.connectionInfo,
-          connectionError: error,
-        };
-      });
-    },
-    []
-  );
-
-  const onConnectionAttemptStarted = useCallback(
-    (connectionInfo: ConnectionInfo) => {
-      setConnectedState({
-        isConnected: false,
-        connectionInfo,
-        connectionError: null,
-      });
-    },
-    []
-  );
 
   const preferencesAccess = useRef(
     new ReadOnlyPreferenceAccess({
@@ -262,7 +236,7 @@ const CompassWeb = ({
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
       enableGenAIFeatures: false,
-      enableNewMultipleConnectionSystem: false,
+      enableMultipleConnectionSystem: false,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
         GEN_AI_COMPASS: false,
@@ -276,7 +250,6 @@ const CompassWeb = ({
   const initialWorkspaceTabsRef = useRef(
     initialWorkspaceRef.current ? [initialWorkspaceRef.current] : []
   );
-  const autoConnectConnectionId = initialWorkspaceRef.current?.connectionId;
 
   const onTrackRef = useRef(onTrack);
 
@@ -287,6 +260,8 @@ const CompassWeb = ({
     logger,
     preferences: preferencesAccess.current,
   });
+
+  const sandboxAutoconnectOptions = useSandboxAutoconnectInfo();
 
   return (
     <GlobalAppRegistryProvider value={appRegistry.current}>
@@ -305,46 +280,61 @@ const CompassWeb = ({
                   <AtlasCloudConnectionStorageProvider
                     orgId={orgId}
                     projectId={projectId}
-                    autoConnectConnectionId={autoConnectConnectionId}
                   >
-                    <ConnectionsManagerProvider
-                      value={connectionsManager.current}
+                    <CompassConnections
+                      appName={appName ?? 'Compass Web'}
+                      onExtraConnectionDataRequest={() => {
+                        return Promise.resolve([{}, null] as [
+                          Record<string, unknown>,
+                          null
+                        ]);
+                      }}
+                      onAutoconnectInfoRequest={
+                        onAutoconnectInfoRequest ??
+                        (() => {
+                          return Promise.resolve(
+                            sandboxAutoconnectOptions ?? undefined
+                          );
+                        })
+                      }
                     >
-                      <CompassConnections
-                        onConnectionAttemptStarted={onConnectionAttemptStarted}
-                        onConnectionFailed={onConnectionFailed}
-                        onConnected={onConnected}
-                      >
-                        <CompassInstanceStorePlugin>
-                          <FieldStorePlugin>
-                            {isConnected && connectionInfo ? (
-                              <AppRegistryProvider
-                                key={connectionInfo.id}
-                                scopeName="Connected Application"
-                              >
-                                <ConnectionInfoProvider
-                                  connectionInfoId={connectionInfo.id}
+                      <CompassInstanceStorePlugin>
+                        <FieldStorePlugin>
+                          <WithSingleConnectionState>
+                            {({
+                              isConnected,
+                              connectionInfo,
+                              connectionError,
+                            }) => {
+                              return isConnected && connectionInfo ? (
+                                <AppRegistryProvider
+                                  key={connectionInfo.id}
+                                  scopeName="Connected Application"
                                 >
-                                  <CompassWorkspace
-                                    connectionInfo={connectionInfo}
-                                    initialWorkspaceTabs={
-                                      initialWorkspaceTabsRef.current
-                                    }
-                                    onActiveWorkspaceTabChange={
-                                      onActiveWorkspaceTabChange
-                                    }
-                                  />
-                                </ConnectionInfoProvider>
-                              </AppRegistryProvider>
-                            ) : connectionError ? (
-                              renderError(connectionInfo, connectionError)
-                            ) : (
-                              renderConnecting(connectionInfo)
-                            )}
-                          </FieldStorePlugin>
-                        </CompassInstanceStorePlugin>
-                      </CompassConnections>
-                    </ConnectionsManagerProvider>
+                                  <ConnectionInfoProvider
+                                    connectionInfoId={connectionInfo.id}
+                                  >
+                                    <CompassWorkspace
+                                      connectionInfo={connectionInfo}
+                                      initialWorkspaceTabs={
+                                        initialWorkspaceTabsRef.current
+                                      }
+                                      onActiveWorkspaceTabChange={
+                                        onActiveWorkspaceTabChange
+                                      }
+                                    />
+                                  </ConnectionInfoProvider>
+                                </AppRegistryProvider>
+                              ) : connectionError ? (
+                                renderError(connectionInfo, connectionError)
+                              ) : (
+                                renderConnecting(connectionInfo)
+                              );
+                            }}
+                          </WithSingleConnectionState>
+                        </FieldStorePlugin>
+                      </CompassInstanceStorePlugin>
+                    </CompassConnections>
                   </AtlasCloudConnectionStorageProvider>
                 </WithAtlasProviders>
               </TelemetryProvider>

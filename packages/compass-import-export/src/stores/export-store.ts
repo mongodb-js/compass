@@ -11,7 +11,6 @@ import {
 } from '../modules/export';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import { ConnectionsManagerEvents } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type {
   ConnectionRepositoryAccess,
@@ -116,13 +115,9 @@ export function activatePlugin(
       );
     }
   );
-  on(
-    connectionsManager,
-    ConnectionsManagerEvents.ConnectionDisconnected,
-    function (connectionId: string) {
-      store.dispatch(connectionDisconnected(connectionId));
-    }
-  );
+  on(connectionsManager, 'disconnected', function (connectionId: string) {
+    store.dispatch(connectionDisconnected(connectionId));
+  });
 
   addCleanup(() => {
     // We use close and not cancel because cancel doesn't actually cancel
@@ -135,3 +130,5 @@ export function activatePlugin(
     deactivate: cleanup,
   };
 }
+
+export type ExportStore = ReturnType<typeof configureStore>;

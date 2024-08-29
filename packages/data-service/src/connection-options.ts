@@ -10,6 +10,10 @@ export type OIDCOptions = Omit<
   // to match the connection string hosts, including possible SRV "sibling" domains.
   enableUntrustedEndpoints?: boolean;
 
+  // Set either devtools-connect's applyProxyToOIDC flag or create a custom Agent
+  // based on application-level HTTP settings. Defaults to 'false', i.e. app-level proxying.
+  shareProxyWithConnection?: boolean;
+
   allowedFlows?: ExtractArrayEntryType<
     NonNullable<DevtoolsConnectOptions['oidc']>['allowedFlows']
   >[];
@@ -27,9 +31,10 @@ export interface ConnectionOptions {
   sshTunnel?: ConnectionSshOptions;
 
   /**
-   * If true, the connection uses the system CA store instead of tlsCAFile or the default Node.js store.
+   * Alternative to Socks5 proxying / SSH tunnel: If set, inherit Compass's application-level
+   * proxy settings.
    */
-  useSystemCA?: boolean;
+  useApplicationLevelProxy?: boolean;
 
   /**
    * If present the connection should use OIDC authentication.

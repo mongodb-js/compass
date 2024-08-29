@@ -160,12 +160,12 @@ const GridControls: React.FunctionComponent<{
     openShellWorkspace,
   } = useOpenWorkspace();
   const track = useTelemetry();
-  const { enableShell, enableNewMultipleConnectionSystem } = usePreferences([
+  const { enableShell, enableMultipleConnectionSystem } = usePreferences([
     'enableShell',
-    'enableNewMultipleConnectionSystem',
+    'enableMultipleConnectionSystem',
   ]);
 
-  const showOpenShellButton = enableShell && enableNewMultipleConnectionSystem;
+  const showOpenShellButton = enableShell && enableMultipleConnectionSystem;
 
   const breadcrumbs = useMemo(() => {
     const { database } = toNS(namespace ?? '');

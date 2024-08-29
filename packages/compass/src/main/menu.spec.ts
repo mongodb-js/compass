@@ -287,7 +287,8 @@ describe('CompassMenu', function () {
       }
     });
 
-    it('[single-connection] should generate a menu template for darwin', function () {
+    // TODO(COMPASS-7906): remove
+    it.skip('[single-connection] should generate a menu template for darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
       expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
         {
@@ -310,7 +311,7 @@ describe('CompassMenu', function () {
           ],
         },
         {
-          label: '&Connect',
+          label: '&Connections',
           submenu: [
             { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
             { label: '&Disconnect' },
@@ -373,7 +374,7 @@ describe('CompassMenu', function () {
 
     it('[multiple-connection] should generate a menu template for darwin', async function () {
       await App.preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
       sinon.stub(process, 'platform').value('darwin');
       expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
@@ -397,7 +398,7 @@ describe('CompassMenu', function () {
           ],
         },
         {
-          label: '&Connect',
+          label: '&Connections',
           submenu: [
             { label: '&Import Saved Connections' },
             { label: '&Export Saved Connections' },
@@ -457,12 +458,13 @@ describe('CompassMenu', function () {
     });
 
     ['linux', 'win32'].forEach((platform) => {
-      it(`[single-connection] should generate a menu template for ${platform}`, function () {
+      // TODO(COMPASS-7906): remove
+      it.skip(`[single-connection] should generate a menu template for ${platform}`, function () {
         sinon.stub(process, 'platform').value(platform);
 
         expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
           {
-            label: '&Connect',
+            label: '&Connections',
             submenu: [
               { label: 'New &Window', accelerator: 'CmdOrCtrl+N' },
               { label: '&Disconnect' },
@@ -523,13 +525,13 @@ describe('CompassMenu', function () {
 
       it(`[multiple-connection] should generate a menu template for ${platform}`, async function () {
         await App.preferences.savePreferences({
-          enableNewMultipleConnectionSystem: true,
+          enableMultipleConnectionSystem: true,
         });
         sinon.stub(process, 'platform').value(platform);
 
         expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
           {
-            label: '&Connect',
+            label: '&Connections',
             submenu: [
               { label: '&Import Saved Connections' },
               { label: '&Export Saved Connections' },

@@ -30,8 +30,8 @@ import {
 } from '@mongodb-js/connection-info';
 import type { RootState, SidebarThunkAction } from '../../modules';
 import {
-  ConnectionStatus,
   type useConnectionsWithStatus,
+  ConnectionStatus,
 } from '@mongodb-js/compass-connections/provider';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -489,7 +489,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         </>
       ) : (
         <div className={noDeploymentStyles}>
-          <Body>You have not connected to any deployments.</Body>
+          <Body data-testid="no-deployments-text">
+            You have not connected to any deployments.
+          </Body>
           <Button
             data-testid="add-new-connection-button"
             variant={ButtonVariant.Primary}

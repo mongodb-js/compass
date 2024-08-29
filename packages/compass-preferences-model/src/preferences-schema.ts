@@ -5,6 +5,14 @@ import {
   featureFlags,
 } from './feature-flags';
 import { parseRecord } from './parse-record';
+import {
+  extractProxySecrets,
+  mergeProxySecrets,
+} from '@mongodb-js/devtools-proxy-support/proxy-options';
+import {
+  proxyOptionsToProxyPreference,
+  proxyPreferenceToProxyOptions,
+} from './utils';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
@@ -59,6 +67,9 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     enableShowDialogOnQuit: boolean;
+    enableMultipleConnectionSystem: boolean;
+    enableProxySupport: boolean;
+    proxy: string;
   };
 
 export type InternalUserPreferences = {
@@ -139,6 +150,11 @@ export type DeriveValueFunction<T> = (
   getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
 ) => { value: T; state: PreferenceState };
 
+type SecretsConfiguration<T> = {
+  extract(original: T): { remainder: string; secrets: string };
+  merge(extracted: { remainder: string; secrets: string }): T;
+};
+
 type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
@@ -175,6 +191,11 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     AllPreferences[K] | undefined
   >;
   type: PreferenceType<AllPreferences[K]>;
+  secrets?: K extends keyof UserPreferences
+    ? AllPreferences[K] extends string
+      ? SecretsConfiguration<AllPreferences[K]>
+      : undefined
+    : undefined;
 };
 
 export type PreferenceStateInformation = Partial<
@@ -193,7 +214,7 @@ const featureFlagsProps: Required<{
 }> = Object.fromEntries(
   Object.entries(featureFlags).map(([key, value]) => [
     key as keyof FeatureFlags,
-    featureFlagToPreferenceDefinition(value),
+    featureFlagToPreferenceDefinition(key, value),
   ])
 ) as unknown as Required<{
   [K in keyof FeatureFlags]: PreferenceDefinition<K>;
@@ -760,6 +781,64 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
+  enableMultipleConnectionSystem: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enables support for multiple connections.',
+      long: 'Allows users to open multiple connections in the same window.',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  proxy: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a proxy for Compass to use',
+      long: 'Specify a HTTP, HTTPS or Socks5 proxy to use for connecting to external services (default is picking proxies from environment variables)',
+    },
+    // Internally either a URL or a DevtoolsProxyOptions object as JSON
+    validator: z
+      .union([
+        z.string().url(),
+        z.literal(''),
+        z.custom<string>((val) => {
+          if (typeof val !== 'string') return false;
+          try {
+            JSON.parse(val);
+            return true;
+          } catch {
+            return false;
+          }
+        }),
+      ])
+      .default(''),
+    type: 'string',
+    secrets: {
+      extract(original) {
+        const { secrets, ...remainder } = extractProxySecrets(
+          proxyPreferenceToProxyOptions(original)
+        );
+        return {
+          remainder: JSON.stringify(remainder),
+          secrets: JSON.stringify(secrets),
+        };
+      },
+      merge({ remainder, secrets }) {
+        return proxyOptionsToProxyPreference(
+          mergeProxySecrets({
+            ...JSON.parse(remainder),
+            secrets: JSON.parse(secrets),
+          })
+        );
+      },
+    },
+  },
+
   ...allFeatureFlagsProps,
 };
 
@@ -960,6 +1039,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
 
 // Helper to convert feature flag definitions to preference definitions
 function featureFlagToPreferenceDefinition(
+  key: string,
   featureFlag: FeatureFlagDefinition
 ): PreferenceDefinition<keyof FeatureFlags> {
   return {
@@ -997,6 +1077,18 @@ export function getDefaultsForStoredPreferences(): StoredPreferences {
       .map(([key, value]) => [key, value.validator.parse(undefined)])
       .filter(([, value]) => value !== undefined)
   );
+}
+
+export function listEncryptedStoredPreferences(): [
+  keyof StoredPreferences,
+  SecretsConfiguration<string>
+][] {
+  return Object.entries(storedUserPreferencesProps)
+    .filter(([, value]) => value.secrets)
+    .map(([key, { secrets }]) => [
+      key as keyof typeof storedUserPreferencesProps,
+      secrets!,
+    ]);
 }
 
 export function getSettingDescription<

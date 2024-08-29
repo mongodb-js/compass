@@ -82,9 +82,9 @@
         {
           "implicitChangeType": "unchanged",
           "changeType": "added",
-          "index": "3",
+          "index": 3,
           "right": {
-            "path": ["foo", "3"],
+            "path": ["foo", 3],
             "value": 4
           },
           "delta": null

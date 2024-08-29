@@ -5,8 +5,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_STRING_1,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -24,13 +24,18 @@ describe('Instance databases tab', function () {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
-    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
   });
 
   after(async function () {
@@ -100,7 +105,10 @@ describe('Instance databases tab', function () {
       'add-database-modal-basic.png'
     );
 
-    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
     const selector = Selectors.databaseCard(dbName);
     await browser.scrollToVirtualItem(
@@ -136,7 +144,7 @@ describe('Instance databases tab', function () {
 
     // the app should stay on the instance Databases tab.
     await browser.waitUntilActiveConnectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'Databases'
     );
   });
@@ -146,7 +154,10 @@ describe('Instance databases tab', function () {
     const dbSelector = Selectors.databaseCard(db);
 
     // Browse to the databases tab
-    await browser.navigateToConnectionTab(DEFAULT_CONNECTION_NAME, 'Databases');
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
     // Make sure the db card we're going to drop is in there.
     await browser.scrollToVirtualItem(
@@ -163,7 +174,7 @@ describe('Instance databases tab', function () {
     });
 
     // Drop the database using the driver
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING);
+    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);

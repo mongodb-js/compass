@@ -42,7 +42,8 @@ function renderNavigationItems(
 const createDatabaseText = 'Create database';
 const refreshCTAText = 'Refresh databases';
 
-describe('NavigationItems [Component]', function () {
+// TODO(COMPASS-7906): remove
+describe.skip('NavigationItems [Component]', function () {
   afterEach(cleanup);
 
   describe('when rendered', function () {

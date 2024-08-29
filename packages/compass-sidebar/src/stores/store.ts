@@ -37,6 +37,7 @@ export function createSidebarStore(
   );
 
   const instances = instancesManager.listMongoDBInstances();
+
   for (const [connectionId, instance] of instances) {
     store.dispatch(setupInstance(connectionId, instance));
   }
