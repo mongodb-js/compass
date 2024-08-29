@@ -6,6 +6,7 @@ import {
   Icon,
   IconButton,
   spacing,
+  useHoverState,
 } from '@mongodb-js/compass-components';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -43,7 +44,10 @@ function getNextKmsProviderName<T extends KMSProviderType>(
   return `${kmsProviderType}:${name}`;
 }
 
-function KMSProviderContent<T extends KMSProviderType>({
+function KMSProviderCard<T extends KMSProviderType>({
+  kmsProviderName,
+  showHeader,
+  onRemove,
   updateConnectionFormField,
   connectionOptions,
   errors,
@@ -51,7 +55,49 @@ function KMSProviderContent<T extends KMSProviderType>({
   fields,
   clientCertIsOptional,
   noTLS,
-}: {
+}: KMSProviderContentProps<T> & {
+  kmsProviderName: KMSProviderName<T>;
+  showHeader: boolean;
+  onRemove: () => void;
+}) {
+  const [hoverProps, isHovered] = useHoverState();
+  return (
+    <Card
+      data-testid={`${kmsProviderName}-kms-card-item`}
+      key={kmsProviderName}
+      className={cardStyles}
+      {...hoverProps}
+    >
+      {showHeader && (
+        <div data-testid="kms-card-header" className={flexContainerStyles}>
+          <h4>{kmsProviderName}</h4>
+          {isHovered && (
+            <IconButton
+              aria-label="Remove KMS provider"
+              className={pushRightStyles}
+              onClick={onRemove}
+            >
+              <Icon glyph="Trash" />
+            </IconButton>
+          )}
+        </div>
+      )}
+      <KMSProviderFieldsForm
+        key={kmsProviderName}
+        errors={errors}
+        connectionOptions={connectionOptions}
+        updateConnectionFormField={updateConnectionFormField}
+        kmsProviderType={kmsProviderType}
+        kmsProviderName={kmsProviderName}
+        fields={fields}
+        clientCertIsOptional={clientCertIsOptional}
+        noTLS={noTLS}
+      />
+    </Card>
+  );
+}
+
+type KMSProviderContentProps<T extends KMSProviderType> = {
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
   errors: ConnectionFormError[];
@@ -59,7 +105,14 @@ function KMSProviderContent<T extends KMSProviderType>({
   fields: KMSField<T>[];
   clientCertIsOptional?: boolean;
   noTLS?: boolean;
-}): React.ReactElement {
+};
+
+function KMSProviderContent<T extends KMSProviderType>({
+  updateConnectionFormField,
+  connectionOptions,
+  kmsProviderType,
+  ...restOfTheProps
+}: KMSProviderContentProps<T>): React.ReactElement {
   const kmsProviderNames = useMemo(() => {
     const keys = Object.keys(
       connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
@@ -96,37 +149,16 @@ function KMSProviderContent<T extends KMSProviderType>({
   return (
     <>
       {kmsProviderNames.map((kmsProviderName) => (
-        <Card
-          data-testid={`${kmsProviderName}-kms-card-item`}
+        <KMSProviderCard
           key={kmsProviderName}
-          className={cardStyles}
-        >
-          {kmsProviderNames.length > 1 && (
-            <div data-testid="kms-card-header" className={flexContainerStyles}>
-              <h4>{kmsProviderName}</h4>
-              <IconButton
-                aria-label="Remove KMS provider"
-                className={pushRightStyles}
-                onClick={() => {
-                  removeKmsProvider(kmsProviderName);
-                }}
-              >
-                <Icon glyph="Trash" />
-              </IconButton>
-            </div>
-          )}
-          <KMSProviderFieldsForm
-            key={kmsProviderName}
-            errors={errors}
-            connectionOptions={connectionOptions}
-            updateConnectionFormField={updateConnectionFormField}
-            kmsProviderType={kmsProviderType}
-            kmsProviderName={kmsProviderName}
-            fields={fields}
-            clientCertIsOptional={clientCertIsOptional}
-            noTLS={noTLS}
-          />
-        </Card>
+          connectionOptions={connectionOptions}
+          updateConnectionFormField={updateConnectionFormField}
+          kmsProviderType={kmsProviderType}
+          kmsProviderName={kmsProviderName}
+          showHeader={kmsProviderNames.length > 1}
+          onRemove={() => removeKmsProvider(kmsProviderName)}
+          {...restOfTheProps}
+        />
       ))}
       <div className={flexContainerStyles}>
         <Button

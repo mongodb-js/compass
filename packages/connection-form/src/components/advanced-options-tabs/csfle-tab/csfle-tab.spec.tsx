@@ -16,6 +16,7 @@ import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
+import userEvent from '@testing-library/user-event';
 
 const openAdvancedTab = async (
   tabId: 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced' | 'csfle'
@@ -430,6 +431,8 @@ describe('In-Use Encryption', function () {
         )
       ).to.exist;
 
+      // we show remove button on hover
+      userEvent.hover(screen.getByTestId('local-kms-card-item'));
       fireEvent.click(
         within(screen.getByTestId('local-kms-card-item')).getByRole('button', {
           name: /Remove KMS provider/i,
