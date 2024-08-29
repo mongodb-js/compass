@@ -87,7 +87,7 @@
     "mongodb": "^6.8.0",
     "mongodb-instance-model": "^12.24.0",
     "mongodb-ns": "^2.4.2",
-    "mongodb-query-parser": "^4.2.0",
+    "mongodb-query-parser": "^4.2.3",
     "mongodb-query-util": "^2.2.6",
     "mongodb-schema": "^12.2.0",
     "react": "^17.0.2",
