@@ -49,7 +49,7 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
 
   const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo(
     CACHE_DIR,
-    'continuous',
+    '8.0.0-rc18',
     downloadOptions
   );
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
