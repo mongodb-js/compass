@@ -6,6 +6,7 @@ import {
   DEFAULT_CONNECTION_NAME_1,
   DEFAULT_CONNECTION_NAME_2,
   TEST_MULTIPLE_CONNECTIONS,
+  TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -179,8 +180,11 @@ describe('Global Tabs', function () {
       Selectors.queryBarApplyFilterButton('Documents')
     );
 
-    // workspace 3: My Qeries
-    await browser.navigateToMyQueries();
+    // My Queries tab not supported by compass-web
+    if (!TEST_COMPASS_WEB) {
+      // workspace 3: My Queries
+      await browser.navigateToMyQueries();
+    }
 
     const workspace1Options = {
       connectionName: DEFAULT_CONNECTION_NAME_1,
@@ -208,9 +212,11 @@ describe('Global Tabs', function () {
       type: 'My Queries',
     };
 
-    expect(
-      await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
-    ).to.be.true;
+    if (!TEST_COMPASS_WEB) {
+      expect(
+        await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
+      ).to.be.true;
+    }
 
     // disconnect one connection
 
@@ -232,9 +238,11 @@ describe('Global Tabs', function () {
       await browser.$(Selectors.workspaceTab(workspace2Options)).isExisting()
     ).to.be.true;
 
-    // the My Queries workspace should still be there
-    expect(
-      await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
-    ).to.be.true;
+    if (!TEST_COMPASS_WEB) {
+      // the My Queries workspace should still be there
+      expect(
+        await browser.$(Selectors.workspaceTab(workspace3Options)).isExisting()
+      ).to.be.true;
+    }
   });
 });

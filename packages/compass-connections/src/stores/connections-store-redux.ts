@@ -18,7 +18,10 @@ import type {
 import { createConnectionAttempt } from 'mongodb-data-service';
 import { UUID } from 'bson';
 import { assign, cloneDeep, isEqual, merge } from 'lodash';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  proxyPreferenceToProxyOptions,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
@@ -1353,19 +1356,25 @@ const connectionAttemptError = (
 };
 
 export const autoconnectCheck = (
-  getAutoconnectInfo: () => Promise<ConnectionInfo | undefined>
+  getAutoconnectInfo: (
+    connectionStorage: ConnectionStorage
+  ) => Promise<ConnectionInfo | undefined>
 ): ConnectionsThunkAction<
   Promise<void>,
   ConnectionAutoconnectCheckAction | ConnectionAttemptErrorAction
 > => {
-  return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
+  return async (
+    dispatch,
+    _getState,
+    { logger: { log, mongoLogId }, connectionStorage }
+  ) => {
     try {
       log.info(
         mongoLogId(1_001_000_160),
         'Connection Store',
         'Performing automatic connection attempt'
       );
-      const connectionInfo = await getAutoconnectInfo();
+      const connectionInfo = await getAutoconnectInfo(connectionStorage);
       dispatch({
         type: ActionTypes.ConnectionAutoconnectCheck,
         connectionInfo: connectionInfo,
@@ -1582,6 +1591,9 @@ export const connect = (
 
         const connectionAttempt = createConnectionAttempt({
           logger: log.unbound,
+          proxyOptions: proxyPreferenceToProxyOptions(
+            preferences.getPreferences().proxy
+          ),
           connectFn,
         });
 

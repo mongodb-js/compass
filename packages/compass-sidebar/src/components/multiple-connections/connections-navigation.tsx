@@ -454,7 +454,10 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   return (
     <div className={connectionsContainerStyles}>
-      <div className={connectionListHeaderStyles}>
+      <div
+        className={connectionListHeaderStyles}
+        data-testid="connections-header"
+      >
         <Subtitle className={connectionListHeaderTitleStyles}>
           Connections
           {connections.length !== 0 && (

@@ -10,18 +10,17 @@ import {
   hookLogger as hookProxyLogger,
   createAgent,
 } from '@mongodb-js/devtools-proxy-support';
-import type { Tunnel } from '@mongodb-js/devtools-proxy-support';
+import type {
+  DevtoolsProxyOptions,
+  Tunnel,
+} from '@mongodb-js/devtools-proxy-support';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
 
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import type { ConnectionOptions } from './connection-options';
-import {
-  getCurrentApplicationProxyOptions,
-  getTunnelOptions,
-  waitForTunnelError,
-} from './ssh-tunnel-helpers';
+import { getTunnelOptions, waitForTunnelError } from './ssh-tunnel-helpers';
 import { runCommand } from './run-command';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { debug as _debug } from './logger';
@@ -65,11 +64,17 @@ function matchingAllowedHosts(
   return [...new Set(suffixes)];
 }
 
-export function prepareOIDCOptions(
-  connectionOptions: Readonly<ConnectionOptions>,
-  signal?: AbortSignal,
-  reauthenticationHandler?: ReauthenticationHandler
-): Required<
+export function prepareOIDCOptions({
+  connectionOptions,
+  proxyOptions = {},
+  signal,
+  reauthenticationHandler,
+}: {
+  connectionOptions: Readonly<ConnectionOptions>;
+  proxyOptions?: DevtoolsProxyOptions;
+  signal?: AbortSignal;
+  reauthenticationHandler?: ReauthenticationHandler;
+}): Required<
   Pick<
     DevtoolsConnectOptions,
     'oidc' | 'authMechanismProperties' | 'applyProxyToOIDC'
@@ -108,7 +113,7 @@ export function prepareOIDCOptions(
     options.applyProxyToOIDC = true;
   } else {
     options.oidc.customHttpOptions = {
-      agent: createAgent(getCurrentApplicationProxyOptions()),
+      agent: createAgent(proxyOptions),
     };
   }
 
@@ -119,6 +124,7 @@ export function prepareOIDCOptions(
 
 export async function connectMongoClientDataService({
   connectionOptions,
+  proxyOptions = {},
   setupListeners,
   signal,
   logger,
@@ -127,6 +133,7 @@ export async function connectMongoClientDataService({
   reauthenticationHandler,
 }: {
   connectionOptions: Readonly<ConnectionOptions>;
+  proxyOptions?: Readonly<DevtoolsProxyOptions>;
   setupListeners: (client: MongoClient) => void;
   signal?: AbortSignal;
   logger?: UnboundDataServiceImplLogger;
@@ -147,11 +154,12 @@ export async function connectMongoClientDataService({
     redactConnectionOptions(connectionOptions)
   );
 
-  const oidcOptions = prepareOIDCOptions(
+  const oidcOptions = prepareOIDCOptions({
     connectionOptions,
+    proxyOptions,
     signal,
-    reauthenticationHandler
-  );
+    reauthenticationHandler,
+  });
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
@@ -189,7 +197,7 @@ export async function connectMongoClientDataService({
   // If connectionOptions.sshTunnel is not defined, the tunnel
   // will also be undefined.
   const tunnel = createSocks5Tunnel(
-    getTunnelOptions(connectionOptions),
+    getTunnelOptions(connectionOptions, proxyOptions),
     'generate-credentials',
     'mongodb://'
   );

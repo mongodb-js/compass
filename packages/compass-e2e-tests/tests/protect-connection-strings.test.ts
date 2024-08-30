@@ -51,7 +51,10 @@ describe('protectConnectionStrings', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connection form not available in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

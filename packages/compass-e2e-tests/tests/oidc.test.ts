@@ -84,7 +84,10 @@ describe('OIDC integration', function () {
   let isFirstRun = true;
 
   before(async function () {
-    skipForWeb(this, 'feature flags not yet available in compass-web');
+    skipForWeb(
+      this,
+      'OIDC authentication type is not supported in compass-web'
+    );
 
     // OIDC is only supported on Linux in the 7.0+ enterprise server.
     // Test locally by setting OIDC_MOCK_HOSTNAME, OIDC_MOCK_PORT and OIDC_CONNECTION_STRING
