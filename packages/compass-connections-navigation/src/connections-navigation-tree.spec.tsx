@@ -77,6 +77,7 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: true,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: true,
     isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
@@ -99,6 +100,7 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: false,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: false,
     isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
@@ -760,6 +762,7 @@ describe('ConnectionsNavigationTree', function () {
             connections: [
               {
                 ...(connections[0] as ConnectedConnection),
+                isPerformanceTabSupported: true,
                 isPerformanceTabSupported: false,
               },
               { ...connections[1] },
