@@ -29,7 +29,7 @@ const ExpandAllDocumentsButton: React.FunctionComponent<
       size="xsmall"
       onClick={onClick}
       leftGlyph={<Icon glyph="Edit"></Icon>}
-      data-testid="crud-update"
+      data-testid="expand-all-documents-button"
     >
       <span className={hiddenOnNarrowStyles}>{buttonText} All</span>
     </Button>

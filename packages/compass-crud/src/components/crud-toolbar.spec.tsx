@@ -72,6 +72,7 @@ describe('CrudToolbar Component', function () {
             onResetClicked={noop}
             onUpdateButtonClicked={noop}
             onDeleteButtonClicked={noop}
+            onExpandAllDocumentsButtonClicked={noop}
             openExportFileDialog={noop}
             outdated={false}
             page={0}
@@ -83,6 +84,7 @@ describe('CrudToolbar Component', function () {
             updateMaxDocumentsPerPage={noop}
             queryLimit={0}
             querySkip={0}
+            allDocumentsExpanded={false}
             {...props}
           />
         </MockQueryBarPlugin>
@@ -343,6 +345,66 @@ describe('CrudToolbar Component', function () {
 
       userEvent.click(screen.getByText(deleteDataText).closest('button')!);
       expect(onDeleteButtonClickedSpy).to.have.been.called;
+    });
+  });
+
+  describe('expand all documents button', function () {
+    describe('and active document view is List or JSON', function () {
+      it('should render button on the screen', function () {
+        const activeDocumentViews = ['List', 'JSON'] as const;
+
+        for (const activeDocumentView of activeDocumentViews) {
+          renderCrudToolbar({ activeDocumentView });
+
+          expect(screen.queryByTestId('expand-all-documents-button')).to.exist;
+          expect(screen.queryByTestId('expand-all-documents-button')).to.be
+            .visible;
+
+          cleanup();
+        }
+      });
+
+      describe('and all documents are collapsed', function () {
+        it('should render button with text "Expand All"', function () {
+          renderCrudToolbar({ allDocumentsExpanded: false });
+
+          expect(
+            screen.getByTestId('expand-all-documents-button').textContent
+          ).to.be.equal('Expand All');
+        });
+
+        describe('and clicking the button', function () {
+          it('should call the onClick prop', function () {
+            const onExpandAllDocumentsButtonClicked = sinon.spy();
+            renderCrudToolbar({
+              allDocumentsExpanded: false,
+              onExpandAllDocumentsButtonClicked,
+            });
+            userEvent.click(screen.getByTestId('expand-all-documents-button'));
+
+            expect(onExpandAllDocumentsButtonClicked).to.have.been.calledOnce;
+          });
+        });
+      });
+
+      describe('and all documents are expanded', function () {
+        it('should render button with text "Collapse All"', function () {
+          renderCrudToolbar({ allDocumentsExpanded: true });
+
+          expect(
+            screen.getByTestId('expand-all-documents-button').textContent
+          ).to.be.equal('Collapse All');
+        });
+      });
+    });
+
+    describe('and active document view is Table', function () {
+      it('should not render button on the screen', function () {
+        renderCrudToolbar({ activeDocumentView: 'Table' });
+
+        expect(screen.queryByTestId('expand-all-documents-button')).to.not
+          .exist;
+      });
     });
   });
 
