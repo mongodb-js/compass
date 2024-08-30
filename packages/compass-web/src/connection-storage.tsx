@@ -12,6 +12,19 @@ import { createServiceProvider } from 'hadron-app-registry';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
+type ElectableSpecs = {
+  instanceSize?: string;
+};
+
+type RegionConfig = {
+  priority: number;
+  electableSpecs: ElectableSpecs;
+};
+
+type ReplicationSpec = {
+  regionConfigs: RegionConfig[];
+};
+
 type ClusterDescription = {
   '@provider': string;
   uniqueId: string;
@@ -21,6 +34,7 @@ type ClusterDescription = {
   srvAddress: string;
   state: string;
   deploymentItemName: string;
+  replicationSpecList?: ReplicationSpec[];
 };
 
 type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
@@ -96,6 +110,49 @@ function getMetricsIdAndType(
   };
 }
 
+// At the time of writing these are the possible instance sizes. If we main the
+// list here, then we'll have to maintain it..
+// free: 'M0',
+// shared: 'M2', 'M5',
+// serverless: 'SERVERLESS_V2', 'USS',
+// dedicated: 'M10', 'M100', 'M140', 'M20', 'M200', 'M250', 'M200_NVME', 'M30', 'M300', 'M300_NVME', 'M40', 'M400', 'M400_NVME', 'M40_NVME', 'M50', 'M50_NVME', 'M600_NVME', 'M60', 'M60_NVME', 'M600', 'M700', 'M80', 'M80_NVME', 'M90', 'R200', 'R300', 'R40', 'R400', 'R50', 'R60', 'R600', 'R700', 'R80',
+function getInstanceSize(
+  clusterDescription: ClusterDescription
+): string | undefined {
+  return getFirstInstanceSize(clusterDescription.replicationSpecList);
+}
+
+function getFirstInstanceSize(
+  replicationSpecs?: ReplicationSpec[]
+): string | undefined {
+  if (!replicationSpecs || replicationSpecs.length === 0) {
+    return undefined;
+  }
+  const preferredRegion = getPreferredRegion(replicationSpecs[0]);
+  if (!preferredRegion) {
+    return undefined;
+  }
+  return preferredRegion.electableSpecs.instanceSize;
+}
+
+// TODO: rather than hardcode this here, maybe we should just sort regionConfigs
+// by priority and take the highest one?
+const MAX_PRIORITY = 7;
+
+function getPreferredRegion(
+  replicationSpec: ReplicationSpec
+): RegionConfig | undefined {
+  return replicationSpec.regionConfigs.find(
+    (regionConfig) => regionConfig.priority === MAX_PRIORITY
+  );
+}
+
+export function isFreeOrSharedTierCluster(
+  instanceSize: string | undefined
+): boolean {
+  return instanceSize ? ['M0', 'M2', 'M5'].indexOf(instanceSize) !== -1 : false;
+}
+
 export function buildConnectionInfoFromClusterDescription(
   driverProxyEndpoint: string,
   orgId: string,
@@ -125,6 +182,14 @@ export function buildConnectionInfoFromClusterDescription(
     deployment
   );
 
+  const metricsAndType = getMetricsIdAndType(description, deploymentItem);
+  const { clusterType } = metricsAndType;
+
+  const instanceSize = getInstanceSize(description);
+  const supportsRollingIndexes =
+    !isFreeOrSharedTierCluster(instanceSize) &&
+    (clusterType === 'cluster' || clusterType === 'replicaSet');
+
   return {
     // Cluster name is unique inside the project (hence using it in the backend
     // urls as identifier) and using it as an id makes our job of mapping routes
@@ -146,7 +211,11 @@ export function buildConnectionInfoFromClusterDescription(
       projectId: projectId,
       clusterName: description.name,
       regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
-      ...getMetricsIdAndType(description, deploymentItem),
+      ...metricsAndType,
+      // TODO: I'm not sure that we should put instanceSize on here because
+      // right now we're only using it to calculate supportsRollingIndexes
+      instanceSize,
+      supportsRollingIndexes,
     },
   };
 }
