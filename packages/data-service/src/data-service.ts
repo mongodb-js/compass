@@ -1,4 +1,7 @@
-import type { Tunnel } from '@mongodb-js/devtools-proxy-support';
+import type {
+  DevtoolsProxyOptions,
+  Tunnel,
+} from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -926,6 +929,7 @@ function op<T extends unknown[], K>(
 
 class DataServiceImpl extends WithLogContext implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
+  private readonly _proxyOptions: Readonly<DevtoolsProxyOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
@@ -970,11 +974,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   constructor(
     connectionOptions: Readonly<ConnectionOptions>,
-    logger?: DataServiceImplLogger
+    logger?: DataServiceImplLogger,
+    proxyOptions?: DevtoolsProxyOptions
   ) {
     super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
+    this._proxyOptions = proxyOptions ?? {};
     const logComponent = 'COMPASS-DATA-SERVICE';
     const logCtx = `Connection ${this._id}`;
     this._logger = {
@@ -1465,6 +1471,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const [metadataClient, crudClient, tunnel, state, connectionOptions] =
         await connectMongoClient({
           connectionOptions: this._connectionOptions,
+          proxyOptions: this._proxyOptions,
           setupListeners: this._setupListeners.bind(this),
           signal,
           logger: this._unboundLogger,
