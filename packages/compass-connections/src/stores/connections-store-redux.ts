@@ -18,7 +18,10 @@ import type {
 import { createConnectionAttempt } from 'mongodb-data-service';
 import { UUID } from 'bson';
 import { assign, cloneDeep, isEqual, merge } from 'lodash';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  proxyPreferenceToProxyOptions,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
@@ -1588,6 +1591,9 @@ export const connect = (
 
         const connectionAttempt = createConnectionAttempt({
           logger: log.unbound,
+          proxyOptions: proxyPreferenceToProxyOptions(
+            preferences.getPreferences().proxy
+          ),
           connectFn,
         });
 
