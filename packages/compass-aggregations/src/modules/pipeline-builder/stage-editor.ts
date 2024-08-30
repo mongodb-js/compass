@@ -577,7 +577,7 @@ export const changeStageOperator = (
       'Aggregation Edited',
       {
         num_stages: pipelineFromStore(stages).length,
-        stage_action: 'stage_renamed',
+        stage_action: 'stage_renamed' as const,
         stage_name: stage.operator,
         stage_index: idxInPipeline + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
@@ -673,7 +673,7 @@ export const addStage = (
       'Aggregation Edited',
       {
         num_stages: pipelineFromStore(stages).length,
-        stage_action: 'stage_added',
+        stage_action: 'stage_added' as const,
         stage_index: stage.id + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       },
@@ -713,7 +713,7 @@ export const removeStage = (
       'Aggregation Edited',
       {
         num_stages: pipelineFromStore(stages).length,
-        stage_action: 'stage_deleted',
+        stage_action: 'stage_deleted' as const,
         stage_name: stage.operator,
         stage_index: idxInPipeline + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
@@ -774,7 +774,7 @@ export const moveStage = (
         'Aggregation Edited',
         {
           num_stages: pipelineFromStore(stages).length,
-          stage_action: 'stage_reordered',
+          stage_action: 'stage_reordered' as const,
           stage_name: stageAtFromIdx.stageOperator,
           stage_index: stageAtFromIdx.idxInPipeline + 1,
           editor_view_type: mapPipelineModeToEditorViewType(getState()),
@@ -944,7 +944,7 @@ export const convertWizardToStage = (
       'Aggregation Edited',
       {
         num_stages: pipelineFromStore(stages).length + 1,
-        stage_action: 'stage_added',
+        stage_action: 'stage_added' as const,
         stage_name: stage.operator,
         stage_index: afterStageIndex + 1,
         editor_view_type: 'stage',

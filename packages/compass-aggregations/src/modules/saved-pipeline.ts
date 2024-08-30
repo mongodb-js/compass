@@ -244,7 +244,7 @@ export const confirmOpenPipeline =
       {
         id: pipelineData.id,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
-        screen: 'aggregations',
+        screen: 'aggregations' as const,
       },
       connectionInfo
     );
@@ -275,7 +275,7 @@ export const confirmDeletePipeline =
       {
         id: pipelineId,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
-        screen: 'aggregations',
+        screen: 'aggregations' as const,
       },
       connectionInfo
     );

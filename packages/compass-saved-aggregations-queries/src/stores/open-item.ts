@@ -433,7 +433,7 @@ const openItem =
         : 'Query History Favorite Used',
       {
         id: item.id,
-        screen: 'my_queries',
+        screen: 'my_queries' as const,
       }
     );
 

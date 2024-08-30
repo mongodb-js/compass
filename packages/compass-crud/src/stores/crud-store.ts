@@ -489,7 +489,7 @@ class CrudStoreImpl
    * to update if the labels change at some point.
    */
   modeForTelemetry() {
-    return this.state.view.toLowerCase();
+    return this.state.view.toLowerCase() as 'list' | 'json' | 'table';
   }
 
   /**

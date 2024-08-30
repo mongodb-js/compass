@@ -48,7 +48,7 @@ export const AtlasStagePreview = ({
         href={ATLAS_LINK}
         target="_blank"
         onClick={() => {
-          track('Atlas Link Clicked', { screen: 'agg_builder' });
+          track('Atlas Link Clicked', { screen: 'agg_builder' as const });
         }}
         variant="primary"
       >

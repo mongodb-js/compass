@@ -48,17 +48,17 @@ type CompassApplicationMode = 'CLI' | 'GUI';
 
 const getContext = () => {
   return process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY
-    ? 'terminal'
-    : 'desktop_app';
+    ? ('terminal' as const)
+    : ('desktop_app' as const);
 };
 
 const getLaunchConnectionSource = (
   file?: string,
   positionalArguments?: string[]
 ) => {
-  if (file) return 'JSON_file';
-  if (positionalArguments?.length) return 'string';
-  return 'none';
+  if (file) return 'JSON_file' as const;
+  if (positionalArguments?.length) return 'string' as const;
+  return 'none' as const;
 };
 
 const hasConfig = (

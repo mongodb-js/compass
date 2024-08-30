@@ -49,7 +49,7 @@ const FavoriteItem = ({
       'Query History Favorite Used',
       {
         id: query._id,
-        screen: 'documents',
+        screen: 'documents' as const,
         isUpdateQuery,
       },
       connectionInfoAccess.getCurrentConnectionInfo()
@@ -80,7 +80,7 @@ const FavoriteItem = ({
       'Query History Favorite Removed',
       {
         id: query._id,
-        screen: 'documents',
+        screen: 'documents' as const,
         isUpdateQuery,
       },
       connectionInfoAccess.getCurrentConnectionInfo()

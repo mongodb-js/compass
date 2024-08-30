@@ -50,7 +50,7 @@ export const confirmDeleteItem = (
         : 'Query History Favorite Removed',
       {
         id: item.id,
-        screen: 'my_queries',
+        screen: 'my_queries' as const,
       }
     );
 

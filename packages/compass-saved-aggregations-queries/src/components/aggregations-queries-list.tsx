@@ -144,7 +144,7 @@ export const AggregationsQueriesList = ({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (filters.database) {
-        track('My Queries Filter', { type: 'database' });
+        track('My Queries Filter', { type: 'database' as const });
       }
     },
     [filters.database]
@@ -153,7 +153,7 @@ export const AggregationsQueriesList = ({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (filters.collection) {
-        track('My Queries Filter', { type: 'collection' });
+        track('My Queries Filter', { type: 'collection' as const });
       }
     },
     [filters.collection]
@@ -169,7 +169,10 @@ export const AggregationsQueriesList = ({
     (track: TrackFunction) => {
       track('My Queries Sort', {
         sort_by: sortState.name,
-        order: sortState.order === 1 ? 'ascending' : 'descending',
+        order:
+          sortState.order === 1
+            ? ('ascending' as const)
+            : ('descending' as const),
       });
     },
     [sortState]

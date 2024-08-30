@@ -84,7 +84,9 @@ export function AtlasHelpSection(): React.ReactElement {
             createClusterButtonStyles,
             !darkMode && createClusterButtonLightModeStyles
           )}
-          onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
+          onClick={() =>
+            track('Atlas Link Clicked', { screen: 'connect' as const })
+          }
           variant={ButtonVariant.PrimaryOutline}
           href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
           target="_blank"
