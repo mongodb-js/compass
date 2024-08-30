@@ -283,6 +283,9 @@ const useViewScrollTop = (view: DocumentView, isFetching: boolean) => {
   };
 };
 
+/**
+ * Encapsulates the logic for expanding / collapsing all documents in the current view.
+ */
 const useAllDocumentsExpanded = (docs: Document[]) => {
   const [allDocumentsExpanded, setAllDocumentsExpanded] = useState(false);
 
