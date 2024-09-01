@@ -313,6 +313,7 @@ describe('CSFLE / QE', function () {
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
+      let rangeAlgorithm: 'range' | 'rangePreview' = 'range';
 
       before(async function () {
         compass = await init(this.test?.fullTitle());
@@ -320,6 +321,9 @@ describe('CSFLE / QE', function () {
       });
 
       beforeEach(async function () {
+        if (serverSatisfies('< 7.99.99', true)) {
+          rangeAlgorithm = 'rangePreview';
+        }
         await browser.disconnectAll();
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
@@ -352,7 +356,7 @@ describe('CSFLE / QE', function () {
                   keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
                   bsonType: 'date',
                   queries: [{
-                    queryType: 'rangePreview',
+                    queryType: "${rangeAlgorithm}",
                     contention: 4,
                     sparsity: 1,
                     min: new Date('1970'),
@@ -534,15 +538,11 @@ describe('CSFLE / QE', function () {
       for (const [mode, coll] of [
         ['indexed', collectionName],
         ['unindexed', collectionNameUnindexed],
-        ['range', collectionNameRange],
+        [rangeAlgorithm, collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
-          // TODO(COMPASS-7760): re-enable after 7.3/8.0 support is ready
-          if (mode === 'range' && serverSatisfies('>= 8.0.0-alpha')) {
-            return this.skip();
-          }
           const [field, oldValue, newValue] =
-            mode !== 'range'
+            mode !== rangeAlgorithm
               ? ['phoneNumber', '"30303030"', '"10101010"']
               : [
                   'date',
