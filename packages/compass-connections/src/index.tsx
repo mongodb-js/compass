@@ -8,7 +8,10 @@ import React, { useContext, useRef } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionInfo,
+  ConnectionStorage,
+} from '@mongodb-js/connection-storage/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
 import {
   ConnectionActionsProvider,
@@ -24,7 +27,9 @@ const ConnectionsComponent: React.FunctionComponent<{
   onExtraConnectionDataRequest: (
     connectionInfo: ConnectionInfo
   ) => Promise<[Record<string, unknown>, string | null]>;
-  onAutoconnectInfoRequest?: () => Promise<ConnectionInfo | undefined>;
+  onAutoconnectInfoRequest?: (
+    connectionStorage: ConnectionStorage
+  ) => Promise<ConnectionInfo | undefined>;
   connectFn?: typeof devtoolsConnect | undefined;
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {

@@ -16,7 +16,10 @@ describe('showKerberosPasswordField', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connection form unavailable on compass-web');
+    skipForWeb(
+      this,
+      'kerberos authentication type is not supported in compass-web'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

@@ -18,7 +18,10 @@ import type {
 import { createConnectionAttempt } from 'mongodb-data-service';
 import { UUID } from 'bson';
 import { assign, cloneDeep, isEqual, merge } from 'lodash';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  proxyPreferenceToProxyOptions,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
 import { getNotificationTriggers } from '../components/connection-status-notifications';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
@@ -819,11 +822,23 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         state.connections,
         action.connectionInfo.id,
         {
-          // For new connections, update the state with new info right away (we
-          // will also save it to the storage at the end)
-          ...(isNewConnection(state, action.connectionInfo.id) && {
-            info: action.connectionInfo,
-          }),
+          ...(isNewConnection(state, action.connectionInfo.id)
+            ? {
+                // For new connections, update the state with new info right
+                // away (we will also save it to the storage at the end)
+                info: action.connectionInfo,
+              }
+            : {
+                info: {
+                  // For existing connections only update favorite info when
+                  // connection starts. That way it immediately updates in UI
+                  // and then also gets saved at the end of successfull
+                  // connection
+                  favorite: action.connectionInfo.favorite,
+                  savedConnectionType:
+                    action.connectionInfo.savedConnectionType,
+                },
+              }),
           status: 'connecting',
           error: null,
         }
@@ -1341,19 +1356,25 @@ const connectionAttemptError = (
 };
 
 export const autoconnectCheck = (
-  getAutoconnectInfo: () => Promise<ConnectionInfo | undefined>
+  getAutoconnectInfo: (
+    connectionStorage: ConnectionStorage
+  ) => Promise<ConnectionInfo | undefined>
 ): ConnectionsThunkAction<
   Promise<void>,
   ConnectionAutoconnectCheckAction | ConnectionAttemptErrorAction
 > => {
-  return async (dispatch, _getState, { logger: { log, mongoLogId } }) => {
+  return async (
+    dispatch,
+    _getState,
+    { logger: { log, mongoLogId }, connectionStorage }
+  ) => {
     try {
       log.info(
         mongoLogId(1_001_000_160),
         'Connection Store',
         'Performing automatic connection attempt'
       );
-      const connectionInfo = await getAutoconnectInfo();
+      const connectionInfo = await getAutoconnectInfo(connectionStorage);
       dispatch({
         type: ActionTypes.ConnectionAutoconnectCheck,
         connectionInfo: connectionInfo,
@@ -1573,6 +1594,9 @@ export const connect = (
 
         const connectionAttempt = createConnectionAttempt({
           logger: log.unbound,
+          proxyOptions: proxyPreferenceToProxyOptions(
+            preferences.getPreferences().proxy
+          ),
           connectFn,
         });
 

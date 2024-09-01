@@ -59,7 +59,7 @@ const navigationItemsContainerStyles = css({
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
-  showConnectionInfo = true,
+  showSidebarHeader = true,
   activeWorkspace,
   connectionInfo,
   setConnectionIsCSFLEEnabled,
@@ -67,7 +67,7 @@ export function Sidebar({
   csfleMode,
   onSidebarAction,
 }: {
-  showConnectionInfo?: boolean;
+  showSidebarHeader?: boolean;
   activeWorkspace: WorkspaceTab | null;
   connectionInfo: ConnectionInfo;
   setConnectionIsCSFLEEnabled: (connectionId: string, enabled: boolean) => void;
@@ -175,7 +175,7 @@ export function Sidebar({
       className={sidebarStyles}
     >
       <>
-        {showConnectionInfo && (
+        {showSidebarHeader && (
           <div>
             <SidebarTitle
               title={getConnectionTitle(connectionInfo)}

@@ -46,8 +46,8 @@ let MONGODB_USE_ENTERPRISE =
 
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
-// multiple connections is now the default when we're not testing compass-web
-export const TEST_MULTIPLE_CONNECTIONS = !TEST_COMPASS_WEB;
+// multiple connections is now the default
+export const TEST_MULTIPLE_CONNECTIONS = true;
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
