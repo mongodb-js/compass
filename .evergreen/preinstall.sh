@@ -41,6 +41,7 @@ if [ -n "$IS_WINDOWS" ]; then
     chmod +x npm.cmd npm
 
     cd ..
+    .evergreen/install-cmake-for-windows.sh
     .evergreen/node-gyp-bug-workaround.sh
 else
     if command -v ldd &> /dev/null && `ldd $(which bash) | grep 'libc.so' | awk '{print $3}'` | grep -Eq 'release version 2.(1|2[0-7])'; then
