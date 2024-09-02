@@ -135,16 +135,19 @@ function getFirstInstanceSize(
   return preferredRegion.electableSpecs.instanceSize;
 }
 
-// TODO: rather than hardcode this here, maybe we should just sort regionConfigs
-// by priority and take the highest one?
-const MAX_PRIORITY = 7;
-
 function getPreferredRegion(
   replicationSpec: ReplicationSpec
 ): RegionConfig | undefined {
-  return replicationSpec.regionConfigs.find(
-    (regionConfig) => regionConfig.priority === MAX_PRIORITY
-  );
+  let regionConfig: RegionConfig | undefined = undefined;
+
+  // find the RegionConfig in replicationSpec with the highest priority
+  for (const r of replicationSpec.regionConfigs) {
+    if (!regionConfig || r.priority > regionConfig.priority) {
+      regionConfig = r;
+    }
+  }
+
+  return regionConfig;
 }
 
 export function isFreeOrSharedTierCluster(
@@ -182,14 +185,6 @@ export function buildConnectionInfoFromClusterDescription(
     deployment
   );
 
-  const metricsAndType = getMetricsIdAndType(description, deploymentItem);
-  const { clusterType } = metricsAndType;
-
-  const instanceSize = getInstanceSize(description);
-  const supportsRollingIndexes =
-    !isFreeOrSharedTierCluster(instanceSize) &&
-    (clusterType === 'cluster' || clusterType === 'replicaSet');
-
   return {
     // Cluster name is unique inside the project (hence using it in the backend
     // urls as identifier) and using it as an id makes our job of mapping routes
@@ -211,11 +206,8 @@ export function buildConnectionInfoFromClusterDescription(
       projectId: projectId,
       clusterName: description.name,
       regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
-      ...metricsAndType,
-      // TODO: I'm not sure that we should put instanceSize on here because
-      // right now we're only using it to calculate supportsRollingIndexes
-      instanceSize,
-      supportsRollingIndexes,
+      ...getMetricsIdAndType(description, deploymentItem),
+      instanceSize: getInstanceSize(description),
     },
   };
 }

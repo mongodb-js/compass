@@ -12,8 +12,7 @@ export interface AtlasClusterMetadata {
   clusterName: string;
   clusterType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
   regionalBaseUrl: string;
-  // TODO: maybe instanceSize?
-  supportsRollingIndexes?: boolean;
+  instanceSize?: string;
 }
 
 export interface ConnectionInfo {
