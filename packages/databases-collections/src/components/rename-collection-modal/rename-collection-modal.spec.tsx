@@ -13,7 +13,7 @@ import { RenameCollectionPlugin } from '../..';
 describe('RenameCollectionModal [Component]', function () {
   const sandbox = Sinon.createSandbox();
   const dataService = {
-    renameCollection: sandbox.stub().resolves({}),
+    renameCollection: renameCollectionStub,
   };
   const instanceModel = {
     databases: {
@@ -198,5 +198,33 @@ describe('RenameCollectionModal [Component]', function () {
         });
       });
     });
+
+    context(
+      'when the user has submitted the form with extra whitespaces',
+      () => {
+        beforeEach(() => {
+          const submitButton = screen.getByTestId('submit-button');
+          const input = screen.getByTestId('rename-collection-name-input');
+          fireEvent.change(input, { target: { value: '  baz  ' } });
+          fireEvent.click(submitButton);
+
+          expect(screen.getByTestId('rename-collection-modal')).to.exist;
+
+          const confirmationButton = screen.getByTestId('submit-button');
+          expect(confirmationButton.textContent).to.equal(
+            'Yes, rename collection'
+          );
+
+          fireEvent.click(confirmationButton);
+        });
+
+        it('trims the white spaces on submit', () => {
+          expect(renameCollectionStub).to.have.been.calledWithExactly(
+            'foo.bar',
+            'baz'
+          );
+        });
+      }
+    );
   });
 });
