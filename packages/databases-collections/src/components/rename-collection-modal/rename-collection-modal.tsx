@@ -100,7 +100,7 @@ function RenameCollectionModal({
   const onFormSubmit = () => {
     if (modalState === 'confirmation-screen') {
       setModalState('input-form');
-      renameCollection(newName);
+      renameCollection(newName.trim());
     } else {
       setModalState('confirmation-screen');
     }
