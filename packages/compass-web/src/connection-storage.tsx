@@ -144,12 +144,6 @@ function getPreferredRegion(
   return regionConfig;
 }
 
-export function isFreeOrSharedTierCluster(
-  instanceSize: string | undefined
-): boolean {
-  return instanceSize ? ['M0', 'M2', 'M5'].indexOf(instanceSize) !== -1 : false;
-}
-
 export function buildConnectionInfoFromClusterDescription(
   driverProxyEndpoint: string,
   orgId: string,
