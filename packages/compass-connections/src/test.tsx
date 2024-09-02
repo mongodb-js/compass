@@ -56,6 +56,7 @@ import AppRegistry, {
 } from 'hadron-app-registry';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
+import ConnectionString from 'mongodb-connection-string-url';
 
 function wait(ms: number) {
   return new Promise((resolve) => {
@@ -88,7 +89,7 @@ type ConnectionsOptions = {
   >
 >;
 
-class MockDataService
+export class MockDataService
   extends EventEmitter
   implements
     Pick<
@@ -103,6 +104,12 @@ class MockDataService
   constructor(private connectionOptions: ConnectionInfo['connectionOptions']) {
     super();
     this.setMaxListeners(0);
+  }
+  getConnectionString() {
+    return new ConnectionString(this.connectionOptions.connectionString);
+  }
+  getConnectionOptions() {
+    return this.connectionOptions;
   }
   addReauthenticationHandler(): void {
     // noop

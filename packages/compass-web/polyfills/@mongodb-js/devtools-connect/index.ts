@@ -23,7 +23,12 @@ export async function connectMongoClient(
       getStateShareServer() {
         return Promise.resolve('Not Available');
       },
-      oidcPlugin: { logger },
+      oidcPlugin: {
+        logger,
+        serialize() {
+          return Promise.resolve(undefined);
+        },
+      },
       destroy() {
         return Promise.resolve();
       },

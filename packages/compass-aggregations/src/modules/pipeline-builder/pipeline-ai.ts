@@ -233,7 +233,9 @@ export const runAIPipelineGeneration = (
     const provideSampleDocuments =
       preferences.getPreferences().enableGenAISampleDocumentPassing;
 
-    const editor_view_type = pipelineMode === 'builder-ui' ? 'stages' : 'text';
+    const editor_view_type: 'stages' | 'text' =
+      pipelineMode === 'builder-ui' ? 'stages' : 'text';
+
     if (existingRequestId !== null) {
       // Cancel the active request as this one will override.
       abort(existingRequestId);
