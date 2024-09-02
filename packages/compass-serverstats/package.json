@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-serverstats",
   "description": "Compass Real Time",
   "private": true,
-  "version": "16.39.0",
+  "version": "16.39.1",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
@@ -30,11 +30,11 @@
   },
   "license": "SSPL",
   "dependencies": {
-    "@mongodb-js/compass-app-stores": "^7.26.0",
+    "@mongodb-js/compass-app-stores": "^7.26.1",
     "@mongodb-js/compass-components": "^1.29.2",
-    "@mongodb-js/compass-connections": "^1.40.0",
+    "@mongodb-js/compass-connections": "^1.40.1",
     "@mongodb-js/compass-telemetry": "^1.1.5",
-    "@mongodb-js/compass-workspaces": "^0.21.0",
+    "@mongodb-js/compass-workspaces": "^0.21.1",
     "d3": "^3.5.17",
     "d3-timer": "^1.0.3",
     "debug": "^4.3.4",
