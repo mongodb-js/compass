@@ -110,12 +110,6 @@ function getMetricsIdAndType(
   };
 }
 
-// At the time of writing these are the possible instance sizes. If we main the
-// list here, then we'll have to maintain it..
-// free: 'M0',
-// shared: 'M2', 'M5',
-// serverless: 'SERVERLESS_V2', 'USS',
-// dedicated: 'M10', 'M100', 'M140', 'M20', 'M200', 'M250', 'M200_NVME', 'M30', 'M300', 'M300_NVME', 'M40', 'M400', 'M400_NVME', 'M40_NVME', 'M50', 'M50_NVME', 'M600_NVME', 'M60', 'M60_NVME', 'M600', 'M700', 'M80', 'M80_NVME', 'M90', 'R200', 'R300', 'R40', 'R400', 'R50', 'R60', 'R600', 'R700', 'R80',
 function getInstanceSize(
   clusterDescription: ClusterDescription
 ): string | undefined {
