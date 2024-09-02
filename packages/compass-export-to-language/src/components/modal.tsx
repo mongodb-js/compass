@@ -152,10 +152,10 @@ const ExportToLanguageModal: React.FunctionComponent<
       if (mode === 'Query') {
         track('Query Export Opened', {}, connectionInfo);
       } else if (mode === 'Delete Query') {
-        track('Update Export Opened', {}, connectionInfo);
-      } else if (mode === 'Pipeline') {
         track('Delete Export Opened', {}, connectionInfo);
       } else if (mode === 'Update Query') {
+        track('Update Export Opened', {}, connectionInfo);
+      } else if (mode === 'Pipeline') {
         track(
           'Aggregation Export Opened',
           {
@@ -197,7 +197,7 @@ const ExportToLanguageModal: React.FunctionComponent<
         commonProps,
         connectionInfoAccess.getCurrentConnectionInfo()
       );
-    } else {
+    } else if (mode === 'Pipeline') {
       track(
         'Aggregation Exported',
         {
