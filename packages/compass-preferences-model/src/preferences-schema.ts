@@ -68,6 +68,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maximumNumberOfActiveConnections?: number;
     enableShowDialogOnQuit: boolean;
     enableMultipleConnectionSystem: boolean;
+    enableCreatingNewConnections: boolean;
     enableProxySupport: boolean;
     proxy: string;
   };
@@ -837,6 +838,18 @@ export const storedUserPreferencesProps: Required<{
         );
       },
     },
+  },
+
+  enableCreatingNewConnections: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Enables creating new connection (accessing connection editing form) in Compass UI',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   ...allFeatureFlagsProps,
