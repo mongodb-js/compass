@@ -37,7 +37,7 @@ type ClusterDescription = {
   replicationSpecList?: ReplicationSpec[];
 };
 
-type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
+export type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
   dataProcessingRegion: { regionalUrl: string };
 };
 
