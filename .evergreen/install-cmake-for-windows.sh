@@ -18,8 +18,10 @@ unzip -q "$FILE_NAME.zip"
 rm -rf $FILE_NAME.zip
 
 chmod +x $FILE_NAME/bin/*
+# Create symlink to avoid `CMake Error: Could not find CMAKE_ROOT !!!` 
+ln -s $FILE_NAME/bin/* .
 
-PATH=$PWD/$FILE_NAME/bin:$PATH
-export PATH
+hash -r
+
 which cmake
 cmake --version
