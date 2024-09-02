@@ -1,18 +1,16 @@
 import type { ConnectionState } from '../stores/connections-store-redux';
 import { useConnectionForId } from '../stores/store-context';
 
-export function isFreeOrSharedTierCluster(
-  instanceSize: string | undefined
-): boolean {
+// only one for now
+type ConnectionFeature = 'rollingIndexCreation';
+
+function isFreeOrSharedTierCluster(instanceSize: string | undefined): boolean {
   if (!instanceSize) {
     return false;
   }
 
   return ['M0', 'M2', 'M5'].includes(instanceSize);
 }
-
-// only one for now
-type ConnectionFeature = 'rollingIndexCreation';
 
 function supportsRollingIndexCreation(connection: ConnectionState) {
   const atlasMetadata = connection.info?.atlasMetadata;
