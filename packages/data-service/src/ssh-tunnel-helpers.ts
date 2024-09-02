@@ -3,10 +3,6 @@ import type {
   DevtoolsProxyOptions,
   Tunnel,
 } from '@mongodb-js/devtools-proxy-support';
-import {
-  defaultPreferencesInstance,
-  proxyPreferenceToProxyOptions,
-} from 'compass-preferences-model';
 
 export async function waitForTunnelError(
   tunnel: Tunnel | undefined
@@ -16,17 +12,12 @@ export async function waitForTunnelError(
   });
 }
 
-export function getCurrentApplicationProxyOptions() {
-  return proxyPreferenceToProxyOptions(
-    defaultPreferencesInstance.getPreferences().proxy
-  );
-}
-
 export function getTunnelOptions(
-  connectionOptions: ConnectionOptions
+  connectionOptions: ConnectionOptions,
+  appLevelProxyOptions: DevtoolsProxyOptions
 ): DevtoolsProxyOptions {
   if (connectionOptions.useApplicationLevelProxy) {
-    return getCurrentApplicationProxyOptions();
+    return appLevelProxyOptions;
   }
   if (connectionOptions.sshTunnel) {
     const {

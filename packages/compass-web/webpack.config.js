@@ -128,6 +128,12 @@ module.exports = async (env, args) => {
       },
     },
     plugins: [
+      new webpack.DefinePlugin({
+        // Can be either `web` or `webdriverio`, helpful if we need special
+        // behavior for tests in sandbox
+        'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
+      }),
+
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
         // Required by the driver to function in browser environment

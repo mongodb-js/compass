@@ -2,7 +2,6 @@ import {
   DEFAULT_CONNECTION_NAME_1,
   DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
-  TEST_COMPASS_WEB,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
 } from '../compass';
@@ -20,9 +19,7 @@ export async function waitForConnectionScreen(
     return;
   }
 
-  const selector = TEST_COMPASS_WEB
-    ? Selectors.ConnectionFormStringInput
-    : Selectors.ConnectSection;
+  const selector = Selectors.ConnectSection;
   const connectScreenElement = await browser.$(selector);
   await connectScreenElement.waitForDisplayed();
 }
@@ -169,12 +166,7 @@ export async function waitForConnectionResult(
     // Wait for the first meaningful thing on the screen after being connected
     // and assume that's a good enough indicator that we are connected to the
     // server
-    if (TEST_COMPASS_WEB) {
-      // In compass-web, for now, we land on the Databases tab after connecting
-      await browser
-        .$('[data-testid="workspace-tab-button"][data-type=Databases]')
-        .waitForDisplayed({ timeout });
-    } else if (TEST_MULTIPLE_CONNECTIONS) {
+    if (TEST_MULTIPLE_CONNECTIONS) {
       await browser
         .$(
           Selectors.Multiple.connectionItemByName(connectionName, {
@@ -231,12 +223,6 @@ export async function connectByName(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
-  if (TEST_COMPASS_WEB) {
-    // we can't connect by name with compass-web because we can't save connections yet
-    await browser.connectWithConnectionString();
-    return;
-  }
-
   // See setupDefaultConnections() for the details behind the thinking here.
   await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
 

@@ -348,6 +348,11 @@ const mapStateToProps: MapStateToProps<
           'fetching') as SidebarConnectedConnection['databasesStatus'],
         databases: databases ?? [],
         connectionStatus: ConnectionStatus.Connected,
+        // TODO: this should be state formed in render, but alas, refactoring
+        // this is too much work and this code will go away soon anyway. This
+        // flag is only relevant for compass-web, so we'll just set it to always
+        // `true` here
+        isPerformanceTabAvailable: true,
         isPerformanceTabSupported:
           !isDataLake && !!state.isPerformanceTabSupported[connectionId],
         isGenuineMongoDB: instance?.genuineMongoDB.isGenuine !== false,

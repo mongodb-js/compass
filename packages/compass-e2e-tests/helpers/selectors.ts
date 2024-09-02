@@ -276,7 +276,7 @@ export const Single = {
 
 // Multiple Connections sidebar
 export const Multiple = {
-  ConnectionsTitle: '[data-testid="sidebar-header"]',
+  ConnectionsTitle: '[data-testid="connections-header"]',
   SidebarNewConnectionButton: '[data-action="add-new-connection"]',
   ConnectionMenu: '[data-testid="sidebar-navigation-item-actions"]',
   CreateDatabaseButton:

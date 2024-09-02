@@ -51,6 +51,10 @@ type MultipleConnectionSidebarProps = {
   activeWorkspace: WorkspaceTab | null;
   onConnectionCsfleModeChanged(connectionId: string, isEnabled: boolean): void;
   onSidebarAction(action: string, ...rest: any[]): void;
+  showSidebarHeader?: boolean;
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
 };
 
 const sidebarStyles = css({
@@ -89,6 +93,8 @@ export function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
   onConnectionCsfleModeChanged,
+  showSidebarHeader = true,
+  onOpenConnectViaModal,
 }: MultipleConnectionSidebarProps) {
   const [csfleModalConnectionId, setCsfleModalConnectionId] = useState<
     string | undefined
@@ -181,9 +187,13 @@ export function MultipleConnectionSidebar({
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
-        <SidebarHeader onAction={onSidebarAction} />
-        <Navigation currentLocation={activeWorkspace?.type ?? null} />
-        <HorizontalRule />
+        {showSidebarHeader && (
+          <>
+            <SidebarHeader onAction={onSidebarAction} />
+            <Navigation currentLocation={activeWorkspace?.type ?? null} />
+            <HorizontalRule />
+          </>
+        )}
         <ConnectionsNavigation
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
@@ -214,6 +224,7 @@ export function MultipleConnectionSidebar({
           onOpenNonGenuineMongoDBModal={(connectionId: string) => {
             showNonGenuineMongoDBWarningModal(connectionId);
           }}
+          onOpenConnectViaModal={onOpenConnectViaModal}
         />
         {editingConnectionInfo && (
           <ConnectionFormModal

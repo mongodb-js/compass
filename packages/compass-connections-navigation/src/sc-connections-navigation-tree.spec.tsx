@@ -48,6 +48,7 @@ const connections: ConnectedConnection[] = [
     isReady: true,
     isWritable: true,
     name: 'test',
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: false,
   },
 ];

@@ -33,7 +33,10 @@ import {
   type useConnectionsWithStatus,
   ConnectionStatus,
 } from '@mongodb-js/compass-connections/provider';
-import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useOpenWorkspace,
+  useWorkspacePlugins,
+} from '@mongodb-js/compass-workspaces/provider';
 import {
   onDatabaseExpand,
   fetchAllCollections,
@@ -46,6 +49,7 @@ import {
   useOpenConnectionImportExportModal,
 } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const connectionsContainerStyles = css({
   height: '100%',
@@ -118,9 +122,11 @@ type ConnectionsNavigationComponentProps = {
   onToggleFavoriteConnectionInfo(info: ConnectionInfo): void;
   onOpenCsfleModal(connectionId: string): void;
   onOpenNonGenuineMongoDBModal(connectionId: string): void;
-
   onOpenConnectionInfo(id: string): void;
   onDisconnect(id: string): void;
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
 };
 
 type MapStateProps = {
@@ -161,13 +167,13 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   onToggleFavoriteConnectionInfo,
   onOpenCsfleModal,
   onOpenNonGenuineMongoDBModal,
-
   onOpenConnectionInfo,
   onDisconnect,
   onDatabaseExpand,
   fetchAllCollections,
   onRefreshDatabases: _onRefreshDatabases,
   onNamespaceAction: _onNamespaceAction,
+  onOpenConnectViaModal,
 }) => {
   const {
     openShellWorkspace,
@@ -177,6 +183,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     openCollectionWorkspace,
     openEditViewWorkspace,
   } = useOpenWorkspace();
+  const { hasWorkspacePlugin } = useWorkspacePlugins();
   const track = useTelemetry();
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
@@ -208,6 +215,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           isReady,
           isDataLake,
           isWritable,
+          isPerformanceTabAvailable: hasWorkspacePlugin('Performance'),
           isPerformanceTabSupported: isPerformanceTabSupportedOnConnection,
           name: getConnectionTitle(connection),
           connectionInfo: connection,
@@ -223,10 +231,20 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       }
     }
     return connections;
-  }, [connectionsWithStatus, instances, databases, isPerformanceTabSupported]);
+  }, [
+    connectionsWithStatus,
+    instances,
+    databases,
+    isPerformanceTabSupported,
+    hasWorkspacePlugin,
+  ]);
 
   const { supportsConnectionImportExport, openConnectionImportExportModal } =
     useOpenConnectionImportExportModal({ context: 'connectionsList' });
+
+  const enableCreatingNewConnections = usePreference(
+    'enableCreatingNewConnections'
+  );
 
   const {
     filtered,
@@ -249,12 +267,15 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           label: 'Collapse all connections',
           icon: <ChevronCollapse width={14} height={14} />,
         },
-        {
+      ];
+
+      if (enableCreatingNewConnections) {
+        actions.push({
           action: 'add-new-connection',
           label: 'Add new connection',
           icon: 'Plus',
-        },
-      ];
+        });
+      }
 
       if (supportsConnectionImportExport) {
         actions.push(
@@ -328,13 +349,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
         case 'open-non-genuine-mongodb-modal':
           onOpenNonGenuineMongoDBModal(item.connectionInfo.id);
           return;
+        case 'show-connect-via-modal':
+          onOpenConnectViaModal?.(item.connectionInfo.atlasMetadata);
+          return;
       }
     },
     [
+      openDatabasesWorkspace,
       _onRefreshDatabases,
       _onNamespaceAction,
       openShellWorkspace,
-      openDatabasesWorkspace,
+      track,
       openPerformanceWorkspace,
       onOpenConnectionInfo,
       onDisconnect,
@@ -346,7 +371,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       onRemoveConnection,
       onOpenCsfleModal,
       onOpenNonGenuineMongoDBModal,
-      track,
+      onOpenConnectViaModal,
     ]
   );
 
@@ -454,7 +479,10 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   return (
     <div className={connectionsContainerStyles}>
-      <div className={connectionListHeaderStyles}>
+      <div
+        className={connectionListHeaderStyles}
+        data-testid="connections-header"
+      >
         <Subtitle className={connectionListHeaderTitleStyles}>
           Connections
           {connections.length !== 0 && (
@@ -472,7 +500,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           collapseAfter={2}
         ></ItemActionControls>
       </div>
-      {connections.length ? (
+      {connections.length > 0 && (
         <>
           <NavigationItemsFilter
             searchInputClassName={searchStyles}
@@ -487,19 +515,22 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             expanded={expanded}
           />
         </>
-      ) : (
+      )}
+      {connections.length === 0 && (
         <div className={noDeploymentStyles}>
           <Body data-testid="no-deployments-text">
             You have not connected to any deployments.
           </Body>
-          <Button
-            data-testid="add-new-connection-button"
-            variant={ButtonVariant.Primary}
-            leftGlyph={<Icon glyph="Plus" />}
-            onClick={onNewConnection}
-          >
-            Add new connection
-          </Button>
+          {enableCreatingNewConnections && (
+            <Button
+              data-testid="add-new-connection-button"
+              variant={ButtonVariant.Primary}
+              leftGlyph={<Icon glyph="Plus" />}
+              onClick={onNewConnection}
+            >
+              Add new connection
+            </Button>
+          )}
         </div>
       )}
     </div>
