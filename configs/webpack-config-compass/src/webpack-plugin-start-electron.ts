@@ -67,8 +67,10 @@ export class WebpackPluginStartElectron {
       const rendererEntries = Object.keys(this.rendererCompiler.options.entry);
       const rendererOutputPath = this.rendererCompiler.options.output
         .path as string;
-      const devServerPort: number =
-        this.rendererCompiler.options.devServer?.port ?? 4242;
+
+      const devServerPort: number = this.rendererCompiler.options.devServer
+        ? this.rendererCompiler.options.devServer.port
+        : 4242;
 
       // This will set environmental variables that can be used by main process to
       // know what BrowserWindow to open exactly
@@ -77,7 +79,9 @@ export class WebpackPluginStartElectron {
           return [
             `COMPASS_${name.toUpperCase()}_RENDERER_URL`,
             this.opts.fileUrl
-              ? pathToFileURL(path.join(rendererOutputPath, `${name}.html`))
+              ? pathToFileURL(
+                  path.join(rendererOutputPath, `${name}.html`)
+                ).toString()
               : `http://localhost:${devServerPort}/${name}.html`,
           ];
         })
