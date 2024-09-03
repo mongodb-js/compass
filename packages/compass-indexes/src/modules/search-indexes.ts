@@ -520,11 +520,6 @@ const fetchIndexes = (
       return;
     }
 
-    if (!dataService || !dataService.isConnected()) {
-      debug('warning: trying to load indexes but dataService is disconnected');
-      return;
-    }
-
     // If we are currently doing fetching indexes, we will
     // wait for that
     if (NOT_FETCHABLE_STATUSES.includes(status)) {
@@ -583,9 +578,6 @@ export const dropSearchIndex = (
     { track, connectionInfoAccess, dataService }
   ) {
     const { namespace } = getState();
-    if (!dataService) {
-      return;
-    }
 
     const isConfirmed = await showConfirmation({
       title: `Are you sure you want to drop "${name}" from Cluster?`,

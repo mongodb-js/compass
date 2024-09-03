@@ -221,12 +221,6 @@ export const fetchIndexes = (): IndexesThunkAction<
       return;
     }
 
-    if (!dataService || !dataService.isConnected()) {
-      dispatch(setIsRefreshing(false));
-      debug('warning: trying to load indexes but dataService is disconnected');
-      return;
-    }
-
     try {
       dispatch(setError(null));
       const indexes = await dataService.indexes(namespace);
