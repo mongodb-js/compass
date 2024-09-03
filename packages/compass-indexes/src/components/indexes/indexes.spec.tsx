@@ -32,8 +32,11 @@ const DEFAULT_PROPS: Partial<RootState> = {
   },
 } as any;
 
-const renderIndexes = (props: Partial<RootState> = {}) => {
-  const store = setupStore();
+const renderIndexes = (
+  props: Partial<RootState> = {},
+  dataProvider: Partial<IndexesDataService> = {}
+) => {
+  const store = setupStore(undefined, dataProvider);
 
   const allProps: Partial<RootState> = {
     ...DEFAULT_PROPS,
@@ -78,12 +81,14 @@ describe('Indexes Component', function () {
   });
 
   it('renders indexes toolbar when there is a search indexes error', async function () {
-    const store = renderIndexes();
-
     // the component will load the search indexes the moment we switch to them
-    store.getState()!.dataService!.getSearchIndexes = function () {
-      return Promise.reject(new Error('This is an error.'));
+    const getSearchIndexesStub = sinon
+      .stub()
+      .rejects(new Error('This is an error.'));
+    const dataProvider = {
+      getSearchIndexes: getSearchIndexesStub,
     };
+    renderIndexes({}, dataProvider);
 
     const toolbar = screen.getByTestId('indexes-toolbar');
     expect(toolbar).to.exist;
@@ -267,11 +272,11 @@ describe('Indexes Component', function () {
 
   context('search indexes', function () {
     it('renders the search indexes table if the current view changes to search indexes', async function () {
-      const store = renderIndexes();
-
-      store.getState()!.dataService!.getSearchIndexes = function () {
-        return Promise.resolve(searchIndexes);
+      const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
+      const dataProvider = {
+        getSearchIndexes: getSearchIndexesStub,
       };
+      renderIndexes({}, dataProvider);
 
       // switch to the Search Indexes tab
       const toolbar = screen.getByTestId('indexes-toolbar');
@@ -284,18 +289,17 @@ describe('Indexes Component', function () {
     });
 
     it('refreshes the search indexes if the search indexes view is active', async function () {
-      const store = renderIndexes();
-
-      const spy = sinon.spy(
-        store.getState()?.dataService as IndexesDataService,
-        'getSearchIndexes'
-      );
+      const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
+      const dataProvider = {
+        getSearchIndexes: getSearchIndexesStub,
+      };
+      renderIndexes({}, dataProvider);
 
       // switch to the Search Indexes tab
       const toolbar = screen.getByTestId('indexes-toolbar');
       fireEvent.click(within(toolbar).getByText('Search Indexes'));
 
-      expect(spy.callCount).to.equal(1);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
 
       // click the refresh button
       const refreshButton = within(toolbar).getByText('Refresh');
@@ -304,7 +308,7 @@ describe('Indexes Component', function () {
       );
       fireEvent.click(refreshButton);
 
-      expect(spy.callCount).to.equal(2);
+      expect(getSearchIndexesStub.callCount).to.equal(2);
     });
 
     it('switches to the search indexes table when a search index is created', async function () {

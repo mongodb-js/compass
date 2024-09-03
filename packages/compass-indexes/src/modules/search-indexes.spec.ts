@@ -23,12 +23,21 @@ import { writeStateChanged } from './is-writable';
 describe('search-indexes module', function () {
   let store: ReturnType<typeof setupStore>;
   let dataProvider: Partial<IndexesDataService>;
-  let getSearchIndexesStub: any;
+  let createSearchIndexStub: sinon.SinonStub;
+  let updateSearchIndexStub: sinon.SinonStub;
+  let getSearchIndexesStub: sinon.SinonStub;
+  let dropSearchIndexStub: sinon.SinonStub;
 
   beforeEach(function () {
+    createSearchIndexStub = sinon.stub().resolves('foo');
+    updateSearchIndexStub = sinon.stub().resolves();
+    getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
+    dropSearchIndexStub = sinon.stub().resolves();
     dataProvider = {
-      createSearchIndex: sinon.spy(),
-      updateSearchIndex: sinon.spy(),
+      createSearchIndex: createSearchIndexStub,
+      updateSearchIndex: updateSearchIndexStub,
+      getSearchIndexes: getSearchIndexesStub,
+      dropSearchIndex: dropSearchIndexStub,
     };
 
     store = setupStore(
@@ -38,13 +47,6 @@ describe('search-indexes module', function () {
       },
       dataProvider
     );
-
-    getSearchIndexesStub = sinon
-      .stub(
-        store.getState().dataService as IndexesDataService,
-        'getSearchIndexes'
-      )
-      .resolves(searchIndexes);
   });
 
   it('has not available search indexes state by default', function () {
@@ -79,12 +81,6 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
     });
 
-    it('does nothing if there is no dataService', function () {
-      store.getState().dataService = null;
-      store.dispatch(fetchSearchIndexes);
-      // would throw if it tried to use it
-    });
-
     it('fetches the indexes', async function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
       expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
@@ -105,17 +101,11 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // replace the stub
-      getSearchIndexesStub.restore();
-      getSearchIndexesStub = sinon
-        .stub(
-          store.getState().dataService as IndexesDataService,
-          'getSearchIndexes'
-        )
-        .callsFake(() => {
-          return new Promise(() => {
-            // never resolves
-          });
+      getSearchIndexesStub.callsFake(() => {
+        return new Promise(() => {
+          // never resolves
         });
+      });
 
       // not awaiting because REFRESHING happens during the action
       void store.dispatch(fetchSearchIndexes());
@@ -150,13 +140,7 @@ describe('search-indexes module', function () {
 
     it('sets the status to ERROR if loading the indexes fails', async function () {
       // replace the stub
-      getSearchIndexesStub.restore();
-      getSearchIndexesStub = sinon
-        .stub(
-          store.getState().dataService as IndexesDataService,
-          'getSearchIndexes'
-        )
-        .rejects(new Error('this is an error'));
+      getSearchIndexesStub.rejects(new Error('this is an error'));
 
       await store.dispatch(fetchSearchIndexes());
 
@@ -257,29 +241,25 @@ describe('search-indexes module', function () {
   });
 
   context('drop search index', function () {
-    let dropSearchIndexStub: sinon.SinonStub;
     let showConfirmationStub: sinon.SinonStub;
     beforeEach(function () {
-      dropSearchIndexStub = sinon.stub(
-        store.getState().dataService as IndexesDataService,
-        'dropSearchIndex'
-      );
       showConfirmationStub = sinon.stub(searchIndexesSlice, 'showConfirmation');
     });
 
     afterEach(function () {
       showConfirmationStub.restore();
-      dropSearchIndexStub.restore();
     });
 
     it('does not drop index when user does not confirm', async function () {
-      showConfirmationStub.resolves(false);
+      dropSearchIndexStub.resolves(false);
       await store.dispatch(dropSearchIndex('index_name'));
       expect(dropSearchIndexStub.callCount).to.equal(0);
     });
 
     it('drops index successfully', async function () {
       showConfirmationStub.resolves(true);
+      dropSearchIndexStub.resolves(true);
+
       dropSearchIndexStub.resolves(true);
       await store.dispatch(dropSearchIndex('index_name'));
       expect(dropSearchIndexStub.firstCall.args).to.deep.equal([

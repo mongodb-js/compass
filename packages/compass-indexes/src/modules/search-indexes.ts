@@ -387,8 +387,12 @@ export const createIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track, connectionInfoAccess }) {
-    const { namespace, dataService } = getState();
+  return async function (
+    dispatch,
+    getState,
+    { track, connectionInfoAccess, dataService }
+  ) {
+    const { namespace } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
 
@@ -449,10 +453,13 @@ export const updateIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track, connectionInfoAccess }) {
+  return async function (
+    dispatch,
+    getState,
+    { track, connectionInfoAccess, dataService }
+  ) {
     const {
       namespace,
-      dataService,
       searchIndexes: { indexes },
     } = getState();
 
@@ -501,11 +508,10 @@ const setError = (error: string | undefined): SetErrorAction => ({
 const fetchIndexes = (
   newStatus: SearchIndexesStatus
 ): IndexesThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { logger: { debug } }) => {
+  return async (dispatch, getState, { logger: { debug }, dataService }) => {
     const {
       isReadonlyView,
       isWritable,
-      dataService,
       namespace,
       searchIndexes: { status },
     } = getState();
@@ -571,8 +577,12 @@ export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track, connectionInfoAccess }) {
-    const { namespace, dataService } = getState();
+  return async function (
+    dispatch,
+    getState,
+    { track, connectionInfoAccess, dataService }
+  ) {
+    const { namespace } = getState();
     if (!dataService) {
       return;
     }
