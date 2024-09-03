@@ -12,6 +12,19 @@ import { createServiceProvider } from 'hadron-app-registry';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
+type ElectableSpecs = {
+  instanceSize?: string;
+};
+
+type RegionConfig = {
+  priority: number;
+  electableSpecs: ElectableSpecs;
+};
+
+type ReplicationSpec = {
+  regionConfigs: RegionConfig[];
+};
+
 type ClusterDescription = {
   '@provider': string;
   uniqueId: string;
@@ -21,9 +34,10 @@ type ClusterDescription = {
   srvAddress: string;
   state: string;
   deploymentItemName: string;
+  replicationSpecList?: ReplicationSpec[];
 };
 
-type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
+export type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
   dataProcessingRegion: { regionalUrl: string };
 };
 
@@ -96,6 +110,40 @@ function getMetricsIdAndType(
   };
 }
 
+function getInstanceSize(
+  clusterDescription: ClusterDescription
+): string | undefined {
+  return getFirstInstanceSize(clusterDescription.replicationSpecList);
+}
+
+function getFirstInstanceSize(
+  replicationSpecs?: ReplicationSpec[]
+): string | undefined {
+  if (!replicationSpecs || replicationSpecs.length === 0) {
+    return undefined;
+  }
+  const preferredRegion = getPreferredRegion(replicationSpecs[0]);
+  if (!preferredRegion) {
+    return undefined;
+  }
+  return preferredRegion.electableSpecs.instanceSize;
+}
+
+function getPreferredRegion(
+  replicationSpec: ReplicationSpec
+): RegionConfig | undefined {
+  let regionConfig: RegionConfig | undefined = undefined;
+
+  // find the RegionConfig in replicationSpec with the highest priority
+  for (const r of replicationSpec.regionConfigs) {
+    if (!regionConfig || r.priority > regionConfig.priority) {
+      regionConfig = r;
+    }
+  }
+
+  return regionConfig;
+}
+
 export function buildConnectionInfoFromClusterDescription(
   driverProxyEndpoint: string,
   orgId: string,
@@ -147,6 +195,7 @@ export function buildConnectionInfoFromClusterDescription(
       clusterName: description.name,
       regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
       ...getMetricsIdAndType(description, deploymentItem),
+      instanceSize: getInstanceSize(description),
     },
   };
 }

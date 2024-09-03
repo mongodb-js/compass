@@ -239,6 +239,10 @@ function Tab({
   return (
     <Tooltip
       enabled={!!tooltip}
+      // To make sure that tooltips are always on the bottom of the tab in
+      // compass-web and are not hidden by the mms top navigation bar
+      align="bottom"
+      justify="start"
       trigger={
         <div
           ref={setNodeRef}
