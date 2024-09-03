@@ -1,15 +1,77 @@
 export type IdentifyTraits = {
+  /**
+   * Shortened version number (e.g., '1.29').
+   */
   compass_version: string;
+
+  /**
+   * The full version of the Compass application, including additional identifiers
+   * such as build metadata or pre-release tags (e.g., '1.29.0-beta.1').
+   */
   compass_full_version: string;
+
+  /**
+   * The distribution of Compass being used.
+   */
   compass_distribution: 'compass' | 'compass-readonly' | 'compass-isolated';
+
+  /**
+   * The release channel of Compass.
+   * - 'stable' for the general release.
+   * - 'beta' for pre-release versions intended for testing.
+   * - 'dev' for development versions only distributed internally.
+   */
   compass_channel: 'stable' | 'beta' | 'dev';
+
+  /**
+   * The platform on which Compass is running, derived from Node.js `os.platform()`.
+   * Corresponds to the operating system (e.g., 'darwin' for macOS, 'win32' for Windows, 'linux' for Linux).
+   */
   platform: string;
+
+  /**
+   * The architecture of the system's processor, derived from Node.js `os.arch()`.
+   * 'x64' for 64-bit processors and 'arm' for ARM processors.
+   */
   arch: string;
+
+  /**
+   * The type of operating system, including specific operating system
+   * names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
+   */
   os_type?: string;
+
+  /**
+   * Detailed kernel or system version information.
+   * Example: 'Darwin Kernel Version 21.4.0: Fri Mar 18 00:45:05 PDT 2022; root:xnu-8020.101.4~15/RELEASE_X86_64'.
+   */
   os_version?: string;
+
+  /**
+   * The architecture of the operating system, if available, which might be more specific
+   * than the system's processor architecture (e.g., 'x86_64' for 64-bit architecture).
+   */
   os_arch?: string;
+
+  /**
+   * The release identifier of the operating system.
+   * This can provide additional details about the operating system release or
+   * version (e.g. the kernel version for a specific macOS release).
+   */
   os_release?: string;
+
+  /**
+   * The Linux distribution name, if running on a Linux-based operating system,
+   * derived by reading from `/etc/os-release`.
+   * Examples include 'ubuntu', 'debian', or 'rhel'.
+   */
   os_linux_dist?: string;
+
+  /**
+   * The version of the Linux distribution, if running on a Linux-based operating system,
+   * derived by reading from `/etc/os-release`.
+   * Examples include '20.04' for Ubuntu or '10' for Debian.
+   */
   os_linux_release?: string;
 };
 
@@ -563,6 +625,10 @@ type ConnectionRemovedEvent = ConnectionScoped<{
 type ConnectionAttemptEvent = ConnectionScoped<{
   name: 'Connection Attempt';
   payload: {
+    /**
+     * Specifies if the connection is a favorite.
+     */
+    is_favorite: boolean;
     /**
      * Specifies if the connection is a newly created connection.
      */

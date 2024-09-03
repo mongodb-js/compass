@@ -1509,6 +1509,7 @@ export const connect = (
       track(
         'Connection Attempt',
         {
+          is_favorite: connectionInfo.savedConnectionType === 'favorite',
           is_new: isNewConnection(getState(), connectionInfo.id),
         },
         connectionInfo
