@@ -53,7 +53,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.4.5",
     "@mongodb-js/compass-utils": "^0.6.10",
-    "@mongodb-js/devtools-connect": "^3.2.5",
+    "@mongodb-js/devtools-connect": "^3.2.8",
     "@mongodb-js/devtools-proxy-support": "^0.3.6",
     "bson": "^6.7.0",
     "lodash": "^4.17.21",
