@@ -116,19 +116,9 @@ describe('importJSON', function () {
         });
 
         expect(omit(result, 'biggestDocSize')).to.deep.equal({
+          docsErrored: 0,
           docsWritten: totalRows,
           docsProcessed: totalRows,
-          dbErrors: [],
-          dbStats: {
-            insertedCount: totalRows,
-            matchedCount: 0,
-            modifiedCount: 0,
-            deletedCount: 0,
-            upsertedCount: 0,
-            ok: Math.ceil(totalRows / 1000),
-            writeConcernErrors: [],
-            writeErrors: [],
-          },
           hasUnboundArray: false,
         });
 
@@ -186,19 +176,9 @@ describe('importJSON', function () {
     });
 
     expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsErrored: 0,
       docsProcessed: 1,
       docsWritten: 1,
-      dbErrors: [],
-      dbStats: {
-        insertedCount: 1,
-        matchedCount: 0,
-        modifiedCount: 0,
-        deletedCount: 0,
-        upsertedCount: 0,
-        ok: 1,
-        writeConcernErrors: [],
-        writeErrors: [],
-      },
       hasUnboundArray: false,
     });
 
@@ -236,19 +216,9 @@ describe('importJSON', function () {
     });
 
     expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsErrored: 0,
       docsProcessed: 2000,
       docsWritten: 2000,
-      dbErrors: [],
-      dbStats: {
-        insertedCount: 2000,
-        matchedCount: 0,
-        modifiedCount: 0,
-        deletedCount: 0,
-        upsertedCount: 0,
-        ok: 2, // expected two batches
-        writeConcernErrors: [],
-        writeErrors: [],
-      },
       hasUnboundArray: false,
     });
 
@@ -470,7 +440,12 @@ describe('importJSON', function () {
       errorCallback,
     });
 
-    expect(result.dbStats.insertedCount).to.equal(1);
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsErrored: 1,
+      docsProcessed: 2,
+      docsWritten: 1,
+      hasUnboundArray: false,
+    });
 
     expect(progressCallback.callCount).to.equal(2);
     expect(errorCallback.callCount).to.equal(1);
@@ -552,36 +527,38 @@ describe('importJSON', function () {
       errorCallback,
     });
 
-    expect(result.dbStats.insertedCount).to.equal(0);
+    expect(omit(result, 'biggestDocSize')).to.deep.equal({
+      docsErrored: 2,
+      docsProcessed: 2,
+      docsWritten: 0,
+      hasUnboundArray: false,
+    });
 
     expect(progressCallback.callCount).to.equal(2);
-    expect(errorCallback.callCount).to.equal(1); // once for the batch
+    expect(errorCallback.callCount).to.equal(2);
 
     const expectedErrors: ErrorJSON[] = [
       {
-        name: 'MongoBulkWriteError',
+        name: 'WriteError',
         message: 'Document failed validation',
+        index: 0,
         code: 121,
-        numErrors: 2,
+      },
+      {
+        name: 'WriteError',
+        message: 'Document failed validation',
+        index: 1,
+        code: 121,
       },
     ];
 
     const errors = errorCallback.args.map((args) => args[0]);
+    for (const [index, error] of errors.entries()) {
+      expect(error.op).to.exist;
+      // cheat and copy them over because it is big and with buffers
+      expectedErrors[index].op = error.op;
+    }
     expect(errors).to.deep.equal(expectedErrors);
-
-    // the log file has one for each error in the bulk write too
-    expectedErrors.push({
-      name: 'WriteConcernError',
-      message: 'Document failed validation',
-      index: 0,
-      code: 121,
-    });
-    expectedErrors.push({
-      name: 'WriteConcernError',
-      message: 'Document failed validation',
-      index: 1,
-      code: 121,
-    });
 
     const errorsText = await fs.promises.readFile(output.path, 'utf8');
     expect(errorsText).to.equal(formatErrorLines(expectedErrors));
@@ -608,19 +585,9 @@ describe('importJSON', function () {
     // only looked at the first row because we aborted before even starting
     expect(omit(result, 'biggestDocSize')).to.deep.equal({
       aborted: true,
+      docsErrored: 0,
       docsProcessed: 0,
       docsWritten: 0,
-      dbErrors: [],
-      dbStats: {
-        insertedCount: 0,
-        matchedCount: 0,
-        modifiedCount: 0,
-        deletedCount: 0,
-        upsertedCount: 0,
-        ok: 0,
-        writeConcernErrors: [],
-        writeErrors: [],
-      },
       hasUnboundArray: false,
     });
   });

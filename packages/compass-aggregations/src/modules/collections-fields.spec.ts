@@ -1,5 +1,3 @@
-import type { AnyAction, Store } from 'redux';
-import type { RootState } from '.';
 import type { Document } from 'mongodb';
 import { expect } from 'chai';
 import reducer, {
@@ -10,6 +8,7 @@ import reducer, {
 } from './collections-fields';
 import configureStore from '../../test/configure-store';
 import sinon from 'sinon';
+import type { AggregationsStore } from '../stores/store';
 
 describe('collections-fields module', function () {
   describe('#reducer', function () {
@@ -70,18 +69,20 @@ describe('collections-fields module', function () {
     });
   });
   describe('#actions', function () {
-    let store: Store<RootState, AnyAction>;
+    let store: AggregationsStore;
     let sampleStub: sinon.SinonStub;
     let findStub: sinon.SinonStub;
     let sandbox: sinon.SinonSandbox;
-    beforeEach(function () {
+    beforeEach(async function () {
       sandbox = sinon.createSandbox();
       sampleStub = sandbox.stub();
       findStub = sandbox.stub();
-      store = configureStore({ pipeline: [] }, {
-        sample: sampleStub,
-        find: findStub,
-      } as any);
+      store = (
+        await configureStore({ pipeline: [] }, {
+          sample: sampleStub,
+          find: findStub,
+        } as any)
+      ).plugin.store;
     });
 
     afterEach(function () {

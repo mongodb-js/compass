@@ -602,30 +602,6 @@ functions:
 
           tar czf coverage.tgz packages/compass-e2e-tests/coverage
 
-  test-multiple-connections:
-    - command: shell.exec
-      # Fail the task if it's idle for 10 mins
-      timeout_secs: 600
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-          DEBUG: ${debug|}
-          MONGODB_VERSION: ${mongodb_version|}
-          MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
-          HADRON_DISTRIBUTION: compass
-        script: |
-          set -e
-          # Load environment variables
-          eval $(.evergreen/print-compass-env.sh)
-
-          echo "Running E2E tests for multiple connections"
-
-          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- --test-multiple-connections
-
   test-packaged-app:
     - command: shell.exec
       # Fail the task if it's idle for 10 mins
@@ -980,28 +956,3 @@ functions:
             # Fails if the report failed and is not a patch, including release branches:
             exit $return_code
           fi
-
-  generative-ai-accuracy-tests:
-    - command: shell.exec
-      # Fail the task if it's idle for 10 mins
-      timeout_secs: 600
-      params:
-        working_dir: src
-        shell: bash
-        env:
-          <<: *compass-env
-          ATLAS_PUBLIC_KEY: ${atlas_public_key}
-          ATLAS_PRIVATE_KEY: ${atlas_private_key}
-          AI_ACCURACY_RESULTS_MONGODB_CONNECTION_STRING: ${accuracy_results_mdb_connection_string}
-        script: |
-          set -e
-          # Load environment variables
-          eval $(.evergreen/print-compass-env.sh)
-
-          set +e
-          npm run --workspace @mongodb-js/compass-generative-ai ai-accuracy-tests
-          return_code=$?
-          set -e
-
-          # Fail when the accuracy tests fail:
-          exit $return_code

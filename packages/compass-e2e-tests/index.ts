@@ -25,7 +25,6 @@ const debug = Debug('compass-e2e-tests');
 
 const allowedArgs = [
   '--test-compass-web',
-  '--test-multiple-connections',
   '--no-compile',
   '--no-native-modules',
   '--test-packaged-app',
@@ -72,6 +71,7 @@ async function setup() {
             ...process.env,
             OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
             DISABLE_DEVSERVER_OVERLAY: 'true',
+            APP_ENV: 'webdriverio',
           },
         }
       );

@@ -110,6 +110,8 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOptionsVisible,
   isOpenPipelineVisible,
 }) => {
+  // TODO: remove direct check for storage existing, breaks single source of
+  // truth rule and exposes services to UI, this breaks the rules for locators
   const isSavingAggregationsEnabled = !!usePipelineStorage();
   return (
     <div className={containerStyles} data-testid="pipeline-header">

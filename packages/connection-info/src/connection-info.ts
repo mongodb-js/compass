@@ -32,11 +32,9 @@ export interface ConnectionInfo {
 
   /**
    * Saved connection type. Legacy favorite connections will be mapped as
-   * 'favorite'. 'autoConnectInfo' type is to identify when a particular
-   * connection info is resolved by ConnectionStorage.getAutoConnectInfo and
-   * they are also never saved to disk.
+   * 'favorite'
    */
-  savedConnectionType?: 'favorite' | 'recent' | 'autoConnectInfo';
+  savedConnectionType?: 'favorite' | 'recent';
 
   /**
    * The options used to connect
@@ -60,9 +58,3 @@ export interface ConnectionFavoriteOptions {
    */
   color?: string;
 }
-
-export type ConnectionStatus =
-  | 'connected'
-  | 'disconnected'
-  | 'connecting'
-  | 'failed';

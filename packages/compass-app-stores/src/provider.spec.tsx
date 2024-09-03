@@ -4,10 +4,14 @@ import {
   MongoDBInstancesManagerProvider,
   TestMongoDBInstanceManager,
 } from './provider';
-import { render, screen, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
-import { waitFor } from '@testing-library/dom';
 import Sinon from 'sinon';
+import {
+  renderWithActiveConnection,
+  screen,
+  cleanup,
+  waitFor,
+} from '@mongodb-js/compass-connections/test';
 
 describe('NamespaceProvider', function () {
   const sandbox = Sinon.createSandbox();
@@ -17,11 +21,11 @@ describe('NamespaceProvider', function () {
     sandbox.reset();
   });
 
-  it('should immediately render content if database exists', function () {
+  it('should immediately render content if database exists', async function () {
     const instanceManager = new TestMongoDBInstanceManager({
       databases: [{ _id: 'foo' }] as any,
     });
-    render(
+    await renderWithActiveConnection(
       <MongoDBInstancesManagerProvider value={instanceManager}>
         <NamespaceProvider namespace="foo">hello</NamespaceProvider>
       </MongoDBInstancesManagerProvider>
@@ -29,11 +33,11 @@ describe('NamespaceProvider', function () {
     expect(screen.getByText('hello')).to.exist;
   });
 
-  it('should immediately render content if collection exists', function () {
+  it('should immediately render content if collection exists', async function () {
     const instanceManager = new TestMongoDBInstanceManager({
       databases: [{ _id: 'foo', collections: [{ _id: 'foo.bar' }] }] as any,
     });
-    render(
+    await renderWithActiveConnection(
       <MongoDBInstancesManagerProvider value={instanceManager}>
         <NamespaceProvider namespace="foo.bar">hello</NamespaceProvider>
       </MongoDBInstancesManagerProvider>
@@ -41,9 +45,9 @@ describe('NamespaceProvider', function () {
     expect(screen.getByText('hello')).to.exist;
   });
 
-  it("should not render content when namespace doesn't exist", function () {
+  it("should not render content when namespace doesn't exist", async function () {
     const instanceManager = new TestMongoDBInstanceManager();
-    render(
+    await renderWithActiveConnection(
       <MongoDBInstancesManagerProvider value={instanceManager}>
         <NamespaceProvider namespace="foo.bar">hello</NamespaceProvider>
       </MongoDBInstancesManagerProvider>
@@ -59,7 +63,7 @@ describe('NamespaceProvider', function () {
       return Promise.resolve();
     });
 
-    render(
+    await renderWithActiveConnection(
       <MongoDBInstancesManagerProvider value={instanceManager}>
         <NamespaceProvider namespace="foo">hello</NamespaceProvider>
       </MongoDBInstancesManagerProvider>
@@ -77,7 +81,7 @@ describe('NamespaceProvider', function () {
     const instanceManager = new TestMongoDBInstanceManager({
       databases: [{ _id: 'foo' }] as any,
     });
-    render(
+    await renderWithActiveConnection(
       <MongoDBInstancesManagerProvider value={instanceManager}>
         <NamespaceProvider
           namespace="foo.bar"
@@ -95,7 +99,7 @@ describe('NamespaceProvider', function () {
   it('should call onNamespaceFallbackSelect with `null` if namespace is not found', async function () {
     const onNamespaceFallbackSelect = sandbox.spy();
     const instanceManager = new TestMongoDBInstanceManager();
-    render(
+    await renderWithActiveConnection(
       <MongoDBInstancesManagerProvider value={instanceManager}>
         <NamespaceProvider
           namespace="foo.bar"

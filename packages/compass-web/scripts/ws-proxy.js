@@ -79,6 +79,10 @@ function createWebSocketProxy(port = 1337, logger = console) {
         );
         let cert = null;
         if (atlasOptions) {
+          logger.log(
+            'detected atlas connection, resolving x509 cert for cluster %s',
+            atlasOptions.clusterName
+          );
           cert = await resolveX509Cert(atlasOptions);
         }
         socket = useSecureConnection

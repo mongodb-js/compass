@@ -10,7 +10,10 @@ import {
   useToast,
 } from '@mongodb-js/compass-components';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
-import { useConnections } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfo,
+  useConnections,
+} from '@mongodb-js/compass-connections/provider';
 
 import SidebarTitle from './sidebar-title';
 import NavigationItems from './navigation-items';
@@ -56,17 +59,17 @@ const navigationItemsContainerStyles = css({
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
-  showConnectionInfo = true,
+  showSidebarHeader = true,
   activeWorkspace,
-  initialConnectionInfo,
+  connectionInfo,
   setConnectionIsCSFLEEnabled,
   isGenuine,
   csfleMode,
   onSidebarAction,
 }: {
-  showConnectionInfo?: boolean;
+  showSidebarHeader?: boolean;
   activeWorkspace: WorkspaceTab | null;
-  initialConnectionInfo: ConnectionInfo;
+  connectionInfo: ConnectionInfo;
   setConnectionIsCSFLEEnabled: (connectionId: string, enabled: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
@@ -83,12 +86,12 @@ export function Sidebar({
       setIsFavoriteModalVisible(false);
 
       return saveEditedConnection({
-        ...cloneDeep(initialConnectionInfo),
+        ...cloneDeep(connectionInfo),
         favorite: newFavoriteInfo,
         savedConnectionType: 'favorite',
       });
     },
-    [initialConnectionInfo, saveEditedConnection]
+    [connectionInfo, saveEditedConnection]
   );
 
   const { openToast } = useToast('compass-connections');
@@ -119,7 +122,7 @@ export function Sidebar({
       if (action === 'copy-connection-string') {
         void copyConnectionString(
           maybeProtectConnectionString(
-            initialConnectionInfo.connectionOptions.connectionString ?? ''
+            connectionInfo.connectionOptions.connectionString ?? ''
           )
         );
         return;
@@ -137,14 +140,14 @@ export function Sidebar({
 
       if (action === 'open-create-database') {
         onSidebarAction(action, ...rest, {
-          connectionId: initialConnectionInfo.id,
+          connectionId: connectionInfo.id,
         });
         return;
       }
 
       if (action === 'refresh-databases') {
         onSidebarAction(action, ...rest, {
-          connectionId: initialConnectionInfo.id,
+          connectionId: connectionInfo.id,
         });
         return;
       }
@@ -152,11 +155,11 @@ export function Sidebar({
       onSidebarAction(action, ...rest);
     },
     [
-      initialConnectionInfo.id,
+      connectionInfo.id,
       onSidebarAction,
       openToast,
       maybeProtectConnectionString,
-      initialConnectionInfo.connectionOptions.connectionString,
+      connectionInfo.connectionOptions.connectionString,
     ]
   );
 
@@ -172,19 +175,19 @@ export function Sidebar({
       className={sidebarStyles}
     >
       <>
-        {showConnectionInfo && (
+        {showSidebarHeader && (
           <div>
             <SidebarTitle
-              title={getConnectionTitle(initialConnectionInfo)}
-              isFavorite={!!initialConnectionInfo.favorite}
-              favoriteColor={initialConnectionInfo.favorite?.color}
+              title={getConnectionTitle(connectionInfo)}
+              isFavorite={!!connectionInfo.favorite}
+              favoriteColor={connectionInfo.favorite?.color}
               onAction={onAction}
             />
             <div className={connectionBadgesContainerStyles}>
               <NonGenuineMarker
                 isGenuine={isGenuine}
                 showNonGenuineModal={() => {
-                  showNonGenuineMongoDBWarningModal(initialConnectionInfo.id);
+                  showNonGenuineMongoDBWarningModal(connectionInfo.id);
                 }}
               />
               <CSFLEMarker
@@ -197,14 +200,14 @@ export function Sidebar({
 
         <div className={navigationItemsContainerStyles}>
           <NavigationItems
-            connectionInfo={initialConnectionInfo}
+            connectionInfo={connectionInfo}
             activeWorkspace={activeWorkspace}
             onAction={onAction}
           />
         </div>
 
         <SaveConnectionModal
-          initialFavoriteInfo={initialConnectionInfo.favorite}
+          initialFavoriteInfo={connectionInfo.favorite}
           open={isFavoriteModalVisible}
           onCancelClicked={() => setIsFavoriteModalVisible(false)}
           onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
@@ -214,11 +217,11 @@ export function Sidebar({
           csfleMode={csfleMode}
           onClose={() => setIsCSFLEModalVisible(false)}
           setConnectionIsCSFLEEnabled={(enabled) =>
-            setConnectionIsCSFLEEnabled(initialConnectionInfo.id, enabled)
+            setConnectionIsCSFLEEnabled(connectionInfo.id, enabled)
           }
         />
         <ConnectionInfoModal
-          connectionInfo={initialConnectionInfo}
+          connectionInfo={connectionInfo}
           isVisible={isConnectionInfoModalVisible}
           close={() => setIsConnectionInfoModalVisible(false)}
         />
@@ -230,15 +233,14 @@ export function Sidebar({
 const mapStateToProps = (
   state: RootState,
   {
-    initialConnectionInfo,
+    connectionInfo,
   }: {
-    initialConnectionInfo: Partial<ConnectionInfo> & Pick<ConnectionInfo, 'id'>;
+    connectionInfo: ConnectionInfo;
   }
 ) => {
   return {
-    isGenuine:
-      state.instance[initialConnectionInfo.id]?.genuineMongoDB.isGenuine,
-    csfleMode: state.instance[initialConnectionInfo.id]?.csfleMode,
+    isGenuine: state.instance[connectionInfo.id]?.genuineMongoDB.isGenuine,
+    csfleMode: state.instance[connectionInfo.id]?.csfleMode,
   };
 };
 
@@ -256,4 +258,11 @@ const MappedSidebar = connect(mapStateToProps, {
   onSidebarAction,
 })(Sidebar);
 
-export default MappedSidebar;
+export default function SidebarWithConnectionInfo(
+  props: Omit<React.ComponentProps<typeof MappedSidebar>, 'connectionInfo'>
+) {
+  const connectionInfo = useConnectionInfo();
+  return (
+    <MappedSidebar connectionInfo={connectionInfo} {...props}></MappedSidebar>
+  );
+}

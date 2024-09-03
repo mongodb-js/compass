@@ -1,9 +1,0 @@
-# This evergreen .yml is intentionally left empty.
-# We want the compass-generative-ai-accuracy evergreen project to run
-# daily on the latest commit. This file is here so that we have a
-# .yml config to point the evergreen project to so that
-# it can uses the most recent commits when the daily run happens.
-
-# The .yml that runs those tests is `generative-ai-accuracy-test.yml`.
-# We don't want it to run on every commit as that would be too many
-# requests to our ai model (expensive).

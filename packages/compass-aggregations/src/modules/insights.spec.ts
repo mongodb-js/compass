@@ -44,14 +44,16 @@ describe('fetchExplainForPipeline', function () {
       explainAggregate: Sinon.stub().resolves(simpleExplain),
     };
 
-    const store = configureStore(
-      {
-        namespace: 'test.test',
-      },
-      dataService
-    );
+    const store = (
+      await configureStore(
+        {
+          namespace: 'test.test',
+        },
+        dataService
+      )
+    ).plugin.store;
 
-    await store.dispatch(fetchExplainForPipeline() as any);
+    await store.dispatch(fetchExplainForPipeline());
 
     expect(store.getState()).to.have.nested.property(
       'insights.isCollectionScan',
@@ -64,14 +66,16 @@ describe('fetchExplainForPipeline', function () {
       explainAggregate: Sinon.stub().resolves(explainWithIndex),
     };
 
-    const store = configureStore(
-      {
-        namespace: 'test.test',
-      },
-      dataService
-    );
+    const store = (
+      await configureStore(
+        {
+          namespace: 'test.test',
+        },
+        dataService
+      )
+    ).plugin.store;
 
-    await store.dispatch(fetchExplainForPipeline() as any);
+    await store.dispatch(fetchExplainForPipeline());
 
     expect(store.getState()).to.have.nested.property(
       'insights.isCollectionScan',
@@ -84,18 +88,21 @@ describe('fetchExplainForPipeline', function () {
       explainAggregate: Sinon.stub().resolves(explainWithIndex),
     };
 
-    const store = configureStore(
-      {
-        namespace: 'test.test',
-      },
-      dataService
-    );
+    const store = (
+      await configureStore(
+        {
+          namespace: 'test.test',
+        },
+        dataService
+      )
+    ).plugin.store;
 
-    void store.dispatch(fetchExplainForPipeline() as any);
-    void store.dispatch(fetchExplainForPipeline() as any);
-    void store.dispatch(fetchExplainForPipeline() as any);
-    void store.dispatch(fetchExplainForPipeline() as any);
-    await store.dispatch(fetchExplainForPipeline() as any);
+    void store.dispatch(fetchExplainForPipeline());
+    void store.dispatch(fetchExplainForPipeline());
+    void store.dispatch(fetchExplainForPipeline());
+    void store.dispatch(fetchExplainForPipeline());
+
+    await store.dispatch(fetchExplainForPipeline());
 
     expect(dataService.explainAggregate).to.be.calledOnce;
   });
@@ -106,15 +113,17 @@ describe('fetchExplainForPipeline', function () {
       isCancelError: Sinon.stub().returns(false),
     };
 
-    const store = configureStore(
-      {
-        namespace: 'test.test',
-        pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }],
-      },
-      dataService
-    );
+    const store = (
+      await configureStore(
+        {
+          namespace: 'test.test',
+          pipeline: [{ $match: { foo: 1 } }, { $out: 'test' }],
+        },
+        dataService
+      )
+    ).plugin.store;
 
-    await store.dispatch(fetchExplainForPipeline() as any);
+    await store.dispatch(fetchExplainForPipeline());
 
     expect(dataService.explainAggregate).to.be.calledWith('test.test', [
       { $match: { foo: 1 } },
@@ -127,15 +136,17 @@ describe('fetchExplainForPipeline', function () {
       isCancelError: Sinon.stub().returns(false),
     };
 
-    const store = configureStore(
-      {
-        namespace: 'test.test',
-        pipeline: [{ $merge: { into: 'test' } }, { $match: { bar: 2 } }],
-      },
-      dataService
-    );
+    const store = (
+      await configureStore(
+        {
+          namespace: 'test.test',
+          pipeline: [{ $merge: { into: 'test' } }, { $match: { bar: 2 } }],
+        },
+        dataService
+      )
+    ).plugin.store;
 
-    await store.dispatch(fetchExplainForPipeline() as any);
+    await store.dispatch(fetchExplainForPipeline());
 
     expect(dataService.explainAggregate).to.be.calledWith('test.test', [
       { $match: { bar: 2 } },

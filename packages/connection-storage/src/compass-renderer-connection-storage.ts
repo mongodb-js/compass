@@ -1,12 +1,8 @@
-import { EventEmitter } from 'events';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import {
-  type ConnectionStorageEvent,
-  type ConnectionStorageEventListeners,
-  type ConnectionStorage,
-  type AutoConnectPreferences,
-  ConnectionStorageEvents,
+import type {
+  AutoConnectPreferences,
+  ConnectionStorage,
 } from './connection-storage';
 import type {
   ExportConnectionOptions,
@@ -22,26 +18,9 @@ export type ConnectionStorageIPCRenderer = Pick<
   'createInvoke' | 'call'
 >;
 
-class CompassRendererConnectionStorage
-  extends EventEmitter
-  implements ConnectionStorage
-{
+class CompassRendererConnectionStorage implements ConnectionStorage {
   private _ipc: ConnectionStorageIPCInterface | undefined;
-  /**
-   * TODO(COMPASS-7858): We would like to avoid a situation where in the same
-   * render process there are multiple places asking for auto connect info and
-   * potentially trying to auto connect ("accidentally"). So we have this little
-   * state here tracking if the auto connect info has already been requested
-   * once and if yes the getAutoConnectInfo won't return anything for subsequent
-   * calls.
-   */
-  private hasAlreadyRequestedAutoConnectInfo = false;
-  constructor(
-    private readonly ipcRenderer?: ConnectionStorageIPCRenderer,
-    private readonly getInitialAutoConnectPreferences?: () => Promise<AutoConnectPreferences>
-  ) {
-    super();
-  }
+  constructor(private readonly ipcRenderer?: ConnectionStorageIPCRenderer) {}
 
   get ipc() {
     const ipc =
@@ -92,7 +71,6 @@ class CompassRendererConnectionStorage
     signal?: AbortSignal | undefined;
   }): Promise<void> {
     await this.ipc.save(options);
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
   }
 
   async delete(options: {
@@ -100,24 +78,12 @@ class CompassRendererConnectionStorage
     signal?: AbortSignal | undefined;
   }): Promise<void> {
     await this.ipc.delete(options);
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
   }
 
   async getAutoConnectInfo(
-    autoConnectPreferences?: AutoConnectPreferences
+    autoConnectPreferences: AutoConnectPreferences
   ): Promise<ConnectionInfo | undefined> {
-    if (this.hasAlreadyRequestedAutoConnectInfo) {
-      return;
-    }
-    this.hasAlreadyRequestedAutoConnectInfo = true;
-    const autoConnectInfo = await this.ipc.getAutoConnectInfo(
-      autoConnectPreferences ??
-        (await this.getInitialAutoConnectPreferences?.()) ?? {
-          shouldAutoConnect: false,
-        }
-    );
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
-    return autoConnectInfo;
+    return await this.ipc.getAutoConnectInfo(autoConnectPreferences);
   }
 
   getLegacyConnections(
@@ -151,42 +117,6 @@ class CompassRendererConnectionStorage
     signal?: AbortSignal | undefined;
   }): Promise<void> {
     await this.ipc.importConnections(args);
-    this.emit(ConnectionStorageEvents.ConnectionsChanged);
-  }
-
-  on<T extends ConnectionStorageEvent>(
-    eventName: T,
-    listener: ConnectionStorageEventListeners[T]
-  ): this {
-    return super.on(eventName, listener);
-  }
-
-  off<T extends ConnectionStorageEvent>(
-    eventName: T,
-    listener: ConnectionStorageEventListeners[T]
-  ): this {
-    return super.off(eventName, listener);
-  }
-
-  once<T extends ConnectionStorageEvent>(
-    eventName: T,
-    listener: ConnectionStorageEventListeners[T]
-  ): this {
-    return super.once(eventName, listener);
-  }
-
-  removeListener<T extends ConnectionStorageEvent>(
-    eventName: T,
-    listener: ConnectionStorageEventListeners[T]
-  ): this {
-    return super.removeListener(eventName, listener);
-  }
-
-  emit<T extends ConnectionStorageEvent>(
-    eventName: T,
-    ...args: Parameters<ConnectionStorageEventListeners[T]>
-  ): boolean {
-    return super.emit(eventName, ...args);
   }
 }
 

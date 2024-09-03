@@ -41,6 +41,7 @@ export interface ConnectFormState {
 
   // - OIDC
   oidcUsername?: string; // (Principal).
+  oidcUseApplicationProxy?: boolean;
 
   // - AWS IAM
   awsAccessKeyId?: string;
@@ -57,7 +58,7 @@ export interface ConnectFormState {
   tlsAllowInvalidCertificates?: boolean;
 
   // Proxy/SSH
-  proxyMethod?: 'none' | 'password' | 'identity' | 'socks';
+  proxyMethod?: 'none' | 'password' | 'identity' | 'socks' | 'app-proxy';
 
   // FLE2
   fleKeyVaultNamespace?: string;

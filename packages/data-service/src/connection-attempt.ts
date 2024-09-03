@@ -5,6 +5,7 @@ import type { UnboundDataServiceImplLogger } from './logger';
 import connect from './connect';
 import type { DataService } from './data-service';
 import type { ConnectionOptions } from './connection-options';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 const { mongoLogId } = createLogger('CONNECTION-ATTEMPT');
 
@@ -18,16 +19,20 @@ export class ConnectionAttempt {
   _connectFn: typeof connect;
   _dataService: DataService | null = null;
   _logger: UnboundDataServiceImplLogger;
+  _proxyOptions: DevtoolsProxyOptions | undefined;
 
   constructor({
     connectFn,
     logger,
+    proxyOptions,
   }: {
     connectFn: typeof connect;
     logger: UnboundDataServiceImplLogger;
+    proxyOptions?: DevtoolsProxyOptions;
   }) {
     this._logger = logger;
     this._connectFn = connectFn;
+    this._proxyOptions = proxyOptions;
     this._abortController = new AbortController();
   }
 
@@ -61,6 +66,7 @@ export class ConnectionAttempt {
         connectionOptions,
         signal: this._abortController.signal,
         logger: this._logger,
+        proxyOptions: this._proxyOptions,
       });
       return this._dataService;
     } catch (err) {
@@ -127,13 +133,16 @@ export class ConnectionAttempt {
 
 export function createConnectionAttempt({
   logger,
+  proxyOptions,
   connectFn = connect,
 }: {
   logger: UnboundDataServiceImplLogger;
+  proxyOptions: DevtoolsProxyOptions;
   connectFn?: typeof connect;
 }): ConnectionAttempt {
   return new ConnectionAttempt({
     logger,
+    proxyOptions,
     connectFn,
   });
 }

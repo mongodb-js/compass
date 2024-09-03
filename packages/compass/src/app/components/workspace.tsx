@@ -1,9 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { css } from '@mongodb-js/compass-components';
-import {
-  CompassShellPlugin,
-  WorkspaceTab as ShellWorkspace,
-} from '@mongodb-js/compass-shell';
+import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
@@ -43,27 +39,10 @@ import {
 import { ImportPlugin, ExportPlugin } from '@mongodb-js/compass-import-export';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import {
-  ConnectionInfoProvider,
-  useActiveConnections,
-  useConnectionRepository,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import updateTitle from '../utils/update-title';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-
-const verticalSplitStyles = css({
-  width: '100vw',
-  height: '100vh',
-  display: 'grid',
-  gridTemplateColumns: '1fr',
-  gridTemplateRows: 'auto min-content',
-  overflow: 'hidden',
-});
-
-const shellContainerStyles = css({
-  zIndex: 5,
-});
 
 export default function Workspace({
   appName,
@@ -74,9 +53,8 @@ export default function Workspace({
     typeof WorkspacesPlugin
   >['onActiveWorkspaceTabChange'];
 }): React.ReactElement {
-  const [activeConnection] = useActiveConnections();
   const multiConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
 
   const { getConnectionInfoById } = useConnectionRepository();
@@ -108,60 +86,51 @@ export default function Workspace({
   }, [appName]);
 
   return (
-    <div data-testid="home" className={verticalSplitStyles}>
-      <WorkspacesProvider
-        value={[
-          WelcomeWorkspace,
-          MyQueriesWorkspace,
-          ShellWorkspace,
-          PerformanceWorkspace,
-          DatabasesWorkspaceTab,
-          CollectionsWorkspaceTab,
-          CollectionWorkspace,
+    <WorkspacesProvider
+      value={[
+        WelcomeWorkspace,
+        MyQueriesWorkspace,
+        ShellWorkspace,
+        PerformanceWorkspace,
+        DatabasesWorkspaceTab,
+        CollectionsWorkspaceTab,
+        CollectionWorkspace,
+      ]}
+    >
+      <CollectionTabsProvider
+        queryBar={CompassQueryBarPlugin}
+        tabs={[
+          CompassDocumentsPlugin,
+          CompassAggregationsPlugin,
+          CompassSchemaPlugin,
+          CompassIndexesPlugin,
+          CompassSchemaValidationPlugin,
+        ]}
+        modals={[
+          ExplainPlanCollectionTabModal,
+          DropIndexCollectionTabModal,
+          CreateIndexCollectionTabModal,
+          ExportToLanguageCollectionTabModal,
         ]}
       >
-        <CollectionTabsProvider
-          queryBar={CompassQueryBarPlugin}
-          tabs={[
-            CompassDocumentsPlugin,
-            CompassAggregationsPlugin,
-            CompassSchemaPlugin,
-            CompassIndexesPlugin,
-            CompassSchemaValidationPlugin,
+        <WorkspacesPlugin
+          initialWorkspaceTabs={[
+            { type: multiConnectionsEnabled ? 'Welcome' : 'My Queries' },
           ]}
-          modals={[
-            ExplainPlanCollectionTabModal,
-            DropIndexCollectionTabModal,
-            CreateIndexCollectionTabModal,
-            ExportToLanguageCollectionTabModal,
-          ]}
-        >
-          <WorkspacesPlugin
-            initialWorkspaceTabs={[
-              { type: multiConnectionsEnabled ? 'Welcome' : 'My Queries' },
-            ]}
-            onActiveWorkspaceTabChange={onWorkspaceTabChange}
-            renderSidebar={() => <CompassSidebarPlugin />}
-            renderModals={() => (
-              <>
-                <ImportPlugin></ImportPlugin>
-                <ExportPlugin></ExportPlugin>
-                <CreateViewPlugin></CreateViewPlugin>
-                <CreateNamespacePlugin></CreateNamespacePlugin>
-                <DropNamespacePlugin></DropNamespacePlugin>
-                <RenameCollectionPlugin></RenameCollectionPlugin>
-              </>
-            )}
-          ></WorkspacesPlugin>
-        </CollectionTabsProvider>
-      </WorkspacesProvider>
-      {!multiConnectionsEnabled && (
-        <div className={shellContainerStyles}>
-          <ConnectionInfoProvider connectionInfoId={activeConnection?.id}>
-            <CompassShellPlugin />
-          </ConnectionInfoProvider>
-        </div>
-      )}
-    </div>
+          onActiveWorkspaceTabChange={onWorkspaceTabChange}
+          renderSidebar={() => <CompassSidebarPlugin />}
+          renderModals={() => (
+            <>
+              <ImportPlugin></ImportPlugin>
+              <ExportPlugin></ExportPlugin>
+              <CreateViewPlugin></CreateViewPlugin>
+              <CreateNamespacePlugin></CreateNamespacePlugin>
+              <DropNamespacePlugin></DropNamespacePlugin>
+              <RenameCollectionPlugin></RenameCollectionPlugin>
+            </>
+          )}
+        ></WorkspacesPlugin>
+      </CollectionTabsProvider>
+    </WorkspacesProvider>
   );
 }

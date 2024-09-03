@@ -25,9 +25,7 @@ export default function StyledNavigationItem({
   const isDarkMode = useDarkMode();
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
+  const isSingleConnection = !usePreference('enableMultipleConnectionSystem');
   const { colorCode } = item;
   const isDisconnectedConnection =
     item.type === 'connection' &&

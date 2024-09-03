@@ -1,12 +1,5 @@
 import React from 'react';
 import Sinon from 'sinon';
-import {
-  render,
-  screen,
-  cleanup,
-  within,
-  waitFor,
-} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { queries, pipelines } from '../test/fixtures';
@@ -16,45 +9,31 @@ import type {
   FavoriteQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import {
-  ConnectionStatus,
-  ConnectionsManager,
-  ConnectionsManagerProvider,
-  type DataService,
-} from '@mongodb-js/compass-connections/provider';
-import {
-  type Logger,
-  createNoopLogger,
-} from '@mongodb-js/compass-logging/provider';
-import {
   type MongoDBInstance,
   type MongoDBInstancesManager,
   TestMongoDBInstanceManager,
 } from '@mongodb-js/compass-app-stores/provider';
-import {
-  PreferencesProvider,
-  type PreferencesAccess,
-} from 'compass-preferences-model/provider';
-import {
-  type ConnectionStorage,
-  ConnectionStorageProvider,
-  InMemoryConnectionStorage,
-} from '@mongodb-js/connection-storage/provider';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import type { RenderWithConnectionsResult } from '@mongodb-js/compass-connections/test';
+import {
+  renderWithConnections,
+  screen,
+  cleanup,
+  within,
+  waitFor,
+} from '@mongodb-js/compass-connections/test';
 
 let id = 0;
 function getConnection() {
   id += 1;
   return {
-    status: ConnectionStatus.Disconnected,
     connectionInfo: {
       id: `${id}FOO`,
       connectionOptions: {
         connectionString: `mongodb://localhost:2702${id}`,
       },
     },
-    dataService: {} as DataService,
     instance: {
       fetchDatabases() {},
       getNamespace() {},
@@ -87,17 +66,14 @@ describe('AggregationsQueriesList', function () {
   } as any;
   let connectionOne: ReturnType<typeof getConnection>;
   let connectionTwo: ReturnType<typeof getConnection>;
-  let logger: Logger;
   let queryStorage: FavoriteQueryStorage;
   let pipelineStorage: PipelineStorage;
-  let connectionStorage: ConnectionStorage;
-  let connectionsManager: ConnectionsManager;
   let instancesManager: MongoDBInstancesManager;
-  let preferencesAccess: PreferencesAccess;
-  let workspaces: WorkspacesService;
+  let workspaces: Sinon.SinonSpiedInstance<WorkspacesService>;
+  let connectionsStore: RenderWithConnectionsResult['connectionsStore'];
 
   const renderPlugin = () => {
-    const Plugin = MyQueriesPlugin.withMockServices({
+    const PluginWithMocks = MyQueriesPlugin.withMockServices({
       instancesManager,
       favoriteQueryStorageAccess: {
         getStorage() {
@@ -107,15 +83,13 @@ describe('AggregationsQueriesList', function () {
       pipelineStorage: pipelineStorage,
       workspaces,
     });
-    render(
-      <PreferencesProvider value={preferencesAccess}>
-        <ConnectionStorageProvider value={connectionStorage}>
-          <ConnectionsManagerProvider value={connectionsManager}>
-            <Plugin />
-          </ConnectionsManagerProvider>
-        </ConnectionStorageProvider>
-      </PreferencesProvider>
-    );
+    const result = renderWithConnections(<PluginWithMocks></PluginWithMocks>, {
+      connections: [connectionOne.connectionInfo, connectionTwo.connectionInfo],
+      preferences: {
+        enableMultipleConnectionSystem: true,
+      },
+    });
+    connectionsStore = result.connectionsStore;
   };
 
   const selectContextMenuItem = (
@@ -135,10 +109,9 @@ describe('AggregationsQueriesList', function () {
     return queryCard;
   };
 
-  beforeEach(async function () {
+  beforeEach(function () {
     connectionOne = getConnection();
     connectionTwo = getConnection();
-    logger = createNoopLogger();
     queryStorage = {
       loadAll() {
         return Promise.resolve([]);
@@ -151,43 +124,10 @@ describe('AggregationsQueriesList', function () {
       },
       updateAttributes() {},
     } as unknown as PipelineStorage;
-    connectionStorage = new InMemoryConnectionStorage([
-      connectionOne.connectionInfo,
-      connectionTwo.connectionInfo,
-    ]);
-    connectionsManager = new ConnectionsManager({
-      logger: logger.log.unbound,
-    });
     instancesManager = new TestMongoDBInstanceManager();
-    preferencesAccess = await createSandboxFromDefaultPreferences();
-    await preferencesAccess.savePreferences({
-      enableNewMultipleConnectionSystem: true,
-    });
-    workspaces = {
+    workspaces = sandbox.spy({
       openCollectionWorkspace() {},
-    } as unknown as WorkspacesService;
-
-    sandbox.stub(connectionsManager, 'statusOf').callsFake((id) => {
-      if (id === connectionOne.connectionInfo.id) {
-        return connectionOne.status;
-      } else if (id === connectionTwo.connectionInfo.id) {
-        return connectionTwo.status;
-      } else {
-        throw new Error('Unexpected id');
-      }
-    });
-
-    sandbox
-      .stub(connectionsManager, 'getDataServiceForConnection')
-      .callsFake((id) => {
-        if (id === connectionOne.connectionInfo.id) {
-          return connectionOne.dataService;
-        } else if (id === connectionTwo.connectionInfo.id) {
-          return connectionTwo.dataService;
-        } else {
-          throw new Error('Unexpected id');
-        }
-      });
+    } as unknown as WorkspacesService);
 
     sandbox
       .stub(instancesManager, 'getMongoDBInstanceForConnection')
@@ -480,24 +420,20 @@ describe('AggregationsQueriesList', function () {
     });
 
     context('when connected to just one connection', function () {
-      beforeEach(function () {
-        connectionOne.status = ConnectionStatus.Connected;
-      });
-
       context('and clicked on a saved item', function () {
         it('should open the query right away if the namespace exist in the current connection', async function () {
-          const openCollectionWorkspaceSpy = sandbox.spy(
-            workspaces,
-            'openCollectionWorkspace'
-          );
           sandbox
             .stub(connectionOne.instance, 'getNamespace')
             .resolves({} as any);
 
           await renderPluginWithWait();
+          await connectionsStore.actions.connect(connectionOne.connectionInfo);
+
           selectCardForItem(query._id);
           await waitFor(() => {
-            expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+            expect(
+              workspaces.openCollectionWorkspace
+            ).to.be.calledOnceWithExactly(
               `${connectionOne.connectionInfo.id}`,
               `${query._ns}`,
               {
@@ -513,10 +449,6 @@ describe('AggregationsQueriesList', function () {
           'and namespace does not exist in the current connection',
           function () {
             it('should open the namespace not found modal and allow opening query from right within the modal', async function () {
-              const openCollectionWorkspaceSpy = sandbox.spy(
-                workspaces,
-                'openCollectionWorkspace'
-              );
               const queryStorageUpdateSpy = sandbox.spy(
                 queryStorage,
                 'updateAttributes'
@@ -524,6 +456,9 @@ describe('AggregationsQueriesList', function () {
               connectionOne.instance =
                 mockedInstanceWithDatabaseAndCollection('connection-one');
               await renderPluginWithWait();
+              await connectionsStore.actions.connect(
+                connectionOne.connectionInfo
+              );
               selectCardForItem(query._id);
               await waitFor(() => {
                 expect(screen.getByTestId('open-item-modal')).to.exist;
@@ -550,7 +485,9 @@ describe('AggregationsQueriesList', function () {
 
               userEvent.click(screen.getByTestId('submit-button'));
               await waitFor(() => {
-                expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                expect(
+                  workspaces.openCollectionWorkspace
+                ).to.be.calledOnceWithExactly(
                   `${connectionOne.connectionInfo.id}`,
                   'connection-one-dummy-db.connection-one-dummy-coll',
                   {
@@ -573,10 +510,6 @@ describe('AggregationsQueriesList', function () {
         'and trying to open the query using context menu "Open in"',
         function () {
           it('should open the select namespace modal and allow running query right from the modal', async function () {
-            const openCollectionWorkspaceSpy = sandbox.spy(
-              workspaces,
-              'openCollectionWorkspace'
-            );
             const queryStorageUpdateSpy = sandbox.spy(
               queryStorage,
               'updateAttributes'
@@ -584,6 +517,9 @@ describe('AggregationsQueriesList', function () {
             connectionOne.instance =
               mockedInstanceWithDatabaseAndCollection('connection-one');
             await renderPluginWithWait();
+            await connectionsStore.actions.connect(
+              connectionOne.connectionInfo
+            );
             selectContextMenuItem(query._id, 'open-in');
 
             await waitFor(() => {
@@ -613,7 +549,9 @@ describe('AggregationsQueriesList', function () {
 
             userEvent.click(screen.getByTestId('submit-button'));
             await waitFor(() => {
-              expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+              expect(
+                workspaces.openCollectionWorkspace
+              ).to.be.calledOnceWithExactly(
                 `${connectionOne.connectionInfo.id}`,
                 'connection-one-dummy-db.connection-one-dummy-coll',
                 {
@@ -633,25 +571,20 @@ describe('AggregationsQueriesList', function () {
     });
 
     context('when connected to multiple connections', function () {
-      beforeEach(function () {
-        connectionOne.status = ConnectionStatus.Connected;
-        connectionTwo.status = ConnectionStatus.Connected;
-      });
-
       context('and clicked on a saved item', function () {
         it('should open the query right away if the namespace exists in only one of the active connections', async function () {
-          const openCollectionWorkspaceSpy = sandbox.spy(
-            workspaces,
-            'openCollectionWorkspace'
-          );
           sandbox
             .stub(connectionTwo.instance, 'getNamespace')
             .resolves({} as any);
           await renderPluginWithWait();
+          await connectionsStore.actions.connect(connectionOne.connectionInfo);
+          await connectionsStore.actions.connect(connectionTwo.connectionInfo);
           selectCardForItem(query._id);
 
           await waitFor(() => {
-            expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+            expect(
+              workspaces.openCollectionWorkspace
+            ).to.be.calledOnceWithExactly(
               `${connectionTwo.connectionInfo.id}`,
               query._ns,
               {
@@ -673,11 +606,13 @@ describe('AggregationsQueriesList', function () {
               sandbox
                 .stub(connectionTwo.instance, 'getNamespace')
                 .resolves({} as any);
-              const openCollectionWorkspaceSpy = sandbox.spy(
-                workspaces,
-                'openCollectionWorkspace'
-              );
               await renderPluginWithWait();
+              await connectionsStore.actions.connect(
+                connectionOne.connectionInfo
+              );
+              await connectionsStore.actions.connect(
+                connectionTwo.connectionInfo
+              );
               selectCardForItem(query._id);
 
               await waitFor(() => {
@@ -706,7 +641,9 @@ describe('AggregationsQueriesList', function () {
 
               userEvent.click(screen.getByTestId('submit-button'));
               await waitFor(() => {
-                expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                expect(
+                  workspaces.openCollectionWorkspace
+                ).to.be.calledOnceWithExactly(
                   `${connectionTwo.connectionInfo.id}`,
                   query._ns,
                   {
@@ -724,10 +661,6 @@ describe('AggregationsQueriesList', function () {
           'and namespace does not exist in any of the active connections',
           function () {
             it('should open select connection and namespace modal and allow running query right from the modal', async function () {
-              const openCollectionWorkspaceSpy = sandbox.spy(
-                workspaces,
-                'openCollectionWorkspace'
-              );
               const queryStorageUpdateSpy = sandbox.spy(
                 queryStorage,
                 'updateAttributes'
@@ -735,6 +668,12 @@ describe('AggregationsQueriesList', function () {
               connectionTwo.instance =
                 mockedInstanceWithDatabaseAndCollection('connection-two');
               await renderPluginWithWait();
+              await connectionsStore.actions.connect(
+                connectionOne.connectionInfo
+              );
+              await connectionsStore.actions.connect(
+                connectionTwo.connectionInfo
+              );
               selectCardForItem(query._id);
 
               await waitFor(() => {
@@ -767,7 +706,9 @@ describe('AggregationsQueriesList', function () {
 
               userEvent.click(screen.getByTestId('submit-button'));
               await waitFor(() => {
-                expect(openCollectionWorkspaceSpy).to.be.calledOnceWithExactly(
+                expect(
+                  workspaces.openCollectionWorkspace
+                ).to.be.calledOnceWithExactly(
                   `${connectionTwo.connectionInfo.id}`,
                   'connection-two-dummy-db.connection-two-dummy-coll',
                   {

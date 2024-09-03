@@ -81,11 +81,9 @@ import {
   onAutoupdateSuccess,
 } from './components/update-toasts';
 import { createElectronFileInputBackend } from '@mongodb-js/compass-components';
-import {
-  CompassRendererConnectionStorage,
-  type AutoConnectPreferences,
-} from '@mongodb-js/connection-storage/renderer';
+import { CompassRendererConnectionStorage } from '@mongodb-js/connection-storage/renderer';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
+import type { AutoConnectPreferences } from '../main/auto-connect';
 const { log, mongoLogId } = createLogger('COMPASS-APP');
 const track = createIpcTrack();
 
@@ -167,14 +165,15 @@ const Application = View.extend({
       name,
       value,
     }: Pick<webvitals.Metric, 'name' | 'value'>) {
-      const fullName = {
+      const events = {
         FCP: 'First Contentful Paint',
         LCP: 'Largest Contentful Paint',
         FID: 'First Input Delay',
         CLS: 'Cumulative Layout Shift',
         TTFB: 'Time to First Byte',
-      }[name];
-      track(fullName, { value });
+      } as const;
+
+      track(events[name], { value });
     }
 
     webvitals.getFCP(trackPerfEvent);
@@ -214,15 +213,9 @@ const Application = View.extend({
     await defaultPreferencesInstance.refreshPreferences();
     const initialAutoConnectPreferences =
       await getWindowAutoConnectPreferences();
-    const getInitialAutoConnectPreferences =
-      (): Promise<AutoConnectPreferences> => {
-        return Promise.resolve(initialAutoConnectPreferences);
-      };
     const isSecretStorageAvailable = await checkSecretStorageIsAvailable();
-    const connectionStorage = new CompassRendererConnectionStorage(
-      ipcRenderer,
-      getInitialAutoConnectPreferences
-    );
+    const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
+
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -255,6 +248,15 @@ const Application = View.extend({
           hideCollectionSubMenu={hideCollectionSubMenu}
           showSettings={showSettingsModal}
           connectionStorage={connectionStorage}
+          onAutoconnectInfoRequest={
+            initialAutoConnectPreferences.shouldAutoConnect
+              ? () => {
+                  return connectionStorage.getAutoConnectInfo(
+                    initialAutoConnectPreferences
+                  );
+                }
+              : undefined
+          }
         />
       </React.StrictMode>,
       this.queryByHook('layout-container')
@@ -266,7 +268,9 @@ const Application = View.extend({
         title:
           'Compass cannot access credential storage. You can still connect, but please note that passwords will not be saved.',
       });
-      track('Secret Storage Not Available');
+      track('Secret Storage Not Available', {
+        //
+      });
     }
 
     document.querySelector('#loading-placeholder')?.remove();

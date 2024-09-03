@@ -1,29 +1,25 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../test/configure-store';
+import { renderWithStore } from '../../../test/configure-store';
 import { FocusModeStageEditor } from './focus-mode-stage-editor';
 
 const renderFocusModeStageEditor = (
   props: Partial<ComponentProps<typeof FocusModeStageEditor>> = {}
 ) => {
-  render(
-    <Provider
-      store={configureStore({
-        pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
-      })}
-    >
-      <FocusModeStageEditor index={-1} operator={null} {...props} />
-    </Provider>
+  return renderWithStore(
+    <FocusModeStageEditor index={-1} operator={null} {...props} />,
+    {
+      pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
+    }
   );
 };
 
 describe('FocusMode', function () {
-  it('does not render editor when stage index is -1', function () {
-    renderFocusModeStageEditor({ index: -1 });
+  it('does not render editor when stage index is -1', async function () {
+    await renderFocusModeStageEditor({ index: -1 });
     expect(() => {
       screen.getByTestId('stage-operator-combobox');
     }).to.throw;
@@ -33,8 +29,8 @@ describe('FocusMode', function () {
   });
 
   context('when operator is not defined', function () {
-    beforeEach(function () {
-      renderFocusModeStageEditor({
+    beforeEach(async function () {
+      await renderFocusModeStageEditor({
         index: 0,
         operator: null,
       });
@@ -53,8 +49,8 @@ describe('FocusMode', function () {
   });
 
   context('when operator is defined', function () {
-    beforeEach(function () {
-      renderFocusModeStageEditor({
+    beforeEach(async function () {
+      await renderFocusModeStageEditor({
         index: 0,
         operator: '$limit',
       });

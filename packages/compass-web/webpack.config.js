@@ -32,8 +32,12 @@ module.exports = async (env, args) => {
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
-        '@mongodb-js/ssh-tunnel': false,
-        ssh2: false,
+        '@mongodb-js/devtools-proxy-support/proxy-options': require.resolve(
+          '@mongodb-js/devtools-proxy-support/proxy-options'
+        ),
+        '@mongodb-js/devtools-proxy-support': localPolyfill(
+          '@mongodb-js/devtools-proxy-support'
+        ),
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
@@ -124,6 +128,12 @@ module.exports = async (env, args) => {
       },
     },
     plugins: [
+      new webpack.DefinePlugin({
+        // Can be either `web` or `webdriverio`, helpful if we need special
+        // behavior for tests in sandbox
+        'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
+      }),
+
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
         // Required by the driver to function in browser environment

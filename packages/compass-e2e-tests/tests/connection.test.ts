@@ -326,8 +326,6 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
-    skipForWeb(this, 'connect happens on the outside');
-
     // connect
     await browser.connectWithConnectionString(
       `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
@@ -670,7 +668,10 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connect form not available in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

@@ -56,7 +56,7 @@ export function useExportConnections({
   state: ExportConnectionsState;
 } {
   const multipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const { favoriteConnections, nonFavoriteConnections } =
     useConnectionRepository();
@@ -80,25 +80,28 @@ export function useExportConnections({
   }
 
   const [state, setState] = useState<ExportConnectionsState>(INITIAL_STATE);
-  useEffect(() => setState(INITIAL_STATE), [open]);
+  useEffect(() => {
+    setState((prevState) => {
+      return {
+        // Reset the form state to initial when modal is open, but keep the list
+        ...INITIAL_STATE,
+        connectionList: prevState.connectionList,
+      };
+    });
+  }, [open]);
   const { passphrase, filename, connectionList, removeSecrets } = state;
 
   useEffect(() => {
     // If `connectionsToExport` changes, update the list of connections
     // that are displayed in our table.
-    if (
-      connectionsToExport.map(({ id }) => id).join(',') !==
-      state.connectionList.map(({ id }) => id).join(',')
-    ) {
-      setState((prevState) => ({
-        ...prevState,
-        connectionList: connectionInfosToConnectionShortInfos(
-          connectionsToExport,
-          state.connectionList
-        ),
-      }));
-    }
-  }, [connectionsToExport, state.connectionList]);
+    setState((prevState) => ({
+      ...prevState,
+      connectionList: connectionInfosToConnectionShortInfos(
+        connectionsToExport,
+        prevState.connectionList
+      ),
+    }));
+  }, [connectionsToExport]);
 
   const protectConnectionStrings = !!usePreference('protectConnectionStrings');
   useEffect(() => {

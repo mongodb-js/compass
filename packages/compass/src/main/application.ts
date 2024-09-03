@@ -97,6 +97,15 @@ class CompassApplication {
     }
     this.mode = mode;
 
+    const enablePlainTextEncryption =
+      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
+    if (enablePlainTextEncryption) {
+      // When testing we want to use plain text encryption to avoid having to
+      // deal with keychain popups or setting up keychain for test on CI (Linux env).
+      // This method is only available on Linux and is no-op on other platforms.
+      safeStorage.setUsePlainTextEncryption(true);
+    }
+
     const { preferences } = await setupPreferencesAndUser(
       globalPreferences,
       safeStorage
@@ -115,15 +124,6 @@ class CompassApplication {
     if ((await import('electron-squirrel-startup')).default) {
       debug('electron-squirrel-startup event handled sucessfully\n');
       return;
-    }
-
-    const enablePlainTextEncryption =
-      process.env.MONGODB_COMPASS_TEST_USE_PLAIN_SAFE_STORAGE === 'true';
-    if (enablePlainTextEncryption) {
-      // When testing we want to use plain text encryption to avoid having to
-      // deal with keychain popups or setting up keychain for test on CI (Linux env).
-      // This method is only available on Linux and is no-op on other platforms.
-      safeStorage.setUsePlainTextEncryption(true);
     }
 
     // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows

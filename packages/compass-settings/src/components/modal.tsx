@@ -34,7 +34,6 @@ type SettingsModalProps = {
   isAIFeatureEnabled: boolean;
   isOpen: boolean;
   isOIDCEnabled: boolean;
-  isProxySupportEnabled: boolean;
   selectedTab: SettingsTabId | undefined;
   onMount?: () => void;
   onClose: () => void;
@@ -65,7 +64,6 @@ const settingsStyles = css(
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isAIFeatureEnabled,
-  isProxySupportEnabled,
   isOpen,
   selectedTab,
   onMount,
@@ -86,6 +84,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     { tabId: 'general', name: 'General', component: GeneralSettings },
     { tabId: 'theme', name: 'Theme', component: ThemeSettings },
     { tabId: 'privacy', name: 'Privacy', component: PrivacySettings },
+    {
+      tabId: 'proxy',
+      name: 'Proxy Configuration',
+      component: ProxySettings,
+    },
   ];
 
   if (
@@ -105,14 +108,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       tabId: 'ai',
       name: 'Artificial Intelligence',
       component: GenAISettings,
-    });
-  }
-
-  if (isProxySupportEnabled) {
-    settings.push({
-      tabId: 'proxy',
-      name: 'Proxy Configuration',
-      component: ProxySettings,
     });
   }
 
@@ -170,7 +165,6 @@ export default connect(
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
       isAIFeatureEnabled: !!state.settings.settings.enableGenAIFeatures,
       isOIDCEnabled: !!state.settings.settings.enableOidc,
-      isProxySupportEnabled: !!state.settings.settings.enableProxySupport,
       hasChangedSettings: state.settings.updatedFields.length > 0,
       selectedTab: state.settings.tab,
     };

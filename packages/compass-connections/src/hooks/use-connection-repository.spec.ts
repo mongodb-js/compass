@@ -1,352 +1,198 @@
 import { useConnectionRepository } from './use-connection-repository';
 import { expect } from 'chai';
-import { spy, restore } from 'sinon';
+import Sinon from 'sinon';
+import { cleanup } from '@testing-library/react';
 import {
-  type ConnectionStorage,
-  InMemoryConnectionStorage,
-  ConnectionStorageProvider,
-  ConnectionStorageEvents,
-} from '@mongodb-js/connection-storage/provider';
-import { renderHook } from '@testing-library/react-hooks';
-import { waitFor } from '@testing-library/react';
-import { createElement } from 'react';
+  createDefaultConnectionInfo,
+  renderHookWithConnections,
+} from '../test';
+
+const favoriteMockConnections = [
+  {
+    ...createDefaultConnectionInfo(),
+    id: '12',
+    savedConnectionType: 'favorite',
+    favorite: { name: 'Bb' },
+  },
+  {
+    ...createDefaultConnectionInfo(),
+    id: '11',
+    savedConnectionType: 'favorite',
+    favorite: { name: 'Aa' },
+  },
+];
+
+const nonFavoriteMockConnections = [
+  {
+    ...createDefaultConnectionInfo(),
+    id: '23',
+    savedConnectionType: 'recent',
+    favorite: { name: 'Cc' },
+  },
+  {
+    ...createDefaultConnectionInfo(),
+    id: '22',
+    savedConnectionType: 'recent',
+    favorite: { name: 'Bb' },
+  },
+  {
+    ...createDefaultConnectionInfo(),
+    id: '21',
+    savedConnectionType: 'recent',
+    favorite: { name: 'Aa' },
+  },
+];
 
 describe('useConnectionRepository', function () {
-  let renderHookWithContext: typeof renderHook;
-  let mockStorage: ConnectionStorage;
-
-  beforeEach(function () {
-    mockStorage = new InMemoryConnectionStorage([]);
-    renderHookWithContext = (callback, options) => {
-      const wrapper: React.FC = ({ children }) =>
-        createElement(ConnectionStorageProvider, {
-          value: mockStorage,
-          children,
-        });
-      return renderHook(callback, { wrapper, ...options });
-    };
-  });
-
-  afterEach(function () {
-    restore();
+  afterEach(() => {
+    cleanup();
+    Sinon.restore();
   });
 
   describe('favoriteConnections', function () {
-    it('should return favourite connections sorted by name alphabetically', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        {
-          id: '2',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'Bb' },
-        },
-        {
-          id: '1',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'Aa' },
-        },
-        {
-          id: '3',
-          savedConnectionType: 'autoConnectInfo',
-        },
-        {
-          id: '4',
-        },
-      ]);
-
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-      await waitFor(() => {
-        const connections = result.current.favoriteConnections;
-        expect(connections.length).to.equal(2);
-        expect(connections[0].id).to.equal('1');
-        expect(connections[1].id).to.equal('2');
+    it('should return favourite connections sorted by name alphabetically', function () {
+      const { result } = renderHookWithConnections(useConnectionRepository, {
+        connections: favoriteMockConnections,
       });
+
+      const connections = result.current.favoriteConnections;
+
+      expect(connections.length).to.equal(2);
+      expect(connections[0].id).to.equal('11');
+      expect(connections[1].id).to.equal('12');
     });
 
     it('should not change if only non favourite connections change', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        {
-          id: '2',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'Bb' },
-        },
-        {
-          id: '1',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'Aa' },
-        },
-      ]);
+      const { result, connectionsStore } = renderHookWithConnections(
+        useConnectionRepository,
+        { connections: favoriteMockConnections }
+      );
 
-      const { result } = renderHookWithContext(() => useConnectionRepository());
+      const initialFavoriteConnections = result.current.favoriteConnections;
+      expect(initialFavoriteConnections.length).to.equal(2);
 
-      const initialFavoriteConnections = await waitFor(() => {
-        const favoriteConnections = result.current.favoriteConnections;
-        expect(favoriteConnections.length).to.equal(2);
-        return favoriteConnections;
-      });
+      await Promise.all(
+        nonFavoriteMockConnections.map((info) => {
+          return connectionsStore.actions.saveEditedConnection(info);
+        })
+      );
 
-      mockStorage.loadAll = function () {
-        return Promise.resolve([
-          {
-            id: '4',
-            savedConnectionType: 'autoConnectInfo',
-          },
-          {
-            id: '3',
-            savedConnectionType: 'recent',
-            favorite: { name: 'Cc' },
-          },
-          {
-            id: '2',
-            savedConnectionType: 'favorite',
-            favorite: { name: 'Bb' },
-          },
-          {
-            id: '1',
-            savedConnectionType: 'favorite',
-            favorite: { name: 'Aa' },
-          },
-        ]);
-      };
-
-      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
-
-      await waitFor(() => {
-        const favoriteConnections = result.current.favoriteConnections;
-        const nonFavoriteConnections = result.current.nonFavoriteConnections;
-
-        expect(favoriteConnections).to.equal(initialFavoriteConnections);
-        expect(nonFavoriteConnections.length).to.equal(1);
-        expect(nonFavoriteConnections[0].id).to.equal('3');
-      });
+      expect(result.current.favoriteConnections).to.eq(
+        initialFavoriteConnections
+      );
     });
   });
 
   describe('nonFavoriteConnections', function () {
-    it('should return non favourite connections sorted by name alphabetically', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        {
-          id: '2',
-          savedConnectionType: 'recent',
-          favorite: { name: 'Bb' },
-        },
-        {
-          id: '1',
-          savedConnectionType: 'recent',
-          favorite: { name: 'Aa' },
-        },
-        {
-          id: '3',
-          savedConnectionType: 'autoConnectInfo',
-        },
-      ]);
-
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-      await waitFor(() => {
-        const connections = result.current.nonFavoriteConnections;
-        expect(connections.length).to.equal(2);
-        expect(connections[0].id).to.equal('1');
-        expect(connections[1].id).to.equal('2');
+    it('should return non favourite connections sorted by name alphabetically', function () {
+      const { result } = renderHookWithConnections(useConnectionRepository, {
+        connections: nonFavoriteMockConnections,
       });
+
+      const connections = result.current.nonFavoriteConnections;
+
+      expect(connections.length).to.equal(3);
+      expect(connections[0].id).to.equal('21');
+      expect(connections[1].id).to.equal('22');
+      expect(connections[2].id).to.equal('23');
     });
 
     it('should not change if only favourite connections change', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        {
-          id: '2',
-          savedConnectionType: 'recent',
-          favorite: { name: 'Bb' },
-        },
-        {
-          id: '1',
-          savedConnectionType: 'recent',
-          favorite: { name: 'Aa' },
-        },
-      ]);
+      const { result, connectionsStore } = renderHookWithConnections(
+        useConnectionRepository,
+        { connections: nonFavoriteMockConnections }
+      );
 
-      const { result } = renderHookWithContext(() => useConnectionRepository());
+      const initialNonFavoriteConnections =
+        result.current.nonFavoriteConnections;
 
-      const initialNonFavoriteConnections = await waitFor(() => {
-        const nonFavoriteConnections = result.current.nonFavoriteConnections;
-        expect(nonFavoriteConnections.length).to.equal(2);
-        return nonFavoriteConnections;
-      });
+      await Promise.all(
+        favoriteMockConnections.map((info) => {
+          return connectionsStore.actions.saveEditedConnection(info);
+        })
+      );
 
-      mockStorage.loadAll = function () {
-        return Promise.resolve([
-          {
-            id: '3',
-            savedConnectionType: 'favorite',
-            favorite: { name: 'Cc' },
-          },
-          {
-            id: '2',
-            savedConnectionType: 'recent',
-            favorite: { name: 'Bb' },
-          },
-          {
-            id: '1',
-            savedConnectionType: 'recent',
-            favorite: { name: 'Aa' },
-          },
-        ]);
-      };
-
-      mockStorage.emit(ConnectionStorageEvents.ConnectionsChanged);
-
-      await waitFor(() => {
-        const favoriteConnections = result.current.favoriteConnections;
-        const nonFavoriteConnections = result.current.nonFavoriteConnections;
-
-        expect(nonFavoriteConnections).to.equal(initialNonFavoriteConnections);
-        expect(favoriteConnections.length).to.equal(1);
-        expect(favoriteConnections[0].id).to.equal('3');
-      });
+      expect(result.current.nonFavoriteConnections).to.equal(
+        initialNonFavoriteConnections
+      );
     });
   });
 
-  describe('when there is autoConnectInfo available from underlying storage', function () {
-    it('getConnectionInfoById should return the connection info for auto connection if the correct id is specified', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        {
-          id: '2',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'Bb' },
-        },
-        {
-          id: '1',
-          savedConnectionType: 'favorite',
-          favorite: { name: 'Aa' },
-        },
-        {
-          id: '3',
-          savedConnectionType: 'autoConnectInfo',
-        },
-      ]);
-
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-      await waitFor(() => {
-        expect(result.current.getConnectionInfoById('3')).to.deep.equal({
-          id: '3',
-          savedConnectionType: 'autoConnectInfo',
-        });
-      });
-    });
-  });
-
-  describe('#saveConnection', function () {
+  describe('store.saveEditedConnection', function () {
     it('should save a new connection if it has a valid connection string', async function () {
-      mockStorage = new InMemoryConnectionStorage([]);
-      const saveSpy = spy(mockStorage, 'save');
-      const { result } = renderHookWithContext(() => useConnectionRepository());
+      const connectionInfo = createDefaultConnectionInfo();
+      const { result, connectionsStore, connectionStorage } =
+        renderHookWithConnections(useConnectionRepository, {
+          // We don't allow to save connections that are not in state with
+          // actions, so put one in the store
+          connections: [connectionInfo],
+        });
 
+      const saveSpy = Sinon.spy(connectionStorage, 'save');
+
+      // Update connection string on existing connection
       const connectionToSave = {
-        id: '1',
-        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        ...connectionInfo,
+        connectionOptions: { connectionString: 'mongodb://example.com:1337' },
       };
-
-      await result.current.saveConnection(connectionToSave);
+      await connectionsStore.actions.saveEditedConnection(connectionToSave);
 
       expect(saveSpy).to.have.been.calledOnceWith({
         connectionInfo: connectionToSave,
       });
-    });
 
-    it('should merge the connection info is one was already saved with the same id', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        { id: '1', savedConnectionType: 'favorite' },
-      ]);
-      const saveSpy = spy(mockStorage, 'save');
-
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-      const connectionToSave = {
-        id: '1',
-        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
-      };
-
-      await result.current.saveConnection(connectionToSave);
-
-      expect(saveSpy).to.have.been.calledOnceWith({
-        connectionInfo: {
-          id: '1',
-          savedConnectionType: 'favorite',
-          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
-        },
-      });
-    });
-
-    it('should merge oidc connection info if exists', async function () {
-      mockStorage = new InMemoryConnectionStorage([
-        {
-          id: '1',
-          savedConnectionType: 'favorite',
-          connectionOptions: {
-            connectionString:
-              'mongodb://127.0.0.1:34455/?authMechanism=MONGODB-OIDC',
-          },
-        },
-      ]);
-      const saveSpy = spy(mockStorage, 'save');
-
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-      const connectionToSave = {
-        id: '1',
-        connectionOptions: {
-          connectionString:
-            'mongodb://127.0.0.1:34455/?authMechanism=MONGODB-OIDC',
-          oidc: { serializedState: 'someNewState' },
-        },
-      };
-
-      await result.current.saveConnection(connectionToSave);
-
-      expect(saveSpy).to.have.been.calledOnceWith({
-        connectionInfo: {
-          id: '1',
-          savedConnectionType: 'favorite',
-          connectionOptions: {
-            connectionString:
-              'mongodb://127.0.0.1:34455/?authMechanism=MONGODB-OIDC',
-            oidc: { serializedState: 'someNewState' },
-          },
-        },
-      });
+      expect(result.current.nonFavoriteConnections[0]).to.have.nested.property(
+        'connectionOptions.connectionString',
+        'mongodb://example.com:1337'
+      );
     });
 
     it('should not save a new connection if it has an invalid connection string', async function () {
-      mockStorage = new InMemoryConnectionStorage([]);
-      const saveSpy = spy(mockStorage, 'save');
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-
-      try {
-        await result.current.saveConnection({
-          id: '1',
-          connectionOptions: { connectionString: 'mongo://table.row:8080' },
+      const connectionInfo = createDefaultConnectionInfo();
+      const { result, connectionsStore, connectionStorage } =
+        renderHookWithConnections(useConnectionRepository, {
+          // We don't allow to save connections that are not in state with
+          // actions, so put one in the store
+          connections: [connectionInfo],
         });
 
-        expect.fail('Expected saveConnection to throw an exception.');
-        expect(saveSpy).to.not.have.been.calledOnce;
-      } catch (ex) {
-        expect(ex).to.have.property(
-          'message',
-          'Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://"'
-        );
-      }
+      const saveSpy = Sinon.spy(connectionStorage, 'save');
+
+      // Update connection string on existing connection
+      const connectionToSave = {
+        ...connectionInfo,
+        connectionOptions: { connectionString: 'foobar' },
+      };
+      await connectionsStore.actions.saveEditedConnection(connectionToSave);
+
+      expect(saveSpy).not.to.have.been.called;
+
+      expect(result.current.nonFavoriteConnections[0]).to.have.nested.property(
+        'connectionOptions.connectionString',
+        'mongodb://localhost:27017'
+      );
     });
   });
 
-  describe('#deleteConnection', function () {
-    it('should delete a saved connection from the underlying storage', async function () {
-      mockStorage = new InMemoryConnectionStorage([]);
-      const deleteSpy = spy(mockStorage, 'delete');
-      const { result } = renderHookWithContext(() => useConnectionRepository());
-      const connectionToDelete = {
-        id: '1',
-        connectionOptions: { connectionString: '' },
-      };
+  describe('store.removeConnection', function () {
+    it('should delete a saved connection from the underlying storage', function () {
+      const connectionInfo = createDefaultConnectionInfo();
+      const { result, connectionsStore, connectionStorage } =
+        renderHookWithConnections(useConnectionRepository, {
+          // We don't allow to save connections that are not in state with
+          // actions, so put one in the store
+          connections: [connectionInfo],
+        });
 
-      await result.current.deleteConnection(connectionToDelete);
+      const deleteSpy = Sinon.spy(connectionStorage, 'delete');
 
-      expect(deleteSpy).to.have.been.calledOnceWith(connectionToDelete);
+      expect(result.current.nonFavoriteConnections).to.have.lengthOf(1);
+
+      connectionsStore.actions.removeConnection(connectionInfo.id);
+
+      expect(deleteSpy).to.have.been.calledOnceWith({ id: connectionInfo.id });
+
+      expect(result.current.nonFavoriteConnections).to.have.lengthOf(0);
     });
   });
 });

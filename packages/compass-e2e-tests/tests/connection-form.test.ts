@@ -22,7 +22,10 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'no connect form in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -671,7 +674,9 @@ describe('Connection form', function () {
       );
       await browser.waitUntil(
         async () => {
-          return (await clipboard.read()) === 'mongodb://localhost:27017/';
+          return /^mongodb:\/\/localhost:27017\/?$/.test(
+            await clipboard.read()
+          );
         },
         { timeoutMsg: 'Expected copy to clipboard to work' }
       );

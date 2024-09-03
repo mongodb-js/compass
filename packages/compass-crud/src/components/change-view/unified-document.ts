@@ -391,7 +391,7 @@ function itemsWithChanges({
     assert(delta._t === 'a', 'delta._t is not a');
     const toRemove = Object.keys(delta)
       .filter((key) => key.startsWith('_') && key !== '_t')
-      .map((key) => key.slice(1) as unknown as number);
+      .map((key) => parseInt(key.slice(1), 10));
 
     // Removed indexes refer to the original (left) which is why we remove in a
     // separate pass before updating/adding
@@ -404,13 +404,6 @@ function itemsWithChanges({
       } else {
         assert(false, `item with index "${index}" does not exist`);
       }
-
-      // adjust the indexes of all items after this one
-      for (const item of items) {
-        if (item.index > index) {
-          item.index = item.index - 1;
-        }
-      }
     }
 
     for (const [_index, change] of Object.entries(delta)) {
@@ -421,7 +414,7 @@ function itemsWithChanges({
         // Non-removed indexes refer to the final (right) array which is why we
         // update/add in a separate pass after removing
 
-        const index = _index as unknown as number;
+        const index = parseInt(_index, 10);
         assert(Array.isArray(change), 'unexpected non-array');
         assert(change.length !== 3, 'array moves are not supported');
         assert(change.length !== 2, 'array changes are not supported'); // always add and remove
