@@ -42,6 +42,7 @@ describe('Recent List [Component]', function () {
           isReadonly: true,
           queries: [
             {
+              _id: 1,
               filter: { a: 1 },
               update: { $set: { a: 2 } },
               _lastExecuted: new Date(),
@@ -68,6 +69,7 @@ describe('Recent List [Component]', function () {
           isReadonly: false,
           queries: [
             {
+              _id: 1,
               filter: { a: 1 },
               update: { $set: { a: 2 } },
               _lastExecuted: new Date(),
