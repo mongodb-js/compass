@@ -5,7 +5,7 @@ import {
 } from './url-builder';
 
 describe('url builder helpers', function () {
-  describe('getRouteFromWorkspaceTab', function () {
+  describe('getWorkspaceTabFromRoute', function () {
     const specs = [
       ['Welcome', '/', null],
       ['Databases', '/Cluster0', null],
