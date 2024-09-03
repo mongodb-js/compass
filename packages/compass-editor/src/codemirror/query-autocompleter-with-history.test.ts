@@ -119,7 +119,7 @@ describe('query history autocompleter', function () {
 
   it('returns completions that match with multiple fields', async function () {
     const completions = getQueryHistoryAutocompletions(
-      await getCompletions('{ price: 1, categ', {
+      await getCompletions('{ price: 1, category: 1', {
         savedQueries,
         options: undefined,
         queryProperty: 'project',

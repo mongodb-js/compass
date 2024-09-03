@@ -22,7 +22,7 @@ export type SavedQuery = {
 };
 
 function simplifyQueryStringForAutocomplete(queryString: string): string {
-  return queryString.replace(/[\s'"\n\t{}}]/g, '').toLowerCase();
+  return queryString.replace(/[\s'"\n\t{}},]/g, '').toLowerCase();
 }
 
 /**
@@ -32,18 +32,18 @@ function simplifyQueryStringForAutocomplete(queryString: string): string {
  * We give suggestions of queries that either match at least one field,
  * or that contain the prefix the user is typing.
  */
-function getMatchingQueryHistoryItemsForPrefix({
+function getMatchingQueryHistoryItemsForInput({
   savedQueries,
   queryProperty,
-  prefix: _prefix,
+  input: _input,
 }: {
   savedQueries: SavedQuery[];
   queryProperty: string;
-  prefix: string;
+  input: string;
 }) {
-  const prefix = simplifyQueryStringForAutocomplete(_prefix);
+  const input = simplifyQueryStringForAutocomplete(_input);
 
-  if (prefix.length === 0) {
+  if (input.length === 0) {
     // Everything matches when empty search.
     return savedQueries;
   }
@@ -60,8 +60,12 @@ function getMatchingQueryHistoryItemsForPrefix({
 
       const queryValueSimplified =
         simplifyQueryStringForAutocomplete(queryValueString);
-      return queryValueSimplified.startsWith(prefix);
+      return queryValueSimplified.startsWith(input);
     }
+
+    // We subtract parts of the string until there's nothing left.
+    // We know it's a possible match if the all of the input is found in the query.
+    let inputToMatch = input;
 
     // We check each top level field as they can be in any order.
     for (const [key, value] of Object.entries(queryValue).slice(
@@ -72,12 +76,17 @@ function getMatchingQueryHistoryItemsForPrefix({
       const fieldStringSimplified =
         simplifyQueryStringForAutocomplete(fieldString);
 
-      if (
-        fieldStringSimplified.startsWith(prefix) ||
-        prefix.includes(fieldStringSimplified)
-      ) {
+      if (fieldStringSimplified.startsWith(input)) {
         return true;
       }
+      const inputIndex = inputToMatch.indexOf(fieldStringSimplified);
+      if (inputIndex !== -1) {
+        inputToMatch = inputToMatch.replace(fieldStringSimplified, '');
+      }
+    }
+
+    if (inputToMatch.length === 0) {
+      return true;
     }
 
     return false;
@@ -105,10 +114,10 @@ export const createQueryHistoryAutocompleter = ({
     const minTime = savedQueries[0].lastExecuted.getTime();
 
     const contextValue = context.state.sliceDoc(0, context.pos);
-    const matchedQueries = getMatchingQueryHistoryItemsForPrefix({
+    const matchedQueries = getMatchingQueryHistoryItemsForInput({
       savedQueries,
       queryProperty,
-      prefix: contextValue,
+      input: contextValue,
     });
 
     const options = matchedQueries.map((query) => ({
