@@ -1,5 +1,5 @@
+import { useSelector } from '../stores/store-context';
 import type { ConnectionState } from '../stores/connections-store-redux';
-import { useConnectionForId } from '../stores/store-context';
 
 // only one for now
 type ConnectionFeature = 'rollingIndexCreation';
@@ -25,20 +25,21 @@ function supportsRollingIndexCreation(connection: ConnectionState) {
     (clusterType === 'cluster' || clusterType === 'replicaSet')
   );
 }
-
 export function useConnectionSupports(
   connectionId: string,
   connectionFeature: ConnectionFeature
 ): boolean {
-  const connection = useConnectionForId(connectionId);
+  return useSelector((state) => {
+    const connection = state.connections.byId[connectionId];
 
-  if (!connection) {
+    if (!connection) {
+      return false;
+    }
+
+    if (connectionFeature === 'rollingIndexCreation') {
+      return supportsRollingIndexCreation(connection);
+    }
+
     return false;
-  }
-
-  if (connectionFeature === 'rollingIndexCreation') {
-    return supportsRollingIndexCreation(connection);
-  }
-
-  return false;
+  });
 }

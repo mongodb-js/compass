@@ -69,7 +69,7 @@ export const useDispatch = createDispatchHook(
 /**
  * @internal should not be directly exported from this package
  */
-const useSelector: TypedUseSelectorHook<ConnectionsStore['state']> =
+export const useSelector: TypedUseSelectorHook<ConnectionsStore['state']> =
   createSelectorHook(ConnectionsStoreContext);
 
 export const connect = ((
