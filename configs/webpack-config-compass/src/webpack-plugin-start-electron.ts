@@ -68,9 +68,11 @@ export class WebpackPluginStartElectron {
       const rendererOutputPath = this.rendererCompiler.options.output
         .path as string;
 
-      const devServerPort: number = this.rendererCompiler.options.devServer
-        ? this.rendererCompiler.options.devServer.port
-        : 4242;
+      const devServerPort: number =
+        this.rendererCompiler.options.devServer &&
+        this.rendererCompiler.options.devServer.port
+          ? this.rendererCompiler.options.devServer.port
+          : 4242;
 
       // This will set environmental variables that can be used by main process to
       // know what BrowserWindow to open exactly
