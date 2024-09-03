@@ -158,8 +158,9 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const completer = useMemo(() => {
     return isQueryHistoryAutocompleteEnabled
-      ? createQueryWithHistoryAutocompleter(
-          savedQueries
+      ? createQueryWithHistoryAutocompleter({
+          queryProperty: optionName,
+          savedQueries: savedQueries
             .filter((query) => {
               const isOptionNameInQuery =
                 optionName === 'filter' || optionName in query.queryProperties;
@@ -174,13 +175,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             .sort(
               (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
             ),
-          {
+          options: {
             fields: schemaFields,
             serverVersion,
           },
-          onApplyQuery,
-          darkMode ? 'dark' : 'light'
-        )
+          onApply: onApplyQuery,
+          theme: darkMode ? 'dark' : 'light',
+        })
       : createQueryAutocompleter({
           fields: schemaFields,
           serverVersion,
@@ -192,6 +193,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     onApplyQuery,
     isQueryHistoryAutocompleteEnabled,
     darkMode,
+    optionName,
   ]);
 
   const onFocus = () => {
