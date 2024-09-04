@@ -1325,7 +1325,9 @@ const connectionAttemptError = (
       preferences.getPreferences().enableMultipleConnectionSystem
     );
 
-    openConnectionFailedToast(connectionInfo, err, () => {
+    const showReviewButton = !!connectionInfo && !connectionInfo.atlasMetadata;
+
+    openConnectionFailedToast(connectionInfo, err, showReviewButton, () => {
       if (connectionInfo) {
         dispatch(editConnection(connectionInfo.id));
       }

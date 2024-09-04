@@ -9,6 +9,7 @@ import { useActiveWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import Sidebar from './components/legacy/sidebar';
 import { usePreference } from 'compass-preferences-model/provider';
 import MultipleConnectionSidebar from './components/multiple-connections/sidebar';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useSingleConnectionModeConnectionInfoStatus } from '@mongodb-js/compass-connections/provider';
 
 const errorBoundaryStyles = css({
@@ -17,10 +18,14 @@ const errorBoundaryStyles = css({
 
 export interface SidebarPluginProps {
   showSidebarHeader?: boolean;
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
 }
 
 const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
   showSidebarHeader,
+  onOpenConnectViaModal,
 }) => {
   const isMultiConnectionEnabled = usePreference(
     'enableMultipleConnectionSystem'
@@ -47,6 +52,7 @@ const SidebarPlugin: React.FunctionComponent<SidebarPluginProps> = ({
         <MultipleConnectionSidebar
           showSidebarHeader={showSidebarHeader}
           activeWorkspace={activeWorkspace}
+          onOpenConnectViaModal={onOpenConnectViaModal}
         />
       )}
       {!isMultiConnectionEnabled && connectionInfo && (

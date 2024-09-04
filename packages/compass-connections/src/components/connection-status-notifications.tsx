@@ -39,6 +39,7 @@ export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
 
 type ConnectionErrorToastBodyProps = {
   info?: ConnectionInfo | null;
+  showReviewButton: boolean;
   onReview: () => void;
 };
 
@@ -57,6 +58,7 @@ const connectionErrorTextStyles = css({
 
 function ConnectionErrorToastBody({
   info,
+  showReviewButton,
   onReview,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
   return (
@@ -68,7 +70,7 @@ function ConnectionErrorToastBody({
         There was a problem connecting{' '}
         {info ? `to ${getConnectionTitle(info)}` : ''}
       </span>
-      {info && (
+      {info && showReviewButton && (
         <Link
           className={connectionErrorToastActionMessageStyles}
           hideExternalIcon={true}
@@ -130,6 +132,7 @@ const openConnectionFailedToast = (
   // can happen is autoconnect flow
   connectionInfo: ConnectionInfo | null | undefined,
   error: Error,
+  showReviewButton: boolean,
   onReviewClick: () => void
 ) => {
   const failedToastId = connectionInfo?.id ?? 'failed';
@@ -139,6 +142,7 @@ const openConnectionFailedToast = (
     description: (
       <ConnectionErrorToastBody
         info={connectionInfo}
+        showReviewButton={showReviewButton}
         onReview={() => {
           closeToast(`connection-status--${failedToastId}`);
           onReviewClick();
