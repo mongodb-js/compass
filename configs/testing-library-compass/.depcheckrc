@@ -13,6 +13,7 @@ ignores:
   - '@mongodb-js/connection-info'
   - '@mongodb-js/compass-connections'
   - '@mongodb-js/compass-components'
+  - '@mongodb-js/connection-storage'
   - 'compass-preferences-model'
   - 'hadron-app-registry'
   - 'mongodb-data-service'
