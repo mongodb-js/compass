@@ -64,20 +64,19 @@ export type IndexesStore = Store<RootState> & {
 export function activateIndexesPlugin(
   options: IndexesPluginOptions,
   {
-    dataService,
     connectionInfoAccess,
     instance,
     localAppRegistry,
     globalAppRegistry,
     logger,
     track,
+    dataService,
   }: IndexesPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
   const store: IndexesStore = createStore(
     reducer,
     {
-      dataService,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
@@ -96,6 +95,7 @@ export function activateIndexesPlugin(
         logger,
         track,
         connectionInfoAccess,
+        dataService,
       })
     )
   );

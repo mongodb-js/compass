@@ -69,23 +69,6 @@ describe('regular-indexes module', function () {
       expect(indexesSpy.callCount).to.equal(0);
     });
 
-    it('when dataService is not connected, sets refreshing to false', async function () {
-      const store = setupStore({}, {
-        isConnected() {
-          return false;
-        },
-      } as any);
-      store.dispatch({
-        type: ActionTypes.IndexesAdded,
-        indexes: defaultSortedIndexes,
-      });
-      await store.dispatch(fetchIndexes());
-
-      const state = store.getState().regularIndexes;
-      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
-      expect(state.isRefreshing).to.equal(false);
-    });
-
     it('sets indexes to empty array when there is an error', async function () {
       const error = new Error('failed to connect to server');
       const store = setupStore({}, {

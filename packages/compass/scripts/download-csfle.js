@@ -35,7 +35,9 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
   const downloadOptions = {
     enterprise: true,
     crypt_shared: true,
-    version: 'continuous',
+    // TODO(MONGOSH-1833): The current 'continuous' release is not compatible with 8.x rc server releases. So we are using
+    // 8.0.0-rc18 (current latest) for now and once 8.0 is released we should switch back to continuous.
+    version: '8.0.0-rc18',
   };
   if (process.platform === 'linux') {
     // The CSFLE shared library is built for different distros,
@@ -47,7 +49,7 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
 
   const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo(
     CACHE_DIR,
-    'continuous',
+    '8.0.0-rc18',
     downloadOptions
   );
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
