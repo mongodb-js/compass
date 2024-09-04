@@ -508,7 +508,7 @@ const setError = (error: string | undefined): SetErrorAction => ({
 const fetchIndexes = (
   newStatus: SearchIndexesStatus
 ): IndexesThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { logger: { debug }, dataService }) => {
+  return async (dispatch, getState, { dataService }) => {
     const {
       isReadonlyView,
       isWritable,
