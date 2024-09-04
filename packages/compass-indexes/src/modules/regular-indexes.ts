@@ -209,7 +209,7 @@ export const fetchIndexes = (): IndexesThunkAction<
   Promise<void>,
   RegularIndexesActions
 > => {
-  return async (dispatch, getState, { logger: { debug }, dataService }) => {
+  return async (dispatch, getState, { dataService }) => {
     const {
       isReadonlyView,
       namespace,
