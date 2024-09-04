@@ -10,7 +10,7 @@
   "license": "SSPL",
   "scripts": {
     "bootstrap": "npm install && lerna run bootstrap --stream",
-    "postboostrap": "npm run compile --workspace=@mongodb-js/testing-library-compass",
+    "postbootstrap": "npm run compile --workspace=@mongodb-js/testing-library-compass",
     "bootstrap-ci": "npm ci && lerna run bootstrap",
     "precheck": "npm run depcheck && npm run check-logids && npm run check-leafygreen-dependency-usage",
     "changed": "node ./scripts/changed.js",
