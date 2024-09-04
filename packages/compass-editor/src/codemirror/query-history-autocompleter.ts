@@ -76,9 +76,16 @@ function getMatchingQueryHistoryItemsForInput({
       const fieldStringSimplified =
         simplifyQueryStringForAutocomplete(fieldString);
 
+      if (input === fieldStringSimplified) {
+        // Don't show an option if the user has typed the whole field.
+        return false;
+      }
+
       if (fieldStringSimplified.startsWith(input)) {
+        // When the user is typing their first field, we can return early.
         return true;
       }
+
       const inputIndex = inputToMatch.indexOf(fieldStringSimplified);
       if (inputIndex !== -1) {
         inputToMatch = inputToMatch.replace(fieldStringSimplified, '');
