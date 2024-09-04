@@ -10,7 +10,7 @@ import {
   screen,
   waitFor,
   userEvent,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 
 function mockWorkspace(name: string) {

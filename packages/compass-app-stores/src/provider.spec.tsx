@@ -11,7 +11,7 @@ import {
   screen,
   cleanup,
   waitFor,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 describe('NamespaceProvider', function () {
   const sandbox = Sinon.createSandbox();

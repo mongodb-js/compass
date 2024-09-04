@@ -20,7 +20,7 @@ import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
   activatePluginWithConnections,
   cleanup,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import { ExportPlugin } from '../index';
 import type { ExportStore } from '../stores/export-store';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';

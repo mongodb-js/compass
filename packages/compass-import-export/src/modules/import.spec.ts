@@ -3,7 +3,7 @@ import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
 import type { ImportStore } from '../stores/import-store';
 import { ImportPlugin } from '../index';
-import { activatePluginWithConnections } from '@mongodb-js/compass-connections/test';
+import { activatePluginWithConnections } from '@mongodb-js/testing-library-compass';
 
 function activatePlugin(
   dataService = {

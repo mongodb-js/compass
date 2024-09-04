@@ -6,7 +6,7 @@ import type { Schema } from 'mongodb-schema';
 import {
   activatePluginWithConnections,
   cleanup,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import FieldStorePlugin from '..';
 import { documentsUpdated, schemaUpdated } from '../modules';
 

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import {
   activatePluginWithConnections,
   cleanup,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import type { ImportStore } from './import-store';
 import { ImportPlugin } from '..';
 

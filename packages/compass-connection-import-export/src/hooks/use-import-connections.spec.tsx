@@ -6,12 +6,12 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
-import type { RenderConnectionsOptions } from '@mongodb-js/compass-connections/test';
+import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import {
   renderHookWithConnections,
   waitFor,
   act,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 const exampleFileContents = '{"a":"b"}';
 
