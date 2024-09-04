@@ -97,7 +97,13 @@ describe('CSFLE / QE', function () {
       const options: ConnectFormState = {
         hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
-        fleKey: 'A'.repeat(128),
+        kmsProviders: {
+          local: [
+            {
+              key: 'A'.repeat(128),
+            },
+          ],
+        },
         fleEncryptedFieldsMap: `{
           '${databaseName}.${collectionName}': {
             fields: [
@@ -226,7 +232,13 @@ describe('CSFLE / QE', function () {
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
-          fleKey: 'A'.repeat(128),
+          kmsProviders: {
+            local: [
+              {
+                key: 'A'.repeat(128),
+              },
+            ],
+          },
           connectionName,
         });
 
@@ -324,7 +336,13 @@ describe('CSFLE / QE', function () {
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
-          fleKey: 'A'.repeat(128),
+          kmsProviders: {
+            local: [
+              {
+                key: 'A'.repeat(128),
+              },
+            ],
+          },
           fleEncryptedFieldsMap: `{
             '${databaseName}.${collectionName}': {
               fields: [
@@ -946,6 +964,123 @@ describe('CSFLE / QE', function () {
         });
       });
     });
+
+    describe.only('multiple kms providers of the same type', function () {
+      const databaseName = 'fle-test';
+      const kms1Collection = 'my-collection-1';
+      const kms2Collection = 'my-collection-2';
+      let compass: Compass;
+      let browser: CompassBrowser;
+      let plainMongo: MongoClient;
+
+      before(async function () {
+        compass = await init(this.test?.fullTitle());
+        browser = compass.browser;
+      });
+
+      beforeEach(async function () {
+        await browser.disconnectAll();
+        await browser.connectWithConnectionForm({
+          hosts: [CONNECTION_HOSTS],
+          fleKeyVaultNamespace: `${databaseName}.keyvault`,
+          fleEncryptedFieldsMap: `{
+            '${databaseName}.${kms1Collection}': {
+              fields: [
+                {
+                  path: 'phoneNumber',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: { queryType: 'equality' }
+                }
+              ]
+            },
+            '${databaseName}.${kms2Collection}': {
+              fields: [
+                {
+                  path: 'phoneNumber',
+                  keyId: UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),
+                  bsonType: 'string',
+                  queries: { queryType: 'equality' }
+                }
+              ]
+            },
+          }`,
+          kmsProviders: {
+            local: [
+              {
+                key: 'A'.repeat(128),
+              },
+              {
+                key: 'B'.repeat(128),
+              },
+            ],
+          },
+          connectionName,
+        });
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          'db.keyvault.insertOne({' +
+            '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
+            '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+            '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+            '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+            '"status": 0,' +
+            '"masterKey": { "provider" : "local" }' +
+            '})',
+          'db.keyvault.insertOne({' +
+            '"_id": UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),' +
+            '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+            '"creationDate": ISODate("2022-05-27T18:28:34.925Z"),' +
+            '"updateDate": ISODate("2022-05-27T18:28:34.925Z"),' +
+            '"status": 0,' +
+            '"masterKey": { "provider" : "local:1" }' +
+            '})',
+          // make sure there is a collection so we can navigate to the database
+          `db.getMongo().getDB('${databaseName}').createCollection('default')`,
+        ]);
+        await refresh(browser, connectionName);
+
+        plainMongo = await MongoClient.connect(CONNECTION_STRING);
+      });
+
+      after(async function () {
+        if (compass) {
+          await cleanup(compass);
+        }
+      });
+
+      afterEach(async function () {
+        if (compass) {
+          await screenshotIfFailed(compass, this.currentTest);
+        }
+        await plainMongo.db(databaseName).dropDatabase();
+        await plainMongo.close();
+      });
+
+      it('allows setting multiple kms providers of the same type', async function () {
+        // {
+        //   "_id": UUID("28bbc608-524e-4717-9246-33633361788e"),
+        //   "keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),
+        //   "creationDate": ISODate("2022-05-27T18:28:33.925Z"),
+        //   "updateDate": ISODate("2022-05-27T18:28:33.925Z"),
+        //   "status": 0,
+        //   "masterKey": { "provider" : "local" }
+        // }
+
+        // {
+        //   "_id": UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),
+        //   "keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),
+        //   "creationDate": ISODate("2022-05-27T18:28:33.925Z"),
+        //   "updateDate": ISODate("2022-05-27T18:28:33.925Z"),
+        //   "status": 0,
+        //   "masterKey": { "provider" : "local:1" }
+        // }
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db.createCollection('${kms1Collection}')`,
+        ]);
+      });
+    });
   });
 
   describe('server version gte 6.0 and lt 7.0', function () {
@@ -1069,7 +1204,13 @@ describe('CSFLE / QE', function () {
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],
         fleKeyVaultNamespace: `${databaseName}.keyvault`,
-        fleKey: 'A'.repeat(128),
+        kmsProviders: {
+          local: [
+            {
+              key: 'A'.repeat(128),
+            },
+          ],
+        },
         connectionName,
       });
 
