@@ -30,7 +30,6 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "bootstrap": "npm run compile",
     "compile": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
