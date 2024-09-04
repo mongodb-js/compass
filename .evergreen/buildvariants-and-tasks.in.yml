@@ -110,8 +110,8 @@ const MAINTAINED_SERVER_VERSIONS = [
   { name: '60x-enterprise', version: '6.0.x-enterprise' },
   { name: '70x-community', version: '7.0.x' },
   { name: '70x-enterprise', version: '7.0.x-enterprise' },
-  { name: '80x-community', version: '>= 8.0.0-rc18' },
-  { name: '80x-enterprise', version: '>= 8.0.0-rc18-enterprise' },
+  { name: '80x-community', version: '8.0.0-rc18' },
+  { name: '80x-enterprise', version: '8.0.0-rc18-enterprise' },
 ];
 
 const TEST_LATEST_ALPHA_SERVER_VERSION = { name: 'latest-alpha', version: 'latest-alpha-enterprise' };

@@ -537,16 +537,13 @@ describe('CSFLE / QE', function () {
         ['range', collectionNameRange],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
-          if (mode === 'range') {
+          if (mode === 'range' && serverSatisfies('< 7.99.99', true)) {
             // We are using latest crypt libraries which only support range algorithm.
-            // TODO (COMPASS-8242): Skipping for current 8.0 rc release (8.0.0-rc18) because mongodb-download-url
-            // resolves 8.0.0-rc18 to 8.0.0-rc9, which does not include SERVER-91889
-            console.log('Skipping range test for completely');
+            console.log('Skipping range test for server version < 7.99.99');
             return this.skip();
           }
           const [field, oldValue, newValue] =
-            // TODO (COMPASS-8242): doing as any to make ts happy as we are skipping tests for range.
-            (mode as any) !== 'range'
+            mode !== 'range'
               ? ['phoneNumber', '"30303030"', '"10101010"']
               : [
                   'date',
