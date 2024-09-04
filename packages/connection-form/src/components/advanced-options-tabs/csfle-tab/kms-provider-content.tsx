@@ -55,14 +55,17 @@ function KMSProviderCard<T extends KMSProviderType>({
   fields,
   clientCertIsOptional,
   noTLS,
+  index,
 }: KMSProviderContentProps<T> & {
   kmsProviderName: KMSProviderName<T>;
   showHeader: boolean;
   onRemove: () => void;
+  index: number;
 }) {
   const [hoverProps, isHovered] = useHoverState();
   return (
     <Card
+      data-card-index={index}
       data-testid={`${kmsProviderName}-kms-card-item`}
       key={kmsProviderName}
       className={cardStyles}
@@ -148,9 +151,10 @@ function KMSProviderContent<T extends KMSProviderType>({
 
   return (
     <>
-      {kmsProviderNames.map((kmsProviderName) => (
+      {kmsProviderNames.map((kmsProviderName, index) => (
         <KMSProviderCard
           key={kmsProviderName}
+          index={index}
           connectionOptions={connectionOptions}
           updateConnectionFormField={updateConnectionFormField}
           kmsProviderType={kmsProviderType}
@@ -162,6 +166,7 @@ function KMSProviderContent<T extends KMSProviderType>({
       ))}
       <div className={flexContainerStyles}>
         <Button
+          data-testid={'csfle-add-new-kms-provider-button'}
           className={pushRightStyles}
           variant="primaryOutline"
           onClick={() => {

@@ -63,8 +63,13 @@ export interface ConnectFormState {
   // FLE2
   fleKeyVaultNamespace?: string;
   fleStoreCredentials?: boolean;
-  fleKey?: string;
   fleEncryptedFieldsMap?: string;
+  kmsProviders?: {
+    // For now adding support for local only
+    local?: {
+      key?: string;
+    }[];
+  };
 
   // - SSH with Password
   sshPasswordHost?: string;

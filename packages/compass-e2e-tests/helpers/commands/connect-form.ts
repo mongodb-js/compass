@@ -654,7 +654,7 @@ export async function setConnectFormState(
   // FLE2
   if (
     state.fleKeyVaultNamespace ||
-    state.fleKey ||
+    state.kmsProviders ||
     state.fleEncryptedFieldsMap
   ) {
     await browser.navigateToConnectTab('In-Use Encryption');
@@ -665,12 +665,17 @@ export async function setConnectFormState(
         state.fleKeyVaultNamespace
       );
     }
-    if (state.fleKey) {
+    if ((state.kmsProviders?.local?.length ?? 0) > 0) {
       await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
-      await browser.setValueVisible(
-        Selectors.ConnectionFormInputFLELocalKey,
-        state.fleKey
-      );
+      for (const [index, item] of (state.kmsProviders?.local ?? []).entries()) {
+        await browser.setValueVisible(
+          Selectors.connectionFormInputFLELocalKey(index),
+          item.key ?? ''
+        );
+        await browser.clickVisible(
+          Selectors.ConnectionFormAddNewKMSProviderButton
+        );
+      }
     }
     if (state.fleEncryptedFieldsMap) {
       // set the text in the editor
