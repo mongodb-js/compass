@@ -65,6 +65,10 @@ describe('CompassWeb', function () {
           onActiveWorkspaceTabChange={() => {}}
           onTrack={onTrackSpy}
           {...props}
+          initialPreferences={{
+            enableCreatingNewConnections: true,
+            ...props.initialPreferences,
+          }}
         ></CompassWeb>
       </ConnectFnProvider>
     );

@@ -67,10 +67,6 @@ describe('IndexesStore [Store]', function () {
     expect(store.getState().isReadonlyView).to.equal(true);
   });
 
-  it('sets the data service', function () {
-    expect(store.getState().dataService).to.not.equal(null);
-  });
-
   context('when instance state changes', function () {
     before(function () {
       expect(store.getState().isWritable).to.equal(true);

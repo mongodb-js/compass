@@ -37,6 +37,7 @@ export type ConnectedConnection = {
   isReady: boolean;
   isDataLake: boolean;
   isWritable: boolean;
+  isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
   isGenuineMongoDB: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
@@ -83,6 +84,7 @@ export type ConnectedConnectionTreeItem = VirtualTreeItem & {
   isExpanded: boolean;
   connectionInfo: ConnectionInfo;
   connectionStatus: 'connected';
+  isPerformanceTabAvailable: boolean;
   isPerformanceTabSupported: boolean;
   hasWriteActionsDisabled: boolean;
   isShellEnabled: boolean;
@@ -151,6 +153,7 @@ const connectedConnectionToItems = ({
     databases,
     databasesStatus,
     databasesLength,
+    isPerformanceTabAvailable,
     isPerformanceTabSupported,
     isDataLake,
     isWritable,
@@ -186,6 +189,7 @@ const connectedConnectionToItems = ({
     colorCode,
     connectionInfo,
     connectionStatus,
+    isPerformanceTabAvailable,
     isPerformanceTabSupported,
     hasWriteActionsDisabled,
     isShellEnabled: preferencesShellEnabled,

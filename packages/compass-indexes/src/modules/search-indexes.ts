@@ -387,8 +387,12 @@ export const createIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track, connectionInfoAccess }) {
-    const { namespace, dataService } = getState();
+  return async function (
+    dispatch,
+    getState,
+    { track, connectionInfoAccess, dataService }
+  ) {
+    const { namespace } = getState();
 
     dispatch({ type: ActionTypes.CreateSearchIndexStarted });
 
@@ -449,10 +453,13 @@ export const updateIndex = ({
   type?: string;
   definition: Document;
 }): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track, connectionInfoAccess }) {
+  return async function (
+    dispatch,
+    getState,
+    { track, connectionInfoAccess, dataService }
+  ) {
     const {
       namespace,
-      dataService,
       searchIndexes: { indexes },
     } = getState();
 
@@ -501,21 +508,15 @@ const setError = (error: string | undefined): SetErrorAction => ({
 const fetchIndexes = (
   newStatus: SearchIndexesStatus
 ): IndexesThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { logger: { debug } }) => {
+  return async (dispatch, getState, { dataService }) => {
     const {
       isReadonlyView,
       isWritable,
-      dataService,
       namespace,
       searchIndexes: { status },
     } = getState();
 
     if (isReadonlyView || !isWritable) {
-      return;
-    }
-
-    if (!dataService || !dataService.isConnected()) {
-      debug('warning: trying to load indexes but dataService is disconnected');
       return;
     }
 
@@ -571,11 +572,12 @@ export const showConfirmation = showConfirmationModal;
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async function (dispatch, getState, { track, connectionInfoAccess }) {
-    const { namespace, dataService } = getState();
-    if (!dataService) {
-      return;
-    }
+  return async function (
+    dispatch,
+    getState,
+    { track, connectionInfoAccess, dataService }
+  ) {
+    const { namespace } = getState();
 
     const isConfirmed = await showConfirmation({
       title: `Are you sure you want to drop "${name}" from Cluster?`,

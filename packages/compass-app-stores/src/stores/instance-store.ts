@@ -221,7 +221,7 @@ export function createInstancesStore(
       const db =
         instance.databases.get(database) ??
         // We might be adding collection to a new db namespace
-        instance.databases.add({ _id: database });
+        instance.databases.add({ _id: database, name: database });
       // We might be refreshing an existing namespace (in case of out stages usage
       // for example)
       let newCollection = false;
@@ -230,16 +230,21 @@ export function createInstancesStore(
         newCollection = true;
         coll = db.collections.add({ _id: namespace });
       }
-      // We don't care if this fails
-      await Promise.allSettled([
-        db.fetch({ dataService, force: true }),
-        coll.fetch({
-          dataService,
-          force: true,
-          // We only need to fetch info in case of new collection being created
-          fetchInfo: newCollection,
-        }),
-      ]);
+      // Fetch in sequence to avoid race conditions between database and
+      // collection model updates
+      await db
+        .fetch({ dataService, force: true })
+        .then(() => {
+          return coll?.fetch({
+            dataService,
+            force: true,
+            // We only need to fetch info in case of new collection being created
+            fetchInfo: newCollection,
+          });
+        })
+        .catch(() => {
+          // We don't care if this fails
+        });
     } catch (error) {
       log.warn(
         mongoLogId(1_001_000_320),
