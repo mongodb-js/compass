@@ -349,8 +349,7 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
   cli.debug('Production dependencies installed');
 
-  const rebuildConfig = {
-    ...CONFIG.rebuild,
+  const sharedRebuildConfig = {
     arch: CONFIG.arch,
     electronVersion: CONFIG.packagerOptions.electronVersion,
     buildPath: appPackagePath,
@@ -360,6 +359,11 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     // a transitive dependency that was hoisted by npm installation process)
     projectRootPath: appPackagePath,
     force: true,
+  };
+
+  const allModulesRebuildConfig = {
+    ...sharedRebuildConfig,
+    ...CONFIG.rebuild,
     // We want to ensure that we are actually rebuilding native modules on the
     // platform we are packaging. There is currently no direct way of passing a
     // --build-from-source flag to rebuild-install package, but we can force
@@ -368,15 +372,18 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild'
   };
 
-  await rebuild(rebuildConfig);
-
   // We can not force rebuild mongodb-client-encryption locally, but we need to
   // make sure that the binary is matching the platform we are packaging for and
-  // so let's run rebuild again, but this time providing the tag name package
-  // is using so that prebuild can download the matching version
-  rebuildConfig.prebuildTagPrefix = 'node-v';
-  rebuildConfig.onlyModules = ['mongodb-client-encryption'];
-  await rebuild(rebuildConfig);
+  // so let's run rebuild again.
+  const clientEncryptionRebuildConfig = {
+    ...sharedRebuildConfig,
+    onlyModules: [
+      'mongodb-client-encryption',
+    ],
+  };
+
+  await rebuild(allModulesRebuildConfig);
+  await rebuild(clientEncryptionRebuildConfig);
 
   cli.debug('Native modules rebuilt against Electron.');
   if (originalPackagePath !== appPackagePath) {

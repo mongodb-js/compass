@@ -40,6 +40,7 @@ describe('Favorite List [Component]', function () {
           isReadonly: true,
           queries: [
             {
+              _id: 1,
               filter: { a: 1 },
               update: { $set: { a: 2 } },
             } as any,
@@ -65,6 +66,7 @@ describe('Favorite List [Component]', function () {
           isReadonly: false,
           queries: [
             {
+              _id: 1,
               filter: { a: 1 },
               update: { $set: { a: 2 } },
             } as any,

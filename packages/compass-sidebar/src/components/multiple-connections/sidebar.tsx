@@ -52,6 +52,9 @@ type MultipleConnectionSidebarProps = {
   onConnectionCsfleModeChanged(connectionId: string, isEnabled: boolean): void;
   onSidebarAction(action: string, ...rest: any[]): void;
   showSidebarHeader?: boolean;
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
 };
 
 const sidebarStyles = css({
@@ -91,6 +94,7 @@ export function MultipleConnectionSidebar({
   onSidebarAction,
   onConnectionCsfleModeChanged,
   showSidebarHeader = true,
+  onOpenConnectViaModal,
 }: MultipleConnectionSidebarProps) {
   const [csfleModalConnectionId, setCsfleModalConnectionId] = useState<
     string | undefined
@@ -220,6 +224,7 @@ export function MultipleConnectionSidebar({
           onOpenNonGenuineMongoDBModal={(connectionId: string) => {
             showNonGenuineMongoDBWarningModal(connectionId);
           }}
+          onOpenConnectViaModal={onOpenConnectViaModal}
         />
         {editingConnectionInfo && (
           <ConnectionFormModal

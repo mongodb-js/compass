@@ -3,6 +3,7 @@ import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
 } from 'hadron-app-registry';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
@@ -74,7 +75,11 @@ const WithAtlasProviders: React.FC = ({ children }) => {
 type CompassWorkspaceProps = Pick<
   React.ComponentProps<typeof WorkspacesPlugin>,
   'initialWorkspaceTabs' | 'onActiveWorkspaceTabChange'
->;
+> &
+  Pick<
+    React.ComponentProps<typeof CompassSidebarPlugin>,
+    'onOpenConnectViaModal'
+  >;
 
 type CompassWebProps = {
   /**
@@ -138,11 +143,21 @@ type CompassWebProps = {
    * Callback prop called for every track event inside Compass
    */
   onTrack?: TrackFunction;
+
+  /**
+   * Callback prop that will be called with atlas metadata for a certain cluster
+   * when the action is selected from the sidebar actions. Should be used to
+   * show the Atlas Cloud "Connect" modal
+   */
+  onOpenConnectViaModal?: (
+    atlasMetadata: ConnectionInfo['atlasMetadata']
+  ) => void;
 };
 
 function CompassWorkspace({
   initialWorkspaceTabs,
   onActiveWorkspaceTabChange,
+  onOpenConnectViaModal,
 }: CompassWorkspaceProps) {
   return (
     <WorkspacesProvider
@@ -181,6 +196,7 @@ function CompassWorkspace({
               return (
                 <CompassSidebarPlugin
                   showSidebarHeader={false}
+                  onOpenConnectViaModal={onOpenConnectViaModal}
                 ></CompassSidebarPlugin>
               );
             }}
@@ -239,6 +255,7 @@ const CompassWeb = ({
   onLog,
   onDebug,
   onTrack,
+  onOpenConnectViaModal,
 }: CompassWebProps) => {
   const appRegistry = useRef(new AppRegistry());
   const logger = useCompassWebLoggerAndTelemetry({
@@ -262,6 +279,7 @@ const CompassWeb = ({
       maximumNumberOfActiveConnections: 10,
       trackUsageStatistics: true,
       enableShell: false,
+      enableCreatingNewConnections: false,
       ...initialPreferences,
     })
   );
@@ -328,7 +346,7 @@ const CompassWeb = ({
                                 mongoLogId(1_001_000_329),
                                 'Compass Web',
                                 'Could not load connections when trying to autoconnect',
-                                { err: (err as any).message }
+                                { err: err.message }
                               );
                               return undefined;
                             }
@@ -347,6 +365,7 @@ const CompassWeb = ({
                               onActiveWorkspaceTabChange={
                                 onActiveWorkspaceTabChange
                               }
+                              onOpenConnectViaModal={onOpenConnectViaModal}
                             />
                           </WithConnectionsStore>
                         </FieldStorePlugin>

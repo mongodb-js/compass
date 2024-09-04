@@ -17,6 +17,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnections } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -218,6 +219,9 @@ function WelcomeImage() {
 
 export default function WelcomeTab() {
   const { createNewConnection } = useConnections();
+  const enableCreatingNewConnections = usePreference(
+    'enableCreatingNewConnections'
+  );
 
   return (
     <div className={welcomeTabStyles}>
@@ -226,17 +230,23 @@ export default function WelcomeTab() {
       </div>
       <div>
         <H3>Welcome to MongoDB Compass</H3>
-        <Body>To get started, connect to an existing server or</Body>
-        <Button
-          className={firstConnectionBtnStyles}
-          data-testid="add-new-connection-button"
-          variant={ButtonVariant.Primary}
-          leftGlyph={<Icon glyph="Plus" />}
-          onClick={createNewConnection}
-        >
-          Add new connection
-        </Button>
-        <AtlasHelpSection />
+        {enableCreatingNewConnections ? (
+          <>
+            <Body>To get started, connect to an existing server or</Body>
+            <Button
+              className={firstConnectionBtnStyles}
+              data-testid="add-new-connection-button"
+              variant={ButtonVariant.Primary}
+              leftGlyph={<Icon glyph="Plus" />}
+              onClick={createNewConnection}
+            >
+              Add new connection
+            </Button>
+            <AtlasHelpSection />
+          </>
+        ) : (
+          <Body>To get started, connect to an existing server</Body>
+        )}
       </div>
     </div>
   );

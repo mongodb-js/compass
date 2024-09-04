@@ -12,6 +12,12 @@ export interface AtlasClusterMetadata {
   clusterName: string;
   clusterType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
   regionalBaseUrl: string;
+  /*
+   * At the time of writing these are the possible instance sizes. If we include
+   * the list in the type here , then we'll have to maintain it..
+   * https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/provider.ts#L60-L107
+   */
+  instanceSize?: string;
 }
 
 export interface ConnectionInfo {

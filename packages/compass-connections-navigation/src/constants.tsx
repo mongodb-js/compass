@@ -7,6 +7,8 @@ export const ROW_HEIGHT = 28;
 // export const COLLETIONS_MARGIN_BOTTOM = spacing[1];
 
 export type Actions =
+  // Atlas Cloud actions
+  | 'show-connect-via-modal'
   // connection item related actions
   | 'open-shell'
   | 'select-connection'

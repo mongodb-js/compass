@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 import type { Action, AnyAction } from 'redux';
 import type AppRegistry from 'hadron-app-registry';
-import dataService from './data-service';
 import isWritable from './is-writable';
 import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';
@@ -11,16 +10,17 @@ import searchIndexes from './search-indexes';
 import serverVersion from './server-version';
 import namespace from './namespace';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { IndexesDataServiceProps } from '../stores/store';
 
 const reducer = combineReducers({
   isWritable,
   isReadonlyView,
   indexView,
   description,
-  dataService,
   serverVersion,
   namespace,
   regularIndexes,
@@ -35,6 +35,7 @@ export type IndexesExtraArgs = {
   localAppRegistry: AppRegistry;
   logger: Logger;
   track: TrackFunction;
+  dataService: Pick<DataService, IndexesDataServiceProps>;
   connectionInfoAccess: ConnectionInfoAccess;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
