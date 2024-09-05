@@ -31,6 +31,7 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
       onClick={onClick}
       leftGlyph={<Icon glyph="Edit"></Icon>}
       data-testid="crud-update"
+      title="Update"
     >
       <span className={hiddenOnNarrowStyles}>Update</span>
     </Button>

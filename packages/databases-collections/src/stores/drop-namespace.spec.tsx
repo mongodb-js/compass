@@ -11,7 +11,7 @@ import {
   waitFor,
   userEvent,
   createDefaultConnectionInfo,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 
 const mockConnectionInfo = createDefaultConnectionInfo();

@@ -290,8 +290,7 @@ async function createWorkspace({
       prettier: '*',
       sinon: '*',
       ...(isReact && {
-        '@testing-library/react': '*',
-        '@testing-library/user-event': '*',
+        '@mongodb-js/testing-library-compass': '*',
         '@types/chai-dom': '*',
         '@types/react': '*',
         '@types/react-dom': '*',

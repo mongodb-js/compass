@@ -15,14 +15,14 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import type { RenderWithConnectionsResult } from '@mongodb-js/compass-connections/test';
+import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
 import {
   renderWithConnections,
   screen,
   cleanup,
   within,
   waitFor,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 let id = 0;
 function getConnection() {

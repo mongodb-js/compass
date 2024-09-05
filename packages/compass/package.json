@@ -4,7 +4,7 @@
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://www.mongodb.com/products/compass",
-  "version": "1.44.2",
+  "version": "1.44.2-beta.0",
   "apiVersion": "3.0.0",
   "main": "build/main.js",
   "author": {
@@ -196,8 +196,8 @@
     "@mongodb-js/compass-app-stores": "^7.27.0",
     "@mongodb-js/compass-collection": "^4.40.0",
     "@mongodb-js/compass-components": "^1.29.3",
-    "@mongodb-js/compass-connections": "^1.41.0",
     "@mongodb-js/compass-connection-import-export": "^0.37.0",
+    "@mongodb-js/compass-connections": "^1.41.0",
     "@mongodb-js/compass-crud": "^13.41.0",
     "@mongodb-js/compass-databases-collections": "^1.40.0",
     "@mongodb-js/compass-explain-plan": "^6.41.0",
@@ -209,7 +209,6 @@
     "@mongodb-js/compass-indexes": "^5.40.0",
     "@mongodb-js/compass-intercom": "^0.12.2",
     "@mongodb-js/compass-logging": "^1.4.6",
-    "@mongodb-js/compass-telemetry": "^1.1.6",
     "@mongodb-js/compass-query-bar": "^8.42.0",
     "@mongodb-js/compass-saved-aggregations-queries": "^1.41.0",
     "@mongodb-js/compass-schema": "^6.42.0",
@@ -218,12 +217,13 @@
     "@mongodb-js/compass-settings": "^0.40.2",
     "@mongodb-js/compass-shell": "^3.40.0",
     "@mongodb-js/compass-sidebar": "^5.41.0",
+    "@mongodb-js/compass-telemetry": "^1.1.6",
     "@mongodb-js/compass-utils": "^0.6.11",
     "@mongodb-js/compass-welcome": "^0.39.0",
     "@mongodb-js/compass-workspaces": "^0.22.0",
     "@mongodb-js/connection-info": "^0.7.0",
     "@mongodb-js/connection-storage": "^0.20.0",
-    "@mongodb-js/devtools-proxy-support": "^0.3.6",
+    "@mongodb-js/devtools-proxy-support": "^0.3.9",
     "@mongodb-js/eslint-config-compass": "^1.1.6",
     "@mongodb-js/get-os-info": "^0.3.24",
     "@mongodb-js/mocha-config-compass": "^1.4.1",
@@ -231,6 +231,7 @@
     "@mongodb-js/my-queries-storage": "^0.15.3",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
     "@mongodb-js/sbom-tools": "^0.7.0",
+    "@mongodb-js/testing-library-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
     "@mongodb-js/webpack-config-compass": "^1.4.1",
     "@segment/analytics-node": "^1.1.4",
@@ -277,5 +278,5 @@
     "macos-export-certificate-and-key": "^1.1.2",
     "win-export-certificate-and-key": "^2.0.1"
   },
-  "releasePublisher": "Rhys Howell <rhys.howell@mongodb.com>"
+  "releasePublisher": "Anna Henningsen <anna.henningsen@mongodb.com>"
 }

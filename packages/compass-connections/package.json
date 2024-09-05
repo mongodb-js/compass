@@ -28,8 +28,7 @@
   "compass:main": "src/index.tsx",
   "compass:exports": {
     ".": "./src/index.tsx",
-    "./provider": "./src/provider.ts",
-    "./test": "./src/test.tsx"
+    "./provider": "./src/provider.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -76,6 +75,7 @@
     "@mongodb-js/eslint-config-compass": "^1.1.6",
     "@mongodb-js/mocha-config-compass": "^1.4.1",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
+    "@mongodb-js/testing-library-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
     "@testing-library/dom": "^8.20.1",
     "@testing-library/react": "^12.1.5",

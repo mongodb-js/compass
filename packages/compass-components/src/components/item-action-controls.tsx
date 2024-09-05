@@ -18,6 +18,7 @@ import type { ButtonProps } from '@leafygreen-ui/button';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
+import { WorkspaceContainer } from './workspace-container';
 
 export type ItemAction<Action extends string> = {
   action: Action;
@@ -486,6 +487,13 @@ export function ItemActionControls<Action extends string>({
   return <ItemActionGroup actions={actions} {...sharedProps}></ItemActionGroup>;
 }
 
+const hiddenOnNarrowStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
+});
+
 export function DropdownMenuButton<Action extends string>({
   isVisible = true,
   actions,
@@ -557,8 +565,9 @@ export function DropdownMenuButton<Action extends string>({
               onClick && onClick(evt);
             }}
             rightGlyph={<Icon glyph={'CaretDown'} />}
+            title={buttonText}
           >
-            {buttonText}
+            <span className={hiddenOnNarrowStyles}>{buttonText}</span>
             {children}
           </Button>
         );

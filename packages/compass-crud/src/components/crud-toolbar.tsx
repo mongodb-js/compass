@@ -173,8 +173,10 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const nextButtonDisabled = useMemo(
     // If we don't know the count, we can't know if there are more pages.
     () =>
-      count === undefined || count === null ? false : 20 * (page + 1) >= count,
-    [count, page]
+      count === undefined || count === null
+        ? false
+        : docsPerPage * (page + 1) >= count,
+    [count, page, docsPerPage]
   );
 
   const enableExplainPlan = usePreference('enableExplainPlan');

@@ -7,7 +7,7 @@ import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import {
   activatePluginWithActiveConnection,
   renderPluginComponentWithActiveConnection,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import { CompassAggregationsHadronPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';

@@ -1,7 +1,7 @@
 import {
   renderHook,
   cleanup as cleanupHooks,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import {
   useTabState,
   tabStateStore,
