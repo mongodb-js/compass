@@ -223,7 +223,7 @@
     "@mongodb-js/compass-workspaces": "^0.22.0",
     "@mongodb-js/connection-info": "^0.7.0",
     "@mongodb-js/connection-storage": "^0.20.0",
-    "@mongodb-js/devtools-proxy-support": "^0.3.6",
+    "@mongodb-js/devtools-proxy-support": "^0.3.9",
     "@mongodb-js/eslint-config-compass": "^1.1.6",
     "@mongodb-js/get-os-info": "^0.3.24",
     "@mongodb-js/mocha-config-compass": "^1.4.1",
