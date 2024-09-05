@@ -1,14 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import {
-  Button,
-  Card,
-  css,
-  Icon,
-  IconButton,
-  spacing,
-  useHoverState,
-} from '@mongodb-js/compass-components';
-
+import React, { useCallback } from 'react';
+import { Button, css, Icon } from '@mongodb-js/compass-components';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type {
   KMSField,
@@ -17,12 +8,7 @@ import type {
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import KMSProviderFieldsForm from './kms-provider-fields';
-
-const cardStyles = css({
-  marginTop: spacing[200],
-  marginBottom: spacing[200],
-});
+import KMSProviderCard from './kms-provider-card';
 
 const flexContainerStyles = css({
   display: 'flex',
@@ -33,71 +19,22 @@ const pushRightStyles = css({
   marginLeft: 'auto',
 });
 
-function getNextKmsProviderName<T extends KMSProviderType>(
+export function getNextKmsProviderName<T extends KMSProviderType>(
   kmsProviderType: T,
-  currentProviders: string[]
+  currentProviders: string[] = []
 ): KMSProviderName<T> {
-  const currentNums = currentProviders
-    .map((name) => parseInt(name.split(':')[1], 10))
-    .filter((num) => !isNaN(num));
-  const name = currentNums.length === 0 ? 1 : Math.max(...currentNums) + 1;
-  return `${kmsProviderType}:${name}`;
-}
-
-function KMSProviderCard<T extends KMSProviderType>({
-  kmsProviderName,
-  showHeader,
-  onRemove,
-  updateConnectionFormField,
-  connectionOptions,
-  errors,
-  kmsProviderType,
-  fields,
-  clientCertIsOptional,
-  noTLS,
-  index,
-}: KMSProviderContentProps<T> & {
-  kmsProviderName: KMSProviderName<T>;
-  showHeader: boolean;
-  onRemove: () => void;
-  index: number;
-}) {
-  const [hoverProps, isHovered] = useHoverState();
-  return (
-    <Card
-      data-card-index={index}
-      data-testid={`${kmsProviderName}-kms-card-item`}
-      key={kmsProviderName}
-      className={cardStyles}
-      {...hoverProps}
-    >
-      {showHeader && (
-        <div data-testid="kms-card-header" className={flexContainerStyles}>
-          <h4>{kmsProviderName}</h4>
-          {isHovered && (
-            <IconButton
-              aria-label="Remove KMS provider"
-              className={pushRightStyles}
-              onClick={onRemove}
-            >
-              <Icon glyph="Trash" />
-            </IconButton>
-          )}
-        </div>
-      )}
-      <KMSProviderFieldsForm
-        key={kmsProviderName}
-        errors={errors}
-        connectionOptions={connectionOptions}
-        updateConnectionFormField={updateConnectionFormField}
-        kmsProviderType={kmsProviderType}
-        kmsProviderName={kmsProviderName}
-        fields={fields}
-        clientCertIsOptional={clientCertIsOptional}
-        noTLS={noTLS}
-      />
-    </Card>
-  );
+  // For name, we are prefixing it with the type of the provider separated by a colon.
+  // This is because the name of the kms provider should always have the type of the provider
+  // and we are not showing it to the user and it is used internally.
+  if (currentProviders.length === 0) {
+    return `${kmsProviderType}:${kmsProviderType}1`;
+  }
+  const currentNums = currentProviders // local:local1
+    .map((name) => name.split(':')[1]?.replace(kmsProviderType, '')) // '1'
+    .map((x) => parseInt(x, 10)) // 1
+    .filter((x) => !isNaN(x));
+  const nextNum = currentNums.length === 0 ? 1 : Math.max(...currentNums) + 1;
+  return `${kmsProviderType}:${kmsProviderType}${nextNum}`; // local:local2
 }
 
 type KMSProviderContentProps<T extends KMSProviderType> = {
@@ -105,6 +42,7 @@ type KMSProviderContentProps<T extends KMSProviderType> = {
   connectionOptions: ConnectionOptions;
   errors: ConnectionFormError[];
   kmsProviderType: T;
+  kmsProviderNames: KMSProviderName<T>[];
   fields: KMSField<T>[];
   clientCertIsOptional?: boolean;
   noTLS?: boolean;
@@ -114,35 +52,13 @@ function KMSProviderContent<T extends KMSProviderType>({
   updateConnectionFormField,
   connectionOptions,
   kmsProviderType,
+  kmsProviderNames,
   ...restOfTheProps
 }: KMSProviderContentProps<T>): React.ReactElement {
-  const kmsProviderNames = useMemo(() => {
-    const keys = Object.keys(
-      connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
-    ).filter((x) => x.startsWith(kmsProviderType));
-    if (keys.length === 0) {
-      return [kmsProviderType];
-    }
-    return keys as Array<KMSProviderName<T>>;
-  }, [
-    connectionOptions.fleOptions?.autoEncryption?.kmsProviders,
-    kmsProviderType,
-  ]);
-
-  const addNewKmsProvider = useCallback(
+  const onAddKmsProvider = useCallback(
     (name: KMSProviderName<T>) => {
       return updateConnectionFormField({
         type: 'add-new-csfle-kms-provider',
-        name,
-      });
-    },
-    [updateConnectionFormField]
-  );
-
-  const removeKmsProvider = useCallback(
-    (name: KMSProviderName<T>) => {
-      return updateConnectionFormField({
-        type: 'remove-csfle-kms-provider',
         name,
       });
     },
@@ -153,14 +69,13 @@ function KMSProviderContent<T extends KMSProviderType>({
     <>
       {kmsProviderNames.map((kmsProviderName, index) => (
         <KMSProviderCard
-          key={kmsProviderName}
+          key={index}
           index={index}
           connectionOptions={connectionOptions}
           updateConnectionFormField={updateConnectionFormField}
           kmsProviderType={kmsProviderType}
           kmsProviderName={kmsProviderName}
-          showHeader={kmsProviderNames.length > 1}
-          onRemove={() => removeKmsProvider(kmsProviderName)}
+          kmsProviderNames={kmsProviderNames}
           {...restOfTheProps}
         />
       ))}
@@ -170,7 +85,7 @@ function KMSProviderContent<T extends KMSProviderType>({
           className={pushRightStyles}
           variant="primaryOutline"
           onClick={() => {
-            addNewKmsProvider(
+            onAddKmsProvider(
               getNextKmsProviderName(kmsProviderType, kmsProviderNames)
             );
           }}

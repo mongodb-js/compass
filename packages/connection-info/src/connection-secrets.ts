@@ -194,6 +194,7 @@ function extractAutoEncryptionSecrets(data: Document) {
     result: Document = {}
   ): Record<string, unknown> {
     _.forEach(obj, (value, key) => {
+      key = key.replaceAll('.', '\\.');
       const newKey = path ? `${path}.${key}` : key;
       if (_.isObject(value)) {
         flattenObject(value, newKey, result);
@@ -207,7 +208,9 @@ function extractAutoEncryptionSecrets(data: Document) {
   function unFlattenObject(obj: Record<string, unknown>): Document {
     const result = {};
     _.forEach(obj, (value, key) => {
-      _.set(result, key.split('.'), value);
+      // Split the key by '.' while preserving escaped '.'
+      const paths = key.split(/(?<!\\)\./).map((x) => x.replace(/\\\./g, '.'));
+      _.set(result, paths, value);
     });
     return result;
   }
@@ -220,16 +223,17 @@ function extractAutoEncryptionSecrets(data: Document) {
   }
 
   const kmsProviders = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
+  const kmsProviderName = '(:.+)?';
   const secretPaths = [
-    /kmsProviders\.aws(:[a-zA-Z0-9]+)?\.secretAccessKey/,
-    /kmsProviders\.aws(:[a-zA-Z0-9]+)?\.sessionToken/,
-    /kmsProviders\.local(:[a-zA-Z0-9]+)?\.key/,
-    /kmsProviders\.azure(:[a-zA-Z0-9]+)?\.clientSecret/,
-    /kmsProviders\.gcp(:[a-zA-Z0-9]+)?\.privateKey/,
+    new RegExp(`kmsProviders\\.aws${kmsProviderName}\\.secretAccessKey`),
+    new RegExp(`kmsProviders\\.aws${kmsProviderName}\\.sessionToken`),
+    new RegExp(`kmsProviders\\.local${kmsProviderName}\\.key`),
+    new RegExp(`kmsProviders\\.azure${kmsProviderName}\\.clientSecret`),
+    new RegExp(`kmsProviders\\.gcp${kmsProviderName}\\.privateKey`),
     ...kmsProviders.map(
       (p) =>
         new RegExp(
-          `tlsOptions\\.${p}(:[a-zA-Z0-9]+)?\\.tlsCertificateKeyFilePassword`
+          `tlsOptions\\.${p}${kmsProviderName}\\.tlsCertificateKeyFilePassword`
         )
     ),
   ];

@@ -535,6 +535,35 @@ describe('connection secrets', function () {
         expect(secrets).to.deep.equal({});
       });
       it('extracts fle secrets if fleOptions.storeCredentials is true', function () {
+        // Secret paths for each provider
+        const providers = {
+          local: ['key'],
+          aws: ['secretAccessKey', 'sessionToken'],
+          azure: ['clientSecret'],
+          gcp: ['privateKey'],
+        };
+        // User defined provider names
+        const providerNames = [
+          '2',
+          'With spaces in name',
+          'Name that ends with period.',
+          'Name that.has period in name',
+          ' with leading $ space & special * chars',
+          'With some slash \\ and escaped \\. in name',
+        ];
+
+        // Create kmsProviders object
+        const kmsProviders = {};
+        for (const provider in providers) {
+          for (const key of providers[provider]) {
+            for (const name of providerNames) {
+              kmsProviders[`${provider}:${name}`] = {
+                [key]: 'secret',
+              };
+            }
+          }
+        }
+
         const id = new UUID().toString();
         const connectionInfo = {
           id,
@@ -544,14 +573,7 @@ describe('connection secrets', function () {
               storeCredentials: true,
               autoEncryption: {
                 keyVaultNamespace: 'db.coll',
-                kmsProviders: {
-                  local: {
-                    key: 'my-key',
-                  },
-                  'local:2': {
-                    key: 'my-key-2',
-                  },
-                },
+                kmsProviders,
               },
             },
           },
@@ -560,14 +582,7 @@ describe('connection secrets', function () {
         const { secrets } = extractSecrets(connectionInfo);
         expect(secrets).to.deep.equal({
           autoEncryption: {
-            kmsProviders: {
-              local: {
-                key: 'my-key',
-              },
-              'local:2': {
-                key: 'my-key-2',
-              },
-            },
+            kmsProviders,
           },
         });
       });

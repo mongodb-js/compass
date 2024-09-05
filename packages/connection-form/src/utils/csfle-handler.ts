@@ -40,6 +40,13 @@ export interface AddCsfleProviderAction<
   type: 'add-new-csfle-kms-provider';
   name: KMSProviderName<T>;
 }
+export interface RenameCsfleProviderAction<
+  T extends KMSProviderType = KMSProviderType
+> {
+  type: 'rename-csfle-kms-provider';
+  name: KMSProviderName<T>;
+  newName: KMSProviderName<T>;
+}
 export interface RemoveCsfleProviderAction<
   T extends KMSProviderType = KMSProviderType
 > {
@@ -355,6 +362,41 @@ export function handleAddKmsProvider<T extends KMSProviderType>({
   const kmsProviders = autoEncryption.kmsProviders ?? {};
   kmsProviders[action.name as keyof KMSProviders] = {} as any;
 
+  return {
+    connectionOptions: {
+      ...connectionOptions,
+      fleOptions: {
+        ...DEFAULT_FLE_OPTIONS,
+        ...connectionOptions.fleOptions,
+        autoEncryption: {
+          ...autoEncryption,
+          kmsProviders,
+        },
+      },
+    },
+  };
+}
+
+export function handleRenameKmsProvider<T extends KMSProviderType>({
+  action,
+  connectionOptions,
+}: {
+  action: RenameCsfleProviderAction<T>;
+  connectionOptions: ConnectionOptions;
+}): {
+  connectionOptions: ConnectionOptions;
+} {
+  connectionOptions = cloneDeep(connectionOptions);
+  const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
+
+  // In order to ensure that the order of the keys is preserved, we need to
+  // delete the old key and insert the new key at the same position.
+  const kmsProviders = Object.fromEntries(
+    Object.entries(autoEncryption.kmsProviders ?? {}).map(([key, value]) => [
+      key === action.name ? action.newName : key,
+      value,
+    ])
+  );
   return {
     connectionOptions: {
       ...connectionOptions,

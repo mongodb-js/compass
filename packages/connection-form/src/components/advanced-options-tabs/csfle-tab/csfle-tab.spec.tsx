@@ -17,6 +17,7 @@ import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
 import userEvent from '@testing-library/user-event';
+import { getNextKmsProviderName } from './kms-provider-content';
 
 const openAdvancedTab = async (
   tabId: 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced' | 'csfle'
@@ -212,10 +213,10 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            local: {
+            'local:local1': {
               key: generatedLocalKey,
             },
-          },
+          } as any,
         },
       },
     });
@@ -238,14 +239,14 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            aws: {
+            'aws:aws1': {
               accessKeyId: 'accessKeyId',
               secretAccessKey: 'secretAccessKey',
               sessionToken: 'sessionToken',
             },
-          },
+          } as any,
           tlsOptions: {
-            aws: {
+            'aws:aws1': {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -273,14 +274,14 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            gcp: {
+            'gcp:gcp1': {
               email: 'email',
               privateKey: 'privateKey',
               endpoint: 'endpoint',
             },
-          },
+          } as any,
           tlsOptions: {
-            gcp: {
+            'gcp:gcp1': {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -312,15 +313,15 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            azure: {
+            'azure:azure1': {
               tenantId: 'tenantId',
               clientId: 'clientId',
               clientSecret: 'clientSecret',
               identityPlatformEndpoint: 'identityPlatformEndpoint',
             },
-          },
+          } as any,
           tlsOptions: {
-            azure: {
+            'azure:azure1': {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -346,12 +347,12 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            kmip: {
+            'kmip:kmip1': {
               endpoint: 'endpoint:1000',
             },
-          },
+          } as any,
           tlsOptions: {
-            kmip: {
+            'kmip:kmip1': {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -369,7 +370,67 @@ describe('In-Use Encryption', function () {
 
       const kmsProviders: Record<string, any> = {};
 
-      for (const kmsProviderName of ['local', 'local:1'] as const) {
+      for (const kmsProviderName of ['local:local1', 'local:local2'] as const) {
+        const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
+
+        expect(
+          within(kmsCard).getByTestId('csfle-kms-local-key').closest('input')
+            ?.value
+        ).to.equal('');
+
+        fireEvent.click(
+          within(kmsCard).getByTestId('generate-local-key-button')
+        );
+
+        const generatedLocalKey = within(kmsCard)
+          .getByTestId('csfle-kms-local-key')
+          .closest('input')?.value;
+
+        if (!generatedLocalKey) {
+          throw new Error('expected generatedLocalKey');
+        }
+
+        expect(generatedLocalKey).to.match(/^[a-zA-Z0-9+/-_=]{128}$/);
+
+        kmsProviders[kmsProviderName] = {
+          key: generatedLocalKey,
+        };
+      }
+
+      await expectToConnectWith({
+        connectionString: 'mongodb://localhost:27017',
+        fleOptions: {
+          storeCredentials: false,
+          autoEncryption: {
+            keyVaultNamespace: 'db.coll',
+            kmsProviders,
+          },
+        },
+      });
+    });
+
+    it('allows rename of KMS provider', async function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+      fireEvent.click(screen.getByText('Add item'));
+
+      function setText(testId: string, value: string) {
+        const selector = within(screen.getByTestId(testId)).getByRole(
+          'textbox',
+          { name: /kms name/i }
+        );
+        userEvent.clear(selector);
+        userEvent.type(selector, value);
+      }
+
+      setText('local:local1-kms-card-item', 'new-name-1');
+      setText('local:local2-kms-card-item', 'new-name-2');
+
+      const kmsProviders: Record<string, any> = {};
+
+      for (const kmsProviderName of [
+        'local:new-name-1',
+        'local:new-name-2',
+      ] as const) {
         const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
 
         expect(
@@ -411,35 +472,57 @@ describe('In-Use Encryption', function () {
     it('allows user to remove a kms provider', function () {
       fireEvent.click(screen.getByText('Local KMS'));
 
-      // When its only one card, we do not show the card header
+      const card1 = screen.getByTestId('local:local1-kms-card-item');
+      userEvent.hover(card1);
+      // When its only one card, we do not show the delete button
       expect(() =>
-        within(screen.getByTestId('local-kms-card-item')).findByTestId(
-          'kms-card-header'
-        )
+        within(card1).getByRole('button', {
+          name: /Remove KMS provider/i,
+        })
       ).to.throw;
 
       fireEvent.click(screen.getByText('Add item'));
 
+      expect(within(card1).findByTestId('kms-card-header')).to.exist;
       expect(
-        within(screen.getByTestId('local-kms-card-item')).findByTestId(
-          'kms-card-header'
-        )
-      ).to.exist;
-      expect(
-        within(screen.getByTestId('local:1-kms-card-item')).findByTestId(
+        within(screen.getByTestId('local:local2-kms-card-item')).findByTestId(
           'kms-card-header'
         )
       ).to.exist;
 
       // we show remove button on hover
-      userEvent.hover(screen.getByTestId('local-kms-card-item'));
+      userEvent.hover(card1);
       fireEvent.click(
-        within(screen.getByTestId('local-kms-card-item')).getByRole('button', {
+        within(card1).getByRole('button', {
           name: /Remove KMS provider/i,
         })
       );
 
-      expect(() => screen.getByTestId('local-kms-card-item')).to.throw;
+      expect(() => card1).to.throw;
     });
+  });
+
+  it('getNextKmsProviderName', function () {
+    const usecases = [
+      {
+        providerNames: [],
+        expected: 'local:local1',
+      },
+      {
+        providerNames: ['local'],
+        expected: 'local:local1',
+      },
+      {
+        providerNames: ['local:local9'],
+        expected: 'local:local10',
+      },
+      {
+        providerNames: ['local:local2', 'local:local3'],
+        expected: 'local:local4',
+      },
+    ];
+    for (const { providerNames, expected } of usecases) {
+      expect(getNextKmsProviderName('local', providerNames)).to.equal(expected);
+    }
   });
 });

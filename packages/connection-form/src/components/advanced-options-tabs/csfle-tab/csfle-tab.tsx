@@ -19,7 +19,9 @@ import type { Document, AutoEncryptionOptions } from 'mongodb';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 import KMSProviderStatusIndicator from './kms-provider-status-indicator';
-import KMSProviderContent from './kms-provider-content';
+import KMSProviderContent, {
+  getNextKmsProviderName,
+} from './kms-provider-content';
 import EncryptedFieldConfigInput from './encrypted-field-config-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
@@ -126,15 +128,15 @@ function CSFLETab({
 
   const onOpenAccordion = useCallback(
     (kmsProviderType: KMSProviderType, isOpen: boolean) => {
-      // When we are expanding an accordion the first time, we should add a new empty KMS provider
-      // in the connection form state.
       const hasExistingKmsType = Object.keys(
         connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
       ).some((kmsProvider) => kmsProvider.match(kmsProviderType));
+      // When we are expanding an accordion the first time, we should add a new empty KMS provider
+      // in the connection form state if there is none.
       if (isOpen && !hasExistingKmsType) {
         return updateConnectionFormField({
           type: 'add-new-csfle-kms-provider',
-          name: kmsProviderType,
+          name: getNextKmsProviderName(kmsProviderType),
         });
       }
     },
@@ -255,6 +257,7 @@ function CSFLETab({
                           kmsProviderType
                         ] as KMSField<KMSProviderType>[]
                       }
+                      kmsProviderNames={kmsProviders[kmsProviderType] ?? []}
                       {...kmsFieldComponentOptions}
                     />
                   </div>

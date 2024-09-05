@@ -49,6 +49,7 @@ import {
   handleAddKmsProvider,
   handleRemoveKmsProvider,
   unsetFleOptionsIfEmptyAutoEncryption,
+  handleRenameKmsProvider,
 } from '../utils/csfle-handler';
 import type {
   UpdateCsfleStoreCredentialsAction,
@@ -57,6 +58,7 @@ import type {
   UpdateCsfleKmsTlsAction,
   AddCsfleProviderAction,
   RemoveCsfleProviderAction,
+  RenameCsfleProviderAction,
 } from '../utils/csfle-handler';
 import {
   handleUpdateOIDCParam,
@@ -196,6 +198,7 @@ type ConnectionFormFieldActions =
       type: 'remove-app-proxy';
     }
   | AddCsfleProviderAction
+  | RenameCsfleProviderAction
   | RemoveCsfleProviderAction
   | UpdateCsfleStoreCredentialsAction
   | UpdateCsfleAction
@@ -686,6 +689,12 @@ export function handleConnectionFormFieldUpdate(
     }
     case 'add-new-csfle-kms-provider': {
       return handleAddKmsProvider({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'rename-csfle-kms-provider': {
+      return handleRenameKmsProvider({
         action,
         connectionOptions: currentConnectionOptions,
       });
