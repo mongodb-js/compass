@@ -8,7 +8,7 @@ import {
   createDefaultConnectionInfo,
   activatePluginWithConnections,
   cleanup,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 const mockConnections = [
   createDefaultConnectionInfo(),

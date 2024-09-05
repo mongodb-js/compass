@@ -12,7 +12,7 @@ import {
   screen,
   waitFor,
   within,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 

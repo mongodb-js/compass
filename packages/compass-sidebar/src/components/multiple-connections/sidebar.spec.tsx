@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import type { RenderWithConnectionsHookResult } from '@mongodb-js/compass-connections/test';
+import type { RenderWithConnectionsHookResult } from '@mongodb-js/testing-library-compass';
 import {
   renderPluginComponentWithConnections,
   screen,
@@ -9,7 +9,7 @@ import {
   waitFor,
   within,
   userEvent,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import MultipleConnectionSidebar from './sidebar';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';

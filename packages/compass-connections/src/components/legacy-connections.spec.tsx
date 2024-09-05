@@ -10,7 +10,7 @@ import {
   userEvent,
   waitFor,
   cleanup,
-} from '../test';
+} from '@mongodb-js/testing-library-compass';
 
 async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
   const savedConnectionButton = screen.getByTestId(

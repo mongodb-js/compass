@@ -16,7 +16,7 @@ import {
   userEvent,
   createDefaultConnectionInfo,
   waitFor,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 const mockConnections = [
   { ...createDefaultConnectionInfo(), id: '1' },

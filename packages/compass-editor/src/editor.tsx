@@ -32,6 +32,7 @@ import {
   foldEffect,
 } from '@codemirror/language';
 import {
+  cursorDocEnd,
   defaultKeymap,
   history,
   historyKeymap,
@@ -433,7 +434,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         marginTop: 0,
         paddingTop: 0,
         fontSize: '12px',
-        maxHeight: '70vh',
+        maxHeight: `${spacing[1600] * 5}px`,
       },
       '& .cm-tooltip .completion-info p': {
         margin: 0,
@@ -698,6 +699,7 @@ export type EditorRef = {
   prettify: () => boolean;
   applySnippet: (template: string) => boolean;
   focus: () => boolean;
+  cursorDocEnd: () => boolean;
   startCompletion: () => boolean;
   readonly editorContents: string | null;
   readonly editor: EditorView | null;
@@ -807,6 +809,12 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           editorViewRef.current.focus();
           return true;
+        },
+        cursorDocEnd() {
+          if (!editorViewRef.current) {
+            return false;
+          }
+          return cursorDocEnd(editorViewRef.current);
         },
         startCompletion() {
           if (!editorViewRef.current) {
@@ -1454,6 +1462,9 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           },
           applySnippet(template: string) {
             return editorRef.current?.applySnippet(template) ?? false;
+          },
+          cursorDocEnd() {
+            return editorRef.current?.cursorDocEnd() ?? false;
           },
           startCompletion() {
             return editorRef.current?.startCompletion() ?? false;

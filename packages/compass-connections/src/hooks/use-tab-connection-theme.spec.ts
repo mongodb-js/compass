@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { useTabConnectionTheme } from '../provider';
-import { renderHookWithConnections } from '../test';
+import { renderHookWithConnections } from '@mongodb-js/testing-library-compass';
 
 const CONNECTION_INFO = {
   id: '1234',

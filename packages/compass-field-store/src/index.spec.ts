@@ -6,7 +6,7 @@ import {
   renderPluginHookWithActiveConnection,
   cleanup,
   waitFor,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 describe('useAutocompleteFields', function () {
   afterEach(cleanup);
