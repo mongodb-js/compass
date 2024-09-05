@@ -77,6 +77,8 @@ export function activateIndexesPlugin(
   const store: IndexesStore = createStore(
     reducer,
     {
+      isWritable: instance.isWritable,
+      description: instance.description,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
@@ -137,10 +139,6 @@ export function activateIndexesPlugin(
     void store.dispatch(fetchIndexes());
     void store.dispatch(refreshSearchIndexes());
   });
-
-  // set the initial values
-  store.dispatch(writeStateChanged(instance.isWritable));
-  store.dispatch(getDescription(instance.description));
 
   // these can change later
   on(instance, 'change:isWritable', () => {
