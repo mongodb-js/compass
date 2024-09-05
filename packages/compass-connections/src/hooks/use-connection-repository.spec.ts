@@ -5,7 +5,7 @@ import { cleanup } from '@testing-library/react';
 import {
   createDefaultConnectionInfo,
   renderHookWithConnections,
-} from '../test';
+} from '@mongodb-js/testing-library-compass';
 
 const favoriteMockConnections = [
   {

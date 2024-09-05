@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';
-import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/compass-connections/test';
+import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
 
 function mockDb(name: string) {
   return { _id: name, name };

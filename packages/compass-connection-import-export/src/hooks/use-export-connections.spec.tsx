@@ -5,14 +5,14 @@ import type { ImportExportResult } from './common';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
-import type { RenderConnectionsOptions } from '@mongodb-js/compass-connections/test';
+import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import {
   renderHookWithConnections,
   act,
   cleanup,
   createDefaultConnectionInfo,
   waitFor,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 describe('useExportConnections', function () {
   let sandbox: sinon.SinonSandbox;

@@ -2,7 +2,7 @@ import { useConnectionsWithStatus } from './use-connections-with-status';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { renderHookWithConnections } from '../test';
+import { renderHookWithConnections } from '@mongodb-js/testing-library-compass';
 
 const mockConnections: ConnectionInfo[] = [
   {
