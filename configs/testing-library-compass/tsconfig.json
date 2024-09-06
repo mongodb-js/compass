@@ -1,0 +1,10 @@
+{
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    // Because of the recursive deps
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["./src/**/*.spec.*"]
+}

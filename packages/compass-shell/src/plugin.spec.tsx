@@ -6,7 +6,7 @@ import {
   renderWithActiveConnection,
   screen,
   waitFor,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 
 describe('CompassShellPlugin', function () {
   afterEach(() => {

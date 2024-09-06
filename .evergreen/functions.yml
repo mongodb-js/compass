@@ -228,7 +228,11 @@ functions:
             --stream \
             --scope "${scope}" \
             --include-dependencies
-
+          # If scope is not provided, we're bootstrapping the whole monorepo and
+          # should follow the logic in bootstrap npm scripts
+          if [ -z "${scope}" ]; then
+            npm run compile --workspace=@mongodb-js/testing-library-compass
+          fi
   check:
     command: shell.exec
     params:

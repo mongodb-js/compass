@@ -78,6 +78,7 @@ export const PipelineSettings: React.FunctionComponent<
           onClick={onExportToLanguage}
           data-testid="pipeline-toolbar-export-button"
           disabled={!isExportToLanguageEnabled}
+          title="Export to language"
         >
           <span className={hiddenOnNarrowPipelineToolbarStyles}>
             Export to language

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { BaseSearchIndexModal } from './base-search-index-modal';
+import { isAtlasVectorSearchSupportedForServerVersion } from '../../utils/vector-search-indexes';
 
 type UpdateSearchIndexModalProps = {
   namespace: string;
@@ -12,6 +13,7 @@ type UpdateSearchIndexModalProps = {
   indexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
+  isVectorSearchSupported: boolean;
   error: string | undefined;
   onUpdateIndex: (index: {
     name: string;
@@ -30,6 +32,7 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
   indexType,
   isModalOpen,
   isBusy,
+  isVectorSearchSupported,
   error,
   onUpdateIndex,
   onCloseModal,
@@ -37,6 +40,7 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
   return (
     <BaseSearchIndexModal
       namespace={namespace}
+      isVectorSearchSupported={isVectorSearchSupported}
       mode={'update'}
       initialIndexName={indexName}
       initialIndexType={indexType}
@@ -51,6 +55,7 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
 };
 
 const mapState = ({
+  serverVersion,
   namespace,
   searchIndexes: {
     indexes,
@@ -59,6 +64,8 @@ const mapState = ({
 }: RootState) => {
   const index = indexes.find((x) => x.name === indexName);
   return {
+    isVectorSearchSupported:
+      isAtlasVectorSearchSupportedForServerVersion(serverVersion),
     namespace,
     isModalOpen,
     isBusy,

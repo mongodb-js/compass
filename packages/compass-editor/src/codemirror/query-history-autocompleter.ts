@@ -21,11 +21,96 @@ export type SavedQuery = {
   };
 };
 
-export const createQueryHistoryAutocompleter = (
-  savedQueries: SavedQuery[],
-  onApply: (query: SavedQuery['queryProperties']) => void,
-  theme: CodemirrorThemeType
-): CompletionSource => {
+function simplifyQueryStringForAutocomplete(queryString: string): string {
+  return queryString.replace(/[\s'"\n\t{}},]/g, '').toLowerCase();
+}
+
+/**
+ * Codemirror runs a fuzzy search on the completion item labels.
+ * Oftentimes the fuzzy search will match on too many query history items.
+ * We limit the possible results to be improve accuracy.
+ * We give suggestions of queries that either match at least one field,
+ * or that contain the prefix the user is typing.
+ */
+function getMatchingQueryHistoryItemsForInput({
+  savedQueries,
+  queryProperty,
+  input: _input,
+}: {
+  savedQueries: SavedQuery[];
+  queryProperty: string;
+  input: string;
+}) {
+  const input = simplifyQueryStringForAutocomplete(_input);
+
+  if (input.length === 0) {
+    // Everything matches when empty search.
+    return savedQueries;
+  }
+
+  return savedQueries.filter((query) => {
+    const queryValue = query.queryProperties[queryProperty];
+
+    // Only some query properties are objects. For instance limit can be an array.
+    if (typeof queryValue !== 'object') {
+      const queryValueString = toJSString(queryValue) || '';
+      if (!queryValueString) {
+        return false;
+      }
+
+      const queryValueSimplified =
+        simplifyQueryStringForAutocomplete(queryValueString);
+      return queryValueSimplified.startsWith(input);
+    }
+
+    // We subtract parts of the string until there's nothing left.
+    // We know it's a possible match if the all of the input is found in the query.
+    let inputToMatch = input;
+
+    // We check each top level field as they can be in any order.
+    for (const [key, value] of Object.entries(queryValue).slice(
+      0,
+      30 /* Some queries can have a ton of fields, we slice to avoid long loops on each character typed. */
+    )) {
+      const fieldString = toJSString({ [key]: value }) || '';
+      const fieldStringSimplified =
+        simplifyQueryStringForAutocomplete(fieldString);
+
+      if (input === fieldStringSimplified) {
+        // Don't show an option if the user has typed the whole field.
+        return false;
+      }
+
+      if (fieldStringSimplified.startsWith(input)) {
+        // When the user is typing their first field, we can return early.
+        return true;
+      }
+
+      const inputIndex = inputToMatch.indexOf(fieldStringSimplified);
+      if (inputIndex !== -1) {
+        inputToMatch = inputToMatch.replace(fieldStringSimplified, '');
+      }
+    }
+
+    if (inputToMatch.length === 0) {
+      return true;
+    }
+
+    return false;
+  });
+}
+
+export const createQueryHistoryAutocompleter = ({
+  savedQueries,
+  onApply,
+  queryProperty,
+  theme,
+}: {
+  savedQueries: SavedQuery[];
+  onApply: (query: SavedQuery['queryProperties']) => void;
+  queryProperty: string;
+  theme: CodemirrorThemeType;
+}): CompletionSource => {
   return function queryCompletions(context: CompletionContext) {
     if (savedQueries.length === 0) {
       return null;
@@ -35,8 +120,18 @@ export const createQueryHistoryAutocompleter = (
       savedQueries[savedQueries.length - 1].lastExecuted.getTime();
     const minTime = savedQueries[0].lastExecuted.getTime();
 
-    const options = savedQueries.map((query) => ({
-      label: createQuery(query),
+    const contextValue = context.state.sliceDoc(0, context.pos);
+    const matchedQueries = getMatchingQueryHistoryItemsForInput({
+      savedQueries,
+      queryProperty,
+      input: contextValue,
+    });
+
+    const options = matchedQueries.map((query) => ({
+      // Use a display label to show the query property
+      // field names before their respective parts.
+      displayLabel: createQueryDisplayLabel(query),
+      label: createQueryLabel(query, queryProperty),
       type: query.type === 'recent' ? 'query-history' : 'favorite',
       detail: formatDate(query.lastExecuted.getTime()),
       info: () => createInfo(query, theme).dom,
@@ -74,14 +169,30 @@ const queryCodeStyles = css({
   whiteSpace: 'pre-wrap',
 });
 
-export function createQuery(query: SavedQuery): string {
-  let res = '';
-  Object.entries(query.queryProperties).forEach(([key, value]) => {
-    const formattedQuery = toJSString(value);
-    const noFilterKey = key === 'filter' ? '' : `${key}: `;
-    res += formattedQuery ? `, ${noFilterKey}${formattedQuery}` : '';
-  });
-  return res.slice(2, res.length);
+export function createQueryLabel(
+  query: SavedQuery,
+  propertyName: string
+): string {
+  if (!query.queryProperties[propertyName]) {
+    return '';
+  }
+
+  // The autocompletion uses a fuzzy search on the label, we only want to
+  // auto complete property that is being edited, not all of them.
+  return toJSString(query.queryProperties[propertyName]) || '';
+}
+
+export function createQueryDisplayLabel(query: SavedQuery): string {
+  return Object.entries(query.queryProperties)
+    .map(([key, value]) => {
+      const formattedQuery = toJSString(value, 1);
+      if (!formattedQuery) return '';
+      // Hide the `filter` key in the display label as it's the default field.
+      const fieldKey = key === 'filter' ? '' : `${key}: `;
+      return `${fieldKey}${formattedQuery}`;
+    })
+    .filter(Boolean)
+    .reduce((acc, curr) => (acc ? `${acc}, ${curr}` : curr), '');
 }
 
 const javascriptExpressionLanguageParser =

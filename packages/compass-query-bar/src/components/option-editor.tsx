@@ -10,7 +10,11 @@ import {
   rafraf,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { Command, EditorRef } from '@mongodb-js/compass-editor';
+import type {
+  Command,
+  EditorRef,
+  SavedQuery,
+} from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryAutocompleter,
@@ -23,8 +27,9 @@ import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import { getQueryAttributes } from '../utils';
-import type { BaseQuery } from '../constants/query-properties';
-import type { SavedQuery } from '@mongodb-js/compass-editor';
+import type { BaseQuery, QueryFormFields } from '../constants/query-properties';
+import { mapQueryToFormFields } from '../utils/query';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -155,11 +160,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, []);
 
   const schemaFields = useAutocompleteFields(namespace);
+  const maxTimeMSPreference = usePreference('maxTimeMS');
 
   const completer = useMemo(() => {
     return isQueryHistoryAutocompleteEnabled
-      ? createQueryWithHistoryAutocompleter(
-          savedQueries
+      ? createQueryWithHistoryAutocompleter({
+          queryProperty: optionName,
+          savedQueries: savedQueries
             .filter((query) => {
               const isOptionNameInQuery =
                 optionName === 'filter' || optionName in query.queryProperties;
@@ -174,24 +181,44 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             .sort(
               (a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime()
             ),
-          {
+          options: {
             fields: schemaFields,
             serverVersion,
           },
-          onApplyQuery,
-          darkMode ? 'dark' : 'light'
-        )
+          onApply: (query: SavedQuery['queryProperties']) => {
+            onApplyQuery(query);
+            if (!query[optionName]) {
+              return;
+            }
+            const formFields = mapQueryToFormFields(
+              { maxTimeMS: maxTimeMSPreference },
+              {
+                ...DEFAULT_FIELD_VALUES,
+                ...query,
+              }
+            );
+            const optionFormField =
+              formFields[optionName as keyof QueryFormFields];
+            if (optionFormField?.string) {
+              // When we did apply something we want to move the cursor to the end of the input.
+              editorRef.current?.cursorDocEnd();
+            }
+          },
+          theme: darkMode ? 'dark' : 'light',
+        })
       : createQueryAutocompleter({
           fields: schemaFields,
           serverVersion,
         });
   }, [
+    maxTimeMSPreference,
     savedQueries,
     schemaFields,
     serverVersion,
     onApplyQuery,
     isQueryHistoryAutocompleteEnabled,
     darkMode,
+    optionName,
   ]);
 
   const onFocus = () => {

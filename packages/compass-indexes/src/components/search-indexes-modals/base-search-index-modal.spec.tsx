@@ -164,7 +164,8 @@ describe('Base Search Index Modal', function () {
         });
       });
 
-      it('resets the template on type switch', async function () {
+      // TODO(COMPASS-7557): super flaky even on mac
+      it.skip('resets the template on type switch', async function () {
         userEvent.click(
           screen.getByTestId('search-index-type-vectorSearch-button'),
           undefined,

@@ -5,7 +5,7 @@ import Sinon from 'sinon';
 import {
   activatePluginWithConnections,
   cleanup,
-} from '@mongodb-js/compass-connections/test';
+} from '@mongodb-js/testing-library-compass';
 import { CreateViewPlugin } from '../index';
 
 const TEST_CONNECTION = {

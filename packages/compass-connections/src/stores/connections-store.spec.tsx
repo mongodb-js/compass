@@ -8,7 +8,7 @@ import {
   screen,
   createDefaultConnectionInfo,
   wait,
-} from '../test';
+} from '@mongodb-js/testing-library-compass';
 
 const mockConnections = [
   {

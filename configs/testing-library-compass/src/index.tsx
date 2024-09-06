@@ -1,6 +1,3 @@
-/**
- * TODO: move this to mocha-config-compass package
- */
 import { EventEmitter } from 'events';
 import {
   createNoopLogger,
@@ -21,6 +18,7 @@ import {
   waitForElementToBeRemoved,
   act,
   within,
+  fireEvent as testingLibraryFireEvent,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type {
@@ -43,12 +41,17 @@ import { CompassComponentsProvider } from '@mongodb-js/compass-components';
 import {
   ConnectionInfoProvider,
   TEST_CONNECTION_INFO,
-} from './connection-info-provider';
-import type { State } from './stores/connections-store-redux';
-import { createDefaultConnectionInfo } from './stores/connections-store-redux';
-import { getDataServiceForConnection } from './stores/connections-store-redux';
-import { useConnectionActions, useStore } from './stores/store-context';
-import CompassConnections, { ConnectFnProvider } from './index';
+} from '@mongodb-js/compass-connections/src/connection-info-provider';
+import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import { getDataServiceForConnection } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+import {
+  useConnectionActions,
+  useStore,
+} from '@mongodb-js/compass-connections/src/stores/store-context';
+import CompassConnections, {
+  ConnectFnProvider,
+} from '@mongodb-js/compass-connections/src/index';
 import type { HadronPluginComponent, HadronPlugin } from 'hadron-app-registry';
 import AppRegistry, {
   AppRegistryProvider,
@@ -669,6 +672,11 @@ async function activatePluginWithActiveConnection<
   return { plugin: result.current, ...rest };
 }
 
+/**
+ * @deprecated use userEvent instead
+ */
+const fireEvent = testingLibraryFireEvent;
+
 export {
   // There is never a good reason not to have these wrapper providers when
   // rendering something in compass for testing. Using these render methods
@@ -695,4 +703,5 @@ export {
   createDefaultConnectionInfo,
   userEvent,
   within,
+  fireEvent,
 };

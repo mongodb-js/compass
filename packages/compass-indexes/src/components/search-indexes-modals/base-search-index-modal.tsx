@@ -119,7 +119,7 @@ type BaseSearchIndexModalProps = {
   initialIndexType?: string;
   isModalOpen: boolean;
   isBusy: boolean;
-  isVectorSearchSupported?: boolean;
+  isVectorSearchSupported: boolean;
   error: string | undefined;
   onSubmit: (index: {
     name: string;
