@@ -222,7 +222,7 @@ function extractAutoEncryptionSecrets(data: Document) {
     return path.test(item);
   }
 
-  const kmsProviders = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
+  const providers = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
   const kmsProviderName = '(:.+)?';
   const secretPaths = [
     new RegExp(`kmsProviders\\.aws${kmsProviderName}\\.secretAccessKey`),
@@ -230,7 +230,7 @@ function extractAutoEncryptionSecrets(data: Document) {
     new RegExp(`kmsProviders\\.local${kmsProviderName}\\.key`),
     new RegExp(`kmsProviders\\.azure${kmsProviderName}\\.clientSecret`),
     new RegExp(`kmsProviders\\.gcp${kmsProviderName}\\.privateKey`),
-    ...kmsProviders.map(
+    ...providers.map(
       (p) =>
         new RegExp(
           `tlsOptions\\.${p}${kmsProviderName}\\.tlsCertificateKeyFilePassword`
@@ -239,9 +239,10 @@ function extractAutoEncryptionSecrets(data: Document) {
   ];
 
   const secrets: Record<string, unknown> = {};
-  const result: Record<string, unknown> = {};
+  // Secrets are stored in a kmsProviders and tlsOptions
+  const { kmsProviders, tlsOptions, ...result } = data;
 
-  const flattenedData = flattenObject(data);
+  const flattenedData = flattenObject({ kmsProviders, tlsOptions });
 
   for (const item in flattenedData) {
     if (secretPaths.some((path) => itemMatchesPath(item, path))) {

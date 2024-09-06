@@ -235,6 +235,7 @@ describe('CSFLE / QE', function () {
           kmsProviders: {
             local: [
               {
+                name: 'local',
                 key: 'A'.repeat(128),
               },
             ],
@@ -339,6 +340,7 @@ describe('CSFLE / QE', function () {
           kmsProviders: {
             local: [
               {
+                name: 'local',
                 key: 'A'.repeat(128),
               },
             ],
@@ -390,7 +392,7 @@ describe('CSFLE / QE', function () {
             '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
             '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
             '"status": 0,' +
-            '"masterKey": { "provider" : "local" }' +
+            '"masterKey": { "provider" : "local:local" }' +
             '})',
           // make sure there is a collection so we can navigate to the database
           `db.getMongo().getDB('${databaseName}').createCollection('default')`,
@@ -966,10 +968,12 @@ describe('CSFLE / QE', function () {
       });
     });
 
-    describe.only('multiple kms providers of the same type', function () {
+    describe('multiple kms providers of the same type', function () {
       const databaseName = 'fle-test';
-      const kms1Collection = 'my-collection-1';
-      const kms2Collection = 'my-collection-2';
+      const collection1 = 'collection-1';
+      const collection2 = 'collection-2';
+      const phoneNumber1 = '1234567890';
+      const phoneNumber2 = '0987654321';
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
@@ -985,7 +989,7 @@ describe('CSFLE / QE', function () {
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
           fleEncryptedFieldsMap: `{
-            '${databaseName}.${kms1Collection}': {
+            '${databaseName}.${collection1}': {
               fields: [
                 {
                   path: 'phoneNumber',
@@ -995,7 +999,7 @@ describe('CSFLE / QE', function () {
                 }
               ]
             },
-            '${databaseName}.${kms2Collection}': {
+            '${databaseName}.${collection2}': {
               fields: [
                 {
                   path: 'phoneNumber',
@@ -1009,9 +1013,11 @@ describe('CSFLE / QE', function () {
           kmsProviders: {
             local: [
               {
+                name: 'localA',
                 key: 'A'.repeat(128),
               },
               {
+                name: 'localB',
                 key: 'B'.repeat(128),
               },
             ],
@@ -1022,19 +1028,19 @@ describe('CSFLE / QE', function () {
           `use ${databaseName}`,
           'db.keyvault.insertOne({' +
             '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
-            '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+            '"keyMaterial": Binary.createFromBase64("fqZuVyi6ThsSNbgUWtn9MCFDxOQtL3dibMa2P456l+1xJUvAkqzZB2SZBr5Zd2xLDua45IgYAagWFeLhX+hpi0KkdVgdIZu2zlZ+mJSbtwZrFxcuyQ3oPCPnp7l0YH1fSfxeoEIQNVMFpnHzfbu2CgZ/nC8jp6IaB9t+tcszTDdJRLeHnzPuHIKzblFGP8CfuQHJ81B5OA0PrBJr+HbjJg==", 0),' +
             '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
             '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
             '"status": 0,' +
-            '"masterKey": { "provider" : "local" }' +
+            '"masterKey": { "provider" : "local:localA" }' +
             '})',
           'db.keyvault.insertOne({' +
             '"_id": UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),' +
-            '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+            '"keyMaterial": Binary.createFromBase64("TymoH++xeTsaiIl498fviLaklY4xTM/baQydmVUABphJzvBsitjWfkoiKlGod/J45Vwoou1VfDRsFaiVHNth7aiFBvEsqvto5ETDFC9hSzP17c1ZrQI1nqrOfI0VGJm+WBALB7IMVFuyd9LV2i6KDIslxBfchOGR4q05Gm1Vgb/cTTUPJpvYLxmduyNSjxqH6lBAJ2ut9TgmUxCC+dMQRQ==", 0),' +
             '"creationDate": ISODate("2022-05-27T18:28:34.925Z"),' +
             '"updateDate": ISODate("2022-05-27T18:28:34.925Z"),' +
             '"status": 0,' +
-            '"masterKey": { "provider" : "local:1" }' +
+            '"masterKey": { "provider" : "local:localB" }' +
             '})',
           // make sure there is a collection so we can navigate to the database
           `db.getMongo().getDB('${databaseName}').createCollection('default')`,
@@ -1059,27 +1065,58 @@ describe('CSFLE / QE', function () {
       });
 
       it('allows setting multiple kms providers of the same type', async function () {
-        // {
-        //   "_id": UUID("28bbc608-524e-4717-9246-33633361788e"),
-        //   "keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),
-        //   "creationDate": ISODate("2022-05-27T18:28:33.925Z"),
-        //   "updateDate": ISODate("2022-05-27T18:28:33.925Z"),
-        //   "status": 0,
-        //   "masterKey": { "provider" : "local" }
-        // }
+        async function verifyCollectionHasValue(
+          collection: string,
+          value: string
+        ) {
+          await browser.navigateToCollectionTab(
+            connectionName,
+            databaseName,
+            collection,
+            'Documents'
+          );
+          const result = await getFirstListDocument(browser);
+          console.log(result);
+          expect(result.phoneNumber).to.be.equal(JSON.stringify(value));
+        }
 
-        // {
-        //   "_id": UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),
-        //   "keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),
-        //   "creationDate": ISODate("2022-05-27T18:28:33.925Z"),
-        //   "updateDate": ISODate("2022-05-27T18:28:33.925Z"),
-        //   "status": 0,
-        //   "masterKey": { "provider" : "local:1" }
-        // }
         await browser.shellEval(connectionName, [
           `use ${databaseName}`,
-          `db.createCollection('${kms1Collection}')`,
+          `db.createCollection("${collection1}")`,
+          `db.createCollection("${collection2}")`,
+          `db["${collection1}"].insertOne({ "phoneNumber": "${phoneNumber1}", "name": "LocalA" })`,
+          `db["${collection2}"].insertOne({ "phoneNumber": "${phoneNumber2}", "name": "LocalB" })`,
         ]);
+        await refresh(browser, connectionName);
+
+        await verifyCollectionHasValue(collection1, phoneNumber1);
+        await verifyCollectionHasValue(collection2, phoneNumber2);
+
+        // create a new encrypted collection using keyId for local:localB
+        await browser.navigateToDatabaseCollectionsTab(
+          connectionName,
+          databaseName
+        );
+        const collection3 = 'collection-3';
+        const phoneNumber3 = '1111111111';
+        await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+        await browser.addCollection(collection3, {
+          encryptedFields: `{
+            fields: [{
+              path: 'phoneNumber',
+              keyId: UUID("9c932ef9-f43c-489a-98f3-31012a83bc46"),
+              bsonType: 'string',
+              queries: { queryType: 'equality' }
+            }]
+          }`,
+        });
+
+        await browser.shellEval(connectionName, [
+          `use ${databaseName}`,
+          `db["${collection3}"].insertOne({ "phoneNumber": "${phoneNumber3}", "name": "LocalB" })`,
+        ]);
+
+        await verifyCollectionHasValue(collection3, phoneNumber3);
       });
     });
   });

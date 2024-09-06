@@ -668,9 +668,15 @@ export async function setConnectFormState(
     if ((state.kmsProviders?.local?.length ?? 0) > 0) {
       await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
       for (const [index, item] of (state.kmsProviders?.local ?? []).entries()) {
+        if (item.name) {
+          await browser.setValueVisible(
+            Selectors.connectionFormInputFLELocalName(index),
+            item.name
+          );
+        }
         await browser.setValueVisible(
           Selectors.connectionFormInputFLELocalKey(index),
-          item.key ?? ''
+          item.key
         );
         await browser.clickVisible(
           Selectors.ConnectionFormAddNewKMSProviderButton

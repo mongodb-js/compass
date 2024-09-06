@@ -67,7 +67,8 @@ export interface ConnectFormState {
   kmsProviders?: {
     // For now adding support for local only
     local?: {
-      key?: string;
+      name?: string;
+      key: string;
     }[];
   };
 

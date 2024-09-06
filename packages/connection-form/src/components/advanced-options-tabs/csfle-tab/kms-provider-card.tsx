@@ -109,6 +109,7 @@ function KMSProviderCard<T extends KMSProviderType>({
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             onRenameKmsProvider(value);
           }}
+          data-testid="csfle-kms-card-name"
           label={'KMS Name'}
           type={'text'}
           optional={false}
