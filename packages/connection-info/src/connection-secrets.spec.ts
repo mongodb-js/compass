@@ -553,9 +553,9 @@ describe('connection secrets', function () {
         ];
 
         // Create kmsProviders object
-        const kmsProviders = {};
+        const kmsProviders: Record<string, any> = {};
         for (const provider in providers) {
-          for (const key of providers[provider]) {
+          for (const key of providers[provider as keyof typeof providers]) {
             for (const name of providerNames) {
               kmsProviders[`${provider}:${name}`] = {
                 [key]: 'secret',
