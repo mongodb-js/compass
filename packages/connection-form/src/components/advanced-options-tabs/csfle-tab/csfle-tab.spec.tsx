@@ -213,10 +213,11 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
+            // @ts-expect-error multiple kms providers are supported in next driver release
             'local:local1': {
               key: generatedLocalKey,
             },
-          } as any,
+          },
         },
       },
     });
@@ -239,12 +240,13 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
+            // @ts-expect-error multiple kms providers are supported in next driver release
             'aws:aws1': {
               accessKeyId: 'accessKeyId',
               secretAccessKey: 'secretAccessKey',
               sessionToken: 'sessionToken',
             },
-          } as any,
+          },
           tlsOptions: {
             'aws:aws1': {
               tlsCAFile: 'my/ca/file.pem',
@@ -274,12 +276,13 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
+            // @ts-expect-error multiple kms providers are supported in next driver release
             'gcp:gcp1': {
               email: 'email',
               privateKey: 'privateKey',
               endpoint: 'endpoint',
             },
-          } as any,
+          },
           tlsOptions: {
             'gcp:gcp1': {
               tlsCAFile: 'my/ca/file.pem',
@@ -313,13 +316,14 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
+            // @ts-expect-error multiple kms providers are supported in next driver release
             'azure:azure1': {
               tenantId: 'tenantId',
               clientId: 'clientId',
               clientSecret: 'clientSecret',
               identityPlatformEndpoint: 'identityPlatformEndpoint',
             },
-          } as any,
+          },
           tlsOptions: {
             'azure:azure1': {
               tlsCAFile: 'my/ca/file.pem',
@@ -347,10 +351,11 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
+            // @ts-expect-error multiple kms providers are supported in next driver release
             'kmip:kmip1': {
               endpoint: 'endpoint:1000',
             },
-          } as any,
+          },
           tlsOptions: {
             'kmip:kmip1': {
               tlsCAFile: 'my/ca/file.pem',

@@ -130,7 +130,7 @@ function CSFLETab({
     (kmsProviderType: KMSProviderType, isOpen: boolean) => {
       const hasExistingKmsType = Object.keys(
         connectionOptions.fleOptions?.autoEncryption?.kmsProviders ?? {}
-      ).some((kmsProvider) => kmsProvider.match(kmsProviderType));
+      ).some((kmsProvider) => kmsProvider.startsWith(kmsProviderType));
       // When we are expanding an accordion the first time, we should add a new empty KMS provider
       // in the connection form state if there is none.
       if (isOpen && !hasExistingKmsType) {

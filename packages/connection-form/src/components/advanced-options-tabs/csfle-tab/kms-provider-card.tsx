@@ -112,7 +112,7 @@ function KMSProviderCard<T extends KMSProviderType>({
           data-testid="csfle-kms-card-name"
           label={'KMS Name'}
           type={'text'}
-          optional={false}
+          optional={true}
           state={nameError ? 'error' : 'none'}
           errorMessage={nameError}
           // Do not show the prefix to the user and as such it can not be edited.

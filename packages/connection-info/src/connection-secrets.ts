@@ -184,7 +184,7 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
 function omitPropertiesWhoseValuesAreEmptyObjects<T extends Document>(obj: T) {
   return Object.fromEntries(
     Object.entries(obj).filter(([, value]) => Object.keys(value).length > 0)
-  );
+  ) as Partial<T>;
 }
 
 function extractAutoEncryptionSecrets(data: Document) {

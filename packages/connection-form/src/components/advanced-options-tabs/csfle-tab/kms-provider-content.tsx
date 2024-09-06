@@ -33,7 +33,7 @@ export function getNextKmsProviderName<T extends KMSProviderType>(
     .map((name) => name.split(':')[1]?.replace(kmsProviderType, '')) // '1'
     .map((x) => parseInt(x, 10)) // 1
     .filter((x) => !isNaN(x));
-  const nextNum = currentNums.length === 0 ? 1 : Math.max(...currentNums) + 1;
+  const nextNum = Math.max(0, ...currentNums) + 1;
   return `${kmsProviderType}:${kmsProviderType}${nextNum}`; // local:local2
 }
 
