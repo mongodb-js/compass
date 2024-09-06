@@ -115,7 +115,39 @@ describe('CreateNamespaceModal [Component]', function () {
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
-    context.only(
+    context('when the user has submitted the form (with options)', () => {
+      beforeEach(() => {
+        const submitButton = screen.getByRole('button', {
+          name: 'Create Collection',
+        });
+        const input = screen.getByRole('textbox', { name: 'Collection Name' });
+        const additionalPreferences = screen.getByText(
+          /Additional preferences/
+        );
+        fireEvent.change(input, { target: { value: 'bar' } });
+        fireEvent.click(additionalPreferences);
+        const clusteredCollection = screen.getByRole('checkbox', {
+          name: 'Clustered Collection',
+        });
+        fireEvent.click(clusteredCollection);
+        fireEvent.click(submitButton);
+      });
+
+      it('calls the dataservice create collection method', async () => {
+        await waitFor(() => {
+          expect(createNamespaceStub).to.have.been.calledOnceWith(
+            'foo.bar',
+            Sinon.match({
+              clusteredIndex: {
+                unique: true,
+              },
+            })
+          );
+        });
+      });
+    });
+
+    context(
       'when the user has submitted the form with extra whitespaces',
       () => {
         beforeEach(() => {
@@ -127,8 +159,9 @@ describe('CreateNamespaceModal [Component]', function () {
 
         it('trims the white spaces on submit', async () => {
           await waitFor(() => {
-            expect(createNamespaceStub).to.have.been.calledWithExactly(
-              'foo.baz'
+            expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
+              'foo.baz',
+              {}
             );
           });
         });
