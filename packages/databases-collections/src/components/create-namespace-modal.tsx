@@ -65,9 +65,12 @@ class CreateDatabaseModal extends PureComponent<
   };
 
   onConfirm = () => {
+    const isCreateCollection = this.props.databaseName !== null;
     this.props.createNamespace({
       ...this.state.data,
-      database: this.state.data.database?.trim(),
+      database: isCreateCollection
+        ? this.state.data.database
+        : this.state.data.database?.trim(),
       collection: this.state.data.collection?.trim(),
     } as CreateNamespaceOptions);
   };

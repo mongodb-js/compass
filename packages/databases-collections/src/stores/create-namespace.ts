@@ -136,7 +136,6 @@ export function activatePlugin(
         connectionId?: string;
       } = {}
     ) => {
-      console.log('HERE', ns, connectionId);
       if (!connectionId) {
         throw new Error(
           'Cannot create a collection without specifying a connection id'
