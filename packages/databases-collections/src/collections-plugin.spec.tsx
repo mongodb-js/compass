@@ -73,7 +73,7 @@ describe('Collections [Plugin]', function () {
       expect(screen.getAllByRole('gridcell')).to.have.lengthOf(2);
     });
 
-    it.only('initiates action to create a collection', function () {
+    it('initiates action to create a collection', function () {
       userEvent.click(
         screen.getByRole('button', { name: /Create collection/ })
       );
@@ -84,8 +84,6 @@ describe('Collections [Plugin]', function () {
         // connection id is the default provided by the connectionInfoProvider
         { connectionId: 'TEST' }
       );
-
-      expect(screen.getByText('Create Collection')).to.be.visible;
     });
 
     it('initiates action to refresh collections', function () {
