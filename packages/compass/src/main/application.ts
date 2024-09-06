@@ -46,19 +46,19 @@ const track = createIpcTrack();
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
 
-const getContext = () => {
+const getContext = (): 'terminal' | 'desktop_app' => {
   return process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY
-    ? ('terminal' as const)
-    : ('desktop_app' as const);
+    ? 'terminal'
+    : 'desktop_app';
 };
 
 const getLaunchConnectionSource = (
   file?: string,
   positionalArguments?: string[]
-) => {
-  if (file) return 'JSON_file' as const;
-  if (positionalArguments?.length) return 'string' as const;
-  return 'none' as const;
+): 'JSON_file' | 'string' | 'none' => {
+  if (file) return 'JSON_file';
+  if (positionalArguments?.length) return 'string';
+  return 'none';
 };
 
 const hasConfig = (

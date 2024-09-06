@@ -143,7 +143,7 @@ export const StageEditor = ({
         {
           num_stages: num_stages,
           stage_index: index + 1,
-          stage_action: 'stage_content_changed' as const,
+          stage_action: 'stage_content_changed',
           stage_name: stageOperator,
           editor_view_type: editor_view_type,
         },

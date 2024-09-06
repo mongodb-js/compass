@@ -137,9 +137,7 @@ export const openExport = (
     track(
       'Export Opened',
       {
-        type: exportOptions.aggregation
-          ? ('aggregation' as const)
-          : ('query' as const),
+        type: exportOptions.aggregation ? 'aggregation' : 'query',
         origin: exportOptions.origin,
       },
       connectionRepository.getConnectionInfoById(exportOptions.connectionId)
@@ -544,7 +542,7 @@ export const runExport = ({
     track(
       'Export Completed',
       {
-        type: aggregation ? ('aggregation' as const) : ('query' as const),
+        type: aggregation ? 'aggregation' : 'query',
         all_docs: exportFullCollection,
         has_projection:
           exportFullCollection || aggregation || !_query

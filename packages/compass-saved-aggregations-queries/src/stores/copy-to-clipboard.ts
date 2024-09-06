@@ -38,7 +38,7 @@ export function copyToClipboard(
         : 'Query History Favorite Copied',
       {
         id: item.id,
-        screen: 'my_queries' as const,
+        screen: 'my_queries',
       }
     );
 
