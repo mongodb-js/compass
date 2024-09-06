@@ -62,7 +62,7 @@ describe('CreateNamespaceModal [Component]', function () {
   const pipelineStorage = {
     loadAll: sandbox.stub().resolves([]),
   };
-  context('when the modal is visible', function () {
+  context('Create collection', function () {
     beforeEach(async function () {
       const Plugin = CreateNamespacePlugin.withMockServices({
         globalAppRegistry: appRegistry,
@@ -148,11 +148,15 @@ describe('CreateNamespaceModal [Component]', function () {
     });
 
     context(
-      'when the user has submitted the form with extra whitespaces',
+      'when the user submitted the collection creation form with extra whitespaces',
       () => {
         beforeEach(() => {
-          const submitButton = screen.getByTestId('submit-button');
-          const input = screen.getByTestId('collection-name');
+          const submitButton = screen.getByRole('button', {
+            name: 'Create Collection',
+          });
+          const input = screen.getByRole('textbox', {
+            name: 'Collection Name',
+          });
           fireEvent.change(input, { target: { value: '  baz  ' } });
           fireEvent.click(submitButton);
         });
@@ -161,6 +165,187 @@ describe('CreateNamespaceModal [Component]', function () {
           await waitFor(() => {
             expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
               'foo.baz',
+              {}
+            );
+          });
+        });
+      }
+    );
+  });
+
+  context(
+    'Create collection - the database has extra whitespaces',
+    function () {
+      beforeEach(async function () {
+        const Plugin = CreateNamespacePlugin.withMockServices({
+          globalAppRegistry: appRegistry,
+          logger: createNoopLogger(),
+          track: createNoopTrack(),
+          connectionsManager: connectionsManager as any,
+          connectionRepository: {
+            getConnectionInfoById: () => ({ id: connectionId }),
+          } as unknown as ConnectionRepository,
+          instancesManager: instancesManager as any,
+          queryStorage: favoriteQueries as any,
+          pipelineStorage: pipelineStorage as any,
+          workspaces: {
+            openCollectionWorkspace() {},
+          },
+        });
+
+        render(<Plugin> </Plugin>);
+        appRegistry.emit(
+          'open-create-collection',
+          {
+            database: '  foo',
+          },
+          { connectionId: '12345' }
+        );
+
+        await waitFor(() =>
+          screen.getByRole('heading', { name: 'Create Collection' })
+        );
+      });
+
+      afterEach(function () {
+        sandbox.resetHistory();
+        cleanup();
+      });
+
+      context(
+        'when the user submitted the collection creation form with extra whitespaces',
+        () => {
+          beforeEach(() => {
+            const submitButton = screen.getByRole('button', {
+              name: 'Create Collection',
+            });
+            const input = screen.getByRole('textbox', {
+              name: 'Collection Name',
+            });
+            fireEvent.change(input, { target: { value: '  baz  ' } });
+            fireEvent.click(submitButton);
+          });
+
+          it('trims the white spaces on submit - but only for the collection', async () => {
+            await waitFor(() => {
+              expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
+                '  foo.baz',
+                {}
+              );
+            });
+          });
+        }
+      );
+    }
+  );
+
+  context('Create database + collection', function () {
+    beforeEach(async function () {
+      const Plugin = CreateNamespacePlugin.withMockServices({
+        globalAppRegistry: appRegistry,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        connectionsManager: connectionsManager as any,
+        connectionRepository: {
+          getConnectionInfoById: () => ({ id: connectionId }),
+        } as unknown as ConnectionRepository,
+        instancesManager: instancesManager as any,
+        queryStorage: favoriteQueries as any,
+        pipelineStorage: pipelineStorage as any,
+        workspaces: {
+          openCollectionWorkspace() {},
+        },
+      });
+
+      render(<Plugin> </Plugin>);
+      appRegistry.emit('open-create-database', { connectionId: '12345' });
+
+      await waitFor(() =>
+        screen.getByRole('heading', { name: 'Create Database' })
+      );
+    });
+
+    afterEach(function () {
+      sandbox.resetHistory();
+      cleanup();
+    });
+
+    it('renders the correct text on the submit button', () => {
+      const submitButton = screen.getByTestId('submit-button');
+      expect(submitButton.textContent).to.equal('Create Database');
+    });
+
+    it('button is disabled when the input is empty', () => {
+      const submitButton = screen.getByTestId('submit-button');
+      const dbInput = screen.getByTestId('database-name');
+      const collInput = screen.getByTestId('collection-name');
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+
+      fireEvent.change(dbInput, { target: { value: 'db1' } });
+      fireEvent.change(collInput, { target: { value: 'baz' } });
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      fireEvent.change(dbInput, { target: { value: '' } });
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+    });
+
+    context('when the user has submitted the form (with options)', () => {
+      beforeEach(() => {
+        const submitButton = screen.getByRole('button', {
+          name: 'Create Database',
+        });
+        const dbInput = screen.getByRole('textbox', { name: 'Database Name' });
+        const collInput = screen.getByRole('textbox', {
+          name: 'Collection Name',
+        });
+        const additionalPreferences = screen.getByText(
+          /Additional preferences/
+        );
+        fireEvent.change(dbInput, { target: { value: 'db1' } });
+        fireEvent.change(collInput, { target: { value: 'bar' } });
+        fireEvent.click(additionalPreferences);
+        const clusteredCollection = screen.getByRole('checkbox', {
+          name: 'Clustered Collection',
+        });
+        fireEvent.click(clusteredCollection);
+        fireEvent.click(submitButton);
+      });
+
+      it('calls the dataservice create collection method', async () => {
+        await waitFor(() => {
+          expect(createNamespaceStub).to.have.been.calledOnceWith(
+            'db1.bar',
+            Sinon.match({
+              clusteredIndex: {
+                unique: true,
+              },
+            })
+          );
+        });
+      });
+    });
+
+    context(
+      'when the user submitted the database creation form with extra whitespaces',
+      () => {
+        beforeEach(() => {
+          const submitButton = screen.getByRole('button', {
+            name: 'Create Database',
+          });
+          const dbInput = screen.getByRole('textbox', {
+            name: 'Database Name',
+          });
+          const collInput = screen.getByRole('textbox', {
+            name: 'Collection Name',
+          });
+          fireEvent.change(dbInput, { target: { value: '  db1  ' } });
+          fireEvent.change(collInput, { target: { value: '  baz  ' } });
+          fireEvent.click(submitButton);
+        });
+
+        it('trims the white spaces on submit', async () => {
+          await waitFor(() => {
+            expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
+              'db1.baz',
               {}
             );
           });
