@@ -115,6 +115,12 @@ function KMSNameComponent<T extends KMSProviderType>({
           state={validationError ? 'error' : 'none'}
           errorMessage={validationError}
           value={name}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              onSave();
+            }
+          }}
         />
       </div>
     </div>

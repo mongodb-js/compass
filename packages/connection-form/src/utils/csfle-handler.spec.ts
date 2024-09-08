@@ -13,6 +13,9 @@ import {
   adjustCSFLEParams,
   randomLocalKey,
   unsetFleOptionsIfEmptyAutoEncryption,
+  handleAddKmsProvider,
+  handleRenameKmsProvider,
+  handleRemoveKmsProvider,
 } from './csfle-handler';
 
 describe('csfle-handler', function () {
@@ -212,6 +215,193 @@ describe('csfle-handler', function () {
           tlsOptions: { aws: { tlsCertificateKeyFilePassword: '1' } },
         })
       ).to.equal(true);
+    });
+  });
+
+  describe('#handleAddKmsProvider', function () {
+    it('can add a kms provider', function () {
+      let withParameterSet = handleAddKmsProvider({
+        action: {
+          type: 'add-new-csfle-kms-provider',
+          name: 'local',
+        },
+        connectionOptions,
+      }).connectionOptions;
+
+      expect(withParameterSet.fleOptions).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            local: {},
+          },
+        },
+      });
+
+      withParameterSet = handleAddKmsProvider({
+        action: {
+          type: 'add-new-csfle-kms-provider',
+          name: 'aws',
+        },
+        connectionOptions: withParameterSet,
+      }).connectionOptions;
+
+      expect(withParameterSet.fleOptions).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            local: {},
+            aws: {},
+          },
+        },
+      });
+    });
+  });
+
+  describe('#handleRenameCsfleParam', function () {
+    it('can rename a kms provider name', function () {
+      connectionOptions.fleOptions = {
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            local: {
+              key: 'asdf',
+            },
+          },
+          tlsOptions: {
+            local: {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+          },
+        },
+      };
+      const withParameterSet = handleRenameKmsProvider({
+        action: {
+          type: 'rename-csfle-kms-provider',
+          name: 'local',
+          newName: 'local:1',
+        },
+        connectionOptions,
+      }).connectionOptions;
+
+      expect(withParameterSet.fleOptions).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            'local:1': {
+              key: 'asdf',
+            },
+          },
+          tlsOptions: {
+            'local:1': {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+          },
+        },
+      });
+    });
+
+    it('renames kms name and does not change the position of the key', function () {
+      connectionOptions.fleOptions = {
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            // @ts-expect-error multiple kms providers are supported in next driver release
+            'local:2': {
+              key: 'asdf',
+            },
+            local: {
+              key: 'asdf',
+            },
+            'aws:1': {
+              secretAccessKey: 'asdf',
+              accessKeyId: 'asdf',
+            },
+          },
+          tlsOptions: {
+            'local:2': {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+            local: {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+            'aws:1': {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+          },
+        },
+      };
+      const withParameterSet = handleRenameKmsProvider({
+        action: {
+          type: 'rename-csfle-kms-provider',
+          name: 'local',
+          newName: 'local:3',
+        },
+        connectionOptions,
+      }).connectionOptions;
+
+      expect(withParameterSet.fleOptions).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            'local:2': {
+              key: 'asdf',
+            },
+            'local:3': {
+              key: 'asdf',
+            },
+            'aws:1': {
+              secretAccessKey: 'asdf',
+              accessKeyId: 'asdf',
+            },
+          },
+          tlsOptions: {
+            'local:2': {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+            'local:3': {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+            'aws:1': {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+          },
+        },
+      });
+    });
+  });
+
+  describe('#handleRemoveKmsProvider', function () {
+    it('can remove a kms provider', function () {
+      connectionOptions.fleOptions = {
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {
+            local: {
+              key: 'asdf',
+            },
+          },
+          tlsOptions: {
+            local: {
+              tlsCertificateKeyFilePassword: 'asdf',
+            },
+          },
+        },
+      };
+      const withParameterSet = handleRemoveKmsProvider({
+        action: {
+          type: 'remove-csfle-kms-provider',
+          name: 'local',
+        },
+        connectionOptions,
+      }).connectionOptions;
+
+      expect(withParameterSet.fleOptions).to.deep.equal({
+        storeCredentials: false,
+        autoEncryption: {
+          kmsProviders: {},
+          tlsOptions: {},
+        },
+      });
     });
   });
 

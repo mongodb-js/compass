@@ -377,6 +377,24 @@ export function handleAddKmsProvider<T extends KMSProviderType>({
   };
 }
 
+// In order to ensure that the order of the keys is preserved, we need to
+// delete the old key and insert the new key at the same position.
+function renameDataKey<T extends Document>(
+  data: T | undefined,
+  oldKey: keyof T,
+  newKey: string
+): Document | undefined {
+  if (!data) {
+    return undefined;
+  }
+  return Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key === oldKey ? newKey : key,
+      value,
+    ])
+  );
+}
+
 export function handleRenameKmsProvider<T extends KMSProviderType>({
   action,
   connectionOptions,
@@ -389,13 +407,16 @@ export function handleRenameKmsProvider<T extends KMSProviderType>({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
 
-  // In order to ensure that the order of the keys is preserved, we need to
-  // delete the old key and insert the new key at the same position.
-  const kmsProviders = Object.fromEntries(
-    Object.entries(autoEncryption.kmsProviders ?? {}).map(([key, value]) => [
-      key === action.name ? action.newName : key,
-      value,
-    ])
+  // @ts-expect-error multiple kms providers are supported in next driver release
+  const kmsProviders = renameDataKey(
+    autoEncryption.kmsProviders,
+    action.name,
+    action.newName
+  );
+  const tlsOptions = renameDataKey(
+    autoEncryption.tlsOptions,
+    action.name,
+    action.newName
   );
   return {
     connectionOptions: {
@@ -405,7 +426,8 @@ export function handleRenameKmsProvider<T extends KMSProviderType>({
         ...connectionOptions.fleOptions,
         autoEncryption: {
           ...autoEncryption,
-          kmsProviders,
+          ...(kmsProviders && { kmsProviders }),
+          ...(tlsOptions && { tlsOptions }),
         },
       },
     },
@@ -425,6 +447,8 @@ export function handleRemoveKmsProvider<T extends KMSProviderType>({
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
   const kmsProviders = autoEncryption.kmsProviders ?? {};
   delete kmsProviders[action.name as keyof KMSProviders];
+  const tlsOptions = autoEncryption.tlsOptions ?? {};
+  delete tlsOptions[action.name as keyof KMSProviders];
   return {
     connectionOptions: {
       ...connectionOptions,
@@ -434,6 +458,7 @@ export function handleRemoveKmsProvider<T extends KMSProviderType>({
         autoEncryption: {
           ...autoEncryption,
           kmsProviders,
+          tlsOptions,
         },
       },
     },
