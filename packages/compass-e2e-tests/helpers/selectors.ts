@@ -120,6 +120,8 @@ export const ConnectionFormInputFLEStoreCredentialsCheckbox =
   '[data-testid="csfle-store-credentials-input"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
+export const connectionFormEditFLEName = (index = 0) =>
+  `[data-card-index="${index}"] [data-testid="csfle-edit-kms-name"]`;
 export const connectionFormInputFLELocalName = (index = 0) =>
   `[data-card-index="${index}"] [data-testid="csfle-kms-card-name"]`;
 export const connectionFormInputFLELocalKey = (index = 0) =>

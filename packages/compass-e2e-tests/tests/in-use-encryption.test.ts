@@ -1076,7 +1076,6 @@ describe('CSFLE / QE', function () {
             'Documents'
           );
           const result = await getFirstListDocument(browser);
-          console.log(result);
           expect(result.phoneNumber).to.be.equal(JSON.stringify(value));
         }
 

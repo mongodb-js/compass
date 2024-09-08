@@ -86,7 +86,11 @@ function KMSNameComponent<T extends KMSProviderType>({
         <Label htmlFor="kms-name">KMS Name</Label>
         <div className={cx(flexContainerStyles, editKmsContainerStyles)}>
           <Body>{kmsProviderName}</Body>
-          <IconButton aria-label="Edit KMS provider name" onClick={onEdit}>
+          <IconButton
+            data-testid="csfle-edit-kms-name"
+            aria-label="Edit KMS provider name"
+            onClick={onEdit}
+          >
             <Icon glyph="Edit" />
           </IconButton>
         </div>

@@ -455,6 +455,18 @@ function colorValueToName(color: string): string {
   return color;
 }
 
+async function setKMSProviderName(
+  browser: CompassBrowser,
+  index: number,
+  name: string
+) {
+  await browser.clickVisible(Selectors.connectionFormEditFLEName(index));
+  return await browser.setValueVisible(
+    Selectors.connectionFormInputFLELocalName(index),
+    name
+  );
+}
+
 export async function setConnectFormState(
   browser: CompassBrowser,
   state: ConnectFormState
@@ -669,10 +681,7 @@ export async function setConnectFormState(
       await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
       for (const [index, item] of (state.kmsProviders?.local ?? []).entries()) {
         if (item.name) {
-          await browser.setValueVisible(
-            Selectors.connectionFormInputFLELocalName(index),
-            item.name
-          );
+          await setKMSProviderName(browser, index, item.name);
         }
         await browser.setValueVisible(
           Selectors.connectionFormInputFLELocalKey(index),
