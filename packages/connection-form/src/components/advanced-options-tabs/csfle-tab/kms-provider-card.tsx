@@ -82,7 +82,7 @@ function KMSNameComponent<T extends KMSProviderType>({
 
   if (!isEditing) {
     return (
-      <div data-testid="kms-name">
+      <div>
         <Label htmlFor="kms-name">KMS Name</Label>
         <div className={cx(flexContainerStyles, editKmsContainerStyles)}>
           <Body>{kmsProviderName}</Body>
@@ -100,14 +100,15 @@ function KMSNameComponent<T extends KMSProviderType>({
 
   return (
     <div>
-      <Label htmlFor="kms-name">KMS Name</Label>
-      <div className={flexContainerStyles} data-testid="kms-name">
+      <Label htmlFor={kmsProviderName}>KMS Name</Label>
+      <div className={flexContainerStyles}>
         <Body>{kmsProviderType}:</Body>
         <TextInput
           spellCheck={false}
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             onChangeName(value);
           }}
+          id={kmsProviderName}
           onBlur={onSave}
           data-testid="csfle-kms-card-name"
           aria-label={'KMS Name'}
