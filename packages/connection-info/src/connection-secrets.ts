@@ -187,69 +187,56 @@ function omitPropertiesWhoseValuesAreEmptyObjects<T extends Document>(obj: T) {
   ) as Partial<T>;
 }
 
-function extractAutoEncryptionSecrets(data: Document) {
-  function flattenObject(
-    obj: Document,
-    path = '',
-    result: Document = {}
-  ): Record<string, unknown> {
-    _.forEach(obj, (value, key) => {
-      key = key.replaceAll('.', '\\.');
-      const newKey = path ? `${path}.${key}` : key;
-      if (_.isObject(value)) {
-        flattenObject(value, newKey, result);
-      } else {
-        result[newKey] = value;
-      }
-    });
-    return result;
-  }
+const KMS_PROVIDER_SECRET_PATHS = {
+  local: ['key'],
+  aws: ['secretAccessKey', 'sessionToken'],
+  azure: ['clientSecret'],
+  gcp: ['privateKey'],
+};
 
-  function unFlattenObject(obj: Record<string, unknown>): Document {
-    const result = {};
-    _.forEach(obj, (value, key) => {
-      // Split the key by '.' while preserving escaped '.'
-      const paths = key.split(/(?<!\\)\./).map((x) => x.replace(/\\\./g, '.'));
-      _.set(result, paths, value);
-    });
-    return result;
-  }
+type AutoEncryptionKMSAndTLSOptions = Partial<
+  Pick<AutoEncryptionOptions, 'kmsProviders' | 'tlsOptions'>
+>;
 
-  function itemMatchesPath(item: string, path: string | RegExp) {
-    if (typeof path === 'string') {
-      return item === path;
-    }
-    return path.test(item);
-  }
-
-  const providers = ['aws', 'local', 'azure', 'gcp', 'kmip'] as const;
-  const kmsProviderName = '(:.+)?';
-  const secretPaths = [
-    new RegExp(`kmsProviders\\.aws${kmsProviderName}\\.secretAccessKey`),
-    new RegExp(`kmsProviders\\.aws${kmsProviderName}\\.sessionToken`),
-    new RegExp(`kmsProviders\\.local${kmsProviderName}\\.key`),
-    new RegExp(`kmsProviders\\.azure${kmsProviderName}\\.clientSecret`),
-    new RegExp(`kmsProviders\\.gcp${kmsProviderName}\\.privateKey`),
-    ...providers.map(
-      (p) =>
-        new RegExp(
-          `tlsOptions\\.${p}${kmsProviderName}\\.tlsCertificateKeyFilePassword`
-        )
-    ),
-  ];
-
-  const secrets: Record<string, unknown> = {};
+function extractAutoEncryptionSecrets(data: AutoEncryptionOptions): {
+  data: AutoEncryptionOptions & AutoEncryptionKMSAndTLSOptions;
+  secrets: AutoEncryptionKMSAndTLSOptions;
+} {
+  const secrets: AutoEncryptionKMSAndTLSOptions = {};
   // Secrets are stored in a kmsProviders and tlsOptions
   const { kmsProviders, tlsOptions, ...result } = data;
 
-  const flattenedData = flattenObject({ kmsProviders, tlsOptions });
+  for (const kmsProviderName in kmsProviders ?? {}) {
+    const key = kmsProviderName.match(/\b(local|aws|gcp|azure)\b(?:)?/)?.[1] as
+      | keyof typeof KMS_PROVIDER_SECRET_PATHS
+      | undefined;
+    if (!key) {
+      continue;
+    }
 
-  for (const item in flattenedData) {
-    if (secretPaths.some((path) => itemMatchesPath(item, path))) {
-      secrets[item] = flattenedData[item];
-    } else {
-      result[item] = flattenedData[item];
+    const data = (kmsProviders ?? {})[
+      kmsProviderName as keyof typeof kmsProviders
+    ];
+    const secretPaths = KMS_PROVIDER_SECRET_PATHS[key];
+    _.set(
+      secrets,
+      `kmsProviders.${kmsProviderName}`,
+      _.pick(data, secretPaths)
+    );
+    for (const secretKey of secretPaths) {
+      _.unset(data, secretKey);
     }
   }
-  return { data: unFlattenObject(result), secrets: unFlattenObject(secrets) };
+
+  for (const key in tlsOptions ?? {}) {
+    const data = (tlsOptions ?? {})[key];
+    if (data?.tlsCertificateKeyFilePassword) {
+      _.set(secrets, `tlsOptions.${key}`, {
+        tlsCertificateKeyFilePassword: data.tlsCertificateKeyFilePassword,
+      });
+      delete data.tlsCertificateKeyFilePassword;
+    }
+  }
+
+  return { data: _.merge(result, { kmsProviders, tlsOptions }), secrets };
 }

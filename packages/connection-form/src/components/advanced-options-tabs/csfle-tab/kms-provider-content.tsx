@@ -23,18 +23,15 @@ export function getNextKmsProviderName<T extends KMSProviderType>(
   kmsProviderType: T,
   currentProviders: string[] = []
 ): KMSProviderName<T> {
-  // For name, we are prefixing it with the type of the provider separated by a colon.
-  // This is because the name of the kms provider should always have the type of the provider
-  // and we are not showing it to the user and it is used internally.
   if (currentProviders.length === 0) {
-    return `${kmsProviderType}:${kmsProviderType}1`;
+    return kmsProviderType;
   }
-  const currentNums = currentProviders // local:local1
+  const currentNums = currentProviders // local:1
     .map((name) => name.split(':')[1]?.replace(kmsProviderType, '')) // '1'
     .map((x) => parseInt(x, 10)) // 1
     .filter((x) => !isNaN(x));
   const nextNum = Math.max(0, ...currentNums) + 1;
-  return `${kmsProviderType}:${kmsProviderType}${nextNum}`; // local:local2
+  return `${kmsProviderType}:${nextNum}`; // local:2
 }
 
 type KMSProviderContentProps<T extends KMSProviderType> = {

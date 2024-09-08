@@ -213,8 +213,7 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            // @ts-expect-error multiple kms providers are supported in next driver release
-            'local:local1': {
+            local: {
               key: generatedLocalKey,
             },
           },
@@ -240,15 +239,14 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            // @ts-expect-error multiple kms providers are supported in next driver release
-            'aws:aws1': {
+            aws: {
               accessKeyId: 'accessKeyId',
               secretAccessKey: 'secretAccessKey',
               sessionToken: 'sessionToken',
             },
           },
           tlsOptions: {
-            'aws:aws1': {
+            aws: {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -276,15 +274,14 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            // @ts-expect-error multiple kms providers are supported in next driver release
-            'gcp:gcp1': {
+            gcp: {
               email: 'email',
               privateKey: 'privateKey',
               endpoint: 'endpoint',
             },
           },
           tlsOptions: {
-            'gcp:gcp1': {
+            gcp: {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -316,8 +313,7 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            // @ts-expect-error multiple kms providers are supported in next driver release
-            'azure:azure1': {
+            azure: {
               tenantId: 'tenantId',
               clientId: 'clientId',
               clientSecret: 'clientSecret',
@@ -325,7 +321,7 @@ describe('In-Use Encryption', function () {
             },
           },
           tlsOptions: {
-            'azure:azure1': {
+            azure: {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -351,13 +347,12 @@ describe('In-Use Encryption', function () {
         autoEncryption: {
           keyVaultNamespace: 'db.coll',
           kmsProviders: {
-            // @ts-expect-error multiple kms providers are supported in next driver release
-            'kmip:kmip1': {
+            kmip: {
               endpoint: 'endpoint:1000',
             },
           },
           tlsOptions: {
-            'kmip:kmip1': {
+            kmip: {
               tlsCAFile: 'my/ca/file.pem',
               tlsCertificateKeyFile: 'my/certkey/file.pem',
               tlsCertificateKeyFilePassword: 'password',
@@ -369,13 +364,34 @@ describe('In-Use Encryption', function () {
   });
 
   context('supports multiple kms providers from same type', function () {
+    function renameKMSProvider(name: string, value: string) {
+      const card = screen.getByTestId(`${name}-kms-card-item`);
+
+      const editButton = within(card).queryByRole('button', {
+        name: /edit kms provider name/i,
+      });
+
+      if (editButton) {
+        userEvent.click(
+          within(card).getByRole('button', {
+            name: /edit kms provider name/i,
+          })
+        );
+      }
+
+      const selector = within(card).getByTestId('csfle-kms-card-name');
+      userEvent.clear(selector);
+      userEvent.type(selector, value);
+      userEvent.keyboard('{enter}');
+    }
+
     it('allows to have multiple KMS providers from same type', async function () {
       fireEvent.click(screen.getByText('Local KMS'));
       fireEvent.click(screen.getByText('Add item'));
 
       const kmsProviders: Record<string, any> = {};
 
-      for (const kmsProviderName of ['local:local1', 'local:local2'] as const) {
+      for (const kmsProviderName of ['local', 'local:1'] as const) {
         const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
 
         expect(
@@ -418,23 +434,14 @@ describe('In-Use Encryption', function () {
       fireEvent.click(screen.getByText('Local KMS'));
       fireEvent.click(screen.getByText('Add item'));
 
-      function setText(testId: string, value: string) {
-        const selector = within(screen.getByTestId(testId)).getByRole(
-          'textbox',
-          { name: /kms name/i }
-        );
-        userEvent.clear(selector);
-        userEvent.type(selector, value);
-      }
-
-      setText('local:local1-kms-card-item', 'new-name-1');
-      setText('local:local2-kms-card-item', 'new-name-2');
+      renameKMSProvider('local', 'new_name_1');
+      renameKMSProvider('local:1', 'new_name_2');
 
       const kmsProviders: Record<string, any> = {};
 
       for (const kmsProviderName of [
-        'local:new-name-1',
-        'local:new-name-2',
+        'local:new_name_1',
+        'local:new_name_2',
       ] as const) {
         const kmsCard = screen.getByTestId(`${kmsProviderName}-kms-card-item`);
 
@@ -474,10 +481,32 @@ describe('In-Use Encryption', function () {
       });
     });
 
+    it('shows name validation errors', function () {
+      fireEvent.click(screen.getByText('Local KMS'));
+      fireEvent.click(screen.getByText('Add item'));
+
+      // By default the first name is local
+
+      // Check validation errors for the second name
+      renameKMSProvider('local:1', '');
+      expect(screen.getByText('Name cannot be empty')).to.exist;
+
+      renameKMSProvider('local:1', 'local 1');
+      expect(
+        screen.getByText(
+          'Name must be alphanumeric and may contain underscores'
+        )
+      ).to.exist;
+
+      renameKMSProvider('local', 'name1');
+      renameKMSProvider('local:1', 'name1');
+      expect(screen.getByText('Name already exists')).to.exist;
+    });
+
     it('allows user to remove a kms provider', function () {
       fireEvent.click(screen.getByText('Local KMS'));
 
-      const card1 = screen.getByTestId('local:local1-kms-card-item');
+      const card1 = screen.getByTestId('local-kms-card-item');
       userEvent.hover(card1);
       // When its only one card, we do not show the delete button
       expect(() =>
@@ -490,7 +519,7 @@ describe('In-Use Encryption', function () {
 
       expect(within(card1).findByTestId('kms-card-header')).to.exist;
       expect(
-        within(screen.getByTestId('local:local2-kms-card-item')).findByTestId(
+        within(screen.getByTestId('local:1-kms-card-item')).findByTestId(
           'kms-card-header'
         )
       ).to.exist;
@@ -511,19 +540,19 @@ describe('In-Use Encryption', function () {
     const usecases = [
       {
         providerNames: [],
-        expected: 'local:local1',
+        expected: 'local',
       },
       {
         providerNames: ['local'],
-        expected: 'local:local1',
+        expected: 'local:1',
       },
       {
-        providerNames: ['local:local9'],
-        expected: 'local:local10',
+        providerNames: ['local:9'],
+        expected: 'local:10',
       },
       {
-        providerNames: ['local:local2', 'local:local3'],
-        expected: 'local:local4',
+        providerNames: ['local:what', 'local:this'],
+        expected: 'local:1',
       },
     ];
     for (const { providerNames, expected } of usecases) {

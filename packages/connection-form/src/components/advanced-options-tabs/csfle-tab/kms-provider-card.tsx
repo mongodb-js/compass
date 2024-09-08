@@ -7,6 +7,9 @@ import {
   spacing,
   TextInput,
   useHoverState,
+  Body,
+  Label,
+  cx,
 } from '@mongodb-js/compass-components';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -27,11 +30,92 @@ const cardStyles = css({
 const flexContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
+  gap: spacing[100],
+});
+
+// With these margins, when clicking edit button, there is no flickering.
+const editKmsContainerStyles = css({
+  marginTop: spacing[100],
+  marginBottom: spacing[100],
 });
 
 const pushRightStyles = css({
   marginLeft: 'auto',
 });
+
+function KMSNameComponent<T extends KMSProviderType>({
+  kmsProviderName,
+  kmsProviderType,
+  validateName,
+  onRename,
+}: {
+  kmsProviderName: KMSProviderName<T>;
+  kmsProviderType: T;
+  validateName: (name: string) => string | undefined;
+  onRename: (newName: KMSProviderName<T>) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [validationError, setValidationError] = useState<string | undefined>();
+  const [name, setName] = useState(() => {
+    return kmsProviderName.replace(new RegExp(`^${kmsProviderType}:?`), '');
+  });
+
+  const onEdit = useCallback(() => {
+    setIsEditing(true);
+  }, []);
+
+  const onChangeName = useCallback(
+    (newName: string) => {
+      setName(newName);
+      setValidationError(validateName(newName));
+    },
+    [setValidationError, validateName]
+  );
+
+  const onSave = useCallback(() => {
+    if (validationError) {
+      return;
+    }
+    setIsEditing(false);
+    onRename(name === '' ? kmsProviderType : `${kmsProviderType}:${name}`);
+  }, [kmsProviderType, name, onRename, validationError]);
+
+  if (!isEditing) {
+    return (
+      <div data-testid="kms-name">
+        <Label htmlFor="kms-name">KMS Name</Label>
+        <div className={cx(flexContainerStyles, editKmsContainerStyles)}>
+          <Body>{kmsProviderName}</Body>
+          <IconButton aria-label="Edit KMS provider name" onClick={onEdit}>
+            <Icon glyph="Edit" />
+          </IconButton>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <Label htmlFor="kms-name">KMS Name</Label>
+      <div className={flexContainerStyles} data-testid="kms-name">
+        <Body>{kmsProviderType}:</Body>
+        <TextInput
+          spellCheck={false}
+          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
+            onChangeName(value);
+          }}
+          onBlur={onSave}
+          data-testid="csfle-kms-card-name"
+          aria-label={'KMS Name'}
+          type={'text'}
+          state={validationError ? 'error' : 'none'}
+          errorMessage={validationError}
+          value={name}
+        />
+      </div>
+    </div>
+  );
+}
 
 type KMSProviderCardProps<T extends KMSProviderType> = {
   updateConnectionFormField: UpdateConnectionFormField;
@@ -59,35 +143,15 @@ function KMSProviderCard<T extends KMSProviderType>({
   index,
 }: KMSProviderCardProps<T>) {
   const [hoverProps, isHovered] = useHoverState();
-  const [cardName, setCardName] = useState(kmsProviderName);
-  const [nameError, setNameError] = useState<string | undefined>();
-
   const onRenameKmsProvider = useCallback(
-    (name: string) => {
-      const newName = `${kmsProviderType}:${name}` as KMSProviderName<T>;
-      setCardName(newName);
-      if (name === '') {
-        setNameError('Name cannot be empty');
-        return;
-      }
-      // If the newName is already taken, we show error and do not rename.
-      if (kmsProviderNames.includes(newName) && kmsProviderName !== newName) {
-        setNameError('Name already exists');
-        return;
-      }
-      setNameError(undefined);
+    (newName: KMSProviderName<T>) => {
       return updateConnectionFormField({
         type: 'rename-csfle-kms-provider',
         name: kmsProviderName,
         newName,
       });
     },
-    [
-      kmsProviderType,
-      kmsProviderNames,
-      kmsProviderName,
-      updateConnectionFormField,
-    ]
+    [kmsProviderName, updateConnectionFormField]
   );
   const onRemoveKmsProvider = useCallback(() => {
     return updateConnectionFormField({
@@ -95,6 +159,37 @@ function KMSProviderCard<T extends KMSProviderType>({
       name: kmsProviderName,
     });
   }, [updateConnectionFormField, kmsProviderName]);
+
+  const onValidateName = useCallback(
+    (name: string) => {
+      // Exclude the current KMS provider name from the list.
+      const withoutCurrentKMSProviderNames = kmsProviderNames.filter(
+        (n) => n !== kmsProviderName
+      );
+      const maybeProviderName =
+        name === '' ? kmsProviderType : `${kmsProviderType}:${name}`;
+      // `kmsProviderType` can only exist once, so empty name is allowed only for that case.
+      if (
+        name === '' &&
+        withoutCurrentKMSProviderNames.some((n) => n === maybeProviderName)
+      ) {
+        return 'Name cannot be empty';
+      }
+      if (
+        withoutCurrentKMSProviderNames.includes(
+          maybeProviderName as KMSProviderName<T>
+        )
+      ) {
+        return 'Name already exists';
+      }
+      const regex = new RegExp(`^${kmsProviderType}(:[a-zA-Z0-9_]+)?$`);
+      if (!maybeProviderName.match(regex)) {
+        return 'Name must be alphanumeric and may contain underscores';
+      }
+      return undefined;
+    },
+    [kmsProviderNames, kmsProviderName, kmsProviderType]
+  );
 
   return (
     <Card
@@ -104,19 +199,11 @@ function KMSProviderCard<T extends KMSProviderType>({
       {...hoverProps}
     >
       <div data-testid="kms-card-header" className={flexContainerStyles}>
-        <TextInput
-          spellCheck={false}
-          onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-            onRenameKmsProvider(value);
-          }}
-          data-testid="csfle-kms-card-name"
-          label={'KMS Name'}
-          type={'text'}
-          optional={true}
-          state={nameError ? 'error' : 'none'}
-          errorMessage={nameError}
-          // Do not show the prefix to the user and as such it can not be edited.
-          value={cardName.replace(`${kmsProviderType}:`, '')}
+        <KMSNameComponent
+          kmsProviderName={kmsProviderName}
+          kmsProviderType={kmsProviderType}
+          onRename={onRenameKmsProvider}
+          validateName={onValidateName}
         />
         {kmsProviderNames.length > 1 && isHovered && (
           <IconButton

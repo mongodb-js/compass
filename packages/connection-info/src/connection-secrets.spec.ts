@@ -197,6 +197,7 @@ describe('connection secrets', function () {
                   secretAccessKey: 'secretAccessKey',
                   sessionToken: 'sessionToken',
                 },
+                // @ts-expect-error multiple kms providers are supported in next driver release
                 'aws:1': {
                   accessKeyId: 'accessKeyId',
                   secretAccessKey: 'secretAccessKey',
@@ -236,7 +237,7 @@ describe('connection secrets', function () {
                 'kmip:1': {
                   endpoint: 'endpoint',
                 },
-              } as any,
+              },
               tlsOptions: {
                 aws: {
                   tlsCertificateKeyFile: 'file',
@@ -535,35 +536,6 @@ describe('connection secrets', function () {
         expect(secrets).to.deep.equal({});
       });
       it('extracts fle secrets if fleOptions.storeCredentials is true', function () {
-        // Secret paths for each provider
-        const providers = {
-          local: ['key'],
-          aws: ['secretAccessKey', 'sessionToken'],
-          azure: ['clientSecret'],
-          gcp: ['privateKey'],
-        };
-        // User defined provider names
-        const providerNames = [
-          '2',
-          'With spaces in name',
-          'Name that ends with period.',
-          'Name that.has period in name',
-          ' with leading $ space & special * chars',
-          'With some slash \\ and escaped \\. in name',
-        ];
-
-        // Create kmsProviders object
-        const kmsProviders: Record<string, any> = {};
-        for (const provider in providers) {
-          for (const key of providers[provider as keyof typeof providers]) {
-            for (const name of providerNames) {
-              kmsProviders[`${provider}:${name}`] = {
-                [key]: 'secret',
-              };
-            }
-          }
-        }
-
         const id = new UUID().toString();
         const connectionInfo = {
           id,
@@ -573,7 +545,11 @@ describe('connection secrets', function () {
               storeCredentials: true,
               autoEncryption: {
                 keyVaultNamespace: 'db.coll',
-                kmsProviders,
+                kmsProviders: {
+                  local: {
+                    key: 'my-key',
+                  },
+                },
               },
             },
           },
@@ -582,7 +558,11 @@ describe('connection secrets', function () {
         const { secrets } = extractSecrets(connectionInfo);
         expect(secrets).to.deep.equal({
           autoEncryption: {
-            kmsProviders,
+            kmsProviders: {
+              local: {
+                key: 'my-key',
+              },
+            },
           },
         });
       });
