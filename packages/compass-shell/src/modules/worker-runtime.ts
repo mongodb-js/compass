@@ -100,10 +100,7 @@ export function createWorkerRuntime(
     driverUrl,
     driverOptions,
     cliOptions ?? {},
-    {
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
-      serialization: 'advanced',
-    },
+    {},
     emitter
   );
 
