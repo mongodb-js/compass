@@ -128,8 +128,8 @@ module.exports = (_env, args) => {
         // creating windows. It allows @mongosh/node-runtime-worker-thread
         // worker to load itself from the file path on the localhost
         new webpack.DefinePlugin({
-          'process.env.ENABLE_ELECTRON_WEB_SECURITY': JSON.stringify(
-            isServe(opts) ? '0' : '1'
+          'process.env.DISABLE_ELECTRON_WEB_SECURITY': JSON.stringify(
+            isServe(opts) ? '1' : '0'
           ),
         }),
         ...compileOnlyPlugins,
