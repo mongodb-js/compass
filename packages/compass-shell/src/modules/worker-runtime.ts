@@ -100,7 +100,9 @@ export function createWorkerRuntime(
     driverUrl,
     driverOptions,
     cliOptions ?? {},
-    {},
+    {
+      name: 'Compass Shell Worker',
+    },
     emitter
   );
 

@@ -128,6 +128,7 @@ function showConnectWindow(
       contextIsolation: false,
       enableRemoteModule: true,
       nodeIntegrationInWorker: true,
+      webSecurity: process.env.NODE_ENV !== 'development',
       ...(opts && opts.webPreferences),
     },
   };

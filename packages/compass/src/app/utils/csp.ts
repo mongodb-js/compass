@@ -69,7 +69,7 @@ const defaultCSP = {
   ],
   'object-src': ["'none'"],
   'font-src': ['*', 'https://js.intercomcdn.com'],
-  'worker-src': ["'self'"],
+  'worker-src': ["'self'", 'file:'],
 };
 
 function injectCSP() {
