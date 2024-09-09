@@ -27,7 +27,7 @@ export function getNextKmsProviderName<T extends KMSProviderType>(
     return kmsProviderType;
   }
   const currentNums = currentProviders // local:1
-    .map((name) => name.split(':')[1]?.replace(kmsProviderType, '')) // '1'
+    .map((name) => name.replace(new RegExp(`^${kmsProviderType}:?`), '')) // '1'
     .map((x) => parseInt(x, 10)) // 1
     .filter((x) => !isNaN(x));
   const nextNum = Math.max(0, ...currentNums) + 1;
