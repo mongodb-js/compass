@@ -9,10 +9,18 @@ import {
   ConnectionStorageProvider,
   InMemoryConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
-import type { RenderResult } from '@testing-library/react';
+import type {
+  RenderHookOptions,
+  RenderHookResult,
+} from '@testing-library/react-hooks';
+import {
+  renderHook,
+  cleanup as rtlCleanupHook,
+} from '@testing-library/react-hooks';
+import type { RenderOptions, RenderResult } from '@testing-library/react';
 import {
   render,
-  cleanup,
+  cleanup as rtlCleanup,
   screen,
   waitFor,
   waitForElementToBeRemoved,
@@ -67,7 +75,7 @@ function wait(ms: number) {
   });
 }
 
-type ConnectionsOptions = {
+type TestConnectionsOptions = {
   /**
    * Initial preferences
    */
@@ -215,7 +223,24 @@ class InMemoryPreferencesAccess
   }
 }
 
-function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
+type ComponentWithChildren = React.ComponentType<{
+  children: React.ReactElement;
+}>;
+
+const EmptyWrapper = ({ children }: { children: React.ReactElement }) => {
+  return <>{children}</>;
+};
+
+function createWrapper(
+  options: TestConnectionsOptions,
+  // When using renderHook, anything that will try to call createPortal will
+  // fail due to the testing-library using ReactTestRenderer for hooks. To work
+  // around that, only when creating wrappers for renderHook, we'll skip any
+  // wrapper that's UI related
+  skipUIWrappers: boolean,
+  TestingLibraryWrapper: ComponentWithChildren = EmptyWrapper,
+  container?: HTMLElement
+) {
   const wrapperState = {
     globalAppRegistry: new AppRegistry(),
     localAppRegistry: new AppRegistry(),
@@ -274,14 +299,17 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
   const telemetryOptions = {
     sendTrack: wrapperState.track,
   };
-  const wrapper: React.FunctionComponent = ({ children }) => {
+  const _CompassComponentsProvider = skipUIWrappers
+    ? EmptyWrapper
+    : CompassComponentsProvider;
+  const wrapper: ComponentWithChildren = ({ children, ...props }) => {
     return (
       <GlobalAppRegistryProvider value={wrapperState.globalAppRegistry}>
         <AppRegistryProvider
           localAppRegistry={wrapperState.localAppRegistry}
           scopeName="TEST"
         >
-          <CompassComponentsProvider popoverPortalContainer={container}>
+          <_CompassComponentsProvider popoverPortalContainer={container}>
             <PreferencesProvider value={wrapperState.preferences}>
               <LoggerProvider value={logger}>
                 <TelemetryProvider options={telemetryOptions}>
@@ -302,14 +330,18 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
                         }
                         preloadStorageConnectionInfos={options.connections}
                       >
-                        <StoreGetter>{children}</StoreGetter>
+                        <StoreGetter>
+                          <TestingLibraryWrapper {...props}>
+                            {children}
+                          </TestingLibraryWrapper>
+                        </StoreGetter>
                       </CompassConnections>
                     </ConnectFnProvider>
                   </ConnectionStorageProvider>
                 </TelemetryProvider>
               </LoggerProvider>
             </PreferencesProvider>
-          </CompassComponentsProvider>
+          </_CompassComponentsProvider>
         </AppRegistryProvider>
       </GlobalAppRegistryProvider>
     );
@@ -317,44 +349,36 @@ function createWrapper(options: ConnectionsOptions, container?: HTMLElement) {
   return { wrapperState, wrapper };
 }
 
-export type RenderConnectionsOptions<
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
-> = {
-  container?: C;
-  baseElement?: BE;
-  wrapper?: React.JSXElementConstructor<{ children?: React.ReactElement }>;
-} & ConnectionsOptions;
+export type RenderConnectionsOptions = RenderOptions & TestConnectionsOptions;
 
-function renderWithConnections<
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
+export type RenderWithConnectionsResult = ReturnType<
+  typeof createWrapper
+>['wrapperState'] &
+  RenderResult;
+
+function renderWithConnections(
   ui: React.ReactElement,
   {
-    wrapper: RenderWrapper,
+    wrapper,
     container,
     baseElement,
+    queries,
+    hydrate,
     ...connectionsOptions
-  }: RenderConnectionsOptions<C, BE> = {}
-) {
+  }: RenderConnectionsOptions = {}
+): RenderWithConnectionsResult {
   const { wrapper: Wrapper, wrapperState } = createWrapper(
     connectionsOptions,
-    container as HTMLElement
+    false,
+    wrapper,
+    container
   );
-  const wrappedWrapper = RenderWrapper
-    ? function WrappedWrapper({ children }: { children?: React.ReactElement }) {
-        return (
-          <RenderWrapper>
-            <Wrapper>{children}</Wrapper>
-          </RenderWrapper>
-        );
-      }
-    : Wrapper;
   const result = render(ui, {
-    wrapper: wrappedWrapper,
+    wrapper: Wrapper,
     container,
     baseElement,
+    queries,
+    hydrate,
   });
   expect(
     (connectionsOptions.connections ?? []).every((info) => {
@@ -366,156 +390,46 @@ function renderWithConnections<
     true,
     'Expected initial connections to load before rendering rest of the tested UI, but it did not happen'
   );
-  return { ...wrapperState, result };
+  return { ...wrapperState, ...result };
 }
 
-function renderHookWithConnections<
-  HookProps,
-  HookResult,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
+export type RenderHookConnectionsOptions<HookProps> = Omit<
+  RenderHookOptions<HookProps>,
+  'wrapper'
+> & { wrapper?: ComponentWithChildren } & TestConnectionsOptions;
+
+export type RenderWithConnectionsHookResult<
+  HookProps = unknown,
+  HookResult = unknown
+> = ReturnType<typeof createWrapper>['wrapperState'] &
+  RenderHookResult<HookProps, HookResult>;
+
+function renderHookWithConnections<HookProps, HookResult>(
   cb: (props: HookProps) => HookResult,
   {
     initialProps,
-    ...options
-  }: RenderConnectionsOptions<C, BE> & {
-    initialProps?: HookProps;
-  } = {}
-) {
-  const result = { current: null } as { current: HookResult };
-  function HookResultGetter(props: HookProps) {
-    result.current = cb(props);
-    return null;
-  }
-  const { result: renderResult, ...rest } = renderWithConnections(
-    <HookResultGetter {...(initialProps as any)}></HookResultGetter>,
-    options
+    wrapper,
+    ...connectionsOptions
+  }: RenderHookConnectionsOptions<HookProps> = {}
+): RenderWithConnectionsHookResult<HookProps, HookResult> {
+  const { wrapper: Wrapper, wrapperState } = createWrapper(
+    connectionsOptions,
+    true,
+    wrapper as ComponentWithChildren
   );
-  return {
-    ...rest,
-    rerender: (props?: HookProps) => {
-      return renderResult.rerender(
-        <HookResultGetter {...(props as any)}></HookResultGetter>
-      );
-    },
-    result,
-  };
+  const result = renderHook(cb, { wrapper: Wrapper as any, initialProps });
+  return { ...wrapperState, ...result };
 }
 
-function renderPluginComponentWithConnections<
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  ui: React.ReactElement,
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T,
-  options: RenderConnectionsOptions<C, BE> = {}
+async function waitForConnect(
+  connectionsStore: RenderWithConnectionsResult['connectionsStore'],
+  connectionInfo: ConnectionInfo
 ) {
-  let plugin;
-  function ComponentWithProvider() {
-    plugin = Plugin.useActivate(initialProps);
-    return (
-      <Provider store={plugin.store} context={plugin.context}>
-        {ui}
-      </Provider>
-    );
-  }
-  const result = renderWithConnections(
-    <ComponentWithProvider></ComponentWithProvider>,
-    options
-  );
-  return {
-    plugin: plugin as unknown as A,
-    ...result,
-  };
-}
-
-function renderPluginHookWithConnections<
-  HookResult,
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  cb: () => HookResult,
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T,
-  options: RenderConnectionsOptions<C, BE> = {}
-) {
-  const result = { current: null } as { current: HookResult };
-  function HookResultGetter() {
-    result.current = cb();
-    return null;
-  }
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    result: _renderResult,
-    ...rest
-  } = renderPluginComponentWithConnections(
-    <HookResultGetter></HookResultGetter>,
-    Plugin,
-    initialProps,
-    options
-  );
-  return { ...rest, result };
-}
-
-/**
- * @deprecated instead of testing the store directly, test it through the UI as
- * the redux documentation recommends
- * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
- */
-function activatePluginWithConnections<
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T,
-  options: RenderConnectionsOptions<C, BE> = {}
-) {
-  const { result, ...rest } = renderHookWithConnections(() => {
-    return Plugin.useActivate(initialProps);
-  }, options);
-  return { plugin: result.current, ...rest };
-}
-
-async function renderWithActiveConnection<
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  ui: React.ReactElement,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
-  options: RenderConnectionsOptions<C, BE> = {}
-) {
-  function UiWithConnectionInfo() {
-    return (
-      <ConnectionInfoProvider connectionInfoId={connectionInfo.id}>
-        {ui}
-      </ConnectionInfoProvider>
-    );
-  }
-  const renderResult = renderWithConnections(
-    <UiWithConnectionInfo></UiWithConnectionInfo>,
-    {
-      ...options,
-      connections: [connectionInfo, ...(options.connections ?? [])],
-    }
-  );
-  await renderResult.connectionsStore.actions.connect(connectionInfo);
-  // For ConnectionInfoProvider to render your input, we need to be connected
+  await connectionsStore.actions.connect(connectionInfo);
+  // For ConnectionInfoProvider to render your ui, we need to be connected
   // successfully
   const connectionState =
-    renderResult.connectionsStore.getState().connections.byId[
-      connectionInfo.id
-    ];
+    connectionsStore.getState().connections.byId[connectionInfo.id];
   if (connectionState.status !== 'connected') {
     if (connectionState.error) {
       connectionState.error.message =
@@ -528,154 +442,280 @@ async function renderWithActiveConnection<
       );
     }
   }
+}
+
+function createConnectionInfoWrapper(
+  connectionId: string,
+  ReactTestingLibraryWrapper: React.ComponentType
+) {
+  return function ConnectionInfoWrapper({ children, ...props }: any) {
+    return (
+      <ConnectionInfoProvider connectionInfoId={connectionId}>
+        <ReactTestingLibraryWrapper {...props}>
+          {children}
+        </ReactTestingLibraryWrapper>
+      </ConnectionInfoProvider>
+    );
+  };
+}
+
+async function renderWithActiveConnection(
+  ui: React.ReactElement,
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
+  {
+    connections,
+    wrapper: Wrapper = EmptyWrapper,
+    ...options
+  }: RenderConnectionsOptions = {}
+) {
+  const ConnectionInfoWrapper = createConnectionInfoWrapper(
+    connectionInfo.id,
+    Wrapper as React.ComponentType
+  );
+  const renderResult = renderWithConnections(ui, {
+    ...options,
+    wrapper: ConnectionInfoWrapper,
+    connections: [connectionInfo, ...(connections ?? [])],
+  });
+  await waitForConnect(renderResult.connectionsStore, connectionInfo);
   return renderResult;
 }
 
-async function renderHookWithActiveConnection<
-  HookProps,
-  HookResult,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
+async function renderHookWithActiveConnection<HookProps, HookResult>(
   cb: (props: HookProps) => HookResult,
   connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
   {
-    initialProps,
+    connections,
+    wrapper: Wrapper = EmptyWrapper,
     ...options
-  }: RenderConnectionsOptions<C, BE> & {
-    initialProps?: HookProps;
-  } = {}
+  }: RenderHookConnectionsOptions<HookProps> = {}
 ) {
-  const result = { current: null } as { current: HookResult };
-  function HookResultGetter(props: HookProps) {
-    result.current = cb(props);
-    return null;
-  }
-  const { result: renderResult, ...rest } = await renderWithActiveConnection(
-    <HookResultGetter {...(initialProps as any)}></HookResultGetter>,
-    connectionInfo,
-    options
+  const ConnectionInfoWrapper = createConnectionInfoWrapper(
+    connectionInfo.id,
+    Wrapper as React.ComponentType
   );
-  return {
-    ...rest,
-    rerender: (props?: HookResult) => {
-      return renderResult.rerender(
-        <HookResultGetter {...(props as any)}></HookResultGetter>
-      );
-    },
-    result,
-  };
+  const renderHookResult = renderHookWithConnections(cb, {
+    ...options,
+    wrapper: ConnectionInfoWrapper,
+    connections: [connectionInfo, ...(connections ?? [])],
+  });
+  await waitForConnect(renderHookResult.connectionsStore, connectionInfo);
+  return renderHookResult;
 }
 
-async function renderPluginComponentWithActiveConnection<
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
+function createPluginWrapper<
+  Props,
+  ServiceLocators extends Record<string, () => unknown>,
+  PluginContext extends HadronPlugin
 >(
-  ui: React.ReactElement,
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
-  options: RenderConnectionsOptions<C, BE> = {}
+  Plugin: HadronPluginComponent<Props, ServiceLocators, PluginContext>,
+  initialPluginProps?: Props,
+  ReactTestingLibraryWrapper: ComponentWithChildren = EmptyWrapper
 ) {
-  let plugin;
-  function ComponentWithProvider() {
-    plugin = Plugin.useActivate(initialProps);
+  const ref: { current: PluginContext } = { current: {} as any };
+  function ComponentWithProvider({ children, ...props }: any) {
+    const plugin = (ref.current = Plugin.useActivate(
+      initialPluginProps ?? ({} as any)
+    ));
     return (
       <Provider store={plugin.store} context={plugin.context}>
-        {ui}
+        <ReactTestingLibraryWrapper {...props}>
+          {children}
+        </ReactTestingLibraryWrapper>
       </Provider>
     );
   }
-  const result = await renderWithActiveConnection(
-    <ComponentWithProvider></ComponentWithProvider>,
-    connectionInfo,
-    options
-  );
+  return { ref, Wrapper: ComponentWithProvider };
+}
+
+function createPluginTestHelpers<
+  Props,
+  ServiceLocators extends Record<string, () => unknown>,
+  PluginContext extends HadronPlugin
+>(
+  Plugin: HadronPluginComponent<Props, ServiceLocators, PluginContext>,
+  defaultInitialPluginProps?: Props
+) {
   return {
-    plugin: plugin as unknown as A,
-    ...result,
-  };
-}
-
-export type RenderWithConnectionsResult = ReturnType<
-  typeof createWrapper
->['wrapperState'] & { result: RenderResult };
-
-export type RenderWithConnectionsHookResult<
-  HookProps = unknown,
-  HookResult = unknown
-> = ReturnType<typeof createWrapper>['wrapperState'] & {
-  result: HookResult;
-  rerender: (props: HookProps) => void;
-};
-
-async function renderPluginHookWithActiveConnection<
-  HookResult,
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  cb: () => HookResult,
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T extends Record<string, never> ? T | undefined : T,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
-  options: RenderConnectionsOptions<C, BE> = {}
-) {
-  const result = { current: null } as { current: HookResult };
-  function HookResultGetter() {
-    result.current = cb();
-    return null;
-  }
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    result: _renderResult,
-    ...rest
-  } = await renderPluginComponentWithActiveConnection(
-    <HookResultGetter></HookResultGetter>,
-    Plugin,
-    initialProps as T,
-    connectionInfo,
-    options
-  );
-  return { ...rest, result };
-}
-
-/**
- * @deprecated instead of testing the store directly, test it through the UI as
- * the redux documentation recommends
- * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
- */
-async function activatePluginWithActiveConnection<
-  T,
-  S extends Record<string, () => unknown>,
-  A extends HadronPlugin,
-  C extends Element | DocumentFragment = HTMLElement,
-  BE extends Element | DocumentFragment = C
->(
-  Plugin: HadronPluginComponent<T, S, A>,
-  initialProps: T,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
-  options: RenderConnectionsOptions<C, BE> = {}
-) {
-  const { result, ...rest } = await renderHookWithActiveConnection(
-    () => {
-      return Plugin.useActivate(initialProps);
+    renderWithConnections(
+      this: void,
+      ...[
+        ui,
+        { wrapper: ReactTestingLibraryWrapper = EmptyWrapper, ...options } = {},
+      ]: Parameters<typeof renderWithConnections>
+    ): RenderWithConnectionsResult & { plugin: PluginContext } {
+      const { ref, Wrapper } = createPluginWrapper(
+        Plugin,
+        defaultInitialPluginProps,
+        ReactTestingLibraryWrapper
+      );
+      const result = renderWithConnections(ui, {
+        ...options,
+        wrapper: Wrapper,
+      });
+      return {
+        get plugin() {
+          return ref.current;
+        },
+        ...result,
+      };
     },
-    connectionInfo,
-    options
-  );
-  return { plugin: result.current, ...rest };
+    async renderWithActiveConnection(
+      this: void,
+      ...[
+        ui,
+        connectionInfo,
+        { wrapper: ReactTestingLibraryWrapper = EmptyWrapper, ...options } = {},
+      ]: Parameters<typeof renderWithActiveConnection>
+    ): Promise<RenderWithConnectionsResult & { plugin: PluginContext }> {
+      const { ref, Wrapper } = createPluginWrapper(
+        Plugin,
+        defaultInitialPluginProps,
+        ReactTestingLibraryWrapper
+      );
+      const result = await renderWithActiveConnection(ui, connectionInfo, {
+        ...options,
+        wrapper: Wrapper,
+      });
+      return {
+        get plugin() {
+          return ref.current;
+        },
+        ...result,
+      };
+    },
+    renderHookWithConnections<HookProps, HookResult>(
+      this: void,
+      cb: (props: HookProps) => HookResult,
+      {
+        wrapper: ReactTestingLibraryWrapper,
+        ...options
+      }: RenderHookConnectionsOptions<HookProps> = {}
+    ) {
+      const { ref, Wrapper } = createPluginWrapper(
+        Plugin,
+        defaultInitialPluginProps,
+        ReactTestingLibraryWrapper
+      );
+      const result = renderHookWithConnections(cb, {
+        ...options,
+        wrapper: Wrapper,
+      });
+      return {
+        get plugin() {
+          return ref.current;
+        },
+        ...result,
+      };
+    },
+    async renderHookWithActiveConnection<HookProps, HookResult>(
+      this: void,
+      cb: (props: HookProps) => HookResult,
+      connectionInfo?: ConnectionInfo,
+      {
+        wrapper: ReactTestingLibraryWrapper,
+        ...options
+      }: RenderHookConnectionsOptions<HookProps> = {}
+    ) {
+      const { ref, Wrapper } = createPluginWrapper(
+        Plugin,
+        defaultInitialPluginProps,
+        ReactTestingLibraryWrapper
+      );
+      const result = await renderHookWithActiveConnection(cb, connectionInfo, {
+        ...options,
+        wrapper: Wrapper,
+      });
+      return {
+        get plugin() {
+          return ref.current;
+        },
+        ...result,
+      };
+    },
+    /**
+     * @deprecated instead of testing the store directly, test it through the UI as
+     * the redux documentation recommends
+     * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
+     */
+    activatePluginWithConnections(
+      this: void,
+      initialProps?: Props,
+      options: TestConnectionsOptions = {}
+    ) {
+      const { result, ...rest } = renderHookWithConnections(
+        Plugin.useActivate.bind(Plugin),
+        {
+          ...options,
+          initialProps: {
+            ...defaultInitialPluginProps,
+            ...initialProps,
+          } as any,
+        }
+      );
+      return {
+        get plugin() {
+          return result.current;
+        },
+        ...rest,
+      };
+    },
+    /**
+     * @deprecated instead of testing the store directly, test it through the UI as
+     * the redux documentation recommends
+     * @see {@link https://redux.js.org/usage/writing-tests#guiding-principles}
+     */
+    async activatePluginWithActiveConnection(
+      this: void,
+      connectionInfo: ConnectionInfo,
+      initialProps?: Props,
+      options: TestConnectionsOptions = {}
+    ) {
+      const { result, ...rest } = await renderHookWithActiveConnection(
+        Plugin.useActivate.bind(Plugin),
+        connectionInfo,
+        {
+          ...options,
+          initialProps: {
+            ...defaultInitialPluginProps,
+            ...initialProps,
+          } as any,
+        }
+      );
+      return {
+        get plugin() {
+          return result.current;
+        },
+        ...rest,
+      };
+    },
+  };
 }
 
 /**
  * @deprecated use userEvent instead
  */
 const fireEvent = testingLibraryFireEvent;
+
+/**
+ * @deprecated @testing-library/react installs these hooks automatically
+ */
+const cleanup = rtlCleanup;
+
+/**
+ * @deprecated @testing-library/react-hooks installs these hooks automatically
+ */
+const cleanupHook = rtlCleanupHook;
+
+/**
+ * In some cases we still want to just render something without all the
+ * wrappers, for these cases we provide access to the original methods, but this
+ * is not the default behavior
+ */
+const testingLibrary = {
+  render,
+  renderHook,
+};
 
 export {
   // There is never a good reason not to have these wrapper providers when
@@ -685,6 +725,7 @@ export {
   renderWithConnections as render,
   renderHookWithConnections as renderHook,
   cleanup,
+  cleanupHook,
   screen,
   wait,
   waitFor,
@@ -693,15 +734,11 @@ export {
   renderWithActiveConnection,
   renderHookWithConnections,
   renderHookWithActiveConnection,
-  renderPluginComponentWithConnections,
-  renderPluginComponentWithActiveConnection,
-  renderPluginHookWithConnections,
-  renderPluginHookWithActiveConnection,
-  activatePluginWithConnections,
-  activatePluginWithActiveConnection,
+  createPluginTestHelpers,
   act,
   createDefaultConnectionInfo,
   userEvent,
   within,
   fireEvent,
+  testingLibrary,
 };

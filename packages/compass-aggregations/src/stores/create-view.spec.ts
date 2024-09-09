@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { changeViewName, createView } from '../modules/create-view';
 import Sinon from 'sinon';
 import {
-  activatePluginWithConnections,
+  createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import { CreateViewPlugin } from '../index';
@@ -37,17 +37,17 @@ describe('CreateViewStore [Store]', function () {
   };
 
   beforeEach(async function () {
+    const { activatePluginWithConnections } = createPluginTestHelpers(
+      CreateViewPlugin.withMockServices({ workspaces })
+    );
+
     const { plugin, globalAppRegistry, connectionsStore } =
-      activatePluginWithConnections(
-        CreateViewPlugin.withMockServices({ workspaces }) as any,
-        {},
-        {
-          connections: [TEST_CONNECTION],
-          connectFn() {
-            return dataService;
-          },
-        }
-      );
+      activatePluginWithConnections(undefined, {
+        connections: [TEST_CONNECTION],
+        connectFn() {
+          return dataService;
+        },
+      });
 
     await connectionsStore.actions.connect(TEST_CONNECTION);
 

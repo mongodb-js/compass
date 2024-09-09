@@ -3,7 +3,7 @@ import { useAutocompleteFields } from './';
 import { expect } from 'chai';
 import { useFieldStoreService } from './stores/field-store-service';
 import {
-  renderPluginHookWithActiveConnection,
+  createPluginTestHelpers,
   cleanup,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
@@ -11,33 +11,30 @@ import {
 describe('useAutocompleteFields', function () {
   afterEach(cleanup);
 
+  const { renderHookWithActiveConnection } =
+    createPluginTestHelpers(FieldStorePlugin);
+
   it('returns empty list when namespace schema is not available', async function () {
-    const { result } = await renderPluginHookWithActiveConnection(
-      () => useAutocompleteFields('foo.bar'),
-      FieldStorePlugin,
-      {}
+    const { result } = await renderHookWithActiveConnection(() =>
+      useAutocompleteFields('foo.bar')
     );
 
     expect(result.current).to.deep.eq([]);
   });
 
   it('updates when fields are added', async function () {
-    const { result } = await renderPluginHookWithActiveConnection(
-      () => {
-        const autoCompleteFields = useAutocompleteFields('foo.bar');
-        const fieldStoreService = useFieldStoreService();
-        return {
-          getAutoCompleteFields() {
-            return autoCompleteFields;
-          },
-          getFieldStoreService() {
-            return fieldStoreService;
-          },
-        };
-      },
-      FieldStorePlugin,
-      {}
-    );
+    const { result } = await renderHookWithActiveConnection(() => {
+      const autoCompleteFields = useAutocompleteFields('foo.bar');
+      const fieldStoreService = useFieldStoreService();
+      return {
+        getAutoCompleteFields() {
+          return autoCompleteFields;
+        },
+        getFieldStoreService() {
+          return fieldStoreService;
+        },
+      };
+    });
 
     await result.current
       .getFieldStoreService()
