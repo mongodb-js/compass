@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
 import {
-  renameCollection,
+  submitModal,
   hideModal,
   clearError,
 } from '../../modules/rename-collection/rename-collection';
@@ -22,14 +22,14 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 
 export interface RenameCollectionModalProps {
-  isVisible: boolean;
+  modalState: 'input-form' | 'confirmation-screen' | 'hidden';
   error: Error | null;
   initialCollectionName: string;
   collections: { name: string }[];
   isRunning: boolean;
   areSavedQueriesAndAggregationsImpacted: boolean;
   hideModal: () => void;
-  renameCollection: (newCollectionName: string) => void;
+  submitModal: (newCollectionName: string) => void;
   clearError: () => void;
 }
 
@@ -38,8 +38,6 @@ const progressContainerStyles = css({
   gap: spacing[2],
   alignItems: 'center',
 });
-
-type ModalState = 'input-form' | 'confirmation-screen';
 
 const bannerTextStyles = css({
   marginTop: 0,
@@ -72,24 +70,22 @@ function ConfirmationModalContent({
 }
 
 function RenameCollectionModal({
-  isVisible,
+  modalState,
   error,
   initialCollectionName,
   collections,
   areSavedQueriesAndAggregationsImpacted,
   isRunning,
   hideModal,
-  renameCollection,
+  submitModal,
   clearError,
 }: RenameCollectionModalProps) {
   const [newName, setNewName] = useState(initialCollectionName);
-  const [modalState, setModalState] = useState<ModalState>();
   useEffect(() => {
-    if (isVisible) {
+    if (modalState === 'input-form') {
       setNewName(initialCollectionName);
-      setModalState('input-form');
     }
-  }, [isVisible, initialCollectionName]);
+  }, [modalState, initialCollectionName]);
   const onNameConfirmationChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       clearError();
@@ -98,21 +94,16 @@ function RenameCollectionModal({
     [setNewName, clearError]
   );
   const onFormSubmit = () => {
-    if (modalState === 'confirmation-screen') {
-      setModalState('input-form');
-      renameCollection(newName.trim());
-    } else {
-      setModalState('confirmation-screen');
-    }
+    submitModal(newName);
   };
 
   useTrackOnChange(
     (track: TrackFunction) => {
-      if (isVisible) {
+      if (modalState !== 'hidden') {
         track('Screen', { name: 'rename_collection_modal' });
       }
     },
-    [isVisible],
+    [modalState],
     undefined
   );
 
@@ -141,7 +132,7 @@ function RenameCollectionModal({
           ? 'Confirm rename collection'
           : 'Rename collection'
       }
-      open={isVisible}
+      open={modalState !== 'hidden'}
       onSubmit={onFormSubmit}
       onCancel={onHide}
       submitButtonText={
@@ -202,11 +193,11 @@ const MappedRenameCollectionModal = connect(
     state: RenameCollectionRootState
   ): Omit<
     RenameCollectionModalProps,
-    'renameCollection' | 'hideModal' | 'clearError'
+    'submitModal' | 'hideModal' | 'clearError'
   > => state,
   {
     hideModal,
-    renameCollection,
+    submitModal,
     clearError,
   }
 )(RenameCollectionModal);

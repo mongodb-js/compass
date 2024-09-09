@@ -1,7 +1,7 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { render, screen, cleanup, waitFor, act } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { CreateNamespacePlugin } from '../..';
@@ -11,7 +11,6 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import { times } from 'lodash';
 
 describe('CreateNamespaceModal [Component]', function () {
   const connectionId = '12345';
