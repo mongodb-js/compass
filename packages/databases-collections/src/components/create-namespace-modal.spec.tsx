@@ -1,13 +1,8 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import {
-  render,
-  screen,
-  cleanup,
-  fireEvent,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, cleanup, waitFor, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { CreateNamespacePlugin } from '../..';
 import AppRegistry from 'hadron-app-registry';
@@ -16,6 +11,7 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { times } from 'lodash';
 
 describe('CreateNamespaceModal [Component]', function () {
   const connectionId = '12345';
@@ -113,9 +109,9 @@ describe('CreateNamespaceModal [Component]', function () {
       const input = screen.getByTestId('collection-name');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
-      fireEvent.change(input, { target: { value: 'baz' } });
+      userEvent.type(input, 'baz');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
-      fireEvent.change(input, { target: { value: '' } });
+      userEvent.clear(input);
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
@@ -125,16 +121,19 @@ describe('CreateNamespaceModal [Component]', function () {
           name: 'Create Collection',
         });
         const input = screen.getByRole('textbox', { name: 'Collection Name' });
-        const additionalPreferences = screen.getByText(
-          /Additional preferences/
-        );
-        fireEvent.change(input, { target: { value: 'bar' } });
-        fireEvent.click(additionalPreferences);
+        const additionalPreferences = screen.getByRole('button', {
+          name: /Additional preferences/,
+        });
+        userEvent.type(input, 'bar');
+        userEvent.click(additionalPreferences);
         const clusteredCollection = screen.getByRole('checkbox', {
           name: 'Clustered Collection',
         });
-        fireEvent.click(clusteredCollection);
-        fireEvent.click(submitButton);
+        userEvent.click(clusteredCollection, undefined, {
+          // leafygreen adds pointer-events: none on actually clickable elements
+          skipPointerEventsCheck: true,
+        });
+        userEvent.click(submitButton);
       });
 
       it('calls the dataservice create collection method', async () => {
@@ -161,8 +160,8 @@ describe('CreateNamespaceModal [Component]', function () {
           const input = screen.getByRole('textbox', {
             name: 'Collection Name',
           });
-          fireEvent.change(input, { target: { value: '  baz  ' } });
-          fireEvent.click(submitButton);
+          userEvent.type(input, '  baz  ');
+          userEvent.click(submitButton);
         });
 
         it('trims the white spaces on submit', async () => {
@@ -212,8 +211,8 @@ describe('CreateNamespaceModal [Component]', function () {
             const input = screen.getByRole('textbox', {
               name: 'Collection Name',
             });
-            fireEvent.change(input, { target: { value: '  baz  ' } });
-            fireEvent.click(submitButton);
+            userEvent.type(input, '  baz  ');
+            userEvent.click(submitButton);
           });
 
           it('trims the white spaces on submit - but only for the collection', async () => {
@@ -257,33 +256,36 @@ describe('CreateNamespaceModal [Component]', function () {
       const collInput = screen.getByTestId('collection-name');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
-      fireEvent.change(dbInput, { target: { value: 'db1' } });
-      fireEvent.change(collInput, { target: { value: 'baz' } });
+      userEvent.type(dbInput, 'db1');
+      userEvent.type(collInput, 'baz');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
-      fireEvent.change(dbInput, { target: { value: '' } });
+      userEvent.clear(dbInput);
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
     });
 
     context('when the user has submitted the form (with options)', () => {
-      beforeEach(() => {
-        const submitButton = screen.getByRole('button', {
+      beforeEach(async () => {
+        const submitButton = await screen.findByRole('button', {
           name: 'Create Database',
         });
         const dbInput = screen.getByRole('textbox', { name: 'Database Name' });
         const collInput = screen.getByRole('textbox', {
           name: 'Collection Name',
         });
-        const additionalPreferences = screen.getByText(
-          /Additional preferences/
-        );
-        fireEvent.change(dbInput, { target: { value: 'db1' } });
-        fireEvent.change(collInput, { target: { value: 'bar' } });
-        fireEvent.click(additionalPreferences);
-        const clusteredCollection = screen.getByRole('checkbox', {
+        const additionalPreferences = screen.getByRole('button', {
+          name: /Additional preferences/,
+        });
+        userEvent.type(dbInput, 'db1');
+        userEvent.type(collInput, 'bar');
+        userEvent.click(additionalPreferences);
+        const clusteredCollection = await screen.findByRole('checkbox', {
           name: 'Clustered Collection',
         });
-        fireEvent.click(clusteredCollection);
-        fireEvent.click(submitButton);
+        userEvent.click(clusteredCollection, undefined, {
+          // leafygreen adds pointer-events: none on actually clickable elements
+          skipPointerEventsCheck: true,
+        });
+        userEvent.click(submitButton);
       });
 
       it('calls the dataservice create collection method', async () => {
@@ -313,9 +315,10 @@ describe('CreateNamespaceModal [Component]', function () {
           const collInput = screen.getByRole('textbox', {
             name: 'Collection Name',
           });
-          fireEvent.change(dbInput, { target: { value: '  db1  ' } });
-          fireEvent.change(collInput, { target: { value: '  baz  ' } });
-          fireEvent.click(submitButton);
+
+          userEvent.type(dbInput, '  db1  ');
+          userEvent.type(collInput, '  baz  ');
+          userEvent.click(submitButton);
         });
 
         it('trims the white spaces on submit', async () => {
