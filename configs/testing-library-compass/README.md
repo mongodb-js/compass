@@ -25,8 +25,8 @@ it('should render component', async function () {
 
   const result = render(<Component></Component>, {
     preferences: {
-      // If component behavior on some preferences value, the initial value can
-      // be provided in the configuration object
+      // If component behavior depends on some preferences value, the initial value
+      // can be provided in the configuration object
       enableNewFeature: true,
     },
     // Initial connections that application will be aware of can also be
@@ -72,7 +72,7 @@ it('should render component', async function () {
 
 ## renderWithActiveConnection
 
-The `renderWithActiveConnection` (and it's hook rendering counterpart) are extending the functionality of the render methods described above, additionally setting up a connected connection context around whatever is being rendered by them. This allows for more straightforward testing of any component in the connected application context:
+The `renderWithActiveConnection` (and its hook rendering counterpart) are extending the functionality of the render methods described above, additionally setting up a connected connection context around whatever is being rendered by them. This allows for more straightforward testing of any component in the connected application context:
 
 ```jsx
 it('should render for connection', async function () {

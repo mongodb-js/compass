@@ -415,7 +415,7 @@ function renderHookWithConnections<HookProps, HookResult>(
   const { wrapper: Wrapper, wrapperState } = createWrapper(
     connectionsOptions,
     true,
-    wrapper as ComponentWithChildren
+    wrapper
   );
   const result = renderHook(cb, { wrapper: Wrapper as any, initialProps });
   return { ...wrapperState, ...result };
