@@ -18,12 +18,14 @@ import {
 } from './export';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
-  activatePluginWithConnections,
+  createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import { ExportPlugin } from '../index';
 import type { ExportStore } from '../stores/export-store';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+
+const { activatePluginWithConnections } = createPluginTestHelpers(ExportPlugin);
 
 function activatePlugin(
   dataService = {
@@ -31,15 +33,11 @@ function activatePlugin(
     aggregateCursor() {},
   } as any
 ) {
-  return activatePluginWithConnections(
-    ExportPlugin,
-    {},
-    {
-      connectFn() {
-        return dataService;
-      },
-    }
-  );
+  return activatePluginWithConnections(undefined, {
+    connectFn() {
+      return dataService;
+    },
+  });
 }
 
 describe('export [module]', function () {
