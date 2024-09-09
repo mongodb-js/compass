@@ -129,9 +129,7 @@ describe('csfle-handler', function () {
       ).to.deep.equal({
         storeCredentials: false,
         autoEncryption: {
-          kmsProviders: {
-            aws: {},
-          },
+          kmsProviders: {},
         },
       });
     });
@@ -172,9 +170,7 @@ describe('csfle-handler', function () {
       ).to.deep.equal({
         storeCredentials: false,
         autoEncryption: {
-          tlsOptions: {
-            aws: {},
-          },
+          tlsOptions: {},
         },
       });
     });

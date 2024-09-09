@@ -149,7 +149,11 @@ export function handleUpdateCsfleKmsParam<T extends KMSProviderType>({
     kms[action.key] = action.value;
   }
   const kmsProviders = autoEncryption.kmsProviders ?? {};
-  kmsProviders[action.kmsProviderName as keyof KMSProviders] = kms;
+  if (Object.keys(kms).length === 0) {
+    delete kmsProviders[action.kmsProviderName as keyof KMSProviders];
+  } else {
+    kmsProviders[action.kmsProviderName as keyof KMSProviders] = kms;
+  }
   return {
     connectionOptions: {
       ...connectionOptions,
@@ -186,7 +190,11 @@ export function handleUpdateCsfleKmsTlsParam<T extends KMSTLSProviderType>({
     tls[action.key] = action.value;
   }
   const tlsOptions = autoEncryption.tlsOptions ?? {};
-  tlsOptions[action.kmsProviderName] = tls;
+  if (Object.keys(tls).length === 0) {
+    delete tlsOptions[action.kmsProviderName];
+  } else {
+    tlsOptions[action.kmsProviderName] = tls;
+  }
   return {
     connectionOptions: {
       ...connectionOptions,
