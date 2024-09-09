@@ -192,6 +192,8 @@ const KMS_PROVIDER_SECRET_PATHS = {
   aws: ['secretAccessKey', 'sessionToken'],
   azure: ['clientSecret'],
   gcp: ['privateKey'],
+  // kmip does not have any kms secrets, but tlsOptions
+  kmip: undefined,
 };
 
 type AutoEncryptionKMSAndTLSOptions = Partial<
@@ -206,8 +208,8 @@ function extractAutoEncryptionSecrets(data: AutoEncryptionOptions): {
   // Secrets are stored in a kmsProviders and tlsOptions
   const { kmsProviders, tlsOptions, ...result } = data;
 
-  for (const kmsProviderName in kmsProviders ?? {}) {
-    const key = kmsProviderName.match(/\b(local|aws|gcp|azure)\b(?:)?/)?.[1] as
+  for (const kmsProviderName of Object.keys(kmsProviders ?? {})) {
+    const key = kmsProviderName.split(':')[0] as
       | keyof typeof KMS_PROVIDER_SECRET_PATHS
       | undefined;
     if (!key) {
@@ -218,6 +220,9 @@ function extractAutoEncryptionSecrets(data: AutoEncryptionOptions): {
       kmsProviderName as keyof typeof kmsProviders
     ];
     const secretPaths = KMS_PROVIDER_SECRET_PATHS[key];
+    if (!secretPaths) {
+      continue;
+    }
     _.set(
       secrets,
       `kmsProviders.${kmsProviderName}`,
@@ -228,7 +233,7 @@ function extractAutoEncryptionSecrets(data: AutoEncryptionOptions): {
     }
   }
 
-  for (const key in tlsOptions ?? {}) {
+  for (const key of Object.keys(tlsOptions ?? {})) {
     const data = (tlsOptions ?? {})[key];
     if (data?.tlsCertificateKeyFilePassword) {
       _.set(secrets, `tlsOptions.${key}`, {

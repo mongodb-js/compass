@@ -223,13 +223,15 @@ export function unsetFleOptionsIfEmptyAutoEncryption(
     };
   }
 
-  function filterEmptyValues(obj: Record<string, any> | undefined) {
+  function filterEmptyValues<T extends object>(
+    obj: T | undefined
+  ): Partial<T | undefined> {
     const values = Object.fromEntries(
-      Object.entries(obj ?? {})
-        .filter(([, v]) => Object.keys(v ?? {}).length > 0)
-        .map(([k, v]) => [k, v])
+      Object.entries(obj ?? {}).filter(
+        ([, v]) => Object.keys(v ?? {}).length > 0
+      )
     );
-    return Object.keys(values).length > 0 ? values : undefined;
+    return Object.keys(values).length > 0 ? (values as Partial<T>) : undefined;
   }
   // Filter out the empty kmsProviders or the tlsOptions
   const kmsProviders = filterEmptyValues(autoEncryption.kmsProviders);
