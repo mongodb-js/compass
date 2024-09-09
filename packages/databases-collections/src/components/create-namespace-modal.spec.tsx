@@ -15,6 +15,7 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionRepository } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 describe('CreateNamespaceModal [Component]', function () {
   const connectionId = '12345';
@@ -62,23 +63,26 @@ describe('CreateNamespaceModal [Component]', function () {
   const pipelineStorage = {
     loadAll: sandbox.stub().resolves([]),
   };
+
+  const mockServices = {
+    globalAppRegistry: appRegistry,
+    logger: createNoopLogger(),
+    track: createNoopTrack(),
+    connectionsManager: connectionsManager as any,
+    connectionRepository: {
+      getConnectionInfoById: () => ({ id: connectionId }),
+    } as unknown as ConnectionRepository,
+    instancesManager: instancesManager as any,
+    queryStorage: favoriteQueries as any,
+    pipelineStorage: pipelineStorage as any,
+    workspaces: {
+      openCollectionWorkspace() {},
+    } as unknown as WorkspacesService,
+  };
+
   context('Create collection', function () {
     beforeEach(async function () {
-      const Plugin = CreateNamespacePlugin.withMockServices({
-        globalAppRegistry: appRegistry,
-        logger: createNoopLogger(),
-        track: createNoopTrack(),
-        connectionsManager: connectionsManager as any,
-        connectionRepository: {
-          getConnectionInfoById: () => ({ id: connectionId }),
-        } as unknown as ConnectionRepository,
-        instancesManager: instancesManager as any,
-        queryStorage: favoriteQueries as any,
-        pipelineStorage: pipelineStorage as any,
-        workspaces: {
-          openCollectionWorkspace() {},
-        },
-      });
+      const Plugin = CreateNamespacePlugin.withMockServices(mockServices);
 
       render(<Plugin> </Plugin>);
       appRegistry.emit(
@@ -177,21 +181,7 @@ describe('CreateNamespaceModal [Component]', function () {
     'Create collection - the database has extra whitespaces',
     function () {
       beforeEach(async function () {
-        const Plugin = CreateNamespacePlugin.withMockServices({
-          globalAppRegistry: appRegistry,
-          logger: createNoopLogger(),
-          track: createNoopTrack(),
-          connectionsManager: connectionsManager as any,
-          connectionRepository: {
-            getConnectionInfoById: () => ({ id: connectionId }),
-          } as unknown as ConnectionRepository,
-          instancesManager: instancesManager as any,
-          queryStorage: favoriteQueries as any,
-          pipelineStorage: pipelineStorage as any,
-          workspaces: {
-            openCollectionWorkspace() {},
-          },
-        });
+        const Plugin = CreateNamespacePlugin.withMockServices(mockServices);
 
         render(<Plugin> </Plugin>);
         appRegistry.emit(
@@ -241,21 +231,7 @@ describe('CreateNamespaceModal [Component]', function () {
 
   context('Create database + collection', function () {
     beforeEach(async function () {
-      const Plugin = CreateNamespacePlugin.withMockServices({
-        globalAppRegistry: appRegistry,
-        logger: createNoopLogger(),
-        track: createNoopTrack(),
-        connectionsManager: connectionsManager as any,
-        connectionRepository: {
-          getConnectionInfoById: () => ({ id: connectionId }),
-        } as unknown as ConnectionRepository,
-        instancesManager: instancesManager as any,
-        queryStorage: favoriteQueries as any,
-        pipelineStorage: pipelineStorage as any,
-        workspaces: {
-          openCollectionWorkspace() {},
-        },
-      });
+      const Plugin = CreateNamespacePlugin.withMockServices(mockServices);
 
       render(<Plugin> </Plugin>);
       appRegistry.emit('open-create-database', { connectionId: '12345' });
