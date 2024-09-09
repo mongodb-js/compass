@@ -407,9 +407,9 @@ export function handleRenameKmsProvider<T extends KMSProviderType>({
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryption = connectionOptions.fleOptions?.autoEncryption ?? {};
 
-  // @ts-expect-error multiple kms providers are supported in next driver release
   const kmsProviders = renameDataKey(
     autoEncryption.kmsProviders,
+    // @ts-expect-error multiple kms providers are supported in next driver release
     action.name,
     action.newName
   );
