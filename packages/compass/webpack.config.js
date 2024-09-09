@@ -124,6 +124,14 @@ module.exports = (_env, args) => {
       externals,
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
+        // In local dev mode, this flag is used to disable web security when
+        // creating windows. It allows @mongosh/node-runtime-worker-thread
+        // worker to load itself from the file path on the localhost
+        new webpack.DefinePlugin({
+          'process.env.ENABLE_ELECTRON_WEB_SECURITY': JSON.stringify(
+            isServe(opts) ? '0' : '1'
+          ),
+        }),
         ...compileOnlyPlugins,
       ],
     }),
