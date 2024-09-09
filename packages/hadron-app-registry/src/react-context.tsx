@@ -18,7 +18,7 @@ type AppRegistryProviderProps =
   | {
       localAppRegistry?: never;
       deactivateOnUnmount?: never;
-      children: React.ReactNode;
+      children?: React.ReactNode;
       scopeName?: string;
     }
   | {

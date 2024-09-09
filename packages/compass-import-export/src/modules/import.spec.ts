@@ -3,7 +3,9 @@ import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
 import type { ImportStore } from '../stores/import-store';
 import { ImportPlugin } from '../index';
-import { activatePluginWithConnections } from '@mongodb-js/testing-library-compass';
+import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
+
+const { activatePluginWithConnections } = createPluginTestHelpers(ImportPlugin);
 
 function activatePlugin(
   dataService = {
@@ -11,15 +13,11 @@ function activatePlugin(
     aggregateCursor() {},
   } as any
 ) {
-  return activatePluginWithConnections(
-    ImportPlugin,
-    {},
-    {
-      connectFn() {
-        return dataService;
-      },
-    }
-  );
+  return activatePluginWithConnections(undefined, {
+    connectFn() {
+      return dataService;
+    },
+  });
 }
 
 describe('import [module]', function () {
