@@ -2,13 +2,13 @@ import { CollapsibleFieldSet, TextInput } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import React from 'react';
 import { connect } from 'react-redux';
-import type { RootState } from '../../modules/create-index';
-import type { InputOptions } from '../../modules/create-index/options';
+import type { RootState } from '../../modules';
+import type { InputOptions } from '../../modules/create-index';
 import {
   changeOption,
   changeOptionEnabled,
   OPTIONS,
-} from '../../modules/create-index/options';
+} from '../../modules/create-index';
 
 type CollapsibleInputProps = {
   name: InputOptions;
@@ -93,8 +93,8 @@ export default connect(
       description: OPTIONS[name].description,
       optional: OPTIONS[name].optional,
       units: OPTIONS[name].units,
-      value: state.options[name].value,
-      enabled: state.options[name].enabled,
+      value: state.createIndex.options[name].value,
+      enabled: state.createIndex.options[name].enabled,
     };
   },
   {

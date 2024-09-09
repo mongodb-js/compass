@@ -5,10 +5,9 @@ import {
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { RootState } from '../../modules/create-index';
-import type { CheckboxOptions } from '../../modules/create-index/options';
-import { changeOption } from '../../modules/create-index/options';
-import { OPTIONS } from '../../modules/create-index/options';
+import type { RootState } from '../../modules';
+import type { CheckboxOptions } from '../../modules/create-index';
+import { OPTIONS, changeOption } from '../../modules/create-index';
 
 type CheckboxInputProps = {
   name: CheckboxOptions;
@@ -50,7 +49,7 @@ export default connect(
     return {
       label: OPTIONS[name].label,
       description: OPTIONS[name].description,
-      checked: state.options[name].value,
+      checked: state.createIndex.options[name].value,
     };
   },
   { onChange: changeOption }

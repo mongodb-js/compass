@@ -6,24 +6,24 @@ import {
   ModalHeader,
   ModalBody,
 } from '@mongodb-js/compass-components';
-
 import {
   addField,
   removeField,
   updateFieldType,
   updateFieldName,
-} from '../../modules/create-index/fields';
-import { clearError } from '../../modules/create-index/error';
-import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
+  clearError,
+  createIndex,
+  closeCreateIndexModal,
+} from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
-import type { RootState } from '../../modules/create-index';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { RootState } from '../../modules';
 import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -99,19 +99,22 @@ function CreateIndexModal({
 }
 
 const mapState = (
-  { fields, inProgress, error, isVisible, namespace, serverVersion }: RootState,
+  { namespace, serverVersion, createIndex }: RootState,
   // To make sure the derived type is correctly including plugin metadata passed
   // by CollectionTab
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ownProps: Pick<CollectionTabPluginMetadata, 'namespace' | 'serverVersion'>
-) => ({
-  fields,
-  inProgress,
-  error,
-  isVisible,
-  namespace,
-  serverVersion,
-});
+) => {
+  const { fields, inProgress, error, isVisible } = createIndex;
+  return {
+    fields,
+    inProgress,
+    error,
+    isVisible,
+    namespace,
+    serverVersion,
+  };
+};
 
 const mapDispatch = {
   clearError,

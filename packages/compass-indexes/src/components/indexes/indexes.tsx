@@ -27,6 +27,7 @@ import type { IndexView } from '../../modules/index-view';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
+import CreateIndexModal from '../create-index-modal/create-index-modal';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -157,6 +158,7 @@ export function Indexes({
       </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />
+      <CreateIndexModal />
     </div>
   );
 }

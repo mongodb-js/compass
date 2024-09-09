@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
+import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
@@ -18,11 +19,9 @@ const createIndexModalOptionStyles = css({
   paddingLeft: spacing[1] + 2,
 });
 
-type IndexField = { name: string; type: string };
-
 type CreateIndexFormProps = {
   namespace: string;
-  fields: IndexField[];
+  fields: Field[];
   serverVersion: string;
   updateFieldName: (idx: number, name: string) => void;
   updateFieldType: (idx: number, fType: string) => void;

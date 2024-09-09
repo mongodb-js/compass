@@ -9,6 +9,7 @@ import regularIndexes from './regular-indexes';
 import searchIndexes from './search-indexes';
 import serverVersion from './server-version';
 import namespace from './namespace';
+import createIndex from './create-index';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -17,14 +18,33 @@ import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provi
 import type { IndexesDataServiceProps } from '../stores/store';
 
 const reducer = combineReducers({
+  // From instance.isWritable. Used to know if the create button should be
+  // enabled.
   isWritable,
+
+  // Is this collection readonly. (ultimately from isReadonly on
+  // CollectionProps) Used to know if many things should even be visible.
   isReadonlyView,
+
+  // 'regular-indexes' or 'search-indexes'
   indexView,
+
+  // Used as writeStateDescription when the create button is shown but disabled.
+  // (isReadonlyView = false a&& isWritable == false)
   description,
+
+  // Used with serverSupportsHideIndex(),
+  // isAtlasVectorSearchSupportedForServerVersion() and
+  // hasColumnstoreIndexesSupport()
   serverVersion,
+
+  // The collection the indexes are for.
   namespace,
+
   regularIndexes,
   searchIndexes,
+
+  createIndex,
 });
 
 export type SortDirection = 'asc' | 'desc';

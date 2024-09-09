@@ -6,6 +6,7 @@ import thunk from 'redux-thunk';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
+import { toggleIsVisible } from '../modules/create-index';
 import {
   fetchIndexes,
   inProgressIndexAdded,
@@ -102,11 +103,18 @@ export function activateIndexesPlugin(
     )
   );
 
+  // TODO: replace
+  on(localAppRegistry, 'open-create-index-modal', () => {
+    store.dispatch(toggleIsVisible(true));
+  });
+
+  // TODO: replace
   on(localAppRegistry, 'refresh-regular-indexes', () => {
     localAppRegistry.emit('refresh-collection-stats');
     void store.dispatch(fetchIndexes());
   });
 
+  // TODO: replace
   on(
     localAppRegistry,
     'in-progress-indexes-added',
@@ -119,10 +127,12 @@ export function activateIndexesPlugin(
     }
   );
 
+  // TODO: replace
   on(localAppRegistry, 'in-progress-indexes-removed', (id: string) => {
     store.dispatch(inProgressIndexRemoved(id));
   });
 
+  // TODO: replace
   on(
     localAppRegistry,
     'in-progress-indexes-failed',

@@ -12,7 +12,7 @@ import {
   Badge,
 } from '@mongodb-js/compass-components';
 
-import type { IndexField } from '../modules/create-index/fields';
+import type { Field } from '../modules/create-index';
 
 /**
  * Current allowed types for indexes.
@@ -44,7 +44,7 @@ const createIndexFieldsTypeStyles = css({
 });
 
 export type CreateIndexFieldsProps = {
-  fields: IndexField[];
+  fields: Field[];
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
@@ -93,7 +93,7 @@ function CreateIndexFields({
   return (
     <ListEditor
       items={fields}
-      renderItem={(field: IndexField, index: number) => (
+      renderItem={(field: Field, index: number) => (
         <div
           className={createIndexFieldsStyles}
           data-testid={`create-index-fields-line-${index}`}
