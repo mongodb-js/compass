@@ -10,7 +10,7 @@ import type {
   TrackFunction,
 } from './logger-and-telemetry';
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
-import { renderHook, cleanup } from '@testing-library/react-hooks';
+import { renderHook, cleanup } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 

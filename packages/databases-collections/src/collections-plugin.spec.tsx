@@ -1,19 +1,25 @@
 import React from 'react';
 import { MongoDBInstance } from 'mongodb-instance-model';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { CollectionsPlugin } from './collections-plugin';
-import AppRegistry from 'hadron-app-registry';
 import Sinon from 'sinon';
 
 describe('Collections [Plugin]', function () {
   let dataService: any;
   let mongodbInstance: Sinon.SinonSpiedInstance<MongoDBInstance>;
-  let appRegistry: Sinon.SinonSpiedInstance<AppRegistry>;
+  let appRegistry: Sinon.SinonSpiedInstance<
+    RenderWithConnectionsResult['globalAppRegistry']
+  >;
 
   beforeEach(function () {
-    appRegistry = Sinon.spy(new AppRegistry());
     mongodbInstance = Sinon.spy(
       new MongoDBInstance({
         databases: [
@@ -51,11 +57,11 @@ describe('Collections [Plugin]', function () {
       const Plugin = CollectionsPlugin.withMockServices({
         instance: mongodbInstance,
         database: mongodbInstance.databases.get('foo'),
-        globalAppRegistry: appRegistry,
         dataService,
       });
 
-      render(<Plugin namespace="foo"></Plugin>);
+      const { globalAppRegistry } = render(<Plugin namespace="foo"></Plugin>);
+      appRegistry = Sinon.spy(globalAppRegistry);
 
       await waitFor(() => {
         expect(screen.getByRole('gridcell', { name: /bar/ })).to.exist;

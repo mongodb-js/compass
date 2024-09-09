@@ -1,8 +1,7 @@
 import React from 'react';
-import { screen, within } from '@testing-library/react';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 
 import { renderWithStore } from '../../../test/configure-store';
 

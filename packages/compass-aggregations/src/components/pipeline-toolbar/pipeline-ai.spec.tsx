@@ -1,9 +1,13 @@
 import React from 'react';
-import { cleanup, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  screen,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import userEvent from '@testing-library/user-event';
 import PipelineAI from './pipeline-ai';
 import {
   MockAtlasAiService,

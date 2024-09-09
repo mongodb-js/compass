@@ -1,7 +1,6 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 
 import { renderWithStore } from '../../../../test/configure-store';
 import PipelineCollation from './pipeline-collation';

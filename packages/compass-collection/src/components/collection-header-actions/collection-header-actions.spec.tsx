@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import React, { type ComponentProps } from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import {
   WorkspacesServiceProvider,

@@ -5,8 +5,8 @@ import {
   fireEvent,
   waitFor,
   cleanup,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ConnectionInfo } from '@mongodb-js/connection-storage/renderer';

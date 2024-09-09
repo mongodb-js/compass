@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 
 import { UnconnectedExportSelectFields as ExportSelectFields } from './export-select-fields';
 import { getIdForSchemaPath } from '../modules/export';

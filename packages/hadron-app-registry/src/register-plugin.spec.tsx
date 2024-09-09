@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {

@@ -1,6 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { VirtualItem } from './use-virtual-navigation-tree';
 import { VirtualTree } from './virtual-list';

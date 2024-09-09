@@ -23,7 +23,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import { waitFor } from '@testing-library/react';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 function createStore(
   opts: Partial<RootState['queryBar']> = {},

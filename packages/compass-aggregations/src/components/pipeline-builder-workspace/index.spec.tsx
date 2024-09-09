@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, screen, within } from '@testing-library/react';
+import { cleanup, screen, within } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineBuilderWorkspace } from '.';

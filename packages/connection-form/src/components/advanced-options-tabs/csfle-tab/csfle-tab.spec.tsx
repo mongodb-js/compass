@@ -8,7 +8,7 @@ import {
   screen,
   waitFor,
   fireEvent,
-} from '@testing-library/react';
+} from '@mongodb-js/testing-library-compass';
 
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';

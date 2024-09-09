@@ -1,6 +1,6 @@
 import React from 'react';
 import HadronDocument from 'hadron-document';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import PipelineResultsList from './pipeline-results-list';

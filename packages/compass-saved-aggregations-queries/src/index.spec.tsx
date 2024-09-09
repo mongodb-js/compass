@@ -1,6 +1,5 @@
 import React from 'react';
 import Sinon from 'sinon';
-import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { queries, pipelines } from '../test/fixtures';
 import { MyQueriesPlugin } from '.';
@@ -22,6 +21,7 @@ import {
   cleanup,
   within,
   waitFor,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 
 let id = 0;
