@@ -3,6 +3,7 @@ import Sinon from 'sinon';
 import { expect } from 'chai';
 import { screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type AppRegistry from 'hadron-app-registry';
 
 import { CreateNamespacePlugin } from '../..';
 import {
@@ -17,11 +18,11 @@ describe('CreateNamespaceModal [Component]', function () {
     ...createDefaultConnectionInfo(),
     id: connectionId,
   };
-  let createCollectionSpy;
-  let appRegistry;
+  let createCollectionSpy: Sinon.SinonSpy;
+  let appRegistry: AppRegistry;
 
   beforeEach(async function () {
-    const Plugin = CreateNamespacePlugin.withMockServices();
+    const Plugin = CreateNamespacePlugin.withMockServices({});
 
     const { globalAppRegistry, getDataServiceForConnection, connectionsStore } =
       renderWithConnections(<Plugin> </Plugin>, {
