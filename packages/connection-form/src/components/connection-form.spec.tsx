@@ -6,6 +6,7 @@ import {
   fireEvent,
   waitFor,
   userEvent,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -350,8 +351,8 @@ describe('ConnectionForm Component', function () {
     const dialog = screen.getByRole('dialog');
     expect(dialog).to.be.visible;
 
-    expect(getByText(dialog, saveAndConnectText)).to.be.visible;
-    expect(() => getByText(dialog, 'Save')).to.throw;
+    expect(within(dialog).getByText(saveAndConnectText)).to.be.visible;
+    expect(() => within(dialog).getByText('Save')).to.throw();
   });
 
   it('should not show a Save & Connect button when there is an existing connection', function () {
@@ -405,7 +406,6 @@ describe('ConnectionForm Component', function () {
     });
 
     it('should show a Cancel button', function () {
-      screen.debug(screen.getByTestId('cancel-button'));
       const button = screen.queryByRole('button', { name: 'Cancel' });
 
       expect(button).to.be.visible;

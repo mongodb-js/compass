@@ -289,8 +289,8 @@ async function createWorkspace({
       nyc: '*',
       prettier: '*',
       sinon: '*',
+      '@mongodb-js/testing-library-compass': '*',
       ...(isReact && {
-        '@mongodb-js/testing-library-compass': '*',
         '@types/chai-dom': '*',
         '@types/react': '*',
         '@types/react-dom': '*',
