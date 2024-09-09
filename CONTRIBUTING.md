@@ -35,7 +35,11 @@ This repository includes a few recommended plugins for your convenience:
 - ESLint extension highlights possible issues in your code following our common eslint configuration.
 - ANTLR4 grammar support extension helps to work with the `bson-transpilers` package that is implemented with the help of antlr (.g and .g4 files).
 
-### Working on Plugins
+## Enabling DevTools
+
+To enable the Chrome DevTools for the Electron renderer processes, click "Settings" under "MongoDB Compass Dev Local" in the top menu (or press <kbd>⌘</kbd> + <kbd>,</kbd>) and click "Enable DevTools" followed by "Save", which will enable a "Toggle DevTools" item in the "View" top menu. Click this to toggle the DevTools panel (or press <kbd>⌥</kbd> + <kbd>⌘</kbd> + <kbd>I</kbd>).
+
+## Working on Plugins
 
 > [!NOTE]
 > For documentation regarding how to write plugin packages, check out the
@@ -51,7 +55,7 @@ In addition to running lerna commands directly, there are a few convenient npm s
 - `npm run test-changed` will run tests in all packages and their dependants changed since `origin/HEAD`.
 - `npm run check-changed` will run `eslint` and `depcheck` validation in all packages (ignoring dependants) changed since `origin/HEAD`
 
-### Building Compass Locally
+## Building Compass Locally
 
 To build compass you can run `package-compass` script:
 
@@ -83,7 +87,7 @@ To speed up the process you might want to disable creating installer for the app
 HADRON_SKIP_INSTALLER=true npm run package-compass
 ```
 
-### Publishing Packages
+## Publishing Packages
 
 Compass is built out of a number of different NPM packages. Since all the relevant code is bundled in the packaged version of Compass with webpack, it is not necessary to publish any package to build and run the Compass application.
 
@@ -95,13 +99,13 @@ Merging that PR will trigger another CI job that will publish to NPM any package
 
 The version of packages is calculated following conventional bumps: See https://github.com/mongodb-js/devtools-shared/tree/main/packages/bump-monorepo-packages for details.
 
-### Add / Update / Remove Dependencies in Packages
+## Add / Update / Remove Dependencies in Packages
 
 To add, remove, or update a dependency in any workspace you can use the usual `npm install` with a `--workspace` argument added, e.g. to add `react-aria` dependency to compass-aggregations and compass-query-bar plugins you can run `npm install --save react-aria --workspace @mongodb-js/compass-aggregations --workspace @mongodb-js/compass-query-bar`.
 
 Additionally if you want to update a version of an existing dependency, but don't want to figure out the scope manually, you can use `npm run where` helper script. To update `webpack` in every package that has it as a dev dependency you can run `npm run where "devDependencies['webpack']" -- install --save-dev webpack@latest`
 
-### Creating a New Workspace / Package
+## Creating a New Workspace / Package
 
 To create a new package please use the `create-workspace` npm script:
 
@@ -111,9 +115,9 @@ npm run create-workspace [workspace name]
 
 This will do all the initial workspace bootstrapping for you, ensuring that your package has all the standard configs set up and ready, and all the npm scripts aligned with other packages in the monorepo, which is important to get the most out of all the provided helpers in this repository (like `npm run check-changed` commands or to make sure that your tests will not immediately fail in CI because of the test timeout being too small)
 
-### Caveats
+## Caveats
 
-#### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
+### `hdiutil: couldn't unmount "diskn" - Resource busy` or Similar `hdiutil` Errors
 
 <!-- TODO: might go away after https://jira.mongodb.org/browse/COMPASS-4947 -->
 
@@ -123,7 +127,7 @@ Sometimes when trying to package compass on macOS you can run into the said erro
 HADRON_SKIP_INSTALLER=true npm run test-package-compass
 ```
 
-#### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
+### `Module did not self-register` or `Module '<path>' was compiled against a different Node.js version` Errors
 
 <!-- TODO: should go away after https://jira.mongodb.org/browse/COMPASS-4896 -->
 
