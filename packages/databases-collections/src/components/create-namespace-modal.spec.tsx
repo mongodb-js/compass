@@ -1,85 +1,63 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import { screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { CreateNamespacePlugin } from '../..';
-import AppRegistry from 'hadron-app-registry';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionRepository } from '@mongodb-js/compass-connections/provider';
-import type { MongoDBInstance } from 'mongodb-instance-model';
-import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import {
+  createDefaultConnectionInfo,
+  renderWithConnections,
+} from '@mongodb-js/testing-library-compass';
 
 describe('CreateNamespaceModal [Component]', function () {
   const connectionId = '12345';
   const sandbox = Sinon.createSandbox();
-  const appRegistry = sandbox.spy(new AppRegistry());
-  const createNamespaceStub = sandbox.stub().resolves({});
-  const dataService = {
-    createCollection: createNamespaceStub,
-    configuredKMSProviders: sandbox.stub(),
+  const mockConnection = {
+    ...createDefaultConnectionInfo(),
+    id: connectionId,
   };
-  const instance1 = {
-    on: sandbox.stub(),
-    off: sandbox.stub(),
-    removeListener: sandbox.stub(),
-    build: { version: '999.999.999' },
-    topologyDescription: { type: 'Unknown' },
-  } as unknown as MongoDBInstance;
-  const instanceModel = {
-    databases: {
-      get: function () {
-        return {
-          collections: [{ name: 'my-collection' }],
-        };
-      },
-    },
-  };
-  const connectionsManager = {
-    getDataServiceForConnection: sandbox.stub().returns(dataService),
-    on: sandbox.stub(),
-    removeListener: sandbox.stub(),
-  };
-  const instancesManager = {
-    getMongoDBInstanceForConnection: sandbox.stub().returns(instanceModel),
-    listMongoDBInstances: sandbox
-      .stub()
-      .returns(new Map([[connectionId, instance1]])),
-    on: sandbox.stub(),
-    removeListener: sandbox.stub(),
-  };
-  const favoriteQueries = {
-    getStorage: () => ({
-      loadAll: sandbox.stub().resolves([]),
-    }),
-  };
-  const pipelineStorage = {
-    loadAll: sandbox.stub().resolves([]),
-  };
+  let createCollectionSpy;
+  let appRegistry;
 
-  const mockServices = {
-    globalAppRegistry: appRegistry,
-    logger: createNoopLogger(),
-    track: createNoopTrack(),
-    connectionsManager: connectionsManager as any,
-    connectionRepository: {
-      getConnectionInfoById: () => ({ id: connectionId }),
-    } as unknown as ConnectionRepository,
-    instancesManager: instancesManager as any,
-    queryStorage: favoriteQueries as any,
-    pipelineStorage: pipelineStorage as any,
-    workspaces: {
-      openCollectionWorkspace() {},
-    } as unknown as WorkspacesService,
-  };
+  beforeEach(async function () {
+    const Plugin = CreateNamespacePlugin.withMockServices();
+
+    const { globalAppRegistry, getDataServiceForConnection, connectionsStore } =
+      renderWithConnections(<Plugin> </Plugin>, {
+        connections: [mockConnection],
+        connectFn() {
+          return {
+            createCollection() {
+              return Promise.resolve({} as any);
+            },
+            createDataKey() {
+              return Promise.resolve({});
+            },
+            configuredKMSProviders() {
+              return [];
+            },
+          };
+        },
+      });
+
+    appRegistry = globalAppRegistry;
+
+    await connectionsStore.actions.connect(mockConnection);
+
+    createCollectionSpy = sandbox.spy(
+      getDataServiceForConnection(connectionId),
+      'createCollection'
+    );
+  });
+
+  afterEach(function () {
+    sandbox.resetHistory();
+    cleanup();
+  });
 
   context('Create collection', function () {
-    beforeEach(async function () {
-      const Plugin = CreateNamespacePlugin.withMockServices(mockServices);
-
-      render(<Plugin> </Plugin>);
+    beforeEach(async () => {
       appRegistry.emit(
         'open-create-collection',
         {
@@ -91,11 +69,6 @@ describe('CreateNamespaceModal [Component]', function () {
       await waitFor(() =>
         screen.getByRole('heading', { name: 'Create Collection' })
       );
-    });
-
-    afterEach(function () {
-      sandbox.resetHistory();
-      cleanup();
     });
 
     it('renders the correct text on the submit button', () => {
@@ -137,7 +110,7 @@ describe('CreateNamespaceModal [Component]', function () {
 
       it('calls the dataservice create collection method', async () => {
         await waitFor(() => {
-          expect(createNamespaceStub).to.have.been.calledOnceWith(
+          expect(createCollectionSpy).to.have.been.calledOnceWith(
             'foo.bar',
             Sinon.match({
               clusteredIndex: {
@@ -165,7 +138,7 @@ describe('CreateNamespaceModal [Component]', function () {
 
         it('trims the white spaces on submit', async () => {
           await waitFor(() => {
-            expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
+            expect(createCollectionSpy).to.have.been.calledOnceWithExactly(
               'foo.baz',
               {}
             );
@@ -179,9 +152,6 @@ describe('CreateNamespaceModal [Component]', function () {
     'Create collection - the database has extra whitespaces',
     function () {
       beforeEach(async function () {
-        const Plugin = CreateNamespacePlugin.withMockServices(mockServices);
-
-        render(<Plugin> </Plugin>);
         appRegistry.emit(
           'open-create-collection',
           {
@@ -216,7 +186,7 @@ describe('CreateNamespaceModal [Component]', function () {
 
           it('trims the white spaces on submit - but only for the collection', async () => {
             await waitFor(() => {
-              expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
+              expect(createCollectionSpy).to.have.been.calledOnceWithExactly(
                 '  foo.baz',
                 {}
               );
@@ -229,9 +199,6 @@ describe('CreateNamespaceModal [Component]', function () {
 
   context('Create database + collection', function () {
     beforeEach(async function () {
-      const Plugin = CreateNamespacePlugin.withMockServices(mockServices);
-
-      render(<Plugin> </Plugin>);
       appRegistry.emit('open-create-database', { connectionId: '12345' });
 
       await waitFor(() =>
@@ -289,7 +256,7 @@ describe('CreateNamespaceModal [Component]', function () {
 
       it('calls the dataservice create collection method', async () => {
         await waitFor(() => {
-          expect(createNamespaceStub).to.have.been.calledOnceWith(
+          expect(createCollectionSpy).to.have.been.calledOnceWith(
             'db1.bar',
             Sinon.match({
               clusteredIndex: {
@@ -322,7 +289,7 @@ describe('CreateNamespaceModal [Component]', function () {
 
         it('trims the white spaces on submit', async () => {
           await waitFor(() => {
-            expect(createNamespaceStub).to.have.been.calledOnceWithExactly(
+            expect(createCollectionSpy).to.have.been.calledOnceWithExactly(
               'db1.baz',
               {}
             );
