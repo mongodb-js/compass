@@ -1549,12 +1549,15 @@ export const connect = (
           dispatch(disconnect(connectionInfo.id));
         });
 
+        const { connectionOptions, ...restOfTheConnectionInfo } =
+          connectionInfo;
+
         const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-          cloneDeep(connectionInfo),
+          cloneDeep(restOfTheConnectionInfo),
           {
             connectionOptions: adjustConnectionOptionsBeforeConnect({
               connectionOptions: merge(
-                cloneDeep(connectionInfo.connectionOptions),
+                cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
               defaultAppName: appName,

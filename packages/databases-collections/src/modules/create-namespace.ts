@@ -168,11 +168,16 @@ const reducer: Reducer<CreateNamespaceState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (
-    isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset) ||
-    isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)
-  ) {
+  if (isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset)) {
     return { ...INITIAL_STATE };
+  }
+
+  if (isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)) {
+    // When a modal is closed, we should not clear the connectionMetaData
+    return {
+      ...INITIAL_STATE,
+      connectionMetaData: state.connectionMetaData,
+    };
   }
 
   if (isAction<OpenAction>(action, CreateNamespaceActionTypes.Open)) {
