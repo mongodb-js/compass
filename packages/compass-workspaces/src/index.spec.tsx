@@ -1,14 +1,17 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, cleanup, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import WorkspacesPlugin, { WorkspacesProvider } from './index';
 import Sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
 import type { AnyWorkspaceComponent } from './components/workspaces-provider';
 import { useOpenWorkspace } from './provider';
+import {
+  renderWithConnections,
+  cleanup,
+  screen,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
-import { ConnectionsManager } from '@mongodb-js/compass-connections/provider';
 
 function mockWorkspace(name: string) {
   return {
@@ -19,38 +22,32 @@ function mockWorkspace(name: string) {
   } as unknown as AnyWorkspaceComponent;
 }
 
+const TEST_CONNECTION_INFO = {
+  id: '1',
+  favorite: {
+    name: 'Test Connection',
+  },
+  connectionOptions: {
+    connectionString: 'mongodb://localhost:27017',
+  },
+};
+
 describe('WorkspacesPlugin', function () {
-  let openFns: ReturnType<typeof useOpenWorkspace>;
   const sandbox = Sinon.createSandbox();
-  const globalAppRegistry = sandbox.spy(new AppRegistry());
-  const instance = {
-    on() {},
-    removeListener() {},
-    getNamespace() {
-      return Promise.resolve(null);
-    },
-  } as any;
   const instancesManager = new TestMongoDBInstanceManager();
-  const connectionsManager = new ConnectionsManager({
-    logger: (() => {}) as any,
-  });
-  const dataService = {} as any;
   const Plugin = WorkspacesPlugin.withMockServices(
-    {
-      globalAppRegistry,
-      instancesManager,
-      connectionsManager,
-    },
+    { instancesManager },
     { disableChildPluginRendering: true }
   );
   const onTabChangeSpy = sandbox.spy();
+  let openFns: ReturnType<typeof useOpenWorkspace>;
 
-  function renderPlugin() {
-    const Modals: React.FC = () => {
+  async function renderPlugin() {
+    function OpenWorkspaceFnsGetter() {
       openFns = useOpenWorkspace();
       return null;
-    };
-    return render(
+    }
+    const result = renderWithConnections(
       <WorkspacesProvider
         value={[
           mockWorkspace('Welcome'),
@@ -63,22 +60,31 @@ describe('WorkspacesPlugin', function () {
       >
         <Plugin
           onActiveWorkspaceTabChange={onTabChangeSpy}
+          // Using modals renderer to get access to the real workspaces methods
           renderModals={() => {
-            return <Modals />;
+            return <OpenWorkspaceFnsGetter></OpenWorkspaceFnsGetter>;
           }}
         ></Plugin>
-      </WorkspacesProvider>
+      </WorkspacesProvider>,
+      {
+        preferences: {
+          enableMultipleConnectionSystem: true,
+        },
+        connections: [TEST_CONNECTION_INFO],
+        connectFn() {
+          return {
+            listDatabases() {
+              return Promise.resolve([]);
+            },
+            listCollections() {
+              return Promise.resolve([]);
+            },
+          };
+        },
+      }
     );
+    await result.connectionsStore.actions.connect(TEST_CONNECTION_INFO);
   }
-
-  beforeEach(function () {
-    sandbox
-      .stub(connectionsManager, 'getDataServiceForConnection')
-      .returns(dataService);
-    sandbox
-      .stub(instancesManager, 'getMongoDBInstanceForConnection')
-      .returns(instance);
-  });
 
   afterEach(function () {
     (openFns as any) = null;
@@ -87,25 +93,31 @@ describe('WorkspacesPlugin', function () {
     cleanup();
   });
 
+  const connectionName = TEST_CONNECTION_INFO.favorite.name;
   const tabs = [
     ['My Queries', () => openFns.openMyQueriesWorkspace()],
-    ['Databases', () => openFns.openDatabasesWorkspace('1')],
-    ['Performance', () => openFns.openPerformanceWorkspace('1')],
+    [connectionName, () => openFns.openDatabasesWorkspace('1')], // Databases
+    [
+      `Performance: ${connectionName}`,
+      () => openFns.openPerformanceWorkspace('1'),
+    ],
     ['db', () => openFns.openCollectionsWorkspace('1', 'db')],
-    ['db > coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
+    ['coll', () => openFns.openCollectionWorkspace('1', 'db.coll')],
   ] as const;
 
   for (const suite of tabs) {
     const [tabName, fn] = suite;
-    it(`should open "${tabName}" tab when corresponding open method is called`, function () {
-      renderPlugin();
+    it(`should open "${tabName}" tab when corresponding open method is called`, async function () {
+      await renderPlugin();
       fn();
-      expect(screen.getByRole('tab', { name: tabName })).to.exist;
+      await waitFor(() => {
+        expect(screen.getByRole('tab', { name: tabName })).to.exist;
+      });
     });
   }
 
   it('should switch tabs when tab is clicked', async function () {
-    renderPlugin();
+    await renderPlugin();
 
     expect(onTabChangeSpy).to.have.been.calledWith(null);
 
@@ -113,19 +125,19 @@ describe('WorkspacesPlugin', function () {
     openFns.openCollectionWorkspace('1', 'db.coll2', { newTab: true });
     openFns.openCollectionWorkspace('1', 'db.coll3', { newTab: true });
 
-    expect(screen.getByRole('tab', { name: 'db > coll3' })).to.have.attribute(
+    expect(screen.getByRole('tab', { name: 'coll3' })).to.have.attribute(
       'aria-selected',
       'true'
     );
 
-    userEvent.click(screen.getByRole('tab', { name: 'db > coll1' }));
+    userEvent.click(screen.getByRole('tab', { name: 'coll1' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('tab', { name: 'db > coll3' })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: 'coll3' })).to.have.attribute(
         'aria-selected',
         'false'
       );
-      expect(screen.getByRole('tab', { name: 'db > coll1' })).to.have.attribute(
+      expect(screen.getByRole('tab', { name: 'coll1' })).to.have.attribute(
         'aria-selected',
         'true'
       );

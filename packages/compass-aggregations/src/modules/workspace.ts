@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { RunAggregation } from './aggregation';
 import {
   ActionTypes as AggregationActionTypes,
@@ -26,7 +26,7 @@ export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
-const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<WorkspaceChangedAction>(action, ActionTypes.WorkspaceChanged)) {
     return action.view;
   }

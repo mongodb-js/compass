@@ -51,7 +51,10 @@ describe('protectConnectionStrings', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'connection form not available in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -92,7 +95,7 @@ describe('protectConnectionStrings', function () {
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     const confirmModal = await browser.$(Selectors.ConfirmationModal);
     await confirmModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
 
     expect(
       await browser.getConnectFormConnectionString(),

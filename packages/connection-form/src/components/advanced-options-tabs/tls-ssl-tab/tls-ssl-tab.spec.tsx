@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -25,10 +30,6 @@ describe('SchemaInput', function () {
       const component = render(
         <SSLTab
           connectionStringUrl={testUrl}
-          connectionOptions={{
-            connectionString: testUrl.href,
-            useSystemCA: false,
-          }}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );
@@ -63,7 +64,7 @@ describe('SchemaInput', function () {
 
     it('should render all of the checkboxes unchecked', function () {
       const checkboxes: HTMLInputElement[] = screen.getAllByRole('checkbox');
-      expect(checkboxes.length).to.equal(4);
+      expect(checkboxes.length).to.equal(3);
       expect(checkboxes.find((checkbox) => checkbox.checked)).to.equal(
         undefined
       );
@@ -170,10 +171,6 @@ describe('SchemaInput', function () {
         rerender(
           <SSLTab
             connectionStringUrl={testUrl}
-            connectionOptions={{
-              connectionString: testUrl.href,
-              useSystemCA: false,
-            }}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
@@ -190,10 +187,6 @@ describe('SchemaInput', function () {
         rerender(
           <SSLTab
             connectionStringUrl={testUrl}
-            connectionOptions={{
-              connectionString: testUrl.href,
-              useSystemCA: false,
-            }}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
@@ -213,10 +206,6 @@ describe('SchemaInput', function () {
         rerender(
           <SSLTab
             connectionStringUrl={testUrl}
-            connectionOptions={{
-              connectionString: testUrl.href,
-              useSystemCA: false,
-            }}
             updateConnectionFormField={updateConnectionFormFieldSpy}
           />
         );
@@ -276,10 +265,6 @@ describe('SchemaInput', function () {
             rerender(
               <SSLTab
                 connectionStringUrl={testUrl}
-                connectionOptions={{
-                  connectionString: testUrl.href,
-                  useSystemCA: false,
-                }}
                 updateConnectionFormField={updateConnectionFormFieldSpy}
               />
             );
@@ -322,10 +307,6 @@ describe('SchemaInput', function () {
       render(
         <SSLTab
           connectionStringUrl={connectionStringUrl}
-          connectionOptions={{
-            connectionString: connectionStringUrl.href,
-            useSystemCA: false,
-          }}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
       );

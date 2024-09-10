@@ -1,43 +1,46 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { cleanup, screen, waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../test/configure-store';
+import { renderWithStore } from '../../../test/configure-store';
 import FocusMode from './focus-mode';
 import { disableFocusMode, enableFocusMode } from '../../modules/focus-mode';
 
-const renderFocusMode = () => {
-  const store = configureStore({
+const renderFocusMode = async () => {
+  const result = await renderWithStore(<FocusMode />, {
     pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   });
-  render(
-    <Provider store={store}>
-      <FocusMode />
-    </Provider>
-  );
-  return store;
+  return result.plugin.store;
 };
 
 describe('FocusMode', function () {
-  it('does not show modal when closed', function () {
-    const store = renderFocusMode();
+  afterEach(cleanup);
+
+  it('does not show modal when closed', async function () {
+    const store = await renderFocusMode();
     store.dispatch(disableFocusMode() as any);
-    expect(() => {
-      screen.getByTestId('focus-mode-modal');
-    }).to.throw;
+    await waitFor(() => {
+      expect(() => {
+        screen.getByTestId('focus-mode-modal');
+      }).to.throw;
+    });
   });
 
-  it('shows modal when open', function () {
-    const store = renderFocusMode();
-    store.dispatch(enableFocusMode(0) as any);
-    expect(screen.getByTestId('focus-mode-modal')).to.exist;
+  it('shows modal when open', async function () {
+    const store = await renderFocusMode();
+    store.dispatch(enableFocusMode(0));
+    await waitFor(() => {
+      expect(screen.getByTestId('focus-mode-modal')).to.exist;
+    });
   });
 
-  it('hides modal when close button is clicked', function () {
-    const store = renderFocusMode();
+  it('hides modal when close button is clicked', async function () {
+    const store = await renderFocusMode();
     store.dispatch(enableFocusMode(0) as any);
-    screen.getByLabelText(/close modal/i).click();
+
+    await waitFor(() => {
+      screen.getByLabelText(/close modal/i).click();
+    });
 
     expect(() => {
       screen.getByTestId('focus-mode-modal');

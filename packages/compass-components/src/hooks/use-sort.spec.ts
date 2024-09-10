@@ -1,7 +1,10 @@
 import { expect } from 'chai';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { renderHook } from '@testing-library/react-hooks';
+import {
+  render,
+  screen,
+  userEvent,
+  renderHook,
+} from '@mongodb-js/testing-library-compass';
 import { useSortControls, useSortedItems } from './use-sort';
 
 const sortBy = [

@@ -21,7 +21,7 @@ export async function openShell(
       );
       const activeType = await currentActiveTab.getAttribute('data-type');
       const activeConnectionName = await currentActiveTab.getAttribute(
-        'data-connectionName'
+        'data-connection-name'
       );
       return activeType === 'Shell' && activeConnectionName === connectionName;
     });

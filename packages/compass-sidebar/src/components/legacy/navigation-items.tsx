@@ -203,44 +203,40 @@ export function NavigationItem<Actions extends string>({
     <Tooltip
       align="right"
       spacing={spacing[400]}
-      isDisabled={!isButtonDisabled || !buttonDisabledMessage}
-      trigger={({ children: tooltip, ...triggerProps }) => {
-        const props = mergeProps(triggerProps, navigationItemProps);
-        return (
-          <div {...props}>
-            <div className={itemWrapper}>
-              <div className={itemButtonWrapper}>
-                <Icon glyph={glyph} size="small"></Icon>
-                <span className={navigationItemLabel}>{label}</span>
-                {tooltip}
-              </div>
-              {showInsights && showTooManyCollectionsInsight && (
-                <div className={signalContainerStyles}>
-                  <SignalPopover
-                    signals={PerformanceSignals.get('too-many-collections')}
-                  ></SignalPopover>
-                </div>
-              )}
-              {!isButtonDisabled && actions && (
-                <ItemActionControls<Actions>
-                  iconSize="small"
-                  onAction={onAction}
-                  data-testid="sidebar-navigation-item-actions"
-                  actions={actions}
-                  // This is what renders the "create database" action,
-                  // the icons here should always be clearly visible,
-                  // so we let the icon to inherit the foreground color of
-                  // the text
-                  isVisible={true}
-                  iconClassName={navigationItemActionIcons}
-                  collapseToMenuThreshold={3}
-                ></ItemActionControls>
-              )}
-              <div className={cx('item-background', itemBackground)} />
+      enabled={isButtonDisabled && !!buttonDisabledMessage}
+      trigger={
+        <div {...navigationItemProps}>
+          <div className={itemWrapper}>
+            <div className={itemButtonWrapper}>
+              <Icon glyph={glyph} size="small"></Icon>
+              <span className={navigationItemLabel}>{label}</span>
             </div>
+            {showInsights && showTooManyCollectionsInsight && (
+              <div className={signalContainerStyles}>
+                <SignalPopover
+                  signals={PerformanceSignals.get('too-many-collections')}
+                ></SignalPopover>
+              </div>
+            )}
+            {!isButtonDisabled && actions && (
+              <ItemActionControls<Actions>
+                iconSize="small"
+                onAction={onAction}
+                data-testid="sidebar-navigation-item-actions"
+                actions={actions}
+                // This is what renders the "create database" action,
+                // the icons here should always be clearly visible,
+                // so we let the icon to inherit the foreground color of
+                // the text
+                isVisible={true}
+                iconClassName={navigationItemActionIcons}
+                collapseToMenuThreshold={3}
+              ></ItemActionControls>
+            )}
+            <div className={cx('item-background', itemBackground)} />
           </div>
-        );
-      }}
+        </div>
+      }
     >
       {buttonDisabledMessage}
     </Tooltip>
@@ -388,12 +384,11 @@ const mapStateToProps = (
   }: { connectionInfo: ConnectionInfo; readOnly: boolean }
 ) => {
   const connectionId = connectionInfo.id;
-  const totalCollectionsCount = state.databases[connectionId].databases.reduce(
-    (acc: number, db: { collectionsLength: number }) => {
-      return acc + db.collectionsLength;
-    },
-    0
-  );
+  const totalCollectionsCount = (
+    state.databases[connectionId]?.databases ?? []
+  ).reduce((acc: number, db: { collectionsLength: number }) => {
+    return acc + db.collectionsLength;
+  }, 0);
 
   const isReady =
     ['ready', 'refreshing'].includes(

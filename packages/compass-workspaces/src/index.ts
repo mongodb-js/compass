@@ -27,7 +27,6 @@ import {
   connectionsManagerLocator,
   type ConnectionsManager,
   type ConnectionInfo,
-  ConnectionsManagerEvents,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspacesStoreContext } from './stores/context';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -122,7 +121,7 @@ export function activateWorkspacePlugin(
 
   on(
     connectionsManager,
-    ConnectionsManagerEvents.ConnectionDisconnected,
+    'disconnected',
     function (connectionId: ConnectionInfo['id']) {
       store.dispatch(connectionDisconnected(connectionId));
     }

@@ -1,13 +1,3 @@
-import type React from 'react';
-import { createElement } from 'react';
-import { waitFor } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
-import {
-  ConnectionStatus,
-  ConnectionsManager,
-  ConnectionsManagerProvider,
-} from '@mongodb-js/compass-connections/provider';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type {
   SidebarConnectedConnection,
   SidebarConnection,
@@ -16,6 +6,7 @@ import { useFilteredConnections } from './use-filtered-connections';
 import _ from 'lodash';
 import Sinon from 'sinon';
 import { expect } from 'chai';
+import { renderHook, waitFor } from '@mongodb-js/testing-library-compass';
 
 const connectedConnection1 = {
   id: 'connected_connection_1',
@@ -42,9 +33,10 @@ const sidebarConnections: SidebarConnection[] = [
   {
     name: 'connected_connection_1',
     connectionInfo: connectedConnection1,
-    connectionStatus: ConnectionStatus.Connected,
+    connectionStatus: 'connected',
     isReady: true,
     isWritable: true,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: true,
     isGenuineMongoDB: true,
     isDataLake: false,
@@ -86,9 +78,10 @@ const sidebarConnections: SidebarConnection[] = [
   {
     name: 'connected_connection_2',
     connectionInfo: connectedConnection2,
-    connectionStatus: ConnectionStatus.Connected,
+    connectionStatus: 'connected',
     isReady: true,
     isWritable: true,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: true,
     isGenuineMongoDB: true,
     isDataLake: false,
@@ -121,7 +114,7 @@ const sidebarConnections: SidebarConnection[] = [
   },
   {
     name: 'disconnected_connection_1',
-    connectionStatus: ConnectionStatus.Disconnected,
+    connectionStatus: 'disconnected',
     connectionInfo: disconnectedConnection,
   },
 ];
@@ -129,17 +122,9 @@ const sidebarConnections: SidebarConnection[] = [
 describe('useFilteredConnections', function () {
   const fetchAllCollectionsStub = Sinon.stub();
   const onDatabaseExpandStub = Sinon.stub();
-  const connectionsManager = new ConnectionsManager({
-    logger: createNoopLogger().log.unbound,
-  });
 
   const renderHookWithContext: typeof renderHook = (callback, options) => {
-    const wrapper: React.FC = ({ children }) =>
-      createElement(ConnectionsManagerProvider, {
-        value: connectionsManager,
-        children: children,
-      });
-    return renderHook(callback, { wrapper, ...options });
+    return renderHook(callback, options);
   };
 
   let mockSidebarConnections: SidebarConnection[];
@@ -413,7 +398,7 @@ describe('useFilteredConnections', function () {
           mockSidebarConnections[0],
           {
             ...mockSidebarConnections[1],
-            connectionStatus: ConnectionStatus.Disconnected,
+            connectionStatus: 'disconnected',
           },
           mockSidebarConnections[2],
         ];

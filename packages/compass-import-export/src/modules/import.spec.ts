@@ -1,38 +1,30 @@
 import { expect } from 'chai';
 import path from 'path';
 import { onStarted, openImport, selectImportFileName } from './import';
-import {
-  type ImportPluginServices,
-  configureStore,
-} from '../stores/import-store';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import {
-  type ConnectionRepository,
-  ConnectionsManager,
-} from '@mongodb-js/compass-connections/provider';
-import { AppRegistry } from 'hadron-app-registry';
-import { type WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import type { ImportStore } from '../stores/import-store';
+import { ImportPlugin } from '../index';
+import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 
-const logger = createNoopLogger();
-const track = createNoopTrack();
+const { activatePluginWithConnections } = createPluginTestHelpers(ImportPlugin);
 
-const mockServices = {
-  globalAppRegistry: new AppRegistry(),
-  logger,
-  track,
-  connectionsManager: new ConnectionsManager({ logger: logger.log.unbound }),
-  workspaces: {} as WorkspacesService,
-  connectionRepository: {
-    getConnectionInfoById: () => ({ id: 'TEST' }),
-  } as unknown as ConnectionRepository,
-} as ImportPluginServices;
+function activatePlugin(
+  dataService = {
+    findCursor() {},
+    aggregateCursor() {},
+  } as any
+) {
+  return activatePluginWithConnections(undefined, {
+    connectFn() {
+      return dataService;
+    },
+  });
+}
 
 describe('import [module]', function () {
-  // This is re-created in the `beforeEach`, it's useful for typing to have it here as well.
-  let mockStore = configureStore(mockServices);
+  let mockStore: ImportStore;
+
   beforeEach(function () {
-    mockStore = configureStore(mockServices);
+    mockStore = activatePlugin().plugin.store;
   });
 
   describe('#openImport', function () {
@@ -112,13 +104,13 @@ describe('import [module]', function () {
       const noExistFile = path.join(__dirname, 'no-exist.json');
 
       expect(mockStore.getState().import.fileName).to.equal('');
-      expect(mockStore.getState().import.errors.length).to.equal(0);
+      expect(mockStore.getState().import.firstErrors.length).to.equal(0);
 
       await mockStore.dispatch(selectImportFileName(noExistFile) as any);
 
       expect(mockStore.getState().import.fileName).to.equal('');
 
-      expect(mockStore.getState().import.errors.length).to.equal(1);
+      expect(mockStore.getState().import.firstErrors.length).to.equal(1);
     });
   });
 });

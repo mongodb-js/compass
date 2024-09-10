@@ -159,12 +159,13 @@ const GridControls: React.FunctionComponent<{
     openCollectionsWorkspace,
     openShellWorkspace,
   } = useOpenWorkspace();
-  const { enableShell, enableNewMultipleConnectionSystem } = usePreferences([
+  const track = useTelemetry();
+  const { enableShell, enableMultipleConnectionSystem } = usePreferences([
     'enableShell',
-    'enableNewMultipleConnectionSystem',
+    'enableMultipleConnectionSystem',
   ]);
 
-  const showOpenShellButton = enableShell && enableNewMultipleConnectionSystem;
+  const showOpenShellButton = enableShell && enableMultipleConnectionSystem;
 
   const breadcrumbs = useMemo(() => {
     const { database } = toNS(namespace ?? '');
@@ -214,6 +215,11 @@ const GridControls: React.FunctionComponent<{
                   namespace
                     ? { initialEvaluate: `use ${namespace}` }
                     : undefined
+                );
+                track(
+                  'Open Shell',
+                  { entrypoint: `${itemType}s` },
+                  connectionInfo
                 );
               }}
               leftGlyph={<Icon glyph="Shell"></Icon>}
@@ -304,7 +310,7 @@ export const ItemsGrid = <T extends Item>({
   const track = useTelemetry();
   const connectionInfoAccess = useConnectionInfoAccess();
   const onViewTypeChange = useCallback(
-    (newType) => {
+    (newType: ViewType) => {
       track(
         'Switch View Type',
         { view_type: newType, item_type: itemType },

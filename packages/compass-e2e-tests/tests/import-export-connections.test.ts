@@ -43,6 +43,7 @@ describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
   let telemetry: Telemetry;
+  let isFirstRun = false;
 
   const getTrackedEvents = (): any[] =>
     telemetry.events().filter((e: any) => e.type === 'track');
@@ -108,7 +109,7 @@ describe('Connection Import / Export', function () {
   ) {
     await browser.selectConnection(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     const cs = await browser.getConnectFormConnectionString(true);
     const expected =
       variant === 'protected'
@@ -150,8 +151,11 @@ describe('Connection Import / Export', function () {
       {
         // Open compass, create and save favorite
         const compass = await init(
-          subtestTitle(this.test, 'Favoriting connection')
+          subtestTitle(this.test, 'Favoriting connection'),
+          { firstRun: isFirstRun }
         );
+
+        isFirstRun = false;
 
         try {
           const { browser } = compass;
@@ -204,7 +208,8 @@ describe('Connection Import / Export', function () {
       {
         // Open compass, delete favorite
         const compass = await init(
-          subtestTitle(this.test, 'Removing connection')
+          subtestTitle(this.test, 'Removing connection'),
+          { firstRun: false }
         );
         try {
           const { browser } = compass;
@@ -249,7 +254,8 @@ describe('Connection Import / Export', function () {
       {
         // Open compass, verify favorite exists
         const compass = await init(
-          subtestTitle(this.test, 'Verifying imported connection')
+          subtestTitle(this.test, 'Verifying imported connection'),
+          { firstRun: false }
         );
         try {
           const { browser } = compass;
@@ -268,7 +274,7 @@ describe('Connection Import / Export', function () {
 
     before(async function () {
       // Open compass, create and save favorite
-      compass = await init(this.test?.fullTitle());
+      compass = await init(this.test?.fullTitle(), { firstRun: false });
       browser = compass.browser;
 
       if (TEST_MULTIPLE_CONNECTIONS) {

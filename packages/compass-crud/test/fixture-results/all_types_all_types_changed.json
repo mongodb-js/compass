@@ -324,9 +324,9 @@
         {
           "implicitChangeType": "unchanged",
           "changeType": "added",
-          "index": "3",
+          "index": 3,
           "right": {
-            "path": ["array", "3"],
+            "path": ["array", 3],
             "value": 4
           },
           "delta": null

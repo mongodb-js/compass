@@ -7,8 +7,8 @@ import {
   within,
   waitFor,
   waitForElementToBeRemoved,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { Icon, IconButton, Button } from '../..';
 import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCue } from './guide-cue';

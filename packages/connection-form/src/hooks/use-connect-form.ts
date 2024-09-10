@@ -46,12 +46,19 @@ import {
   handleUpdateCsfleKmsParam,
   handleUpdateCsfleKmsTlsParam,
   adjustCSFLEParams,
+  handleAddKmsProvider,
+  handleRemoveKmsProvider,
+  unsetFleOptionsIfEmptyAutoEncryption,
+  handleRenameKmsProvider,
 } from '../utils/csfle-handler';
 import type {
   UpdateCsfleStoreCredentialsAction,
   UpdateCsfleAction,
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
+  AddCsfleProviderAction,
+  RemoveCsfleProviderAction,
+  RenameCsfleProviderAction,
 } from '../utils/csfle-handler';
 import {
   handleUpdateOIDCParam,
@@ -179,11 +186,20 @@ type ConnectionFormFieldActions =
       value: string;
     }
   | {
-      type: 'remove-ssh-options';
+      type: 'remove-ssh-options-and-app-proxy';
     }
   | {
-      type: 'remove-proxy-options';
+      type: 'remove-proxy-options-and-app-proxy';
     }
+  | {
+      type: 'remove-proxy-options-and-set-app-proxy';
+    }
+  | {
+      type: 'remove-app-proxy';
+    }
+  | AddCsfleProviderAction
+  | RenameCsfleProviderAction
+  | RemoveCsfleProviderAction
   | UpdateCsfleStoreCredentialsAction
   | UpdateCsfleAction
   | UpdateCsfleKmsAction
@@ -606,7 +622,8 @@ export function handleConnectionFormFieldUpdate(
         },
       };
     }
-    case 'remove-proxy-options': {
+    case 'remove-proxy-options-and-app-proxy':
+    case 'remove-proxy-options-and-set-app-proxy': {
       const proxyOptions: (keyof ProxyOptions)[] = [
         'proxyHost',
         'proxyPort',
@@ -618,14 +635,25 @@ export function handleConnectionFormFieldUpdate(
         connectionOptions: {
           ...currentConnectionOptions,
           connectionString: parsedConnectionStringUrl.toString(),
+          useApplicationLevelProxy:
+            action.type === 'remove-proxy-options-and-set-app-proxy',
         },
       };
     }
-    case 'remove-ssh-options': {
+    case 'remove-ssh-options-and-app-proxy': {
       return {
         connectionOptions: {
           ...currentConnectionOptions,
           sshTunnel: undefined,
+          useApplicationLevelProxy: false,
+        },
+      };
+    }
+    case 'remove-app-proxy': {
+      return {
+        connectionOptions: {
+          ...currentConnectionOptions,
+          useApplicationLevelProxy: false,
         },
       };
     }
@@ -655,6 +683,24 @@ export function handleConnectionFormFieldUpdate(
     }
     case 'update-oidc-param': {
       return handleUpdateOIDCParam({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'add-new-csfle-kms-provider': {
+      return handleAddKmsProvider({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'rename-csfle-kms-provider': {
+      return handleRenameKmsProvider({
+        action,
+        connectionOptions: currentConnectionOptions,
+      });
+    }
+    case 'remove-csfle-kms-provider': {
+      return handleRemoveKmsProvider({
         action,
         connectionOptions: currentConnectionOptions,
       });
@@ -817,6 +863,7 @@ export function adjustConnectionOptionsBeforeConnect({
     connectionOptions: Readonly<ConnectionOptions>
   ) => ConnectionOptions)[] = [
     adjustCSFLEParams,
+    unsetFleOptionsIfEmptyAutoEncryption,
     setAppNameParamIfMissing(defaultAppName),
     adjustOIDCConnectionOptionsBeforeConnect({
       browserCommandForOIDCAuth: preferences.browserCommandForOIDCAuth,

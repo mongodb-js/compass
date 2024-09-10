@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { createServiceLocator } from 'hadron-app-registry';
 import { createTrack, type TelemetryServiceOptions } from './generic-track';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction, TrackParameters } from './types';
+import type { TrackFunction } from './types';
 
 const noop = () => {
   // noop
@@ -38,7 +38,9 @@ export const telemetryLocator = createServiceLocator(
   'telemetryLocator'
 );
 
-export function useTelemetry(): TrackFunction {
+export function useTelemetry(): (
+  ...args: Parameters<TrackFunction>
+) => ReturnType<TrackFunction> {
   const track = React.useContext(TelemetryContext);
   if (!track) {
     throw new Error('Telemetry service is missing from React context');
@@ -97,4 +99,4 @@ export function useTrackOnChange(
   }, [...dependencies, track, options.skipOnMount]);
 }
 
-export type { TrackFunction, TrackParameters };
+export type { TrackFunction };

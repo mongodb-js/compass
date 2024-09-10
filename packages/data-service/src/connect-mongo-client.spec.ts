@@ -68,14 +68,15 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
+          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -115,14 +116,15 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         autoEncryption,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
+          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         parentHandle: options.parentHandle,
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -152,14 +154,15 @@ describe('connectMongoClient', function () {
       expect(options.parentHandle).to.be.a('string');
       expect(options).to.deep.equal({
         monitorCommands: true,
-        useSystemCA: undefined,
         authMechanismProperties: {},
         oidc: {
           allowedFlows: options.oidc?.allowedFlows,
+          customHttpOptions: options.oidc?.customHttpOptions,
           signal: undefined,
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -272,7 +275,9 @@ describe('connectMongoClient', function () {
 describe('prepareOIDCOptions', function () {
   it('defaults allowedFlows to "auth-code"', async function () {
     const options = prepareOIDCOptions({
-      connectionString: 'mongodb://localhost:27017',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
     });
 
     expect(await (options.oidc.allowedFlows as any)()).to.deep.equal([
@@ -282,9 +287,11 @@ describe('prepareOIDCOptions', function () {
 
   it('does not override allowedFlows when set', async function () {
     const options = prepareOIDCOptions({
-      connectionString: 'mongodb://localhost:27017',
-      oidc: {
-        allowedFlows: ['auth-code', 'device-auth'],
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+        oidc: {
+          allowedFlows: ['auth-code', 'device-auth'],
+        },
       },
     });
     expect(await (options.oidc.allowedFlows as any)()).to.deep.equal([
@@ -296,9 +303,11 @@ describe('prepareOIDCOptions', function () {
   it('maps ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is true', function () {
     function actual(connectionString: string) {
       return prepareOIDCOptions({
-        connectionString,
-        oidc: {
-          enableUntrustedEndpoints: true,
+        connectionOptions: {
+          connectionString,
+          oidc: {
+            enableUntrustedEndpoints: true,
+          },
         },
       }).authMechanismProperties;
     }
@@ -338,7 +347,9 @@ describe('prepareOIDCOptions', function () {
 
   it('does not set ALLOWED_HOSTS on the authMechanismProperties (non-url) when enableUntrustedEndpoints is not set', function () {
     const options = prepareOIDCOptions({
-      connectionString: 'mongodb://localhost:27017',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
     });
 
     expect(options.authMechanismProperties).to.deep.equal({});
@@ -346,12 +357,12 @@ describe('prepareOIDCOptions', function () {
 
   it('passes through a signal argument', function () {
     const signal = AbortSignal.abort();
-    const options = prepareOIDCOptions(
-      {
+    const options = prepareOIDCOptions({
+      connectionOptions: {
         connectionString: 'mongodb://localhost:27017',
       },
-      signal
-    );
+      signal,
+    });
 
     expect(options.oidc.signal).to.equal(signal);
   });

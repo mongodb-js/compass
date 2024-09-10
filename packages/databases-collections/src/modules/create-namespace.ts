@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Action, AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
@@ -164,15 +164,20 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-const reducer: Reducer<CreateNamespaceState> = (
+const reducer: Reducer<CreateNamespaceState, Action> = (
   state = INITIAL_STATE,
   action
 ) => {
-  if (
-    isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset) ||
-    isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)
-  ) {
+  if (isAction<ResetAction>(action, CreateNamespaceActionTypes.Reset)) {
     return { ...INITIAL_STATE };
+  }
+
+  if (isAction<CloseAction>(action, CreateNamespaceActionTypes.Close)) {
+    // When a modal is closed, we should not clear the connectionMetaData
+    return {
+      ...INITIAL_STATE,
+      connectionMetaData: state.connectionMetaData,
+    };
   }
 
   if (isAction<OpenAction>(action, CreateNamespaceActionTypes.Open)) {

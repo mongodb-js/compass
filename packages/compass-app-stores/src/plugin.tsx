@@ -13,7 +13,7 @@ import {
 import { type MongoDBInstancesManager } from './instances-manager';
 
 interface MongoDBInstancesProviderProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   instancesManager: MongoDBInstancesManager;
 }
 
@@ -28,13 +28,7 @@ function MongoDBInstancesManagerProvider({
   );
 }
 
-export const CompassInstanceStorePlugin = registerHadronPlugin<
-  { children: React.ReactNode },
-  {
-    logger: () => Logger;
-    connectionsManager: () => ConnectionsManager;
-  }
->(
+export const CompassInstanceStorePlugin = registerHadronPlugin(
   {
     name: 'CompassInstanceStore',
     component: MongoDBInstancesManagerProvider as React.FunctionComponent<

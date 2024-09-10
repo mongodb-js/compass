@@ -162,9 +162,16 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
       },
     };
 
+    // When an inprogress index fails to create, we also have to update it in
+    // the state.indexes list to correctly update the UI with error state.
+    const newIndexes = _mergeInProgressIndexes(
+      state.indexes,
+      newInProgressIndexes
+    );
     return {
       ...state,
       inProgressIndexes: newInProgressIndexes,
+      indexes: newIndexes,
     };
   }
 
@@ -202,22 +209,15 @@ export const fetchIndexes = (): IndexesThunkAction<
   Promise<void>,
   RegularIndexesActions
 > => {
-  return async (dispatch, getState, { logger: { debug } }) => {
+  return async (dispatch, getState, { dataService }) => {
     const {
       isReadonlyView,
-      dataService,
       namespace,
       regularIndexes: { inProgressIndexes },
     } = getState();
 
     if (isReadonlyView) {
       dispatch(_handleIndexesChanged([]));
-      return;
-    }
-
-    if (!dataService || !dataService.isConnected()) {
-      dispatch(setIsRefreshing(false));
-      debug('warning: trying to load indexes but dataService is disconnected');
       return;
     }
 
@@ -279,8 +279,7 @@ export const dropIndex = (name: string): IndexesThunkAction<void> => {
     }
 
     if (index.extra.status === 'failed') {
-      // todo: COMPASS-7084 (existing bug)
-      dispatch(inProgressIndexRemoved(String(index.extra.id)));
+      dispatch(inProgressIndexRemoved(String((index as InProgressIndex).id)));
       void dispatch(fetchIndexes());
       return;
     }
@@ -298,8 +297,8 @@ export const showCreateModal = (): IndexesThunkAction<void> => {
 export const hideIndex = (
   indexName: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
-    const { dataService, namespace } = getState();
+  return async (dispatch, getState, { dataService }) => {
+    const { namespace } = getState();
     const confirmed = await showConfirmation({
       title: `Hiding \`${indexName}\``,
       description: hideModalDescription(indexName),
@@ -332,8 +331,8 @@ export const hideIndex = (
 export const unhideIndex = (
   indexName: string
 ): IndexesThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
-    const { namespace, dataService } = getState();
+  return async (dispatch, getState, { dataService }) => {
+    const { namespace } = getState();
     const confirmed = await showConfirmation({
       title: `Unhiding \`${indexName}\``,
       description: unhideModalDescription(indexName),

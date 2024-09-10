@@ -1,6 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { ChangeView } from './change-view';
 import { fixtureGroups } from '../../../test/before-after-fixtures';
 

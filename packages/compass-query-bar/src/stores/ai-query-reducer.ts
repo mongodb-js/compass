@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { getSimplifiedSchema } from 'mongodb-schema';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
@@ -139,7 +139,7 @@ function trackAndLogFailed({
   track(
     'AI Response Failed',
     () => ({
-      editor_view_type: 'find',
+      editor_view_type: 'find' as const,
       error_name: errorName,
       status_code: statusCode,
       error_code: errorCode ?? '',
@@ -178,7 +178,7 @@ export const runAIQuery = (
     track(
       'AI Prompt Submitted',
       () => ({
-        editor_view_type: 'find',
+        editor_view_type: 'find' as const,
         user_input_length: userInput.length,
         has_sample_documents: provideSampleDocuments,
         request_id: requestId,
@@ -372,7 +372,7 @@ export const runAIQuery = (
     track(
       'AI Response Generated',
       () => ({
-        editor_view_type: 'find',
+        editor_view_type: 'find' as const,
         query_shape: Object.keys(generatedFields),
         request_id: requestId,
       }),
@@ -429,7 +429,7 @@ export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
   };
 };
 
-const aiQueryReducer: Reducer<AIQueryState> = (
+const aiQueryReducer: Reducer<AIQueryState, Action> = (
   state = initialState,
   action
 ) => {

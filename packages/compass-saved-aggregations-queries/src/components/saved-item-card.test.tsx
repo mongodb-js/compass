@@ -1,6 +1,10 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 
@@ -122,7 +126,7 @@ describe('SavedItemCard', function () {
     it('should render an "Open in" action', async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
       const onAction = Sinon.spy();
 

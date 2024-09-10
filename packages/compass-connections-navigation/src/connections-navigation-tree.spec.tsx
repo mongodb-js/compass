@@ -6,8 +6,8 @@ import {
   cleanup,
   within,
   waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { ConnectionsNavigationTree } from './connections-navigation-tree';
@@ -77,6 +77,7 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: true,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: true,
     isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
@@ -99,6 +100,7 @@ const connections: Connection[] = [
     isReady: true,
     isDataLake: false,
     isWritable: false,
+    isPerformanceTabAvailable: true,
     isPerformanceTabSupported: false,
     isGenuineMongoDB: true,
     connectionStatus: ConnectionStatus.Connected,
@@ -140,7 +142,7 @@ describe('ConnectionsNavigationTree', function () {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableRenameCollectionModal: true,
-      enableNewMultipleConnectionSystem: true,
+      enableMultipleConnectionSystem: true,
       ...preferencesOverrides,
     });
     return render(
@@ -659,7 +661,7 @@ describe('ConnectionsNavigationTree', function () {
       preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({
         enableRenameCollectionModal: true,
-        enableNewMultipleConnectionSystem: true,
+        enableMultipleConnectionSystem: true,
       });
     });
 
@@ -760,6 +762,7 @@ describe('ConnectionsNavigationTree', function () {
             connections: [
               {
                 ...(connections[0] as ConnectedConnection),
+                isPerformanceTabSupported: true,
                 isPerformanceTabSupported: false,
               },
               { ...connections[1] },

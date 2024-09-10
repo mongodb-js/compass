@@ -2,6 +2,8 @@ import { expect } from 'chai';
 import reducer, { fetchIndexes, ActionTypes } from './search-indexes';
 import configureStore from '../../test/configure-store';
 import sinon from 'sinon';
+import type { AnyAction } from 'redux';
+import type { AggregationsStore } from '../stores/store';
 
 describe('search-indexes module', function () {
   describe('#reducer', function () {
@@ -31,8 +33,8 @@ describe('search-indexes module', function () {
       expect(
         reducer(undefined, {
           type: ActionTypes.FetchIndexesFinished,
-          indexes: [{ name: 'default' }, { name: 'vector_index' }] as any,
-        })
+          indexes: [{ name: 'default' }, { name: 'vector_index' }],
+        } as AnyAction)
       ).to.deep.equal({
         isSearchIndexesSupported: false,
         indexes: [{ name: 'default' }, { name: 'vector_index' }],
@@ -54,20 +56,22 @@ describe('search-indexes module', function () {
   describe('#actions', function () {
     let getSearchIndexesStub: sinon.SinonStub;
     let sandbox: sinon.SinonSandbox;
-    let store: ReturnType<typeof configureStore>;
-    beforeEach(function () {
+    let store: AggregationsStore;
+    beforeEach(async function () {
       sandbox = sinon.createSandbox();
       getSearchIndexesStub = sandbox.stub();
-      store = configureStore(
-        {
-          pipeline: [],
-          isSearchIndexesSupported: true,
-          namespace: 'test.listings',
-        },
-        {
-          getSearchIndexes: getSearchIndexesStub,
-        } as any
-      );
+      store = (
+        await configureStore(
+          {
+            pipeline: [],
+            isSearchIndexesSupported: true,
+            namespace: 'test.listings',
+          },
+          {
+            getSearchIndexes: getSearchIndexesStub,
+          } as any
+        )
+      ).plugin.store;
     });
     context('fetchIndexes', function () {
       it('fetches search indexes and sets status to READY', async function () {

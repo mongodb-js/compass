@@ -22,7 +22,10 @@ describe('Connection form', function () {
   let browser: CompassBrowser;
 
   before(async function () {
-    skipForWeb(this, 'no connect form in compass-web');
+    skipForWeb(
+      this,
+      'connection form is not used meaningfully outside of the local dev sandbox environment'
+    );
 
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
@@ -58,7 +61,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -92,7 +94,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -107,6 +108,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -131,7 +133,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -146,6 +147,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -170,7 +172,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -185,6 +186,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -215,7 +217,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -230,6 +231,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -260,7 +262,6 @@ describe('Connection form', function () {
       tlsInsecure: true,
       tlsAllowInvalidHostnames: true,
       tlsAllowInvalidCertificates: true,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -283,30 +284,11 @@ describe('Connection form', function () {
     expectedState.tlsCAFile = tlsCAFile;
     expectedState.tlsCertificateKeyFile = tlsCertificateKeyFile;
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
     );
-  });
-
-  it('parses and formats a URI for TLS with system CA', async function () {
-    const fixturesPath = path.resolve(__dirname, '..', 'fixtures');
-    const tlsCAFile = path.join(fixturesPath, 'ca.pem');
-
-    await browser.setConnectFormState({
-      hosts: ['localhost:27017'],
-      sslConnection: 'ON',
-      tlsCAFile,
-      useSystemCA: true,
-    });
-
-    const state = await browser.getConnectFormState();
-    expect(state.tlsCAFile).to.equal(undefined); // tlsCAFile is unset by useSystemCA
-    expect(state.useSystemCA).to.equal(true);
-
-    expect(
-      await browser.$(Selectors.ConnectionFormStringInput).getValue()
-    ).to.equal('mongodb://localhost:27017/?tls=true');
   });
 
   it('parses and formats a URI for Kerberos authentication', async function () {
@@ -333,7 +315,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -348,6 +329,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -375,7 +357,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -390,6 +371,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -419,7 +401,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -434,6 +415,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -465,7 +447,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -480,6 +461,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       connectionString
@@ -506,7 +488,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'primary',
       replicaSet: 'replica-set',
       defaultDatabase: 'default-db',
@@ -527,6 +508,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(
       await browser.$(Selectors.ConnectionFormStringInput).getValue()
@@ -559,7 +541,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -606,7 +587,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -651,7 +631,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -666,6 +645,7 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(false);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(false)).to.equal(
       redactedConnectionString
@@ -683,7 +663,7 @@ describe('Connection form', function () {
     // save
     await browser.saveFavorite(
       favoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Red' : 'color1'
+      TEST_MULTIPLE_CONNECTIONS ? 'Green' : 'color1'
     );
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
@@ -694,7 +674,9 @@ describe('Connection form', function () {
       );
       await browser.waitUntil(
         async () => {
-          return (await clipboard.read()) === 'mongodb://localhost:27017/';
+          return /^mongodb:\/\/localhost:27017\/?$/.test(
+            await clipboard.read()
+          );
         },
         { timeoutMsg: 'Expected copy to clipboard to work' }
       );
@@ -747,9 +729,7 @@ describe('Connection form', function () {
     const confirmModal = await browser.$(Selectors.ConfirmationModal);
     await confirmModal.waitForDisplayed();
 
-    await browser.screenshot('edit-uri-confirmation-modal.png');
-
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
 
     await confirmModal.waitForDisplayed({ reverse: true });
 
@@ -778,7 +758,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
@@ -793,6 +772,9 @@ describe('Connection form', function () {
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
 
+    delete expectedState.connectionString;
+
+    delete expectedState.connectionString;
     await browser.setConnectFormState(expectedState);
     expect(await browser.getConnectFormConnectionString(true)).to.equal(
       `${connectionString}&authSource=%24external`
@@ -814,7 +796,7 @@ describe('Connection form', function () {
     await browser.setConnectFormState(state);
     expect(await browser.getConnectFormState()).to.deep.equal({
       authMethod: 'DEFAULT',
-      connectionColor: 'color1',
+      connectionColor: 'color6',
       connectionFavorite: true,
       connectionName: 'my-connection',
       connectionString: 'mongodb://localhost:27017/',
@@ -831,7 +813,6 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: false,
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
-      useSystemCA: false,
     });
   });
 
@@ -866,8 +847,6 @@ describe('Connection form', function () {
     );
 
     await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-
-    await browser.screenshot('save-favorite-modal-new.png');
 
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });

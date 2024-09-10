@@ -8,7 +8,6 @@ import type {
   SidebarConnection,
   SidebarNotConnectedConnection,
 } from '@mongodb-js/compass-connections-navigation';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 
@@ -49,7 +48,7 @@ const filterConnections = (
   for (const connection of connections) {
     const isMatch = regex.test(connection.name);
     let childMatches: FilteredDatabase[] = [];
-    if (connection.connectionStatus === ConnectionStatus.Connected) {
+    if (connection.connectionStatus === 'connected') {
       childMatches = filterDatabases(connection.databases, regex);
     }
 
@@ -57,7 +56,7 @@ const filterConnections = (
       results.push({
         ...connection,
         isMatch,
-        ...(connection.connectionStatus === ConnectionStatus.Connected
+        ...(connection.connectionStatus === 'connected'
           ? {
               databases:
                 !isMatch && childMatches.length
@@ -122,7 +121,7 @@ const temporarilyExpand = (
 ): ExpandedConnections => {
   const newExpanded = { ...expandedConnections };
   filterResults.forEach((connection) => {
-    if (connection.connectionStatus === ConnectionStatus.Connected) {
+    if (connection.connectionStatus === 'connected') {
       const {
         connectionInfo: { id: connectionId },
         databases,
@@ -358,7 +357,7 @@ function filteredConnectionsToSidebarConnection(
 ): SidebarConnection[] {
   const sidebarConnections: SidebarConnection[] = [];
   for (const connection of filteredConnections) {
-    if (connection.connectionStatus === ConnectionStatus.Connected) {
+    if (connection.connectionStatus === 'connected') {
       sidebarConnections.push({
         ..._.omit(connection, ['isMatch']),
         databases: connection.databases.map((database) => {
@@ -398,7 +397,7 @@ export const useFilteredConnections = ({
   const activeConnections = useMemo(() => {
     return connections
       .filter(({ connectionStatus }) => {
-        return connectionStatus === ConnectionStatus.Connected;
+        return connectionStatus === 'connected';
       })
       .map(({ connectionInfo }) => connectionInfo);
   }, [connections]);
@@ -467,7 +466,7 @@ export const useFilteredConnections = ({
     useMemo(() => {
       const result: Record<string, false | Record<string, boolean>> = {};
       for (const { connectionInfo, connectionStatus } of connections) {
-        if (connectionStatus !== ConnectionStatus.Connected) {
+        if (connectionStatus !== 'connected') {
           result[connectionInfo.id] = false;
           continue;
         }

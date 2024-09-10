@@ -15,7 +15,6 @@
  */
 
 const Target = require('../lib/target');
-const verifyDistro = require('../lib/distro');
 const cli = require('mongodb-js-cli')('hadron-build:release');
 const util = require('util');
 const format = util.format;
@@ -29,8 +28,6 @@ const createApplicationZip = require('../lib/zip');
 const run = require('./../lib/run');
 const rebuild = require('@electron/rebuild').rebuild;
 const { signArchive } = require('./../lib/signtool');
-
-const verify = require('./verify');
 
 exports.command = 'release';
 
@@ -324,20 +321,35 @@ const transformPackageJson = async(CONFIG, done) => {
  * @api public
  */
 const installDependencies = util.callbackify(async(CONFIG) => {
-  const appPackagePath = CONFIG.resourcesAppDir;
+  let originalPackagePath = CONFIG.resourcesAppDir;
+  let appPackagePath = originalPackagePath;
+
+  if (process.platform === 'win32' && process.env.EVERGREEN_WORKDIR) {
+    // https://jira.mongodb.org/browse/COMPASS-8051
+    // Windows has a relatively short "maximum path length" restriction,
+    // so building addons during `npm install`/`electron rebuild` can realistically
+    // fail because of that. As a workaround, copy the app to a temporary directory
+    // with a shorter name.
+    appPackagePath = path.join(
+      process.env.EVERGREEN_WORKDIR.replace(/^\/cygdrive\/(\w)\//, '$1:\\'),
+      'src',
+      'app');
+    cli.debug(`Moving app package path from ${originalPackagePath} to ${appPackagePath}`);
+    await fs.promises.rename(originalPackagePath, appPackagePath);
+  }
 
   cli.debug('Installing dependencies and rebuilding native modules');
 
   const opts = {
-    cwd: appPackagePath
+    cwd: appPackagePath,
+    shell: true
   };
 
   await run.async('npm', ['install', '--production'], opts);
 
   cli.debug('Production dependencies installed');
 
-  const rebuildConfig = {
-    ...CONFIG.rebuild,
+  const sharedRebuildConfig = {
     arch: CONFIG.arch,
     electronVersion: CONFIG.packagerOptions.electronVersion,
     buildPath: appPackagePath,
@@ -347,6 +359,11 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     // a transitive dependency that was hoisted by npm installation process)
     projectRootPath: appPackagePath,
     force: true,
+  };
+
+  const allModulesRebuildConfig = {
+    ...sharedRebuildConfig,
+    ...CONFIG.rebuild,
     // We want to ensure that we are actually rebuilding native modules on the
     // platform we are packaging. There is currently no direct way of passing a
     // --build-from-source flag to rebuild-install package, but we can force
@@ -355,17 +372,24 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild'
   };
 
-  await rebuild(rebuildConfig);
-
   // We can not force rebuild mongodb-client-encryption locally, but we need to
   // make sure that the binary is matching the platform we are packaging for and
-  // so let's run rebuild again, but this time providing the tag name package
-  // is using so that prebuild can download the matching version
-  rebuildConfig.prebuildTagPrefix = 'node-v';
-  rebuildConfig.onlyModules = ['mongodb-client-encryption'];
-  await rebuild(rebuildConfig);
+  // so let's run rebuild again.
+  const clientEncryptionRebuildConfig = {
+    ...sharedRebuildConfig,
+    onlyModules: [
+      'mongodb-client-encryption',
+    ],
+  };
+
+  await rebuild(allModulesRebuildConfig);
+  await rebuild(clientEncryptionRebuildConfig);
 
   cli.debug('Native modules rebuilt against Electron.');
+  if (originalPackagePath !== appPackagePath) {
+    cli.debug(`Moving app package back to ${originalPackagePath} from ${appPackagePath}`);
+    await fs.promises.rename(appPackagePath, originalPackagePath)
+  }
 });
 
 /**
@@ -494,8 +518,6 @@ exports.builder = {
   }
 };
 
-_.assign(exports.builder, verify.builder);
-
 
 /**
  * @param {any} argv Parsed command arguments
@@ -504,8 +526,6 @@ _.assign(exports.builder, verify.builder);
  */
 exports.run = async (argv, done) => {
   cli.argv = argv;
-
-  verifyDistro(argv);
 
   const target = new Target(argv.dir);
 
@@ -531,7 +551,6 @@ exports.run = async (argv, done) => {
   const noAsar = process.env.NO_ASAR === 'true' || argv.no_asar;
 
   const tasks = _.flatten([
-    () => verify.tasks(argv),
     task('copy npmrc from root', ({ dir }, done) => {
       fs.cp(
         path.resolve(dir, '..', '..', '.npmrc'),

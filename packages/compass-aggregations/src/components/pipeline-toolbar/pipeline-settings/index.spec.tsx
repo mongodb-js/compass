@@ -1,29 +1,30 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 import { PipelineSettings } from '.';
 
 describe('PipelineSettings', function () {
   let container: HTMLElement;
   let onExportToLanguageSpy: SinonSpy;
   let onCreateNewPipelineSpy: SinonSpy;
-  beforeEach(function () {
+  beforeEach(async function () {
     onExportToLanguageSpy = spy();
     onCreateNewPipelineSpy = spy();
-    render(
-      <Provider store={configureStore()}>
-        <PipelineSettings
-          isExportToLanguageEnabled={true}
-          onExportToLanguage={onExportToLanguageSpy}
-          onCreateNewPipeline={onCreateNewPipelineSpy}
-        />
-      </Provider>
+    await renderWithStore(
+      <PipelineSettings
+        isExportToLanguageEnabled={true}
+        onExportToLanguage={onExportToLanguageSpy}
+        onCreateNewPipeline={onCreateNewPipelineSpy}
+      />
     );
     container = screen.getByTestId('pipeline-settings');
   });

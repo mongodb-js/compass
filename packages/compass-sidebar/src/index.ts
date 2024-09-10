@@ -1,6 +1,5 @@
 import type { ActivateHelpers } from 'hadron-app-registry';
 import { registerHadronPlugin, type AppRegistry } from 'hadron-app-registry';
-import type { SidebarPluginProps } from './plugin';
 import SidebarPlugin from './plugin';
 import { createSidebarStore } from './stores';
 import {
@@ -14,20 +13,12 @@ import {
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 
-export const CompassSidebarPlugin = registerHadronPlugin<
-  SidebarPluginProps,
-  {
-    connectionsManager: () => ConnectionsManager;
-    instancesManager: () => MongoDBInstancesManager;
-    logger: () => Logger;
-  }
->(
+export const CompassSidebarPlugin = registerHadronPlugin(
   {
     name: 'CompassSidebar',
     component: SidebarPlugin,
     activate(
-      // @eslint-ignore-next-line
-      _,
+      _initialProps,
       {
         globalAppRegistry,
         connectionsManager,

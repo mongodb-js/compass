@@ -12,13 +12,13 @@ import {
   Menu,
   MenuItem,
   MenuSeparator,
+  Tooltip,
 } from './leafygreen';
-import { Tooltip } from './tooltip';
-import type { TooltipProps } from './tooltip';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
+import { WorkspaceContainer } from './workspace-container';
 
 export type ItemAction<Action extends string> = {
   action: Action;
@@ -35,7 +35,7 @@ export type ItemSeparator = { separator: true };
 
 export type GroupedItemAction<Action extends string> = ItemAction<Action> & {
   tooltip?: string;
-  tooltipProps?: TooltipProps;
+  tooltipProps?: Parameters<typeof Tooltip>;
 };
 
 export type MenuAction<Action extends string> =
@@ -369,16 +369,14 @@ export function ItemActionGroup<Action extends string>({
             <Tooltip
               key={action}
               {...tooltipProps}
-              trigger={({ children, ...props }) => (
+              trigger={
                 <div
-                  {...props}
                   className={actionGroupButtonStyle}
                   style={{ display: 'inherit' }}
                 >
                   {button}
-                  {children}
                 </div>
-              )}
+              }
             >
               {tooltip}
             </Tooltip>
@@ -489,6 +487,13 @@ export function ItemActionControls<Action extends string>({
   return <ItemActionGroup actions={actions} {...sharedProps}></ItemActionGroup>;
 }
 
+const hiddenOnNarrowStyles = css({
+  [`@container ${WorkspaceContainer.toolbarContainerQueryName} (width < 900px)`]:
+    {
+      display: 'none',
+    },
+});
+
 export function DropdownMenuButton<Action extends string>({
   isVisible = true,
   actions,
@@ -560,8 +565,9 @@ export function DropdownMenuButton<Action extends string>({
               onClick && onClick(evt);
             }}
             rightGlyph={<Icon glyph={'CaretDown'} />}
+            title={buttonText}
           >
-            {buttonText}
+            <span className={hiddenOnNarrowStyles}>{buttonText}</span>
             {children}
           </Button>
         );

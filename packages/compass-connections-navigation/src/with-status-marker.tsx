@@ -7,9 +7,11 @@ import {
 import React from 'react';
 
 export type StatusMarker =
+  | 'initial'
   | 'connected'
   | 'disconnected'
   | 'connecting'
+  | 'canceled'
   | 'failed';
 export type StatusMarkerProps = {
   status: StatusMarker;
@@ -92,6 +94,8 @@ const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
   connecting: ConnectingStatusMarker,
   failed: FailedStatusMarker,
   disconnected: NoMarker,
+  initial: NoMarker,
+  canceled: NoMarker,
 } as const;
 
 const withStatusMarkerStyles = css({

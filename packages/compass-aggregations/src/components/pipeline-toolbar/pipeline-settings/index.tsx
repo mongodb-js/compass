@@ -47,6 +47,8 @@ export const PipelineSettings: React.FunctionComponent<
   onExportToLanguage,
   onCreateNewPipeline,
 }) => {
+  // TODO: remove direct check for storage existing, breaks single source of
+  // truth rule and exposes services to UI, this breaks the rules for locators
   const enableSavedAggregationsQueries = !!usePipelineStorage();
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
@@ -76,6 +78,7 @@ export const PipelineSettings: React.FunctionComponent<
           onClick={onExportToLanguage}
           data-testid="pipeline-toolbar-export-button"
           disabled={!isExportToLanguageEnabled}
+          title="Export to language"
         >
           <span className={hiddenOnNarrowPipelineToolbarStyles}>
             Export to language

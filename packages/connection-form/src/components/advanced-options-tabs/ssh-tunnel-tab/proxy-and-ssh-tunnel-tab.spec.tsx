@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -184,13 +189,13 @@ describe('SSHTunnelTab', function () {
         fireEvent.click(screen.getByTestId(`${tab}-tab-button`));
         expect(updateConnectionFormFieldSpy).to.have.been.called;
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'remove-proxy-options',
+          type: 'remove-proxy-options-and-app-proxy',
         });
       });
     });
 
     // eslint-disable-next-line mocha/no-setup-in-describe
-    ['none', 'socks'].forEach((tab) => {
+    for (const tab of ['none', 'socks', 'app-proxy']) {
       it(`removes sshTunnel when user clicks ${tab} tab`, function () {
         renderWithOptionsAndUrl(
           {
@@ -207,10 +212,13 @@ describe('SSHTunnelTab', function () {
         fireEvent.click(screen.getByTestId(`${tab}-tab-button`));
         expect(updateConnectionFormFieldSpy).to.have.been.called;
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-          type: 'remove-ssh-options',
+          type:
+            tab === 'app-proxy'
+              ? 'remove-proxy-options-and-set-app-proxy'
+              : 'remove-ssh-options-and-app-proxy',
         });
       });
-    });
+    }
 
     it('removes proxyOptions when user navigates from socks tab to none', function () {
       connectionStringUrl.searchParams.set('proxyHost', 'hello');
@@ -222,7 +230,7 @@ describe('SSHTunnelTab', function () {
       fireEvent.click(screen.getByTestId('none-tab-button'));
       expect(updateConnectionFormFieldSpy).to.have.been.calledOnce;
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'remove-proxy-options',
+        type: 'remove-proxy-options-and-app-proxy',
       });
     });
 
@@ -242,7 +250,7 @@ describe('SSHTunnelTab', function () {
       fireEvent.click(screen.getByTestId('none-tab-button'));
       expect(updateConnectionFormFieldSpy).to.have.been.calledOnce;
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'remove-ssh-options',
+        type: 'remove-ssh-options-and-app-proxy',
       });
     });
 
@@ -262,7 +270,7 @@ describe('SSHTunnelTab', function () {
       fireEvent.click(screen.getByTestId('none-tab-button'));
       expect(updateConnectionFormFieldSpy).to.have.been.calledOnce;
       expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
-        type: 'remove-ssh-options',
+        type: 'remove-ssh-options-and-app-proxy',
       });
     });
   });

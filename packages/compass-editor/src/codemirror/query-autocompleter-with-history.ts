@@ -3,27 +3,35 @@ import {
   createQueryHistoryAutocompleter,
 } from './query-history-autocompleter';
 import { createQueryAutocompleter } from './query-autocompleter';
-import type {
-  CompletionSource,
-  CompletionContext,
-  CompletionSection,
-  Completion,
+import {
+  type CompletionSource,
+  type CompletionContext,
+  type CompletionSection,
+  type Completion,
 } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { css } from '@mongodb-js/compass-components';
 import type { CodemirrorThemeType } from '../editor';
 
-export const createQueryWithHistoryAutocompleter = (
-  recentQueries: SavedQuery[],
-  options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {},
-  onApply: (query: SavedQuery['queryProperties']) => void,
-  theme: CodemirrorThemeType
-): CompletionSource => {
-  const queryHistoryAutocompleter = createQueryHistoryAutocompleter(
-    recentQueries,
+export const createQueryWithHistoryAutocompleter = ({
+  savedQueries,
+  options = {},
+  queryProperty,
+  onApply,
+  theme,
+}: {
+  savedQueries: SavedQuery[];
+  options?: Pick<CompletionOptions, 'fields' | 'serverVersion'>;
+  queryProperty: string;
+  onApply: (query: SavedQuery['queryProperties']) => void;
+  theme: CodemirrorThemeType;
+}): CompletionSource => {
+  const queryHistoryAutocompleter = createQueryHistoryAutocompleter({
+    savedQueries,
     onApply,
-    theme
-  );
+    queryProperty,
+    theme,
+  });
 
   const originalQueryAutocompleter = createQueryAutocompleter(options);
   const historySection: CompletionSection = {

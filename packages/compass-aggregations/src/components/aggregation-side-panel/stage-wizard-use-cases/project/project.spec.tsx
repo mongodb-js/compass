@@ -2,7 +2,12 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import ProjectForm, { mapProjectFormStateToStageValue } from './project';
 import type { ProjectionType } from './project';
-import { render, screen, within, cleanup } from '@testing-library/react';
+import {
+  render,
+  screen,
+  within,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {

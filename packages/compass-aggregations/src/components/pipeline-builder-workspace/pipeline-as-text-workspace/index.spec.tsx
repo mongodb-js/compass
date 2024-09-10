@@ -1,32 +1,29 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../../test/configure-store';
+import { renderWithStore } from '../../../../test/configure-store';
 
 import { PipelineAsTextWorkspace } from '.';
 
 const renderPipelineAsTextWorkspace = (
   props: Partial<ComponentProps<typeof PipelineAsTextWorkspace>> = {}
 ) => {
-  render(
-    <Provider store={configureStore()}>
-      <PipelineAsTextWorkspace isAutoPreview={true} {...props} />
-    </Provider>
+  return renderWithStore(
+    <PipelineAsTextWorkspace isAutoPreview={true} {...props} />
   );
 };
 
 describe('PipelineAsTextWorkspace', function () {
-  it('renders text workspace', function () {
-    renderPipelineAsTextWorkspace({});
+  it('renders text workspace', async function () {
+    await renderPipelineAsTextWorkspace();
     const container = screen.getByTestId('pipeline-as-text-workspace');
     expect(container).to.exist;
   });
 
-  it('does not render preview panel when disabled', function () {
-    renderPipelineAsTextWorkspace({ isAutoPreview: false });
+  it('does not render preview panel when disabled', async function () {
+    await renderPipelineAsTextWorkspace({ isAutoPreview: false });
     expect(() => {
       screen.getByTestId('pipeline-as-text-preview');
     }).to.throw;

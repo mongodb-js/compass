@@ -5,11 +5,11 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { Provider } from '../../stores/context';
 import Sinon from 'sinon';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
 import QueryHistory from '.';
@@ -92,12 +92,12 @@ const renderQueryHistory = (basepath: string) => {
 
 describe('query-history', function () {
   let tmpDir: string;
-  before(function () {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compass-query-history'));
+  before(async function () {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'compass-query-history'));
   });
 
-  after(function () {
-    fs.rmdirSync(tmpDir, { recursive: true });
+  after(async function () {
+    await fs.rm(tmpDir, { recursive: true });
   });
 
   context('zero state', function () {

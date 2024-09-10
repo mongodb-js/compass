@@ -5,8 +5,8 @@ import {
   fireEvent,
   waitFor,
   cleanup,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
@@ -222,7 +222,9 @@ describe('ConnectionStringInput Component', function () {
         screen.getByRole('switch').click();
 
         // Click confirm on the modal that opens.
-        const confirmButton = screen.getByText('Confirm').closest('button');
+        const confirmButton = screen
+          .getByText('Confirm')
+          .closest('button') as HTMLButtonElement;
         fireEvent(
           confirmButton,
           new MouseEvent('click', {
@@ -248,7 +250,9 @@ describe('ConnectionStringInput Component', function () {
         screen.getByRole('switch').click();
 
         // Click cancel on the modal that opens.
-        const cancelButton = screen.getByText('Cancel').closest('button');
+        const cancelButton = screen
+          .getByText('Cancel')
+          .closest('button') as HTMLButtonElement;
         fireEvent(
           cancelButton,
           new MouseEvent('click', {

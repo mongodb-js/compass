@@ -170,9 +170,9 @@ export const fetchDocuments: (
 };
 
 /**
- * Number of docs per page.
+ * Default number of docs per page.
  */
-const NUM_PAGE_DOCS = 20;
+const DEFAULT_NUM_PAGE_DOCS = 25;
 
 /**
  * Error constant.
@@ -220,6 +220,13 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
  * long after docs are returned.
  */
 const COUNT_MAX_TIME_MS_CAP = 5000;
+
+/**
+ * The key we use to persist the user selected maximum documents per page for
+ * other tabs or for the next application start.
+ * Exported only for test purpose
+ */
+export const MAX_DOCS_PER_PAGE_STORAGE_KEY = 'compass_crud-max_docs_per_page';
 
 export type CrudStoreOptions = Pick<
   CollectionTabPluginMetadata,
@@ -308,6 +315,7 @@ type CrudState = {
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
+  docsPerPage: number;
 };
 
 type CrudStoreActionsOptions = {
@@ -409,7 +417,18 @@ class CrudStoreImpl
       isSearchIndexesSupported: this.options.isSearchIndexesSupported,
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
+      docsPerPage: this.getInitialDocsPerPage(),
     };
+  }
+
+  getInitialDocsPerPage(): number {
+    const lastUsedDocsPerPageString = localStorage.getItem(
+      MAX_DOCS_PER_PAGE_STORAGE_KEY
+    );
+    const lastUsedDocsPerPage = lastUsedDocsPerPageString
+      ? parseInt(lastUsedDocsPerPageString)
+      : null;
+    return lastUsedDocsPerPage ?? DEFAULT_NUM_PAGE_DOCS;
   }
 
   /**
@@ -470,7 +489,7 @@ class CrudStoreImpl
    * to update if the labels change at some point.
    */
   modeForTelemetry() {
-    return this.state.view.toLowerCase();
+    return this.state.view.toLowerCase() as Lowercase<DocumentView>;
   }
 
   /**
@@ -491,6 +510,17 @@ class CrudStoreImpl
     void navigator.clipboard.writeText(documentEJSON);
   }
 
+  updateMaxDocumentsPerPage(docsPerPage: number) {
+    const previousDocsPerPage = this.state.docsPerPage;
+    localStorage.setItem(MAX_DOCS_PER_PAGE_STORAGE_KEY, String(docsPerPage));
+    this.setState({
+      docsPerPage,
+    });
+    if (previousDocsPerPage !== docsPerPage) {
+      void this.refreshDocuments();
+    }
+  }
+
   /**
    * Remove the provided document from the collection.
    *
@@ -504,27 +534,31 @@ class CrudStoreImpl
     );
     const id = doc.getId();
     if (id !== undefined) {
-      doc.emit('remove-start');
+      doc.onRemoveStart();
       try {
         await this.dataService.deleteOne(this.state.ns, { _id: id } as any);
         // emit on the document(list view) and success state(json view)
-        doc.emit('remove-success');
+        doc.onRemoveSuccess();
         const payload = { view: this.state.view, ns: this.state.ns };
         this.localAppRegistry.emit('document-deleted', payload);
         this.connectionScopedAppRegistry.emit('document-deleted', payload);
         const index = this.findDocumentIndex(doc);
-        this.state.docs?.splice(index, 1);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1);
         this.setState({
+          docs: newDocs,
           count: this.state.count === null ? null : this.state.count - 1,
           end: Math.max(this.state.end - 1, 0),
         });
       } catch (error) {
         // emit on the document(list view) and success state(json view)
-        doc.emit('remove-error', (error as Error).message);
+        doc.onRemoveError(error as Error);
         this.trigger(this.state);
       }
     } else {
-      doc.emit('remove-error', DELETE_ERROR);
+      doc.onRemoveError(DELETE_ERROR);
       this.trigger(this.state);
     }
   }
@@ -551,9 +585,10 @@ class CrudStoreImpl
         doc.generateOriginalObject()
       );
       if (!isAllowed) {
-        doc.emit(
-          'update-error',
-          'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+        doc.onUpdateError(
+          new Error(
+            'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+          )
         );
         return false;
       }
@@ -575,7 +610,7 @@ class CrudStoreImpl
       this.connectionInfoAccess.getCurrentConnectionInfo()
     );
     try {
-      doc.emit('update-start');
+      doc.onUpdateStart();
       // We add the shard keys here, if there are any, because that is
       // required for updated documents in sharded collections.
       const { query, updateDoc } =
@@ -590,7 +625,7 @@ class CrudStoreImpl
       this.logger.debug('Performing findOneAndUpdate', { query, updateDoc });
 
       if (Object.keys(updateDoc).length === 0) {
-        doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
+        doc.onUpdateError(EMPTY_UPDATE_ERROR);
         return;
       }
 
@@ -614,21 +649,27 @@ class CrudStoreImpl
           const nbsp = '\u00a0';
           error.message += ` (Updating fields whose names contain dots or start with $ require MongoDB${nbsp}5.0 or above.)`;
         }
-        doc.emit('update-error', error.message);
+        doc.onUpdateError(error as Error);
       } else if (d) {
-        doc.emit('update-success', d);
+        doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
-        this.state.docs![index] = new HadronDocument(d);
-        this.trigger(this.state);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1, new HadronDocument(d));
+        this.setState({
+          docs: newDocs,
+        });
       } else {
-        doc.emit('update-blocked');
+        doc.onUpdateBlocked();
       }
     } catch (err: any) {
-      doc.emit(
-        'update-error',
-        `An error occured when attempting to update the document: ${String(
-          err.message
-        )}`
+      doc.onUpdateError(
+        new Error(
+          `An error occured when attempting to update the document: ${String(
+            err.message
+          )}`
+        )
       );
     }
   }
@@ -645,7 +686,7 @@ class CrudStoreImpl
       this.connectionInfoAccess.getCurrentConnectionInfo()
     );
     try {
-      doc.emit('update-start');
+      doc.onUpdateStart();
 
       if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
         // _verifyUpdateAllowed emitted update-error
@@ -706,19 +747,25 @@ class CrudStoreImpl
         'replace'
       );
       if (error) {
-        doc.emit('update-error', error.message);
+        doc.onUpdateError(error as Error);
       } else {
-        doc.emit('update-success', d);
+        doc.onUpdateSuccess(d);
         const index = this.findDocumentIndex(doc);
-        this.state.docs![index] = new HadronDocument(d);
-        this.trigger(this.state);
+        const newDocs = this.state.docs
+          ? [...this.state.docs]
+          : this.state.docs;
+        newDocs?.splice(index, 1, new HadronDocument(d));
+        this.setState({
+          docs: newDocs,
+        });
       }
     } catch (err: any) {
-      doc.emit(
-        'update-error',
-        `An error occured when attempting to update the document: ${String(
-          err.message
-        )}`
+      doc.onUpdateError(
+        new Error(
+          `An error occured when attempting to update the document: ${String(
+            err.message
+          )}`
+        )
       );
     }
   }
@@ -752,7 +799,7 @@ class CrudStoreImpl
    * @param {Number} page - The page that is being shown.
    */
   async getPage(page: number) {
-    const { ns, status } = this.state;
+    const { ns, status, docsPerPage } = this.state;
 
     if (page < 0) {
       return;
@@ -772,10 +819,10 @@ class CrudStoreImpl
       skip: _skip = 0,
     } = this.queryBar.getLastAppliedQuery('crud');
 
-    const skip = _skip + page * NUM_PAGE_DOCS;
+    const skip = _skip + page * docsPerPage;
 
     // nextPageCount will be the number of docs to load
-    let nextPageCount = NUM_PAGE_DOCS;
+    let nextPageCount = docsPerPage;
 
     // Make sure we don't go past the limit if a limit is set
     if (limit) {
@@ -1482,7 +1529,7 @@ class CrudStoreImpl
       return;
     }
 
-    const { ns, status } = this.state;
+    const { ns, status, docsPerPage } = this.state;
     const query = this.queryBar.getLastAppliedQuery('crud');
 
     if (status === DOCUMENTS_STATUS_FETCHING) {
@@ -1544,7 +1591,7 @@ class CrudStoreImpl
       sort: query.sort,
       projection: query.project,
       skip: query.skip,
-      limit: NUM_PAGE_DOCS,
+      limit: docsPerPage,
       collation: query.collation,
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(
         this.preferences,
@@ -1557,7 +1604,7 @@ class CrudStoreImpl
     // only set limit if it's > 0, read-only views cannot handle 0 limit.
     if (query.limit && query.limit > 0) {
       countOptions.limit = query.limit;
-      findOptions.limit = Math.min(NUM_PAGE_DOCS, query.limit);
+      findOptions.limit = Math.min(docsPerPage, query.limit);
     }
 
     this.logger.log.info(

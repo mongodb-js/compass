@@ -7,14 +7,18 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import path from 'path';
 import os from 'os';
 import type { MongoClientOptions } from 'mongodb';
+import { UUID } from 'mongodb';
 
 import connect from './connect';
 import type { ConnectionOptions } from './connection-options';
 import type DataService from './data-service';
 import { redactConnectionOptions } from './redact';
 import { runCommand } from './run-command';
+import { MongoLogWriter } from 'mongodb-log-writer';
 
 const IS_CI = process.env.EVERGREEN_BUILD_VARIANT || process.env.CI === 'true';
+const SHOULD_DEBUG =
+  IS_CI || process.env.DEBUG?.includes('data-service-connect');
 
 const SHOULD_RUN_DOCKER_TESTS = process.env.COMPASS_RUN_DOCKER_TESTS === 'true';
 
@@ -637,7 +641,12 @@ async function connectAndGetAuthInfo(connectionOptions: ConnectionOptions) {
   let dataService: DataService | undefined;
 
   try {
-    dataService = await connect({ connectionOptions });
+    dataService = await connect({
+      connectionOptions,
+      logger: SHOULD_DEBUG
+        ? new MongoLogWriter(new UUID().toHexString(), null, process.stderr)
+        : undefined,
+    });
     const connectionStatus = await runCommand(
       dataService['_database']('admin', 'META'),
       { connectionStatus: 1 }

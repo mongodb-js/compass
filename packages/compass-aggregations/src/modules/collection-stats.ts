@@ -1,5 +1,6 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type Collection from 'mongodb-collection-model';
+import { isAction } from '../utils/is-action';
 
 export type CollectionStats = {
   document_count?: number;
@@ -20,8 +21,21 @@ enum CollectionStatsActions {
   CollectionStatsFetched = 'compass-aggregations/collection-stats/CollectionStatsFetched',
 }
 
-const reducer: Reducer<CollectionStats> = (state = INITIAL_STATE, action) => {
-  if (action.type === CollectionStatsActions.CollectionStatsFetched) {
+interface CollectionStatsFetchedAction {
+  type: CollectionStatsActions.CollectionStatsFetched;
+  collection: Collection;
+}
+
+const reducer: Reducer<CollectionStats, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
+  if (
+    isAction<CollectionStatsFetchedAction>(
+      action,
+      CollectionStatsActions.CollectionStatsFetched
+    )
+  ) {
     return {
       ...pickCollectionStats(action.collection),
     };
@@ -29,7 +43,9 @@ const reducer: Reducer<CollectionStats> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export const collectionStatsFetched = (collection: Collection) => {
+export const collectionStatsFetched = (
+  collection: Collection
+): CollectionStatsFetchedAction => {
   return { type: CollectionStatsActions.CollectionStatsFetched, collection };
 };
 

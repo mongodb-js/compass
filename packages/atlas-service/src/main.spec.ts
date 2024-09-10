@@ -85,11 +85,12 @@ describe('CompassAuthServiceMain', function () {
       createHandle: sandbox.stub(),
     };
     CompassAuthService['fetch'] = mockFetch as any;
+    CompassAuthService['httpClient'] = { fetch: mockFetch } as any;
     CompassAuthService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
 
     CompassAuthService['config'] = defaultConfig;
 
-    await CompassAuthService['setupPlugin']();
+    CompassAuthService['setupPlugin']();
     CompassAuthService['attachOidcPluginLoggerEvents']();
 
     preferences = await createSandboxFromDefaultPreferences();
@@ -289,26 +290,8 @@ describe('CompassAuthServiceMain', function () {
         CompassAuthService as any,
         'setupPlugin'
       );
-      await CompassAuthService.init(preferences);
+      await CompassAuthService.init(preferences, {} as any);
       expect(setupPluginSpy).to.have.been.calledOnce;
-    });
-
-    it('should pass the system ca to the plugin as a custom http option', async function () {
-      const createOIDCPluginSpy = sandbox.spy(
-        CompassAuthService as any,
-        'createMongoDBOIDCPlugin'
-      );
-      await CompassAuthService.init(preferences);
-      expect(createOIDCPluginSpy).to.have.been.calledOnce;
-      try {
-        expect(
-          createOIDCPluginSpy.firstCall.args[0].customHttpOptions.ca
-        ).to.include('-----BEGIN CERTIFICATE-----');
-      } catch (e) {
-        throw new Error(
-          'Expected ca to be included in the customHttpOptions, but it was not.'
-        );
-      }
     });
   });
 
@@ -346,9 +329,9 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['currentUser'] = {
         sub: '1234',
       } as any;
-      await CompassAuthService.init(preferences);
+      await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
-      expect(getListenerCount(logger)).to.eq(27);
+      expect(getListenerCount(logger)).to.eq(30);
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 

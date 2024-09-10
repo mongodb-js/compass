@@ -31,6 +31,7 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
       onClick={onClick}
       leftGlyph={<Icon glyph="Trash"></Icon>}
       data-testid="crud-bulk-delete"
+      title="Delete"
     >
       <span className={hiddenOnNarrowStyles}>Delete</span>
     </Button>
@@ -64,9 +65,8 @@ const DeleteMenu: React.FunctionComponent<DeleteMenuProps> = ({
         </div>
       )}
       // Disable the tooltip when the instance is in a writable state.
-      isDisabled={isWritable}
+      enabled={!isWritable}
       justify="middle"
-      delay={500}
     >
       {disabledTooltip}
     </Tooltip>

@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import { toggleAutoPreview } from './auto-preview';
 import configureStore from '../../test/configure-store';
+import type { AggregationsStore } from '../stores/store';
 
 describe('auto preview module', function () {
-  let store: ReturnType<typeof configureStore>;
-  beforeEach(function () {
-    store = configureStore();
+  let store: AggregationsStore;
+  beforeEach(async function () {
+    store = (await configureStore()).plugin.store;
   });
 
   it('returns the default state', function () {

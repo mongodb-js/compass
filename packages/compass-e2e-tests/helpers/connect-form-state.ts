@@ -41,6 +41,7 @@ export interface ConnectFormState {
 
   // - OIDC
   oidcUsername?: string; // (Principal).
+  oidcUseApplicationProxy?: boolean;
 
   // - AWS IAM
   awsAccessKeyId?: string;
@@ -55,16 +56,21 @@ export interface ConnectFormState {
   tlsInsecure?: boolean;
   tlsAllowInvalidHostnames?: boolean;
   tlsAllowInvalidCertificates?: boolean;
-  useSystemCA?: boolean;
 
   // Proxy/SSH
-  proxyMethod?: 'none' | 'password' | 'identity' | 'socks';
+  proxyMethod?: 'none' | 'password' | 'identity' | 'socks' | 'app-proxy';
 
   // FLE2
   fleKeyVaultNamespace?: string;
   fleStoreCredentials?: boolean;
-  fleKey?: string;
   fleEncryptedFieldsMap?: string;
+  kmsProviders?: {
+    // For now adding support for local only
+    local?: {
+      name?: string;
+      key: string;
+    }[];
+  };
 
   // - SSH with Password
   sshPasswordHost?: string;

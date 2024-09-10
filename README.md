@@ -50,6 +50,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/compass-logging**](packages/compass-logging): Shared helpers for logging in Compass packages
 - [**@mongodb-js/compass-maybe-protect-connection-string**](packages/compass-maybe-protect-connection-string): Utility for protecting connection strings if requested
 - [**@mongodb-js/compass-settings**](packages/compass-settings): Settings for compass
+- [**@mongodb-js/compass-telemetry**](packages/compass-telemetry): Compass telemetry
 - [**@mongodb-js/compass-test-server**](packages/compass-test-server): Wrapper around mongodb-runner to manage test servers for Compass
 - [**@mongodb-js/compass-user-data**](packages/compass-user-data): undefined
 - [**@mongodb-js/compass-utils**](packages/compass-utils): Utilities for MongoDB Compass Development
@@ -62,7 +63,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/databases-collections-list**](packages/databases-collections-list): List view for the databases and collections
 - [**@mongodb-js/explain-plan-helper**](packages/explain-plan-helper): Explain plan utility methods for MongoDB Compass
 - [**@mongodb-js/my-queries-storage**](packages/my-queries-storage): Saved aggregations and queries storage
-- [**@mongodb-js/ssh-tunnel**](packages/ssh-tunnel): Yet another ssh tunnel based on ssh2
+- [**@mongodb-js/reflux-state-mixin**](packages/reflux-state-mixin): Reflux stores mixin adding 'state' syntax similar to React components
 - [**bson-transpilers**](packages/bson-transpilers): Source to source compilers using ANTLR
 - [**compass-e2e-tests**](packages/compass-e2e-tests): E2E test suite for Compass app that follows smoke tests / feature testing matrix
 - [**compass-preferences-model**](packages/compass-preferences-model): Compass preferences model
@@ -84,6 +85,7 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**@mongodb-js/eslint-plugin-compass**](configs/eslint-plugin-compass): Custom eslint rules for Compass monorepo
 - [**@mongodb-js/mocha-config-compass**](configs/mocha-config-compass): Shared mocha mocha configuration for Compass packages
 - [**@mongodb-js/prettier-config-compass**](configs/prettier-config-compass): Shared Compass prettier configuration
+- [**@mongodb-js/testing-library-compass**](configs/testing-library-compass): Compass unit testing utils
 - [**@mongodb-js/tsconfig-compass**](configs/tsconfig-compass): Shared Compass Typescript configuration
 - [**@mongodb-js/webpack-config-compass**](configs/webpack-config-compass): Shared webpack configuration for Compass application and plugins
 

@@ -1,32 +1,26 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import Aggregations from '.';
-import configureStore from '../../../test/configure-store';
-import { Provider } from 'react-redux';
+import { renderWithStore } from '../../../test/configure-store';
+import { cleanup, screen } from '@mongodb-js/testing-library-compass';
 
 describe('Aggregations [Component]', function () {
-  let component: ReturnType<typeof mount> | null;
-
-  beforeEach(function () {
-    component = mount(
-      <Provider store={configureStore()}>
-        <Aggregations
-          showExportButton={true}
-          showRunButton={true}
-          showExplainButton={true}
-        />
-      </Provider>
+  beforeEach(async function () {
+    await renderWithStore(
+      <Aggregations
+        showExportButton={true}
+        showRunButton={true}
+        showExplainButton={true}
+      />
     );
   });
 
   afterEach(function () {
-    component?.unmount();
-    component = null;
+    cleanup();
   });
 
   it('renders the correct root classname', function () {
-    expect(component?.find(`[data-testid="compass-aggregations"]`)).exist;
+    expect(screen.getByTestId('compass-aggregations')).exist;
   });
 });

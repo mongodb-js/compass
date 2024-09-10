@@ -1,4 +1,4 @@
-import type { Reducer, AnyAction } from 'redux';
+import type { Reducer, AnyAction, Action } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import AppRegistry from 'hadron-app-registry';
@@ -286,7 +286,7 @@ const cleanupRemovedTabs = (
   }
 };
 
-const reducer: Reducer<WorkspacesState> = (
+const reducer: Reducer<WorkspacesState, Action> = (
   state = getInitialState(),
   action
 ) => {
@@ -318,10 +318,23 @@ const reducer: Reducer<WorkspacesState> = (
           : state;
       }
 
-      // ... otherwise check if we can replace the current tab based on its
-      // replace handlers and force new tab opening if we can't
       if (currentActiveTab) {
-        forceNewTab = canReplaceTab(currentActiveTab) === false;
+        // if both the new workspace and the existing one are connection scoped,
+        // make sure we do not replace tabs between different connections
+        if (
+          action.workspace.type !== 'Welcome' &&
+          action.workspace.type !== 'My Queries' &&
+          currentActiveTab.type !== 'Welcome' &&
+          currentActiveTab.type !== 'My Queries'
+        ) {
+          forceNewTab =
+            action.workspace.connectionId !== currentActiveTab.connectionId;
+        }
+
+        // ... check if we can replace the current tab based on its
+        // replace handlers and force new tab opening if we can't
+        if (!forceNewTab)
+          forceNewTab = canReplaceTab(currentActiveTab) === false;
       }
     }
 

@@ -9,7 +9,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
@@ -104,12 +104,14 @@ describe('Collection import', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
     await createDummyCollections();
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
   });
 
   after(async function () {
@@ -127,7 +129,7 @@ describe('Collection import', function () {
 
   it('supports single JSON objects', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'json-array',
       'Documents'
@@ -208,7 +210,7 @@ describe('Collection import', function () {
 
   it('supports single objects in document view mode', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'json-array',
       'Documents'
@@ -284,7 +286,7 @@ describe('Collection import', function () {
 
   it('supports JSON arrays', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'json-array',
       'Documents'
@@ -329,7 +331,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === '1 – 20 of 1000';
+      return text === '1 – 25 of 1000';
     });
 
     const result = await getFirstListDocument(browser);
@@ -345,7 +347,7 @@ describe('Collection import', function () {
 
   it('displays an error for a malformed JSON array', async function () {
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'json-array',
       'Documents'
@@ -386,7 +388,7 @@ describe('Collection import', function () {
     const jsonPath = path.resolve(__dirname, '..', 'fixtures', 'listings.json');
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'json-file',
       'Documents'
@@ -398,7 +400,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('1 – 20 of 16116');
+    expect(text).to.equal('1 – 25 of 16116');
 
     const result = await getFirstListDocument(browser);
 
@@ -436,7 +438,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'extended-json-file',
       'Documents'
@@ -487,7 +489,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'extended-json-file',
       'Documents'
@@ -530,7 +532,7 @@ describe('Collection import', function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'csv-file',
       'Documents'
@@ -604,7 +606,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('1 – 20 of 16116');
+    expect(text).to.equal('1 – 25 of 16116');
 
     const result = await getFirstListDocument(browser);
 
@@ -661,7 +663,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'array-documents',
       'Documents'
@@ -876,7 +878,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'bom-csv-file',
       'Documents'
@@ -968,7 +970,7 @@ describe('Collection import', function () {
     const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'csv-file',
       'Documents'
@@ -1027,7 +1029,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'broken-delimiter',
       'Documents'
@@ -1117,7 +1119,7 @@ describe('Collection import', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'import-stop-first-error',
       'Documents'
@@ -1173,7 +1175,7 @@ describe('Collection import', function () {
     const jsonPath = path.resolve(__dirname, '..', 'fixtures', fileName);
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'import-with-errors',
       'Documents'
@@ -1208,12 +1210,13 @@ describe('Collection import', function () {
       .$(Selectors.closeToastButton(Selectors.ImportToast))
       .waitForDisplayed();
 
-    // Displays first error in the toast and view log.
+    // Displays first two errors in the toast and view log.
+    // (It tries to display two, but it also limits the text)
     const toastText = await toastElement.getText();
     expect(toastText).to.include('Import completed 0/3 with errors:');
     expect(
       (toastText.match(/E11000 duplicate key error collection/g) || []).length
-    ).to.equal(1);
+    ).to.equal(2);
     expect(toastText).to.include('VIEW LOG');
 
     const logFilePath = path.resolve(
@@ -1229,7 +1232,7 @@ describe('Collection import', function () {
     const errorCount = (
       logFileContent.match(/E11000 duplicate key error collection/g) || []
     ).length;
-    expect(errorCount).to.equal(4);
+    expect(errorCount).to.equal(3);
 
     // Close toast.
     await browser.clickVisible(
@@ -1244,7 +1247,7 @@ describe('Collection import', function () {
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'compass-import-abort-e2e-test',
         'Documents'
@@ -1320,7 +1323,7 @@ describe('Collection import', function () {
       );
 
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'compass-import-abort-e2e-test',
         'Documents'
@@ -1387,7 +1390,7 @@ describe('Collection import', function () {
       const csvPath = path.resolve(__dirname, '..', 'fixtures', 'listings.csv');
 
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME,
+        DEFAULT_CONNECTION_NAME_1,
         'test',
         'compass-import-abort-e2e-test',
         'Documents'

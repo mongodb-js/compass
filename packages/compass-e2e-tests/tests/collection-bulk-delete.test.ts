@@ -6,7 +6,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME,
+  DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -21,6 +21,7 @@ describe('Bulk Delete', function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
   });
 
   after(async function () {
@@ -30,9 +31,10 @@ describe('Bulk Delete', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString();
+    await browser.disconnectAll();
+    await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME,
+      DEFAULT_CONNECTION_NAME_1,
       'test',
       'numbers',
       'Documents'
@@ -84,7 +86,7 @@ describe('Bulk Delete', function () {
       .waitForDisplayed({ reverse: true });
 
     // Press delete in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalConfirmButton());
+    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Check the telemetry
@@ -144,7 +146,7 @@ describe('Bulk Delete', function () {
       .waitForDisplayed({ reverse: true });
 
     // Press cancel in the confirmation modal
-    await browser.clickVisible(Selectors.ConfirmationModalCancelButton());
+    await browser.clickVisible(Selectors.confirmationModalCancelButton());
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
 

@@ -1,45 +1,17 @@
 import { expect } from 'chai';
-import { waitFor, cleanup, screen, render } from '@testing-library/react';
 import sinon from 'sinon';
-import { createNewConnectionInfo } from './connections-store';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
-import { type ConnectionInfo } from '@mongodb-js/connection-storage/main';
+import { useConnections } from './connections-store';
 import {
-  InMemoryConnectionStorage,
-  type ConnectionStorage,
-  ConnectionStorageProvider,
-} from '@mongodb-js/connection-storage/provider';
-import { ConnectionsManager, ConnectionsManagerProvider } from '../provider';
-import type { DataService, connect } from 'mongodb-data-service';
-import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import type { ComponentProps } from 'react';
+  cleanup,
+  renderWithConnections,
+  waitFor,
+  screen,
+  createDefaultConnectionInfo,
+  wait,
+} from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import {
-  ConfirmationModalArea,
-  ToastArea,
-} from '@mongodb-js/compass-components';
-import {
-  ConnectionsProvider,
-  useConnections,
-} from '../components/connections-provider';
 
-function getConnectionsManager(mockTestConnectFn?: typeof connect) {
-  const { log } = createNoopLogger();
-  return new ConnectionsManager({
-    logger: log.unbound,
-    __TEST_CONNECT_FN: mockTestConnectFn,
-  });
-}
-
-function wait(ms: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
-
-const mockConnections: ConnectionInfo[] = [
+const mockConnections = [
   {
     id: 'turtle',
     connectionOptions: {
@@ -48,7 +20,7 @@ const mockConnections: ConnectionInfo[] = [
     favorite: {
       name: 'turtles',
     },
-    savedConnectionType: 'favorite',
+    savedConnectionType: 'favorite' as const,
   },
   {
     id: 'oranges',
@@ -58,113 +30,94 @@ const mockConnections: ConnectionInfo[] = [
     favorite: {
       name: 'peaches',
     },
-    savedConnectionType: 'favorite',
+    savedConnectionType: 'favorite' as const,
   },
 ];
 
+const defaultPreferences = {
+  enableMultipleConnectionSystem: true,
+  maximumNumberOfActiveConnections: undefined,
+};
+
+// A bit of a special case, testing-library doesn't allow to test hooks that
+// have UI side-effects, but we're doing it in these connection hooks
+function renderHookWithConnections<T>(
+  cb: () => T,
+  options: Parameters<typeof renderWithConnections>[1]
+) {
+  const hookResult = { current: null } as { current: T };
+  const HookGetter = () => {
+    hookResult.current = cb();
+    return null;
+  };
+  const result = renderWithConnections(<HookGetter></HookGetter>, options);
+  return { ...result, result: hookResult };
+}
+
 describe('useConnections', function () {
-  let connectionsManager: ConnectionsManager;
-  let mockConnectionStorage: ConnectionStorage;
-  let preferences: PreferencesAccess;
-  let renderHookWithContext: (
-    props?: ComponentProps<typeof ConnectionsProvider>
-  ) => { current: ReturnType<typeof useConnections> };
-
-  before(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
-    renderHookWithContext = (props) => {
-      const wrapper: React.FC = ({ children }) => {
-        return (
-          <ToastArea>
-            <ConfirmationModalArea>
-              <PreferencesProvider value={preferences}>
-                <ConnectionStorageProvider value={mockConnectionStorage}>
-                  <ConnectionsManagerProvider value={connectionsManager}>
-                    <ConnectionsProvider {...props}>
-                      {children}
-                    </ConnectionsProvider>
-                  </ConnectionsManagerProvider>
-                </ConnectionStorageProvider>
-              </PreferencesProvider>
-            </ConfirmationModalArea>
-          </ToastArea>
-        );
-      };
-      const hookResult: { current: ReturnType<typeof useConnections> } = {
-        current: {} as any,
-      };
-      const UseConnections = () => {
-        hookResult.current = useConnections();
-        return null;
-      };
-      render(<UseConnections></UseConnections>, { wrapper });
-      return hookResult;
-    };
-  });
-
-  beforeEach(async function () {
-    await preferences.savePreferences({
-      enableNewMultipleConnectionSystem: true,
-      maximumNumberOfActiveConnections: undefined,
-    });
-    mockConnectionStorage = new InMemoryConnectionStorage([...mockConnections]);
-    connectionsManager = getConnectionsManager(async () => {
-      await wait(200);
-      return {
-        mockDataService: 'yes',
-        addReauthenticationHandler() {},
-        getUpdatedSecrets() {
-          return Promise.resolve({});
-        },
-        disconnect() {},
-      } as unknown as DataService;
-    });
-  });
-
   afterEach(() => {
     cleanup();
+    sinon.resetHistory();
     sinon.restore();
   });
 
   it('autoconnects on mount and does not save autoconnect info', async function () {
-    const onConnected = sinon.spy();
-    sinon.stub(mockConnectionStorage, 'getAutoConnectInfo').resolves({
-      id: 'new',
-      connectionOptions: {
-        connectionString: 'mongodb://autoconnect',
-      },
-    });
-    const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-
-    renderHookWithContext({ onConnected });
+    const { connectionsStore, connectionStorage } = renderHookWithConnections(
+      useConnections,
+      {
+        preferences: defaultPreferences,
+        connections: mockConnections,
+        onAutoconnectInfoRequest() {
+          return Promise.resolve({
+            id: 'autoconnect',
+            connectionOptions: {
+              connectionString: 'mongodb://autoconnect',
+            },
+          });
+        },
+      }
+    );
 
     await waitFor(() => {
-      expect(onConnected).to.have.been.called;
+      expect(connectionsStore.getState().connections.byId)
+        .to.have.property('autoconnect')
+        .have.property('status', 'connected');
+    });
+
+    const storedConnection = await connectionStorage.load({
+      id: 'autoconnect',
     });
 
     // autoconnect info should never be saved
-    expect(saveSpy).to.not.have.been.called;
+    expect(storedConnection).to.eq(undefined);
   });
 
   describe('#connect', function () {
-    it('should show notifications throughout connection flow and save connection on disk', async function () {
-      const onConnectionAttemptStarted = sinon.spy();
-      const onConnected = sinon.spy();
-      const connections = renderHookWithContext({
-        onConnectionAttemptStarted,
-        onConnected,
-      });
-      const saveSpy = sinon.spy(mockConnectionStorage, 'save');
+    it('should show notifications throughout connection flow and save connection to persistent store', async function () {
+      const { result, connectionStorage, track } = renderHookWithConnections(
+        useConnections,
+        {
+          preferences: defaultPreferences,
+          connectFn: async () => {
+            await wait(100);
+            return {};
+          },
+        }
+      );
 
-      const connectionInfo = createNewConnectionInfo();
-      const connectPromise = connections.current.connect(connectionInfo);
+      const connectionInfo = createDefaultConnectionInfo();
+
+      const storedConnectionBeforeConnect = await connectionStorage.load({
+        id: connectionInfo.id,
+      });
+      // Verifying it's not in storage
+      expect(storedConnectionBeforeConnect).to.eq(undefined);
+
+      const connectPromise = result.current.connect(connectionInfo);
 
       await waitFor(() => {
-        expect(onConnectionAttemptStarted).to.have.been.calledOnce;
+        expect(track).to.have.been.calledWith('Connection Attempt');
       });
-
-      // First time to save new connection in the storage
-      expect(saveSpy).to.have.been.calledOnce;
 
       await waitFor(() => {
         expect(screen.getByText('Connecting to localhost:27017')).to.exist;
@@ -174,25 +127,28 @@ describe('useConnections', function () {
 
       expect(screen.getByText('Connected to localhost:27017')).to.exist;
 
-      // Second time to update the connection lastUsed time
-      expect(saveSpy).to.have.been.calledTwice;
+      // Saved after connect
+      const storedConnectionAfterConnect = await connectionStorage.load({
+        id: connectionInfo.id,
+      });
+      expect(storedConnectionAfterConnect).to.exist;
 
-      expect(onConnected).to.have.been.calledOnce;
+      await waitFor(() => {
+        expect(track.getCall(1).firstArg).to.eq('New Connection');
+      });
     });
 
     it('should show error toast if connection failed', async function () {
-      const onConnectionFailed = sinon.spy();
-      const connections = renderHookWithContext({
-        onConnectionFailed,
+      const { result } = renderHookWithConnections(useConnections, {
+        preferences: defaultPreferences,
+        connectFn: sinon
+          .stub()
+          .rejects(new Error('Failed to connect to cluster')),
       });
 
-      const connectionInfo = createNewConnectionInfo();
+      const connectionInfo = createDefaultConnectionInfo();
 
-      sinon
-        .stub(connectionsManager, 'connect')
-        .rejects(new Error('Failed to connect to cluster'));
-
-      const connectPromise = connections.current.connect(connectionInfo);
+      const connectPromise = result.current.connect(connectionInfo);
 
       await waitFor(() => {
         expect(screen.getByText('Failed to connect to cluster')).to.exist;
@@ -200,7 +156,7 @@ describe('useConnections', function () {
 
       try {
         // Connect method should not reject, all the logic is encapsulated,
-        // there is no reason to expose it
+        // there is no reason to expose the error outside the store
         await connectPromise;
       } catch (err) {
         expect.fail('Expected connect() method to not throw');
@@ -208,9 +164,11 @@ describe('useConnections', function () {
     });
 
     it('should show non-genuine modal at the end of connection if non genuine mongodb detected', async function () {
-      const connections = renderHookWithContext();
+      const { result } = renderHookWithConnections(useConnections, {
+        preferences: defaultPreferences,
+      });
 
-      await connections.current.connect({
+      await result.current.connect({
         id: '123',
         connectionOptions: {
           connectionString:
@@ -225,16 +183,16 @@ describe('useConnections', function () {
     });
 
     it('should show max connections toast if maximum connections number reached', async function () {
-      await preferences.savePreferences({
-        maximumNumberOfActiveConnections: 0,
+      const { result } = renderHookWithConnections(useConnections, {
+        preferences: {
+          ...defaultPreferences,
+          maximumNumberOfActiveConnections: 0,
+        },
       });
 
-      const connections = renderHookWithContext();
-      const connectionInfo = createNewConnectionInfo();
-
-      sinon.spy(connectionsManager, 'connect');
-
-      const connectPromise = connections.current.connect(connectionInfo);
+      const connectPromise = result.current.connect(
+        createDefaultConnectionInfo()
+      );
 
       await waitFor(() => {
         expect(screen.getByText(/First disconnect from another connection/)).to
@@ -245,174 +203,276 @@ describe('useConnections', function () {
       await connectPromise;
     });
 
-    describe('saving connections during connect in single connection mode', function () {
-      it('should NOT update existing connection with new props when existing connection is successfull', async function () {
-        await preferences.savePreferences({
-          // We're testing multiple connections by default
-          enableNewMultipleConnectionSystem: false,
+    it('should show device auth code modal when OIDC flow triggers the notification', async function () {
+      let resolveConnect;
+      const connectFn = sinon.stub().callsFake(() => {
+        return new Promise((resolve) => {
+          resolveConnect = () => resolve({});
         });
-
-        const connections = renderHookWithContext();
-        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-
-        await connections.current.connect({
-          ...mockConnections[0],
-          favorite: { name: 'foobar' },
-        });
-
-        // Only once on success so that we're not updating existing connections if
-        // they failed
-        expect(saveSpy).to.have.been.calledOnce;
-        expect(saveSpy.getCall(0)).to.have.nested.property(
-          'args[0].connectionInfo.favorite.name',
-          'turtles'
-        );
       });
 
-      it('should not update existing connection if connection failed', async function () {
-        await preferences.savePreferences({
-          enableNewMultipleConnectionSystem: false,
-        });
-
-        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-        const onConnectionFailed = sinon.spy();
-        const connections = renderHookWithContext({ onConnectionFailed });
-
-        sinon
-          .stub(connectionsManager, 'connect')
-          .rejects(new Error('Failed to connect'));
-
-        await connections.current.connect({
-          ...mockConnections[0],
-          favorite: { name: 'foobar' },
-        });
-
-        expect(onConnectionFailed).to.have.been.called;
-        expect(saveSpy).to.not.have.been.called;
-      });
-    });
-
-    describe('saving connections during connect in multiple connections mode', function () {
-      it('should update existing connection with new props when connection is successfull', async function () {
-        const connections = renderHookWithContext();
-        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-
-        await connections.current.connect({
-          ...mockConnections[0],
-          favorite: { name: 'foobar' },
-        });
-
-        // Saved before and after in multiple connections mode
-        expect(saveSpy).to.have.been.calledTwice;
-        expect(saveSpy.getCall(0)).to.have.nested.property(
-          'args[0].connectionInfo.favorite.name',
-          'foobar'
-        );
-        expect(saveSpy.getCall(1)).to.have.nested.property(
-          'args[0].connectionInfo.favorite.name',
-          'foobar'
-        );
+      const { result } = renderHookWithConnections(useConnections, {
+        preferences: defaultPreferences,
+        connectFn,
       });
 
-      it('should always update existing connection even if conneciton will fail', async function () {
-        const saveSpy = sinon.spy(mockConnectionStorage, 'save');
-        const onConnectionFailed = sinon.spy();
-        const connections = renderHookWithContext({ onConnectionFailed });
+      const connectPromise = result.current.connect(
+        createDefaultConnectionInfo()
+      );
 
-        sinon
-          .stub(connectionsManager, 'connect')
-          .rejects(new Error('Failed to connect'));
+      await waitFor(() => {
+        expect(connectFn).to.have.been.calledOnce;
+      });
 
-        await connections.current.connect({
-          ...mockConnections[0],
-          connectionOptions: {
-            connectionString: 'mongodb://super-broken-new-url',
-          },
-        });
+      const connectionOptions = connectFn.getCall(0).firstArg;
 
-        expect(onConnectionFailed).to.have.been.called;
-        expect(saveSpy).to.have.been.called;
+      connectionOptions.oidc.notifyDeviceFlow({
+        verificationUrl: 'http://example.com/device-auth',
+        userCode: 'ABCabc123',
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/Visit the following URL to complete authentication/)
+        ).to.exist;
+
+        expect(
+          screen.getByRole('link', { name: 'http://example.com/device-auth' })
+        ).to.exist;
+
+        expect(screen.getByText('ABCabc123')).to.exist;
+      });
+
+      resolveConnect();
+
+      await connectPromise;
+
+      await waitFor(() => {
+        expect(() =>
+          screen.getByText('Complete authentication in the browser')
+        ).to.throw();
       });
     });
+
+    for (const multipleConnectionsEnabled of [true, false]) {
+      describe(`when multiple connections ${
+        multipleConnectionsEnabled ? 'enabled' : 'disabled'
+      }`, function () {
+        it('should only update favorite info for existing connection with new props when existing connection is successfull', async function () {
+          const { result, connectionStorage } = renderHookWithConnections(
+            useConnections,
+            {
+              connections: mockConnections,
+              preferences: {
+                ...defaultPreferences,
+                enableMultipleConnectionSystem: multipleConnectionsEnabled,
+              },
+            }
+          );
+
+          await result.current.connect({
+            ...mockConnections[0],
+            connectionOptions: {
+              ...mockConnections[0].connectionOptions,
+              connectionString: 'mongodb://foobar',
+            },
+            favorite: { name: 'foobar' },
+          });
+
+          const storedConnection = await connectionStorage.load({
+            id: mockConnections[0].id,
+          });
+
+          // Connection string in the storage wasn't updated
+          expect(storedConnection).to.have.nested.property(
+            'connectionOptions.connectionString',
+            'mongodb://turtle'
+          );
+
+          // Connection favorite name was updated
+          expect(storedConnection).to.have.nested.property(
+            'favorite.name',
+            'foobar'
+          );
+        });
+
+        it('should not update existing connection if connection failed', async function () {
+          const { result, connectionStorage } = renderHookWithConnections(
+            useConnections,
+            {
+              connections: mockConnections,
+              preferences: {
+                ...defaultPreferences,
+                enableMultipleConnectionSystem: multipleConnectionsEnabled,
+              },
+              connectFn: sinon.stub().rejects(new Error('Failed to connect')),
+            }
+          );
+
+          await result.current.connect({
+            ...mockConnections[0],
+            favorite: { name: 'foobar' },
+          });
+
+          // Connection in the storage wasn't updated
+          expect(
+            await connectionStorage.load({ id: mockConnections[0].id })
+          ).to.have.nested.property('favorite.name', 'turtles');
+        });
+      });
+    }
   });
 
   describe('#disconnect', function () {
     it('disconnect even if connection is in progress cleaning up progress toasts', async function () {
-      const connections = renderHookWithContext();
+      const { result, track } = renderHookWithConnections(useConnections, {
+        preferences: defaultPreferences,
+        connectFn() {
+          return new Promise(() => {
+            // going to cancel this one
+          });
+        },
+      });
 
-      sinon.spy(connectionsManager, 'closeConnection');
-
-      const connectionInfo = createNewConnectionInfo();
-      const connectPromise = connections.current.connect(connectionInfo);
+      const connectionInfo = createDefaultConnectionInfo();
+      const connectPromise = result.current.connect(connectionInfo);
 
       await waitFor(() => {
         expect(screen.getByText(/Connecting to/)).to.exist;
       });
 
-      await connections.current.disconnect(connectionInfo.id);
+      result.current.disconnect(connectionInfo.id);
       await connectPromise;
 
+      expect(track).to.have.been.calledWith('Connection Disconnected');
       expect(() => screen.getByText(/Connecting to/)).to.throw;
-      expect(connectionsManager).to.have.property('closeConnection').have.been
-        .called;
     });
   });
 
   describe('#createNewConnection', function () {
-    it('should "open" connection form create new connection info for editing every time', function () {
-      const connections = renderHookWithContext();
+    it('in single connection mode should "open" connection form create new connection info for editing every time', function () {
+      const { result } = renderHookWithConnections(useConnections, {
+        preferences: { enableMultipleConnectionSystem: false },
+      });
 
-      expect(connections.current.state.isEditingConnectionInfoModalOpen).to.eq(
+      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(
         false
       );
 
-      connections.current.createNewConnection();
-      const conn1 = connections.current.state.editingConnectionInfo;
+      result.current.createNewConnection();
+      const conn1 = result.current.state.editingConnectionInfo;
 
-      expect(connections.current.state.isEditingConnectionInfoModalOpen).to.eq(
-        true
-      );
+      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(true);
 
-      connections.current.createNewConnection();
-      const conn2 = connections.current.state.editingConnectionInfo;
+      result.current.createNewConnection();
+      const conn2 = result.current.state.editingConnectionInfo;
 
-      expect(connections.current.state.isEditingConnectionInfoModalOpen).to.eq(
-        true
-      );
+      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(true);
 
-      connections.current.createNewConnection();
-      const conn3 = connections.current.state.editingConnectionInfo;
+      result.current.createNewConnection();
+      const conn3 = result.current.state.editingConnectionInfo;
 
-      expect(connections.current.state.isEditingConnectionInfoModalOpen).to.eq(
-        true
-      );
+      expect(result.current.state.isEditingConnectionInfoModalOpen).to.eq(true);
 
       expect(conn1).to.not.deep.eq(conn2);
       expect(conn1).to.not.deep.eq(conn3);
     });
   });
 
-  describe('#editConnection', function () {
-    it('should only allow to edit existing connections', async function () {
-      const connections = renderHookWithContext();
+  describe('#saveEditedConnection', function () {
+    it('new connection: should call save and track the creation', async function () {
+      const { result, track, connectionStorage } = renderHookWithConnections(
+        useConnections,
+        {
+          preferences: defaultPreferences,
+        }
+      );
 
-      // Waiting for connections to load first
+      // We can't save non-existent connections, create new one before
+      // proceeding
+      result.current.createNewConnection();
+
+      const newConnection = {
+        ...result.current.state.editingConnectionInfo,
+        favorite: {
+          name: 'peaches (50) peaches',
+        },
+        savedConnectionType: 'favorite' as const,
+      };
+
+      await result.current.saveEditedConnection(newConnection);
+
+      expect(track).to.have.been.calledWith('Connection Created');
+
+      expect(await connectionStorage.load({ id: newConnection.id })).to.exist;
+    });
+
+    it('existing connection: should call save and should not track the creation', async function () {
+      const { result, track, connectionStorage } = renderHookWithConnections(
+        useConnections,
+        {
+          connections: mockConnections,
+          preferences: defaultPreferences,
+        }
+      );
+
+      const updatedConnection = {
+        ...mockConnections[0],
+        savedConnectionType: 'recent' as const,
+      };
+
+      await result.current.saveEditedConnection(updatedConnection);
+
+      expect(track).not.to.have.been.called;
+
+      expect(
+        await connectionStorage.load({ id: updatedConnection.id })
+      ).to.have.property('savedConnectionType', 'recent');
+    });
+  });
+
+  describe('#removeConnection', function () {
+    it('should disconnect and call delete and track the deletion', async function () {
+      const { result, connectionsStore, connectionStorage, track } =
+        renderHookWithConnections(useConnections, {
+          connections: mockConnections,
+          preferences: defaultPreferences,
+        });
+
+      result.current.removeConnection(mockConnections[0].id);
+
       await waitFor(() => {
-        expect(connections.current.favoriteConnections).to.have.lengthOf.gt(0);
+        expect(track).to.have.been.calledWith('Connection Removed');
+        expect(track).to.have.been.calledWith('Connection Disconnected');
       });
 
-      connections.current.editConnection('123');
-      expect(connections.current.state).to.have.property(
+      expect(connectionsStore.getState().connections.byId).to.not.have.property(
+        mockConnections[0].id
+      );
+      expect(await connectionStorage.load({ id: mockConnections[0].id })).to.not
+        .exist;
+    });
+  });
+
+  describe('#editConnection', function () {
+    it('should only allow to edit existing connections', function () {
+      const { result } = renderHookWithConnections(useConnections, {
+        connections: mockConnections,
+        preferences: defaultPreferences,
+      });
+
+      result.current.editConnection('123');
+      expect(result.current.state).to.have.property(
         'isEditingConnectionInfoModalOpen',
         false
       );
 
-      connections.current.editConnection(mockConnections[0].id);
-      expect(connections.current.state).to.have.property(
+      result.current.editConnection(mockConnections[0].id);
+      expect(result.current.state).to.have.property(
         'isEditingConnectionInfoModalOpen',
         true
       );
-      expect(connections.current.state).to.have.property(
+      expect(result.current.state).to.have.property(
         'editingConnectionInfo',
         mockConnections[0]
       );
@@ -420,52 +480,95 @@ describe('useConnections', function () {
   });
 
   describe('#duplicateConnection', function () {
-    it('should copy connection and add a copy number at the end', async function () {
-      const connections = renderHookWithContext();
+    it('should copy connection and add a copy number at the end', function () {
+      const { result, connectionsStore } = renderHookWithConnections(
+        useConnections,
+        {
+          connections: mockConnections,
+          preferences: defaultPreferences,
+        }
+      );
 
       for (let i = 0; i <= 30; i++) {
-        await connections.current.duplicateConnection(mockConnections[1].id, {
+        result.current.duplicateConnection(mockConnections[1].id, {
           autoDuplicate: true,
         });
       }
 
       expect(
-        connections.current.favoriteConnections.find((info) => {
-          return info.favorite.name === 'peaches (30)';
-        })
-      ).to.exist;
+        Object.values(connectionsStore.getState().connections.byId).findIndex(
+          (connection) => {
+            return connection.info.favorite?.name === 'peaches (30)';
+          }
+        )
+      ).to.be.gte(0);
     });
 
-    it('should only look for copy number at the end of the connection name', async function () {
-      const connections = renderHookWithContext();
+    it('should create a name if there is none', async function () {
+      const { result, connectionsStore } = renderHookWithConnections(
+        useConnections,
+        {
+          connections: [
+            {
+              id: '123',
+              connectionOptions: {
+                connectionString: 'mongodb://localhost:27017',
+              },
+              favorite: {
+                name: '',
+                color: 'color2',
+              },
+              savedConnectionType: 'recent' as const,
+            },
+          ],
+          preferences: defaultPreferences,
+        }
+      );
 
-      const newConnection = {
-        ...createNewConnectionInfo(),
-        favorite: {
-          name: 'peaches (50) peaches',
-        },
-        savedConnectionType: 'favorite',
-      };
-
-      await connections.current.saveEditedConnection(newConnection);
-
-      await waitFor(() => {
-        expect(
-          connections.current.favoriteConnections.find((info) => {
-            return info.id === newConnection.id;
-          })
-        ).to.exist;
-      });
-
-      await connections.current.duplicateConnection(newConnection.id, {
+      result.current.duplicateConnection('123', {
         autoDuplicate: true,
       });
 
       await waitFor(() => {
         expect(
-          connections.current.favoriteConnections.find((info) => {
-            return info.favorite.name === 'peaches (50) peaches (1)';
-          })
+          Object.values(connectionsStore.getState().connections.byId).find(
+            (connection) => {
+              return connection.info.favorite?.name === 'localhost:27017 (1)';
+            }
+          )
+        ).to.exist.and.to.have.nested.property('info.favorite.color', 'color2');
+      });
+    });
+
+    it('should only look for copy number at the end of the connection name', async function () {
+      const newConnection = {
+        ...createDefaultConnectionInfo(),
+        favorite: {
+          name: 'peaches (50) peaches',
+        },
+        savedConnectionType: 'favorite' as const,
+      };
+
+      const { result, connectionsStore } = renderHookWithConnections(
+        useConnections,
+        {
+          connections: [newConnection],
+        }
+      );
+
+      result.current.duplicateConnection(newConnection.id, {
+        autoDuplicate: true,
+      });
+
+      await waitFor(() => {
+        expect(
+          Object.values(connectionsStore.getState().connections.byId).find(
+            (connection) => {
+              return (
+                connection.info.favorite?.name === 'peaches (50) peaches (1)'
+              );
+            }
+          )
         ).to.exist;
       });
     });

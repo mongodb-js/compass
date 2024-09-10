@@ -41,6 +41,9 @@ import {
   useTabConnectionTheme,
   useConnectionRepository,
 } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
+
+type Tooltip = [string, string][];
 
 const emptyWorkspaceStyles = css({
   margin: '0 auto',
@@ -154,6 +157,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   const { getWorkspacePluginByName } = useWorkspacePlugins();
   const { getThemeOf } = useTabConnectionTheme();
   const { getConnectionTitleById } = useConnectionRepository();
+  const multipleConnectionsEnabled = usePreference(
+    'enableMultipleConnectionSystem'
+  );
 
   const tabDescriptions = useMemo(() => {
     return tabs.map((tab) => {
@@ -172,66 +178,97 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
             title: tab.type,
             iconGlyph: 'CurlyBraces',
           } as const;
-        case 'Shell':
+        case 'Shell': {
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const tooltip: Tooltip = [];
+          if (connectionName) {
+            tooltip.push(['mongosh', connectionName || '']);
+          }
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: getConnectionTitleById(tab.connectionId) ?? 'MongoDB Shell',
+            title: connectionName
+              ? `mongosh: ${connectionName}`
+              : 'MongoDB Shell',
+            tooltip,
             iconGlyph: 'Shell',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Databases':
+        }
+        case 'Databases': {
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: tab.type,
-            iconGlyph: 'Database',
+            title: multipleConnectionsEnabled ? connectionName : tab.type,
+            tooltip: [['Connection', connectionName || '']] as Tooltip,
+            iconGlyph: 'Server',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Performance':
+        }
+        case 'Performance': {
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: tab.type,
+            title: multipleConnectionsEnabled
+              ? `Performance: ${connectionName}`
+              : tab.type,
+            tooltip: [['Performance', connectionName || '']] as Tooltip,
             iconGlyph: 'Gauge',
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
-        case 'Collections':
+        }
+        case 'Collections': {
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
+          const database = tab.namespace;
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
-            title: tab.namespace,
+            title: database,
+            tooltip: [
+              ['Connection', connectionName || ''],
+              ['Database', database],
+            ] as Tooltip,
             iconGlyph: 'Database',
             'data-namespace': tab.namespace,
             tabTheme: getThemeOf(tab.connectionId),
           } as const;
+        }
         case 'Collection': {
           const { database, collection, ns } = toNS(tab.namespace);
           const info = collectionInfo[ns] ?? {};
           const { isTimeSeries, isReadonly, sourceName } = info;
+          const connectionName = getConnectionTitleById(tab.connectionId) || '';
           const collectionType = isTimeSeries
             ? 'timeseries'
             : isReadonly
             ? 'view'
             : 'collection';
           // Similar to what we have in the collection breadcrumbs.
-          const subtitle = sourceName
-            ? `${database} > ${toNS(sourceName).collection} > ${collection}`
-            : tab.editViewName
-            ? `${database} > ${collection} > ${
-                toNS(tab.editViewName).collection
-              }`
-            : `${database} > ${collection}`;
+          const tooltip: Tooltip = [
+            ['Connection', connectionName || ''],
+            ['Database', database],
+          ];
+          if (sourceName) {
+            tooltip.push(['View', collection]);
+            tooltip.push(['Derived from', toNS(sourceName).collection]);
+          } else if (tab.editViewName) {
+            tooltip.push(['View', toNS(tab.editViewName).collection]);
+            tooltip.push(['Derived from', collection]);
+          } else {
+            tooltip.push(['Collection', collection]);
+          }
           return {
             id: tab.id,
-            connectionName: getConnectionTitleById(tab.connectionId),
+            connectionName,
             type: tab.type,
             title: collection,
-            subtitle,
+            tooltip,
             iconGlyph:
               collectionType === 'view'
                 ? 'Visibility'
@@ -244,7 +281,13 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
         }
       }
     });
-  }, [tabs, collectionInfo, getThemeOf, getConnectionTitleById]);
+  }, [
+    tabs,
+    collectionInfo,
+    getThemeOf,
+    getConnectionTitleById,
+    multipleConnectionsEnabled,
+  ]);
 
   const activeTabIndex = tabs.findIndex((tab) => tab === activeTab);
 
@@ -317,7 +360,10 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
   }, [onCreateTab, openOnEmptyWorkspace]);
 
   return (
-    <div className={workspacesContainerStyles}>
+    <div
+      className={workspacesContainerStyles}
+      data-testid="workspace-tabs-container"
+    >
       <WorkspaceTabs
         aria-label="Workspace Tabs"
         onSelectTab={onSelectTab}

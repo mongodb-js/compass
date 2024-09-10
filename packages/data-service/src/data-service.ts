@@ -1,4 +1,7 @@
-import type SshTunnel from '@mongodb-js/ssh-tunnel';
+import type {
+  DevtoolsProxyOptions,
+  Tunnel,
+} from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -926,6 +929,7 @@ function op<T extends unknown[], K>(
 
 class DataServiceImpl extends WithLogContext implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
+  private readonly _proxyOptions: Readonly<DevtoolsProxyOptions>;
   private _isConnecting = false;
   private _mongoClientConnectionOptions?: {
     url: string;
@@ -942,7 +946,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
-  private _tunnel?: SshTunnel;
+  private _tunnel?: Tunnel;
   private _state?: DevtoolsConnectionState;
   private _reauthenticationHandlers = new Set<ReauthenticationHandler>();
 
@@ -970,11 +974,13 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
   constructor(
     connectionOptions: Readonly<ConnectionOptions>,
-    logger?: DataServiceImplLogger
+    logger?: DataServiceImplLogger,
+    proxyOptions?: DevtoolsProxyOptions
   ) {
     super();
     this._id = id++;
     this._connectionOptions = connectionOptions;
+    this._proxyOptions = proxyOptions ?? {};
     const logComponent = 'COMPASS-DATA-SERVICE';
     const logCtx = `Connection ${this._id}`;
     this._logger = {
@@ -1033,7 +1039,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._mongoClientConnectionOptions,
       'options.oidc.notifyDeviceFlow',
       'options.oidc.signal',
-      'options.oidc.allowedFlows'
+      'options.oidc.allowedFlows',
+      'options.oidc.customHttpOptions.agent'
     );
   }
 
@@ -1464,6 +1471,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       const [metadataClient, crudClient, tunnel, state, connectionOptions] =
         await connectMongoClient({
           connectionOptions: this._connectionOptions,
+          proxyOptions: this._proxyOptions,
           setupListeners: this._setupListeners.bind(this),
           signal,
           logger: this._unboundLogger,
@@ -1853,8 +1861,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return {
       ns,
       verbosity:
-        executionOptions?.explainVerbosity ||
-        ExplainVerbosity.allPlansExecution,
+        executionOptions?.explainVerbosity || ExplainVerbosity.executionStats,
     };
   })
   explainFind(
@@ -1864,7 +1871,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity || ExplainVerbosity.allPlansExecution;
+      executionOptions?.explainVerbosity || ExplainVerbosity.executionStats;
 
     let cursor: FindCursor;
     return this._cancellableOperation(
@@ -1886,8 +1893,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return {
       ns,
       verbosity:
-        executionOptions?.explainVerbosity ||
-        ExplainVerbosity.allPlansExecution,
+        executionOptions?.explainVerbosity || ExplainVerbosity.executionStats,
     };
   })
   explainAggregate(
@@ -1897,7 +1903,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity || ExplainVerbosity.queryPlanner;
+      executionOptions?.explainVerbosity || ExplainVerbosity.executionStats;
 
     let cursor: AggregationCursor;
     return this._cancellableOperation(

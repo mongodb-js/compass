@@ -34,14 +34,7 @@ export const PipelineName: React.FunctionComponent<PipelineNameProps> = ({
       {name === '' ? (
         'Untitled'
       ) : (
-        <Tooltip
-          trigger={({ children, ...props }) => (
-            <span {...props} className={nameStyles}>
-              {children}
-              {name}
-            </span>
-          )}
-        >
+        <Tooltip trigger={<span className={nameStyles}>{name}</span>}>
           <Body>{name}</Body>
         </Tooltip>
       )}

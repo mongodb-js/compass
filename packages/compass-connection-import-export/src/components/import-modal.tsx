@@ -13,7 +13,7 @@ import { Passphrase } from './passphrase';
 import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
-import { useImportConnections } from '../hooks/use-import';
+import { useImportConnections } from '../hooks/use-import-connections';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const TOAST_TIMEOUT_MS = 5000;
@@ -39,7 +39,7 @@ export function ImportConnectionsModal({
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
   const multipleConnectionsEnabled = usePreference(
-    'enableNewMultipleConnectionSystem'
+    'enableMultipleConnectionSystem'
   );
   const { openToast } = useToast('compass-connection-import-export');
   const finish = useCallback(

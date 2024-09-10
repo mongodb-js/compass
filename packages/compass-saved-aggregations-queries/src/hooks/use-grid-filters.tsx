@@ -87,7 +87,9 @@ function useSearchFilter(): [React.ReactElement, string] {
         }}
         onBlur={() => {
           if (search.length > 0) {
-            track('My Queries Search');
+            track('My Queries Search', {
+              //
+            });
           }
         }}
         spellCheck={false}

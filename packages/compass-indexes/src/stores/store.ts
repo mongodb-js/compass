@@ -64,20 +64,21 @@ export type IndexesStore = Store<RootState> & {
 export function activateIndexesPlugin(
   options: IndexesPluginOptions,
   {
-    dataService,
     connectionInfoAccess,
     instance,
     localAppRegistry,
     globalAppRegistry,
     logger,
     track,
+    dataService,
   }: IndexesPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
   const store: IndexesStore = createStore(
     reducer,
     {
-      dataService,
+      isWritable: instance.isWritable,
+      description: instance.description,
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
@@ -96,11 +97,13 @@ export function activateIndexesPlugin(
         logger,
         track,
         connectionInfoAccess,
+        dataService,
       })
     )
   );
 
   on(localAppRegistry, 'refresh-regular-indexes', () => {
+    localAppRegistry.emit('refresh-collection-stats');
     void store.dispatch(fetchIndexes());
   });
 
@@ -136,10 +139,6 @@ export function activateIndexesPlugin(
     void store.dispatch(fetchIndexes());
     void store.dispatch(refreshSearchIndexes());
   });
-
-  // set the initial values
-  store.dispatch(writeStateChanged(instance.isWritable));
-  store.dispatch(getDescription(instance.description));
 
   // these can change later
   on(instance, 'change:isWritable', () => {

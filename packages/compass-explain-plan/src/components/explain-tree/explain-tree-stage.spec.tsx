@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import {

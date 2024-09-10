@@ -1,14 +1,15 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   createServiceLocator,
   createServiceProvider,
 } from 'hadron-app-registry';
 import {
-  ConnectionStatus,
-  connectionsManagerLocator,
-  useConnectionRepository,
-} from './provider';
+  ConnectionsStoreContext,
+  useConnectionForId,
+  useConnectionInfoRefForId,
+} from './stores/store-context';
+import type { ConnectionId } from './stores/connections-store-redux';
 
 export type { ConnectionInfo };
 
@@ -17,12 +18,19 @@ export type ConnectionInfoAccess = {
 };
 
 const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
+
+const ConnectionIdContext = createContext<ConnectionId | null>(null);
+
+/**
+ * @deprecated define connection for your test separately
+ */
 export const TEST_CONNECTION_INFO: ConnectionInfo = {
   id: 'TEST',
   connectionOptions: {
     connectionString: 'mongodb://localhost:27020',
   },
 };
+
 export function useConnectionInfo() {
   const connectionInfo = useContext(ConnectionInfoContext);
   if (!connectionInfo) {
@@ -35,8 +43,9 @@ export function useConnectionInfo() {
   }
   return connectionInfo;
 }
+
 export const ConnectionInfoProvider: React.FC<{
-  connectionInfoId?: string;
+  connectionInfoId: string;
   children?:
     | ((connectionInfo: ConnectionInfo) => React.ReactNode)
     | React.ReactNode;
@@ -44,27 +53,51 @@ export const ConnectionInfoProvider: React.FC<{
   connectionInfoId,
   children,
 }) {
-  const { getConnectionInfoById } = useConnectionRepository();
-  const connectionInfo = connectionInfoId
-    ? getConnectionInfoById(connectionInfoId)
-    : undefined;
-  const connectionsManager = connectionsManagerLocator();
-  const isConnected =
-    connectionInfo &&
-    connectionsManager.statusOf(connectionInfo.id) ===
-      ConnectionStatus.Connected;
-  return isConnected && connectionInfo ? (
-    <ConnectionInfoContext.Provider value={connectionInfo}>
-      {typeof children === 'function' ? children(connectionInfo) : children}
-    </ConnectionInfoContext.Provider>
+  const connection = useConnectionForId(connectionInfoId);
+  const isConnected = connection?.status === 'connected';
+  return isConnected ? (
+    <ConnectionIdContext.Provider value={connection.info.id}>
+      <ConnectionInfoContext.Provider value={connection.info}>
+        {typeof children === 'function' ? children(connection.info) : children}
+      </ConnectionInfoContext.Provider>
+    </ConnectionIdContext.Provider>
   ) : null;
 });
+
+/**
+ * @deprecated use `useConnectionInfoRef` instead
+ */
 export const useConnectionInfoAccess = (): ConnectionInfoAccess => {
-  const connectionInfo = useConnectionInfo();
-  const connectionInfoRef = useRef(connectionInfo);
-  connectionInfoRef.current = connectionInfo;
+  let connectionId = useContext(ConnectionIdContext);
+  if (!connectionId) {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error(
+        'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
+      );
+    }
+    connectionId = TEST_CONNECTION_INFO.id;
+  }
+  // TODO: remove when all tests are using new testing helpers
+  if (!useContext(ConnectionsStoreContext) && process.env.NODE_ENV === 'test') {
+    return {
+      getCurrentConnectionInfo() {
+        return TEST_CONNECTION_INFO;
+      },
+    };
+  }
+  // This is stable in all environments
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const connectionInfoRef = useConnectionInfoRefForId(connectionId);
   return {
     getCurrentConnectionInfo() {
+      if (!connectionInfoRef.current) {
+        if (process.env.NODE_ENV !== 'test') {
+          throw new Error(
+            'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
+          );
+        }
+        return TEST_CONNECTION_INFO;
+      }
       return connectionInfoRef.current;
     },
   };
@@ -80,6 +113,10 @@ type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
   ? A
   : never;
 
+/**
+ * @deprecated instead of using HOC, refactor class component to functional
+ * component
+ */
 function withConnectionInfoAccess<
   T extends ((...args: any[]) => any) | { new (...args: any[]): any }
 >(

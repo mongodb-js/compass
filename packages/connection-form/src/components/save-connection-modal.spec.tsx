@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -7,7 +12,7 @@ import SaveConnectionModal from './save-connection-modal';
 
 describe('SaveConnectionModal Component', function () {
   let onSaveSpy: sinon.SinonSpy;
-  let onCancelSpy;
+  let onCancelSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onSaveSpy = sinon.spy();

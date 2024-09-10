@@ -1,7 +1,8 @@
-import type {
-  ResolveOptions,
-  WebpackPluginInstance,
-  Configuration,
+import {
+  type ResolveOptions,
+  type WebpackPluginInstance,
+  type Configuration,
+  ProvidePlugin,
 } from 'webpack';
 import { merge } from 'webpack-merge';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
@@ -110,6 +111,11 @@ const sharedResolveOptions = (
   };
 };
 
+const providePlugin = new ProvidePlugin({
+  URL: ['whatwg-url', 'URL'],
+  URLSearchParams: ['whatwg-url', 'URLSearchParams'],
+});
+
 export function createElectronMainConfig(
   args: Partial<ConfigArgs>
 ): WebpackConfig {
@@ -212,6 +218,7 @@ export function createElectronRendererConfig(
     plugins: [
       ...entriesToHtml(entries),
       new WebpackPluginMulticompilerProgress(),
+      providePlugin,
     ],
     node: false as const,
     externals: toCommonJsExternal(sharedExternals),
@@ -339,8 +346,9 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
       ...sharedResolveOptions(opts.target),
     },
     ignoreWarnings: sharedIgnoreWarnings,
-    plugins:
-      isServe(opts) && opts.hot
+    plugins: [
+      providePlugin,
+      ...(isServe(opts) && opts.hot
         ? [
             // Plugin types are not matching Webpack 5, but they work
             new ReactRefreshWebpackPlugin() as unknown as WebpackPluginInstance,
@@ -355,7 +363,8 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
 
             new DuplicatePackageCheckerPlugin(),
           ]
-        : [],
+        : []),
+    ],
   };
 }
 

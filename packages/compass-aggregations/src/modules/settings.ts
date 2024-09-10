@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../constants';
@@ -59,7 +59,10 @@ export const INITIAL_STATE: SettingsState = {
   limit: DEFAULT_LARGE_LIMIT, // largeLimit
 };
 
-const reducer: Reducer<SettingsState> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<SettingsState, Action> = (
+  state = INITIAL_STATE,
+  action
+) => {
   if (isAction<ToggleIsExpandedAction>(action, TOGGLE_IS_EXPANDED)) {
     const isCollapsing = !state.isExpanded === false;
     if (isCollapsing && state.isDirty === true) {

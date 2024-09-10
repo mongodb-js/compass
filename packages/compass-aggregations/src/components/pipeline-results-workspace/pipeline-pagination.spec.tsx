@@ -1,11 +1,9 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 
-import configureStore from '../../../test/configure-store';
+import { renderWithStore } from '../../../test/configure-store';
 
 import {
   PipelinePagination,
@@ -14,26 +12,24 @@ import {
 } from './pipeline-pagination';
 
 const renderPipelinePagination = (props: Record<string, unknown> = {}) => {
-  render(
-    <Provider store={configureStore()}>
-      <PipelinePagination
-        showingFrom={1}
-        showingTo={20}
-        isCountDisabled={false}
-        isPrevDisabled={false}
-        isNextDisabled={false}
-        onPrev={() => {}}
-        onNext={() => {}}
-        {...props}
-      />
-    </Provider>
+  return renderWithStore(
+    <PipelinePagination
+      showingFrom={1}
+      showingTo={20}
+      isCountDisabled={false}
+      isPrevDisabled={false}
+      isNextDisabled={false}
+      onPrev={() => {}}
+      onNext={() => {}}
+      {...props}
+    />
   );
 };
 
 describe('PipelinePagination', function () {
   describe('PipelinePagination Component', function () {
-    it('renders correctly', function () {
-      renderPipelinePagination();
+    it('renders correctly', async function () {
+      await renderPipelinePagination();
       const container = screen.getByTestId('pipeline-pagination');
       expect(
         within(container).getByTestId('pipeline-pagination-desc').textContent
@@ -45,15 +41,18 @@ describe('PipelinePagination', function () {
       expect(within(container).getByTestId('pipeline-pagination-next-action'))
         .to.exist;
     });
-    it('does not render desc when disabled', function () {
-      renderPipelinePagination({ isCountDisabled: true });
+    it('does not render desc when disabled', async function () {
+      await renderPipelinePagination({ isCountDisabled: true });
       const container = screen.getByTestId('pipeline-pagination');
       expect(() => {
         within(container).getByTestId('pipeline-pagination-desc');
       }).to.throw;
     });
-    it('renders paginate buttons as disabled when disabled', function () {
-      renderPipelinePagination({ isPrevDisabled: true, isNextDisabled: true });
+    it('renders paginate buttons as disabled when disabled', async function () {
+      await renderPipelinePagination({
+        isPrevDisabled: true,
+        isNextDisabled: true,
+      });
       const container = screen.getByTestId('pipeline-pagination');
       expect(
         within(container)
@@ -66,18 +65,18 @@ describe('PipelinePagination', function () {
           .getAttribute('aria-disabled')
       ).to.equal('true');
     });
-    it('calls onPrev when clicked', function () {
+    it('calls onPrev when clicked', async function () {
       const onPrev = spy();
-      renderPipelinePagination({ onPrev });
+      await renderPipelinePagination({ onPrev });
       const container = screen.getByTestId('pipeline-pagination');
       userEvent.click(
         within(container).getByTestId('pipeline-pagination-prev-action')
       );
       expect(onPrev.calledOnce).to.be.true;
     });
-    it('calls onNext when clicked', function () {
+    it('calls onNext when clicked', async function () {
       const onNext = spy();
-      renderPipelinePagination({ onNext });
+      await renderPipelinePagination({ onNext });
       const container = screen.getByTestId('pipeline-pagination');
       userEvent.click(
         within(container).getByTestId('pipeline-pagination-next-action')

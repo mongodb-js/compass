@@ -1,262 +1,59 @@
-import { usePreferencesContext } from 'compass-preferences-model/provider';
+import React, { useMemo } from 'react';
 import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import ConnectionString from 'mongodb-connection-string-url';
-import { merge } from 'lodash';
-import isEqual from 'lodash/isEqual';
-import {
-  ConnectionStorageEvents,
-  useConnectionStorageContext,
-} from '@mongodb-js/connection-storage/provider';
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { BSON } from 'bson';
-
-type DeepPartial<T> = T extends object
-  ? { [P in keyof T]?: DeepPartial<T[P]> }
-  : T;
-
-export type PartialConnectionInfo = DeepPartial<ConnectionInfo> &
-  Pick<ConnectionInfo, 'id'>;
-
-/**
- * Same as _.isEqual but taking into consideration BSON values.
- */
-export function areConnectionsEqual<T>(listA: T[], listB: T[]): boolean {
-  return isEqual(
-    listA.map((a: any) => BSON.serialize(a)),
-    listB.map((b: any) => BSON.serialize(b))
-  );
-}
-
-function ensureWellFormedConnectionString(connectionString: string) {
-  new ConnectionString(connectionString);
-}
-
-function sortedAlphabetically(a: ConnectionInfo, b: ConnectionInfo): number {
-  const aTitle = getConnectionTitle(a).toLocaleLowerCase();
-  const bTitle = getConnectionTitle(b).toLocaleLowerCase();
-  return aTitle.localeCompare(bTitle);
-}
+import { useCallback, useRef } from 'react';
+import { createServiceLocator } from 'hadron-app-registry';
+import { useConnections, useConnectionsList } from '../stores/store-context';
 
 export type ConnectionRepository = {
   favoriteConnections: ConnectionInfo[];
   nonFavoriteConnections: ConnectionInfo[];
-  autoConnectInfo?: ConnectionInfo;
-  saveConnection: (info: PartialConnectionInfo) => Promise<ConnectionInfo>;
-  deleteConnection: (info: ConnectionInfo) => Promise<void>;
-  findConnectionInfo: (
-    fn: (
-      value: ConnectionInfo,
-      index: number,
-      items: ConnectionInfo[]
-    ) => boolean
-  ) => ConnectionInfo | undefined;
-  filterConnectionInfo: (
-    fn: (
-      value: ConnectionInfo,
-      index: number,
-      items: ConnectionInfo[]
-    ) => boolean
-  ) => ConnectionInfo[];
-  reduceConnectionInfo: <T>(
-    fn: (
-      previousValue: T,
-      value: ConnectionInfo,
-      index: number,
-      items: ConnectionInfo[]
-    ) => T,
-    initialValue: T
-  ) => T;
   getConnectionInfoById: (
     id: ConnectionInfo['id']
   ) => ConnectionInfo | undefined;
   getConnectionTitleById: (id: ConnectionInfo['id']) => string | undefined;
 };
 
+/**
+ * @deprecated use connections-store hooks instead
+ */
 export function useConnectionRepository(): ConnectionRepository {
-  const storage = useConnectionStorageContext();
-
-  const [favoriteConnections, setFavoriteConnections] = useState<
-    ConnectionInfo[]
-  >([]);
-
-  const [nonFavoriteConnections, setNonFavoriteConnections] = useState<
-    ConnectionInfo[]
-  >([]);
-
-  const [autoConnectInfo, setAutoConnectInfo] = useState<
-    ConnectionInfo | undefined
-  >(undefined);
-
-  const favoriteConnectionsRef = useRef(favoriteConnections);
-  favoriteConnectionsRef.current = favoriteConnections;
-
-  const nonFavoriteConnectionsRef = useRef(nonFavoriteConnections);
-  nonFavoriteConnectionsRef.current = nonFavoriteConnections;
-
-  const autoConnectInfoRef = useRef(autoConnectInfo);
-  autoConnectInfoRef.current = autoConnectInfo;
-
-  const preferences = usePreferencesContext();
-
-  useEffect(() => {
-    async function updateListsOfConnections() {
-      const allConnections = (await storage.loadAll()) || [];
-      const favoriteConnections = allConnections
-        .filter((connection) => connection.savedConnectionType === 'favorite')
-        .sort(sortedAlphabetically);
-
-      const nonFavoriteConnections = allConnections
-        .filter(
-          ({ savedConnectionType }) =>
-            savedConnectionType !== 'favorite' &&
-            savedConnectionType !== 'autoConnectInfo'
-        )
-        .sort(sortedAlphabetically);
-
-      const autoConnectInfo = allConnections.find(
-        ({ savedConnectionType }) => savedConnectionType === 'autoConnectInfo'
-      );
-
-      setFavoriteConnections((prevList) => {
-        if (areConnectionsEqual(prevList, favoriteConnections)) {
-          return prevList;
-        } else {
-          return favoriteConnections;
-        }
-      });
-
-      setNonFavoriteConnections((prevList) => {
-        if (areConnectionsEqual(prevList, nonFavoriteConnections)) {
-          return prevList;
-        } else {
-          return nonFavoriteConnections;
-        }
-      });
-
-      if (autoConnectInfo) {
-        setAutoConnectInfo((prevAutoConnectInfo) => {
-          if (prevAutoConnectInfo?.id !== autoConnectInfo.id) {
-            return autoConnectInfo;
-          } else {
-            return prevAutoConnectInfo;
-          }
-        });
-      }
-    }
-
-    void updateListsOfConnections();
-
-    function updateListsOfConnectionsSubscriber() {
-      void updateListsOfConnections();
-    }
-
-    storage.on(
-      ConnectionStorageEvents.ConnectionsChanged,
-      updateListsOfConnectionsSubscriber
+  const nonFavoriteConnections = useConnectionsList((connection) => {
+    return (
+      !connection.isBeingCreated &&
+      !connection.isAutoconnectInfo &&
+      connection.info.savedConnectionType !== 'favorite'
     );
+  });
 
-    return () => {
-      storage.off(
-        ConnectionStorageEvents.ConnectionsChanged,
-        updateListsOfConnectionsSubscriber
-      );
-    };
-  }, [storage]);
+  const nonFavoriteConnectionsInfoOnly = useMemo(() => {
+    return nonFavoriteConnections.map((connection) => {
+      return connection.info;
+    });
+  }, [nonFavoriteConnections]);
 
-  const saveConnection = useCallback(
-    async (info: PartialConnectionInfo) => {
-      const oldConnectionInfo = await storage.load({ id: info.id });
-      const infoToSave = (
-        oldConnectionInfo ? merge(oldConnectionInfo, info) : info
-      ) as ConnectionInfo;
+  const favoriteConnections = useConnectionsList((connection) => {
+    return (
+      !connection.isBeingCreated &&
+      connection.info.savedConnectionType === 'favorite'
+    );
+  });
 
-      ensureWellFormedConnectionString(
-        infoToSave.connectionOptions?.connectionString
-      );
+  const favoriteConnectionsInfoOnly = useMemo(() => {
+    return favoriteConnections.map((connection) => {
+      return connection.info;
+    });
+  }, [favoriteConnections]);
 
-      if (!preferences.getPreferences().persistOIDCTokens) {
-        if (infoToSave.connectionOptions.oidc?.serializedState) {
-          infoToSave.connectionOptions.oidc.serializedState = undefined;
-        }
-      }
-
-      await storage.save?.({ connectionInfo: infoToSave });
-      return infoToSave;
-    },
-    [storage, preferences]
-  );
-
-  const deleteConnection = useCallback(
-    async (info: ConnectionInfo) => {
-      await storage.delete?.(info);
-    },
-    [storage]
-  );
-
-  const findConnectionInfo = useCallback(
-    (
-      fn: (
-        value: ConnectionInfo,
-        index: number,
-        items: ConnectionInfo[]
-      ) => boolean
-    ) => {
-      const allConnections = [
-        ...favoriteConnectionsRef.current,
-        ...nonFavoriteConnectionsRef.current,
-        ...(autoConnectInfoRef.current ? [autoConnectInfoRef.current] : []),
-      ];
-      return allConnections.find(fn);
-    },
-    []
-  );
-
-  const filterConnectionInfo = useCallback(
-    (
-      fn: (
-        value: ConnectionInfo,
-        index: number,
-        items: ConnectionInfo[]
-      ) => boolean
-    ) => {
-      const allConnections = [
-        ...favoriteConnectionsRef.current,
-        ...nonFavoriteConnectionsRef.current,
-        ...(autoConnectInfoRef.current ? [autoConnectInfoRef.current] : []),
-      ];
-      return allConnections.filter(fn);
-    },
-    []
-  );
-
-  const reduceConnectionInfo = useCallback(
-    <T>(
-      fn: (
-        previousValue: T,
-        value: ConnectionInfo,
-        index: number,
-        items: ConnectionInfo[]
-      ) => T,
-      initialValue: T
-    ): T => {
-      const allConnections = [
-        ...favoriteConnectionsRef.current,
-        ...nonFavoriteConnectionsRef.current,
-        ...(autoConnectInfoRef.current ? [autoConnectInfoRef.current] : []),
-      ];
-      return allConnections.reduce(fn, initialValue);
-    },
-    []
-  );
+  const { getConnectionById } = useConnections();
 
   const getConnectionInfoById = useCallback(
     (connectionInfoId: ConnectionInfo['id']) => {
-      return findConnectionInfo(({ id }) => id === connectionInfoId);
+      return getConnectionById(connectionInfoId)?.info;
     },
-    [findConnectionInfo]
+    [getConnectionById]
   );
 
   const getConnectionTitleById = useCallback(
@@ -270,15 +67,60 @@ export function useConnectionRepository(): ConnectionRepository {
   );
 
   return {
-    findConnectionInfo,
-    filterConnectionInfo,
-    reduceConnectionInfo,
     getConnectionInfoById,
     getConnectionTitleById,
-    favoriteConnections,
-    nonFavoriteConnections,
-    autoConnectInfo,
-    saveConnection,
-    deleteConnection,
+    favoriteConnections: favoriteConnectionsInfoOnly,
+    nonFavoriteConnections: nonFavoriteConnectionsInfoOnly,
   };
 }
+
+type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
+  ? A
+  : F extends { new (...args: [infer A, ...any]): any }
+  ? A
+  : never;
+
+/**
+ * @deprecated instead of using HOC, refactor class component to functional
+ * component
+ */
+function withConnectionRepository<
+  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
+>(
+  ReactComponent: T
+): React.FunctionComponent<Omit<FirstArgument<T>, 'connectionRepository'>> {
+  const WithConnectionRepository = (
+    props: Omit<FirstArgument<T>, 'connectionRepository'> & React.Attributes
+  ) => {
+    const connectionRepository = useConnectionRepository();
+    return React.createElement(ReactComponent, {
+      ...props,
+      connectionRepository,
+    });
+  };
+  return WithConnectionRepository;
+}
+
+export { withConnectionRepository };
+
+export type ConnectionRepositoryAccess = Pick<
+  ConnectionRepository,
+  'getConnectionInfoById'
+>;
+
+/**
+ * @deprecated use `connectionsLocator` instead
+ */
+export const connectionRepositoryAccessLocator = createServiceLocator(
+  (): ConnectionRepositoryAccess => {
+    const repository = useConnectionRepository();
+    const repositoryRef = useRef(repository);
+    repositoryRef.current = repository;
+    return {
+      getConnectionInfoById(id: ConnectionInfo['id']) {
+        return repositoryRef.current.getConnectionInfoById(id);
+      },
+    };
+  },
+  'connectionRepositoryAccessLocator'
+);

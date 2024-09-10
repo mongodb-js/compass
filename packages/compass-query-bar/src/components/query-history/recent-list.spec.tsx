@@ -1,8 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import { RecentList } from './recent-list';
 
@@ -42,6 +46,7 @@ describe('Recent List [Component]', function () {
           isReadonly: true,
           queries: [
             {
+              _id: 1,
               filter: { a: 1 },
               update: { $set: { a: 2 } },
               _lastExecuted: new Date(),
@@ -68,6 +73,7 @@ describe('Recent List [Component]', function () {
           isReadonly: false,
           queries: [
             {
+              _id: 1,
               filter: { a: 1 },
               update: { $set: { a: 2 } },
               _lastExecuted: new Date(),

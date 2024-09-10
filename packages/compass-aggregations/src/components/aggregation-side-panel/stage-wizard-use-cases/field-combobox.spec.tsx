@@ -6,7 +6,7 @@ import {
   getParentPaths,
   isOptionDisabled,
 } from './field-combobox';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { setInputElementValue } from '../../../../test/form-helper';
 import type { StageWizardFields } from '.';

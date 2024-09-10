@@ -27,7 +27,6 @@ import {
   databaseItemActions,
   notConnectedConnectionItemActions,
 } from './item-actions';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 const MCContainer = css({
   display: 'flex',
@@ -60,9 +59,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 }) => {
   const preferencesShellEnabled = usePreference('enableShell');
   const preferencesReadOnly = usePreference('readOnly');
-  const isSingleConnection = !usePreference(
-    'enableNewMultipleConnectionSystem'
-  );
+  const isSingleConnection = !usePreference('enableMultipleConnectionSystem');
   const isRenameCollectionEnabled = usePreference(
     'enableRenameCollectionModal'
   );
@@ -88,12 +85,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
       if (item.type === 'connection') {
-        if (item.connectionStatus === ConnectionStatus.Connected) {
+        if (item.connectionStatus === 'connected') {
           onItemAction(item, 'select-connection');
-        } else if (
-          item.connectionStatus === ConnectionStatus.Disconnected ||
-          item.connectionStatus === ConnectionStatus.Failed
-        ) {
+        } else {
           onItemAction(item, 'connection-connect');
         }
       } else if (item.type === 'database') {
@@ -173,11 +167,12 @@ const ConnectionsNavigationTree: React.FunctionComponent<
             actions: [],
           };
         case 'connection': {
-          if (item.connectionStatus === ConnectionStatus.Connected) {
+          if (item.connectionStatus === 'connected') {
             const actions = connectedConnectionItemActions({
               hasWriteActionsDisabled: item.hasWriteActionsDisabled,
               isShellEnabled: item.isShellEnabled,
               connectionInfo: item.connectionInfo,
+              isPerformanceTabAvailable: item.isPerformanceTabAvailable,
               isPerformanceTabSupported: item.isPerformanceTabSupported,
             });
             return {
@@ -221,6 +216,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   return (
     <div className={isSingleConnection ? SCContainer : MCContainer}>
       <VisuallyHidden id={id}>Databases and Collections</VisuallyHidden>
+      {/* AutoSizer types does not allow both width and height to be disabled
+        considering that to be a pointless usecase and hence the type
+        definitions are pretty strict. We require these disabled to avoid
+        tests flaking out hence ignoring the usage here.
+        @ts-ignore */}
       <AutoSizer disableWidth={isTestEnv} disableHeight={isTestEnv}>
         {({ width = isTestEnv ? 1024 : '', height = isTestEnv ? 768 : '' }) => (
           <VirtualTree<SidebarTreeItem>
