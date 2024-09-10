@@ -6,12 +6,12 @@ import {
   within,
   waitFor,
   cleanup,
-} from '@testing-library/react';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { spy, stub } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import userEvent from '@testing-library/user-event';
 
 import configureStore from '../../test/configure-store';
 import { SettingsModal } from './modal';

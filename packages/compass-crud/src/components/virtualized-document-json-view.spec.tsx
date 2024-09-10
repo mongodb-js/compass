@@ -1,8 +1,14 @@
 import React from 'react';
 import { expect } from 'chai';
 import HadronDocument from 'hadron-document';
-import userEvents from '@testing-library/user-event';
-import { render, screen, cleanup, within, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  act,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 
 import VirtualizedDocumentJsonView from './virtualized-document-json-view';
@@ -93,7 +99,7 @@ describe('VirtualizedDocumentJsonView', function () {
     expect(within(firstDocumentElement).getByText('"Name0"')).to.be.visible;
 
     // Start editing the document
-    userEvents.click(within(firstDocumentElement).getByLabelText('Edit'));
+    userEvent.click(within(firstDocumentElement).getByLabelText('Edit'));
 
     // Verify that we have an editing state
     expect(within(firstDocumentElement).getByText('Cancel')).to.be.visible;
@@ -139,7 +145,7 @@ describe('VirtualizedDocumentJsonView', function () {
     let [documentElement] = screen.getAllByTestId('editable-json');
 
     // Start editing the document
-    userEvents.click(within(documentElement).getByLabelText('Edit'));
+    userEvent.click(within(documentElement).getByLabelText('Edit'));
 
     // Verify that we have an editing state
     expect(within(documentElement).getByText('Cancel')).to.be.visible;

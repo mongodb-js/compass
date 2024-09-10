@@ -1,6 +1,11 @@
 import React from 'react';
 import { expect } from 'chai';
-import { fireEvent, render, screen, cleanup } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 import { Breadcrumbs } from './breadcrumb';
 import sinon from 'sinon';
 

@@ -1,7 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 
-import { render, cleanup, screen, fireEvent } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  screen,
+  fireEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import {
   getNode,

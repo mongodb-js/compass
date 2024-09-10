@@ -3,9 +3,12 @@ import { expect } from 'chai';
 import { SearchIndexTemplateDropdown } from './';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
 

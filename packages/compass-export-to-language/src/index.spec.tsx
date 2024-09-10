@@ -1,13 +1,12 @@
 import React from 'react';
-import AppRegistry from 'hadron-app-registry';
 import {
   screen,
   render,
   cleanup,
   within,
   waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
@@ -35,7 +34,6 @@ const allTypesPrettyStr = prettify(
 ).replace(/\n/g, '');
 
 describe('ExportToLanguagePlugin', function () {
-  const appRegistry = new AppRegistry();
   const dataService = {
     getConnectionString() {
       return Object.assign(new URL('mongodb://localhost:27020'), {
@@ -46,7 +44,6 @@ describe('ExportToLanguagePlugin', function () {
     },
   };
   const Plugin = ExportToLanguagePlugin.withMockServices({
-    localAppRegistry: appRegistry,
     dataService: dataService as any,
   });
 
@@ -56,9 +53,11 @@ describe('ExportToLanguagePlugin', function () {
 
   describe('on `open-query-export-to-language` event', function () {
     it('should show query export to language modal', function () {
-      render(<Plugin namespace="db.coll"></Plugin>);
+      const { localAppRegistry } = render(
+        <Plugin namespace="db.coll"></Plugin>
+      );
 
-      appRegistry.emit('open-query-export-to-language', {
+      localAppRegistry.emit('open-query-export-to-language', {
         filter: allTypesStr,
       });
 
@@ -68,9 +67,11 @@ describe('ExportToLanguagePlugin', function () {
     });
 
     it('should show other query options in the export', function () {
-      render(<Plugin namespace="db.coll"></Plugin>);
+      const { localAppRegistry } = render(
+        <Plugin namespace="db.coll"></Plugin>
+      );
 
-      appRegistry.emit('open-query-export-to-language', {
+      localAppRegistry.emit('open-query-export-to-language', {
         filter: '{ foo: {$exists: true } }',
         project: '{ foo: 1 }',
         sort: '{ _id: -1 }',
@@ -116,9 +117,11 @@ result = client['db']['coll'].find(
 
   describe('on `open-aggregation-export-to-language` event', function () {
     it('should show aggregation export to language modal', function () {
-      render(<Plugin namespace="db.coll"></Plugin>);
+      const { localAppRegistry } = render(
+        <Plugin namespace="db.coll"></Plugin>
+      );
 
-      appRegistry.emit('open-aggregation-export-to-language', allTypesStr);
+      localAppRegistry.emit('open-aggregation-export-to-language', allTypesStr);
 
       expect(screen.getByTestId('export-to-language-input').textContent).to.eq(
         allTypesPrettyStr
@@ -129,7 +132,7 @@ result = client['db']['coll'].find(
   describe('on "Copy" button clicked', function () {
     it('should emit telemetry event', async function () {
       const track = Sinon.stub();
-      render(
+      const { localAppRegistry } = render(
         <LoggerProvider
           value={
             {
@@ -150,7 +153,8 @@ result = client['db']['coll'].find(
           </TelemetryProvider>
         </LoggerProvider>
       );
-      appRegistry.emit('open-aggregation-export-to-language', '[]');
+
+      localAppRegistry.emit('open-aggregation-export-to-language', '[]');
 
       track.resetHistory();
 

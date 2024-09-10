@@ -1,7 +1,7 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
 
 import Condition, {
   LABELS,

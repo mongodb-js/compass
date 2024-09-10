@@ -37,8 +37,6 @@
     "@mongodb-js/prettier-config-compass": "^1.0.2",
     "@mongodb-js/testing-library-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.4",
-    "@testing-library/react": "^12.1.5",
-    "@testing-library/user-event": "^13.5.0",
     "@types/babel__generator": "^7.6.8",
     "@types/lodash": "^4.14.188",
     "@types/semver": "^7.3.9",

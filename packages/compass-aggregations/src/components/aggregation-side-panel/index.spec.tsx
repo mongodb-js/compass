@@ -1,9 +1,12 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import { AggregationSidePanel } from './index';
-import { cleanup, screen } from '@testing-library/react';
+import {
+  cleanup,
+  screen,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { DndContext } from '@dnd-kit/core';
-import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../test/configure-store';
 import sinon from 'sinon';

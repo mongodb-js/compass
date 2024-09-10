@@ -1,6 +1,10 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  screen,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { configureStore } from '../stores/export-store';
 import { ExportModal } from './export-modal';

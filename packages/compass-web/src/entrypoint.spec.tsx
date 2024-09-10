@@ -1,6 +1,11 @@
 import React from 'react';
-import { screen, render, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  screen,
+  render,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { expect } from 'chai';
 import { CompassWeb } from './entrypoint';

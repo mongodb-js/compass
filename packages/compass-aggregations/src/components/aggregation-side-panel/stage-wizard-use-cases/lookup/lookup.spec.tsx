@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { LookupForm } from './lookup';
 import sinon from 'sinon';

@@ -9,14 +9,14 @@ import {
   waitFor,
   fireEvent,
   within,
-} from '@testing-library/react';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
-import userEvent from '@testing-library/user-event';
 import { getNextKmsProviderName } from './kms-provider-content';
 
 const openAdvancedTab = async (

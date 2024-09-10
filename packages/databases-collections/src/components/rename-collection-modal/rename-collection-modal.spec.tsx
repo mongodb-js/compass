@@ -7,14 +7,11 @@ import {
   cleanup,
   fireEvent,
   waitFor,
-} from '@testing-library/react';
-
+} from '@mongodb-js/testing-library-compass';
 import { RenameCollectionPlugin } from '../..';
-import AppRegistry from 'hadron-app-registry';
 
 describe('RenameCollectionModal [Component]', function () {
   const sandbox = Sinon.createSandbox();
-  const appRegistry = sandbox.spy(new AppRegistry());
   const dataService = {
     renameCollection: sandbox.stub().resolves({}),
   };
@@ -44,14 +41,13 @@ describe('RenameCollectionModal [Component]', function () {
   context('when the modal is visible', function () {
     beforeEach(async function () {
       const Plugin = RenameCollectionPlugin.withMockServices({
-        globalAppRegistry: appRegistry,
         connectionsManager: connectionsManager as any,
         instancesManager: instancesManager as any,
         queryStorage: favoriteQueries as any,
         pipelineStorage: pipelineStorage as any,
       });
-      render(<Plugin> </Plugin>);
-      appRegistry.emit(
+      const { globalAppRegistry } = render(<Plugin> </Plugin>);
+      globalAppRegistry.emit(
         'open-rename-collection',
         {
           database: 'foo',
@@ -168,14 +164,13 @@ describe('RenameCollectionModal [Component]', function () {
           );
 
           const Plugin = RenameCollectionPlugin.withMockServices({
-            globalAppRegistry: appRegistry,
             connectionsManager: connectionsManager as any,
             instancesManager: instancesManager as any,
             queryStorage: favoriteQueries as any,
             pipelineStorage: pipelineStorage as any,
           });
-          render(<Plugin> </Plugin>);
-          appRegistry.emit(
+          const { globalAppRegistry } = render(<Plugin> </Plugin>);
+          globalAppRegistry.emit(
             'open-rename-collection',
             {
               database: 'foo',

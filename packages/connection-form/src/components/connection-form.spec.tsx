@@ -4,10 +4,10 @@ import {
   screen,
   cleanup,
   fireEvent,
-  getByText,
   waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+  within,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -351,8 +351,8 @@ describe('ConnectionForm Component', function () {
     const dialog = screen.getByRole('dialog');
     expect(dialog).to.be.visible;
 
-    expect(getByText(dialog, saveAndConnectText)).to.be.visible;
-    expect(() => getByText(dialog, 'Save')).to.throw;
+    expect(within(dialog).getByText(saveAndConnectText)).to.be.visible;
+    expect(() => within(dialog).getByText('Save')).to.throw();
   });
 
   it('should not show a Save & Connect button when there is an existing connection', function () {

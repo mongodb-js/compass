@@ -1,6 +1,11 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { ProxySettingsCustom } from './proxy-settings-custom';
 import type { DevtoolsProxyOptions } from 'compass-preferences-model';

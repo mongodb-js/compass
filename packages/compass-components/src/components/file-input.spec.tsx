@@ -9,7 +9,7 @@ import {
   cleanup,
   fireEvent,
   waitFor,
-} from '@testing-library/react';
+} from '@mongodb-js/testing-library-compass';
 
 import FileInput, {
   FileInputBackendProvider,

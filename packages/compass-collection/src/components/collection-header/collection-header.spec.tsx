@@ -1,8 +1,13 @@
 import { expect } from 'chai';
 import type { ComponentProps } from 'react';
 import React from 'react';
-import { render, screen, cleanup, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { CollectionHeader } from './collection-header';
 import {
   WorkspacesServiceProvider,
