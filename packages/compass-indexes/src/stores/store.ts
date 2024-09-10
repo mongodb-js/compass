@@ -29,6 +29,8 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
+import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+
 export type IndexesDataServiceProps =
   | 'indexes'
   | 'isConnected'
@@ -73,7 +75,7 @@ export function activateIndexesPlugin(
     track,
     dataService,
   }: IndexesPluginServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, signal }: ActivateHelpers
 ) {
   const store: IndexesStore = createStore(
     reducer,
@@ -102,6 +104,44 @@ export function activateIndexesPlugin(
       })
     )
   );
+
+  // TODO: replace
+  on(localAppRegistry, 'open-drop-index-modal', async (indexName: string) => {
+    try {
+      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      track('Screen', { name: 'drop_index_modal' }, connectionInfo);
+      const confirmed = await showConfirmation({
+        variant: 'danger',
+        title: 'Drop Index',
+        description: `Are you sure you want to drop index "${indexName}"?`,
+        requiredInputText: indexName,
+        buttonText: 'Drop',
+        signal,
+        'data-testid': 'drop-index-modal',
+      });
+      if (!confirmed) {
+        return;
+      }
+      await dataService.dropIndex(options.namespace, indexName);
+      track('Index Dropped', { atlas_search: false }, connectionInfo);
+      localAppRegistry.emit('refresh-regular-indexes');
+      openToast('drop-index-success', {
+        variant: 'success',
+        title: `Index "${indexName}" dropped`,
+        timeout: 3000,
+      });
+    } catch (err) {
+      if (signal.aborted) {
+        return;
+      }
+      openToast('drop-index-error', {
+        variant: 'important',
+        title: `Failed to drop index "${indexName}"`,
+        description: (err as Error).message,
+        timeout: 3000,
+      });
+    }
+  });
 
   // TODO: replace
   on(localAppRegistry, 'open-create-index-modal', () => {

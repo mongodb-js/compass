@@ -1,7 +1,3 @@
-import {
-  activatePlugin as activateDropIndexPlugin,
-  DropIndexComponent,
-} from './stores/drop-index';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   activateIndexesPlugin,
@@ -37,17 +33,3 @@ export const CompassIndexesPlugin = {
   name: 'Indexes' as const,
   component: CompassIndexesHadronPlugin,
 };
-
-export const DropIndexPlugin = registerHadronPlugin(
-  {
-    name: 'DropIndex',
-    activate: activateDropIndexPlugin,
-    component: DropIndexComponent,
-  },
-  {
-    dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
-    logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: telemetryLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
-  }
-);

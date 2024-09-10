@@ -27,10 +27,7 @@ import {
   CreateViewPlugin,
 } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
-import {
-  CompassIndexesPlugin,
-  DropIndexPlugin as DropIndexCollectionTabModal,
-} from '@mongodb-js/compass-indexes';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
@@ -178,7 +175,6 @@ function CompassWorkspace({
         ]}
         modals={[
           ExplainPlanCollectionTabModal,
-          DropIndexCollectionTabModal,
           ExportToLanguageCollectionTabModal,
         ]}
       >

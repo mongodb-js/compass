@@ -24,10 +24,7 @@ import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
-import {
-  CompassIndexesPlugin,
-  DropIndexPlugin as DropIndexCollectionTabModal,
-} from '@mongodb-js/compass-indexes';
+import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import {
@@ -107,7 +104,6 @@ export default function Workspace({
         ]}
         modals={[
           ExplainPlanCollectionTabModal,
-          DropIndexCollectionTabModal,
           ExportToLanguageCollectionTabModal,
         ]}
       >
