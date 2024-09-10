@@ -23,7 +23,6 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 
 type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
@@ -98,13 +97,7 @@ function CreateIndexModal({
   );
 }
 
-const mapState = (
-  { namespace, serverVersion, createIndex }: RootState,
-  // To make sure the derived type is correctly including plugin metadata passed
-  // by CollectionTab
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ownProps: Pick<CollectionTabPluginMetadata, 'namespace' | 'serverVersion'>
-) => {
+const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
   const { fields, inProgress, error, isVisible } = createIndex;
   return {
     fields,
