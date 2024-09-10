@@ -24,7 +24,7 @@ describe('AddStage', function () {
       const button = screen.getByTestId('add-stage-icon-button');
       expect(() => {
         within(button).getByText('Add Stage');
-      }).to.throw;
+      }).to.throw();
     });
 
     it('calls onAddStage with index when clicked', function () {

@@ -75,7 +75,7 @@ describe('InstancesManager', function () {
   it('should be able return a MongoDBInstance if available', function () {
     expect(() => {
       instancesManager.getMongoDBInstanceForConnection('1234'); // non-existent
-    }).to.throw;
+    }).to.throw();
     instancesManager.createMongoDBInstanceForConnection(
       TEST_CONNECTION_INFO.id,
       {
@@ -91,7 +91,7 @@ describe('InstancesManager', function () {
     );
     expect(() =>
       instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
-    ).to.not.throw;
+    ).to.not.throw();
   });
 
   it('should be able to remove MongoDBInstance for a connection', function () {
@@ -110,13 +110,13 @@ describe('InstancesManager', function () {
     );
     expect(() =>
       instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
-    ).to.not.throw;
+    ).to.not.throw();
     instancesManager.removeMongoDBInstanceForConnection(
       TEST_CONNECTION_INFO.id
     );
     expect(() =>
       instancesManager.getMongoDBInstanceForConnection(TEST_CONNECTION_INFO.id)
-    ).to.throw;
+    ).to.throw();
   });
 
   it('should emit instances removed event when an instance is removed', function () {

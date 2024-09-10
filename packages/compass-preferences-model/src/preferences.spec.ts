@@ -82,7 +82,7 @@ describe('Preferences class', function () {
         await preferences.savePreferences({
           telemetryAnonymousId: 'not-a-uuid',
         })
-    ).to.throw;
+    ).to.throw();
   });
 
   it('stores preferences across instances', async function () {

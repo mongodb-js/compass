@@ -50,7 +50,9 @@ describe('aggregation side panel', function () {
 
   it('renders a search input', async function () {
     await renderAggregationSidePanel();
-    expect(screen.getByRole('search')).to.not.throw;
+    expect(() => {
+      screen.getByRole('search');
+    }).to.not.throw();
   });
 
   it('renders all the usecases', async function () {
@@ -71,7 +73,9 @@ describe('aggregation side panel', function () {
         .getByTestId('side-panel-content')
         .querySelectorAll('[data-testid^="use-case-"]')
     ).to.have.lengthOf(1);
-    expect(screen.getByTestId('use-case-sort')).to.not.throw;
+    expect(() => {
+      screen.getByTestId('use-case-sort');
+    }).to.not.throw();
   });
 
   it('renders usecases filtered by search text matching the stage operator of the usecases', async function () {
@@ -83,7 +87,9 @@ describe('aggregation side panel', function () {
         .getByTestId('side-panel-content')
         .querySelectorAll('[data-testid^="use-case-"]')
     ).to.have.lengthOf(1);
-    expect(screen.getByTestId('use-case-lookup')).to.not.throw;
+    expect(() => {
+      screen.getByTestId('use-case-lookup');
+    }).to.not.throw();
 
     userEvent.clear(searchBox);
     userEvent.type(searchBox, '$lookup');
@@ -92,7 +98,9 @@ describe('aggregation side panel', function () {
         .getByTestId('side-panel-content')
         .querySelectorAll('[data-testid^="use-case-"]')
     ).to.have.lengthOf(1);
-    expect(screen.getByTestId('use-case-lookup')).to.not.throw;
+    expect(() => {
+      screen.getByTestId('use-case-lookup');
+    }).to.not.throw();
   });
 
   it('calls onSelectUseCase when a use case is clicked', async function () {

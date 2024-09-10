@@ -66,7 +66,9 @@ describe('SavedPipelines', function () {
     });
 
     it('does not render empty state', function () {
-      expect(() => screen.getByTestId('saved-pipelines-empty-state')).to.throw;
+      expect(() =>
+        screen.getByTestId('saved-pipelines-empty-state')
+      ).to.throw();
     });
 
     it('renders the pipeline names', function () {

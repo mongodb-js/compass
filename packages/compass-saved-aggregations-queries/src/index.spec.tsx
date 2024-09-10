@@ -364,8 +364,9 @@ describe('AggregationsQueriesList', function () {
       userEvent.click(within(selectBtn).getByLabelText(new RegExp(value, 'i')));
 
       await waitFor(() => {
-        expect(within(selectBtn).getByLabelText(new RegExp(value, 'i'))).to
-          .throw;
+        expect(
+          within(selectBtn).getByLabelText(new RegExp(value, 'i'))
+        ).to.throw();
       });
     };
 
@@ -467,8 +468,9 @@ describe('AggregationsQueriesList', function () {
               expect(screen.getByText('Select a Namespace')).to.exist;
               expect(screen.getByTestId('description')).to.exist;
               // connection is already selected because there is only one
-              expect(() => screen.getByTestId('connection-select-field')).to
-                .throw;
+              expect(() =>
+                screen.getByTestId('connection-select-field')
+              ).to.throw();
               expect(screen.getByTestId('database-select-field')).to.exist;
               expect(screen.getByTestId('collection-select-field')).to.exist;
 
@@ -529,10 +531,11 @@ describe('AggregationsQueriesList', function () {
             // Modal content expectations
             expect(screen.getByText('Select a Namespace')).to.exist;
             // We don't show description in this modal
-            expect(() => screen.getByTestId('description')).to.throw;
+            expect(() => screen.getByTestId('description')).to.throw();
             // connection is already selected because there is only one
-            expect(() => screen.getByTestId('connection-select-field')).to
-              .throw;
+            expect(() =>
+              screen.getByTestId('connection-select-field')
+            ).to.throw();
             expect(screen.getByTestId('database-select-field')).to.exist;
             expect(screen.getByTestId('collection-select-field')).to.exist;
 
@@ -684,7 +687,7 @@ describe('AggregationsQueriesList', function () {
               expect(screen.getByText('Select a Connection and Namespace')).to
                 .exist;
               // We don't show description in this modal
-              expect(() => screen.getByTestId('description')).to.throw;
+              expect(() => screen.getByTestId('description')).to.throw();
               expect(screen.getByTestId('connection-select-field')).to.exist;
               expect(screen.getByTestId('database-select-field')).to.exist;
               expect(screen.getByTestId('collection-select-field')).to.exist;

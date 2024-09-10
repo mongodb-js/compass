@@ -98,7 +98,7 @@ describe('Home [Component]', function () {
   describe('is not connected', function () {
     it('renders the connect screen', function () {
       renderHome();
-      expect(() => screen.getByTestId('home')).to.throw;
+      expect(() => screen.getByTestId('home')).to.throw();
       expect(screen.getByTestId('connections-wrapper')).to.be.displayed;
     });
 
@@ -133,7 +133,7 @@ describe('Home [Component]', function () {
           enableMultipleConnectionSystem: true,
         });
         expect(screen.getByTestId('home')).to.be.displayed;
-        expect(() => screen.getByTestId('connections-wrapper')).to.throw;
+        expect(() => screen.getByTestId('connections-wrapper')).to.throw();
       });
     });
   });
@@ -171,7 +171,7 @@ describe('Home [Component]', function () {
 
       it('renders only the workspaces', function () {
         expect(screen.getByTestId('home')).to.be.displayed;
-        expect(() => screen.getByTestId('connections-wrapper')).to.throw;
+        expect(() => screen.getByTestId('connections-wrapper')).to.throw();
       });
 
       it('on `app:disconnect`', async function () {

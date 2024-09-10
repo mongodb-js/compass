@@ -244,7 +244,7 @@ describe('ConnectionsNavigationTree', function () {
 
   describe('connection markers', function () {
     it('should not render non-genuine marker for the connection item when connection genuine', function () {
-      expect(() => screen.getAllByLabelText('Non-Genuine MongoDB')).to.throw;
+      expect(() => screen.getAllByLabelText('Non-Genuine MongoDB')).to.throw();
     });
 
     it('should render non-genuine marker for the connection item when connection is not genuine', async function () {
@@ -324,7 +324,7 @@ describe('ConnectionsNavigationTree', function () {
         connections[2],
       ];
       await renderConnectionsNavigationTree({ connections: mockedConnections });
-      expect(() => screen.getAllByLabelText('In-Use Encryption')).to.throw;
+      expect(() => screen.getAllByLabelText('In-Use Encryption')).to.throw();
     });
   });
 
@@ -455,7 +455,7 @@ describe('ConnectionsNavigationTree', function () {
       userEvent.click(showActionsButton);
 
       expect(screen.getByText('Open in new tab')).to.exist;
-      expect(() => screen.getByText('Rename collection')).to.throw;
+      expect(() => screen.getByText('Rename collection')).to.throw();
       expect(screen.getByText('Drop collection')).to.exist;
     });
 
@@ -483,7 +483,7 @@ describe('ConnectionsNavigationTree', function () {
       expect(screen.getByText('Modify view')).to.exist;
 
       // views cannot be renamed
-      expect(() => screen.getByText('Rename collection')).to.throw;
+      expect(() => screen.getByText('Rename collection')).to.throw();
     });
   });
 
@@ -598,8 +598,10 @@ describe('ConnectionsNavigationTree', function () {
 
         const database = screen.getByTestId('connection_ready.db_ready');
 
-        expect(() => within(database).getByTitle('Create collection')).to.throw;
-        expect(() => within(database).getByTitle('Drop database')).to.throw;
+        expect(() =>
+          within(database).getByTitle('Create collection')
+        ).to.throw();
+        expect(() => within(database).getByTitle('Drop database')).to.throw();
       });
 
       it('should show only one collection action', async function () {
@@ -637,7 +639,7 @@ describe('ConnectionsNavigationTree', function () {
           }
         );
         userEvent.hover(screen.getByText('turtles'));
-        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw;
+        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw();
       });
     });
 
@@ -650,7 +652,7 @@ describe('ConnectionsNavigationTree', function () {
           }
         );
         userEvent.hover(screen.getByText('turtles'));
-        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw;
+        expect(() => screen.getByLabelText('Open MongoDB shell')).to.throw();
       });
     });
   });
@@ -790,7 +792,7 @@ describe('ConnectionsNavigationTree', function () {
           userEvent.hover(screen.getByText('peaches'));
           const connection = screen.getByTestId('connection_initial');
           userEvent.click(within(connection).getByTitle('Show actions'));
-          expect(() => screen.getByText('View performance metrics')).to.throw;
+          expect(() => screen.getByText('View performance metrics')).to.throw();
         });
       });
     });

@@ -38,7 +38,7 @@ describe('PipelineBuilderWorkspace', function () {
     const container = screen.getByTestId('pipeline-builder-workspace');
     expect(() => {
       within(container).getByTestId('aggregation-side-panel');
-    }).to.not.throw;
+    }).to.not.throw();
   });
 
   it('does not render side panel when enabled in as text mode', async function () {
@@ -47,6 +47,6 @@ describe('PipelineBuilderWorkspace', function () {
     const container = screen.getByTestId('pipeline-builder-workspace');
     expect(() => {
       within(container).getByTestId('aggregation-side-panel');
-    }).to.throw;
+    }).to.throw();
   });
 });

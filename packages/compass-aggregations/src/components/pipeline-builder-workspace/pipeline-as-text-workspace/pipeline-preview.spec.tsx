@@ -100,11 +100,11 @@ describe('PipelinePreview', function () {
     // By default we don't expand nested props of a document
     expect(within(docList).getByText(/_id/)).to.exist;
     expect(within(docList).getByText(/score/)).to.exist;
-    expect(() => within(docList).getByText(/number/)).to.throw;
-    expect(() => within(docList).getByText(/another/)).to.throw;
-    expect(() => within(docList).getByText(/deep/)).to.throw;
-    expect(() => within(docList).getByText(/nested/)).to.throw;
-    expect(() => within(docList).getByText(/document/)).to.throw;
+    expect(() => within(docList).getByText(/number/)).to.throw();
+    expect(() => within(docList).getByText(/another/)).to.throw();
+    expect(() => within(docList).getByText(/deep/)).to.throw();
+    expect(() => within(docList).getByText(/nested/)).to.throw();
+    expect(() => within(docList).getByText(/document/)).to.throw();
 
     // Expand the whole document
     userEvent.click(
@@ -140,11 +140,11 @@ describe('PipelinePreview', function () {
 
     expect(within(docList).getByText(/_id/)).to.exist;
     expect(within(docList).getByText(/score/)).to.exist;
-    expect(() => within(docList).getByText(/number/)).to.throw;
-    expect(() => within(docList).getByText(/another/)).to.throw;
-    expect(() => within(docList).getByText(/deep/)).to.throw;
-    expect(() => within(docList).getByText(/nested/)).to.throw;
-    expect(() => within(docList).getByText(/document/)).to.throw;
+    expect(() => within(docList).getByText(/number/)).to.throw();
+    expect(() => within(docList).getByText(/another/)).to.throw();
+    expect(() => within(docList).getByText(/deep/)).to.throw();
+    expect(() => within(docList).getByText(/nested/)).to.throw();
+    expect(() => within(docList).getByText(/document/)).to.throw();
   });
 
   it('renders output stage preview', async function () {

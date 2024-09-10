@@ -131,7 +131,9 @@ describe('ConnectionList Component', function () {
         'favorite-connections-list-header'
       );
       userEvent.hover(connectionsHeader);
-      expect(() => screen.getByTestId('favorites-menu-show-actions')).to.throw;
+      expect(() =>
+        screen.getByTestId('favorites-menu-show-actions')
+      ).to.throw();
     });
 
     it('shows connection import export option when there is a openConnectionImportExportModal prop', function () {

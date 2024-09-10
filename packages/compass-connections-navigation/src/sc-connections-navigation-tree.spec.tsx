@@ -241,7 +241,7 @@ describe.skip('ConnectionsNavigationTree -- Single connection usage', function (
       userEvent.click(showActionsButton);
 
       expect(screen.getByText('Open in new tab')).to.exist;
-      expect(() => screen.getByText('Rename collection')).to.throw;
+      expect(() => screen.getByText('Rename collection')).to.throw();
       expect(screen.getByText('Drop collection')).to.exist;
     });
 
@@ -267,7 +267,7 @@ describe.skip('ConnectionsNavigationTree -- Single connection usage', function (
       expect(screen.getByText('Modify view')).to.exist;
 
       // views cannot be renamed
-      expect(() => screen.getByText('Rename collection')).to.throw;
+      expect(() => screen.getByText('Rename collection')).to.throw();
     });
   });
 
@@ -352,8 +352,10 @@ describe.skip('ConnectionsNavigationTree -- Single connection usage', function (
 
         const database = screen.getByTestId('connectionId.bar');
 
-        expect(() => within(database).getByTitle('Create collection')).to.throw;
-        expect(() => within(database).getByTitle('Drop database')).to.throw;
+        expect(() =>
+          within(database).getByTitle('Create collection')
+        ).to.throw();
+        expect(() => within(database).getByTitle('Drop database')).to.throw();
       });
 
       it('should show only one collection action', async function () {

@@ -26,6 +26,6 @@ describe('PipelineAsTextWorkspace', function () {
     await renderPipelineAsTextWorkspace({ isAutoPreview: false });
     expect(() => {
       screen.getByTestId('pipeline-as-text-preview');
-    }).to.throw;
+    }).to.throw();
   });
 });

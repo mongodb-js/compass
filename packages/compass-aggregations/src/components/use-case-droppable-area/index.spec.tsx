@@ -15,7 +15,9 @@ describe('UseCaseDroppableArea', function () {
       </UseCaseDroppableArea>
     );
     expect(screen.queryByTestId('use-case-drop-marker-1')).to.be.null;
-    expect(screen.getByText('Hello')).to.not.throw;
+    expect(() => {
+      screen.getByText('Hello');
+    }).to.not.throw();
   });
 
   it('should render the drop marker when useDraggable reports isOver=true', function () {
@@ -27,7 +29,9 @@ describe('UseCaseDroppableArea', function () {
         <p>Hello</p>
       </UseCaseDroppableArea>
     );
-    expect(screen.getByTestId('use-case-drop-marker-1')).to.not.throw;
+    expect(() => {
+      screen.getByTestId('use-case-drop-marker-1');
+    }).to.not.throw();
     expect(screen.queryByText('Hello')).to.be.null;
     sandbox.restore();
   });

@@ -72,8 +72,8 @@ describe('VirtualList', function () {
     );
     await waitFor(() => {
       expect(screen.getByText('Div - 1')).to.be.visible;
-      expect(() => screen.getByText('Div - 2')).to.throw;
-      expect(() => screen.getByText('Div - 3')).to.throw;
+      expect(() => screen.getByText('Div - 2')).to.throw();
+      expect(() => screen.getByText('Div - 3')).to.throw();
     });
   });
 

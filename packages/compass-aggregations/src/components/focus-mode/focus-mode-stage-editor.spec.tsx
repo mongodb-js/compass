@@ -22,10 +22,10 @@ describe('FocusMode', function () {
     await renderFocusModeStageEditor({ index: -1 });
     expect(() => {
       screen.getByTestId('stage-operator-combobox');
-    }).to.throw;
+    }).to.throw();
     expect(() => {
       screen.getByText(/open docs/i);
-    }).to.throw;
+    }).to.throw();
   });
 
   context('when operator is not defined', function () {
@@ -44,7 +44,7 @@ describe('FocusMode', function () {
     it('does not render docs link', function () {
       expect(() => {
         screen.getByText(/open docs/i);
-      }).to.throw;
+      }).to.throw();
     });
   });
 

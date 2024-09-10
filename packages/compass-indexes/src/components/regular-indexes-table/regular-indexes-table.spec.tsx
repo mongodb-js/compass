@@ -146,7 +146,7 @@ describe('RegularIndexesTable Component', function () {
         } else {
           expect(() => {
             within(indexRow).getByTestId(indexCell);
-          }).to.throw;
+          }).to.throw();
         }
       });
     });
@@ -162,7 +162,7 @@ describe('RegularIndexesTable Component', function () {
 
     expect(() => {
       screen.getByTestId('indexes-list');
-    }).to.throw;
+    }).to.throw();
   });
 
   it('renders the delete and hide/unhide button when a user can modify indexes', function () {
@@ -183,7 +183,7 @@ describe('RegularIndexesTable Component', function () {
       const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
-      }).to.throw;
+      }).to.throw();
     });
   });
 
@@ -195,7 +195,7 @@ describe('RegularIndexesTable Component', function () {
       const indexRow = screen.getByText(index.name).closest('tr')!;
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
-      }).to.throw;
+      }).to.throw();
     });
   });
 

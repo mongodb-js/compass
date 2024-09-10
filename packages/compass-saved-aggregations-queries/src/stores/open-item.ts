@@ -426,7 +426,7 @@ const openItem =
     database: string,
     collection: string
   ): SavedQueryAggregationThunkAction<void> =>
-  (_dispatch, _getState, { track, workspaces }) => {
+  (_dispatch, _getState, { track, workspaces, connectionsManager }) => {
     track(
       item.type === 'aggregation'
         ? 'Aggregation Opened'
@@ -434,7 +434,8 @@ const openItem =
       {
         id: item.id,
         screen: 'my_queries',
-      }
+      },
+      connectionsManager.getConnectionById(connection)?.info
     );
 
     workspaces.openCollectionWorkspace(

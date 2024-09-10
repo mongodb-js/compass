@@ -22,7 +22,7 @@ describe('PreferencesSandbox', function () {
   describe('setupSandbox', function () {
     it('should create a sandbox', async function () {
       const preferencesSandbox = new PreferencesSandbox(preferencesAccess);
-      expect(() => preferencesSandbox['sandbox']).to.throw;
+      expect(() => preferencesSandbox['sandbox']).to.throw();
       await preferencesSandbox.setupSandbox();
       expect(preferencesSandbox['sandbox']).to.not.eq(null);
     });

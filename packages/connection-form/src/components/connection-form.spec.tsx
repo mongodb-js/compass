@@ -371,7 +371,7 @@ describe('ConnectionForm Component', function () {
       />
     );
 
-    expect(() => screen.getByText(saveAndConnectText)).to.throw;
+    expect(() => screen.getByText(saveAndConnectText)).to.throw();
   });
 
   it('should not include the help panels', function () {

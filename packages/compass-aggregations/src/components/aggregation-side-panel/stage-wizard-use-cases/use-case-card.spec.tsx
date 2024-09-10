@@ -23,7 +23,9 @@ describe('UseCaseCard', function () {
         onSelect={Sinon.spy()}
       />
     );
-    expect(screen.getByTestId(`use-case-${useCase.id}`)).to.not.throw;
+    expect(() => {
+      screen.getByTestId(`use-case-${useCase.id}`);
+    }).to.not.throw();
   });
 
   it('should call onSelect when a usecase is selected', function () {

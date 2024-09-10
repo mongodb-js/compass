@@ -8,6 +8,7 @@ import {
   screen,
   createDefaultConnectionInfo,
   wait,
+  waitForElementToBeRemoved,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 
@@ -345,7 +346,8 @@ describe('useConnections', function () {
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
-      expect(() => screen.getByText(/Connecting to/)).to.throw;
+
+      await waitForElementToBeRemoved(screen.queryByText(/Connecting to/));
     });
   });
 

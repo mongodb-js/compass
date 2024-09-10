@@ -513,7 +513,7 @@ describe('In-Use Encryption', function () {
         within(card1).getByRole('button', {
           name: /Remove KMS provider/i,
         })
-      ).to.throw;
+      ).to.throw();
 
       fireEvent.click(screen.getByText('Add item'));
 
@@ -532,7 +532,7 @@ describe('In-Use Encryption', function () {
         })
       );
 
-      expect(() => card1).to.throw;
+      expect(() => card1).to.throw();
     });
   });
 

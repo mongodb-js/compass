@@ -193,7 +193,7 @@ describe('Multiple Connections Sidebar Component', function () {
       it('should display an empty state with a CTA to add new connection', function () {
         doRender(undefined, []);
 
-        expect(() => screen.getByRole('tree')).to.throw;
+        expect(() => screen.getByRole('tree')).to.throw();
 
         const ctaText = screen.getByText(
           'You have not connected to any deployments.'

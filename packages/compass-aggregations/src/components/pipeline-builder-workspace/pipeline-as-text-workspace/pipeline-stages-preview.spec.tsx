@@ -43,7 +43,7 @@ describe('OutputStagePreview', function () {
           screen.getByRole('button', {
             name: /save documents/i,
           });
-        }).to.throw;
+        }).to.throw();
       });
     });
 

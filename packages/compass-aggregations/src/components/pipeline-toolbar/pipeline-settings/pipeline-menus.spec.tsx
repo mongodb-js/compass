@@ -80,7 +80,7 @@ describe('PipelineMenus', function () {
       expect(screen.getByTestId('save-menu-saveAs-action')).to.exist;
       expect(() => {
         screen.getByTestId('save-menu-createView-action');
-      }).to.throw;
+      }).to.throw();
     });
   });
 });

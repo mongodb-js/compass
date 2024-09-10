@@ -46,7 +46,7 @@ describe('PipelinePagination', function () {
       const container = screen.getByTestId('pipeline-pagination');
       expect(() => {
         within(container).getByTestId('pipeline-pagination-desc');
-      }).to.throw;
+      }).to.throw();
     });
     it('renders paginate buttons as disabled when disabled', async function () {
       await renderPipelinePagination({

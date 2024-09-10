@@ -247,8 +247,8 @@ describe('Document', function () {
     expect(screen.getByText('lastName')).to.exist;
 
     hadronDoc.collapse();
-    expect(() => screen.getByText('firstName')).to.throw;
-    expect(() => screen.getByText('lastName')).to.throw;
+    expect(() => screen.getByText('firstName')).to.throw();
+    expect(() => screen.getByText('lastName')).to.throw();
   });
 
   it('should render "Show more" toggle when number of fields are more than allowed visible fields', async function () {
@@ -262,8 +262,8 @@ describe('Document', function () {
     render(<Document value={hadronDoc}></Document>);
     expect(screen.getByText('prop1')).to.exist;
     expect(screen.getByText('prop2')).to.exist;
-    expect(() => screen.getByText('prop3')).to.throw;
-    expect(() => screen.getByText('prop4')).to.throw;
+    expect(() => screen.getByText('prop3')).to.throw();
+    expect(() => screen.getByText('prop4')).to.throw();
     expect(screen.getByText('Show 2 more fields')).to.exist;
 
     hadronDoc.setMaxVisibleElementsCount(25);
@@ -293,8 +293,8 @@ describe('Document', function () {
 
     nestedElement.setMaxVisibleElementsCount(2);
     await waitFor(() => {
-      expect(() => screen.getByText('prop3')).to.throw;
-      expect(() => screen.getByText('prop4')).to.throw;
+      expect(() => screen.getByText('prop3')).to.throw();
+      expect(() => screen.getByText('prop4')).to.throw();
     });
     expect(screen.getByText('Show 2 more fields in nested')).to.exist;
   });

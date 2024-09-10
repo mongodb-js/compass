@@ -88,7 +88,7 @@ describe('IndexActions Component', function () {
           onUnhideIndex={onUnhideIndexSpy}
         />
       );
-      expect(() => screen.getByTestId('index-actions-hide-action')).to.throw;
+      expect(() => screen.getByTestId('index-actions-hide-action')).to.throw();
     });
   });
 });
