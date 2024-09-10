@@ -36,7 +36,7 @@ class SavingPipelineModal extends PureComponent<SavingPipelineModalProps> {
 
   componentDidUpdate(prevProps: SavingPipelineModalProps) {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-      this.props.track('Screen', { name: 'save_pipeline_modal' });
+      this.props.track('Screen', { name: 'save_pipeline_modal' }, undefined);
     }
   }
 

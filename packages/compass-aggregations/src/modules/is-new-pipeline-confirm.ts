@@ -25,7 +25,7 @@ export const confirmNewPipeline =
   async (dispatch, getState, { pipelineBuilder, track }) => {
     const isModified = getState().isModified;
     if (isModified) {
-      track('Screen', { name: 'confirm_new_pipeline_modal' });
+      track('Screen', { name: 'confirm_new_pipeline_modal' }, undefined);
       const confirmed = await showConfirmation({
         title: 'Are you sure you want to create a new pipeline?',
         description:

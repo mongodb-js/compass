@@ -109,7 +109,7 @@ function RenameCollectionModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isVisible) {
-        track('Screen', { name: 'rename_collection_modal' });
+        track('Screen', { name: 'rename_collection_modal' }, undefined);
       }
     },
     [isVisible],

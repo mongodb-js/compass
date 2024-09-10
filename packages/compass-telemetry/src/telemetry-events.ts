@@ -75,16 +75,18 @@ export type IdentifyTraits = {
   os_linux_release?: string;
 };
 
+export type ConnectionScopedProperties = {
+  /**
+   * The id of the connection associated to this event.
+   */
+  connection_id: string;
+};
+
 /**
  * Events that are connection scoped are associated with one connection.
  */
 type ConnectionScoped<E extends { payload: unknown }> = E & {
-  payload: E['payload'] & {
-    /**
-     * The id of the connection associated to this event.
-     */
-    connection_id: string;
-  };
+  payload: E['payload'] & ConnectionScopedProperties;
 };
 
 /**
@@ -478,7 +480,7 @@ type AggregationExportOpenedEvent = ConnectionScoped<{
      * The number of stages present in the aggregation at the moment when
      * the even has been fired.
      */
-    num_stages: undefined | number;
+    num_stages?: undefined | number;
   };
 }>;
 
@@ -494,7 +496,7 @@ type AggregationExportedEvent = ConnectionScoped<{
      * The number of stages present in the aggregation at the moment when
      * the even has been fired.
      */
-    num_stages: undefined | number;
+    num_stages?: undefined | number;
 
     /**
      * The language to which the query has been exported.
@@ -1369,7 +1371,7 @@ type AiQueryFeedbackEvent = ConnectionScoped<{
   payload: {
     feedback: 'positive' | 'negative';
     text: string;
-    request_id: string;
+    request_id: string | null;
   };
 }>;
 
@@ -1447,7 +1449,7 @@ type PipelineAiFeedbackEvent = ConnectionScoped<{
      * The id of the request related to this feedback. Useful to correlate
      * feedback to potential error lines in the logs.
      */
-    request_id: string;
+    request_id: string | null;
 
     /**
      * The feedback comment left by the user.

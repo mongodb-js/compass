@@ -53,7 +53,7 @@ export default function CSFLEConnectionModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (open) {
-        track('Screen', { name: 'csfle_connection_modal' });
+        track('Screen', { name: 'csfle_connection_modal' }, undefined);
       }
     },
     [open],

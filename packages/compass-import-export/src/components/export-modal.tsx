@@ -151,7 +151,7 @@ function ExportModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isOpen) {
-        track('Screen', { name: 'export_modal' });
+        track('Screen', { name: 'export_modal' }, undefined);
       }
     },
     [isOpen],

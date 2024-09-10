@@ -17,6 +17,7 @@ import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use
 import type { PipelineBuilderUIWorkspaceProps } from '.';
 import type { DraggedUseCase } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 // Types
 type PipelineBuilderDndWrapperProps = {
@@ -71,15 +72,21 @@ const PipelineBuilderDndWrapper = ({
     })
   );
 
+  const connectionInfo = useConnectionInfo();
+
   const handleUseCaseDropped = useCallback(
     (event: DragEndEvent) => {
       const { over } = event;
       const overId = indexFromDroppableId(String(over?.id));
       if (draggedUseCase && overId !== null) {
-        track('Aggregation Use Case Added', {
-          drag_and_drop: true,
-          stage_name: draggedUseCase.stageOperator,
-        });
+        track(
+          'Aggregation Use Case Added',
+          {
+            drag_and_drop: true,
+            stage_name: draggedUseCase.stageOperator,
+          },
+          connectionInfo
+        );
         onUseCaseDropped(
           draggedUseCase.id,
           draggedUseCase.stageOperator,
@@ -88,7 +95,7 @@ const PipelineBuilderDndWrapper = ({
       }
       setDraggedUseCase(null);
     },
-    [draggedUseCase, onUseCaseDropped, track]
+    [draggedUseCase, onUseCaseDropped, track, connectionInfo]
   );
 
   const handleSortEnd = useCallback(

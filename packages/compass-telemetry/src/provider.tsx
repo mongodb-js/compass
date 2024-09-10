@@ -38,9 +38,7 @@ export const telemetryLocator = createServiceLocator(
   'telemetryLocator'
 );
 
-export function useTelemetry(): (
-  ...args: Parameters<TrackFunction>
-) => ReturnType<TrackFunction> {
+export function useTelemetry(): TrackFunction {
   const track = React.useContext(TelemetryContext);
   if (!track) {
     throw new Error('Telemetry service is missing from React context');

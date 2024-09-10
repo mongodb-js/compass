@@ -138,7 +138,7 @@ export const AggregationsQueriesList = ({
     .map((x) => x.item);
 
   useTrackOnChange((track: TrackFunction) => {
-    track('Screen', { name: 'my_queries' });
+    track('Screen', { name: 'my_queries' }, undefined);
   }, []);
 
   useTrackOnChange(
