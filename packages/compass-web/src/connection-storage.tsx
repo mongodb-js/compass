@@ -86,16 +86,15 @@ function isSharded(clusterDescription: ClusterDescription) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function getMetricsIdAndType(
   clusterDescription: ClusterDescription,
   deploymentItem?: ReplicaSetDeploymentItem | ShardingDeploymentItem
 ): {
-  clusterId: string;
-  clusterType: 'serverless' | 'replicaSet' | 'cluster';
+  metricsId: string;
+  metricsType: 'serverless' | 'replicaSet' | 'cluster';
 } {
   if (isServerless(clusterDescription)) {
-    return { clusterId: clusterDescription.name, clusterType: 'serverless' };
+    return { metricsId: clusterDescription.name, metricsType: 'serverless' };
   }
 
   if (!deploymentItem) {
@@ -105,8 +104,8 @@ function getMetricsIdAndType(
   }
 
   return {
-    clusterId: deploymentItem.state.clusterId,
-    clusterType: isSharded(clusterDescription) ? 'cluster' : 'replicaSet',
+    metricsId: deploymentItem.state.clusterId,
+    metricsType: isSharded(clusterDescription) ? 'cluster' : 'replicaSet',
   };
 }
 
@@ -246,12 +245,12 @@ class AtlasCloudConnectionStorage
               .map(async (description) => {
                 // Even though nds/clusters will list serverless clusters, to get
                 // the regional description we need to change the url
-                const clusterType = isServerless(description)
+                const clusterDescriptionType = isServerless(description)
                   ? 'serverless'
                   : 'clusters';
                 const res = await this.atlasService.authenticatedFetch(
                   this.atlasService.cloudEndpoint(
-                    `nds/${clusterType}/${this.projectId}/${description.name}/regional/clusterDescription`
+                    `nds/${clusterDescriptionType}/${this.projectId}/${description.name}/regional/clusterDescription`
                   )
                 );
                 return await (res.json() as Promise<ClusterDescriptionWithDataProcessingRegion>);

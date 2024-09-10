@@ -901,14 +901,20 @@ describe('ConnectionStorage', function () {
                   local: {
                     key: 'my-key',
                   },
+                  'local:2': {
+                    key: 'my-key-2',
+                  },
+                  kmip: {
+                    endpoint: 'kmip://localhost:5696',
+                  },
                 },
               },
             },
           },
         };
 
-        // // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
-        // // and make assertions on that.
+        // Stub encryptSecrets so that we do not call electron.safeStorage.encrypt
+        // and make assertions on that.
         const encryptSecretsStub = Sinon.stub(
           connectionStorage,
           'encryptSecrets' as any
@@ -918,7 +924,11 @@ describe('ConnectionStorage', function () {
 
         const expectedConnection = await readConnection(tmpDir, id);
         connectionInfo.connectionOptions.fleOptions.autoEncryption.kmsProviders =
-          {} as any;
+          {
+            kmip: {
+              endpoint: 'kmip://localhost:5696',
+            },
+          } as any;
         expect(expectedConnection).to.deep.equal({
           _id: connectionInfo.id,
           connectionInfo,
@@ -946,6 +956,12 @@ describe('ConnectionStorage', function () {
                   local: {
                     key: 'my-key',
                   },
+                  'local:2': {
+                    key: 'my-key-2',
+                  },
+                  kmip: {
+                    endpoint: 'kmip://localhost:5696',
+                  },
                 },
               },
             },
@@ -963,7 +979,11 @@ describe('ConnectionStorage', function () {
 
         const expectedConnection = await readConnection(tmpDir, id);
         connectionInfo.connectionOptions.fleOptions.autoEncryption.kmsProviders =
-          {} as any;
+          {
+            kmip: {
+              endpoint: 'kmip://localhost:5696',
+            },
+          } as any;
         expect(expectedConnection).to.deep.equal({
           _id: connectionInfo.id,
           connectionInfo,
@@ -980,6 +1000,9 @@ describe('ConnectionStorage', function () {
             kmsProviders: {
               local: {
                 key: 'my-key',
+              },
+              'local:2': {
+                key: 'my-key-2',
               },
             },
           },

@@ -1202,7 +1202,13 @@ describe('FLE2', function () {
     await browser.connectWithConnectionForm({
       hosts: ['127.0.0.1:27091'],
       fleKeyVaultNamespace: 'alena.keyvault',
-      fleKey: 'A'.repeat(128),
+      kmsProviders: {
+        local: [
+          {
+            key: 'A'.repeat(128),
+          },
+        ],
+      },
       fleEncryptedFieldsMap: `{
         'alena.coll': {
           fields: [

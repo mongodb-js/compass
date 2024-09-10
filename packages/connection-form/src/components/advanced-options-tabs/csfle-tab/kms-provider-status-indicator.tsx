@@ -1,7 +1,11 @@
 import React from 'react';
 import type { AutoEncryptionOptions } from 'mongodb';
 
-import type { KMSProviders, KMSField } from '../../../utils/csfle-kms-fields';
+import type {
+  KMSField,
+  KMSProviderName,
+  KMSProviderType,
+} from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { css, Icon, spacing, palette } from '@mongodb-js/compass-components';
 
@@ -10,24 +14,31 @@ const iconStyles = css({
   display: 'block',
 });
 
-function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
+function KMSProviderStatusIndicator<T extends KMSProviderType>({
   autoEncryptionOptions,
   errors,
+  kmsProviders,
   fields,
 }: {
   autoEncryptionOptions: AutoEncryptionOptions;
   errors: ConnectionFormError[];
-  fields: KMSField<KMSProvider>[];
+  fields: KMSField<T>[];
+  kmsProviders: KMSProviderName<T>[];
 }): React.ReactElement {
-  const hasAnyFieldSet = fields.some(({ value }) =>
-    value(autoEncryptionOptions)
+  const hasAnyFieldSet = kmsProviders.some((kmsProviderName) =>
+    fields.some(({ value }) => value(autoEncryptionOptions, kmsProviderName))
   );
-  const isMissingRequiredField = fields.some(
-    ({ value, optional }) => !optional && !value(autoEncryptionOptions)
+  const isMissingRequiredField = kmsProviders.some((kmsProviderName) =>
+    fields.some(
+      ({ value, optional }) =>
+        !optional && !value(autoEncryptionOptions, kmsProviderName)
+    )
   );
-  const hasFieldWithError = fields.some(
-    ({ state }) =>
-      (typeof state === 'string' ? state : state(errors)) === 'error'
+  const hasFieldWithError = kmsProviders.some(() =>
+    fields.some(
+      ({ state }) =>
+        (typeof state === 'string' ? state : state(errors)) === 'error'
+    )
   );
 
   if (hasFieldWithError) {
