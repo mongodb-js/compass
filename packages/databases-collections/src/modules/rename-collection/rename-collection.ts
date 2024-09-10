@@ -107,6 +107,7 @@ const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
     return {
       ...state,
       error: action.error,
+      modalState: 'input-form',
       isRunning: false,
     };
   } else if (action.type === CONFIRMATION_REQUIRED) {

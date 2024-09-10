@@ -82,10 +82,10 @@ function RenameCollectionModal({
 }: RenameCollectionModalProps) {
   const [newName, setNewName] = useState(initialCollectionName);
   useEffect(() => {
-    if (modalState === 'input-form') {
+    if (modalState === 'input-form' && !error) {
       setNewName(initialCollectionName);
     }
-  }, [modalState, initialCollectionName]);
+  }, [modalState, initialCollectionName, error]);
   const onNameConfirmationChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       clearError();
