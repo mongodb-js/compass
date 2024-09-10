@@ -72,11 +72,13 @@ function useInitialEval(initialEvaluate?: string | string[]) {
 }
 
 const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
-  { initialEvaluate: _initialEvaluate, ...props },
+  { initialEvaluate: _initialEvaluate, initialInput, ...props },
   ref
 ) {
   const shellRef = useRef<ShellType | null>(null);
+  const initialInputRef = useRef(initialInput);
   const initialEvaluate = useInitialEval(_initialEvaluate);
+  const hasInitialEvaluateRef = useRef(!!initialEvaluate);
   const mergeRef = useCallback(
     (shell: ShellType | null) => {
       shellRef.current = shell;
@@ -91,6 +93,17 @@ const Shell = React.forwardRef<ShellType, ShellProps>(function Shell(
   useEffect(() => {
     return rafraf(() => {
       shellRef.current?.focusEditor();
+      if (initialInputRef.current) {
+        shellRef.current?.['editor']?.applySnippet(initialInputRef.current);
+      }
+      // TODO(COMPASS-8256): make sure this is properly fixed in browser-repl, the
+      // initial state of `operationInProgress` should be `true` if
+      // `initialEvaluate` was provided to the Shell component, otherwise its
+      // possible to run commands before we started evaluating initial ones (while
+      // the component resolves the prompt asyncronously)
+      if (shellRef.current && hasInitialEvaluateRef.current) {
+        shellRef.current['setState']({ operationInProgress: true });
+      }
     });
   }, []);
   return (

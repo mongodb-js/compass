@@ -81,7 +81,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           onClick={() => {
             openShellWorkspace(connectionId, {
               initialEvaluate: `use ${database}`,
-              initialInput: `db[${wrapField(collection, true)}].find()`,
+              initialInput: `db[${wrapField(collection, true)}].find({\${}})`,
             });
             track('Open Shell', { entrypoint: 'collection' }, connectionInfo);
           }}
