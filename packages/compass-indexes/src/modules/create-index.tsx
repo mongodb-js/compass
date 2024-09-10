@@ -9,6 +9,7 @@ import { isAction } from '../utils/is-action';
 import type { InProgressIndex } from './regular-indexes';
 import type { IndexesThunkAction } from '.';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
+import type { RootState } from '.';
 
 export enum ActionTypes {
   AddField = 'compass-indexes/create-index/fields/add-field',
@@ -78,13 +79,13 @@ export const changeFields = (fields: Field[]) => ({
 });
 
 export const updateFieldName = (idx: number, name: string) => {
-  return (dispatch: Dispatch, getState: () => State) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const fields: Field[] = [...state.fields];
-    if (idx >= 0 && idx < state.fields.length) {
+    const fields: Field[] = [...state.createIndex.fields];
+    if (idx >= 0 && idx < state.createIndex.fields.length) {
       // Check if field name exists.
       if (
-        state.fields.some(
+        state.createIndex.fields.some(
           (field: Field, eIdx: number) => field.name === name && eIdx !== idx
         )
       ) {
