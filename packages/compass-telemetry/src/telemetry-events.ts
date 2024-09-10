@@ -636,6 +636,83 @@ type ConnectionAttemptEvent = ConnectionScoped<{
   };
 }>;
 
+export type ExtraConnectionData = {
+  /**
+   * Desktop only. The authentication type used in the connection.
+   */
+  auth_type?: string;
+
+  /**
+   * Desktop only. The type of tunneling used in the connection.
+   */
+  tunnel?: string;
+
+  /**
+   * Desktop only. Specifies if SRV is used in the connection.
+   */
+  is_srv?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection is targeting localhost.
+   */
+  is_localhost?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection URL is an Atlas URL.
+   */
+  is_atlas_url?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection URL is a DigitalOcean URL.
+   */
+  is_do_url?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection is in a public cloud.
+   */
+  is_public_cloud?: boolean;
+
+  /**
+   * The name of the public cloud provider, if applicable.
+   */
+  public_cloud_name?: string;
+
+  /**
+   * Specifies if Client-Side Field Level Encryption (CSFLE) is used.
+   */
+  is_csfle?: boolean;
+
+  /**
+   * Specifies if CSFLE schema is present.
+   */
+  has_csfle_schema?: boolean;
+
+  /**
+   * Specifies if KMS AWS is used.
+   */
+  has_kms_aws?: boolean;
+
+  /**
+   * Specifies if KMS GCP is used.
+   */
+  has_kms_gcp?: boolean;
+
+  /**
+   * Specifies if KMS KMIP is used.
+   */
+  has_kms_kmip?: boolean;
+
+  /**
+   * Specifies if KMS Local is used.
+   */
+  has_kms_local?: boolean;
+
+  /**
+   * Specifies if KMS Azure is used.
+   */
+  has_kms_azure?: boolean;
+};
+
 /**
  * This event is fired when user successfully connects to a new server/cluster.
  *
@@ -645,17 +722,17 @@ type NewConnectionEvent = ConnectionScoped<{
   name: 'New Connection';
   payload: {
     /**
-     * Specifies if the connection is targeting an atlas cluster.
+     * Specifies if the connection is targeting an Atlas cluster.
      */
     is_atlas: boolean;
 
     /**
-     * The first resolved srv hostname in case the connection is targeting an atlas cluster.
+     * The first resolved SRV hostname in case the connection is targeting an Atlas cluster.
      */
     atlas_hostname: string | null;
 
     /**
-     * Specifies that the connection is targeting an atlas local deployment.
+     * Specifies that the connection is targeting an Atlas local deployment.
      */
     is_local_atlas: boolean;
 
@@ -665,7 +742,7 @@ type NewConnectionEvent = ConnectionScoped<{
     is_dataLake: boolean;
 
     /**
-     * Specifies that the connection is targeting an atlas local deployment.
+     * Specifies that the connection is targeting an Atlas Enterprise deployment.
      */
     is_enterprise: boolean;
 
@@ -687,19 +764,20 @@ type NewConnectionEvent = ConnectionScoped<{
     /**
      * The host architecture of the connected server.
      */
-    server_arch: string | undefined;
+    server_arch?: string;
 
     /**
-     * The os family of the connected server.
+     * The OS family of the connected server.
      */
-    server_os_family: string | undefined;
+    server_os_family?: string;
 
     /**
      * The type of connected topology.
      */
     topology_type: string;
-  };
+  } & ExtraConnectionData;
 }>;
+
 /**
  * This event is fired when a connection attempt fails.
  *
@@ -717,7 +795,7 @@ type ConnectionFailedEvent = ConnectionScoped<{
      * The error name.
      */
     error_name: string;
-  };
+  } & ExtraConnectionData;
 }>;
 
 /**

@@ -1,5 +1,9 @@
 import type { TelemetryEvent } from './telemetry-events';
-export type { TelemetryEvent, IdentifyTraits } from './telemetry-events';
+export type {
+  TelemetryEvent,
+  IdentifyTraits,
+  ExtraConnectionData,
+} from './telemetry-events';
 
 type TelemetryConnectionInfo = {
   id: string;
