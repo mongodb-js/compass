@@ -1,16 +1,16 @@
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-storage/renderer';
 
 export function getAtlasPerformanceAdvisorLink({
-  clusterId,
-  clusterType,
+  metricsId,
+  metricsType,
   clusterName,
-}: Pick<AtlasClusterMetadata, 'clusterId' | 'clusterType' | 'clusterName'>) {
-  if (clusterType === 'serverless') {
+}: Pick<AtlasClusterMetadata, 'metricsId' | 'metricsType' | 'clusterName'>) {
+  if (metricsType === 'serverless') {
     return `#/serverless/advisor/${encodeURIComponent(
       clusterName
     )}/createIndexes`;
   }
-  return `#/metrics/${encodeURIComponent(clusterType)}/${encodeURIComponent(
-    clusterId
+  return `#/metrics/${encodeURIComponent(metricsType)}/${encodeURIComponent(
+    metricsId
   )}/advisor`;
 }
