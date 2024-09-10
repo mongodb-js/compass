@@ -77,7 +77,7 @@ type StageEditorProps = {
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
   num_stages: number;
-  editor_view_type: string;
+  editor_view_type: 'text' | 'stage' | 'focus';
   className?: string;
   onChange: (index: number, value: string) => void;
   editorRef?: React.Ref<EditorRef>;

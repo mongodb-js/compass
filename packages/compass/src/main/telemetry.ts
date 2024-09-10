@@ -5,6 +5,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
+import type { IdentifyTraits } from '@mongodb-js/compass-telemetry';
 
 const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
@@ -101,20 +102,23 @@ class CompassTelemetry {
         queuedEvents: this.queuedEvents.length,
       }
     );
+
     if (
       this.state === 'enabled' &&
       this.analytics &&
       this.telemetryAnonymousId
     ) {
+      const traits: IdentifyTraits = {
+        ...this._getCommonProperties(),
+        platform: process.platform,
+        arch: process.arch,
+        ...this.osInfo,
+      };
+
       this.analytics.identify({
         userId: this.telemetryAtlasUserId,
         anonymousId: this.telemetryAnonymousId,
-        traits: {
-          ...this._getCommonProperties(),
-          platform: process.platform,
-          arch: process.arch,
-          ...this.osInfo,
-        },
+        traits: traits,
       });
     }
 

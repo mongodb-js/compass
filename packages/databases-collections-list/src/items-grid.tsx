@@ -310,7 +310,7 @@ export const ItemsGrid = <T extends Item>({
   const track = useTelemetry();
   const connectionInfoAccess = useConnectionInfoAccess();
   const onViewTypeChange = useCallback(
-    (newType) => {
+    (newType: ViewType) => {
       track(
         'Switch View Type',
         { view_type: newType, item_type: itemType },

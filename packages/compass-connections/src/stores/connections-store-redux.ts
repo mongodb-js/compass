@@ -1521,9 +1521,6 @@ export const connect = (
         'Connection Attempt',
         {
           is_favorite: connectionInfo.savedConnectionType === 'favorite',
-          is_recent:
-            !!connectionInfo.lastUsed &&
-            connectionInfo.savedConnectionType !== 'favorite',
           is_new: isNewConnection(getState(), connectionInfo.id),
         },
         connectionInfo

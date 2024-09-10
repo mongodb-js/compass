@@ -23,7 +23,7 @@ describe('StageEditor [Component]', function () {
         syntaxError={null}
         serverError={null}
         num_stages={0}
-        editor_view_type=""
+        editor_view_type="text"
       />
     );
   });
