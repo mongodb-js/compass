@@ -62,7 +62,7 @@ buildvariants:
     expansions:
       silk_asset_group: compass-macos
     display_name: Package MacOS Intel
-    run_on: macos-1100
+    run_on: macos-14
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -71,7 +71,7 @@ buildvariants:
     expansions:
       silk_asset_group: compass-macos-arm
     display_name: Package MacOS Arm64
-    run_on: macos-1100-arm64
+    run_on: macos-14-arm64
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -145,7 +145,7 @@ buildvariants:
       - name: test-server-latest-alpha-1
       - name: test-server-latest-alpha-2
       - name: test-server-latest-alpha-3
-  - name: test-server-ubuntu
+  - name: test-packaged-app-ubuntu
     display_name: Test Packaged App Ubuntu 20.04
     run_on: ubuntu2004-large
     patchable: true
@@ -156,7 +156,7 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-server-windows
+  - name: test-packaged-app-windows
     display_name: Test Packaged App Windows 10
     run_on: windows-vsCurrent-large
     patchable: true
@@ -167,7 +167,7 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-server-rhel
+  - name: test-packaged-app-rhel
     display_name: Test Packaged App RHEL 8.0
     run_on: rhel80-large
     patchable: true
@@ -178,7 +178,7 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-server-macos-11-arm
+  - name: test-packaged-app-macos-11-arm
     display_name: Test Packaged App MacOS arm64 11
     run_on: macos-1100-arm64-gui
     patchable: true
@@ -189,9 +189,31 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-server-macos-11-x64
+  - name: test-packaged-app-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
     run_on: macos-1100-gui
+    patchable: false
+    depends_on:
+      - name: package-compass
+        variant: package-macos-x64
+    tasks:
+      - name: test-packaged-app-1
+      - name: test-packaged-app-2
+      - name: test-packaged-app-3
+  - name: test-packaged-app-macos-14-arm
+    display_name: Test Packaged App MacOS arm64 14
+    run_on: macos-14-arm64-gui
+    patchable: true
+    depends_on:
+      - name: package-compass
+        variant: package-macos-arm
+    tasks:
+      - name: test-packaged-app-1
+      - name: test-packaged-app-2
+      - name: test-packaged-app-3
+  - name: test-packaged-app-macos-14-x64
+    display_name: Test Packaged App MacOS x64 14
+    run_on: macos-14-gui
     patchable: false
     depends_on:
       - name: package-compass
