@@ -3,6 +3,8 @@ import { createContext, useContext } from 'react';
 // Not all of these preference map to Compass preferences.
 export type ConnectionFormPreferences = {
   showFavoriteActions: boolean;
+  showHelpCardsInForm: boolean;
+  showPersonalisationForm: boolean;
   protectConnectionStrings: boolean;
   forceConnectionOptions: [key: string, value: string][];
   showKerberosPasswordField: boolean;
@@ -14,10 +16,13 @@ export type ConnectionFormPreferences = {
   showKerberosAuth: boolean;
   showCSFLE: boolean;
   showProxySettings: boolean;
+  saveAndConnectLabel: string;
 };
 
 const defaultPreferences = {
   showFavoriteActions: true,
+  showPersonalisationForm: true,
+  showHelpCardsInForm: true,
   protectConnectionStrings: false,
   forceConnectionOptions: [],
   showKerberosPasswordField: false,
@@ -29,6 +34,7 @@ const defaultPreferences = {
   showKerberosAuth: true,
   showCSFLE: true,
   showProxySettings: true,
+  saveAndConnectLabel: 'Connect',
 };
 
 export const ConnectionFormPreferencesContext = createContext<
