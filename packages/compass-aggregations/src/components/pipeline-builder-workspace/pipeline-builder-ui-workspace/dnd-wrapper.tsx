@@ -72,7 +72,7 @@ const PipelineBuilderDndWrapper = ({
     })
   );
 
-  const connectionInfo = useConnectionInfoAccess().getCurrentConnectionInfo();
+  const connectionInfoAccess = useConnectionInfoAccess();
 
   const handleUseCaseDropped = useCallback(
     (event: DragEndEvent) => {
@@ -85,7 +85,7 @@ const PipelineBuilderDndWrapper = ({
             drag_and_drop: true,
             stage_name: draggedUseCase.stageOperator,
           },
-          connectionInfo
+          connectionInfoAccess.getCurrentConnectionInfo()
         );
         onUseCaseDropped(
           draggedUseCase.id,
@@ -95,7 +95,7 @@ const PipelineBuilderDndWrapper = ({
       }
       setDraggedUseCase(null);
     },
-    [draggedUseCase, onUseCaseDropped, track, connectionInfo]
+    [draggedUseCase, onUseCaseDropped, track, connectionInfoAccess]
   );
 
   const handleSortEnd = useCallback(
