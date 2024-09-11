@@ -95,7 +95,6 @@
     "scripts"
   ],
   "overrides": {
-    "mongodb-client-encryption": "^6.1.0",
-    "body-parser": "^1.20.3"
+    "mongodb-client-encryption": "^6.1.0"
   }
 }
