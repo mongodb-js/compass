@@ -314,6 +314,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       () => ({
         num_stages: pipeline.length,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
+        stages: pipeline.map((stage) => getStageOperator(stage)),
       }),
       connectionInfoAccess.getCurrentConnectionInfo()
     );

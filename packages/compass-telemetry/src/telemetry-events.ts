@@ -212,6 +212,11 @@ type AggregationExecutedEvent = ConnectionScoped<{
      * The type of editor view from which the aggregation has been executed.
      */
     editor_view_type: 'stage' | 'text' | 'focus';
+
+    /**
+     * The names of the stages in the pipeline being executed.
+     */
+    stage_operators: string[];
   };
 }>;
 
