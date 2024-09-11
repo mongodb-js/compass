@@ -249,7 +249,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[dom-accessibility-api](#a91e4ceabaaddea1b80532694b37621980591fa28c7144a3a848e66363bfee06)**                              | 0.5.9        | MIT                                 |
 | **[dom-helpers](#8d51cc2c2eba67a9ee7b80bdbca48b1102ceeb0618178fae05b1a82522a80e6e)**                                        | 5.2.1        | MIT                                 |
 | **[domify](#4360a769ee10e827f9ae503aa7ea9aeb9039932fa02ac938316df303704a7fb1)**                                             | 1.4.1        | MIT                                 |
-| **[dset](#0ad3cccee140cec056ad5553443d2c3609cb002e279e2820cada2d6cb85c883d)**                                               | 3.1.3        | MIT                                 |
+| **[dset](#f51cb933ffb40a4dfeed4e6c3f7e6299cf7d05c42528b3fccc5bc7cab310914c)**                                               | 3.1.4        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
 | **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**                          | 1.0.1        | Apache-2.0                          |
@@ -19423,9 +19423,9 @@ License files:
 
 License tags: MIT
 
-<a id="0ad3cccee140cec056ad5553443d2c3609cb002e279e2820cada2d6cb85c883d"></a>
+<a id="f51cb933ffb40a4dfeed4e6c3f7e6299cf7d05c42528b3fccc5bc7cab310914c"></a>
 
-### [dset](https://www.npmjs.com/package/dset) (version 3.1.3)
+### [dset](https://www.npmjs.com/package/dset) (version 3.1.4)
 
 License tags: MIT
 
