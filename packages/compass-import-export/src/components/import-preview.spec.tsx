@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import { expect } from 'chai';
 

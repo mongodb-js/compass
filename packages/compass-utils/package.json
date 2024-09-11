@@ -69,6 +69,6 @@
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
-    "electron": "^30.4.0"
+    "electron": "^30.5.0"
   }
 }

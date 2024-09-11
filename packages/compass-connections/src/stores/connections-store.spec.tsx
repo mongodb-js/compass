@@ -3,12 +3,13 @@ import sinon from 'sinon';
 import { useConnections } from './connections-store';
 import {
   cleanup,
-  renderHookWithConnections,
+  renderWithConnections,
   waitFor,
   screen,
   createDefaultConnectionInfo,
   wait,
 } from '@mongodb-js/testing-library-compass';
+import React from 'react';
 
 const mockConnections = [
   {
@@ -37,6 +38,21 @@ const defaultPreferences = {
   enableMultipleConnectionSystem: true,
   maximumNumberOfActiveConnections: undefined,
 };
+
+// A bit of a special case, testing-library doesn't allow to test hooks that
+// have UI side-effects, but we're doing it in these connection hooks
+function renderHookWithConnections<T>(
+  cb: () => T,
+  options: Parameters<typeof renderWithConnections>[1]
+) {
+  const hookResult = { current: null } as { current: T };
+  const HookGetter = () => {
+    hookResult.current = cb();
+    return null;
+  };
+  const result = renderWithConnections(<HookGetter></HookGetter>, options);
+  return { ...result, result: hookResult };
+}
 
 describe('useConnections', function () {
   afterEach(() => {

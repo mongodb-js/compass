@@ -1,7 +1,7 @@
 import type { CollectionTabOptions } from './collection-tab';
 import { activatePlugin } from './collection-tab';
 import { selectTab } from '../modules/collection-tab';
-import { waitFor } from '@testing-library/react';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';

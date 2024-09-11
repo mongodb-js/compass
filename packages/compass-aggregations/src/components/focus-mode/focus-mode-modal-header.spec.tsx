@@ -1,7 +1,10 @@
 import type { ComponentProps } from 'react';
 import React from 'react';
-import { cleanup, render } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { FocusModeModalHeader } from './focus-mode-modal-header';
 import Sinon from 'sinon';

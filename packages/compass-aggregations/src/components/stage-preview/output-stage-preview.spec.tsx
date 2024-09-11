@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';

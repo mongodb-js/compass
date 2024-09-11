@@ -8,7 +8,7 @@ import {
   cleanup,
   fireEvent,
   within,
-} from '@testing-library/react';
+} from '@mongodb-js/testing-library-compass';
 
 import CreateIndexActions from '../create-index-actions';
 

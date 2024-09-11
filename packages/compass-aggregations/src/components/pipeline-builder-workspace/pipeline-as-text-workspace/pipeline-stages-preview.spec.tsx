@@ -1,9 +1,8 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { screen } from '@testing-library/react';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import userEvent from '@testing-library/user-event';
 
 import { renderWithStore } from '../../../../test/configure-store';
 

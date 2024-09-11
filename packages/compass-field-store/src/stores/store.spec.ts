@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
 import type { Schema } from 'mongodb-schema';
 import {
-  activatePluginWithConnections,
+  createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import FieldStorePlugin from '..';
@@ -29,8 +29,11 @@ describe('FieldStore', function () {
     return store.dispatch(schemaUpdated(connectionId, ns, schema));
   };
 
+  const { activatePluginWithConnections } =
+    createPluginTestHelpers(FieldStorePlugin);
+
   beforeEach(function () {
-    const result = activatePluginWithConnections(FieldStorePlugin, {});
+    const result = activatePluginWithConnections(FieldStorePlugin);
     store = result.plugin.store;
     connectionsStore = result.connectionsStore;
   });

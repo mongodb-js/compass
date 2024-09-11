@@ -455,6 +455,18 @@ function colorValueToName(color: string): string {
   return color;
 }
 
+async function setKMSProviderName(
+  browser: CompassBrowser,
+  index: number,
+  name: string
+) {
+  await browser.clickVisible(Selectors.connectionFormEditFLEName(index));
+  return await browser.setValueVisible(
+    Selectors.connectionFormInputFLELocalName(index),
+    name
+  );
+}
+
 export async function setConnectFormState(
   browser: CompassBrowser,
   state: ConnectFormState
@@ -654,7 +666,7 @@ export async function setConnectFormState(
   // FLE2
   if (
     state.fleKeyVaultNamespace ||
-    state.fleKey ||
+    state.kmsProviders ||
     state.fleEncryptedFieldsMap
   ) {
     await browser.navigateToConnectTab('In-Use Encryption');
@@ -665,12 +677,20 @@ export async function setConnectFormState(
         state.fleKeyVaultNamespace
       );
     }
-    if (state.fleKey) {
+    if ((state.kmsProviders?.local?.length ?? 0) > 0) {
       await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
-      await browser.setValueVisible(
-        Selectors.ConnectionFormInputFLELocalKey,
-        state.fleKey
-      );
+      for (const [index, item] of (state.kmsProviders?.local ?? []).entries()) {
+        if (item.name) {
+          await setKMSProviderName(browser, index, item.name);
+        }
+        await browser.setValueVisible(
+          Selectors.connectionFormInputFLELocalKey(index),
+          item.key
+        );
+        await browser.clickVisible(
+          Selectors.ConnectionFormAddNewKMSProviderButton
+        );
+      }
     }
     if (state.fleEncryptedFieldsMap) {
       // set the text in the editor

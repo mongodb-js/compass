@@ -1,7 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { OptionEditor } from './option-editor';
 import type { SinonSpy } from 'sinon';
 import { applyFromHistory } from '../stores/query-bar-reducer';

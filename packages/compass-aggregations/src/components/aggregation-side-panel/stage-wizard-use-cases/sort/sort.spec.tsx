@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, within } from '@mongodb-js/testing-library-compass';
+import { userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { SortForm } from './sort';
 import sinon from 'sinon';

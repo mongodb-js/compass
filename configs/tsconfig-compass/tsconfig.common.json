@@ -1,3 +1,6 @@
 {
-  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.common.json"
+  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.common.json",
+  "compilerOptions": {
+    "removeComments": false
+  }
 }

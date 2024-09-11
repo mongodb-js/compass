@@ -1,7 +1,11 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { SavedPipelines } from './saved-pipelines';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';

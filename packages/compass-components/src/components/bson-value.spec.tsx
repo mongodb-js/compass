@@ -17,7 +17,7 @@ import {
 } from 'bson';
 import BSONValue from './bson-value';
 import { expect } from 'chai';
-import { render, cleanup, screen } from '@testing-library/react';
+import { render, cleanup, screen } from '@mongodb-js/testing-library-compass';
 
 describe('BSONValue', function () {
   afterEach(cleanup);

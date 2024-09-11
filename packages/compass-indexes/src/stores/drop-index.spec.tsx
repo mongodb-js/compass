@@ -1,31 +1,32 @@
 import React from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { DropIndexPlugin } from '../index';
 import Sinon from 'sinon';
-import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
 
 describe('DropIndexPlugin', function () {
-  const appRegistry = new AppRegistry();
   const sandbox = Sinon.createSandbox();
   const dataService = {
     dropIndex: sandbox.stub().resolves(),
   };
   const Plugin = DropIndexPlugin.withMockServices({
-    localAppRegistry: appRegistry,
     dataService,
   });
 
   afterEach(function () {
-    appRegistry.deactivate();
     sandbox.resetHistory();
     cleanup();
   });
 
   it('should show success toast when index is successfully dropped', async function () {
-    render(<Plugin namespace="db.coll"></Plugin>);
-    appRegistry.emit('open-drop-index-modal', 'index_1');
+    const { localAppRegistry } = render(<Plugin namespace="db.coll"></Plugin>);
+    localAppRegistry.emit('open-drop-index-modal', 'index_1');
     await waitFor(() => {
       screen.getByText('Drop Index');
     });
@@ -42,8 +43,8 @@ describe('DropIndexPlugin', function () {
 
   it('should show error toast when dropping index failed', async function () {
     dataService.dropIndex.rejects(new Error('Index was not dropped, whoops!'));
-    render(<Plugin namespace="db.coll"></Plugin>);
-    appRegistry.emit('open-drop-index-modal', 'index_1');
+    const { localAppRegistry } = render(<Plugin namespace="db.coll"></Plugin>);
+    localAppRegistry.emit('open-drop-index-modal', 'index_1');
     await waitFor(() => {
       screen.getByText('Drop Index');
     });

@@ -1,6 +1,6 @@
 import React from 'react';
 import Sinon from 'sinon';
-import { render, cleanup, screen } from '@testing-library/react';
+import { render, cleanup, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import * as DndKit from '@dnd-kit/core';
 import UseCaseDroppableArea from '.';

@@ -1,7 +1,7 @@
 import { useConnectionRepository } from './use-connection-repository';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { cleanup } from '@testing-library/react';
+import { cleanup } from '@mongodb-js/testing-library-compass';
 import {
   createDefaultConnectionInfo,
   renderHookWithConnections,

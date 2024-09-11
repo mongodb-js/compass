@@ -1,11 +1,16 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { Provider } from '../stores/context';
-import userEvent from '@testing-library/user-event';
 
 import { QueryAI } from './query-ai';
 import type { QueryBarExtraArgs } from '../stores/query-bar-store';

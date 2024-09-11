@@ -289,8 +289,8 @@ async function createWorkspace({
       nyc: '*',
       prettier: '*',
       sinon: '*',
+      '@mongodb-js/testing-library-compass': '*',
       ...(isReact && {
-        '@mongodb-js/testing-library-compass': '*',
         '@types/chai-dom': '*',
         '@types/react': '*',
         '@types/react-dom': '*',
@@ -417,7 +417,7 @@ export default Plugin;
     ? `
 import React from 'react';
 import { expect } from 'chai';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render } from '@mongodb-js/testing-library-compass';
 import CompassPlugin from './index';
 
 describe('Compass Plugin', function() {

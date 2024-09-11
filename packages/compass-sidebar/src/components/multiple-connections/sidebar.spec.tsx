@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { RenderWithConnectionsHookResult } from '@mongodb-js/testing-library-compass';
 import {
-  renderPluginComponentWithConnections,
+  createPluginTestHelpers,
   screen,
   cleanup,
   waitFor,
@@ -15,7 +15,6 @@ import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
-import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
 import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
 import { CompassSidebarPlugin } from '../../index';
@@ -48,7 +47,47 @@ describe('Multiple Connections Sidebar Component', function () {
     RenderWithConnectionsHookResult['connectionsStore']['actions']
   >;
   let workspace: sinon.SinonSpiedInstance<WorkspacesService>;
-  let instancesManager: MongoDBInstancesManager;
+
+  const instancesManager = new TestMongoDBInstanceManager({
+    _id: '1',
+    status: 'ready',
+    genuineMongoDB: {
+      dbType: 'local',
+      isGenuine: true,
+    },
+    build: {
+      isEnterprise: true,
+      version: '7.0.1',
+    },
+    dataLake: {
+      isDataLake: false,
+      version: '',
+    },
+    topologyDescription: {
+      servers: [],
+      setName: '',
+      type: 'LoadBalanced',
+    },
+    databasesStatus: 'ready',
+    databases: [
+      {
+        _id: 'db_ready',
+        name: 'db_ready',
+        collectionsStatus: 'ready',
+        collections: [
+          {
+            _id: 'coll_ready',
+            name: 'coll_ready',
+            type: 'collection',
+          },
+        ],
+      },
+    ] as any,
+  });
+
+  const { renderWithConnections } = createPluginTestHelpers(
+    CompassSidebarPlugin.withMockServices({ instancesManager })
+  );
 
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
@@ -59,43 +98,7 @@ describe('Multiple Connections Sidebar Component', function () {
       openShellWorkspace: () => undefined,
       openPerformanceWorkspace: () => undefined,
     }) as any;
-    instancesManager = new TestMongoDBInstanceManager({
-      _id: '1',
-      status: 'ready',
-      genuineMongoDB: {
-        dbType: 'local',
-        isGenuine: true,
-      },
-      build: {
-        isEnterprise: true,
-        version: '7.0.1',
-      },
-      dataLake: {
-        isDataLake: false,
-        version: '',
-      },
-      topologyDescription: {
-        servers: [],
-        setName: '',
-        type: 'LoadBalanced',
-      },
-      databasesStatus: 'ready',
-      databases: [
-        {
-          _id: 'db_ready',
-          name: 'db_ready',
-          collectionsStatus: 'ready',
-          collections: [
-            {
-              _id: 'coll_ready',
-              name: 'coll_ready',
-              type: 'collection',
-            },
-          ],
-        },
-      ] as any,
-    });
-    const result = renderPluginComponentWithConnections(
+    const result = renderWithConnections(
       <ConnectionImportExportProvider>
         <WorkspacesProvider
           value={[
@@ -110,8 +113,6 @@ describe('Multiple Connections Sidebar Component', function () {
           </WorkspacesServiceProvider>
         </WorkspacesProvider>
       </ConnectionImportExportProvider>,
-      CompassSidebarPlugin.withMockServices({ instancesManager }),
-      {},
       {
         preferences: { enableMultipleConnectionSystem: true },
         connections,
@@ -229,7 +230,7 @@ describe('Multiple Connections Sidebar Component', function () {
         instancesManager.emit(
           'instance-started',
           connectionInfo.id,
-          instancesManager.getMongoDBInstanceForConnection(connectionInfo.id)
+          instancesManager.getMongoDBInstanceForConnection()
         );
       };
 

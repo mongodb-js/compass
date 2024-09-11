@@ -1,5 +1,10 @@
 import React from 'react';
-import { fireEvent, render, cleanup, screen } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  cleanup,
+  screen,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 

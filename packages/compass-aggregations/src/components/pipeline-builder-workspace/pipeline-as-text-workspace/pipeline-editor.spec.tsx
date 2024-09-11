@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { screen, within } from '@testing-library/react';
+import { screen, within } from '@mongodb-js/testing-library-compass';
 import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
 

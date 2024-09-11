@@ -1,14 +1,14 @@
 import type { TelemetryEvent } from './telemetry-events';
-export type { TelemetryEvent } from './telemetry-events';
+export type { TelemetryEvent, IdentifyTraits } from './telemetry-events';
 
 type TelemetryConnectionInfo = {
   id: string;
 };
 
-export type TrackFunctionPayload<TPayload extends Record<string, unknown>> =
-  | TPayload
-  | (() => TPayload)
-  | (() => Promise<TPayload>);
+export type TrackFunctionPayload<TPayload extends TelemetryEvent['payload']> =
+  | Omit<TPayload, 'connection_id'>
+  | (() => Omit<TPayload, 'connection_id'>)
+  | (() => Promise<Omit<TPayload, 'connection_id'>>);
 
 export interface TrackFunction {
   <
@@ -16,7 +16,7 @@ export interface TrackFunction {
     TPayload extends Extract<TelemetryEvent, { name: TName }>['payload']
   >(
     eventName: TName,
-    payload: TrackFunctionPayload<Omit<TPayload, 'connection_id'>>,
+    payload: TrackFunctionPayload<TPayload>,
     connectionInfo?: TelemetryConnectionInfo | undefined
   ): void;
 }

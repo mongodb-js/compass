@@ -1521,9 +1521,6 @@ export const connect = (
         'Connection Attempt',
         {
           is_favorite: connectionInfo.savedConnectionType === 'favorite',
-          is_recent:
-            !!connectionInfo.lastUsed &&
-            connectionInfo.savedConnectionType !== 'favorite',
           is_new: isNewConnection(getState(), connectionInfo.id),
         },
         connectionInfo
@@ -1549,12 +1546,15 @@ export const connect = (
           dispatch(disconnect(connectionInfo.id));
         });
 
+        const { connectionOptions, ...restOfTheConnectionInfo } =
+          connectionInfo;
+
         const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-          cloneDeep(connectionInfo),
+          cloneDeep(restOfTheConnectionInfo),
           {
             connectionOptions: adjustConnectionOptionsBeforeConnect({
               connectionOptions: merge(
-                cloneDeep(connectionInfo.connectionOptions),
+                cloneDeep(connectionOptions),
                 SecretsForConnection.get(connectionInfo.id) ?? {}
               ),
               defaultAppName: appName,

@@ -1,5 +1,4 @@
 import React, { type ComponentProps } from 'react';
-import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import * as hadronIpc from 'hadron-ipc';
 import sinon from 'sinon';
@@ -12,6 +11,7 @@ import {
   screen,
   waitFor,
   within,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';

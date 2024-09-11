@@ -1,6 +1,10 @@
 import React from 'react';
-import { render, cleanup, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  cleanup,
+  screen,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { SignalPopover, SignalHooksProvider } from './signal-popover';
 import { expect } from 'chai';
 import Sinon from 'sinon';

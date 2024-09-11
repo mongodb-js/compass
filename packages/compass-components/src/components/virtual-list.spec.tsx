@@ -1,6 +1,11 @@
 import React from 'react';
 import { expect } from 'chai';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { VirtualList, type VirtualListProps } from './virtual-list';
 
 type Doc = {
