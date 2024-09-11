@@ -127,6 +127,11 @@ function showConnectWindow(
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+      nodeIntegrationInWorker: true,
+      // For local dev, electron can not load @mongosh/node-runtime-worker-thread
+      // worker (file:///) from the filesystem due to same-origin policy. For this
+      // reason we disable the webSecurity.
+      webSecurity: process.env.DISABLE_ELECTRON_WEB_SECURITY !== '1',
       ...(opts && opts.webPreferences),
     },
   };
