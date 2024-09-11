@@ -187,7 +187,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[big-integer](#eb3eaa39f6d9126fdf0b39f43641e13908ba5ab8b70af073669d23cc768335b5)**                                        | 1.6.52       | Unlicense                           |
 | **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**                                           | 1.5.0        | MIT                                 |
 | **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**                                                 | 4.1.0        | MIT                                 |
-| **[body-parser](#6b44aee8dd5ecc9ca689f12bdce5cd72765171cc2d1b935f50040be51871621a)**                                        | 1.20.2       | MIT                                 |
+| **[body-parser](#ac02c7f4de34d468bfc87444d6d5f4691f322aa0b5dbfe2c2d0c3c42fd078dec)**                                        | 1.20.3       | MIT                                 |
 | **[bplist-parser](#a012056f1b32796d923573a3b1ef72cf36943d95e5e2f6af0f7eeab57a21be24)**                                      | 0.2.0        | MIT                                 |
 | **[bson](#b355c474f7d8440212aca8ad979743ee65c159f2d853f15ebad55e080bb21ae5)**                                               | 6.7.0        | Apache-2.0                          |
 | **[buffer-alloc-unsafe](#1022220a813dd092d3ced592ac36121a00bd08a9c2020e08ad370dc29ed217f0)**                                | 1.1.0        | MIT                                 |
@@ -255,6 +255,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**                          | 1.0.1        | Apache-2.0                          |
 | **[electron](#d41e0bdf063d64691a8d2058e15c90783bbdce7e9cb88eec8d1a02cabc43dd4a)**                                           | 30.5.0       | MIT                                 |
 | **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**                                          | 1.0.2        | MIT                                 |
+| **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
 | **[es-define-property](#f19a2c06a58db5974cd4d8abbd3fa0453122ea6d3bac0de0603ca69f72dcce38)**                                 | 1.0.0        | MIT                                 |
@@ -274,7 +275,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[execa](#4172423d3420d919e31613f23914ef325af8a3bf9ed3c6110a4053369b1cfddd)**                                              | 5.1.1        | MIT                                 |
 | **[execa](#099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012)**                                              | 7.2.0        | MIT                                 |
 | **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**                                    | 2.0.3        | (MIT OR WTFPL)                      |
-| **[express](#2f6758d3407b167482b6e5939a39adfae4627f3ca3939e7ebd8f944423a1e069)**                                            | 4.19.2       | MIT                                 |
+| **[express](#2f5e99f892082d7ae7608facedaa03184cf49f212373b334f68154c367871bce)**                                            | 4.20.0       | MIT                                 |
 | **[ext-list](#84470edae99e3ac5a9fdf9da513cd9a1ea7e479ca5fca13b6abecbb4c522f97c)**                                           | 2.2.2        | MIT                                 |
 | **[ext-name](#ad9b31fcbd25bf889177f1e55d92e083fbc5ae2460904d8a81abf075c4762abd)**                                           | 5.0.0        | MIT                                 |
 | **[facepaint](#7f6881dbbff5f35b8670063d56384fa880a5558aeaf952f1dc00997cfc7cddd4)**                                          | 1.2.1        | MIT                                 |
@@ -451,7 +452,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[media-typer](#fa74be298a38f8f9351484e9124aba4a4086182a4cba24449f195219a2843784)**                                        | 0.3.0        | MIT                                 |
 | **[memoize-one](#4d802a078eb32373fe5d8119384598a703537750aeeb5990aa28659939260789)**                                        | 5.2.1        | MIT                                 |
 | **[memory-pager](#7fbdeab18f48c3527cae276a51cd879e42d15337aba1acb44fedcf748137608b)**                                       | 1.5.0        | MIT                                 |
-| **[merge-descriptors](#8629510f1c3aef4893205a8e59216dee1806f69eaeedcdb2eb376b4632ced8d1)**                                  | 1.0.1        | MIT                                 |
+| **[merge-descriptors](#0dc27d83f406152460ccee54a872599fa57bf48baa989aaa2165fc98eafd08da)**                                  | 1.0.3        | MIT                                 |
 | **[merge-stream](#df06bda70cbfe392ea02ab42ab188d21ab5c15e3c1a172e6f2ce4cd9d304c01f)**                                       | 2.0.0        | MIT                                 |
 | **[methods](#d2f0af2174fefc260353011b7a5dd7845576b8eb5f16c423378467dfd5b10f5f)**                                            | 1.1.2        | MIT                                 |
 | **[mime-db](#7cfa78c6359b5b06cbb7cde9659b052fb92a58e290411458d496ea39857bc15b)**                                            | 1.52.0       | MIT                                 |
@@ -511,7 +512,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[path-exists](#3ae48f237e1a4424a3b1b60cfc95f35ca29141cd956f8bda85e763d7969e12c7)**                                        | 4.0.0        | MIT                                 |
 | **[path-key](#e1a2a032096ace66b422351e00b11b0229e42e4b49c2146f439f8fe442218451)**                                           | 3.1.1        | MIT                                 |
 | **[path-key](#8e0734b8abb76579df2174822606e692914e985fc58363a78e6ad4b2a4a5831f)**                                           | 4.0.0        | MIT                                 |
-| **[path-to-regexp](#4db5679c99a0dc8ff8ccdf6366c06b318a3e81ee0a4c2f4958ac2327f96d0d44)**                                     | 0.1.7        | MIT                                 |
+| **[path-to-regexp](#96d230365f414cce8d80ceb9d99d855685dfa922f931b49ea01952a1efe64266)**                                     | 0.1.10       | MIT                                 |
 | **[picocolors](#87994c8f4d800603a2cf449baca40fcaf984088237be5cebbfbc79de0d95da98)**                                         | 1.0.1        | ISC                                 |
 | **[polished](#a7a5d1244e48a082dbc54de31b5309caf950b12aa6bd9fefbba39e362e705f06)**                                           | 4.2.2        | MIT                                 |
 | **[possible-typed-array-names](#5ba4283f5512abd5d57e79c0a75acb3818d98d169df979afb01ad6867cefd312)**                         | 1.0.0        | MIT                                 |
@@ -524,6 +525,7 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[punycode](#3fe331f5536b72438f24d644ea9804b5e462f791a4c72a6d94f37193af1086aa)**                                           | 2.3.1        | MIT                                 |
 | **[pupa](#b05b7cc4c1bc01acd063dc811b9b1b0a1a4b3e0f17be77deaeaabade7dfeb095)**                                               | 2.1.1        | MIT                                 |
 | **[qs](#f0014afee41bfb4a111252068b917fc6a9a61ea307f982526a7082ea503f9040)**                                                 | 6.11.0       | BSD-3-Clause                        |
+| **[qs](#2240c454f0418501921d6b094c1f6477603b0c893c4d7a8ed2bdfcab9e75c069)**                                                 | 6.13.0       | BSD-3-Clause                        |
 | **[range-parser](#e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff)**                                       | 1.2.1        | MIT                                 |
 | **[raw-body](#fc0f8cf1771db07ef15ce7dafcac6db8e351607bb82caf0e5838f1769a796266)**                                           | 2.5.2        | MIT                                 |
 | **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**                                                 | 1.2.8        | (BSD-2-Clause OR MIT OR Apache-2.0) |
@@ -560,13 +562,14 @@ This document was automatically generated on Wed Sep 11 2024.
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
 | **[semver](#2c8b8c47dd7d24873eda4559b25851062c21d7584a396735b363f9bab626dd7b)**                                             | 7.6.3        | ISC                                 |
 | **[send](#a5aa96052b8bf57c58c38d6fae3a3b7d94ec212b6100f58a8260eb2f6a8cff6d)**                                               | 0.18.0       | MIT                                 |
-| **[serve-static](#03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0)**                                       | 1.15.0       | MIT                                 |
+| **[send](#412cd4c4a8e6aaa433d5e67852c05a1e307fd4eb9dc362bdc30fa099313c24cb)**                                               | 0.19.0       | MIT                                 |
+| **[serve-static](#d81d7a0483c3a6c271dfd6d2283f9439b5edce9940d39d8b9057f9225291374b)**                                       | 1.16.0       | MIT                                 |
 | **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**                                | 1.2.2        | MIT                                 |
 | **[set-function-name](#f9d4c9272c71403774a64f46fc69cefd1039845f2ee1d252fb62cbd97f9e7fb4)**                                  | 2.0.2        | MIT                                 |
 | **[setprototypeof](#7787a1d3bc2f39b65d75407d5d8d02d8ddb70f1cdb74897f15115e995fb64a56)**                                     | 1.2.0        | ISC                                 |
 | **[shebang-command](#a9cba97b71b818fb0a4978f8b14875ae118f292a19ffa97c8b2d848f9a897d89)**                                    | 2.0.0        | MIT                                 |
 | **[shebang-regex](#849fb37298f1c4dcdeb6065edc4242918c7533bcfda5c67747e6ce4620c587bb)**                                      | 3.0.0        | MIT                                 |
-| **[side-channel](#90d899d6f4d9080f6f0557879cc46c095d553b16e105525a7ed156113a6e1ead)**                                       | 1.0.4        | MIT                                 |
+| **[side-channel](#b87368b55d9ba1ff553ed48946c9eb64686bc10b48bc0f5859c669427508a6b5)**                                       | 1.0.6        | MIT                                 |
 | **[signal-exit](#5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4)**                                        | 3.0.7        | ISC                                 |
 | **[signal-exit](#09ce5ebc7ff1552bf0ed979e2479321c6a9a4b7a06d90ece7a70fa360007eff4)**                                        | 4.1.0        | ISC                                 |
 | **[simple-concat](#7e08f893385d0a6d7059029da3885e8346ad01eb58d6e4561612d2fb653c15ec)**                                      | 1.0.1        | MIT                                 |
@@ -17323,9 +17326,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="6b44aee8dd5ecc9ca689f12bdce5cd72765171cc2d1b935f50040be51871621a"></a>
+<a id="ac02c7f4de34d468bfc87444d6d5f4691f322aa0b5dbfe2c2d0c3c42fd078dec"></a>
 
-### [body-parser](https://www.npmjs.com/package/body-parser) (version 1.20.2)
+### [body-parser](https://www.npmjs.com/package/body-parser) (version 1.20.3)
 
 License tags: MIT
 
@@ -19784,6 +19787,39 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+<a id="177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623"></a>
+
+### [encodeurl](https://www.npmjs.com/package/encodeurl) (version 2.0.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      (The MIT License)
+
+      Copyright (c) 2016 Douglas Christopher Wilson
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      'Software'), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 <a id="fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563"></a>
 
 ### [end-of-stream](https://www.npmjs.com/package/end-of-stream) (version 1.4.4)
@@ -20318,9 +20354,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="2f6758d3407b167482b6e5939a39adfae4627f3ca3939e7ebd8f944423a1e069"></a>
+<a id="2f5e99f892082d7ae7608facedaa03184cf49f212373b334f68154c367871bce"></a>
 
-### [express](https://www.npmjs.com/package/express) (version 4.19.2)
+### [express](https://www.npmjs.com/package/express) (version 4.20.0)
 
 License tags: MIT
 
@@ -26885,9 +26921,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="8629510f1c3aef4893205a8e59216dee1806f69eaeedcdb2eb376b4632ced8d1"></a>
+<a id="0dc27d83f406152460ccee54a872599fa57bf48baa989aaa2165fc98eafd08da"></a>
 
-### [merge-descriptors](https://www.npmjs.com/package/merge-descriptors) (version 1.0.1)
+### [merge-descriptors](https://www.npmjs.com/package/merge-descriptors) (version 1.0.3)
 
 License tags: MIT
 
@@ -30245,9 +30281,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="4db5679c99a0dc8ff8ccdf6366c06b318a3e81ee0a4c2f4958ac2327f96d0d44"></a>
+<a id="96d230365f414cce8d80ceb9d99d855685dfa922f931b49ea01952a1efe64266"></a>
 
-### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 0.1.7)
+### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 0.1.10)
 
 License tags: MIT
 
@@ -36723,6 +36759,46 @@ License files:
       OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
       OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+<a id="2240c454f0418501921d6b094c1f6477603b0c893c4d7a8ed2bdfcab9e75c069"></a>
+
+### [qs](https://www.npmjs.com/package/qs) (version 6.13.0)
+
+License tags: BSD-3-Clause
+
+License files:
+
+- LICENSE.md:
+
+      BSD 3-Clause License
+
+      Copyright (c) 2014, Nathan LaFreniere and other [contributors](https://github.com/ljharb/qs/graphs/contributors)
+      All rights reserved.
+
+      Redistribution and use in source and binary forms, with or without
+      modification, are permitted provided that the following conditions are met:
+
+      1. Redistributions of source code must retain the above copyright notice, this
+         list of conditions and the following disclaimer.
+
+      2. Redistributions in binary form must reproduce the above copyright notice,
+         this list of conditions and the following disclaimer in the documentation
+         and/or other materials provided with the distribution.
+
+      3. Neither the name of the copyright holder nor the names of its
+         contributors may be used to endorse or promote products derived from
+         this software without specific prior written permission.
+
+      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+      AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+      IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+      DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+      FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+      DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+      SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+      OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+      OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 <a id="e973789240fef3c00f359e6acc8570dd769b70ee8b29fdcb679897fa2d696bff"></a>
 
 ### [range-parser](https://www.npmjs.com/package/range-parser) (version 1.2.1)
@@ -38054,9 +38130,43 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="03156d123ff3a9482fa09d97af4668d5e2ae058c4e3d2c67fe4a1c0c072403f0"></a>
+<a id="412cd4c4a8e6aaa433d5e67852c05a1e307fd4eb9dc362bdc30fa099313c24cb"></a>
 
-### [serve-static](https://www.npmjs.com/package/serve-static) (version 1.15.0)
+### [send](https://www.npmjs.com/package/send) (version 0.19.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      (The MIT License)
+
+      Copyright (c) 2012 TJ Holowaychuk
+      Copyright (c) 2014-2022 Douglas Christopher Wilson
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      'Software'), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be
+      included in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+      IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+      CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+      TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+      SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<a id="d81d7a0483c3a6c271dfd6d2283f9439b5edce9940d39d8b9057f9225291374b"></a>
+
+### [serve-static](https://www.npmjs.com/package/serve-static) (version 1.16.0)
 
 License tags: MIT
 
@@ -38218,9 +38328,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="90d899d6f4d9080f6f0557879cc46c095d553b16e105525a7ed156113a6e1ead"></a>
+<a id="b87368b55d9ba1ff553ed48946c9eb64686bc10b48bc0f5859c669427508a6b5"></a>
 
-### [side-channel](https://www.npmjs.com/package/side-channel) (version 1.0.4)
+### [side-channel](https://www.npmjs.com/package/side-channel) (version 1.0.6)
 
 License tags: MIT
 
