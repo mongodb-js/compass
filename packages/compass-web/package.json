@@ -109,7 +109,7 @@
     "electron": "^30.5.0",
     "eslint": "^7.25.0",
     "events": "^3.3.0",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "express-http-proxy": "^2.0.0",
     "hadron-app-registry": "^9.2.5",
     "is-ip": "^5.0.1",
