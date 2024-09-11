@@ -4,27 +4,32 @@ import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
 import type { Action, Reducer, Dispatch } from 'redux';
 import { Badge } from '@mongodb-js/compass-components';
-import { resetForm, RESET_FORM } from './reset-form';
 import { isAction } from '../utils/is-action';
 import type { InProgressIndex } from './regular-indexes';
 import type { IndexesThunkAction } from '.';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { RootState } from '.';
+import { fetchIndexes } from './regular-indexes';
 
 export enum ActionTypes {
-  AddField = 'compass-indexes/create-index/fields/add-field',
-  UpdateFieldType = 'compass-indexes/create-index/fields/update-field-type',
-  RemoveField = 'compass-indexes/create-index/fields/remove-field',
-  ChangeFields = 'compass-indexes/create-index/fields/change-fields',
+  FieldAdded = 'compass-indexes/create-index/fields/field-added',
+  FieldTypeUpdated = 'compass-indexes/create-index/fields/field-type-updated',
+  FieldRemoved = 'compass-indexes/create-index/fields/field-removed',
+  FieldsChanged = 'compass-indexes/create-index/fields/fields-changed',
 
-  ChangeOption = 'compass-indexes/create-index/change-option',
-  ChangeOptionEnabled = 'compass-indexes/create-index/change-option-enabled',
+  OptionChanged = 'compass-indexes/create-index/option-changed',
+  OptionToggled = 'compass-indexes/create-index/option-toggled',
 
-  HandleError = 'compass-indexes/create-index/handle-error',
-  ClearError = 'compass-indexes/create-index/clear-error',
+  ErrorEncountered = 'compass-indexes/create-index/error-encountered',
+  ErrorCleared = 'compass-indexes/create-index/error-cleared',
 
-  ToggleInProgress = 'compass-indexes/create-index/toggle-in-progress',
-  ToggleIsVisible = 'compass-indexes/create-index/toggle-is-visible',
+  CreateIndexOpened = 'compass-indexes/create-index/create-index-shown',
+  CreateIndexClosed = 'compass-indexes/create-index/create-index-hidden',
+
+  // These also get used by the regular-indexes slice's reducer
+  IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
+  IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
+  IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
 }
 
 // fields
@@ -33,24 +38,57 @@ export type Field = { name: string; type: string };
 
 export const INITIAL_FIELDS_STATE = [{ name: '', type: '' }];
 
-type AddFieldAction = {
-  type: ActionTypes.AddField;
+type FieldAddedAction = {
+  type: ActionTypes.FieldAdded;
 };
 
-type UpdateFieldTypeAction = {
-  type: ActionTypes.UpdateFieldType;
+type FieldTypeUpdatedAction = {
+  type: ActionTypes.FieldTypeUpdated;
   idx: number;
   fType: string;
 };
 
-type RemoveFieldAction = {
-  type: ActionTypes.RemoveField;
+type FieldRemovedAction = {
+  type: ActionTypes.FieldRemoved;
   idx: number;
 };
 
-type ChangeFieldsAction = {
-  type: ActionTypes.ChangeFields;
+type FieldsChangedAction = {
+  type: ActionTypes.FieldsChanged;
   fields: Field[];
+};
+
+type ErrorEncounteredAction = {
+  type: ActionTypes.ErrorEncountered;
+  error: string;
+};
+
+type ErrorClearedAction = {
+  type: ActionTypes.ErrorCleared;
+};
+
+type CreateIndexOpenedAction = {
+  type: ActionTypes.CreateIndexOpened;
+};
+
+type CreateIndexClosedAction = {
+  type: ActionTypes.CreateIndexClosed;
+};
+
+export type IndexCreationStartedAction = {
+  type: ActionTypes.IndexCreationStarted;
+  inProgressIndex: InProgressIndex;
+};
+
+export type IndexCreationSucceededAction = {
+  type: ActionTypes.IndexCreationSucceeded;
+  inProgressIndexId: string;
+};
+
+export type IndexCreationFailedAction = {
+  type: ActionTypes.IndexCreationFailed;
+  inProgressIndexId: string;
+  error: string;
 };
 
 export const UNSUPPORTED_COLUMNSTORE_INDEX_OPTIONS: OptionNames[] = [
@@ -58,23 +96,23 @@ export const UNSUPPORTED_COLUMNSTORE_INDEX_OPTIONS: OptionNames[] = [
   'unique',
 ];
 
-export const addField = () => ({
-  type: ActionTypes.AddField,
+export const fieldAdded = () => ({
+  type: ActionTypes.FieldAdded,
 });
 
-export const removeField = (idx: number) => ({
-  type: ActionTypes.RemoveField,
+export const fieldRemoved = (idx: number) => ({
+  type: ActionTypes.FieldRemoved,
   idx,
 });
 
-export const updateFieldType = (idx: number, fType: string) => ({
-  type: ActionTypes.UpdateFieldType,
+export const fieldTypeUpdated = (idx: number, fType: string) => ({
+  type: ActionTypes.FieldTypeUpdated,
   idx: idx,
   fType,
 });
 
-export const changeFields = (fields: Field[]) => ({
-  type: ActionTypes.ChangeFields,
+const fieldsChanged = (fields: Field[]) => ({
+  type: ActionTypes.FieldsChanged,
   fields: fields,
 });
 
@@ -89,13 +127,13 @@ export const updateFieldName = (idx: number, name: string) => {
           (field: Field, eIdx: number) => field.name === name && eIdx !== idx
         )
       ) {
-        dispatch(handleError('Index keys must be unique'));
+        dispatch(errorEncountered('Index keys must be unique'));
         return;
       }
       const field = { ...fields[idx] };
       field.name = name;
       fields[idx] = field;
-      dispatch(changeFields(fields));
+      dispatch(fieldsChanged(fields));
     }
   };
 };
@@ -188,30 +226,30 @@ type Options = {
 type ValueForOption<O extends OptionNames> =
   typeof OPTIONS[O]['type'] extends 'checkbox' ? boolean : string;
 
-type ChangeOptionAction<O extends OptionNames = OptionNames> = {
-  type: ActionTypes.ChangeOption;
+type OptionChangedAction<O extends OptionNames = OptionNames> = {
+  type: ActionTypes.OptionChanged;
   name: O;
   value: ValueForOption<O>;
 };
 
-export function changeOption<O extends OptionNames>(
+export function optionChanged<O extends OptionNames>(
   optionName: O,
   newValue: ValueForOption<O>
-): ChangeOptionAction<O> {
-  return { type: ActionTypes.ChangeOption, name: optionName, value: newValue };
+): OptionChangedAction<O> {
+  return { type: ActionTypes.OptionChanged, name: optionName, value: newValue };
 }
 
-type ChangeOptionEnabledAction<O extends OptionNames = OptionNames> = {
-  type: ActionTypes.ChangeOptionEnabled;
+type OptionToggledAction<O extends OptionNames = OptionNames> = {
+  type: ActionTypes.OptionToggled;
   name: O;
   enabled: boolean;
 };
 
-export function changeOptionEnabled<O extends OptionNames>(
+export function optionToggled<O extends OptionNames>(
   optionName: O,
   enabled: boolean
-): ChangeOptionEnabledAction<O> {
-  return { type: ActionTypes.ChangeOptionEnabled, name: optionName, enabled };
+): OptionToggledAction<O> {
+  return { type: ActionTypes.OptionToggled, name: optionName, enabled };
 }
 
 export const INITIAL_OPTIONS_STATE = Object.fromEntries(
@@ -250,80 +288,49 @@ export const INITIAL_STATE: State = {
 
 //-------
 
-type HandleErrorAction = {
-  type: ActionTypes.HandleError;
-  error: string;
-};
-
-type ClearErrorAction = {
-  type: ActionTypes.ClearError;
-};
-
-type ToggleInProgressAction = {
-  type: ActionTypes.ToggleInProgress;
-  inProgress: boolean;
-};
-
-type ToggleIsVisibleAction = {
-  type: ActionTypes.ToggleIsVisible;
-  isVisible: boolean;
-};
-
-// TODO: do we need this anywhere?
-/*
-type CreateIndexActions =
-  | AddFieldAction
-  | UpdateFieldTypeAction
-  | RemoveFieldAction
-  | ChangeFieldsAction
-  | ChangeOptionAction
-  | ChangeOptionEnabledAction
-  | HandleErrorAction
-  | ClearErrorAction
-  | ToggleInProgressAction
-  | ToggleIsVisibleAction
-  */
-
-// TODO: drop toggleInProgress, use an action that uses it
-export const toggleInProgress = (
-  inProgress: boolean
-): ToggleInProgressAction => ({
-  type: ActionTypes.ToggleInProgress,
-  inProgress,
+export const createIndexOpened = () => ({
+  type: ActionTypes.CreateIndexOpened,
 });
 
-// TODO: drop toggleIsVisible, use an action that uses it
-export const toggleIsVisible = (isVisible: boolean) => ({
-  type: ActionTypes.ToggleIsVisible,
-  isVisible,
+export const createIndexClosed = () => ({
+  type: ActionTypes.CreateIndexClosed,
 });
 
-export const handleError = (error: string): HandleErrorAction => ({
-  type: ActionTypes.HandleError,
+const errorEncountered = (error: string): ErrorEncounteredAction => ({
+  type: ActionTypes.ErrorEncountered,
   error,
 });
 
-export const clearError = (): ClearErrorAction => ({
-  type: ActionTypes.ClearError,
+export const errorCleared = (): ErrorClearedAction => ({
+  type: ActionTypes.ErrorCleared,
+});
+
+const indexCreationStarted = (
+  inProgressIndex: InProgressIndex
+): IndexCreationStartedAction => ({
+  type: ActionTypes.IndexCreationStarted,
+  inProgressIndex,
+});
+
+const indexCreationSucceeded = (
+  inProgressIndexId: string
+): IndexCreationSucceededAction => ({
+  type: ActionTypes.IndexCreationSucceeded,
+  inProgressIndexId,
+});
+
+const indexCreationFailed = (
+  inProgressIndexId: string,
+  error: string
+): IndexCreationFailedAction => ({
+  type: ActionTypes.IndexCreationFailed,
+  inProgressIndexId,
+  error,
 });
 
 export type CreateIndexSpec = {
   [key: string]: string | number;
 };
-
-export const openCreateIndexModal = () => {
-  return (dispatch: Dispatch) => {
-    dispatch(toggleIsVisible(true));
-  };
-};
-
-export const closeCreateIndexModal = () => {
-  return (dispatch: Dispatch) => {
-    dispatch(toggleIsVisible(false));
-    dispatch(resetForm());
-  };
-};
-
 const prepareIndex = ({
   ns,
   name,
@@ -360,7 +367,7 @@ const prepareIndex = ({
   };
 };
 
-function isEmptyValue(value: any) {
+function isEmptyValue(value: unknown) {
   if (value === '') {
     return true;
   }
@@ -376,7 +383,7 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { dataService, localAppRegistry, track, connectionInfoAccess }
+    { dataService, track, connectionInfoAccess }
   ) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
@@ -387,7 +394,7 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
         (field: Field) => field.name === '' || field.type === ''
       )
     ) {
-      dispatch(handleError('You must select a field name and type'));
+      dispatch(errorEncountered('You must select a field name and type'));
       return;
     }
 
@@ -402,13 +409,12 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
 
     const options: CreateIndexesOptions = {};
 
-    // Check for collaction errors.
+    // Check for collation errors.
     const collation =
-      isCollationValid((stateOptions.collation.value ?? '') as string) ||
-      undefined;
+      isCollationValid(stateOptions.collation.value ?? '') || undefined;
 
     if (stateOptions.collation.enabled && !collation) {
-      dispatch(handleError('You must provide a valid collation object'));
+      dispatch(errorEncountered('You must provide a valid collation object'));
       return;
     }
 
@@ -435,7 +441,7 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
       );
       if (isNaN(options.expireAfterSeconds)) {
         dispatch(
-          handleError(
+          errorEncountered(
             `Bad TTL: "${String(stateOptions.expireAfterSeconds.value)}"`
           )
         );
@@ -446,10 +452,10 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
     if (stateOptions.wildcardProjection.enabled) {
       try {
         options.wildcardProjection = EJSON.parse(
-          (stateOptions.wildcardProjection.value ?? '') as string
+          stateOptions.wildcardProjection.value ?? ''
         ) as Document;
       } catch (err) {
-        dispatch(handleError(`Bad WildcardProjection: ${String(err)}`));
+        dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
         return;
       }
     }
@@ -458,10 +464,10 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
         options.columnstoreProjection = EJSON.parse(
-          (stateOptions.columnstoreProjection.value ?? '') as string
+          stateOptions.columnstoreProjection.value ?? ''
         ) as Document;
       } catch (err) {
-        dispatch(handleError(`Bad ColumnstoreProjection: ${String(err)}`));
+        dispatch(errorEncountered(`Bad ColumnstoreProjection: ${String(err)}`));
         return;
       }
     }
@@ -469,11 +475,12 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
     if (stateOptions.partialFilterExpression.enabled) {
       try {
         options.partialFilterExpression = EJSON.parse(
-          (state.createIndex.options.partialFilterExpression.value ??
-            '') as string
+          state.createIndex.options.partialFilterExpression.value ?? ''
         ) as Document;
       } catch (err) {
-        dispatch(handleError(`Bad PartialFilterExpression: ${String(err)}`));
+        dispatch(
+          errorEncountered(`Bad PartialFilterExpression: ${String(err)}`)
+        );
         return;
       }
     }
@@ -484,7 +491,7 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
     // explicitly can lead to the server errors for some index types that don't
     // support them (even though technically user is not enabling them)
     for (const optionName of Object.keys(
-      stateOptions as Options
+      stateOptions
     ) as (keyof typeof stateOptions)[]) {
       if (isEmptyValue(stateOptions[optionName].value)) {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
@@ -492,20 +499,15 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
       }
     }
 
-    dispatch(clearError());
-    dispatch(toggleInProgress(true));
-
     const ns = state.namespace;
     const inProgressIndex = prepareIndex({ ns, name: options.name, spec });
 
-    localAppRegistry.emit('in-progress-indexes-added', inProgressIndex);
+    dispatch(indexCreationStarted(inProgressIndex));
 
     const trackEvent = {
       unique: options.unique,
       ttl: stateOptions.expireAfterSeconds.enabled,
-      columnstore_index: hasColumnstoreIndex(
-        state.createIndex.fields as Field[]
-      ),
+      columnstore_index: hasColumnstoreIndex(state.createIndex.fields),
       has_columnstore_projection: stateOptions.columnstoreProjection.enabled,
       has_wildcard_projection: stateOptions.wildcardProjection.enabled,
       custom_collation: stateOptions.collation.enabled,
@@ -518,36 +520,32 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
 
     try {
       await dataService.createIndex(ns, spec as IndexSpecification, options);
+      dispatch(indexCreationSucceeded(inProgressIndex.id));
       track(
         'Index Created',
         trackEvent,
         connectionInfoAccess.getCurrentConnectionInfo()
       );
-      dispatch(resetForm());
-      dispatch(toggleInProgress(false));
-      dispatch(toggleIsVisible(false));
-      localAppRegistry.emit('in-progress-indexes-removed', inProgressIndex.id);
-      localAppRegistry.emit('refresh-regular-indexes');
+
+      // Start a new fetch so that the newly added index's details can be
+      // loaded. indexCreationSucceeded() will remove the in-progress one, but
+      // we still need the new info.
+      void dispatch(fetchIndexes());
     } catch (err) {
-      dispatch(toggleInProgress(false));
-      dispatch(handleError((err as Error).message));
-      localAppRegistry.emit('in-progress-indexes-failed', {
-        inProgressIndexId: inProgressIndex.id,
-        error: (err as Error).message,
-      });
+      dispatch(indexCreationFailed(inProgressIndex.id, (err as Error).message));
     }
   };
 };
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
-  // fields
-  if (isAction<AddFieldAction>(action, ActionTypes.AddField)) {
+  if (isAction<FieldAddedAction>(action, ActionTypes.FieldAdded)) {
     return {
       ...state,
       fields: [...state.fields, { name: '', type: '' }],
     };
   }
-  if (isAction<RemoveFieldAction>(action, ActionTypes.RemoveField)) {
+
+  if (isAction<FieldRemovedAction>(action, ActionTypes.FieldRemoved)) {
     const fields = [...state.fields];
     fields.splice(action.idx, 1);
     return {
@@ -555,7 +553,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       fields,
     };
   }
-  if (isAction<UpdateFieldTypeAction>(action, ActionTypes.UpdateFieldType)) {
+
+  if (isAction<FieldTypeUpdatedAction>(action, ActionTypes.FieldTypeUpdated)) {
     const fields = [...state.fields];
     if (action.idx >= 0 && action.idx < fields.length) {
       const field = { ...fields[action.idx] };
@@ -567,18 +566,15 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       fields,
     };
   }
-  if (isAction<ChangeFieldsAction>(action, ActionTypes.ChangeFields)) {
+
+  if (isAction<FieldsChangedAction>(action, ActionTypes.FieldsChanged)) {
     return {
       ...state,
       fields: action.fields,
     };
   }
-  if (action.type === RESET_FORM) {
-    return INITIAL_STATE;
-  }
 
-  // options
-  if (isAction<ChangeOptionAction>(action, ActionTypes.ChangeOption)) {
+  if (isAction<OptionChangedAction>(action, ActionTypes.OptionChanged)) {
     return {
       ...state,
       options: {
@@ -595,9 +591,8 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       },
     };
   }
-  if (
-    isAction<ChangeOptionEnabledAction>(action, ActionTypes.ChangeOptionEnabled)
-  ) {
+
+  if (isAction<OptionToggledAction>(action, ActionTypes.OptionToggled)) {
     return {
       ...state,
       options: {
@@ -610,37 +605,62 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     };
   }
 
-  // other
-  if (isAction<ToggleInProgressAction>(action, ActionTypes.ToggleInProgress)) {
+  if (
+    isAction<CreateIndexOpenedAction>(action, ActionTypes.CreateIndexOpened)
+  ) {
     return {
       ...state,
-      inProgress: action.inProgress,
+      isVisible: true,
     };
   }
-  if (isAction<ToggleIsVisibleAction>(action, ActionTypes.ToggleIsVisible)) {
-    return {
-      ...state,
-      isVisible: action.isVisible,
-    };
-  }
-  if (isAction<HandleErrorAction>(action, ActionTypes.HandleError)) {
+
+  if (isAction<ErrorEncounteredAction>(action, ActionTypes.ErrorEncountered)) {
     return {
       ...state,
       error: action.error,
     };
   }
-  if (
-    isAction<ClearErrorAction>(action, ActionTypes.ClearError) ||
-    action.type === RESET_FORM
-  ) {
+
+  if (isAction<ErrorClearedAction>(action, ActionTypes.ErrorCleared)) {
     return {
       ...state,
       error: null,
     };
   }
-  if (action.type === RESET_FORM) {
+
+  if (
+    isAction<CreateIndexClosedAction>(action, ActionTypes.CreateIndexClosed)
+  ) {
+    // when hiding the modal also reset it
     // Deep clone on reset
     return JSON.parse(JSON.stringify(INITIAL_STATE));
+  }
+
+  if (
+    isAction<IndexCreationStartedAction>(
+      action,
+      ActionTypes.IndexCreationStarted
+    )
+  ) {
+    return {
+      ...state,
+      error: null,
+      inProgress: true,
+    };
+  }
+  if (
+    isAction<IndexCreationSucceededAction>(
+      action,
+      ActionTypes.IndexCreationSucceeded
+    )
+  ) {
+    return JSON.parse(JSON.stringify(INITIAL_STATE));
+  }
+
+  if (
+    isAction<IndexCreationFailedAction>(action, ActionTypes.IndexCreationFailed)
+  ) {
+    return { ...state, inProgress: false, error: action.error };
   }
 
   return state;

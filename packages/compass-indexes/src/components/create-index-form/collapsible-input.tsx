@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { InputOptions } from '../../modules/create-index';
 import {
-  changeOption,
-  changeOptionEnabled,
+  optionChanged,
+  optionToggled,
   OPTIONS,
 } from '../../modules/create-index';
 
@@ -21,7 +21,7 @@ type CollapsibleInputProps = {
   value: string;
   onChange(name: string, newVal: string): void;
   enabled: boolean;
-  onEnabled(name: string, newVal: boolean): void;
+  onToggled(name: string, newVal: boolean): void;
 };
 
 export const CollapsibleInput: React.FunctionComponent<
@@ -37,7 +37,7 @@ export const CollapsibleInput: React.FunctionComponent<
   value,
   onChange,
   enabled,
-  onEnabled,
+  onToggled,
 }) => {
   const id = `create-index-modal-${name}`;
   const inputId = `${id}-${type}`;
@@ -46,7 +46,7 @@ export const CollapsibleInput: React.FunctionComponent<
       id={id}
       toggled={!disabled && enabled}
       onToggle={(enabled) => {
-        onEnabled(name, enabled);
+        onToggled(name, enabled);
       }}
       label={label}
       data-testid={id}
@@ -98,7 +98,7 @@ export default connect(
     };
   },
   {
-    onChange: changeOption,
-    onEnabled: changeOptionEnabled,
+    onChange: optionChanged,
+    onToggled: optionToggled,
   }
 )(CollapsibleInput);

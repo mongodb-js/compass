@@ -27,8 +27,8 @@ import {
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
   pollSearchIndexes,
-  showCreateModal,
-  showUpdateModal,
+  createSearchIndexOpened,
+  updateSearchIndexOpened,
 } from '../../modules/search-indexes';
 import type { SearchIndexesStatus } from '../../modules/search-indexes';
 import { IndexesTable } from '../indexes-table';
@@ -393,8 +393,8 @@ const mapState = ({ searchIndexes, isWritable, namespace }: RootState) => ({
 
 const mapDispatch = {
   onDropIndex: dropSearchIndex,
-  openCreateModal: showCreateModal,
-  onEditIndex: showUpdateModal,
+  openCreateModal: createSearchIndexOpened,
+  onEditIndex: updateSearchIndexOpened,
   onPollIndexes: pollSearchIndexes,
 };
 

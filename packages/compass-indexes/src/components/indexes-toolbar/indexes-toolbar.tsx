@@ -23,11 +23,11 @@ import {
 import type { RootState } from '../../modules';
 import {
   SearchIndexesStatuses,
-  showCreateModal as onCreateSearchIndex,
+  createSearchIndexOpened,
 } from '../../modules/search-indexes';
-import { showCreateModal as onCreateRegularIndex } from '../../modules/regular-indexes';
+import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
-import { changeIndexView } from '../../modules/index-view';
+import { indexViewChanged } from '../../modules/index-view';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -54,7 +54,7 @@ type IndexesToolbarProps = {
   hasTooManyIndexes: boolean;
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
-  onChangeIndexView: (newView: IndexView) => void;
+  onIndexViewChanged: (newView: IndexView) => void;
   // connected:
   isReadonlyView: boolean;
   isWritable: boolean;
@@ -78,7 +78,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   hasTooManyIndexes,
   isAtlasSearchSupported,
   onRefreshIndexes,
-  onChangeIndexView,
+  onIndexViewChanged,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
@@ -135,7 +135,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             {isSearchManagementActive && (
               <SegmentedControl
                 size="xsmall"
-                onChange={(evt) => onChangeIndexView(evt as IndexView)}
+                onChange={(evt) => onIndexViewChanged(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
                 value={indexView}
@@ -280,9 +280,9 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCreateRegularIndex,
-  onCreateSearchIndex,
-  onChangeIndexView: changeIndexView,
+  onCreateRegularIndex: createIndexOpened,
+  onCreateSearchIndex: createSearchIndexOpened,
+  onIndexViewChanged: indexViewChanged,
 };
 
 export default connect(

@@ -48,20 +48,20 @@ export type CreateIndexFieldsProps = {
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
-  addField: () => void;
-  removeField: (idx: number) => void;
+  fieldAdded: () => void;
+  fieldRemoved: (idx: number) => void;
   updateFieldName: (idx: number, name: string) => void;
-  updateFieldType: (idx: number, fType: string) => void;
+  fieldTypeUpdated: (idx: number, fType: string) => void;
 };
 
 function CreateIndexFields({
   fields,
   serverVersion,
   schemaFields,
-  addField,
-  removeField,
+  fieldAdded,
+  fieldRemoved,
   updateFieldName,
-  updateFieldType,
+  fieldTypeUpdated,
 }: CreateIndexFieldsProps): React.ReactElement {
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
@@ -132,7 +132,7 @@ function CreateIndexFields({
             <Select
               id={`create-index-fields-type-select-${index}`}
               placeholder={DEFAULT_FIELD.type}
-              onChange={(type) => updateFieldType(index, type)}
+              onChange={(type) => fieldTypeUpdated(index, type)}
               allowDeselect={false}
               value={field.type}
               popoverZIndex={999999}
@@ -153,8 +153,8 @@ function CreateIndexFields({
           </div>
         </div>
       )}
-      onAddItem={addField}
-      onRemoveItem={removeField}
+      onAddItem={fieldAdded}
+      onRemoveItem={fieldRemoved}
       addButtonTestId="add-index-field-button"
       removeButtonTestId="remove-index-field-button"
     />

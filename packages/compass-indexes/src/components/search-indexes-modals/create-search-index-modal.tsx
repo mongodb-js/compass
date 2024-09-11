@@ -1,5 +1,8 @@
 import React from 'react';
-import { closeCreateModal, createIndex } from '../../modules/search-indexes';
+import {
+  createSearchIndexClosed,
+  createIndex,
+} from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
@@ -66,7 +69,7 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCloseModal: closeCreateModal,
+  onCloseModal: createSearchIndexClosed,
   onCreateIndex: createIndex,
 };
 

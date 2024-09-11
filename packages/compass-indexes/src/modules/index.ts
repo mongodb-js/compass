@@ -41,9 +41,13 @@ const reducer = combineReducers({
   // The collection the indexes are for.
   namespace,
 
+  // The regular indexes including in-progress regular indexes and other state around the table of indexes
   regularIndexes,
+
+  // The search indexes, state for the table of search indexes and create/update search index modals
   searchIndexes,
 
+  // State for the create regular index form
   createIndex,
 });
 

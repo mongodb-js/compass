@@ -7,7 +7,7 @@ import {
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import type { CheckboxOptions } from '../../modules/create-index';
-import { OPTIONS, changeOption } from '../../modules/create-index';
+import { OPTIONS, optionChanged } from '../../modules/create-index';
 
 type CheckboxInputProps = {
   name: CheckboxOptions;
@@ -52,5 +52,5 @@ export default connect(
       checked: state.createIndex.options[name].value,
     };
   },
-  { onChange: changeOption }
+  { onChange: optionChanged }
 )(CheckboxInput);

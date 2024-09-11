@@ -4,7 +4,13 @@ import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
 import { isAction } from './../utils/is-action';
-import type { CreateIndexSpec } from './create-index';
+import { ActionTypes as CreateIndexActionTypes } from './create-index';
+import type {
+  CreateIndexSpec,
+  IndexCreationStartedAction,
+  IndexCreationSucceededAction,
+  IndexCreationFailedAction,
+} from './create-index';
 import type { IndexesThunkAction } from '.';
 import {
   hideModalDescription,
@@ -33,54 +39,35 @@ export type InProgressIndex = {
 };
 
 export enum ActionTypes {
-  IndexesAdded = 'indexes/regular-indexes/IndexesAdded',
+  FetchIndexesStarted = 'compass-indexes/regular-indexes/fetch-indexes-started',
+  FetchIndexesSucceeded = 'compass-indexes/regular-indexes/fetch-indexes-succeeded',
+  FetchIndexesFailed = 'compass-indexes/regular-indexes/fetch-indexes-failed',
 
-  SetIsRefreshing = 'indexes/regular-indexes/SetIsRefreshing',
-  SetError = 'indexes/regular-indexes/SetError',
-
-  InProgressIndexAdded = 'indexes/regular-indexes/InProgressIndexAdded',
-  InProgressIndexRemoved = 'indexes/regular-indexes/InProgressIndexRemoved',
-  InProgressIndexFailed = 'indexes/regular-indexes/InProgressIndexFailed',
+  // Basically the same thing as CreateIndexActionTypes.IndexCreationSucceeded
+  // in that it will remove the index, but it is for manually removing the row
+  // of an index that failed
+  FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
 }
 
-type IndexesAddedAction = {
-  type: ActionTypes.IndexesAdded;
-  indexes: RegularIndex[];
-};
-
-type SetIsRefreshingAction = {
-  type: ActionTypes.SetIsRefreshing;
+type FetchIndexesStartedAction = {
+  type: ActionTypes.FetchIndexesStarted;
   isRefreshing: boolean;
 };
 
-type SetErrorAction = {
-  type: ActionTypes.SetError;
-  error: string | null;
+type FetchIndexesSucceededAction = {
+  type: ActionTypes.FetchIndexesSucceeded;
+  indexes: RegularIndex[];
 };
 
-type InProgressIndexAddedAction = {
-  type: ActionTypes.InProgressIndexAdded;
-  index: InProgressIndex;
-};
-
-type InProgressIndexRemovedAction = {
-  type: ActionTypes.InProgressIndexRemoved;
-  id: string;
-};
-
-type InProgressIndexFailedAction = {
-  type: ActionTypes.InProgressIndexFailed;
-  id: string;
+type FetchIndexesFailedAction = {
+  type: ActionTypes.FetchIndexesFailed;
   error: string;
 };
 
-type RegularIndexesActions =
-  | IndexesAddedAction
-  | SetIsRefreshingAction
-  | SetErrorAction
-  | InProgressIndexAddedAction
-  | InProgressIndexRemovedAction
-  | InProgressIndexFailedAction;
+type FailedIndexRemovedAction = {
+  type: ActionTypes.FailedIndexRemoved;
+  inProgressIndexId: string;
+};
 
 export type State = {
   indexes: RegularIndex[];
@@ -97,60 +84,96 @@ export const INITIAL_STATE: State = {
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  if (isAction<IndexesAddedAction>(action, ActionTypes.IndexesAdded)) {
+  if (
+    isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
+  ) {
     return {
       ...state,
-      indexes: action.indexes,
-    };
-  }
-
-  if (isAction<SetIsRefreshingAction>(action, ActionTypes.SetIsRefreshing)) {
-    return {
-      ...state,
+      error: null,
       isRefreshing: action.isRefreshing,
     };
   }
 
-  if (isAction<SetErrorAction>(action, ActionTypes.SetError)) {
+  if (
+    isAction<FetchIndexesSucceededAction>(
+      action,
+      ActionTypes.FetchIndexesSucceeded
+    )
+  ) {
+    // Merge the newly fetched indexes and the existing in-progress ones.
+    const inProgressIndexes = state.inProgressIndexes;
+    const allIndexes = _mergeInProgressIndexes(
+      action.indexes,
+      cloneDeep(inProgressIndexes)
+    );
+
     return {
       ...state,
-      error: action.error,
+      indexes: allIndexes,
+      isRefreshing: false,
     };
   }
 
   if (
-    isAction<InProgressIndexAddedAction>(
-      action,
-      ActionTypes.InProgressIndexAdded
-    )
+    isAction<FetchIndexesFailedAction>(action, ActionTypes.FetchIndexesFailed)
   ) {
     return {
       ...state,
-      inProgressIndexes: [...state.inProgressIndexes, action.index],
+      error: action.error,
+      indexes: [],
+      isRefreshing: false,
     };
   }
 
   if (
-    isAction<InProgressIndexRemovedAction>(
+    isAction<IndexCreationStartedAction>(
       action,
-      ActionTypes.InProgressIndexRemoved
+      CreateIndexActionTypes.IndexCreationStarted
     )
+  ) {
+    // Add the new in-progress index to the in-progress indexes.
+    const inProgressIndexes = [
+      ...state.inProgressIndexes,
+      action.inProgressIndex,
+    ];
+
+    // Merge the in-progress indexes into the existing indexes.
+    const allIndexes = _mergeInProgressIndexes(
+      state.indexes,
+      cloneDeep(inProgressIndexes)
+    );
+
+    return {
+      ...state,
+      inProgressIndexes,
+      indexes: allIndexes,
+    };
+  }
+
+  if (
+    isAction<IndexCreationSucceededAction>(
+      action,
+      CreateIndexActionTypes.IndexCreationSucceeded
+    ) ||
+    isAction<FailedIndexRemovedAction>(action, ActionTypes.FailedIndexRemoved)
   ) {
     return {
       ...state,
       inProgressIndexes: state.inProgressIndexes.filter(
-        (x) => x.id !== action.id
+        (x) => x.id !== action.inProgressIndexId
       ),
     };
   }
 
   if (
-    isAction<InProgressIndexFailedAction>(
+    isAction<IndexCreationFailedAction>(
       action,
-      ActionTypes.InProgressIndexFailed
+      CreateIndexActionTypes.IndexCreationFailed
     )
   ) {
-    const idx = state.inProgressIndexes.findIndex((x) => x.id === action.id);
+    const idx = state.inProgressIndexes.findIndex(
+      (x) => x.id === action.inProgressIndexId
+    );
 
     const newInProgressIndexes = state.inProgressIndexes;
     newInProgressIndexes[idx] = {
@@ -178,119 +201,115 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   return state;
 }
 
-export const setRegularIndexes = (
-  indexes: RegularIndex[]
-): IndexesAddedAction => ({
-  type: ActionTypes.IndexesAdded,
-  indexes,
-});
-
-const setIsRefreshing = (isRefreshing: boolean): SetIsRefreshingAction => ({
-  type: ActionTypes.SetIsRefreshing,
+const fetchIndexesStarted = (
+  isRefreshing: boolean
+): FetchIndexesStartedAction => ({
+  type: ActionTypes.FetchIndexesStarted,
   isRefreshing,
 });
 
-const setError = (error: string | null): SetErrorAction => ({
-  type: ActionTypes.SetError,
+const fetchIndexesSucceeded = (
+  indexes: RegularIndex[]
+): FetchIndexesSucceededAction => ({
+  type: ActionTypes.FetchIndexesSucceeded,
+  indexes,
+});
+
+const fetchIndexesFailed = (error: string): FetchIndexesFailedAction => ({
+  type: ActionTypes.FetchIndexesFailed,
   error,
 });
 
-const _handleIndexesChanged = (
-  indexes: RegularIndex[]
-): IndexesThunkAction<void> => {
-  return (dispatch, _, { localAppRegistry }) => {
-    dispatch(setRegularIndexes(indexes));
-    dispatch(setIsRefreshing(false));
-    localAppRegistry?.emit('indexes-changed', indexes);
-  };
-};
-
-export const fetchIndexes = (): IndexesThunkAction<
-  Promise<void>,
-  RegularIndexesActions
-> => {
-  return async (dispatch, getState, { dataService }) => {
-    const {
-      isReadonlyView,
-      namespace,
-      regularIndexes: { inProgressIndexes },
-    } = getState();
+export const fetchIndexes = (
+  isRefreshing = false
+): IndexesThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { dataService, localAppRegistry }) => {
+    const { isReadonlyView, namespace } = getState();
 
     if (isReadonlyView) {
-      dispatch(_handleIndexesChanged([]));
+      dispatch(fetchIndexesSucceeded([]));
       return;
     }
 
     try {
-      dispatch(setError(null));
+      dispatch(fetchIndexesStarted(isRefreshing));
+      // The number in the header could go up or down whenever an index is added
+      // or removed.
+      localAppRegistry.emit('refresh-collection-stats');
       const indexes = await dataService.indexes(namespace);
-      const allIndexes = _mergeInProgressIndexes(
-        indexes,
-        cloneDeep(inProgressIndexes)
-      );
-      dispatch(_handleIndexesChanged(allIndexes));
+      dispatch(fetchIndexesSucceeded(indexes));
     } catch (err) {
-      dispatch(setError((err as Error).message));
-      dispatch(_handleIndexesChanged([]));
+      dispatch(fetchIndexesFailed((err as Error).message));
     }
   };
 };
 
 export const refreshRegularIndexes = (): IndexesThunkAction<void> => {
   return (dispatch) => {
-    dispatch(setIsRefreshing(true));
-    void dispatch(fetchIndexes());
+    void dispatch(fetchIndexes(true));
   };
 };
 
-export const inProgressIndexAdded = (
-  inProgressIndex: InProgressIndex
-): InProgressIndexAddedAction => ({
-  type: ActionTypes.InProgressIndexAdded,
-  index: inProgressIndex,
-});
-
-export const inProgressIndexRemoved = (
+export const failedIndexRemoved = (
   inProgressIndexId: string
-): InProgressIndexRemovedAction => ({
-  type: ActionTypes.InProgressIndexRemoved,
-  id: inProgressIndexId,
+): FailedIndexRemovedAction => ({
+  type: ActionTypes.FailedIndexRemoved,
+  inProgressIndexId: inProgressIndexId,
 });
 
-export const inProgressIndexFailed = ({
-  inProgressIndexId,
-  error,
-}: {
-  inProgressIndexId: string;
-  error: string;
-}): InProgressIndexFailedAction => ({
-  type: ActionTypes.InProgressIndexFailed,
-  id: inProgressIndexId,
-  error,
-});
-
-export const dropIndex = (name: string): IndexesThunkAction<void> => {
-  return (dispatch, getState, { localAppRegistry }) => {
-    const { indexes } = getState().regularIndexes;
-    const index = indexes.find((x) => x.name === name);
+export const dropIndex = (
+  indexName: string
+): IndexesThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    getState,
+    { connectionInfoAccess, dataService, track }
+  ) => {
+    const { namespace, regularIndexes } = getState();
+    const { indexes } = regularIndexes;
+    const index = indexes.find((x) => x.name === indexName);
 
     if (!index) {
       return;
     }
 
     if (index.extra.status === 'failed') {
-      dispatch(inProgressIndexRemoved(String((index as InProgressIndex).id)));
+      // This really just removes the (failed) in-progress index
+      dispatch(failedIndexRemoved(String((index as InProgressIndex).id)));
       void dispatch(fetchIndexes());
       return;
     }
 
-    localAppRegistry?.emit('open-drop-index-modal', index.name);
-  };
-};
-
-export const showCreateModal = (): IndexesThunkAction<void> => {
-  return (_dispatch, _getState, { localAppRegistry }) => {
-    localAppRegistry?.emit('open-create-index-modal');
+    try {
+      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      track('Screen', { name: 'drop_index_modal' }, connectionInfo);
+      const confirmed = await showConfirmation({
+        variant: 'danger',
+        title: 'Drop Index',
+        description: `Are you sure you want to drop index "${indexName}"?`,
+        requiredInputText: indexName,
+        buttonText: 'Drop',
+        'data-testid': 'drop-index-modal',
+      });
+      if (!confirmed) {
+        return;
+      }
+      await dataService.dropIndex(namespace, indexName);
+      track('Index Dropped', { atlas_search: false }, connectionInfo);
+      void dispatch(fetchIndexes(true));
+      openToast('drop-index-success', {
+        variant: 'success',
+        title: `Index "${indexName}" dropped`,
+        timeout: 3000,
+      });
+    } catch (err) {
+      openToast('drop-index-error', {
+        variant: 'important',
+        title: `Failed to drop index "${indexName}"`,
+        description: (err as Error).message,
+        timeout: 3000,
+      });
+    }
   };
 };
 
@@ -309,7 +328,7 @@ export const hideIndex = (
     }
 
     try {
-      await dataService?.updateCollection(namespace, {
+      await dataService.updateCollection(namespace, {
         index: {
           name: indexName,
           hidden: true,
@@ -343,7 +362,7 @@ export const unhideIndex = (
     }
 
     try {
-      await dataService?.updateCollection(namespace, {
+      await dataService.updateCollection(namespace, {
         index: {
           name: indexName,
           hidden: false,

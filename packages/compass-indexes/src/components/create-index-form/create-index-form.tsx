@@ -24,9 +24,9 @@ type CreateIndexFormProps = {
   fields: Field[];
   serverVersion: string;
   updateFieldName: (idx: number, name: string) => void;
-  updateFieldType: (idx: number, fType: string) => void;
-  addField: () => void; // Plus icon.
-  removeField: (idx: number) => void; // Minus icon.
+  fieldTypeUpdated: (idx: number, fType: string) => void;
+  fieldAdded: () => void; // Plus icon.
+  fieldRemoved: (idx: number) => void; // Minus icon.
 };
 
 function CreateIndexForm({
@@ -34,9 +34,9 @@ function CreateIndexForm({
   fields,
   serverVersion,
   updateFieldName,
-  updateFieldType,
-  addField,
-  removeField,
+  fieldTypeUpdated,
+  fieldAdded,
+  fieldRemoved,
 }: CreateIndexFormProps) {
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
@@ -65,9 +65,9 @@ function CreateIndexForm({
             serverVersion={serverVersion}
             isRemovable={!(fields.length > 1)}
             updateFieldName={updateFieldName}
-            updateFieldType={updateFieldType}
-            addField={addField}
-            removeField={removeField}
+            fieldTypeUpdated={fieldTypeUpdated}
+            fieldAdded={fieldAdded}
+            fieldRemoved={fieldRemoved}
           />
         ) : null}
       </div>

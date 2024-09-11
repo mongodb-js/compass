@@ -7,13 +7,13 @@ import {
   ModalBody,
 } from '@mongodb-js/compass-components';
 import {
-  addField,
-  removeField,
-  updateFieldType,
+  fieldAdded,
+  fieldRemoved,
+  fieldTypeUpdated,
   updateFieldName,
-  clearError,
+  errorCleared,
   createIndex,
-  closeCreateIndexModal,
+  createIndexClosed,
 } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
@@ -28,30 +28,30 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
-  clearError: () => void;
+  errorCleared: () => void;
   inProgress: boolean;
   createIndex: () => void;
-  closeCreateIndexModal: () => void;
+  createIndexClosed: () => void;
 };
 
 function CreateIndexModal({
   isVisible,
   namespace,
   error,
-  clearError,
+  errorCleared,
   inProgress,
   createIndex,
-  closeCreateIndexModal,
+  createIndexClosed,
   ...props
 }: CreateIndexModalProps) {
   const connectionInfoAccess = useConnectionInfoAccess();
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
-        closeCreateIndexModal();
+        createIndexClosed();
       }
     },
-    [closeCreateIndexModal]
+    [createIndexClosed]
   );
 
   useTrackOnChange(
@@ -87,10 +87,10 @@ function CreateIndexModal({
       <ModalFooter>
         <CreateIndexActions
           error={error}
-          clearError={clearError}
+          errorCleared={errorCleared}
           inProgress={inProgress}
           createIndex={createIndex}
-          closeCreateIndexModal={closeCreateIndexModal}
+          createIndexClosed={createIndexClosed}
         />
       </ModalFooter>
     </Modal>
@@ -110,13 +110,13 @@ const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
 };
 
 const mapDispatch = {
-  clearError,
+  errorCleared,
   createIndex,
-  closeCreateIndexModal,
-  addField,
-  removeField,
+  createIndexClosed,
+  fieldAdded,
+  fieldRemoved,
   updateFieldName,
-  updateFieldType,
+  fieldTypeUpdated,
 };
 
 export default connect(mapState, mapDispatch)(CreateIndexModal);
