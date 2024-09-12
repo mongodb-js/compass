@@ -1,8 +1,12 @@
 import React from 'react';
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import type AppRegistry from 'hadron-app-registry';
 
 import { CreateNamespacePlugin } from '../..';
@@ -80,6 +84,7 @@ describe('CreateNamespaceModal [Component]', function () {
       const input = screen.getByTestId('collection-name');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
+      userEvent.clear(input);
       userEvent.type(input, 'baz');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
       userEvent.clear(input);
@@ -95,6 +100,7 @@ describe('CreateNamespaceModal [Component]', function () {
         const additionalPreferences = screen.getByRole('button', {
           name: /Additional preferences/,
         });
+        userEvent.clear(input);
         userEvent.type(input, 'bar');
         userEvent.click(additionalPreferences);
         const clusteredCollection = screen.getByRole('checkbox', {
@@ -131,6 +137,7 @@ describe('CreateNamespaceModal [Component]', function () {
           const input = screen.getByRole('textbox', {
             name: 'Collection Name',
           });
+          userEvent.clear(input);
           userEvent.type(input, '  baz  ');
           userEvent.click(submitButton);
         });
@@ -179,6 +186,7 @@ describe('CreateNamespaceModal [Component]', function () {
             const input = screen.getByRole('textbox', {
               name: 'Collection Name',
             });
+            userEvent.clear(input);
             userEvent.type(input, '  baz  ');
             userEvent.click(submitButton);
           });
@@ -221,7 +229,9 @@ describe('CreateNamespaceModal [Component]', function () {
       const collInput = screen.getByTestId('collection-name');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
 
+      userEvent.clear(dbInput);
       userEvent.type(dbInput, 'db1');
+      userEvent.clear(collInput);
       userEvent.type(collInput, 'baz');
       expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
       userEvent.clear(dbInput);
@@ -240,7 +250,9 @@ describe('CreateNamespaceModal [Component]', function () {
         const additionalPreferences = screen.getByRole('button', {
           name: /Additional preferences/,
         });
+        userEvent.clear(dbInput);
         userEvent.type(dbInput, 'db1');
+        userEvent.clear(collInput);
         userEvent.type(collInput, 'bar');
         userEvent.click(additionalPreferences);
         const clusteredCollection = await screen.findByRole('checkbox', {
@@ -281,7 +293,9 @@ describe('CreateNamespaceModal [Component]', function () {
             name: 'Collection Name',
           });
 
+          userEvent.clear(dbInput);
           userEvent.type(dbInput, '  db1  ');
+          userEvent.clear(collInput);
           userEvent.type(collInput, '  baz  ');
           userEvent.click(submitButton);
         });
