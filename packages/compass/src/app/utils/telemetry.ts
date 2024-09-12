@@ -4,7 +4,7 @@ import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
-import type { MongoClientOptions } from 'mongodb';
+import type { KMSProviders, MongoClientOptions } from 'mongodb';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -93,14 +93,23 @@ type ExtraConnectionData = {
 } & CsfleInfo;
 
 type CsfleInfo = {
-  has_kms_aws: boolean;
-  has_kms_gcp: boolean;
-  has_kms_kmip: boolean;
-  has_kms_local: boolean;
-  has_kms_azure: boolean;
+  count_kms_aws: number;
+  count_kms_gcp: number;
+  count_kms_kmip: number;
+  count_kms_local: number;
+  count_kms_azure: number;
   is_csfle: boolean;
   has_csfle_schema: boolean;
 };
+
+function getKmsCount(
+  kmsProviders: KMSProviders | undefined,
+  kmsProviderType: 'local' | 'aws' | 'gcp' | 'kmip' | 'azure'
+): number {
+  return Object.keys(kmsProviders ?? {}).filter((x) =>
+    x.startsWith(kmsProviderType)
+  ).length;
+}
 
 function getCsfleInformation(
   fleOptions: ConnectionInfo['connectionOptions']['fleOptions']
@@ -109,11 +118,20 @@ function getCsfleInformation(
   const csfleInfo: CsfleInfo = {
     is_csfle: kmsProviders.length > 0,
     has_csfle_schema: !!fleOptions?.autoEncryption?.encryptedFieldsMap,
-    has_kms_aws: !!fleOptions?.autoEncryption?.kmsProviders?.aws,
-    has_kms_gcp: !!fleOptions?.autoEncryption?.kmsProviders?.gcp,
-    has_kms_kmip: !!fleOptions?.autoEncryption?.kmsProviders?.kmip,
-    has_kms_local: !!fleOptions?.autoEncryption?.kmsProviders?.local,
-    has_kms_azure: !!fleOptions?.autoEncryption?.kmsProviders?.azure,
+    count_kms_aws: getKmsCount(fleOptions?.autoEncryption?.kmsProviders, 'aws'),
+    count_kms_gcp: getKmsCount(fleOptions?.autoEncryption?.kmsProviders, 'gcp'),
+    count_kms_kmip: getKmsCount(
+      fleOptions?.autoEncryption?.kmsProviders,
+      'kmip'
+    ),
+    count_kms_local: getKmsCount(
+      fleOptions?.autoEncryption?.kmsProviders,
+      'local'
+    ),
+    count_kms_azure: getKmsCount(
+      fleOptions?.autoEncryption?.kmsProviders,
+      'azure'
+    ),
   };
 
   return csfleInfo;
