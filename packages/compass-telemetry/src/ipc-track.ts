@@ -33,7 +33,7 @@ export function createIpcSendTrack() {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('hadron-ipc').ipcRenderer;
 
-  const sendTrack: TrackFunction = (event, properties) =>
+  const sendTrack = (event: string, properties: Record<string, unknown>) =>
     emit(ipc, 'compass:track', { event, properties });
 
   return sendTrack;

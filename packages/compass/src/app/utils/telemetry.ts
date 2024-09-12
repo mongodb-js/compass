@@ -81,19 +81,40 @@ async function getHostInformation(
   };
 }
 
+type ExtraConnectionData = {
+  auth_type: string;
+  tunnel: string;
+  is_srv: boolean;
+  is_localhost: boolean;
+  is_atlas_url: boolean;
+  is_do_url: boolean;
+  is_public_cloud?: boolean;
+  public_cloud_name?: string;
+} & CsfleInfo;
+
+type CsfleInfo = {
+  has_kms_aws: boolean;
+  has_kms_gcp: boolean;
+  has_kms_kmip: boolean;
+  has_kms_local: boolean;
+  has_kms_azure: boolean;
+  is_csfle: boolean;
+  has_csfle_schema: boolean;
+};
+
 function getCsfleInformation(
   fleOptions: ConnectionInfo['connectionOptions']['fleOptions']
-): Record<string, unknown> {
+): CsfleInfo {
   const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption ?? {});
-  const csfleInfo: Record<string, unknown> = {
+  const csfleInfo: CsfleInfo = {
     is_csfle: kmsProviders.length > 0,
     has_csfle_schema: !!fleOptions?.autoEncryption?.encryptedFieldsMap,
+    has_kms_aws: !!fleOptions?.autoEncryption?.kmsProviders?.aws,
+    has_kms_gcp: !!fleOptions?.autoEncryption?.kmsProviders?.gcp,
+    has_kms_kmip: !!fleOptions?.autoEncryption?.kmsProviders?.kmip,
+    has_kms_local: !!fleOptions?.autoEncryption?.kmsProviders?.local,
+    has_kms_azure: !!fleOptions?.autoEncryption?.kmsProviders?.azure,
   };
-
-  for (const kmsProvider of ['aws', 'gcp', 'kmip', 'local', 'azure'] as const) {
-    csfleInfo[`has_kms_${kmsProvider}`] =
-      !!fleOptions?.autoEncryption?.kmsProviders?.[kmsProvider];
-  }
 
   return csfleInfo;
 }
@@ -134,7 +155,7 @@ async function getConnectionData(
     connectionOptions: { connectionString, sshTunnel, fleOptions },
   }: Pick<ConnectionInfo, 'connectionOptions'>,
   resolvedHostname: string | null
-): Promise<Record<string, unknown>> {
+): Promise<ExtraConnectionData> {
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
@@ -149,13 +170,19 @@ async function getConnectionData(
     : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
-  return {
+  const connectionData = {
     ...(await getHostInformation(resolvedHostname)),
     auth_type: authType.toUpperCase(),
-    tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
+    tunnel: proxyHost
+      ? ('socks5' as const)
+      : sshTunnel
+      ? ('ssh' as const)
+      : ('none' as const),
     is_srv: connectionStringData.isSRV,
     ...getCsfleInformation(fleOptions),
   };
+
+  return connectionData;
 }
 
 export async function getExtraConnectionData(connectionInfo: ConnectionInfo) {
@@ -164,8 +191,5 @@ export async function getExtraConnectionData(connectionInfo: ConnectionInfo) {
     connectionInfo,
     resolvedHostname
   );
-  return [connectionData, resolvedHostname] as [
-    Record<string, unknown>,
-    string
-  ];
+  return [connectionData, resolvedHostname] as [ExtraConnectionData, string];
 }

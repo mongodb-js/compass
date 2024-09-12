@@ -160,7 +160,7 @@ function ImportModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (isOpen) {
-        track('Screen', { name: 'import_modal' });
+        track('Screen', { name: 'import_modal' }, undefined);
       }
     },
     [isOpen],

@@ -100,9 +100,13 @@ export const open = (
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
   return (dispatch, _getState, { track }) => {
-    track('Screen', {
-      name: dbName ? 'create_collection_modal' : 'create_database_modal',
-    });
+    track(
+      'Screen',
+      {
+        name: dbName ? 'create_collection_modal' : 'create_database_modal',
+      },
+      undefined
+    );
 
     dispatch({
       type: CreateNamespaceActionTypes.Open,

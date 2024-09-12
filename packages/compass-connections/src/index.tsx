@@ -21,12 +21,13 @@ export { default as SingleConnectionForm } from './components/legacy-connections
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
+import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 
 const ConnectionsComponent: React.FunctionComponent<{
   appName: string;
   onExtraConnectionDataRequest: (
     connectionInfo: ConnectionInfo
-  ) => Promise<[Record<string, unknown>, string | null]>;
+  ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   onAutoconnectInfoRequest?: (
     connectionStorage: ConnectionStorage
   ) => Promise<ConnectionInfo | undefined>;

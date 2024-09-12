@@ -1,5 +1,12 @@
-import type { TelemetryEvent } from './telemetry-events';
-export type { TelemetryEvent, IdentifyTraits } from './telemetry-events';
+import type {
+  ConnectionScopedProperties,
+  TelemetryEvent,
+} from './telemetry-events';
+export type {
+  TelemetryEvent,
+  IdentifyTraits,
+  ExtraConnectionData,
+} from './telemetry-events';
 
 type TelemetryConnectionInfo = {
   id: string;
@@ -17,6 +24,8 @@ export interface TrackFunction {
   >(
     eventName: TName,
     payload: TrackFunctionPayload<TPayload>,
-    connectionInfo?: TelemetryConnectionInfo | undefined
+    ...connectionInfo: TPayload extends ConnectionScopedProperties
+      ? [TelemetryConnectionInfo | undefined]
+      : []
   ): void;
 }
