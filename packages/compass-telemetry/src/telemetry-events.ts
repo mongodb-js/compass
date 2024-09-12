@@ -692,27 +692,27 @@ export type ExtraConnectionData = {
   /**
    * Specifies if KMS AWS is used.
    */
-  has_kms_aws?: boolean;
+  count_kms_aws: number;
 
   /**
    * Specifies if KMS GCP is used.
    */
-  has_kms_gcp?: boolean;
+  count_kms_gcp: number;
 
   /**
    * Specifies if KMS KMIP is used.
    */
-  has_kms_kmip?: boolean;
+  count_kms_kmip: number;
 
   /**
    * Specifies if KMS Local is used.
    */
-  has_kms_local?: boolean;
+  count_kms_local: number;
 
   /**
    * Specifies if KMS Azure is used.
    */
-  has_kms_azure?: boolean;
+  count_kms_azure: number;
 };
 
 /**
