@@ -126,13 +126,20 @@ function extractPayloadPropertiesAndComments(
   if (payloadProp) {
     const payloadType = checker.getTypeOfSymbolAtLocation(payloadProp, node);
     payloadType.getProperties().forEach((prop) => {
+      const propType = checker.getTypeOfSymbolAtLocation(prop, node);
+
+      const isOptionalFlag = (prop.getFlags() & ts.SymbolFlags.Optional) !== 0;
+      const allowsUndefinedInUnion =
+        propType.isUnion() &&
+        propType.types.some((type) => type.flags & ts.TypeFlags.Undefined);
+
       props.push({
         name: prop.getName(),
         type: checker.typeToString(
           checker.getTypeOfSymbolAtLocation(prop, node)
         ),
         comment: ts.displayPartsToString(prop.getDocumentationComment(checker)),
-        required: (prop.getFlags() & ts.SymbolFlags.Optional) === 0,
+        required: !isOptionalFlag && !allowsUndefinedInUnion,
       });
     });
   }
@@ -238,11 +245,16 @@ type Resolved${nodeName} = {
     true
   );
 
-  const host = ts.createCompilerHost({});
+  const compilerOptions = {
+    // this is needed otherwise the type checker will remove undefined from any union
+    strictNullChecks: true,
+  };
+
+  const host = ts.createCompilerHost(compilerOptions);
   host.getSourceFile = (fileName) =>
     fileName === 'inMemoryFile.ts' ? sourceFile : undefined;
 
-  const program = ts.createProgram(['inMemoryFile.ts'], {}, host);
+  const program = ts.createProgram(['inMemoryFile.ts'], compilerOptions, host);
   const checker = program.getTypeChecker();
   return { sourceFile, checker };
 }

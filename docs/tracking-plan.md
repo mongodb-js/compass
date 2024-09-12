@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Thu, Sep 12, 2024 at 02:27 PM
+Generated on Thu, Sep 12, 2024 at 07:58 PM
 
 ## Table of Contents
 
@@ -197,24 +197,29 @@ Corresponds to the operating system (e.g., 'darwin' for macOS, 'win32' for Windo
 - **arch** (required): `string`
   - The architecture of the system's processor, derived from Node.js `os.arch()`.
 'x64' for 64-bit processors and 'arm' for ARM processors.
-- **os_type** (optional): `string`
+- **os_type** (optional): `string | undefined`
   - The type of operating system, including specific operating system
 names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
-- **os_version** (optional): `string`
+- **os_version** (optional): `string | undefined`
   - Detailed kernel or system version information.
 Example: 'Darwin Kernel Version 21.4.0: Fri Mar 18 00:45:05 PDT 2022; root:xnu-8020.101.4~15/RELEASE_X86_64'.
-- **os_arch** (optional): `string`
+- **os_arch** (optional): `string | undefined`
   - The architecture of the operating system, if available, which might be more specific
 than the system's processor architecture (e.g., 'x86_64' for 64-bit architecture).
-- **os_release** (optional): `string`
+- **os_release** (optional): `string | undefined`
   - The release identifier of the operating system.
 This can provide additional details about the operating system release or
 version (e.g. the kernel version for a specific macOS release).
-- **os_linux_dist** (optional): `string`
+
+NOTE: This property helps determine the macOS version in use. The reported
+version corresponds to the Darwin kernel version, which can be mapped
+to the respective macOS release using the conversion table available at:
+https://en.wikipedia.org/wiki/MacOS_version_history.
+- **os_linux_dist** (optional): `string | undefined`
   - The Linux distribution name, if running on a Linux-based operating system,
 derived by reading from `/etc/os-release`.
 Examples include 'ubuntu', 'debian', or 'rhel'.
-- **os_linux_release** (optional): `string`
+- **os_linux_release** (optional): `string | undefined`
   - The version of the Linux distribution, if running on a Linux-based operating system,
 derived by reading from `/etc/os-release`.
 Examples include '20.04' for Ubuntu or '10' for Debian.
@@ -249,13 +254,13 @@ This event is fired when user deletes a previously saved aggregation pipeline.
 
 **Properties**:
 
-- **id** (optional): `string`
+- **id** (optional): `string | undefined`
   - A unique id for the aggregation object being deleted.
-- **editor_view_type** (optional): `"stage" | "text" | "focus"`
+- **editor_view_type** (optional): `"stage" | "text" | "focus" | undefined`
   - The type of editor view from which the aggregation has been deleted.
-- **screen** (optional): `"my_queries" | "aggregations"`
+- **screen** (optional): `"my_queries" | "aggregations" | undefined`
   - The screen from which the aggregation has been deleted.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationEditedEvent"></a>
@@ -267,18 +272,18 @@ in the stage editor view.
 
 **Properties**:
 
-- **num_stages** (optional): `number`
+- **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
-- **editor_view_type** (optional): `"stage" | "text" | "focus"`
+- **editor_view_type** (optional): `"stage" | "text" | "focus" | undefined`
   - The type of view used to edit the aggregation.
-- **stage_index** (optional): `number`
+- **stage_index** (optional): `number | undefined`
   - The index of the stage being edited.
-- **stage_action** (optional): `"stage_content_changed" | "stage_renamed" | "stage_added" | "stage_deleted" | "stage_reordered"`
+- **stage_action** (optional): `"stage_content_changed" | "stage_renamed" | "stage_added" | "stage_deleted" | "stage_reordered" | undefined`
   - The edit action being performed for stage and focus mode.
-- **stage_name** (optional): `string`
+- **stage_name** (optional): `string | null | undefined`
   - The name of the stage edited.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationExecutedEvent"></a>
@@ -294,7 +299,7 @@ This event is fired when user runs the aggregation.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation has been executed.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationExplainedEvent"></a>
@@ -310,7 +315,7 @@ This event is fired when user runs the explain plan for an aggregation.
 the even has been fired.
 - **index_used** (required): `boolean`
   - Wether the explain reports that an index was used by the query.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationExportedEvent"></a>
@@ -321,18 +326,18 @@ This event is fired when user copies to clipboard the aggregation to export.
 
 **Properties**:
 
-- **num_stages** (optional): `number`
+- **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
-- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php"`
+- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php" | undefined`
   - The language to which the query has been exported.
-- **with_import_statements** (optional): `boolean`
+- **with_import_statements** (optional): `boolean | undefined`
   - Indicates that the query was exported including import statements.
-- **with_drivers_syntax** (optional): `boolean`
+- **with_drivers_syntax** (optional): `boolean | undefined`
   - Indicates that the query was exported including driver syntax.
-- **with_builders** (optional): `boolean`
+- **with_builders** (optional): `boolean | undefined`
   - Indicates that the query was exported using builder syntax.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationExportOpenedEvent"></a>
@@ -343,10 +348,10 @@ This event is fired when user opens the export to language dialog.
 
 **Properties**:
 
-- **num_stages** (optional): `number`
+- **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationOpenedEvent"></a>
@@ -357,13 +362,13 @@ This event is fired when user opens a previously saved aggregation pipeline.
 
 **Properties**:
 
-- **id** (optional): `string`
+- **id** (optional): `string | undefined`
   - A unique id for the aggregation object being opened.
-- **editor_view_type** (optional): `"stage" | "text" | "focus"`
+- **editor_view_type** (optional): `"stage" | "text" | "focus" | undefined`
   - The type of editor view from which the aggregation is being opened.
-- **screen** (optional): `"my_queries" | "aggregations"`
+- **screen** (optional): `"my_queries" | "aggregations" | undefined`
   - The screen from which the aggregation is being opened.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationSavedAsViewEvent"></a>
@@ -377,7 +382,7 @@ This event is fired when user saves aggregation pipeline as a view
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationSavedEvent"></a>
@@ -390,12 +395,12 @@ This event is fired when user saves aggregation pipeline.
 
 - **id** (required): `string`
   - A unique id for the aggregation object being saved.
-- **num_stages** (optional): `number`
+- **num_stages** (optional): `number | undefined`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation is being saved.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationSidePanelOpenedEvent"></a>
@@ -409,7 +414,7 @@ This event is fired when user clicks the aggregation side panel button.
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationTimedOutEvent"></a>
@@ -420,9 +425,9 @@ This event is fired when an aggregation times out
 
 **Properties**:
 
-- **max_time_ms** (required): `number`
+- **max_time_ms** (required): `number | null`
   - The max_time_ms setting of the aggregation timed out.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationUseCaseAddedEvent"></a>
@@ -433,11 +438,11 @@ This event is fired when user selects a use case from the aggregation panel.
 
 **Properties**:
 
-- **drag_and_drop** (optional): `boolean`
+- **drag_and_drop** (optional): `boolean | undefined`
   - Specifies if the use case was added via drag and drop.
-- **stage_name** (optional): `string`
+- **stage_name** (optional): `string | undefined`
   - The name of the stage added.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AggregationUseCaseSavedEvent"></a>
@@ -449,9 +454,9 @@ the stage to their pipeline.
 
 **Properties**:
 
-- **stage_name** (required): `string`
+- **stage_name** (required): `string | null`
   - The name of the stage the use case refers to.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--EditorTypeChangedEvent"></a>
@@ -467,7 +472,7 @@ This event is fired when user changes editor type.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The new type of view that editor was changed to.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--FocusModeClosedEvent"></a>
@@ -484,7 +489,7 @@ the even has been fired.
 - **duration** (required): `number`
   - Time elapsed between the focus mode has been opened and then closed
 (in milliseconds).
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--FocusModeOpenedEvent"></a>
@@ -498,7 +503,7 @@ This event is fired when user clicks to expand focus mode.
 - **num_stages** (required): `number`
   - The number of stages present in the aggregation at the moment when
 the even has been fired.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ViewUpdatedEvent"></a>
@@ -515,7 +520,7 @@ builder.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the view has been updated.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -532,10 +537,10 @@ and hits "enter".
 
 - **editor_view_type** (required): `"text" | "stages" | "find"`
   - The type of view used to generate the query.
-- **user_input_length** (optional): `number`
-- **request_id** (optional): `string`
-- **has_sample_documents** (optional): `boolean`
-- **connection_id** (optional): `string`
+- **user_input_length** (optional): `number | undefined`
+- **request_id** (optional): `string | undefined`
+- **has_sample_documents** (optional): `boolean | undefined`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AiQueryFeedbackEvent"></a>
@@ -548,8 +553,8 @@ This event is fired when a user submits feedback for a query generation.
 
 - **feedback** (required): `"positive" | "negative"`
 - **text** (required): `string`
-- **request_id** (required): `string`
-- **connection_id** (optional): `string`
+- **request_id** (required): `string | null`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AiResponseFailedEvent"></a>
@@ -562,11 +567,11 @@ This event is fired when a query generation request fails with an error.
 
 - **editor_view_type** (required): `"text" | "stages" | "find"`
   - The type of view used to generate the query.
-- **error_code** (optional): `string`
-- **status_code** (optional): `number`
-- **error_name** (optional): `string`
-- **request_id** (optional): `string`
-- **connection_id** (optional): `string`
+- **error_code** (optional): `string | undefined`
+- **status_code** (optional): `number | undefined`
+- **error_name** (optional): `string | undefined`
+- **request_id** (optional): `string | undefined`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--AiResponseGeneratedEvent"></a>
@@ -580,10 +585,10 @@ rendered in the UI.
 
 - **editor_view_type** (required): `"text" | "stages" | "find"`
   - The type of view used to generate the query.
-- **syntax_errors** (optional): `boolean`
-- **query_shape** (optional): `{}`
-- **request_id** (optional): `string`
-- **connection_id** (optional): `string`
+- **syntax_errors** (optional): `boolean | undefined`
+- **query_shape** (optional): `{} | undefined`
+- **request_id** (optional): `string | undefined`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--PipelineAiFeedbackEvent"></a>
@@ -596,12 +601,12 @@ This event is fired when a user submits feedback for a pipeline generation.
 
 - **feedback** (required): `"positive" | "negative"`
   - Wether the feedback was positive or negative.
-- **request_id** (required): `string`
+- **request_id** (required): `string | null`
   - The id of the request related to this feedback. Useful to correlate
 feedback to potential error lines in the logs.
 - **text** (required): `string`
   - The feedback comment left by the user.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -623,12 +628,12 @@ This event is fired when the application launch is initiated.
 to a specific cluster using a connection string on the command line,
 a JSON file containing an exported connection on the command line,
 or not at all.
-- **protected** (optional): `boolean`
+- **protected** (optional): `boolean | undefined`
   - Whether the `protectConnectionStrings` preference was set at launch.
 - **readOnly** (required): `boolean`
   - Whether the `readOnly` preference was set at launch (including the
 compass-readonly distribution).
-- **maxTimeMS** (optional): `number`
+- **maxTimeMS** (optional): `number | undefined`
   - The value of the `maxTimeMS` preference at launch.
 - **global_config** (required): `boolean`
   - Whether any preferences were specified in the global configuration file.
@@ -646,7 +651,7 @@ This event is fired when a user clicks on the Atlas CTA.
 
 **Properties**:
 
-- **screen** (optional): `"agg_builder" | "connect"`
+- **screen** (optional): `"agg_builder" | "connect" | undefined`
   - The screen from which the Atlas CTA was clicked.
 
 <a name="event--ErrorFetchingAttributesEvent"></a>
@@ -691,9 +696,9 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `string`
+- **name** (optional): `string | undefined`
   - The name of the screen that was activated.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--SecretStorageNotAvailable"></a>
@@ -750,11 +755,11 @@ This event is fired when the "Update available" popup is shown and the user acce
 
 **Properties**:
 
-- **update_version** (optional): `string`
+- **update_version** (optional): `string | undefined`
   - The version of the update that was accepted.
-- **manual_update** (optional): `boolean`
+- **manual_update** (optional): `boolean | undefined`
   - Indicates whether the update was initiated manually by the user.
-- **manual_download** (optional): `boolean`
+- **manual_download** (optional): `boolean | undefined`
   - Indicates whether the update was downloaded manually by the user.
 
 <a name="event--AutoupdateDismissedEvent"></a>
@@ -811,7 +816,7 @@ This event is fired when a user runs a bulk update operation.
 
 - **isUpdatePreviewSupported** (required): `boolean`
   - Specifies if update preview was supported (the update preview runs inside a transaction.)
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--BulkUpdateFavoritedEvent"></a>
@@ -824,7 +829,7 @@ favorites.
 **Properties**:
 
 - **isUpdatePreviewSupported** (required): `boolean`
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--BulkUpdateOpenedEvent"></a>
@@ -837,7 +842,7 @@ This event is fired when a user opens the bulk update modal.
 
 - **isUpdatePreviewSupported** (required): `boolean`
   - Specifies if update preview was supported (the update preview runs inside a transaction.)
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DeleteExportedEvent"></a>
@@ -850,11 +855,11 @@ TODO: https://jira.mongodb.org/browse/COMPASS-7334
 
 **Properties**:
 
-- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php"`
-- **with_import_statements** (optional): `boolean`
-- **with_drivers_syntax** (optional): `boolean`
-- **with_builders** (optional): `boolean`
-- **connection_id** (optional): `string`
+- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php" | undefined`
+- **with_import_statements** (optional): `boolean | undefined`
+- **with_drivers_syntax** (optional): `boolean | undefined`
+- **with_builders** (optional): `boolean | undefined`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DeleteExportOpenedEvent"></a>
@@ -875,11 +880,11 @@ TODO: https://jira.mongodb.org/browse/COMPASS-7334
 
 **Properties**:
 
-- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php"`
-- **with_import_statements** (optional): `boolean`
-- **with_drivers_syntax** (optional): `boolean`
-- **with_builders** (optional): `boolean`
-- **connection_id** (optional): `string`
+- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php" | undefined`
+- **with_import_statements** (optional): `boolean | undefined`
+- **with_drivers_syntax** (optional): `boolean | undefined`
+- **with_builders** (optional): `boolean | undefined`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--UpdateExportOpenedEvent"></a>
@@ -913,7 +918,7 @@ This event is fired when a collection is created.
   - Indicates whether the collection is encrypted using FLE2 (Field-Level Encryption 2).
 - **expires** (required): `boolean`
   - Indicates whether the collection has an expiration (TTL index).
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DatabaseCreatedEvent"></a>
@@ -936,7 +941,7 @@ This event is fired when a database is created.
   - Indicates whether the first collection in the database is encrypted using FLE2 (Field-Level Encryption 2).
 - **expires** (required): `boolean`
   - Indicates whether the first collection in the database has an expiration (TTL index).
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--SwitchViewTypeEvent"></a>
@@ -951,7 +956,7 @@ This event is fired when the user changes the items view type between list and g
   - The type of view that the user switched to.
 - **item_type** (required): `"database" | "collection"`
   - The type of item being viewed, either 'collection' or 'database'.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -969,7 +974,7 @@ This event is fired when users attempts to connect to a server/cluster.
   - Specifies if the connection is a favorite.
 - **is_new** (required): `boolean`
   - Specifies if the connection is a newly created connection.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ConnectionCreatedEvent"></a>
@@ -980,9 +985,9 @@ This event is fired when a new connection is saved.
 
 **Properties**:
 
-- **color** (optional): `string`
+- **color** (optional): `string | undefined`
   - The favorite color for the connection created.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ConnectionDisconnectedEvent"></a>
@@ -1010,41 +1015,41 @@ This event is fired when a connection attempt fails.
 
 **Properties**:
 
-- **error_code** (required): `string | number`
+- **error_code** (optional): `string | number | undefined`
   - The error code (if available).
 - **error_name** (required): `string`
   - The error name.
-- **auth_type** (optional): `string`
+- **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
-- **tunnel** (optional): `string`
+- **tunnel** (optional): `string | undefined`
   - Desktop only. The type of tunneling used in the connection.
-- **is_srv** (optional): `boolean`
+- **is_srv** (optional): `boolean | undefined`
   - Desktop only. Specifies if SRV is used in the connection.
-- **is_localhost** (optional): `boolean`
+- **is_localhost** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection is targeting localhost.
-- **is_atlas_url** (optional): `boolean`
+- **is_atlas_url** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection URL is an Atlas URL.
-- **is_do_url** (optional): `boolean`
+- **is_do_url** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection URL is a DigitalOcean URL.
-- **is_public_cloud** (optional): `boolean`
+- **is_public_cloud** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection is in a public cloud.
-- **public_cloud_name** (optional): `string`
+- **public_cloud_name** (optional): `string | undefined`
   - The name of the public cloud provider, if applicable.
-- **is_csfle** (optional): `boolean`
+- **is_csfle** (optional): `boolean | undefined`
   - Specifies if Client-Side Field Level Encryption (CSFLE) is used.
-- **has_csfle_schema** (optional): `boolean`
+- **has_csfle_schema** (optional): `boolean | undefined`
   - Specifies if CSFLE schema is present.
-- **has_kms_aws** (optional): `boolean`
+- **has_kms_aws** (optional): `boolean | undefined`
   - Specifies if KMS AWS is used.
-- **has_kms_gcp** (optional): `boolean`
+- **has_kms_gcp** (optional): `boolean | undefined`
   - Specifies if KMS GCP is used.
-- **has_kms_kmip** (optional): `boolean`
+- **has_kms_kmip** (optional): `boolean | undefined`
   - Specifies if KMS KMIP is used.
-- **has_kms_local** (optional): `boolean`
+- **has_kms_local** (optional): `boolean | undefined`
   - Specifies if KMS Local is used.
-- **has_kms_azure** (optional): `boolean`
+- **has_kms_azure** (optional): `boolean | undefined`
   - Specifies if KMS Azure is used.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ConnectionImportedEvent"></a>
@@ -1074,7 +1079,7 @@ This event is fired when user successfully connects to a new server/cluster.
 
 - **is_atlas** (required): `boolean`
   - Specifies if the connection is targeting an Atlas cluster.
-- **atlas_hostname** (required): `string`
+- **atlas_hostname** (required): `string | null`
   - The first resolved SRV hostname in case the connection is targeting an Atlas cluster.
 - **is_local_atlas** (required): `boolean`
   - Specifies that the connection is targeting an Atlas local deployment.
@@ -1088,43 +1093,43 @@ This event is fired when user successfully connects to a new server/cluster.
   - The advertised server name, in case of non-genuine deployment.
 - **server_version** (required): `string`
   - The version of the connected server.
-- **server_arch** (optional): `string`
+- **server_arch** (optional): `string | undefined`
   - The host architecture of the connected server.
-- **server_os_family** (optional): `string`
+- **server_os_family** (optional): `string | undefined`
   - The OS family of the connected server.
 - **topology_type** (required): `string`
   - The type of connected topology.
-- **auth_type** (optional): `string`
+- **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
-- **tunnel** (optional): `string`
+- **tunnel** (optional): `string | undefined`
   - Desktop only. The type of tunneling used in the connection.
-- **is_srv** (optional): `boolean`
+- **is_srv** (optional): `boolean | undefined`
   - Desktop only. Specifies if SRV is used in the connection.
-- **is_localhost** (optional): `boolean`
+- **is_localhost** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection is targeting localhost.
-- **is_atlas_url** (optional): `boolean`
+- **is_atlas_url** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection URL is an Atlas URL.
-- **is_do_url** (optional): `boolean`
+- **is_do_url** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection URL is a DigitalOcean URL.
-- **is_public_cloud** (optional): `boolean`
+- **is_public_cloud** (optional): `boolean | undefined`
   - Desktop only. Specifies if the connection is in a public cloud.
-- **public_cloud_name** (optional): `string`
+- **public_cloud_name** (optional): `string | undefined`
   - The name of the public cloud provider, if applicable.
-- **is_csfle** (optional): `boolean`
+- **is_csfle** (optional): `boolean | undefined`
   - Specifies if Client-Side Field Level Encryption (CSFLE) is used.
-- **has_csfle_schema** (optional): `boolean`
+- **has_csfle_schema** (optional): `boolean | undefined`
   - Specifies if CSFLE schema is present.
-- **has_kms_aws** (optional): `boolean`
+- **has_kms_aws** (optional): `boolean | undefined`
   - Specifies if KMS AWS is used.
-- **has_kms_gcp** (optional): `boolean`
+- **has_kms_gcp** (optional): `boolean | undefined`
   - Specifies if KMS GCP is used.
-- **has_kms_kmip** (optional): `boolean`
+- **has_kms_kmip** (optional): `boolean | undefined`
   - Specifies if KMS KMIP is used.
-- **has_kms_local** (optional): `boolean`
+- **has_kms_local** (optional): `boolean | undefined`
   - Specifies if KMS Local is used.
-- **has_kms_azure** (optional): `boolean`
+- **has_kms_azure** (optional): `boolean | undefined`
   - Specifies if KMS Azure is used.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1173,7 +1178,7 @@ This event is fired when user clones a document.
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to clone the document.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DocumentCopiedEvent"></a>
@@ -1186,7 +1191,7 @@ This event is fired when user copies a document to the clipboard.
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to copy the document.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DocumentDeletedEvent"></a>
@@ -1199,7 +1204,7 @@ This event is fired when user deletes a document.
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to delete the document.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DocumentInsertedEvent"></a>
@@ -1210,11 +1215,11 @@ This event is fired when user inserts documents.
 
 **Properties**:
 
-- **mode** (optional): `string`
+- **mode** (optional): `string | undefined`
   - The view used to insert documents.
-- **multiple** (optional): `boolean`
+- **multiple** (optional): `boolean | undefined`
   - Specifies if the user inserted multiple documents.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--DocumentUpdatedEvent"></a>
@@ -1227,7 +1232,7 @@ This event is fired when user updates a document
 
 - **mode** (required): `"list" | "json" | "table"`
   - The view used to delete the document.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1245,7 +1250,7 @@ This event is fired when user explains a query.
   - Specifies if a filter was set.
 - **index_used** (required): `boolean`
   - Specifies if the explain reports that an index was used by the query.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1261,26 +1266,26 @@ This event is fired when a data export completes.
 
 - **type** (required): `"aggregation" | "query"`
   - The type of query for the completed export. (query = find query).
-- **all_docs** (optional): `boolean`
+- **all_docs** (optional): `boolean | undefined`
   - Indicates whether the export was for all documents in the collection.
-- **has_projection** (optional): `boolean`
+- **has_projection** (optional): `boolean | undefined`
   - Indicates whether the export query included a projection (a subset of fields).
-- **field_option** (optional): `"all-fields" | "select-fields"`
+- **field_option** (optional): `"all-fields" | "select-fields" | undefined`
   - Specifies whether all fields were exported or only selected fields.
 - **file_type** (required): `"json" | "csv"`
   - The file type of the exported data, either CSV or JSON.
-- **json_format** (optional): `"default" | "relaxed" | "canonical"`
+- **json_format** (optional): `"default" | "relaxed" | "canonical" | undefined`
   - Specifies the format of the JSON file if the file_type is 'json'.
-- **field_count** (optional): `number`
+- **field_count** (optional): `number | undefined`
   - For exports with field selection, this is the number of fields that were present
 in the list of available fields and that were selected for export.
-- **fields_added_count** (optional): `number`
+- **fields_added_count** (optional): `number | undefined`
   - For exports with field selection, this is the number of fields that has been added
 manually by the user.
-- **fields_not_selected_count** (optional): `number`
+- **fields_not_selected_count** (optional): `number | undefined`
   - For exports with field selection, this is the number of fields that were present
 in the list of available fields, but that were not selected for export.
-- **number_of_docs** (optional): `number`
+- **number_of_docs** (optional): `number | undefined`
   - The total number of documents exported.
 - **success** (required): `boolean`
   - Indicates whether the export operation was successful.
@@ -1288,7 +1293,7 @@ in the list of available fields, but that were not selected for export.
   - Indicates whether the export operation was stopped before completion.
 - **duration** (required): `number`
   - The duration of the export operation in milliseconds.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ExportOpenedEvent"></a>
@@ -1303,7 +1308,7 @@ This event is fired when user opens the export dialog.
   - The type of query for which the export has been open. (query = find query).
 - **origin** (required): `"menu" | "crud-toolbar" | "empty-state" | "aggregations-toolbar"`
   - The trigger location for the export.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ImportCompletedEvent"></a>
@@ -1314,33 +1319,33 @@ This event is fired when a data import completes.
 
 **Properties**:
 
-- **duration** (optional): `number`
+- **duration** (optional): `number | undefined`
   - The duration of the import operation in milliseconds.
-- **delimiter** (optional): `"," | "\t" | ";" | " "`
+- **delimiter** (optional): `"," | "\t" | ";" | " " | undefined`
   - The delimiter used in the imported file. It could be a comma, tab,
 semicolon, or space.
 This field is optional and only applicable if the file_type is 'csv'.
-- **newline** (optional): `"\r\n" | "\n"`
+- **newline** (optional): `"\r\n" | "\n" | undefined`
   - The newline character(s) used in the imported file.
-- **file_type** (optional): `"" | "json" | "csv"`
+- **file_type** (optional): `"" | "json" | "csv" | undefined`
   - The type of the imported file, such as CSV or JSON.
-- **all_fields** (optional): `boolean`
+- **all_fields** (optional): `boolean | undefined`
   - Indicates whether all fields in the documents were included in the import.
 If true, all fields in each document were imported; if false, only
 selected fields were imported.
-- **stop_on_error_selected** (optional): `boolean`
+- **stop_on_error_selected** (optional): `boolean | undefined`
   - Indicates whether the "Stop on Error" option was selected during the import.
 If true, the import process stops upon encountering an error.
-- **number_of_docs** (optional): `number`
+- **number_of_docs** (optional): `number | undefined`
   - The total number of documents imported.
-- **success** (optional): `boolean`
+- **success** (optional): `boolean | undefined`
   - Indicates whether the import operation was successful.
-- **aborted** (optional): `boolean`
+- **aborted** (optional): `boolean | undefined`
   - Indicates whether the import operation was aborted before completion.
-- **ignore_empty_strings** (optional): `boolean`
+- **ignore_empty_strings** (optional): `boolean | undefined`
   - Indicates whether empty strings in the imported file were ignored.
 If true, fields with empty strings were not included in the imported documents.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ImportErrorLogOpenedEvent"></a>
@@ -1354,7 +1359,7 @@ receiving import errors.
 
 - **errorCount** (required): `number`
   - Number of import errors present in the log.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ImportOpenedEvent"></a>
@@ -1367,7 +1372,7 @@ This event is fired when user opens the import dialog.
 
 - **origin** (required): `"menu" | "crud-toolbar" | "empty-state"`
   - The trigger location for the import.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1381,7 +1386,7 @@ This event is fired when a user clicks "next" on a guide cue.
 
 **Properties**:
 
-- **groupId** (optional): `string`
+- **groupId** (optional): `string | undefined`
   - The unique identifier of the group of guide cues to which this cue belongs.
 This field is only set for guide cues belonging to a group.
 - **cueId** (required): `string`
@@ -1416,11 +1421,11 @@ This event is fired when user creates an index.
 
 **Properties**:
 
-- **unique** (optional): `boolean`
+- **unique** (optional): `boolean | undefined`
   - Indicates whether the index is unique.
 - **ttl** (optional): `any`
   - Specifies the time-to-live (TTL) setting for the index.
-- **columnstore_index** (optional): `boolean`
+- **columnstore_index** (optional): `boolean | undefined`
   - Indicates whether the index is a columnstore index.
 - **has_columnstore_projection** (optional): `any`
   - Indicates if the index has a columnstore projection.
@@ -1428,13 +1433,13 @@ This event is fired when user creates an index.
   - Indicates if the index includes a wildcard projection.
 - **custom_collation** (optional): `any`
   - Specifies if the index uses a custom collation.
-- **geo** (optional): `boolean`
+- **geo** (optional): `boolean | undefined`
   - Indicates whether the index is a geospatial index.
-- **atlas_search** (optional): `boolean`
+- **atlas_search** (optional): `boolean | undefined`
   - Indicates whether the index is an Atlas Search index.
-- **type** (optional): `string`
+- **type** (optional): `string | undefined`
   - Specifies the type of the index.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--IndexCreateOpenedEvent"></a>
@@ -1445,9 +1450,9 @@ This event is fired when user opens create index dialog.
 
 **Properties**:
 
-- **atlas_search** (optional): `boolean`
+- **atlas_search** (optional): `boolean | undefined`
   - Specifies if the index creation dialog open is for an Atlas Search index.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--IndexDroppedEvent"></a>
@@ -1458,9 +1463,9 @@ This event is fired when user drops an index.
 
 **Properties**:
 
-- **atlas_search** (optional): `boolean`
+- **atlas_search** (optional): `boolean | undefined`
   - Indicates whether the index is an Atlas Search index.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--IndexEditedEvent"></a>
@@ -1473,7 +1478,7 @@ This event is fired when user updates an index.
 
 - **atlas_search** (required): `boolean`
   - Indicates whether the index is an Atlas Search index.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1487,7 +1492,7 @@ This event is fired when user filters queries using db / coll filter.
 
 **Properties**:
 
-- **type** (optional): `"database" | "collection"`
+- **type** (optional): `"database" | "collection" | undefined`
   - The filter that was changed.
 
 <a name="event--MyQueriesSearchEvent"></a>
@@ -1506,7 +1511,7 @@ sort options.
 
 **Properties**:
 
-- **sort_by** (required): `"name" | "id" | "type" | "database" | "collection" | "lastModified"`
+- **sort_by** (required): `"name" | "id" | "type" | "database" | "collection" | "lastModified" | null`
   - The criterion by which the queries are sorted.
 - **order** (required): `"ascending" | "descending"`
   - The order of the sorting.
@@ -1522,8 +1527,8 @@ This event is fired when the shell is open
 
 **Properties**:
 
-- **entrypoint** (optional): `string`
-- **connection_id** (optional): `string`
+- **entrypoint** (optional): `string | undefined`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--ShellEvent"></a>
@@ -1544,7 +1549,7 @@ tracking plan for details about single events.
   - The version of the embedded mongosh package.
 - **session_id** (required): `string`
   - The shell session_id.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1560,7 +1565,7 @@ This event is fired when a user edits a query.
 
 - **option_name** (required): `"maxTimeMS" | "filter" | "project" | "collation" | "sort" | "skip" | "limit" | "hint"`
   - The name of the edited field.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryExecutedEvent"></a>
@@ -1587,7 +1592,7 @@ This event is fired when user executes a query
   - The type of the collection on which the query was executed.
 - **used_regex** (required): `boolean`
   - Indicates whether the query used a regular expression.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryExportedEvent"></a>
@@ -1598,15 +1603,15 @@ This event is fired when user copies to clipboard the query to export.
 
 **Properties**:
 
-- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php"`
+- **language** (optional): `"java" | "javascript" | "csharp" | "python" | "ruby" | "go" | "rust" | "php" | undefined`
   - The language to which the query has been exported.
-- **with_import_statements** (optional): `boolean`
+- **with_import_statements** (optional): `boolean | undefined`
   - Indicates that the query was exported including import statements.
-- **with_drivers_syntax** (optional): `boolean`
+- **with_drivers_syntax** (optional): `boolean | undefined`
   - Indicates that the query was exported including driver syntax.
-- **with_builders** (optional): `boolean`
+- **with_builders** (optional): `boolean | undefined`
   - Indicates that the query was exported using builder syntax.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryExportOpenedEvent"></a>
@@ -1631,7 +1636,7 @@ This event is fired when user favorites a recent query.
 
 - **isUpdateQuery** (required): `boolean`
   - Indicates whether the query was an update query.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryHistoryFavoriteCopiedEvent"></a>
@@ -1655,13 +1660,13 @@ This event is fired when user removes query from favorites.
 
 **Properties**:
 
-- **id** (optional): `string`
+- **id** (optional): `string | undefined`
   - The unique identifier of the query history favorite that was removed.
-- **screen** (optional): `"my-queries" | "documents"`
+- **screen** (optional): `"my-queries" | "documents" | undefined`
   - The screen from which the query history favorite was removed.
-- **isUpdateQuery** (optional): `boolean`
+- **isUpdateQuery** (optional): `boolean | undefined`
   - Indicates whether the removed query was an update query.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryHistoryFavoritesEvent"></a>
@@ -1678,13 +1683,13 @@ This event is fired when user selects a favorite query to put it in the query ba
 
 **Properties**:
 
-- **id** (optional): `string`
+- **id** (optional): `string | undefined`
   - The unique identifier of the query history favorite that was used.
-- **screen** (optional): `"my-queries" | "documents"`
+- **screen** (optional): `"my-queries" | "documents" | undefined`
   - The screen from which the query history favorite was loaded.
-- **isUpdateQuery** (optional): `boolean`
+- **isUpdateQuery** (optional): `boolean | undefined`
   - Indicates whether the loaded query was an update query.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryHistoryOpenedEvent"></a>
@@ -1708,7 +1713,7 @@ This event is fired when user selects a recent query to put it in the query bar.
 **Properties**:
 
 - **isUpdateQuery** (required): `boolean`
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--QueryResultsRefreshedEvent"></a>
@@ -1739,7 +1744,7 @@ This event is fired when user analyzes the schema.
   - Indicates whether the schema contains geospatial data.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
@@ -1761,7 +1766,7 @@ This event is fired when user edits validation rules (without saving them).
 
 - **json_schema** (required): `boolean`
   - Indicates wether the validation rule uses $jsonSchema.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 <a name="event--SchemaValidationUpdatedEvent"></a>
@@ -1776,7 +1781,7 @@ This event is fired when user saves validation rules.
   - The validation action passed to the driver.
 - **validation_level** (required): `"off" | "moderate" | "strict"`
   - The level of schema validation passed to the driver.
-- **connection_id** (optional): `string`
+- **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
 
