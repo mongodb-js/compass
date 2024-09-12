@@ -87,7 +87,7 @@ export type ConnectionScopedProperties = {
   /**
    * The id of the connection associated to this event.
    */
-  connection_id?: string;
+  connection_id: string | undefined;
 };
 
 /**
