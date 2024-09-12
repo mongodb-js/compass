@@ -8,7 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
 import {
@@ -81,11 +81,13 @@ function RenameCollectionModal({
   clearError,
 }: RenameCollectionModalProps) {
   const [newName, setNewName] = useState(initialCollectionName);
+  const isVisible = useMemo(() => modalState !== 'hidden', [modalState]);
+
   useEffect(() => {
-    if (modalState === 'input-form' && !error) {
+    if (isVisible) {
       setNewName(initialCollectionName);
     }
-  }, [modalState, initialCollectionName, error]);
+  }, [isVisible, initialCollectionName]);
   const onNameConfirmationChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       clearError();
@@ -99,11 +101,11 @@ function RenameCollectionModal({
 
   useTrackOnChange(
     (track: TrackFunction) => {
-      if (modalState !== 'hidden') {
+      if (isVisible) {
         track('Screen', { name: 'rename_collection_modal' });
       }
     },
-    [modalState],
+    [isVisible],
     undefined
   );
 

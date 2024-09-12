@@ -22,10 +22,8 @@ describe('CreateNamespaceModal [Component]', function () {
   let appRegistry: AppRegistry;
 
   beforeEach(async function () {
-    const Plugin = CreateNamespacePlugin.withMockServices({});
-
     const { globalAppRegistry, getDataServiceForConnection, connectionsStore } =
-      renderWithConnections(<Plugin> </Plugin>, {
+      renderWithConnections(<CreateNamespacePlugin></CreateNamespacePlugin>, {
         connections: [mockConnection],
         connectFn() {
           return {
