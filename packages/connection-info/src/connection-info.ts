@@ -9,6 +9,10 @@ export interface AtlasClusterMetadata {
    */
   projectId: string;
   /**
+   * Unique id returned with the clusterDescription
+   */
+  clusterUniqueId: string;
+  /**
    * Cluster name, unique inside same project
    */
   clusterName: string;
@@ -23,7 +27,8 @@ export interface AtlasClusterMetadata {
   metricsId: string;
   metricsType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
   /**
-   * Atlas API base url to be used when connecing to a regionalized cluster
+   * Atlas API base url to be used when making control plane requests for a
+   * regionalized cluster
    */
   regionalBaseUrl: string;
   /*
