@@ -8,10 +8,6 @@ import {
   BannerVariant,
   Checkbox,
   Description,
-  FavoriteIcon,
-  Icon,
-  IconButton,
-  Overline,
   H3,
   spacing,
   Select,
@@ -35,7 +31,6 @@ import {
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import SaveConnectionModal from './save-connection-modal';
 import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
 import {
   ConnectionFormPreferencesContext,
@@ -122,22 +117,6 @@ const formFooterBorderLightModeStyles = css({
   borderTop: `1px solid ${palette.gray.light2}`,
 });
 
-const favoriteButtonStyles = css({
-  position: 'absolute',
-  top: -spacing[400],
-  right: 0,
-  cursor: 'pointer',
-  width: spacing[7],
-  height: spacing[7],
-});
-
-const favoriteButtonContentStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-});
-
 const headingWithHiddenButtonStyles = css({
   button: {
     visibility: 'hidden',
@@ -147,14 +126,6 @@ const headingWithHiddenButtonStyles = css({
       visibility: 'visible',
     },
   },
-});
-
-const editFavoriteButtonStyles = css({
-  verticalAlign: 'text-top',
-});
-
-const favoriteButtonLabelStyles = css({
-  paddingTop: spacing[1],
 });
 
 const connectionStringErrorStyles = css({
@@ -383,10 +354,6 @@ function ConnectionForm({
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
-  type SaveConnectionModalState = 'hidden' | 'save' | 'saveAndConnect';
-
-  const [saveConnectionModal, setSaveConnectionModal] =
-    useState<SaveConnectionModalState>('hidden');
   const protectConnectionStrings =
     !!useConnectionFormPreference('protectConnectionStrings') &&
     !allowEditingIfProtected;
