@@ -224,8 +224,8 @@ describe('RenameCollectionModal [Component]', function () {
         };
         const Plugin = RenameCollectionPlugin.withMockServices({
           instancesManager: instancesManager as any,
-          queryStorage,
-          pipelineStorage,
+          queryStorage: queryStorage as any,
+          pipelineStorage: pipelineStorage as any,
         });
         const {
           globalAppRegistry,
