@@ -1,3 +1,6 @@
+/**
+ * Traits sent along with the Segment identify call
+ */
 export type IdentifyTraits = {
   /**
    * Shortened version number (e.g., '1.29').
@@ -79,7 +82,7 @@ export type ConnectionScopedProperties = {
   /**
    * The id of the connection associated to this event.
    */
-  connection_id: string;
+  connection_id?: string;
 };
 
 /**
