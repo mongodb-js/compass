@@ -216,7 +216,7 @@ type AggregationExecutedEvent = ConnectionScoped<{
     /**
      * The names of the stages in the pipeline being executed.
      */
-    stage_operators: string[];
+    stage_operators: (string | undefined)[];
   };
 }>;
 
