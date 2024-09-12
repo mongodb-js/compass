@@ -60,6 +60,11 @@ export type IdentifyTraits = {
    * The release identifier of the operating system.
    * This can provide additional details about the operating system release or
    * version (e.g. the kernel version for a specific macOS release).
+   *
+   * NOTE: This property helps determine the macOS version in use. The reported
+   * version corresponds to the Darwin kernel version, which can be mapped
+   * to the respective macOS release using the conversion table available at:
+   * https://en.wikipedia.org/wiki/MacOS_version_history.
    */
   os_release?: string;
 
