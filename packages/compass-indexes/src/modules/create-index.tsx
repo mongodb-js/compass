@@ -530,7 +530,7 @@ export const createIndex = (): IndexesThunkAction<Promise<void>> => {
       // Start a new fetch so that the newly added index's details can be
       // loaded. indexCreationSucceeded() will remove the in-progress one, but
       // we still need the new info.
-      void dispatch(fetchIndexes());
+      await dispatch(fetchIndexes());
     } catch (err) {
       dispatch(indexCreationFailed(inProgressIndex.id, (err as Error).message));
     }

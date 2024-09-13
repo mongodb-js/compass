@@ -1,13 +1,12 @@
 import { expect } from 'chai';
 import { setTimeout as wait } from 'timers/promises';
-import Sinon from 'sinon';
+import sinon from 'sinon';
 import {
   fetchIndexes,
   refreshRegularIndexes,
-  //failedIndexRemoved,
-  //dropIndex,
-  //hideIndex,
-  //unhideIndex
+  dropIndex,
+  hideIndex,
+  unhideIndex,
 } from './regular-indexes';
 import {
   indexesList,
@@ -18,10 +17,21 @@ import {
 import { readonlyViewChanged } from './is-readonly-view';
 import { setupStore } from '../../test/setup-store';
 
-describe.only('regular-indexes module', function () {
+// Importing this to stub showConfirmation
+import * as regularIndexesSlice from './regular-indexes';
+
+describe('regular-indexes module', function () {
+  before(() => {
+    sinon.stub(regularIndexesSlice, 'showConfirmation').resolves(true);
+  });
+
+  after(() => {
+    sinon.restore();
+  });
+
   describe('#fetchIndexes action', function () {
     it('sets indexes to empty array for views', async function () {
-      const indexesSpy = Sinon.spy();
+      const indexesSpy = sinon.spy();
       const store = setupStore(
         {},
         {
@@ -29,8 +39,11 @@ describe.only('regular-indexes module', function () {
         }
       );
 
-      Object.assign(store.getState().regularIndexes, {
-        indexes: defaultSortedIndexes.map((index) => ({ ...index })),
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          indexes: defaultSortedIndexes.map((index) => ({ ...index })),
+        },
       });
 
       store.dispatch(readonlyViewChanged(true));
@@ -51,8 +64,11 @@ describe.only('regular-indexes module', function () {
       );
 
       // Set some data to validate the empty array condition
-      Object.assign(store.getState().regularIndexes, {
-        indexes: defaultSortedIndexes.slice(),
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          indexes: defaultSortedIndexes.slice(),
+        },
       });
 
       await store.dispatch(fetchIndexes());
@@ -86,8 +102,11 @@ describe.only('regular-indexes module', function () {
         }
       );
 
-      Object.assign(store.getState().regularIndexes, {
-        inProgressIndexes: inProgressIndexes.slice(),
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          inProgressIndexes: inProgressIndexes.slice(),
+        },
       });
 
       await store.dispatch(fetchIndexes());
@@ -163,10 +182,8 @@ describe.only('regular-indexes module', function () {
         }
       );
 
-      // how are there both indexes AND inProgressIndexes, unless I focus this test?
-      console.dir(store.getState().regularIndexes, { depth: null });
-
-      store.dispatch(refreshRegularIndexes());
+      // don't await so we can check the intermediate result
+      void store.dispatch(refreshRegularIndexes());
       expect(store.getState().regularIndexes.isRefreshing).to.be.true;
 
       await wait(100);
@@ -177,8 +194,146 @@ describe.only('regular-indexes module', function () {
     });
   });
 
-  //describe('#failedIndexRemoved');
-  //describe('#dropIndex (thunk)');
-  //describe('#hideIndex (thunk)');
-  //describe('#unhideIndex (thunk)');
+  describe('#failedIndexRemoved', function () {
+    it('removes an in-progress index with the specified id', async function () {});
+  });
+
+  describe('#dropIndex (thunk)', function () {
+    it('removes a failed in-progress index', async function () {
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.resolve(indexesList),
+        }
+      );
+
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          inProgressIndexes: inProgressIndexes.map((_index) => {
+            const index = {
+              ..._index,
+            };
+            if (index.name === 'AAAA') {
+              index.extra.status = 'failed';
+            }
+            return index;
+          }),
+        },
+      });
+
+      // fetch first so it merges the in-progress ones
+      await store.dispatch(fetchIndexes());
+
+      // one of the real indexes is also in progress, so gets merged together
+      const numOverlapping = 1;
+
+      // sanity check
+      let state = store.getState().regularIndexes;
+      expect(state.indexes.length).to.equal(
+        indexesList.length + inProgressIndexes.length - numOverlapping
+      );
+      expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
+
+      await store.dispatch(dropIndex('AAAA'));
+
+      state = store.getState().regularIndexes;
+
+      expect(state.indexes.length).to.equal(
+        indexesList.length + inProgressIndexes.length - 1
+      );
+      expect(state.inProgressIndexes.length).to.equal(
+        inProgressIndexes.length - 1
+      );
+
+      expect(state.inProgressIndexes[0].name).to.equal('z');
+    });
+
+    it('removes a real index', async function () {
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.resolve(indexesList),
+        }
+      );
+
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          inProgressIndexes: inProgressIndexes.map((_index) => {
+            const index = {
+              ..._index,
+            };
+            return index;
+          }),
+        },
+      });
+
+      // fetch first so it merges the in-progress ones
+      await store.dispatch(fetchIndexes());
+
+      // one of the real indexes is also in progress, so gets merged together
+      const numOverlapping = 1;
+
+      // sanity check
+      let state = store.getState().regularIndexes;
+      expect(state.indexes.length).to.equal(
+        indexesList.length + inProgressIndexes.length - numOverlapping
+      );
+      expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
+
+      await store.dispatch(dropIndex('BBBB')); // a real regular index. not in progress
+
+      state = store.getState().regularIndexes;
+
+      expect(state.indexes.length).to.equal(
+        indexesList.length + inProgressIndexes.length - 1
+      );
+      expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
+    });
+  });
+
+  describe('#hideIndex (thunk)', function () {
+    it('hides an index', async function () {
+      const updateCollection = sinon.stub().resolves({});
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.resolve(indexesList),
+          updateCollection,
+        }
+      );
+
+      // fetch indexes so there's something to hide
+      await store.dispatch(fetchIndexes());
+
+      await store.dispatch(hideIndex('BBBB'));
+
+      expect(updateCollection.args).to.deep.equal([
+        ['citibike.trips', { index: { hidden: true, name: 'BBBB' } }],
+      ]);
+    });
+  });
+
+  describe('#unhideIndex (thunk)', function () {
+    it('unhides an index', async function () {
+      const updateCollection = sinon.stub().resolves({});
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.resolve(indexesList),
+          updateCollection,
+        }
+      );
+
+      // fetch indexes so there's something to hide
+      await store.dispatch(fetchIndexes());
+
+      await store.dispatch(unhideIndex('BBBB'));
+
+      expect(updateCollection.args).to.deep.equal([
+        ['citibike.trips', { index: { hidden: false, name: 'BBBB' } }],
+      ]);
+    });
+  });
 });

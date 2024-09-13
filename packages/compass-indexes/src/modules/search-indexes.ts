@@ -515,8 +515,8 @@ export const createIndex = ({
       variant: 'progress',
     });
 
-    void dispatch(switchToSearchIndexes());
-    void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+    dispatch(switchToSearchIndexes());
+    await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
   };
 };
 
@@ -563,7 +563,7 @@ export const updateIndex = ({
         timeout: 5000,
         variant: 'progress',
       });
-      void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+      await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
     } catch (e) {
       const error = (e as Error).message;
       dispatch(
@@ -619,9 +619,9 @@ export const refreshSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
   };
 };
 
-export const pollSearchIndexes = (): IndexesThunkAction<void> => {
-  return (dispatch) => {
-    void dispatch(fetchIndexes(SearchIndexesStatuses.POLLING));
+export const pollSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
+  return async (dispatch) => {
+    return await dispatch(fetchIndexes(SearchIndexesStatuses.POLLING));
   };
 };
 
@@ -665,7 +665,7 @@ export const dropSearchIndex = (
         timeout: 5000,
         variant: 'progress',
       });
-      void dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+      await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
     } catch (e) {
       openToast('search-index-delete-failed', {
         title: `Failed to drop index.`,

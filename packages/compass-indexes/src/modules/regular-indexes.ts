@@ -1,6 +1,9 @@
 import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
-import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation as showConfirmationModal,
+} from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
 import { isAction } from './../utils/is-action';
@@ -159,6 +162,9 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   ) {
     return {
       ...state,
+      // NOTE: the index is still in indexes because it would have been merged
+      // in there, so it will only be gone from the list once fetchIndexes()
+      // is dispatched and finishes.
       inProgressIndexes: state.inProgressIndexes.filter(
         (x) => x.id !== action.inProgressIndexId
       ),
@@ -244,19 +250,22 @@ export const fetchIndexes = (
   };
 };
 
-export const refreshRegularIndexes = (): IndexesThunkAction<void> => {
-  return (dispatch) => {
-    void dispatch(fetchIndexes(true));
+export const refreshRegularIndexes = (): IndexesThunkAction<Promise<void>> => {
+  return async (dispatch) => {
+    return dispatch(fetchIndexes(true));
   };
 };
 
-export const failedIndexRemoved = (
+const failedIndexRemoved = (
   inProgressIndexId: string
 ): FailedIndexRemovedAction => ({
   type: ActionTypes.FailedIndexRemoved,
   inProgressIndexId: inProgressIndexId,
 });
 
+// Exporting this for test only to stub it and set
+// its value. This enables to test dropIndex action.
+export const showConfirmation = showConfirmationModal;
 export const dropIndex = (
   indexName: string
 ): IndexesThunkAction<Promise<void>> => {
@@ -266,17 +275,21 @@ export const dropIndex = (
     { connectionInfoAccess, dataService, track }
   ) => {
     const { namespace, regularIndexes } = getState();
-    const { indexes } = regularIndexes;
+    const { indexes, inProgressIndexes } = regularIndexes;
     const index = indexes.find((x) => x.name === indexName);
 
     if (!index) {
       return;
     }
 
-    if (index.extra.status === 'failed') {
+    const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
+    if (inProgressIndex && inProgressIndex.extra.status === 'failed') {
       // This really just removes the (failed) in-progress index
-      dispatch(failedIndexRemoved(String((index as InProgressIndex).id)));
-      void dispatch(fetchIndexes());
+      dispatch(failedIndexRemoved(String(inProgressIndex.id)));
+
+      // By fetching the indexes again we make sure the merged list doesn't have
+      // it either.
+      await dispatch(fetchIndexes());
       return;
     }
 
@@ -296,12 +309,12 @@ export const dropIndex = (
       }
       await dataService.dropIndex(namespace, indexName);
       track('Index Dropped', { atlas_search: false }, connectionInfo);
-      void dispatch(fetchIndexes(true));
       openToast('drop-index-success', {
         variant: 'success',
         title: `Index "${indexName}" dropped`,
         timeout: 3000,
       });
+      await dispatch(fetchIndexes(true));
     } catch (err) {
       openToast('drop-index-error', {
         variant: 'important',
@@ -334,7 +347,7 @@ export const hideIndex = (
           hidden: true,
         },
       });
-      void dispatch(fetchIndexes());
+      await dispatch(fetchIndexes());
     } catch (error) {
       openToast('hide-index-error', {
         title: 'Failed to hide the index',
@@ -368,7 +381,7 @@ export const unhideIndex = (
           hidden: false,
         },
       });
-      void dispatch(fetchIndexes());
+      await dispatch(fetchIndexes());
     } catch (error) {
       openToast('unhide-index-error', {
         title: 'Failed to unhide the index',
