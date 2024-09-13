@@ -1,6 +1,5 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
-import * as hadronIpc from 'hadron-ipc';
 import sinon from 'sinon';
 import { ThemedHome } from './home';
 import type { DataService } from 'mongodb-data-service';
@@ -11,7 +10,6 @@ import {
   screen,
   waitFor,
   within,
-  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -77,23 +75,6 @@ describe('Home [Component]', function () {
       }
     );
     return result;
-  }
-
-  async function waitForConnect() {
-    userEvent.click(screen.getByRole('button', { name: 'Connect' }));
-    await waitFor(
-      async function () {
-        console.log('??');
-        const sidebar = screen.getByTestId('navigation-sidebar');
-        console.log('GOT SIDEBAR');
-        const connectionItem = await within(sidebar).findByText(
-          'localhost:27017'
-        );
-        console.log('ITEM', connectionItem.getAttribute('data-is-connected'));
-        expect(connectionItem).to.have.attribute('data-is-connected', 'true');
-      },
-      { timeout: 1_000_000 }
-    );
   }
 
   afterEach(() => {
