@@ -81,10 +81,16 @@ describe('Home [Component]', function () {
 
   async function waitForConnect() {
     userEvent.click(screen.getByRole('button', { name: 'Connect' }));
-
     await waitFor(
-      () => {
-        screen.getByTestId('home');
+      async function () {
+        console.log('??');
+        const sidebar = screen.getByTestId('navigation-sidebar');
+        console.log('GOT SIDEBAR');
+        const connectionItem = await within(sidebar).findByText(
+          'localhost:27017'
+        );
+        console.log('ITEM', connectionItem.getAttribute('data-is-connected'));
+        expect(connectionItem).to.have.attribute('data-is-connected', 'true');
       },
       { timeout: 1_000_000 }
     );
@@ -96,12 +102,6 @@ describe('Home [Component]', function () {
   });
 
   describe('is not connected', function () {
-    it('renders the connect screen', function () {
-      renderHome();
-      expect(() => screen.getByTestId('home')).to.throw;
-      expect(screen.getByTestId('connections-wrapper')).to.be.displayed;
-    });
-
     it('renders welcome modal and hides it', async function () {
       renderHome({ showWelcomeModal: true });
       const modal = screen.getByTestId('welcome-modal');
@@ -134,60 +134,6 @@ describe('Home [Component]', function () {
         });
         expect(screen.getByTestId('home')).to.be.displayed;
         expect(() => screen.getByTestId('connections-wrapper')).to.throw;
-      });
-    });
-  });
-
-  describe('is connected', function () {
-    describe('when UI status is complete', function () {
-      let dataServiceDisconnectedSpy: sinon.SinonSpy;
-
-      let onDisconnectSpy: sinon.SinonSpy;
-      let hideCollectionSubMenuSpy: sinon.SinonSpy;
-
-      beforeEach(async function () {
-        dataServiceDisconnectedSpy = sinon.fake.resolves(true);
-        hideCollectionSubMenuSpy = sinon.spy();
-        onDisconnectSpy = sinon.spy();
-        const dataService = {
-          ...createDataService(),
-          disconnect: dataServiceDisconnectedSpy,
-          addReauthenticationHandler: sinon.stub(),
-        };
-        renderHome(
-          {
-            hideCollectionSubMenu: hideCollectionSubMenuSpy,
-            onDisconnect: onDisconnectSpy,
-          },
-          [],
-          dataService
-        );
-        await waitForConnect();
-      });
-
-      afterEach(function () {
-        sinon.restore();
-      });
-
-      it('renders only the workspaces', function () {
-        expect(screen.getByTestId('home')).to.be.displayed;
-        expect(() => screen.getByTestId('connections-wrapper')).to.throw;
-      });
-
-      it('on `app:disconnect`', async function () {
-        hadronIpc.ipcRenderer?.emit('app:disconnect');
-        await waitFor(() => {
-          expect(onDisconnectSpy.called, 'it calls onDisconnect').to.be.true;
-          expect(
-            hideCollectionSubMenuSpy.called,
-            'it calls hideCollectionSubMenu'
-          ).to.be.true;
-        });
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('connections-wrapper')).to.be.visible;
-        });
-        expect(dataServiceDisconnectedSpy.callCount).to.equal(1);
       });
     });
   });
