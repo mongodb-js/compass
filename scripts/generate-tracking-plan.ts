@@ -135,7 +135,9 @@ function extractPayloadPropertiesAndComments(
       props.push({
         name: prop.getName(),
         type: checker.typeToString(
-          checker.getTypeOfSymbolAtLocation(prop, node)
+          checker.getTypeOfSymbolAtLocation(prop, node),
+          undefined,
+          ts.TypeFormatFlags.NoTruncation
         ),
         comment: ts.displayPartsToString(prop.getDocumentationComment(checker)),
         required: !isOptionalFlag && !allowsUndefinedInUnion,
