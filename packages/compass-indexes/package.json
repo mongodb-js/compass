@@ -67,7 +67,6 @@
   },
   "dependencies": {
     "@mongodb-js/compass-app-stores": "^7.27.0",
-    "@mongodb-js/compass-collection": "^4.40.0",
     "@mongodb-js/compass-components": "^1.29.3",
     "@mongodb-js/compass-connections": "^1.41.0",
     "@mongodb-js/compass-editor": "^0.29.3",

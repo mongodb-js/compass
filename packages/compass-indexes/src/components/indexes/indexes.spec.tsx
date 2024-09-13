@@ -16,7 +16,6 @@ import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
-import { inProgressIndexes } from '../../../test/fixtures/regular-indexes';
 
 const DEFAULT_PROPS: Partial<RootState> = {
   regularIndexes: {
