@@ -374,8 +374,9 @@ export const createNamespace = (
   ) => {
     const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
-    const dbName = databaseName ?? data.database;
-    const collName = data.collection;
+
+    const dbName = databaseName ?? data.database?.trim();
+    const collName = data.collection.trim();
     const namespace = `${dbName}.${collName}`;
 
     dispatch(clearError());
