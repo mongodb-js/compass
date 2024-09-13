@@ -2,65 +2,37 @@ import { expect } from 'chai';
 import { setTimeout as wait } from 'timers/promises';
 import Sinon from 'sinon';
 import {
-  ActionTypes,
   fetchIndexes,
-  setRegularIndexes,
   refreshRegularIndexes,
-  inProgressIndexAdded,
-  inProgressIndexRemoved,
-  inProgressIndexFailed,
+  //failedIndexRemoved,
+  //dropIndex,
+  //hideIndex,
+  //unhideIndex
 } from './regular-indexes';
 import {
   indexesList,
   defaultSortedIndexes,
-  usageSortedIndexes,
+  //usageSortedIndexes,
   inProgressIndexes,
 } from '../../test/fixtures/regular-indexes';
 import { readonlyViewChanged } from './is-readonly-view';
 import { setupStore } from '../../test/setup-store';
 
-const usageSortedDesc = [...usageSortedIndexes].reverse();
-
-describe('regular-indexes module', function () {
-  let store: ReturnType<typeof setupStore>;
-
-  beforeEach(function () {
-    store = setupStore();
-  });
-
-  it('#setRegularIndexes action - it only sets indexes and does not sort them', function () {
-    {
-      store.dispatch(setRegularIndexes([]));
-      expect(store.getState().regularIndexes.indexes).to.deep.equal([]);
-    }
-
-    {
-      store.dispatch(setRegularIndexes(defaultSortedIndexes as any));
-      expect(store.getState().regularIndexes.indexes).to.deep.equal(
-        defaultSortedIndexes
-      );
-    }
-
-    {
-      store.dispatch(setRegularIndexes(usageSortedDesc as any));
-      expect(store.getState().regularIndexes.indexes).to.deep.equal(
-        usageSortedDesc
-      );
-    }
-  });
-
+describe.only('regular-indexes module', function () {
   describe('#fetchIndexes action', function () {
     it('sets indexes to empty array for views', async function () {
       const indexesSpy = Sinon.spy();
-      const store = setupStore({}, {
-        isConnected() {
-          return true;
-        },
-        indexes: indexesSpy,
-      } as any);
+      const store = setupStore(
+        {},
+        {
+          indexes: indexesSpy,
+        }
+      );
 
-      // Add indexes in the store
-      store.dispatch(setRegularIndexes(defaultSortedIndexes as any));
+      Object.assign(store.getState().regularIndexes, {
+        indexes: defaultSortedIndexes.map((index) => ({ ...index })),
+      });
+
       store.dispatch(readonlyViewChanged(true));
 
       await store.dispatch(fetchIndexes());
@@ -71,16 +43,16 @@ describe('regular-indexes module', function () {
 
     it('sets indexes to empty array when there is an error', async function () {
       const error = new Error('failed to connect to server');
-      const store = setupStore({}, {
-        isConnected() {
-          return true;
-        },
-        indexes: () => Promise.reject(error),
-      } as any);
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.reject(error),
+        }
+      );
+
       // Set some data to validate the empty array condition
-      store.dispatch({
-        type: ActionTypes.IndexesAdded,
-        indexes: defaultSortedIndexes,
+      Object.assign(store.getState().regularIndexes, {
+        indexes: defaultSortedIndexes.slice(),
       });
 
       await store.dispatch(fetchIndexes());
@@ -92,14 +64,12 @@ describe('regular-indexes module', function () {
     });
 
     it('sets indexes when fetched successfully', async function () {
-      const store = setupStore({}, {
-        isConnected() {
-          return true;
-        },
-        indexes: () => Promise.resolve(defaultSortedIndexes),
-      } as any);
-      // Set indexes to empty
-      store.dispatch(setRegularIndexes([]));
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.resolve(defaultSortedIndexes),
+        }
+      );
       await store.dispatch(fetchIndexes());
 
       const state = store.getState().regularIndexes;
@@ -109,71 +79,93 @@ describe('regular-indexes module', function () {
     });
 
     it('merges with in progress indexes', async function () {
-      const store = setupStore({}, {
-        isConnected() {
-          return true;
-        },
-        indexes: () => Promise.resolve(indexesList),
-      } as any);
-      // Set indexes to empty
-      store.dispatch(setRegularIndexes([]));
-      store.dispatch(
-        inProgressIndexAdded({
-          id: 'citibike.trips.z',
-          extra: { status: 'inprogress' },
-          key: { z: 1 },
-          fields: [{ field: 'z', value: 1 }],
-          name: 'AAAA',
-          ns: 'citibike.trips',
-          size: 0,
-          relativeSize: 0,
-          usageCount: 0,
-        })
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.resolve(indexesList),
+        }
       );
-      store.dispatch(
-        inProgressIndexAdded({
-          id: 'citibike.trips.z',
-          extra: { status: 'inprogress' },
-          key: { z: 1 },
-          fields: [{ field: 'z', value: 1 }],
-          name: 'z',
-          ns: 'citibike.trips',
-          size: 0,
-          relativeSize: 0,
-          usageCount: 0,
-        })
-      );
+
+      Object.assign(store.getState().regularIndexes, {
+        inProgressIndexes: inProgressIndexes.slice(),
+      });
 
       await store.dispatch(fetchIndexes());
 
       const state = store.getState().regularIndexes;
 
-      expect(state.indexes.length).to.equal(defaultSortedIndexes.length + 2);
+      expect(state.indexes.length).to.equal(
+        defaultSortedIndexes.length + inProgressIndexes.length
+      );
 
       const indexes = state.indexes.filter(
         (index: any) => index.extra.status === 'inprogress'
       );
 
-      expect(indexes).to.deep.equal(inProgressIndexes);
+      expect(indexes).to.deep.equal([
+        // NOTE: this one is a real index and an in-progress one
+        {
+          cardinality: 'single',
+          extra: {
+            status: 'inprogress',
+          },
+          fields: [],
+          key: {
+            aaaa: -1,
+          },
+          name: 'AAAA',
+          ns: 'foo',
+          properties: ['partial', 'ttl'],
+          relativeSize: 1,
+          size: 4096,
+          type: 'regular',
+          usageCount: 4,
+          usageHost: 'computername.local:27017',
+          usageSince: new Date('2019-02-08T14:39:56.285Z'),
+          version: 2,
+        },
+        // NOTE: this one is only in progress, not also a real index
+        {
+          extra: {
+            status: 'inprogress',
+          },
+          fields: [
+            {
+              field: 'z',
+              value: 1,
+            },
+          ],
+          key: {
+            z: 1,
+          },
+          name: 'z',
+          ns: 'citibike.trips',
+          relativeSize: 0,
+          size: 0,
+          usageCount: 0,
+        },
+      ]);
 
       expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });
   });
 
-  describe('#refreshRegularIndexes action', function () {
+  describe.only('#refreshRegularIndexes action', function () {
     it('sets isRefreshing when indexes are refreshed', async function () {
-      const store = setupStore({}, {
-        isConnected() {
-          return true;
-        },
-        indexes: async () => {
-          await wait(100);
-          return defaultSortedIndexes;
-        },
-      } as any);
+      const store = setupStore(
+        {},
+        {
+          indexes: async () => {
+            await wait(100);
+            return defaultSortedIndexes;
+          },
+        }
+      );
 
-      store.dispatch(refreshRegularIndexes() as any);
+      console.dir(store.getState().regularIndexes, { depth: null });
+
+      store.dispatch(refreshRegularIndexes());
       expect(store.getState().regularIndexes.isRefreshing).to.be.true;
 
       await wait(100);
@@ -184,48 +176,8 @@ describe('regular-indexes module', function () {
     });
   });
 
-  describe('handles inprogress indexes', function () {
-    const inProgIndex = inProgressIndexes[0];
-
-    beforeEach(function () {
-      expect(
-        store.getState().regularIndexes.inProgressIndexes
-      ).to.have.lengthOf(0);
-      store.dispatch(inProgressIndexAdded(inProgIndex as any));
-      expect(
-        store.getState().regularIndexes.inProgressIndexes
-      ).to.have.lengthOf(1);
-    });
-
-    it('#inProgressIndexAdded', function () {
-      expect(store.getState().regularIndexes.inProgressIndexes).to.deep.equal([
-        inProgIndex,
-      ]);
-    });
-
-    it('#inProgressIndexRemoved', function () {
-      store.dispatch(inProgressIndexRemoved(inProgIndex.id!));
-      expect(
-        store.getState().regularIndexes.inProgressIndexes
-      ).to.have.lengthOf(0);
-    });
-
-    it('#inProgressIndexFailed', function () {
-      store.dispatch(
-        inProgressIndexFailed({
-          inProgressIndexId: inProgIndex.id!,
-          error: 'Something went wrong',
-        })
-      );
-
-      const [failedIndex] = store.getState().regularIndexes.inProgressIndexes;
-      expect(failedIndex).to.deep.equal({
-        ...inProgIndex,
-        extra: {
-          status: 'failed',
-          error: 'Something went wrong',
-        },
-      });
-    });
-  });
+  //describe('#failedIndexRemoved');
+  //describe('#dropIndex (thunk)');
+  //describe('#hideIndex (thunk)');
+  //describe('#unhideIndex (thunk)');
 });

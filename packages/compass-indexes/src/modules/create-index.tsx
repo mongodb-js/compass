@@ -633,6 +633,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     // when hiding the modal also reset it
     // Deep clone on reset
+    // TODO: make a helper here
     return JSON.parse(JSON.stringify(INITIAL_STATE));
   }
 
@@ -654,6 +655,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ActionTypes.IndexCreationSucceeded
     )
   ) {
+    // TODO: make a helper here
     return JSON.parse(JSON.stringify(INITIAL_STATE));
   }
 

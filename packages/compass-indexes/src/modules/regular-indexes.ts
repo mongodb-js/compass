@@ -1,4 +1,4 @@
-import type { IndexDefinition as _IndexDefinition } from 'mongodb-data-service';
+import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
@@ -18,10 +18,10 @@ import {
 } from '../utils/modal-descriptions';
 
 export type RegularIndex = Omit<
-  _IndexDefinition,
+  IndexDefinition,
   'type' | 'cardinality' | 'properties' | 'version'
 > &
-  Partial<_IndexDefinition>;
+  Partial<IndexDefinition>;
 
 export type InProgressIndex = {
   id: string;
@@ -397,7 +397,10 @@ function _mergeInProgressIndexes(
         index.extra.error = inProgressIndex.extra.error;
       }
     } else {
-      indexes.push(inProgressIndex);
+      // in-progress indexes also have ids which regular indexes don't
+      const index: RegularIndex = { ...inProgressIndex };
+      delete (index as RegularIndex & { id?: any }).id;
+      indexes.push(index);
     }
   }
 

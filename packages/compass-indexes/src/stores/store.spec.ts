@@ -41,7 +41,6 @@ describe('IndexesStore [Store]', function () {
           indexes: () => {
             return Promise.resolve([]);
           },
-          isConnected: () => true,
         } as unknown as IndexesDataService,
         logger: createNoopLogger(),
         track: createNoopTrack(),

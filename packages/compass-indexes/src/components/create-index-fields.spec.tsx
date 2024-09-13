@@ -19,9 +19,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="5.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const fieldsComponent = screen.getByTestId('create-index-fields-line-0');
@@ -36,9 +36,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="5.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');
@@ -54,9 +54,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="5.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const minusButton = screen.queryByTestId('remove-index-field-button');
@@ -74,9 +74,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="5.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const minusButton = screen.getAllByTestId('remove-index-field-button');
@@ -91,9 +91,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="5.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const minusButton = screen.getAllByTestId('add-index-field-button');
@@ -111,9 +111,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="5.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const minusButton = screen.getAllByTestId('add-index-field-button');
@@ -130,9 +130,9 @@ describe('CreateIndexFields Component', function () {
           serverVersion="20.0.0"
           isRemovable
           updateFieldName={noop}
-          updateFieldType={noop}
-          addField={noop}
-          removeField={noop}
+          fieldTypeUpdated={noop}
+          fieldAdded={noop}
+          fieldRemoved={noop}
         />
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');

@@ -34,7 +34,7 @@ describe('IndexesToolbar Component', function () {
           onRefreshIndexes={() => {}}
           isAtlasSearchSupported={false}
           isRefreshing={false}
-          onChangeIndexView={() => {}}
+          onIndexViewChanged={() => {}}
           onCreateRegularIndex={() => {}}
           onCreateSearchIndex={() => {}}
           {...props}
@@ -304,7 +304,7 @@ describe('IndexesToolbar Component', function () {
     it('when it supports search management, it changes tab view', function () {
       renderIndexesToolbar({
         isAtlasSearchSupported: true,
-        onChangeIndexView: onChangeViewCallback,
+        onIndexViewChanged: onChangeViewCallback,
       });
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
@@ -316,7 +316,7 @@ describe('IndexesToolbar Component', function () {
     it('when it does not support search management, it renders tab as disabled', function () {
       renderIndexesToolbar({
         isAtlasSearchSupported: false,
-        onChangeIndexView: onChangeViewCallback,
+        onIndexViewChanged: onChangeViewCallback,
       });
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
