@@ -50,8 +50,6 @@ const QueryHistoryButtonPopover = ({
       const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
       if (isOpen) {
         track('Query History Opened', {}, connectionInfo);
-      } else {
-        track('Query History Closed', {}, connectionInfo);
       }
     },
     [isOpen, connectionInfoAccess],

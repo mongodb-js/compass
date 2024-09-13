@@ -1632,16 +1632,6 @@ type QueryHistoryOpenedEvent = ConnectionScoped<{
 }>;
 
 /**
- * This event is fired when user closes query history panel
- *
- * @category Find Queries
- */
-type QueryHistoryClosedEvent = ConnectionScoped<{
-  name: 'Query History Closed';
-  payload: Record<string, never>;
-}>;
-
-/**
  * This event is fired when user selects a favorite query to put it in the query bar.
  *
  * @category Find Queries
@@ -2529,7 +2519,6 @@ export type TelemetryEvent =
   | QueryExecutedEvent
   | QueryExportedEvent
   | QueryExportOpenedEvent
-  | QueryHistoryClosedEvent
   | QueryHistoryFavoriteAddedEvent
   | QueryHistoryFavoriteCopiedEvent
   | QueryHistoryFavoriteRemovedEvent
