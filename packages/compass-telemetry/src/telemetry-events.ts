@@ -1,3 +1,6 @@
+/**
+ * Traits sent along with the Segment identify call
+ */
 export type IdentifyTraits = {
   /**
    * Shortened version number (e.g., '1.29').
@@ -57,6 +60,11 @@ export type IdentifyTraits = {
    * The release identifier of the operating system.
    * This can provide additional details about the operating system release or
    * version (e.g. the kernel version for a specific macOS release).
+   *
+   * NOTE: This property helps determine the macOS version in use. The reported
+   * version corresponds to the Darwin kernel version, which can be mapped
+   * to the respective macOS release using the conversion table available at:
+   * https://en.wikipedia.org/wiki/MacOS_version_history.
    */
   os_release?: string;
 
@@ -79,7 +87,7 @@ export type ConnectionScopedProperties = {
   /**
    * The id of the connection associated to this event.
    */
-  connection_id: string;
+  connection_id: string | undefined;
 };
 
 /**
@@ -2420,7 +2428,37 @@ type ScreenEvent = ConnectionScoped<{
     /**
      * The name of the screen that was activated.
      */
-    name?: string;
+    name?:
+      | 'aggregations'
+      | 'collections'
+      | 'databases'
+      | 'documents'
+      | 'indexes'
+      | 'my_queries'
+      | 'performance'
+      | 'schema'
+      | 'validation'
+      | 'confirm_new_pipeline_modal'
+      | 'create_collection_modal'
+      | 'create_database_modal'
+      | 'drop_collection_modal'
+      | 'drop_database_modal'
+      | 'create_index_modal'
+      | 'create_search_index_modal'
+      | 'create_view_modal'
+      | 'csfle_connection_modal'
+      | 'delete_pipeline_modal'
+      | 'drop_index_modal'
+      | 'export_modal'
+      | 'export_to_language_modal'
+      | 'import_modal'
+      | 'insert_document_modal'
+      | 'non_genuine_mongodb_modal'
+      | 'rename_collection_modal'
+      | 'restore_pipeline_modal'
+      | 'save_pipeline_modal'
+      | 'shell_info_modal'
+      | 'update_search_index_modal';
   };
 }>;
 
