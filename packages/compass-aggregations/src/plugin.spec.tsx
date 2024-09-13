@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../test/configure-store';
 import { AggregationsPlugin } from './plugin';

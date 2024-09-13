@@ -1,6 +1,5 @@
 import React from 'react';
-import { screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';

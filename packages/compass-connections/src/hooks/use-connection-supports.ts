@@ -19,10 +19,10 @@ function supportsRollingIndexCreation(connection: ConnectionState) {
     return false;
   }
 
-  const { clusterType, instanceSize } = atlasMetadata;
+  const { metricsType, instanceSize } = atlasMetadata;
   return (
     !isFreeOrSharedTierCluster(instanceSize) &&
-    (clusterType === 'cluster' || clusterType === 'replicaSet')
+    (metricsType === 'cluster' || metricsType === 'replicaSet')
   );
 }
 export function useConnectionSupports(

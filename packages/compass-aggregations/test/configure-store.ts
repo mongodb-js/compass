@@ -4,10 +4,7 @@ import type {
 } from '../src/stores/store';
 import { mockDataService } from './mocks/data-service';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
-import {
-  activatePluginWithActiveConnection,
-  renderPluginComponentWithActiveConnection,
-} from '@mongodb-js/testing-library-compass';
+import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 import { CompassAggregationsHadronPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
@@ -84,7 +81,7 @@ function getMockedPluginArgs(
         ? services.preferences.getPreferences()
         : undefined,
     },
-  ] as unknown as Parameters<typeof activatePluginWithActiveConnection>;
+  ] as const;
 }
 
 /**
@@ -93,7 +90,15 @@ function getMockedPluginArgs(
 export default function configureStore(
   ...args: Parameters<typeof getMockedPluginArgs>
 ) {
-  return activatePluginWithActiveConnection(...getMockedPluginArgs(...args));
+  const [Plugin, initialProps, connectionInfo, renderOptions] =
+    getMockedPluginArgs(...args);
+  const { activatePluginWithActiveConnection } =
+    createPluginTestHelpers(Plugin);
+  return activatePluginWithActiveConnection(
+    connectionInfo,
+    initialProps,
+    renderOptions
+  );
 }
 
 export function renderWithStore(
@@ -107,8 +112,11 @@ export function renderWithStore(
       })
     : ui;
 
-  return renderPluginComponentWithActiveConnection(
-    ui,
-    ...getMockedPluginArgs(...args)
+  const [Plugin, initialProps, connectionInfo, renderOptions] =
+    getMockedPluginArgs(...args);
+  const { renderWithActiveConnection } = createPluginTestHelpers(
+    Plugin,
+    initialProps
   );
+  return renderWithActiveConnection(ui, connectionInfo, renderOptions);
 }

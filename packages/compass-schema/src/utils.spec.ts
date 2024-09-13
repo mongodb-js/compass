@@ -6,8 +6,8 @@ describe('compass-schema utils', function () {
     it('returns the correct link for a serverless cluster', function () {
       expect(
         getAtlasPerformanceAdvisorLink({
-          clusterId: '123456',
-          clusterType: 'serverless',
+          metricsId: '123456',
+          metricsType: 'serverless',
           clusterName: 'Cluster0',
         })
       ).to.equal('#/serverless/advisor/Cluster0/createIndexes');
@@ -15,24 +15,24 @@ describe('compass-schema utils', function () {
     it('returns the correct link for other clusters', function () {
       expect(
         getAtlasPerformanceAdvisorLink({
-          clusterId: '123456',
-          clusterType: 'replicaSet',
+          metricsId: '123456',
+          metricsType: 'replicaSet',
           clusterName: 'Cluster0',
         })
       ).to.equal('#/metrics/replicaSet/123456/advisor');
 
       expect(
         getAtlasPerformanceAdvisorLink({
-          clusterId: '123456',
-          clusterType: 'cluster',
+          metricsId: '123456',
+          metricsType: 'cluster',
           clusterName: 'Cluster0',
         })
       ).to.equal('#/metrics/cluster/123456/advisor');
 
       expect(
         getAtlasPerformanceAdvisorLink({
-          clusterId: '123456',
-          clusterType: 'host',
+          metricsId: '123456',
+          metricsType: 'host',
           clusterName: 'Cluster0',
         })
       ).to.equal('#/metrics/host/123456/advisor');
@@ -40,8 +40,8 @@ describe('compass-schema utils', function () {
     it('encodes the parameters', function () {
       expect(
         getAtlasPerformanceAdvisorLink({
-          clusterId: '123456',
-          clusterType: 'serverless',
+          metricsId: '123456',
+          metricsType: 'serverless',
           clusterName: 'Cluster Something',
         }),
         'encodes cluster name'
@@ -49,8 +49,8 @@ describe('compass-schema utils', function () {
 
       expect(
         getAtlasPerformanceAdvisorLink({
-          clusterId: '123 456',
-          clusterType: 'replica#Set' as any,
+          metricsId: '123 456',
+          metricsType: 'replica#Set' as any,
           clusterName: 'Cluster Something',
         }),
         'encodes cluster id and cluster type'

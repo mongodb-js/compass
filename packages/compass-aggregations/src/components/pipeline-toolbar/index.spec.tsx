@@ -1,6 +1,10 @@
 import React from 'react';
-import { cleanup, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineToolbar } from './index';

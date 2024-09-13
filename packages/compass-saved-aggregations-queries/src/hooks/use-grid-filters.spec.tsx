@@ -1,7 +1,11 @@
 import { expect } from 'chai';
-import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { renderHook } from '@testing-library/react-hooks';
+import {
+  render,
+  screen,
+  fireEvent,
+  userEvent,
+  renderHook,
+} from '@mongodb-js/testing-library-compass';
 import { useGridFilters, useFilteredItems } from './use-grid-filters';
 
 import { queries, pipelines } from '../../test/fixtures';

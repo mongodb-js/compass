@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { expect } from 'chai';
-import { cleanup, render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  cleanup,
+  render,
+  screen,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import VisibleFieldsToggle from './visible-field-toggle';
 
 function TestComponent({

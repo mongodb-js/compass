@@ -1,8 +1,14 @@
 import React from 'react';
 import { expect } from 'chai';
 import HadronDocument from 'hadron-document';
-import userEvents from '@testing-library/user-event';
-import { render, screen, cleanup, within, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  act,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 
 import VirtualizedDocumentListView from './virtualized-document-list-view';
@@ -104,7 +110,7 @@ describe('VirtualizedDocumentListView', function () {
     ).to.have.attribute('data-id', firstDocument.uuid);
 
     // Start editing the document
-    userEvents.click(
+    userEvent.click(
       within(firstDocumentElement).getByLabelText('Edit document')
     );
 
@@ -157,7 +163,7 @@ describe('VirtualizedDocumentListView', function () {
     let [documentElement] = screen.getAllByTestId('editable-document');
 
     // Start editing the document
-    userEvents.click(within(documentElement).getByLabelText('Edit document'));
+    userEvent.click(within(documentElement).getByLabelText('Edit document'));
 
     // Verify that we have an editing state
     expect(within(documentElement).getByText('Cancel')).to.be.visible;

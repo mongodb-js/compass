@@ -1,6 +1,10 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import { expect } from 'chai';
 import UseCaseCard from './use-case-card';

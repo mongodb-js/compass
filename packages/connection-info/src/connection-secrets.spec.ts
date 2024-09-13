@@ -197,10 +197,25 @@ describe('connection secrets', function () {
                   secretAccessKey: 'secretAccessKey',
                   sessionToken: 'sessionToken',
                 },
+                // @ts-expect-error multiple kms providers are supported in next driver release
+                'aws:1': {
+                  accessKeyId: 'accessKeyId',
+                  secretAccessKey: 'secretAccessKey',
+                  sessionToken: 'sessionToken',
+                },
                 local: {
                   key: 'key',
                 },
+                'local:1': {
+                  key: 'key',
+                },
                 azure: {
+                  tenantId: 'tenantId',
+                  clientId: 'clientId',
+                  clientSecret: 'clientSecret',
+                  identityPlatformEndpoint: 'identityPlatformEndpoint',
+                },
+                'azure:1': {
                   tenantId: 'tenantId',
                   clientId: 'clientId',
                   clientSecret: 'clientSecret',
@@ -211,7 +226,15 @@ describe('connection secrets', function () {
                   privateKey: 'privateKey',
                   endpoint: 'endpoint',
                 },
+                'gcp:1': {
+                  email: 'email',
+                  privateKey: 'privateKey',
+                  endpoint: 'endpoint',
+                },
                 kmip: {
+                  endpoint: 'endpoint',
+                },
+                'kmip:1': {
                   endpoint: 'endpoint',
                 },
               },
@@ -220,7 +243,15 @@ describe('connection secrets', function () {
                   tlsCertificateKeyFile: 'file',
                   tlsCertificateKeyFilePassword: 'pwd',
                 },
+                'aws:1': {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
                 local: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+                'local:1': {
                   tlsCertificateKeyFile: 'file',
                   tlsCertificateKeyFilePassword: 'pwd',
                 },
@@ -228,11 +259,23 @@ describe('connection secrets', function () {
                   tlsCertificateKeyFile: 'file',
                   tlsCertificateKeyFilePassword: 'pwd',
                 },
+                'azure:1': {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
                 gcp: {
                   tlsCertificateKeyFile: 'file',
                   tlsCertificateKeyFilePassword: 'pwd',
                 },
+                'gcp:1': {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
                 kmip: {
+                  tlsCertificateKeyFile: 'file',
+                  tlsCertificateKeyFilePassword: 'pwd',
+                },
+                'kmip:1': {
                   tlsCertificateKeyFile: 'file',
                   tlsCertificateKeyFilePassword: 'pwd',
                 },
@@ -268,7 +311,15 @@ describe('connection secrets', function () {
                 aws: {
                   accessKeyId: 'accessKeyId',
                 },
+                'aws:1': {
+                  accessKeyId: 'accessKeyId',
+                },
                 azure: {
+                  tenantId: 'tenantId',
+                  clientId: 'clientId',
+                  identityPlatformEndpoint: 'identityPlatformEndpoint',
+                },
+                'azure:1': {
                   tenantId: 'tenantId',
                   clientId: 'clientId',
                   identityPlatformEndpoint: 'identityPlatformEndpoint',
@@ -277,7 +328,14 @@ describe('connection secrets', function () {
                   email: 'email',
                   endpoint: 'endpoint',
                 },
+                'gcp:1': {
+                  email: 'email',
+                  endpoint: 'endpoint',
+                },
                 kmip: {
+                  endpoint: 'endpoint',
+                },
+                'kmip:1': {
                   endpoint: 'endpoint',
                 },
               },
@@ -285,23 +343,38 @@ describe('connection secrets', function () {
                 aws: {
                   tlsCertificateKeyFile: 'file',
                 },
+                'aws:1': {
+                  tlsCertificateKeyFile: 'file',
+                },
                 local: {
+                  tlsCertificateKeyFile: 'file',
+                },
+                'local:1': {
                   tlsCertificateKeyFile: 'file',
                 },
                 azure: {
                   tlsCertificateKeyFile: 'file',
                 },
+                'azure:1': {
+                  tlsCertificateKeyFile: 'file',
+                },
                 gcp: {
                   tlsCertificateKeyFile: 'file',
                 },
+                'gcp:1': {
+                  tlsCertificateKeyFile: 'file',
+                },
                 kmip: {
+                  tlsCertificateKeyFile: 'file',
+                },
+                'kmip:1': {
                   tlsCertificateKeyFile: 'file',
                 },
               },
             },
           },
         },
-      } as ConnectionInfo);
+      });
 
       expect(secrets).to.be.deep.equal({
         awsSessionToken: 'sessionToken',
@@ -317,13 +390,26 @@ describe('connection secrets', function () {
               secretAccessKey: 'secretAccessKey',
               sessionToken: 'sessionToken',
             },
+            'aws:1': {
+              secretAccessKey: 'secretAccessKey',
+              sessionToken: 'sessionToken',
+            },
             local: {
+              key: 'key',
+            },
+            'local:1': {
               key: 'key',
             },
             azure: {
               clientSecret: 'clientSecret',
             },
+            'azure:1': {
+              clientSecret: 'clientSecret',
+            },
             gcp: {
+              privateKey: 'privateKey',
+            },
+            'gcp:1': {
               privateKey: 'privateKey',
             },
           },
@@ -331,21 +417,36 @@ describe('connection secrets', function () {
             aws: {
               tlsCertificateKeyFilePassword: 'pwd',
             },
+            'aws:1': {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
             local: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+            'local:1': {
               tlsCertificateKeyFilePassword: 'pwd',
             },
             azure: {
               tlsCertificateKeyFilePassword: 'pwd',
             },
+            'azure:1': {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
             gcp: {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
+            'gcp:1': {
               tlsCertificateKeyFilePassword: 'pwd',
             },
             kmip: {
               tlsCertificateKeyFilePassword: 'pwd',
             },
+            'kmip:1': {
+              tlsCertificateKeyFilePassword: 'pwd',
+            },
           },
         },
-      } as ConnectionSecrets);
+      });
 
       const { connectionInfo: newConnectionInfoNoFle, secrets: secretsNoFle } =
         extractSecrets(

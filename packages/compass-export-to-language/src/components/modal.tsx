@@ -146,24 +146,25 @@ const ExportToLanguageModal: React.FunctionComponent<
   const [wasOpen, setWasOpen] = useState(false);
 
   useEffect(() => {
-    const trackingEvent =
-      mode === 'Update Query'
-        ? 'Update Export Opened'
-        : mode === 'Delete Query'
-        ? 'Delete Export Opened'
-        : mode === 'Query'
-        ? 'Query Export Opened'
-        : 'Aggregation Export Opened';
-
     if (modalOpen && !wasOpen) {
       const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
-      track(
-        trackingEvent,
-        {
-          ...stageCountForTelemetry(inputExpression),
-        },
-        connectionInfo
-      );
+
+      if (mode === 'Query') {
+        track('Query Export Opened', {}, connectionInfo);
+      } else if (mode === 'Delete Query') {
+        track('Delete Export Opened', {}, connectionInfo);
+      } else if (mode === 'Update Query') {
+        track('Update Export Opened', {}, connectionInfo);
+      } else if (mode === 'Pipeline') {
+        track(
+          'Aggregation Export Opened',
+          {
+            ...stageCountForTelemetry(inputExpression),
+          },
+          connectionInfo
+        );
+      }
+
       track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     }
 
@@ -171,26 +172,41 @@ const ExportToLanguageModal: React.FunctionComponent<
   }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoAccess]);
 
   const trackCopiedOutput = useCallback(() => {
-    const trackingEvent =
-      mode === 'Update Query'
-        ? 'Update Exported'
-        : mode === 'Delete Query'
-        ? 'Delete Exported'
-        : mode === 'Query'
-        ? 'Query Exported'
-        : 'Aggregation Exported';
+    const commonProps = {
+      language: outputLanguage,
+      with_import_statements: includeImports,
+      with_drivers_syntax: includeDrivers,
+      with_builders: useBuilders,
+    };
 
-    track(
-      trackingEvent,
-      {
-        language: outputLanguage,
-        with_import_statements: includeImports,
-        with_drivers_syntax: includeDrivers,
-        with_builders: useBuilders,
-        ...stageCountForTelemetry(inputExpression),
-      },
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    if (mode === 'Update Query') {
+      track(
+        'Update Exported',
+        commonProps,
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
+    } else if (mode === 'Delete Query') {
+      track(
+        'Delete Exported',
+        commonProps,
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
+    } else if (mode === 'Query') {
+      track(
+        'Query Exported',
+        commonProps,
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
+    } else if (mode === 'Pipeline') {
+      track(
+        'Aggregation Exported',
+        {
+          ...commonProps,
+          ...stageCountForTelemetry(inputExpression),
+        },
+        connectionInfoAccess.getCurrentConnectionInfo()
+      );
+    }
   }, [
     track,
     connectionInfoAccess,

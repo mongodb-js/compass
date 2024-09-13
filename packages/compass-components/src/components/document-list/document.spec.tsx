@@ -6,8 +6,8 @@ import {
   screen,
   within,
   waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import HadronDocument from 'hadron-document';
 import Document from './document';
 

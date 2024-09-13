@@ -1,5 +1,10 @@
 import React from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import TypeField, { IndexTypeTooltip, canRenderTooltip } from './type-field';

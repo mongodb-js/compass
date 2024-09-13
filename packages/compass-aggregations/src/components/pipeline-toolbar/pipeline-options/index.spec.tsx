@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, within } from '@testing-library/react';
+import { screen, within } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../../test/configure-store';

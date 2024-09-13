@@ -10,18 +10,21 @@ import KMSTLSOptions from './kms-tls-options';
 import KMSLocalKeyGenerator from './kms-local-key-generator';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import type {
-  KMSProviders,
+  KMSProviderType,
+  KMSProviderName,
   KMSOption,
   KMSField,
+  KMSTLSProviderName,
 } from '../../../utils/csfle-kms-fields';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
-function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
+function KMSProviderFieldsForm<T extends KMSProviderType>({
   updateConnectionFormField,
   connectionOptions,
   errors,
-  kmsProvider,
+  kmsProviderType,
+  kmsProviderName,
   fields,
   clientCertIsOptional,
   noTLS,
@@ -29,8 +32,9 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
   errors: ConnectionFormError[];
-  kmsProvider: KMSProvider;
-  fields: KMSField<KMSProvider>[];
+  kmsProviderType: T;
+  kmsProviderName: KMSProviderName<T>;
+  fields: KMSField<T>[];
   clientCertIsOptional?: boolean;
   noTLS?: boolean;
 }): React.ReactElement {
@@ -38,15 +42,15 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
   const handleFieldChanged = useCallback(
-    (key: KMSOption<KMSProvider>, value?: string) => {
+    (key: KMSOption<T>, value?: string) => {
       return updateConnectionFormField({
         type: 'update-csfle-kms-param',
-        kmsProvider,
+        kmsProviderName,
         key,
         value,
       });
     },
-    [updateConnectionFormField, kmsProvider]
+    [updateConnectionFormField, kmsProviderName]
   );
 
   return (
@@ -74,12 +78,12 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
                   handleFieldChanged(name, value);
                 }}
                 name={name}
-                data-testid={`csfle-kms-${kmsProvider}-${name}`}
+                data-testid={`csfle-kms-${kmsProviderType}-${name}`}
                 label={label}
                 type={type === 'textarea' ? undefined : type}
                 optional={type === 'textarea' ? undefined : optional}
-                value={value(autoEncryptionOptions)}
-                errorMessage={errorMessage?.(errors)}
+                value={value(autoEncryptionOptions, kmsProviderName)}
+                errorMessage={errorMessage?.(errors, kmsProviderName)}
                 state={typeof state === 'string' ? state : state(errors)}
                 spellCheck={false}
                 description={description}
@@ -90,14 +94,15 @@ function KMSProviderFieldsForm<KMSProvider extends keyof KMSProviders>({
       )}
       {!noTLS && (
         <KMSTLSOptions
-          kmsProvider={kmsProvider}
+          kmsProviderName={kmsProviderName as KMSTLSProviderName<T>}
           autoEncryptionOptions={autoEncryptionOptions}
           updateConnectionFormField={updateConnectionFormField}
           clientCertIsOptional={clientCertIsOptional}
         />
       )}
-      {kmsProvider === 'local' && (
+      {kmsProviderType === 'local' && (
         <KMSLocalKeyGenerator
+          kmsProviderName={kmsProviderName as KMSProviderName<'local'>}
           connectionOptions={connectionOptions}
           handleFieldChanged={
             handleFieldChanged as (

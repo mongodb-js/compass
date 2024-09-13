@@ -1,7 +1,12 @@
 import React from 'react';
 import { expect } from 'chai';
 
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import { CreateIndexFields } from './create-index-fields';
 

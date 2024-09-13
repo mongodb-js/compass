@@ -8,9 +8,23 @@ export interface AtlasClusterMetadata {
    * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#project-id
    */
   projectId: string;
-  clusterId: string;
+  /**
+   * Cluster name, unique inside same project
+   */
   clusterName: string;
-  clusterType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
+  /**
+   * A special id and type that are only relevant in context of mms metrics
+   * features. These are deployment items props (with a special exception for
+   * serverless, where id is just name, and type is `serverless` that doesn't
+   * make sense in context of deployments), not cluster description props.
+
+   * https://github.com/10gen/mms/blob/43b0049a85196b44e465feb9b96ef942d6f2c8f4/client/js/legacy/core/models/deployment
+   */
+  metricsId: string;
+  metricsType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
+  /**
+   * Atlas API base url to be used when connecing to a regionalized cluster
+   */
   regionalBaseUrl: string;
   /*
    * At the time of writing these are the possible instance sizes. If we include

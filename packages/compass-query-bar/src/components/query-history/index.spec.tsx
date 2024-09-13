@@ -5,8 +5,8 @@ import {
   screen,
   waitForElementToBeRemoved,
   within,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { Provider } from '../../stores/context';
 import Sinon from 'sinon';
 import { promises as fs } from 'fs';

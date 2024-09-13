@@ -1,6 +1,11 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { ContentWithFallback } from './content-with-fallback';
 

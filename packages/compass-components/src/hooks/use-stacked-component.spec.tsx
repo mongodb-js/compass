@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import React from 'react';
 

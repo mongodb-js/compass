@@ -155,9 +155,9 @@ describe('buildConnectionInfoFromClusterDescription', function () {
         .deep.eq({
           orgId: '123',
           projectId: 'abc',
-          clusterId: type === 'serverless' ? `Cluster0-serverless` : '123abc',
+          metricsId: type === 'serverless' ? `Cluster0-serverless` : '123abc',
           clusterName: `Cluster0-${type}`,
-          clusterType: type === 'sharded' ? 'cluster' : type,
+          metricsType: type === 'sharded' ? 'cluster' : type,
           instanceSize: expectedInstanceSize,
           regionalBaseUrl: 'https://example.com',
         });

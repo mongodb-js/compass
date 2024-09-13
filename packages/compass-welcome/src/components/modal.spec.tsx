@@ -1,10 +1,9 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
-import userEvent from '@testing-library/user-event';
 
 import { WelcomeModal } from './modal';
 

@@ -1,8 +1,13 @@
 import React from 'react';
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { render, screen, cleanup, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 import { Toolbar } from './toolbar';
 

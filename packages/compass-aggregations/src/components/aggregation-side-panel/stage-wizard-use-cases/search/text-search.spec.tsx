@@ -1,6 +1,6 @@
 import React, { type ComponentProps } from 'react';
 import { TextSearch } from './text-search';
-import { screen, render } from '@testing-library/react';
+import { screen, render } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {

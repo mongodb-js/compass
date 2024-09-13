@@ -358,7 +358,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
           file_type: fileType,
           all_fields: exclude.length === 0,
           stop_on_error_selected: stopOnErrors,
-          number_of_docs: err.result.docsWritten,
+          number_of_docs: err.result?.docsWritten,
           success: !err,
           aborted: abortSignal.aborted,
           ignore_empty_strings: fileType === 'csv' ? ignoreBlanks : undefined,
@@ -369,7 +369,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
       log.error(mongoLogId(1001000081), 'Import', 'Import failed', {
         ns,
         errorLogFilePath,
-        docsWritten: err.result.docsWritten,
+        docsWritten: err.result?.docsWritten,
         error: err.message,
       });
       debug('Error while importing:', err.stack);
