@@ -692,27 +692,27 @@ export type ExtraConnectionData = {
   /**
    * Specifies the number of AWS KMS providers used.
    */
-  count_kms_aws: number;
+  count_kms_aws?: number;
 
   /**
    * Specifies the number of GCP KMS providers used.
    */
-  count_kms_gcp: number;
+  count_kms_gcp?: number;
 
   /**
    * Specifies the number of KMIP KMS providers used.
    */
-  count_kms_kmip: number;
+  count_kms_kmip?: number;
 
   /**
    * Specifies the number of Local KMS providers used.
    */
-  count_kms_local: number;
+  count_kms_local?: number;
 
   /**
    * Specifies the number of Azure KMS providers used.
    */
-  count_kms_azure: number;
+  count_kms_azure?: number;
 };
 
 /**

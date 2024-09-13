@@ -93,11 +93,11 @@ type ExtraConnectionData = {
 } & CsfleInfo;
 
 type CsfleInfo = {
-  count_kms_aws: number;
-  count_kms_gcp: number;
-  count_kms_kmip: number;
-  count_kms_local: number;
-  count_kms_azure: number;
+  count_kms_aws?: number;
+  count_kms_gcp?: number;
+  count_kms_kmip?: number;
+  count_kms_local?: number;
+  count_kms_azure?: number;
   is_csfle: boolean;
   has_csfle_schema: boolean;
 };
