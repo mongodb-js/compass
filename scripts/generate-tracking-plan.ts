@@ -1,7 +1,6 @@
 import path from 'path';
 import * as ts from 'typescript';
 import * as fs from 'fs';
-import _ from 'lodash';
 
 type PropertyInfo = {
   name: string;
@@ -263,12 +262,27 @@ function generateMarkdownPlan(
   events: TelemetryEventInfo[],
   identifyTraits: TelemetryEventInfo
 ) {
-  const byCategory = _.groupBy(events, 'category');
+  const categoryNames = Array.from(
+    new Set(events.map((e) => e.category))
+  ).sort();
+
+  const categoryEntries: [string, TelemetryEventInfo[]][] = categoryNames.map(
+    (category) => {
+      const categoryEvents = events
+        .filter((e) => e.category === category)
+        .sort();
+      return [category, categoryEvents];
+    }
+  );
+
+  const categories: [string, TelemetryEventInfo[]][] = [
+    ['Identify', [identifyTraits]],
+    ...categoryEntries,
+  ];
+
   let toc = '';
   let eventsMarkdown = '';
 
-  const categories = Object.entries(byCategory);
-  categories.unshift(['Identify', [identifyTraits]]);
   for (const [category, categoryEvents] of categories) {
     toc += `\n### ${category}\n`;
 
