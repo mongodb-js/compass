@@ -10,14 +10,18 @@ import {
   resetGlobalCSS,
   useEffectOnChange,
 } from '@mongodb-js/compass-components';
-import CompassConnections from '@mongodb-js/compass-connections';
+import CompassConnections, {
+  SingleConnectionForm,
+  LegacyConnectionsModal,
+} from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import type { SettingsTabId } from '@mongodb-js/compass-settings';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import * as hadronIpc from 'hadron-ipc';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
-import { AppRegistryProvider } from 'hadron-app-registry';
+import { AppRegistryProvider, useLocalAppRegistry } from 'hadron-app-registry';
+import type AppRegistry from 'hadron-app-registry';
 import { useSingleConnectionModeConnectionInfoStatus } from '@mongodb-js/compass-connections/provider';
 import React, { useCallback, useEffect, useState } from 'react';
 import Workspace from './workspace';
@@ -30,10 +34,25 @@ import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
-import { ConnectionImportExportProvider } from '@mongodb-js/compass-connection-import-export';
+import {
+  ConnectionImportExportProvider,
+  useOpenConnectionImportExportModal,
+} from '@mongodb-js/compass-connection-import-export';
+import { usePreference } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { ConnectionInfoProvider } from '@mongodb-js/compass-connections/provider';
+import { CompassShellPlugin } from '@mongodb-js/compass-shell';
 
 resetGlobalCSS();
+
+const homePageStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'stretch',
+  flex: 1,
+  overflow: 'auto',
+  height: '100%',
+});
 
 const homeContainerStyles = css({
   height: '100vh',
@@ -65,6 +84,25 @@ export type HomeProps = {
   showSettings: (tab?: SettingsTabId) => void;
 };
 
+function SingleConnectionFormWithConnectionImportExport({
+  appRegistry,
+}: {
+  appRegistry: AppRegistry;
+}) {
+  const { supportsConnectionImportExport, openConnectionImportExportModal } =
+    useOpenConnectionImportExportModal({ context: 'connectionsList' });
+  return (
+    <SingleConnectionForm
+      appRegistry={appRegistry}
+      openConnectionImportExportModal={
+        supportsConnectionImportExport
+          ? openConnectionImportExportModal
+          : undefined
+      }
+    />
+  );
+}
+
 const verticalSplitStyles = css({
   width: '100vw',
   height: '100vh',
@@ -72,6 +110,10 @@ const verticalSplitStyles = css({
   gridTemplateColumns: '1fr',
   gridTemplateRows: 'auto min-content',
   overflow: 'hidden',
+});
+
+const shellContainerStyles = css({
+  zIndex: 5,
 });
 
 function Home({
@@ -83,7 +125,8 @@ function Home({
   hideCollectionSubMenu,
   showSettings,
 }: Omit<HomeProps, 'connectionStorage'>): React.ReactElement | null {
-  const { isConnected, disconnect } =
+  const appRegistry = useLocalAppRegistry();
+  const { connectionInfo, isConnected, disconnect } =
     useSingleConnectionModeConnectionInfoStatus();
 
   useEffect(() => {
@@ -129,18 +172,46 @@ function Home({
     [setIsWelcomeOpen, showSettings]
   );
 
+  const multiConnectionsEnabled = usePreference(
+    'enableMultipleConnectionSystem'
+  );
+
   return (
     <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
       <ConnectionImportExportProvider>
         <CompassInstanceStorePlugin>
           <FieldStorePlugin>
             <div data-testid="home" className={verticalSplitStyles}>
-              <AppRegistryProvider scopeName="Multiple Connections">
-                <Workspace
-                  appName={appName}
-                  onActiveWorkspaceTabChange={onWorkspaceChange}
-                />
-              </AppRegistryProvider>
+              {multiConnectionsEnabled && (
+                <AppRegistryProvider scopeName="Multiple Connections">
+                  <Workspace
+                    appName={appName}
+                    onActiveWorkspaceTabChange={onWorkspaceChange}
+                  />
+                </AppRegistryProvider>
+              )}
+              {!multiConnectionsEnabled &&
+                (isConnected ? (
+                  <AppRegistryProvider scopeName="Single Connection">
+                    <ConnectionInfoProvider
+                      connectionInfoId={connectionInfo.id}
+                    >
+                      <Workspace
+                        appName={appName}
+                        onActiveWorkspaceTabChange={onWorkspaceChange}
+                      />
+                      <div className={shellContainerStyles}>
+                        <CompassShellPlugin />
+                      </div>
+                    </ConnectionInfoProvider>
+                  </AppRegistryProvider>
+                ) : (
+                  <div className={homePageStyles}>
+                    <SingleConnectionFormWithConnectionImportExport
+                      appRegistry={appRegistry}
+                    />
+                  </div>
+                ))}
             </div>
             <WelcomeModal
               isOpen={isWelcomeOpen}
@@ -149,6 +220,7 @@ function Home({
             <CompassSettingsPlugin></CompassSettingsPlugin>
             <CompassFindInPagePlugin></CompassFindInPagePlugin>
             <AtlasAuthPlugin></AtlasAuthPlugin>
+            <LegacyConnectionsModal />
           </FieldStorePlugin>
         </CompassInstanceStorePlugin>
       </ConnectionImportExportProvider>
