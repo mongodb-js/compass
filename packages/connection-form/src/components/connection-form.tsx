@@ -579,13 +579,11 @@ function ConnectionForm({
   );
 }
 
-const ConnectionFormWithPreferences = (
-  props: ConnectionFormPropsWithoutPreferences & {
+const ConnectionFormWithPreferences: React.FunctionComponent<
+  ConnectionFormPropsWithoutPreferences & {
     preferences?: Partial<ConnectionFormPreferences>;
   }
-) => {
-  const { preferences, ...rest } = props;
-
+> = ({ preferences, ...rest }) => {
   return (
     <ConnectionFormPreferencesContext.Provider value={preferences ?? {}}>
       <ConnectionForm {...rest} />
