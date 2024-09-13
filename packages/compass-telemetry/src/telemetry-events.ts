@@ -2428,7 +2428,37 @@ type ScreenEvent = ConnectionScoped<{
     /**
      * The name of the screen that was activated.
      */
-    name?: string;
+    name?:
+      | 'aggregations'
+      | 'collections'
+      | 'databases'
+      | 'documents'
+      | 'indexes'
+      | 'my_queries'
+      | 'performance'
+      | 'schema'
+      | 'validation'
+      | 'confirm_new_pipeline_modal'
+      | 'create_collection_modal'
+      | 'create_database_modal'
+      | 'drop_collection_modal'
+      | 'drop_database_modal'
+      | 'create_index_modal'
+      | 'create_search_index_modal'
+      | 'create_view_modal'
+      | 'csfle_connection_modal'
+      | 'delete_pipeline_modal'
+      | 'drop_index_modal'
+      | 'export_modal'
+      | 'export_to_language_modal'
+      | 'import_modal'
+      | 'insert_document_modal'
+      | 'non_genuine_mongodb_modal'
+      | 'rename_collection_modal'
+      | 'restore_pipeline_modal'
+      | 'save_pipeline_modal'
+      | 'shell_info_modal'
+      | 'update_search_index_modal';
   };
 }>;
 

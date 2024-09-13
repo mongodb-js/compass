@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Fri, Sep 13, 2024 at 10:24 AM
+Generated on Fri, Sep 13, 2024 at 10:48 AM
 
 ## Table of Contents
 
@@ -1642,7 +1642,7 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `string | undefined`
+- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | ... 19 more ... | undefined`
   - The name of the screen that was activated.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
