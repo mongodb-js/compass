@@ -96,8 +96,6 @@ export function activateIndexesPlugin(
     )
   );
 
-  console.log('activating indexes plugin', store.getState());
-
   on(localAppRegistry, 'open-create-index-modal', () => {
     store.dispatch(createIndexOpened());
   });

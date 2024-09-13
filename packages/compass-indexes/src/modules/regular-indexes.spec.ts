@@ -151,7 +151,7 @@ describe.only('regular-indexes module', function () {
     });
   });
 
-  describe.only('#refreshRegularIndexes action', function () {
+  describe('#refreshRegularIndexes action', function () {
     it('sets isRefreshing when indexes are refreshed', async function () {
       const store = setupStore(
         {},
@@ -163,6 +163,7 @@ describe.only('regular-indexes module', function () {
         }
       );
 
+      // how are there both indexes AND inProgressIndexes, unless I focus this test?
       console.dir(store.getState().regularIndexes, { depth: null });
 
       store.dispatch(refreshRegularIndexes());
