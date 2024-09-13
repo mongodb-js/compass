@@ -37,10 +37,10 @@ describe('CreateIndexActions Component', function () {
     render(
       <CreateIndexActions
         error={null}
-        clearError={clearErrorSpy}
+        errorCleared={clearErrorSpy}
         inProgress={false}
         createIndex={createIndexSpy}
-        closeCreateIndexModal={closeCreateIndexModalSpy}
+        createIndexClosed={closeCreateIndexModalSpy}
       />
     );
 
@@ -53,10 +53,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          clearError={clearErrorSpy}
+          errorCleared={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          createIndexClosed={closeCreateIndexModalSpy}
         />
       );
 
@@ -71,10 +71,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          clearError={clearErrorSpy}
+          errorCleared={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          createIndexClosed={closeCreateIndexModalSpy}
         />
       );
 
@@ -90,10 +90,10 @@ describe('CreateIndexActions Component', function () {
     render(
       <CreateIndexActions
         error={null}
-        clearError={clearErrorSpy}
+        errorCleared={clearErrorSpy}
         inProgress={false}
         createIndex={createIndexSpy}
-        closeCreateIndexModal={closeCreateIndexModalSpy}
+        createIndexClosed={closeCreateIndexModalSpy}
       />
     );
 
@@ -108,10 +108,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          clearError={clearErrorSpy}
+          errorCleared={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          createIndexClosed={closeCreateIndexModalSpy}
         />
       );
 
@@ -125,10 +125,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          clearError={clearErrorSpy}
+          errorCleared={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          createIndexClosed={closeCreateIndexModalSpy}
         />
       );
 
@@ -145,10 +145,9 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          clearError={clearErrorSpy}
+          errorCleared={clearErrorSpy}
           inProgress={true}
           createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
@@ -164,10 +163,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          clearError={clearErrorSpy}
+          errorCleared={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
+          createIndexClosed={closeCreateIndexModalSpy}
         />
       );
 
@@ -182,10 +181,10 @@ describe('CreateIndexActions Component', function () {
         render(
           <CreateIndexActions
             error={null}
-            clearError={noop}
+            errorCleared={noop}
             inProgress={true}
             createIndex={noop}
-            closeCreateIndexModal={noop}
+            createIndexClosed={noop}
           />
         );
       });

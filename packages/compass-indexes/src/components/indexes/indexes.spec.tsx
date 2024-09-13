@@ -16,9 +16,15 @@ import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
+import { inProgressIndexes } from '../../../test/fixtures/regular-indexes';
 
 const DEFAULT_PROPS: Partial<RootState> = {
-  regularIndexes: { indexes: [], error: null, isRefreshing: false },
+  regularIndexes: {
+    indexes: [],
+    inProgressIndexes: [],
+    error: null,
+    isRefreshing: false,
+  },
   searchIndexes: {
     indexes: [],
     error: null,
@@ -107,6 +113,7 @@ describe('Indexes Component', function () {
   it('does not render the indexes list if isReadonlyView is true', function () {
     renderIndexes({
       regularIndexes: {
+        inProgressIndexes: [],
         indexes: [],
       } as any,
       isReadonlyView: true,

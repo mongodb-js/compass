@@ -628,6 +628,7 @@ export const pollSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
 // Exporting this for test only to stub it and set
 // its value. This enables to test dropSearchIndex action.
 export const showConfirmation = showConfirmationModal;
+
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>> => {

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import {
   SearchIndexesStatuses,
-  closeCreateModal,
-  showCreateModal,
+  createSearchIndexClosed,
+  createSearchIndexOpened,
   createIndex,
-  refreshSearchIndexes as fetchSearchIndexes,
+  refreshSearchIndexes,
   dropSearchIndex,
-  showUpdateModal,
-  closeUpdateModal,
+  updateSearchIndexOpened,
+  updateSearchIndexClosed,
   updateIndex,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
@@ -56,14 +56,14 @@ describe('search-indexes module', function () {
     );
   });
 
-  context('#fetchSearchIndexes action', function () {
+  context('#refreshSearchIndexes action', function () {
     it('does nothing if isReadonlyView is true', function () {
       store.dispatch(readonlyViewChanged(true));
 
       expect(store.getState().isReadonlyView).to.equal(true);
       expect(getSearchIndexesStub.callCount).to.equal(0);
 
-      store.dispatch(fetchSearchIndexes);
+      store.dispatch(refreshSearchIndexes);
 
       expect(getSearchIndexesStub.callCount).to.equal(0);
       expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
@@ -75,7 +75,7 @@ describe('search-indexes module', function () {
       expect(store.getState().isWritable).to.equal(false);
       expect(getSearchIndexesStub.callCount).to.equal(0);
 
-      store.dispatch(fetchSearchIndexes);
+      store.dispatch(refreshSearchIndexes);
 
       expect(getSearchIndexesStub.callCount).to.equal(0);
       expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
@@ -85,7 +85,7 @@ describe('search-indexes module', function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
       expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
 
-      await store.dispatch(fetchSearchIndexes());
+      await store.dispatch(refreshSearchIndexes());
 
       expect(getSearchIndexesStub.callCount).to.equal(1);
       expect(store.getState().searchIndexes.status).to.equal('READY');
@@ -95,7 +95,7 @@ describe('search-indexes module', function () {
       expect(getSearchIndexesStub.callCount).to.equal(0);
       expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
 
-      await store.dispatch(fetchSearchIndexes());
+      await store.dispatch(refreshSearchIndexes());
 
       expect(getSearchIndexesStub.callCount).to.equal(1);
       expect(store.getState().searchIndexes.status).to.equal('READY');
@@ -108,13 +108,13 @@ describe('search-indexes module', function () {
       });
 
       // not awaiting because REFRESHING happens during the action
-      void store.dispatch(fetchSearchIndexes());
+      void store.dispatch(refreshSearchIndexes());
 
       expect(store.getState().searchIndexes.status).to.equal('REFRESHING');
     });
 
     it('loads the indexes', async function () {
-      await store.dispatch(fetchSearchIndexes());
+      await store.dispatch(refreshSearchIndexes());
       const state = store.getState();
       expect(state.searchIndexes.indexes).to.deep.equal([
         {
@@ -142,7 +142,7 @@ describe('search-indexes module', function () {
       // replace the stub
       getSearchIndexesStub.rejects(new Error('this is an error'));
 
-      await store.dispatch(fetchSearchIndexes());
+      await store.dispatch(refreshSearchIndexes());
 
       expect(store.getState().searchIndexes.status).to.equal('ERROR');
       expect(store.getState().searchIndexes.error).to.equal('this is an error');
@@ -151,13 +151,13 @@ describe('search-indexes module', function () {
 
   context('create search index', function () {
     it('opens the modal for creation', function () {
-      store.dispatch(showCreateModal());
+      store.dispatch(createSearchIndexOpened());
       expect(store.getState().searchIndexes.createIndex.isModalOpen).to.be.true;
     });
 
     it('closes an open modal for creation', function () {
-      store.dispatch(showCreateModal());
-      store.dispatch(closeCreateModal());
+      store.dispatch(createSearchIndexOpened());
+      store.dispatch(createSearchIndexClosed());
       expect(
         store.getState().searchIndexes.createIndex.isModalOpen
       ).to.be.false;
@@ -188,11 +188,11 @@ describe('search-indexes module', function () {
   context('update search index', function () {
     const UPDATE_INDEX = searchIndexes[0];
     beforeEach(async function () {
-      await store.dispatch(fetchSearchIndexes());
-      store.dispatch(showUpdateModal(UPDATE_INDEX.name));
+      await store.dispatch(refreshSearchIndexes());
+      store.dispatch(updateSearchIndexOpened(UPDATE_INDEX.name));
     });
     it('closes an open modal for update', function () {
-      store.dispatch(closeUpdateModal());
+      store.dispatch(updateSearchIndexClosed());
       expect(
         store.getState().searchIndexes.updateIndex.isModalOpen
       ).to.be.false;
@@ -280,3 +280,8 @@ describe('#getInitialVectorSearchIndexPipelineText', function () {
       index: "pineapple",`);
   });
 });
+
+/*
+fetchIndexes
+refreshSearchIndexes
+*/
