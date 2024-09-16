@@ -176,6 +176,8 @@ const mapState = ({
 });
 
 const mapDispatch = {
+  // TODO(COMPASS-8214): loading, polling, refreshing the indexes should all
+  // happen in the store, not the UI.
   refreshRegularIndexes,
   refreshSearchIndexes,
 };
