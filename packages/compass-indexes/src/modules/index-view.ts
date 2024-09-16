@@ -22,8 +22,6 @@ export default function reducer(
     return action.view;
   }
 
-  // TODO: when index creation starts, switch to regular-indexes
-
   return state;
 }
 
