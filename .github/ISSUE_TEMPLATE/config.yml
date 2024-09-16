@@ -2,7 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: Bug Reports
     url: https://jira.mongodb.org/
-    about: Report a bug via Jira.
+    about: Report a bug to the COMPASS project in Jira.
   - name: Feature Request
     url: https://feedback.mongodb.com/forums/924283-compass
     about: Request a new feature or enhancement via the MongoDB Feedback Engine.
