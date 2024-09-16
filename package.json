@@ -94,8 +94,5 @@
     "packages/*",
     "configs/*",
     "scripts"
-  ],
-  "overrides": {
-    "mongodb-client-encryption": "^6.1.0"
-  }
+  ]
 }
