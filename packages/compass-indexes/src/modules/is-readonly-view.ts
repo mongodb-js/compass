@@ -18,7 +18,10 @@ export const INITIAL_STATE = false;
  *
  * @returns {Boolean} The state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): boolean {
   if (action.type === READONLY_VIEW_CHANGED) {
     return action.isReadonlyView;
   }

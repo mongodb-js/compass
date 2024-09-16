@@ -7,14 +7,17 @@ export enum ActionTypes {
   IndexViewChanged = 'compass-indexes/index-list/index-view-changed',
 }
 
-type IndexViewChangedAction = {
+export type IndexViewChangedAction = {
   type: ActionTypes.IndexViewChanged;
   view: IndexView;
 };
 
 export const INITIAL_STATE: IndexView = 'regular-indexes';
 
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): IndexView {
   if (isAction<IndexViewChangedAction>(action, ActionTypes.IndexViewChanged)) {
     return action.view;
   }

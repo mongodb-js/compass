@@ -10,6 +10,7 @@ import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from './../utils/is-action';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
+import type { IndexViewChangedAction } from './index-view';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -464,7 +465,13 @@ export const createIndex = ({
   name: string;
   type?: string;
   definition: Document;
-}): IndexesThunkAction<Promise<void>> => {
+}): IndexesThunkAction<
+  Promise<void>,
+  | CreateSearchIndexStartedAction
+  | CreateSearchIndexSucceededAction
+  | CreateSearchIndexFailedAction
+  | IndexViewChangedAction
+> => {
   return async function (
     dispatch,
     getState,
@@ -527,7 +534,13 @@ export const updateIndex = ({
   name: string;
   type?: string;
   definition: Document;
-}): IndexesThunkAction<Promise<void>> => {
+}): IndexesThunkAction<
+  Promise<void>,
+  | UpdateSearchIndexClosedAction
+  | UpdateSearchIndexStartedAction
+  | UpdateSearchIndexSucceededAction
+  | UpdateSearchIndexFailedAction
+> => {
   return async function (
     dispatch,
     getState,
@@ -574,9 +587,14 @@ export const updateIndex = ({
   };
 };
 
+type FetchSearchIndexesActions =
+  | FetchSearchIndexesStartedAction
+  | FetchSearchIndexesSucceededAction
+  | FetchSearchIndexesFailedAction;
+
 const fetchIndexes = (
   newStatus: 'REFRESHING' | 'POLLING' | 'FETCHING'
-): IndexesThunkAction<Promise<void>> => {
+): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const {
       isReadonlyView,
@@ -605,7 +623,10 @@ const fetchIndexes = (
   };
 };
 
-export const refreshSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
+export const refreshSearchIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchSearchIndexesActions
+> => {
   return async (dispatch, getState) => {
     const { status } = getState().searchIndexes;
 
@@ -619,7 +640,10 @@ export const refreshSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
   };
 };
 
-export const pollSearchIndexes = (): IndexesThunkAction<Promise<void>> => {
+export const pollSearchIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchSearchIndexesActions
+> => {
   return async (dispatch) => {
     return await dispatch(fetchIndexes(SearchIndexesStatuses.POLLING));
   };
@@ -631,7 +655,7 @@ export const showConfirmation = showConfirmationModal;
 
 export const dropSearchIndex = (
   name: string
-): IndexesThunkAction<Promise<void>> => {
+): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async function (
     dispatch,
     getState,

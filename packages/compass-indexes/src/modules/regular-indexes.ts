@@ -86,7 +86,10 @@ export const INITIAL_STATE: State = {
   error: null,
 };
 
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): State {
   if (
     isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
   ) {
@@ -226,9 +229,14 @@ const fetchIndexesFailed = (error: string): FetchIndexesFailedAction => ({
   error,
 });
 
+type FetchIndexesActions =
+  | FetchIndexesStartedAction
+  | FetchIndexesSucceededAction
+  | FetchIndexesFailedAction;
+
 export const fetchIndexes = (
   isRefreshing = false
-): IndexesThunkAction<Promise<void>> => {
+): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (dispatch, getState, { dataService, localAppRegistry }) => {
     const { isReadonlyView, namespace } = getState();
 
@@ -250,7 +258,10 @@ export const fetchIndexes = (
   };
 };
 
-export const refreshRegularIndexes = (): IndexesThunkAction<Promise<void>> => {
+export const refreshRegularIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchIndexesActions
+> => {
   return async (dispatch) => {
     return dispatch(fetchIndexes(true));
   };
@@ -269,7 +280,10 @@ export const showConfirmation = showConfirmationModal;
 
 export const dropIndex = (
   indexName: string
-): IndexesThunkAction<Promise<void>> => {
+): IndexesThunkAction<
+  Promise<void>,
+  FailedIndexRemovedAction | FetchIndexesActions
+> => {
   return async (
     dispatch,
     getState,
@@ -329,7 +343,7 @@ export const dropIndex = (
 
 export const hideIndex = (
   indexName: string
-): IndexesThunkAction<Promise<void>> => {
+): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const { namespace } = getState();
     const confirmed = await showConfirmation({
@@ -363,7 +377,7 @@ export const hideIndex = (
 
 export const unhideIndex = (
   indexName: string
-): IndexesThunkAction<Promise<void>> => {
+): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const { namespace } = getState();
     const confirmed = await showConfirmation({

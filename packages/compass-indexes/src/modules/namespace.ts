@@ -23,7 +23,10 @@ export const INITIAL_STATE = '';
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === NAMESPACE_CHANGED) {
     return action.namespace;
   }

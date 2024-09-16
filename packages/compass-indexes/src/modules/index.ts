@@ -67,7 +67,7 @@ export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   IndexesExtraArgs,
   A
 >;
-export type IndexesThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+export type IndexesThunkAction<R, A extends Action> = ThunkAction<
   R,
   RootState,
   IndexesExtraArgs,
