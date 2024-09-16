@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   createServiceLocator,
@@ -88,19 +88,25 @@ export const useConnectionInfoAccess = (): ConnectionInfoAccess => {
   // This is stable in all environments
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const connectionInfoRef = useConnectionInfoRefForId(connectionId);
-  return {
-    getCurrentConnectionInfo() {
-      if (!connectionInfoRef.current) {
-        if (process.env.NODE_ENV !== 'test') {
-          throw new Error(
-            'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
-          );
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [access] = useState(() => {
+    // Return the function from useState to make sure the value doesn't change
+    // when component re-renders
+    return {
+      getCurrentConnectionInfo() {
+        if (!connectionInfoRef.current) {
+          if (process.env.NODE_ENV !== 'test') {
+            throw new Error(
+              'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
+            );
+          }
+          return TEST_CONNECTION_INFO;
         }
-        return TEST_CONNECTION_INFO;
-      }
-      return connectionInfoRef.current;
-    },
-  };
+        return connectionInfoRef.current;
+      },
+    };
+  });
+  return access;
 };
 export const connectionInfoAccessLocator = createServiceLocator(
   useConnectionInfoAccess,
