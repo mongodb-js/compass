@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Fri, Sep 13, 2024 at 12:04 PM
+Generated on Mon, Sep 16, 2024 at 11:08 AM
 
 ## Table of Contents
 
@@ -790,16 +790,16 @@ This event is fired when a connection attempt fails.
   - Specifies if Client-Side Field Level Encryption (CSFLE) is used.
 - **has_csfle_schema** (optional): `boolean | undefined`
   - Specifies if CSFLE schema is present.
-- **has_kms_aws** (optional): `boolean | undefined`
-  - Specifies if KMS AWS is used.
-- **has_kms_gcp** (optional): `boolean | undefined`
-  - Specifies if KMS GCP is used.
-- **has_kms_kmip** (optional): `boolean | undefined`
-  - Specifies if KMS KMIP is used.
-- **has_kms_local** (optional): `boolean | undefined`
-  - Specifies if KMS Local is used.
-- **has_kms_azure** (optional): `boolean | undefined`
-  - Specifies if KMS Azure is used.
+- **count_kms_aws** (optional): `number | undefined`
+  - Specifies the number of AWS KMS providers used.
+- **count_kms_gcp** (optional): `number | undefined`
+  - Specifies the number of GCP KMS providers used.
+- **count_kms_kmip** (optional): `number | undefined`
+  - Specifies the number of KMIP KMS providers used.
+- **count_kms_local** (optional): `number | undefined`
+  - Specifies the number of Local KMS providers used.
+- **count_kms_azure** (optional): `number | undefined`
+  - Specifies the number of Azure KMS providers used.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -870,16 +870,16 @@ This event is fired when user successfully connects to a new server/cluster.
   - Specifies if Client-Side Field Level Encryption (CSFLE) is used.
 - **has_csfle_schema** (optional): `boolean | undefined`
   - Specifies if CSFLE schema is present.
-- **has_kms_aws** (optional): `boolean | undefined`
-  - Specifies if KMS AWS is used.
-- **has_kms_gcp** (optional): `boolean | undefined`
-  - Specifies if KMS GCP is used.
-- **has_kms_kmip** (optional): `boolean | undefined`
-  - Specifies if KMS KMIP is used.
-- **has_kms_local** (optional): `boolean | undefined`
-  - Specifies if KMS Local is used.
-- **has_kms_azure** (optional): `boolean | undefined`
-  - Specifies if KMS Azure is used.
+- **count_kms_aws** (optional): `number | undefined`
+  - Specifies the number of AWS KMS providers used.
+- **count_kms_gcp** (optional): `number | undefined`
+  - Specifies the number of GCP KMS providers used.
+- **count_kms_kmip** (optional): `number | undefined`
+  - Specifies the number of KMIP KMS providers used.
+- **count_kms_local** (optional): `number | undefined`
+  - Specifies the number of Local KMS providers used.
+- **count_kms_azure** (optional): `number | undefined`
+  - Specifies the number of Azure KMS providers used.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
