@@ -28,30 +28,30 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
-  errorCleared: () => void;
   inProgress: boolean;
-  createIndex: () => void;
-  createIndexClosed: () => void;
+  onErrorBannerCloseClick: () => void;
+  onCreateIndexClick: () => void;
+  onCancelCreateIndexClick: () => void;
 };
 
 function CreateIndexModal({
   isVisible,
   namespace,
   error,
-  errorCleared,
   inProgress,
-  createIndex,
-  createIndexClosed,
+  onErrorBannerCloseClick,
+  onCreateIndexClick,
+  onCancelCreateIndexClick,
   ...props
 }: CreateIndexModalProps) {
   const connectionInfoAccess = useConnectionInfoAccess();
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
-        createIndexClosed();
+        onCancelCreateIndexClick();
       }
     },
-    [createIndexClosed]
+    [onCancelCreateIndexClick]
   );
 
   useTrackOnChange(
@@ -87,10 +87,10 @@ function CreateIndexModal({
       <ModalFooter>
         <CreateIndexActions
           error={error}
-          errorCleared={errorCleared}
+          onErrorBannerCloseClick={onErrorBannerCloseClick}
           inProgress={inProgress}
-          createIndex={createIndex}
-          createIndexClosed={createIndexClosed}
+          onCreateIndexClick={onCreateIndexClick}
+          onCancelCreateIndexClick={onCancelCreateIndexClick}
         />
       </ModalFooter>
     </Modal>
@@ -110,13 +110,13 @@ const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
 };
 
 const mapDispatch = {
-  errorCleared,
-  createIndex,
-  createIndexClosed,
-  fieldAdded,
-  fieldRemoved,
-  updateFieldName,
-  fieldTypeUpdated,
+  onErrorBannerCloseClick: errorCleared,
+  onCreateIndexClick: createIndex,
+  onCancelCreateIndexClick: createIndexClosed,
+  onAddFieldClick: fieldAdded,
+  onRemoveFieldClick: fieldRemoved,
+  onSelectFieldNameClick: updateFieldName,
+  onSelectFieldTypeClick: fieldTypeUpdated,
 };
 
 export default connect(mapState, mapDispatch)(CreateIndexModal);

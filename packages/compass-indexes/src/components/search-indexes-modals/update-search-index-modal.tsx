@@ -18,12 +18,12 @@ type UpdateSearchIndexModalProps = {
   isBusy: boolean;
   isVectorSearchSupported: boolean;
   error: string | undefined;
-  onUpdateIndex: (index: {
+  onUpdateIndexClick: (index: {
     name: string;
     type?: string;
     definition: Document;
   }) => void;
-  onCloseModal: () => void;
+  onCloseModalClick: () => void;
 };
 
 export const UpdateSearchIndexModal: React.FunctionComponent<
@@ -37,8 +37,8 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
   isBusy,
   isVectorSearchSupported,
   error,
-  onUpdateIndex,
-  onCloseModal,
+  onUpdateIndexClick,
+  onCloseModalClick,
 }) => {
   return (
     <BaseSearchIndexModal
@@ -51,8 +51,8 @@ export const UpdateSearchIndexModal: React.FunctionComponent<
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      onSubmit={onUpdateIndex}
-      onClose={onCloseModal}
+      onSubmit={onUpdateIndexClick}
+      onClose={onCloseModalClick}
     />
   );
 };
@@ -80,8 +80,8 @@ const mapState = ({
 };
 
 const mapDispatch = {
-  onCloseModal: updateSearchIndexClosed,
-  onUpdateIndex: updateIndex,
+  onCloseModalClick: updateSearchIndexClosed,
+  onUpdateIndexClick: updateIndex,
 };
 
 export default connect(mapState, mapDispatch)(UpdateSearchIndexModal);

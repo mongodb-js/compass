@@ -16,18 +16,18 @@ const noop = () => {};
 
 describe('CreateIndexActions Component', function () {
   let clearErrorSpy;
-  let createIndexSpy;
+  let onCreateIndexClickSpy;
   let closeCreateIndexModalSpy;
 
   beforeEach(function () {
     clearErrorSpy = sinon.spy();
-    createIndexSpy = sinon.spy();
+    onCreateIndexClickSpy = sinon.spy();
     closeCreateIndexModalSpy = sinon.spy();
   });
 
   afterEach(function () {
     clearErrorSpy = null;
-    createIndexSpy = null;
+    onCreateIndexClickSpy = null;
     closeCreateIndexModalSpy = null;
 
     cleanup();
@@ -37,10 +37,10 @@ describe('CreateIndexActions Component', function () {
     render(
       <CreateIndexActions
         error={null}
-        errorCleared={clearErrorSpy}
+        onErrorBannerCloseClick={clearErrorSpy}
         inProgress={false}
-        createIndex={createIndexSpy}
-        createIndexClosed={closeCreateIndexModalSpy}
+        onCreateIndexClick={onCreateIndexClickSpy}
+        onCancelCreateIndexClick={closeCreateIndexModalSpy}
       />
     );
 
@@ -53,10 +53,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          errorCleared={clearErrorSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
           inProgress={false}
-          createIndex={createIndexSpy}
-          createIndexClosed={closeCreateIndexModalSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -67,14 +67,14 @@ describe('CreateIndexActions Component', function () {
   });
 
   context('onConfirm', function () {
-    it('calls the createIndex function', function () {
+    it('calls the onCreateIndexClick function', function () {
       render(
         <CreateIndexActions
           error={null}
-          errorCleared={clearErrorSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
           inProgress={false}
-          createIndex={createIndexSpy}
-          createIndexClosed={closeCreateIndexModalSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -82,7 +82,7 @@ describe('CreateIndexActions Component', function () {
         'create-index-actions-create-index-button'
       );
       fireEvent.click(button);
-      expect(createIndexSpy).to.have.been.calledOnce;
+      expect(onCreateIndexClickSpy).to.have.been.calledOnce;
     });
   });
 
@@ -90,10 +90,10 @@ describe('CreateIndexActions Component', function () {
     render(
       <CreateIndexActions
         error={null}
-        errorCleared={clearErrorSpy}
+        onErrorBannerCloseClick={clearErrorSpy}
         inProgress={false}
-        createIndex={createIndexSpy}
-        createIndexClosed={closeCreateIndexModalSpy}
+        onCreateIndexClick={onCreateIndexClickSpy}
+        onCancelCreateIndexClick={closeCreateIndexModalSpy}
       />
     );
 
@@ -108,10 +108,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          errorCleared={clearErrorSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
           inProgress={false}
-          createIndex={createIndexSpy}
-          createIndexClosed={closeCreateIndexModalSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -125,10 +125,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          errorCleared={clearErrorSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
           inProgress={false}
-          createIndex={createIndexSpy}
-          createIndexClosed={closeCreateIndexModalSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -145,9 +145,9 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={'Some error happened!'}
-          errorCleared={clearErrorSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
           inProgress={true}
-          createIndex={createIndexSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
         />
       );
 
@@ -163,10 +163,10 @@ describe('CreateIndexActions Component', function () {
       render(
         <CreateIndexActions
           error={null}
-          errorCleared={clearErrorSpy}
+          onErrorBannerCloseClick={clearErrorSpy}
           inProgress={false}
-          createIndex={createIndexSpy}
-          createIndexClosed={closeCreateIndexModalSpy}
+          onCreateIndexClick={onCreateIndexClickSpy}
+          onCancelCreateIndexClick={closeCreateIndexModalSpy}
         />
       );
 
@@ -181,10 +181,10 @@ describe('CreateIndexActions Component', function () {
         render(
           <CreateIndexActions
             error={null}
-            errorCleared={noop}
+            onErrorBannerCloseClick={noop}
             inProgress={true}
-            createIndex={noop}
-            createIndexClosed={noop}
+            onCreateIndexClick={noop}
+            onCancelCreateIndexClick={noop}
           />
         );
       });
@@ -199,10 +199,10 @@ describe('CreateIndexActions Component', function () {
       });
 
       it('hides the create index button', function () {
-        const createIndexButton = screen.queryByTestId(
+        const onCreateIndexClickButton = screen.queryByTestId(
           'create-index-actions-create-index-button'
         );
-        expect(createIndexButton).to.not.exist;
+        expect(onCreateIndexClickButton).to.not.exist;
       });
 
       it('renames the cancel button to close', function () {

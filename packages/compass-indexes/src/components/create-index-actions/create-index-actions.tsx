@@ -15,7 +15,7 @@ const bannerStyles = css({
   width: '100%',
 });
 
-const createIndexButtonStyles = css({
+const onCreateIndexClickButtonStyles = css({
   flex: 'none',
 });
 
@@ -24,16 +24,16 @@ const createIndexButtonStyles = css({
  */
 function CreateIndexActions({
   error,
-  errorCleared,
   inProgress,
-  createIndex,
-  createIndexClosed,
+  onErrorBannerCloseClick,
+  onCreateIndexClick,
+  onCancelCreateIndexClick,
 }: {
   error: string | null;
-  errorCleared: () => void;
   inProgress: boolean;
-  createIndex: () => void;
-  createIndexClosed: () => void;
+  onErrorBannerCloseClick: () => void;
+  onCreateIndexClick: () => void;
+  onCancelCreateIndexClick: () => void;
 }) {
   const renderError = () => {
     if (!error) {
@@ -45,7 +45,7 @@ function CreateIndexActions({
         data-testid="create-index-actions-error-banner-wrapper"
         className={bannerStyles}
       >
-        <Banner variant="danger" dismissible onClose={errorCleared}>
+        <Banner variant="danger" dismissible onClose={onErrorBannerCloseClick}>
           {error}
         </Banner>
       </div>
@@ -76,16 +76,16 @@ function CreateIndexActions({
 
       <Button
         data-testid="create-index-actions-cancel-button"
-        onClick={createIndexClosed}
+        onClick={onCancelCreateIndexClick}
       >
         {inProgress ? 'Close' : 'Cancel'}
       </Button>
       {!inProgress && (
         <Button
           data-testid="create-index-actions-create-index-button"
-          onClick={createIndex}
+          onClick={onCreateIndexClick}
           variant="primary"
-          className={createIndexButtonStyles}
+          className={onCreateIndexClickButtonStyles}
         >
           Create Index
         </Button>

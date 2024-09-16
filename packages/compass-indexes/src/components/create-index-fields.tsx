@@ -48,20 +48,20 @@ export type CreateIndexFieldsProps = {
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
-  fieldAdded: () => void;
-  fieldRemoved: (idx: number) => void;
-  updateFieldName: (idx: number, name: string) => void;
-  fieldTypeUpdated: (idx: number, fType: string) => void;
+  onAddFieldClick: () => void;
+  onRemoveFieldClick: (idx: number) => void;
+  onSelectFieldNameClick: (idx: number, name: string) => void;
+  onSelectFieldTypeClick: (idx: number, fType: string) => void;
 };
 
 function CreateIndexFields({
   fields,
   serverVersion,
   schemaFields,
-  fieldAdded,
-  fieldRemoved,
-  updateFieldName,
-  fieldTypeUpdated,
+  onAddFieldClick,
+  onRemoveFieldClick,
+  onSelectFieldNameClick,
+  onSelectFieldTypeClick,
 }: CreateIndexFieldsProps): React.ReactElement {
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
@@ -82,10 +82,10 @@ function CreateIndexFields({
   const onSelectFieldName = useCallback(
     (index: number, name: string | null) => {
       if (name !== null) {
-        updateFieldName(index, name);
+        onSelectFieldNameClick(index, name);
       }
     },
-    [updateFieldName]
+    [onSelectFieldNameClick]
   );
 
   const comboboxOptions = schemaFields.map((value) => ({ value }));
@@ -132,7 +132,7 @@ function CreateIndexFields({
             <Select
               id={`create-index-fields-type-select-${index}`}
               placeholder={DEFAULT_FIELD.type}
-              onChange={(type) => fieldTypeUpdated(index, type)}
+              onChange={(type) => onSelectFieldTypeClick(index, type)}
               allowDeselect={false}
               value={field.type}
               popoverZIndex={999999}
@@ -153,8 +153,8 @@ function CreateIndexFields({
           </div>
         </div>
       )}
-      onAddItem={fieldAdded}
-      onRemoveItem={fieldRemoved}
+      onAddItem={onAddFieldClick}
+      onRemoveItem={onRemoveFieldClick}
       addButtonTestId="add-index-field-button"
       removeButtonTestId="remove-index-field-button"
     />

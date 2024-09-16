@@ -18,12 +18,12 @@ type CreateSearchIndexModalProps = {
   isBusy: boolean;
   isVectorSearchSupported: boolean;
   error: string | undefined;
-  onCreateIndex: (index: {
+  onCreateIndexClick: (index: {
     name: string;
     type?: string;
     definition: Document;
   }) => void;
-  onCloseModal: () => void;
+  onCloseModalClick: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
@@ -34,8 +34,8 @@ export const CreateSearchIndexModal: React.FunctionComponent<
   isBusy,
   isVectorSearchSupported,
   error,
-  onCreateIndex,
-  onCloseModal,
+  onCreateIndexClick,
+  onCloseModalClick,
 }) => {
   return (
     <BaseSearchIndexModal
@@ -47,8 +47,8 @@ export const CreateSearchIndexModal: React.FunctionComponent<
       isModalOpen={isModalOpen}
       isBusy={isBusy}
       error={error}
-      onSubmit={onCreateIndex}
-      onClose={onCloseModal}
+      onSubmit={onCreateIndexClick}
+      onClose={onCloseModalClick}
     />
   );
 };
@@ -69,8 +69,8 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCloseModal: createSearchIndexClosed,
-  onCreateIndex: createIndex,
+  onCloseModalClick: createSearchIndexClosed,
+  onCreateIndexClick: createIndex,
 };
 
 export default connect(mapState, mapDispatch)(CreateSearchIndexModal);
