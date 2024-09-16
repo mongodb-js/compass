@@ -698,29 +698,29 @@ export type ExtraConnectionData = {
   has_csfle_schema?: boolean;
 
   /**
-   * Specifies if KMS AWS is used.
+   * Specifies the number of AWS KMS providers used.
    */
-  has_kms_aws?: boolean;
+  count_kms_aws?: number;
 
   /**
-   * Specifies if KMS GCP is used.
+   * Specifies the number of GCP KMS providers used.
    */
-  has_kms_gcp?: boolean;
+  count_kms_gcp?: number;
 
   /**
-   * Specifies if KMS KMIP is used.
+   * Specifies the number of KMIP KMS providers used.
    */
-  has_kms_kmip?: boolean;
+  count_kms_kmip?: number;
 
   /**
-   * Specifies if KMS Local is used.
+   * Specifies the number of Local KMS providers used.
    */
-  has_kms_local?: boolean;
+  count_kms_local?: number;
 
   /**
-   * Specifies if KMS Azure is used.
+   * Specifies the number of Azure KMS providers used.
    */
-  has_kms_azure?: boolean;
+  count_kms_azure?: number;
 };
 
 /**
