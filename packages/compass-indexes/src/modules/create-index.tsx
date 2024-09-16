@@ -281,6 +281,10 @@ export const INITIAL_STATE: State = {
   options: INITIAL_OPTIONS_STATE,
 };
 
+function getInitialState() {
+  return JSON.parse(JSON.stringify(INITIAL_STATE));
+}
+
 //-------
 
 export const createIndexOpened = () => ({
@@ -633,9 +637,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     isAction<CreateIndexClosedAction>(action, ActionTypes.CreateIndexClosed)
   ) {
     // when hiding the modal also reset it
-    // Deep clone on reset
-    // TODO: make a helper here
-    return JSON.parse(JSON.stringify(INITIAL_STATE));
+    return getInitialState();
   }
 
   if (
@@ -656,8 +658,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ActionTypes.IndexCreationSucceeded
     )
   ) {
-    // TODO: make a helper here
-    return JSON.parse(JSON.stringify(INITIAL_STATE));
+    return getInitialState();
   }
 
   if (
