@@ -1,29 +1,38 @@
 import React from 'react';
-import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  Banner,
-  EmptyContent,
-  WarningSummary,
-} from '@mongodb-js/compass-components';
-import { Provider } from 'react-redux';
-
 import ValidationStates from '.';
-import ValidationEditor from '../validation-editor';
-import { configureStore } from '../../stores/store';
+import {
+  createPluginTestHelpers,
+  screen,
+} from '@mongodb-js/testing-library-compass';
+import { CompassSchemaValidationHadronPlugin } from '../../index';
 
-describe('ValidationStates [Component]', function () {
+const { renderWithConnections } = createPluginTestHelpers(
+  CompassSchemaValidationHadronPlugin.withMockServices({
+    dataService: {
+      collectionInfo() {
+        return Promise.resolve({});
+      },
+    },
+    instance: {
+      build: {
+        version: '7.0.0',
+      },
+      on() {},
+      removeListener() {},
+    },
+  }),
+  {
+    namespace: 'foo.bar',
+  }
+);
+
+describe.only('ValidationStates [Component]', function () {
   let props: any;
-  let component: ReturnType<typeof mount>;
 
-  const mountComponent = (props: any) => {
-    const store = configureStore({}, {} as any);
-    return mount(
-      <Provider store={store}>
-        <ValidationStates {...props} />
-      </Provider>
-    );
+  const render = (props: any) => {
+    return renderWithConnections(<ValidationStates {...props} />);
   };
 
   beforeEach(function () {
@@ -70,26 +79,20 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.1.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('renders the wrapper div', function () {
-      expect(
-        component.find(`[data-testid="schema-validation-states"]`)
-      ).to.exist;
+      expect(screen.getByTestId('schema-validation-states')).to.exist;
     });
 
     it('renders the version banner', function () {
-      expect(
-        component.find({ ['data-testid']: 'old-server-read-only' })
-      ).to.exist;
+      expect(screen.getByTestId('old-server-read-only')).to.exist;
     });
 
     it('does not render other banners', function () {
       expect(
-        component.find({
-          ['data-testid']: 'collection-validation-warning',
-        })
+        screen.queryByTestId('collection-validation-warning')
       ).to.not.exist;
     });
   });
@@ -107,22 +110,12 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('renders the collection time-series banner', function () {
       expect(
-        component.find({
-          ['data-testid']: 'collection-validation-warning',
-        })
-      ).to.exist;
-      expect(
-        component
-          .find({
-            ['data-testid']: 'collection-validation-warning',
-          })
-          .at(0)
-          .text()
+        screen.getByTestId('collection-validation-warning').textContent
       ).to.equal(
         'Schema validation for time-series collections is not supported.'
       );
@@ -142,29 +135,17 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('renders the collection read-only banner', function () {
       expect(
-        component.find({
-          ['data-testid']: 'collection-validation-warning',
-        })
-      ).to.exist;
-      expect(
-        component
-          .find({
-            ['data-testid']: 'collection-validation-warning',
-          })
-          .at(0)
-          .text()
+        screen.getByTestId('collection-validation-warning').textContent
       ).to.equal('Schema validation for readonly views is not supported.');
     });
 
     it('does not render other banners', function () {
-      expect(
-        component.find({ ['data-testid']: 'old-server-read-only' })
-      ).to.be.not.exist;
+      expect(screen.queryByTestId('old-server-read-only')).to.be.not.exist;
     });
   });
 
@@ -181,12 +162,13 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('does not render a warning banner', function () {
-      expect(component.find(Banner)).to.be.not.exist;
-      expect(component.find(WarningSummary)).to.be.not.exist;
+      expect(
+        screen.queryByTestId('collection-validation-warning')
+      ).to.be.not.exist;
     });
   });
 
@@ -203,12 +185,13 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('does not render a warning banner', function () {
-      expect(component.find(Banner)).to.be.not.exist;
-      expect(component.find(WarningSummary)).to.be.not.exist;
+      expect(
+        screen.queryByTestId('collection-validation-warning')
+      ).to.be.not.exist;
     });
   });
 
@@ -225,29 +208,17 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('renders the writable banner', function () {
       expect(
-        component.find({
-          ['data-testid']: 'collection-validation-warning',
-        })
-      ).to.exist;
-      expect(
-        component
-          .find({
-            ['data-testid']: 'collection-validation-warning',
-          })
-          .at(0)
-          .text()
+        screen.getByTestId('collection-validation-warning').textContent
       ).to.equal('This action is not available on a secondary node.');
     });
 
     it('does not render other banners', function () {
-      expect(
-        component.find({ ['data-testid']: 'old-server-read-only' })
-      ).to.be.not.exist;
+      expect(screen.queryByTestId('old-server-read-only')).to.be.not.exist;
     });
   });
 
@@ -264,11 +235,11 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('does not render the zero state', function () {
-      expect(component.find(EmptyContent)).to.not.exist;
+      expect(screen.queryByTestId('empty-content')).to.not.exist;
     });
   });
 
@@ -285,11 +256,11 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('renders the zero state', function () {
-      expect(component.find(EmptyContent)).to.exist;
+      expect(screen.getByTestId('empty-content')).to.exist;
     });
   });
 
@@ -306,11 +277,11 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('does not render the content', function () {
-      expect(component.find(ValidationEditor)).to.not.exist;
+      expect(screen.queryByTestId('validation-editor')).to.not.exist;
     });
   });
 
@@ -327,11 +298,11 @@ describe('ValidationStates [Component]', function () {
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
 
-      component = mountComponent(props);
+      render(props);
     });
 
     it('renders the content', function () {
-      expect(component.find(ValidationEditor)).to.exist;
+      expect(screen.getByTestId('validation-editor')).to.exist;
     });
   });
 });

@@ -390,7 +390,7 @@ export const createIndex = ({
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoAccess, dataService }
+    { track, connectionInfoRef, dataService }
   ) {
     const { namespace } = getState();
 
@@ -430,7 +430,7 @@ export const createIndex = ({
         atlas_search: true,
         type,
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
 
     openToast('search-index-creation-in-progress', {
@@ -456,7 +456,7 @@ export const updateIndex = ({
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoAccess, dataService }
+    { track, connectionInfoRef, dataService }
   ) {
     const {
       namespace,
@@ -480,7 +480,7 @@ export const updateIndex = ({
         {
           atlas_search: true,
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
       openToast('search-index-update-in-progress', {
         title: `Your index ${name} is being updated.`,
@@ -575,7 +575,7 @@ export const dropSearchIndex = (
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoAccess, dataService }
+    { track, connectionInfoRef, dataService }
   ) {
     const { namespace } = getState();
 
@@ -598,7 +598,7 @@ export const dropSearchIndex = (
         {
           atlas_search: true,
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
       openToast('search-index-delete-in-progress', {
         title: `Your index ${name} is being deleted.`,

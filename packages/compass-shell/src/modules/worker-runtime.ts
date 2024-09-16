@@ -1,5 +1,5 @@
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoLogWriter } from '@mongodb-js/compass-logging/provider';
@@ -48,7 +48,7 @@ export function createWorkerRuntime(
   dataService: DataService,
   log: MongoLogWriter,
   track: TrackFunction,
-  connectionInfo: ConnectionInfoAccess
+  connectionInfo: ConnectionInfoRef
 ): typeof WorkerRuntime['prototype'] {
   const emitter = new EventEmitter();
 
@@ -63,11 +63,7 @@ export function createWorkerRuntime(
       // We always enable telemetry here, since the track call will
       // already check whether Compass telemetry is enabled or not.
       track: ({ event, properties }) => {
-        return track(
-          `Shell ${event}`,
-          properties,
-          connectionInfo.getCurrentConnectionInfo()
-        );
+        return track(`Shell ${event}`, properties, connectionInfo.current);
       },
       flush: () => {
         return Promise.resolve(); // not needed

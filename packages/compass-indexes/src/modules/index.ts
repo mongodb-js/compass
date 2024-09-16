@@ -13,7 +13,7 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { IndexesDataServiceProps } from '../stores/store';
 
 const reducer = combineReducers({
@@ -36,7 +36,7 @@ export type IndexesExtraArgs = {
   logger: Logger;
   track: TrackFunction;
   dataService: Pick<DataService, IndexesDataServiceProps>;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

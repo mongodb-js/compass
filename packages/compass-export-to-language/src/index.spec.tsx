@@ -10,12 +10,6 @@ import {
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
-import {
-  LoggerProvider,
-  createNoopLogger,
-} from '@mongodb-js/compass-logging/provider';
-import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
-import Sinon from 'sinon';
 
 const allTypesStr = `{
   0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -45,10 +39,6 @@ describe('ExportToLanguagePlugin', function () {
   };
   const Plugin = ExportToLanguagePlugin.withMockServices({
     dataService: dataService as any,
-  });
-
-  afterEach(function () {
-    cleanup();
   });
 
   describe('on `open-query-export-to-language` event', function () {
@@ -131,27 +121,8 @@ result = client['db']['coll'].find(
 
   describe('on "Copy" button clicked', function () {
     it('should emit telemetry event', async function () {
-      const track = Sinon.stub();
-      const { localAppRegistry } = render(
-        <LoggerProvider
-          value={
-            {
-              createLogger() {
-                return createNoopLogger();
-              },
-            } as any
-          }
-        >
-          <TelemetryProvider
-            options={{
-              sendTrack: (event, props) => {
-                track(event, props);
-              },
-            }}
-          >
-            <Plugin namespace="db.coll"></Plugin>
-          </TelemetryProvider>
-        </LoggerProvider>
+      const { localAppRegistry, track } = render(
+        <Plugin namespace="db.coll"></Plugin>
       );
 
       localAppRegistry.emit('open-aggregation-export-to-language', '[]');

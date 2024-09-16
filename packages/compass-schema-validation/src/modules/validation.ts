@@ -459,7 +459,7 @@ export const saveValidation = (
   return async (
     dispatch,
     getState,
-    { dataService, track, connectionInfoAccess }
+    { dataService, track, connectionInfoRef }
   ) => {
     const state = getState();
     const namespace = state.namespace;
@@ -475,11 +475,7 @@ export const saveValidation = (
       validation_action: validation.validationAction,
       validation_level: validation.validationLevel,
     };
-    track(
-      'Schema Validation Updated',
-      trackEvent,
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    track('Schema Validation Updated', trackEvent, connectionInfoRef.current);
     try {
       await dataService.updateCollection(
         `${namespace.database}.${namespace.collection}`,

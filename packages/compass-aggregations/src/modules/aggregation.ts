@@ -289,7 +289,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { pipelineBuilder, instance, dataService, track, connectionInfoAccess }
+    { pipelineBuilder, instance, dataService, track, connectionInfoRef }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
@@ -315,7 +315,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
         num_stages: pipeline.length,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       }),
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
     return dispatch(fetchAggregationData());
   };
@@ -367,12 +367,8 @@ export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
-  return (dispatch, getState, { track, connectionInfoAccess }) => {
-    track(
-      'Aggregation Canceled',
-      {},
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
+  return (dispatch, getState, { track, connectionInfoRef }) => {
+    track('Aggregation Canceled', {}, connectionInfoRef.current);
     const {
       aggregation: { abortController },
     } = getState();
@@ -399,7 +395,7 @@ const fetchAggregationData = (
       preferences,
       logger: { log, mongoLogId },
       track,
-      connectionInfoAccess,
+      connectionInfoRef,
       connectionScopedAppRegistry,
     }
   ) => {
@@ -487,7 +483,7 @@ const fetchAggregationData = (
           track(
             'Aggregation Timed Out',
             { max_time_ms: maxTimeMS ?? null },
-            connectionInfoAccess.getCurrentConnectionInfo()
+            connectionInfoRef.current
           );
         }
         log.warn(

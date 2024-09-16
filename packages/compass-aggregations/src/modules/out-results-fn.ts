@@ -25,10 +25,9 @@ export default function reducer(
 export const gotoOutResults = (
   namespace: string
 ): PipelineBuilderThunkAction<void> => {
-  return (_dispatch, getState, { workspaces, connectionInfoAccess }) => {
+  return (_dispatch, getState, { workspaces, connectionInfoRef }) => {
     const { outResultsFn } = getState();
-    const { id: connectionId } =
-      connectionInfoAccess.getCurrentConnectionInfo();
+    const { id: connectionId } = connectionInfoRef.current;
     if (outResultsFn) {
       outResultsFn(namespace);
     } else {

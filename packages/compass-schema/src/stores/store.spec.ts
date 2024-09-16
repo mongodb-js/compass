@@ -8,7 +8,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const dummyLogger = createNoopLogger('TEST');
 const dummyTrack = createNoopTrack();
@@ -32,9 +32,9 @@ describe('Schema Store', function () {
     const globalAppRegistry = new AppRegistry();
     const dataService = 'test';
     const namespace = 'db.coll';
-    const connectionInfoAccess = {
-      getCurrentConnectionInfo: () => {},
-    } as ConnectionInfoAccess;
+    const connectionInfoRef = {
+      current: {},
+    } as ConnectionInfoRef;
 
     beforeEach(async function () {
       const plugin = activateSchemaPlugin(
@@ -50,7 +50,7 @@ describe('Schema Store', function () {
           preferences: await createSandboxFromDefaultPreferences(),
           fieldStoreService: mockFieldStoreService,
           queryBar: mockQueryBar as any,
-          connectionInfoAccess,
+          connectionInfoRef,
         },
         createActivateHelpers()
       );

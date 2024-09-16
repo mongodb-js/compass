@@ -57,7 +57,7 @@ const EmptyContent: React.FunctionComponent<
   const darkMode = useDarkMode();
 
   return (
-    <div className={containerStyles}>
+    <div data-testid="empty-content" className={containerStyles}>
       <div className={iconStyles}>
         <Icon />
       </div>

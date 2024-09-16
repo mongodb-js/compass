@@ -23,9 +23,6 @@ export const ConnectionStorageProvider = ConnectionStorageContext.Provider;
 export function useConnectionStorageContext(): ConnectionStorage {
   const connectionStorage = useContext(ConnectionStorageContext);
   if (!connectionStorage) {
-    if (process.env.NODE_ENV === 'test') {
-      return new InMemoryConnectionStorage();
-    }
     throw new Error(
       'Could not find the current ConnectionStorage. Did you forget to setup the ConnectionStorageProvider?'
     );

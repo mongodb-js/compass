@@ -3,7 +3,7 @@ import thunk from 'redux-thunk';
 import { HistoryStorage } from './modules/history-storage';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -45,7 +45,7 @@ export type ShellPluginServices = {
   track: TrackFunction;
   dataService: DataService;
   preferences: PreferencesAccess;
-  connectionInfo: ConnectionInfoAccess;
+  connectionInfo: ConnectionInfoRef;
 };
 
 export type ShellPluginExtraArgs = ShellPluginServices & {

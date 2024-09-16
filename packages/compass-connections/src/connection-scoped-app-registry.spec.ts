@@ -1,15 +1,16 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import type { ConnectionInfoAccess } from './connection-info-provider';
+import type { ConnectionInfoRef } from './connection-info-provider';
 import { ConnectionScopedAppRegistryImpl } from './connection-scoped-app-registry';
 
-const connectionInfoAccess: ConnectionInfoAccess = {
-  getCurrentConnectionInfo() {
+const connectionInfoRef: ConnectionInfoRef = {
+  get current() {
     return {
       id: '1234',
       connectionOptions: {
         connectionString: 'mongodb://webscales.com:27017',
       },
+      title: '',
     };
   },
 };
@@ -20,7 +21,7 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
     const newAppRegistryEmitter =
       new ConnectionScopedAppRegistryImpl<'schema-analyzed'>(
         emitSpy,
-        connectionInfoAccess
+        connectionInfoRef
       );
 
     newAppRegistryEmitter.emit('schema-analyzed');
@@ -34,7 +35,7 @@ describe('ConnectionScopedGlobalAppRegistry', function () {
     const newAppRegistryEmitter =
       new ConnectionScopedAppRegistryImpl<'schema-analyzed'>(
         emitSpy,
-        connectionInfoAccess
+        connectionInfoRef
       );
 
     newAppRegistryEmitter.emit('schema-analyzed', { record: true });

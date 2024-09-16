@@ -1,48 +1,29 @@
-import React, { createContext, useContext, useState } from 'react';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import React, { createContext, useContext, useRef } from 'react';
+import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   createServiceLocator,
   createServiceProvider,
 } from 'hadron-app-registry';
 import {
-  ConnectionsStoreContext,
   useConnectionForId,
+  useConnectionInfoForId,
   useConnectionInfoRefForId,
 } from './stores/store-context';
-import type { ConnectionId } from './stores/connections-store-redux';
+import type {
+  ConnectionId,
+  ConnectionState,
+} from './stores/connections-store-redux';
 
 export type { ConnectionInfo };
-
-export type ConnectionInfoAccess = {
-  getCurrentConnectionInfo(): ConnectionInfo;
-};
-
-const ConnectionInfoContext = createContext<ConnectionInfo | null>(null);
 
 const ConnectionIdContext = createContext<ConnectionId | null>(null);
 
 /**
- * @deprecated define connection for your test separately
+ * @internal never to be used outside of the test environment or re-exported
+ * from this package
  */
-export const TEST_CONNECTION_INFO: ConnectionInfo = {
-  id: 'TEST',
-  connectionOptions: {
-    connectionString: 'mongodb://localhost:27020',
-  },
-};
-
-export function useConnectionInfo() {
-  const connectionInfo = useContext(ConnectionInfoContext);
-  if (!connectionInfo) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error(
-        'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
-      );
-    }
-    return TEST_CONNECTION_INFO;
-  }
-  return connectionInfo;
-}
+export const TestEnvCurrentConnectionContext =
+  createContext<ConnectionState | null>(null);
 
 export const ConnectionInfoProvider: React.FC<{
   connectionInfoId: string;
@@ -53,91 +34,63 @@ export const ConnectionInfoProvider: React.FC<{
   connectionInfoId,
   children,
 }) {
-  const connection = useConnectionForId(connectionInfoId);
+  const connectionFromState = useConnectionForId(connectionInfoId);
+  const testEnvConnection = useContext(TestEnvCurrentConnectionContext);
+  const connection = connectionFromState ?? testEnvConnection;
   const isConnected = connection?.status === 'connected';
   return isConnected ? (
     <ConnectionIdContext.Provider value={connection.info.id}>
-      <ConnectionInfoContext.Provider value={connection.info}>
-        {typeof children === 'function' ? children(connection.info) : children}
-      </ConnectionInfoContext.Provider>
+      {typeof children === 'function' ? children(connection.info) : children}
     </ConnectionIdContext.Provider>
   ) : null;
 });
 
 /**
- * @deprecated use `useConnectionInfoRef` instead
+ * Returns the value of the connectionInfo that is applied to the current scope
+ * (part of the React rendering tree). Throws if connection info doesn't exist
  */
-export const useConnectionInfoAccess = (): ConnectionInfoAccess => {
-  let connectionId = useContext(ConnectionIdContext);
-  if (!connectionId) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error(
-        'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
-      );
-    }
-    connectionId = TEST_CONNECTION_INFO.id;
+export function useConnectionInfo() {
+  const connectionId = useContext(ConnectionIdContext);
+  const testEnvConnection = useContext(TestEnvCurrentConnectionContext);
+  const connectionInfoFromState = useConnectionInfoForId(connectionId ?? '');
+  const connectionInfo = connectionInfoFromState ?? testEnvConnection?.info;
+  if (!connectionInfo) {
+    throw new Error(
+      'Can not access connection info inside a `useConnectionInfo` hook. Make sure that you are only calling this hook inside connected application scope'
+    );
   }
-  // TODO: remove when all tests are using new testing helpers
-  if (!useContext(ConnectionsStoreContext) && process.env.NODE_ENV === 'test') {
-    return {
-      getCurrentConnectionInfo() {
-        return TEST_CONNECTION_INFO;
-      },
-    };
-  }
-  // This is stable in all environments
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const connectionInfoRef = useConnectionInfoRefForId(connectionId);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [access] = useState(() => {
-    // Return the function from useState to make sure the value doesn't change
-    // when component re-renders
-    return {
-      getCurrentConnectionInfo() {
-        if (!connectionInfoRef.current) {
-          if (process.env.NODE_ENV !== 'test') {
-            throw new Error(
-              'Could not find the current ConnectionInfo. Did you forget to setup the ConnectionInfoContext?'
-            );
-          }
-          return TEST_CONNECTION_INFO;
-        }
-        return connectionInfoRef.current;
-      },
-    };
-  });
-  return access;
-};
-export const connectionInfoAccessLocator = createServiceLocator(
-  useConnectionInfoAccess,
-  'connectionInfoAccessLocator'
-);
-
-type FirstArgument<F> = F extends (...args: [infer A, ...any]) => any
-  ? A
-  : F extends { new (...args: [infer A, ...any]): any }
-  ? A
-  : never;
-
-/**
- * @deprecated instead of using HOC, refactor class component to functional
- * component
- */
-function withConnectionInfoAccess<
-  T extends ((...args: any[]) => any) | { new (...args: any[]): any }
->(
-  ReactComponent: T
-): React.FunctionComponent<Omit<FirstArgument<T>, 'connectionInfoAccess'>> {
-  const WithConnectionInfoAccess = (
-    props: Omit<FirstArgument<T>, 'connectionInfoAccess'> & React.Attributes
-  ) => {
-    const connectionInfoAccess = useConnectionInfoAccess();
-    return React.createElement(ReactComponent, {
-      ...props,
-      connectionInfoAccess,
-    });
-  };
-  return WithConnectionInfoAccess;
+  return connectionInfo;
 }
 
-export { withConnectionInfoAccess };
+export type ConnectionInfoRef = {
+  readonly current: ConnectionInfo & { title: string };
+};
+
+/**
+ * Returns a stable ref object with the value of the connectionInfo that is
+ * applied to the current scope (part of the React rendering tree). Throws if
+ * connection info doesn't exist
+ */
+export const useConnectionInfoRef = () => {
+  const connectionId = useContext(ConnectionIdContext);
+  const testEnvConnection = useContext(TestEnvCurrentConnectionContext);
+  const testEnvConnectionRef = useRef(testEnvConnection?.info);
+  testEnvConnectionRef.current = testEnvConnection?.info;
+  const connectionInfoRefFromStore = useConnectionInfoRefForId(
+    connectionId ?? ''
+  );
+  const connectionInfoRef = connectionInfoRefFromStore.current
+    ? connectionInfoRefFromStore
+    : testEnvConnectionRef;
+  if (!connectionInfoRef.current) {
+    throw new Error(
+      'Can not access connection info inside a `useConnectionInfoRef` hook. Make sure that you are only calling this hook inside connected application scope'
+    );
+  }
+  return connectionInfoRef as ConnectionInfoRef;
+};
+
+export const connectionInfoRefLocator = createServiceLocator(
+  useConnectionInfoRef,
+  'connectionInfoRefLocator'
+);
