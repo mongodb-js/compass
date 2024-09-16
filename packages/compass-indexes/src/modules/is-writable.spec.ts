@@ -12,7 +12,9 @@ describe('is writable module', function () {
 
     context('when an unknown action is provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'something unknown' })).to.equal(INITIAL_STATE);
+        expect(reducer(undefined, { type: 'something unknown' })).to.equal(
+          INITIAL_STATE
+        );
       });
     });
   });
