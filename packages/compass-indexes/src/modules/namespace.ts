@@ -1,4 +1,5 @@
-'use strict';
+import type { AnyAction } from 'redux';
+
 /**
  * The prefix.
  */
@@ -22,7 +23,7 @@ export const INITIAL_STATE = '';
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === NAMESPACE_CHANGED) {
     return action.namespace;
   }
@@ -37,7 +38,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The namespace changed action.
  */
-export const namespaceChanged = (namespace) => ({
+export const namespaceChanged = (namespace: string) => ({
   type: NAMESPACE_CHANGED,
   namespace,
 });

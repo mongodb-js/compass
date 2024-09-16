@@ -16,9 +16,9 @@ describe('drop/create index is visible module', function () {
       });
     });
 
-    context('when an action is not provided', function () {
+    context('when an unknown action is provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
+        expect(reducer(undefined, { type: 'something else ' })).to.equal(INITIAL_STATE);
       });
     });
   });

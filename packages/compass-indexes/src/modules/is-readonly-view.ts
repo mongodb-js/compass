@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * The readonly view changed action name.
  */
@@ -16,7 +18,7 @@ export const INITIAL_STATE = false;
  *
  * @returns {Boolean} The state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === READONLY_VIEW_CHANGED) {
     return action.isReadonlyView;
   }
@@ -30,7 +32,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {import('redux').AnyAction} The readonly view changed action.
  */
-export const readonlyViewChanged = (isReadonlyView) => ({
+export const readonlyViewChanged = (isReadonlyView: boolean) => ({
   type: READONLY_VIEW_CHANGED,
   isReadonlyView: isReadonlyView,
 });
