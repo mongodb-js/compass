@@ -108,9 +108,9 @@ const renderIndexList = (
       serverVersion="4.4.0"
       isWritable={true}
       readOnly={false}
-      onHideIndex={() => {}}
-      onUnhideIndex={() => {}}
-      onDeleteIndex={() => {}}
+      onHideIndexClick={() => {}}
+      onUnhideIndexClick={() => {}}
+      onDeleteIndexClick={() => {}}
       {...props}
     />
   );
