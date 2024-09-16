@@ -100,9 +100,13 @@ export const open = (
   dbName: string | null = null
 ): CreateNamespaceThunkAction<void, OpenAction> => {
   return (dispatch, _getState, { track }) => {
-    track('Screen', {
-      name: dbName ? 'create_collection_modal' : 'create_database_modal',
-    });
+    track(
+      'Screen',
+      {
+        name: dbName ? 'create_collection_modal' : 'create_database_modal',
+      },
+      undefined
+    );
 
     dispatch({
       type: CreateNamespaceActionTypes.Open,
@@ -370,8 +374,9 @@ export const createNamespace = (
   ) => {
     const { databaseName, connectionId } = getState();
     const kind = databaseName !== null ? 'Collection' : 'Database';
-    const dbName = databaseName ?? data.database;
-    const collName = data.collection;
+
+    const dbName = databaseName ?? data.database?.trim();
+    const collName = data.collection.trim();
     const namespace = `${dbName}.${collName}`;
 
     dispatch(clearError());

@@ -29,6 +29,7 @@ import mongodbBuildInfo, { getGenuineMongoDB } from 'mongodb-build-info';
 import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
+import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -182,7 +183,7 @@ type ThunkExtraArg = {
   logger: Logger;
   getExtraConnectionData: (
     connectionInfo: ConnectionInfo
-  ) => Promise<[Record<string, unknown>, string | null]>;
+  ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
   connectFn?: typeof devtoolsConnect;
 };
 

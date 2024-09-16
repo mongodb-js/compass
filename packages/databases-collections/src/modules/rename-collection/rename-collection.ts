@@ -9,6 +9,8 @@ import { openToast } from '@mongodb-js/compass-components';
  * Open action name.
  */
 const OPEN = 'databases-collections/rename-collection/OPEN';
+const CONFIRMATION_REQUIRED =
+  'databases-collections/rename-collection/CONFIRMATION_REQUIRED';
 const CLOSE = 'database-collections/rename-collection/CLOSE';
 const RENAME_REQUEST_IN_PROGRESS =
   'database-collections/rename-collection/TOGGLE_IS_RUNNING';
@@ -46,6 +48,10 @@ export const renameRequestInProgress = () => ({
   type: RENAME_REQUEST_IN_PROGRESS,
 });
 
+export const confirmationRequired = () => ({
+  type: CONFIRMATION_REQUIRED,
+});
+
 const handleError = (error: Error | null) => ({
   type: HANDLE_ERROR,
   error,
@@ -55,7 +61,7 @@ export type RenameCollectionRootState = {
   error: Error | null;
   initialCollectionName: string;
   isRunning: boolean;
-  isVisible: boolean;
+  modalState: 'input-form' | 'confirmation-screen' | 'hidden';
   connectionId: string;
   databaseName: string;
   collections: { name: string }[];
@@ -64,7 +70,7 @@ export type RenameCollectionRootState = {
 
 const defaultState: RenameCollectionRootState = {
   isRunning: false,
-  isVisible: false,
+  modalState: 'hidden',
   error: null,
   connectionId: '',
   databaseName: '',
@@ -87,7 +93,7 @@ const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
       collections: action.collections,
       areSavedQueriesAndAggregationsImpacted:
         action.areSavedQueriesAndAggregationsImpacted,
-      isVisible: true,
+      modalState: 'input-form',
       isRunning: false,
       error: null,
     };
@@ -101,13 +107,37 @@ const reducer: Reducer<RenameCollectionRootState, AnyAction> = (
     return {
       ...state,
       error: action.error,
+      modalState: 'input-form',
       isRunning: false,
+    };
+  } else if (action.type === CONFIRMATION_REQUIRED) {
+    return {
+      ...state,
+      modalState: 'confirmation-screen',
     };
   }
   return state;
 };
 
 export default reducer;
+
+export const submitModal = (
+  newCollectionName: string
+): ThunkAction<
+  Promise<void>,
+  RenameCollectionRootState,
+  RenameCollectionPluginServices,
+  AnyAction
+> => {
+  return async (dispatch, getState) => {
+    const { modalState } = getState();
+    if (modalState !== 'confirmation-screen') {
+      dispatch(confirmationRequired());
+    } else {
+      await dispatch(renameCollection(newCollectionName));
+    }
+  };
+};
 
 export const hideModal = (): ThunkAction<
   void,
@@ -147,6 +177,7 @@ export const renameCollection = (
     getState,
     { connectionsManager, globalAppRegistry }
   ) => {
+    const sanitizedNewCollectionName = newCollectionName.trim();
     const state = getState();
     const { connectionId, databaseName, initialCollectionName } = state;
     const dataService =
@@ -154,10 +185,13 @@ export const renameCollection = (
 
     dispatch(renameRequestInProgress());
     const oldNamespace = `${databaseName}.${initialCollectionName}`;
-    const newNamespace = `${databaseName}.${newCollectionName}`;
+    const newNamespace = `${databaseName}.${sanitizedNewCollectionName}`;
 
     try {
-      await dataService.renameCollection(oldNamespace, newCollectionName);
+      await dataService.renameCollection(
+        oldNamespace,
+        sanitizedNewCollectionName
+      );
       globalAppRegistry.emit(
         'collection-renamed',
         {
@@ -171,7 +205,7 @@ export const renameCollection = (
       dispatch(close());
       openToast('collection-rename-success', {
         variant: 'success',
-        title: `Collection renamed to ${newCollectionName}`,
+        title: `Collection renamed to ${sanitizedNewCollectionName}`,
         timeout: 5_000,
       });
     } catch (e) {

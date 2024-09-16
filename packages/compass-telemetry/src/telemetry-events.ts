@@ -1,3 +1,6 @@
+/**
+ * Traits sent along with the Segment identify call
+ */
 export type IdentifyTraits = {
   /**
    * Shortened version number (e.g., '1.29').
@@ -57,6 +60,11 @@ export type IdentifyTraits = {
    * The release identifier of the operating system.
    * This can provide additional details about the operating system release or
    * version (e.g. the kernel version for a specific macOS release).
+   *
+   * NOTE: This property helps determine the macOS version in use. The reported
+   * version corresponds to the Darwin kernel version, which can be mapped
+   * to the respective macOS release using the conversion table available at:
+   * https://en.wikipedia.org/wiki/MacOS_version_history.
    */
   os_release?: string;
 
@@ -75,16 +83,18 @@ export type IdentifyTraits = {
   os_linux_release?: string;
 };
 
+export type ConnectionScopedProperties = {
+  /**
+   * The id of the connection associated to this event.
+   */
+  connection_id: string | undefined;
+};
+
 /**
  * Events that are connection scoped are associated with one connection.
  */
 type ConnectionScoped<E extends { payload: unknown }> = E & {
-  payload: E['payload'] & {
-    /**
-     * The id of the connection associated to this event.
-     */
-    connection_id: string;
-  };
+  payload: E['payload'] & ConnectionScopedProperties;
 };
 
 /**
@@ -478,7 +488,7 @@ type AggregationExportOpenedEvent = ConnectionScoped<{
      * The number of stages present in the aggregation at the moment when
      * the even has been fired.
      */
-    num_stages: undefined | number;
+    num_stages?: undefined | number;
   };
 }>;
 
@@ -494,7 +504,7 @@ type AggregationExportedEvent = ConnectionScoped<{
      * The number of stages present in the aggregation at the moment when
      * the even has been fired.
      */
-    num_stages: undefined | number;
+    num_stages?: undefined | number;
 
     /**
      * The language to which the query has been exported.
@@ -636,6 +646,83 @@ type ConnectionAttemptEvent = ConnectionScoped<{
   };
 }>;
 
+export type ExtraConnectionData = {
+  /**
+   * Desktop only. The authentication type used in the connection.
+   */
+  auth_type?: string;
+
+  /**
+   * Desktop only. The type of tunneling used in the connection.
+   */
+  tunnel?: string;
+
+  /**
+   * Desktop only. Specifies if SRV is used in the connection.
+   */
+  is_srv?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection is targeting localhost.
+   */
+  is_localhost?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection URL is an Atlas URL.
+   */
+  is_atlas_url?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection URL is a DigitalOcean URL.
+   */
+  is_do_url?: boolean;
+
+  /**
+   * Desktop only. Specifies if the connection is in a public cloud.
+   */
+  is_public_cloud?: boolean;
+
+  /**
+   * The name of the public cloud provider, if applicable.
+   */
+  public_cloud_name?: string;
+
+  /**
+   * Specifies if Client-Side Field Level Encryption (CSFLE) is used.
+   */
+  is_csfle?: boolean;
+
+  /**
+   * Specifies if CSFLE schema is present.
+   */
+  has_csfle_schema?: boolean;
+
+  /**
+   * Specifies if KMS AWS is used.
+   */
+  has_kms_aws?: boolean;
+
+  /**
+   * Specifies if KMS GCP is used.
+   */
+  has_kms_gcp?: boolean;
+
+  /**
+   * Specifies if KMS KMIP is used.
+   */
+  has_kms_kmip?: boolean;
+
+  /**
+   * Specifies if KMS Local is used.
+   */
+  has_kms_local?: boolean;
+
+  /**
+   * Specifies if KMS Azure is used.
+   */
+  has_kms_azure?: boolean;
+};
+
 /**
  * This event is fired when user successfully connects to a new server/cluster.
  *
@@ -645,17 +732,17 @@ type NewConnectionEvent = ConnectionScoped<{
   name: 'New Connection';
   payload: {
     /**
-     * Specifies if the connection is targeting an atlas cluster.
+     * Specifies if the connection is targeting an Atlas cluster.
      */
     is_atlas: boolean;
 
     /**
-     * The first resolved srv hostname in case the connection is targeting an atlas cluster.
+     * The first resolved SRV hostname in case the connection is targeting an Atlas cluster.
      */
     atlas_hostname: string | null;
 
     /**
-     * Specifies that the connection is targeting an atlas local deployment.
+     * Specifies that the connection is targeting an Atlas local deployment.
      */
     is_local_atlas: boolean;
 
@@ -665,7 +752,7 @@ type NewConnectionEvent = ConnectionScoped<{
     is_dataLake: boolean;
 
     /**
-     * Specifies that the connection is targeting an atlas local deployment.
+     * Specifies that the connection is targeting an Atlas Enterprise deployment.
      */
     is_enterprise: boolean;
 
@@ -687,19 +774,20 @@ type NewConnectionEvent = ConnectionScoped<{
     /**
      * The host architecture of the connected server.
      */
-    server_arch: string | undefined;
+    server_arch?: string;
 
     /**
-     * The os family of the connected server.
+     * The OS family of the connected server.
      */
-    server_os_family: string | undefined;
+    server_os_family?: string;
 
     /**
      * The type of connected topology.
      */
     topology_type: string;
-  };
+  } & ExtraConnectionData;
 }>;
+
 /**
  * This event is fired when a connection attempt fails.
  *
@@ -717,7 +805,7 @@ type ConnectionFailedEvent = ConnectionScoped<{
      * The error name.
      */
     error_name: string;
-  };
+  } & ExtraConnectionData;
 }>;
 
 /**
@@ -1291,7 +1379,7 @@ type AiQueryFeedbackEvent = ConnectionScoped<{
   payload: {
     feedback: 'positive' | 'negative';
     text: string;
-    request_id: string;
+    request_id: string | null;
   };
 }>;
 
@@ -1369,7 +1457,7 @@ type PipelineAiFeedbackEvent = ConnectionScoped<{
      * The id of the request related to this feedback. Useful to correlate
      * feedback to potential error lines in the logs.
      */
-    request_id: string;
+    request_id: string | null;
 
     /**
      * The feedback comment left by the user.
@@ -2340,7 +2428,37 @@ type ScreenEvent = ConnectionScoped<{
     /**
      * The name of the screen that was activated.
      */
-    name?: string;
+    name?:
+      | 'aggregations'
+      | 'collections'
+      | 'databases'
+      | 'documents'
+      | 'indexes'
+      | 'my_queries'
+      | 'performance'
+      | 'schema'
+      | 'validation'
+      | 'confirm_new_pipeline_modal'
+      | 'create_collection_modal'
+      | 'create_database_modal'
+      | 'drop_collection_modal'
+      | 'drop_database_modal'
+      | 'create_index_modal'
+      | 'create_search_index_modal'
+      | 'create_view_modal'
+      | 'csfle_connection_modal'
+      | 'delete_pipeline_modal'
+      | 'drop_index_modal'
+      | 'export_modal'
+      | 'export_to_language_modal'
+      | 'import_modal'
+      | 'insert_document_modal'
+      | 'non_genuine_mongodb_modal'
+      | 'rename_collection_modal'
+      | 'restore_pipeline_modal'
+      | 'save_pipeline_modal'
+      | 'shell_info_modal'
+      | 'update_search_index_modal';
   };
 }>;
 

@@ -50,9 +50,13 @@ export function activatePlugin(
       collection,
     } = namespace;
     const namespaceLabel = isCollection ? 'Collection' : 'Database';
-    track('Screen', {
-      name: isCollection ? 'drop_collection_modal' : 'drop_database_modal',
-    });
+    track(
+      'Screen',
+      {
+        name: isCollection ? 'drop_collection_modal' : 'drop_database_modal',
+      },
+      undefined
+    );
     const confirmed = await showConfirmation({
       variant: 'danger',
       title: `Drop ${namespaceLabel}`,

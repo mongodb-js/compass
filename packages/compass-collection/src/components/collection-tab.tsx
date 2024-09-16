@@ -24,8 +24,19 @@ import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
 
+type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
+  ? U extends string
+    ? ReplaceSpacesWithUnderscores<U>
+    : never
+  : never;
+
+type ReplaceSpacesWithUnderscores<S extends string> =
+  S extends `${infer Head} ${infer Tail}`
+    ? `${Head}_${ReplaceSpacesWithUnderscores<Tail>}`
+    : S;
+
 function trackingIdForTabName(name: string) {
-  return name.toLowerCase().replace(/ /g, '_');
+  return name.toLowerCase().replace(/ /g, '_') as CollectionSubtabTrackingId;
 }
 
 const collectionStyles = css({

@@ -43,6 +43,7 @@
     "update-authors": "node scripts/generate-authors.js",
     "preupdate-third-party-notices": "npm run -w packages/compass compile",
     "update-third-party-notices": "cp packages/compass/THIRD-PARTY-NOTICES.md .",
+    "update-tracking-plan": "npx ts-node scripts/generate-tracking-plan.ts > docs/tracking-plan.md",
     "bump-packages": "bump-monorepo-packages",
     "publish-packages": "lerna publish from-package --no-verify-access --no-push --no-git-tag-version --yes",
     "version": "node ./scripts/align-monorepo-dependencies.js --no-commit",
