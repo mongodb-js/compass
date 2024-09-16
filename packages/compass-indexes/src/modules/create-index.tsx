@@ -36,7 +36,7 @@ export enum ActionTypes {
 
 export type Field = { name: string; type: string };
 
-export const INITIAL_FIELDS_STATE = [{ name: '', type: '' }];
+const INITIAL_FIELDS_STATE = [{ name: '', type: '' }];
 
 type FieldAddedAction = {
   type: ActionTypes.FieldAdded;
@@ -90,11 +90,6 @@ export type IndexCreationFailedAction = {
   inProgressIndexId: string;
   error: string;
 };
-
-export const UNSUPPORTED_COLUMNSTORE_INDEX_OPTIONS: OptionNames[] = [
-  'sparse',
-  'unique',
-];
 
 export const fieldAdded = () => ({
   type: ActionTypes.FieldAdded,
@@ -207,7 +202,7 @@ export const OPTIONS = {
   },
 } as const;
 
-export type OptionNames = keyof typeof OPTIONS;
+type OptionNames = keyof typeof OPTIONS;
 
 export type CheckboxOptions = {
   [k in OptionNames]: typeof OPTIONS[k]['type'] extends 'checkbox' ? k : never;
@@ -252,7 +247,7 @@ export function optionToggled<O extends OptionNames>(
   return { type: ActionTypes.OptionToggled, name: optionName, enabled };
 }
 
-export const INITIAL_OPTIONS_STATE = Object.fromEntries(
+const INITIAL_OPTIONS_STATE = Object.fromEntries(
   (Object.keys(OPTIONS) as OptionNames[]).map((name) => {
     return [
       name,
