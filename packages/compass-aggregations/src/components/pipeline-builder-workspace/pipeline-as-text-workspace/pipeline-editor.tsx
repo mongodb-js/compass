@@ -21,7 +21,7 @@ import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const containerStyles = css({
   position: 'relative',
@@ -81,7 +81,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 }) => {
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useRef<string>(pipelineText);
   editorCurrentValueRef.current = pipelineText;
@@ -108,11 +108,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           num_stages,
           editor_view_type: 'text',
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [num_stages, track, connectionInfoAccess]);
+  }, [num_stages, track, connectionInfoRef]);
 
   const annotations: Annotation[] = useMemo(() => {
     return syntaxErrors

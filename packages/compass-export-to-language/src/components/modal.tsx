@@ -23,7 +23,7 @@ import { countAggregationStagesInString } from '../modules/count-aggregation-sta
 import { usePreference } from 'compass-preferences-model/provider';
 import { prettify } from '@mongodb-js/compass-editor';
 import { closeModal } from '../stores';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type LanguageOption = {
   displayName: string;
@@ -101,7 +101,7 @@ const ExportToLanguageModal: React.FunctionComponent<
   }
 > = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);
@@ -147,7 +147,7 @@ const ExportToLanguageModal: React.FunctionComponent<
 
   useEffect(() => {
     if (modalOpen && !wasOpen) {
-      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      const connectionInfo = connectionInfoRef.current;
 
       if (mode === 'Query') {
         track('Query Export Opened', {}, connectionInfo);
@@ -169,7 +169,7 @@ const ExportToLanguageModal: React.FunctionComponent<
     }
 
     setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoAccess]);
+  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoRef]);
 
   const trackCopiedOutput = useCallback(() => {
     const commonProps = {
@@ -180,23 +180,11 @@ const ExportToLanguageModal: React.FunctionComponent<
     };
 
     if (mode === 'Update Query') {
-      track(
-        'Update Exported',
-        commonProps,
-        connectionInfoAccess.getCurrentConnectionInfo()
-      );
+      track('Update Exported', commonProps, connectionInfoRef.current);
     } else if (mode === 'Delete Query') {
-      track(
-        'Delete Exported',
-        commonProps,
-        connectionInfoAccess.getCurrentConnectionInfo()
-      );
+      track('Delete Exported', commonProps, connectionInfoRef.current);
     } else if (mode === 'Query') {
-      track(
-        'Query Exported',
-        commonProps,
-        connectionInfoAccess.getCurrentConnectionInfo()
-      );
+      track('Query Exported', commonProps, connectionInfoRef.current);
     } else if (mode === 'Pipeline') {
       track(
         'Aggregation Exported',
@@ -204,12 +192,12 @@ const ExportToLanguageModal: React.FunctionComponent<
           ...commonProps,
           ...stageCountForTelemetry(inputExpression),
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
     }
   }, [
     track,
-    connectionInfoAccess,
+    connectionInfoRef,
     outputLanguage,
     includeImports,
     includeDrivers,
