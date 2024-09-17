@@ -280,8 +280,3 @@ describe('#getInitialVectorSearchIndexPipelineText', function () {
       index: "pineapple",`);
   });
 });
-
-/*
-fetchIndexes
-refreshSearchIndexes
-*/
