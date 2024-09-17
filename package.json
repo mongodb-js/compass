@@ -91,5 +91,10 @@
     "packages/*",
     "configs/*",
     "scripts"
-  ]
+  ],
+  "overrides": {
+    "@types/enzyme": {
+      "@types/react": "^17.0.5"
+    }
+  }
 }

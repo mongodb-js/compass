@@ -180,13 +180,13 @@ export const openExplainPlanModal = (
       dataService,
       preferences,
       track,
-      connectionInfoAccess,
+      connectionInfoRef,
       logger: { log, mongoLogId },
     }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
 
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
 
     let rawExplainPlan = null;
     let explainPlan = null;

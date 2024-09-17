@@ -7,7 +7,7 @@ import { type WorkspaceComponent } from '@mongodb-js/compass-workspaces';
 import {
   dataServiceLocator,
   type DataService,
-  connectionInfoAccessLocator,
+  connectionInfoRefLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 
@@ -21,7 +21,7 @@ export const CompassShellPlugin = registerHadronPlugin(
     logger: createLoggerLocator('COMPASS-SHELL'),
     track: telemetryLocator,
     dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
-    connectionInfo: connectionInfoAccessLocator,
+    connectionInfo: connectionInfoRefLocator,
     preferences: preferencesLocator,
   }
 );

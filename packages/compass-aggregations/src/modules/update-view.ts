@@ -88,7 +88,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       logger: { debug },
       track,
       connectionScopedAppRegistry,
-      connectionInfoAccess,
+      connectionInfoRef,
     }
   ) => {
     dispatch(dismissViewError());
@@ -101,7 +101,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
       return;
     }
 
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
 
     const viewPipeline = getPipelineFromBuilderState(
       getState(),

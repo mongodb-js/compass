@@ -2,7 +2,7 @@ import ExplainPlanModal from './components/explain-plan-modal';
 import { activatePlugin } from './stores';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
-  connectionInfoAccessLocator,
+  connectionInfoRefLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -19,7 +19,7 @@ const ExplainPlanModalPlugin = registerHadronPlugin(
   {
     logger: createLoggerLocator('EXPLAIN-PLAN-MODAL-UI'),
     track: telemetryLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
+    connectionInfoRef: connectionInfoRefLocator,
     dataService: dataServiceLocator as DataServiceLocator<
       'explainAggregate' | 'explainFind' | 'isCancelError'
     >,

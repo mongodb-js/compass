@@ -216,7 +216,7 @@ export const runAIPipelineGeneration = (
       preferences,
       logger: { log, mongoLogId },
       track,
-      connectionInfoAccess,
+      connectionInfoRef,
     }
   ) => {
     const {
@@ -228,7 +228,7 @@ export const runAIPipelineGeneration = (
       dataService: { dataService },
     } = getState();
 
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
 
     const provideSampleDocuments =
       preferences.getPreferences().enableGenAISampleDocumentPassing;

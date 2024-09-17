@@ -38,6 +38,7 @@
     "@mongodb-js/testing-library-compass": "^1.0.1",
     "@mongodb-js/tsconfig-compass": "^1.0.5",
     "@types/babel__generator": "^7.6.8",
+    "@types/enzyme": "^3.10.14",
     "@types/lodash": "^4.14.188",
     "@types/semver": "^7.3.9",
     "chai": "^4.3.6",

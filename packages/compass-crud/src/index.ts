@@ -8,7 +8,7 @@ import {
   activateDocumentsPlugin,
 } from './stores/crud-store';
 import {
-  connectionInfoAccessLocator,
+  connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
   dataServiceLocator,
   type DataServiceLocator,
@@ -47,7 +47,7 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
     favoriteQueryStorageAccess: favoriteQueryStorageAccessLocator,
     recentQueryStorageAccess: recentQueryStorageAccessLocator,
     fieldStoreService: fieldStoreServiceLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
+    connectionInfoRef: connectionInfoRefLocator,
     connectionScopedAppRegistry:
       connectionScopedAppRegistryLocator<EmittedAppRegistryEvents>,
     queryBar: queryBarServiceLocator,

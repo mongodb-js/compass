@@ -1579,7 +1579,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
  * ```
  */
 async function setCodemirrorEditorValue(
-  element: HTMLElement | string | null,
+  element: Element | string | null,
   text: string
 ): Promise<void> {
   if (typeof element === 'string') {
@@ -1606,9 +1606,7 @@ async function setCodemirrorEditorValue(
  * getCodemirrorEditorValue(screen.getByTestId('editor-test-id'));
  * ```
  */
-function getCodemirrorEditorValue(
-  element: HTMLElement | string | null
-): string {
+function getCodemirrorEditorValue(element: Element | string | null): string {
   if (typeof element === 'string') {
     element = document.querySelector<HTMLElement>(`[data-testid="${element}"]`);
   }

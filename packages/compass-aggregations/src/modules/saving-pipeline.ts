@@ -166,7 +166,7 @@ export const openCreateView = (): PipelineBuilderThunkAction<void> => {
   return (
     _dispatch,
     getState,
-    { pipelineBuilder, globalAppRegistry, connectionInfoAccess }
+    { pipelineBuilder, globalAppRegistry, connectionInfoRef }
   ) => {
     const state = getState();
     const sourceNs = state.namespace;
@@ -180,8 +180,7 @@ export const openCreateView = (): PipelineBuilderThunkAction<void> => {
       pipeline: sourcePipeline,
     };
 
-    const { id: connectionId } =
-      connectionInfoAccess.getCurrentConnectionInfo();
+    const { id: connectionId } = connectionInfoRef.current;
 
     globalAppRegistry.emit('open-create-view', meta, { connectionId });
   };

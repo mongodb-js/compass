@@ -30,10 +30,10 @@ import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from 'hadron-app-registry';
-import {
-  TEST_CONNECTION_INFO,
-  ConnectionScopedAppRegistryImpl,
-} from '@mongodb-js/compass-connections/provider';
+import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
 const MATCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   {
@@ -103,14 +103,12 @@ function createStore({
   ) as unknown as PipelineBuilder;
 
   const globalAppRegistry = new AppRegistry();
-  const connectionInfoAccess = {
-    getCurrentConnectionInfo() {
-      return TEST_CONNECTION_INFO;
-    },
+  const connectionInfoRef = {
+    current: { ...TEST_CONNECTION_INFO, title: '' },
   };
   const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
     globalAppRegistry.emit.bind(globalAppRegistry),
-    connectionInfoAccess
+    connectionInfoRef
   );
 
   const store = createReduxStore(
@@ -140,7 +138,7 @@ function createStore({
         logger: createNoopLogger(),
         track: createNoopTrack(),
         dataService: {} as any,
-        connectionInfoAccess,
+        connectionInfoRef,
         connectionScopedAppRegistry,
       })
     )

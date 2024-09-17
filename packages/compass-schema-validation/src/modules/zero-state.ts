@@ -48,13 +48,9 @@ export const zeroStateChanged = (
 export const changeZeroState = (
   isZeroState: boolean
 ): SchemaValidationThunkAction<void> => {
-  return (dispatch, _getState, { track, connectionInfoAccess }) => {
+  return (dispatch, _getState, { track, connectionInfoRef }) => {
     if (isZeroState === false) {
-      track(
-        'Schema Validation Added',
-        {},
-        connectionInfoAccess.getCurrentConnectionInfo()
-      );
+      track('Schema Validation Added', {}, connectionInfoRef.current);
     }
     return dispatch(zeroStateChanged(isZeroState));
   };
