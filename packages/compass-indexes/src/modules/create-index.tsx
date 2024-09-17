@@ -377,7 +377,6 @@ function isEmptyValue(value: unknown) {
   return false;
 }
 
-// TODO: arguably this should move to the root store
 export const createIndex = (): IndexesThunkAction<
   Promise<void>,
   | ErrorEncounteredAction
