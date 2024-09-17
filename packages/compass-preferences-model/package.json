@@ -65,6 +65,7 @@
     "@mongodb-js/eslint-config-compass": "^1.1.7",
     "@mongodb-js/mocha-config-compass": "^1.4.2",
     "@mongodb-js/testing-library-compass": "^1.0.1",
+    "@mongodb-js/tsconfig-compass": "^1.0.5",
     "@types/js-yaml": "^4.0.5",
     "@types/yargs-parser": "21.0.0",
     "chai": "^4.3.6",
