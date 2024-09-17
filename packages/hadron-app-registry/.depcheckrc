@@ -4,3 +4,7 @@ ignores:
  - "@types/chai"
  - "@types/sinon-chai"
  - "sinon"
+# TODO(COMPASS-8312): depcheck doesn't count this dependency because it's a
+# types only import and the depcheck parser is resolving the @types/<name>
+# package as a dep instead
+ - "reflux"

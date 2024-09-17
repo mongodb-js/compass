@@ -70,12 +70,9 @@
   },
   "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
-    "@babel/core": "7.16.0",
-    "@babel/parser": "7.16.0",
     "@mongodb-js/monorepo-tools": "^1.1.1",
     "@mongodb-js/sbom-tools": "^0.7.0",
     "@testing-library/dom": "^8.20.1",
-    "babel-loader": "^7.1.5",
     "husky": "^8.0.3",
     "js-yaml": "^4.1.0",
     "lerna": "^7.1.5",
