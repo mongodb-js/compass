@@ -247,8 +247,9 @@ export const fetchIndexes = (
 
     try {
       dispatch(fetchIndexesStarted(isRefreshing));
-      // The number in the header could go up or down whenever an index is added
-      // or removed.
+      // This makes sure that when the user or something else triggers a
+      // re-fetch for the list of indexes with this action, the tab header also
+      // gets updated.
       localAppRegistry.emit('refresh-collection-stats');
       const indexes = await dataService.indexes(namespace);
       dispatch(fetchIndexesSucceeded(indexes));
