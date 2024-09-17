@@ -15,7 +15,7 @@ const bannerStyles = css({
   width: '100%',
 });
 
-const onCreateIndexClickButtonStyles = css({
+const createIndexButtonStyles = css({
   flex: 'none',
 });
 
@@ -85,7 +85,7 @@ function CreateIndexActions({
           data-testid="create-index-actions-create-index-button"
           onClick={onCreateIndexClick}
           variant="primary"
-          className={onCreateIndexClickButtonStyles}
+          className={createIndexButtonStyles}
         >
           Create Index
         </Button>
