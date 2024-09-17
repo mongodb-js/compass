@@ -388,7 +388,7 @@ export const createIndex = (): IndexesThunkAction<
   return async (
     dispatch,
     getState,
-    { dataService, track, connectionInfoAccess }
+    { dataService, track, connectionInfoRef }
   ) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
@@ -526,11 +526,7 @@ export const createIndex = (): IndexesThunkAction<
     try {
       await dataService.createIndex(ns, spec as IndexSpecification, options);
       dispatch(indexCreationSucceeded(inProgressIndex.id));
-      track(
-        'Index Created',
-        trackEvent,
-        connectionInfoAccess.getCurrentConnectionInfo()
-      );
+      track('Index Created', trackEvent, connectionInfoRef.current);
 
       // Start a new fetch so that the newly added index's details can be
       // loaded. indexCreationSucceeded() will remove the in-progress one, but
@@ -636,8 +632,10 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (
     isAction<CreateIndexClosedAction>(action, ActionTypes.CreateIndexClosed)
   ) {
-    // when hiding the modal also reset it
-    return getInitialState();
+    return {
+      ...state,
+      isVisible: false,
+    };
   }
 
   if (
@@ -658,7 +656,11 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
       ActionTypes.IndexCreationSucceeded
     )
   ) {
-    return getInitialState();
+    return {
+      ...getInitialState(),
+      // keep visibility in case it finishes while the modal is still open
+      isVisible: state.isVisible,
+    };
   }
 
   if (

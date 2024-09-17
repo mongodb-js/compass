@@ -288,7 +288,7 @@ export const dropIndex = (
   return async (
     dispatch,
     getState,
-    { connectionInfoAccess, dataService, track }
+    { connectionInfoRef, dataService, track }
   ) => {
     const { namespace, regularIndexes } = getState();
     const { indexes, inProgressIndexes } = regularIndexes;
@@ -310,7 +310,7 @@ export const dropIndex = (
     }
 
     try {
-      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      const connectionInfo = connectionInfoRef.current;
       track('Screen', { name: 'drop_index_modal' }, connectionInfo);
       const confirmed = await showConfirmation({
         variant: 'danger',
