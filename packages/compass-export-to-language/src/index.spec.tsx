@@ -2,7 +2,6 @@ import React from 'react';
 import {
   screen,
   render,
-  cleanup,
   within,
   waitFor,
   userEvent,

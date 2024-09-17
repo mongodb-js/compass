@@ -14,21 +14,21 @@ const { renderWithConnections } = createPluginTestHelpers(
       collectionInfo() {
         return Promise.resolve({});
       },
-    },
+    } as any,
     instance: {
       build: {
         version: '7.0.0',
       },
       on() {},
       removeListener() {},
-    },
+    } as any,
   }),
   {
     namespace: 'foo.bar',
-  }
+  } as any
 );
 
-describe.only('ValidationStates [Component]', function () {
+describe('ValidationStates [Component]', function () {
   let props: any;
 
   const render = (props: any) => {

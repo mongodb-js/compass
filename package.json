@@ -96,6 +96,9 @@
     "scripts"
   ],
   "overrides": {
-    "mongodb-client-encryption": "^6.1.0"
+    "mongodb-client-encryption": "^6.1.0",
+    "@types/enzyme": {
+      "@types/react": "^17.0.5"
+    }
   }
 }
