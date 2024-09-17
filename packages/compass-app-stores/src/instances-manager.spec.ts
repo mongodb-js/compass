@@ -4,8 +4,10 @@ import {
   MongoDBInstancesManager,
   MongoDBInstancesManagerEvents,
 } from './instances-manager';
-import { TEST_CONNECTION_INFO } from '@mongodb-js/compass-connections/provider';
 import { MongoDBInstance } from 'mongodb-instance-model';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
 describe('InstancesManager', function () {
   let instancesManager: MongoDBInstancesManager;

@@ -3,7 +3,7 @@ import { Button, Icon } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import Actions from '../actions';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 function removeMS(key: string, value: any) {
   if (key === 'ms_running') {
@@ -26,7 +26,7 @@ export function DetailViewComponent() {
   const [data, setData] = useState<null | CurrentOpData>(null);
 
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
 
   useEffect(() => {
     const unsubscribeShowOperationDetails = Actions.showOperationDetails.listen(
@@ -47,23 +47,15 @@ export function DetailViewComponent() {
   }, []);
 
   const hideOperationDetails = useCallback(() => {
-    track(
-      'DetailView hideOperationDetails',
-      {},
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    track('DetailView hideOperationDetails', {}, connectionInfoRef.current);
     Actions.hideOperationDetails();
-  }, [track, connectionInfoAccess]);
+  }, [track, connectionInfoRef]);
 
   const onKillOp = useCallback(() => {
-    track(
-      'DetailView killOp',
-      {},
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    track('DetailView killOp', {}, connectionInfoRef.current);
     if (data?.opid !== undefined) Actions.killOp(data.opid);
     hideOperationDetails();
-  }, [data, track, hideOperationDetails, connectionInfoAccess]);
+  }, [data, track, hideOperationDetails, connectionInfoRef]);
 
   if (!data) {
     return null;

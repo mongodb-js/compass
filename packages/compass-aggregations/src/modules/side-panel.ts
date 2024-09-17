@@ -40,7 +40,7 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     const {
       sidePanel: { isPanelOpen },
@@ -56,7 +56,7 @@ export const toggleSidePanel = (): PipelineBuilderThunkAction<
           num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder)
             .length,
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
     }
 

@@ -1,5 +1,5 @@
 import {
-  connectionInfoAccessLocator,
+  connectionInfoRefLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
@@ -28,7 +28,7 @@ export const CompassSchemaHadronPlugin = registerHadronPlugin(
     preferences: preferencesLocator,
     fieldStoreService: fieldStoreServiceLocator,
     queryBar: queryBarServiceLocator,
-    connectionInfoAccess: connectionInfoAccessLocator,
+    connectionInfoRef: connectionInfoRefLocator,
   }
 );
 export const CompassSchemaPlugin = {

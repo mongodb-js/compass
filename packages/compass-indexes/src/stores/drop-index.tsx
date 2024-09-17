@@ -10,14 +10,14 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type DropIndexInitialProps = Pick<CollectionTabPluginMetadata, 'namespace'>;
 
 type DropIndexServices = {
   localAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'dropIndex'>;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   logger: Logger;
   track: TrackFunction;
 };
@@ -28,13 +28,13 @@ export function activatePlugin(
     localAppRegistry,
     dataService,
     track,
-    connectionInfoAccess,
+    connectionInfoRef,
   }: DropIndexServices,
   { on, cleanup, signal }: ActivateHelpers
 ) {
   on(localAppRegistry, 'open-drop-index-modal', async (indexName: string) => {
     try {
-      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      const connectionInfo = connectionInfoRef.current;
       track('Screen', { name: 'drop_index_modal' }, connectionInfo);
       const confirmed = await showConfirmation({
         variant: 'danger',

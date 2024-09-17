@@ -9,7 +9,7 @@ import semver from 'semver';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers, AppRegistry } from 'hadron-app-registry';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
@@ -28,7 +28,7 @@ type SchemaValidationServices = {
     DataService,
     'aggregate' | 'collectionInfo' | 'updateCollection'
   >;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
   instance: MongoDBInstance;
   logger: Logger;
@@ -45,7 +45,7 @@ export function configureStore(
     | 'preferences'
     | 'logger'
     | 'track'
-    | 'connectionInfoAccess'
+    | 'connectionInfoRef'
   >
 ) {
   return createStore(
@@ -66,7 +66,7 @@ export function onActivated(
   {
     globalAppRegistry,
     dataService,
-    connectionInfoAccess,
+    connectionInfoRef,
     preferences,
     instance,
     logger,
@@ -87,7 +87,7 @@ export function onActivated(
     },
     {
       dataService,
-      connectionInfoAccess,
+      connectionInfoRef,
       preferences,
       globalAppRegistry,
       logger,

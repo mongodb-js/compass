@@ -11,7 +11,7 @@ import {
   useTrackOnChange,
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const containerStyle = css({
   display: 'flex',
@@ -41,18 +41,18 @@ const QueryHistory = ({
   onUpdateRecentChoosen,
 }: QueryHistoryProps) => {
   const [tab, setTab] = useState<QueryHistoryTab>('recent');
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
 
   useTrackOnChange(
     (track: TrackFunction) => {
-      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+      const connectionInfo = connectionInfoRef.current;
       if (tab === 'favorite') {
         track('Query History Favorites', {}, connectionInfo);
       } else {
         track('Query History Recent', {}, connectionInfo);
       }
     },
-    [tab, connectionInfoAccess],
+    [tab, connectionInfoRef],
     undefined
   );
 

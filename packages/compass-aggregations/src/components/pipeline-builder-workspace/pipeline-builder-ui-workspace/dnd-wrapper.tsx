@@ -17,7 +17,7 @@ import { UseCaseCardLayout } from '../../aggregation-side-panel/stage-wizard-use
 import type { PipelineBuilderUIWorkspaceProps } from '.';
 import type { DraggedUseCase } from '../../aggregation-side-panel/stage-wizard-use-cases/use-case-card';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 // Types
 type PipelineBuilderDndWrapperProps = {
@@ -72,7 +72,7 @@ const PipelineBuilderDndWrapper = ({
     })
   );
 
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
 
   const handleUseCaseDropped = useCallback(
     (event: DragEndEvent) => {
@@ -85,7 +85,7 @@ const PipelineBuilderDndWrapper = ({
             drag_and_drop: true,
             stage_name: draggedUseCase.stageOperator,
           },
-          connectionInfoAccess.getCurrentConnectionInfo()
+          connectionInfoRef.current
         );
         onUseCaseDropped(
           draggedUseCase.id,
@@ -95,7 +95,7 @@ const PipelineBuilderDndWrapper = ({
       }
       setDraggedUseCase(null);
     },
-    [draggedUseCase, onUseCaseDropped, track, connectionInfoAccess]
+    [draggedUseCase, onUseCaseDropped, track, connectionInfoRef]
   );
 
   const handleSortEnd = useCallback(

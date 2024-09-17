@@ -25,7 +25,7 @@ import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -98,7 +98,7 @@ export const StageEditor = ({
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
   const editorCurrentValueRef = useRef<string | null>(stageValue);
@@ -147,7 +147,7 @@ export const StageEditor = ({
           stage_name: stageOperator,
           editor_view_type: editor_view_type,
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
@@ -157,11 +157,12 @@ export const StageEditor = ({
     index,
     stageOperator,
     editor_view_type,
-    connectionInfoAccess,
+    connectionInfoRef,
   ]);
 
   return (
     <div
+      data-testid="stage-editor"
       className={cx(
         editorContainerStyles,
         darkMode ? editorContainerStylesDark : editorContainerStylesLight,

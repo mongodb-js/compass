@@ -537,7 +537,7 @@ export const changeStageOperator = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     const {
       env,
@@ -582,7 +582,7 @@ export const changeStageOperator = (
         stage_index: idxInPipeline + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
 
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
@@ -654,7 +654,7 @@ export const addStage = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     const {
       pipelineBuilder: {
@@ -677,7 +677,7 @@ export const addStage = (
         stage_index: stage.id + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
     dispatch({
       type: StageEditorActionTypes.StageAdded,
@@ -693,7 +693,7 @@ export const removeStage = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     const {
       pipelineBuilder: {
@@ -718,7 +718,7 @@ export const removeStage = (
         stage_index: idxInPipeline + 1,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
@@ -733,7 +733,7 @@ export const moveStage = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     if (from === to) {
       return;
@@ -779,7 +779,7 @@ export const moveStage = (
           stage_index: stageAtFromIdx.idxInPipeline + 1,
           editor_view_type: mapPipelineModeToEditorViewType(getState()),
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
 
       pipelineBuilder.moveStage(stageAtFromIdx.idxInPipeline, toIdxInPipeline);
@@ -907,7 +907,7 @@ export const convertWizardToStage = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     const {
       pipelineBuilder: {
@@ -939,7 +939,7 @@ export const convertWizardToStage = (
 
     stage.changeValue(formatWizardValue(itemAtIdx.value as string));
 
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
     track(
       'Aggregation Edited',
       {
