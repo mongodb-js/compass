@@ -30,10 +30,10 @@ const renderIndexList = (
       status="READY"
       isWritable={true}
       readOnly={false}
-      onDropIndex={noop}
-      onEditIndex={noop}
+      onDropIndexClick={noop}
+      onEditIndexClick={noop}
+      onOpenCreateModalClick={noop}
       onPollIndexes={noop}
-      openCreateModal={noop}
       {...props}
     />
   );
@@ -117,7 +117,7 @@ describe('SearchIndexesTable Component', function () {
     const openCreateSpy = sinon.spy();
     renderIndexList({
       indexes: [],
-      openCreateModal: openCreateSpy,
+      onOpenCreateModalClick: openCreateSpy,
     });
 
     expect(() => {
@@ -136,7 +136,7 @@ describe('SearchIndexesTable Component', function () {
     it('renders drop action and shows modal when clicked', function () {
       const onDropIndexSpy = sinon.spy();
 
-      renderIndexList({ onDropIndex: onDropIndexSpy });
+      renderIndexList({ onDropIndexClick: onDropIndexSpy });
       const dropIndexActions = screen.getAllByTestId(
         'search-index-actions-drop-action'
       );
@@ -149,7 +149,7 @@ describe('SearchIndexesTable Component', function () {
     it('renders edit action and shows modal when clicked', function () {
       const onEditIndexSpy = sinon.spy();
 
-      renderIndexList({ onEditIndex: onEditIndexSpy });
+      renderIndexList({ onEditIndexClick: onEditIndexSpy });
       const editIndexActions = screen.getAllByTestId(
         'search-index-actions-edit-action'
       );

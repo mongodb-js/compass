@@ -6,22 +6,16 @@ import thunk from 'redux-thunk';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
-import {
-  fetchIndexes,
-  inProgressIndexAdded,
-  inProgressIndexRemoved,
-  inProgressIndexFailed,
-  type InProgressIndex,
-} from '../modules/regular-indexes';
+import { createIndexOpened } from '../modules/create-index';
+import { fetchIndexes } from '../modules/regular-indexes';
 import {
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
   refreshSearchIndexes,
   SearchIndexesStatuses,
-  showCreateModal,
+  createSearchIndexOpened,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -102,37 +96,12 @@ export function activateIndexesPlugin(
     )
   );
 
-  on(localAppRegistry, 'refresh-regular-indexes', () => {
-    localAppRegistry.emit('refresh-collection-stats');
-    void store.dispatch(fetchIndexes());
+  on(localAppRegistry, 'open-create-index-modal', () => {
+    store.dispatch(createIndexOpened());
   });
-
-  on(
-    localAppRegistry,
-    'in-progress-indexes-added',
-    (index: InProgressIndex) => {
-      store.dispatch(inProgressIndexAdded(index));
-      // we have to merge the in-progress indexes with the regular indexes, so
-      // just fetch them again which will perform the merge
-      void store.dispatch(fetchIndexes());
-      store.dispatch(switchToRegularIndexes());
-    }
-  );
-
-  on(localAppRegistry, 'in-progress-indexes-removed', (id: string) => {
-    store.dispatch(inProgressIndexRemoved(id));
-  });
-
-  on(
-    localAppRegistry,
-    'in-progress-indexes-failed',
-    (data: { inProgressIndexId: string; error: string }) => {
-      store.dispatch(inProgressIndexFailed(data));
-    }
-  );
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
-    store.dispatch(showCreateModal());
+    store.dispatch(createSearchIndexOpened());
   });
 
   on(globalAppRegistry, 'refresh-data', () => {

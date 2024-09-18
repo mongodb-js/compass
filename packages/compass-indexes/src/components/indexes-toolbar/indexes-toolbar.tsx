@@ -23,11 +23,11 @@ import {
 import type { RootState } from '../../modules';
 import {
   SearchIndexesStatuses,
-  showCreateModal as onCreateSearchIndex,
+  createSearchIndexOpened,
 } from '../../modules/search-indexes';
-import { showCreateModal as onCreateRegularIndex } from '../../modules/regular-indexes';
+import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
-import { changeIndexView } from '../../modules/index-view';
+import { indexViewChanged } from '../../modules/index-view';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -54,12 +54,12 @@ type IndexesToolbarProps = {
   hasTooManyIndexes: boolean;
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
-  onChangeIndexView: (newView: IndexView) => void;
+  onIndexViewChanged: (newView: IndexView) => void;
   // connected:
   isReadonlyView: boolean;
   isWritable: boolean;
-  onCreateRegularIndex: () => void;
-  onCreateSearchIndex: () => void;
+  onCreateRegularIndexClick: () => void;
+  onCreateSearchIndexClick: () => void;
   writeStateDescription?: string;
   isAtlasSearchSupported: boolean;
   // via withPreferences:
@@ -71,14 +71,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   errorMessage,
   isReadonlyView,
   isWritable,
-  onCreateRegularIndex,
-  onCreateSearchIndex,
+  onCreateRegularIndexClick,
+  onCreateSearchIndexClick,
   isRefreshing,
   writeStateDescription,
   hasTooManyIndexes,
   isAtlasSearchSupported,
   onRefreshIndexes,
-  onChangeIndexView,
+  onIndexViewChanged,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
@@ -108,8 +108,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                       isSearchManagementActive={isSearchManagementActive}
                       isAtlasSearchSupported={isAtlasSearchSupported}
                       isWritable={isWritable}
-                      onCreateRegularIndex={onCreateRegularIndex}
-                      onCreateSearchIndex={onCreateSearchIndex}
+                      onCreateRegularIndexClick={onCreateRegularIndexClick}
+                      onCreateSearchIndexClick={onCreateSearchIndexClick}
                     ></CreateIndexButton>
                   </div>
                 }
@@ -135,7 +135,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             {isSearchManagementActive && (
               <SegmentedControl
                 size="xsmall"
-                onChange={(evt) => onChangeIndexView(evt as IndexView)}
+                onChange={(evt) => onIndexViewChanged(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
                 value={indexView}
@@ -203,8 +203,8 @@ type CreateIndexButtonProps = {
   isSearchManagementActive: boolean;
   isAtlasSearchSupported: boolean;
   isWritable: boolean;
-  onCreateRegularIndex: () => void;
-  onCreateSearchIndex: () => void;
+  onCreateRegularIndexClick: () => void;
+  onCreateSearchIndexClick: () => void;
 };
 
 type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
@@ -215,19 +215,19 @@ export const CreateIndexButton: React.FunctionComponent<
   isSearchManagementActive,
   isAtlasSearchSupported,
   isWritable,
-  onCreateRegularIndex,
-  onCreateSearchIndex,
+  onCreateRegularIndexClick,
+  onCreateSearchIndexClick,
 }) => {
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
       switch (action) {
         case 'createRegularIndex':
-          return onCreateRegularIndex();
+          return onCreateRegularIndexClick();
         case 'createSearchIndex':
-          return onCreateSearchIndex();
+          return onCreateSearchIndexClick();
       }
     },
-    [onCreateRegularIndex, onCreateSearchIndex]
+    [onCreateRegularIndexClick, onCreateSearchIndexClick]
   );
 
   if (isAtlasSearchSupported && isSearchManagementActive) {
@@ -253,7 +253,7 @@ export const CreateIndexButton: React.FunctionComponent<
     <Button
       data-testid="open-create-index-modal-button"
       disabled={!isWritable}
-      onClick={onCreateRegularIndex}
+      onClick={onCreateRegularIndexClick}
       variant="primary"
       size="small"
     >
@@ -280,9 +280,9 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCreateRegularIndex,
-  onCreateSearchIndex,
-  onChangeIndexView: changeIndexView,
+  onCreateRegularIndexClick: createIndexOpened,
+  onCreateSearchIndexClick: createSearchIndexOpened,
+  onIndexViewChanged: indexViewChanged,
 };
 
 export default connect(

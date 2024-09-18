@@ -24,16 +24,16 @@ const createIndexButtonStyles = css({
  */
 function CreateIndexActions({
   error,
-  clearError,
   inProgress,
-  createIndex,
-  closeCreateIndexModal,
+  onErrorBannerCloseClick,
+  onCreateIndexClick,
+  onCancelCreateIndexClick,
 }: {
   error: string | null;
-  clearError: () => void;
   inProgress: boolean;
-  createIndex: () => void;
-  closeCreateIndexModal: () => void;
+  onErrorBannerCloseClick: () => void;
+  onCreateIndexClick: () => void;
+  onCancelCreateIndexClick: () => void;
 }) {
   const renderError = () => {
     if (!error) {
@@ -45,7 +45,7 @@ function CreateIndexActions({
         data-testid="create-index-actions-error-banner-wrapper"
         className={bannerStyles}
       >
-        <Banner variant="danger" dismissible onClose={clearError}>
+        <Banner variant="danger" dismissible onClose={onErrorBannerCloseClick}>
           {error}
         </Banner>
       </div>
@@ -69,14 +69,6 @@ function CreateIndexActions({
     );
   };
 
-  const onCancel = () => {
-    closeCreateIndexModal();
-  };
-
-  const onConfirm = () => {
-    createIndex();
-  };
-
   return (
     <div className={containerStyles}>
       {renderError()}
@@ -84,14 +76,14 @@ function CreateIndexActions({
 
       <Button
         data-testid="create-index-actions-cancel-button"
-        onClick={onCancel}
+        onClick={onCancelCreateIndexClick}
       >
         {inProgress ? 'Close' : 'Cancel'}
       </Button>
       {!inProgress && (
         <Button
           data-testid="create-index-actions-create-index-button"
-          onClick={onConfirm}
+          onClick={onCreateIndexClick}
           variant="primary"
           className={createIndexButtonStyles}
         >

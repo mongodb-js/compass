@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
+import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
@@ -18,26 +19,24 @@ const createIndexModalOptionStyles = css({
   paddingLeft: spacing[1] + 2,
 });
 
-type IndexField = { name: string; type: string };
-
 type CreateIndexFormProps = {
   namespace: string;
-  fields: IndexField[];
+  fields: Field[];
   serverVersion: string;
-  updateFieldName: (idx: number, name: string) => void;
-  updateFieldType: (idx: number, fType: string) => void;
-  addField: () => void; // Plus icon.
-  removeField: (idx: number) => void; // Minus icon.
+  onSelectFieldNameClick: (idx: number, name: string) => void;
+  onSelectFieldTypeClick: (idx: number, fType: string) => void;
+  onAddFieldClick: () => void; // Plus icon.
+  onRemoveFieldClick: (idx: number) => void; // Minus icon.
 };
 
 function CreateIndexForm({
   namespace,
   fields,
   serverVersion,
-  updateFieldName,
-  updateFieldType,
-  addField,
-  removeField,
+  onSelectFieldNameClick,
+  onSelectFieldTypeClick,
+  onAddFieldClick,
+  onRemoveFieldClick,
 }: CreateIndexFormProps) {
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
@@ -65,10 +64,10 @@ function CreateIndexForm({
             fields={fields}
             serverVersion={serverVersion}
             isRemovable={!(fields.length > 1)}
-            updateFieldName={updateFieldName}
-            updateFieldType={updateFieldType}
-            addField={addField}
-            removeField={removeField}
+            onSelectFieldNameClick={onSelectFieldNameClick}
+            onSelectFieldTypeClick={onSelectFieldTypeClick}
+            onAddFieldClick={onAddFieldClick}
+            onRemoveFieldClick={onRemoveFieldClick}
           />
         ) : null}
       </div>

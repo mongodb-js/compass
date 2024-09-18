@@ -1,4 +1,5 @@
-'use strict';
+import type { AnyAction } from 'redux';
+
 /**
  * The module action prefix.
  */
@@ -20,7 +21,7 @@ export const INITIAL_STATE = 'Topology type not yet discovered.';
  * @param {Boolean} state - The status state.
  * @param {String} action - The action.
  */
-const reducer = (state = INITIAL_STATE, action) => {
+const reducer = (state = INITIAL_STATE, action: AnyAction) => {
   if (action.type === GET_DESCRIPTION) {
     return action.description;
   }
@@ -35,7 +36,7 @@ export default reducer;
  * @param {String} description - The description.
  * @returns {import('redux').AnyAction} The getDescription action.
  */
-export const getDescription = (description) => ({
+export const getDescription = (description: string) => ({
   type: GET_DESCRIPTION,
   description: description,
 });

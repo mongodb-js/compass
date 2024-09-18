@@ -1,4 +1,5 @@
-'use strict';
+import type { AnyAction } from 'redux';
+
 /**
  * The module action prefix.
  */
@@ -22,7 +23,7 @@ export const INITIAL_STATE = true;
  *
  * @returns {Boolean} The new state.
  */
-const reducer = (state = INITIAL_STATE, action) => {
+const reducer = (state = INITIAL_STATE, action: AnyAction) => {
   if (action.type === WRITE_STATE_CHANGED) {
     return action.isWritable;
   }
@@ -37,7 +38,7 @@ export default reducer;
  * @param {Boolean} isWritable
  * @returns {import('redux').AnyAction} The isWritable action.
  */
-export const writeStateChanged = (isWritable) => ({
+export const writeStateChanged = (isWritable: boolean) => ({
   type: WRITE_STATE_CHANGED,
   isWritable: isWritable,
 });
