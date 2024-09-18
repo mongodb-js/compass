@@ -5,21 +5,21 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from 'hadron-app-registry';
 import {
-  type ConnectionInfoAccess,
+  type ConnectionInfoRef,
   ConnectionScopedAppRegistryImpl,
-  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/provider';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+const TEST_CONNECTION_INFO = { ...createDefaultConnectionInfo(), title: '' };
 
 describe('update-view module', function () {
   const globalAppRegistry = new AppRegistry();
-  const connectionInfoAccess: ConnectionInfoAccess = {
-    getCurrentConnectionInfo() {
-      return TEST_CONNECTION_INFO;
-    },
+  const connectionInfoRef: ConnectionInfoRef = {
+    current: TEST_CONNECTION_INFO,
   };
   const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
     globalAppRegistry.emit.bind(globalAppRegistry),
-    connectionInfoAccess
+    connectionInfoRef
   );
   const thunkArg = {
     globalAppRegistry,
@@ -38,10 +38,8 @@ describe('update-view module', function () {
     },
     logger: createNoopLogger(),
     track: createNoopTrack(),
-    connectionInfoAccess: {
-      getCurrentConnectionInfo() {
-        return TEST_CONNECTION_INFO;
-      },
+    connectionInfoRef: {
+      current: TEST_CONNECTION_INFO,
     },
   };
 

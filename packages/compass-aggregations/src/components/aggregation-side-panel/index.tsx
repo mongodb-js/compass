@@ -18,7 +18,7 @@ import { FeedbackLink } from './feedback-link';
 import { addWizard } from '../../modules/pipeline-builder/stage-editor';
 import { UseCaseCard } from './stage-wizard-use-cases';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const containerStyles = css({
   height: '100%',
@@ -80,7 +80,7 @@ export const AggregationSidePanel = ({
   onSelectUseCase,
 }: AggregationSidePanelProps) => {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const [searchText, setSearchText] = useState<string>('');
   const darkMode = useDarkMode();
 
@@ -112,10 +112,10 @@ export const AggregationSidePanel = ({
           drag_and_drop: false,
           stage_name: useCase.stageOperator,
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
     },
-    [onSelectUseCase, track, connectionInfoAccess]
+    [onSelectUseCase, track, connectionInfoRef]
   );
 
   return (

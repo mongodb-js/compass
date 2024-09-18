@@ -64,17 +64,15 @@ export {
 } from './connection-scoped-app-registry';
 
 export type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   ConnectionInfo,
 } from './connection-info-provider';
 
 export {
   ConnectionInfoProvider,
   useConnectionInfo,
-  useConnectionInfoAccess,
-  withConnectionInfoAccess,
-  connectionInfoAccessLocator,
-  TEST_CONNECTION_INFO,
+  useConnectionInfoRef,
+  connectionInfoRefLocator,
 } from './connection-info-provider';
 
 export { useTabConnectionTheme } from './hooks/use-tab-connection-theme';

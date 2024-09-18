@@ -8,7 +8,7 @@ import thunk from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
@@ -48,7 +48,7 @@ type QueryBarServices = {
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
@@ -82,7 +82,7 @@ export type QueryBarExtraArgs = {
   recentQueryStorage?: RecentQueryStorage;
   logger: Logger;
   track: TrackFunction;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   atlasAiService: AtlasAiService;
 };
 
@@ -125,7 +125,7 @@ export function activatePlugin(
     preferences,
     logger,
     track,
-    connectionInfoAccess,
+    connectionInfoRef,
     atlasAuthService,
     atlasAiService,
     favoriteQueryStorageAccess,
@@ -160,7 +160,7 @@ export function activatePlugin(
       preferences,
       logger,
       track,
-      connectionInfoAccess,
+      connectionInfoRef,
       atlasAiService,
     }
   );

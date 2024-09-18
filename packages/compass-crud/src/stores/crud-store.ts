@@ -60,7 +60,7 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { Query, QueryBarService } from '@mongodb-js/compass-query-bar';
@@ -343,7 +343,7 @@ class CrudStoreImpl
   fieldStoreService: FieldStoreService;
   logger: Logger;
   track: TrackFunction;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
@@ -358,7 +358,7 @@ class CrudStoreImpl
       | 'preferences'
       | 'logger'
       | 'track'
-      | 'connectionInfoAccess'
+      | 'connectionInfoRef'
       | 'fieldStoreService'
       | 'connectionScopedAppRegistry'
       | 'queryBar'
@@ -376,7 +376,7 @@ class CrudStoreImpl
     this.preferences = services.preferences;
     this.logger = services.logger;
     this.track = services.track;
-    this.connectionInfoAccess = services.connectionInfoAccess;
+    this.connectionInfoRef = services.connectionInfoRef;
     this.instance = services.instance;
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
@@ -503,7 +503,7 @@ class CrudStoreImpl
     this.track(
       'Document Copied',
       { mode: this.modeForTelemetry() },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
     const documentEJSON = doc.toEJSON();
     // eslint-disable-next-line no-undef
@@ -530,7 +530,7 @@ class CrudStoreImpl
     this.track(
       'Document Deleted',
       { mode: this.modeForTelemetry() },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
     const id = doc.getId();
     if (id !== undefined) {
@@ -607,7 +607,7 @@ class CrudStoreImpl
     this.track(
       'Document Updated',
       { mode: this.modeForTelemetry() },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
     try {
       doc.onUpdateStart();
@@ -683,7 +683,7 @@ class CrudStoreImpl
     this.track(
       'Document Updated',
       { mode: this.modeForTelemetry() },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
     try {
       doc.onUpdateStart();
@@ -932,7 +932,7 @@ class CrudStoreImpl
       this.track(
         'Document Cloned',
         { mode: this.modeForTelemetry() },
-        this.connectionInfoAccess.getCurrentConnectionInfo()
+        this.connectionInfoRef.current
       );
       // We need to remove the _id or we will get an duplicate key error on
       // insert, and we currently do not allow editing of the _id field.
@@ -997,7 +997,7 @@ class CrudStoreImpl
       {
         isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
       },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
 
     await this.updateBulkUpdatePreview(updateText ?? INITIAL_BULK_UPDATE_TEXT);
@@ -1147,7 +1147,7 @@ class CrudStoreImpl
       {
         isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
       },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
 
     this.closeBulkUpdateModal();
@@ -1331,7 +1331,7 @@ class CrudStoreImpl
         mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
         multiple: docs.length > 1,
       },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
 
     try {
@@ -1385,7 +1385,7 @@ class CrudStoreImpl
         mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
         multiple: false,
       },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
 
     let doc: BSONObject;
@@ -1555,7 +1555,7 @@ class CrudStoreImpl
             : 'collection',
           used_regex: objectContainsRegularExpression(query.filter ?? {}),
         },
-        this.connectionInfoAccess.getCurrentConnectionInfo()
+        this.connectionInfoRef.current
       );
     }
 
@@ -1792,11 +1792,7 @@ class CrudStoreImpl
   }
 
   openBulkDeleteDialog() {
-    this.track(
-      'Bulk Delete Opened',
-      {},
-      this.connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    this.track('Bulk Delete Opened', {}, this.connectionInfoRef.current);
 
     const PREVIEW_DOCS = 5;
 
@@ -1861,11 +1857,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    this.track(
-      'Bulk Delete Executed',
-      {},
-      this.connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    this.track('Bulk Delete Executed', {}, this.connectionInfoRef.current);
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1910,7 +1902,7 @@ class CrudStoreImpl
       {
         isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
       },
-      this.connectionInfoAccess.getCurrentConnectionInfo()
+      this.connectionInfoRef.current
     );
 
     const { filter } = this.queryBar.getLastAppliedQuery('crud');
@@ -1952,7 +1944,7 @@ export type DocumentsPluginServices = {
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
   fieldStoreService: FieldStoreService;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
 };
@@ -1969,7 +1961,7 @@ export function activateDocumentsPlugin(
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
     fieldStoreService,
-    connectionInfoAccess,
+    connectionInfoRef,
     connectionScopedAppRegistry,
     queryBar,
   }: DocumentsPluginServices,
@@ -1986,7 +1978,7 @@ export function activateDocumentsPlugin(
         preferences,
         logger,
         track,
-        connectionInfoAccess,
+        connectionInfoRef,
         favoriteQueryStorage: favoriteQueryStorageAccess?.getStorage(),
         recentQueryStorage: recentQueryStorageAccess?.getStorage(),
         fieldStoreService,
@@ -2028,8 +2020,7 @@ export function activateDocumentsPlugin(
       { ns }: { ns: string },
       { connectionId }: { connectionId?: string } = {}
     ) => {
-      const { id: currentConnectionId } =
-        connectionInfoAccess.getCurrentConnectionInfo();
+      const { id: currentConnectionId } = connectionInfoRef.current;
       if (currentConnectionId === connectionId && ns === store.state.ns) {
         void store.refreshDocuments();
       }

@@ -47,8 +47,8 @@ import {
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { CompassComponentsProvider } from '@mongodb-js/compass-components';
 import {
+  TestEnvCurrentConnectionContext,
   ConnectionInfoProvider,
-  TEST_CONNECTION_INFO,
 } from '@mongodb-js/compass-connections/src/connection-info-provider';
 import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
 import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
@@ -231,6 +231,17 @@ const EmptyWrapper = ({ children }: { children: React.ReactElement }) => {
   return <>{children}</>;
 };
 
+const TEST_ENV_CURRENT_CONNECTION = {
+  info: {
+    id: 'TEST',
+    connectionOptions: {
+      connectionString: 'mongodb://localhost:27020',
+    },
+  },
+  status: 'connected' as const,
+  error: null,
+};
+
 function createWrapper(
   options: TestConnectionsOptions,
   // When using renderHook, anything that will try to call createPortal will
@@ -331,9 +342,13 @@ function createWrapper(
                         preloadStorageConnectionInfos={options.connections}
                       >
                         <StoreGetter>
-                          <TestingLibraryWrapper {...props}>
-                            {children}
-                          </TestingLibraryWrapper>
+                          <TestEnvCurrentConnectionContext.Provider
+                            value={TEST_ENV_CURRENT_CONNECTION}
+                          >
+                            <TestingLibraryWrapper {...props}>
+                              {children}
+                            </TestingLibraryWrapper>
+                          </TestEnvCurrentConnectionContext.Provider>
                         </StoreGetter>
                       </CompassConnections>
                     </ConnectFnProvider>
@@ -461,7 +476,7 @@ function createConnectionInfoWrapper(
 
 async function renderWithActiveConnection(
   ui: React.ReactElement,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
+  connectionInfo: ConnectionInfo = TEST_ENV_CURRENT_CONNECTION.info,
   {
     connections,
     wrapper: Wrapper = EmptyWrapper,
@@ -483,7 +498,7 @@ async function renderWithActiveConnection(
 
 async function renderHookWithActiveConnection<HookProps, HookResult>(
   cb: (props: HookProps) => HookResult,
-  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO,
+  connectionInfo: ConnectionInfo = TEST_ENV_CURRENT_CONNECTION.info,
   {
     connections,
     wrapper: Wrapper = EmptyWrapper,

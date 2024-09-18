@@ -37,7 +37,7 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { PipelineStorage } from '@mongodb-js/my-queries-storage/provider';
 import { maxTimeMSChanged } from '../modules/max-time-ms';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
@@ -83,7 +83,7 @@ export type AggregationsPluginServices = {
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorage;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<'open-export'>;
   collection: Collection;
 };
@@ -102,7 +102,7 @@ export function activateAggregationsPlugin(
     atlasAiService,
     atlasAuthService,
     pipelineStorage,
-    connectionInfoAccess,
+    connectionInfoRef,
     connectionScopedAppRegistry,
     collection: collectionModel,
   }: AggregationsPluginServices,
@@ -191,7 +191,7 @@ export function activateAggregationsPlugin(
         logger,
         track,
         atlasAiService,
-        connectionInfoAccess,
+        connectionInfoRef,
         connectionScopedAppRegistry,
       })
     )
@@ -219,8 +219,7 @@ export function activateAggregationsPlugin(
       { ns }: { ns: string },
       { connectionId }: { connectionId?: string } = {}
     ) => {
-      const { id: currentConnectionId } =
-        connectionInfoAccess.getCurrentConnectionInfo();
+      const { id: currentConnectionId } = connectionInfoRef.current;
       const { namespace } = store.getState();
       if (currentConnectionId === connectionId && ns === namespace) {
         refreshInput();

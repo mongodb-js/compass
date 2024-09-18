@@ -71,7 +71,7 @@ export const changePipelineMode = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoAccess }
+    { pipelineBuilder, track, connectionInfoRef }
   ) => {
     if (newMode === getState().pipelineBuilder.pipelineMode) {
       return;
@@ -104,7 +104,7 @@ export const changePipelineMode = (
         num_stages,
         editor_view_type: mapPipelineModeToEditorViewType(getState()),
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
 
     dispatch(updatePipelinePreview());

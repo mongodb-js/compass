@@ -20,7 +20,7 @@ import { onActivated } from './store';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const topologyDescription = {
   type: 'Unknown',
@@ -46,9 +46,9 @@ describe('Schema Validation Store', function () {
   let store: Store<RootState, RootAction>;
   let deactivate: null | (() => void) = null;
   const globalAppRegistry = new AppRegistry();
-  const connectionInfoAccess = {
-    getCurrentConnectionInfo: () => {},
-  } as ConnectionInfoAccess;
+  const connectionInfoRef = {
+    current: {},
+  } as ConnectionInfoRef;
 
   beforeEach(async function () {
     const activateResult = onActivated(
@@ -60,7 +60,7 @@ describe('Schema Validation Store', function () {
         preferences: await createSandboxFromDefaultPreferences(),
         logger: createNoopLogger(),
         track: createNoopTrack(),
-        connectionInfoAccess,
+        connectionInfoRef,
       },
       createActivateHelpers()
     );
