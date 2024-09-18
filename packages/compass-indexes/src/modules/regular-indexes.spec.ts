@@ -74,7 +74,7 @@ describe('regular-indexes module', function () {
       await store.dispatch(fetchIndexes());
 
       const state = store.getState().regularIndexes;
-      expect(state.indexes).to.deep.equal([]);
+      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
       expect(state.error).to.equal(error.message);
       expect(state.isRefreshing).to.equal(false);
     });

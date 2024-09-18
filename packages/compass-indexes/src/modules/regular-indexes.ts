@@ -126,7 +126,6 @@ export default function reducer(
     return {
       ...state,
       error: action.error,
-      indexes: [],
       isRefreshing: false,
     };
   }
