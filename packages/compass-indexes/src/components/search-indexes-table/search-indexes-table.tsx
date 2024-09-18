@@ -21,8 +21,8 @@ import type {
   LGTableDataType,
 } from '@mongodb-js/compass-components';
 
+import { FetchStatuses } from '../../utils/fetch-status';
 import {
-  SearchIndexesStatuses,
   dropSearchIndex,
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
@@ -30,7 +30,7 @@ import {
   createSearchIndexOpened,
   updateSearchIndexOpened,
 } from '../../modules/search-indexes';
-import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
@@ -45,7 +45,7 @@ type SearchIndexesTableProps = {
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
-  status: SearchIndexesStatus;
+  status: FetchStatus;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onOpenCreateModalClick: () => void;
@@ -53,11 +53,11 @@ type SearchIndexesTableProps = {
   pollingInterval?: number;
 };
 
-function isReadyStatus(status: SearchIndexesStatus) {
+function isReadyStatus(status: FetchStatus) {
   return (
-    status === SearchIndexesStatuses.READY ||
-    status === SearchIndexesStatuses.REFRESHING ||
-    status === SearchIndexesStatuses.POLLING
+    status === FetchStatuses.READY ||
+    status === FetchStatuses.REFRESHING ||
+    status === FetchStatuses.POLLING
   );
 }
 

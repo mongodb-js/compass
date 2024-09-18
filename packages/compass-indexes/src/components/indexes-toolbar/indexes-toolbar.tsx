@@ -21,10 +21,8 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import {
-  SearchIndexesStatuses,
-  createSearchIndexOpened,
-} from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
+import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
@@ -275,8 +273,7 @@ const mapState = ({
   writeStateDescription: description,
   indexView,
   serverVersion,
-  isAtlasSearchSupported:
-    searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,
+  isAtlasSearchSupported: searchIndexes.status !== FetchStatuses.NOT_AVAILABLE,
 });
 
 const mapDispatch = {

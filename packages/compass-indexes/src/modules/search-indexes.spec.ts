@@ -1,6 +1,6 @@
 import { expect } from 'chai';
+import { FetchStatuses } from '../utils/fetch-status';
 import {
-  SearchIndexesStatuses,
   createSearchIndexClosed,
   createSearchIndexOpened,
   createIndex,
@@ -52,7 +52,7 @@ describe('search-indexes module', function () {
   it('has not available search indexes state by default', function () {
     store = setupStore();
     expect(store.getState().searchIndexes.status).to.equal(
-      SearchIndexesStatuses.NOT_AVAILABLE
+      FetchStatuses.NOT_AVAILABLE
     );
   });
 

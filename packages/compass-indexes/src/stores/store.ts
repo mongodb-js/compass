@@ -8,10 +8,10 @@ import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import { createIndexOpened } from '../modules/create-index';
 import { fetchIndexes } from '../modules/regular-indexes';
+import { FetchStatuses } from '../utils/fetch-status';
 import {
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
   refreshSearchIndexes,
-  SearchIndexesStatuses,
   createSearchIndexOpened,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
@@ -80,8 +80,8 @@ export function activateIndexesPlugin(
       searchIndexes: {
         ...SEARCH_INDEXES_INITIAL_STATE,
         status: options.isSearchIndexesSupported
-          ? SearchIndexesStatuses.NOT_READY
-          : SearchIndexesStatuses.NOT_AVAILABLE,
+          ? FetchStatuses.NOT_READY
+          : FetchStatuses.NOT_AVAILABLE,
       },
     },
     applyMiddleware(

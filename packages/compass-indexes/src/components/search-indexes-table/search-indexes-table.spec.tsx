@@ -12,7 +12,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { Document } from 'mongodb';
 import { SearchIndexesTable } from './search-indexes-table';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
@@ -43,10 +43,7 @@ describe('SearchIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
-  for (const status of [
-    SearchIndexesStatuses.READY,
-    SearchIndexesStatuses.REFRESHING,
-  ]) {
+  for (const status of [FetchStatuses.READY, FetchStatuses.REFRESHING]) {
     it(`renders indexes list if the status is ${status}`, function () {
       renderIndexList({ status });
 
@@ -98,10 +95,7 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  for (const status of [
-    SearchIndexesStatuses.FETCHING,
-    SearchIndexesStatuses.NOT_READY,
-  ]) {
+  for (const status of [FetchStatuses.FETCHING, FetchStatuses.NOT_READY]) {
     it(`does not render the list if the status is ${status}`, function () {
       renderIndexList({
         status,

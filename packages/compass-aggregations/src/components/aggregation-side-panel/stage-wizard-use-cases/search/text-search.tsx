@@ -17,7 +17,7 @@ import type { RootState } from '../../../../modules';
 import type { WizardComponentProps } from '..';
 import { FieldCombobox } from '../field-combobox';
 import {
-  type SearchIndexesStatus,
+  type FetchStatus,
   fetchIndexes,
 } from '../../../../modules/search-indexes';
 
@@ -100,7 +100,7 @@ export const TextSearch = ({
   onFetchIndexes,
 }: WizardComponentProps & {
   indexes: SearchIndex[];
-  indexesStatus: SearchIndexesStatus;
+  indexesStatus: FetchStatus;
   onFetchIndexes: () => void;
 }) => {
   const [formData, setFormData] = useState<TextSearchState>({

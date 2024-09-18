@@ -16,8 +16,8 @@ import { refreshRegularIndexes } from '../../modules/regular-indexes';
 import { refreshSearchIndexes } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
-import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
+import type { FetchStatus } from '../../utils/fetch-status';
 import type { RootState } from '../../modules';
 import {
   CreateSearchIndexModal,
@@ -77,10 +77,9 @@ type IndexesProps = {
   refreshSearchIndexes: () => void;
 };
 
-function isRefreshingStatus(status: SearchIndexesStatus) {
+function isRefreshingStatus(status: FetchStatus) {
   return (
-    status === SearchIndexesStatuses.FETCHING ||
-    status === SearchIndexesStatuses.REFRESHING
+    status === FetchStatuses.FETCHING || status === FetchStatuses.REFRESHING
   );
 }
 

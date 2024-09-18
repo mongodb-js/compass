@@ -7,7 +7,10 @@ import {
 import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
-import { isAction } from './../utils/is-action';
+import { isAction } from '../utils/is-action';
+import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
+import type { FetchStatus, FetchingStatus } from '../utils/fetch-status';
+
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
@@ -17,48 +20,6 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
 };
-
-export enum SearchIndexesStatuses {
-  /**
-   * No support. Default status.
-   */
-  NOT_AVAILABLE = 'NOT_AVAILABLE',
-  /**
-   * We do not have list yet.
-   */
-  NOT_READY = 'NOT_READY',
-  /**
-   * We have list of indexes.
-   */
-  READY = 'READY',
-  /**
-   * We are fetching the list first time.
-   */
-  FETCHING = 'FETCHING',
-  /**
-   * We are refreshing the list.
-   */
-  REFRESHING = 'REFRESHING',
-  /**
-   * We are polling the list.
-   */
-  POLLING = 'POLLING',
-  /**
-   * Loading the list failed.
-   */
-  ERROR = 'ERROR',
-}
-
-export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
-
-// List of SearchIndex statuses when server should not be called
-// to avoid multiple requests.
-const NOT_FETCHABLE_STATUSES: SearchIndexesStatus[] = [
-  'NOT_AVAILABLE',
-  'FETCHING',
-  'POLLING',
-  'REFRESHING',
-];
 
 export enum ActionTypes {
   // Fetch indexes
@@ -83,7 +44,7 @@ export enum ActionTypes {
 
 type FetchSearchIndexesStartedAction = {
   type: ActionTypes.FetchSearchIndexesStarted;
-  status: 'REFRESHING' | 'POLLING' | 'FETCHING';
+  status: FetchingStatus;
 };
 
 type FetchSearchIndexesSucceededAction = {
@@ -153,7 +114,7 @@ type UpdateSearchIndexState = {
 };
 
 export type State = {
-  status: SearchIndexesStatus;
+  status: FetchStatus;
   createIndex: CreateSearchIndexState;
   updateIndex: UpdateSearchIndexState;
   error?: string;
@@ -161,7 +122,7 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
-  status: SearchIndexesStatuses.NOT_AVAILABLE,
+  status: FetchStatuses.NOT_AVAILABLE,
   createIndex: {
     isModalOpen: false,
     isBusy: false,
@@ -359,7 +320,7 @@ export default function reducer(
     return {
       ...state,
       indexes: action.indexes,
-      status: SearchIndexesStatuses.READY,
+      status: FetchStatuses.READY,
     };
   }
 
@@ -374,13 +335,10 @@ export default function reducer(
       // We do no set any error on poll or refresh and the
       // previous list of indexes is shown to the user.
       // If fetch fails for refresh or polling, set the status to READY again.
-      error:
-        state.status === SearchIndexesStatuses.FETCHING
-          ? action.error
-          : undefined,
-      status: SearchIndexesStatuses.FETCHING
-        ? SearchIndexesStatuses.ERROR
-        : SearchIndexesStatuses.READY,
+      error: state.status === FetchStatuses.FETCHING ? action.error : undefined,
+      status: FetchStatuses.FETCHING
+        ? FetchStatuses.ERROR
+        : FetchStatuses.READY,
     };
   }
 
@@ -407,7 +365,7 @@ export const updateSearchIndexClosed = (): UpdateSearchIndexClosedAction => ({
 });
 
 const fetchSearchIndexesStarted = (
-  status: 'REFRESHING' | 'POLLING' | 'FETCHING'
+  status: FetchingStatus
 ): FetchSearchIndexesStartedAction => ({
   type: ActionTypes.FetchSearchIndexesStarted,
   status,
@@ -523,7 +481,7 @@ export const createIndex = ({
     });
 
     dispatch(switchToSearchIndexes());
-    await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+    await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
   };
 };
 
@@ -576,7 +534,7 @@ export const updateIndex = ({
         timeout: 5000,
         variant: 'progress',
       });
-      await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
     } catch (e) {
       const error = (e as Error).message;
       dispatch(
@@ -593,7 +551,7 @@ type FetchSearchIndexesActions =
   | FetchSearchIndexesFailedAction;
 
 const fetchIndexes = (
-  newStatus: 'REFRESHING' | 'POLLING' | 'FETCHING'
+  newStatus: FetchingStatus
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const {
@@ -632,10 +590,10 @@ export const refreshSearchIndexes = (): IndexesThunkAction<
 
     // If we are in a READY state, then we have already fetched the data
     // and are refreshing the list.
-    const newStatus: SearchIndexesStatus =
-      status === SearchIndexesStatuses.READY
-        ? SearchIndexesStatuses.REFRESHING
-        : SearchIndexesStatuses.FETCHING;
+    const newStatus: FetchStatus =
+      status === FetchStatuses.READY
+        ? FetchStatuses.REFRESHING
+        : FetchStatuses.FETCHING;
     await dispatch(fetchIndexes(newStatus));
   };
 };
@@ -645,7 +603,7 @@ export const pollSearchIndexes = (): IndexesThunkAction<
   FetchSearchIndexesActions
 > => {
   return async (dispatch) => {
-    return await dispatch(fetchIndexes(SearchIndexesStatuses.POLLING));
+    return await dispatch(fetchIndexes(FetchStatuses.POLLING));
   };
 };
 
@@ -690,7 +648,7 @@ export const dropSearchIndex = (
         timeout: 5000,
         variant: 'progress',
       });
-      await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
     } catch (e) {
       openToast('search-index-delete-failed', {
         title: `Failed to drop index.`,
