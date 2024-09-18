@@ -9,7 +9,10 @@ import {
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
-import type { AutomationAgentRequestOpTypes } from './make-automation-agent-op-request';
+import type {
+  AutomationAgentRequestTypes,
+  AutomationAgentResponse,
+} from './make-automation-agent-op-request';
 import { makeAutomationAgentOpRequest } from './make-automation-agent-op-request';
 
 export type AtlasServiceOptions = {
@@ -101,19 +104,17 @@ export class AtlasService {
       },
     });
   }
-  async automationAgentFetch<
-    OpType extends keyof AutomationAgentRequestOpTypes
-  >(
+  automationAgentFetch<OpType extends keyof AutomationAgentRequestTypes>(
     atlasMetadata: Pick<
       AtlasClusterMetadata,
       'projectId' | 'clusterUniqueId' | 'regionalBaseUrl' | 'metricsType'
     >,
     opType: OpType,
     opBody: Omit<
-      AutomationAgentRequestOpTypes[OpType][0],
+      AutomationAgentRequestTypes[OpType],
       'clusterId' | 'serverlessId'
     >
-  ) {
+  ): Promise<AutomationAgentResponse<OpType>> {
     const opBodyClusterId =
       atlasMetadata.metricsType === 'serverless'
         ? { serverlessId: atlasMetadata.clusterUniqueId }
@@ -123,7 +124,10 @@ export class AtlasService {
       this.regionalizedCloudEndpoint(atlasMetadata),
       atlasMetadata.projectId,
       opType,
-      Object.assign(opBodyClusterId, opBody)
+      Object.assign(
+        opBodyClusterId,
+        opBody
+      ) as AutomationAgentRequestTypes[OpType]
     );
   }
 }

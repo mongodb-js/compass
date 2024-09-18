@@ -1,15 +1,15 @@
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { CreateIndexesOptions } from 'mongodb';
 import toNS from 'mongodb-ns';
 
 export class RollingIndexesService {
   constructor(
     private atlasService: AtlasService,
-    private connectionInfo: ConnectionInfoAccess
+    private connectionInfo: ConnectionInfoRef
   ) {}
   async listRollingIndexes(namespace: string) {
-    const { atlasMetadata } = this.connectionInfo.getCurrentConnectionInfo();
+    const { atlasMetadata } = this.connectionInfo.current;
     if (!atlasMetadata) {
       throw new Error(
         "Can't list rolling indexes for a non-Atlas cluster: atlasMetadata is not available"
@@ -30,7 +30,7 @@ export class RollingIndexesService {
     indexSpec: Record<string, string | number>,
     { collation, ...options }: CreateIndexesOptions
   ): Promise<void> {
-    const { atlasMetadata } = this.connectionInfo.getCurrentConnectionInfo();
+    const { atlasMetadata } = this.connectionInfo.current;
     if (!atlasMetadata) {
       throw new Error(
         "Can't create a rolling index for a non-Atlas cluster: atlasMetadata is not available"

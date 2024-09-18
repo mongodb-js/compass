@@ -92,6 +92,9 @@ function assertAutomationAgentAwaitResponse<
   );
 }
 
+type PickAwaitResponse<OpType extends AutomationAgentAwaitOpTypes> =
+  AutomationAgentAwaitResponse<OpType>['response'];
+
 /**
  * Helper type that maps whatever is returned by automation agent in response
  * prop as follows:
@@ -100,15 +103,14 @@ function assertAutomationAgentAwaitResponse<
  * array with one item -> unwrapped item
  * array of items -> array of items
  */
-type UnwrappedAutomationAgentAwaitResponse<
-  OpType extends AutomationAgentAwaitOpTypes,
-  Response = AutomationAgentAwaitResponse<OpType>['response']
-> = Response extends never[]
+export type UnwrappedAutomationAgentAwaitResponse<
+  OpType extends AutomationAgentAwaitOpTypes
+> = PickAwaitResponse<OpType> extends never[]
   ? undefined
-  : Response extends [infer UnwrappedResponse]
+  : PickAwaitResponse<OpType> extends [infer UnwrappedResponse]
   ? UnwrappedResponse
-  : Response extends Array<unknown>
-  ? Response
+  : PickAwaitResponse<OpType> extends Array<unknown>
+  ? PickAwaitResponse<OpType>
   : never;
 
 function unwrapAutomationAgentAwaitResponse(
@@ -137,6 +139,12 @@ function unwrapAutomationAgentAwaitResponse(
   throw new Error(`Unsupported await response type: ${opType}`);
 }
 
+export type AutomationAgentResponse<
+  OpType extends AutomationAgentRequestOpTypes
+> = OpType extends AutomationAgentAwaitOpTypes
+  ? UnwrappedAutomationAgentAwaitResponse<OpType>
+  : undefined;
+
 async function makeAutomationAgentOpRequest<
   OpType extends AutomationAgentRequestOpTypes
 >(
@@ -145,11 +153,7 @@ async function makeAutomationAgentOpRequest<
   projectId: string,
   opType: OpType,
   opBody: AutomationAgentRequestTypes[OpType]
-): Promise<
-  OpType extends 'index'
-    ? undefined
-    : UnwrappedAutomationAgentAwaitResponse<AutomationAgentAwaitOpTypes>
-> {
+): Promise<AutomationAgentResponse<OpType>> {
   const requestUrl =
     baseUrl + encodeURI(`/explorer/v1/groups/${projectId}/requests/${opType}`);
   // Tell automation agent to run the op first, this will return the id that we
@@ -165,7 +169,7 @@ async function makeAutomationAgentOpRequest<
   // on (a successful response is already an acknowledgement that request to
   // create an index was registered), so we just end here
   if (opType === 'index') {
-    return undefined;
+    return undefined as AutomationAgentResponse<OpType>;
   }
   const requestJson = await requestRes.json();
   assertAutomationAgentRequestResponse(requestJson, opType);
