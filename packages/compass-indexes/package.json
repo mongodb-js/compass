@@ -48,6 +48,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
+    "@mongodb-js/atlas-service": "^0.28.2",
     "@mongodb-js/eslint-config-compass": "^1.1.7",
     "@mongodb-js/mocha-config-compass": "^1.4.2",
     "@mongodb-js/prettier-config-compass": "^1.0.2",
@@ -59,6 +60,7 @@
     "electron-mocha": "^12.2.0",
     "eslint": "^7.25.0",
     "mocha": "^10.2.0",
+    "mongodb-ns": "^2.4.2",
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^9.2.3",

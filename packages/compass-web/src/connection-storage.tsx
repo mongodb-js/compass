@@ -191,6 +191,7 @@ export function buildConnectionInfoFromClusterDescription(
     atlasMetadata: {
       orgId: orgId,
       projectId: projectId,
+      clusterUniqueId: description.uniqueId,
       clusterName: description.name,
       regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
       ...getMetricsIdAndType(description, deploymentItem),
