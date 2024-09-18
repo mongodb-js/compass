@@ -28,11 +28,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -56,11 +56,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -96,11 +96,11 @@ describe('connection tracking', function () {
         is_srv: is_srv,
         is_csfle: false,
         has_csfle_schema: false,
-        has_kms_aws: false,
-        has_kms_local: false,
-        has_kms_gcp: false,
-        has_kms_kmip: false,
-        has_kms_azure: false,
+        count_kms_aws: 0,
+        count_kms_local: 0,
+        count_kms_gcp: 0,
+        count_kms_kmip: 0,
+        count_kms_azure: 0,
         is_public_cloud: true,
         public_cloud_name: 'AWS',
       };
@@ -122,11 +122,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -151,11 +151,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -179,11 +179,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -206,11 +206,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -233,11 +233,11 @@ describe('connection tracking', function () {
       is_srv: true,
       is_csfle: false,
       has_csfle_schema: false,
-      has_kms_aws: false,
-      has_kms_local: false,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 0,
+      count_kms_local: 0,
+      count_kms_gcp: 0,
+      count_kms_kmip: 0,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);
@@ -346,7 +346,10 @@ describe('connection tracking', function () {
           autoEncryption: {
             kmsProviders: {
               local: { key: 'asdf' },
+              // @ts-expect-error with next driver release, this will be fixed
+              'local:12': { key: 'asdf' },
               aws: { accessKeyId: 'asdf', secretAccessKey: 'asdf' },
+              'kmip:1': { endpoint: 'asdf' },
             },
             encryptedFieldsMap: {
               ['foo.bar']: {},
@@ -366,11 +369,11 @@ describe('connection tracking', function () {
       is_srv: false,
       is_csfle: true,
       has_csfle_schema: true,
-      has_kms_aws: true,
-      has_kms_local: true,
-      has_kms_gcp: false,
-      has_kms_kmip: false,
-      has_kms_azure: false,
+      count_kms_aws: 1,
+      count_kms_local: 2,
+      count_kms_gcp: 0,
+      count_kms_kmip: 1,
+      count_kms_azure: 0,
     };
 
     expect(properties).to.deep.equal(expected);

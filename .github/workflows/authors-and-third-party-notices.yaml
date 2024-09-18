@@ -49,6 +49,9 @@ jobs:
         run: |
           npm run update-security-test-summary
 
+      - name: Update tracking-plan.md
+        run: npm run update-tracking-plan
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
@@ -60,8 +63,9 @@ jobs:
             THIRD-PARTY-NOTICES.md
             AUTHORS
             docs/security-test-summary.md
+            docs/tracking-plan.md
           body: |
-            - Update `AUTHORS`, `THIRD-PARTY-NOTICES` and `docs/security-test-summary.md`
+            - Update `AUTHORS`, `THIRD-PARTY-NOTICES`, docs/tracking-plan.md and `docs/security-test-summary.md`
 
       - name: Merge PR
         env:

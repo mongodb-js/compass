@@ -1,5 +1,5 @@
 import { type Logger, mongoLogId } from '@mongodb-js/compass-logging/provider';
-import type { TrackFunction, TrackFunctionPayload } from './types';
+import type { TelemetryEvent, TrackFunction } from './types';
 
 export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
@@ -8,7 +8,7 @@ export interface TelemetryPreferences {
 export type TelemetryConnectionInfoHook = () => { id: string };
 
 export interface TelemetryServiceOptions {
-  sendTrack: TrackFunction;
+  sendTrack: (event: string, props: Record<string, unknown>) => void;
   logger?: Logger;
   preferences?: TelemetryPreferences;
   useConnectionInfo?: TelemetryConnectionInfoHook;
@@ -24,9 +24,9 @@ export const createTrack = ({
   preferences,
 }: TelemetryServiceOptions & { logger: Logger }) => {
   const trackAsync: AsyncFn<TrackFunction> = async (
-    event,
-    parametersOrFn,
-    connectionInfo
+    event: TelemetryEvent['name'],
+    parametersOrFn: Parameters<TrackFunction>[1],
+    connectionInfo?: { id?: string }
   ) => {
     // Note that this preferences check is mainly a performance optimization,
     // since the main process telemetry code also checks this preference value,
@@ -37,9 +37,10 @@ export const createTrack = ({
       return;
     }
 
-    let parameters: TrackFunctionPayload<Record<string, unknown>> =
-      parametersOrFn;
+    let parameters: Record<string, unknown> =
+      typeof parametersOrFn === 'object' ? parametersOrFn : {};
 
+    // if parametersOrFn is a function use the return value of the function.
     if (typeof parametersOrFn === 'function') {
       try {
         parameters = await parametersOrFn();
@@ -65,7 +66,7 @@ export const createTrack = ({
       }
     }
 
-    if (typeof parameters === 'object' && connectionInfo) {
+    if (connectionInfo) {
       parameters.connection_id = connectionInfo.id;
     }
 

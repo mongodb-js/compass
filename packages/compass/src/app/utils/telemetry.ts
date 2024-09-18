@@ -4,7 +4,7 @@ import { isLocalhost, isDigitalOcean, isAtlas } from 'mongodb-build-info';
 import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
-import type { MongoClientOptions } from 'mongodb';
+import type { KMSProviders, MongoClientOptions } from 'mongodb';
 
 type HostInformation = {
   is_localhost: boolean;
@@ -81,19 +81,58 @@ async function getHostInformation(
   };
 }
 
+type ExtraConnectionData = {
+  auth_type: string;
+  tunnel: string;
+  is_srv: boolean;
+  is_localhost: boolean;
+  is_atlas_url: boolean;
+  is_do_url: boolean;
+  is_public_cloud?: boolean;
+  public_cloud_name?: string;
+} & CsfleInfo;
+
+type CsfleInfo = {
+  count_kms_aws?: number;
+  count_kms_gcp?: number;
+  count_kms_kmip?: number;
+  count_kms_local?: number;
+  count_kms_azure?: number;
+  is_csfle: boolean;
+  has_csfle_schema: boolean;
+};
+
+function getKmsCount(
+  kmsProviders: KMSProviders | undefined,
+  kmsProviderType: 'local' | 'aws' | 'gcp' | 'kmip' | 'azure'
+): number {
+  return Object.keys(kmsProviders ?? {}).filter((x) =>
+    x.startsWith(kmsProviderType)
+  ).length;
+}
+
 function getCsfleInformation(
   fleOptions: ConnectionInfo['connectionOptions']['fleOptions']
-): Record<string, unknown> {
+): CsfleInfo {
   const kmsProviders = configuredKMSProviders(fleOptions?.autoEncryption ?? {});
-  const csfleInfo: Record<string, unknown> = {
+  const csfleInfo: CsfleInfo = {
     is_csfle: kmsProviders.length > 0,
     has_csfle_schema: !!fleOptions?.autoEncryption?.encryptedFieldsMap,
+    count_kms_aws: getKmsCount(fleOptions?.autoEncryption?.kmsProviders, 'aws'),
+    count_kms_gcp: getKmsCount(fleOptions?.autoEncryption?.kmsProviders, 'gcp'),
+    count_kms_kmip: getKmsCount(
+      fleOptions?.autoEncryption?.kmsProviders,
+      'kmip'
+    ),
+    count_kms_local: getKmsCount(
+      fleOptions?.autoEncryption?.kmsProviders,
+      'local'
+    ),
+    count_kms_azure: getKmsCount(
+      fleOptions?.autoEncryption?.kmsProviders,
+      'azure'
+    ),
   };
-
-  for (const kmsProvider of ['aws', 'gcp', 'kmip', 'local', 'azure'] as const) {
-    csfleInfo[`has_kms_${kmsProvider}`] =
-      !!fleOptions?.autoEncryption?.kmsProviders?.[kmsProvider];
-  }
 
   return csfleInfo;
 }
@@ -134,7 +173,7 @@ async function getConnectionData(
     connectionOptions: { connectionString, sshTunnel, fleOptions },
   }: Pick<ConnectionInfo, 'connectionOptions'>,
   resolvedHostname: string | null
-): Promise<Record<string, unknown>> {
+): Promise<ExtraConnectionData> {
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
@@ -149,13 +188,19 @@ async function getConnectionData(
     : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
-  return {
+  const connectionData = {
     ...(await getHostInformation(resolvedHostname)),
     auth_type: authType.toUpperCase(),
-    tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
+    tunnel: proxyHost
+      ? ('socks5' as const)
+      : sshTunnel
+      ? ('ssh' as const)
+      : ('none' as const),
     is_srv: connectionStringData.isSRV,
     ...getCsfleInformation(fleOptions),
   };
+
+  return connectionData;
 }
 
 export async function getExtraConnectionData(connectionInfo: ConnectionInfo) {
@@ -164,8 +209,5 @@ export async function getExtraConnectionData(connectionInfo: ConnectionInfo) {
     connectionInfo,
     resolvedHostname
   );
-  return [connectionData, resolvedHostname] as [
-    Record<string, unknown>,
-    string
-  ];
+  return [connectionData, resolvedHostname] as [ExtraConnectionData, string];
 }

@@ -1,14 +1,18 @@
 import React from 'react';
 import Sinon from 'sinon';
-
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
 import { RenameCollectionPlugin } from '..';
-import { render, cleanup, screen, waitFor } from '@testing-library/react';
+import type { RenderWithConnectionsResult } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  cleanup,
+  screen,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 
 describe('RenameCollectionPlugin', function () {
   const sandbox = Sinon.createSandbox();
-  const appRegistry = sandbox.spy(new AppRegistry());
+  let appRegistry: RenderWithConnectionsResult['globalAppRegistry'];
   const connectionsManager = {};
   const instanceModel = {
     databases: {
@@ -32,14 +36,14 @@ describe('RenameCollectionPlugin', function () {
   };
   beforeEach(function () {
     const Plugin = RenameCollectionPlugin.withMockServices({
-      globalAppRegistry: appRegistry,
       connectionsManager: connectionsManager as any,
       instancesManager: instancesManager as any,
       queryStorage: favoriteQueries as any,
       pipelineStorage: pipelineStorage as any,
     });
 
-    render(<Plugin> </Plugin>);
+    const { globalAppRegistry } = render(<Plugin> </Plugin>);
+    appRegistry = globalAppRegistry;
   });
 
   afterEach(function () {

@@ -164,7 +164,7 @@ export const runAIQuery = (
       preferences,
       atlasAiService,
       logger: { log },
-      connectionInfoAccess,
+      connectionInfoRef,
       track,
     }
   ) => {
@@ -173,7 +173,7 @@ export const runAIQuery = (
     const abortController = new AbortController();
     const { id: requestId, signal } = getAbortSignal();
 
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
 
     track(
       'AI Prompt Submitted',

@@ -6,7 +6,7 @@ import {
   screen,
   cleanup,
   within,
-} from '@testing-library/react';
+} from '@mongodb-js/testing-library-compass';
 
 import { ComboboxWithCustomOption } from './combobox-with-custom-option';
 import { ComboboxOption } from './combobox/ComboboxOption';

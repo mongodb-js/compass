@@ -98,7 +98,11 @@ class InsertDocumentDialog extends React.PureComponent<
   ) {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
       this.props.track &&
-        this.props.track('Screen', { name: 'insert_document_modal' });
+        this.props.track(
+          'Screen',
+          { name: 'insert_document_modal' },
+          undefined
+        );
     }
 
     if (this.props.isOpen && !this.hasManyDocuments()) {

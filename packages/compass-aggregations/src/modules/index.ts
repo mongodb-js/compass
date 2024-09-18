@@ -46,7 +46,7 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import type {
-  ConnectionInfoAccess,
+  ConnectionInfoRef,
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -108,7 +108,7 @@ export type PipelineBuilderExtraArgs = {
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
   dataService: DataService;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<
     'open-export' | 'view-edited' | 'agg-pipeline-out-executed'
   >;

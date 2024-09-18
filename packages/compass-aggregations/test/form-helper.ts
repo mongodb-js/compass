@@ -1,5 +1,4 @@
-import userEvent from '@testing-library/user-event';
-import { screen, within } from '@testing-library/react';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 
 const _getContainer = (parentElement?: HTMLElement) => {
   if (!parentElement) {

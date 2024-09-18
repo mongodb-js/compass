@@ -1,6 +1,11 @@
 import React from 'react';
 import sinon from 'sinon';
-import { render, cleanup, screen, fireEvent } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  screen,
+  fireEvent,
+} from '@mongodb-js/testing-library-compass';
 import { SpinLoader, CancelLoader } from './loader';
 import { expect } from 'chai';
 

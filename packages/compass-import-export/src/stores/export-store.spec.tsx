@@ -1,18 +1,20 @@
 import type AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
 import {
-  activatePluginWithConnections,
+  createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 import { ExportPlugin } from '..';
 import type { ExportStore } from './export-store';
+
+const { activatePluginWithConnections } = createPluginTestHelpers(ExportPlugin);
 
 describe('ExportStore [Store]', function () {
   let store: ExportStore;
   let globalAppRegistry: AppRegistry;
 
   beforeEach(function () {
-    const result = activatePluginWithConnections(ExportPlugin, {});
+    const result = activatePluginWithConnections();
     store = result.plugin.store;
     globalAppRegistry = result.globalAppRegistry;
   });

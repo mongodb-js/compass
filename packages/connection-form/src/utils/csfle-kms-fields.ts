@@ -1,22 +1,36 @@
-import type { AutoEncryptionOptions, CSFLEKMSTlsOptions } from 'mongodb';
+import type { KMSProviders } from 'mongodb';
 import type { ConnectionFormError } from './validation';
 import { errorMessageByFieldName, fieldNameHasError } from './validation';
-
+export type {
+  ClientEncryptionTlsOptions,
+  KMSProviders,
+  LocalKMSProviderConfiguration,
+} from 'mongodb';
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type KMSProviders = NonNullable<AutoEncryptionOptions['kmsProviders']>;
-export type KMSProviderName = keyof KMSProviders;
-export type KMSTLSProviderName = keyof CSFLEKMSTlsOptions;
-export type KMSOption<KMSProvider extends KMSProviderName> = KeysOfUnion<
+export type KMSOption<KMSProvider extends KMSProviderType> = KeysOfUnion<
   NonNullable<KMSProviders[KMSProvider]>
 >;
+export type KMSProviderType = Extract<
+  keyof KMSProviders,
+  'aws' | 'gcp' | 'azure' | 'kmip' | 'local'
+>;
+export type KMSProviderName<T extends KMSProviderType> = T | `${T}:${string}`;
+export type KMSTLSProviderType = KMSProviderType;
+export type KMSTLSProviderName<T extends KMSProviderType> = KMSProviderName<T>;
 
-export interface KMSField<KMSProvider extends KMSProviderName> {
-  name: KMSOption<KMSProvider>;
+export interface KMSField<T extends KMSProviderType> {
+  name: KMSOption<T>;
   label: string;
   type: 'password' | 'text' | 'textarea';
   optional: boolean;
-  value: (autoEncryption: AutoEncryptionOptions) => string;
-  errorMessage?: (errors: ConnectionFormError[]) => string | undefined;
+  value: (
+    autoEncryption: { kmsProviders?: KMSProviders },
+    kmsProviderName: KMSProviderName<T>
+  ) => string;
+  errorMessage?: (
+    errors: ConnectionFormError[],
+    kmsProviderName: KMSProviderName<T>
+  ) => string | undefined;
   state:
     | 'error'
     | 'none'
@@ -42,8 +56,9 @@ const GCPFields: KMSField<'gcp'>[] = [
     label: 'Service Account E-Mail',
     type: 'text',
     optional: false,
-    value: (autoEncryption) =>
-      decayUnion(autoEncryption?.kmsProviders?.gcp ?? empty)?.email ?? '',
+    value: (autoEncryption, provider) =>
+      decayUnion(autoEncryption?.kmsProviders?.[provider] ?? empty)?.email ??
+      '',
     state: 'none',
     description: 'The service account email to authenticate.',
   },
@@ -52,9 +67,9 @@ const GCPFields: KMSField<'gcp'>[] = [
     label: 'Private Key',
     type: 'textarea',
     optional: false,
-    value: (autoEncryption) =>
+    value: (autoEncryption, provider) =>
       decayUnion(
-        autoEncryption?.kmsProviders?.gcp ?? empty
+        autoEncryption?.kmsProviders?.[provider] ?? empty
       )?.privateKey?.toString('base64') ?? '',
     state: 'none',
     description: 'A base64-encoded PKCS#8 private key.',
@@ -64,8 +79,9 @@ const GCPFields: KMSField<'gcp'>[] = [
     label: 'Endpoint',
     type: 'text',
     optional: true,
-    value: (autoEncryption) =>
-      decayUnion(autoEncryption?.kmsProviders?.gcp ?? empty)?.endpoint ?? '',
+    value: (autoEncryption, provider) =>
+      decayUnion(autoEncryption?.kmsProviders?.[provider] ?? empty)?.endpoint ??
+      '',
     state: 'none',
     description: 'A host with an optional port.',
   },
@@ -77,8 +93,8 @@ const AWSFields: KMSField<'aws'>[] = [
     label: 'Access Key ID',
     type: 'text',
     optional: false,
-    value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.aws?.accessKeyId ?? '',
+    value: (autoEncryption, provider) =>
+      autoEncryption?.kmsProviders?.[provider]?.accessKeyId ?? '',
     state: 'none',
     description: 'The access key used for the AWS KMS provider.',
   },
@@ -87,8 +103,8 @@ const AWSFields: KMSField<'aws'>[] = [
     label: 'Secret Access Key',
     type: 'password',
     optional: false,
-    value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.aws?.secretAccessKey ?? '',
+    value: (autoEncryption, provider) =>
+      autoEncryption?.kmsProviders?.[provider]?.secretAccessKey ?? '',
     state: 'none',
     description: 'The secret access key used for the AWS KMS provider.',
   },
@@ -97,8 +113,8 @@ const AWSFields: KMSField<'aws'>[] = [
     label: 'Session Token',
     type: 'password',
     optional: true,
-    value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.aws?.sessionToken ?? '',
+    value: (autoEncryption, provider) =>
+      autoEncryption?.kmsProviders?.[provider]?.sessionToken ?? '',
     state: 'none',
     description:
       'An optional AWS session token that will be used as the X-Amz-Security-Token header for AWS requests.',
@@ -111,8 +127,9 @@ const AzureFields: KMSField<'azure'>[] = [
     label: 'Tenant ID',
     type: 'text',
     optional: false,
-    value: (autoEncryption) =>
-      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)?.tenantId ?? '',
+    value: (autoEncryption, provider) =>
+      decayUnion(autoEncryption?.kmsProviders?.[provider] ?? empty)?.tenantId ??
+      '',
     state: 'none',
     description: 'The tenant ID identifies the organization for the account.',
   },
@@ -121,8 +138,9 @@ const AzureFields: KMSField<'azure'>[] = [
     label: 'Client ID',
     type: 'text',
     optional: false,
-    value: (autoEncryption) =>
-      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)?.clientId ?? '',
+    value: (autoEncryption, provider) =>
+      decayUnion(autoEncryption?.kmsProviders?.[provider] ?? empty)?.clientId ??
+      '',
     state: 'none',
     description: 'The client ID to authenticate a registered application.',
   },
@@ -131,9 +149,9 @@ const AzureFields: KMSField<'azure'>[] = [
     label: 'Client Secret',
     type: 'password',
     optional: false,
-    value: (autoEncryption) =>
-      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)?.clientSecret ??
-      '',
+    value: (autoEncryption, provider) =>
+      decayUnion(autoEncryption?.kmsProviders?.[provider] ?? empty)
+        ?.clientSecret ?? '',
     state: 'none',
     description: 'The client secret to authenticate a registered application.',
   },
@@ -142,8 +160,8 @@ const AzureFields: KMSField<'azure'>[] = [
     label: 'Identity Platform Endpoint',
     type: 'text',
     optional: true,
-    value: (autoEncryption) =>
-      decayUnion(autoEncryption?.kmsProviders?.azure ?? empty)
+    value: (autoEncryption, provider) =>
+      decayUnion(autoEncryption?.kmsProviders?.[provider] ?? empty)
         ?.identityPlatformEndpoint ?? '',
     state: 'none',
     description: 'A host with an optional port.',
@@ -156,8 +174,8 @@ const KMIPFields: KMSField<'kmip'>[] = [
     label: 'Endpoint',
     type: 'text',
     optional: false,
-    value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.kmip?.endpoint ?? '',
+    value: (autoEncryption, provider) =>
+      autoEncryption?.kmsProviders?.[provider]?.endpoint ?? '',
     errorMessage: (errors) => errorMessageByFieldName(errors, 'kmip.endpoint'),
     state: (errors) =>
       fieldNameHasError(errors, 'kmip.endpoint') ? 'error' : 'none',
@@ -172,9 +190,10 @@ const LocalFields: KMSField<'local'>[] = [
     label: 'Key',
     type: 'text',
     optional: false,
-    value: (autoEncryption) =>
-      autoEncryption?.kmsProviders?.local?.key?.toString('base64') ?? '',
-    errorMessage: (errors) => errorMessageByFieldName(errors, 'local.key'),
+    value: (autoEncryption, provider) =>
+      autoEncryption?.kmsProviders?.[provider]?.key?.toString('base64') ?? '',
+    errorMessage: (errors, provider) =>
+      errorMessageByFieldName(errors, `${provider}.key`),
     state: (errors) =>
       fieldNameHasError(errors, 'local.key') ? 'error' : 'none',
     description:

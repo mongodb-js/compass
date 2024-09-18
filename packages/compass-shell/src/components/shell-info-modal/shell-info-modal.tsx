@@ -39,7 +39,7 @@ function ShellInfoModal({
   useTrackOnChange(
     (track: TrackFunction) => {
       if (show) {
-        track('Screen', { name: 'shell_info_modal' });
+        track('Screen', { name: 'shell_info_modal' }, undefined);
       }
     },
     [show],

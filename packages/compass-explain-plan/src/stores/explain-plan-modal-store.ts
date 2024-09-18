@@ -180,13 +180,13 @@ export const openExplainPlanModal = (
       dataService,
       preferences,
       track,
-      connectionInfoAccess,
+      connectionInfoRef,
       logger: { log, mongoLogId },
     }
   ) => {
     const { id: fetchId, signal } = getAbortSignal();
 
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
 
     let rawExplainPlan = null;
     let explainPlan = null;
@@ -198,13 +198,13 @@ export const openExplainPlanModal = (
 
     const { isDataLake, namespace } = getState();
 
+    const explainVerbosity = isDataLake
+      ? 'queryPlannerExtended'
+      : 'executionStats';
+
     try {
       if (event.aggregation) {
         const { collation, maxTimeMS } = event.aggregation;
-        const explainVerbosity = isDataLake
-          ? 'queryPlannerExtended'
-          : 'allPlansExecution';
-
         const pipeline = event.aggregation.pipeline.filter((stage) => {
           // Getting explain plan for a pipeline with an out / merge stage can
           // cause data corruption issues in non-genuine MongoDB servers, for
@@ -253,10 +253,6 @@ export const openExplainPlanModal = (
 
       if (event.query) {
         const { filter, ...options } = event.query;
-
-        const explainVerbosity = isDataLake
-          ? 'queryPlannerExtended'
-          : 'allPlansExecution';
 
         const explainOptions = {
           ...options,

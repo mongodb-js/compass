@@ -13,12 +13,12 @@ import {
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isEqualDefaultQuery } from '../utils/query';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
   const logger = useLogger('AI-QUERY-UI');
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   return useCallback(
     (feedback: 'positive' | 'negative', text: string) => {
       const { log, mongoLogId } = logger;
@@ -35,7 +35,7 @@ const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
           text,
           request_id: lastAIQueryRequestId,
         }),
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
 
       openToast('query-ai-feedback-submitted', {
@@ -44,7 +44,7 @@ const useOnSubmitFeedback = (lastAIQueryRequestId: string | null) => {
         timeout: 10_000,
       });
     },
-    [logger, lastAIQueryRequestId, track, connectionInfoAccess]
+    [logger, lastAIQueryRequestId, track, connectionInfoRef]
   );
 };
 

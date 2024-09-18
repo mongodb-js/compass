@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import type { AtlasAuthPluginServices } from './atlas-signin-store';
 import { activatePlugin } from './atlas-signin-store';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import { waitFor } from '@testing-library/react';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 const activateHelpers = {
   on: () => {},

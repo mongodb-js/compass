@@ -1,22 +1,14 @@
 import React from 'react';
-import AppRegistry from 'hadron-app-registry';
 import {
   screen,
   render,
-  cleanup,
   within,
   waitFor,
-} from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import ExportToLanguagePlugin from './';
 import { expect } from 'chai';
 import { prettify } from '@mongodb-js/compass-editor';
-import {
-  LoggerProvider,
-  createNoopLogger,
-} from '@mongodb-js/compass-logging/provider';
-import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
-import Sinon from 'sinon';
 
 const allTypesStr = `{
   0: true, 1: 1, 2: NumberLong(100), 3: 0.001, 4: 0x1243, 5: 0o123,
@@ -35,7 +27,6 @@ const allTypesPrettyStr = prettify(
 ).replace(/\n/g, '');
 
 describe('ExportToLanguagePlugin', function () {
-  const appRegistry = new AppRegistry();
   const dataService = {
     getConnectionString() {
       return Object.assign(new URL('mongodb://localhost:27020'), {
@@ -46,19 +37,16 @@ describe('ExportToLanguagePlugin', function () {
     },
   };
   const Plugin = ExportToLanguagePlugin.withMockServices({
-    localAppRegistry: appRegistry,
     dataService: dataService as any,
-  });
-
-  afterEach(function () {
-    cleanup();
   });
 
   describe('on `open-query-export-to-language` event', function () {
     it('should show query export to language modal', function () {
-      render(<Plugin namespace="db.coll"></Plugin>);
+      const { localAppRegistry } = render(
+        <Plugin namespace="db.coll"></Plugin>
+      );
 
-      appRegistry.emit('open-query-export-to-language', {
+      localAppRegistry.emit('open-query-export-to-language', {
         filter: allTypesStr,
       });
 
@@ -68,9 +56,11 @@ describe('ExportToLanguagePlugin', function () {
     });
 
     it('should show other query options in the export', function () {
-      render(<Plugin namespace="db.coll"></Plugin>);
+      const { localAppRegistry } = render(
+        <Plugin namespace="db.coll"></Plugin>
+      );
 
-      appRegistry.emit('open-query-export-to-language', {
+      localAppRegistry.emit('open-query-export-to-language', {
         filter: '{ foo: {$exists: true } }',
         project: '{ foo: 1 }',
         sort: '{ _id: -1 }',
@@ -116,9 +106,11 @@ result = client['db']['coll'].find(
 
   describe('on `open-aggregation-export-to-language` event', function () {
     it('should show aggregation export to language modal', function () {
-      render(<Plugin namespace="db.coll"></Plugin>);
+      const { localAppRegistry } = render(
+        <Plugin namespace="db.coll"></Plugin>
+      );
 
-      appRegistry.emit('open-aggregation-export-to-language', allTypesStr);
+      localAppRegistry.emit('open-aggregation-export-to-language', allTypesStr);
 
       expect(screen.getByTestId('export-to-language-input').textContent).to.eq(
         allTypesPrettyStr
@@ -128,29 +120,11 @@ result = client['db']['coll'].find(
 
   describe('on "Copy" button clicked', function () {
     it('should emit telemetry event', async function () {
-      const track = Sinon.stub();
-      render(
-        <LoggerProvider
-          value={
-            {
-              createLogger() {
-                return createNoopLogger();
-              },
-            } as any
-          }
-        >
-          <TelemetryProvider
-            options={{
-              sendTrack: (event, props) => {
-                track(event, props);
-              },
-            }}
-          >
-            <Plugin namespace="db.coll"></Plugin>
-          </TelemetryProvider>
-        </LoggerProvider>
+      const { localAppRegistry, track } = render(
+        <Plugin namespace="db.coll"></Plugin>
       );
-      appRegistry.emit('open-aggregation-export-to-language', '[]');
+
+      localAppRegistry.emit('open-aggregation-export-to-language', '[]');
 
       track.resetHistory();
 

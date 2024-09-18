@@ -1,5 +1,9 @@
 import React from 'react';
-import { cleanup, render as _render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  render as _render,
+  screen,
+} from '@mongodb-js/testing-library-compass';
 import { ExplainPlanView } from './explain-plan-view';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';

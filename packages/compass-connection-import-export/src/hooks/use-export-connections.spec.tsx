@@ -88,26 +88,26 @@ describe('useExportConnections', function () {
     const { result, connectionsStore, connectionStorage } =
       renderUseExportConnectionsHook({}, { connections: [connectionInfo1] });
 
-    await act(async () => {
-      await connectionsStore.actions.saveEditedConnection({
-        ...connectionInfo1,
-        favorite: {
-          name: 'name1',
-        },
-        savedConnectionType: 'favorite',
-      });
+    await connectionsStore.actions.saveEditedConnection({
+      ...connectionInfo1,
+      favorite: {
+        name: 'name1',
+      },
+      savedConnectionType: 'favorite',
     });
 
-    expect(result.current.state.connectionList).to.deep.equal(
-      [
-        {
-          id: connectionInfo1.id,
-          name: 'name1',
-          selected: true,
-        },
-      ],
-      'expected name of connection 1 to get updated after save'
-    );
+    await waitFor(() => {
+      expect(result.current.state.connectionList).to.deep.equal(
+        [
+          {
+            id: connectionInfo1.id,
+            name: 'name1',
+            selected: true,
+          },
+        ],
+        'expected name of connection 1 to get updated after save'
+      );
+    });
 
     act(() => {
       result.current.onChangeConnectionList([

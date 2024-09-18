@@ -22,10 +22,21 @@ import {
 } from './collection-tab-stats';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+
+type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
+  ? U extends string
+    ? ReplaceSpacesWithUnderscores<U>
+    : never
+  : never;
+
+type ReplaceSpacesWithUnderscores<S extends string> =
+  S extends `${infer Head} ${infer Tail}`
+    ? `${Head}_${ReplaceSpacesWithUnderscores<Tail>}`
+    : S;
 
 function trackingIdForTabName(name: string) {
-  return name.toLowerCase().replace(/ /g, '_');
+  return name.toLowerCase().replace(/ /g, '_') as CollectionSubtabTrackingId;
 }
 
 const collectionStyles = css({
@@ -120,7 +131,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   stats,
 }) => {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   useEffect(() => {
     const activeSubTabName = currentTab
@@ -133,10 +144,10 @@ const CollectionTabWithMetadata: React.FunctionComponent<
         {
           name: activeSubTabName,
         },
-        connectionInfoAccess.getCurrentConnectionInfo()
+        connectionInfoRef.current
       );
     }
-  }, [currentTab, track, connectionInfoAccess]);
+  }, [currentTab, track, connectionInfoRef]);
   const pluginTabs = useCollectionSubTabs();
   const pluginModals = useCollectionScopedModals();
 

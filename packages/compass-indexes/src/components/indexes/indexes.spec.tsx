@@ -7,7 +7,7 @@ import {
   within,
   fireEvent,
   waitFor,
-} from '@testing-library/react';
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { RegularIndex } from '../../modules/regular-indexes';

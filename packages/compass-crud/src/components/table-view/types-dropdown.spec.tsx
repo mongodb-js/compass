@@ -1,5 +1,10 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { Element } from 'hadron-document';
 import TypesDropdown from './types-dropdown';

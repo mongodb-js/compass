@@ -106,7 +106,7 @@ export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
   return async (
     dispatch,
     getState,
-    { dataService, localAppRegistry, track, connectionInfoAccess }
+    { dataService, localAppRegistry, track, connectionInfoRef }
   ) => {
     const state = getState();
     const spec = {} as CreateIndexSpec;
@@ -243,11 +243,7 @@ export const createIndex = (): CreateIndexThunkAction<Promise<void>> => {
 
     try {
       await dataService.createIndex(ns, spec as IndexSpecification, options);
-      track(
-        'Index Created',
-        trackEvent,
-        connectionInfoAccess.getCurrentConnectionInfo()
-      );
+      track('Index Created', trackEvent, connectionInfoRef.current);
       dispatch(resetForm());
       dispatch(toggleInProgress(false));
       dispatch(toggleIsVisible(false));

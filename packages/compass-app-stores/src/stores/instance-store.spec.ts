@@ -6,7 +6,7 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import { type MongoDBInstancesManager } from '../instances-manager';
 import {
   createDefaultConnectionInfo,
-  activatePluginWithConnections,
+  createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
 
@@ -53,16 +53,16 @@ describe('InstanceStore [Store]', function () {
     });
   }
 
+  const { activatePluginWithConnections } = createPluginTestHelpers(
+    CompassInstanceStorePlugin
+  );
+
   beforeEach(function () {
-    const result = activatePluginWithConnections(
-      CompassInstanceStorePlugin,
-      {},
-      {
-        connectFn() {
-          return createDataService();
-        },
-      }
-    );
+    const result = activatePluginWithConnections(undefined, {
+      connectFn() {
+        return createDataService();
+      },
+    });
     connectionsStore = result.connectionsStore;
     getDataService = result.getDataServiceForConnection;
     globalAppRegistry = result.globalAppRegistry;

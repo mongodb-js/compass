@@ -32,12 +32,14 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import {
-  type ConnectionInfoAccess,
-  TEST_CONNECTION_INFO,
+  type ConnectionInfoRef,
   ConnectionScopedAppRegistryImpl,
 } from '@mongodb-js/compass-connections/provider';
 import type { TableHeaderType } from './grid-store';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+
+const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
 chai.use(chaiAsPromised);
 
@@ -129,14 +131,12 @@ describe('store', function () {
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
-  const connectionInfoAccess = {
-    getCurrentConnectionInfo() {
-      return TEST_CONNECTION_INFO;
-    },
-  } as ConnectionInfoAccess;
+  const connectionInfoRef = {
+    current: TEST_CONNECTION_INFO,
+  } as ConnectionInfoRef;
   const connectionScopedAppRegistry = new ConnectionScopedAppRegistryImpl(
     globalAppRegistry.emit.bind(globalAppRegistry),
-    connectionInfoAccess
+    connectionInfoRef
   );
 
   function activatePlugin(
@@ -163,7 +163,7 @@ describe('store', function () {
         favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
         recentQueryStorageAccess: compassRecentQueryStorageAccess,
         fieldStoreService: mockFieldStoreService,
-        connectionInfoAccess,
+        connectionInfoRef,
         connectionScopedAppRegistry,
         queryBar: mockQueryBar,
         ...services,

@@ -19,7 +19,7 @@ import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type FavoriteActions = {
   onApply: (query: BaseQuery) => void;
@@ -38,7 +38,7 @@ const FavoriteItem = ({
   isReadonly: boolean;
 }) => {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const readOnlyCompass = usePreference('readOnly');
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
@@ -52,7 +52,7 @@ const FavoriteItem = ({
         screen: 'documents',
         isUpdateQuery,
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
 
     if (isDisabled) {
@@ -72,7 +72,7 @@ const FavoriteItem = ({
     onApply,
     attributes,
     onUpdateFavoriteChoosen,
-    connectionInfoAccess,
+    connectionInfoRef,
   ]);
 
   const onDeleteClick = useCallback(() => {
@@ -83,10 +83,10 @@ const FavoriteItem = ({
         screen: 'documents',
         isUpdateQuery,
       },
-      connectionInfoAccess.getCurrentConnectionInfo()
+      connectionInfoRef.current
     );
     onDelete(query._id);
-  }, [track, query._id, isUpdateQuery, onDelete, connectionInfoAccess]);
+  }, [track, query._id, isUpdateQuery, onDelete, connectionInfoRef]);
 
   return (
     <QueryItemCard

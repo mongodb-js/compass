@@ -1,8 +1,13 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { render, screen, cleanup, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import {
+  render,
+  screen,
+  cleanup,
+  waitFor,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import BulkUpdateModal from './bulk-update-modal';
 
 import { FavoriteQueryStorageProvider } from '@mongodb-js/my-queries-storage/provider';

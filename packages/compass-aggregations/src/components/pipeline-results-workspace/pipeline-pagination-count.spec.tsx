@@ -1,9 +1,13 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import userEvent from '@testing-library/user-event';
 
 import { PipelinePaginationCount } from './pipeline-pagination-count';
 

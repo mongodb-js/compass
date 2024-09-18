@@ -1,18 +1,17 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { StageEditor } from './stage-editor';
 
 describe('StageEditor [Component]', function () {
-  let component: ReturnType<typeof mount> | null;
   const spy = sinon.spy();
   const stage = '{ name: "testing" }';
   const stageOperator = '$match';
 
   beforeEach(function () {
-    component = mount(
+    render(
       <StageEditor
         namespace="test.test"
         stageValue={stage}
@@ -23,16 +22,12 @@ describe('StageEditor [Component]', function () {
         syntaxError={null}
         serverError={null}
         num_stages={0}
-        editor_view_type=""
+        editor_view_type="text"
       />
     );
   });
 
-  afterEach(function () {
-    component = null;
-  });
-
   it('renders the wrapper div', function () {
-    expect(component?.find('StageEditor')).to.exist;
+    expect(screen.getByTestId('stage-editor')).to.exist;
   });
 });

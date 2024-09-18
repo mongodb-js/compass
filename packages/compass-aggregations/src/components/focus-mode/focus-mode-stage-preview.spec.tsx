@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within } from '@testing-library/react';
+import { screen, within } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import {
   FocusModePreview,

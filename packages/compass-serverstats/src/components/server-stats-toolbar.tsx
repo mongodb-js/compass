@@ -13,7 +13,7 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const serverStatsToolbarStyles = css({
   display: 'flex',
@@ -58,7 +58,7 @@ type ServerStatsToolbarProps = {
 
 function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
 
   const [time, setTime] = useState('00:00:00');
@@ -73,7 +73,7 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
   }, [eventDispatcher]);
 
   const onPlayPauseClicked = useCallback(() => {
-    const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
+    const connectionInfo = connectionInfoRef.current;
     if (isPaused) {
       track('Performance Resumed', {}, connectionInfo);
     } else {
@@ -81,7 +81,7 @@ function ServerStatsToolbar({ eventDispatcher }: ServerStatsToolbarProps) {
     }
     setPaused(!isPaused);
     Actions.pause();
-  }, [isPaused, track, connectionInfoAccess]);
+  }, [isPaused, track, connectionInfoRef]);
 
   return (
     <div

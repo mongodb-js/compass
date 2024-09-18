@@ -1861,8 +1861,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return {
       ns,
       verbosity:
-        executionOptions?.explainVerbosity ||
-        ExplainVerbosity.allPlansExecution,
+        executionOptions?.explainVerbosity || ExplainVerbosity.executionStats,
     };
   })
   explainFind(
@@ -1872,7 +1871,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity || ExplainVerbosity.allPlansExecution;
+      executionOptions?.explainVerbosity || ExplainVerbosity.executionStats;
 
     let cursor: FindCursor;
     return this._cancellableOperation(
@@ -1894,8 +1893,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return {
       ns,
       verbosity:
-        executionOptions?.explainVerbosity ||
-        ExplainVerbosity.allPlansExecution,
+        executionOptions?.explainVerbosity || ExplainVerbosity.executionStats,
     };
   })
   explainAggregate(
@@ -1905,7 +1903,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExplainExecuteOptions
   ): Promise<Document> {
     const verbosity =
-      executionOptions?.explainVerbosity || ExplainVerbosity.queryPlanner;
+      executionOptions?.explainVerbosity || ExplainVerbosity.executionStats;
 
     let cursor: AggregationCursor;
     return this._cancellableOperation(

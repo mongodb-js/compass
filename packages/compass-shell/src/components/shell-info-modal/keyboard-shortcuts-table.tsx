@@ -14,10 +14,6 @@ import {
 
 const hotkeys = [
   {
-    key: 'Ctrl+`',
-    description: 'Toggle shell.',
-  },
-  {
     key: 'Ctrl+A',
     description: 'Moves the cursor to the beginning of the line.',
   },

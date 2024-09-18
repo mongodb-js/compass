@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
 import { useIsLastAppliedQueryOutdated } from './hooks';
-import { renderHook, cleanup } from '@testing-library/react-hooks';
+import { renderHook, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { applyQuery, changeField } from '../stores/query-bar-reducer';
 

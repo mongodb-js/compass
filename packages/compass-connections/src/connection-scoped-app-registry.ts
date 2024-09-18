@@ -3,10 +3,8 @@ import {
   createServiceLocator,
   useGlobalAppRegistry,
 } from 'hadron-app-registry';
-import {
-  type ConnectionInfoAccess,
-  connectionInfoAccessLocator,
-} from './connection-info-provider';
+import type { ConnectionInfoRef } from './connection-info-provider';
+import { connectionInfoRefLocator } from './connection-info-provider';
 
 export type ConnectionScopedAppRegistryLocator<
   T extends string,
@@ -30,7 +28,7 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
 {
   constructor(
     private readonly appRegistryEmitter: AppRegistry['emit'],
-    private readonly connectionInfoAccess: ConnectionInfoAccess
+    private readonly connectionInfoRef: ConnectionInfoRef
   ) {}
 
   /**
@@ -46,8 +44,7 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
    * relying on AppRegistry events.
    */
   emit(event: T, ...payload: any[]): void {
-    const connectionId =
-      this.connectionInfoAccess.getCurrentConnectionInfo().id;
+    const connectionId = this.connectionInfoRef.current.id;
     this.appRegistryEmitter(event, ...payload, { connectionId });
   }
 }
@@ -59,11 +56,11 @@ export const connectionScopedAppRegistryLocator = createServiceLocator(
     L extends keyof ConnectionScopedAppRegistryImpl<T> = K
   >(): ConnectionScopedAppRegistry<T, K, L> {
     const appRegistry = useGlobalAppRegistry();
-    const connectionInfoAccess = connectionInfoAccessLocator();
+    const connectionInfoRef = connectionInfoRefLocator();
 
     return new ConnectionScopedAppRegistryImpl<T>(
       appRegistry.emit.bind(appRegistry),
-      connectionInfoAccess
+      connectionInfoRef
     );
   }
 );

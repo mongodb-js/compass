@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { debounce } from 'lodash';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import { withTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { BannerVariant } from '@mongodb-js/compass-components';
 import {
   css,
@@ -11,7 +10,7 @@ import {
   spacing,
   Banner,
   palette,
-  withDarkMode,
+  useDarkMode,
   KeylineCard,
 } from '@mongodb-js/compass-components';
 import {
@@ -19,7 +18,6 @@ import {
   createValidationAutocompleter,
 } from '@mongodb-js/compass-editor';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-
 import type {
   Validation,
   ValidationLevel,
@@ -28,10 +26,7 @@ import type {
 } from '../../modules/validation';
 import { checkValidator } from '../../modules/validation';
 import { ActionSelector, LevelSelector } from '../validation-selectors';
-import {
-  type ConnectionInfoAccess,
-  withConnectionInfoAccess,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const validationEditorStyles = css({
   padding: spacing[3],
@@ -119,210 +114,161 @@ export type ValidationEditorProps = {
     | 'error'
   >;
   isEditable: boolean;
-  darkMode?: boolean;
-  track: TrackFunction;
-  connectionInfoAccess: ConnectionInfoAccess;
 };
 
 /**
  * The validation editor component.
  */
-class ValidationEditor extends Component<ValidationEditorProps> {
-  static displayName = 'ValidationEditor';
+const ValidationEditor: React.FunctionComponent<ValidationEditorProps> = ({
+  namespace,
+  clearSampleDocuments,
+  validatorChanged,
+  validationActionChanged,
+  validationLevelChanged,
+  cancelValidation,
+  saveValidation,
+  serverVersion,
+  validation,
+  isEditable,
+}) => {
+  const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
 
-  debounceValidatorChanged: (text: string) => void;
+  const clearSampleDocumentsRef = useRef(clearSampleDocuments);
+  clearSampleDocumentsRef.current = clearSampleDocuments;
 
-  /**
-   * Set up the autocompleters once on initialization.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props: ValidationEditorProps) {
-    super(props);
-    this.debounceValidatorChanged = debounce((validator) => {
-      this.props.clearSampleDocuments();
-      this.trackValidator(validator);
+  const validatorChangedRef = useRef(validatorChanged);
+  validatorChangedRef.current = validatorChanged;
+
+  const saveValidationRef = useRef(saveValidation);
+  saveValidationRef.current = saveValidation;
+
+  const validationRef = useRef(validation);
+  validationRef.current = validation;
+
+  const trackValidator = useCallback(
+    (validator: string) => {
+      const checkedValidator = checkValidator(validator);
+      const trackEvent = {
+        json_schema:
+          typeof checkedValidator.validator === 'object' &&
+          !!checkedValidator.validator?.$jsonSchema,
+      };
+      track('Schema Validation Edited', trackEvent, connectionInfoRef.current);
+    },
+    [connectionInfoRef, track]
+  );
+
+  const debounceValidatorChanged = useMemo(() => {
+    return debounce((validator: string) => {
+      clearSampleDocumentsRef.current();
+      trackValidator(validator);
     }, 750);
-  }
+  }, [trackValidator]);
 
-  /**
-   * Save validator changes.
-   */
-  onValidatorSave() {
-    this.props.saveValidation(this.props.validation);
-  }
-
-  /**
-   * Save validator changes.
-   *
-   * @param {Object} validator - The validator.
-   */
-  onValidatorChange(validator: string) {
-    this.props.validatorChanged(validator);
-    this.validatorChanged();
-  }
-
-  /**
-   * Checks if there is any error.
-   */
-  hasErrors(): boolean {
-    return !!(this.props.validation.error || this.props.validation.syntaxError);
-  }
-
-  /**
-   * Validator changed.
-   */
-  validatorChanged() {
-    this.debounceValidatorChanged(this.props.validation.validator);
-  }
-
-  trackValidator(validator: string) {
-    const checkedValidator = checkValidator(validator);
-    const trackEvent = {
-      json_schema:
-        typeof checkedValidator.validator === 'object' &&
-        !!checkedValidator.validator?.$jsonSchema,
+  useEffect(() => {
+    return () => {
+      debounceValidatorChanged.cancel();
     };
-    this.props.track(
-      'Schema Validation Edited',
-      trackEvent,
-      this.props.connectionInfoAccess.getCurrentConnectionInfo()
-    );
+  }, [debounceValidatorChanged]);
+
+  const onValidatorChange = useCallback(
+    (validator: string) => {
+      validatorChangedRef.current(validator);
+      debounceValidatorChanged(validator);
+    },
+    [debounceValidatorChanged]
+  );
+
+  const onValidatorSave = useCallback(() => {
+    saveValidationRef.current(validationRef.current);
+  }, []);
+
+  const darkMode = useDarkMode();
+
+  const { validationAction, validationLevel, error, syntaxError, isChanged } =
+    validation;
+
+  const hasErrors = !!(error || syntaxError);
+
+  let message = '';
+  let variant: BannerVariant = 'info';
+
+  if (syntaxError) {
+    message = syntaxError.message;
+    variant = 'danger';
+  } else if (error) {
+    message = error.message;
+    variant = 'warning';
   }
 
-  /**
-   * Render action selector.
-   */
-  renderActionSelector() {
-    const { validation, isEditable, validationActionChanged } = this.props;
-    const { validationAction } = validation;
+  const hasChangedAndEditable = isChanged && isEditable;
 
-    return (
-      <ActionSelector
-        isEditable={isEditable}
-        validationActionChanged={validationActionChanged}
-        validationAction={validationAction}
-      />
-    );
-  }
-
-  /**
-   * Render level selector.
-   */
-  renderLevelSelector() {
-    const { validation, isEditable, validationLevelChanged } = this.props;
-    const { validationLevel } = validation;
-
-    return (
-      <LevelSelector
-        isEditable={isEditable}
-        validationLevelChanged={validationLevelChanged}
-        validationLevel={validationLevel}
-      />
-    );
-  }
-
-  /**
-   * Render validation message.
-   */
-  renderValidationMessage() {
-    if (!this.hasErrors()) {
-      return;
-    }
-
-    let message = '';
-    let variant: BannerVariant = 'info';
-
-    if (this.props.validation.syntaxError) {
-      message = this.props.validation.syntaxError.message;
-      variant = 'danger';
-    } else if (this.props.validation.error) {
-      message = this.props.validation.error.message;
-      variant = 'warning';
-    }
-
-    return <Banner variant={variant}>{message}</Banner>;
-  }
-
-  /**
-   * Render actions pannel.
-   */
-  renderActionsPanel() {
-    if (!(this.props.validation.isChanged && this.props.isEditable)) {
-      return;
-    }
-
-    return (
-      <div className={actionsStyles}>
-        <Body
-          className={modifiedMessageStyles}
-          data-testid="validation-action-message"
-        >
-          Validation modified
-        </Body>
-        <Button
-          type="button"
-          className={buttonStyles}
-          variant="default"
-          data-testid="cancel-validation-button"
-          onClick={this.props.cancelValidation}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          className={buttonStyles}
-          variant="primary"
-          data-testid="update-validation-button"
-          onClick={this.onValidatorSave.bind(this)}
-          disabled={this.hasErrors()}
-        >
-          Update
-        </Button>
+  return (
+    <KeylineCard
+      data-testid="validation-editor"
+      className={validationEditorStyles}
+    >
+      <div className={validationOptionsStyles}>
+        <ActionSelector
+          isEditable={isEditable}
+          validationActionChanged={validationActionChanged}
+          validationAction={validationAction}
+        />
+        <LevelSelector
+          isEditable={isEditable}
+          validationLevelChanged={validationLevelChanged}
+          validationLevel={validationLevel}
+        />
       </div>
-    );
-  }
-
-  /**
-   * Render ValidationEditor component.
-   */
-  render() {
-    const { darkMode, isEditable, validation } = this.props;
-
-    return (
-      <KeylineCard
-        data-testid="validation-editor"
-        className={validationEditorStyles}
+      <div
+        className={cx(
+          editorStyles,
+          darkMode ? editorStylesDark : editorStylesLight
+        )}
       >
-        <div className={validationOptionsStyles}>
-          {this.renderActionSelector()}
-          {this.renderLevelSelector()}
+        <ValidationCodeEditor
+          namespace={namespace}
+          text={validation.validator}
+          onChangeText={(text) => {
+            onValidatorChange(text);
+          }}
+          readOnly={!isEditable}
+          serverVersion={serverVersion}
+        />
+      </div>
+      {variant && message && <Banner variant={variant}>{message}</Banner>}
+      {hasChangedAndEditable && (
+        <div className={actionsStyles}>
+          <Body
+            className={modifiedMessageStyles}
+            data-testid="validation-action-message"
+          >
+            Validation modified
+          </Body>
+          <Button
+            type="button"
+            className={buttonStyles}
+            variant="default"
+            data-testid="cancel-validation-button"
+            onClick={cancelValidation}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            className={buttonStyles}
+            variant="primary"
+            data-testid="update-validation-button"
+            onClick={onValidatorSave}
+            disabled={hasErrors}
+          >
+            Update
+          </Button>
         </div>
-        <div
-          className={cx(
-            editorStyles,
-            darkMode ? editorStylesDark : editorStylesLight
-          )}
-        >
-          <ValidationCodeEditor
-            namespace={this.props.namespace}
-            text={validation.validator}
-            onChangeText={(text) => {
-              return this.onValidatorChange(text);
-            }}
-            readOnly={!isEditable}
-            serverVersion={this.props.serverVersion}
-          />
-        </div>
-        {this.renderValidationMessage()}
-        {this.renderActionsPanel()}
-      </KeylineCard>
-    );
-  }
-}
+      )}
+    </KeylineCard>
+  );
+};
 
-export default withTelemetry(
-  withConnectionInfoAccess(
-    withDarkMode<ValidationEditorProps>(ValidationEditor)
-  )
-);
+export default ValidationEditor;

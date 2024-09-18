@@ -5,7 +5,7 @@ import {
   COMMON_INITIAL_STATE,
   useOpenModalThroughIpc,
 } from './common';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@mongodb-js/testing-library-compass';
 import { useState } from 'react';
 import EventEmitter from 'events';
 
@@ -56,7 +56,7 @@ describe('common utilities', function () {
   });
 
   describe('useOpenModalThroughIpc', function () {
-    it("allows modifying a modal's state through ipc events", function () {
+    it("allows modifying a modal's state through ipc events", async function () {
       const fakeIpc = new EventEmitter();
       const event = 'test:open-modal';
 
@@ -74,17 +74,19 @@ describe('common utilities', function () {
       expect(result.current.open).to.equal(false);
       expect(fakeIpc.listenerCount(event)).to.equal(1);
 
-      act(() => {
-        fakeIpc.emit(event);
-      });
-      expect(result.current.open).to.equal(true);
-      expect(fakeIpc.listenerCount(event)).to.equal(0);
+      fakeIpc.emit(event);
 
-      act(() => {
-        result.current.setOpen(false);
+      await waitFor(() => {
+        expect(result.current.open).to.equal(true);
+        expect(fakeIpc.listenerCount(event)).to.equal(0);
       });
-      expect(result.current.open).to.equal(false);
-      expect(fakeIpc.listenerCount(event)).to.equal(1);
+
+      result.current.setOpen(false);
+
+      await waitFor(() => {
+        expect(result.current.open).to.equal(false);
+        expect(fakeIpc.listenerCount(event)).to.equal(1);
+      });
     });
   });
 });

@@ -8,18 +8,20 @@ import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provi
 import type { ConnectionInfo } from '../../../connection-info/dist';
 import type { WorkspaceTab } from '../../dist';
 import { setTabDestroyHandler } from '../components/workspace-close-handler';
-import { activatePluginWithConnections } from '@mongodb-js/testing-library-compass';
+import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
 
 type WorkspacesStore = ReturnType<typeof activateWorkspacePlugin>['store'];
 
 describe('tabs behavior', function () {
+  const { activatePluginWithConnections } = createPluginTestHelpers(
+    WorkspacesPlugin.withMockServices({
+      instancesManager: new TestMongoDBInstanceManager(),
+    }),
+    { onActiveWorkspaceTabChange: () => undefined }
+  );
+
   function configureStore() {
-    const result = activatePluginWithConnections(
-      WorkspacesPlugin.withMockServices({
-        instancesManager: new TestMongoDBInstanceManager(),
-      }),
-      { onActiveWorkspaceTabChange: () => undefined }
-    );
+    const result = activatePluginWithConnections();
     return result.plugin.store as WorkspacesStore;
   }
 

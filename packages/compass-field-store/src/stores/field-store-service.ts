@@ -1,8 +1,8 @@
 import { type Schema } from 'mongodb-schema';
 import { createServiceLocator } from 'hadron-app-registry';
 import {
-  useConnectionInfoAccess,
-  type ConnectionInfoAccess,
+  useConnectionInfoRef,
+  type ConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
 import { useDispatch } from './context';
 import { documentsUpdated, schemaUpdated } from '../modules';
@@ -17,7 +17,7 @@ export type FieldStoreService = {
 
 function createFieldStoreService(
   dispatch: ReturnType<typeof useDispatch>,
-  connectionInfoAccess: ConnectionInfoAccess
+  connectionInfoRef: ConnectionInfoRef
 ): FieldStoreService {
   return {
     async updateFieldsFromDocuments(
@@ -25,21 +25,11 @@ function createFieldStoreService(
       documents: Record<string, any>[]
     ) {
       await dispatch(
-        documentsUpdated(
-          connectionInfoAccess.getCurrentConnectionInfo().id,
-          ns,
-          documents
-        )
+        documentsUpdated(connectionInfoRef.current.id, ns, documents)
       );
     },
     updateFieldsFromSchema(ns: string, schema: Schema) {
-      dispatch(
-        schemaUpdated(
-          connectionInfoAccess.getCurrentConnectionInfo().id,
-          ns,
-          schema
-        )
-      );
+      dispatch(schemaUpdated(connectionInfoRef.current.id, ns, schema));
     },
   };
 }
@@ -49,8 +39,8 @@ function createFieldStoreService(
  */
 export function useFieldStoreService() {
   const dispatch = useDispatch();
-  const connectionInfoAccess = useConnectionInfoAccess();
-  return createFieldStoreService(dispatch, connectionInfoAccess);
+  const connectionInfoRef = useConnectionInfoRef();
+  return createFieldStoreService(dispatch, connectionInfoRef);
 }
 
 export const fieldStoreServiceLocator = createServiceLocator(

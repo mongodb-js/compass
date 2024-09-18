@@ -23,7 +23,7 @@ import { countAggregationStagesInString } from '../modules/count-aggregation-sta
 import { usePreference } from 'compass-preferences-model/provider';
 import { prettify } from '@mongodb-js/compass-editor';
 import { closeModal } from '../stores';
-import { useConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type LanguageOption = {
   displayName: string;
@@ -101,7 +101,7 @@ const ExportToLanguageModal: React.FunctionComponent<
   }
 > = ({ modalOpen, onModalClose, inputExpression, uri, namespace }) => {
   const track = useTelemetry();
-  const connectionInfoAccess = useConnectionInfoAccess();
+  const connectionInfoRef = useConnectionInfoRef();
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);
@@ -146,54 +146,58 @@ const ExportToLanguageModal: React.FunctionComponent<
   const [wasOpen, setWasOpen] = useState(false);
 
   useEffect(() => {
-    const trackingEvent =
-      mode === 'Update Query'
-        ? 'Update Export Opened'
-        : mode === 'Delete Query'
-        ? 'Delete Export Opened'
-        : mode === 'Query'
-        ? 'Query Export Opened'
-        : 'Aggregation Export Opened';
-
     if (modalOpen && !wasOpen) {
-      const connectionInfo = connectionInfoAccess.getCurrentConnectionInfo();
-      track(
-        trackingEvent,
-        {
-          ...stageCountForTelemetry(inputExpression),
-        },
-        connectionInfo
-      );
+      const connectionInfo = connectionInfoRef.current;
+
+      if (mode === 'Query') {
+        track('Query Export Opened', {}, connectionInfo);
+      } else if (mode === 'Delete Query') {
+        track('Delete Export Opened', {}, connectionInfo);
+      } else if (mode === 'Update Query') {
+        track('Update Export Opened', {}, connectionInfo);
+      } else if (mode === 'Pipeline') {
+        track(
+          'Aggregation Export Opened',
+          {
+            ...stageCountForTelemetry(inputExpression),
+          },
+          connectionInfo
+        );
+      }
+
       track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     }
 
     setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoAccess]);
+  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoRef]);
 
   const trackCopiedOutput = useCallback(() => {
-    const trackingEvent =
-      mode === 'Update Query'
-        ? 'Update Exported'
-        : mode === 'Delete Query'
-        ? 'Delete Exported'
-        : mode === 'Query'
-        ? 'Query Exported'
-        : 'Aggregation Exported';
+    const commonProps = {
+      language: outputLanguage,
+      with_import_statements: includeImports,
+      with_drivers_syntax: includeDrivers,
+      with_builders: useBuilders,
+    };
 
-    track(
-      trackingEvent,
-      {
-        language: outputLanguage,
-        with_import_statements: includeImports,
-        with_drivers_syntax: includeDrivers,
-        with_builders: useBuilders,
-        ...stageCountForTelemetry(inputExpression),
-      },
-      connectionInfoAccess.getCurrentConnectionInfo()
-    );
+    if (mode === 'Update Query') {
+      track('Update Exported', commonProps, connectionInfoRef.current);
+    } else if (mode === 'Delete Query') {
+      track('Delete Exported', commonProps, connectionInfoRef.current);
+    } else if (mode === 'Query') {
+      track('Query Exported', commonProps, connectionInfoRef.current);
+    } else if (mode === 'Pipeline') {
+      track(
+        'Aggregation Exported',
+        {
+          ...commonProps,
+          ...stageCountForTelemetry(inputExpression),
+        },
+        connectionInfoRef.current
+      );
+    }
   }, [
     track,
-    connectionInfoAccess,
+    connectionInfoRef,
     outputLanguage,
     includeImports,
     includeDrivers,

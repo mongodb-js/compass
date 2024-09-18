@@ -8,7 +8,7 @@ import type AppRegistry from 'hadron-app-registry';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { ConnectionInfoAccess } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 type CreateIndexPluginOptions = Pick<
   CollectionTabPluginMetadata,
@@ -19,7 +19,7 @@ export type CreateIndexPluginServices = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   dataService: Pick<DataService, 'createIndex'>;
-  connectionInfoAccess: ConnectionInfoAccess;
+  connectionInfoRef: ConnectionInfoRef;
   logger: Logger;
   track: TrackFunction;
 };
@@ -31,7 +31,7 @@ export function activatePlugin(
     dataService,
     logger,
     track,
-    connectionInfoAccess,
+    connectionInfoRef,
   }: CreateIndexPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -44,7 +44,7 @@ export function activatePlugin(
         dataService,
         logger,
         track,
-        connectionInfoAccess,
+        connectionInfoRef,
       })
     )
   );
