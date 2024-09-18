@@ -657,8 +657,6 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...getInitialState(),
-      // keep visibility in case it finishes while the modal is still open
-      isVisible: state.isVisible,
     };
   }
 
