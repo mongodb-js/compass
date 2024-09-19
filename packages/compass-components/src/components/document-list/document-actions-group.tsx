@@ -155,12 +155,20 @@ const DocumentActionsGroup: React.FunctionComponent<
               glyph={expanded ? 'CaretDown' : 'CaretRight'}
             ></Icon>
           }
-          aria-label={expanded ? 'Collapse all' : 'Expand all'}
+          aria-label={
+            expanded
+              ? 'Collapse all embedded fields'
+              : 'Expand all embedded fields'
+          }
           aria-pressed={expanded}
           data-testid="expand-document-button"
           onClick={onExpand}
           className={actionsGroupItem}
-          tooltipText={expanded ? 'Collapse all' : 'Expand all'}
+          tooltipText={
+            expanded
+              ? 'Collapse all embedded fields'
+              : 'Expand all embedded fields'
+          }
         />
       )}
       <span className={actionsGroupItemSeparator}></span>
