@@ -10,7 +10,7 @@ import searchIndexes from './search-indexes';
 import serverVersion from './server-version';
 import namespace from './namespace';
 import createIndex from './create-index';
-import stats from './stats';
+import collectionStats from './collection-stats';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -52,7 +52,7 @@ const reducer = combineReducers({
   createIndex,
 
   // The stats for the collection
-  stats,
+  collectionStats,
 });
 
 export type SortDirection = 'asc' | 'desc';

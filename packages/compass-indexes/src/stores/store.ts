@@ -27,7 +27,7 @@ import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider
 import {
   collectionStatsFetched,
   pickCollectionIndexStats,
-} from '../modules/stats';
+} from '../modules/collection-stats';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -97,7 +97,7 @@ export function activateIndexesPlugin(
           ? SearchIndexesStatuses.NOT_READY
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
-      stats: pickCollectionIndexStats(collectionModel),
+      collectionStats: pickCollectionIndexStats(collectionModel),
     },
     applyMiddleware(
       thunk.withExtraArgument({

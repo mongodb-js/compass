@@ -8,7 +8,7 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export function pickCollectionIndexStats(collection: Collection): StatsState {
+export function pickCollectionIndexStats(collection: Collection): CollectionStats {
   const { index_count, index_size } = collection.toJSON();
   return {
     index_count,
@@ -16,10 +16,10 @@ export function pickCollectionIndexStats(collection: Collection): StatsState {
   };
 }
 
-export type StatsState = Pick<Collection, 'index_count' | 'index_size'> | null;
+export type CollectionStats = Pick<Collection, 'index_count' | 'index_size'> | null;
 
 enum StatsActions {
-  CollectionStatsFetched = 'compass-indexes/CollectionStatsFetched',
+  CollectionStatsFetched = 'compass-indexes/CollectionStatsFetchedCollection',
 }
 
 interface CollectionStatsFetchedAction {
@@ -27,7 +27,7 @@ interface CollectionStatsFetchedAction {
   collection: Collection;
 }
 
-const reducer: Reducer<StatsState, Action> = (state = null, action) => {
+const reducer: Reducer<CollectionStats, Action> = (state = null, action) => {
   if (
     isAction<CollectionStatsFetchedAction>(
       action,

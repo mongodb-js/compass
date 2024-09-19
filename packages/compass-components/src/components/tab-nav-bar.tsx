@@ -40,8 +40,8 @@ type TabNavBarProps = {
   onTabClicked: (tabIndex: number) => void;
   tabs: Array<{
     name: string;
-    content: JSX.Element;
-    title: JSX.Element;
+    content: React.ReactNode;
+    title: React.ReactNode;
   }>;
 };
 

@@ -91,6 +91,26 @@ class FakeInstance extends EventEmitter {
 
 const fakeInstance = new FakeInstance();
 
+const defaultMetadata = {
+  namespace: 'test.foo',
+  isReadonly: false,
+  isTimeSeries: false,
+  isClustered: false,
+  isFLE: false,
+  isSearchIndexesSupported: false,
+  sourceName: 'test.bar',
+};
+const mockCollection = {
+  _id: defaultMetadata.namespace,
+  fetchMetadata() {
+    return Promise.resolve(defaultMetadata);
+  },
+  toJSON() {
+    return this;
+  },
+  on: Sinon.spy(),
+};
+
 export const setupStore = (
   options: Partial<IndexesPluginOptions> = {},
   dataProvider: Partial<IndexesDataService> = NOOP_DATA_PROVIDER,
@@ -127,6 +147,7 @@ export const setupStore = (
       instance: fakeInstance as any,
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
+      collection: mockCollection as any,
       connectionInfoRef,
       ...services,
     },

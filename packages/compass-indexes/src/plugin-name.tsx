@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
-import type { StatsState } from './modules/stats';
+import type { CollectionStats } from './modules/collection-stats';
 import type { RootState } from './modules';
 import { Badge, css, spacing, Tooltip } from '@mongodb-js/compass-components';
 import numeral from 'numeral';
@@ -76,15 +76,19 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
   );
 };
 
-const PluginName = ({ stats }: { stats: StatsState }) => {
+const PluginName = ({
+  collectionStats,
+}: {
+  collectionStats: CollectionStats;
+}) => {
   const { indexCount, totalIndexSize, avgIndexSize } = useMemo(() => {
-    const { index_count = NaN, index_size = NaN } = stats ?? {};
+    const { index_count = NaN, index_size = NaN } = collectionStats ?? {};
     return {
       indexCount: format(index_count),
       totalIndexSize: format(index_size, 'b'),
       avgIndexSize: format(avg(index_size, index_count), 'b'),
     };
-  }, [stats]);
+  }, [collectionStats]);
 
   const details = [
     `Indexes: ${indexCount}`,
@@ -103,6 +107,6 @@ const PluginName = ({ stats }: { stats: StatsState }) => {
   );
 };
 
-export const IndexesPluginName = connect(({ stats }: RootState) => ({ stats }))(
-  PluginName
-);
+export const IndexesPluginName = connect(({ collectionStats }: RootState) => ({
+  collectionStats,
+}))(PluginName);
