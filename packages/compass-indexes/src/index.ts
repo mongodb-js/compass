@@ -1,3 +1,4 @@
+import React from 'react';
 import CreateIndexModal from './components/create-index-modal';
 import { activatePlugin as activateCreateIndexPlugin } from './stores/create-index';
 import {
@@ -18,11 +19,16 @@ import {
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { IndexesPluginName } from './plugin-name';
 
-export const CompassIndexesHadronPlugin = registerHadronPlugin(
+const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassIndexes',
-    component: Indexes as React.FunctionComponent,
+    component: function IndexesProvider({ children, ...props }) {
+      return React.isValidElement(children)
+        ? React.cloneElement(children, props)
+        : null;
+    },
     activate: activateIndexesPlugin,
   },
   {
@@ -37,7 +43,9 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin(
 
 export const CompassIndexesPlugin = {
   name: 'Indexes' as const,
-  component: CompassIndexesHadronPlugin,
+  provider: CompassIndexesHadronPlugin,
+  content: Indexes,
+  header: IndexesPluginName,
 };
 
 export const CreateIndexPlugin = registerHadronPlugin(

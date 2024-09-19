@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import {
@@ -116,6 +116,45 @@ type CollectionTabProps = Omit<CollectionTabOptions, 'tabId'> &
   ConnectionTabConnectedProps &
   ConnectionTabExpectedProps;
 
+function useCollectionTabs(props: CollectionMetadata) {
+  const pluginTabs = useCollectionSubTabs();
+  const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
+  return useMemo(() => {
+    return pluginTabs.map(
+      ({ name, content: Content, provider: Provider, header: Header }) => {
+        // `pluginTabs` never change in runtime so it's safe to call the hook here
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        Provider.useActivate(props);
+        return {
+          name,
+          content: (
+            <ErrorBoundary
+              key={name}
+              onError={(error: Error, errorInfo: unknown) => {
+                log.error(
+                  mongoLogId(1001000107),
+                  'Collection Workspace',
+                  'Rendering collection tab failed',
+                  { name: name, error: error.stack, errorInfo }
+                );
+              }}
+            >
+              <Provider {...props}>
+                <Content {...props} />
+              </Provider>
+            </ErrorBoundary>
+          ),
+          title: (
+            <Provider {...props}>
+              <Header {...props} />
+            </Provider>
+          ),
+        };
+      }
+    );
+  }, [log, mongoLogId, pluginTabs, props]);
+}
+
 const CollectionTabWithMetadata: React.FunctionComponent<
   CollectionTabProps
 > = ({
@@ -128,11 +167,9 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   collectionMetadata,
   subTab: currentTab,
   onTabClick,
-  stats,
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -148,7 +185,6 @@ const CollectionTabWithMetadata: React.FunctionComponent<
       );
     }
   }, [currentTab, track, connectionInfoRef]);
-  const pluginTabs = useCollectionSubTabs();
   const pluginModals = useCollectionScopedModals();
 
   const pluginProps = {
@@ -161,16 +197,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     editViewName: editViewName,
   };
 
-  const tabs = pluginTabs.map(({ name, component: Component }) => {
-    // `pluginTabs` never change in runtime so it's safe to call the hook here
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    Component.useActivate(pluginProps);
-
-    return {
-      name,
-      component: <Component {...pluginProps} />,
-    };
-  });
+  const tabs = useCollectionTabs(pluginProps);
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
   return (
@@ -183,58 +210,11 @@ const CollectionTabWithMetadata: React.FunctionComponent<
         <TabNavBar
           data-testid="collection-tabs"
           aria-label="Collection Tabs"
-          tabNames={tabs.map((tab) => tab.name)}
-          tabLabels={tabs.map((tab) => {
-            // We don't show stats, when the collection is a timeseries or a view
-            // or when the view is being edited
-            const hideStats =
-              collectionMetadata.isTimeSeries ||
-              collectionMetadata.sourceName ||
-              editViewName;
-            if (hideStats) {
-              return tab.name;
-            }
-            if (tab.name === 'Documents') {
-              return (
-                <TabTitleWithStats
-                  data-testid="documents-tab-with-stats"
-                  title={tab.name}
-                  statsComponent={<CollectionDocumentsStats stats={stats} />}
-                />
-              );
-            }
-            if (tab.name === 'Indexes') {
-              return (
-                <TabTitleWithStats
-                  data-testid="indexes-tab-with-stats"
-                  title={tab.name}
-                  statsComponent={<CollectionIndexesStats stats={stats} />}
-                />
-              );
-            }
-            return tab.name;
-          })}
-          views={tabs.map((tab) => {
-            return (
-              <ErrorBoundary
-                key={tab.name}
-                onError={(error: Error, errorInfo: unknown) => {
-                  log.error(
-                    mongoLogId(1001000107),
-                    'Collection Workspace',
-                    'Rendering collection tab failed',
-                    { name: tab.name, error: error.stack, errorInfo }
-                  );
-                }}
-              >
-                {tab.component}
-              </ErrorBoundary>
-            );
-          })}
           activeTabIndex={activeTabIndex}
           onTabClicked={(id) => {
             onTabClick(tabs[id].name);
           }}
+          tabs={tabs}
         />
       </div>
       <div className={collectionModalContainerStyles}>

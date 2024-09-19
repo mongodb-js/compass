@@ -1,3 +1,4 @@
+import React from 'react';
 import type { DocumentProps } from './components/document';
 import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
@@ -28,11 +29,16 @@ import {
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { CrudPluginName } from './plugin-name';
 
-export const CompassDocumentsHadronPlugin = registerHadronPlugin(
+const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassDocuments',
-    component: DocumentList as any, // as any because of reflux store
+    component: function CrudProvider({ children, ...props }) {
+      return React.isValidElement(children)
+        ? React.cloneElement(children, props)
+        : null;
+    },
     activate: activateDocumentsPlugin,
   },
   {
@@ -56,7 +62,9 @@ export const CompassDocumentsHadronPlugin = registerHadronPlugin(
 
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
-  component: CompassDocumentsHadronPlugin,
+  provider: CompassDocumentsHadronPlugin,
+  content: DocumentList /* reflux store */,
+  header: CrudPluginName,
 };
 
 export default DocumentList;
