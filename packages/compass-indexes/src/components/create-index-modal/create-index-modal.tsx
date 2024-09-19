@@ -6,19 +6,18 @@ import {
   ModalHeader,
   ModalBody,
 } from '@mongodb-js/compass-components';
-
 import {
-  addField,
-  removeField,
-  updateFieldType,
+  fieldAdded,
+  fieldRemoved,
+  fieldTypeUpdated,
   updateFieldName,
-} from '../../modules/create-index/fields';
-import { clearError } from '../../modules/create-index/error';
-import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
+  errorCleared,
+  createIndex,
+  createIndexClosed,
+} from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
-import type { RootState } from '../../modules/create-index';
-import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
+import type { RootState } from '../../modules';
 import {
   useTrackOnChange,
   type TrackFunction,
@@ -29,30 +28,30 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
-  clearError: () => void;
   inProgress: boolean;
-  createIndex: () => void;
-  closeCreateIndexModal: () => void;
+  onErrorBannerCloseClick: () => void;
+  onCreateIndexClick: () => void;
+  onCancelCreateIndexClick: () => void;
 };
 
 function CreateIndexModal({
   isVisible,
   namespace,
   error,
-  clearError,
   inProgress,
-  createIndex,
-  closeCreateIndexModal,
+  onErrorBannerCloseClick,
+  onCreateIndexClick,
+  onCancelCreateIndexClick,
   ...props
 }: CreateIndexModalProps) {
   const connectionInfoRef = useConnectionInfoRef();
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
-        closeCreateIndexModal();
+        onCancelCreateIndexClick();
       }
     },
-    [closeCreateIndexModal]
+    [onCancelCreateIndexClick]
   );
 
   useTrackOnChange(
@@ -88,39 +87,36 @@ function CreateIndexModal({
       <ModalFooter>
         <CreateIndexActions
           error={error}
-          clearError={clearError}
+          onErrorBannerCloseClick={onErrorBannerCloseClick}
           inProgress={inProgress}
-          createIndex={createIndex}
-          closeCreateIndexModal={closeCreateIndexModal}
+          onCreateIndexClick={onCreateIndexClick}
+          onCancelCreateIndexClick={onCancelCreateIndexClick}
         />
       </ModalFooter>
     </Modal>
   );
 }
 
-const mapState = (
-  { fields, inProgress, error, isVisible, namespace, serverVersion }: RootState,
-  // To make sure the derived type is correctly including plugin metadata passed
-  // by CollectionTab
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ownProps: Pick<CollectionTabPluginMetadata, 'namespace' | 'serverVersion'>
-) => ({
-  fields,
-  inProgress,
-  error,
-  isVisible,
-  namespace,
-  serverVersion,
-});
+const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
+  const { fields, inProgress, error, isVisible } = createIndex;
+  return {
+    fields,
+    inProgress,
+    error,
+    isVisible,
+    namespace,
+    serverVersion,
+  };
+};
 
 const mapDispatch = {
-  clearError,
-  createIndex,
-  closeCreateIndexModal,
-  addField,
-  removeField,
-  updateFieldName,
-  updateFieldType,
+  onErrorBannerCloseClick: errorCleared,
+  onCreateIndexClick: createIndex,
+  onCancelCreateIndexClick: createIndexClosed,
+  onAddFieldClick: fieldAdded,
+  onRemoveFieldClick: fieldRemoved,
+  onSelectFieldNameClick: updateFieldName,
+  onSelectFieldTypeClick: fieldTypeUpdated,
 };
 
 export default connect(mapState, mapDispatch)(CreateIndexModal);

@@ -29,9 +29,9 @@ type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   serverVersion: string;
   isWritable?: boolean;
-  onHideIndex: (name: string) => void;
-  onUnhideIndex: (name: string) => void;
-  onDeleteIndex: (name: string) => void;
+  onHideIndexClick: (name: string) => void;
+  onUnhideIndexClick: (name: string) => void;
+  onDeleteIndexClick: (name: string) => void;
   readOnly?: boolean;
   error?: string | null;
 };
@@ -142,9 +142,9 @@ export const RegularIndexesTable: React.FunctionComponent<
   readOnly,
   indexes,
   serverVersion,
-  onHideIndex,
-  onUnhideIndex,
-  onDeleteIndex,
+  onHideIndexClick,
+  onUnhideIndexClick,
+  onDeleteIndexClick,
   error,
 }) => {
   const data = useMemo<LGTableDataType<IndexInfo>[]>(
@@ -168,9 +168,9 @@ export const RegularIndexesTable: React.FunctionComponent<
             <IndexActions
               index={index}
               serverVersion={serverVersion}
-              onDeleteIndex={onDeleteIndex}
-              onHideIndex={onHideIndex}
-              onUnhideIndex={onUnhideIndex}
+              onDeleteIndexClick={onDeleteIndexClick}
+              onHideIndexClick={onHideIndexClick}
+              onUnhideIndexClick={onUnhideIndexClick}
             ></IndexActions>
           ),
 
@@ -182,7 +182,13 @@ export const RegularIndexesTable: React.FunctionComponent<
           />
         ),
       })),
-    [indexes, onDeleteIndex, onHideIndex, onUnhideIndex, serverVersion]
+    [
+      indexes,
+      onDeleteIndexClick,
+      onHideIndexClick,
+      onUnhideIndexClick,
+      serverVersion,
+    ]
   );
 
   if (error) {
@@ -215,9 +221,9 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onDeleteIndex: dropIndex,
-  onHideIndex: hideIndex,
-  onUnhideIndex: unhideIndex,
+  onDeleteIndexClick: dropIndex,
+  onHideIndexClick: hideIndex,
+  onUnhideIndexClick: unhideIndex,
 };
 
 export default connect(

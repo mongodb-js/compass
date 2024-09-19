@@ -26,9 +26,9 @@ describe('IndexActions Component', function () {
       <IndexActions
         index={{ name: 'artist_id_index' } as any}
         serverVersion={'4.4.0'}
-        onDeleteIndex={onDeleteSpy}
-        onHideIndex={onHideIndexSpy}
-        onUnhideIndex={onUnhideIndexSpy}
+        onDeleteIndexClick={onDeleteSpy}
+        onHideIndexClick={onHideIndexSpy}
+        onUnhideIndexClick={onUnhideIndexSpy}
       />
     );
   });
@@ -61,9 +61,9 @@ describe('IndexActions Component', function () {
         <IndexActions
           index={{ name: 'artist_id_index', extra: { hidden: true } } as any}
           serverVersion={'4.4.0'}
-          onDeleteIndex={onDeleteSpy}
-          onHideIndex={onHideIndexSpy}
-          onUnhideIndex={onUnhideIndexSpy}
+          onDeleteIndexClick={onDeleteSpy}
+          onHideIndexClick={onHideIndexSpy}
+          onUnhideIndexClick={onUnhideIndexSpy}
         />
       );
       const button = screen.getByTestId('index-actions-unhide-action');
@@ -83,9 +83,9 @@ describe('IndexActions Component', function () {
         <IndexActions
           index={{ name: 'artist_id_index', extra: { hidden: true } } as any}
           serverVersion={'4.0.28'}
-          onDeleteIndex={onDeleteSpy}
-          onHideIndex={onHideIndexSpy}
-          onUnhideIndex={onUnhideIndexSpy}
+          onDeleteIndexClick={onDeleteSpy}
+          onHideIndexClick={onHideIndexSpy}
+          onUnhideIndexClick={onUnhideIndexSpy}
         />
       );
       expect(() => screen.getByTestId('index-actions-hide-action')).to.throw;

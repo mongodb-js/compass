@@ -7,9 +7,9 @@ import type { RegularIndex } from '../../modules/regular-indexes';
 type IndexActionsProps = {
   index: RegularIndex;
   serverVersion: string;
-  onDeleteIndex: (name: string) => void;
-  onHideIndex: (name: string) => void;
-  onUnhideIndex: (name: string) => void;
+  onDeleteIndexClick: (name: string) => void;
+  onHideIndexClick: (name: string) => void;
+  onUnhideIndexClick: (name: string) => void;
 };
 
 type IndexAction = 'delete' | 'hide' | 'unhide';
@@ -27,9 +27,9 @@ const serverSupportsHideIndex = (serverVersion: string) => {
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
   serverVersion,
-  onDeleteIndex,
-  onHideIndex,
-  onUnhideIndex,
+  onDeleteIndexClick,
+  onHideIndexClick,
+  onUnhideIndexClick,
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<IndexAction>[] = [
@@ -64,14 +64,14 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
-        onDeleteIndex(index.name);
+        onDeleteIndexClick(index.name);
       } else if (action === 'hide') {
-        onHideIndex(index.name);
+        onHideIndexClick(index.name);
       } else if (action === 'unhide') {
-        onUnhideIndex(index.name);
+        onUnhideIndexClick(index.name);
       }
     },
-    [onDeleteIndex, onHideIndex, onUnhideIndex, index]
+    [onDeleteIndexClick, onHideIndexClick, onUnhideIndexClick, index]
   );
 
   return (
