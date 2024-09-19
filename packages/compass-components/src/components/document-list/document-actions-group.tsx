@@ -44,6 +44,13 @@ const actionsGroupSignalPopover = css({
   display: 'block !important',
 });
 
+const expandButton = css({
+  '& > div:has(svg)': {
+    paddingLeft: 3,
+    paddingRight: 3,
+  },
+});
+
 function useElementParentHoverState<T extends HTMLElement>(
   ref: React.RefObject<T>
 ): boolean {
@@ -159,7 +166,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           aria-pressed={expanded}
           data-testid="expand-document-button"
           onClick={onExpand}
-          className={actionsGroupItem}
+          className={cx(actionsGroupItem, expandButton)}
           tooltipText={expanded ? 'Collapse all' : 'Expand all'}
         />
       )}
