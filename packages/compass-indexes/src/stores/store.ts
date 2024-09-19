@@ -29,8 +29,25 @@ import {
   pickCollectionIndexStats,
 } from '../modules/stats';
 
+export type IndexesDataServiceProps =
+  | 'indexes'
+  | 'isConnected'
+  | 'updateCollection'
+  | 'createIndex'
+  | 'dropIndex'
+  | 'getSearchIndexes'
+  | 'createSearchIndex'
+  | 'updateSearchIndex'
+  | 'dropSearchIndex'
+  // Required for collection model (fetching stats)
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported';
+export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
+
 export type IndexesPluginServices = {
-  dataService: DataService;
+  dataService: IndexesDataService;
   connectionInfoRef: ConnectionInfoRef;
   instance: MongoDBInstance;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;

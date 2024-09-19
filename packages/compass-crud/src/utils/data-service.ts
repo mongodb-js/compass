@@ -16,7 +16,12 @@ export type RequiredDataServiceProps =
   | 'findOneAndUpdate'
   | 'findOneAndReplace'
   | 'updateOne'
-  | 'replaceOne';
+  | 'replaceOne'
+  // Required for collection model (fetching stats)
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported';
 // TODO: It might make sense to refactor the DataService interface to be closer to
 // { ..., getCSFLEMode(): 'unavailable' } | {  ..., getCSFLEMode(): 'unavailable' | 'enabled' | 'disabled', isUpdateAllowed(): ..., knownSchemaForCollection(): ... }
 // so that either these methods are always present together or always absent

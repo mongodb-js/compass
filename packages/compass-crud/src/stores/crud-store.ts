@@ -172,6 +172,20 @@ export const fetchDocuments: (
   }
 };
 
+type CollectionStats = Pick<
+  Collection,
+  'document_count' | 'storage_size' | 'free_storage_size' | 'avg_document_size'
+>;
+const extractCollectionStats = (collection: Collection): CollectionStats => {
+  const coll = collection.toJSON();
+  return {
+    document_count: coll.document_count,
+    storage_size: coll.storage_size,
+    free_storage_size: coll.free_storage_size,
+    avg_document_size: coll.avg_document_size,
+  };
+};
+
 /**
  * Default number of docs per page.
  */
@@ -319,13 +333,7 @@ type CrudState = {
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
-  collectionStats: Pick<
-    Collection,
-    | 'document_count'
-    | 'storage_size'
-    | 'free_storage_size'
-    | 'avg_document_size'
-  > | null;
+  collectionStats: CollectionStats | null;
 };
 
 type CrudStoreActionsOptions = {
@@ -431,7 +439,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
-      collectionStats: this.collection.toJSON(), // TODO
+      collectionStats: extractCollectionStats(this.collection),
     };
   }
 
@@ -1531,19 +1539,8 @@ class CrudStoreImpl
   }
 
   collectionStatsFetched(model: Collection) {
-    const {
-      document_count,
-      storage_size,
-      avg_document_size,
-      free_storage_size,
-    } = model.toJSON();
     this.setState({
-      collectionStats: {
-        document_count,
-        storage_size,
-        avg_document_size,
-        free_storage_size,
-      },
+      collectionStats: extractCollectionStats(model),
     });
   }
 
