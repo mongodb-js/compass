@@ -67,12 +67,12 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
   );
 };
 
-export const CrudPluginName: React.FunctionComponent<{
-  store: CrudStore;
-}> = ({
+export const CrudPluginName = ({
   store: {
     state: { collectionStats },
   },
+}: {
+  store: CrudStore;
 }) => {
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
     const {

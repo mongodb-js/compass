@@ -1,12 +1,7 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
-import {
-  css,
-  ErrorBoundary,
-  spacing,
-  TabNavBar,
-} from '@mongodb-js/compass-components';
+import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
@@ -16,10 +11,6 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import {
-  CollectionDocumentsStats,
-  CollectionIndexesStats,
-} from './collection-tab-stats';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
@@ -58,31 +49,9 @@ const collectionModalContainerStyles = css({
   zIndex: 100,
 });
 
-const tabTitleWithStatsStyles = css({
-  display: 'flex',
-  gap: spacing[2],
-});
-const TabTitleWithStats = ({
-  title,
-  statsComponent,
-  'data-testid': dataTestId,
-}: {
-  title: string;
-  statsComponent: React.ReactNode;
-  'data-testid'?: string;
-}) => {
-  return (
-    <div data-testid={dataTestId} className={tabTitleWithStatsStyles}>
-      {title}
-      {statsComponent}
-    </div>
-  );
-};
-
 // Props from redux
 type ConnectionTabConnectedProps = {
   collectionMetadata: CollectionMetadata;
-  stats: CollectionState['stats'];
   onTabClick: (tab: CollectionSubtab) => void;
 };
 
@@ -261,7 +230,6 @@ const ConnectedCollectionTab = connect(
     return {
       namespace: state.namespace,
       collectionMetadata: state.metadata,
-      stats: state.stats,
     };
   },
   {

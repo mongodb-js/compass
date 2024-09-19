@@ -1,5 +1,5 @@
 import React from 'react';
 
-export const AggregationsPluginName: React.FunctionComponent<never> = () => {
+export function AggregationsPluginName() {
   return <div>Aggregations</div>;
-};
+}

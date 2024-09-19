@@ -1,7 +1,5 @@
 import React from 'react';
 
-export const SchemaValidationPluginName: React.FunctionComponent<
-  never
-> = () => {
+export function SchemaValidationPluginName() {
   return <div>Validation</div>;
-};
+}

@@ -103,7 +103,6 @@ const PluginName = ({ stats }: { stats: StatsState }) => {
   );
 };
 
-export const IndexesPluginName = connect(
-  ({ stats }: RootState) => ({ stats }),
-  null
-)(PluginName);
+export const IndexesPluginName = connect(({ stats }: RootState) => ({ stats }))(
+  PluginName
+);

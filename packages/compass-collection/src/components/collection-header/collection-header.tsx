@@ -14,10 +14,8 @@ import React, { useMemo } from 'react';
 import toNS from 'mongodb-ns';
 import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
-import type { CollectionState } from '../../modules/collection-tab';
 import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
-import { connect } from 'react-redux';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 
@@ -177,11 +175,3 @@ export const CollectionHeader: React.FunctionComponent<
     </div>
   );
 };
-
-const ConnectedCollectionHeader = connect((state: CollectionState) => {
-  return {
-    stats: state.stats,
-  };
-})(CollectionHeader);
-
-export default ConnectedCollectionHeader;

@@ -1,5 +1,5 @@
 import React from 'react';
 
-export const SchemaPluginName: React.FunctionComponent<never> = () => {
+export const SchemaPluginName = () => {
   return <div>Schema</div>;
 };
