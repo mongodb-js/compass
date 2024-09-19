@@ -1,5 +1,109 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
+import type { StatsState } from './modules/stats';
+import type { RootState } from './modules';
+import { Badge, css, spacing, Tooltip } from '@mongodb-js/compass-components';
+import numeral from 'numeral';
 
-export const IndexesPluginName: React.FunctionComponent<never> = () => {
-  return <div>Indexes</div>;
+const tabTitleWithStatsStyles = css({
+  display: 'flex',
+  gap: spacing[200],
+});
+
+const tooltipDocumentsListStyles = css({
+  listStyleType: 'none',
+  padding: 0,
+  margin: 0,
+});
+
+const INVALID = 'N/A';
+
+const avg = (size: number, count: number) => {
+  if (count <= 0) {
+    return 0;
+  }
+  return size / count;
 };
+
+const isNumber = (val: any): val is number => {
+  return typeof val === 'number' && !isNaN(val);
+};
+
+const format = (value: any, format = 'a') => {
+  if (!isNumber(value)) {
+    return INVALID;
+  }
+  const precision = value <= 1000 ? '0' : '0.0';
+  return numeral(value).format(precision + format);
+};
+
+type CollectionTabStatsProps = {
+  text: string;
+  details: string[];
+};
+const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
+  text,
+  details,
+}) => {
+  return (
+    <div data-testid="collection-stats">
+      <Tooltip
+        data-testid="collection-stats-tooltip"
+        align="bottom"
+        justify="middle"
+        trigger={
+          // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+          <span
+            onClick={() => {
+              // We use these stats in the Collection Tab, and LG does not
+              // bubble up the click event to the parent component, so we
+              // add noop onClick and let it bubble up.
+            }}
+          >
+            <Badge>{text}</Badge>
+          </span>
+        }
+      >
+        <ol className={tooltipDocumentsListStyles}>
+          {details.map((detail, i) => (
+            <li data-testid={`tooltip-detail-${i}`} key={`tooltip-detail-${i}`}>
+              {detail}
+            </li>
+          ))}
+        </ol>
+      </Tooltip>
+    </div>
+  );
+};
+
+const PluginName = ({ stats }: { stats: StatsState }) => {
+  const { indexCount, totalIndexSize, avgIndexSize } = useMemo(() => {
+    const { index_count = NaN, index_size = NaN } = stats ?? {};
+    return {
+      indexCount: format(index_count),
+      totalIndexSize: format(index_size, 'b'),
+      avgIndexSize: format(avg(index_size, index_count), 'b'),
+    };
+  }, [stats]);
+
+  const details = [
+    `Indexes: ${indexCount}`,
+    `Total Size: ${totalIndexSize}`,
+    `Avg. Size: ${avgIndexSize}`,
+  ];
+
+  return (
+    <div
+      data-testid="indexes-tab-with-stats"
+      className={tabTitleWithStatsStyles}
+    >
+      Indexes
+      <CollectionTabStats text={indexCount} details={details} />
+    </div>
+  );
+};
+
+export const IndexesPluginName = connect(
+  ({ stats }: RootState) => ({ stats }),
+  null
+)(PluginName);

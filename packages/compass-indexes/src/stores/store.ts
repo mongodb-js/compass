@@ -17,30 +17,26 @@ import {
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  MongoDBInstance,
+  Collection,
+} from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-
-export type IndexesDataServiceProps =
-  | 'indexes'
-  | 'isConnected'
-  | 'updateCollection'
-  | 'createIndex'
-  | 'dropIndex'
-  | 'getSearchIndexes'
-  | 'createSearchIndex'
-  | 'updateSearchIndex'
-  | 'dropSearchIndex';
-export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
+import {
+  collectionStatsFetched,
+  pickCollectionIndexStats,
+} from '../modules/stats';
 
 export type IndexesPluginServices = {
-  dataService: IndexesDataService;
+  dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
   instance: MongoDBInstance;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: Logger;
+  collection: Collection;
   track: TrackFunction;
 };
 
@@ -65,6 +61,7 @@ export function activateIndexesPlugin(
     logger,
     track,
     dataService,
+    collection: collectionModel,
   }: IndexesPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -83,6 +80,7 @@ export function activateIndexesPlugin(
           ? SearchIndexesStatuses.NOT_READY
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
+      stats: pickCollectionIndexStats(collectionModel),
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -115,6 +113,16 @@ export function activateIndexesPlugin(
   });
   on(instance, 'change:description', () => {
     store.dispatch(getDescription(instance.description));
+  });
+
+  on(collectionModel, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
+    }
+  });
+
+  on(localAppRegistry, 'refresh-collection-stats', () => {
+    void collectionModel.fetch({ dataService, force: true });
   });
 
   return { store, deactivate: () => cleanup() };

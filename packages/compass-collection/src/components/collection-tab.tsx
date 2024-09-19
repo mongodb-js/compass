@@ -119,40 +119,38 @@ type CollectionTabProps = Omit<CollectionTabOptions, 'tabId'> &
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
   const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
-  return useMemo(() => {
-    return pluginTabs.map(
-      ({ name, content: Content, provider: Provider, header: Header }) => {
-        // `pluginTabs` never change in runtime so it's safe to call the hook here
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        Provider.useActivate(props);
-        return {
-          name,
-          content: (
-            <ErrorBoundary
-              key={name}
-              onError={(error: Error, errorInfo: unknown) => {
-                log.error(
-                  mongoLogId(1001000107),
-                  'Collection Workspace',
-                  'Rendering collection tab failed',
-                  { name: name, error: error.stack, errorInfo }
-                );
-              }}
-            >
-              <Provider {...props}>
-                <Content {...props} />
-              </Provider>
-            </ErrorBoundary>
-          ),
-          title: (
+  return pluginTabs.map(
+    ({ name, content: Content, provider: Provider, header: Header }) => {
+      // `pluginTabs` never change in runtime so it's safe to call the hook here
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      Provider.useActivate(props);
+      return {
+        name,
+        content: (
+          <ErrorBoundary
+            key={name}
+            onError={(error: Error, errorInfo: unknown) => {
+              log.error(
+                mongoLogId(1001000107),
+                'Collection Workspace',
+                'Rendering collection tab failed',
+                { name: name, error: error.stack, errorInfo }
+              );
+            }}
+          >
             <Provider {...props}>
-              <Header {...props} />
+              <Content {...props} />
             </Provider>
-          ),
-        };
-      }
-    );
-  }, [log, mongoLogId, pluginTabs, props]);
+          </ErrorBoundary>
+        ),
+        title: (
+          <Provider {...props}>
+            <Header {...props} />
+          </Provider>
+        ),
+      };
+    }
+  );
 }
 
 const CollectionTabWithMetadata: React.FunctionComponent<

@@ -18,7 +18,10 @@ import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
 } from './utils/data-service';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -57,6 +60,7 @@ const CompassDocumentsHadronPlugin = registerHadronPlugin(
     connectionScopedAppRegistry:
       connectionScopedAppRegistryLocator<EmittedAppRegistryEvents>,
     queryBar: queryBarServiceLocator,
+    collection: collectionModelLocator,
   }
 );
 

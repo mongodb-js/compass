@@ -10,12 +10,13 @@ import searchIndexes from './search-indexes';
 import serverVersion from './server-version';
 import namespace from './namespace';
 import createIndex from './create-index';
+import stats from './stats';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import type { IndexesDataServiceProps } from '../stores/store';
+import type { Collection } from '@mongodb-js/compass-app-stores/provider';
 
 const reducer = combineReducers({
   // From instance.isWritable. Used to know if the create button should be
@@ -49,6 +50,9 @@ const reducer = combineReducers({
 
   // State for the create regular index form
   createIndex,
+
+  // The stats for the collection
+  stats,
 });
 
 export type SortDirection = 'asc' | 'desc';
@@ -59,8 +63,9 @@ export type IndexesExtraArgs = {
   localAppRegistry: AppRegistry;
   logger: Logger;
   track: TrackFunction;
-  dataService: Pick<DataService, IndexesDataServiceProps>;
+  dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
+  collection: Collection;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

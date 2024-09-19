@@ -52,7 +52,10 @@ import {
   openBulkUpdateSuccessToast,
 } from '../components/bulk-actions-toasts';
 import type { DataService } from '../utils/data-service';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  Collection,
+  MongoDBInstance,
+} from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
@@ -316,6 +319,13 @@ type CrudState = {
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
+  collectionStats: Pick<
+    Collection,
+    | 'document_count'
+    | 'storage_size'
+    | 'free_storage_size'
+    | 'avg_document_size'
+  > | null;
 };
 
 type CrudStoreActionsOptions = {
@@ -347,6 +357,7 @@ class CrudStoreImpl
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
+  collection: Collection;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -362,6 +373,7 @@ class CrudStoreImpl
       | 'fieldStoreService'
       | 'connectionScopedAppRegistry'
       | 'queryBar'
+      | 'collection'
     > & {
       favoriteQueryStorage?: FavoriteQueryStorage;
       recentQueryStorage?: RecentQueryStorage;
@@ -381,6 +393,7 @@ class CrudStoreImpl
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
     this.queryBar = services.queryBar;
+    this.collection = services.collection;
   }
 
   getInitialState(): CrudState {
@@ -418,6 +431,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
+      collectionStats: this.collection.toJSON(), // TODO
     };
   }
 
@@ -1516,6 +1530,23 @@ class CrudStoreImpl
     );
   }
 
+  collectionStatsFetched(model: Collection) {
+    const {
+      document_count,
+      storage_size,
+      avg_document_size,
+      free_storage_size,
+    } = model.toJSON();
+    this.setState({
+      collectionStats: {
+        document_count,
+        storage_size,
+        avg_document_size,
+        free_storage_size,
+      },
+    });
+  }
+
   /**
    * This function is called when the collection filter changes.
    */
@@ -1947,6 +1978,7 @@ export type DocumentsPluginServices = {
   connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
+  collection: Collection;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1964,6 +1996,7 @@ export function activateDocumentsPlugin(
     connectionInfoRef,
     connectionScopedAppRegistry,
     queryBar,
+    collection,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1984,6 +2017,7 @@ export function activateDocumentsPlugin(
         fieldStoreService,
         connectionScopedAppRegistry,
         queryBar,
+        collection,
       }
     )
   ) as CrudStore;
@@ -2026,6 +2060,16 @@ export function activateDocumentsPlugin(
       }
     }
   );
+
+  on(collection, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.collectionStatsFetched(model);
+    }
+  });
+
+  on(localAppRegistry, 'refresh-collection-stats', () => {
+    void collection.fetch({ dataService, force: true });
+  });
 
   if (!options.noRefreshOnConfigure) {
     queueMicrotask(() => {

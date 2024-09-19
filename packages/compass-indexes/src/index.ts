@@ -1,16 +1,16 @@
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
-import {
-  activateIndexesPlugin,
-  type IndexesDataServiceProps,
-} from './stores/store';
+import { activateIndexesPlugin } from './stores/store';
 import Indexes from './components/indexes/indexes';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { IndexesPluginName } from './plugin-name';
@@ -26,12 +26,12 @@ const CompassIndexesHadronPlugin = registerHadronPlugin(
     activate: activateIndexesPlugin,
   },
   {
-    dataService:
-      dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
+    dataService: dataServiceLocator as DataServiceLocator,
     connectionInfoRef: connectionInfoRefLocator,
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
     track: telemetryLocator,
+    collection: collectionModelLocator,
   }
 );
 
