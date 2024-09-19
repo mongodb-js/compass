@@ -1,9 +1,8 @@
 import { expect } from 'chai';
-import { setTimeout as wait } from 'timers/promises';
 import sinon from 'sinon';
 import {
-  fetchIndexes,
   refreshRegularIndexes,
+  pollRegularIndexes,
   dropIndex,
   hideIndex,
   unhideIndex,
@@ -11,7 +10,6 @@ import {
 import {
   indexesList,
   defaultSortedIndexes,
-  //usageSortedIndexes,
   inProgressIndexes,
 } from '../../test/fixtures/regular-indexes';
 import { readonlyViewChanged } from './is-readonly-view';
@@ -19,6 +17,7 @@ import { setupStore } from '../../test/setup-store';
 
 // Importing this to stub showConfirmation
 import * as regularIndexesSlice from './regular-indexes';
+import type { FetchStatus } from '../utils/fetch-status';
 
 describe('regular-indexes module', function () {
   before(() => {
@@ -29,7 +28,7 @@ describe('regular-indexes module', function () {
     sinon.restore();
   });
 
-  describe('#fetchIndexes action', function () {
+  describe('#refreshRegularIndexes action', function () {
     it('sets indexes to empty array for views', async function () {
       const indexesSpy = sinon.spy();
       const store = setupStore(
@@ -48,13 +47,13 @@ describe('regular-indexes module', function () {
 
       store.dispatch(readonlyViewChanged(true));
 
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       expect(store.getState().regularIndexes.indexes).to.have.lengthOf(0);
       expect(indexesSpy.callCount).to.equal(0);
     });
 
-    it('sets indexes to empty array when there is an error', async function () {
+    it('sets status to ERROR and sets the error when there is an error', async function () {
       const error = new Error('failed to connect to server');
       const store = setupStore(
         {},
@@ -71,12 +70,12 @@ describe('regular-indexes module', function () {
         },
       });
 
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       const state = store.getState().regularIndexes;
-      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
       expect(state.error).to.equal(error.message);
-      expect(state.isRefreshing).to.equal(false);
+      expect(state.status).to.equal('ERROR');
+      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
     });
 
     it('sets indexes when fetched successfully', async function () {
@@ -86,12 +85,12 @@ describe('regular-indexes module', function () {
           indexes: () => Promise.resolve(defaultSortedIndexes),
         }
       );
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       const state = store.getState().regularIndexes;
       expect(state.indexes).to.deep.eq(defaultSortedIndexes);
-      expect(state.error).to.be.null;
-      expect(state.isRefreshing).to.equal(false);
+      expect(state.error).to.be.undefined;
+      expect(state.status).to.equal('READY');
     });
 
     it('merges with in progress indexes', async function () {
@@ -109,7 +108,7 @@ describe('regular-indexes module', function () {
         },
       });
 
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       const state = store.getState().regularIndexes;
 
@@ -165,32 +164,109 @@ describe('regular-indexes module', function () {
         },
       ]);
 
-      expect(state.error).to.be.null;
-      expect(state.isRefreshing).to.equal(false);
+      expect(state.error).to.be.undefined;
+      expect(state.status).to.equal('READY');
     });
-  });
 
-  describe('#refreshRegularIndexes action', function () {
-    it('sets isRefreshing when indexes are refreshed', async function () {
+    it('sets status=FETCHING when indexes are being fetched and status is NOT_AVAILABLE', async function () {
+      let statusBeforeFetch: FetchStatus | undefined = undefined;
       const store = setupStore(
         {},
         {
-          indexes: async () => {
-            await wait(100);
-            return defaultSortedIndexes;
-          },
+          indexes: sinon.stub().callsFake(() => {
+            statusBeforeFetch = store.getState().regularIndexes.status;
+            return Promise.resolve(defaultSortedIndexes);
+          }),
         }
       );
 
-      // don't await so we can check the intermediate result
-      void store.dispatch(refreshRegularIndexes());
-      expect(store.getState().regularIndexes.isRefreshing).to.be.true;
+      // sanity check to make sure we start where we expect to
+      expect(store.getState().regularIndexes.status).to.equal('NOT_READY');
 
-      await wait(100);
-      expect(store.getState().regularIndexes.isRefreshing).to.be.false;
-      expect(store.getState().regularIndexes.indexes).to.deep.equal(
-        defaultSortedIndexes
+      await store.dispatch(refreshRegularIndexes());
+      expect(statusBeforeFetch).to.equal('FETCHING');
+      expect(store.getState().regularIndexes.status).to.equal('READY');
+    });
+
+    it('sets status=REFRESHING when indexes are being fetched and status is READY', async function () {
+      let statusBeforeFetch: FetchStatus | undefined = undefined;
+      const store = setupStore(
+        {},
+        {
+          indexes: sinon.stub().callsFake(() => {
+            statusBeforeFetch = store.getState().regularIndexes.status;
+            return Promise.resolve(defaultSortedIndexes);
+          }),
+        }
       );
+
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          error: 'the previous error',
+          status: 'READY',
+          indexes: defaultSortedIndexes.slice(),
+        },
+      });
+
+      await store.dispatch(refreshRegularIndexes());
+      expect(statusBeforeFetch).to.equal('REFRESHING');
+      expect(store.getState().regularIndexes.status).to.equal('READY');
+    });
+  });
+
+  describe('#pollRegularIndexes action', function () {
+    it('sets status to READY and leaves error when there is an error', async function () {
+      const error = new Error('failed to connect to server');
+      const store = setupStore(
+        {},
+        {
+          indexes: () => Promise.reject(error),
+        }
+      );
+
+      // Set some data to validate the empty array condition
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          error: 'the previous error',
+          status: 'READY',
+          indexes: defaultSortedIndexes.slice(),
+        },
+      });
+
+      await store.dispatch(pollRegularIndexes());
+
+      const state = store.getState().regularIndexes;
+      expect(state.error).to.equal('the previous error');
+      expect(state.status).to.equal('READY');
+      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
+    });
+
+    it('sets status=POLLING when indexes are being fetched', async function () {
+      let statusBeforeFetch: FetchStatus | undefined = undefined;
+      const store = setupStore(
+        {},
+        {
+          indexes: sinon.stub().callsFake(() => {
+            statusBeforeFetch = store.getState().regularIndexes.status;
+            return Promise.resolve(defaultSortedIndexes);
+          }),
+        }
+      );
+
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          error: 'the previous error',
+          status: 'READY',
+          indexes: defaultSortedIndexes.slice(),
+        },
+      });
+
+      await store.dispatch(pollRegularIndexes());
+      expect(statusBeforeFetch).to.equal('POLLING');
+      expect(store.getState().regularIndexes.status).to.equal('READY');
     });
   });
 
@@ -223,7 +299,7 @@ describe('regular-indexes module', function () {
       });
 
       // fetch first so it merges the in-progress ones
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       // one of the real indexes is also in progress, so gets merged together
       const numOverlapping = 1;
@@ -270,7 +346,7 @@ describe('regular-indexes module', function () {
       });
 
       // fetch first so it merges the in-progress ones
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       // one of the real indexes is also in progress, so gets merged together
       const numOverlapping = 1;
@@ -305,7 +381,7 @@ describe('regular-indexes module', function () {
       );
 
       // fetch indexes so there's something to hide
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       await store.dispatch(hideIndex('BBBB'));
 
@@ -327,7 +403,7 @@ describe('regular-indexes module', function () {
       );
 
       // fetch indexes so there's something to hide
-      await store.dispatch(fetchIndexes());
+      await store.dispatch(refreshRegularIndexes());
 
       await store.dispatch(unhideIndex('BBBB'));
 

@@ -67,10 +67,7 @@ const AtlasIndexesBanner = () => {
 
 type IndexesProps = {
   isReadonlyView?: boolean;
-  regularIndexes: Pick<
-    RegularIndexesState,
-    'indexes' | 'error' | 'isRefreshing'
-  >;
+  regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
   currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
@@ -109,7 +106,7 @@ export function Indexes({
 
   const isRefreshing =
     currentIndexesView === 'regular-indexes'
-      ? regularIndexes.isRefreshing === true
+      ? isRefreshingStatus(regularIndexes.status)
       : isRefreshingStatus(searchIndexes.status);
 
   const onRefreshIndexes =

@@ -22,6 +22,9 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
 };
 
 export enum ActionTypes {
+  SearchIndexesOpened = 'compass-indexes/search-indexes/search-indexes-opened',
+  SearchIndexesClosed = 'compass-indexes/search-indexes/search-indexes-closed',
+
   // Fetch indexes
   FetchSearchIndexesStarted = 'compass-indexes/search-indexes/fetch-search-indexes-started',
   FetchSearchIndexesSucceeded = 'compass-indexes/search-indexes/fetch-search-indexes-succeeded',
@@ -335,10 +338,12 @@ export default function reducer(
       // We do no set any error on poll or refresh and the
       // previous list of indexes is shown to the user.
       // If fetch fails for refresh or polling, set the status to READY again.
-      error: state.status === FetchStatuses.FETCHING ? action.error : undefined,
-      status: FetchStatuses.FETCHING
-        ? FetchStatuses.ERROR
-        : FetchStatuses.READY,
+      error:
+        state.status === FetchStatuses.FETCHING ? action.error : state.error,
+      status:
+        state.status === FetchStatuses.FETCHING
+          ? FetchStatuses.ERROR
+          : FetchStatuses.READY,
     };
   }
 

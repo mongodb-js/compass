@@ -1,12 +1,14 @@
+import { cloneDeep } from 'lodash';
 import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
-import { cloneDeep } from 'lodash';
 
-import { isAction } from './../utils/is-action';
+import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
+import type { FetchStatus, FetchingStatus } from '../utils/fetch-status';
+import { isAction } from '../utils/is-action';
 import { ActionTypes as CreateIndexActionTypes } from './create-index';
 import type {
   CreateIndexSpec,
@@ -42,6 +44,9 @@ export type InProgressIndex = {
 };
 
 export enum ActionTypes {
+  IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
+  IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',
+
   FetchIndexesStarted = 'compass-indexes/regular-indexes/fetch-indexes-started',
   FetchIndexesSucceeded = 'compass-indexes/regular-indexes/fetch-indexes-succeeded',
   FetchIndexesFailed = 'compass-indexes/regular-indexes/fetch-indexes-failed',
@@ -54,7 +59,7 @@ export enum ActionTypes {
 
 type FetchIndexesStartedAction = {
   type: ActionTypes.FetchIndexesStarted;
-  isRefreshing: boolean;
+  status: FetchingStatus;
 };
 
 type FetchIndexesSucceededAction = {
@@ -74,16 +79,16 @@ type FailedIndexRemovedAction = {
 
 export type State = {
   indexes: RegularIndex[];
-  isRefreshing: boolean;
+  status: FetchStatus;
   inProgressIndexes: InProgressIndex[];
-  error: string | null;
+  error?: string;
 };
 
 export const INITIAL_STATE: State = {
+  status: FetchStatuses.NOT_READY,
   indexes: [],
   inProgressIndexes: [],
-  isRefreshing: false,
-  error: null,
+  error: undefined,
 };
 
 export default function reducer(
@@ -95,8 +100,7 @@ export default function reducer(
   ) {
     return {
       ...state,
-      error: null,
-      isRefreshing: action.isRefreshing,
+      status: action.status,
     };
   }
 
@@ -116,7 +120,7 @@ export default function reducer(
     return {
       ...state,
       indexes: allIndexes,
-      isRefreshing: false,
+      status: FetchStatuses.READY,
     };
   }
 
@@ -125,8 +129,15 @@ export default function reducer(
   ) {
     return {
       ...state,
-      error: action.error,
-      isRefreshing: false,
+      // We do no set any error on poll or refresh and the
+      // previous list of indexes is shown to the user.
+      // If fetch fails for refresh or polling, set the status to READY again.
+      error:
+        state.status === FetchStatuses.FETCHING ? action.error : state.error,
+      status:
+        state.status === FetchStatuses.FETCHING
+          ? FetchStatuses.ERROR
+          : FetchStatuses.READY,
     };
   }
 
@@ -210,10 +221,10 @@ export default function reducer(
 }
 
 const fetchIndexesStarted = (
-  isRefreshing: boolean
+  status: FetchingStatus
 ): FetchIndexesStartedAction => ({
   type: ActionTypes.FetchIndexesStarted,
-  isRefreshing,
+  status,
 });
 
 const fetchIndexesSucceeded = (
@@ -233,19 +244,29 @@ type FetchIndexesActions =
   | FetchIndexesSucceededAction
   | FetchIndexesFailedAction;
 
-export const fetchIndexes = (
-  isRefreshing = false
+const fetchIndexes = (
+  newStatus: FetchingStatus
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (dispatch, getState, { dataService, localAppRegistry }) => {
-    const { isReadonlyView, namespace } = getState();
+    const {
+      isReadonlyView,
+      namespace,
+      regularIndexes: { status },
+    } = getState();
 
     if (isReadonlyView) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }
 
+    // If we are currently doing fetching indexes, we will
+    // wait for that
+    if (NOT_FETCHABLE_STATUSES.includes(status)) {
+      return;
+    }
+
     try {
-      dispatch(fetchIndexesStarted(isRefreshing));
+      dispatch(fetchIndexesStarted(newStatus));
       // This makes sure that when the user or something else triggers a
       // re-fetch for the list of indexes with this action, the tab header also
       // gets updated.
@@ -257,13 +278,29 @@ export const fetchIndexes = (
     }
   };
 };
-
 export const refreshRegularIndexes = (): IndexesThunkAction<
   Promise<void>,
   FetchIndexesActions
 > => {
+  return async (dispatch, getState) => {
+    const { status } = getState().regularIndexes;
+
+    // If we are in a READY state, then we have already fetched the data
+    // and are refreshing the list.
+    const newStatus: FetchStatus =
+      status === FetchStatuses.READY
+        ? FetchStatuses.REFRESHING
+        : FetchStatuses.FETCHING;
+    await dispatch(fetchIndexes(newStatus));
+  };
+};
+
+export const pollRegularIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchIndexesActions
+> => {
   return async (dispatch) => {
-    return dispatch(fetchIndexes(true));
+    return await dispatch(fetchIndexes(FetchStatuses.POLLING));
   };
 };
 
@@ -304,7 +341,7 @@ export const dropIndex = (
 
       // By fetching the indexes again we make sure the merged list doesn't have
       // it either.
-      await dispatch(fetchIndexes());
+      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
       return;
     }
 
@@ -329,7 +366,7 @@ export const dropIndex = (
         title: `Index "${indexName}" dropped`,
         timeout: 3000,
       });
-      await dispatch(fetchIndexes(true));
+      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
     } catch (err) {
       openToast('drop-index-error', {
         variant: 'important',
@@ -362,7 +399,7 @@ export const hideIndex = (
           hidden: true,
         },
       });
-      await dispatch(fetchIndexes());
+      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
     } catch (error) {
       openToast('hide-index-error', {
         title: 'Failed to hide the index',
@@ -396,7 +433,7 @@ export const unhideIndex = (
           hidden: false,
         },
       });
-      await dispatch(fetchIndexes());
+      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
     } catch (error) {
       openToast('unhide-index-error', {
         title: 'Failed to unhide the index',

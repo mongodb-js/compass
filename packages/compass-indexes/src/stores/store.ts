@@ -7,7 +7,7 @@ import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import { createIndexOpened } from '../modules/create-index';
-import { fetchIndexes } from '../modules/regular-indexes';
+import { refreshRegularIndexes } from '../modules/regular-indexes';
 import { FetchStatuses } from '../utils/fetch-status';
 import {
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
@@ -105,7 +105,7 @@ export function activateIndexesPlugin(
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
-    void store.dispatch(fetchIndexes());
+    void store.dispatch(refreshRegularIndexes());
     void store.dispatch(refreshSearchIndexes());
   });
 
