@@ -35,9 +35,13 @@ This repository includes a few recommended plugins for your convenience:
 - ESLint extension highlights possible issues in your code following our common eslint configuration.
 - ANTLR4 grammar support extension helps to work with the `bson-transpilers` package that is implemented with the help of antlr (.g and .g4 files).
 
-## Enabling DevTools
+## Enabling Chrome DevTools
 
 To enable the Chrome DevTools for the Electron renderer processes, click "Settings" under "MongoDB Compass Dev Local" in the top menu (or press <kbd>⌘</kbd> + <kbd>,</kbd>) and click "Enable DevTools" followed by "Save", which will enable a "Toggle DevTools" item in the "View" top menu. Click this to toggle the DevTools panel (or press <kbd>⌥</kbd> + <kbd>⌘</kbd> + <kbd>I</kbd>).
+
+### Using the React Developer Tools extension
+
+To inspect the React component hierarchies in the Chrome DevTools panel, use the [React Developer Tools](https://chromewebstore.google.com/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi), which is already installed when running a local development build. For a reason, yet to be determined, you must reload (<kbd>⌘</kbd> + <kbd>R</kbd>) the DevTools window to see the "⚛️ Components" and "⚛️ Profiler" tabs.
 
 ## Working on Plugins
 
