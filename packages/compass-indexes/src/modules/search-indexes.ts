@@ -45,6 +45,14 @@ export enum ActionTypes {
   UpdateSearchIndexSucceeded = 'compass-indexes/search-indexes/update-search-index-succeeded',
 }
 
+type SearchIndexesOpenedAction = {
+  type: ActionTypes.SearchIndexesOpened;
+};
+
+type SearchIndexesClosedAction = {
+  type: ActionTypes.SearchIndexesClosed;
+};
+
 type FetchSearchIndexesStartedAction = {
   type: ActionTypes.FetchSearchIndexesStarted;
   status: FetchingStatus;
@@ -117,6 +125,7 @@ type UpdateSearchIndexState = {
 };
 
 export type State = {
+  isVisible: boolean;
   status: FetchStatus;
   createIndex: CreateSearchIndexState;
   updateIndex: UpdateSearchIndexState;
@@ -125,6 +134,7 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
+  isVisible: false,
   status: FetchStatuses.NOT_AVAILABLE,
   createIndex: {
     isModalOpen: false,
@@ -143,6 +153,24 @@ export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
+  if (
+    isAction<SearchIndexesOpenedAction>(action, ActionTypes.SearchIndexesOpened)
+  ) {
+    return {
+      ...state,
+      isVisible: true,
+    };
+  }
+
+  if (
+    isAction<SearchIndexesClosedAction>(action, ActionTypes.SearchIndexesClosed)
+  ) {
+    return {
+      ...state,
+      isVisible: false,
+    };
+  }
+
   if (
     isAction<CreateSearchIndexOpenedAction>(
       action,
@@ -419,6 +447,49 @@ const updateSearchIndexFailed = (
 const updateSearchIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
   type: ActionTypes.UpdateSearchIndexSucceeded,
 });
+
+export const POLLING_INTERVAL = 5000;
+
+let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
+
+export const openSearchIndexes = (): IndexesThunkAction<
+  void,
+  SearchIndexesOpenedAction | FetchSearchIndexesActions
+> => {
+  return function (dispatch, getState) {
+    if (getState().searchIndexes.isVisible || pollInterval) {
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.SearchIndexesOpened,
+    });
+
+    pollInterval = setInterval(() => {
+      void dispatch(pollSearchIndexes());
+    }, POLLING_INTERVAL);
+  };
+};
+
+export const closeSearchIndexes = (): IndexesThunkAction<
+  void,
+  SearchIndexesClosedAction | FetchSearchIndexesActions
+> => {
+  return function (dispatch, getState) {
+    if (!getState().searchIndexes.isVisible || !pollInterval) {
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.SearchIndexesClosed,
+    });
+
+    if (pollInterval) {
+      clearInterval(pollInterval);
+      pollInterval = undefined;
+    }
+  };
+};
 
 export const createIndex = ({
   name,

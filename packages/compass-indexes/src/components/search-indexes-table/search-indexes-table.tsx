@@ -26,9 +26,10 @@ import {
   dropSearchIndex,
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
-  pollSearchIndexes,
   createSearchIndexOpened,
   updateSearchIndexOpened,
+  openSearchIndexes,
+  closeSearchIndexes,
 } from '../../modules/search-indexes';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
@@ -37,8 +38,6 @@ import { ZeroGraphic } from './zero-graphic';
 import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-
-export const POLLING_INTERVAL = 5000;
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -49,8 +48,8 @@ type SearchIndexesTableProps = {
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onOpenCreateModalClick: () => void;
-  onPollIndexes: () => void;
-  pollingInterval?: number;
+  onSearchIndexesOpened: () => void;
+  onSearchIndexesClosed: () => void;
 };
 
 function isReadyStatus(status: FetchStatus) {
@@ -282,18 +281,18 @@ export const SearchIndexesTable: React.FunctionComponent<
   onOpenCreateModalClick,
   onEditIndexClick,
   onDropIndexClick,
-  onPollIndexes,
-  pollingInterval = POLLING_INTERVAL,
+  onSearchIndexesOpened,
+  onSearchIndexesClosed,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
 
   useEffect(() => {
-    const id = setInterval(onPollIndexes, pollingInterval);
+    onSearchIndexesOpened();
     return () => {
-      clearInterval(id);
+      onSearchIndexesClosed();
     };
-  }, [onPollIndexes, pollingInterval]);
+  }, [onSearchIndexesOpened, onSearchIndexesClosed]);
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
@@ -399,7 +398,8 @@ const mapDispatch = {
   onDropIndexClick: dropSearchIndex,
   onOpenCreateModalClick: createSearchIndexOpened,
   onEditIndexClick: updateSearchIndexOpened,
-  onPollIndexes: pollSearchIndexes,
+  onSearchIndexesOpened: openSearchIndexes,
+  onSearchIndexesClosed: closeSearchIndexes,
 };
 
 export default connect(

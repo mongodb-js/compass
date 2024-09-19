@@ -57,6 +57,14 @@ export enum ActionTypes {
   FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
 }
 
+type IndexesOpenedAction = {
+  type: ActionTypes.IndexesOpened;
+};
+
+type IndexesClosedAction = {
+  type: ActionTypes.IndexesClosed;
+};
+
 type FetchIndexesStartedAction = {
   type: ActionTypes.FetchIndexesStarted;
   status: FetchingStatus;
@@ -78,6 +86,7 @@ type FailedIndexRemovedAction = {
 };
 
 export type State = {
+  isVisible: boolean;
   indexes: RegularIndex[];
   status: FetchStatus;
   inProgressIndexes: InProgressIndex[];
@@ -85,6 +94,7 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
+  isVisible: false,
   status: FetchStatuses.NOT_READY,
   indexes: [],
   inProgressIndexes: [],
@@ -95,6 +105,20 @@ export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
+  if (isAction<IndexesOpenedAction>(action, ActionTypes.IndexesOpened)) {
+    return {
+      ...state,
+      isVisible: true,
+    };
+  }
+
+  if (isAction<IndexesClosedAction>(action, ActionTypes.IndexesClosed)) {
+    return {
+      ...state,
+      isVisible: false,
+    };
+  }
+
   if (
     isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
   ) {
@@ -301,6 +325,47 @@ export const pollRegularIndexes = (): IndexesThunkAction<
 > => {
   return async (dispatch) => {
     return await dispatch(fetchIndexes(FetchStatuses.POLLING));
+  };
+};
+
+export const POLLING_INTERVAL = 5000;
+
+let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
+
+export const openRegularIndexes = (): IndexesThunkAction<
+  void,
+  IndexesOpenedAction | FetchIndexesActions
+> => {
+  return function (dispatch, getState) {
+    if (getState().regularIndexes.isVisible || pollInterval) {
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.IndexesOpened,
+    });
+
+    pollInterval = setInterval(() => {
+      void dispatch(pollRegularIndexes());
+    }, POLLING_INTERVAL);
+  };
+};
+
+export const closeRegularIndexes = (): IndexesThunkAction<
+  void,
+  IndexesClosedAction | FetchIndexesActions
+> => {
+  return function (dispatch, getState) {
+    if (!getState().regularIndexes.isVisible || !pollInterval) {
+      return;
+    }
+
+    dispatch({
+      type: ActionTypes.IndexesClosed,
+    });
+
+    clearInterval(pollInterval);
+    pollInterval = undefined;
   };
 };
 
