@@ -19,7 +19,7 @@ import { setupStore } from '../../test/setup-store';
 
 // Importing this to stub showConfirmation
 import * as regularIndexesSlice from './regular-indexes';
-import type { FetchStatus, FetchStatuses } from '../utils/fetch-status';
+import type { FetchStatus } from '../utils/fetch-status';
 
 describe('regular-indexes module', function () {
   before(() => {
