@@ -96,7 +96,7 @@ const PluginName = ({
   ];
 
   return (
-    <div className={containerStyles}>
+    <div data-testid="indexes-tab-title" className={containerStyles}>
       Indexes
       <CollectionStats text={indexCount} details={details} />
     </div>

@@ -94,7 +94,7 @@ export const CrudPluginName = ({
   ];
 
   return (
-    <div className={containerStyles}>
+    <div data-testid="documents-tab-title" className={containerStyles}>
       Documents
       <CollectionStats text={documentCount} details={details} />
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
 
 export const SchemaPluginName = () => {
-  return <div>Schema</div>;
+  return <div data-testid="schema-tab-title">Schema</div>;
 };
