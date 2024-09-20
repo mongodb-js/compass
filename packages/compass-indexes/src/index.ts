@@ -39,7 +39,7 @@ const CompassIndexesHadronPlugin = registerHadronPlugin(
 
 export const CompassIndexesPlugin = {
   name: 'Indexes' as const,
-  Provider: CompassIndexesHadronPlugin,
-  Content: Indexes as React.FunctionComponent,
-  Header: IndexesPluginName as React.FunctionComponent,
+  provider: CompassIndexesHadronPlugin,
+  content: Indexes as React.FunctionComponent,
+  header: IndexesPluginName as React.FunctionComponent,
 };

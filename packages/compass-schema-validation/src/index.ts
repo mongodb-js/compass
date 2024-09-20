@@ -34,7 +34,7 @@ const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
 );
 export const CompassSchemaValidationPlugin = {
   name: 'Validation' as const,
-  Provider: CompassSchemaValidationHadronPlugin,
-  Content: CompassSchemaValidation,
-  Header: SchemaValidationPluginName,
+  provider: CompassSchemaValidationHadronPlugin,
+  content: CompassSchemaValidation,
+  header: SchemaValidationPluginName,
 };

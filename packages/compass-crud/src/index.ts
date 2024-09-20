@@ -71,9 +71,9 @@ const CompassDocumentsHadronPlugin = registerHadronPlugin(
 
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
-  Provider: CompassDocumentsHadronPlugin,
-  Content: DocumentList as any, // as any because of reflux store
-  Header: CrudPluginName as any, // as any because of reflux store
+  provider: CompassDocumentsHadronPlugin,
+  content: DocumentList as any, // as any because of reflux store
+  header: CrudPluginName as any, // as any because of reflux store
 };
 
 export default DocumentList;

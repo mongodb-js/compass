@@ -61,9 +61,9 @@ const CompassAggregationsHadronPlugin = registerHadronPlugin(
 
 export const CompassAggregationsPlugin = {
   name: 'Aggregations' as const,
-  Provider: CompassAggregationsHadronPlugin,
-  Content: AggregationsPlugin,
-  Header: AggregationsPluginName,
+  provider: CompassAggregationsHadronPlugin,
+  content: AggregationsPlugin,
+  header: AggregationsPluginName,
 };
 
 export const CreateViewPlugin = registerHadronPlugin(

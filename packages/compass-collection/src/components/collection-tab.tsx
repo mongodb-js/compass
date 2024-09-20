@@ -114,28 +114,30 @@ function WithErrorBoundary({
 
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
-  return pluginTabs.map(({ name, Content, Provider, Header }) => {
-    // `pluginTabs` never change in runtime so it's safe to call the hook here
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    Provider.useActivate(props);
-    return {
-      name,
-      content: (
-        <WithErrorBoundary name={name} type="content">
-          <Provider {...props}>
-            <Content {...props} />
-          </Provider>
-        </WithErrorBoundary>
-      ),
-      title: (
-        <WithErrorBoundary name={name} type="header">
-          <Provider {...props}>
-            <Header />
-          </Provider>
-        </WithErrorBoundary>
-      ),
-    };
-  });
+  return pluginTabs.map(
+    ({ name, content: Content, provider: Provider, header: Header }) => {
+      // `pluginTabs` never change in runtime so it's safe to call the hook here
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      Provider.useActivate(props);
+      return {
+        name,
+        content: (
+          <WithErrorBoundary name={name} type="content">
+            <Provider {...props}>
+              <Content {...props} />
+            </Provider>
+          </WithErrorBoundary>
+        ),
+        title: (
+          <WithErrorBoundary name={name} type="header">
+            <Provider {...props}>
+              <Header />
+            </Provider>
+          </WithErrorBoundary>
+        ),
+      };
+    }
+  );
 }
 
 const CollectionTabWithMetadata: React.FunctionComponent<

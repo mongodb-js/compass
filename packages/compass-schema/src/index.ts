@@ -45,7 +45,7 @@ const CompassSchemaHadronPlugin = registerHadronPlugin(
 
 export const CompassSchemaPlugin = {
   name: 'Schema' as const,
-  Provider: CompassSchemaHadronPlugin,
-  Content: CompassSchema as React.FunctionComponent /* reflux store */,
-  Header: SchemaPluginName,
+  provider: CompassSchemaHadronPlugin,
+  content: CompassSchema as React.FunctionComponent /* reflux store */,
+  header: SchemaPluginName,
 };
