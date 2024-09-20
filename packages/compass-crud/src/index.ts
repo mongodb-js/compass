@@ -32,7 +32,7 @@ import {
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { CrudPluginName } from './plugin-name';
+import { CrudTabTitle } from './plugin-title';
 
 const CompassDocumentsHadronPlugin = registerHadronPlugin(
   {
@@ -73,7 +73,7 @@ export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
   provider: CompassDocumentsHadronPlugin,
   content: DocumentList as any, // as any because of reflux store
-  header: CrudPluginName as any, // as any because of reflux store
+  header: CrudTabTitle as any, // as any because of reflux store
 };
 
 export default DocumentList;

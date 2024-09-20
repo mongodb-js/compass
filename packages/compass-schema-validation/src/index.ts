@@ -11,7 +11,7 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { SchemaValidationPluginName } from './plugin-name';
+import { SchemaValidationTabTitle } from './plugin-title';
 
 const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   {
@@ -36,5 +36,5 @@ export const CompassSchemaValidationPlugin = {
   name: 'Validation' as const,
   provider: CompassSchemaValidationHadronPlugin,
   content: CompassSchemaValidation,
-  header: SchemaValidationPluginName,
+  header: SchemaValidationTabTitle,
 };

@@ -29,7 +29,7 @@ import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 import { connectionRepositoryAccessLocator } from '@mongodb-js/compass-connections/provider';
-import { AggregationsPluginName } from './plugin-name';
+import { AggregationsTabTitle } from './plugin-title';
 
 const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
@@ -63,7 +63,7 @@ export const CompassAggregationsPlugin = {
   name: 'Aggregations' as const,
   provider: CompassAggregationsHadronPlugin,
   content: AggregationsPlugin,
-  header: AggregationsPluginName,
+  header: AggregationsTabTitle,
 };
 
 export const CreateViewPlugin = registerHadronPlugin(

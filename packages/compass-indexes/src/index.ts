@@ -16,7 +16,7 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { IndexesPluginName } from './plugin-name';
+import { IndexesTabTitle } from './plugin-title';
 
 const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
@@ -41,5 +41,5 @@ export const CompassIndexesPlugin = {
   name: 'Indexes' as const,
   provider: CompassIndexesHadronPlugin,
   content: Indexes as React.FunctionComponent,
-  header: IndexesPluginName as React.FunctionComponent,
+  header: IndexesTabTitle as React.FunctionComponent,
 };

@@ -13,7 +13,7 @@ import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
-import { SchemaPluginName } from './plugin-name';
+import { SchemaTabTitle } from './plugin-title';
 
 const CompassSchemaHadronPlugin = registerHadronPlugin(
   {
@@ -47,5 +47,5 @@ export const CompassSchemaPlugin = {
   name: 'Schema' as const,
   provider: CompassSchemaHadronPlugin,
   content: CompassSchema as React.FunctionComponent /* reflux store */,
-  header: SchemaPluginName,
+  header: SchemaTabTitle,
 };

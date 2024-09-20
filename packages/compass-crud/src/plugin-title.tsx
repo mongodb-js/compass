@@ -1,13 +1,7 @@
 import React, { useMemo } from 'react';
-import { connect } from 'react-redux';
-import type { RootState } from './modules';
-import { Badge, css, spacing, Tooltip } from '@mongodb-js/compass-components';
 import numeral from 'numeral';
-
-const containerStyles = css({
-  display: 'flex',
-  gap: spacing[200],
-});
+import { css, Tooltip, Badge, spacing } from '@mongodb-js/compass-components';
+import type { CrudStore } from './stores/crud-store';
 
 const tooltipContentStyles = css({
   listStyleType: 'none',
@@ -15,14 +9,12 @@ const tooltipContentStyles = css({
   margin: 0,
 });
 
-const INVALID = 'N/A';
+const containerStyles = css({
+  display: 'flex',
+  gap: spacing[200],
+});
 
-const avg = (size: number, count: number) => {
-  if (count <= 0) {
-    return 0;
-  }
-  return size / count;
-};
+const INVALID = 'N/A';
 
 const isNumber = (val: any): val is number => {
   return typeof val === 'number' && !isNaN(val);
@@ -75,34 +67,36 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   );
 };
 
-const PluginName = ({
-  collectionStats,
+export const CrudTabTitle = ({
+  store: {
+    state: { collectionStats },
+  },
 }: {
-  collectionStats: RootState['collectionStats'];
+  store: CrudStore;
 }) => {
-  const { indexCount, totalIndexSize, avgIndexSize } = useMemo(() => {
-    const { index_count = NaN, index_size = NaN } = collectionStats ?? {};
+  const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
+    const {
+      document_count = NaN,
+      storage_size = NaN,
+      free_storage_size = NaN,
+      avg_document_size = NaN,
+    } = collectionStats ?? {};
     return {
-      indexCount: format(index_count),
-      totalIndexSize: format(index_size, 'b'),
-      avgIndexSize: format(avg(index_size, index_count), 'b'),
+      documentCount: format(document_count),
+      storageSize: format(storage_size - free_storage_size, 'b'),
+      avgDocumentSize: format(avg_document_size, 'b'),
     };
   }, [collectionStats]);
-
   const details = [
-    `Indexes: ${indexCount}`,
-    `Total Size: ${totalIndexSize}`,
-    `Avg. Size: ${avgIndexSize}`,
+    `Documents: ${documentCount}`,
+    `Storage Size: ${storageSize}`,
+    `Avg. Size: ${avgDocumentSize}`,
   ];
 
   return (
-    <div data-testid="indexes-tab-title" className={containerStyles}>
-      Indexes
-      <CollectionStats text={indexCount} details={details} />
+    <div data-testid="documents-tab-title" className={containerStyles}>
+      Documents
+      <CollectionStats text={documentCount} details={details} />
     </div>
   );
 };
-
-export const IndexesPluginName = connect(({ collectionStats }: RootState) => ({
-  collectionStats,
-}))(PluginName);
