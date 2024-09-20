@@ -11,7 +11,7 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { SavingPipelineApplyAction } from './saving-pipeline';
 import { SAVING_PIPELINE_APPLY } from './saving-pipeline';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type NameState = string;
 

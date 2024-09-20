@@ -24,7 +24,8 @@ import {
 } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
 import { changeFilter } from '../modules/change-filter';
-import { getQueryAttributes, isAction, isQueryEqual } from '../utils';
+import { getQueryAttributes, isQueryEqual } from '../utils';
+import { isAction } from '@mongodb-js/compass-utils';
 import type {
   RecentQuery,
   FavoriteQuery,

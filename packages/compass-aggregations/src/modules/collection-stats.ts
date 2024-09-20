@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import type Collection from 'mongodb-collection-model';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type CollectionStats = {
   document_count?: number;

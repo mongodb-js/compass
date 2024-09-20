@@ -21,7 +21,7 @@ import type {
 } from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 /**
  * Reducer function for handle state changes to isModified.

@@ -3,14 +3,7 @@ import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
 import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
-import { throwIfAborted } from '@mongodb-js/compass-utils';
-
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { throwIfAborted, isAction } from '@mongodb-js/compass-utils';
 
 export type AtlasSignInState = {
   error: string | null;

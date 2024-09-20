@@ -1,6 +1,7 @@
 import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
+
 import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
 
 enum ActionTypes {

@@ -1,7 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
-import { isAction } from '../../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import {
   getPipelineFromBuilderState,
   mapPipelineModeToEditorViewType,

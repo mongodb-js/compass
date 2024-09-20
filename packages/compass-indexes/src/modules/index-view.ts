@@ -1,5 +1,5 @@
 import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type IndexView = 'regular-indexes' | 'search-indexes';
 

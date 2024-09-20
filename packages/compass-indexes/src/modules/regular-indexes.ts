@@ -6,7 +6,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
-import { isAction } from './../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import { ActionTypes as CreateIndexActionTypes } from './create-index';
 import type {
   CreateIndexSpec,

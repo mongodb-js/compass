@@ -8,7 +8,7 @@ import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',

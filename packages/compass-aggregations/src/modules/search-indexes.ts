@@ -1,7 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import type { SearchIndex } from 'mongodb-data-service';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 enum SearchIndexesStatuses {
   INITIAL = 'INITIAL',

@@ -1,15 +1,9 @@
-import type { Action, ActionCreator, AnyAction, Reducer } from 'redux';
+import type { Action, ActionCreator, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import type { Item } from './aggregations-queries-items';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 

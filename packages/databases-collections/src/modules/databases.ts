@@ -2,13 +2,7 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
 import type { ThunkAction } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type Database = MongoDBInstance['databases'] extends Array<infer Db>
   ? Db

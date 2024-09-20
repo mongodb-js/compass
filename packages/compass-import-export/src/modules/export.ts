@@ -1,4 +1,4 @@
-import type { Action, AnyAction, Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import fs from 'fs';
 import _ from 'lodash';
 import {
@@ -30,6 +30,7 @@ import {
 } from '../export/export-json';
 import type { ExportJSONFormat } from '../export/export-json';
 import type { ExportThunkAction } from '../stores/export-store';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type FieldsToExport = {
   [fieldId: string]: {
@@ -40,13 +41,6 @@ export type FieldsToExport = {
 
 export function getIdForSchemaPath(schemaPath: SchemaPath) {
   return JSON.stringify(schemaPath);
-}
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
 }
 
 type ExportOptions = {

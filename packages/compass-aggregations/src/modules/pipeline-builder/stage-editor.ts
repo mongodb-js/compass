@@ -5,7 +5,7 @@ import { prettify } from '@mongodb-js/compass-editor';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
-import { isAction } from '../../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import type Stage from './stage';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';

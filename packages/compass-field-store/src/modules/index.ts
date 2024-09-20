@@ -7,13 +7,7 @@ import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';
 import type { ThunkAction } from 'redux-thunk';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-
-function isAction<A extends Action>(
-  action: Action,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export const CONNECTION_DISCONNECTED =
   'field-store/CONNECTION_DISCONNECTED' as const;

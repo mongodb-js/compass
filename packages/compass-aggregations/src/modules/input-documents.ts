@@ -2,7 +2,8 @@ import HadronDocument from 'hadron-document';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { PipelineBuilderThunkAction } from '.';
 import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
+
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 
 export enum ActionTypes {

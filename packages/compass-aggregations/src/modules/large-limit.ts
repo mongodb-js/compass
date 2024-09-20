@@ -4,7 +4,7 @@ import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type { ApplySettingsAction } from './settings';
 import { APPLY_SETTINGS } from './settings';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type LargeLimitState = number;
 export const INITIAL_STATE = DEFAULT_LARGE_LIMIT;

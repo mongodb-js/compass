@@ -5,7 +5,7 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 /**
  * Collation string changed action.

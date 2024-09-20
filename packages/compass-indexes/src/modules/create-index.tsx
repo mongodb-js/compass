@@ -4,7 +4,8 @@ import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
 import type { Action, Reducer, Dispatch } from 'redux';
 import { Badge } from '@mongodb-js/compass-components';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
+
 import type { InProgressIndex } from './regular-indexes';
 import type { IndexesThunkAction } from '.';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';

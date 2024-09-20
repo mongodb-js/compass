@@ -1,4 +1,4 @@
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import type { PipelineBuilderThunkAction } from '.';
 import { getSchema } from '../utils/get-schema';
 import toNS from 'mongodb-ns';

@@ -8,7 +8,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type Workspace = 'builder' | 'results';
 

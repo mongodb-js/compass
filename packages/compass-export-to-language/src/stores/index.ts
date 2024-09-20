@@ -6,13 +6,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type AppRegistry from 'hadron-app-registry';
-
-function isAction<A extends Action>(
-  action: Action,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 type ExportToLanguageState = {
   inputExpression: InputExpression;

@@ -3,7 +3,7 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
 import type { AnyAction } from 'redux';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export const SAVING_PIPELINE_NAME_CHANGED =
   'aggregations/saving-pipeline/NAME_CHANGED' as const;
