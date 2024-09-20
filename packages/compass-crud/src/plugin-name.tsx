@@ -3,13 +3,13 @@ import numeral from 'numeral';
 import { css, Tooltip, Badge, spacing } from '@mongodb-js/compass-components';
 import type { CrudStore } from './stores/crud-store';
 
-const tooltipDocumentsListStyles = css({
+const tooltipContentStyles = css({
   listStyleType: 'none',
   padding: 0,
   margin: 0,
 });
 
-const tabTitleWithStatsStyles = css({
+const containerStyles = css({
   display: 'flex',
   gap: spacing[200],
 });
@@ -55,7 +55,7 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
           </span>
         }
       >
-        <ol className={tooltipDocumentsListStyles}>
+        <ol className={tooltipContentStyles}>
           {details.map((detail, i) => (
             <li data-testid={`tooltip-detail-${i}`} key={`tooltip-detail-${i}`}>
               {detail}
@@ -94,10 +94,7 @@ export const CrudPluginName = ({
   ];
 
   return (
-    <div
-      data-testid="documents-tab-with-stats"
-      className={tabTitleWithStatsStyles}
-    >
+    <div className={containerStyles}>
       Documents
       <CollectionStats text={documentCount} details={details} />
     </div>

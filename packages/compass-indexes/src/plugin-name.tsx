@@ -4,12 +4,12 @@ import type { RootState } from './modules';
 import { Badge, css, spacing, Tooltip } from '@mongodb-js/compass-components';
 import numeral from 'numeral';
 
-const tabTitleWithStatsStyles = css({
+const containerStyles = css({
   display: 'flex',
   gap: spacing[200],
 });
 
-const tooltipDocumentsListStyles = css({
+const tooltipContentStyles = css({
   listStyleType: 'none',
   padding: 0,
   margin: 0,
@@ -63,7 +63,7 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
           </span>
         }
       >
-        <ol className={tooltipDocumentsListStyles}>
+        <ol className={tooltipContentStyles}>
           {details.map((detail, i) => (
             <li data-testid={`tooltip-detail-${i}`} key={`tooltip-detail-${i}`}>
               {detail}
@@ -96,10 +96,7 @@ const PluginName = ({
   ];
 
   return (
-    <div
-      data-testid="indexes-tab-with-stats"
-      className={tabTitleWithStatsStyles}
-    >
+    <div className={containerStyles}>
       Indexes
       <CollectionStats text={indexCount} details={details} />
     </div>
