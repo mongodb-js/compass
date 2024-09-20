@@ -85,9 +85,35 @@ type CollectionTabProps = Omit<CollectionTabOptions, 'tabId'> &
   ConnectionTabConnectedProps &
   ConnectionTabExpectedProps;
 
+function WithErrorBoundary({
+  children,
+  name,
+  type,
+}: {
+  children: React.ReactNode;
+  name: string;
+  type: 'content' | 'header';
+}) {
+  const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
+  return (
+    <ErrorBoundary
+      key={name}
+      onError={(error: Error, errorInfo: unknown) => {
+        log.error(
+          mongoLogId(1001000107),
+          'Collection Workspace',
+          'Rendering collection tab failed',
+          { name, type, error: error.stack, errorInfo }
+        );
+      }}
+    >
+      {children}
+    </ErrorBoundary>
+  );
+}
+
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
-  const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   return pluginTabs.map(({ name, Content, Provider, Header }) => {
     // `pluginTabs` never change in runtime so it's safe to call the hook here
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -95,26 +121,18 @@ function useCollectionTabs(props: CollectionMetadata) {
     return {
       name,
       content: (
-        <ErrorBoundary
-          key={name}
-          onError={(error: Error, errorInfo: unknown) => {
-            log.error(
-              mongoLogId(1001000107),
-              'Collection Workspace',
-              'Rendering collection tab failed',
-              { name, error: error.stack, errorInfo }
-            );
-          }}
-        >
+        <WithErrorBoundary name={name} type="content">
           <Provider {...props}>
             <Content {...props} />
           </Provider>
-        </ErrorBoundary>
+        </WithErrorBoundary>
       ),
       title: (
-        <Provider {...props}>
-          <Header />
-        </Provider>
+        <WithErrorBoundary name={name} type="header">
+          <Provider {...props}>
+            <Header />
+          </Provider>
+        </WithErrorBoundary>
       ),
     };
   });
