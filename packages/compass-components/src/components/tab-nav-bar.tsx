@@ -87,17 +87,15 @@ function TabNavBar({
         </Tabs>
       </div>
       {tabs.map(({ name, content }, idx) => {
-        if (idx === activeTabIndex) {
-          return (
-            <div
-              className={tabStyles}
-              key={`tab-content-${name}`}
-              data-testid={`${name.toLowerCase().replace(/ /g, '-')}-content`}
-            >
-              {content}
-            </div>
-          );
-        }
+        idx === activeTabIndex && (
+          <div
+            className={tabStyles}
+            key={`tab-content-${name}`}
+            data-testid={`${name.toLowerCase().replace(/ /g, '-')}-content`}
+          >
+            {content}
+          </div>
+        );
       })}
     </div>
   );

@@ -8,7 +8,9 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export function pickCollectionIndexStats(collection: Collection): CollectionStats {
+export function extractCollectionStats(
+  collection: Collection
+): CollectionStats {
   const { index_count, index_size } = collection.toJSON();
   return {
     index_count,
@@ -16,7 +18,10 @@ export function pickCollectionIndexStats(collection: Collection): CollectionStat
   };
 }
 
-export type CollectionStats = Pick<Collection, 'index_count' | 'index_size'> | null;
+export type CollectionStats = Pick<
+  Collection,
+  'index_count' | 'index_size'
+> | null;
 
 enum StatsActions {
   CollectionStatsFetched = 'compass-indexes/CollectionStatsFetchedCollection',
@@ -34,7 +39,7 @@ const reducer: Reducer<CollectionStats, Action> = (state = null, action) => {
       StatsActions.CollectionStatsFetched
     )
   ) {
-    return pickCollectionIndexStats(action.collection);
+    return extractCollectionStats(action.collection);
   }
   return state;
 };

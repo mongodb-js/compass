@@ -26,7 +26,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import {
   collectionStatsFetched,
-  pickCollectionIndexStats,
+  extractCollectionStats,
 } from '../modules/collection-stats';
 
 export type IndexesDataServiceProps =
@@ -97,7 +97,7 @@ export function activateIndexesPlugin(
           ? SearchIndexesStatuses.NOT_READY
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
-      collectionStats: pickCollectionIndexStats(collectionModel),
+      collectionStats: extractCollectionStats(collectionModel),
     },
     applyMiddleware(
       thunk.withExtraArgument({

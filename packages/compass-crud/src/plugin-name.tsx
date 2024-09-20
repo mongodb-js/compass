@@ -28,11 +28,11 @@ const format = (value: any, format = 'a') => {
   return numeral(value).format(precision + format);
 };
 
-type CollectionTabStatsProps = {
+type CollectionStatsProps = {
   text: string;
   details: string[];
 };
-const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
+const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   text,
   details,
 }) => {
@@ -99,7 +99,7 @@ export const CrudPluginName = ({
       className={tabTitleWithStatsStyles}
     >
       Documents
-      <CollectionTabStats text={documentCount} details={details} />
+      <CollectionStats text={documentCount} details={details} />
     </div>
   );
 };
