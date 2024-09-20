@@ -67,7 +67,7 @@ type ErrorClearedAction = {
   type: ActionTypes.ErrorCleared;
 };
 
-type CreateIndexOpenedAction = {
+export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
 };
 

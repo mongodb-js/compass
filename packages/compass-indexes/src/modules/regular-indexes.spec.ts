@@ -6,6 +6,8 @@ import {
   dropIndex,
   hideIndex,
   unhideIndex,
+  openRegularIndexes,
+  closeRegularIndexes,
 } from './regular-indexes';
 import {
   indexesList,
@@ -17,7 +19,7 @@ import { setupStore } from '../../test/setup-store';
 
 // Importing this to stub showConfirmation
 import * as regularIndexesSlice from './regular-indexes';
-import type { FetchStatus } from '../utils/fetch-status';
+import type { FetchStatus, FetchStatuses } from '../utils/fetch-status';
 
 describe('regular-indexes module', function () {
   before(() => {
@@ -410,6 +412,94 @@ describe('regular-indexes module', function () {
       expect(updateCollection.args).to.deep.equal([
         ['citibike.trips', { index: { hidden: false, name: 'BBBB' } }],
       ]);
+    });
+  });
+
+  describe('openRegularIndexes and closeRegularIndexes', function () {
+    let clock: sinon.SinonFakeTimers;
+
+    before(() => {
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      clock.restore();
+    });
+
+    it('starts and stops the polling', async function () {
+      const pollInterval = 5000;
+
+      const indexesStub = sinon.stub().resolves(indexesList);
+      const store = setupStore(
+        {},
+        {
+          indexes: indexesStub,
+        }
+      );
+
+      const waitForStatus = async (status: FetchStatus) => {
+        while (store.getState().regularIndexes.status !== status) {
+          /*
+          This looks like a pretty tight loop, but the await at least gives the
+          stub time to resolve. If we wait using a timeout it will never fire
+          because this test takes control of the clock. In fact this while
+          condition is never false when the test passes so it never enters the
+          loop because the await on this function itself gives the stub time to
+          execute.
+          */
+          await Promise.resolve();
+        }
+      };
+
+      // before we start
+      expect(store.getState().regularIndexes.status).to.equal('NOT_READY');
+
+      // initial load
+      await store.dispatch(openRegularIndexes());
+      expect(store.getState().regularIndexes.status).to.equal('READY');
+      expect(indexesStub.callCount).to.equal(1);
+
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(indexesStub.callCount).to.equal(2);
+      await waitForStatus('READY');
+
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(indexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // stop
+      store.dispatch(closeRegularIndexes());
+
+      // no more polling
+      clock.tick(pollInterval);
+      expect(indexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // open again
+      await store.dispatch(openRegularIndexes());
+
+      // won't execute immediately
+      expect(indexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // does poll after the interval
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(indexesStub.callCount).to.equal(4);
+      await waitForStatus('READY');
+
+      // and again
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(indexesStub.callCount).to.equal(5);
+      await waitForStatus('READY');
+
+      // clean up
+      store.dispatch(closeRegularIndexes());
     });
   });
 });

@@ -105,6 +105,7 @@ export function activateIndexesPlugin(
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
+    console.log('refresh-data');
     void store.dispatch(refreshRegularIndexes());
     void store.dispatch(refreshSearchIndexes());
   });

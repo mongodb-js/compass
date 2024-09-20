@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { FetchStatus } from '../utils/fetch-status';
 import { FetchStatuses } from '../utils/fetch-status';
 import {
   createSearchIndexClosed,
@@ -9,6 +10,8 @@ import {
   updateSearchIndexOpened,
   updateSearchIndexClosed,
   updateIndex,
+  openSearchIndexes,
+  closeSearchIndexes,
 } from './search-indexes';
 import { setupStore } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
@@ -267,6 +270,96 @@ describe('search-indexes module', function () {
         'index_name',
       ]);
       expect(store.getState().searchIndexes.error).to.be.undefined;
+    });
+  });
+
+  describe('openSearchIndexes and closeSearchIndexes', function () {
+    let clock: sinon.SinonFakeTimers;
+
+    before(() => {
+      clock = sinon.useFakeTimers();
+    });
+
+    after(() => {
+      clock.restore();
+    });
+
+    it('starts and stops the polling', async function () {
+      const pollInterval = 5000;
+
+      const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
+      const store = setupStore(
+        {
+          isSearchIndexesSupported: true,
+        },
+        {
+          getSearchIndexes: getSearchIndexesStub,
+        }
+      );
+
+      const waitForStatus = async (status: FetchStatus) => {
+        while (store.getState().searchIndexes.status !== status) {
+          /*
+          This looks like a pretty tight loop, but the await at least gives the
+          stub time to resolve. If we wait using a timeout it will never fire
+          because this test takes control of the clock. In fact this while
+          condition is never false when the test passes so it never enters the
+          loop because the await on this function itself gives the stub time to
+          execute.
+          */
+          await Promise.resolve();
+        }
+      };
+
+      // before we start
+      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+
+      // initial load
+      await store.dispatch(openSearchIndexes());
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(2);
+      await waitForStatus('READY');
+
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // stop
+      store.dispatch(closeSearchIndexes());
+
+      // no more polling
+      clock.tick(pollInterval);
+      expect(getSearchIndexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // open again
+      await store.dispatch(openSearchIndexes());
+
+      // won't execute immediately
+      expect(getSearchIndexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // does poll after the interval
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(4);
+      await waitForStatus('READY');
+
+      // and again
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(5);
+      await waitForStatus('READY');
+
+      // clean up
+      store.dispatch(closeSearchIndexes());
     });
   });
 });

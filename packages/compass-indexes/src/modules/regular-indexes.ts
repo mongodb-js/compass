@@ -283,8 +283,7 @@ const fetchIndexes = (
       return;
     }
 
-    // If we are currently doing fetching indexes, we will
-    // wait for that
+    // If we are already fetching indexes, we will wait for that
     if (NOT_FETCHABLE_STATUSES.includes(status)) {
       return;
     }
@@ -333,10 +332,10 @@ export const POLLING_INTERVAL = 5000;
 let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
 
 export const openRegularIndexes = (): IndexesThunkAction<
-  void,
+  Promise<void>,
   IndexesOpenedAction | FetchIndexesActions
 > => {
-  return function (dispatch, getState) {
+  return async function (dispatch, getState) {
     if (getState().regularIndexes.isVisible || pollInterval) {
       return;
     }
@@ -348,6 +347,11 @@ export const openRegularIndexes = (): IndexesThunkAction<
     pollInterval = setInterval(() => {
       void dispatch(pollRegularIndexes());
     }, POLLING_INTERVAL);
+
+    // if this is the first time, also refresh the list
+    if (getState().regularIndexes.status === 'NOT_READY') {
+      await dispatch(refreshRegularIndexes());
+    }
   };
 };
 

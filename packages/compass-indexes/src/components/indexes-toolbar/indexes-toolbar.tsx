@@ -243,6 +243,7 @@ export const CreateIndexButton: React.FunctionComponent<
           { action: 'createSearchIndex', label: 'Search Index' },
         ]}
         onAction={onActionDispatch}
+        hideOnNarrow={false}
       />
     );
   }

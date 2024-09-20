@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -114,18 +114,6 @@ export function Indexes({
       ? refreshRegularIndexes
       : refreshSearchIndexes;
 
-  const loadIndexes = useCallback(() => {
-    if (currentIndexesView === 'regular-indexes') {
-      refreshRegularIndexes();
-    } else {
-      refreshSearchIndexes();
-    }
-  }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
-
-  useEffect(() => {
-    loadIndexes();
-  }, [loadIndexes]);
-
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
   return (
@@ -172,8 +160,6 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  // TODO(COMPASS-8214): loading, polling, refreshing the indexes should all
-  // happen in the store, not the UI.
   refreshRegularIndexes,
   refreshSearchIndexes,
 };

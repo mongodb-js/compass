@@ -68,7 +68,7 @@ type FetchSearchIndexesFailedAction = {
   error: string;
 };
 
-type CreateSearchIndexOpenedAction = {
+export type CreateSearchIndexOpenedAction = {
   type: ActionTypes.CreateSearchIndexOpened;
 };
 
@@ -453,10 +453,10 @@ export const POLLING_INTERVAL = 5000;
 let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
 
 export const openSearchIndexes = (): IndexesThunkAction<
-  void,
+  Promise<void>,
   SearchIndexesOpenedAction | FetchSearchIndexesActions
 > => {
-  return function (dispatch, getState) {
+  return async function (dispatch, getState) {
     if (getState().searchIndexes.isVisible || pollInterval) {
       return;
     }
@@ -468,6 +468,11 @@ export const openSearchIndexes = (): IndexesThunkAction<
     pollInterval = setInterval(() => {
       void dispatch(pollSearchIndexes());
     }, POLLING_INTERVAL);
+
+    // if this is the first time, also refresh the list
+    if (getState().searchIndexes.status === 'NOT_READY') {
+      await dispatch(refreshSearchIndexes());
+    }
   };
 };
 
@@ -641,8 +646,7 @@ const fetchIndexes = (
       return;
     }
 
-    // If we are currently doing fetching indexes, we will
-    // wait for that
+    // If we are already fetching indexes, we will wait for that
     if (NOT_FETCHABLE_STATUSES.includes(status)) {
       return;
     }
