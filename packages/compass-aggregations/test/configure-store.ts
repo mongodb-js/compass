@@ -45,7 +45,7 @@ function getMockedPluginArgs(
   const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();
   return [
-    CompassAggregationsPlugin.Provider.withMockServices({
+    CompassAggregationsPlugin.provider.withMockServices({
       atlasAuthService,
       atlasAiService,
       collection: {

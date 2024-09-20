@@ -9,7 +9,7 @@ import {
 import { CompassSchemaValidationPlugin } from '../../index';
 
 const { renderWithConnections } = createPluginTestHelpers(
-  CompassSchemaValidationPlugin.Provider.withMockServices({
+  CompassSchemaValidationPlugin.provider.withMockServices({
     dataService: {
       collectionInfo() {
         return Promise.resolve({});
