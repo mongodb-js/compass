@@ -34,10 +34,8 @@ import { AggregationsPluginName } from './plugin-name';
 const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassAggregations',
-    component: function AggregationsProvider({ children, ...props }) {
-      return React.isValidElement(children)
-        ? React.cloneElement(children, props)
-        : null;
+    component: function AggregationsProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
     },
     activate: activateAggregationsPlugin,
   },

@@ -21,10 +21,8 @@ import { IndexesPluginName } from './plugin-name';
 const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassIndexes',
-    component: function IndexesProvider({ children, ...props }) {
-      return React.isValidElement(children)
-        ? React.cloneElement(children, props)
-        : null;
+    component: function IndexesProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
     },
     activate: activateIndexesPlugin,
   },

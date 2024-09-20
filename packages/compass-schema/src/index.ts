@@ -19,9 +19,14 @@ const CompassSchemaHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassSchemaPlugin',
     component: function SchemaProvider({ children, ...props }) {
-      return React.isValidElement(children)
-        ? React.cloneElement(children, props)
-        : null;
+      return React.createElement(
+        React.Fragment,
+        null,
+        // Cloning children with props is a workaround for reflux store.
+        React.isValidElement(children)
+          ? React.cloneElement(children, props)
+          : null
+      );
     },
     activate: activateSchemaPlugin,
   },

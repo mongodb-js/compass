@@ -16,10 +16,8 @@ import { SchemaValidationPluginName } from './plugin-name';
 const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassSchemaValidationPlugin',
-    component: function SchemaValidationsProvider({ children, ...props }) {
-      return React.isValidElement(children)
-        ? React.cloneElement(children, props)
-        : null;
+    component: function SchemaValidationsProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
     },
     activate: onActivated,
   },
