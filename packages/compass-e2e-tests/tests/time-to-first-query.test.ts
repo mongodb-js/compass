@@ -8,7 +8,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import { createNumbersCollection } from '../helpers/insert-data';
 
-describe.only('Time to first query', function () {
+describe('Time to first query', function () {
   let compass: Compass | undefined;
 
   beforeEach(async function () {
