@@ -1,22 +1,20 @@
 import React, { useMemo } from 'react';
 import numeral from 'numeral';
-import { css, Tooltip, Badge } from '@mongodb-js/compass-components';
-import type { CollectionState } from '../modules/collection-tab';
+import { css, Tooltip, Badge, spacing } from '@mongodb-js/compass-components';
+import type { CrudStore } from './stores/crud-store';
 
-const tooltipDocumentsListStyles = css({
+const tooltipContentStyles = css({
   listStyleType: 'none',
   padding: 0,
   margin: 0,
 });
 
-const INVALID = 'N/A';
+const containerStyles = css({
+  display: 'flex',
+  gap: spacing[200],
+});
 
-const avg = (size: number, count: number) => {
-  if (count <= 0) {
-    return 0;
-  }
-  return size / count;
-};
+const INVALID = 'N/A';
 
 const isNumber = (val: any): val is number => {
   return typeof val === 'number' && !isNaN(val);
@@ -30,11 +28,11 @@ const format = (value: any, format = 'a') => {
   return numeral(value).format(precision + format);
 };
 
-type CollectionTabStatsProps = {
+type CollectionStatsProps = {
   text: string;
   details: string[];
 };
-const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
+const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   text,
   details,
 }) => {
@@ -57,7 +55,7 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
           </span>
         }
       >
-        <ol className={tooltipDocumentsListStyles}>
+        <ol className={tooltipContentStyles}>
           {details.map((detail, i) => (
             <li data-testid={`tooltip-detail-${i}`} key={`tooltip-detail-${i}`}>
               {detail}
@@ -69,48 +67,36 @@ const CollectionTabStats: React.FunctionComponent<CollectionTabStatsProps> = ({
   );
 };
 
-type CollectionTabProps = {
-  stats: CollectionState['stats'];
-};
-export const CollectionDocumentsStats: React.FunctionComponent<
-  CollectionTabProps
-> = ({ stats }) => {
+export const CrudTabTitle = ({
+  store: {
+    state: { collectionStats },
+  },
+}: {
+  store: CrudStore;
+}) => {
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
     const {
       document_count = NaN,
       storage_size = NaN,
       free_storage_size = NaN,
       avg_document_size = NaN,
-    } = stats ?? {};
+    } = collectionStats ?? {};
     return {
       documentCount: format(document_count),
       storageSize: format(storage_size - free_storage_size, 'b'),
       avgDocumentSize: format(avg_document_size, 'b'),
     };
-  }, [stats]);
+  }, [collectionStats]);
   const details = [
     `Documents: ${documentCount}`,
     `Storage Size: ${storageSize}`,
     `Avg. Size: ${avgDocumentSize}`,
   ];
-  return <CollectionTabStats text={documentCount} details={details} />;
-};
 
-export const CollectionIndexesStats: React.FunctionComponent<
-  CollectionTabProps
-> = ({ stats }) => {
-  const { indexCount, totalIndexSize, avgIndexSize } = useMemo(() => {
-    const { index_count = NaN, index_size = NaN } = stats ?? {};
-    return {
-      indexCount: format(index_count),
-      totalIndexSize: format(index_size, 'b'),
-      avgIndexSize: format(avg(index_size, index_count), 'b'),
-    };
-  }, [stats]);
-  const details = [
-    `Indexes: ${indexCount}`,
-    `Total Size: ${totalIndexSize}`,
-    `Avg. Size: ${avgIndexSize}`,
-  ];
-  return <CollectionTabStats text={indexCount} details={details} />;
+  return (
+    <div data-testid="documents-tab-title" className={containerStyles}>
+      Documents
+      <CollectionStats text={documentCount} details={details} />
+    </div>
+  );
 };

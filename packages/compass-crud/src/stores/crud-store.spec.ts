@@ -119,6 +119,31 @@ const mockQueryBar = {
   changeQuery: sinon.stub(),
 };
 
+const defaultMetadata = {
+  namespace: 'test.foo',
+  isReadonly: false,
+  isTimeSeries: false,
+  isClustered: false,
+  isFLE: false,
+  isSearchIndexesSupported: false,
+  sourceName: 'test.bar',
+};
+const mockCollection = {
+  _id: defaultMetadata.namespace,
+  avg_document_size: 1,
+  document_count: 10,
+  free_storage_size: 10,
+  storage_size: 20,
+  fetchMetadata() {
+    return Promise.resolve(defaultMetadata);
+  },
+  toJSON() {
+    return this;
+  },
+  on: sinon.spy(),
+  removeListener: sinon.spy(),
+};
+
 describe('store', function () {
   const cluster = mochaTestServer({
     topology: 'replset',
@@ -166,6 +191,7 @@ describe('store', function () {
         connectionInfoRef,
         connectionScopedAppRegistry,
         queryBar: mockQueryBar,
+        collection: mockCollection as any,
         ...services,
       },
       createActivateHelpers()
@@ -304,6 +330,12 @@ describe('store', function () {
         isCollectionScan: false,
         version: '6.0.0',
         view: 'List',
+        collectionStats: {
+          avg_document_size: 1,
+          document_count: 10,
+          free_storage_size: 10,
+          storage_size: 20,
+        },
       });
     });
   });
