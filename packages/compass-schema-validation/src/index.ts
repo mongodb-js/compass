@@ -1,3 +1,4 @@
+import React from 'react';
 import { onActivated } from './stores';
 import CompassSchemaValidation from './components/compass-schema-validation';
 import { registerHadronPlugin } from 'hadron-app-registry';
@@ -10,11 +11,14 @@ import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider'
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { SchemaValidationTabTitle } from './plugin-title';
 
-export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
+const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassSchemaValidationPlugin',
-    component: CompassSchemaValidation,
+    component: function SchemaValidationsProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
+    },
     activate: onActivated,
   },
   {
@@ -30,5 +34,7 @@ export const CompassSchemaValidationHadronPlugin = registerHadronPlugin(
 );
 export const CompassSchemaValidationPlugin = {
   name: 'Validation' as const,
-  component: CompassSchemaValidationHadronPlugin,
+  provider: CompassSchemaValidationHadronPlugin,
+  content: CompassSchemaValidation,
+  header: SchemaValidationTabTitle,
 };

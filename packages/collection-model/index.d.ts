@@ -83,14 +83,16 @@ interface CollectionProps {
   properties: { id: string; options?: unknown }[];
 }
 
+type CollectionDataService = Pick<DataService, 'collectionStats' | 'collectionInfo' | 'listCollections' | 'isListSearchIndexesSupported'>;
+
 interface Collection extends CollectionProps {
   fetch(opts: {
-    dataService: DataService;
+    dataService: CollectionDataService;
     fetchInfo?: boolean;
     force?: boolean;
   }): Promise<void>;
   fetchMetadata(opts: {
-    dataService: DataService;
+    dataService: CollectionDataService;
   }): Promise<CollectionMetadata>;
   on(evt: string, fn: (...args: any) => void);
   off(evt: string, fn: (...args: any) => void);
@@ -102,7 +104,7 @@ interface Collection extends CollectionProps {
 }
 
 interface CollectionCollection extends Array<Collection> {
-  fetch(opts: { dataService: DataService; fetchInfo?: boolean }): Promise<void>;
+  fetch(opts: { dataService: CollectionDataService; fetchInfo?: boolean }): Promise<void>;
   toJSON(opts?: { derived: boolean }): Array<CollectionProps>;
   at(index: number): Collection | undefined;
   get(id: string, key?: '_id' | 'name'): Collection | undefined;

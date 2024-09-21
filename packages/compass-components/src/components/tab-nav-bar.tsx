@@ -33,18 +33,16 @@ const tabStyles = css({
   minHeight: 0,
 });
 
-const hiddenStyles = css({
-  display: 'none',
-});
-
 type TabNavBarProps = {
   'data-testid'?: string;
   'aria-label': string;
   activeTabIndex: number;
-  tabNames: string[];
-  tabLabels: React.ReactNode[];
-  views: React.ReactElement[];
   onTabClicked: (tabIndex: number) => void;
+  tabs: Array<{
+    name: string;
+    content: React.ReactNode;
+    title: React.ReactNode;
+  }>;
 };
 
 /**
@@ -56,10 +54,8 @@ function TabNavBar({
   'data-testid': dataTestId,
   'aria-label': ariaLabel,
   activeTabIndex,
-  tabNames,
-  tabLabels,
-  views,
   onTabClicked,
+  tabs,
 }: TabNavBarProps): React.ReactElement | null {
   const darkMode = useDarkMode();
 
@@ -78,36 +74,31 @@ function TabNavBar({
           setSelected={onTabClicked}
           selected={activeTabIndex}
         >
-          {tabLabels.map((tab, idx) => (
-            <Tab
-              className="test-tab-nav-bar-tab"
-              key={`tab-${idx}`}
-              data-testid={`${tabNames[idx]}-tab-button`}
-              // LG name for tab is also set as the button name and if its a
-              // react element, its not set properly. So here we are wrapping
-              // the tab name in a span
-              name={<span>{tab}</span>}
-            />
-          ))}
+          {tabs.map(({ name, title }, idx) => {
+            return (
+              <Tab
+                className="test-tab-nav-bar-tab"
+                key={`tab-${idx}`}
+                data-testid={`${name}-tab-button`}
+                name={title}
+              />
+            );
+          })}
         </Tabs>
       </div>
-      {views.map(
-        (view, idx) =>
-          idx === activeTabIndex && (
+      {tabs.map(({ name, content }, idx) => {
+        if (idx === activeTabIndex) {
+          return (
             <div
-              className={cx({
-                [tabStyles]: true,
-                [hiddenStyles]: idx !== activeTabIndex,
-              })}
-              key={`tab-content-${tabNames[idx]}`}
-              data-testid={`${tabNames[idx]
-                .toLowerCase()
-                .replace(/ /g, '-')}-content`}
+              className={tabStyles}
+              key={`tab-content-${name}`}
+              data-testid={`${name.toLowerCase().replace(/ /g, '-')}-content`}
             >
-              {view}
+              {content}
             </div>
-          )
-      )}
+          );
+        }
+      })}
     </div>
   );
 }
