@@ -1,12 +1,6 @@
-import type { Reducer, AnyAction, Action } from 'redux';
+import type { Reducer, Action } from 'redux';
 import type Collection from 'mongodb-collection-model';
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export function extractCollectionStats(
   collection: Collection
