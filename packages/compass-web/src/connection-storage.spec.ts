@@ -161,6 +161,7 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           metricsType: type === 'sharded' ? 'cluster' : type,
           instanceSize: expectedInstanceSize,
           regionalBaseUrl: 'https://example.com',
+          clusterType: clusterDescription.clusterType,
         });
     });
   }
