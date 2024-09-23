@@ -3,14 +3,14 @@ import type { PipelineBuilderThunkAction } from '.';
 import type { SearchIndex } from 'mongodb-data-service';
 import { isAction } from '../utils/is-action';
 
-enum FetchStatuses {
+enum SearchIndexesStatuses {
   INITIAL = 'INITIAL',
   LOADING = 'LOADING',
   READY = 'READY',
   ERROR = 'ERROR',
 }
 
-export type FetchStatus = keyof typeof FetchStatuses;
+export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
 export enum ActionTypes {
   FetchIndexesStarted = 'compass-aggregations/search-indexes/FetchIndexesStarted',
@@ -39,13 +39,13 @@ export type SearchIndexesAction =
 type State = {
   isSearchIndexesSupported: boolean;
   indexes: SearchIndex[];
-  status: FetchStatus;
+  status: SearchIndexesStatus;
 };
 
 export const INITIAL_STATE: State = {
   isSearchIndexesSupported: false,
   indexes: [],
-  status: FetchStatuses.INITIAL,
+  status: SearchIndexesStatuses.INITIAL,
 };
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
@@ -54,7 +54,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      status: FetchStatuses.LOADING,
+      status: SearchIndexesStatuses.LOADING,
     };
   }
   if (
@@ -66,7 +66,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       indexes: action.indexes,
-      status: FetchStatuses.READY,
+      status: SearchIndexesStatuses.READY,
     };
   }
   if (
@@ -74,7 +74,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      status: FetchStatuses.ERROR,
+      status: SearchIndexesStatuses.ERROR,
     };
   }
   return state;
@@ -90,8 +90,8 @@ export const fetchIndexes = (): PipelineBuilderThunkAction<Promise<void>> => {
 
     if (
       !dataService ||
-      status === FetchStatuses.LOADING ||
-      status === FetchStatuses.READY
+      status === SearchIndexesStatuses.LOADING ||
+      status === SearchIndexesStatuses.READY
     ) {
       return;
     }
