@@ -3,10 +3,11 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 
 import { GlobalWrites } from './components';
 import { GlobalWritesTabTitle } from './plugin-title';
-import { activateGlobalWritesPlugin } from './store';
+import { activateGlobalWritesPlugin } from './store/store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
 const CompassGlobalWritesHadronPlugin = registerHadronPlugin(
   {
@@ -20,6 +21,7 @@ const CompassGlobalWritesHadronPlugin = registerHadronPlugin(
     logger: createLoggerLocator('COMPASS-GLOBAL-WRITES-UI'),
     track: telemetryLocator,
     connectionInfoRef: connectionInfoRefLocator,
+    atlasService: atlasServiceLocator,
   }
 );
 

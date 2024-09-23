@@ -5,6 +5,7 @@ import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
+import type { AtlasGlobalWritesService } from '../services/atlas-global-writes-service';
 import namespace from './namespace';
 
 const reducer = combineReducers({
@@ -17,6 +18,7 @@ export type GlobalWritesExtraArgs = {
   logger: Logger;
   track: TrackFunction;
   connectionInfoRef: ConnectionInfoRef;
+  atlasGlobalWritesService: AtlasGlobalWritesService;
 };
 
 export type GlobalWritesThunkDispatch<A extends Action = AnyAction> =
