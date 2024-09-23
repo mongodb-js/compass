@@ -31,6 +31,31 @@ describe('regular-indexes module', function () {
     sinon.restore();
   });
 
+  describe('#fetchRegularIndexees action', function () {
+    it('sets status to ERROR and sets the error when there is an error', async function () {
+      const error = new Error('failed to connect to server');
+      const store = await setupStoreAndWait(
+        {},
+        {
+          indexes: () => Promise.reject(error),
+        }
+      );
+
+      // Set some data to validate the empty array condition
+      Object.assign(store.getState(), {
+        regularIndexes: {
+          ...store.getState().regularIndexes,
+          indexes: defaultSortedIndexes.slice(),
+        },
+      });
+
+      const state = store.getState().regularIndexes;
+      expect(state.error).to.equal(error.message);
+      expect(state.status).to.equal('ERROR');
+      expect(state.indexes).to.deep.equal(defaultSortedIndexes);
+    });
+  });
+
   describe('#refreshRegularIndexes action', function () {
     it('sets indexes to empty array for views', async function () {
       const indexesStub = sinon.stub().resolves([]);
@@ -58,7 +83,7 @@ describe('regular-indexes module', function () {
       expect(indexesStub.callCount).to.equal(0);
     });
 
-    it('sets status to ERROR and sets the error when there is an error', async function () {
+    it('sets status to ready and sets the error when there is an error', async function () {
       const error = new Error('failed to connect to server');
       const store = await setupStoreAndWait(
         {},
@@ -79,7 +104,7 @@ describe('regular-indexes module', function () {
 
       const state = store.getState().regularIndexes;
       expect(state.error).to.equal(error.message);
-      expect(state.status).to.equal('ERROR');
+      expect(state.status).to.equal('READY');
       expect(state.indexes).to.deep.equal(defaultSortedIndexes);
     });
 

@@ -7,9 +7,9 @@ import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import { createIndexOpened } from '../modules/create-index';
-import { refreshRegularIndexes } from '../modules/regular-indexes';
+import { fetchRegularIndexes } from '../modules/regular-indexes';
 import {
-  refreshSearchIndexes,
+  fetchSearchIndexes,
   createSearchIndexOpened,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
@@ -113,8 +113,10 @@ export function activateIndexesPlugin(
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
-    void store.dispatch(refreshRegularIndexes());
-    void store.dispatch(refreshSearchIndexes());
+    void store.dispatch(fetchRegularIndexes());
+    if (options.isSearchIndexesSupported) {
+      void store.dispatch(fetchRegularIndexes());
+    }
   });
 
   // these can change later
@@ -125,9 +127,9 @@ export function activateIndexesPlugin(
     store.dispatch(getDescription(instance.description));
   });
 
-  void store.dispatch(refreshRegularIndexes());
+  void store.dispatch(fetchRegularIndexes());
   if (options.isSearchIndexesSupported) {
-    void store.dispatch(refreshSearchIndexes());
+    void store.dispatch(fetchSearchIndexes());
   }
   on(collectionModel, 'change:status', (model: Collection, status: string) => {
     if (status === 'ready') {

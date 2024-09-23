@@ -620,20 +620,21 @@ const fetchIndexes = (
   };
 };
 
+export const fetchSearchIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchSearchIndexesActions
+> => {
+  return async (dispatch) => {
+    await dispatch(fetchIndexes(FetchReasons.INITIAL_FETCH));
+  };
+};
+
 export const refreshSearchIndexes = (): IndexesThunkAction<
   Promise<void>,
   FetchSearchIndexesActions
 > => {
-  return async (dispatch, getState) => {
-    const { status } = getState().searchIndexes;
-
-    // If we are in a READY state, then we have already fetched the data
-    // and are refreshing the list.
-    const reason: FetchReason =
-      status === FetchStatuses.READY
-        ? FetchReasons.REFRESH
-        : FetchReasons.INITIAL_FETCH;
-    await dispatch(fetchIndexes(reason));
+  return async (dispatch) => {
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
   };
 };
 
