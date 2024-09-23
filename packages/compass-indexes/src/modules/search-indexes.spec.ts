@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import type { FetchStatus } from '../utils/fetch-status';
 import { FetchStatuses } from '../utils/fetch-status';
 import {
@@ -298,17 +299,9 @@ describe('search-indexes module', function () {
       );
 
       const waitForStatus = async (status: FetchStatus) => {
-        while (store.getState().searchIndexes.status !== status) {
-          /*
-          This looks like a pretty tight loop, but the await at least gives the
-          stub time to resolve. If we wait using a timeout it will never fire
-          because this test takes control of the clock. In fact this while
-          condition is never false when the test passes so it never enters the
-          loop because the await on this function itself gives the stub time to
-          execute.
-          */
-          await Promise.resolve();
-        }
+        await waitFor(() => {
+          return store.getState().regularIndexes.status === status;
+        });
       };
 
       // before we start

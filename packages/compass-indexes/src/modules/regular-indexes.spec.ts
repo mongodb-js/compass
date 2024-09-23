@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import {
   refreshRegularIndexes,
   pollRegularIndexes,
@@ -438,17 +439,9 @@ describe('regular-indexes module', function () {
       );
 
       const waitForStatus = async (status: FetchStatus) => {
-        while (store.getState().regularIndexes.status !== status) {
-          /*
-          This looks like a pretty tight loop, but the await at least gives the
-          stub time to resolve. If we wait using a timeout it will never fire
-          because this test takes control of the clock. In fact this while
-          condition is never false when the test passes so it never enters the
-          loop because the await on this function itself gives the stub time to
-          execute.
-          */
-          await Promise.resolve();
-        }
+        await waitFor(() => {
+          return store.getState().regularIndexes.status === status;
+        });
       };
 
       // before we start
