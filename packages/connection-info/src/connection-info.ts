@@ -49,6 +49,13 @@ export interface AtlasClusterMetadata {
    * https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/provider.ts#L60-L107
    */
   instanceSize?: string;
+
+  /**
+   * Possible types of Atlas clusters.
+   * Copied from:
+   *  https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/clusterDescription.ts#L12-L16
+   */
+  clusterType: 'REPLICASET' | 'SHARDED' | 'GEOSHARDED';
 }
 
 export interface ConnectionInfo {
