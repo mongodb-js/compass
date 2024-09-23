@@ -22,8 +22,8 @@ function renderUpdateSearchIndexModal(
       indexDefinition="testDefinition"
       isModalOpen={true}
       isBusy={false}
-      onUpdateIndex={() => {}}
-      onCloseModal={() => {}}
+      onUpdateIndexClick={() => {}}
+      onCloseModalClick={() => {}}
       error={'Invalid index definition.'}
       {...props}
     />

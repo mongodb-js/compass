@@ -595,7 +595,7 @@ export const CollectionTab = '[data-testid="collection-tabs"]';
 export const CollectionTabStats = (
   tabName: 'documents' | 'indexes'
 ): string => {
-  return `[data-testid="${tabName}-tab-with-stats"] [data-testid="collection-stats"]`;
+  return `[data-testid="${tabName}-tab-title"] [data-testid="collection-stats"]`;
 };
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';

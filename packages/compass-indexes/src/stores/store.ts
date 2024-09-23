@@ -6,27 +6,28 @@ import thunk from 'redux-thunk';
 import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
-import {
-  fetchIndexes,
-  inProgressIndexAdded,
-  inProgressIndexRemoved,
-  inProgressIndexFailed,
-  type InProgressIndex,
-} from '../modules/regular-indexes';
+import { createIndexOpened } from '../modules/create-index';
+import { fetchIndexes } from '../modules/regular-indexes';
 import {
   INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
   refreshSearchIndexes,
   SearchIndexesStatuses,
-  showCreateModal,
+  createSearchIndexOpened,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
-import { switchToRegularIndexes } from '../modules/index-view';
 import type { ActivateHelpers } from 'hadron-app-registry';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  MongoDBInstance,
+  Collection,
+} from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  collectionStatsFetched,
+  extractCollectionStats,
+} from '../modules/collection-stats';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -37,7 +38,12 @@ export type IndexesDataServiceProps =
   | 'getSearchIndexes'
   | 'createSearchIndex'
   | 'updateSearchIndex'
-  | 'dropSearchIndex';
+  | 'dropSearchIndex'
+  // Required for collection model (fetching stats)
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported';
 export type IndexesDataService = Pick<DataService, IndexesDataServiceProps>;
 
 export type IndexesPluginServices = {
@@ -47,6 +53,7 @@ export type IndexesPluginServices = {
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   logger: Logger;
+  collection: Collection;
   track: TrackFunction;
 };
 
@@ -71,6 +78,7 @@ export function activateIndexesPlugin(
     logger,
     track,
     dataService,
+    collection: collectionModel,
   }: IndexesPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -89,6 +97,7 @@ export function activateIndexesPlugin(
           ? SearchIndexesStatuses.NOT_READY
           : SearchIndexesStatuses.NOT_AVAILABLE,
       },
+      collectionStats: extractCollectionStats(collectionModel),
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -102,37 +111,12 @@ export function activateIndexesPlugin(
     )
   );
 
-  on(localAppRegistry, 'refresh-regular-indexes', () => {
-    localAppRegistry.emit('refresh-collection-stats');
-    void store.dispatch(fetchIndexes());
+  on(localAppRegistry, 'open-create-index-modal', () => {
+    store.dispatch(createIndexOpened());
   });
-
-  on(
-    localAppRegistry,
-    'in-progress-indexes-added',
-    (index: InProgressIndex) => {
-      store.dispatch(inProgressIndexAdded(index));
-      // we have to merge the in-progress indexes with the regular indexes, so
-      // just fetch them again which will perform the merge
-      void store.dispatch(fetchIndexes());
-      store.dispatch(switchToRegularIndexes());
-    }
-  );
-
-  on(localAppRegistry, 'in-progress-indexes-removed', (id: string) => {
-    store.dispatch(inProgressIndexRemoved(id));
-  });
-
-  on(
-    localAppRegistry,
-    'in-progress-indexes-failed',
-    (data: { inProgressIndexId: string; error: string }) => {
-      store.dispatch(inProgressIndexFailed(data));
-    }
-  );
 
   on(localAppRegistry, 'open-create-search-index-modal', () => {
-    store.dispatch(showCreateModal());
+    store.dispatch(createSearchIndexOpened());
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
@@ -146,6 +130,16 @@ export function activateIndexesPlugin(
   });
   on(instance, 'change:description', () => {
     store.dispatch(getDescription(instance.description));
+  });
+
+  on(collectionModel, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.dispatch(collectionStatsFetched(model));
+    }
+  });
+
+  on(localAppRegistry, 'refresh-collection-stats', () => {
+    void collectionModel.fetch({ dataService, force: true });
   });
 
   return { store, deactivate: () => cleanup() };

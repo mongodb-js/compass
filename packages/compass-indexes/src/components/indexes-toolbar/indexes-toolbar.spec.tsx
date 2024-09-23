@@ -39,9 +39,9 @@ describe('IndexesToolbar Component', function () {
           onRefreshIndexes={() => {}}
           isAtlasSearchSupported={false}
           isRefreshing={false}
-          onChangeIndexView={() => {}}
-          onCreateRegularIndex={() => {}}
-          onCreateSearchIndex={() => {}}
+          onIndexViewChanged={() => {}}
+          onCreateRegularIndexClick={() => {}}
+          onCreateSearchIndexClick={() => {}}
           {...props}
         />
       </PreferencesProvider>
@@ -181,25 +181,25 @@ describe('IndexesToolbar Component', function () {
 
   describe('allows creating of indexes', function () {
     context('when search indexes is not supported', function () {
-      it('calls onCreateRegularIndex when index button is clicked', function () {
-        const onCreateRegularIndexSpy = sinon.spy();
+      it('calls onCreateRegularIndexClick when index button is clicked', function () {
+        const onCreateRegularIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
-          onCreateRegularIndex: onCreateRegularIndexSpy,
+          onCreateRegularIndexClick: onCreateRegularIndexClickSpy,
         });
-        expect(onCreateRegularIndexSpy).to.not.have.been.called;
+        expect(onCreateRegularIndexClickSpy).to.not.have.been.called;
 
         screen.getByTestId('open-create-index-modal-button').click();
 
-        expect(onCreateRegularIndexSpy).to.have.been.calledOnce;
+        expect(onCreateRegularIndexClickSpy).to.have.been.calledOnce;
       });
     });
 
     context('when search indexes is supported', function () {
-      it('calls onCreateRegularIndex when index button is clicked', function () {
-        const onCreateRegularIndexSpy = sinon.spy();
+      it('calls onCreateRegularIndexClick when index button is clicked', function () {
+        const onCreateRegularIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
           isAtlasSearchSupported: true,
-          onCreateRegularIndex: onCreateRegularIndexSpy,
+          onCreateRegularIndexClick: onCreateRegularIndexClickSpy,
         });
 
         // open the dropdown
@@ -207,7 +207,7 @@ describe('IndexesToolbar Component', function () {
           .getByTestId('multiple-index-types-creation-dropdown-show-actions')
           .click();
 
-        expect(onCreateRegularIndexSpy).to.not.have.been.called;
+        expect(onCreateRegularIndexClickSpy).to.not.have.been.called;
 
         // click the button
         screen
@@ -216,13 +216,13 @@ describe('IndexesToolbar Component', function () {
           )
           .click();
 
-        expect(onCreateRegularIndexSpy).to.have.been.calledOnce;
+        expect(onCreateRegularIndexClickSpy).to.have.been.calledOnce;
       });
-      it('calls onCreateSearchIndex when index button is clicked', function () {
-        const onCreateSearchIndexSpy = sinon.spy();
+      it('calls onCreateSearchIndexClick when index button is clicked', function () {
+        const onCreateSearchIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
           isAtlasSearchSupported: true,
-          onCreateSearchIndex: onCreateSearchIndexSpy,
+          onCreateSearchIndexClick: onCreateSearchIndexClickSpy,
         });
 
         // open the dropdown
@@ -230,7 +230,7 @@ describe('IndexesToolbar Component', function () {
           .getByTestId('multiple-index-types-creation-dropdown-show-actions')
           .click();
 
-        expect(onCreateSearchIndexSpy).to.not.have.been.called;
+        expect(onCreateSearchIndexClickSpy).to.not.have.been.called;
 
         // click the button
         screen
@@ -239,7 +239,7 @@ describe('IndexesToolbar Component', function () {
           )
           .click();
 
-        expect(onCreateSearchIndexSpy).to.have.been.calledOnce;
+        expect(onCreateSearchIndexClickSpy).to.have.been.calledOnce;
       });
     });
   });
@@ -309,7 +309,7 @@ describe('IndexesToolbar Component', function () {
     it('when it supports search management, it changes tab view', function () {
       renderIndexesToolbar({
         isAtlasSearchSupported: true,
-        onChangeIndexView: onChangeViewCallback,
+        onIndexViewChanged: onChangeViewCallback,
       });
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
@@ -321,7 +321,7 @@ describe('IndexesToolbar Component', function () {
     it('when it does not support search management, it renders tab as disabled', function () {
       renderIndexesToolbar({
         isAtlasSearchSupported: false,
-        onChangeIndexView: onChangeViewCallback,
+        onIndexViewChanged: onChangeViewCallback,
       });
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);

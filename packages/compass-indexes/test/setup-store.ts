@@ -56,6 +56,32 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
   dropSearchIndex(ns: string, name: string) {
     return Promise.resolve();
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  collectionInfo(dbName, collName) {
+    return Promise.resolve(null);
+  },
+  collectionStats(databaseName, collectionName) {
+    return Promise.resolve({
+      avg_document_size: 0,
+      count: 0,
+      database: databaseName,
+      document_count: 0,
+      free_storage_size: 0,
+      index_count: 0,
+      index_size: 0,
+      name: collectionName,
+      ns: `${databaseName}.${collectionName}`,
+      storage_size: 0,
+    });
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  isListSearchIndexesSupported(ns) {
+    return Promise.resolve(false);
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  listCollections(databaseName, filter, options) {
+    return Promise.resolve([]);
+  },
 };
 
 class FakeInstance extends EventEmitter {
@@ -64,6 +90,26 @@ class FakeInstance extends EventEmitter {
 }
 
 const fakeInstance = new FakeInstance();
+
+const defaultMetadata = {
+  namespace: 'test.foo',
+  isReadonly: false,
+  isTimeSeries: false,
+  isClustered: false,
+  isFLE: false,
+  isSearchIndexesSupported: false,
+  sourceName: 'test.bar',
+};
+const mockCollection = {
+  _id: defaultMetadata.namespace,
+  fetchMetadata() {
+    return Promise.resolve(defaultMetadata);
+  },
+  toJSON() {
+    return this;
+  },
+  on: Sinon.spy(),
+};
 
 export const setupStore = (
   options: Partial<IndexesPluginOptions> = {},
@@ -101,6 +147,7 @@ export const setupStore = (
       instance: fakeInstance as any,
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
+      collection: mockCollection as any,
       connectionInfoRef,
       ...services,
     },
