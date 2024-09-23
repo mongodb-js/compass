@@ -122,11 +122,12 @@ export async function setupStoreAndWait(
       'READY',
       'ERROR',
     ]);
-    expect(store.getState().searchIndexes.status).to.be.oneOf([
-      'NOT_AVAILABLE',
-      'READY',
-      'ERROR',
-    ]);
+    if (store.getState().isSearchIndexesSupported) {
+      expect(store.getState().searchIndexes.status).to.be.oneOf([
+        'READY',
+        'ERROR',
+      ]);
+    }
   });
   return store;
 }

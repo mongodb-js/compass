@@ -37,7 +37,7 @@ describe('IndexesToolbar Component', function () {
           isWritable={true}
           writeStateDescription={undefined}
           onRefreshIndexes={() => {}}
-          isAtlasSearchSupported={false}
+          isSearchIndexesSupported={false}
           isRefreshing={false}
           onIndexViewChanged={() => {}}
           onCreateRegularIndexClick={() => {}}
@@ -75,7 +75,7 @@ describe('IndexesToolbar Component', function () {
             showInsights: true,
           });
 
-          renderIndexesToolbar({ isAtlasSearchSupported: true });
+          renderIndexesToolbar({ isSearchIndexesSupported: true });
         });
 
         it('should render the create index dropdown button enabled', async function () {
@@ -100,7 +100,7 @@ describe('IndexesToolbar Component', function () {
             showInsights: true,
           });
 
-          renderIndexesToolbar({ isAtlasSearchSupported: false });
+          renderIndexesToolbar({ isSearchIndexesSupported: false });
         });
 
         it('should render the create index button only', function () {
@@ -198,7 +198,7 @@ describe('IndexesToolbar Component', function () {
       it('calls onCreateRegularIndexClick when index button is clicked', function () {
         const onCreateRegularIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
-          isAtlasSearchSupported: true,
+          isSearchIndexesSupported: true,
           onCreateRegularIndexClick: onCreateRegularIndexClickSpy,
         });
 
@@ -221,7 +221,7 @@ describe('IndexesToolbar Component', function () {
       it('calls onCreateSearchIndexClick when index button is clicked', function () {
         const onCreateSearchIndexClickSpy = sinon.spy();
         renderIndexesToolbar({
-          isAtlasSearchSupported: true,
+          isSearchIndexesSupported: true,
           onCreateSearchIndexClick: onCreateSearchIndexClickSpy,
         });
 
@@ -308,7 +308,7 @@ describe('IndexesToolbar Component', function () {
 
     it('when it supports search management, it changes tab view', function () {
       renderIndexesToolbar({
-        isAtlasSearchSupported: true,
+        isSearchIndexesSupported: true,
         onIndexViewChanged: onChangeViewCallback,
       });
       const segmentControl = screen.getByText('Search Indexes');
@@ -320,7 +320,7 @@ describe('IndexesToolbar Component', function () {
 
     it('when it does not support search management, it renders tab as disabled', function () {
       renderIndexesToolbar({
-        isAtlasSearchSupported: false,
+        isSearchIndexesSupported: false,
         onIndexViewChanged: onChangeViewCallback,
       });
       const segmentControl = screen.getByText('Search Indexes');

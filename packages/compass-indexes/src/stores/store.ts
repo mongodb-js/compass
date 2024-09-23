@@ -8,9 +8,7 @@ import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import { createIndexOpened } from '../modules/create-index';
 import { refreshRegularIndexes } from '../modules/regular-indexes';
-import { FetchStatuses } from '../utils/fetch-status';
 import {
-  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
   refreshSearchIndexes,
   createSearchIndexOpened,
 } from '../modules/search-indexes';
@@ -76,13 +74,8 @@ export function activateIndexesPlugin(
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
+      isSearchIndexesSupported: options.isSearchIndexesSupported,
       indexView: INDEX_LIST_INITIAL_STATE,
-      searchIndexes: {
-        ...SEARCH_INDEXES_INITIAL_STATE,
-        status: options.isSearchIndexesSupported
-          ? FetchStatuses.NOT_READY
-          : FetchStatuses.NOT_AVAILABLE,
-      },
     },
     applyMiddleware(
       thunk.withExtraArgument({

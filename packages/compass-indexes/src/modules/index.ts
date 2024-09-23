@@ -4,6 +4,7 @@ import type AppRegistry from 'hadron-app-registry';
 import isWritable from './is-writable';
 import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';
+import isSearchIndexesSupported from './is-search-indexes-supported';
 import description from './description';
 import regularIndexes from './regular-indexes';
 import searchIndexes from './search-indexes';
@@ -25,6 +26,9 @@ const reducer = combineReducers({
   // Is this collection readonly. (ultimately from isReadonly on
   // CollectionProps) Used to know if many things should even be visible.
   isReadonlyView,
+
+  // Does this collection support search indexes
+  isSearchIndexesSupported,
 
   // 'regular-indexes' or 'search-indexes'
   indexView,

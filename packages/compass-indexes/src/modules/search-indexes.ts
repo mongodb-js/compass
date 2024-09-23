@@ -125,7 +125,7 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
-  status: FetchStatuses.NOT_AVAILABLE,
+  status: FetchStatuses.NOT_READY,
   createIndex: {
     isModalOpen: false,
     isBusy: false,

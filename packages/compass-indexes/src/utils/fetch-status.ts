@@ -1,9 +1,5 @@
 export enum FetchStatuses {
   /**
-   * No support. Default status.
-   */
-  NOT_AVAILABLE = 'NOT_AVAILABLE',
-  /**
    * We do not have a list yet.
    */
   NOT_READY = 'NOT_READY',
@@ -37,7 +33,6 @@ export type FetchingStatus = 'REFRESHING' | 'POLLING' | 'FETCHING';
 // List of fetch statuses when the server should not be called to avoid multiple
 // requests.
 export const NOT_FETCHABLE_STATUSES: FetchStatus[] = [
-  'NOT_AVAILABLE',
   'FETCHING',
   'POLLING',
   'REFRESHING',

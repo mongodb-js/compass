@@ -56,7 +56,7 @@ describe('search-indexes module', function () {
   it('has not available search indexes state by default', async function () {
     store = await setupStoreAndWait({ isSearchIndexesSupported: false });
     expect(store.getState().searchIndexes.status).to.equal(
-      FetchStatuses.NOT_AVAILABLE
+      FetchStatuses.NOT_READY
     );
   });
 
