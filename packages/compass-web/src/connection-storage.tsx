@@ -25,12 +25,14 @@ type ReplicationSpec = {
   regionConfigs: RegionConfig[];
 };
 
+type ClusterType = 'REPLICASET' | 'SHARDED' | 'GEOSHARDED';
+
 type ClusterDescription = {
   '@provider': string;
   uniqueId: string;
   groupId: string;
   name: string;
-  clusterType: string;
+  clusterType: ClusterType;
   srvAddress: string;
   state: string;
   deploymentItemName: string;
@@ -196,6 +198,7 @@ export function buildConnectionInfoFromClusterDescription(
       regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
       ...getMetricsIdAndType(description, deploymentItem),
       instanceSize: getInstanceSize(description),
+      clusterType: description.clusterType,
     },
   };
 }

@@ -23,6 +23,8 @@ const mockConnections: ConnectionInfo[] = [
       metricsId: 'metricsId',
       metricsType: 'host',
       instanceSize: 'M10',
+      clusterType: 'REPLICASET',
+      clusterUniqueId: 'clusterUniqueId',
     },
   },
   {
@@ -38,6 +40,8 @@ const mockConnections: ConnectionInfo[] = [
       metricsId: 'metricsId',
       metricsType: 'replicaSet',
       instanceSize: 'M0',
+      clusterType: 'REPLICASET',
+      clusterUniqueId: 'clusterUniqueId',
     },
   },
   {
@@ -53,6 +57,8 @@ const mockConnections: ConnectionInfo[] = [
       metricsId: 'metricsId',
       metricsType: 'serverless',
       instanceSize: 'SERVERLESS_V2',
+      clusterType: 'REPLICASET',
+      clusterUniqueId: 'clusterUniqueId',
     },
   },
   {
@@ -68,6 +74,8 @@ const mockConnections: ConnectionInfo[] = [
       metricsId: 'metricsId',
       metricsType: 'replicaSet',
       instanceSize: 'M10',
+      clusterType: 'REPLICASET',
+      clusterUniqueId: 'clusterUniqueId',
     },
   },
   {
@@ -83,79 +91,132 @@ const mockConnections: ConnectionInfo[] = [
       metricsId: 'metricsId',
       metricsType: 'cluster',
       instanceSize: 'M10',
+      clusterType: 'SHARDED',
+      clusterUniqueId: 'clusterUniqueId',
+    },
+  },
+  {
+    id: 'dedicated-geo-sharded',
+    connectionOptions: {
+      connectionString: 'mongodb://foo',
+    },
+    atlasMetadata: {
+      orgId: 'orgId',
+      projectId: 'projectId',
+      clusterName: 'clusterName',
+      regionalBaseUrl: 'https://example.com',
+      metricsId: 'metricsId',
+      metricsType: 'cluster',
+      instanceSize: 'M30',
+      clusterType: 'GEOSHARDED',
+      clusterUniqueId: 'clusterUniqueId',
     },
   },
 ];
 
 describe('useConnectionSupports', function () {
-  it('should return false if the connection does not exist', function () {
-    const { result } = renderHookWithConnections(
-      () => useConnectionSupports('does-not-exist', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(false);
-  });
+  context('rollingIndexCreation', function () {
+    it('should return false if the connection does not exist', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('does-not-exist', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
 
-  it('should return false if the connection has no atlasMetadata', function () {
-    const { result } = renderHookWithConnections(
-      () => useConnectionSupports('no-atlasMetadata', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(false);
-  });
+    it('should return false if the connection has no atlasMetadata', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('no-atlasMetadata', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
 
-  it('should return false for host cluster type', function () {
-    const { result } = renderHookWithConnections(
-      () => useConnectionSupports('host-cluster', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(false);
-  });
+    it('should return false for host cluster type', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('host-cluster', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
 
-  it('should return false for serverless cluster type', function () {
-    const { result } = renderHookWithConnections(
-      () => useConnectionSupports('serverless-cluster', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(false);
-  });
+    it('should return false for serverless cluster type', function () {
+      const { result } = renderHookWithConnections(
+        () =>
+          useConnectionSupports('serverless-cluster', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
 
-  it('should return false for free/shared tier clusters', function () {
-    const { result } = renderHookWithConnections(
-      () => useConnectionSupports('free-cluster', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(false);
-  });
+    it('should return false for free/shared tier clusters', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('free-cluster', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
 
-  it('should return true for dedicated replicaSet clusters', function () {
-    const { result } = renderHookWithConnections(
-      () =>
-        useConnectionSupports('dedicated-replicaSet', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(true);
-  });
+    it('should return true for dedicated replicaSet clusters', function () {
+      const { result } = renderHookWithConnections(
+        () =>
+          useConnectionSupports('dedicated-replicaSet', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(true);
+    });
 
-  it('should return true for dedicated sharded clusters', function () {
-    const { result } = renderHookWithConnections(
-      () => useConnectionSupports('dedicated-sharded', 'rollingIndexCreation'),
-      {
-        connections: mockConnections,
-      }
-    );
-    expect(result.current).to.equal(true);
+    it('should return true for dedicated sharded clusters', function () {
+      const { result } = renderHookWithConnections(
+        () =>
+          useConnectionSupports('dedicated-sharded', 'rollingIndexCreation'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(true);
+    });
+  });
+  context('globalWrites', function () {
+    it('should return false if the connection does not exist', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('does-not-exist', 'globalWrites'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
+    it('should return false if the connection has no atlasMetadata', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('no-atlasMetadata', 'globalWrites'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(false);
+    });
+
+    it('should return true if the cluster type is geosharded', function () {
+      const { result } = renderHookWithConnections(
+        () => useConnectionSupports('dedicated-geo-sharded', 'globalWrites'),
+        {
+          connections: mockConnections,
+        }
+      );
+      expect(result.current).to.equal(true);
+    });
   });
 });

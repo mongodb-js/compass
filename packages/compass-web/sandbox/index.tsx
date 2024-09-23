@@ -50,6 +50,7 @@ const App = () => {
             maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
             atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
             enableCreatingNewConnections: !isAtlas,
+            enableGlobalWrites: isAtlas,
           }}
           onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}
