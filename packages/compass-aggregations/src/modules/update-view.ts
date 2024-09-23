@@ -6,7 +6,8 @@ import {
   mapPipelineModeToEditorViewType,
 } from './pipeline-builder/builder-helpers';
 import type { PipelineBuilderThunkAction } from '.';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
+
 import type { AnyAction } from 'redux';
 
 export type UpdateViewState = null | string;

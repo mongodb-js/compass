@@ -4,7 +4,7 @@ import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
 
 import type { QueryBarThunkAction } from './query-bar-store';
-import { isAction } from '../utils';
+import { isAction } from '@mongodb-js/compass-utils';
 import {
   mapQueryToFormFields,
   parseQueryAttributesToFormFields,

@@ -1,10 +1,11 @@
-import type { Action, AnyAction, Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
 import { cancelAtlasLoginAttempt } from './atlas-login';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type SettingsTabId =
   | 'general'
@@ -86,13 +87,6 @@ type ChangeFieldValueAction<K extends keyof UserConfigurablePreferences> = {
   field: K;
   value: UserConfigurablePreferences[K];
 };
-
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 export const reducer: Reducer<State, Action> = (
   state = INITIAL_STATE,

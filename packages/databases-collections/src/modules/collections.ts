@@ -5,13 +5,7 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { CollectionsThunkExtraArg } from '../stores/collections-store';
 import toNS from 'mongodb-ns';
-
-function isAction<A extends Action>(
-  action: Action,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type CollectionsState = {
   collections: ReturnType<Collection['toJSON']>[];

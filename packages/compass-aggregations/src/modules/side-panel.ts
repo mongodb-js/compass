@@ -1,4 +1,5 @@
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
+
 import { type PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import type { AnyAction } from 'redux';

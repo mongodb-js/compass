@@ -1,7 +1,8 @@
 import type { Action, Reducer } from 'redux';
-import { abort, getAbortSignal, isAction } from './utils';
+import { abort, getAbortSignal } from './utils';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/renderer';
 import type { SettingsThunkAction } from '.';
+import { isAction } from '@mongodb-js/compass-utils';
 
 type AtlasLoginSettingsState = { attemptId: number | null } & (
   | {

@@ -5,6 +5,7 @@ import type { WorkerRuntime } from '@mongosh/node-runtime-worker-thread';
 import { ObjectId } from 'bson';
 import { createWorkerRuntime } from '../modules/worker-runtime';
 import type { ShellPluginExtraArgs } from '../plugin';
+import { isAction } from '@mongodb-js/compass-utils';
 
 const RuntimeMap = new Map<string, WorkerRuntime>();
 
@@ -41,13 +42,6 @@ type HistorySavedAction = {
   type: ActionTypes.HistorySaved;
   history: string[];
 };
-
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 const reducer: Reducer<State, Action> = (
   state = { runtimeId: null, history: null },

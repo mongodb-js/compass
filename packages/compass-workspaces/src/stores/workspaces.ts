@@ -24,6 +24,7 @@ import {
 } from '../components/workspace-close-handler';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
+import { isAction } from '@mongodb-js/compass-utils';
 
 const LocalAppRegistryMap = new Map<string, AppRegistry>();
 
@@ -72,13 +73,6 @@ export enum WorkspacesActions {
   ConnectionDisconnected = 'compass-workspaces/ConnectionDisconnected',
   FetchCollectionTabInfo = 'compass-workspaces/FetchCollectionTabInfo',
   CollectionSubtabSelected = 'compass-workspaces/CollectionSubtabSelected',
-}
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
 }
 
 type WorkspaceTabProps =

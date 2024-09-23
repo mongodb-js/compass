@@ -14,7 +14,7 @@ import type {
 } from './pipeline-builder/pipeline-ai';
 import { AIPipelineActionTypes } from './pipeline-builder/pipeline-ai';
 import { getStageOperator, isOutputStage } from '../utils/stage';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 const FETCH_EXPLAIN_PLAN_SUCCESS =
   'compass-aggregations/FETCH_EXPLAIN_PLAN_SUCCESS' as const;

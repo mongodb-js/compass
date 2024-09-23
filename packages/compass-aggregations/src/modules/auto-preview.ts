@@ -5,7 +5,7 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export enum ActionTypes {
   AutoPreviewToggled = 'compass-aggregations/autoPreviewToggled',

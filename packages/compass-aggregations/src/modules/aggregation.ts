@@ -18,7 +18,7 @@ import {
   isOutputStage,
 } from '../utils/stage';
 import { fetchExplainForPipeline } from './insights';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import {
   showConfirmation,
   ConfirmationModalVariant,

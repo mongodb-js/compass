@@ -7,7 +7,7 @@ import {
 import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
-import { isAction } from './../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';

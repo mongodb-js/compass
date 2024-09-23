@@ -1,7 +1,8 @@
-import type { Action, AnyAction, Reducer } from 'redux';
+import type { Action, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
+import { isAction } from '@mongodb-js/compass-utils';
 
 /**
  * No dots in DB name error message.
@@ -160,13 +161,6 @@ export const kmsProvidersRetrieved = (
   connectionId,
   configuredKMSProviders,
 });
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 const reducer: Reducer<CreateNamespaceState, Action> = (
   state = INITIAL_STATE,

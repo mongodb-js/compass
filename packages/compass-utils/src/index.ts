@@ -1,5 +1,3 @@
-export type { AmpersandMethodOptions } from './promisify-ampersand-method';
-export { promisifyAmpersandMethod } from './promisify-ampersand-method';
 export { getAppName, getStoragePath, getAppVersion } from './electron';
 export {
   raceWithAbort,
@@ -8,3 +6,4 @@ export {
   isCancelError,
   throwIfAborted,
 } from './cancellable-promise';
+export { isAction } from './is-action';

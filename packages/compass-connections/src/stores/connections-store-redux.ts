@@ -30,6 +30,7 @@ import EventEmitter from 'events';
 import { showNonGenuineMongoDBWarningModal as _showNonGenuineMongoDBWarningModal } from '../components/non-genuine-connection-modal';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type ConnectionsEventMap = {
   connected: (
@@ -391,13 +392,6 @@ type EditConnectionFavoriteInfoAction = {
   type: ActionTypes.EditConnectionFavoriteInfo;
   connectionId: ConnectionId;
 };
-
-function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
 
 const InFlightConnections = new Map<ConnectionId, PromiseLike<void>>();
 

@@ -1,13 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import type { SavedQueryAggregationThunkAction } from '.';
 import { fetchItems } from './aggregations-queries-items';
-
-function isAction<A extends Action>(
-  action: Action,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type UpdateItemAttributes = {
   name: string;

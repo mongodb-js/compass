@@ -1,6 +1,7 @@
 import type { AnyAction } from 'redux';
 import { DEFAULT_SAMPLE_SIZE } from '../constants';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
+
 import type { NewPipelineConfirmedAction } from './is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import type { ApplySettingsAction } from './settings';

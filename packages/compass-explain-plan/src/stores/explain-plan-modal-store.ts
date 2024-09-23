@@ -4,13 +4,7 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import type { ExplainPlanModalServices, OpenExplainPlanModalEvent } from '.';
-
-export function isAction<A extends AnyAction>(
-  action: AnyAction,
-  type: A['type']
-): action is A {
-  return action.type === type;
-}
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type SerializedExplainPlan = ReturnType<ExplainPlan['serialize']>;
 

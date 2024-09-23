@@ -2,7 +2,7 @@ import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
-import { isAction } from '../../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';

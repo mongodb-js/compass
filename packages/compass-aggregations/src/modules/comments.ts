@@ -10,7 +10,7 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import type { ApplySettingsAction } from './settings';
 import { APPLY_SETTINGS } from './settings';
-import { isAction } from '../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type CommentsState = boolean;
 

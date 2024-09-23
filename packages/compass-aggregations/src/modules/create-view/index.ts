@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import parseNs from 'mongodb-ns';
 import type { Document } from 'bson';
 import type { CreateViewThunkAction } from '../../stores/create-view';
-import { isAction } from '../../utils/is-action';
+import { isAction } from '@mongodb-js/compass-utils';
 
 export type CreateViewState = {
   connectionId: string;
