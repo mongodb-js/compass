@@ -3,7 +3,7 @@ import { registerHadronPlugin } from 'hadron-app-registry';
 
 import { GlobalWrites } from './components';
 import { GlobalWritesTabTitle } from './plugin-title';
-import { activateGlobalWritesPlugin } from './store/store';
+import { activateGlobalWritesPlugin } from './store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
