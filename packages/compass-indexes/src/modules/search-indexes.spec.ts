@@ -11,13 +11,13 @@ import {
   updateSearchIndexOpened,
   updateSearchIndexClosed,
   updateIndex,
-  openSearchIndexes,
-  closeSearchIndexes,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 } from './search-indexes';
-import { setupStore } from '../../test/setup-store';
+import { setupStoreAndWait } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
-import type { IndexesDataService } from '../stores/store';
+import type { IndexesDataService, IndexesStore } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
@@ -25,14 +25,14 @@ import * as searchIndexesSlice from './search-indexes';
 import { writeStateChanged } from './is-writable';
 
 describe('search-indexes module', function () {
-  let store: ReturnType<typeof setupStore>;
+  let store: IndexesStore;
   let dataProvider: Partial<IndexesDataService>;
   let createSearchIndexStub: sinon.SinonStub;
   let updateSearchIndexStub: sinon.SinonStub;
   let getSearchIndexesStub: sinon.SinonStub;
   let dropSearchIndexStub: sinon.SinonStub;
 
-  beforeEach(function () {
+  beforeEach(async function () {
     createSearchIndexStub = sinon.stub().resolves('foo');
     updateSearchIndexStub = sinon.stub().resolves();
     getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
@@ -44,7 +44,7 @@ describe('search-indexes module', function () {
       dropSearchIndex: dropSearchIndexStub,
     };
 
-    store = setupStore(
+    store = await setupStoreAndWait(
       {
         namespace: 'citibike.trips',
         isSearchIndexesSupported: true,
@@ -53,41 +53,23 @@ describe('search-indexes module', function () {
     );
   });
 
-  it('has not available search indexes state by default', function () {
-    store = setupStore();
+  it('has not available search indexes state by default', async function () {
+    store = await setupStoreAndWait({ isSearchIndexesSupported: false });
     expect(store.getState().searchIndexes.status).to.equal(
       FetchStatuses.NOT_AVAILABLE
     );
   });
 
   context('#refreshSearchIndexes action', function () {
-    it('does nothing if isReadonlyView is true', function () {
+    it('does nothing if isReadonlyView is true', async function () {
+      // already loaded once
+      expect(store.getState().isReadonlyView).to.equal(false);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
       store.dispatch(readonlyViewChanged(true));
 
       expect(store.getState().isReadonlyView).to.equal(true);
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-
-      store.dispatch(refreshSearchIndexes);
-
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
-    });
-
-    it('does nothing if isWritable is false (offline mode)', function () {
-      store.dispatch(writeStateChanged(false));
-
-      expect(store.getState().isWritable).to.equal(false);
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-
-      store.dispatch(refreshSearchIndexes);
-
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
-    });
-
-    it('fetches the indexes', async function () {
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+      expect(getSearchIndexesStub.callCount).to.equal(1);
 
       await store.dispatch(refreshSearchIndexes());
 
@@ -95,12 +77,34 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('READY');
     });
 
-    it('sets the status to REFRESHING if the status is READY', async function () {
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+    it('does nothing if isWritable is false (offline mode)', async function () {
+      // already loaded once
+      expect(store.getState().isWritable).to.equal(true);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      store.dispatch(writeStateChanged(false));
+
+      expect(store.getState().isWritable).to.equal(false);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
 
       await store.dispatch(refreshSearchIndexes());
 
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+    });
+
+    it('fetches the indexes', async function () {
+      // already loaded once
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      await store.dispatch(refreshSearchIndexes());
+
+      expect(getSearchIndexesStub.callCount).to.equal(2);
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+    });
+
+    it('sets the status to REFRESHING if the status is READY', function () {
       expect(getSearchIndexesStub.callCount).to.equal(1);
       expect(store.getState().searchIndexes.status).to.equal('READY');
 
@@ -142,11 +146,13 @@ describe('search-indexes module', function () {
       ]);
     });
 
-    it('sets the status to ERROR if loading the indexes fails', async function () {
-      // replace the stub
-      getSearchIndexesStub.rejects(new Error('this is an error'));
-
-      await store.dispatch(refreshSearchIndexes());
+    it('sets the status to ERROR if initial loading of the indexes fails', async function () {
+      const getSearchIndexesStub = sinon
+        .stub()
+        .rejects(new Error('this is an error'));
+      store = await setupStoreAndWait(undefined, {
+        getSearchIndexes: getSearchIndexesStub,
+      });
 
       expect(store.getState().searchIndexes.status).to.equal('ERROR');
       expect(store.getState().searchIndexes.error).to.equal('this is an error');
@@ -274,12 +280,8 @@ describe('search-indexes module', function () {
     });
   });
 
-  describe('openSearchIndexes and closeSearchIndexes', function () {
+  describe('startPollingSearchIndexes and stopPollingSearchIndexes', function () {
     let clock: sinon.SinonFakeTimers;
-
-    before(() => {
-      clock = sinon.useFakeTimers();
-    });
 
     after(() => {
       clock.restore();
@@ -289,7 +291,7 @@ describe('search-indexes module', function () {
       const pollInterval = 5000;
 
       const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
-      const store = setupStore(
+      const store = await setupStoreAndWait(
         {
           isSearchIndexesSupported: true,
         },
@@ -298,19 +300,21 @@ describe('search-indexes module', function () {
         }
       );
 
+      clock = sinon.useFakeTimers();
+
       const waitForStatus = async (status: FetchStatus) => {
         await waitFor(() => {
-          return store.getState().regularIndexes.status === status;
+          expect(store.getState().searchIndexes.status).to.eq(status);
         });
       };
 
       // before we start
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // initial load
-      await store.dispatch(openSearchIndexes());
-      expect(store.getState().searchIndexes.status).to.equal('READY');
       expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      store.dispatch(startPollingSearchIndexes());
 
       // poll
       clock.tick(pollInterval);
@@ -325,7 +329,7 @@ describe('search-indexes module', function () {
       await waitForStatus('READY');
 
       // stop
-      store.dispatch(closeSearchIndexes());
+      store.dispatch(stopPollingSearchIndexes());
 
       // no more polling
       clock.tick(pollInterval);
@@ -333,7 +337,7 @@ describe('search-indexes module', function () {
       await waitForStatus('READY');
 
       // open again
-      await store.dispatch(openSearchIndexes());
+      store.dispatch(startPollingSearchIndexes());
 
       // won't execute immediately
       expect(getSearchIndexesStub.callCount).to.equal(3);
@@ -352,7 +356,7 @@ describe('search-indexes module', function () {
       await waitForStatus('READY');
 
       // clean up
-      store.dispatch(closeSearchIndexes());
+      store.dispatch(stopPollingSearchIndexes());
     });
   });
 });

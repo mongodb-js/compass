@@ -5,12 +5,15 @@ import type {
   IndexesDataService,
   IndexesPluginOptions,
   IndexesPluginServices,
+  IndexesStore,
 } from '../src/stores/store';
 import { activateIndexesPlugin } from '../src/stores/store';
 import { createActivateHelpers } from 'hadron-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { waitFor } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -91,7 +94,7 @@ export const setupStore = (
       namespace: 'citibike.trips',
       serverVersion: '6.0.0',
       isReadonly: false,
-      isSearchIndexesSupported: false,
+      isSearchIndexesSupported: true,
       ...options,
     },
     {
@@ -107,3 +110,23 @@ export const setupStore = (
     createActivateHelpers()
   ).store;
 };
+
+export async function setupStoreAndWait(
+  options?: Partial<IndexesPluginOptions>,
+  dataProvider?: Partial<IndexesDataService>,
+  services?: Partial<IndexesPluginServices>
+): Promise<IndexesStore> {
+  const store = setupStore(options, dataProvider, services);
+  await waitFor(() => {
+    expect(store.getState().regularIndexes.status).to.be.oneOf([
+      'READY',
+      'ERROR',
+    ]);
+    expect(store.getState().searchIndexes.status).to.be.oneOf([
+      'NOT_AVAILABLE',
+      'READY',
+      'ERROR',
+    ]);
+  });
+  return store;
+}

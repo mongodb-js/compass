@@ -86,7 +86,6 @@ type FailedIndexRemovedAction = {
 };
 
 export type State = {
-  isVisible: boolean;
   indexes: RegularIndex[];
   status: FetchStatus;
   inProgressIndexes: InProgressIndex[];
@@ -94,7 +93,6 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
-  isVisible: false,
   status: FetchStatuses.NOT_READY,
   indexes: [],
   inProgressIndexes: [],
@@ -108,14 +106,12 @@ export default function reducer(
   if (isAction<IndexesOpenedAction>(action, ActionTypes.IndexesOpened)) {
     return {
       ...state,
-      isVisible: true,
     };
   }
 
   if (isAction<IndexesClosedAction>(action, ActionTypes.IndexesClosed)) {
     return {
       ...state,
-      isVisible: false,
     };
   }
 
@@ -331,42 +327,26 @@ export const POLLING_INTERVAL = 5000;
 
 let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
 
-export const openRegularIndexes = (): IndexesThunkAction<
-  Promise<void>,
-  IndexesOpenedAction | FetchIndexesActions
+export const startPollingRegularIndexes = (): IndexesThunkAction<
+  void,
+  FetchIndexesActions
 > => {
-  return async function (dispatch, getState) {
-    if (getState().regularIndexes.isVisible || pollInterval) {
+  return function (dispatch) {
+    if (pollInterval) {
       return;
     }
-
-    dispatch({
-      type: ActionTypes.IndexesOpened,
-    });
 
     pollInterval = setInterval(() => {
       void dispatch(pollRegularIndexes());
     }, POLLING_INTERVAL);
-
-    // if this is the first time, also refresh the list
-    if (getState().regularIndexes.status === 'NOT_READY') {
-      await dispatch(refreshRegularIndexes());
-    }
   };
 };
 
-export const closeRegularIndexes = (): IndexesThunkAction<
-  void,
-  IndexesClosedAction | FetchIndexesActions
-> => {
-  return function (dispatch, getState) {
-    if (!getState().regularIndexes.isVisible || !pollInterval) {
+export const stopPollingRegularIndexes = () => {
+  return () => {
+    if (!pollInterval) {
       return;
     }
-
-    dispatch({
-      type: ActionTypes.IndexesClosed,
-    });
 
     clearInterval(pollInterval);
     pollInterval = undefined;

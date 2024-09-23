@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
@@ -28,8 +28,8 @@ import {
   getInitialVectorSearchIndexPipelineText,
   createSearchIndexOpened,
   updateSearchIndexOpened,
-  openSearchIndexes,
-  closeSearchIndexes,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 } from '../../modules/search-indexes';
 import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
@@ -398,8 +398,8 @@ const mapDispatch = {
   onDropIndexClick: dropSearchIndex,
   onOpenCreateModalClick: createSearchIndexOpened,
   onEditIndexClick: updateSearchIndexOpened,
-  onSearchIndexesOpened: openSearchIndexes,
-  onSearchIndexesClosed: closeSearchIndexes,
+  onSearchIndexesOpened: startPollingSearchIndexes,
+  onSearchIndexesClosed: stopPollingSearchIndexes,
 };
 
 export default connect(

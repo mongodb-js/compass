@@ -22,9 +22,6 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
 };
 
 export enum ActionTypes {
-  SearchIndexesOpened = 'compass-indexes/search-indexes/search-indexes-opened',
-  SearchIndexesClosed = 'compass-indexes/search-indexes/search-indexes-closed',
-
   // Fetch indexes
   FetchSearchIndexesStarted = 'compass-indexes/search-indexes/fetch-search-indexes-started',
   FetchSearchIndexesSucceeded = 'compass-indexes/search-indexes/fetch-search-indexes-succeeded',
@@ -44,14 +41,6 @@ export enum ActionTypes {
   UpdateSearchIndexFailed = 'compass-indexes/search-indexes/update-search-index-failed',
   UpdateSearchIndexSucceeded = 'compass-indexes/search-indexes/update-search-index-succeeded',
 }
-
-type SearchIndexesOpenedAction = {
-  type: ActionTypes.SearchIndexesOpened;
-};
-
-type SearchIndexesClosedAction = {
-  type: ActionTypes.SearchIndexesClosed;
-};
 
 type FetchSearchIndexesStartedAction = {
   type: ActionTypes.FetchSearchIndexesStarted;
@@ -125,7 +114,6 @@ type UpdateSearchIndexState = {
 };
 
 export type State = {
-  isVisible: boolean;
   status: FetchStatus;
   createIndex: CreateSearchIndexState;
   updateIndex: UpdateSearchIndexState;
@@ -134,7 +122,6 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
-  isVisible: false,
   status: FetchStatuses.NOT_AVAILABLE,
   createIndex: {
     isModalOpen: false,
@@ -153,24 +140,6 @@ export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
-  if (
-    isAction<SearchIndexesOpenedAction>(action, ActionTypes.SearchIndexesOpened)
-  ) {
-    return {
-      ...state,
-      isVisible: true,
-    };
-  }
-
-  if (
-    isAction<SearchIndexesClosedAction>(action, ActionTypes.SearchIndexesClosed)
-  ) {
-    return {
-      ...state,
-      isVisible: false,
-    };
-  }
-
   if (
     isAction<CreateSearchIndexOpenedAction>(
       action,
@@ -452,47 +421,29 @@ export const POLLING_INTERVAL = 5000;
 
 let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
 
-export const openSearchIndexes = (): IndexesThunkAction<
-  Promise<void>,
-  SearchIndexesOpenedAction | FetchSearchIndexesActions
+export const startPollingSearchIndexes = (): IndexesThunkAction<
+  void,
+  FetchSearchIndexesActions
 > => {
-  return async function (dispatch, getState) {
-    if (getState().searchIndexes.isVisible || pollInterval) {
+  return function (dispatch) {
+    if (pollInterval) {
       return;
     }
-
-    dispatch({
-      type: ActionTypes.SearchIndexesOpened,
-    });
 
     pollInterval = setInterval(() => {
       void dispatch(pollSearchIndexes());
     }, POLLING_INTERVAL);
-
-    // if this is the first time, also refresh the list
-    if (getState().searchIndexes.status === 'NOT_READY') {
-      await dispatch(refreshSearchIndexes());
-    }
   };
 };
 
-export const closeSearchIndexes = (): IndexesThunkAction<
-  void,
-  SearchIndexesClosedAction | FetchSearchIndexesActions
-> => {
-  return function (dispatch, getState) {
-    if (!getState().searchIndexes.isVisible || !pollInterval) {
+export const stopPollingSearchIndexes = () => {
+  return () => {
+    if (!pollInterval) {
       return;
     }
 
-    dispatch({
-      type: ActionTypes.SearchIndexesClosed,
-    });
-
-    if (pollInterval) {
-      clearInterval(pollInterval);
-      pollInterval = undefined;
-    }
+    clearInterval(pollInterval);
+    pollInterval = undefined;
   };
 };
 

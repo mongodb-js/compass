@@ -117,5 +117,10 @@ export function activateIndexesPlugin(
     store.dispatch(getDescription(instance.description));
   });
 
+  void store.dispatch(refreshRegularIndexes());
+  if (options.isSearchIndexesSupported) {
+    void store.dispatch(refreshSearchIndexes());
+  }
+
   return { store, deactivate: () => cleanup() };
 }

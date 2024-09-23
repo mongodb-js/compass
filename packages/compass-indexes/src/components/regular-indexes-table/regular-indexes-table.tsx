@@ -21,8 +21,8 @@ import {
   dropIndex,
   hideIndex,
   unhideIndex,
-  openRegularIndexes,
-  closeRegularIndexes,
+  startPollingRegularIndexes,
+  stopPollingRegularIndexes,
 } from '../../modules/regular-indexes';
 
 import { type RegularIndex } from '../../modules/regular-indexes';
@@ -149,9 +149,9 @@ export const RegularIndexesTable: React.FunctionComponent<
   onHideIndexClick,
   onUnhideIndexClick,
   onDeleteIndexClick,
-  error,
   onRegularIndexesOpened,
   onRegularIndexesClosed,
+  error,
 }) => {
   useEffect(() => {
     onRegularIndexesOpened();
@@ -237,8 +237,8 @@ const mapDispatch = {
   onDeleteIndexClick: dropIndex,
   onHideIndexClick: hideIndex,
   onUnhideIndexClick: unhideIndex,
-  onRegularIndexesOpened: openRegularIndexes,
-  onRegularIndexesClosed: closeRegularIndexes,
+  onRegularIndexesOpened: startPollingRegularIndexes,
+  onRegularIndexesClosed: stopPollingRegularIndexes,
 };
 
 export default connect(
