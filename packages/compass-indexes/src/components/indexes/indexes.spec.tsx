@@ -11,31 +11,42 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { RegularIndex } from '../../modules/regular-indexes';
+import type { State as RegularIndexesState } from '../../modules/regular-indexes';
+import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import type { IndexesDataService } from '../../stores/store';
 import Indexes from './indexes';
 import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
 
+const DEFAULT_REGULAR_INDEXES_PROPS: RegularIndexesState = {
+  indexes: [],
+  inProgressIndexes: [],
+  error: undefined,
+  status: 'NOT_READY',
+  isVisible: false,
+};
+
+const DEFAULT_SEARCH_INDEXES_PROPS: SearchIndexesState = {
+  isVisible: false,
+  indexes: [],
+  error: undefined,
+  status: 'NOT_READY',
+  createIndex: {
+    isModalOpen: false,
+    isBusy: false,
+  },
+  updateIndex: {
+    isModalOpen: false,
+    isBusy: false,
+    indexName: 'foo',
+  },
+};
+
 const DEFAULT_PROPS: Partial<RootState> = {
-  regularIndexes: {
-    indexes: [],
-    inProgressIndexes: [],
-    error: null,
-    isRefreshing: false,
-  },
-  searchIndexes: {
-    indexes: [],
-    error: null,
-    status: 'PENDING',
-    createIndex: {
-      isModalOpen: false,
-    },
-    updateIndex: {
-      isModalOpen: false,
-    },
-  },
-} as any;
+  regularIndexes: DEFAULT_REGULAR_INDEXES_PROPS,
+  searchIndexes: DEFAULT_SEARCH_INDEXES_PROPS,
+};
 
 const renderIndexes = (
   props: Partial<RootState> = {},
@@ -78,8 +89,10 @@ describe('Indexes Component', function () {
       regularIndexes: {
         indexes: [],
         error: 'Some random error',
-        isRefreshing: false,
-      } as any,
+        status: 'ERROR',
+        isVisible: true,
+        inProgressIndexes: [],
+      },
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
     // TODO: actually check for the error
@@ -112,9 +125,11 @@ describe('Indexes Component', function () {
   it('does not render the indexes list if isReadonlyView is true', function () {
     renderIndexes({
       regularIndexes: {
+        isVisible: true,
+        status: 'NOT_READY',
         inProgressIndexes: [],
         indexes: [],
-      } as any,
+      },
       isReadonlyView: true,
     });
 
@@ -146,9 +161,11 @@ describe('Indexes Component', function () {
               usageCount: 20,
             },
           ] as RegularIndex[],
-          error: null,
-          isRefreshing: false,
-        } as any,
+          error: undefined,
+          status: 'READY',
+          isVisible: true,
+          inProgressIndexes: [],
+        },
       });
 
       const indexesList = screen.getByTestId('indexes-list');
@@ -159,8 +176,10 @@ describe('Indexes Component', function () {
     it('renders indexes list with in progress index', function () {
       renderIndexes({
         regularIndexes: {
+          isVisible: true,
           indexes: [
             {
+              key: {},
               ns: 'db.coll',
               cardinality: 'single',
               name: '_id_',
@@ -178,6 +197,7 @@ describe('Indexes Component', function () {
               usageCount: 20,
             },
             {
+              key: {},
               ns: 'db.coll',
               cardinality: 'single',
               name: 'item',
@@ -196,10 +216,11 @@ describe('Indexes Component', function () {
               ],
               usageCount: 0,
             },
-          ] as RegularIndex[],
-          error: null,
-          isRefreshing: false,
-        } as any,
+          ],
+          inProgressIndexes: [],
+          error: undefined,
+          status: 'READY',
+        },
       });
 
       const indexesList = screen.getByTestId('indexes-list');
@@ -220,6 +241,7 @@ describe('Indexes Component', function () {
         regularIndexes: {
           indexes: [
             {
+              key: {},
               ns: 'db.coll',
               cardinality: 'single',
               name: '_id_',
@@ -237,6 +259,7 @@ describe('Indexes Component', function () {
               usageCount: 20,
             },
             {
+              key: {},
               ns: 'db.coll',
               cardinality: 'single',
               name: 'item',
@@ -256,10 +279,12 @@ describe('Indexes Component', function () {
               ],
               usageCount: 0,
             },
-          ] as RegularIndex[],
-          error: null,
-          isRefreshing: false,
-        } as any,
+          ],
+          inProgressIndexes: [],
+          error: undefined,
+          status: 'READY',
+          isVisible: true,
+        },
       });
 
       const indexesList = screen.getByTestId('indexes-list');
@@ -322,12 +347,13 @@ describe('Indexes Component', function () {
         // render with the create search index modal open
         ...DEFAULT_PROPS,
         searchIndexes: {
-          ...DEFAULT_PROPS.searchIndexes,
+          ...DEFAULT_SEARCH_INDEXES_PROPS,
           createIndex: {
-            ...DEFAULT_PROPS.searchIndexes!.createIndex,
+            ...DEFAULT_SEARCH_INDEXES_PROPS.createIndex,
             isModalOpen: true,
+            isBusy: false,
           },
-        } as any,
+        },
       });
 
       // check that the search indexes table is not visible
