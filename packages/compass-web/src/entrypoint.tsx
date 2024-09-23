@@ -274,6 +274,7 @@ const CompassWeb = ({
       trackUsageStatistics: true,
       enableShell: false,
       enableCreatingNewConnections: false,
+      enableGlobalWrites: false,
       ...initialPreferences,
     })
   );

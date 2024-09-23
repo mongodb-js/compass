@@ -5,7 +5,7 @@ import type {
 import { mockDataService } from './mocks/data-service';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { createPluginTestHelpers } from '@mongodb-js/testing-library-compass';
-import { CompassAggregationsHadronPlugin } from '../src/index';
+import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
@@ -45,7 +45,7 @@ function getMockedPluginArgs(
   const atlasAuthService = new MockAtlasAuthService();
   const atlasAiService = new MockAtlasAiService();
   return [
-    CompassAggregationsHadronPlugin.withMockServices({
+    CompassAggregationsPlugin.provider.withMockServices({
       atlasAuthService,
       atlasAiService,
       collection: {

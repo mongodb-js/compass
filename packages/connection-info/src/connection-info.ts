@@ -9,6 +9,10 @@ export interface AtlasClusterMetadata {
    */
   projectId: string;
   /**
+   * Unique id returned with the clusterDescription
+   */
+  clusterUniqueId: string;
+  /**
    * Cluster name, unique inside same project
    */
   clusterName: string;
@@ -21,9 +25,22 @@ export interface AtlasClusterMetadata {
    * https://github.com/10gen/mms/blob/43b0049a85196b44e465feb9b96ef942d6f2c8f4/client/js/legacy/core/models/deployment
    */
   metricsId: string;
+  /**
+   * Somewhat related to the clusterType provided as part of clusterDescription,
+   * but way less granular:
+   *
+   *   - `host`:       CM/OM clusters not managed by Atlas (in theory should
+   *                   never appear in our runtime)
+   *   - `cluster`:    any sharded cluster type (sharded or geo sharded /
+   *                   "global writes" one)
+   *   - `replicaSet`: anything that is not sharded (both dedicated or "free
+   *                   tier" / MTM)
+   *   - `serverless`: specifically for serverless clusters
+   */
   metricsType: 'host' | 'replicaSet' | 'cluster' | 'serverless';
   /**
-   * Atlas API base url to be used when connecing to a regionalized cluster
+   * Atlas API base url to be used when making control plane requests for a
+   * regionalized cluster
    */
   regionalBaseUrl: string;
   /*
@@ -32,6 +49,13 @@ export interface AtlasClusterMetadata {
    * https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/provider.ts#L60-L107
    */
   instanceSize?: string;
+
+  /**
+   * Possible types of Atlas clusters.
+   * Copied from:
+   *  https://github.com/10gen/mms/blob/9e6bf2d81d4d85b5ac68a15bf471dcddc5922323/client/packages/types/nds/clusterDescription.ts#L12-L16
+   */
+  clusterType: 'REPLICASET' | 'SHARDED' | 'GEOSHARDED';
 }
 
 export interface ConnectionInfo {
