@@ -9,7 +9,10 @@ import type { SearchIndex } from 'mongodb-data-service';
 
 import { isAction } from '../utils/is-action';
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
-import type { FetchStatus, FetchingStatus } from '../utils/fetch-status';
+import type { FetchStatus } from '../utils/fetch-status';
+
+import { FetchReasons } from '../utils/fetch-reason';
+import type { FetchReason } from '../utils/fetch-reason';
 
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
@@ -44,7 +47,7 @@ export enum ActionTypes {
 
 type FetchSearchIndexesStartedAction = {
   type: ActionTypes.FetchSearchIndexesStarted;
-  status: FetchingStatus;
+  reason: FetchReason;
 };
 
 type FetchSearchIndexesSucceededAction = {
@@ -307,7 +310,12 @@ export default function reducer(
   ) {
     return {
       ...state,
-      status: action.status,
+      status:
+        action.reason === FetchReasons.POLL
+          ? FetchStatuses.POLLING
+          : action.reason === FetchReasons.REFRESH
+          ? FetchStatuses.REFRESHING
+          : FetchStatuses.FETCHING,
     };
   }
 
@@ -367,10 +375,10 @@ export const updateSearchIndexClosed = (): UpdateSearchIndexClosedAction => ({
 });
 
 const fetchSearchIndexesStarted = (
-  status: FetchingStatus
+  reason: FetchReason
 ): FetchSearchIndexesStartedAction => ({
   type: ActionTypes.FetchSearchIndexesStarted,
-  status,
+  reason,
 });
 
 const fetchSearchIndexesSucceeded = (
@@ -513,7 +521,7 @@ export const createIndex = ({
     });
 
     dispatch(switchToSearchIndexes());
-    await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
   };
 };
 
@@ -566,7 +574,7 @@ export const updateIndex = ({
         timeout: 5000,
         variant: 'progress',
       });
-      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       const error = (e as Error).message;
       dispatch(
@@ -583,7 +591,7 @@ type FetchSearchIndexesActions =
   | FetchSearchIndexesFailedAction;
 
 const fetchIndexes = (
-  newStatus: FetchingStatus
+  reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const {
@@ -603,7 +611,7 @@ const fetchIndexes = (
     }
 
     try {
-      dispatch(fetchSearchIndexesStarted(newStatus));
+      dispatch(fetchSearchIndexesStarted(reason));
       const indexes = await dataService.getSearchIndexes(namespace);
       dispatch(fetchSearchIndexesSucceeded(indexes));
     } catch (err) {
@@ -621,11 +629,11 @@ export const refreshSearchIndexes = (): IndexesThunkAction<
 
     // If we are in a READY state, then we have already fetched the data
     // and are refreshing the list.
-    const newStatus: FetchStatus =
+    const reason: FetchReason =
       status === FetchStatuses.READY
-        ? FetchStatuses.REFRESHING
-        : FetchStatuses.FETCHING;
-    await dispatch(fetchIndexes(newStatus));
+        ? FetchReasons.REFRESH
+        : FetchReasons.INITIAL_FETCH;
+    await dispatch(fetchIndexes(reason));
   };
 };
 
@@ -634,7 +642,7 @@ export const pollSearchIndexes = (): IndexesThunkAction<
   FetchSearchIndexesActions
 > => {
   return async (dispatch) => {
-    return await dispatch(fetchIndexes(FetchStatuses.POLLING));
+    return await dispatch(fetchIndexes(FetchReasons.POLL));
   };
 };
 
@@ -679,7 +687,7 @@ export const dropSearchIndex = (
         timeout: 5000,
         variant: 'progress',
       });
-      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       openToast('search-index-delete-failed', {
         title: `Failed to drop index.`,

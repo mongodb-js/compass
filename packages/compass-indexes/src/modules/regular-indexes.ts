@@ -7,7 +7,9 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
-import type { FetchStatus, FetchingStatus } from '../utils/fetch-status';
+import type { FetchStatus } from '../utils/fetch-status';
+import { FetchReasons } from '../utils/fetch-reason';
+import type { FetchReason } from '../utils/fetch-reason';
 import { isAction } from '../utils/is-action';
 import { ActionTypes as CreateIndexActionTypes } from './create-index';
 import type {
@@ -67,7 +69,7 @@ type IndexesClosedAction = {
 
 type FetchIndexesStartedAction = {
   type: ActionTypes.FetchIndexesStarted;
-  status: FetchingStatus;
+  reason: FetchReason;
 };
 
 type FetchIndexesSucceededAction = {
@@ -120,7 +122,12 @@ export default function reducer(
   ) {
     return {
       ...state,
-      status: action.status,
+      status:
+        action.reason === FetchReasons.POLL
+          ? FetchStatuses.POLLING
+          : action.reason === FetchReasons.REFRESH
+          ? FetchStatuses.REFRESHING
+          : FetchStatuses.FETCHING,
     };
   }
 
@@ -241,10 +248,10 @@ export default function reducer(
 }
 
 const fetchIndexesStarted = (
-  status: FetchingStatus
+  reason: FetchReason
 ): FetchIndexesStartedAction => ({
   type: ActionTypes.FetchIndexesStarted,
-  status,
+  reason,
 });
 
 const fetchIndexesSucceeded = (
@@ -265,7 +272,7 @@ type FetchIndexesActions =
   | FetchIndexesFailedAction;
 
 const fetchIndexes = (
-  newStatus: FetchingStatus
+  reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (dispatch, getState, { dataService, localAppRegistry }) => {
     const {
@@ -285,7 +292,7 @@ const fetchIndexes = (
     }
 
     try {
-      dispatch(fetchIndexesStarted(newStatus));
+      dispatch(fetchIndexesStarted(reason));
       // This makes sure that when the user or something else triggers a
       // re-fetch for the list of indexes with this action, the tab header also
       // gets updated.
@@ -306,11 +313,11 @@ export const refreshRegularIndexes = (): IndexesThunkAction<
 
     // If we are in a READY state, then we have already fetched the data
     // and are refreshing the list.
-    const newStatus: FetchStatus =
+    const reason: FetchReason =
       status === FetchStatuses.READY
-        ? FetchStatuses.REFRESHING
-        : FetchStatuses.FETCHING;
-    await dispatch(fetchIndexes(newStatus));
+        ? FetchReasons.REFRESH
+        : FetchReasons.INITIAL_FETCH;
+    await dispatch(fetchIndexes(reason));
   };
 };
 
@@ -319,7 +326,7 @@ export const pollRegularIndexes = (): IndexesThunkAction<
   FetchIndexesActions
 > => {
   return async (dispatch) => {
-    return await dispatch(fetchIndexes(FetchStatuses.POLLING));
+    return await dispatch(fetchIndexes(FetchReasons.POLL));
   };
 };
 
@@ -390,7 +397,7 @@ export const dropIndex = (
 
       // By fetching the indexes again we make sure the merged list doesn't have
       // it either.
-      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
       return;
     }
 
@@ -415,7 +422,7 @@ export const dropIndex = (
         title: `Index "${indexName}" dropped`,
         timeout: 3000,
       });
-      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (err) {
       openToast('drop-index-error', {
         variant: 'important',
@@ -448,7 +455,7 @@ export const hideIndex = (
           hidden: true,
         },
       });
-      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (error) {
       openToast('hide-index-error', {
         title: 'Failed to hide the index',
@@ -482,7 +489,7 @@ export const unhideIndex = (
           hidden: false,
         },
       });
-      await dispatch(fetchIndexes(FetchStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (error) {
       openToast('unhide-index-error', {
         title: 'Failed to unhide the index',
