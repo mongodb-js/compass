@@ -26,6 +26,8 @@ import {
   collectionStatsFetched,
   extractCollectionStats,
 } from '../modules/collection-stats';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import { RollingIndexesService } from '../modules/rolling-indexes-service';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -53,6 +55,7 @@ export type IndexesPluginServices = {
   logger: Logger;
   collection: Collection;
   track: TrackFunction;
+  atlasService: AtlasService;
 };
 
 export type IndexesPluginOptions = {
@@ -77,6 +80,7 @@ export function activateIndexesPlugin(
     track,
     dataService,
     collection: collectionModel,
+    atlasService,
   }: IndexesPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -101,6 +105,10 @@ export function activateIndexesPlugin(
         connectionInfoRef,
         dataService,
         collection: collectionModel,
+        rollingIndexesService: new RollingIndexesService(
+          atlasService,
+          connectionInfoRef
+        ),
       })
     )
   );
