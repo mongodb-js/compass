@@ -21,6 +21,11 @@ import { setupStore, setupStoreAndWait } from '../../test/setup-store';
 import * as regularIndexesSlice from './regular-indexes';
 import type { FetchStatus } from '../utils/fetch-status';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import type AppRegistry from 'hadron-app-registry';
+
+const refreshCallsArgs = (spy: sinon.SinonSpy) => {
+  return spy.args.filter((args) => args[0] === 'refresh-collection-stats');
+};
 
 describe('regular-indexes module', function () {
   before(() => {
@@ -261,6 +266,44 @@ describe('regular-indexes module', function () {
 
       expect(indexesStub.callCount).to.equal(2);
     });
+
+    it('emits refresh-collection-stats when the indexes change', async function () {
+      const changedSortedIndexes = [defaultSortedIndexes[0]];
+      const indexesStub = sinon
+        .stub()
+        .onFirstCall()
+        .resolves(defaultSortedIndexes)
+        .onSecondCall()
+        .resolves(changedSortedIndexes);
+
+      const emitSpy = sinon.spy();
+
+      const localAppRegistry = {
+        on: sinon.spy(),
+        emit: emitSpy,
+      } as unknown as AppRegistry;
+
+      const store = await setupStoreAndWait(
+        {},
+        {
+          indexes: indexesStub,
+        },
+        { localAppRegistry }
+      );
+
+      // the initial fetch
+      expect(indexesStub.callCount).to.equal(1);
+
+      expect(refreshCallsArgs(emitSpy)).to.deep.equal([]);
+
+      await store.dispatch(refreshRegularIndexes());
+
+      expect(indexesStub.callCount).to.equal(2);
+
+      expect(refreshCallsArgs(emitSpy)).to.deep.equal([
+        ['refresh-collection-stats'],
+      ]);
+    });
   });
 
   describe('#pollRegularIndexes action', function () {
@@ -472,11 +515,20 @@ describe('regular-indexes module', function () {
       const pollInterval = 5000;
       const tabId = 'my-tab';
 
+      const emitSpy = sinon.spy();
+
+      const localAppRegistry = {
+        on: sinon.spy(),
+        emit: emitSpy,
+      } as unknown as AppRegistry;
       const indexesStub = sinon.stub().resolves(indexesList);
       const store = await setupStoreAndWait(
         {},
         {
           indexes: indexesStub,
+        },
+        {
+          localAppRegistry,
         }
       );
 
@@ -487,6 +539,8 @@ describe('regular-indexes module', function () {
       };
 
       clock = sinon.useFakeTimers();
+
+      expect(refreshCallsArgs(emitSpy)).to.deep.equal([]);
 
       // before we start
       expect(store.getState().regularIndexes.status).to.equal('READY');
@@ -537,6 +591,8 @@ describe('regular-indexes module', function () {
 
       // clean up
       store.dispatch(stopPollingRegularIndexes(tabId));
+
+      expect(refreshCallsArgs(emitSpy)).to.deep.equal([]);
     });
   });
 });

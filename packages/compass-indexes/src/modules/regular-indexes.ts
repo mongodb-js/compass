@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isEqual, pick } from 'lodash';
 import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
@@ -18,7 +18,7 @@ import type {
   IndexCreationSucceededAction,
   IndexCreationFailedAction,
 } from './create-index';
-import type { IndexesThunkAction } from '.';
+import type { IndexesThunkAction, RootState } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
@@ -271,6 +271,14 @@ type FetchIndexesActions =
   | FetchIndexesSucceededAction
   | FetchIndexesFailedAction;
 
+const collectionStatFields = ['name', 'size'];
+
+function pickCollectionStatFields(state: RootState) {
+  return state.regularIndexes.indexes.map((index) =>
+    pick(index, collectionStatFields)
+  );
+}
+
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
@@ -294,10 +302,13 @@ const fetchIndexes = (
     try {
       dispatch(fetchIndexesStarted(reason));
       const indexes = await dataService.indexes(namespace);
-      const totalIndexesBefore = getState().regularIndexes.indexes.length;
+      const indexesBefore = pickCollectionStatFields(getState());
       dispatch(fetchIndexesSucceeded(indexes));
-      const totalIndexesAfter = getState().regularIndexes.indexes.length;
-      if (totalIndexesBefore !== totalIndexesAfter) {
+      const indexesAfter = pickCollectionStatFields(getState());
+      if (
+        reason !== FetchReasons.INITIAL_FETCH &&
+        !isEqual(indexesBefore, indexesAfter)
+      ) {
         // This makes sure that when the user or something else triggers a
         // re-fetch for the list of indexes with this action and the total
         // changed, the tab header also gets updated. The check against the
