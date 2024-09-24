@@ -19,6 +19,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { IndexesDataServiceProps } from '../stores/store';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { RollingIndexesService } from './rolling-indexes-service';
 const reducer = combineReducers({
   // From instance.isWritable. Used to know if the create button should be
   // enabled.
@@ -70,6 +71,7 @@ export type IndexesExtraArgs = {
   dataService: Pick<DataService, IndexesDataServiceProps>;
   connectionInfoRef: ConnectionInfoRef;
   collection: Collection;
+  rollingIndexesService: RollingIndexesService;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

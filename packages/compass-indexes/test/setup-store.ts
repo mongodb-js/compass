@@ -14,6 +14,7 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -139,6 +140,8 @@ export const setupStore = (
     },
   } as ConnectionInfoRef;
 
+  const atlasService = {} as AtlasService;
+
   return activateIndexesPlugin(
     {
       namespace: 'citibike.trips',
@@ -156,6 +159,7 @@ export const setupStore = (
       track: createNoopTrack(),
       collection: createMockCollection(),
       connectionInfoRef,
+      atlasService,
       ...services,
     },
     createActivateHelpers()
