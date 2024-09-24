@@ -7,11 +7,9 @@ import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import { createIndexOpened } from '../modules/create-index';
-import { fetchIndexes } from '../modules/regular-indexes';
+import { fetchRegularIndexes } from '../modules/regular-indexes';
 import {
-  INITIAL_STATE as SEARCH_INDEXES_INITIAL_STATE,
-  refreshSearchIndexes,
-  SearchIndexesStatuses,
+  fetchSearchIndexes,
   createSearchIndexOpened,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
@@ -90,13 +88,8 @@ export function activateIndexesPlugin(
       namespace: options.namespace,
       serverVersion: options.serverVersion,
       isReadonlyView: options.isReadonly,
+      isSearchIndexesSupported: options.isSearchIndexesSupported,
       indexView: INDEX_LIST_INITIAL_STATE,
-      searchIndexes: {
-        ...SEARCH_INDEXES_INITIAL_STATE,
-        status: options.isSearchIndexesSupported
-          ? SearchIndexesStatuses.NOT_READY
-          : SearchIndexesStatuses.NOT_AVAILABLE,
-      },
       collectionStats: extractCollectionStats(collectionModel),
     },
     applyMiddleware(
@@ -107,6 +100,7 @@ export function activateIndexesPlugin(
         track,
         connectionInfoRef,
         dataService,
+        collection: collectionModel,
       })
     )
   );
@@ -120,8 +114,10 @@ export function activateIndexesPlugin(
   });
 
   on(globalAppRegistry, 'refresh-data', () => {
-    void store.dispatch(fetchIndexes());
-    void store.dispatch(refreshSearchIndexes());
+    void store.dispatch(fetchRegularIndexes());
+    if (options.isSearchIndexesSupported) {
+      void store.dispatch(fetchRegularIndexes());
+    }
   });
 
   // these can change later
@@ -132,14 +128,14 @@ export function activateIndexesPlugin(
     store.dispatch(getDescription(instance.description));
   });
 
+  void store.dispatch(fetchRegularIndexes());
+  if (options.isSearchIndexesSupported) {
+    void store.dispatch(fetchSearchIndexes());
+  }
   on(collectionModel, 'change:status', (model: Collection, status: string) => {
     if (status === 'ready') {
       store.dispatch(collectionStatsFetched(model));
     }
-  });
-
-  on(localAppRegistry, 'refresh-collection-stats', () => {
-    void collectionModel.fetch({ dataService, force: true });
   });
 
   return { store, deactivate: () => cleanup() };

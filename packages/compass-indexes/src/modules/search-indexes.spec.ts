@@ -1,6 +1,8 @@
 import { expect } from 'chai';
+import { waitFor } from '@mongodb-js/testing-library-compass';
+import type { FetchStatus } from '../utils/fetch-status';
+import { FetchStatuses } from '../utils/fetch-status';
 import {
-  SearchIndexesStatuses,
   createSearchIndexClosed,
   createSearchIndexOpened,
   createIndex,
@@ -9,11 +11,13 @@ import {
   updateSearchIndexOpened,
   updateSearchIndexClosed,
   updateIndex,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 } from './search-indexes';
-import { setupStore } from '../../test/setup-store';
+import { setupStoreAndWait } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
-import type { IndexesDataService } from '../stores/store';
+import type { IndexesDataService, IndexesStore } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
@@ -21,14 +25,14 @@ import * as searchIndexesSlice from './search-indexes';
 import { writeStateChanged } from './is-writable';
 
 describe('search-indexes module', function () {
-  let store: ReturnType<typeof setupStore>;
+  let store: IndexesStore;
   let dataProvider: Partial<IndexesDataService>;
   let createSearchIndexStub: sinon.SinonStub;
   let updateSearchIndexStub: sinon.SinonStub;
   let getSearchIndexesStub: sinon.SinonStub;
   let dropSearchIndexStub: sinon.SinonStub;
 
-  beforeEach(function () {
+  beforeEach(async function () {
     createSearchIndexStub = sinon.stub().resolves('foo');
     updateSearchIndexStub = sinon.stub().resolves();
     getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
@@ -40,7 +44,7 @@ describe('search-indexes module', function () {
       dropSearchIndex: dropSearchIndexStub,
     };
 
-    store = setupStore(
+    store = await setupStoreAndWait(
       {
         namespace: 'citibike.trips',
         isSearchIndexesSupported: true,
@@ -49,41 +53,23 @@ describe('search-indexes module', function () {
     );
   });
 
-  it('has not available search indexes state by default', function () {
-    store = setupStore();
+  it('has not available search indexes state by default', async function () {
+    store = await setupStoreAndWait({ isSearchIndexesSupported: false });
     expect(store.getState().searchIndexes.status).to.equal(
-      SearchIndexesStatuses.NOT_AVAILABLE
+      FetchStatuses.NOT_READY
     );
   });
 
   context('#refreshSearchIndexes action', function () {
-    it('does nothing if isReadonlyView is true', function () {
+    it('does nothing if isReadonlyView is true', async function () {
+      // already loaded once
+      expect(store.getState().isReadonlyView).to.equal(false);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
       store.dispatch(readonlyViewChanged(true));
 
       expect(store.getState().isReadonlyView).to.equal(true);
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-
-      store.dispatch(refreshSearchIndexes);
-
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
-    });
-
-    it('does nothing if isWritable is false (offline mode)', function () {
-      store.dispatch(writeStateChanged(false));
-
-      expect(store.getState().isWritable).to.equal(false);
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-
-      store.dispatch(refreshSearchIndexes);
-
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
-    });
-
-    it('fetches the indexes', async function () {
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+      expect(getSearchIndexesStub.callCount).to.equal(1);
 
       await store.dispatch(refreshSearchIndexes());
 
@@ -91,12 +77,34 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('READY');
     });
 
-    it('sets the status to REFRESHING if the status is READY', async function () {
-      expect(getSearchIndexesStub.callCount).to.equal(0);
-      expect(store.getState().searchIndexes.status).to.equal('NOT_READY');
+    it('does nothing if isWritable is false (offline mode)', async function () {
+      // already loaded once
+      expect(store.getState().isWritable).to.equal(true);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      store.dispatch(writeStateChanged(false));
+
+      expect(store.getState().isWritable).to.equal(false);
+      expect(getSearchIndexesStub.callCount).to.equal(1);
 
       await store.dispatch(refreshSearchIndexes());
 
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+    });
+
+    it('fetches the indexes', async function () {
+      // already loaded once
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      await store.dispatch(refreshSearchIndexes());
+
+      expect(getSearchIndexesStub.callCount).to.equal(2);
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+    });
+
+    it('sets the status to REFRESHING if the status is READY', function () {
       expect(getSearchIndexesStub.callCount).to.equal(1);
       expect(store.getState().searchIndexes.status).to.equal('READY');
 
@@ -138,11 +146,13 @@ describe('search-indexes module', function () {
       ]);
     });
 
-    it('sets the status to ERROR if loading the indexes fails', async function () {
-      // replace the stub
-      getSearchIndexesStub.rejects(new Error('this is an error'));
-
-      await store.dispatch(refreshSearchIndexes());
+    it('sets the status to ERROR if initial loading of the indexes fails', async function () {
+      const getSearchIndexesStub = sinon
+        .stub()
+        .rejects(new Error('this is an error'));
+      store = await setupStoreAndWait(undefined, {
+        getSearchIndexes: getSearchIndexesStub,
+      });
 
       expect(store.getState().searchIndexes.status).to.equal('ERROR');
       expect(store.getState().searchIndexes.error).to.equal('this is an error');
@@ -267,6 +277,87 @@ describe('search-indexes module', function () {
         'index_name',
       ]);
       expect(store.getState().searchIndexes.error).to.be.undefined;
+    });
+  });
+
+  describe('startPollingSearchIndexes and stopPollingSearchIndexes', function () {
+    let clock: sinon.SinonFakeTimers;
+
+    after(() => {
+      clock.restore();
+    });
+
+    it('starts and stops the polling', async function () {
+      const pollInterval = 5000;
+      const tabId = 'my-tab';
+
+      const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
+      const store = await setupStoreAndWait(
+        {
+          isSearchIndexesSupported: true,
+        },
+        {
+          getSearchIndexes: getSearchIndexesStub,
+        }
+      );
+
+      clock = sinon.useFakeTimers();
+
+      const waitForStatus = async (status: FetchStatus) => {
+        await waitFor(() => {
+          expect(store.getState().searchIndexes.status).to.eq(status);
+        });
+      };
+
+      // before we start
+      expect(store.getState().searchIndexes.status).to.equal('READY');
+
+      // initial load
+      expect(getSearchIndexesStub.callCount).to.equal(1);
+
+      store.dispatch(startPollingSearchIndexes(tabId));
+
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(2);
+      await waitForStatus('READY');
+
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // stop
+      store.dispatch(stopPollingSearchIndexes(tabId));
+
+      // no more polling
+      clock.tick(pollInterval);
+      expect(getSearchIndexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // open again
+      store.dispatch(startPollingSearchIndexes(tabId));
+
+      // won't execute immediately
+      expect(getSearchIndexesStub.callCount).to.equal(3);
+      await waitForStatus('READY');
+
+      // does poll after the interval
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(4);
+      await waitForStatus('READY');
+
+      // and again
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
+      expect(getSearchIndexesStub.callCount).to.equal(5);
+      await waitForStatus('READY');
+
+      // clean up
+      store.dispatch(stopPollingSearchIndexes(tabId));
     });
   });
 });

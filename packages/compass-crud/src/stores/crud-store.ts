@@ -2064,10 +2064,6 @@ export function activateDocumentsPlugin(
     }
   });
 
-  on(localAppRegistry, 'refresh-collection-stats', () => {
-    void collection.fetch({ dataService, force: true });
-  });
-
   if (!options.noRefreshOnConfigure) {
     queueMicrotask(() => {
       void store.refreshDocuments();
