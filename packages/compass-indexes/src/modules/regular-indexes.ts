@@ -293,12 +293,18 @@ const fetchIndexes = (
 
     try {
       dispatch(fetchIndexesStarted(reason));
-      // This makes sure that when the user or something else triggers a
-      // re-fetch for the list of indexes with this action, the tab header also
-      // gets updated.
-      localAppRegistry.emit('refresh-collection-stats');
       const indexes = await dataService.indexes(namespace);
+      const totalIndexesBefore = getState().regularIndexes.indexes.length;
       dispatch(fetchIndexesSucceeded(indexes));
+      const totalIndexesAfter = getState().regularIndexes.indexes.length;
+      if (totalIndexesBefore !== totalIndexesAfter) {
+        // This makes sure that when the user or something else triggers a
+        // re-fetch for the list of indexes with this action and the total
+        // changed, the tab header also gets updated. The check against the
+        // total is a bit of an optimisation so that we don't also poll the
+        // collection stats.
+        localAppRegistry.emit('refresh-collection-stats');
+      }
     } catch (err) {
       dispatch(fetchIndexesFailed((err as Error).message));
     }
