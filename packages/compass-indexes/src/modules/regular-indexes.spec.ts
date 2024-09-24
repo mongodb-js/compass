@@ -15,17 +15,16 @@ import {
   inProgressIndexes,
 } from '../../test/fixtures/regular-indexes';
 import { readonlyViewChanged } from './is-readonly-view';
-import { setupStore, setupStoreAndWait } from '../../test/setup-store';
+import {
+  setupStore,
+  setupStoreAndWait,
+  createMockCollection,
+} from '../../test/setup-store';
 
 // Importing this to stub showConfirmation
 import * as regularIndexesSlice from './regular-indexes';
 import type { FetchStatus } from '../utils/fetch-status';
 import { waitFor } from '@mongodb-js/testing-library-compass';
-import type AppRegistry from 'hadron-app-registry';
-
-const refreshCallsArgs = (spy: sinon.SinonSpy) => {
-  return spy.args.filter((args) => args[0] === 'refresh-collection-stats');
-};
 
 describe('regular-indexes module', function () {
   before(() => {
@@ -267,7 +266,7 @@ describe('regular-indexes module', function () {
       expect(indexesStub.callCount).to.equal(2);
     });
 
-    it('emits refresh-collection-stats when the indexes change', async function () {
+    it('calls collection.fetch() when the indexes change', async function () {
       const changedSortedIndexes = [defaultSortedIndexes[0]];
       const indexesStub = sinon
         .stub()
@@ -276,33 +275,26 @@ describe('regular-indexes module', function () {
         .onSecondCall()
         .resolves(changedSortedIndexes);
 
-      const emitSpy = sinon.spy();
-
-      const localAppRegistry = {
-        on: sinon.spy(),
-        emit: emitSpy,
-      } as unknown as AppRegistry;
+      const collection = createMockCollection();
 
       const store = await setupStoreAndWait(
         {},
         {
           indexes: indexesStub,
         },
-        { localAppRegistry }
+        { collection }
       );
 
       // the initial fetch
       expect(indexesStub.callCount).to.equal(1);
 
-      expect(refreshCallsArgs(emitSpy)).to.deep.equal([]);
+      expect(collection.fetch.callCount).to.equal(0);
 
       await store.dispatch(refreshRegularIndexes());
 
       expect(indexesStub.callCount).to.equal(2);
 
-      expect(refreshCallsArgs(emitSpy)).to.deep.equal([
-        ['refresh-collection-stats'],
-      ]);
+      expect(collection.fetch.callCount).to.equal(1);
     });
   });
 
@@ -515,12 +507,8 @@ describe('regular-indexes module', function () {
       const pollInterval = 5000;
       const tabId = 'my-tab';
 
-      const emitSpy = sinon.spy();
+      const collection = createMockCollection();
 
-      const localAppRegistry = {
-        on: sinon.spy(),
-        emit: emitSpy,
-      } as unknown as AppRegistry;
       const indexesStub = sinon.stub().resolves(indexesList);
       const store = await setupStoreAndWait(
         {},
@@ -528,7 +516,7 @@ describe('regular-indexes module', function () {
           indexes: indexesStub,
         },
         {
-          localAppRegistry,
+          collection,
         }
       );
 
@@ -540,7 +528,7 @@ describe('regular-indexes module', function () {
 
       clock = sinon.useFakeTimers();
 
-      expect(refreshCallsArgs(emitSpy)).to.deep.equal([]);
+      expect(collection.fetch.callCount).to.equal(0);
 
       // before we start
       expect(store.getState().regularIndexes.status).to.equal('READY');
@@ -592,7 +580,7 @@ describe('regular-indexes module', function () {
       // clean up
       store.dispatch(stopPollingRegularIndexes(tabId));
 
-      expect(refreshCallsArgs(emitSpy)).to.deep.equal([]);
+      expect(collection.fetch.callCount).to.equal(0);
     });
   });
 });

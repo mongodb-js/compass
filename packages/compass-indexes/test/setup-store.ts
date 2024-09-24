@@ -103,16 +103,20 @@ const defaultMetadata = {
   isSearchIndexesSupported: false,
   sourceName: 'test.bar',
 };
-const mockCollection = {
-  _id: defaultMetadata.namespace,
-  fetchMetadata() {
-    return Promise.resolve(defaultMetadata);
-  },
-  toJSON() {
-    return this;
-  },
-  on: Sinon.spy(),
-};
+
+export function createMockCollection() {
+  return {
+    _id: defaultMetadata.namespace,
+    fetch: Sinon.spy(),
+    fetchMetadata() {
+      return Promise.resolve(defaultMetadata);
+    },
+    toJSON() {
+      return this;
+    },
+    on: Sinon.spy(),
+  } as any;
+}
 
 export const setupStore = (
   options: Partial<IndexesPluginOptions> = {},
@@ -150,7 +154,7 @@ export const setupStore = (
       instance: fakeInstance as any,
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
-      collection: mockCollection as any,
+      collection: createMockCollection(),
       connectionInfoRef,
       ...services,
     },

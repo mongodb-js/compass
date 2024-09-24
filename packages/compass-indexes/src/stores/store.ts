@@ -100,6 +100,7 @@ export function activateIndexesPlugin(
         track,
         connectionInfoRef,
         dataService,
+        collection: collectionModel,
       })
     )
   );
@@ -135,10 +136,6 @@ export function activateIndexesPlugin(
     if (status === 'ready') {
       store.dispatch(collectionStatsFetched(model));
     }
-  });
-
-  on(localAppRegistry, 'refresh-collection-stats', () => {
-    void collectionModel.fetch({ dataService, force: true });
   });
 
   return { store, deactivate: () => cleanup() };

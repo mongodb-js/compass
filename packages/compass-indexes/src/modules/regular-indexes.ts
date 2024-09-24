@@ -282,7 +282,7 @@ function pickCollectionStatFields(state: RootState) {
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
-  return async (dispatch, getState, { dataService, localAppRegistry }) => {
+  return async (dispatch, getState, { dataService, collection }) => {
     const {
       isReadonlyView,
       namespace,
@@ -314,7 +314,9 @@ const fetchIndexes = (
         // changed, the tab header also gets updated. The check against the
         // total is a bit of an optimisation so that we don't also poll the
         // collection stats.
-        localAppRegistry.emit('refresh-collection-stats');
+        collection.fetch({ dataService, force: true }).catch(() => {
+          /* ignore */
+        });
       }
     } catch (err) {
       dispatch(fetchIndexesFailed((err as Error).message));
