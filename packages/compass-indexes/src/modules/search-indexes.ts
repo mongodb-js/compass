@@ -427,31 +427,30 @@ const updateSearchIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
 
 export const POLLING_INTERVAL = 5000;
 
-let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
+const pollIntervalByTabId: Record<string, ReturnType<typeof setInterval>> = {};
 
-export const startPollingSearchIndexes = (): IndexesThunkAction<
-  void,
-  FetchSearchIndexesActions
-> => {
+export const startPollingSearchIndexes = (
+  tabId: string
+): IndexesThunkAction<void, FetchSearchIndexesActions> => {
   return function (dispatch) {
-    if (pollInterval) {
+    if (pollIntervalByTabId[tabId]) {
       return;
     }
 
-    pollInterval = setInterval(() => {
+    pollIntervalByTabId[tabId] = setInterval(() => {
       void dispatch(pollSearchIndexes());
     }, POLLING_INTERVAL);
   };
 };
 
-export const stopPollingSearchIndexes = () => {
+export const stopPollingSearchIndexes = (tabId: string) => {
   return () => {
-    if (!pollInterval) {
+    if (!pollIntervalByTabId[tabId]) {
       return;
     }
 
-    clearInterval(pollInterval);
-    pollInterval = undefined;
+    clearInterval(pollIntervalByTabId[tabId]);
+    delete pollIntervalByTabId[tabId];
   };
 };
 

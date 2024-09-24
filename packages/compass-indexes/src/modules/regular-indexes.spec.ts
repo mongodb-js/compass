@@ -470,6 +470,7 @@ describe('regular-indexes module', function () {
 
     it('starts and stops the polling', async function () {
       const pollInterval = 5000;
+      const tabId = 'my-tab';
 
       const indexesStub = sinon.stub().resolves(indexesList);
       const store = await setupStoreAndWait(
@@ -493,7 +494,7 @@ describe('regular-indexes module', function () {
       // initial load
       expect(indexesStub.callCount).to.equal(1);
 
-      store.dispatch(startPollingRegularIndexes());
+      store.dispatch(startPollingRegularIndexes(tabId));
 
       // poll
       clock.tick(pollInterval);
@@ -508,7 +509,7 @@ describe('regular-indexes module', function () {
       await waitForStatus('READY');
 
       // stop
-      store.dispatch(stopPollingRegularIndexes());
+      store.dispatch(stopPollingRegularIndexes(tabId));
 
       // no more polling
       clock.tick(pollInterval);
@@ -516,7 +517,7 @@ describe('regular-indexes module', function () {
       await waitForStatus('READY');
 
       // open again
-      store.dispatch(startPollingRegularIndexes());
+      store.dispatch(startPollingRegularIndexes(tabId));
 
       // won't execute immediately
       expect(indexesStub.callCount).to.equal(3);
@@ -535,7 +536,7 @@ describe('regular-indexes module', function () {
       await waitForStatus('READY');
 
       // clean up
-      store.dispatch(stopPollingRegularIndexes());
+      store.dispatch(stopPollingRegularIndexes(tabId));
     });
   });
 });

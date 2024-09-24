@@ -38,6 +38,7 @@ import { ZeroGraphic } from './zero-graphic';
 import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -48,8 +49,8 @@ type SearchIndexesTableProps = {
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onOpenCreateModalClick: () => void;
-  onSearchIndexesOpened: () => void;
-  onSearchIndexesClosed: () => void;
+  onSearchIndexesOpened: (tabId: string) => void;
+  onSearchIndexesClosed: (tabId: string) => void;
 };
 
 function isReadyStatus(status: FetchStatus) {
@@ -287,12 +288,14 @@ export const SearchIndexesTable: React.FunctionComponent<
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
 
+  const tabId = useWorkspaceTabId();
+
   useEffect(() => {
-    onSearchIndexesOpened();
+    onSearchIndexesOpened(tabId);
     return () => {
-      onSearchIndexesClosed();
+      onSearchIndexesClosed(tabId);
     };
-  }, [onSearchIndexesOpened, onSearchIndexesClosed]);
+  }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>

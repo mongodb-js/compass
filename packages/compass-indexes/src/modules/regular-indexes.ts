@@ -333,31 +333,30 @@ export const pollRegularIndexes = (): IndexesThunkAction<
 
 export const POLLING_INTERVAL = 5000;
 
-let pollInterval: ReturnType<typeof setInterval> | undefined = undefined;
+const pollIntervalByTabId: Record<string, ReturnType<typeof setInterval>> = {};
 
-export const startPollingRegularIndexes = (): IndexesThunkAction<
-  void,
-  FetchIndexesActions
-> => {
+export const startPollingRegularIndexes = (
+  tabId: string
+): IndexesThunkAction<void, FetchIndexesActions> => {
   return function (dispatch) {
-    if (pollInterval) {
+    if (pollIntervalByTabId[tabId]) {
       return;
     }
 
-    pollInterval = setInterval(() => {
+    pollIntervalByTabId[tabId] = setInterval(() => {
       void dispatch(pollRegularIndexes());
     }, POLLING_INTERVAL);
   };
 };
 
-export const stopPollingRegularIndexes = () => {
+export const stopPollingRegularIndexes = (tabId: string) => {
   return () => {
-    if (!pollInterval) {
+    if (!pollIntervalByTabId[tabId]) {
       return;
     }
 
-    clearInterval(pollInterval);
-    pollInterval = undefined;
+    clearInterval(pollIntervalByTabId[tabId]);
+    delete pollIntervalByTabId[tabId];
   };
 };
 

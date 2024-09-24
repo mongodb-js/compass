@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { withPreferences } from 'compass-preferences-model/provider';
+import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 import { IndexKeysBadge } from '@mongodb-js/compass-components';
 import type {
   LGColumnDef,
@@ -36,8 +37,8 @@ type RegularIndexesTableProps = {
   onDeleteIndexClick: (name: string) => void;
   readOnly?: boolean;
   error?: string | null;
-  onRegularIndexesOpened: () => void;
-  onRegularIndexesClosed: () => void;
+  onRegularIndexesOpened: (tabId: string) => void;
+  onRegularIndexesClosed: (tabId: string) => void;
 };
 
 type IndexInfo = {
@@ -153,12 +154,14 @@ export const RegularIndexesTable: React.FunctionComponent<
   onRegularIndexesClosed,
   error,
 }) => {
+  const tabId = useWorkspaceTabId();
+
   useEffect(() => {
-    onRegularIndexesOpened();
+    onRegularIndexesOpened(tabId);
     return () => {
-      onRegularIndexesClosed();
+      onRegularIndexesClosed(tabId);
     };
-  }, [onRegularIndexesOpened, onRegularIndexesClosed]);
+  }, [tabId, onRegularIndexesOpened, onRegularIndexesClosed]);
 
   const data = useMemo<LGTableDataType<IndexInfo>[]>(
     () =>
