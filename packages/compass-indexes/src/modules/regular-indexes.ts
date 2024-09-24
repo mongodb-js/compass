@@ -333,30 +333,33 @@ export const pollRegularIndexes = (): IndexesThunkAction<
 
 export const POLLING_INTERVAL = 5000;
 
-const pollIntervalByTabId: Record<string, ReturnType<typeof setInterval>> = {};
+const pollIntervalByTabId = new Map<string, ReturnType<typeof setInterval>>();
 
 export const startPollingRegularIndexes = (
   tabId: string
 ): IndexesThunkAction<void, FetchIndexesActions> => {
   return function (dispatch) {
-    if (pollIntervalByTabId[tabId]) {
+    if (pollIntervalByTabId.has(tabId)) {
       return;
     }
 
-    pollIntervalByTabId[tabId] = setInterval(() => {
-      void dispatch(pollRegularIndexes());
-    }, POLLING_INTERVAL);
+    pollIntervalByTabId.set(
+      tabId,
+      setInterval(() => {
+        void dispatch(pollRegularIndexes());
+      }, POLLING_INTERVAL)
+    );
   };
 };
 
 export const stopPollingRegularIndexes = (tabId: string) => {
   return () => {
-    if (!pollIntervalByTabId[tabId]) {
+    if (!pollIntervalByTabId.has(tabId)) {
       return;
     }
 
-    clearInterval(pollIntervalByTabId[tabId]);
-    delete pollIntervalByTabId[tabId];
+    clearInterval(pollIntervalByTabId.get(tabId));
+    pollIntervalByTabId.delete(tabId);
   };
 };
 
