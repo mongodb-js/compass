@@ -10,6 +10,7 @@ import {
 import type { RootState, ShardingStatus } from '../store/reducer';
 import { ShardingStatuses } from '../store/reducer';
 import UnshardedState from './states/unsharded';
+import ShardingState from './states/sharding';
 
 const containerStyles = css({
   paddingLeft: spacing[3],
@@ -44,6 +45,8 @@ function getStateViewBasedOnShardingStatus(shardingStatus: ShardingStatus) {
       );
     case ShardingStatuses.UNSHARDED:
       return <UnshardedState />;
+    case ShardingStatuses.SHARDING:
+      return <ShardingState />;
     default:
       return null;
   }

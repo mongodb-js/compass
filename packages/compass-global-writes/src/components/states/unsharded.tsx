@@ -112,13 +112,15 @@ function CreateShardKeyDescription() {
 type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
 type UnshardedStateProps = {
   namespace: string;
+  isLoading: boolean;
   onCreateShardKey: (data: CreateShardKeyData) => void;
 };
 
 function CreateShardKeyForm({
   namespace,
+  isLoading,
   onCreateShardKey,
-}: Pick<UnshardedStateProps, 'namespace' | 'onCreateShardKey'>) {
+}: Pick<UnshardedStateProps, 'namespace' | 'isLoading' | 'onCreateShardKey'>) {
   const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
   const [selectedOption, setSelectedOption] =
     useState<ShardingAdvancedOption>('default');
@@ -286,8 +288,9 @@ function CreateShardKeyForm({
         <Button
           data-testid="shard-collection-button"
           onClick={onSubmit}
-          disabled={!secondShardKey}
+          disabled={!secondShardKey || isLoading}
           variant="primary"
+          isLoading={isLoading}
         >
           Shard Collection
         </Button>
@@ -316,6 +319,7 @@ export function UnshardedState(props: UnshardedStateProps) {
 export default connect(
   (state: RootState) => ({
     namespace: state.namespace,
+    isLoading: state.createShardkey.isLoading,
   }),
   {
     onCreateShardKey: createShardKey,

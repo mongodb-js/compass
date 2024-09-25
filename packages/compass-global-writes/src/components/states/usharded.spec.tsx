@@ -10,6 +10,7 @@ function renderWithProps(
 ) {
   return renderWithStore(
     <UnshardedState
+      isLoading={false}
       namespace="airbnb.test"
       onCreateShardKey={() => {}}
       {...props}

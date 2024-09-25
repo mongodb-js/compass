@@ -1,58 +1,109 @@
-import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import toNS from 'mongodb-ns';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import type { CreateShardKeyData } from '../store/reducer';
 
-export type ManagedNamespace = {
+type ZoneMapping = unknown;
+type ManagedNamespace = {
   db: string;
   collection: string;
   customShardKey: string;
   isCustomShardKeyHashed: boolean;
   isShardKeyUnique: boolean;
-  numInitialChunks?: number;
+  numInitialChunks: number | null;
   presplitHashedZones: boolean;
 };
 
+type GeoShardingData = {
+  customZoneMapping: Record<string, ZoneMapping>;
+  managedNamespaces: ManagedNamespace[];
+  selfManagedSharding: boolean;
+};
+
 type ClusterDetailsApiResponse = {
-  geoSharding: {
-    customZoneMapping: unknown;
-    managedNamespaces: ManagedNamespace[];
-  };
+  geoSharding: GeoShardingData;
+};
+
+type AtlasCluterInfo = {
+  projectId: string;
+  clusterName: string;
 };
 
 function assertDataIsClusterDetailsApiResponse(
   data: any
 ): asserts data is ClusterDetailsApiResponse {
   if (!Array.isArray(data?.geoSharding?.managedNamespaces)) {
-    throw new Error('Invalid cluster details API response');
+    throw new Error(
+      'Invalid cluster details API response geoSharding.managedNamespaces'
+    );
+  }
+  if (typeof data?.geoSharding?.customZoneMapping !== 'object') {
+    throw new Error(
+      'Invalid cluster details API response geoSharding.customZoneMapping'
+    );
   }
 }
 
 export class AtlasGlobalWritesService {
   constructor(private atlasService: AtlasService) {}
 
-  async isNamespaceManaged(
-    namespace: string,
-    {
-      clusterName,
-      projectId,
-    }: {
-      projectId: string;
-      clusterName: string;
-    }
-  ) {
+  private async fetchClusterDetails({
+    clusterName,
+    projectId,
+  }: AtlasCluterInfo): Promise<ClusterDetailsApiResponse> {
     const uri = this.atlasService.cloudEndpoint(
       `nds/clusters/${projectId}/${clusterName}`
     );
     const response = await this.atlasService.authenticatedFetch(uri);
-    const cluster = await response.json();
+    const clusterDetails = await response.json();
+    assertDataIsClusterDetailsApiResponse(clusterDetails);
+    return clusterDetails;
+  }
 
-    assertDataIsClusterDetailsApiResponse(cluster);
+  async isNamespaceManaged(
+    namespace: string,
+    atlasClusterInfo: AtlasCluterInfo
+  ) {
+    const clusterData = await this.fetchClusterDetails(atlasClusterInfo);
+    const { database, collection } = toNS(namespace);
+    return clusterData.geoSharding.managedNamespaces.some(
+      (managedNamespace) => {
+        return (
+          managedNamespace.db === database &&
+          managedNamespace.collection === collection
+        );
+      }
+    );
+  }
+
+  async createShardKey(
+    namespace: string,
+    keyData: CreateShardKeyData,
+    atlasClusterInfo: AtlasCluterInfo
+  ) {
+    const clusterData = await this.fetchClusterDetails(atlasClusterInfo);
 
     const { database, collection } = toNS(namespace);
-    return cluster.geoSharding.managedNamespaces.some((managedNamespace) => {
-      return (
-        managedNamespace.db === database &&
-        managedNamespace.collection === collection
-      );
+
+    const requestData: GeoShardingData = {
+      ...clusterData.geoSharding,
+      managedNamespaces: [
+        ...clusterData.geoSharding.managedNamespaces,
+        {
+          db: database,
+          collection: collection,
+          ...keyData,
+        },
+      ],
+    };
+
+    const uri = this.atlasService.cloudEndpoint(
+      `nds/clusters/${atlasClusterInfo.projectId}/${atlasClusterInfo.clusterName}/geoSharding`
+    );
+
+    const response = await this.atlasService.authenticatedFetch(uri, {
+      method: 'PATCH',
+      body: JSON.stringify(requestData),
     });
+    assertDataIsClusterDetailsApiResponse(await response.json());
   }
 }
