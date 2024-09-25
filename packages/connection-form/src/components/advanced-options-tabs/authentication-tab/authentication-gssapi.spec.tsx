@@ -12,7 +12,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import AuthenticationGssapi from './authentication-gssapi';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormPreferencesContext } from '../../../hooks/use-connect-form-preferences';
+import { ConnectionFormSettingsContext } from '../../../hooks/use-connect-form-preferences';
 
 function renderComponent({
   errors = [],
@@ -24,7 +24,7 @@ function renderComponent({
   updateConnectionFormField: UpdateConnectionFormField;
 }) {
   render(
-    <ConnectionFormPreferencesContext.Provider
+    <ConnectionFormSettingsContext.Provider
       value={{ showKerberosPasswordField: true }}
     >
       <AuthenticationGssapi
@@ -32,7 +32,7 @@ function renderComponent({
         connectionStringUrl={connectionStringUrl}
         updateConnectionFormField={updateConnectionFormField}
       />
-    </ConnectionFormPreferencesContext.Provider>
+    </ConnectionFormSettingsContext.Provider>
   );
 }
 

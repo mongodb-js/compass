@@ -1,7 +1,6 @@
 import { createContext, useContext } from 'react';
 
-// Not all of these preference map to Compass preferences.
-export type ConnectionFormPreferences = {
+export type ConnectionFormSettings = {
   showFavoriteActions: boolean;
   showHelpCardsInForm: boolean;
   showPersonalisationForm: boolean;
@@ -19,7 +18,7 @@ export type ConnectionFormPreferences = {
   saveAndConnectLabel: string;
 };
 
-const defaultPreferences = {
+const defaultSettings = {
   showFavoriteActions: true,
   showPersonalisationForm: true,
   showHelpCardsInForm: true,
@@ -37,16 +36,16 @@ const defaultPreferences = {
   saveAndConnectLabel: 'Connect',
 };
 
-export const ConnectionFormPreferencesContext = createContext<
-  Partial<ConnectionFormPreferences>
+export const ConnectionFormSettingsContext = createContext<
+  Partial<ConnectionFormSettings>
 >({});
 
 export const useConnectionFormPreference = <
-  K extends keyof ConnectionFormPreferences
+  K extends keyof ConnectionFormSettings
 >(
   preferenceKey: K
-): ConnectionFormPreferences[K] => {
-  const preferences = useContext(ConnectionFormPreferencesContext);
+): ConnectionFormSettings[K] => {
+  const settings = useContext(ConnectionFormSettingsContext);
 
-  return preferences[preferenceKey] ?? defaultPreferences[preferenceKey];
+  return settings[preferenceKey] ?? defaultSettings[preferenceKey];
 };

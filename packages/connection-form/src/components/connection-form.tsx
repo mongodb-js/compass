@@ -31,9 +31,9 @@ import {
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import type { ConnectionFormPreferences } from '../hooks/use-connect-form-preferences';
+import type { ConnectionFormSettings } from '../hooks/use-connect-form-preferences';
 import {
-  ConnectionFormPreferencesContext,
+  ConnectionFormSettingsContext,
   useConnectionFormPreference,
 } from '../hooks/use-connect-form-preferences';
 import { useConnectionColor } from '../hooks/use-connection-color';
@@ -315,7 +315,7 @@ type ConnectionFormPropsWithoutPreferences = {
 };
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
-  preferences?: Partial<ConnectionFormPreferences>;
+  preferences?: Partial<ConnectionFormSettings>;
 };
 
 function ConnectionForm({
@@ -580,14 +580,46 @@ function ConnectionForm({
 }
 
 const ConnectionFormWithPreferences: React.FunctionComponent<
-  ConnectionFormPropsWithoutPreferences & {
-    preferences?: Partial<ConnectionFormPreferences>;
-  }
-> = ({ preferences, ...rest }) => {
+  ConnectionFormPropsWithoutPreferences & Partial<ConnectionFormSettings>
+> = (props) => {
+  const { 
+    showFavoriteActions,
+    showHelpCardsInForm,
+    showPersonalisationForm,
+    protectConnectionStrings,
+    forceConnectionOptions,
+    showKerberosPasswordField,
+    showOIDCDeviceAuthFlow,
+    enableOidc,
+    enableDebugUseCsfleSchemaMap,
+    protectConnectionStringsForNewConnections,
+    showOIDCAuth,
+    showKerberosAuth,
+    showCSFLE,
+    showProxySettings,
+    saveAndConnectLabel,
+    ...rest
+  } = props;
   return (
-    <ConnectionFormPreferencesContext.Provider value={preferences ?? {}}>
+    <ConnectionFormSettingsContext.Provider value={{
+      showFavoriteActions,
+      showHelpCardsInForm,
+      showPersonalisationForm,
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+      showOIDCAuth,
+      showKerberosAuth,
+      showCSFLE,
+      showProxySettings,
+      saveAndConnectLabel,
+    }}>
       <ConnectionForm {...rest} />
-    </ConnectionFormPreferencesContext.Provider>
+    </ConnectionFormSettingsContext.Provider>
   );
 };
 

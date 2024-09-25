@@ -8,25 +8,25 @@ import type { AuthMechanism } from 'mongodb';
 import AuthenticationTab from './authentication-tab';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormPreferencesContext } from '../../../hooks/use-connect-form-preferences';
-import type { ConnectionFormPreferences } from '../../../hooks/use-connect-form-preferences';
+import { ConnectionFormSettingsContext } from '../../../hooks/use-connect-form-preferences';
+import type { ConnectionFormSettings } from '../../../hooks/use-connect-form-preferences';
 
 function renderComponent({
   errors = [],
   connectionStringUrl = new ConnectionStringUrl('mongodb://localhost:27017'),
-  connectionFormPreferences = {
+  ConnectionFormSettings = {
     enableOidc: true,
   },
   updateConnectionFormField,
 }: {
   connectionStringUrl?: ConnectionStringUrl;
-  connectionFormPreferences?: Partial<ConnectionFormPreferences>;
+  ConnectionFormSettings?: Partial<ConnectionFormSettings>;
   errors?: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }) {
   render(
-    <ConnectionFormPreferencesContext.Provider
-      value={connectionFormPreferences}
+    <ConnectionFormSettingsContext.Provider
+      value={ConnectionFormSettings}
     >
       <AuthenticationTab
         errors={errors}
@@ -36,7 +36,7 @@ function renderComponent({
           connectionString: 'mongodb://localhost:27017',
         }}
       />
-    </ConnectionFormPreferencesContext.Provider>
+    </ConnectionFormSettingsContext.Provider>
   );
 }
 
@@ -142,7 +142,7 @@ describe('AuthenticationTab Component', function () {
 
   it('should not render OIDC auth when its set to false in the preferences', function () {
     renderComponent({
-      connectionFormPreferences: { showOIDCAuth: false },
+      ConnectionFormSettings: { showOIDCAuth: false },
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
@@ -155,7 +155,7 @@ describe('AuthenticationTab Component', function () {
 
   it('should not render Kerberos auth when its set to false in the preferences', function () {
     renderComponent({
-      connectionFormPreferences: { showKerberosAuth: false },
+      ConnectionFormSettings: { showKerberosAuth: false },
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
