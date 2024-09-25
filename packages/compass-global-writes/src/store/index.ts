@@ -8,7 +8,11 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { ThunkAction } from 'redux-thunk';
 
-import reducer, { ShardingStatuses, type RootState } from './reducer';
+import reducer, {
+  ShardingStatuses,
+  updateIsNamespaceManaged,
+  type RootState,
+} from './reducer';
 import { AtlasGlobalWritesService } from '../services/atlas-global-writes-service';
 
 type GlobalWritesExtraArgs = {
@@ -60,6 +64,8 @@ export function activateGlobalWritesPlugin(
       })
     )
   );
+
+  void store.dispatch(updateIsNamespaceManaged());
 
   return { store, deactivate: () => cleanup() };
 }
