@@ -302,7 +302,7 @@ function ConnectionPersonalizationForm({
   );
 }
 
-type ConnectionFormPropsWithoutPreferences = {
+type ConnectionFormPropsWithoutSettings = {
   darkMode?: boolean;
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
@@ -314,7 +314,7 @@ type ConnectionFormPropsWithoutPreferences = {
   openSettingsModal?: (tab?: string) => void;
 };
 
-export type ConnectionFormProps = ConnectionFormPropsWithoutPreferences & {
+export type ConnectionFormProps = ConnectionFormPropsWithoutSettings & {
   preferences?: Partial<ConnectionFormSettings>;
 };
 
@@ -327,7 +327,7 @@ function ConnectionForm({
   onCancel,
   onAdvancedOptionsToggle,
   openSettingsModal,
-}: ConnectionFormPropsWithoutPreferences): React.ReactElement {
+}: ConnectionFormPropsWithoutSettings): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
   const isMultiConnectionEnabled = usePreference(
@@ -579,48 +579,49 @@ function ConnectionForm({
   );
 }
 
-const ConnectionFormWithPreferences: React.FunctionComponent<
-  ConnectionFormPropsWithoutPreferences & Partial<ConnectionFormSettings>
-> = (props) => {
-  const { 
-    showFavoriteActions,
-    showHelpCardsInForm,
-    showPersonalisationForm,
-    protectConnectionStrings,
-    forceConnectionOptions,
-    showKerberosPasswordField,
-    showOIDCDeviceAuthFlow,
-    enableOidc,
-    enableDebugUseCsfleSchemaMap,
-    protectConnectionStringsForNewConnections,
-    showOIDCAuth,
-    showKerberosAuth,
-    showCSFLE,
-    showProxySettings,
-    saveAndConnectLabel,
-    ...rest
-  } = props;
+const ConnectionFormWithSettings: React.FunctionComponent<
+  ConnectionFormPropsWithoutSettings & Partial<ConnectionFormSettings>
+> = ({
+  showFavoriteActions,
+  showHelpCardsInForm,
+  showPersonalisationForm,
+  protectConnectionStrings,
+  forceConnectionOptions,
+  showKerberosPasswordField,
+  showOIDCDeviceAuthFlow,
+  enableOidc,
+  enableDebugUseCsfleSchemaMap,
+  protectConnectionStringsForNewConnections,
+  showOIDCAuth,
+  showKerberosAuth,
+  showCSFLE,
+  showProxySettings,
+  saveAndConnectLabel,
+  ...rest
+}) => {
   return (
-    <ConnectionFormSettingsContext.Provider value={{
-      showFavoriteActions,
-      showHelpCardsInForm,
-      showPersonalisationForm,
-      protectConnectionStrings,
-      forceConnectionOptions,
-      showKerberosPasswordField,
-      showOIDCDeviceAuthFlow,
-      enableOidc,
-      enableDebugUseCsfleSchemaMap,
-      protectConnectionStringsForNewConnections,
-      showOIDCAuth,
-      showKerberosAuth,
-      showCSFLE,
-      showProxySettings,
-      saveAndConnectLabel,
-    }}>
+    <ConnectionFormSettingsContext.Provider
+      value={{
+        showFavoriteActions,
+        showHelpCardsInForm,
+        showPersonalisationForm,
+        protectConnectionStrings,
+        forceConnectionOptions,
+        showKerberosPasswordField,
+        showOIDCDeviceAuthFlow,
+        enableOidc,
+        enableDebugUseCsfleSchemaMap,
+        protectConnectionStringsForNewConnections,
+        showOIDCAuth,
+        showKerberosAuth,
+        showCSFLE,
+        showProxySettings,
+        saveAndConnectLabel,
+      }}
+    >
       <ConnectionForm {...rest} />
     </ConnectionFormSettingsContext.Provider>
   );
 };
 
-export default ConnectionFormWithPreferences;
+export default ConnectionFormWithSettings;
