@@ -9,14 +9,14 @@ describe('hadron-build::config', () => {
   describe('Release channel support', () => {
     const channels = {
       stable: getConfig({
-        version: '1.2.0'
+        version: '1.2.0',
       }),
       beta: getConfig({
-        version: '1.2.0-beta.1'
+        version: '1.2.0-beta.1',
       }),
       custom: getConfig({
-        version: '1.2.0-custom.5'
-      })
+        version: '1.2.0-custom.5',
+      }),
     };
 
     it('should have the right versions', () => {
@@ -32,7 +32,9 @@ describe('hadron-build::config', () => {
     });
 
     it('should not include channel in the product name on stable', () => {
-      expect(channels.stable.productName).to.equal('MongoDB Compass Enterprise super long test name');
+      expect(channels.stable.productName).to.equal(
+        'MongoDB Compass Enterprise super long test name'
+      );
     });
 
     it('should not include channel in the slug on stable', () => {
@@ -41,8 +43,12 @@ describe('hadron-build::config', () => {
 
     describe('For releases *not* on the stable channel', () => {
       it('should add the channel as a suffix to the product name', () => {
-        expect(channels.beta.productName).to.equal('MongoDB Compass Enterprise super long test name Beta');
-        expect(channels.custom.productName).to.equal('MongoDB Compass Enterprise super long test name Custom');
+        expect(channels.beta.productName).to.equal(
+          'MongoDB Compass Enterprise super long test name Beta'
+        );
+        expect(channels.custom.productName).to.equal(
+          'MongoDB Compass Enterprise super long test name Custom'
+        );
       });
       it('should add the channel as a suffix to the slug', () => {
         expect(channels.beta.slug).to.equal('compass-beta');
@@ -55,7 +61,7 @@ describe('hadron-build::config', () => {
       const moment = require('moment');
 
       const dev = getConfig({
-        version: '1.2.0-dev'
+        version: '1.2.0-dev',
       });
 
       const version = `1.2.0-alpha.${moment().format('YYYYMMDDHHmm')}`;
@@ -79,7 +85,7 @@ describe('hadron-build::config', () => {
       name: 'hadron-app',
       version: '1.2.0',
       product_name: 'Hadron',
-      platform: 'linux'
+      platform: 'linux',
     };
 
     const c = getConfig(linux);
@@ -103,11 +109,11 @@ describe('hadron-build::config', () => {
       product_name: 'Hadron',
       platform: 'win32',
       author: 'MongoDB Inc',
-      arch: 'x64'
+      arch: 'x64',
     };
 
     let res;
-    before( () => {
+    before(() => {
       res = getConfig(windows);
     });
     it.skip('should have the platform specific packager options', () => {
@@ -121,10 +127,16 @@ describe('hadron-build::config', () => {
 
     it('should have the platform specific evergreen expansions', () => {
       expect(res.windows_msi_filename).to.equal('compass-1.2.0-win32-x64.msi');
-      expect(res.windows_setup_filename).to.equal('compass-1.2.0-win32-x64.exe');
+      expect(res.windows_setup_filename).to.equal(
+        'compass-1.2.0-win32-x64.exe'
+      );
       expect(res.windows_zip_filename).to.equal('compass-1.2.0-win32-x64.zip');
-      expect(res.windows_nupkg_full_filename).to.equal('MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg');
-      expect(res.windows_nupkg_full_label).to.equal('MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg');
+      expect(res.windows_nupkg_full_filename).to.equal(
+        'MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg'
+      );
+      expect(res.windows_nupkg_full_label).to.equal(
+        'MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg'
+      );
     });
 
     it('should have the platform specific installer options', () => {
@@ -146,27 +158,37 @@ describe('hadron-build::config', () => {
 
     describe('For non-stable channel releases', () => {
       let custom;
-      before( () => {
+      before(() => {
         custom = getConfig({
           version: '1.2.0-custom.5',
           name: 'hadron',
           product_name: 'Hadron',
           platform: 'win32',
           author: 'MongoDB Inc',
-          arch: 'x64'
+          arch: 'x64',
         });
       });
 
       it('should append the channel name to the product name', () => {
         let versionString = custom.packagerOptions['version-string'];
-        expect(versionString.ProductName).to.equal('MongoDB Compass Enterprise super long test name Custom');
+        expect(versionString.ProductName).to.equal(
+          'MongoDB Compass Enterprise super long test name Custom'
+        );
       });
 
       it('should include the channel name in asset filenames', () => {
-        expect(custom.windows_msi_filename).to.equal('compass-1.2.0-custom.5-win32-x64.msi');
-        expect(custom.windows_setup_filename).to.equal('compass-1.2.0-custom.5-win32-x64.exe');
-        expect(custom.windows_zip_filename).to.equal('compass-1.2.0-custom.5-win32-x64.zip');
-        expect(custom.windows_nupkg_full_filename).to.equal('MongoDBCompassEnterprisesuperlongtestnameCustom-1.2.0-custom5-full.nupkg');
+        expect(custom.windows_msi_filename).to.equal(
+          'compass-1.2.0-custom.5-win32-x64.msi'
+        );
+        expect(custom.windows_setup_filename).to.equal(
+          'compass-1.2.0-custom.5-win32-x64.exe'
+        );
+        expect(custom.windows_zip_filename).to.equal(
+          'compass-1.2.0-custom.5-win32-x64.zip'
+        );
+        expect(custom.windows_nupkg_full_filename).to.equal(
+          'MongoDBCompassEnterprisesuperlongtestnameCustom-1.2.0-custom5-full.nupkg'
+        );
       });
     });
   });
