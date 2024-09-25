@@ -1,10 +1,15 @@
+import React from 'react';
+import { connect } from 'react-redux';
 import {
   css,
   spacing,
   WorkspaceContainer,
   Body,
+  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
-import React from 'react';
+import type { RootState, ShardingStatus } from '../store/reducer';
+import { ShardingStatuses } from '../store/reducer';
+import UnshardedState from './states/unsharded';
 
 const containerStyles = css({
   paddingLeft: spacing[3],
@@ -14,6 +19,10 @@ const containerStyles = css({
   height: '100%',
 });
 
+const workspaceContentStyles = css({
+  paddingTop: spacing[400],
+});
+
 const centeredContent = css({
   display: 'flex',
   justifyContent: 'center',
@@ -21,14 +30,34 @@ const centeredContent = css({
   height: '100%',
 });
 
-export function GlobalWrites() {
+type GlobalWritesProps = {
+  shardingStatus: ShardingStatus;
+};
+
+function getStateViewBasedOnShardingStatus(shardingStatus: ShardingStatus) {
+  switch (shardingStatus) {
+    case ShardingStatuses.NOT_READY:
+      return (
+        <Body className={centeredContent}>
+          <SpinLoaderWithLabel progressText="Loading ..." />
+        </Body>
+      );
+    case ShardingStatuses.UNSHARDED:
+      return <UnshardedState />;
+    default:
+      return null;
+  }
+}
+
+export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   return (
     <div className={containerStyles}>
-      <WorkspaceContainer>
-        <Body className={centeredContent}>
-          This feature is currently in development.
-        </Body>
+      <WorkspaceContainer className={workspaceContentStyles}>
+        {getStateViewBasedOnShardingStatus(shardingStatus)}
       </WorkspaceContainer>
     </div>
   );
 }
+export default connect((state: RootState) => ({
+  shardingStatus: state.status,
+}))(GlobalWrites);

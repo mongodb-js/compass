@@ -1,12 +1,17 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@mongodb-js/testing-library-compass';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { GlobalWrites } from './index';
+import { renderWithStore } from './../../tests/create-store';
 
 describe('Compass GlobalWrites Plugin', function () {
-  it('renders a Plugin', function () {
-    render(<GlobalWrites />);
-    expect(screen.getByText('This feature is currently in development.')).to
-      .exist;
+  it('renders plugin in NOT_READY state', function () {
+    renderWithStore(<GlobalWrites shardingStatus={'NOT_READY'} />);
+    expect(screen.getByText('Loading ...')).to.exist;
+  });
+
+  it('renders plugin in UNSHARDED state', function () {
+    renderWithStore(<GlobalWrites shardingStatus={'UNSHARDED'} />);
+    expect(screen.getByTestId('shard-collection-button')).to.exist;
   });
 });

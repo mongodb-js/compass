@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 
-import { GlobalWrites } from './components';
+import GlobalWrites from './components';
 import { GlobalWritesTabTitle } from './plugin-title';
 import { activateGlobalWritesPlugin } from './store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';

@@ -62,8 +62,8 @@ const PluginTitle = ({ showWarning }: { showWarning: boolean }) => {
           <Body>
             Collections in Atlas Global Clusters with Atlas-managed sharding
             must be configured with a compound shard key made up of both a
-            ‘location’ field and an identifier field that you provide. Please
-            configure sharding here.
+            &apos;location&apos; field and an identifier field that you provide.
+            Please configure sharding here.
           </Body>
         </Tooltip>
       )}

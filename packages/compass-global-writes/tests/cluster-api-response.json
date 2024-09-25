@@ -1,0 +1,337 @@
+{
+  "@provider": "AWS",
+  "acceptDataRisksAndForceReplicaSetReconfig": null,
+  "backupEnabled": false,
+  "biConnector": {
+    "enabled": false,
+    "privateHostname": null,
+    "privateLinkHostnamesMap": {},
+    "publicHostname": null,
+    "readPreference": "secondary"
+  },
+  "clusterTags": [],
+  "clusterType": "GEOSHARDED",
+  "configServerManagementMode": "ATLAS_MANAGED",
+  "configServerType": "DEDICATED",
+  "continuousDeliveryFCV": null,
+  "createDate": "2024-08-29T17:05:18Z",
+  "dataProcessingRegion": null,
+  "deleteAfterDate": "2024-09-20T05:05:18Z",
+  "deploymentClusterName": "atlas-rnqv3e",
+  "deploymentItemName": "atlas-rnqv3e",
+  "diskBackupEnabled": true,
+  "diskSizeGB": 10.0,
+  "diskWarmingMode": "FULLY_WARMED",
+  "employeeAccessGrant": null,
+  "encryptionAtRestProvider": "NONE",
+  "endpointToLoadBalancedSRVConnectionURI": {},
+  "fixedMongoDBFCV": null,
+  "fixedMongoDBFCVExpiration": null,
+  "forceReplicaSetReconfig": false,
+  "geoSharding": {
+    "customZoneMapping": {},
+    "managedNamespaces": [
+      {
+        "collection": "listingsAndReviews",
+        "customShardKey": "address.country",
+        "db": "sample_airbnb",
+        "isCustomShardKeyHashed": false,
+        "isShardKeyUnique": false,
+        "numInitialChunks": null,
+        "presplitHashedZones": false
+      }
+    ],
+    "selfManagedSharding": false
+  },
+  "groupId": "66bb81dafe547055785904a3",
+  "hostnameSchemeForAgents": "INTERNAL",
+  "hostnameSubdomainLevel": "MONGODB",
+  "internalClusterRole": "NONE",
+  "isCrossCloudCluster": false,
+  "isFastProvisioned": false,
+  "isMongoDBVersionFixed": false,
+  "isMonitoringPaused": false,
+  "isNvme": false,
+  "isPaused": false,
+  "isUnderCompaction": false,
+  "labels": [],
+  "lastUpdateDate": "2024-09-13T12:14:58Z",
+  "maxIncomingConns": 3000,
+  "mongoDBMajorVersion": "8.0",
+  "mongoDBUriHosts": [
+    "cluster1-shard-00-00.zwcs5.mongodb-dev.net:27016",
+    "cluster1-shard-00-01.zwcs5.mongodb-dev.net:27016",
+    "cluster1-shard-00-02.zwcs5.mongodb-dev.net:27016"
+  ],
+  "mongoDBUriHostsLastUpdateDate": "2024-08-29T17:26:41Z",
+  "mongoDBVersion": "8.0.0-rc20",
+  "name": "Cluster1",
+  "needsMongoDBConfigPublishAfter": "2024-09-13T13:40:29Z",
+  "needsSampleDataLoadAfter": null,
+  "osPolicyVersion": "169",
+  "pitEnabled": true,
+  "privateLinkMongoDBUriHosts": {},
+  "privateLinkSrvAddresses": {},
+  "privateMongoDBUriHosts": [
+    "cluster1-shard-00-00-pri.zwcs5.mongodb-dev.net:27016",
+    "cluster1-shard-00-01-pri.zwcs5.mongodb-dev.net:27016",
+    "cluster1-shard-00-02-pri.zwcs5.mongodb-dev.net:27016"
+  ],
+  "privateSrvAddress": "cluster1-pri.zwcs5.mongodb-dev.net",
+  "redactClientLogData": false,
+  "replicaSetScalingStrategy": null,
+  "replicationSpecList": [
+    {
+      "id": "66d0aa1b85ebe5234e75b411",
+      "numShards": 1,
+      "regionConfigs": [
+        {
+          "analyticsAutoScaling": {
+            "autoIndex": {
+              "enabled": false
+            },
+            "compute": {
+              "enabled": true,
+              "maxInstanceSize": "M40",
+              "minInstanceSize": "M30",
+              "scaleDownEnabled": true
+            },
+            "diskGB": {
+              "enabled": true
+            }
+          },
+          "analyticsSpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 0,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "autoScaling": {
+            "autoIndex": {
+              "enabled": false
+            },
+            "compute": {
+              "enabled": true,
+              "maxInstanceSize": "M40",
+              "minInstanceSize": "M30",
+              "scaleDownEnabled": true
+            },
+            "diskGB": {
+              "enabled": true
+            }
+          },
+          "cloudProvider": "AWS",
+          "electableSpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 3,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "priority": 7,
+          "readOnlySpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 0,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "regionName": "US_EAST_1",
+          "regionView": {
+            "complianceLevel": "COMMERCIAL",
+            "continent": "North America",
+            "isRecommended": true,
+            "key": "US_EAST_1",
+            "latitude": 39.0437567,
+            "location": "N. Virginia",
+            "longitude": -77.4874416,
+            "name": "us-east-1",
+            "provider": "AWS"
+          }
+        }
+      ],
+      "zoneId": "66d0aa4e49898e6af5e43159",
+      "zoneName": "Americas"
+    },
+    {
+      "id": "66d0aa1b85ebe5234e75b414",
+      "numShards": 1,
+      "regionConfigs": [
+        {
+          "analyticsAutoScaling": {
+            "autoIndex": {
+              "enabled": false
+            },
+            "compute": {
+              "enabled": true,
+              "maxInstanceSize": "M40",
+              "minInstanceSize": "M30",
+              "scaleDownEnabled": true
+            },
+            "diskGB": {
+              "enabled": true
+            }
+          },
+          "analyticsSpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 0,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "autoScaling": {
+            "autoIndex": {
+              "enabled": false
+            },
+            "compute": {
+              "enabled": true,
+              "maxInstanceSize": "M40",
+              "minInstanceSize": "M30",
+              "scaleDownEnabled": true
+            },
+            "diskGB": {
+              "enabled": true
+            }
+          },
+          "cloudProvider": "AWS",
+          "electableSpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 3,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "priority": 7,
+          "readOnlySpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 0,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "regionName": "EU_CENTRAL_1",
+          "regionView": {
+            "complianceLevel": "COMMERCIAL",
+            "continent": "Europe",
+            "isRecommended": true,
+            "key": "EU_CENTRAL_1",
+            "latitude": 50.110924,
+            "location": "Frankfurt",
+            "longitude": 8.682127,
+            "name": "eu-central-1",
+            "provider": "AWS"
+          }
+        }
+      ],
+      "zoneId": "66d0aa4e49898e6af5e4315a",
+      "zoneName": "EMEA"
+    },
+    {
+      "id": "66d0aa1b85ebe5234e75b417",
+      "numShards": 1,
+      "regionConfigs": [
+        {
+          "analyticsAutoScaling": {
+            "autoIndex": {
+              "enabled": false
+            },
+            "compute": {
+              "enabled": true,
+              "maxInstanceSize": "M40",
+              "minInstanceSize": "M30",
+              "scaleDownEnabled": true
+            },
+            "diskGB": {
+              "enabled": true
+            }
+          },
+          "analyticsSpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 0,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "autoScaling": {
+            "autoIndex": {
+              "enabled": false
+            },
+            "compute": {
+              "enabled": true,
+              "maxInstanceSize": "M40",
+              "minInstanceSize": "M30",
+              "scaleDownEnabled": true
+            },
+            "diskGB": {
+              "enabled": true
+            }
+          },
+          "cloudProvider": "AWS",
+          "electableSpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 3,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "priority": 7,
+          "readOnlySpecs": {
+            "diskIOPS": 3000,
+            "diskThroughput": 125,
+            "encryptEBSVolume": true,
+            "instanceSize": "M30",
+            "nodeCount": 0,
+            "preferredCpuArchitecture": "arm64",
+            "volumeType": "gp3"
+          },
+          "regionName": "AP_SOUTHEAST_1",
+          "regionView": {
+            "complianceLevel": "COMMERCIAL",
+            "continent": "Asia",
+            "isRecommended": true,
+            "key": "AP_SOUTHEAST_1",
+            "latitude": 1.29027,
+            "location": "Singapore",
+            "longitude": 103.851959,
+            "name": "ap-southeast-1",
+            "provider": "AWS"
+          }
+        }
+      ],
+      "zoneId": "66d0aa4e49898e6af5e4315b",
+      "zoneName": "APAC"
+    }
+  ],
+  "resurrectOptions": null,
+  "resurrectRequested": null,
+  "retainBackupsForDeleting": null,
+  "rootCertType": "ISRGROOTX1",
+  "sampleDatasetToLoad": "sampledata",
+  "searchDeploymentRequest": null,
+  "serverlessBackupOptions": null,
+  "srvAddress": "cluster1.zwcs5.mongodb-dev.net",
+  "state": "UPDATING",
+  "tenantAccessRevokedForPause": false,
+  "tenantUpgrading": false,
+  "terminationProtectionEnabled": false,
+  "uniqueId": "66d0aa4e49898e6af5e43174",
+  "userNotifiedAboutPauseDate": null,
+  "versionReleaseSystem": "LTS"
+}
