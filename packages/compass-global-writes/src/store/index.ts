@@ -63,6 +63,10 @@ export function activateGlobalWritesPlugin(
       namespace: options.namespace,
       isNamespaceSharded: false,
       status: ShardingStatuses.NOT_READY,
+      createShardkey: {
+        error: null,
+        isLoading: false,
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({

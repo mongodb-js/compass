@@ -3,7 +3,7 @@ import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { CreateShardKeyData } from '../store/reducer';
 
 type ZoneMapping = unknown;
-type ManagedNamespace = {
+export type ManagedNamespace = {
   db: string;
   collection: string;
   customShardKey: string;

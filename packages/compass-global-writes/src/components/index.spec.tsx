@@ -14,4 +14,9 @@ describe('Compass GlobalWrites Plugin', function () {
     renderWithStore(<GlobalWrites shardingStatus={'UNSHARDED'} />);
     expect(screen.getByTestId('shard-collection-button')).to.exist;
   });
+
+  it('renders plugin in SHARDING state', function () {
+    renderWithStore(<GlobalWrites shardingStatus={'SHARDING'} />);
+    expect(screen.getByText(/sharding your collection/i)).to.exist;
+  });
 });

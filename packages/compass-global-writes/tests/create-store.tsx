@@ -19,7 +19,6 @@ const atlasService = {
     return `https://example.com/${p}`;
   },
   authenticatedFetch: (url: RequestInfo | URL) => {
-    //
     if (url.toString().endsWith('nds/clusters/Project0/Cluster0')) {
       return Promise.resolve({
         status: 200,

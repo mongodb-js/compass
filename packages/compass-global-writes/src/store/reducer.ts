@@ -1,5 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import type { GlobalWritesThunkAction } from '.';
+import type { ManagedNamespace } from '../services/atlas-global-writes-service';
 
 export function isAction<A extends Action>(
   action: Action,
@@ -8,13 +9,14 @@ export function isAction<A extends Action>(
   return action.type === type;
 }
 
-export type CreateShardKeyData = {
-  customShardKey: string;
-  isShardKeyUnique: boolean;
-  isCustomShardKeyHashed: boolean;
-  presplitHashedZones: boolean;
-  numInitialChunks: number | null;
-};
+export type CreateShardKeyData = Pick<
+  ManagedNamespace,
+  | 'customShardKey'
+  | 'isCustomShardKeyHashed'
+  | 'isShardKeyUnique'
+  | 'numInitialChunks'
+  | 'presplitHashedZones'
+>;
 
 enum GlobalWritesActionTypes {
   SetIsManagedNamespace = 'global-writes/SetIsManagedNamespace',
@@ -172,13 +174,11 @@ export const fetchClusterShardingData =
     if (!isNamespaceManaged) {
       dispatch({
         type: GlobalWritesActionTypes.SetIsManagedNamespace,
-        isNamespaceManaged: false,
+        isNamespaceManaged,
       });
       return;
     }
-
-    // Now fetch the sharding key and possible process error.
-    return;
+    // TODO (COMPASS-8277): Now fetch the sharding key and possible process error.
   };
 
 export const createShardKey =
