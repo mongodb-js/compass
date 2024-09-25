@@ -5,14 +5,13 @@ import {
   screen,
   fireEvent,
   within,
-  waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { Document } from 'mongodb';
 import { SearchIndexesTable } from './search-indexes-table';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
 import {
   searchIndexes as indexes,
   vectorSearchIndexes,
@@ -33,7 +32,8 @@ const renderIndexList = (
       onDropIndexClick={noop}
       onEditIndexClick={noop}
       onOpenCreateModalClick={noop}
-      onPollIndexes={noop}
+      onSearchIndexesOpened={noop}
+      onSearchIndexesClosed={noop}
       {...props}
     />
   );
@@ -43,10 +43,7 @@ describe('SearchIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
-  for (const status of [
-    SearchIndexesStatuses.READY,
-    SearchIndexesStatuses.REFRESHING,
-  ]) {
+  for (const status of [FetchStatuses.READY, FetchStatuses.REFRESHING]) {
     it(`renders indexes list if the status is ${status}`, function () {
       renderIndexList({ status });
 
@@ -98,10 +95,7 @@ describe('SearchIndexesTable Component', function () {
     });
   }
 
-  for (const status of [
-    SearchIndexesStatuses.FETCHING,
-    SearchIndexesStatuses.NOT_READY,
-  ]) {
+  for (const status of [FetchStatuses.FETCHING, FetchStatuses.NOT_READY]) {
     it(`does not render the list if the status is ${status}`, function () {
       renderIndexList({
         status,
@@ -180,25 +174,6 @@ describe('SearchIndexesTable Component', function () {
       for (const path of ['plot_embedding', 'genres']) {
         expect(within(details).getAllByText(path)).to.exist;
       }
-    });
-  });
-
-  describe('connectivity', function () {
-    it('does poll the index for changes in online mode', async function () {
-      const onPollIndexesSpy = sinon.spy();
-      const testPollingInterval = 50;
-      renderIndexList({
-        onPollIndexes: onPollIndexesSpy,
-        isWritable: true,
-        pollingInterval: testPollingInterval,
-      });
-
-      await waitFor(
-        () => {
-          expect(onPollIndexesSpy.callCount).to.equal(1);
-        },
-        { timeout: testPollingInterval * 1.5 }
-      );
     });
   });
 

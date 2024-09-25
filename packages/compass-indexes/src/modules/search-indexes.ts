@@ -7,7 +7,13 @@ import {
 import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
-import { isAction } from './../utils/is-action';
+import { isAction } from '../utils/is-action';
+import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
+import type { FetchStatus } from '../utils/fetch-status';
+
+import { FetchReasons } from '../utils/fetch-reason';
+import type { FetchReason } from '../utils/fetch-reason';
+
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
@@ -17,48 +23,6 @@ const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
 };
-
-export enum SearchIndexesStatuses {
-  /**
-   * No support. Default status.
-   */
-  NOT_AVAILABLE = 'NOT_AVAILABLE',
-  /**
-   * We do not have list yet.
-   */
-  NOT_READY = 'NOT_READY',
-  /**
-   * We have list of indexes.
-   */
-  READY = 'READY',
-  /**
-   * We are fetching the list first time.
-   */
-  FETCHING = 'FETCHING',
-  /**
-   * We are refreshing the list.
-   */
-  REFRESHING = 'REFRESHING',
-  /**
-   * We are polling the list.
-   */
-  POLLING = 'POLLING',
-  /**
-   * Loading the list failed.
-   */
-  ERROR = 'ERROR',
-}
-
-export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
-
-// List of SearchIndex statuses when server should not be called
-// to avoid multiple requests.
-const NOT_FETCHABLE_STATUSES: SearchIndexesStatus[] = [
-  'NOT_AVAILABLE',
-  'FETCHING',
-  'POLLING',
-  'REFRESHING',
-];
 
 export enum ActionTypes {
   // Fetch indexes
@@ -83,7 +47,7 @@ export enum ActionTypes {
 
 type FetchSearchIndexesStartedAction = {
   type: ActionTypes.FetchSearchIndexesStarted;
-  status: 'REFRESHING' | 'POLLING' | 'FETCHING';
+  reason: FetchReason;
 };
 
 type FetchSearchIndexesSucceededAction = {
@@ -96,7 +60,7 @@ type FetchSearchIndexesFailedAction = {
   error: string;
 };
 
-type CreateSearchIndexOpenedAction = {
+export type CreateSearchIndexOpenedAction = {
   type: ActionTypes.CreateSearchIndexOpened;
 };
 
@@ -153,7 +117,7 @@ type UpdateSearchIndexState = {
 };
 
 export type State = {
-  status: SearchIndexesStatus;
+  status: FetchStatus;
   createIndex: CreateSearchIndexState;
   updateIndex: UpdateSearchIndexState;
   error?: string;
@@ -161,7 +125,7 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
-  status: SearchIndexesStatuses.NOT_AVAILABLE,
+  status: FetchStatuses.NOT_READY,
   createIndex: {
     isModalOpen: false,
     isBusy: false,
@@ -346,7 +310,12 @@ export default function reducer(
   ) {
     return {
       ...state,
-      status: action.status,
+      status:
+        action.reason === FetchReasons.POLL
+          ? FetchStatuses.POLLING
+          : action.reason === FetchReasons.REFRESH
+          ? FetchStatuses.REFRESHING
+          : FetchStatuses.FETCHING,
     };
   }
 
@@ -359,7 +328,7 @@ export default function reducer(
     return {
       ...state,
       indexes: action.indexes,
-      status: SearchIndexesStatuses.READY,
+      status: FetchStatuses.READY,
     };
   }
 
@@ -375,12 +344,11 @@ export default function reducer(
       // previous list of indexes is shown to the user.
       // If fetch fails for refresh or polling, set the status to READY again.
       error:
-        state.status === SearchIndexesStatuses.FETCHING
-          ? action.error
-          : undefined,
-      status: SearchIndexesStatuses.FETCHING
-        ? SearchIndexesStatuses.ERROR
-        : SearchIndexesStatuses.READY,
+        state.status === FetchStatuses.FETCHING ? action.error : state.error,
+      status:
+        state.status === FetchStatuses.FETCHING
+          ? FetchStatuses.ERROR
+          : FetchStatuses.READY,
     };
   }
 
@@ -407,10 +375,10 @@ export const updateSearchIndexClosed = (): UpdateSearchIndexClosedAction => ({
 });
 
 const fetchSearchIndexesStarted = (
-  status: 'REFRESHING' | 'POLLING' | 'FETCHING'
+  reason: FetchReason
 ): FetchSearchIndexesStartedAction => ({
   type: ActionTypes.FetchSearchIndexesStarted,
-  status,
+  reason,
 });
 
 const fetchSearchIndexesSucceeded = (
@@ -456,6 +424,38 @@ const updateSearchIndexFailed = (
 const updateSearchIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
   type: ActionTypes.UpdateSearchIndexSucceeded,
 });
+
+export const POLLING_INTERVAL = 5000;
+
+const pollIntervalByTabId = new Map<string, ReturnType<typeof setInterval>>();
+
+export const startPollingSearchIndexes = (
+  tabId: string
+): IndexesThunkAction<void, FetchSearchIndexesActions> => {
+  return function (dispatch) {
+    if (pollIntervalByTabId.has(tabId)) {
+      return;
+    }
+
+    pollIntervalByTabId.set(
+      tabId,
+      setInterval(() => {
+        void dispatch(pollSearchIndexes());
+      }, POLLING_INTERVAL)
+    );
+  };
+};
+
+export const stopPollingSearchIndexes = (tabId: string) => {
+  return () => {
+    if (!pollIntervalByTabId.has(tabId)) {
+      return;
+    }
+
+    clearInterval(pollIntervalByTabId.get(tabId));
+    pollIntervalByTabId.delete(tabId);
+  };
+};
 
 export const createIndex = ({
   name,
@@ -523,7 +523,7 @@ export const createIndex = ({
     });
 
     dispatch(switchToSearchIndexes());
-    await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
   };
 };
 
@@ -576,7 +576,7 @@ export const updateIndex = ({
         timeout: 5000,
         variant: 'progress',
       });
-      await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       const error = (e as Error).message;
       dispatch(
@@ -593,7 +593,7 @@ type FetchSearchIndexesActions =
   | FetchSearchIndexesFailedAction;
 
 const fetchIndexes = (
-  newStatus: 'REFRESHING' | 'POLLING' | 'FETCHING'
+  reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async (dispatch, getState, { dataService }) => {
     const {
@@ -607,14 +607,13 @@ const fetchIndexes = (
       return;
     }
 
-    // If we are currently doing fetching indexes, we will
-    // wait for that
+    // If we are already fetching indexes, we will wait for that
     if (NOT_FETCHABLE_STATUSES.includes(status)) {
       return;
     }
 
     try {
-      dispatch(fetchSearchIndexesStarted(newStatus));
+      dispatch(fetchSearchIndexesStarted(reason));
       const indexes = await dataService.getSearchIndexes(namespace);
       dispatch(fetchSearchIndexesSucceeded(indexes));
     } catch (err) {
@@ -623,20 +622,21 @@ const fetchIndexes = (
   };
 };
 
+export const fetchSearchIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchSearchIndexesActions
+> => {
+  return async (dispatch) => {
+    await dispatch(fetchIndexes(FetchReasons.INITIAL_FETCH));
+  };
+};
+
 export const refreshSearchIndexes = (): IndexesThunkAction<
   Promise<void>,
   FetchSearchIndexesActions
 > => {
-  return async (dispatch, getState) => {
-    const { status } = getState().searchIndexes;
-
-    // If we are in a READY state, then we have already fetched the data
-    // and are refreshing the list.
-    const newStatus: SearchIndexesStatus =
-      status === SearchIndexesStatuses.READY
-        ? SearchIndexesStatuses.REFRESHING
-        : SearchIndexesStatuses.FETCHING;
-    await dispatch(fetchIndexes(newStatus));
+  return async (dispatch) => {
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
   };
 };
 
@@ -645,7 +645,7 @@ export const pollSearchIndexes = (): IndexesThunkAction<
   FetchSearchIndexesActions
 > => {
   return async (dispatch) => {
-    return await dispatch(fetchIndexes(SearchIndexesStatuses.POLLING));
+    return await dispatch(fetchIndexes(FetchReasons.POLL));
   };
 };
 
@@ -690,7 +690,7 @@ export const dropSearchIndex = (
         timeout: 5000,
         variant: 'progress',
       });
-      await dispatch(fetchIndexes(SearchIndexesStatuses.REFRESHING));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (e) {
       openToast('search-index-delete-failed', {
         title: `Failed to drop index.`,

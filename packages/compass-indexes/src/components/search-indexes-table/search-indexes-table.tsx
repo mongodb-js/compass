@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
@@ -21,43 +21,43 @@ import type {
   LGTableDataType,
 } from '@mongodb-js/compass-components';
 
+import { FetchStatuses } from '../../utils/fetch-status';
 import {
-  SearchIndexesStatuses,
   dropSearchIndex,
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
-  pollSearchIndexes,
   createSearchIndexOpened,
   updateSearchIndexOpened,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 } from '../../modules/search-indexes';
-import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-
-export const POLLING_INTERVAL = 5000;
+import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
-  status: SearchIndexesStatus;
+  status: FetchStatus;
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onOpenCreateModalClick: () => void;
-  onPollIndexes: () => void;
-  pollingInterval?: number;
+  onSearchIndexesOpened: (tabId: string) => void;
+  onSearchIndexesClosed: (tabId: string) => void;
 };
 
-function isReadyStatus(status: SearchIndexesStatus) {
+function isReadyStatus(status: FetchStatus) {
   return (
-    status === SearchIndexesStatuses.READY ||
-    status === SearchIndexesStatuses.REFRESHING ||
-    status === SearchIndexesStatuses.POLLING
+    status === FetchStatuses.READY ||
+    status === FetchStatuses.REFRESHING ||
+    status === FetchStatuses.POLLING
   );
 }
 
@@ -282,18 +282,20 @@ export const SearchIndexesTable: React.FunctionComponent<
   onOpenCreateModalClick,
   onEditIndexClick,
   onDropIndexClick,
-  onPollIndexes,
-  pollingInterval = POLLING_INTERVAL,
+  onSearchIndexesOpened,
+  onSearchIndexesClosed,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
 
+  const tabId = useWorkspaceTabId();
+
   useEffect(() => {
-    const id = setInterval(onPollIndexes, pollingInterval);
+    onSearchIndexesOpened(tabId);
     return () => {
-      clearInterval(id);
+      onSearchIndexesClosed(tabId);
     };
-  }, [onPollIndexes, pollingInterval]);
+  }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
@@ -399,7 +401,8 @@ const mapDispatch = {
   onDropIndexClick: dropSearchIndex,
   onOpenCreateModalClick: createSearchIndexOpened,
   onEditIndexClick: updateSearchIndexOpened,
-  onPollIndexes: pollSearchIndexes,
+  onSearchIndexesOpened: startPollingSearchIndexes,
+  onSearchIndexesClosed: stopPollingSearchIndexes,
 };
 
 export default connect(

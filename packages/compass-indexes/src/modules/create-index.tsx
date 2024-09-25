@@ -9,7 +9,7 @@ import type { InProgressIndex } from './regular-indexes';
 import type { IndexesThunkAction } from '.';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { RootState } from '.';
-import { fetchIndexes } from './regular-indexes';
+import { refreshRegularIndexes } from './regular-indexes';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -67,7 +67,7 @@ type ErrorClearedAction = {
   type: ActionTypes.ErrorCleared;
 };
 
-type CreateIndexOpenedAction = {
+export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
 };
 
@@ -530,7 +530,7 @@ export const createIndex = (): IndexesThunkAction<
       // Start a new fetch so that the newly added index's details can be
       // loaded. indexCreationSucceeded() will remove the in-progress one, but
       // we still need the new info.
-      await dispatch(fetchIndexes());
+      await dispatch(refreshRegularIndexes());
     } catch (err) {
       dispatch(indexCreationFailed(inProgressIndex.id, (err as Error).message));
     }
