@@ -32,9 +32,7 @@
           "indexVersion": 2,
           "direction": "forward",
           "indexBounds": {
-            "beds": [
-              "(2, inf.0]"
-            ]
+            "beds": ["(2, inf.0]"]
           }
         }
       },
@@ -65,9 +63,7 @@
       "innerOpens": 1432,
       "innerCloses": 1,
       "outerProjects": [],
-      "outerCorrelated": [
-        2
-      ],
+      "outerCorrelated": [2],
       "outerStage": {
         "stage": "nlj",
         "planNodeId": 1,
@@ -82,10 +78,7 @@
         "innerOpens": 1,
         "innerCloses": 1,
         "outerProjects": [],
-        "outerCorrelated": [
-          3,
-          4
-        ],
+        "outerCorrelated": [3, 4],
         "outerStage": {
           "stage": "project",
           "planNodeId": 1,

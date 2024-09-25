@@ -5,19 +5,33 @@ const kSBENodes = Symbol('kSBENodes');
 function mapPlanTree(stage, mapper, currentParent = null) {
   const result = mapper(stage, currentParent);
   const target = result || {};
-  if (stage.inputStage) target.inputStage = mapPlanTree(stage.inputStage, mapper, stage);
-  if (stage.innerStage) target.innerStage = mapPlanTree(stage.innerStage, mapper, stage);
-  if (stage.outerStage) target.outerStage = mapPlanTree(stage.outerStage, mapper, stage);
-  if (stage.thenStage) target.thenStage = mapPlanTree(stage.thenStage, mapper, stage);
-  if (stage.elseStage) target.elseStage = mapPlanTree(stage.elseStage, mapper, stage);
-  if (stage.inputStages) target.inputStages = stage.inputStages.map(s => mapPlanTree(s, mapper, stage));
-  if (stage.shards) target.shards = stage.shards.map(s => mapPlanTree(s, stage));
-  if (stage.executionStages) target.executionStages = stage.executionStages.map(s => mapPlanTree(s, mapper, stage));
+  if (stage.inputStage)
+    target.inputStage = mapPlanTree(stage.inputStage, mapper, stage);
+  if (stage.innerStage)
+    target.innerStage = mapPlanTree(stage.innerStage, mapper, stage);
+  if (stage.outerStage)
+    target.outerStage = mapPlanTree(stage.outerStage, mapper, stage);
+  if (stage.thenStage)
+    target.thenStage = mapPlanTree(stage.thenStage, mapper, stage);
+  if (stage.elseStage)
+    target.elseStage = mapPlanTree(stage.elseStage, mapper, stage);
+  if (stage.inputStages)
+    target.inputStages = stage.inputStages.map((s) =>
+      mapPlanTree(s, mapper, stage)
+    );
+  if (stage.shards)
+    target.shards = stage.shards.map((s) => mapPlanTree(s, stage));
+  if (stage.executionStages)
+    target.executionStages = stage.executionStages.map((s) =>
+      mapPlanTree(s, mapper, stage)
+    );
   return result;
 }
 
 function omitChildStages(stage) {
-  return mapPlanTree(stage, child => stage === child ? { ...stage } : undefined);
+  return mapPlanTree(stage, (child) =>
+    stage === child ? { ...stage } : undefined
+  );
 }
 
 function mapStages(queryPlan, sbeExecutionStages) {
@@ -25,7 +39,7 @@ function mapStages(queryPlan, sbeExecutionStages) {
 
   // First, look up all stages from the query plan, and store their IDs so
   // that we know which SBE nodes we should assign to which query plan node.
-  mapPlanTree(queryPlan, stage => {
+  mapPlanTree(queryPlan, (stage) => {
     if (stage.planNodeId) {
       nodeIdToQueryPlan.set(stage.planNodeId, stage);
       stage[kSBENodes] = [];
@@ -53,21 +67,23 @@ function mapStages(queryPlan, sbeExecutionStages) {
   // Do the actual mapping here. Use the head SBE node, and only aggregate
   // 'docsExamined' based on all child nodes and 'executionTimeMillisEstimate'
   // based on all top-level child nodes here.
-  return mapPlanTree(queryPlan, stage => {
+  return mapPlanTree(queryPlan, (stage) => {
     const sbeNodes = stage[kSBENodes];
     const headSBENode = sbeNodes[0] || {};
     return {
       ...omitChildStages(headSBENode),
       ...omitChildStages(stage),
-      executionTimeMillisEstimate: headSBENode.executionTimeMillis || headSBENode.executionTimeMillisEstimate,
+      executionTimeMillisEstimate:
+        headSBENode.executionTimeMillis ||
+        headSBENode.executionTimeMillisEstimate,
       docsExamined: sbeNodes
-        .filter(sbe => sbe.stage === 'seek' || sbe.stage === 'scan')
-        .map(sbe => sbe.numReads || 0)
+        .filter((sbe) => sbe.stage === 'seek' || sbe.stage === 'scan')
+        .map((sbe) => sbe.numReads || 0)
         .reduce((a, b) => a + b, 0),
       keysExamined: sbeNodes
-        .filter(sbe => sbe.stage === 'ixseek' || sbe.stage === 'ixscan')
-        .map(sbe => sbe.numReads || 0)
-        .reduce((a, b) => a + b, 0)
+        .filter((sbe) => sbe.stage === 'ixseek' || sbe.stage === 'ixscan')
+        .map((sbe) => sbe.numReads || 0)
+        .reduce((a, b) => a + b, 0),
     };
   });
 }
