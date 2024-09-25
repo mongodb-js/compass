@@ -2,9 +2,9 @@ import type { Action, Reducer } from 'redux';
 
 export enum ShardingStatuses {
   /**
-   * No information yet.
+   * Initial status, no information available yet.
    */
-  NOT_AVAILABLE = 'NOT_AVAILABLE',
+  NOT_READY = 'NOT_READY',
 }
 
 export type RootState = {
@@ -16,7 +16,7 @@ export type RootState = {
 const initialState: RootState = {
   namespace: '',
   isNamespaceSharded: false,
-  status: ShardingStatuses.NOT_AVAILABLE,
+  status: ShardingStatuses.NOT_READY,
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState) => {

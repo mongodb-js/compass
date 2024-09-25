@@ -49,7 +49,7 @@ export function activateGlobalWritesPlugin(
     {
       namespace: options.namespace,
       isNamespaceSharded: false,
-      status: ShardingStatuses.NOT_AVAILABLE,
+      status: ShardingStatuses.NOT_READY,
     },
     applyMiddleware(
       thunk.withExtraArgument({
