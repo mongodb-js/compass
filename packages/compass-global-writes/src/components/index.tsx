@@ -13,8 +13,8 @@ import UnshardedState from './states/unsharded';
 import ShardingState from './states/sharding';
 
 const containerStyles = css({
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
   display: 'flex',
   width: '100%',
   height: '100%',
