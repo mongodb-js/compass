@@ -13,7 +13,10 @@ import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfoRef,
+  useConnectionSupports,
+} from '@mongodb-js/compass-connections/provider';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -114,8 +117,19 @@ function WithErrorBoundary({
 
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
-  return pluginTabs.map(
-    ({ name, content: Content, provider: Provider, header: Header }) => {
+  const connectionInfoRef = useConnectionInfoRef();
+  const isGlobalWritesSupported = useConnectionSupports(
+    connectionInfoRef.current.id,
+    'globalWrites'
+  );
+  return pluginTabs
+    .filter((x) => {
+      if (x.name === 'GlobalWrites' && !isGlobalWritesSupported) {
+        return false;
+      }
+      return true;
+    })
+    .map(({ name, content: Content, provider: Provider, header: Header }) => {
       // `pluginTabs` never change in runtime so it's safe to call the hook here
       // eslint-disable-next-line react-hooks/rules-of-hooks
       Provider.useActivate(props);
@@ -136,8 +150,7 @@ function useCollectionTabs(props: CollectionMetadata) {
           </WithErrorBoundary>
         ),
       };
-    }
-  );
+    });
 }
 
 const CollectionTabWithMetadata: React.FunctionComponent<
