@@ -11,9 +11,9 @@ const actionsGroupContainer = css({
   alignItems: 'center',
   gap: spacing[2],
   width: '100%',
-  top: spacing[2] + spacing[1],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  top: spacing[200],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
   pointerEvents: 'none',
 });
 
