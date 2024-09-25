@@ -24,7 +24,7 @@ const {
   Code,
   BSONSymbol,
   Timestamp,
-  Map
+  Map,
 } = require('bson');
 /**
  * The object string.
@@ -177,7 +177,9 @@ const toInt64 = (object) => {
 
     return Long.fromString(object);
   }
-  throw new Error(`Value ${object.toString()} is outside the valid Int64 range`);
+  throw new Error(
+    `Value ${object.toString()} is outside the valid Int64 range`
+  );
 };
 
 const toDouble = (object) => {
@@ -209,7 +211,9 @@ const toObjectID = (object) => {
 };
 
 const toBinary = (object) => {
-  const buffer = ArrayBuffer.isView(object) ? Buffer.from(object) : Buffer.from(toString(object), 'utf8');
+  const buffer = ArrayBuffer.isView(object)
+    ? Buffer.from(object)
+    : Buffer.from(toString(object), 'utf8');
   return new Binary(buffer, Binary.SUBTYPE_DEFAULT);
 };
 
@@ -252,7 +256,7 @@ const CASTERS = {
   String: toString,
   BSONSymbol: toSymbol,
   Timestamp: toTimestamp,
-  Undefined: toUndefined
+  Undefined: toUndefined,
 };
 
 /**

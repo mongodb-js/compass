@@ -1,6 +1,6 @@
 {
   "ecmaFeatures": {
-    "blockBindings": true,
+    "blockBindings": true
   },
   "env": {
     "mocha": true,
