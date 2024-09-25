@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -16,8 +16,8 @@ import { refreshRegularIndexes } from '../../modules/regular-indexes';
 import { refreshSearchIndexes } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
-import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
+import type { FetchStatus } from '../../utils/fetch-status';
 import type { RootState } from '../../modules';
 import {
   CreateSearchIndexModal,
@@ -67,20 +67,16 @@ const AtlasIndexesBanner = () => {
 
 type IndexesProps = {
   isReadonlyView?: boolean;
-  regularIndexes: Pick<
-    RegularIndexesState,
-    'indexes' | 'error' | 'isRefreshing'
-  >;
+  regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
   currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
 };
 
-function isRefreshingStatus(status: SearchIndexesStatus) {
+function isRefreshingStatus(status: FetchStatus) {
   return (
-    status === SearchIndexesStatuses.FETCHING ||
-    status === SearchIndexesStatuses.REFRESHING
+    status === FetchStatuses.FETCHING || status === FetchStatuses.REFRESHING
   );
 }
 
@@ -110,25 +106,13 @@ export function Indexes({
 
   const isRefreshing =
     currentIndexesView === 'regular-indexes'
-      ? regularIndexes.isRefreshing === true
+      ? isRefreshingStatus(regularIndexes.status)
       : isRefreshingStatus(searchIndexes.status);
 
   const onRefreshIndexes =
     currentIndexesView === 'regular-indexes'
       ? refreshRegularIndexes
       : refreshSearchIndexes;
-
-  const loadIndexes = useCallback(() => {
-    if (currentIndexesView === 'regular-indexes') {
-      refreshRegularIndexes();
-    } else {
-      refreshSearchIndexes();
-    }
-  }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
-
-  useEffect(() => {
-    loadIndexes();
-  }, [loadIndexes]);
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
@@ -176,8 +160,6 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  // TODO(COMPASS-8214): loading, polling, refreshing the indexes should all
-  // happen in the store, not the UI.
   refreshRegularIndexes,
   refreshSearchIndexes,
 };

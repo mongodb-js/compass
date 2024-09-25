@@ -18,7 +18,6 @@ import {
 import type {
   LGColumnDef,
   LGTableDataType,
-  HeaderGroup,
   LeafyGreenTableCell,
   LeafyGreenTableRow,
   SortingState,
@@ -76,6 +75,7 @@ const tableHeadDarkModeStyles = css({
 });
 
 const tableHeadCellStyles = css({
+  whiteSpace: 'nowrap',
   '> div': {
     // Push the sort button to the right of the head cell.
     justifyContent: 'space-between',
@@ -126,7 +126,7 @@ export function IndexesTable<T>({
           isSticky
           className={cx(tableHeadStyles, darkMode && tableHeadDarkModeStyles)}
         >
-          {table.getHeaderGroups().map((headerGroup: HeaderGroup<T>) => (
+          {table.getHeaderGroups().map((headerGroup) => (
             <HeaderRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (

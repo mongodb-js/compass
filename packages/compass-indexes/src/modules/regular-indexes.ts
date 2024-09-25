@@ -1,12 +1,16 @@
+import { cloneDeep, isEqual, pick } from 'lodash';
 import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
-import { cloneDeep } from 'lodash';
 
-import { isAction } from './../utils/is-action';
+import { FetchStatuses, NOT_FETCHABLE_STATUSES } from '../utils/fetch-status';
+import type { FetchStatus } from '../utils/fetch-status';
+import { FetchReasons } from '../utils/fetch-reason';
+import type { FetchReason } from '../utils/fetch-reason';
+import { isAction } from '../utils/is-action';
 import { ActionTypes as CreateIndexActionTypes } from './create-index';
 import type {
   CreateIndexSpec,
@@ -14,7 +18,7 @@ import type {
   IndexCreationSucceededAction,
   IndexCreationFailedAction,
 } from './create-index';
-import type { IndexesThunkAction } from '.';
+import type { IndexesThunkAction, RootState } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
@@ -42,6 +46,9 @@ export type InProgressIndex = {
 };
 
 export enum ActionTypes {
+  IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
+  IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',
+
   FetchIndexesStarted = 'compass-indexes/regular-indexes/fetch-indexes-started',
   FetchIndexesSucceeded = 'compass-indexes/regular-indexes/fetch-indexes-succeeded',
   FetchIndexesFailed = 'compass-indexes/regular-indexes/fetch-indexes-failed',
@@ -52,9 +59,17 @@ export enum ActionTypes {
   FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
 }
 
+type IndexesOpenedAction = {
+  type: ActionTypes.IndexesOpened;
+};
+
+type IndexesClosedAction = {
+  type: ActionTypes.IndexesClosed;
+};
+
 type FetchIndexesStartedAction = {
   type: ActionTypes.FetchIndexesStarted;
-  isRefreshing: boolean;
+  reason: FetchReason;
 };
 
 type FetchIndexesSucceededAction = {
@@ -74,29 +89,45 @@ type FailedIndexRemovedAction = {
 
 export type State = {
   indexes: RegularIndex[];
-  isRefreshing: boolean;
+  status: FetchStatus;
   inProgressIndexes: InProgressIndex[];
-  error: string | null;
+  error?: string;
 };
 
 export const INITIAL_STATE: State = {
+  status: FetchStatuses.NOT_READY,
   indexes: [],
   inProgressIndexes: [],
-  isRefreshing: false,
-  error: null,
+  error: undefined,
 };
 
 export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
+  if (isAction<IndexesOpenedAction>(action, ActionTypes.IndexesOpened)) {
+    return {
+      ...state,
+    };
+  }
+
+  if (isAction<IndexesClosedAction>(action, ActionTypes.IndexesClosed)) {
+    return {
+      ...state,
+    };
+  }
+
   if (
     isAction<FetchIndexesStartedAction>(action, ActionTypes.FetchIndexesStarted)
   ) {
     return {
       ...state,
-      error: null,
-      isRefreshing: action.isRefreshing,
+      status:
+        action.reason === FetchReasons.POLL
+          ? FetchStatuses.POLLING
+          : action.reason === FetchReasons.REFRESH
+          ? FetchStatuses.REFRESHING
+          : FetchStatuses.FETCHING,
     };
   }
 
@@ -116,7 +147,7 @@ export default function reducer(
     return {
       ...state,
       indexes: allIndexes,
-      isRefreshing: false,
+      status: FetchStatuses.READY,
     };
   }
 
@@ -125,8 +156,15 @@ export default function reducer(
   ) {
     return {
       ...state,
-      error: action.error,
-      isRefreshing: false,
+      // We do no set any error on poll or refresh and the
+      // previous list of indexes is shown to the user.
+      // If fetch fails for refresh or polling, set the status to READY again.
+      error:
+        state.status === FetchStatuses.FETCHING ? action.error : state.error,
+      status:
+        state.status === FetchStatuses.FETCHING
+          ? FetchStatuses.ERROR
+          : FetchStatuses.READY,
     };
   }
 
@@ -210,10 +248,10 @@ export default function reducer(
 }
 
 const fetchIndexesStarted = (
-  isRefreshing: boolean
+  reason: FetchReason
 ): FetchIndexesStartedAction => ({
   type: ActionTypes.FetchIndexesStarted,
-  isRefreshing,
+  reason,
 });
 
 const fetchIndexesSucceeded = (
@@ -233,28 +271,64 @@ type FetchIndexesActions =
   | FetchIndexesSucceededAction
   | FetchIndexesFailedAction;
 
-export const fetchIndexes = (
-  isRefreshing = false
+const collectionStatFields = ['name', 'size'];
+
+function pickCollectionStatFields(state: RootState) {
+  return state.regularIndexes.indexes.map((index) =>
+    pick(index, collectionStatFields)
+  );
+}
+
+const fetchIndexes = (
+  reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
-  return async (dispatch, getState, { dataService, localAppRegistry }) => {
-    const { isReadonlyView, namespace } = getState();
+  return async (dispatch, getState, { dataService, collection }) => {
+    const {
+      isReadonlyView,
+      namespace,
+      regularIndexes: { status },
+    } = getState();
 
     if (isReadonlyView) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }
 
+    // If we are already fetching indexes, we will wait for that
+    if (NOT_FETCHABLE_STATUSES.includes(status)) {
+      return;
+    }
+
     try {
-      dispatch(fetchIndexesStarted(isRefreshing));
-      // This makes sure that when the user or something else triggers a
-      // re-fetch for the list of indexes with this action, the tab header also
-      // gets updated.
-      localAppRegistry.emit('refresh-collection-stats');
+      dispatch(fetchIndexesStarted(reason));
       const indexes = await dataService.indexes(namespace);
+      const indexesBefore = pickCollectionStatFields(getState());
       dispatch(fetchIndexesSucceeded(indexes));
+      const indexesAfter = pickCollectionStatFields(getState());
+      if (
+        reason !== FetchReasons.INITIAL_FETCH &&
+        !isEqual(indexesBefore, indexesAfter)
+      ) {
+        // This makes sure that when the user or something else triggers a
+        // re-fetch for the list of indexes with this action and the total
+        // changed, the tab header also gets updated. The check against the
+        // total is a bit of an optimisation so that we don't also poll the
+        // collection stats.
+        collection.fetch({ dataService, force: true }).catch(() => {
+          /* ignore */
+        });
+      }
     } catch (err) {
       dispatch(fetchIndexesFailed((err as Error).message));
     }
+  };
+};
+export const fetchRegularIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchIndexesActions
+> => {
+  return async (dispatch) => {
+    await dispatch(fetchIndexes(FetchReasons.INITIAL_FETCH));
   };
 };
 
@@ -263,7 +337,48 @@ export const refreshRegularIndexes = (): IndexesThunkAction<
   FetchIndexesActions
 > => {
   return async (dispatch) => {
-    return dispatch(fetchIndexes(true));
+    await dispatch(fetchIndexes(FetchReasons.REFRESH));
+  };
+};
+
+export const pollRegularIndexes = (): IndexesThunkAction<
+  Promise<void>,
+  FetchIndexesActions
+> => {
+  return async (dispatch) => {
+    return await dispatch(fetchIndexes(FetchReasons.POLL));
+  };
+};
+
+export const POLLING_INTERVAL = 5000;
+
+const pollIntervalByTabId = new Map<string, ReturnType<typeof setInterval>>();
+
+export const startPollingRegularIndexes = (
+  tabId: string
+): IndexesThunkAction<void, FetchIndexesActions> => {
+  return function (dispatch) {
+    if (pollIntervalByTabId.has(tabId)) {
+      return;
+    }
+
+    pollIntervalByTabId.set(
+      tabId,
+      setInterval(() => {
+        void dispatch(pollRegularIndexes());
+      }, POLLING_INTERVAL)
+    );
+  };
+};
+
+export const stopPollingRegularIndexes = (tabId: string) => {
+  return () => {
+    if (!pollIntervalByTabId.has(tabId)) {
+      return;
+    }
+
+    clearInterval(pollIntervalByTabId.get(tabId));
+    pollIntervalByTabId.delete(tabId);
   };
 };
 
@@ -304,7 +419,7 @@ export const dropIndex = (
 
       // By fetching the indexes again we make sure the merged list doesn't have
       // it either.
-      await dispatch(fetchIndexes());
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
       return;
     }
 
@@ -329,7 +444,7 @@ export const dropIndex = (
         title: `Index "${indexName}" dropped`,
         timeout: 3000,
       });
-      await dispatch(fetchIndexes(true));
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (err) {
       openToast('drop-index-error', {
         variant: 'important',
@@ -362,7 +477,7 @@ export const hideIndex = (
           hidden: true,
         },
       });
-      await dispatch(fetchIndexes());
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (error) {
       openToast('hide-index-error', {
         title: 'Failed to hide the index',
@@ -396,7 +511,7 @@ export const unhideIndex = (
           hidden: false,
         },
       });
-      await dispatch(fetchIndexes());
+      await dispatch(fetchIndexes(FetchReasons.REFRESH));
     } catch (error) {
       openToast('unhide-index-error', {
         title: 'Failed to unhide the index',

@@ -4,6 +4,7 @@ import type AppRegistry from 'hadron-app-registry';
 import isWritable from './is-writable';
 import indexView from './index-view';
 import isReadonlyView from './is-readonly-view';
+import isSearchIndexesSupported from './is-search-indexes-supported';
 import description from './description';
 import regularIndexes from './regular-indexes';
 import searchIndexes from './search-indexes';
@@ -18,6 +19,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import type { IndexesDataServiceProps } from '../stores/store';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
+import type { RollingIndexesService } from './rolling-indexes-service';
 const reducer = combineReducers({
   // From instance.isWritable. Used to know if the create button should be
   // enabled.
@@ -26,6 +28,9 @@ const reducer = combineReducers({
   // Is this collection readonly. (ultimately from isReadonly on
   // CollectionProps) Used to know if many things should even be visible.
   isReadonlyView,
+
+  // Does this collection support search indexes
+  isSearchIndexesSupported,
 
   // 'regular-indexes' or 'search-indexes'
   indexView,
@@ -66,6 +71,7 @@ export type IndexesExtraArgs = {
   dataService: Pick<DataService, IndexesDataServiceProps>;
   connectionInfoRef: ConnectionInfoRef;
   collection: Collection;
+  rollingIndexesService: RollingIndexesService;
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,
