@@ -314,9 +314,8 @@ type ConnectionFormPropsWithoutSettings = {
   openSettingsModal?: (tab?: string) => void;
 };
 
-export type ConnectionFormProps = ConnectionFormPropsWithoutSettings & {
-  preferences?: Partial<ConnectionFormSettings>;
-};
+export type ConnectionFormProps = ConnectionFormPropsWithoutSettings &
+  Partial<ConnectionFormSettings>;
 
 function ConnectionForm({
   initialConnectionInfo,

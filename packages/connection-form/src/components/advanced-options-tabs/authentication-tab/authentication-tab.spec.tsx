@@ -25,9 +25,7 @@ function renderComponent({
   updateConnectionFormField: UpdateConnectionFormField;
 }) {
   render(
-    <ConnectionFormSettingsContext.Provider
-      value={ConnectionFormSettings}
-    >
+    <ConnectionFormSettingsContext.Provider value={ConnectionFormSettings}>
       <AuthenticationTab
         errors={errors}
         connectionStringUrl={connectionStringUrl}
