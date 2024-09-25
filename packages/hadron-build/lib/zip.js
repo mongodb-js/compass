@@ -24,8 +24,15 @@ async function zip(_opts, done) {
     if (opts.platform !== 'darwin') {
       await promisify(zipFolder)(opts.dir, opts.outPath);
     } else {
-      const args = ['-r', '--symlinks', opts.outPath, './'];
-      execFileSync('zip', args, {
+      const args = [
+        '-V', // Print a line  for every file copied
+        '-c', // Create an archive at the destination path
+        '-k', // PKZip archive
+        '--sequesterRsrc', // Preserve resource forks and HFS meta-data in the subdirectory __MACOSX
+        './',
+        opts.outPath,
+      ];
+      execFileSync('ditto', args, {
         env: process.env,
         cwd: path.join(opts.dir, '..'),
         stdio: 'inherit',
