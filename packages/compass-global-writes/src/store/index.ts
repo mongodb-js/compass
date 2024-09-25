@@ -10,7 +10,7 @@ import type { ThunkAction } from 'redux-thunk';
 
 import reducer, {
   ShardingStatuses,
-  updateIsNamespaceManaged,
+  fetchClusterShardingData,
   type RootState,
 } from './reducer';
 import { AtlasGlobalWritesService } from '../services/atlas-global-writes-service';
@@ -65,7 +65,7 @@ export function activateGlobalWritesPlugin(
     )
   );
 
-  void store.dispatch(updateIsNamespaceManaged());
+  void store.dispatch(fetchClusterShardingData());
 
   return { store, deactivate: () => cleanup() };
 }

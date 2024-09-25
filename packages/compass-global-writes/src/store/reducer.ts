@@ -41,11 +41,25 @@ const initialState: RootState = {
   status: ShardingStatuses.NOT_READY,
 };
 
-const reducer: Reducer<RootState, Action> = (state = initialState) => {
+const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
+  if (
+    isAction<SetIsManagedNamespaceAction>(
+      action,
+      GlobalWritesActionTypes.SetIsManagedNamespace
+    )
+  ) {
+    return {
+      ...state,
+      isNamespaceSharded: action.isNamespaceManaged,
+      status: !action.isNamespaceManaged
+        ? ShardingStatuses.UNSHARDED
+        : state.status,
+    };
+  }
   return state;
 };
 
-export const updateIsNamespaceManaged =
+export const fetchClusterShardingData =
   (): GlobalWritesThunkAction<Promise<void>, SetIsManagedNamespaceAction> =>
   async (
     dispatch,
@@ -56,19 +70,28 @@ export const updateIsNamespaceManaged =
       return;
     }
 
-    const { clusterName, orgId } = connectionInfoRef.current.atlasMetadata;
     const { namespace } = getState();
+    const { clusterName, projectId } = connectionInfoRef.current.atlasMetadata;
 
+    // Call the API to check if the namespace is managed. If the namespace is managed,
+    // we would want to fetch more data that is needed to figure out the state and
+    // accordingly show the UI to the user.
     const isNamespaceManaged =
       await atlasGlobalWritesService.isNamespaceManaged(namespace, {
-        orgId,
+        projectId,
         clusterName,
       });
 
-    dispatch({
-      type: GlobalWritesActionTypes.SetIsManagedNamespace,
-      isNamespaceManaged,
-    });
+    if (!isNamespaceManaged) {
+      dispatch({
+        type: GlobalWritesActionTypes.SetIsManagedNamespace,
+        isNamespaceManaged: false,
+      });
+      return;
+    }
+
+    // Now fetch the sharding key and possible process error.
+    return;
   };
 
 export default reducer;
