@@ -363,34 +363,34 @@ const elementKeyDarkMode = css({
   color: palette.gray.light2,
 });
 
-const calculateElementSpacerWidth = (editable: boolean, level: number) => {
-  return (editable ? spacing[200] : 0) + spacing[400] * level;
+const calculateElementSpacerWidth = (editing: boolean, level: number) => {
+  return (editing ? spacing[200] : spacing[400]) + spacing[400] * level;
 };
 
 export const calculateShowMoreToggleOffset = ({
-  editable,
+  editing,
   level,
   alignWithNestedExpandIcon,
 }: {
-  editable: boolean;
+  editing: boolean;
   level: number;
   alignWithNestedExpandIcon: boolean;
 }) => {
   // the base padding that we have on all elements rendered in the document
   const BASE_PADDING_LEFT = spacing[200];
-  const OFFSET_WHEN_EDITABLE = editable
+  const OFFSET_WHEN_EDITING = editing
     ? // space taken by element actions
       spacing[400] +
       // space and margin taken by line number element
       spacing[400] +
       spacing[100] +
       // element spacer width that we render
-      calculateElementSpacerWidth(editable, level)
+      calculateElementSpacerWidth(editing, level)
     : 0;
   const EXPAND_ICON_SIZE = spacing[400];
   return (
     BASE_PADDING_LEFT +
-    OFFSET_WHEN_EDITABLE +
+    OFFSET_WHEN_EDITING +
     (alignWithNestedExpandIcon ? EXPAND_ICON_SIZE : 0)
   );
 };
@@ -445,8 +445,8 @@ export const HadronElement: React.FunctionComponent<{
   }, [lineNumberSize, editingEnabled]);
 
   const elementSpacerWidth = useMemo(
-    () => calculateElementSpacerWidth(editable, level),
-    [editable, level]
+    () => calculateElementSpacerWidth(editingEnabled, level),
+    [editingEnabled, level]
   );
 
   // To render the "Show more" toggle for the nested expandable elements we need
@@ -454,11 +454,11 @@ export const HadronElement: React.FunctionComponent<{
   const nestedElementsVisibilityToggleOffset = useMemo(
     () =>
       calculateShowMoreToggleOffset({
-        editable,
+        editing: editingEnabled,
         level,
         alignWithNestedExpandIcon: true,
       }),
-    [editable, level]
+    [editingEnabled, level]
   );
 
   const isValid = key.valid && value.valid;
@@ -511,7 +511,7 @@ export const HadronElement: React.FunctionComponent<{
         data-id={element.uuid}
         {...elementProps}
       >
-        {editable && (
+        {editingEnabled && (
           <div className={elementActions}>
             <div className={cx(actions, shouldShowActions && actionsVisible)}>
               <EditActions
@@ -522,7 +522,7 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
-        {editable && (
+        {editingEnabled && (
           <div
             className={cx(
               elementLineNumber,
