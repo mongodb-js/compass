@@ -114,9 +114,12 @@ type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
 
 function CreateShardKeyForm({
   namespace,
-  isLoading,
+  isSubmittingForSharding,
   onCreateShardKey,
-}: Pick<UnshardedStateProps, 'isLoading' | 'namespace' | 'onCreateShardKey'>) {
+}: Pick<
+  UnshardedStateProps,
+  'isSubmittingForSharding' | 'namespace' | 'onCreateShardKey'
+>) {
   const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
   const [selectedAdvancedOption, setSelectedAdvancedOption] =
     useState<ShardingAdvancedOption>('default');
@@ -291,10 +294,12 @@ function CreateShardKeyForm({
         <Button
           data-testid="shard-collection-button"
           onClick={onSubmit}
-          disabled={!secondShardKey || isLoading}
+          disabled={!secondShardKey || isSubmittingForSharding}
           variant="primary"
           leftGlyph={
-            isLoading ? <SpinLoader title="Creating shard key" /> : undefined
+            isSubmittingForSharding ? (
+              <SpinLoader title="Creating shard key" />
+            ) : undefined
           }
         >
           Shard Collection
@@ -306,7 +311,7 @@ function CreateShardKeyForm({
 
 type UnshardedStateProps = {
   namespace: string;
-  isLoading: boolean;
+  isSubmittingForSharding: boolean;
   onCreateShardKey: (data: CreateShardKeyData) => void;
 };
 export function UnshardedState(props: UnshardedStateProps) {
@@ -329,7 +334,8 @@ export function UnshardedState(props: UnshardedStateProps) {
 export default connect(
   (state: RootState) => ({
     namespace: state.namespace,
-    isLoading: state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING,
+    isSubmittingForSharding:
+      state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING,
   }),
   {
     onCreateShardKey: createShardKey,
