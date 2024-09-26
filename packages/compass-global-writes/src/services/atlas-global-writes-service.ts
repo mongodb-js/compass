@@ -98,10 +98,9 @@ export class AtlasGlobalWritesService {
       `nds/clusters/${atlasClusterInfo.projectId}/${atlasClusterInfo.clusterName}/geoSharding`
     );
 
-    const response = await this.atlasService.authenticatedFetch(uri, {
+    await this.atlasService.authenticatedFetch(uri, {
       method: 'PATCH',
       body: JSON.stringify(requestData),
     });
-    assertDataIsClusterDetailsApiResponse(await response.json());
   }
 }

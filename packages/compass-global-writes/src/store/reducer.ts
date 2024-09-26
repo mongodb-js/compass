@@ -180,7 +180,7 @@ export const fetchClusterShardingData =
         logger.mongoLogId(1_001_000_330),
         'AtlasFetchError',
         'Error fetching cluster sharding data',
-        error as Error
+        (error as Error).message
       );
       openToast('global-writes-fetch-shard-info-error', {
         title: `Failed to fetch sharding information: ${
@@ -232,7 +232,7 @@ export const createShardKey =
         'AtlasFetchError',
         'Error creating cluster shard key',
         {
-          error: error as Error,
+          error: (error as Error).message,
           data,
         }
       );
