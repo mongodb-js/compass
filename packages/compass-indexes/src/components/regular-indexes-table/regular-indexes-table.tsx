@@ -235,11 +235,15 @@ function getInProgressIndexInfo(index: MappedInProgressIndex): CommonIndexInfo {
     id: index.id,
     name: index.name,
     indexInfo: index,
-    type: undefined, // TODO
+    type: <TypeField type="unknown" extra={index.extra} />,
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     properties: (
-      <PropertyField cardinality={undefined} extra={{}} properties={[]} />
+      <PropertyField
+        cardinality={undefined}
+        extra={index.extra}
+        properties={[]}
+      />
     ),
   };
 }
@@ -249,7 +253,13 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
     id: `rollingIndex-${index.indexName}`,
     name: index.indexName,
     indexInfo: index,
-    type: index.indexType.label,
+    // TODO: check that label really is a regular index type
+    type: (
+      <TypeField
+        type={index.indexType.label as RegularIndex['type']}
+        extra={{}}
+      />
+    ),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     // TODO
@@ -323,6 +333,7 @@ export const RegularIndexesTable: React.FunctionComponent<
         }
 
         const indexActionsIndex = {
+          compassIndexType: index.compassIndexType,
           name:
             index.compassIndexType === 'rolling-index'
               ? index.indexName

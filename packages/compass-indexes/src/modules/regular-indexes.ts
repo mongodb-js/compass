@@ -545,20 +545,18 @@ export const dropIndex = (
   ) => {
     const { namespace, regularIndexes } = getState();
     const { indexes, inProgressIndexes } = regularIndexes;
-    const index = indexes.find((x) => x.name === indexName);
 
-    if (!index) {
-      return;
-    }
-
+    // TODO: this should be its own function, not part of dropIndex
     const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
     if (inProgressIndex && inProgressIndex.extra.status === 'failed') {
       // This really just removes the (failed) in-progress index
       dispatch(failedIndexRemoved(String(inProgressIndex.id)));
 
-      // By fetching the indexes again we make sure the merged list doesn't have
-      // it either.
-      await dispatch(fetchIndexes(FetchReasons.REFRESH));
+      return;
+    }
+
+    const index = indexes.find((x) => x.name === indexName);
+    if (!index) {
       return;
     }
 

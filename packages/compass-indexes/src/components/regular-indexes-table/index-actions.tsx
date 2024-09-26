@@ -5,6 +5,7 @@ import { ItemActionGroup } from '@mongodb-js/compass-components';
 
 type IndexActionsIndex = {
   name: string;
+  compassIndexType: 'regular-index' | 'in-progress-index' | 'rolling-index';
   extra?: {
     hidden?: boolean;
   };
@@ -46,7 +47,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
       },
     ];
 
-    if (serverSupportsHideIndex(serverVersion)) {
+    if (
+      index.compassIndexType === 'regular-index' &&
+      serverSupportsHideIndex(serverVersion)
+    ) {
       actions.unshift(
         index.extra?.hidden
           ? {

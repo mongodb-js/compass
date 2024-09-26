@@ -5,12 +5,12 @@ import { Tooltip, Body } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
-export const canRenderTooltip = (type: RegularIndex['type']) => {
+export const canRenderTooltip = (type: string) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type ?? '') !== -1;
 };
 
 type TypeFieldProps = {
-  type: RegularIndex['type'];
+  type: RegularIndex['type'] | 'unknown';
   extra: RegularIndex['extra'];
 };
 
