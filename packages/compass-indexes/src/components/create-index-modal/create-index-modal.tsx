@@ -12,7 +12,7 @@ import {
   fieldTypeUpdated,
   updateFieldName,
   errorCleared,
-  createIndex,
+  createIndexFormSubmitted,
   createIndexClosed,
 } from '../../modules/create-index';
 import { CreateIndexForm } from '../create-index-form/create-index-form';
@@ -28,7 +28,6 @@ type CreateIndexModalProps = React.ComponentProps<typeof CreateIndexForm> & {
   isVisible: boolean;
   namespace: string;
   error: string | null;
-  inProgress: boolean;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
@@ -38,7 +37,6 @@ function CreateIndexModal({
   isVisible,
   namespace,
   error,
-  inProgress,
   onErrorBannerCloseClick,
   onCreateIndexClick,
   onCancelCreateIndexClick,
@@ -88,7 +86,6 @@ function CreateIndexModal({
         <CreateIndexActions
           error={error}
           onErrorBannerCloseClick={onErrorBannerCloseClick}
-          inProgress={inProgress}
           onCreateIndexClick={onCreateIndexClick}
           onCancelCreateIndexClick={onCancelCreateIndexClick}
         />
@@ -98,10 +95,9 @@ function CreateIndexModal({
 }
 
 const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
-  const { fields, inProgress, error, isVisible } = createIndex;
+  const { fields, error, isVisible } = createIndex;
   return {
     fields,
-    inProgress,
     error,
     isVisible,
     namespace,
@@ -111,7 +107,7 @@ const mapState = ({ namespace, serverVersion, createIndex }: RootState) => {
 
 const mapDispatch = {
   onErrorBannerCloseClick: errorCleared,
-  onCreateIndexClick: createIndex,
+  onCreateIndexClick: createIndexFormSubmitted,
   onCancelCreateIndexClick: createIndexClosed,
   onAddFieldClick: fieldAdded,
   onRemoveFieldClick: fieldRemoved,
