@@ -64,7 +64,6 @@ export function activateGlobalWritesPlugin(
       isNamespaceSharded: false,
       status: ShardingStatuses.NOT_READY,
       createShardkey: {
-        error: null,
         isLoading: false,
       },
     },

@@ -111,17 +111,12 @@ function CreateShardKeyDescription() {
 }
 
 type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
-type CreateShardKeyFormProps = {
-  namespace: string;
-  isLoading: boolean;
-  onCreateShardKey: (data: CreateShardKeyData) => void;
-};
 
 function CreateShardKeyForm({
   namespace,
   isLoading,
   onCreateShardKey,
-}: CreateShardKeyFormProps) {
+}: Pick<UnshardedStateProps, 'isLoading' | 'namespace' | 'onCreateShardKey'>) {
   const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
   const [selectedAdvancedOption, setSelectedAdvancedOption] =
     useState<ShardingAdvancedOption>('default');
@@ -309,17 +304,12 @@ function CreateShardKeyForm({
   );
 }
 
-const ConnectedCreateShardKeyForm = connect(
-  (state: RootState) => ({
-    namespace: state.namespace,
-    isLoading: state.createShardkey.isLoading,
-  }),
-  {
-    onCreateShardKey: createShardKey,
-  }
-)(CreateShardKeyForm);
-
-export function UnshardedState() {
+type UnshardedStateProps = {
+  namespace: string;
+  isLoading: boolean;
+  onCreateShardKey: (data: CreateShardKeyData) => void;
+};
+export function UnshardedState(props: UnshardedStateProps) {
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Warning}>
@@ -331,9 +321,17 @@ export function UnshardedState() {
         {nbsp}See the instructions below for details.
       </Banner>
       <CreateShardKeyDescription />
-      <ConnectedCreateShardKeyForm />
+      <CreateShardKeyForm {...props} />
     </div>
   );
 }
 
-export default UnshardedState;
+export default connect(
+  (state: RootState) => ({
+    namespace: state.namespace,
+    isLoading: state.createShardkey.isLoading,
+  }),
+  {
+    onCreateShardKey: createShardKey,
+  }
+)(UnshardedState);

@@ -63,9 +63,9 @@ export class AtlasGlobalWritesService {
     namespace: string,
     atlasClusterInfo: AtlasCluterInfo
   ) {
-    const clusterData = await this.fetchClusterDetails(atlasClusterInfo);
+    const clusterDetails = await this.fetchClusterDetails(atlasClusterInfo);
     const { database, collection } = toNS(namespace);
-    return clusterData.geoSharding.managedNamespaces.some(
+    return clusterDetails.geoSharding.managedNamespaces.some(
       (managedNamespace) => {
         return (
           managedNamespace.db === database &&
@@ -80,14 +80,12 @@ export class AtlasGlobalWritesService {
     keyData: CreateShardKeyData,
     atlasClusterInfo: AtlasCluterInfo
   ) {
-    const clusterData = await this.fetchClusterDetails(atlasClusterInfo);
-
+    const clusterDetails = await this.fetchClusterDetails(atlasClusterInfo);
     const { database, collection } = toNS(namespace);
-
     const requestData: GeoShardingData = {
-      ...clusterData.geoSharding,
+      ...clusterDetails.geoSharding,
       managedNamespaces: [
-        ...clusterData.geoSharding.managedNamespaces,
+        ...clusterDetails.geoSharding.managedNamespaces,
         {
           db: database,
           collection: collection,
