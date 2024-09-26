@@ -17,6 +17,7 @@ import {
   ComboboxOption,
   Checkbox,
   Button,
+  SpinLoader,
   cx,
 } from '@mongodb-js/compass-components';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
@@ -110,7 +111,7 @@ function CreateShardKeyDescription() {
 }
 
 type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
-type UnshardedStateProps = {
+type CreateShardKeyFormProps = {
   namespace: string;
   isLoading: boolean;
   onCreateShardKey: (data: CreateShardKeyData) => void;
@@ -120,9 +121,9 @@ function CreateShardKeyForm({
   namespace,
   isLoading,
   onCreateShardKey,
-}: Pick<UnshardedStateProps, 'namespace' | 'isLoading' | 'onCreateShardKey'>) {
+}: CreateShardKeyFormProps) {
   const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] =
+  const [selectedAdvancedOption, setSelectedAdvancedOption] =
     useState<ShardingAdvancedOption>('default');
   const fields = useAutocompleteFields(namespace);
 
@@ -136,12 +137,12 @@ function CreateShardKeyForm({
     if (!secondShardKey) {
       return;
     }
-    const isCustomShardKeyHashed = selectedOption === 'hashed-index';
+    const isCustomShardKeyHashed = selectedAdvancedOption === 'hashed-index';
     const presplitHashedZones = isCustomShardKeyHashed && isPreSplitData;
 
     const data: CreateShardKeyData = {
       customShardKey: secondShardKey,
-      isShardKeyUnique: selectedOption === 'unique-index',
+      isShardKeyUnique: selectedAdvancedOption === 'unique-index',
       isCustomShardKeyHashed,
       presplitHashedZones,
       numInitialChunks:
@@ -155,12 +156,12 @@ function CreateShardKeyForm({
     isPreSplitData,
     numInitialChunks,
     secondShardKey,
-    selectedOption,
+    selectedAdvancedOption,
     onCreateShardKey,
   ]);
 
   return (
-    <form className={contentStyles} data-testid="shard-collection-form">
+    <div className={contentStyles} data-testid="shard-collection-form">
       <div className={shardKeyFormFieldsStyles}>
         <div>
           <Label htmlFor="first-shard-key">
@@ -198,6 +199,7 @@ function CreateShardKeyForm({
             options={fields.map(({ value }) => ({ value }))}
             className={secondShardKeyStyles}
             value={secondShardKey}
+            searchEmptyMessage="No fields found. Please enter a valid field name."
             renderOption={(option, index, isCustom) => {
               return (
                 <ComboboxOption
@@ -220,15 +222,17 @@ function CreateShardKeyForm({
       >
         <RadioGroup
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setSelectedOption(event.target.value as ShardingAdvancedOption);
+            setSelectedAdvancedOption(
+              event.target.value as ShardingAdvancedOption
+            );
           }}
         >
-          <Radio value="default" checked={selectedOption === 'default'}>
+          <Radio value="default" checked={selectedAdvancedOption === 'default'}>
             Default
           </Radio>
           <Radio
             value="unique-index"
-            checked={selectedOption === 'unique-index'}
+            checked={selectedAdvancedOption === 'unique-index'}
             // @ts-expect-error: allow jsx in description
             description={
               <span>
@@ -244,7 +248,7 @@ function CreateShardKeyForm({
           </Radio>
           <Radio
             value="hashed-index"
-            checked={selectedOption === 'hashed-index'}
+            checked={selectedAdvancedOption === 'hashed-index'}
             // @ts-expect-error: allow jsx in description
             description={
               <span>
@@ -259,7 +263,7 @@ function CreateShardKeyForm({
             Use hashed index as the shard key
           </Radio>
         </RadioGroup>
-        {selectedOption === 'hashed-index' && (
+        {selectedAdvancedOption === 'hashed-index' && (
           <div className={cx(contentStyles, hasedIndexOptionsStyles)}>
             <Checkbox
               data-testid="presplit-data-checkbox"
@@ -290,16 +294,28 @@ function CreateShardKeyForm({
           onClick={onSubmit}
           disabled={!secondShardKey || isLoading}
           variant="primary"
-          isLoading={isLoading}
+          leftGlyph={
+            isLoading ? <SpinLoader title="Creating shard key" /> : undefined
+          }
         >
           Shard Collection
         </Button>
       </div>
-    </form>
+    </div>
   );
 }
 
-export function UnshardedState(props: UnshardedStateProps) {
+const ConnectedCreateShardKeyForm = connect(
+  (state: RootState) => ({
+    namespace: state.namespace,
+    isLoading: state.createShardkey.isLoading,
+  }),
+  {
+    onCreateShardKey: createShardKey,
+  }
+)(CreateShardKeyForm);
+
+export function UnshardedState() {
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Warning}>
@@ -311,17 +327,9 @@ export function UnshardedState(props: UnshardedStateProps) {
         {nbsp}See the instructions below for details.
       </Banner>
       <CreateShardKeyDescription />
-      <CreateShardKeyForm {...props} />
+      <ConnectedCreateShardKeyForm />
     </div>
   );
 }
 
-export default connect(
-  (state: RootState) => ({
-    namespace: state.namespace,
-    isLoading: state.createShardkey.isLoading,
-  }),
-  {
-    onCreateShardKey: createShardKey,
-  }
-)(UnshardedState);
+export default UnshardedState;

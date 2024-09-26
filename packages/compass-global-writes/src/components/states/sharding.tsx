@@ -2,7 +2,9 @@ import React from 'react';
 import {
   Banner,
   BannerVariant,
+  Body,
   css,
+  Link,
   spacing,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
@@ -22,6 +24,17 @@ export function ShardingState() {
         <strong>Sharding your collection ...</strong>
         {nbsp}this should not take too long.
       </Banner>
+      <Body>
+        Once your collection is sharded, this tab will show instructions on
+        document &apos;location&apos; field formatting, and provide some common
+        command examples.
+      </Body>
+      <Link
+        href="https://www.mongodb.com/docs/atlas/global-clusters/"
+        hideExternalIcon
+      >
+        You can read more about Global Writes in our documentation.
+      </Link>
     </div>
   );
 }
