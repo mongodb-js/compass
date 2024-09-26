@@ -34,28 +34,35 @@ type GlobalWritesProps = {
   shardingStatus: ShardingStatus;
 };
 
-function getStateViewBasedOnShardingStatus(shardingStatus: ShardingStatus) {
-  switch (shardingStatus) {
-    case ShardingStatuses.NOT_READY:
-      return (
-        <div className={centeredContent}>
-          <SpinLoaderWithLabel progressText="Loading …" />
-        </div>
-      );
-    case ShardingStatuses.UNSHARDED:
-      return <UnshardedState />;
-    case ShardingStatuses.SHARDING:
-      return <ShardingState />;
-    default:
-      return null;
+function ShardingStateView({
+  shardingStatus,
+}: {
+  shardingStatus: ShardingStatus;
+}) {
+  if (shardingStatus === ShardingStatuses.NOT_READY) {
+    return (
+      <div className={centeredContent}>
+        <SpinLoaderWithLabel progressText="Loading …" />
+      </div>
+    );
   }
+
+  if (shardingStatus === ShardingStatuses.UNSHARDED) {
+    return <UnshardedState />;
+  }
+
+  if (shardingStatus === ShardingStatuses.SHARDING) {
+    return <ShardingState />;
+  }
+
+  return null;
 }
 
 export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   return (
     <div className={containerStyles}>
       <WorkspaceContainer className={workspaceContentStyles}>
-        {getStateViewBasedOnShardingStatus(shardingStatus)}
+        <ShardingStateView shardingStatus={shardingStatus} />
       </WorkspaceContainer>
     </div>
   );
