@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Wed, Sep 25, 2024 at 08:41 PM
+Generated on Thu, Sep 26, 2024 at 02:49 AM
 
 ## Table of Contents
 
@@ -299,6 +299,8 @@ This event is fired when user runs the aggregation.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation has been executed.
+- **stage_operators** (required): `{}`
+  - The names of the stages in the pipeline being executed.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
