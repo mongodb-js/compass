@@ -40,7 +40,7 @@ export const ConnectionFormSettingsContext = createContext<
   Partial<ConnectionFormSettings>
 >({});
 
-export const useConnectionFormPreference = <
+export const useConnectionFormSetting = <
   K extends keyof ConnectionFormSettings
 >(
   preferenceKey: K

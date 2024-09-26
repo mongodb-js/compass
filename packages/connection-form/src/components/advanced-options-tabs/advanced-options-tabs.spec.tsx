@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import AdvancedOptionsTabs from './advanced-options-tabs';
-import { ConnectionFormSettingsContext } from '../../hooks/use-connect-form-preferences';
+import { ConnectionFormSettingsContext } from '../../hooks/use-connect-form-settings';
 
 const testUrl = 'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true';
 

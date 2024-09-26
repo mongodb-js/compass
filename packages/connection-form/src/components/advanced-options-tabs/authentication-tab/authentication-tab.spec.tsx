@@ -8,24 +8,24 @@ import type { AuthMechanism } from 'mongodb';
 import AuthenticationTab from './authentication-tab';
 import type { ConnectionFormError } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import { ConnectionFormSettingsContext } from '../../../hooks/use-connect-form-preferences';
-import type { ConnectionFormSettings } from '../../../hooks/use-connect-form-preferences';
+import { ConnectionFormSettingsContext } from '../../../hooks/use-connect-form-settings';
+import type { ConnectionFormSettings } from '../../../hooks/use-connect-form-settings';
 
 function renderComponent({
   errors = [],
   connectionStringUrl = new ConnectionStringUrl('mongodb://localhost:27017'),
-  ConnectionFormSettings = {
+  connectionFormSettings = {
     enableOidc: true,
   },
   updateConnectionFormField,
 }: {
   connectionStringUrl?: ConnectionStringUrl;
-  ConnectionFormSettings?: Partial<ConnectionFormSettings>;
+  connectionFormSettings?: Partial<ConnectionFormSettings>;
   errors?: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
 }) {
   render(
-    <ConnectionFormSettingsContext.Provider value={ConnectionFormSettings}>
+    <ConnectionFormSettingsContext.Provider value={connectionFormSettings}>
       <AuthenticationTab
         errors={errors}
         connectionStringUrl={connectionStringUrl}
@@ -140,7 +140,7 @@ describe('AuthenticationTab Component', function () {
 
   it('should not render OIDC auth when its set to false in the preferences', function () {
     renderComponent({
-      ConnectionFormSettings: { showOIDCAuth: false },
+      connectionFormSettings: { showOIDCAuth: false },
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 
@@ -153,7 +153,7 @@ describe('AuthenticationTab Component', function () {
 
   it('should not render Kerberos auth when its set to false in the preferences', function () {
     renderComponent({
-      ConnectionFormSettings: { showKerberosAuth: false },
+      connectionFormSettings: { showKerberosAuth: false },
       updateConnectionFormField: updateConnectionFormFieldSpy,
     });
 

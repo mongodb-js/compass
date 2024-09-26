@@ -12,7 +12,7 @@ import type {
   ConnectionFormError,
   ConnectionFormWarning,
 } from '../utils/validation';
-import { useConnectionFormPreference } from '../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../hooks/use-connect-form-settings';
 
 const formActionStyles = css({
   paddingLeft: spacing[4],
@@ -54,9 +54,7 @@ export function ConnectionFormModalActions({
   onSave,
   onSaveAndConnect,
 }: ConnectionFormModalActionsProps): React.ReactElement {
-  const saveAndConnectLabel = useConnectionFormPreference(
-    'saveAndConnectLabel'
-  );
+  const saveAndConnectLabel = useConnectionFormSetting('saveAndConnectLabel');
   return (
     <div className={cx(formActionStyles)}>
       {warnings.length > 0 && (

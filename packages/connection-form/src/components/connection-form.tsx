@@ -30,11 +30,11 @@ import {
   type UpdateConnectionFormField,
 } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
-import type { ConnectionFormSettings } from '../hooks/use-connect-form-preferences';
+import type { ConnectionFormSettings } from '../hooks/use-connect-form-settings';
 import {
   ConnectionFormSettingsContext,
-  useConnectionFormPreference,
-} from '../hooks/use-connect-form-preferences';
+  useConnectionFormSetting,
+} from '../hooks/use-connect-form-settings';
 import { useConnectionColor } from '../hooks/use-connection-color';
 import FormHelp from './form-help/form-help';
 
@@ -210,9 +210,7 @@ function ConnectionPersonalizationForm({
   updateConnectionFormField,
   personalizationOptions,
 }: ConnectionPersonalizationFormProps): React.ReactElement {
-  const showFavoriteActions = useConnectionFormPreference(
-    'showFavoriteActions'
-  );
+  const showFavoriteActions = useConnectionFormSetting('showFavoriteActions');
 
   const onChangeName = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -349,12 +347,12 @@ function ConnectionForm({
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
   const protectConnectionStrings =
-    !!useConnectionFormPreference('protectConnectionStrings') &&
+    !!useConnectionFormSetting('protectConnectionStrings') &&
     !allowEditingIfProtected;
   const enableEditingConnectionString =
     _enableEditingConnectionString && !protectConnectionStrings;
 
-  const forceConnectionOptions = useConnectionFormPreference(
+  const forceConnectionOptions = useConnectionFormSetting(
     'forceConnectionOptions'
   );
   const warnings = useMemo(() => {
@@ -432,13 +430,11 @@ function ConnectionForm({
     [onSaveClicked, setErrors]
   );
 
-  const showPersonalisationForm = useConnectionFormPreference(
+  const showPersonalisationForm = useConnectionFormSetting(
     'showPersonalisationForm'
   );
 
-  const showHelpCardsInForm = useConnectionFormPreference(
-    'showHelpCardsInForm'
-  );
+  const showHelpCardsInForm = useConnectionFormSetting('showHelpCardsInForm');
 
   return (
     <ConfirmationModalArea>
