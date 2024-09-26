@@ -1,4 +1,5 @@
 # BSON-Transpilers
+
 [![npm version][1]][2] [![build status][3]][4]
 [![downloads][5]][6]
 
@@ -8,6 +9,7 @@ provided for `shell` as inputs. `java`, `c#`, `node`, `shell`, `python`, `ruby` 
 See also the original presentation: https://drive.google.com/file/d/1jvwtR3k9oBUzIjL4z_VtpHvdWahfcjTK/view
 
 **NOTES:**
+
 1. A version of the code with support for `python` with corresponding test cases has been removed to avoid bundling and supporting unused code, however it can be still be found in https://github.com/mongodb-js/compass/tree/80cf701e44cd966207f956fac69e8233861b1cd5/packages/bson-transpilers.
 2. The `shell` output is disabled as is essentially the only input in use and it produces code that is compatible only with legacy `mongo` shell not the new `mongosh` shell. See [COMPASS-4930](https://jira.mongodb.org/browse/COMPASS-4930) for some additional context.
 
@@ -19,7 +21,7 @@ const transpiler = require('bson-transpilers');
 const input = 'shell';
 const output = 'java';
 
-const string =`
+const string = `
 { item: "book", qty: Int32(10), tags: ["red", "blank"], dim_cm: [14, Int32("81")] }`;
 
 try {
@@ -34,95 +36,106 @@ try {
 ```
 
 ## API
+
 ### compiledString = transpiler\[inputLang\]\[outputLang\].compile(codeString)
+
 Output a compiled string given input and output languages.
-- __inputLang:__ Input language of the code string. `shell` and `javascript`
+
+- **inputLang:** Input language of the code string. `shell` and `javascript`
   are currently supported.
-- __outputLang:__ The language you would like the output to be. `java`,
+- **outputLang:** The language you would like the output to be. `java`,
   `python`, `shell`, `javascript`, and `csharp` are currently supported.
-- __codeString:__ The code string you would like to be compiled to your
+- **codeString:** The code string you would like to be compiled to your
   selected output language.
 
 ### importsString = transpiler\[inputLang\]\[outputLang\].getImports(mode, driverSyntax)
+
 Output a string containing the set of import statements for the generated code
 to compile. These are all the packages that the compiled code could use so that
 the transpiler output will be runnable.
-- __inputLang:__ Input language of the code string. `shell` and `javascript`
+
+- **inputLang:** Input language of the code string. `shell` and `javascript`
   are currently supported.
-- __outputLang:__ The language you would like the output to be. `java`,
+- **outputLang:** The language you would like the output to be. `java`,
   `python`, `shell`, `javascript`, and `csharp` are currently supported.
-- __mode:__ Either 'Query' for the `.find()` method or 'Pipeline' for `.aggregate()`.
-- __driverSyntax:__ Whether or not you want to include Driver Syntax into your output string.
+- **mode:** Either 'Query' for the `.find()` method or 'Pipeline' for `.aggregate()`.
+- **driverSyntax:** Whether or not you want to include Driver Syntax into your output string.
 
 ### catch (error)
+
 Any transpiler errors that occur will be thrown. To catch them, wrap the
 `transpiler` in a `try/catch` block.
-- __error.message:__ Message `bson-transpilers` will send back letting you know
-  the transpiler error.
-- __error.stack:__ The usual error stacktrace.
-- __error.code:__ [Error code]() that `bson-transpilers` adds to the error object to
-  help you distinguish error types.
-- __error.line:__ If it is a syntax error, will have the line.
-- __error.column:__ If it is a syntax error, will have the column.
-- __error.symbol:__ If it is a syntax error, will have the symbol associated with the error.
 
+- **error.message:** Message `bson-transpilers` will send back letting you know
+  the transpiler error.
+- **error.stack:** The usual error stacktrace.
+- **error.code:** [Error code]() that `bson-transpilers` adds to the error object to
+  help you distinguish error types.
+- **error.line:** If it is a syntax error, will have the line.
+- **error.column:** If it is a syntax error, will have the column.
+- **error.symbol:** If it is a syntax error, will have the symbol associated with the error.
 
 ### State
 
-The `CodeGenerationVisitor` class manages a global state which is bound to the `argsTemplate` functions.  This state is intended to be used as a solution for the `argsTemplate` functions to communicate with the `DriverTemplate` function.  For example:
+The `CodeGenerationVisitor` class manages a global state which is bound to the `argsTemplate` functions. This state is intended to be used as a solution for the `argsTemplate` functions to communicate with the `DriverTemplate` function. For example:
 
 ```yaml
-ObjectIdEqualsArgsTemplate: &ObjectIdEqualsArgsTemplate !!js/function >
-    (_) => {
-        this.oneLineStatement = "Hello World";
-        return '';
-    }
+ObjectIdEqualsArgsTemplate: !!js/function &ObjectIdEqualsArgsTemplate >
+  (_) => {
+      this.oneLineStatement = "Hello World";
+      return '';
+  }
 
-DriverTemplate: &DriverTemplate !!js/function >
-    (_spec) => {
-      return this.oneLineStatement;
-    }
+DriverTemplate: !!js/function &DriverTemplate >
+  (_spec) => {
+    return this.oneLineStatement;
+  }
 ```
 
 The output of the driver syntax for this language will be the one-line statement `Hello World`.
 
 #### DeclarationStore
-A more practical use-case of state is to accumulate variable declarations throughout the `argsTemplate` to be rendered by the `DriverTemplate`.  That is, the motivation for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using non-idiomatic solutions such as closures.
 
-The `DeclarationStore` class maintains an internal state concerning variable declarations.  For example,
+A more practical use-case of state is to accumulate variable declarations throughout the `argsTemplate` to be rendered by the `DriverTemplate`. That is, the motivation for using `DeclarationStore` is to prepend the driver syntax with variable declarations rather than using non-idiomatic solutions such as closures.
+
+The `DeclarationStore` class maintains an internal state concerning variable declarations. For example,
 
 ```javascript
 // within the args template
 (arg) => {
-  return this.declarations.add("Temp", "objectID", (varName) => {
+  return this.declarations.add('Temp', 'objectID', (varName) => {
     return [
       `${varName}, err := primitive.ObjectIDFromHex(${arg})`,
       'if err != nil {',
       '   log.Fatal(err)',
-      '}'
-    ].join('\n')
-  })
-}
+      '}',
+    ].join('\n');
+  });
+};
 ```
 
-Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectIDForTemp` is used two times the resulting declaration statements will use `objectIDForTemp` for the first declaration and `objectID2ForTemp` for the second declaration.  The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `argsTemplate` function.
+Note that each use of the same variable name will result in an increment being added to the declaration statement. For example, if the variable name `objectIDForTemp` is used two times the resulting declaration statements will use `objectIDForTemp` for the first declaration and `objectID2ForTemp` for the second declaration. The `add` method returns the incremented variable name, and is therefore what would be expected as the right-hand side of the statement defined by the `argsTemplate` function.
 
 The instance of the `DeclarationStore` constructed by the transpiler class is passed into the driver, syntax via state, for use:
 
 ```javascript
 (spec) => {
-  const comment = '// some comment'
-  const client = 'client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cs.String()))'
-  return "#{comment}\n\n#{client}\n\n${this.declarations.toString()}"
-}
+  const comment = '// some comment';
+  const client =
+    'client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cs.String()))';
+  return '#{comment}\n\n#{client}\n\n${this.declarations.toString()}';
+};
 ```
 
 ### Errors
+
 There are a few different error classes thrown by `bson-transpilers`, each with
 their own error code:
 
 #### BsonTranspilersArgumentError
+
 ###### code: E_BSONTRANSPILERS_ARGUMENT
+
 This will occur when you're using a method with a wrong number of arguments, or
 the arguments are of the wrong type.
 For example, `ObjectId().equals()` requires one argument and it will throw if
@@ -145,21 +158,25 @@ ObjectId();
 ```
 
 #### BsonTranspilersAttributeError
+
 ###### code: E_BSONTRANSPILERS_ATTRIBUTE
+
 Will be thrown if an invalid method or property is used on a BSON object. For
 example, since `new DBRef()` doesn't have a method `.foo()`, transpiler will
 throw:
 
 ```javascript
 // ✘: method foo doesn't exist, so this will throw a BsonTranspilersAttributeError .
-new DBRef('newCollection', new ObjectId()).foo()
+new DBRef('newCollection', new ObjectId()).foo();
 
 // ✔: this won't throw, since .toString() method exists
-new DBRef('newCollection', new ObjectId()).toString(10)
+new DBRef('newCollection', new ObjectId()).toString(10);
 ```
 
 #### BsonTranspilersSyntaxError
+
 ###### code: E_BSONTRANSPILERS_SYNTAX
+
 This will throw if you have a syntax error. For example missing a colon in
 Object assignment, or forgetting a comma in array definition:
 
@@ -176,57 +193,70 @@ Object assignment, or forgetting a comma in array definition:
 ```
 
 #### BsonTranspilersTypeError
+
 ###### code: E_BSONTRANSPILERS_TYPE
+
 This error will occur if a symbol is treated as the wrong type. For example, if
 a non-function is called:
 
 ```javascript
 // ✘: MAX_VALUE is a constant, not a function
-Long.MAX_VALUE()
+Long.MAX_VALUE();
 
 // ✔: MAX_VALUE without a call will not throw
-Long.MAX_VALUE
+Long.MAX_VALUE;
 ```
+
 #### BsonTranspilersUnimplementedError
+
 ###### code: E_BSONTRANSPILERS_UNIMPLEMENTED
+
 If there is a feature in the input code that is not currently supported by the
 transpiler.
 
 #### BsonTranspilersRuntimeError
+
 ###### code: E_BSONTRANSPILERS_RUNTIME
+
 A generic runtime error will be thrown for all errors that are not covered by the
 above list of errors. These are usually constructor requirements, for example
 when using a `RegExp()` an unsupported flag is given:
 
 ```javascript
 // ✘: these are not proper 'RegExp()' flags, a BsonTranspilersRuntimeError will be thrown.
-new RegExp('ab+c', 'beep')
+new RegExp('ab+c', 'beep');
 
 // ✔: 'im' are proper 'RegExp()' flags
-new RegExp('ab+c', 'im')
+new RegExp('ab+c', 'im');
 ```
 
 #### BsonTranspilersInternalError
+
 ###### code: E_BSONTRANSPILERS_INTERNAL
+
 In the case where something has gone wrong within compilation, and an error has
 occured. If you see this error, please create [an issue](https://github.com/mongodb-js/bson-transpilers/issues) on Github!
 
 # Install
+
 ```shell
 npm install -S bson-transpilers
 ```
 
 ## Contributing
+
 Head over to the readme [on contributing](./CONTRIBUTING.md) to find out more
 information on project structure and setting up your environment.
 
 # Authors
+
 - [aherlihy](https://github.com/aherlihy) - Anna Herlihy <herlihyap@gmail.com>
 - [alenakhineika](https://github.com/alenakhineika) - Alena Khineika <alena.khineika@mongodb.com>
 - [lrlna](github.com/lrlna) - Irina Shestak <shestak.irina@gmail.com>
 
 # License
-[Apache-2.0](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0))
+
+[Apache-2.0](<https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)>)
 
 [1]: https://img.shields.io/npm/v/bson-transpilers.svg?style=flat-square
 [2]: https://npmjs.org/package/bson-transpilers

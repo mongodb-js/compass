@@ -34,7 +34,7 @@ tests:
     - description: does not cast numeric
       input:
         shell:
-          code: 'TestFunc(10, 10.01, 0x6, 0o5, Number(10), Number(''10''), -10)'
+          code: "TestFunc(10, 10.01, 0x6, 0o5, Number(10), Number('10'), -10)"
           args:
             - - _numeric
             - - _numeric
@@ -48,7 +48,7 @@ tests:
     - description: does not cast Number class
       input:
         shell:
-          code: 'TestFunc(Number(10), Number(''10''), Number(10), Number(''10''))'
+          code: "TestFunc(Number(10), Number('10'), Number(10), Number('10'))"
           args:
             - - _numeric
             - - _long

@@ -1,0 +1,12 @@
+# SyntaxError: Aliased anchor not found: ...
+symbols/basic_types.yaml
+symbols/import_templates.yaml
+symbols/python/symbols.yaml
+symbols/python/types.yaml
+symbols/shell/symbols.yaml
+symbols/shell/types.yaml
+symbols/syntax_templates.yaml
+
+# Generated files
+lib/antlr/
+lib/symbol-table/

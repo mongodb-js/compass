@@ -20,7 +20,12 @@ class ErrorListener extends antlr4.error.ErrorListener {
    * @param {string} payload - Stack trace
    */
   syntaxError(recognizer, symbol, line, column, message, payload) {
-    throw new BsonTranspilersSyntaxError(message, { symbol, line, column, payload });
+    throw new BsonTranspilersSyntaxError(message, {
+      symbol,
+      line,
+      column,
+      payload,
+    });
   }
 }
 
