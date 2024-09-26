@@ -60,10 +60,11 @@ type IndexInfo = {
 };
 
 function mergedIndexPropertyValue(index: MergedIndex): string {
+  // TODO: right now only regular indexes have properties & cardinality
   if (index.compassIndexType !== 'regular-index') {
-    // TODO
     return '';
   }
+
   return index.cardinality === 'compound'
     ? 'compound'
     : index.properties?.[0] || '';
@@ -88,16 +89,19 @@ function mergedIndexFieldValue(
   field: SortableField
 ): string | number | undefined {
   if (index.compassIndexType === 'in-progress-index') {
-    if (field === 'type' || field === 'size' || field === 'usageCount') {
-      // TODO: type should be supported
-      return undefined;
+    if (field === 'type') {
+      // TODO: type should be supported by in-progress-index
+      return 'unknown';
+    }
+    if (field === 'size' || field === 'usageCount') {
+      return 0;
     }
     return (index as InProgressIndex)[field];
   }
 
   if (index.compassIndexType === 'rolling-index') {
     if (field === 'size' || field === 'usageCount') {
-      return undefined;
+      return 0;
     }
     if (field === 'name') {
       return index.indexName;
@@ -362,7 +366,7 @@ export const RegularIndexesTable: React.FunctionComponent<
 
           // eslint-disable-next-line react/display-name
           renderExpandedContent: () => (
-            // TODO: we should support badges for other rolling indexes too
+            // TODO: we should support IndexKeysBadge for rolling indexes too
             <IndexKeysBadge
               keys={
                 index.compassIndexType !== 'rolling-index' ? index.fields : []

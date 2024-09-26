@@ -32,14 +32,14 @@ const ttlTooltip = (expireAfterSeconds: string) => {
 };
 
 export const getPropertyTooltip = (
-  property?: string,
-  extra?: RegularIndex['extra']
+  property: string,
+  extra: RegularIndex['extra']
 ): string | null => {
-  if (property === 'ttl' && extra?.expireAfterSeconds !== undefined) {
+  if (property === 'ttl' && extra.expireAfterSeconds !== undefined) {
     return ttlTooltip(extra.expireAfterSeconds as unknown as string);
   }
 
-  if (property === 'partial' && extra?.partialFilterExpression !== undefined) {
+  if (property === 'partial' && extra.partialFilterExpression !== undefined) {
     return partialTooltip(extra.partialFilterExpression);
   }
 
@@ -99,16 +99,17 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
 
   return (
     <div className={containerStyles}>
-      {properties?.map((property) => {
-        return (
-          <PropertyBadgeWithTooltip
-            key={property}
-            text={property}
-            link={getIndexHelpLink(property) ?? '#'}
-            tooltip={getPropertyTooltip(property, extra)}
-          />
-        );
-      })}
+      {extra &&
+        properties?.map((property) => {
+          return (
+            <PropertyBadgeWithTooltip
+              key={property}
+              text={property}
+              link={getIndexHelpLink(property) ?? '#'}
+              tooltip={getPropertyTooltip(property, extra)}
+            />
+          );
+        })}
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}

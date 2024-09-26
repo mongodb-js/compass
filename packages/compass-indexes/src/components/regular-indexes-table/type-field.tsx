@@ -10,6 +10,7 @@ export const canRenderTooltip = (type: string) => {
 };
 
 type TypeFieldProps = {
+  // TODO: we can remove unknown once we support type on in-progress indexes
   type: RegularIndex['type'] | 'unknown';
   extra?: RegularIndex['extra'];
 };
