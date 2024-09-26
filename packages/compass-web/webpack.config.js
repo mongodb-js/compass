@@ -180,6 +180,14 @@ module.exports = async (env, args) => {
           tls: localPolyfill('tls'),
         },
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          // Matches the electron-proxy.js default value
+          'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
+            process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
+          ),
+        }),
+      ],
     });
   }
 

@@ -281,9 +281,13 @@ class AtlasCloudConnectionStorage
     });
   }
 
-  loadAll(): Promise<ConnectionInfo[]> {
-    return (this.loadAllPromise ??=
-      this._loadAndNormalizeClusterDescriptionInfo());
+  async loadAll(): Promise<ConnectionInfo[]> {
+    try {
+      return (this.loadAllPromise ??=
+        this._loadAndNormalizeClusterDescriptionInfo());
+    } finally {
+      delete this.loadAllPromise;
+    }
   }
 }
 

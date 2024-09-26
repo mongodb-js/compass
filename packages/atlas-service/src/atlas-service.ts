@@ -107,7 +107,11 @@ export class AtlasService {
   automationAgentFetch<OpType extends keyof AutomationAgentRequestTypes>(
     atlasMetadata: Pick<
       AtlasClusterMetadata,
-      'projectId' | 'clusterUniqueId' | 'regionalBaseUrl' | 'metricsType'
+      | 'projectId'
+      | 'clusterUniqueId'
+      | 'regionalBaseUrl'
+      | 'metricsType'
+      | 'metricsId'
     >,
     opType: OpType,
     opBody: Omit<
@@ -118,7 +122,7 @@ export class AtlasService {
     const opBodyClusterId =
       atlasMetadata.metricsType === 'serverless'
         ? { serverlessId: atlasMetadata.clusterUniqueId }
-        : { clusterId: atlasMetadata.clusterUniqueId };
+        : { clusterId: atlasMetadata.metricsId };
     return makeAutomationAgentOpRequest(
       this.authenticatedFetch.bind(this),
       this.regionalizedCloudEndpoint(atlasMetadata),
