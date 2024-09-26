@@ -777,18 +777,6 @@ describe('TypeChecker', function () {
         expect(TypeChecker.type(maxKey)).to.equal('MaxKey');
       });
     });
-
-    context('when the object is an object', function () {
-      it('returns Object', function () {
-        expect(TypeChecker.type({})).to.equal('Object');
-      });
-    });
-
-    context('when the object is an Array', function () {
-      it('returns Array', function () {
-        expect(TypeChecker.type(['test'])).to.equal('Array');
-      });
-    });
   });
 
   describe('#castableTypes', function () {

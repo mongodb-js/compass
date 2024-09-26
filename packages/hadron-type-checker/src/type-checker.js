@@ -24,7 +24,6 @@ const {
   Code,
   BSONSymbol,
   Timestamp,
-  Map,
 } = require('bson');
 /**
  * The object string.

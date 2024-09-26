@@ -5,26 +5,34 @@ const kSBENodes = Symbol('kSBENodes');
 function mapPlanTree(stage, mapper, currentParent = null) {
   const result = mapper(stage, currentParent);
   const target = result || {};
-  if (stage.inputStage)
+  if (stage.inputStage) {
     target.inputStage = mapPlanTree(stage.inputStage, mapper, stage);
-  if (stage.innerStage)
+  }
+  if (stage.innerStage) {
     target.innerStage = mapPlanTree(stage.innerStage, mapper, stage);
-  if (stage.outerStage)
+  }
+  if (stage.outerStage) {
     target.outerStage = mapPlanTree(stage.outerStage, mapper, stage);
-  if (stage.thenStage)
+  }
+  if (stage.thenStage) {
     target.thenStage = mapPlanTree(stage.thenStage, mapper, stage);
-  if (stage.elseStage)
+  }
+  if (stage.elseStage) {
     target.elseStage = mapPlanTree(stage.elseStage, mapper, stage);
-  if (stage.inputStages)
+  }
+  if (stage.inputStages) {
     target.inputStages = stage.inputStages.map((s) =>
       mapPlanTree(s, mapper, stage)
     );
-  if (stage.shards)
+  }
+  if (stage.shards) {
     target.shards = stage.shards.map((s) => mapPlanTree(s, stage));
-  if (stage.executionStages)
+  }
+  if (stage.executionStages) {
     target.executionStages = stage.executionStages.map((s) =>
       mapPlanTree(s, mapper, stage)
     );
+  }
   return result;
 }
 
