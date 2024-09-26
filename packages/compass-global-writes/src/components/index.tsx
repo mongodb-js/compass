@@ -40,7 +40,7 @@ function getStateViewBasedOnShardingStatus(shardingStatus: ShardingStatus) {
     case ShardingStatuses.NOT_READY:
       return (
         <div className={centeredContent}>
-          <SpinLoaderWithLabel progressText="Loading ..." />
+          <SpinLoaderWithLabel progressText="Loading …" />
         </div>
       );
     case ShardingStatuses.UNSHARDED:

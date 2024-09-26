@@ -21,13 +21,13 @@ export function ShardingState() {
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Info}>
-        <strong>Sharding your collection ...</strong>
+        <strong>Sharding your collection …</strong>
         {nbsp}this should not take too long.
       </Banner>
       <Body>
         Once your collection is sharded, this tab will show instructions on
-        document &apos;location&apos; field formatting, and provide some common
-        command examples.
+        document ‘location’ field formatting, and provide some common command
+        examples.
       </Body>
       <Link
         href="https://www.mongodb.com/docs/atlas/global-clusters/"

@@ -72,13 +72,13 @@ function CreateShardKeyDescription() {
       <Subtitle>Configure compound shard key</Subtitle>
       <Body>
         To properly configure Global Writes, your collections must be sharded
-        using a compound shard key made up of a &apos;location&apos; field and a
-        second field of your choosing.
+        using a compound shard key made up of a ‘location’ field and a second
+        field of your choosing.
       </Body>
 
       <Body>
-        All documents in your collection should contain both the
-        &apos;location&apos; field and your chosen second field.
+        All documents in your collection should contain both the ‘location’
+        field and your chosen second field.
       </Body>
 
       <ul className={listStyles}>
@@ -315,7 +315,7 @@ export function UnshardedState(props: UnshardedStateProps) {
       <Banner variant={BannerVariant.Warning}>
         <strong>
           To use Global Writes, this collection must be configured with a
-          compound shard key made up of both a &apos;location&apos; field and an
+          compound shard key made up of both a ‘location’ field and an
           identifier field that you should provide.
         </strong>
         {nbsp}See the instructions below for details.
