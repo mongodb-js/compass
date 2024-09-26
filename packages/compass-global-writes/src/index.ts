@@ -28,6 +28,6 @@ const CompassGlobalWritesHadronPlugin = registerHadronPlugin(
 export const CompassGlobalWritesPlugin = {
   name: 'GlobalWrites' as const,
   provider: CompassGlobalWritesHadronPlugin,
-  content: GlobalWrites as React.ComponentType,
-  header: GlobalWritesTabTitle as React.ComponentType,
+  content: GlobalWrites as React.FunctionComponent,
+  header: GlobalWritesTabTitle as React.FunctionComponent,
 };
