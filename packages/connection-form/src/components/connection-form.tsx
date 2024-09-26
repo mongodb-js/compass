@@ -552,26 +552,45 @@ const ConnectionFormWithSettings: React.FunctionComponent<
   saveAndConnectLabel,
   ...rest
 }) => {
+  const value = useMemo(
+    () => ({
+      showFavoriteActions,
+      showHelpCardsInForm,
+      showPersonalisationForm,
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+      showOIDCAuth,
+      showKerberosAuth,
+      showCSFLE,
+      showProxySettings,
+      saveAndConnectLabel,
+    }),
+    [
+      showFavoriteActions,
+      showHelpCardsInForm,
+      showPersonalisationForm,
+      protectConnectionStrings,
+      forceConnectionOptions,
+      showKerberosPasswordField,
+      showOIDCDeviceAuthFlow,
+      enableOidc,
+      enableDebugUseCsfleSchemaMap,
+      protectConnectionStringsForNewConnections,
+      showOIDCAuth,
+      showKerberosAuth,
+      showCSFLE,
+      showProxySettings,
+      saveAndConnectLabel,
+    ]
+  );
+
   return (
-    <ConnectionFormSettingsContext.Provider
-      value={{
-        showFavoriteActions,
-        showHelpCardsInForm,
-        showPersonalisationForm,
-        protectConnectionStrings,
-        forceConnectionOptions,
-        showKerberosPasswordField,
-        showOIDCDeviceAuthFlow,
-        enableOidc,
-        enableDebugUseCsfleSchemaMap,
-        protectConnectionStringsForNewConnections,
-        showOIDCAuth,
-        showKerberosAuth,
-        showCSFLE,
-        showProxySettings,
-        saveAndConnectLabel,
-      }}
-    >
+    <ConnectionFormSettingsContext.Provider value={value}>
       <ConnectionForm {...rest} />
     </ConnectionFormSettingsContext.Provider>
   );
