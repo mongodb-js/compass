@@ -62,7 +62,7 @@ describe('GlobalWritesStore Store', function () {
         presplitHashedZones: true,
       };
 
-      it('sets loading state when starting to create shard key and clears it out on success', async function () {
+      it('sets SUBMITTING_FOR_SHARDING state when starting to create shard key and sets to SHARDING on success', async function () {
         const store = createStore({
           authenticatedFetch: () =>
             createJsonResponse({
@@ -71,28 +71,22 @@ describe('GlobalWritesStore Store', function () {
         });
 
         const promise = store.dispatch(createShardKey(shardKeyData));
-        expect(store.getState().createShardkey.isLoading).to.equal(true);
-        expect(store.getState().status).to.equal('NOT_READY');
+        expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
 
         await promise;
-
-        expect(store.getState().createShardkey.isLoading).to.equal(false);
         expect(store.getState().status).to.equal('SHARDING');
       });
 
-      it('sets loading state when starting to create shard key and clears it out on failure', async function () {
+      it('sets SUBMITTING_FOR_SHARDING state when starting to create shard key and sets to UNSHARDED on failure', async function () {
         const store = createStore({
           authenticatedFetch: () => Promise.reject(new Error('error')),
         });
 
         const promise = store.dispatch(createShardKey(shardKeyData));
-        expect(store.getState().createShardkey.isLoading).to.equal(true);
-        expect(store.getState().status).to.equal('NOT_READY');
+        expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
 
         await promise;
-
-        expect(store.getState().createShardkey.isLoading).to.equal(false);
-        expect(store.getState().status).to.equal('NOT_READY');
+        expect(store.getState().status).to.equal('UNSHARDED');
       });
 
       it('sends correct data to the server when creating a shard key', async function () {

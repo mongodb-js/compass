@@ -10,12 +10,27 @@ function renderWithProps(
 ) {
   return renderWithStore(
     <UnshardedState
-      isLoading={false}
+      isSubmittingForSharding={false}
       namespace="airbnb.test"
       onCreateShardKey={() => {}}
       {...props}
     />
   );
+}
+
+function setShardingKeyFieldValue(value: string) {
+  const input = screen.getByLabelText('Second shard key field');
+  expect(input).to.exist;
+  userEvent.type(input, value);
+  expect(input).to.have.value(value);
+  userEvent.keyboard('{Escape}');
+
+  // For some reason, when running tests in electron mode, the value of
+  // the input field is not being updated. This is a workaround to ensure
+  // the value is being updated before clicking the submit button.
+  userEvent.click(screen.getByText(value), undefined, {
+    skipPointerEventsCheck: true,
+  });
 }
 
 describe('UnshardedState', function () {
@@ -54,14 +69,7 @@ describe('UnshardedState', function () {
     });
 
     it('allows user to input second shard key and submit it', function () {
-      const input = screen.getByLabelText('Second shard key field');
-
-      expect(input).to.exist;
-      userEvent.type(input, 'name');
-      expect(input).to.have.value('name');
-
-      // Hide the combo box
-      userEvent.keyboard('{Escape}');
+      setShardingKeyFieldValue('name');
 
       userEvent.click(screen.getByTestId('shard-collection-button'));
 
@@ -105,10 +113,7 @@ describe('UnshardedState', function () {
 
       expect(uniqueIndexRadio).to.have.attribute('aria-checked', 'true');
 
-      // Enter second shard key and validate submit
-      const input = screen.getByLabelText('Second shard key field');
-      userEvent.type(input, 'name');
-      userEvent.keyboard('{Escape}');
+      setShardingKeyFieldValue('name');
 
       userEvent.click(screen.getByTestId('shard-collection-button'));
 
@@ -133,10 +138,7 @@ describe('UnshardedState', function () {
 
       expect(hashedIndexRadio).to.have.attribute('aria-checked', 'true');
 
-      // Enter second shard key and validate submit
-      const input = screen.getByLabelText('Second shard key field');
-      userEvent.type(input, 'name');
-      userEvent.keyboard('{Escape}');
+      setShardingKeyFieldValue('name');
 
       // Check pre-split data
       userEvent.click(screen.getByTestId('presplit-data-checkbox'), undefined, {
@@ -166,10 +168,7 @@ describe('UnshardedState', function () {
 
       expect(hashedIndexRadio).to.have.attribute('aria-checked', 'true');
 
-      // Enter second shard key and validate submit
-      const input = screen.getByLabelText('Second shard key field');
-      userEvent.type(input, 'name');
-      userEvent.keyboard('{Escape}');
+      setShardingKeyFieldValue('name');
 
       // Check pre-split data
       userEvent.click(screen.getByTestId('presplit-data-checkbox'), undefined, {
