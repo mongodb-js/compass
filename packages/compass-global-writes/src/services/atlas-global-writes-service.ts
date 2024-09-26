@@ -101,6 +101,9 @@ export class AtlasGlobalWritesService {
     await this.atlasService.authenticatedFetch(uri, {
       method: 'PATCH',
       body: JSON.stringify(requestData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   }
 }
