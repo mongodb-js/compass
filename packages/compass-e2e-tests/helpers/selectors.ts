@@ -1088,6 +1088,7 @@ export const indexComponent = (name: string): string => {
 };
 export const IndexFieldName = '[data-testid="indexes-name-field"]';
 export const IndexFieldType = '[data-testid="indexes-type-field"]';
+export const IndexPropertyInProgress = '[data-testid="index-in-progress"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const indexToggleOption = (fieldName: string) => {

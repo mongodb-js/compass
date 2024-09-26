@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Tue, Sep 24, 2024 at 03:03 PM
+Generated on Thu, Sep 26, 2024 at 07:51 AM
 
 ## Table of Contents
 
@@ -299,6 +299,8 @@ This event is fired when user runs the aggregation.
 the even has been fired.
 - **editor_view_type** (required): `"stage" | "text" | "focus"`
   - The type of editor view from which the aggregation has been executed.
+- **stage_operators** (required): `{}`
+  - The names of the stages in the pipeline being executed.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
@@ -1642,7 +1644,7 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | undefined`
+- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | undefined`
   - The name of the screen that was activated.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.

@@ -108,5 +108,11 @@ export async function createIndex(
   const indexComponent = await browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
+  // Wait for index to get ready before proceeding
+  await browser
+    .$(indexComponentSelector)
+    .$(Selectors.IndexPropertyInProgress)
+    .waitForDisplayed({ reverse: true });
+
   return indexName;
 }

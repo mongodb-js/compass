@@ -1,10 +1,9 @@
 import { expect } from 'chai';
-import sinon from 'sinon';
 
 import { setupStore } from '../../test/setup-store';
 
 import {
-  createIndex,
+  createIndexFormSubmitted,
   updateFieldName,
   fieldAdded,
   fieldRemoved,
@@ -14,7 +13,6 @@ import {
   createIndexOpened,
   createIndexClosed,
   errorCleared,
-  INITIAL_STATE,
 } from './create-index';
 import type { IndexesStore } from '../stores/store';
 
@@ -24,13 +22,13 @@ describe('create-index module', function () {
     store = setupStore();
   });
 
-  describe('#createIndex', function () {
+  describe('#createIndexFormSubmitted', function () {
     beforeEach(function () {
       store.dispatch(updateFieldName(0, 'foo'));
       store.dispatch(fieldTypeUpdated(0, 'text'));
     });
 
-    it('validates field name & type', async function () {
+    it('validates field name & type', function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -42,14 +40,14 @@ describe('create-index module', function () {
           ],
         },
       });
-      await store.dispatch(createIndex());
+      store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'You must select a field name and type'
       );
     });
 
-    it('validates collation', async function () {
+    it('validates collation', function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -63,14 +61,14 @@ describe('create-index module', function () {
           },
         },
       });
-      await store.dispatch(createIndex());
+      store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'You must provide a valid collation object'
       );
     });
 
-    it('validates TTL', async function () {
+    it('validates TTL', function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -84,14 +82,14 @@ describe('create-index module', function () {
           },
         },
       });
-      await store.dispatch(createIndex());
+      store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'Bad TTL: "not a ttl"'
       );
     });
 
-    it('validates wildcard projection', async function () {
+    it('validates wildcard projection', function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -105,14 +103,14 @@ describe('create-index module', function () {
           },
         },
       });
-      await store.dispatch(createIndex());
+      store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'Bad WildcardProjection: SyntaxError: Unexpected token \'o\', "not a wildc"... is not valid JSON'
       );
     });
 
-    it('validates columnstore projection', async function () {
+    it('validates columnstore projection', function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -126,14 +124,14 @@ describe('create-index module', function () {
           },
         },
       });
-      await store.dispatch(createIndex());
+      store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'Bad ColumnstoreProjection: SyntaxError: Unexpected token \'o\', "not a colum"... is not valid JSON'
       );
     });
 
-    it('validates partial filter expression', async function () {
+    it('validates partial filter expression', function () {
       Object.assign(store.getState(), {
         createIndex: {
           ...store.getState().createIndex,
@@ -147,123 +145,11 @@ describe('create-index module', function () {
           },
         },
       });
-      await store.dispatch(createIndex());
+      store.dispatch(createIndexFormSubmitted());
 
       expect(store.getState().createIndex.error).to.equal(
         'Bad PartialFilterExpression: SyntaxError: Unexpected end of JSON input'
       );
-    });
-
-    it('succeeds if dataService.createIndex() resolves', async function () {
-      let stateBeforeCreateIndex;
-
-      const createIndexStub = sinon
-        .stub()
-        .callsFake(async (): Promise<string> => {
-          // store it so we can assert on the in-between state
-          stateBeforeCreateIndex = { ...store.getState().createIndex };
-          return Promise.resolve('ok');
-        });
-
-      store = setupStore(
-        {},
-        {
-          createIndex: createIndexStub,
-        }
-      );
-
-      store.dispatch(updateFieldName(0, 'foo'));
-      store.dispatch(fieldTypeUpdated(0, '1 (asc)'));
-
-      store.dispatch(optionToggled('unique', true));
-      store.dispatch(optionToggled('name', true));
-      store.dispatch(optionChanged('name', 'my-index'));
-      store.dispatch(optionToggled('expireAfterSeconds', true));
-      store.dispatch(optionChanged('expireAfterSeconds', '60'));
-      store.dispatch(optionToggled('partialFilterExpression', true));
-      store.dispatch(
-        optionChanged('partialFilterExpression', '{ "rating": { "$gt": 5 } }')
-      );
-
-      await store.dispatch(createIndex());
-
-      // make sure it got to insert
-      expect(createIndexStub.callCount).to.equal(1);
-
-      // it should have set it to be in progress before calling dataService.createIndex
-      expect(stateBeforeCreateIndex).to.deep.equal({
-        inProgress: true,
-        isVisible: false,
-        error: null,
-        fields: [{ name: 'foo', type: '1 (asc)' }],
-        options: {
-          unique: { value: false, enabled: true },
-          name: { value: 'my-index', enabled: true },
-          expireAfterSeconds: { value: '60', enabled: true },
-          partialFilterExpression: {
-            value: '{ "rating": { "$gt": 5 } }',
-            enabled: true,
-          },
-          wildcardProjection: { value: '', enabled: false },
-          collation: { value: '', enabled: false },
-          columnstoreProjection: { value: '', enabled: false },
-          sparse: { value: false, enabled: false },
-        },
-      });
-
-      const [ns, spec, options] = createIndexStub.args[0];
-      expect(ns).to.equal('citibike.trips');
-      expect(spec).to.deep.equal({ foo: 1 });
-      expect(options).to.deep.equal({
-        expireAfterSeconds: 60,
-        name: 'my-index',
-        partialFilterExpression: {
-          rating: {
-            $gt: 5,
-          },
-        },
-      });
-
-      expect(store.getState().createIndex).to.deep.equal(INITIAL_STATE);
-    });
-
-    it('fails if dataService.createIndex() rejects', async function () {
-      const createIndexStub = sinon
-        .stub()
-        .rejects(new Error('This is an error'));
-
-      store = setupStore(
-        {},
-        {
-          createIndex: createIndexStub,
-        }
-      );
-
-      store.dispatch(updateFieldName(0, 'foo'));
-      store.dispatch(fieldTypeUpdated(0, 'text'));
-
-      await store.dispatch(createIndex());
-
-      // make sure it got to insert
-      expect(createIndexStub.callCount).to.equal(1);
-
-      // state should be there with an error, not inProgress anymore
-      expect(store.getState().createIndex).to.deep.equal({
-        inProgress: false,
-        isVisible: false,
-        error: 'This is an error',
-        fields: [{ name: 'foo', type: 'text' }],
-        options: {
-          unique: { value: false, enabled: false },
-          name: { value: '', enabled: false },
-          expireAfterSeconds: { value: '', enabled: false },
-          partialFilterExpression: { value: '', enabled: false },
-          wildcardProjection: { value: '', enabled: false },
-          collation: { value: '', enabled: false },
-          columnstoreProjection: { value: '', enabled: false },
-          sparse: { value: false, enabled: false },
-        },
-      });
     });
   });
 
