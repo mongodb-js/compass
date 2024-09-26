@@ -4,7 +4,6 @@ import {
   css,
   spacing,
   WorkspaceContainer,
-  Body,
   SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import type { RootState, ShardingStatus } from '../store/reducer';

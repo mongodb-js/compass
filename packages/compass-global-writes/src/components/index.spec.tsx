@@ -7,7 +7,7 @@ import { renderWithStore } from './../../tests/create-store';
 describe('Compass GlobalWrites Plugin', function () {
   it('renders plugin in NOT_READY state', function () {
     renderWithStore(<GlobalWrites shardingStatus={'NOT_READY'} />);
-    expect(screen.getByText('Loading ...')).to.exist;
+    expect(screen.getByText(/loading/i)).to.exist;
   });
 
   it('renders plugin in UNSHARDED state', function () {
