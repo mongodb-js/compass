@@ -29,13 +29,13 @@ import {
 import type {
   RegularIndex,
   InProgressIndex,
+  RollingIndex,
 } from '../../modules/regular-indexes';
-import type { AtlasIndexStats } from '@mongodb-js/atlas-service/provider';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
-  rollingIndexes: AtlasIndexStats[];
+  rollingIndexes: RollingIndex[];
   serverVersion: string;
   isWritable?: boolean;
   onHideIndexClick: (name: string) => void;
@@ -50,20 +50,28 @@ type RegularIndexesTableProps = {
 type IndexInfo = {
   id: string;
   name: string;
-  indexInfo: RegularIndex;
+  indexInfo: MergedIndex;
   type: React.ReactNode;
   size: React.ReactNode;
-  usage: React.ReactNode;
+  usageCount: React.ReactNode;
   properties: React.ReactNode;
   actions: undefined | React.ReactNode;
   renderExpandedContent: React.ReactNode;
 };
 
-function sortByProperties(a: RegularIndex, b: RegularIndex) {
-  const aValue =
-    a.cardinality === 'compound' ? 'compound' : a.properties?.[0] || '';
-  const bValue =
-    b.cardinality === 'compound' ? 'compound' : b.properties?.[0] || '';
+function mergedIndexPropertyValue(index: MergedIndex): string {
+  if (index.compassIndexType !== 'regular-index') {
+    // TODO
+    return '';
+  }
+  return index.cardinality === 'compound'
+    ? 'compound'
+    : index.properties?.[0] || '';
+}
+
+function sortByProperties(a: MergedIndex, b: MergedIndex) {
+  const aValue = mergedIndexPropertyValue(a);
+  const bValue = mergedIndexPropertyValue(b);
   if (aValue > bValue) {
     return -1;
   }
@@ -73,11 +81,44 @@ function sortByProperties(a: RegularIndex, b: RegularIndex) {
   return 0;
 }
 
+type SortableField = 'name' | 'type' | 'size' | 'usageCount';
+
+function mergedIndexFieldValue(
+  index: MergedIndex,
+  field: SortableField
+): string | number | undefined {
+  if (index.compassIndexType === 'in-progress-index') {
+    if (field === 'type' || field === 'size' || field === 'usageCount') {
+      // TODO: type should be supported
+      return undefined;
+    }
+    return (index as InProgressIndex)[field];
+  }
+
+  if (index.compassIndexType === 'rolling-index') {
+    if (field === 'size' || field === 'usageCount') {
+      return undefined;
+    }
+    if (field === 'name') {
+      return index.indexName;
+    }
+    if (field === 'type') {
+      return index.indexType.label;
+    }
+  }
+
+  return (index as RegularIndex)[field];
+}
+
 function sortFn(
   rowA: LeafyGreenTableRow<IndexInfo>,
   rowB: LeafyGreenTableRow<IndexInfo>,
   field: string
 ) {
+  if (!['name', 'type', 'size', 'usageCount', 'properties'].includes(field)) {
+    return 0;
+  }
+
   if (field === 'properties') {
     const propSort = sortByProperties(
       rowA.original.indexInfo,
@@ -86,12 +127,14 @@ function sortFn(
     return propSort;
   }
 
-  if (field === 'usage') {
-    field = 'usageCount';
-  }
+  const prop = field as unknown as SortableField;
 
-  const fieldA = rowA.original.indexInfo[field as keyof RegularIndex]!;
-  const fieldB = rowB.original.indexInfo[field as keyof RegularIndex]!;
+  const fieldA = mergedIndexFieldValue(rowA.original.indexInfo, prop);
+  const fieldB = mergedIndexFieldValue(rowB.original.indexInfo, prop);
+
+  if (fieldA === undefined || fieldB === undefined) {
+    return 0;
+  }
 
   if (fieldA > fieldB) return -1;
   if (fieldB > fieldA) return 1;
@@ -119,7 +162,7 @@ const COLUMNS: LGColumnDef<IndexInfo>[] = [
     sortingFn: sortFn,
   },
   {
-    accessorKey: 'usage',
+    accessorKey: 'usageCount',
     header: 'Usage',
     cell: (info) => info.getValue(),
     sortingFn: sortFn,
@@ -146,12 +189,104 @@ const COLUMNS_WITH_ACTIONS: LGColumnDef<IndexInfo>[] = [
   },
 ];
 
+// compassIndexType because type is taken by RegularIndex. indexType is taken by AtlasIndexStats.
+type MappedRegularIndex = RegularIndex & { compassIndexType: 'regular-index' };
+type MappedInProgressIndex = InProgressIndex & {
+  compassIndexType: 'in-progress-index';
+};
+type MappedRollingIndex = RollingIndex & { compassIndexType: 'rolling-index' };
+
+type MergedIndex =
+  | MappedRegularIndex
+  | MappedInProgressIndex
+  | MappedRollingIndex;
+
+function mergeIndexes(
+  indexes: RegularIndex[],
+  inProgressIndexes: InProgressIndex[],
+  rollingIndexes: RollingIndex[]
+): MergedIndex[] {
+  const mappedIndexes: MappedRegularIndex[] = indexes.map((index) => {
+    return { ...index, compassIndexType: 'regular-index' };
+  });
+
+  const mappedInProgressIndexes: MappedInProgressIndex[] =
+    inProgressIndexes.map((index) => {
+      return { ...index, compassIndexType: 'in-progress-index' };
+    });
+
+  const mappedRollingIndexes: MappedRollingIndex[] = rollingIndexes.map(
+    (index) => {
+      return { ...index, compassIndexType: 'rolling-index' };
+    }
+  );
+
+  return [
+    ...mappedIndexes,
+    ...mappedInProgressIndexes,
+    ...mappedRollingIndexes,
+  ];
+}
+
+type CommonIndexInfo = Omit<IndexInfo, 'actions' | 'renderExpandedContent'>;
+
+function getInProgressIndexInfo(index: MappedInProgressIndex): CommonIndexInfo {
+  return {
+    id: index.id,
+    name: index.name,
+    indexInfo: index,
+    type: undefined, // TODO
+    size: <SizeField size={0} relativeSize={0} />,
+    usageCount: <UsageField usage={undefined} since={undefined} />,
+    properties: (
+      <PropertyField cardinality={undefined} extra={{}} properties={[]} />
+    ),
+  };
+}
+
+function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
+  return {
+    id: `rollingIndex-${index.indexName}`,
+    name: index.indexName,
+    indexInfo: index,
+    type: index.indexType.label,
+    size: <SizeField size={0} relativeSize={0} />,
+    usageCount: <UsageField usage={undefined} since={undefined} />,
+    // TODO
+    properties: (
+      <PropertyField cardinality={undefined} extra={{}} properties={[]} />
+    ),
+  };
+}
+
+function getRegularIndexInfo(index: MappedRegularIndex): CommonIndexInfo {
+  return {
+    id: index.name,
+    name: index.name,
+    indexInfo: index,
+    type: <TypeField type={index.type} extra={index.extra} />,
+    size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
+    usageCount: (
+      <UsageField usage={index.usageCount} since={index.usageSince} />
+    ),
+    properties: (
+      <PropertyField
+        cardinality={index.cardinality}
+        extra={index.extra}
+        properties={index.properties}
+      />
+    ),
+  };
+}
+
 export const RegularIndexesTable: React.FunctionComponent<
   RegularIndexesTableProps
 > = ({
   isWritable,
   readOnly,
   indexes,
+  inProgressIndexes,
+  rollingIndexes,
   serverVersion,
   onHideIndexClick,
   onUnhideIndexClick,
@@ -169,26 +304,40 @@ export const RegularIndexesTable: React.FunctionComponent<
     };
   }, [tabId, onRegularIndexesOpened, onRegularIndexesClosed]);
 
+  const allIndexes: MergedIndex[] = mergeIndexes(
+    indexes,
+    inProgressIndexes,
+    rollingIndexes
+  );
+
   const data = useMemo<LGTableDataType<IndexInfo>[]>(
     () =>
-      indexes.map((index) => ({
-        id: index.name,
-        name: index.name,
-        indexInfo: index,
-        type: <TypeField type={index.type} extra={index.extra} />,
-        size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
-        usage: <UsageField usage={index.usageCount} since={index.usageSince} />,
-        properties: (
-          <PropertyField
-            cardinality={index.cardinality}
-            extra={index.extra}
-            properties={index.properties}
-          />
-        ),
-        actions: index.name !== '_id_' &&
-          index.extra.status !== 'inprogress' && (
+      allIndexes.map((index) => {
+        let indexData: CommonIndexInfo;
+        if (index.compassIndexType === 'in-progress-index') {
+          indexData = getInProgressIndexInfo(index);
+        } else if (index.compassIndexType === 'rolling-index') {
+          indexData = getRollingIndexInfo(index);
+        } else {
+          indexData = getRegularIndexInfo(index);
+        }
+
+        const indexActionsIndex = {
+          name:
+            index.compassIndexType === 'rolling-index'
+              ? index.indexName
+              : index.name,
+          extra:
+            index.compassIndexType === 'regular-index'
+              ? index.extra
+              : undefined,
+        };
+
+        return {
+          ...indexData,
+          actions: indexData.name !== '_id_' && (
             <IndexActions
-              index={index}
+              index={indexActionsIndex}
               serverVersion={serverVersion}
               onDeleteIndexClick={onDeleteIndexClick}
               onHideIndexClick={onHideIndexClick}
@@ -196,16 +345,20 @@ export const RegularIndexesTable: React.FunctionComponent<
             ></IndexActions>
           ),
 
-        // eslint-disable-next-line react/display-name
-        renderExpandedContent: () => (
-          <IndexKeysBadge
-            keys={index.fields}
-            data-testid={`indexes-details-${index.name}`}
-          />
-        ),
-      })),
+          // eslint-disable-next-line react/display-name
+          renderExpandedContent: () => (
+            // TODO: we should support badges for other index types
+            <IndexKeysBadge
+              keys={
+                index.compassIndexType === 'regular-index' ? index.fields : []
+              }
+              data-testid={`indexes-details-${indexData.name}`}
+            />
+          ),
+        };
+      }),
     [
-      indexes,
+      allIndexes,
       onDeleteIndexClick,
       onHideIndexClick,
       onUnhideIndexClick,
@@ -240,7 +393,7 @@ const mapState = ({
   serverVersion,
   indexes: regularIndexes.indexes,
   inProgressIndexes: regularIndexes.inProgressIndexes,
-  rollingIndexes: regularIndexes.rollingIndexes,
+  rollingIndexes: regularIndexes.rollingIndexes ?? [],
   error: regularIndexes.error,
 });
 

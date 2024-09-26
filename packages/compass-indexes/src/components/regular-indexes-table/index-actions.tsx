@@ -2,10 +2,16 @@ import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
-import type { RegularIndex } from '../../modules/regular-indexes';
+
+type IndexActionsIndex = {
+  name: string;
+  extra?: {
+    hidden?: boolean;
+  };
+};
 
 type IndexActionsProps = {
-  index: RegularIndex;
+  index: IndexActionsIndex;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
