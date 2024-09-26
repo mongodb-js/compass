@@ -81,12 +81,12 @@ variables:
 
 # This is here with the variables because anchors aren't supported across includes
 post:
-  - command: shell.exec
+  - command: archive.targz_pack
     params:
-      working_dir: src
-      shell: bash
-      script: |
-        tar czf all-e2e-logs.tgz packages/compass-e2e-tests/.log
+      target: src/all-e2e-logs.tgz
+      source_dir: src/packages/compass-e2e-tests/.log
+      include:
+        - "**"
   - command: s3.put
     params:
       <<: *save-artifact-params-private
