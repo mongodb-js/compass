@@ -1,6 +1,4 @@
 {
-  "extends": ["semistandard"],
-  "rules": {
-    "space-before-function-paren": 0
-  }
+  "root": true,
+  "extends": ["@mongodb-js/eslint-config-compass"]
 }
