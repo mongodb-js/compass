@@ -109,7 +109,9 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
         />
       )}
       {extra.status === 'inprogress' && (
-        <Badge variant={BadgeVariant.Blue}>In Progress ...</Badge>
+        <Badge data-testid="index-in-progress" variant={BadgeVariant.Blue}>
+          In Progress ...
+        </Badge>
       )}
       {extra.status === 'failed' && (
         <ErrorBadgeWithTooltip

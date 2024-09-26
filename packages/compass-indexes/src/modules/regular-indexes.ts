@@ -11,18 +11,14 @@ import type { FetchStatus } from '../utils/fetch-status';
 import { FetchReasons } from '../utils/fetch-reason';
 import type { FetchReason } from '../utils/fetch-reason';
 import { isAction } from '../utils/is-action';
-import { ActionTypes as CreateIndexActionTypes } from './create-index';
-import type {
-  CreateIndexSpec,
-  IndexCreationStartedAction,
-  IndexCreationSucceededAction,
-  IndexCreationFailedAction,
-} from './create-index';
+import type { CreateIndexSpec } from './create-index';
 import type { IndexesThunkAction, RootState } from '.';
 import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
+import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
+import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 
 export type RegularIndex = Omit<
   IndexDefinition,
@@ -45,6 +41,44 @@ export type InProgressIndex = {
   };
 };
 
+const prepareInProgressIndex = (
+  id: string,
+  {
+    ns,
+    name,
+    spec,
+  }: {
+    ns: string;
+    name?: string;
+    spec: CreateIndexSpec;
+  }
+): InProgressIndex => {
+  const inProgressIndexFields = Object.keys(spec).map((field: string) => ({
+    field,
+    value: spec[field],
+  }));
+  const inProgressIndexName =
+    name ||
+    Object.keys(spec).reduce((previousValue, currentValue) => {
+      return `${
+        previousValue === '' ? '' : `${previousValue}_`
+      }${currentValue}_${spec[currentValue]}`;
+    }, '');
+  return {
+    id,
+    extra: {
+      status: 'inprogress',
+    },
+    key: spec,
+    fields: inProgressIndexFields,
+    name: inProgressIndexName,
+    ns,
+    size: 0,
+    relativeSize: 0,
+    usageCount: 0,
+  };
+};
+
 export enum ActionTypes {
   IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
   IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',
@@ -53,10 +87,14 @@ export enum ActionTypes {
   FetchIndexesSucceeded = 'compass-indexes/regular-indexes/fetch-indexes-succeeded',
   FetchIndexesFailed = 'compass-indexes/regular-indexes/fetch-indexes-failed',
 
-  // Basically the same thing as CreateIndexActionTypes.IndexCreationSucceeded
+  // Basically the same thing as ActionTypes.IndexCreationSucceeded
   // in that it will remove the index, but it is for manually removing the row
   // of an index that failed
   FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
+
+  IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
+  IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
+  IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
 }
 
 type IndexesOpenedAction = {
@@ -79,6 +117,22 @@ type FetchIndexesSucceededAction = {
 
 type FetchIndexesFailedAction = {
   type: ActionTypes.FetchIndexesFailed;
+  error: string;
+};
+
+type IndexCreationStartedAction = {
+  type: ActionTypes.IndexCreationStarted;
+  inProgressIndex: InProgressIndex;
+};
+
+type IndexCreationSucceededAction = {
+  type: ActionTypes.IndexCreationSucceeded;
+  inProgressIndexId: string;
+};
+
+type IndexCreationFailedAction = {
+  type: ActionTypes.IndexCreationFailed;
+  inProgressIndexId: string;
   error: string;
 };
 
@@ -171,7 +225,7 @@ export default function reducer(
   if (
     isAction<IndexCreationStartedAction>(
       action,
-      CreateIndexActionTypes.IndexCreationStarted
+      ActionTypes.IndexCreationStarted
     )
   ) {
     // Add the new in-progress index to the in-progress indexes.
@@ -196,7 +250,7 @@ export default function reducer(
   if (
     isAction<IndexCreationSucceededAction>(
       action,
-      CreateIndexActionTypes.IndexCreationSucceeded
+      ActionTypes.IndexCreationSucceeded
     ) ||
     isAction<FailedIndexRemovedAction>(action, ActionTypes.FailedIndexRemoved)
   ) {
@@ -212,10 +266,7 @@ export default function reducer(
   }
 
   if (
-    isAction<IndexCreationFailedAction>(
-      action,
-      CreateIndexActionTypes.IndexCreationFailed
-    )
+    isAction<IndexCreationFailedAction>(action, ActionTypes.IndexCreationFailed)
   ) {
     const idx = state.inProgressIndexes.findIndex(
       (x) => x.id === action.inProgressIndexId
@@ -323,6 +374,7 @@ const fetchIndexes = (
     }
   };
 };
+
 export const fetchRegularIndexes = (): IndexesThunkAction<
   Promise<void>,
   FetchIndexesActions
@@ -381,6 +433,89 @@ export const stopPollingRegularIndexes = (tabId: string) => {
     pollIntervalByTabId.delete(tabId);
   };
 };
+
+const indexCreationStarted = (
+  inProgressIndex: InProgressIndex
+): IndexCreationStartedAction => ({
+  type: ActionTypes.IndexCreationStarted,
+  inProgressIndex,
+});
+
+const indexCreationSucceeded = (
+  inProgressIndexId: string
+): IndexCreationSucceededAction => ({
+  type: ActionTypes.IndexCreationSucceeded,
+  inProgressIndexId,
+});
+
+const indexCreationFailed = (
+  inProgressIndexId: string,
+  error: string
+): IndexCreationFailedAction => ({
+  type: ActionTypes.IndexCreationFailed,
+  inProgressIndexId,
+  error,
+});
+
+export function createRegularIndex(
+  inProgressIndexId: string,
+  spec: CreateIndexSpec,
+  options: CreateIndexesOptions
+): IndexesThunkAction<
+  Promise<void>,
+  | IndexCreationStartedAction
+  | IndexCreationSucceededAction
+  | IndexCreationFailedAction
+> {
+  return async (
+    dispatch,
+    getState,
+    { track, dataService, connectionInfoRef }
+  ) => {
+    const ns = getState().namespace;
+    const inProgressIndex = prepareInProgressIndex(inProgressIndexId, {
+      ns,
+      name: options.name,
+      spec,
+    });
+
+    dispatch(indexCreationStarted(inProgressIndex));
+
+    const fieldsFromSpec = Object.entries(spec).map(([k, v]) => {
+      return { name: k, type: String(v) };
+    });
+
+    const trackEvent = {
+      unique: options.unique,
+      ttl: typeof options.expireAfterSeconds !== 'undefined',
+      columnstore_index: hasColumnstoreIndex(fieldsFromSpec),
+      has_columnstore_projection:
+        // @ts-expect-error columnstoreProjection is not a part of
+        // CreateIndexesOptions yet.
+        typeof options.columnstoreProjection !== 'undefined',
+      has_wildcard_projection:
+        typeof options.wildcardProjection !== 'undefined',
+      custom_collation: typeof options.collation !== 'undefined',
+      geo: fieldsFromSpec.some(({ type }) => {
+        return type === '2dsphere';
+      }),
+      atlas_search: false,
+    };
+
+    try {
+      await dataService.createIndex(ns, spec as IndexSpecification, options);
+      dispatch(indexCreationSucceeded(inProgressIndexId));
+      track('Index Created', trackEvent, connectionInfoRef.current);
+
+      // Start a new fetch so that the newly added index's details can be
+      // loaded. indexCreationSucceeded() will remove the in-progress one, but
+      // we still need the new info.
+      await dispatch(refreshRegularIndexes());
+    } catch (err) {
+      dispatch(indexCreationFailed(inProgressIndexId, (err as Error).message));
+    }
+  };
+}
 
 const failedIndexRemoved = (
   inProgressIndexId: string
