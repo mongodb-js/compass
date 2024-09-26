@@ -47,7 +47,10 @@ function ShardingStateView({
     );
   }
 
-  if (shardingStatus === ShardingStatuses.UNSHARDED) {
+  if (
+    shardingStatus === ShardingStatuses.UNSHARDED ||
+    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING
+  ) {
     return <UnshardedState />;
   }
 

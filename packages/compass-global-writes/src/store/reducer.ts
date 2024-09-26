@@ -21,9 +21,9 @@ export type CreateShardKeyData = Pick<
 
 enum GlobalWritesActionTypes {
   IsManagedNamespaceFetched = 'global-writes/IsManagedNamespaceFetched',
-  ShardingInProgressStarted = 'global-writes/ShardingInProgressStarted',
-  ShardingInProgressFinished = 'global-writes/ShardingInProgressFinished',
-  ShardingInProgressErrored = 'global-writes/ShardingInProgressErrored',
+  SubmittingForShardingStarted = 'global-writes/SubmittingForShardingStarted',
+  SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
+  SubmittingForShardingErrored = 'global-writes/SubmittingForShardingErrored',
 }
 
 type IsManagedNamespaceFetchedAction = {
@@ -31,16 +31,16 @@ type IsManagedNamespaceFetchedAction = {
   isNamespaceManaged: boolean;
 };
 
-type ShardingInProgressStartedAction = {
-  type: GlobalWritesActionTypes.ShardingInProgressStarted;
+type SubmittingForShardingStartedAction = {
+  type: GlobalWritesActionTypes.SubmittingForShardingStarted;
 };
 
-type ShardingInProgressFinishedAction = {
-  type: GlobalWritesActionTypes.ShardingInProgressFinished;
+type SubmittingForShardingFinishedAction = {
+  type: GlobalWritesActionTypes.SubmittingForShardingFinished;
 };
 
-type ShardingInProgressErroredAction = {
-  type: GlobalWritesActionTypes.ShardingInProgressErrored;
+type SubmittingForShardingErroredAction = {
+  type: GlobalWritesActionTypes.SubmittingForShardingErrored;
 };
 
 export enum ShardingStatuses {
@@ -55,6 +55,12 @@ export enum ShardingStatuses {
   UNSHARDED = 'UNSHARDED',
 
   /**
+   * State when user submits namespace to be sharded and
+   * we are waiting for server to accept the request.
+   */
+  SUBMITTING_FOR_SHARDING = 'SUBMITTING_FOR_SHARDING',
+
+  /**
    * Namespace is being sharded.
    */
   SHARDING = 'SHARDING',
@@ -66,18 +72,12 @@ export type RootState = {
   namespace: string;
   isNamespaceSharded: boolean;
   status: ShardingStatus;
-  createShardkey: {
-    isLoading: boolean;
-  };
 };
 
 const initialState: RootState = {
   namespace: '',
   isNamespaceSharded: false,
   status: ShardingStatuses.NOT_READY,
-  createShardkey: {
-    isLoading: false,
-  },
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
@@ -97,46 +97,39 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   }
 
   if (
-    isAction<ShardingInProgressStartedAction>(
+    isAction<SubmittingForShardingStartedAction>(
       action,
-      GlobalWritesActionTypes.ShardingInProgressStarted
+      GlobalWritesActionTypes.SubmittingForShardingStarted
     )
   ) {
     return {
       ...state,
-      createShardkey: {
-        isLoading: true,
-      },
+      status: ShardingStatuses.SUBMITTING_FOR_SHARDING,
     };
   }
 
   if (
-    isAction<ShardingInProgressFinishedAction>(
+    isAction<SubmittingForShardingFinishedAction>(
       action,
-      GlobalWritesActionTypes.ShardingInProgressFinished
+      GlobalWritesActionTypes.SubmittingForShardingFinished
     )
   ) {
     return {
       ...state,
       isNamespaceSharded: true,
       status: ShardingStatuses.SHARDING,
-      createShardkey: {
-        isLoading: false,
-      },
     };
   }
 
   if (
-    isAction<ShardingInProgressErroredAction>(
+    isAction<SubmittingForShardingErroredAction>(
       action,
-      GlobalWritesActionTypes.ShardingInProgressErrored
+      GlobalWritesActionTypes.SubmittingForShardingErrored
     )
   ) {
     return {
       ...state,
-      createShardkey: {
-        isLoading: false,
-      },
+      status: ShardingStatuses.UNSHARDED,
     };
   }
 
@@ -198,9 +191,9 @@ export const createShardKey =
     data: CreateShardKeyData
   ): GlobalWritesThunkAction<
     Promise<void>,
-    | ShardingInProgressStartedAction
-    | ShardingInProgressFinishedAction
-    | ShardingInProgressErroredAction
+    | SubmittingForShardingStartedAction
+    | SubmittingForShardingFinishedAction
+    | SubmittingForShardingErroredAction
   > =>
   async (
     dispatch,
@@ -215,7 +208,7 @@ export const createShardKey =
     const { clusterName, projectId } = connectionInfoRef.current.atlasMetadata;
 
     dispatch({
-      type: GlobalWritesActionTypes.ShardingInProgressStarted,
+      type: GlobalWritesActionTypes.SubmittingForShardingStarted,
     });
 
     try {
@@ -224,7 +217,7 @@ export const createShardKey =
         clusterName,
       });
       dispatch({
-        type: GlobalWritesActionTypes.ShardingInProgressFinished,
+        type: GlobalWritesActionTypes.SubmittingForShardingFinished,
       });
     } catch (error) {
       logger.log.error(
@@ -243,7 +236,7 @@ export const createShardKey =
         variant: 'important',
       });
       dispatch({
-        type: GlobalWritesActionTypes.ShardingInProgressErrored,
+        type: GlobalWritesActionTypes.SubmittingForShardingErrored,
       });
     }
   };

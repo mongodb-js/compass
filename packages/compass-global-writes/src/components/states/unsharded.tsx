@@ -23,7 +23,7 @@ import {
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { connect } from 'react-redux';
 import type { CreateShardKeyData, RootState } from '../../store/reducer';
-import { createShardKey } from '../../store/reducer';
+import { createShardKey, ShardingStatuses } from '../../store/reducer';
 
 const nbsp = '\u00a0';
 
@@ -329,7 +329,7 @@ export function UnshardedState(props: UnshardedStateProps) {
 export default connect(
   (state: RootState) => ({
     namespace: state.namespace,
-    isLoading: state.createShardkey.isLoading,
+    isLoading: state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING,
   }),
   {
     onCreateShardKey: createShardKey,
