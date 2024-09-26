@@ -235,13 +235,13 @@ function getInProgressIndexInfo(index: MappedInProgressIndex): CommonIndexInfo {
     id: index.id,
     name: index.name,
     indexInfo: index,
-    type: <TypeField type="unknown" extra={index.extra} />,
+    type: <TypeField type="unknown" />,
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     properties: (
       <PropertyField
-        cardinality={undefined}
-        extra={index.extra}
+        status={index.status}
+        error={index.error}
         properties={[]}
       />
     ),
@@ -342,6 +342,10 @@ export const RegularIndexesTable: React.FunctionComponent<
             index.compassIndexType === 'regular-index'
               ? index.extra
               : undefined,
+          status:
+            index.compassIndexType === 'in-progress-index'
+              ? index.status
+              : undefined,
         };
 
         return {
@@ -358,10 +362,10 @@ export const RegularIndexesTable: React.FunctionComponent<
 
           // eslint-disable-next-line react/display-name
           renderExpandedContent: () => (
-            // TODO: we should support badges for other index types
+            // TODO: we should support badges for other rolling indexes too
             <IndexKeysBadge
               keys={
-                index.compassIndexType === 'regular-index' ? index.fields : []
+                index.compassIndexType !== 'rolling-index' ? index.fields : []
               }
               data-testid={`indexes-details-${indexData.name}`}
             />

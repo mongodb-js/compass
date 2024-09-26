@@ -36,11 +36,10 @@ export type RegularIndex = Partial<IndexDefinition> &
     | 'usageCount'
   >;
 
-export type InProgressIndex = Pick<
-  IndexDefinition,
-  'name' | 'fields' | 'extra'
-> & {
+export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
+  status: 'inprogress' | 'failed';
+  error?: string;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -75,9 +74,7 @@ const prepareInProgressIndex = (
   return {
     id,
     // TODO: we need the type because it shows in the table
-    extra: {
-      status: 'inprogress',
-    },
+    status: 'inprogress',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
     // TODO: we never mapped properties and the table does have room to display them
@@ -270,11 +267,8 @@ export default function reducer(
     const newInProgressIndexes = state.inProgressIndexes;
     newInProgressIndexes[idx] = {
       ...newInProgressIndexes[idx],
-      extra: {
-        ...newInProgressIndexes[idx].extra,
-        status: 'failed',
-        error: action.error,
-      },
+      status: 'failed',
+      error: action.error,
     };
 
     return {
@@ -548,7 +542,7 @@ export const dropIndex = (
 
     // TODO: this should be its own function, not part of dropIndex
     const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
-    if (inProgressIndex && inProgressIndex.extra.status === 'failed') {
+    if (inProgressIndex && inProgressIndex.status === 'failed') {
       // This really just removes the (failed) in-progress index
       dispatch(failedIndexRemoved(String(inProgressIndex.id)));
 
@@ -660,32 +654,3 @@ export const unhideIndex = (
     }
   };
 };
-
-// TODO: remove
-/*
-function _mergeInProgressIndexes(
-  _indexes: RegularIndex[],
-  inProgressIndexes: InProgressIndex[]
-) {
-  const indexes = cloneDeep(_indexes);
-
-  for (const inProgressIndex of inProgressIndexes) {
-    const index = indexes.find((index) => index.name === inProgressIndex.name);
-
-    if (index) {
-      index.extra = index.extra ?? {};
-      index.extra.status = inProgressIndex.extra.status;
-      if (inProgressIndex.extra.error) {
-        index.extra.error = inProgressIndex.extra.error;
-      }
-    } else {
-      // in-progress indexes also have ids which regular indexes don't
-      const index: RegularIndex = { ...inProgressIndex };
-      delete (index as RegularIndex & { id?: any }).id;
-      indexes.push(index);
-    }
-  }
-
-  return indexes;
-}
-*/

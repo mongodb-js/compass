@@ -10,7 +10,10 @@ import {
   BadgeVariant,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import type { RegularIndex } from '../../modules/regular-indexes';
+import type {
+  InProgressIndex,
+  RegularIndex,
+} from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 const containerStyles = css({
@@ -24,19 +27,23 @@ const partialTooltip = (partialFilterExpression: unknown) => {
   return `partialFilterExpression: ${JSON.stringify(partialFilterExpression)}`;
 };
 
-const ttlTooltip = (expireAfterSeconds: number) => {
+const ttlTooltip = (expireAfterSeconds: string) => {
   return `expireAfterSeconds: ${expireAfterSeconds}`;
 };
 
 export const getPropertyTooltip = (
-  property: string | undefined,
-  extra: RegularIndex['extra']
+  property?: string,
+  extra?: RegularIndex['extra']
 ): string | null => {
-  return property === 'ttl'
-    ? ttlTooltip(extra.expireAfterSeconds as number)
-    : property === 'partial'
-    ? partialTooltip(extra.partialFilterExpression)
-    : null;
+  if (property === 'ttl' && extra?.expireAfterSeconds !== undefined) {
+    return ttlTooltip(extra.expireAfterSeconds as unknown as string);
+  }
+
+  if (property === 'partial' && extra?.partialFilterExpression !== undefined) {
+    return partialTooltip(extra.partialFilterExpression);
+  }
+
+  return null;
 };
 
 const PropertyBadgeWithTooltip: React.FunctionComponent<{
@@ -70,17 +77,23 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type PropertyFieldProps = {
-  extra: RegularIndex['extra'];
+  cardinality?: RegularIndex['cardinality'];
+  extra?: RegularIndex['extra'];
   properties: RegularIndex['properties'];
-  cardinality: RegularIndex['cardinality'];
+
+  // TODO: these belong in their own column
+  status?: InProgressIndex['status'];
+  error?: InProgressIndex['error'];
 };
 
 const HIDDEN_INDEX_TEXT = 'HIDDEN';
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
+  status,
   extra,
   properties,
   cardinality,
+  error,
 }) => {
   const darkMode = useDarkMode();
 
@@ -102,20 +115,20 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           link={getIndexHelpLink(cardinality) ?? '#'}
         />
       )}
-      {extra.hidden && (
+      {extra?.hidden && (
         <PropertyBadgeWithTooltip
           text={HIDDEN_INDEX_TEXT}
           link={getIndexHelpLink(HIDDEN_INDEX_TEXT) ?? '#'}
         />
       )}
-      {extra.status === 'inprogress' && (
+      {status === 'inprogress' && (
         <Badge data-testid="index-in-progress" variant={BadgeVariant.Blue}>
           In Progress ...
         </Badge>
       )}
-      {extra.status === 'failed' && (
+      {status === 'failed' && (
         <ErrorBadgeWithTooltip
-          tooltip={extra.error ? String(extra.error) : ''}
+          tooltip={error ? error : ''}
           darkMode={darkMode}
         />
       )}

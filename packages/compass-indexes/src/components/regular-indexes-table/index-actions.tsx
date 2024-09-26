@@ -2,6 +2,7 @@ import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
+import type { InProgressIndex } from '../../modules/regular-indexes';
 
 type IndexActionsIndex = {
   name: string;
@@ -9,6 +10,7 @@ type IndexActionsIndex = {
   extra?: {
     hidden?: boolean;
   };
+  status?: InProgressIndex['status'];
 };
 
 type IndexActionsProps = {
@@ -39,19 +41,13 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onUnhideIndexClick,
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
-    const actions: GroupedItemAction<IndexAction>[] = [
-      {
-        action: 'delete',
-        label: `Drop Index ${index.name}`,
-        icon: 'Trash',
-      },
-    ];
+    const actions: GroupedItemAction<IndexAction>[] = [];
 
     if (
       index.compassIndexType === 'regular-index' &&
       serverSupportsHideIndex(serverVersion)
     ) {
-      actions.unshift(
+      actions.push(
         index.extra?.hidden
           ? {
               action: 'unhide',
@@ -66,6 +62,19 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
               icon: 'VisibilityOff',
             }
       );
+    }
+
+    // you can only drop regular indexes or failed inprogress indexes
+    if (
+      (index.compassIndexType === 'in-progress-index' &&
+        index.status === 'failed') ||
+      index.compassIndexType === 'regular-index'
+    ) {
+      actions.push({
+        action: 'delete',
+        label: `Drop Index ${index.name}`,
+        icon: 'Trash',
+      });
     }
 
     return actions;

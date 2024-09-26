@@ -11,7 +11,7 @@ export const canRenderTooltip = (type: string) => {
 
 type TypeFieldProps = {
   type: RegularIndex['type'] | 'unknown';
-  extra: RegularIndex['extra'];
+  extra?: RegularIndex['extra'];
 };
 
 export const IndexTypeTooltip: React.FunctionComponent<{
@@ -45,7 +45,7 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
         <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
       }
     >
-      <IndexTypeTooltip extra={extra} />
+      {extra && <IndexTypeTooltip extra={extra} />}
     </Tooltip>
   );
 };
