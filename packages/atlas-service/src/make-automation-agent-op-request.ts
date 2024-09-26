@@ -1,3 +1,14 @@
+export type AtlasIndexStats = {
+  collName: string;
+  dbName: string;
+  indexName: string;
+  indexProperties: { label: string; properties: Record<string, unknown> }[];
+  indexType: { label: string };
+  keys: { name: string; value: string | number };
+  sizeBytes: number;
+  status: 'rolling build' | 'building' | 'exists';
+};
+
 type ClusterOrServerlessId =
   | { serverlessId?: never; clusterId: string }
   | { serverlessId: string; clusterId?: never };
@@ -49,16 +60,7 @@ function assertAutomationAgentRequestResponse<
 }
 
 export type AutomationAgentAwaitResponseTypes = {
-  listIndexStats: {
-    collName: string;
-    dbName: string;
-    indexName: string;
-    indexProperties: { label: string; properties: Record<string, unknown> }[];
-    indexType: { label: string };
-    keys: { name: string; value: string | number };
-    sizeBytes: number;
-    status: 'rolling build' | 'building' | 'exists';
-  }[];
+  listIndexStats: AtlasIndexStats[];
   dropIndex: never[];
 };
 

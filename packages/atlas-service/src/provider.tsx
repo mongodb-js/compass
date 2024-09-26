@@ -64,3 +64,4 @@ export const atlasServiceLocator = createServiceLocator(
 export { AtlasAuthService } from './atlas-auth-service';
 export type { AtlasService } from './atlas-service';
 export type { AtlasUserInfo } from './renderer';
+export type { AtlasIndexStats } from './make-automation-agent-op-request.ts';

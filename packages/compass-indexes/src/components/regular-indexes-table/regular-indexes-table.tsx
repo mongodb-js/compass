@@ -26,10 +26,16 @@ import {
   stopPollingRegularIndexes,
 } from '../../modules/regular-indexes';
 
-import { type RegularIndex } from '../../modules/regular-indexes';
+import type {
+  RegularIndex,
+  InProgressIndex,
+} from '../../modules/regular-indexes';
+import type { AtlasIndexStats } from '@mongodb-js/atlas-service/provider';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
+  inProgressIndexes: InProgressIndex[];
+  rollingIndexes: AtlasIndexStats[];
   serverVersion: string;
   isWritable?: boolean;
   onHideIndexClick: (name: string) => void;
@@ -233,6 +239,8 @@ const mapState = ({
   isWritable,
   serverVersion,
   indexes: regularIndexes.indexes,
+  inProgressIndexes: regularIndexes.inProgressIndexes,
+  rollingIndexes: regularIndexes.rollingIndexes,
   error: regularIndexes.error,
 });
 
