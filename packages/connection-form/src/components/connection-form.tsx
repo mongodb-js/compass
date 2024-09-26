@@ -21,7 +21,6 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
-import { usePreference } from 'compass-preferences-model/provider';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
 import { ConnectionFormModalActions } from './connection-form-actions';
@@ -320,7 +319,6 @@ export type ConnectionFormProps = ConnectionFormPropsWithoutSettings &
 function ConnectionForm({
   initialConnectionInfo,
   connectionErrorMessage,
-  onConnectClicked,
   onSaveAndConnectClicked,
   onSaveClicked,
   onCancel,
@@ -329,9 +327,6 @@ function ConnectionForm({
 }: ConnectionFormPropsWithoutSettings): React.ReactElement {
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const isDarkMode = useDarkMode();
-  const isMultiConnectionEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
 
   const onAdvancedChange = useCallback(
     (newState: boolean) => {
@@ -381,75 +376,43 @@ function ConnectionForm({
   );
 
   const getConnectionInfoToSave = useCallback(
-    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => {
-      if (isMultiConnectionEnabled) {
-        return {
-          ...cloneDeep(initialConnectionInfo),
-          connectionOptions: cloneDeep(connectionOptions),
-          savedConnectionType: personalizationOptions.isFavorite
-            ? 'favorite'
-            : 'recent',
-          favorite: {
-            ...(favoriteInfo || {}),
-            name: personalizationOptions.name,
-            color: personalizationOptions.color,
-          },
-        };
-      } else {
-        return {
-          ...cloneDeep(initialConnectionInfo),
-          connectionOptions: cloneDeep(connectionOptions),
-          savedConnectionType: 'favorite',
-          favorite: {
-            name: '',
-            color: undefined,
-            ...favoriteInfo,
-          },
-        };
-      }
-    },
-    [
-      isMultiConnectionEnabled,
-      initialConnectionInfo,
-      connectionOptions,
-      personalizationOptions,
-    ]
+    (favoriteInfo?: ConnectionFavoriteOptions): ConnectionInfo => ({
+      ...cloneDeep(initialConnectionInfo),
+      connectionOptions: cloneDeep(connectionOptions),
+      savedConnectionType: personalizationOptions.isFavorite
+        ? 'favorite'
+        : 'recent',
+      favorite: {
+        ...(favoriteInfo || {}),
+        name: personalizationOptions.name,
+        color: personalizationOptions.color,
+      },
+    }),
+    [initialConnectionInfo, connectionOptions, personalizationOptions]
   );
-  const onSubmitForm = useCallback(
-    (action: 'saveAndConnect' | 'connect') => {
-      // TODO(COMPASS-7906): cleanup
-      const updatedConnectionOptions = cloneDeep(connectionOptions);
-      // TODO: this method throws on malformed connection strings instead of
-      // returning errors
-      const formErrors = validateConnectionOptionsErrors(
-        updatedConnectionOptions
-      );
-      if (formErrors.length) {
-        setErrors(formErrors);
-        return;
-      }
-      if (action === 'saveAndConnect') {
-        onSaveAndConnectClicked?.({
-          ...initialConnectionInfo,
-          ...getConnectionInfoToSave(),
-          connectionOptions: updatedConnectionOptions,
-        });
-      } else {
-        onConnectClicked?.({
-          ...initialConnectionInfo,
-          connectionOptions: updatedConnectionOptions,
-        });
-      }
-    },
-    [
-      initialConnectionInfo,
-      onSaveAndConnectClicked,
-      onConnectClicked,
-      setErrors,
-      connectionOptions,
-      getConnectionInfoToSave,
-    ]
-  );
+  const onSubmitForm = useCallback(() => {
+    const updatedConnectionOptions = cloneDeep(connectionOptions);
+    // TODO: this method throws on malformed connection strings instead of
+    // returning errors
+    const formErrors = validateConnectionOptionsErrors(
+      updatedConnectionOptions
+    );
+    if (formErrors.length) {
+      setErrors(formErrors);
+      return;
+    }
+    onSaveAndConnectClicked?.({
+      ...initialConnectionInfo,
+      ...getConnectionInfoToSave(),
+      connectionOptions: updatedConnectionOptions,
+    });
+  }, [
+    initialConnectionInfo,
+    onSaveAndConnectClicked,
+    setErrors,
+    connectionOptions,
+    getConnectionInfoToSave,
+  ]);
 
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
@@ -473,8 +436,6 @@ function ConnectionForm({
     'showPersonalisationForm'
   );
 
-  const showFooterBorder = !!isMultiConnectionEnabled;
-
   const showHelpCardsInForm = useConnectionFormPreference(
     'showHelpCardsInForm'
   );
@@ -486,7 +447,7 @@ function ConnectionForm({
         onSubmit={(e) => {
           // Prevent default html page refresh.
           e.preventDefault();
-          onSubmitForm(isMultiConnectionEnabled ? 'saveAndConnect' : 'connect');
+          onSubmitForm();
         }}
         // Prevent default html tooltip popups.
         noValidate
@@ -510,11 +471,7 @@ function ConnectionForm({
               setEnableEditingConnectionString={
                 setEnableEditingConnectionString
               }
-              onSubmit={() =>
-                onSubmitForm(
-                  isMultiConnectionEnabled ? 'saveAndConnect' : 'connect'
-                )
-              }
+              onSubmit={onSubmitForm}
               updateConnectionFormField={updateConnectionFormField}
               protectConnectionStrings={protectConnectionStrings}
             />
@@ -553,11 +510,12 @@ function ConnectionForm({
         </div>
 
         <div
-          className={cx(formFooterStyles, {
-            [isDarkMode
+          className={cx(
+            formFooterStyles,
+            isDarkMode
               ? formFooterBorderDarkModeStyles
-              : formFooterBorderLightModeStyles]: showFooterBorder,
-          })}
+              : formFooterBorderLightModeStyles
+          )}
         >
           <ConnectionFormModalActions
             errors={connectionStringInvalidError ? [] : errors}
@@ -570,7 +528,7 @@ function ConnectionForm({
                   getConnectionInfoToSave()
                 ))
             }
-            onSaveAndConnect={() => onSubmitForm('saveAndConnect')}
+            onSaveAndConnect={onSubmitForm}
           />
         </div>
       </form>
