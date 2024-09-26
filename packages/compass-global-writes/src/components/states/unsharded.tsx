@@ -231,36 +231,40 @@ function CreateShardKeyForm({
             Default
           </Radio>
           <Radio
+            id="unique-index"
             value="unique-index"
             checked={selectedAdvancedOption === 'unique-index'}
-            // @ts-expect-error: allow jsx in description
-            description={
-              <span>
+          >
+            <div>
+              <Label htmlFor="unique-index">
+                Use unique index as the shard key
+              </Label>
+              <Body>
                 Enforce a uniqueness constraint on the shard key of this Global
                 Collection.{' '}
                 <Link href="https://docs.atlas.mongodb.com/data-explorer/global-writes/#optional-expand-advanced-shard-key-configuration-section-to-specify-how-to-shard-the-collection">
                   Learn more
                 </Link>
-              </span>
-            }
-          >
-            Use unique index as the shard key
+              </Body>
+            </div>
           </Radio>
           <Radio
+            id="hashed-index"
             value="hashed-index"
             checked={selectedAdvancedOption === 'hashed-index'}
-            // @ts-expect-error: allow jsx in description
-            description={
-              <span>
+          >
+            <div>
+              <Label htmlFor="hashed-index">
+                Use hashed index as the shard key
+              </Label>
+              <Body>
                 Improve even distribution of the sharded data by hashing the
                 second field of the shard key.{' '}
                 <Link href="https://docs.atlas.mongodb.com/data-explorer/global-writes/#optional-expand-advanced-shard-key-configuration-section-to-specify-how-to-shard-the-collection">
                   Learn more
                 </Link>
-              </span>
-            }
-          >
-            Use hashed index as the shard key
+              </Body>
+            </div>
           </Radio>
         </RadioGroup>
         {selectedAdvancedOption === 'hashed-index' && (
