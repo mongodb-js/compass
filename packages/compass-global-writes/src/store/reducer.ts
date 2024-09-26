@@ -20,14 +20,14 @@ export type CreateShardKeyData = Pick<
 >;
 
 enum GlobalWritesActionTypes {
-  SetIsManagedNamespace = 'global-writes/SetIsManagedNamespace',
+  IsManagedNamespaceFetched = 'global-writes/IsManagedNamespaceFetched',
   ShardingInProgressStarted = 'global-writes/ShardingInProgressStarted',
   ShardingInProgressFinished = 'global-writes/ShardingInProgressFinished',
   ShardingInProgressErrored = 'global-writes/ShardingInProgressErrored',
 }
 
-type SetIsManagedNamespaceAction = {
-  type: GlobalWritesActionTypes.SetIsManagedNamespace;
+type IsManagedNamespaceFetchedAction = {
+  type: GlobalWritesActionTypes.IsManagedNamespaceFetched;
   isNamespaceManaged: boolean;
 };
 
@@ -82,9 +82,9 @@ const initialState: RootState = {
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   if (
-    isAction<SetIsManagedNamespaceAction>(
+    isAction<IsManagedNamespaceFetchedAction>(
       action,
-      GlobalWritesActionTypes.SetIsManagedNamespace
+      GlobalWritesActionTypes.IsManagedNamespaceFetched
     )
   ) {
     return {
@@ -144,7 +144,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
 };
 
 export const fetchClusterShardingData =
-  (): GlobalWritesThunkAction<Promise<void>, SetIsManagedNamespaceAction> =>
+  (): GlobalWritesThunkAction<Promise<void>, IsManagedNamespaceFetchedAction> =>
   async (
     dispatch,
     getState,
@@ -167,11 +167,11 @@ export const fetchClusterShardingData =
           clusterName,
         });
 
+      dispatch({
+        type: GlobalWritesActionTypes.IsManagedNamespaceFetched,
+        isNamespaceManaged,
+      });
       if (!isNamespaceManaged) {
-        dispatch({
-          type: GlobalWritesActionTypes.SetIsManagedNamespace,
-          isNamespaceManaged,
-        });
         return;
       }
       // TODO (COMPASS-8277): Now fetch the sharding key and possible process error.
