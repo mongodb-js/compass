@@ -9,8 +9,6 @@ import {
   within,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { PreferencesAccess } from 'compass-preferences-model';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
@@ -32,7 +30,6 @@ const saveAndConnectText = 'Save & Connect';
 const favoriteText = 'FAVORITE';
 
 describe('ConnectionForm Component', function () {
-  let preferences: PreferencesAccess;
   function renderForm(props: Partial<ConnectionFormProps> = {}) {
     return render(
       <ConnectionForm
@@ -47,10 +44,6 @@ describe('ConnectionForm Component', function () {
       />
     );
   }
-
-  beforeEach(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
-  });
 
   afterEach(function () {
     cleanup();
@@ -357,13 +350,11 @@ describe('ConnectionForm Component', function () {
     expect(screen.queryByText(/How do I format my/)).to.be.null;
   });
 
-  context('when multiple connection management is enabled', function () {
+  context('with default connection', function () {
     let onCancel: Sinon.SinonSpy;
-    beforeEach(async function () {
+    beforeEach(function () {
       onCancel = Sinon.spy();
-      await preferences.savePreferences({
-        enableMultipleConnectionSystem: true,
-      });
+
       renderForm({
         initialConnectionInfo: DEFAULT_CONNECTION,
         protectConnectionStringsForNewConnections: false,

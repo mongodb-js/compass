@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { usePreference } from 'compass-preferences-model/provider';
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
 
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
@@ -161,22 +160,6 @@ export function useConnectionColor(): {
     [isDarkMode]
   );
 
-  const colorCodeToHex = useCallback(
-    (colorCode: string | undefined): string | undefined => {
-      if (!colorCode) {
-        return;
-      }
-
-      const migratedColor = legacyColorsToColorCode(colorCode);
-      if (!migratedColor) {
-        return;
-      }
-
-      return COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP[migratedColor];
-    },
-    []
-  );
-
   const colorToName = useCallback(
     (colorCode: string | undefined): string | undefined => {
       if (!colorCode || !isColorCode(colorCode)) {
@@ -188,22 +171,10 @@ export function useConnectionColor(): {
     []
   );
 
-  const isMultiConnectionEnabled = usePreference(
-    'enableMultipleConnectionSystem'
-  );
-
-  const connectionColorCodes = () => {
-    if (isMultiConnectionEnabled) {
-      return CONNECTION_COLOR_CODES.slice(0, 9);
-    } else {
-      return CONNECTION_COLOR_CODES;
-    }
-  };
+  const connectionColorCodes = () => CONNECTION_COLOR_CODES.slice(0, 9);
 
   return {
-    connectionColorToHex: isMultiConnectionEnabled
-      ? newColorCodeToHex
-      : colorCodeToHex,
+    connectionColorToHex: newColorCodeToHex,
     connectionColorToHexActive: connectionColorToHexActive,
     connectionColorToName: colorToName,
     connectionColorCodes,
