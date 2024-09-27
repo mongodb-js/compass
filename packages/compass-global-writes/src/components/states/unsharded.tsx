@@ -56,8 +56,12 @@ const secondShardKeyStyles = css({
 });
 
 const hasedIndexOptionsStyles = css({
-  marginLeft: spacing[600] + spacing[100], // This aligns it with the radio button text
+  marginLeft: spacing[1200], // This aligns it with the radio button text
   marginTop: spacing[400],
+});
+
+const advanceOptionsGroupStyles = css({
+  paddingLeft: spacing[500], // Avoid visual cutoff
 });
 
 const chunksInputStyles = css({
@@ -217,8 +221,10 @@ function CreateShardKeyForm({
         text="Advanced Shard Key Configuration"
         open={isAdvancedOptionsOpen}
         setOpen={setIsAdvancedOptionsOpen}
+        className={css({ paddingLeft: spacing[400] })}
       >
         <RadioGroup
+          className={advanceOptionsGroupStyles}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setSelectedAdvancedOption(
               event.target.value as ShardingAdvancedOption
