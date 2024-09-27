@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 
-import { GlobalWrites } from './components';
+import GlobalWrites from './components';
 import { GlobalWritesTabTitle } from './plugin-title';
 import { activateGlobalWritesPlugin } from './store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
@@ -28,6 +28,6 @@ const CompassGlobalWritesHadronPlugin = registerHadronPlugin(
 export const CompassGlobalWritesPlugin = {
   name: 'GlobalWrites' as const,
   provider: CompassGlobalWritesHadronPlugin,
-  content: GlobalWrites,
-  header: GlobalWritesTabTitle,
+  content: GlobalWrites as React.FunctionComponent,
+  header: GlobalWritesTabTitle as React.FunctionComponent,
 };

@@ -1,12 +1,29 @@
 import React from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@mongodb-js/testing-library-compass';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { GlobalWrites } from './index';
+import { renderWithStore } from './../../tests/create-store';
 
 describe('Compass GlobalWrites Plugin', function () {
-  it('renders a Plugin', function () {
-    render(<GlobalWrites />);
-    expect(screen.getByText('This feature is currently in development.')).to
-      .exist;
+  it('renders plugin in NOT_READY state', function () {
+    renderWithStore(<GlobalWrites shardingStatus={'NOT_READY'} />);
+    expect(screen.getByText(/loading/i)).to.exist;
+  });
+
+  it('renders plugin in UNSHARDED state', function () {
+    renderWithStore(<GlobalWrites shardingStatus={'UNSHARDED'} />);
+    expect(screen.getByTestId('shard-collection-button')).to.exist;
+  });
+
+  it('renders plugin in SUBMITTING_FOR_SHARDING state', function () {
+    renderWithStore(
+      <GlobalWrites shardingStatus={'SUBMITTING_FOR_SHARDING'} />
+    );
+    expect(screen.getByTestId('shard-collection-button')).to.exist;
+  });
+
+  it('renders plugin in SHARDING state', function () {
+    renderWithStore(<GlobalWrites shardingStatus={'SHARDING'} />);
+    expect(screen.getByText(/sharding your collection/i)).to.exist;
   });
 });
