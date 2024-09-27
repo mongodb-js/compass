@@ -67,7 +67,7 @@ import {
 import type { UpdateOIDCAction } from '../utils/oidc-handler';
 import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
 import { applyForceConnectionOptions } from '../utils/force-connection-options';
-import { useConnectionFormPreference } from './use-connect-form-preferences';
+import { useConnectionFormSetting } from './use-connect-form-settings';
 import ConnectionString from 'mongodb-connection-string-url';
 
 export type ConnectionPersonalizationOptions = {
@@ -723,9 +723,8 @@ export function useConnectForm(
   const initialFormState: ConnectFormState = {
     ...derivedFormState,
     enableEditingConnectionString:
-      !useConnectionFormPreference(
-        'protectConnectionStringsForNewConnections'
-      ) && derivedFormState.enableEditingConnectionString,
+      !useConnectionFormSetting('protectConnectionStringsForNewConnections') &&
+      derivedFormState.enableEditingConnectionString,
   };
 
   const [state, dispatch] = useReducer(connectFormReducer, initialFormState);
@@ -802,7 +801,7 @@ function setInitialState({
   setErrors: (errors: ConnectionFormError[]) => void;
   dispatch: Dispatch<Action>;
 }) {
-  const protectConnectionStringsForNewConnections = useConnectionFormPreference(
+  const protectConnectionStringsForNewConnections = useConnectionFormSetting(
     'protectConnectionStringsForNewConnections'
   );
   useEffect(() => {

@@ -20,7 +20,7 @@ import AuthenticationGSSAPI from './authentication-gssapi';
 import AuthenticationPlain from './authentication-plain';
 import AuthenticationAWS from './authentication-aws';
 import AuthenticationOidc from './authentication-oidc';
-import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 interface TabOption {
   id: AuthMechanism;
@@ -100,9 +100,9 @@ function AuthenticationTab({
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   // enableOIDC is the feature flag, showOIDC is the connection form preference.
-  const enableOIDC = !!useConnectionFormPreference('enableOidc');
-  const showOIDC = useConnectionFormPreference('showOIDCAuth');
-  const showKerberos = useConnectionFormPreference('showKerberosAuth');
+  const enableOIDC = !!useConnectionFormSetting('enableOidc');
+  const showOIDC = useConnectionFormSetting('showOIDCAuth');
+  const showKerberos = useConnectionFormSetting('showKerberosAuth');
   const enabledAuthOptions = useMemo(
     () =>
       options.filter((option) => {
