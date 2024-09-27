@@ -258,18 +258,11 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
     name: index.indexName,
     indexInfo: index,
     // TODO: check that label really is a regular index type
-    type: (
-      <TypeField
-        type={index.indexType.label as RegularIndex['type']}
-        extra={{}}
-      />
-    ),
+    type: <TypeField type={index.indexType.label as RegularIndex['type']} />,
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
-    // TODO
-    properties: (
-      <PropertyField cardinality={undefined} extra={{}} properties={[]} />
-    ),
+    // TODO: add properties for rolling indexes
+    properties: <PropertyField properties={[]} />,
   };
 }
 

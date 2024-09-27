@@ -248,9 +248,6 @@ export default function reducer(
   ) {
     return {
       ...state,
-      // NOTE: the index is still in indexes because it would have been merged
-      // in there, so it will only be gone from the list once fetchIndexes()
-      // is dispatched and finishes.
       inProgressIndexes: state.inProgressIndexes.filter(
         (x) => x.id !== action.inProgressIndexId
       ),

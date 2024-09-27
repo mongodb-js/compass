@@ -4,6 +4,16 @@ import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
+/*
+TODO: we can change this to
+{ name: string } & (
+ | { compassIndexType: 'regular-index', extra?: { hidden?: boolean } }
+ | { compassIndexType: 'in-progress-index', status: InProgressIndex['status']}
+ | { compassIndexType: 'rolling-index' }
+)
+ but at that point it is probably better to just have IndexActions components
+ per index type?
+*/
 type IndexActionsIndex = {
   name: string;
   compassIndexType: 'regular-index' | 'in-progress-index' | 'rolling-index';

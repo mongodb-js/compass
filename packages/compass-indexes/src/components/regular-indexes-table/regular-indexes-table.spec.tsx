@@ -9,10 +9,14 @@ import {
 import { expect } from 'chai';
 
 import { RegularIndexesTable } from './regular-indexes-table';
-import type { RegularIndex } from '../../modules/regular-indexes';
+import type {
+  RegularIndex,
+  InProgressIndex,
+  RollingIndex,
+} from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
 
-const indexes = [
+const indexes: RegularIndex[] = [
   {
     ns: 'db.coll',
     cardinality: 'single',
@@ -97,7 +101,46 @@ const indexes = [
     ],
     usageCount: 25,
   },
-] as RegularIndex[];
+];
+
+const inProgressIndexes: InProgressIndex[] = [
+  {
+    id: 'in-progress-1',
+    name: 'AAAA',
+    fields: [
+      {
+        field: 'a',
+        value: 1,
+      },
+      {
+        field: 'b',
+        value: -1,
+      },
+    ],
+    status: 'inprogress',
+  },
+  {
+    id: 'in-progress-2',
+    name: 'z',
+    fields: [
+      {
+        field: 'z',
+        value: 'text',
+      },
+    ],
+    status: 'inprogress',
+    error: 'this is an error',
+  },
+];
+
+const rollingIndexes: RollingIndex[] = [
+  {
+    indexName: 'my-rolling-index',
+    indexType: {
+      label: 'regular',
+    },
+  },
+];
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
@@ -120,40 +163,134 @@ const renderIndexList = (
   );
 };
 
+const indexFields = [
+  'indexes-name-field',
+  'indexes-type-field',
+  'indexes-size-field',
+  'indexes-usageCount-field',
+  'indexes-properties-field',
+  'indexes-actions-field',
+];
+
 describe('RegularIndexesTable Component', function () {
   before(cleanup);
   afterEach(cleanup);
 
-  it('renders indexes list', function () {
+  it('renders regular indexes', function () {
     renderIndexList({ isWritable: true, readOnly: false, indexes: indexes });
 
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
 
     // Renders indexes list (table rows)
-    indexes.forEach((index) => {
-      const indexRow = screen.getByText(index.name).closest('tr')!;
+    for (const index of indexes) {
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(indexRow, 'it renders each index in a row').to.exist;
 
       // Renders index fields (table cells)
-      [
-        'indexes-name-field',
-        'indexes-type-field',
-        'indexes-size-field',
-        'indexes-usage-field',
-        'indexes-properties-field',
-        'indexes-actions-field',
-      ].forEach((indexCell) => {
-        // For _id index we always hide drop index field
-        if (index.name !== '_id_' && indexCell !== 'indexes-actions-field') {
+      for (const indexCell of indexFields) {
+        let mustExist = true;
+
+        // For _id index we always hide hide/drop index field buttons
+        if (index.name === '_id_' && indexCell === 'indexes-actions-field') {
+          mustExist = false;
+        }
+
+        if (mustExist) {
           expect(within(indexRow).getByTestId(indexCell)).to.exist;
         } else {
           expect(() => {
             within(indexRow).getByTestId(indexCell);
           }).to.throw;
         }
-      });
+      }
+
+      if (index.name === '_id_') {
+        expect(() => {
+          within(indexRow).getByTestId('index-actions-hide-action');
+        }).to.throw;
+        expect(() => {
+          within(indexRow).getByTestId('index-actions-delete-action');
+        }).to.throw;
+      } else {
+        if (index.extra.hidden) {
+          expect(() =>
+            within(indexRow).getByTestId('index-actions-hide-action')
+          ).to.throw;
+          expect(within(indexRow).getByTestId('index-actions-unhide-action')).to
+            .exist;
+        } else {
+          expect(within(indexRow).getByTestId('index-actions-hide-action')).to
+            .exist;
+          expect(() =>
+            within(indexRow).getByTestId('index-actions-unhide-action')
+          ).to.throw;
+        }
+        expect(within(indexRow).getByTestId('index-actions-delete-action')).to
+          .exist;
+      }
+
+      userEvent.click(within(indexRow).getByLabelText('Expand row'));
+      const detailsRow = indexRow.nextSibling as HTMLTableRowElement;
+      expect(detailsRow).to.exist;
+
+      const details = within(detailsRow).getByTestId(
+        `indexes-details-${index.name}`
+      );
+      expect(details).to.exist;
+
+      for (const field of index.fields) {
+        expect(within(details).getByTestId(`${field.field}-key`));
+      }
+    }
+  });
+
+  it('renders in-progress indexes', function () {
+    renderIndexList({
+      isWritable: true,
+      readOnly: false,
+      inProgressIndexes: inProgressIndexes,
     });
+
+    for (const index of inProgressIndexes) {
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+
+      for (const indexCell of indexFields) {
+        expect(within(indexRow).getByTestId(indexCell)).to.exist;
+      }
+
+      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
+        .throw;
+      if (index.status === 'inprogress') {
+        expect(() =>
+          within(indexRow).getByTestId('index-actions-delete-action')
+        ).to.throw;
+      } else {
+        expect(within(indexRow).getByTestId('index-actions-delete-action')).to
+          .exist;
+      }
+    }
+  });
+
+  it('renders rolling indexes indexes', function () {
+    renderIndexList({
+      isWritable: true,
+      readOnly: false,
+      rollingIndexes: rollingIndexes,
+    });
+
+    for (const index of rollingIndexes) {
+      const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
+
+      for (const indexCell of indexFields) {
+        expect(within(indexRow).getByTestId(indexCell)).to.exist;
+      }
+
+      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
+        .throw;
+      expect(() => within(indexRow).getByTestId('index-actions-delete-action'))
+        .to.throw;
+    }
   });
 
   it('does not render the list if there is an error', function () {
@@ -174,7 +311,7 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByText(index.name).closest('tr')!;
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(within(indexRow).getByTestId('indexes-actions-field')).to.exist;
     });
   });
@@ -184,9 +321,9 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByText(index.name).closest('tr')!;
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(() => {
-        within(indexRow).getByTestId('indexes-actions-field');
+        within(indexRow).queryByTestId('indexes-actions-field');
       }).to.throw;
     });
   });
@@ -196,7 +333,7 @@ describe('RegularIndexesTable Component', function () {
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
-      const indexRow = screen.getByText(index.name).closest('tr')!;
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(() => {
         within(indexRow).getByTestId('indexes-actions-field');
       }).to.throw;
@@ -206,7 +343,7 @@ describe('RegularIndexesTable Component', function () {
   describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('indexes-name-field').map((el) => {
-        return el.textContent!.trim();
+        return (el.textContent as string).trim();
       });
     }
 
