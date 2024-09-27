@@ -46,7 +46,7 @@ async function resolveX509Cert({ projectId, clusterName }) {
  * every follow-up message is directly written to the opened socket stream
  */
 function createWebSocketProxy(port = 1337, logger = console) {
-  const wsServer = new WebSocketServer({ port }, () => {
+  const wsServer = new WebSocketServer({ host: 'localhost', port }, () => {
     logger.log('ws server listening at %s', wsServer.options.port);
   });
 
@@ -62,7 +62,6 @@ function createWebSocketProxy(port = 1337, logger = console) {
     });
     ws.on('message', async (data) => {
       if (socket) {
-        logger.log('message from client');
         socket.write(data, 'binary');
       } else {
         // First message before socket is created is with connection info
@@ -117,12 +116,13 @@ function createWebSocketProxy(port = 1337, logger = console) {
           ws.send(JSON.stringify({ evt: connectEvent }));
         });
         socket.on('data', async (data) => {
-          logger.log('message from server');
           ws.send(data);
         });
       }
     });
   });
+
+  return wsServer;
 }
 
 module.exports = { createWebSocketProxy };

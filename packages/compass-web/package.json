@@ -40,7 +40,7 @@
     "webpack": "webpack-compass",
     "postcompile": "npm run typescript",
     "typescript": "tsc -p tsconfig-build.json --emitDeclarationOnly",
-    "start": "npm run webpack serve -- --mode development",
+    "start": "electron ./scripts/electron-proxy.js",
     "analyze": "npm run webpack -- --mode production --analyze",
     "watch": "npm run webpack -- --mode development --watch",
     "sync": "node scripts/sync-dist-to-mms.js",
