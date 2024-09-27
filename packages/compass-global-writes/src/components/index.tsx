@@ -10,6 +10,7 @@ import type { RootState, ShardingStatus } from '../store/reducer';
 import { ShardingStatuses } from '../store/reducer';
 import UnshardedState from './states/unsharded';
 import ShardingState from './states/sharding';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 
 const containerStyles = css({
   paddingLeft: spacing[400],
@@ -30,7 +31,7 @@ const centeredContent = css({
   height: '100%',
 });
 
-type GlobalWritesProps = {
+type GlobalWritesProps = CollectionMetadata & {
   shardingStatus: ShardingStatus;
 };
 
