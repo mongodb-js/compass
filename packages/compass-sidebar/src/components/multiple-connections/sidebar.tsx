@@ -248,8 +248,8 @@ export function MultipleConnectionSidebar({
             connectionErrorMessage={
               connectionErrors[editingConnectionInfo.id]?.message
             }
-            preferences={formPreferences}
             openSettingsModal={openSettingsModal}
+            {...formPreferences}
           />
         )}
         <MappedCsfleModal

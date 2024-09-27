@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import AdvancedOptionsTabs from './advanced-options-tabs';
-import { ConnectionFormPreferencesContext } from '../../hooks/use-connect-form-preferences';
+import { ConnectionFormSettingsContext } from '../../hooks/use-connect-form-settings';
 
 const testUrl = 'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true';
 
@@ -110,7 +110,7 @@ describe('AdvancedOptionsTabs Component', function () {
 
   it('should not render CSFLE when its set to false in the preferences', function () {
     render(
-      <ConnectionFormPreferencesContext.Provider value={{ showCSFLE: false }}>
+      <ConnectionFormSettingsContext.Provider value={{ showCSFLE: false }}>
         <AdvancedOptionsTabs
           connectionOptions={{
             connectionString: testUrl,
@@ -118,7 +118,7 @@ describe('AdvancedOptionsTabs Component', function () {
           errors={[]}
           updateConnectionFormField={updateConnectionFormFieldSpy}
         />
-      </ConnectionFormPreferencesContext.Provider>
+      </ConnectionFormSettingsContext.Provider>
     );
 
     const csfleTabName = tabs.find((tab) => tab.id === 'csfle')?.name;

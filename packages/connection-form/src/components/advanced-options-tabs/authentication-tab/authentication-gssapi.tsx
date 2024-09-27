@@ -17,7 +17,7 @@ import {
   getConnectionStringUsername,
   parseAuthMechanismProperties,
 } from '../../../utils/connection-string-helpers';
-import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 const GSSAPI_CANONICALIZE_HOST_NAME_OPTIONS: Record<
   string,
@@ -56,7 +56,7 @@ function AuthenticationGSSAPI({
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  const showKerberosPasswordField = !!useConnectionFormPreference(
+  const showKerberosPasswordField = !!useConnectionFormSetting(
     'showKerberosPasswordField'
   );
 
