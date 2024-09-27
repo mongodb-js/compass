@@ -105,6 +105,8 @@ const renderIndexList = (
   return render(
     <RegularIndexesTable
       indexes={[]}
+      inProgressIndexes={[]}
+      rollingIndexes={[]}
       serverVersion="4.4.0"
       isWritable={true}
       readOnly={false}

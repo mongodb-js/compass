@@ -151,7 +151,7 @@ describe('regular-indexes module', function () {
       );
 
       const indexes = state.indexes.filter(
-        (index: any) => index.extra.status === 'inprogress'
+        (index: any) => index.status === 'inprogress'
       );
 
       expect(indexes).to.deep.equal([
@@ -374,7 +374,7 @@ describe('regular-indexes module', function () {
               ..._index,
             };
             if (index.name === 'AAAA') {
-              index.extra.status = 'failed';
+              index.status = 'failed';
             }
             return index;
           }),

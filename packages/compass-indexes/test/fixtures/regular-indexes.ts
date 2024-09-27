@@ -242,22 +242,18 @@ export const inProgressIndexes: InProgressIndex[] = [
     id: 'in-progress-1',
     name: 'AAAA',
     //version: 2,
-    extra: {
-      status: 'inprogress',
-    },
     fields: [],
+    status: 'inprogress',
   },
   {
     id: 'in-progress-2',
-    extra: {
-      status: 'inprogress',
-    },
+    name: 'z',
     fields: [
       {
         field: 'z',
         value: 1,
       },
     ],
-    name: 'z',
+    status: 'inprogress',
   },
 ];
