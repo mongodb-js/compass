@@ -23,6 +23,11 @@ import ResultLogger from './helpers/result-logger';
 
 const debug = Debug('compass-e2e-tests');
 
+const wait = (ms: number) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+
 const allowedArgs = [
   '--test-compass-web',
   '--no-compile',
@@ -75,18 +80,24 @@ async function setup() {
           },
         }
       );
-      // wait for webpack to finish compiling
-      await new Promise<void>((resolve) => {
-        let output = '';
-        const listener = function (chunk: string) {
-          output += chunk;
-          if (/^webpack \d+\.\d+\.\d+ compiled/m.test(output)) {
-            compassWeb.stdout.off('data', listener);
-            resolve();
-          }
-        };
-        compassWeb.stdout.setEncoding('utf8').on('data', listener);
-      });
+
+      let serverReady = false;
+      const start = Date.now();
+      while (!serverReady) {
+        if (Date.now() - start >= 120_000) {
+          throw new Error(
+            'The compass-web sandbox is still not running after 120000ms'
+          );
+        }
+        try {
+          const res = await fetch('http://localhost:7777');
+          serverReady = res.ok;
+          debug('Web server ready: %s', serverReady);
+        } catch (err) {
+          debug('Failed to connect to dev server: %s', (err as any).message);
+        }
+        await wait(1000);
+      }
     } else {
       debug('Writing electron-versions.json');
       crossSpawn.sync('scripts/write-electron-versions.sh', [], {
@@ -131,8 +142,7 @@ function cleanup() {
       try {
         if (compassWeb.pid) {
           debug(`killing compass-web [${compassWeb.pid}]`);
-          kill(compassWeb.pid);
-        } else {
+          kill(compassWeb.pid, 'SIGINT');
           debug('no pid for compass-web');
         }
       } catch (e) {

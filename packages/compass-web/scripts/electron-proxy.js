@@ -491,6 +491,16 @@ const webpackDevServer = new WebpackDevServer(
 
 let cleaningUp = false;
 
+// If stdio stream was already destroyed while we're cleaning up, these streams
+// can throw causing Electron to pop up a modal with an error, so we catch and
+// print the error ourselves
+[process.stdout, process.stderr].forEach((stream) => {
+  stream.on('error', (err) => {
+    // eslint-disable-next-line no-console
+    console.error(err);
+  });
+});
+
 function cleanupAndExit() {
   if (cleaningUp) {
     return;
