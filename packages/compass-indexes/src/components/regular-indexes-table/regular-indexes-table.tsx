@@ -20,6 +20,7 @@ import { IndexesTable } from '../indexes-table';
 
 import {
   dropIndex,
+  dropFailedIndex,
   hideIndex,
   unhideIndex,
   startPollingRegularIndexes,
@@ -39,6 +40,7 @@ type RegularIndexesTableProps = {
   onHideIndexClick: (name: string) => void;
   onUnhideIndexClick: (name: string) => void;
   onDeleteIndexClick: (name: string) => void;
+  onDeleteFailedIndexClick: (name: string) => void;
   readOnly?: boolean;
   error?: string | null;
   onRegularIndexesOpened: (tabId: string) => void;
@@ -255,6 +257,7 @@ export const RegularIndexesTable: React.FunctionComponent<
   onHideIndexClick,
   onUnhideIndexClick,
   onDeleteIndexClick,
+  onDeleteFailedIndexClick,
   onRegularIndexesOpened,
   onRegularIndexesClosed,
   error,
@@ -300,6 +303,7 @@ export const RegularIndexesTable: React.FunctionComponent<
               index={indexActionsIndex}
               serverVersion={serverVersion}
               onDeleteIndexClick={onDeleteIndexClick}
+              onDeleteFailedIndexClick={onDeleteFailedIndexClick}
               onHideIndexClick={onHideIndexClick}
               onUnhideIndexClick={onUnhideIndexClick}
             ></IndexActions>
@@ -317,6 +321,7 @@ export const RegularIndexesTable: React.FunctionComponent<
     [
       allIndexes,
       onDeleteIndexClick,
+      onDeleteFailedIndexClick,
       onHideIndexClick,
       onUnhideIndexClick,
       serverVersion,
@@ -355,6 +360,7 @@ const mapState = ({
 
 const mapDispatch = {
   onDeleteIndexClick: dropIndex,
+  onDeleteFailedIndexClick: dropFailedIndex,
   onHideIndexClick: hideIndex,
   onUnhideIndexClick: unhideIndex,
   onRegularIndexesOpened: startPollingRegularIndexes,

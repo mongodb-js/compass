@@ -496,28 +496,31 @@ const failedIndexRemoved = (
 // its value. This enables to test dropIndex action.
 export const showConfirmation = showConfirmationModal;
 
+export const dropFailedIndex = (
+  indexName: string
+): IndexesThunkAction<void, FailedIndexRemovedAction> => {
+  return (dispatch, getState) => {
+    const { regularIndexes } = getState();
+    const { inProgressIndexes } = regularIndexes;
+
+    const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
+    if (inProgressIndex && inProgressIndex.status === 'failed') {
+      // This really just removes the (failed) in-progress index
+      dispatch(failedIndexRemoved(String(inProgressIndex.id)));
+    }
+  };
+};
+
 export const dropIndex = (
   indexName: string
-): IndexesThunkAction<
-  Promise<void>,
-  FailedIndexRemovedAction | FetchIndexesActions
-> => {
+): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (
     dispatch,
     getState,
     { connectionInfoRef, dataService, track }
   ) => {
     const { namespace, regularIndexes } = getState();
-    const { indexes, inProgressIndexes } = regularIndexes;
-
-    // TODO: this should be its own action creator, not part of dropIndex
-    const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
-    if (inProgressIndex && inProgressIndex.status === 'failed') {
-      // This really just removes the (failed) in-progress index
-      dispatch(failedIndexRemoved(String(inProgressIndex.id)));
-
-      return;
-    }
+    const { indexes } = regularIndexes;
 
     const index = indexes.find((x) => x.name === indexName);
     if (!index) {

@@ -26,6 +26,7 @@ type IndexActionsProps = {
   index: IndexActionsIndex;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
+  onDeleteFailedIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
   onUnhideIndexClick: (name: string) => void;
 };
@@ -46,6 +47,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
   serverVersion,
   onDeleteIndexClick,
+  onDeleteFailedIndexClick,
   onHideIndexClick,
   onUnhideIndexClick,
 }) => {
@@ -92,14 +94,24 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
-        onDeleteIndexClick(index.name);
+        if (index.compassIndexType === 'in-progress-index') {
+          onDeleteFailedIndexClick(index.name);
+        } else {
+          onDeleteIndexClick(index.name);
+        }
       } else if (action === 'hide') {
         onHideIndexClick(index.name);
       } else if (action === 'unhide') {
         onUnhideIndexClick(index.name);
       }
     },
-    [onDeleteIndexClick, onHideIndexClick, onUnhideIndexClick, index]
+    [
+      onDeleteIndexClick,
+      onDeleteFailedIndexClick,
+      onHideIndexClick,
+      onUnhideIndexClick,
+      index,
+    ]
   );
 
   return (

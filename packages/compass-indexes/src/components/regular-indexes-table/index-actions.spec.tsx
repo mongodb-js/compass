@@ -13,6 +13,7 @@ import IndexActions from './index-actions';
 
 describe('IndexActions Component', function () {
   let onDeleteSpy: SinonSpy;
+  let onDeleteFailedIndexSpy: SinonSpy;
   let onHideIndexSpy: SinonSpy;
   let onUnhideIndexSpy: SinonSpy;
 
@@ -20,6 +21,7 @@ describe('IndexActions Component', function () {
   afterEach(cleanup);
   beforeEach(function () {
     onDeleteSpy = spy();
+    onDeleteFailedIndexSpy = spy();
     onHideIndexSpy = spy();
     onUnhideIndexSpy = spy();
   });
@@ -30,6 +32,7 @@ describe('IndexActions Component', function () {
         index={{ compassIndexType: 'regular-index', name: 'artist_id_index' }}
         serverVersion={'4.4.0'}
         onDeleteIndexClick={onDeleteSpy}
+        onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
         onHideIndexClick={onHideIndexSpy}
         onUnhideIndexClick={onUnhideIndexSpy}
       />
@@ -55,6 +58,7 @@ describe('IndexActions Component', function () {
         }}
         serverVersion={'4.4.0'}
         onDeleteIndexClick={onDeleteSpy}
+        onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
         onHideIndexClick={onHideIndexSpy}
         onUnhideIndexClick={onUnhideIndexSpy}
       />
@@ -74,6 +78,7 @@ describe('IndexActions Component', function () {
         }}
         serverVersion={'4.4.0'}
         onDeleteIndexClick={onDeleteSpy}
+        onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
         onHideIndexClick={onHideIndexSpy}
         onUnhideIndexClick={onUnhideIndexSpy}
       />
@@ -84,9 +89,9 @@ describe('IndexActions Component', function () {
     expect(button.getAttribute('aria-label')).to.equal(
       'Drop Index artist_id_index'
     );
-    expect(onDeleteSpy.callCount).to.equal(0);
+    expect(onDeleteFailedIndexSpy.callCount).to.equal(0);
     userEvent.click(button);
-    expect(onDeleteSpy.callCount).to.equal(1);
+    expect(onDeleteFailedIndexSpy.callCount).to.equal(1);
   });
 
   it('does not render the hide button for an in progress index', function () {
@@ -99,6 +104,7 @@ describe('IndexActions Component', function () {
         }}
         serverVersion={'4.4.0'}
         onDeleteIndexClick={onDeleteSpy}
+        onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
         onHideIndexClick={onHideIndexSpy}
         onUnhideIndexClick={onUnhideIndexSpy}
       />
@@ -120,6 +126,7 @@ describe('IndexActions Component', function () {
             }}
             serverVersion={'4.4.0'}
             onDeleteIndexClick={onDeleteSpy}
+            onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
             onHideIndexClick={onHideIndexSpy}
             onUnhideIndexClick={onUnhideIndexSpy}
           />
@@ -145,6 +152,7 @@ describe('IndexActions Component', function () {
             }}
             serverVersion={'4.4.0'}
             onDeleteIndexClick={onDeleteSpy}
+            onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
             onHideIndexClick={onHideIndexSpy}
             onUnhideIndexClick={onUnhideIndexSpy}
           />
@@ -174,6 +182,7 @@ describe('IndexActions Component', function () {
             }}
             serverVersion={'4.0.28'}
             onDeleteIndexClick={onDeleteSpy}
+            onDeleteFailedIndexClick={onDeleteFailedIndexSpy}
             onHideIndexClick={onHideIndexSpy}
             onUnhideIndexClick={onUnhideIndexSpy}
           />

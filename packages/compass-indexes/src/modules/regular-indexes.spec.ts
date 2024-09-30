@@ -4,6 +4,7 @@ import {
   refreshRegularIndexes,
   pollRegularIndexes,
   dropIndex,
+  dropFailedIndex,
   hideIndex,
   unhideIndex,
   startPollingRegularIndexes,
@@ -312,7 +313,7 @@ describe('regular-indexes module', function () {
       let state = store.getState().regularIndexes;
       expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
 
-      await store.dispatch(dropIndex('AAAA'));
+      store.dispatch(dropFailedIndex('AAAA'));
 
       expect(dropIndexSpy.callCount).to.equal(0);
 

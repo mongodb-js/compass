@@ -145,6 +145,7 @@ const renderIndexList = (
       onHideIndexClick={() => {}}
       onUnhideIndexClick={() => {}}
       onDeleteIndexClick={() => {}}
+      onDeleteFailedIndexClick={() => {}}
       onRegularIndexesOpened={() => {}}
       onRegularIndexesClosed={() => {}}
       {...props}
