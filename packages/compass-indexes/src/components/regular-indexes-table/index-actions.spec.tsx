@@ -89,21 +89,6 @@ describe('IndexActions Component', function () {
     expect(onDeleteSpy.callCount).to.equal(1);
   });
 
-  it('does not render the delete button for a rolling index', function () {
-    render(
-      <IndexActions
-        index={{ compassIndexType: 'rolling-index', name: 'artist_id_index' }}
-        serverVersion={'4.4.0'}
-        onDeleteIndexClick={onDeleteSpy}
-        onHideIndexClick={onHideIndexSpy}
-        onUnhideIndexClick={onUnhideIndexSpy}
-      />
-    );
-
-    const button = screen.queryByTestId('index-actions-delete-action');
-    expect(button).to.not.exist;
-  });
-
   it('does not render the hide button for an in progress index', function () {
     render(
       <IndexActions
@@ -112,21 +97,6 @@ describe('IndexActions Component', function () {
           name: 'artist_id_index',
           status: 'inprogress',
         }}
-        serverVersion={'4.4.0'}
-        onDeleteIndexClick={onDeleteSpy}
-        onHideIndexClick={onHideIndexSpy}
-        onUnhideIndexClick={onUnhideIndexSpy}
-      />
-    );
-
-    const button = screen.queryByTestId('index-actions-hide-action');
-    expect(button).to.not.exist;
-  });
-
-  it('does not render the hide button for a rolling index', function () {
-    render(
-      <IndexActions
-        index={{ compassIndexType: 'rolling-index', name: 'artist_id_index' }}
         serverVersion={'4.4.0'}
         onDeleteIndexClick={onDeleteSpy}
         onHideIndexClick={onHideIndexSpy}

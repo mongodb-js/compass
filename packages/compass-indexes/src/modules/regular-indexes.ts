@@ -507,7 +507,7 @@ export const dropIndex = (
     const { namespace, regularIndexes } = getState();
     const { indexes, inProgressIndexes } = regularIndexes;
 
-    // TODO: this should be its own function, not part of dropIndex
+    // TODO: this should be its own action creator, not part of dropIndex
     const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
     if (inProgressIndex && inProgressIndex.status === 'failed') {
       // This really just removes the (failed) in-progress index

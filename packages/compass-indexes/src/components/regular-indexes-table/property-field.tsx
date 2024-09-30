@@ -81,7 +81,7 @@ type PropertyFieldProps = {
   extra?: RegularIndex['extra'];
   properties: RegularIndex['properties'];
 
-  // TODO: these belong in their own column
+  // TODO(COMPASS-8329): these belong in their own column
   status?: InProgressIndex['status'];
   error?: InProgressIndex['error'];
 };
