@@ -15,7 +15,8 @@ import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
-import IndexActions from './index-actions';
+import RegularIndexActions from './regular-index-actions';
+import InProgressIndexActions from './in-progress-index-actions';
 import { IndexesTable } from '../indexes-table';
 
 import {
@@ -206,9 +207,16 @@ function mergeIndexes(
   return [...mappedIndexes, ...mappedInProgressIndexes];
 }
 
-type CommonIndexInfo = Omit<IndexInfo, 'actions' | 'renderExpandedContent'>;
+type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 
-function getInProgressIndexInfo(index: MappedInProgressIndex): CommonIndexInfo {
+function getInProgressIndexInfo(
+  index: MappedInProgressIndex,
+  {
+    onDeleteFailedIndexClick,
+  }: {
+    onDeleteFailedIndexClick: (indexName: string) => void;
+  }
+): CommonIndexInfo {
   return {
     id: index.id,
     name: index.name,
@@ -223,10 +231,29 @@ function getInProgressIndexInfo(index: MappedInProgressIndex): CommonIndexInfo {
         properties={[]}
       />
     ),
+    actions: (
+      <InProgressIndexActions
+        index={index}
+        onDeleteFailedIndexClick={onDeleteFailedIndexClick}
+      ></InProgressIndexActions>
+    ),
   };
 }
 
-function getRegularIndexInfo(index: MappedRegularIndex): CommonIndexInfo {
+function getRegularIndexInfo(
+  index: MappedRegularIndex,
+  {
+    serverVersion,
+    onHideIndexClick,
+    onUnhideIndexClick,
+    onDeleteIndexClick,
+  }: {
+    serverVersion: string;
+    onHideIndexClick: (indexName: string) => void;
+    onUnhideIndexClick: (indexName: string) => void;
+    onDeleteIndexClick: (indexName: string) => void;
+  }
+): CommonIndexInfo {
   return {
     id: index.name,
     name: index.name,
@@ -242,6 +269,15 @@ function getRegularIndexInfo(index: MappedRegularIndex): CommonIndexInfo {
         extra={index.extra}
         properties={index.properties}
       />
+    ),
+    actions: index.name !== '_id_' && (
+      <RegularIndexActions
+        index={index}
+        serverVersion={serverVersion}
+        onDeleteIndexClick={onDeleteIndexClick}
+        onHideIndexClick={onHideIndexClick}
+        onUnhideIndexClick={onUnhideIndexClick}
+      ></RegularIndexActions>
     ),
   };
 }
@@ -278,37 +314,20 @@ export const RegularIndexesTable: React.FunctionComponent<
       allIndexes.map((index) => {
         let indexData: CommonIndexInfo;
         if (index.compassIndexType === 'in-progress-index') {
-          indexData = getInProgressIndexInfo(index);
+          indexData = getInProgressIndexInfo(index, {
+            onDeleteFailedIndexClick,
+          });
         } else {
-          indexData = getRegularIndexInfo(index);
+          indexData = getRegularIndexInfo(index, {
+            serverVersion,
+            onDeleteIndexClick,
+            onHideIndexClick,
+            onUnhideIndexClick,
+          });
         }
-
-        const indexActionsIndex = {
-          compassIndexType: index.compassIndexType,
-          name: index.name,
-          extra:
-            index.compassIndexType === 'regular-index'
-              ? index.extra
-              : undefined,
-          status:
-            index.compassIndexType === 'in-progress-index'
-              ? index.status
-              : undefined,
-        };
 
         return {
           ...indexData,
-          actions: indexData.name !== '_id_' && (
-            <IndexActions
-              index={indexActionsIndex}
-              serverVersion={serverVersion}
-              onDeleteIndexClick={onDeleteIndexClick}
-              onDeleteFailedIndexClick={onDeleteFailedIndexClick}
-              onHideIndexClick={onHideIndexClick}
-              onUnhideIndexClick={onUnhideIndexClick}
-            ></IndexActions>
-          ),
-
           // eslint-disable-next-line react/display-name
           renderExpandedContent: () => (
             <IndexKeysBadge

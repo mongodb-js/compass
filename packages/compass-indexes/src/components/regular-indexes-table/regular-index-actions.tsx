@@ -2,31 +2,18 @@ import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
-import type { InProgressIndex } from '../../modules/regular-indexes';
 
-/*
-TODO: we can change this to
-{ name: string } & (
- | { compassIndexType: 'regular-index', extra?: { hidden?: boolean } }
- | { compassIndexType: 'in-progress-index', status: InProgressIndex['status']}
-)
- but at that point it is probably better to just have IndexActions components
- per index type?
-*/
-type IndexActionsIndex = {
+type Index = {
   name: string;
-  compassIndexType: 'regular-index' | 'in-progress-index';
   extra?: {
     hidden?: boolean;
   };
-  status?: InProgressIndex['status'];
 };
 
 type IndexActionsProps = {
-  index: IndexActionsIndex;
+  index: Index;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
-  onDeleteFailedIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
   onUnhideIndexClick: (name: string) => void;
 };
@@ -47,17 +34,13 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
   serverVersion,
   onDeleteIndexClick,
-  onDeleteFailedIndexClick,
   onHideIndexClick,
   onUnhideIndexClick,
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
     const actions: GroupedItemAction<IndexAction>[] = [];
 
-    if (
-      index.compassIndexType === 'regular-index' &&
-      serverSupportsHideIndex(serverVersion)
-    ) {
+    if (serverSupportsHideIndex(serverVersion)) {
       actions.push(
         index.extra?.hidden
           ? {
@@ -75,18 +58,11 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
       );
     }
 
-    // you can only drop regular indexes or failed inprogress indexes
-    if (
-      (index.compassIndexType === 'in-progress-index' &&
-        index.status === 'failed') ||
-      index.compassIndexType === 'regular-index'
-    ) {
-      actions.push({
-        action: 'delete',
-        label: `Drop Index ${index.name}`,
-        icon: 'Trash',
-      });
-    }
+    actions.push({
+      action: 'delete',
+      label: `Drop Index ${index.name}`,
+      icon: 'Trash',
+    });
 
     return actions;
   }, [index, serverVersion]);
@@ -94,24 +70,14 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
-        if (index.compassIndexType === 'in-progress-index') {
-          onDeleteFailedIndexClick(index.name);
-        } else {
-          onDeleteIndexClick(index.name);
-        }
+        onDeleteIndexClick(index.name);
       } else if (action === 'hide') {
         onHideIndexClick(index.name);
       } else if (action === 'unhide') {
         onUnhideIndexClick(index.name);
       }
     },
-    [
-      onDeleteIndexClick,
-      onDeleteFailedIndexClick,
-      onHideIndexClick,
-      onUnhideIndexClick,
-      index,
-    ]
+    [onDeleteIndexClick, onHideIndexClick, onUnhideIndexClick, index]
   );
 
   return (
