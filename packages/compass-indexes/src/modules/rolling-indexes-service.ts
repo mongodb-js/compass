@@ -16,7 +16,10 @@ type AtlasIndexStats = {
 
 export class RollingIndexesService {
   constructor(
-    private atlasService: AtlasService,
+    private atlasService: Pick<
+      AtlasService,
+      'automationAgentRequest' | 'automationAgentAwait'
+    >,
     private connectionInfo: ConnectionInfoRef
   ) {}
   async listRollingIndexes(namespace: string): Promise<AtlasIndexStats[]> {
