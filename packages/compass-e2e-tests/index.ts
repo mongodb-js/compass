@@ -146,6 +146,7 @@ function cleanup() {
         if (compassWeb.pid) {
           debug(`killing compass-web [${compassWeb.pid}]`);
           kill(compassWeb.pid, 'SIGINT');
+        } else {
           debug('no pid for compass-web');
         }
       } catch (e) {
