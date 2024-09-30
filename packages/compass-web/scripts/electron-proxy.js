@@ -11,8 +11,10 @@ const {
   net: { fetch: electronFetch },
 } = require('electron');
 const { createWebSocketProxy } = require('./ws-proxy');
-const Webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
+const {
+  webpack,
+  WebpackDevServer,
+} = require('@mongodb-js/webpack-config-compass');
 
 const webpackConfig = require('../webpack.config')(
   { WEBPACK_SERVE: true },
@@ -358,6 +360,10 @@ expressProxy.use('/authenticate', async (req, res) => {
 
   try {
     const { projectId } = await atlasCloudAuthenticator.authenticate();
+    // Start issuing the cert to save some time when signing in
+    void atlasCloudAuthenticator.getX509Cert().catch(() => {
+      // ignore errors
+    });
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({ projectId }));
   } catch (err) {
@@ -476,7 +482,7 @@ const proxyServer = expressProxy.listen(PROXY_PORT, 'localhost');
 
 const websocketProxyServer = createWebSocketProxy();
 
-const webpackCompiler = Webpack(webpackConfig);
+const webpackCompiler = webpack(webpackConfig);
 
 const webpackDevServer = new WebpackDevServer(
   { ...webpackConfig.devServer, setupExitSignals: false },
