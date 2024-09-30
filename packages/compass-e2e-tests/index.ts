@@ -81,6 +81,9 @@ async function setup() {
         }
       );
 
+      compassWeb.stdout.pipe(process.stdout);
+      compassWeb.stderr.pipe(process.stderr);
+
       let serverReady = false;
       const start = Date.now();
       while (!serverReady) {

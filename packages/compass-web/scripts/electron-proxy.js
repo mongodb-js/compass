@@ -233,7 +233,7 @@ class AtlasCloudAuthenticator {
             throw new Error('Window closed before finished signing in');
           }),
         ]);
-        electronApp.dock.show();
+        electronApp.dock?.show();
         void bw.loadURL(`${CLOUD_ORIGIN}/account/login`);
         return authInfoPromise;
       } finally {
@@ -473,7 +473,7 @@ expressProxy.use(
   proxyMiddleware(`http://localhost:${WEBPACK_DEV_SERVER_PORT}`)
 );
 
-electronApp.dock.hide();
+electronApp.dock?.hide();
 
 // eslint-disable-next-line no-console
 console.log('[electron-proxy] starting proxy server on port %s', PROXY_PORT);
@@ -544,7 +544,7 @@ electronApp.whenReady().then(async () => {
     // We want proxy to keep running even when all the windows are closed, but
     // hide the dock icon because there are not windows associated with it
     // anyway
-    electronApp.dock.hide();
+    electronApp.dock?.hide();
   });
 
   electronApp.on('will-quit', (evt) => {
