@@ -481,7 +481,6 @@ expressProxy.use(
 
 void electronApp.dock?.hide();
 
-// eslint-disable-next-line no-console
 logger.log('[electron-proxy] starting proxy server on port %s', PROXY_PORT);
 
 const proxyServer = expressProxy.listen(PROXY_PORT, 'localhost');
@@ -502,7 +501,6 @@ let cleaningUp = false;
 // print the error ourselves
 [process.stdout, process.stderr].forEach((stream) => {
   stream.on('error', (err) => {
-    // eslint-disable-next-line no-console
     logger.error(err);
   });
 });
@@ -512,7 +510,6 @@ function cleanupAndExit() {
     return;
   }
   cleaningUp = true;
-  // eslint-disable-next-line no-console
   logger.log('[electron-proxy] cleaning up before exit');
   void Promise.allSettled([
     // This will cleanup auth and remove the session test user
@@ -538,7 +535,6 @@ function cleanupAndExit() {
     }),
     webpackDevServer.stop(),
   ]).finally(() => {
-    // eslint-disable-next-line no-console
     logger.log('[electron-proxy] done cleaning up');
     process.exitCode = 0;
     process.exit();
