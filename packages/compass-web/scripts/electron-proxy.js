@@ -23,6 +23,8 @@ const webpackConfig = require('../webpack.config')(
 
 const expressProxy = express();
 
+const logger = console;
+
 const PROXY_PORT = process.env.COMPASS_WEB_HTTP_PROXY_PORT
   ? Number(process.env.COMPASS_WEB_HTTP_PROXY_PORT)
   : 7777;
@@ -233,7 +235,7 @@ class AtlasCloudAuthenticator {
             throw new Error('Window closed before finished signing in');
           }),
         ]);
-        electronApp.dock?.show();
+        void electronApp.dock?.show();
         void bw.loadURL(`${CLOUD_ORIGIN}/account/login`);
         return authInfoPromise;
       } finally {
@@ -244,11 +246,11 @@ class AtlasCloudAuthenticator {
 
   async cleanupAndLogout() {
     // When logging out, delete the test user too. If we don't do this now, we
-    // will loose a chance to do it later due to missing auth
+    // will lose a chance to do it later due to missing auth
     try {
       await atlasCloudAuthenticator.deleteTestDBUser();
-    } catch {
-      // Can fail if user wasn't even created yet
+    } catch (err) {
+      logger.err('[electron-proxy] failed to remove the test user:', err);
     }
     await session.defaultSession.clearStorageData({
       storages: ['cookies', 'localstorage'],
@@ -339,6 +341,10 @@ class AtlasCloudAuthenticator {
         );
       } catch (err) {
         TEST_X509_CERT_PROMISE.delete(projectId, promise);
+        logger.error(
+          '[electron-proxy] failed to issue a cert for the test user',
+          err
+        );
         throw err;
       }
     })();
@@ -473,10 +479,10 @@ expressProxy.use(
   proxyMiddleware(`http://localhost:${WEBPACK_DEV_SERVER_PORT}`)
 );
 
-electronApp.dock?.hide();
+void electronApp.dock?.hide();
 
 // eslint-disable-next-line no-console
-console.log('[electron-proxy] starting proxy server on port %s', PROXY_PORT);
+logger.log('[electron-proxy] starting proxy server on port %s', PROXY_PORT);
 
 const proxyServer = expressProxy.listen(PROXY_PORT, 'localhost');
 
@@ -497,7 +503,7 @@ let cleaningUp = false;
 [process.stdout, process.stderr].forEach((stream) => {
   stream.on('error', (err) => {
     // eslint-disable-next-line no-console
-    console.error(err);
+    logger.error(err);
   });
 });
 
@@ -507,7 +513,7 @@ function cleanupAndExit() {
   }
   cleaningUp = true;
   // eslint-disable-next-line no-console
-  console.log('[electron-proxy] cleaning up before exit');
+  logger.log('[electron-proxy] cleaning up before exit');
   void Promise.allSettled([
     // This will cleanup auth and remove the session test user
     atlasCloudAuthenticator.cleanupAndLogout(),
@@ -533,7 +539,7 @@ function cleanupAndExit() {
     webpackDevServer.stop(),
   ]).finally(() => {
     // eslint-disable-next-line no-console
-    console.log('[electron-proxy] done cleaning up');
+    logger.log('[electron-proxy] done cleaning up');
     process.exitCode = 0;
     process.exit();
   });
