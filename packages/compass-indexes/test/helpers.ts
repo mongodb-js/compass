@@ -10,6 +10,7 @@ export function mockRegularIndex(info: Partial<RegularIndex>): RegularIndex {
     fields: [],
     size: 0,
     relativeSize: 0,
+    cardinality: 'single',
     properties: [],
     ...info,
     extra: {
