@@ -19,6 +19,10 @@ export type AutomationAgentRequestTypes = {
     collection: string;
     name: string;
   };
+  getShardKey: ClusterOrServerlessId & {
+    db: string;
+    collection: string;
+  };
 };
 
 type AutomationAgentRequestOpTypes = keyof AutomationAgentRequestTypes;
@@ -60,6 +64,11 @@ export type AutomationAgentAwaitResponseTypes = {
     status: 'rolling build' | 'building' | 'exists';
   }[];
   dropIndex: never[];
+  getShardKey: Array<{
+    _id: string;
+    unique: boolean;
+    key: Record<string, unknown>;
+  }>;
 };
 
 type AutomationAgentAwaitOpTypes = keyof AutomationAgentAwaitResponseTypes;
@@ -121,6 +130,10 @@ function unwrapAutomationAgentAwaitResponse(
   json: any,
   opType: 'dropIndex'
 ): UnwrappedAutomationAgentAwaitResponse<'dropIndex'>;
+function unwrapAutomationAgentAwaitResponse(
+  json: any,
+  opType: 'getShardKey'
+): UnwrappedAutomationAgentAwaitResponse<'getShardKey'>;
 function unwrapAutomationAgentAwaitResponse(json: any, opType: string): never;
 function unwrapAutomationAgentAwaitResponse(
   json: any,
@@ -133,6 +146,10 @@ function unwrapAutomationAgentAwaitResponse(
     return undefined;
   }
   if (opType === 'listIndexStats') {
+    assertAutomationAgentAwaitResponse(json, opType);
+    return json.response;
+  }
+  if (opType === 'getShardKey') {
     assertAutomationAgentAwaitResponse(json, opType);
     return json.response;
   }
