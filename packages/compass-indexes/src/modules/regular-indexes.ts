@@ -20,6 +20,7 @@ import {
 import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from '@mongodb-js/atlas-service/provider';
+import { connectionSupports } from '@mongodb-js/compass-connections';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -335,10 +336,10 @@ const fetchIndexes = (
       return;
     }
 
-    // TODO: we should probably extract this logic in such a way so we don't
-    // keep duplicating it? There's a hook, but we can't use a hook here. The
-    // rolling index service also checks this, for example.
-    const isRollingIndexesSupported = !!connectionInfoRef.current.atlasMetadata;
+    const isRollingIndexesSupported = connectionSupports(
+      connectionInfoRef.current,
+      'rollingIndexCreation'
+    );
 
     try {
       dispatch(fetchIndexesStarted(reason));

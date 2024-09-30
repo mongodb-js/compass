@@ -22,6 +22,8 @@ export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
+export type { ConnectionFeature } from './utils/connection-supports';
+export { connectionSupports } from './utils/connection-supports';
 
 const ConnectionsComponent: React.FunctionComponent<{
   appName: string;
