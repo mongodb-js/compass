@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "8.44.1",
+  "version": "8.44.2",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "bugs": {
@@ -68,7 +68,7 @@
   "dependencies": {
     "@mongodb-js/atlas-service": "^0.29.0",
     "@mongodb-js/compass-app-stores": "^7.29.1",
-    "@mongodb-js/compass-collection": "^4.42.1",
+    "@mongodb-js/compass-collection": "^4.42.2",
     "@mongodb-js/compass-components": "^1.30.0",
     "@mongodb-js/compass-connections": "^1.43.1",
     "@mongodb-js/compass-editor": "^0.31.0",
