@@ -340,7 +340,7 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
     projectId: string;
     children: React.ReactChild;
   }) {
-    const extraConnectinoOptions = useContext(
+    const extraConnectionOptions = useContext(
       SandboxExtraConnectionOptionsContext
     );
     const atlasService = atlasServiceLocator();
@@ -349,7 +349,7 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
         atlasService,
         orgId,
         projectId,
-        extraConnectinoOptions
+        extraConnectionOptions
       )
     );
     const sandboxConnectionStorage = useContext(
