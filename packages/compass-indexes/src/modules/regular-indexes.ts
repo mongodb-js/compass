@@ -27,6 +27,7 @@ export type RegularIndex = Partial<IndexDefinition> &
     // ones we use. Everything else is treated as optional.
     | 'name'
     | 'type'
+    | 'cardinality'
     | 'properties'
     | 'fields'
     | 'extra'
@@ -64,11 +65,13 @@ const prepareInProgressIndex = (
     }, '');
   return {
     id,
-    // TODO: we need the type because it shows in the table
+    // TODO(COMPASS-8335): we need the type because it shows in the table
+    // TODO(COMPASS-8335): the table can also use cardinality
     status: 'inprogress',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    // TODO: we never mapped properties and the table does have room to display them
+    // TODO(COMPASS-8335): we never mapped properties and the table does have
+    // room to display them
   };
 };
 

@@ -58,7 +58,8 @@ type IndexInfo = {
 };
 
 function mergedIndexPropertyValue(index: MergedIndex): string {
-  // TODO: right now only regular indexes have properties & cardinality
+  // TODO(COMPASS-8335): right now only regular indexes have properties &
+  // cardinality
   if (index.compassIndexType !== 'regular-index') {
     return '';
   }
@@ -88,7 +89,7 @@ function mergedIndexFieldValue(
 ): string | number | undefined {
   if (index.compassIndexType === 'in-progress-index') {
     if (field === 'type') {
-      // TODO: type should be supported by in-progress-index
+      // TODO(COMPASS-8335): type should be supported by in-progress-index
       return 'unknown';
     }
     if (field === 'size' || field === 'usageCount') {
