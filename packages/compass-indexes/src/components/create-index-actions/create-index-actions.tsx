@@ -24,72 +24,46 @@ const createIndexButtonStyles = css({
  */
 function CreateIndexActions({
   error,
-  inProgress,
   onErrorBannerCloseClick,
   onCreateIndexClick,
   onCancelCreateIndexClick,
 }: {
   error: string | null;
-  inProgress: boolean;
   onErrorBannerCloseClick: () => void;
   onCreateIndexClick: () => void;
   onCancelCreateIndexClick: () => void;
 }) {
-  const renderError = () => {
-    if (!error) {
-      return;
-    }
-
-    return (
-      <div
-        data-testid="create-index-actions-error-banner-wrapper"
-        className={bannerStyles}
-      >
-        <Banner variant="danger" dismissible onClose={onErrorBannerCloseClick}>
-          {error}
-        </Banner>
-      </div>
-    );
-  };
-
-  const renderInProgress = () => {
-    if (error || !inProgress) {
-      return;
-    }
-
-    return (
-      <div
-        data-testid="create-index-actions-in-progress-banner-wrapper"
-        className={bannerStyles}
-      >
-        <Banner variant="info">
-          Index creation in progress. The dialog can be closed.
-        </Banner>
-      </div>
-    );
-  };
-
   return (
     <div className={containerStyles}>
-      {renderError()}
-      {renderInProgress()}
+      {error && (
+        <div
+          data-testid="create-index-actions-error-banner-wrapper"
+          className={bannerStyles}
+        >
+          <Banner
+            variant="danger"
+            dismissible
+            onClose={onErrorBannerCloseClick}
+          >
+            {error}
+          </Banner>
+        </div>
+      )}
 
       <Button
         data-testid="create-index-actions-cancel-button"
         onClick={onCancelCreateIndexClick}
       >
-        {inProgress ? 'Close' : 'Cancel'}
+        Cancel
       </Button>
-      {!inProgress && (
-        <Button
-          data-testid="create-index-actions-create-index-button"
-          onClick={onCreateIndexClick}
-          variant="primary"
-          className={createIndexButtonStyles}
-        >
-          Create Index
-        </Button>
-      )}
+      <Button
+        data-testid="create-index-actions-create-index-button"
+        onClick={onCreateIndexClick}
+        variant="primary"
+        className={createIndexButtonStyles}
+      >
+        Create Index
+      </Button>
     </div>
   );
 }

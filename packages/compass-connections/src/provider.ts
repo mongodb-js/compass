@@ -98,6 +98,7 @@ export {
 } from './stores/store-context';
 
 export { useConnectionsStore as useConnections };
+export { useConnectionSupports } from './hooks/use-connection-supports';
 
 const ConnectionStatus = {
   /**

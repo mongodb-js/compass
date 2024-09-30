@@ -21,10 +21,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import {
-  SearchIndexesStatuses,
-  createSearchIndexOpened,
-} from '../../modules/search-indexes';
+import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
@@ -61,7 +58,7 @@ type IndexesToolbarProps = {
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: () => void;
   writeStateDescription?: string;
-  isAtlasSearchSupported: boolean;
+  isSearchIndexesSupported: boolean;
   // via withPreferences:
   readOnly?: boolean;
 };
@@ -76,7 +73,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isRefreshing,
   writeStateDescription,
   hasTooManyIndexes,
-  isAtlasSearchSupported,
+  isSearchIndexesSupported,
   onRefreshIndexes,
   onIndexViewChanged,
   readOnly, // preferences readOnly.
@@ -106,7 +103,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                   <div className={createIndexButtonContainerStyles}>
                     <CreateIndexButton
                       isSearchManagementActive={isSearchManagementActive}
-                      isAtlasSearchSupported={isAtlasSearchSupported}
+                      isSearchIndexesSupported={isSearchIndexesSupported}
                       isWritable={isWritable}
                       onCreateRegularIndexClick={onCreateRegularIndexClick}
                       onCreateSearchIndexClick={onCreateSearchIndexClick}
@@ -147,7 +144,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 >
                   Indexes
                 </SegmentedControlOption>
-                {!isAtlasSearchSupported && (
+                {!isSearchIndexesSupported && (
                   <Tooltip
                     align="top"
                     justify="middle"
@@ -174,7 +171,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     </p>
                   </Tooltip>
                 )}
-                {isAtlasSearchSupported && (
+                {isSearchIndexesSupported && (
                   <SegmentedControlOption
                     data-testid="search-indexes-tab"
                     value="search-indexes"
@@ -200,7 +197,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 
 type CreateIndexButtonProps = {
   isSearchManagementActive: boolean;
-  isAtlasSearchSupported: boolean;
+  isSearchIndexesSupported: boolean;
   isWritable: boolean;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: () => void;
@@ -212,7 +209,7 @@ export const CreateIndexButton: React.FunctionComponent<
   CreateIndexButtonProps
 > = ({
   isSearchManagementActive,
-  isAtlasSearchSupported,
+  isSearchIndexesSupported,
   isWritable,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
@@ -229,7 +226,7 @@ export const CreateIndexButton: React.FunctionComponent<
     [onCreateRegularIndexClick, onCreateSearchIndexClick]
   );
 
-  if (isAtlasSearchSupported && isSearchManagementActive) {
+  if (isSearchIndexesSupported && isSearchManagementActive) {
     return (
       <DropdownMenuButton
         data-testid="multiple-index-types-creation-dropdown"
@@ -244,6 +241,7 @@ export const CreateIndexButton: React.FunctionComponent<
           { action: 'createSearchIndex', label: 'Search Index' },
         ]}
         onAction={onActionDispatch}
+        hideOnNarrow={false}
       />
     );
   }
@@ -264,6 +262,7 @@ export const CreateIndexButton: React.FunctionComponent<
 const mapState = ({
   isWritable,
   isReadonlyView,
+  isSearchIndexesSupported,
   description,
   serverVersion,
   searchIndexes,
@@ -271,11 +270,11 @@ const mapState = ({
 }: RootState) => ({
   isWritable,
   isReadonlyView,
+  isSearchIndexesSupported,
   writeStateDescription: description,
   indexView,
   serverVersion,
-  isAtlasSearchSupported:
-    searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,
+  searchIndexes,
 });
 
 const mapDispatch = {

@@ -26,6 +26,7 @@ import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
 import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
+import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CreateViewPlugin } from '@mongodb-js/compass-aggregations';
 import {
   CreateNamespacePlugin,
@@ -101,6 +102,7 @@ export default function Workspace({
           CompassSchemaPlugin,
           CompassIndexesPlugin,
           CompassSchemaValidationPlugin,
+          CompassGlobalWritesPlugin,
         ]}
         modals={[
           ExplainPlanCollectionTabModal,

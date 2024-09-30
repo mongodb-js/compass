@@ -1,15 +1,13 @@
 import { EJSON, ObjectId } from 'bson';
-import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
+import type { CreateIndexesOptions } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
 import type { Action, Reducer, Dispatch } from 'redux';
 import { Badge } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
-import type { InProgressIndex } from './regular-indexes';
 import type { IndexesThunkAction } from '.';
-import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { RootState } from '.';
-import { fetchIndexes } from './regular-indexes';
+import { createRegularIndex } from './regular-indexes';
 
 export enum ActionTypes {
   FieldAdded = 'compass-indexes/create-index/fields/field-added',
@@ -26,10 +24,7 @@ export enum ActionTypes {
   CreateIndexOpened = 'compass-indexes/create-index/create-index-shown',
   CreateIndexClosed = 'compass-indexes/create-index/create-index-hidden',
 
-  // These also get used by the regular-indexes slice's reducer
-  IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
-  IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
-  IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
+  CreateIndexFormSubmitted = 'compass-indexes/create-index/create-index-form-submitted',
 }
 
 // fields
@@ -58,6 +53,10 @@ type FieldsChangedAction = {
   fields: Field[];
 };
 
+/**
+ * Emitted only when the form fails client-side validation before being
+ * submitted
+ */
 type ErrorEncounteredAction = {
   type: ActionTypes.ErrorEncountered;
   error: string;
@@ -67,7 +66,7 @@ type ErrorClearedAction = {
   type: ActionTypes.ErrorCleared;
 };
 
-type CreateIndexOpenedAction = {
+export type CreateIndexOpenedAction = {
   type: ActionTypes.CreateIndexOpened;
 };
 
@@ -75,20 +74,12 @@ type CreateIndexClosedAction = {
   type: ActionTypes.CreateIndexClosed;
 };
 
-export type IndexCreationStartedAction = {
-  type: ActionTypes.IndexCreationStarted;
-  inProgressIndex: InProgressIndex;
-};
-
-export type IndexCreationSucceededAction = {
-  type: ActionTypes.IndexCreationSucceeded;
-  inProgressIndexId: string;
-};
-
-export type IndexCreationFailedAction = {
-  type: ActionTypes.IndexCreationFailed;
-  inProgressIndexId: string;
-  error: string;
+/**
+ * Dispatched when the form passed the client validation and the form data was
+ * submitted for index creation
+ */
+type CreateIndexFormSubmittedAction = {
+  type: ActionTypes.CreateIndexFormSubmitted;
 };
 
 export const fieldAdded = () => ({
@@ -259,11 +250,15 @@ const INITIAL_OPTIONS_STATE = Object.fromEntries(
 // other
 
 export type State = {
-  // modal state
-  inProgress: boolean;
+  // A unique id assigned to the create index modal on open, will be used when
+  // creating an instance of in-progress index and can be used to map the index
+  // to the form if needed
+  indexId: string;
+
+  // Whether or not the modal is open or closed
   isVisible: boolean;
 
-  // validation
+  // Client-side validation error
   error: string | null;
 
   // form fields related
@@ -274,15 +269,18 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
-  inProgress: false,
+  indexId: new ObjectId().toHexString(),
   isVisible: false,
   error: null,
   fields: INITIAL_FIELDS_STATE,
   options: INITIAL_OPTIONS_STATE,
 };
 
-function getInitialState() {
-  return JSON.parse(JSON.stringify(INITIAL_STATE));
+function getInitialState(): State {
+  return {
+    ...JSON.parse(JSON.stringify(INITIAL_STATE)),
+    indexId: new ObjectId().toHexString(),
+  };
 }
 
 //-------
@@ -304,66 +302,8 @@ export const errorCleared = (): ErrorClearedAction => ({
   type: ActionTypes.ErrorCleared,
 });
 
-const indexCreationStarted = (
-  inProgressIndex: InProgressIndex
-): IndexCreationStartedAction => ({
-  type: ActionTypes.IndexCreationStarted,
-  inProgressIndex,
-});
-
-const indexCreationSucceeded = (
-  inProgressIndexId: string
-): IndexCreationSucceededAction => ({
-  type: ActionTypes.IndexCreationSucceeded,
-  inProgressIndexId,
-});
-
-const indexCreationFailed = (
-  inProgressIndexId: string,
-  error: string
-): IndexCreationFailedAction => ({
-  type: ActionTypes.IndexCreationFailed,
-  inProgressIndexId,
-  error,
-});
-
 export type CreateIndexSpec = {
   [key: string]: string | number;
-};
-const prepareIndex = ({
-  ns,
-  name,
-  spec,
-}: {
-  ns: string;
-  name?: string;
-  spec: CreateIndexSpec;
-}): InProgressIndex => {
-  const inProgressIndexId = new ObjectId().toHexString();
-  const inProgressIndexFields = Object.keys(spec).map((field: string) => ({
-    field,
-    value: spec[field],
-  }));
-  const inProgressIndexName =
-    name ||
-    Object.keys(spec).reduce((previousValue, currentValue) => {
-      return `${
-        previousValue === '' ? '' : `${previousValue}_`
-      }${currentValue}_${spec[currentValue]}`;
-    }, '');
-  return {
-    id: inProgressIndexId,
-    extra: {
-      status: 'inprogress',
-    },
-    key: spec,
-    fields: inProgressIndexFields,
-    name: inProgressIndexName,
-    ns,
-    size: 0,
-    relativeSize: 0,
-    usageCount: 0,
-  };
 };
 
 function isEmptyValue(value: unknown) {
@@ -377,24 +317,16 @@ function isEmptyValue(value: unknown) {
   return false;
 }
 
-export const createIndex = (): IndexesThunkAction<
-  Promise<void>,
-  | ErrorEncounteredAction
-  | IndexCreationStartedAction
-  | IndexCreationSucceededAction
-  | IndexCreationFailedAction
+export const createIndexFormSubmitted = (): IndexesThunkAction<
+  void,
+  ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
-  return async (
-    dispatch,
-    getState,
-    { dataService, track, connectionInfoRef }
-  ) => {
-    const state = getState();
+  return (dispatch, getState) => {
     const spec = {} as CreateIndexSpec;
 
     // Check for field errors.
     if (
-      state.createIndex.fields.some(
+      getState().createIndex.fields.some(
         (field: Field) => field.name === '' || field.type === ''
       )
     ) {
@@ -402,9 +334,9 @@ export const createIndex = (): IndexesThunkAction<
       return;
     }
 
-    const stateOptions = state.createIndex.options;
+    const formIndexOptions = getState().createIndex.options;
 
-    state.createIndex.fields.forEach((field: Field) => {
+    getState().createIndex.fields.forEach((field: Field) => {
       let type: string | number = field.type;
       if (field.type === '1 (asc)') type = 1;
       if (field.type === '-1 (desc)') type = -1;
@@ -415,48 +347,48 @@ export const createIndex = (): IndexesThunkAction<
 
     // Check for collation errors.
     const collation =
-      isCollationValid(stateOptions.collation.value ?? '') || undefined;
+      isCollationValid(formIndexOptions.collation.value ?? '') || undefined;
 
-    if (stateOptions.collation.enabled && !collation) {
+    if (formIndexOptions.collation.enabled && !collation) {
       dispatch(errorEncountered('You must provide a valid collation object'));
       return;
     }
 
-    if (stateOptions.collation.enabled) {
+    if (formIndexOptions.collation.enabled) {
       options.collation = collation;
     }
 
-    if (stateOptions.unique.enabled) {
-      options.unique = stateOptions.unique.value;
+    if (formIndexOptions.unique.enabled) {
+      options.unique = formIndexOptions.unique.value;
     }
 
-    if (stateOptions.sparse.enabled) {
-      options.sparse = stateOptions.sparse.value;
+    if (formIndexOptions.sparse.enabled) {
+      options.sparse = formIndexOptions.sparse.value;
     }
 
     // The server will generate a name when we don't provide one.
-    if (stateOptions.name.enabled && stateOptions.name.value) {
-      options.name = stateOptions.name.value;
+    if (formIndexOptions.name.enabled && formIndexOptions.name.value) {
+      options.name = formIndexOptions.name.value;
     }
 
-    if (stateOptions.expireAfterSeconds.enabled) {
+    if (formIndexOptions.expireAfterSeconds.enabled) {
       options.expireAfterSeconds = Number(
-        stateOptions.expireAfterSeconds.value
+        formIndexOptions.expireAfterSeconds.value
       );
       if (isNaN(options.expireAfterSeconds)) {
         dispatch(
           errorEncountered(
-            `Bad TTL: "${String(stateOptions.expireAfterSeconds.value)}"`
+            `Bad TTL: "${String(formIndexOptions.expireAfterSeconds.value)}"`
           )
         );
         return;
       }
     }
 
-    if (stateOptions.wildcardProjection.enabled) {
+    if (formIndexOptions.wildcardProjection.enabled) {
       try {
         options.wildcardProjection = EJSON.parse(
-          stateOptions.wildcardProjection.value ?? ''
+          formIndexOptions.wildcardProjection.value ?? ''
         ) as Document;
       } catch (err) {
         dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
@@ -464,11 +396,11 @@ export const createIndex = (): IndexesThunkAction<
       }
     }
 
-    if (stateOptions.columnstoreProjection.enabled) {
+    if (formIndexOptions.columnstoreProjection.enabled) {
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
         options.columnstoreProjection = EJSON.parse(
-          stateOptions.columnstoreProjection.value ?? ''
+          formIndexOptions.columnstoreProjection.value ?? ''
         ) as Document;
       } catch (err) {
         dispatch(errorEncountered(`Bad ColumnstoreProjection: ${String(err)}`));
@@ -476,10 +408,10 @@ export const createIndex = (): IndexesThunkAction<
       }
     }
 
-    if (stateOptions.partialFilterExpression.enabled) {
+    if (formIndexOptions.partialFilterExpression.enabled) {
       try {
         options.partialFilterExpression = EJSON.parse(
-          state.createIndex.options.partialFilterExpression.value ?? ''
+          formIndexOptions.partialFilterExpression.value ?? ''
         ) as Document;
       } catch (err) {
         dispatch(
@@ -495,45 +427,18 @@ export const createIndex = (): IndexesThunkAction<
     // explicitly can lead to the server errors for some index types that don't
     // support them (even though technically user is not enabling them)
     for (const optionName of Object.keys(
-      stateOptions
-    ) as (keyof typeof stateOptions)[]) {
-      if (isEmptyValue(stateOptions[optionName].value)) {
+      formIndexOptions
+    ) as (keyof typeof formIndexOptions)[]) {
+      if (isEmptyValue(formIndexOptions[optionName].value)) {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
         delete options[optionName];
       }
     }
 
-    const ns = state.namespace;
-    const inProgressIndex = prepareIndex({ ns, name: options.name, spec });
-
-    dispatch(indexCreationStarted(inProgressIndex));
-
-    const trackEvent = {
-      unique: options.unique,
-      ttl: stateOptions.expireAfterSeconds.enabled,
-      columnstore_index: hasColumnstoreIndex(state.createIndex.fields),
-      has_columnstore_projection: stateOptions.columnstoreProjection.enabled,
-      has_wildcard_projection: stateOptions.wildcardProjection.enabled,
-      custom_collation: stateOptions.collation.enabled,
-      geo:
-        state.createIndex.fields.filter(
-          ({ type }: { type: string }) => type === '2dsphere'
-        ).length > 0,
-      atlas_search: false,
-    };
-
-    try {
-      await dataService.createIndex(ns, spec as IndexSpecification, options);
-      dispatch(indexCreationSucceeded(inProgressIndex.id));
-      track('Index Created', trackEvent, connectionInfoRef.current);
-
-      // Start a new fetch so that the newly added index's details can be
-      // loaded. indexCreationSucceeded() will remove the in-progress one, but
-      // we still need the new info.
-      await dispatch(fetchIndexes());
-    } catch (err) {
-      dispatch(indexCreationFailed(inProgressIndex.id, (err as Error).message));
-    }
+    dispatch({ type: ActionTypes.CreateIndexFormSubmitted });
+    void dispatch(
+      createRegularIndex(getState().createIndex.indexId, spec, options)
+    );
   };
 };
 
@@ -609,7 +514,7 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
     isAction<CreateIndexOpenedAction>(action, ActionTypes.CreateIndexOpened)
   ) {
     return {
-      ...state,
+      ...getInitialState(),
       isVisible: true,
     };
   }
@@ -638,32 +543,15 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   }
 
   if (
-    isAction<IndexCreationStartedAction>(
+    isAction<CreateIndexFormSubmittedAction>(
       action,
-      ActionTypes.IndexCreationStarted
+      ActionTypes.CreateIndexFormSubmitted
     )
   ) {
     return {
       ...state,
-      error: null,
-      inProgress: true,
+      isVisible: false,
     };
-  }
-  if (
-    isAction<IndexCreationSucceededAction>(
-      action,
-      ActionTypes.IndexCreationSucceeded
-    )
-  ) {
-    return {
-      ...getInitialState(),
-    };
-  }
-
-  if (
-    isAction<IndexCreationFailedAction>(action, ActionTypes.IndexCreationFailed)
-  ) {
-    return { ...state, inProgress: false, error: action.error };
   }
 
   return state;

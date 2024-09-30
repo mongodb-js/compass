@@ -16,7 +16,7 @@ import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
 import { getConnectionStringUsername } from '../../../utils/connection-string-helpers';
 import type { OIDCOptions } from '../../../utils/oidc-handler';
-import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
@@ -50,7 +50,7 @@ function AuthenticationOIDC({
   const hasEnabledDeviceAuthFlow =
     !!connectionOptions.oidc?.allowedFlows?.includes?.('device-auth');
 
-  const showOIDCDeviceAuthFlow = !!useConnectionFormPreference(
+  const showOIDCDeviceAuthFlow = !!useConnectionFormSetting(
     'showOIDCDeviceAuthFlow'
   );
 
@@ -59,7 +59,7 @@ function AuthenticationOIDC({
     [openSettingsModal]
   );
   const showProxySettings =
-    useConnectionFormPreference('showProxySettings') && openSettingsModal;
+    useConnectionFormSetting('showProxySettings') && openSettingsModal;
   return (
     <>
       <FormFieldContainer>

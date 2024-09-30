@@ -31,7 +31,8 @@ async function renderConnectionForm(
       onSaveAndConnectClicked={(connectionInfo) => {
         void connectSpy(connectionInfo.connectionOptions);
       }}
-      preferences={{ enableOidc: true, showOIDCDeviceAuthFlow }}
+      enableOidc={true}
+      showOIDCDeviceAuthFlow={showOIDCDeviceAuthFlow}
       onSaveClicked={() => {
         return Promise.resolve();
       }}

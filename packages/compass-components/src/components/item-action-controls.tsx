@@ -504,6 +504,7 @@ export function DropdownMenuButton<Action extends string>({
   buttonProps,
   iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
+  hideOnNarrow = true,
 }: {
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
@@ -514,6 +515,7 @@ export function DropdownMenuButton<Action extends string>({
   'data-testid'?: string;
   buttonText: string;
   buttonProps: ButtonProps;
+  hideOnNarrow?: boolean;
 }) {
   // this ref is used by the Menu component to calculate the height and position
   // of the menu, and by us to give back the focus to the trigger when the menu
@@ -567,7 +569,9 @@ export function DropdownMenuButton<Action extends string>({
             rightGlyph={<Icon glyph={'CaretDown'} />}
             title={buttonText}
           >
-            <span className={hiddenOnNarrowStyles}>{buttonText}</span>
+            <span className={hideOnNarrow ? hiddenOnNarrowStyles : undefined}>
+              {buttonText}
+            </span>
             {children}
           </Button>
         );

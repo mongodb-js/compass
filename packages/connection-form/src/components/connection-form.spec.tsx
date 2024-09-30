@@ -11,7 +11,6 @@ import {
 import { expect } from 'chai';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import ConnectionForm from './connection-form';
 import type { ConnectionFormProps } from './connection-form';
 import Sinon from 'sinon';
@@ -36,19 +35,16 @@ describe('ConnectionForm Component', function () {
   let preferences: PreferencesAccess;
   function renderForm(props: Partial<ConnectionFormProps> = {}) {
     return render(
-      <PreferencesProvider value={preferences}>
-        <ConnectionForm
-          initialConnectionInfo={{
-            id: 'test',
-            connectionOptions: {
-              connectionString:
-                'mongodb://pineapple:orangutans@localhost:27019',
-            },
-          }}
-          onSaveClicked={noop}
-          {...props}
-        />
-      </PreferencesProvider>
+      <ConnectionForm
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
+          },
+        }}
+        onSaveClicked={noop}
+        {...props}
+      />
     );
   }
 
@@ -73,7 +69,7 @@ describe('ConnectionForm Component', function () {
 
   it('should render the connection string textbox', function () {
     renderForm();
-    const textArea = screen.getByTestId('connectionString');
+    const textArea = screen.getByTestId<HTMLInputElement>('connectionString');
     expect(textArea).to.have.text('mongodb://pineapple:*****@localhost:27019/');
   });
 
@@ -97,10 +93,8 @@ describe('ConnectionForm Component', function () {
             it('should render the toggle button in the off state for default connection', function () {
               renderForm({
                 initialConnectionInfo: DEFAULT_CONNECTION,
-                preferences: {
-                  protectConnectionStringsForNewConnections: true,
-                  protectConnectionStrings: false,
-                },
+                protectConnectionStringsForNewConnections: true,
+                protectConnectionStrings: false,
               });
 
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
@@ -114,10 +108,8 @@ describe('ConnectionForm Component', function () {
 
             it('should render the toggle button in the off state for existing connection', function () {
               renderForm({
-                preferences: {
-                  protectConnectionStringsForNewConnections: true,
-                  protectConnectionStrings: false,
-                },
+                protectConnectionStringsForNewConnections: true,
+                protectConnectionStrings: false,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
@@ -136,10 +128,8 @@ describe('ConnectionForm Component', function () {
             it('should render the toggle button in the off state for default connection', function () {
               renderForm({
                 initialConnectionInfo: DEFAULT_CONNECTION,
-                preferences: {
-                  protectConnectionStringsForNewConnections: true,
-                  protectConnectionStrings: true,
-                },
+                protectConnectionStringsForNewConnections: true,
+                protectConnectionStrings: true,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
@@ -152,10 +142,8 @@ describe('ConnectionForm Component', function () {
 
             it('should not render the toggle button for existing connection', function () {
               renderForm({
-                preferences: {
-                  protectConnectionStringsForNewConnections: true,
-                  protectConnectionStrings: true,
-                },
+                protectConnectionStringsForNewConnections: true,
+                protectConnectionStrings: true,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .be.null;
@@ -174,10 +162,8 @@ describe('ConnectionForm Component', function () {
             it('should render the toggle button in the on state for default connection', function () {
               renderForm({
                 initialConnectionInfo: DEFAULT_CONNECTION,
-                preferences: {
-                  protectConnectionStringsForNewConnections: false,
-                  protectConnectionStrings: false,
-                },
+                protectConnectionStringsForNewConnections: false,
+                protectConnectionStrings: false,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
@@ -190,10 +176,8 @@ describe('ConnectionForm Component', function () {
 
             it('should render the toggle button in the off state for existing connection', function () {
               renderForm({
-                preferences: {
-                  protectConnectionStringsForNewConnections: false,
-                  protectConnectionStrings: false,
-                },
+                protectConnectionStringsForNewConnections: false,
+                protectConnectionStrings: false,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
@@ -212,10 +196,8 @@ describe('ConnectionForm Component', function () {
             it('should render the toggle button in the on state for default connection', function () {
               renderForm({
                 initialConnectionInfo: DEFAULT_CONNECTION,
-                preferences: {
-                  protectConnectionStringsForNewConnections: false,
-                  protectConnectionStrings: true,
-                },
+                protectConnectionStringsForNewConnections: false,
+                protectConnectionStrings: true,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .not.be.null;
@@ -228,10 +210,8 @@ describe('ConnectionForm Component', function () {
 
             it('should not render the toggle button for existing connection', function () {
               renderForm({
-                preferences: {
-                  protectConnectionStringsForNewConnections: false,
-                  protectConnectionStrings: true,
-                },
+                protectConnectionStringsForNewConnections: false,
+                protectConnectionStrings: true,
               });
               expect(screen.queryByTestId('toggle-edit-connection-string')).to
                 .be.null;
@@ -246,9 +226,7 @@ describe('ConnectionForm Component', function () {
   context.skip('when preferences.showFavoriteActions === false', function () {
     it('should not render the favorite button', function () {
       renderForm({
-        preferences: {
-          showFavoriteActions: false,
-        },
+        showFavoriteActions: false,
       });
       expect(screen.queryByText(favoriteText)).to.not.exist;
     });
@@ -388,10 +366,8 @@ describe('ConnectionForm Component', function () {
       });
       renderForm({
         initialConnectionInfo: DEFAULT_CONNECTION,
-        preferences: {
-          protectConnectionStringsForNewConnections: false,
-          protectConnectionStrings: false,
-        },
+        protectConnectionStringsForNewConnections: false,
+        protectConnectionStrings: false,
         onCancel,
       });
     });
@@ -417,9 +393,8 @@ describe('ConnectionForm Component', function () {
 
     describe('name input', function () {
       it('should sync with the href of the connection string unless it has been edited', async function () {
-        const connectionString = screen.getByTestId(
-          'connectionString'
-        ) as HTMLInputElement;
+        const connectionString =
+          screen.getByTestId<HTMLInputElement>('connectionString');
         userEvent.clear(connectionString);
 
         await waitFor(() => expect(connectionString.value).to.equal(''));
@@ -430,19 +405,18 @@ describe('ConnectionForm Component', function () {
           expect(connectionString.value).to.equal('mongodb://myserver:27017/')
         );
 
-        const personalizationName = screen.getByTestId(
+        const personalizationName = screen.getByTestId<HTMLInputElement>(
           'personalization-name-input'
-        ) as HTMLInputElement;
+        );
         expect(personalizationName.value).to.equal('myserver:27017');
       });
 
       it('should not sync with the href of the connection string when it has been edited', async function () {
-        const connectionString = screen.getByTestId(
-          'connectionString'
-        ) as HTMLInputElement;
-        const personalizationName = screen.getByTestId(
+        const connectionString =
+          screen.getByTestId<HTMLInputElement>('connectionString');
+        const personalizationName = screen.getByTestId<HTMLInputElement>(
           'personalization-name-input'
-        ) as HTMLInputElement;
+        );
 
         userEvent.clear(personalizationName);
         userEvent.clear(connectionString);

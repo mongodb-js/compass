@@ -1,8 +1,7 @@
 import { useSelector } from '../stores/store-context';
 import type { ConnectionState } from '../stores/connections-store-redux';
 
-// only one for now
-type ConnectionFeature = 'rollingIndexCreation';
+type ConnectionFeature = 'rollingIndexCreation' | 'globalWrites';
 
 function isFreeOrSharedTierCluster(instanceSize: string | undefined): boolean {
   if (!instanceSize) {
@@ -25,6 +24,17 @@ function supportsRollingIndexCreation(connection: ConnectionState) {
     (metricsType === 'cluster' || metricsType === 'replicaSet')
   );
 }
+
+function supportsGlobalWrites(connection: ConnectionState) {
+  const atlasMetadata = connection.info?.atlasMetadata;
+
+  if (!atlasMetadata) {
+    return false;
+  }
+
+  return atlasMetadata.clusterType === 'GEOSHARDED';
+}
+
 export function useConnectionSupports(
   connectionId: string,
   connectionFeature: ConnectionFeature
@@ -38,6 +48,10 @@ export function useConnectionSupports(
 
     if (connectionFeature === 'rollingIndexCreation') {
       return supportsRollingIndexCreation(connection);
+    }
+
+    if (connectionFeature === 'globalWrites') {
+      return supportsGlobalWrites(connection);
     }
 
     return false;

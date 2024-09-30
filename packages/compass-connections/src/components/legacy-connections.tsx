@@ -191,8 +191,8 @@ function Connections({
                   onSaveClicked={saveEditedConnection}
                   initialConnectionInfo={activeConnectionInfo}
                   connectionErrorMessage={connectionErrorMessage}
-                  preferences={connectionFormPreferences}
                   openSettingsModal={openSettingsModal}
+                  {...connectionFormPreferences}
                 />
               </Card>
             </div>

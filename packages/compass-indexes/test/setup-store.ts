@@ -5,12 +5,16 @@ import type {
   IndexesDataService,
   IndexesPluginOptions,
   IndexesPluginServices,
+  IndexesStore,
 } from '../src/stores/store';
 import { activateIndexesPlugin } from '../src/stores/store';
 import { createActivateHelpers } from 'hadron-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { waitFor } from '@mongodb-js/testing-library-compass';
+import { expect } from 'chai';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -100,16 +104,20 @@ const defaultMetadata = {
   isSearchIndexesSupported: false,
   sourceName: 'test.bar',
 };
-const mockCollection = {
-  _id: defaultMetadata.namespace,
-  fetchMetadata() {
-    return Promise.resolve(defaultMetadata);
-  },
-  toJSON() {
-    return this;
-  },
-  on: Sinon.spy(),
-};
+
+export function createMockCollection() {
+  return {
+    _id: defaultMetadata.namespace,
+    fetch: Sinon.spy(),
+    fetchMetadata() {
+      return Promise.resolve(defaultMetadata);
+    },
+    toJSON() {
+      return this;
+    },
+    on: Sinon.spy(),
+  } as any;
+}
 
 export const setupStore = (
   options: Partial<IndexesPluginOptions> = {},
@@ -132,12 +140,14 @@ export const setupStore = (
     },
   } as ConnectionInfoRef;
 
+  const atlasService = {} as AtlasService;
+
   return activateIndexesPlugin(
     {
       namespace: 'citibike.trips',
       serverVersion: '6.0.0',
       isReadonly: false,
-      isSearchIndexesSupported: false,
+      isSearchIndexesSupported: true,
       ...options,
     },
     {
@@ -147,10 +157,32 @@ export const setupStore = (
       instance: fakeInstance as any,
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
-      collection: mockCollection as any,
+      collection: createMockCollection(),
       connectionInfoRef,
+      atlasService,
       ...services,
     },
     createActivateHelpers()
   ).store;
 };
+
+export async function setupStoreAndWait(
+  options?: Partial<IndexesPluginOptions>,
+  dataProvider?: Partial<IndexesDataService>,
+  services?: Partial<IndexesPluginServices>
+): Promise<IndexesStore> {
+  const store = setupStore(options, dataProvider, services);
+  await waitFor(() => {
+    expect(store.getState().regularIndexes.status).to.be.oneOf([
+      'READY',
+      'ERROR',
+    ]);
+    if (store.getState().isSearchIndexesSupported) {
+      expect(store.getState().searchIndexes.status).to.be.oneOf([
+        'READY',
+        'ERROR',
+      ]);
+    }
+  });
+  return store;
+}

@@ -363,7 +363,10 @@ export const workspacesServiceLocator = createServiceLocator(
 );
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
-export { useTabState } from './components/workspace-tab-state-provider';
+export {
+  useWorkspaceTabId,
+  useTabState,
+} from './components/workspace-tab-state-provider';
 export {
   useOnTabClose,
   useOnTabReplace,
