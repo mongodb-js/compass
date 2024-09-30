@@ -24,11 +24,17 @@ enum GlobalWritesActionTypes {
   SubmittingForShardingStarted = 'global-writes/SubmittingForShardingStarted',
   SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
   SubmittingForShardingErrored = 'global-writes/SubmittingForShardingErrored',
+  ShardingErrorFound = 'globa-writes/ShardingErrorFound',
 }
 
 type IsManagedNamespaceFetchedAction = {
   type: GlobalWritesActionTypes.IsManagedNamespaceFetched;
   isNamespaceManaged: boolean;
+};
+
+type ShardingErrorFoundAction = {
+  type: GlobalWritesActionTypes.ShardingErrorFound;
+  shardingError: string;
 };
 
 type SubmittingForShardingStartedAction = {
@@ -64,6 +70,11 @@ export enum ShardingStatuses {
    * Namespace is being sharded.
    */
   SHARDING = 'SHARDING',
+
+  /**
+   * Sharding error encountered
+   */
+  ERROR = 'ERROR',
 }
 
 export type ShardingStatus = keyof typeof ShardingStatuses;
@@ -72,6 +83,7 @@ export type RootState = {
   namespace: string;
   isNamespaceSharded: boolean;
   status: ShardingStatus;
+  shardingError?: string;
 };
 
 const initialState: RootState = {
@@ -93,6 +105,19 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       status: !action.isNamespaceManaged
         ? ShardingStatuses.UNSHARDED
         : state.status,
+    };
+  }
+
+  if (
+    isAction<ShardingErrorFoundAction>(
+      action,
+      GlobalWritesActionTypes.ShardingErrorFound
+    )
+  ) {
+    return {
+      ...state,
+      status: ShardingStatuses.ERROR,
+      shardingError: action.shardingError,
     };
   }
 
@@ -137,7 +162,10 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
 };
 
 export const fetchClusterShardingData =
-  (): GlobalWritesThunkAction<Promise<void>, IsManagedNamespaceFetchedAction> =>
+  (): GlobalWritesThunkAction<
+    Promise<void>,
+    IsManagedNamespaceFetchedAction | ShardingErrorFoundAction
+  > =>
   async (
     dispatch,
     getState,
@@ -167,7 +195,22 @@ export const fetchClusterShardingData =
       if (!isNamespaceManaged) {
         return;
       }
+
       // TODO (COMPASS-8277): Now fetch the sharding key and possible process error.
+      const shardingError = await atlasGlobalWritesService.getShardingError(
+        namespace,
+        {
+          projectId,
+          clusterName,
+        }
+      );
+      if (shardingError) {
+        dispatch({
+          type: GlobalWritesActionTypes.ShardingErrorFound,
+          shardingError,
+        });
+        return;
+      }
     } catch (error) {
       logger.log.error(
         logger.mongoLogId(1_001_000_330),

@@ -23,6 +23,20 @@ type ClusterDetailsApiResponse = {
   geoSharding: GeoShardingData;
 };
 
+type AutomationProcessStatus = {
+  cluster: string;
+  processType: '';
+  statusType: 'ERROR' | string;
+  workingOnShort: 'ShardCollections' | string;
+  errorText: string;
+};
+
+type DeploymentStatusApiResponse = {
+  automationStatus: {
+    processes: AutomationProcessStatus[];
+  };
+};
+
 type AtlasCluterInfo = {
   projectId: string;
   clusterName: string;
@@ -40,6 +54,14 @@ function assertDataIsClusterDetailsApiResponse(
     throw new Error(
       'Invalid cluster details API response geoSharding.customZoneMapping'
     );
+  }
+}
+
+function assertDataIsDeploymentStatusApiResponse(
+  data: any
+): asserts data is DeploymentStatusApiResponse {
+  if (!Array.isArray(data?.automationStatus?.processes)) {
+    throw new Error('Invalid deployment status API response');
   }
 }
 
@@ -105,5 +127,26 @@ export class AtlasGlobalWritesService {
         'Content-Type': 'application/json',
       },
     });
+  }
+
+  async getShardingError(
+    namespace: string,
+    { projectId, clusterName }: AtlasCluterInfo
+  ) {
+    const { database, collection } = toNS(namespace);
+    const uri = this.atlasService.cloudEndpoint(
+      `automation/deploymentStatus/${projectId}`
+    );
+    const response = await this.atlasService.authenticatedFetch(uri);
+    const deploymentStatus = await response.json();
+    assertDataIsDeploymentStatusApiResponse(deploymentStatus);
+    const error = deploymentStatus.automationStatus.processes.find(
+      (status) =>
+        status.cluster === clusterName &&
+        status.statusType === 'ERROR' &&
+        status.workingOnShort === 'ShardCollections' &&
+        status.errorText.indexOf(`${database}.${collection}`) > -1
+    )?.errorText;
+    return error;
   }
 }
