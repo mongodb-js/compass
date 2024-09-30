@@ -5,10 +5,12 @@ export function mockRegularIndex(info: Partial<RegularIndex>): RegularIndex {
   return {
     ns: 'test.test',
     name: '_id_1',
+    type: 'regular',
     key: {},
     fields: [],
     size: 0,
     relativeSize: 0,
+    properties: [],
     ...info,
     extra: {
       ...info.extra,

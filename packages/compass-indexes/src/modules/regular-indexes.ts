@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual, pick } from 'lodash';
+import { isEqual, pick } from 'lodash';
 import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
@@ -20,35 +20,33 @@ import {
 import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 
-export type RegularIndex = Omit<
-  IndexDefinition,
-  'type' | 'cardinality' | 'properties' | 'version'
-> &
-  Partial<IndexDefinition>;
+export type RegularIndex = Partial<IndexDefinition> &
+  Pick<
+    IndexDefinition,
+    // These are the only ones we're treating as required because they are the
+    // ones we use. Everything else is treated as optional.
+    | 'name'
+    | 'type'
+    | 'properties'
+    | 'fields'
+    | 'extra'
+    | 'size'
+    | 'relativeSize'
+    | 'usageCount'
+  >;
 
-export type InProgressIndex = {
+export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
-  key: CreateIndexSpec;
-  fields: { field: string; value: string | number }[];
-  name: string;
-  ns: string;
-  size: number;
-  relativeSize: number;
-  usageCount: number;
-  extra: {
-    status: 'inprogress' | 'failed';
-    error?: string;
-  };
+  status: 'inprogress' | 'failed';
+  error?: string;
 };
 
 const prepareInProgressIndex = (
   id: string,
   {
-    ns,
     name,
     spec,
   }: {
-    ns: string;
     name?: string;
     spec: CreateIndexSpec;
   }
@@ -66,16 +64,11 @@ const prepareInProgressIndex = (
     }, '');
   return {
     id,
-    extra: {
-      status: 'inprogress',
-    },
-    key: spec,
+    // TODO: we need the type because it shows in the table
+    status: 'inprogress',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    ns,
-    size: 0,
-    relativeSize: 0,
-    usageCount: 0,
+    // TODO: we never mapped properties and the table does have room to display them
   };
 };
 
@@ -142,8 +135,8 @@ type FailedIndexRemovedAction = {
 };
 
 export type State = {
-  indexes: RegularIndex[];
   status: FetchStatus;
+  indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
   error?: string;
 };
@@ -191,16 +184,9 @@ export default function reducer(
       ActionTypes.FetchIndexesSucceeded
     )
   ) {
-    // Merge the newly fetched indexes and the existing in-progress ones.
-    const inProgressIndexes = state.inProgressIndexes;
-    const allIndexes = _mergeInProgressIndexes(
-      action.indexes,
-      cloneDeep(inProgressIndexes)
-    );
-
     return {
       ...state,
-      indexes: allIndexes,
+      indexes: action.indexes,
       status: FetchStatuses.READY,
     };
   }
@@ -234,16 +220,9 @@ export default function reducer(
       action.inProgressIndex,
     ];
 
-    // Merge the in-progress indexes into the existing indexes.
-    const allIndexes = _mergeInProgressIndexes(
-      state.indexes,
-      cloneDeep(inProgressIndexes)
-    );
-
     return {
       ...state,
       inProgressIndexes,
-      indexes: allIndexes,
     };
   }
 
@@ -256,9 +235,6 @@ export default function reducer(
   ) {
     return {
       ...state,
-      // NOTE: the index is still in indexes because it would have been merged
-      // in there, so it will only be gone from the list once fetchIndexes()
-      // is dispatched and finishes.
       inProgressIndexes: state.inProgressIndexes.filter(
         (x) => x.id !== action.inProgressIndexId
       ),
@@ -275,23 +251,13 @@ export default function reducer(
     const newInProgressIndexes = state.inProgressIndexes;
     newInProgressIndexes[idx] = {
       ...newInProgressIndexes[idx],
-      extra: {
-        ...newInProgressIndexes[idx].extra,
-        status: 'failed',
-        error: action.error,
-      },
+      status: 'failed',
+      error: action.error,
     };
 
-    // When an inprogress index fails to create, we also have to update it in
-    // the state.indexes list to correctly update the UI with error state.
-    const newIndexes = _mergeInProgressIndexes(
-      state.indexes,
-      newInProgressIndexes
-    );
     return {
       ...state,
       inProgressIndexes: newInProgressIndexes,
-      indexes: newIndexes,
     };
   }
 
@@ -474,7 +440,6 @@ export function createRegularIndex(
   ) => {
     const ns = getState().namespace;
     const inProgressIndex = prepareInProgressIndex(inProgressIndexId, {
-      ns,
       name: options.name,
       spec,
     });
@@ -541,20 +506,18 @@ export const dropIndex = (
   ) => {
     const { namespace, regularIndexes } = getState();
     const { indexes, inProgressIndexes } = regularIndexes;
-    const index = indexes.find((x) => x.name === indexName);
 
-    if (!index) {
-      return;
-    }
-
+    // TODO: this should be its own function, not part of dropIndex
     const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
-    if (inProgressIndex && inProgressIndex.extra.status === 'failed') {
+    if (inProgressIndex && inProgressIndex.status === 'failed') {
       // This really just removes the (failed) in-progress index
       dispatch(failedIndexRemoved(String(inProgressIndex.id)));
 
-      // By fetching the indexes again we make sure the merged list doesn't have
-      // it either.
-      await dispatch(fetchIndexes(FetchReasons.REFRESH));
+      return;
+    }
+
+    const index = indexes.find((x) => x.name === indexName);
+    if (!index) {
       return;
     }
 
@@ -658,29 +621,3 @@ export const unhideIndex = (
     }
   };
 };
-
-function _mergeInProgressIndexes(
-  _indexes: RegularIndex[],
-  inProgressIndexes: InProgressIndex[]
-) {
-  const indexes = cloneDeep(_indexes);
-
-  for (const inProgressIndex of inProgressIndexes) {
-    const index = indexes.find((index) => index.name === inProgressIndex.name);
-
-    if (index) {
-      index.extra = index.extra ?? {};
-      index.extra.status = inProgressIndex.extra.status;
-      if (inProgressIndex.extra.error) {
-        index.extra.error = inProgressIndex.extra.error;
-      }
-    } else {
-      // in-progress indexes also have ids which regular indexes don't
-      const index: RegularIndex = { ...inProgressIndex };
-      delete (index as RegularIndex & { id?: any }).id;
-      indexes.push(index);
-    }
-  }
-
-  return indexes;
-}

@@ -5,13 +5,15 @@ import { Tooltip, Body } from '@mongodb-js/compass-components';
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
-export const canRenderTooltip = (type: RegularIndex['type']) => {
+export const canRenderTooltip = (type: string) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type ?? '') !== -1;
 };
 
 type TypeFieldProps = {
-  type: RegularIndex['type'];
-  extra: RegularIndex['extra'];
+  // TODO: we can remove unknown once we support type on in-progress indexes
+  type: RegularIndex['type'] | 'unknown';
+  // in-progress and rolling indexes don't have extra
+  extra?: RegularIndex['extra'];
 };
 
 export const IndexTypeTooltip: React.FunctionComponent<{
@@ -45,7 +47,7 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
         <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
       }
     >
-      <IndexTypeTooltip extra={extra} />
+      {extra && <IndexTypeTooltip extra={extra} />}
     </Tooltip>
   );
 };

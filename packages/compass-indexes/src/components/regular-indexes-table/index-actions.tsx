@@ -2,10 +2,29 @@ import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
-import type { RegularIndex } from '../../modules/regular-indexes';
+import type { InProgressIndex } from '../../modules/regular-indexes';
+
+/*
+TODO: we can change this to
+{ name: string } & (
+ | { compassIndexType: 'regular-index', extra?: { hidden?: boolean } }
+ | { compassIndexType: 'in-progress-index', status: InProgressIndex['status']}
+ | { compassIndexType: 'rolling-index' }
+)
+ but at that point it is probably better to just have IndexActions components
+ per index type?
+*/
+type IndexActionsIndex = {
+  name: string;
+  compassIndexType: 'regular-index' | 'in-progress-index' | 'rolling-index';
+  extra?: {
+    hidden?: boolean;
+  };
+  status?: InProgressIndex['status'];
+};
 
 type IndexActionsProps = {
-  index: RegularIndex;
+  index: IndexActionsIndex;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
@@ -32,16 +51,13 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onUnhideIndexClick,
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
-    const actions: GroupedItemAction<IndexAction>[] = [
-      {
-        action: 'delete',
-        label: `Drop Index ${index.name}`,
-        icon: 'Trash',
-      },
-    ];
+    const actions: GroupedItemAction<IndexAction>[] = [];
 
-    if (serverSupportsHideIndex(serverVersion)) {
-      actions.unshift(
+    if (
+      index.compassIndexType === 'regular-index' &&
+      serverSupportsHideIndex(serverVersion)
+    ) {
+      actions.push(
         index.extra?.hidden
           ? {
               action: 'unhide',
@@ -56,6 +72,19 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
               icon: 'VisibilityOff',
             }
       );
+    }
+
+    // you can only drop regular indexes or failed inprogress indexes
+    if (
+      (index.compassIndexType === 'in-progress-index' &&
+        index.status === 'failed') ||
+      index.compassIndexType === 'regular-index'
+    ) {
+      actions.push({
+        action: 'delete',
+        label: `Drop Index ${index.name}`,
+        icon: 'Trash',
+      });
     }
 
     return actions;

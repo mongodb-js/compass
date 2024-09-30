@@ -127,81 +127,6 @@ describe('regular-indexes module', function () {
       expect(state.status).to.equal('READY');
     });
 
-    it('merges with in progress indexes', async function () {
-      const store = await setupStoreAndWait(
-        {},
-        {
-          indexes: () => Promise.resolve(indexesList),
-        }
-      );
-
-      Object.assign(store.getState(), {
-        regularIndexes: {
-          ...store.getState().regularIndexes,
-          inProgressIndexes: inProgressIndexes.slice(),
-        },
-      });
-
-      await store.dispatch(refreshRegularIndexes());
-
-      const state = store.getState().regularIndexes;
-
-      expect(state.indexes.length).to.equal(
-        defaultSortedIndexes.length + inProgressIndexes.length
-      );
-
-      const indexes = state.indexes.filter(
-        (index: any) => index.extra.status === 'inprogress'
-      );
-
-      expect(indexes).to.deep.equal([
-        // NOTE: this one is a real index and an in-progress one
-        {
-          cardinality: 'single',
-          extra: {
-            status: 'inprogress',
-          },
-          fields: [],
-          key: {
-            aaaa: -1,
-          },
-          name: 'AAAA',
-          ns: 'foo',
-          properties: ['partial', 'ttl'],
-          relativeSize: 1,
-          size: 4096,
-          type: 'regular',
-          usageCount: 4,
-          usageHost: 'computername.local:27017',
-          usageSince: new Date('2019-02-08T14:39:56.285Z'),
-          version: 2,
-        },
-        // NOTE: this one is only in progress, not also a real index
-        {
-          extra: {
-            status: 'inprogress',
-          },
-          fields: [
-            {
-              field: 'z',
-              value: 1,
-            },
-          ],
-          key: {
-            z: 1,
-          },
-          name: 'z',
-          ns: 'citibike.trips',
-          relativeSize: 0,
-          size: 0,
-          usageCount: 0,
-        },
-      ]);
-
-      expect(state.error).to.be.undefined;
-      expect(state.status).to.equal('READY');
-    });
-
     it('sets status=FETCHING when indexes are being fetched and status is NOT_READY', async function () {
       let statusBeforeFetch: FetchStatus | undefined = undefined;
 
@@ -359,10 +284,13 @@ describe('regular-indexes module', function () {
 
   describe('#dropIndex (thunk)', function () {
     it('removes a failed in-progress index', async function () {
+      const dropIndexSpy = sinon.spy();
+
       const store = await setupStoreAndWait(
         {},
         {
           indexes: () => Promise.resolve(indexesList),
+          dropIndex: dropIndexSpy,
         }
       );
 
@@ -374,33 +302,22 @@ describe('regular-indexes module', function () {
               ..._index,
             };
             if (index.name === 'AAAA') {
-              index.extra.status = 'failed';
+              index.status = 'failed';
             }
             return index;
           }),
         },
       });
 
-      // fetch first so it merges the in-progress ones
-      await store.dispatch(refreshRegularIndexes());
-
-      // one of the real indexes is also in progress, so gets merged together
-      const numOverlapping = 1;
-
-      // sanity check
       let state = store.getState().regularIndexes;
-      expect(state.indexes.length).to.equal(
-        indexesList.length + inProgressIndexes.length - numOverlapping
-      );
       expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
 
       await store.dispatch(dropIndex('AAAA'));
 
+      expect(dropIndexSpy.callCount).to.equal(0);
+
       state = store.getState().regularIndexes;
 
-      expect(state.indexes.length).to.equal(
-        indexesList.length + inProgressIndexes.length - 1
-      );
       expect(state.inProgressIndexes.length).to.equal(
         inProgressIndexes.length - 1
       );
@@ -409,10 +326,13 @@ describe('regular-indexes module', function () {
     });
 
     it('removes a real index', async function () {
+      const dropIndexSpy = sinon.spy();
+
       const store = await setupStoreAndWait(
         {},
         {
           indexes: () => Promise.resolve(indexesList),
+          dropIndex: dropIndexSpy,
         }
       );
 
@@ -428,33 +348,15 @@ describe('regular-indexes module', function () {
         },
       });
 
-      // fetch first so it merges the in-progress ones
-      await store.dispatch(refreshRegularIndexes());
-
-      // one of the real indexes is also in progress, so gets merged together
-      const numOverlapping = 1;
-
-      // sanity check
-      let state = store.getState().regularIndexes;
-      expect(state.indexes.length).to.equal(
-        indexesList.length + inProgressIndexes.length - numOverlapping
-      );
-      expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
-
+      expect(dropIndexSpy.callCount).to.equal(0);
       await store.dispatch(dropIndex('BBBB')); // a real regular index. not in progress
-
-      state = store.getState().regularIndexes;
-
-      expect(state.indexes.length).to.equal(
-        indexesList.length + inProgressIndexes.length - 1
-      );
-      expect(state.inProgressIndexes.length).to.equal(inProgressIndexes.length);
+      expect(dropIndexSpy.args).to.deep.equal([['citibike.trips', 'BBBB']]);
     });
   });
 
   describe('#hideIndex (thunk)', function () {
     it('hides an index', async function () {
-      const updateCollection = sinon.stub().resolves({});
+      const updateCollection = sinon.spy();
       const store = await setupStoreAndWait(
         {},
         {
@@ -466,6 +368,7 @@ describe('regular-indexes module', function () {
       // fetch indexes so there's something to hide
       await store.dispatch(refreshRegularIndexes());
 
+      expect(updateCollection.callCount).to.equal(0);
       await store.dispatch(hideIndex('BBBB'));
 
       expect(updateCollection.args).to.deep.equal([
