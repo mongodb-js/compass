@@ -104,12 +104,18 @@ function mergedIndexFieldValue(
   return index[field];
 }
 
+function isSupportedSortField(
+  field: string
+): field is 'name' | 'type' | 'size' | 'usageCount' | 'properties' {
+  return ['name', 'type', 'size', 'usageCount', 'properties'].includes(field);
+}
+
 function sortFn(
   rowA: LeafyGreenTableRow<IndexInfo>,
   rowB: LeafyGreenTableRow<IndexInfo>,
   field: string
 ) {
-  if (!['name', 'type', 'size', 'usageCount', 'properties'].includes(field)) {
+  if (!isSupportedSortField(field)) {
     return 0;
   }
 
@@ -121,10 +127,8 @@ function sortFn(
     return propSort;
   }
 
-  const prop = field as unknown as SortableField;
-
-  const fieldA = mergedIndexFieldValue(rowA.original.indexInfo, prop);
-  const fieldB = mergedIndexFieldValue(rowB.original.indexInfo, prop);
+  const fieldA = mergedIndexFieldValue(rowA.original.indexInfo, field);
+  const fieldB = mergedIndexFieldValue(rowB.original.indexInfo, field);
 
   if (fieldA === undefined || fieldB === undefined) {
     return 0;
