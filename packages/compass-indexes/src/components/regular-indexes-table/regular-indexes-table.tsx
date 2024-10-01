@@ -328,13 +328,14 @@ export const RegularIndexesTable: React.FunctionComponent<
 
         return {
           ...indexData,
-          // eslint-disable-next-line react/display-name
-          renderExpandedContent: () => (
-            <IndexKeysBadge
-              keys={index.fields}
-              data-testid={`indexes-details-${indexData.name}`}
-            />
-          ),
+          renderExpandedContent() {
+            return (
+              <IndexKeysBadge
+                keys={index.fields}
+                data-testid={`indexes-details-${indexData.name}`}
+              />
+            );
+          },
         };
       }),
     [

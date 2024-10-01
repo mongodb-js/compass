@@ -342,19 +342,22 @@ export const SearchIndexesTable: React.FunctionComponent<
               }}
             />
           ),
-          // eslint-disable-next-line react/display-name
-          renderExpandedContent: () => (
-            <div
-              className={searchIndexDetailsStyles}
-              data-testid={`search-indexes-details-${index.name}`}
-            >
-              {isVectorSearchIndex ? (
-                <VectorSearchIndexDetails definition={index.latestDefinition} />
-              ) : (
-                <SearchIndexDetails definition={index.latestDefinition} />
-              )}
-            </div>
-          ),
+          renderExpandedContent() {
+            return (
+              <div
+                className={searchIndexDetailsStyles}
+                data-testid={`search-indexes-details-${index.name}`}
+              >
+                {isVectorSearchIndex ? (
+                  <VectorSearchIndexDetails
+                    definition={index.latestDefinition}
+                  />
+                ) : (
+                  <SearchIndexDetails definition={index.latestDefinition} />
+                )}
+              </div>
+            );
+          },
         };
       }),
     [
