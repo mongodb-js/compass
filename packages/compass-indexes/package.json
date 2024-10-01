@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "5.42.1",
+  "version": "5.42.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -75,7 +75,7 @@
     "@mongodb-js/compass-field-store": "^9.18.1",
     "@mongodb-js/compass-logging": "^1.4.8",
     "@mongodb-js/compass-telemetry": "^1.2.0",
-    "@mongodb-js/compass-workspaces": "^0.24.1",
+    "@mongodb-js/compass-workspaces": "^0.24.2",
     "@mongodb-js/connection-storage": "^0.22.0",
     "@mongodb-js/mongodb-constants": "^0.10.0",
     "@mongodb-js/shell-bson-parser": "^1.1.2",
