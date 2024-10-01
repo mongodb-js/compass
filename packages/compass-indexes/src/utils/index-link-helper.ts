@@ -25,7 +25,7 @@ const HELP_URLS = {
   UNKNOWN: null,
 };
 
-type HELP_URL_KEY =
+export type HELP_URL_KEY =
   | Uppercase<keyof typeof HELP_URLS>
   | Lowercase<keyof typeof HELP_URLS>;
 

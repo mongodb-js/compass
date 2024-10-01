@@ -189,7 +189,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           warnings={['Readonly views may not contain indexes.']}
         />
       ) : (
-        !!errorMessage && <ErrorSummary errors={[errorMessage]} />
+        !!errorMessage && (
+          <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
+        )
       )}
     </div>
   );
