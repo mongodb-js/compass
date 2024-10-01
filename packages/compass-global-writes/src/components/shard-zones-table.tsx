@@ -21,10 +21,6 @@ export function ShardZonesTable({
 }: {
   shardZones: ShardZoneData[];
 }) {
-  console.log(
-    'SHARD ZONES',
-    shardZones.filter((zone) => zone.typeOneIsoCode === 'DE')
-  );
   return (
     // TODO(COMPASS-8336):
     // Add search

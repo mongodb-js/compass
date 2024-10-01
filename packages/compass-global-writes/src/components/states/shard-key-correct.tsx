@@ -22,6 +22,7 @@ import {
 } from '../../store/reducer';
 import toNS from 'mongodb-ns';
 import { ShardZonesTable } from '../shard-zones-table';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const nbsp = '\u00a0';
 
@@ -44,7 +45,7 @@ const paragraphStyles = css({
   gap: spacing[100],
 });
 
-type ShardKeyCorrectProps = {
+export type ShardKeyCorrectProps = {
   namespace: string;
   shardKey: ShardKey;
   shardZones: ShardZoneData[];
@@ -63,11 +64,13 @@ export function ShardKeyCorrect({
     return shardKey.fields[1].name;
   }, [shardKey]);
 
+  const { atlasMetadata } = useConnectionInfo();
+
   const sampleCodes = useMemo(() => {
-    const { collection } = toNS(namespace);
+    const { collection, database } = toNS(namespace);
     return {
-      findingDocuments: `use ${collection}\ndb.${collection}.find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
-      insertingDocuments: `use ${collection}\ndb.${collection}.insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
+      findingDocuments: `use ${database}\ndb.${collection}.find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
+      insertingDocuments: `use ${database}\ndb.${collection}.insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
     };
   }, [namespace, customShardKeyField]);
 
@@ -133,23 +136,22 @@ export function ShardKeyCorrect({
           be used for these countries). All valid country codes and the zones to
           which they map are listed in the table below. Additionally, you can
           view a list of all location codes{' '}
-          <Link
-            href="https://cloud-dev.mongodb.com/static/atlas/country_iso_codes.txt"
-            hideExternalIcon
-          >
-            here
-          </Link>
-          .
+          <Link href="/static/atlas/country_iso_codes.txt">here</Link>.
         </Body>
         <Body>
-          Locations’ zone mapping can be changed by navigating to this clusters{' '}
-          <Link
-            hideExternalIcon
-            href="https://cloud-dev.mongodb.com/v2/66bb81dafe547055785904a3#/clusters/edit/Cluster0"
-          >
-            Edit Configuration
-          </Link>{' '}
-          page and clicking the Configure Location Mappings’ link above the map.
+          {atlasMetadata?.projectId && atlasMetadata?.clusterName && (
+            <>
+              Locations’ zone mapping can be changed by navigating to this
+              clusters{' '}
+              <Link
+                href={`/v2/${atlasMetadata?.projectId}/clusters/edit/${atlasMetadata?.clusterName}`}
+              >
+                Edit Configuration
+              </Link>{' '}
+              page and clicking the Configure Location Mappings’ link above the
+              map.
+            </>
+          )}
         </Body>
       </div>
 

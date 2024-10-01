@@ -7,10 +7,13 @@ import { activateGlobalWritesPlugin } from '../src/store';
 import { createActivateHelpers } from 'hadron-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type {
+  ConnectionInfo,
+  ConnectionInfoRef,
+} from '@mongodb-js/compass-connections/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { Provider } from 'react-redux';
-import { render } from '@mongodb-js/testing-library-compass';
+import { renderWithActiveConnection } from '@mongodb-js/testing-library-compass';
 
 import clusterApiResponse from './cluster-api-response.json';
 
@@ -70,10 +73,24 @@ export const setupStore = (
 
 export const renderWithStore = (
   component: JSX.Element,
-  services: Partial<GlobalWritesPluginServices> = {},
-  options: Partial<GlobalWritesPluginOptions> = {}
+  {
+    services = {},
+    options = {},
+    connectionInfo = {
+      id: 'testConnection',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost',
+      },
+    },
+  }: {
+    services?: Partial<GlobalWritesPluginServices>;
+    options?: Partial<GlobalWritesPluginOptions>;
+    connectionInfo?: ConnectionInfo;
+  } = {}
 ) => {
   const store = setupStore(options, services);
-  render(<Provider store={store}>{component}</Provider>);
-  return store;
+  return renderWithActiveConnection(
+    <Provider store={store}>{component}</Provider>,
+    connectionInfo
+  );
 };
