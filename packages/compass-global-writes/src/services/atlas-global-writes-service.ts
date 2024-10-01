@@ -9,6 +9,7 @@ export type ShardZoneMapping = {
   typeOneIsoCode: string;
   zoneId: string;
   country: string;
+  readableName: string;
 };
 export type ManagedNamespace = {
   db: string;
@@ -295,6 +296,7 @@ function transformZoneData(
   return zoneData.map((zone) => ({
     zoneId: zone.zoneId,
     country: zone.country,
+    readableName: zone.readableName,
     isoCode: zone.isoCode,
     typeOneIsoCode: zone.typeOneIsoCode,
     zoneName: replicationSpecsMap[zone.zoneId].zoneName,

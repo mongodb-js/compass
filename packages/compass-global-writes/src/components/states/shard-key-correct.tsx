@@ -87,7 +87,9 @@ export function ShardKeyCorrect({
           <strong>{namespace}</strong> is configured with the following shard
           key:
         </Body>
-        <Code language="js">{namespace}</Code>
+        <Code language="js">
+          {shardKey.fields.map((field) => `"${field.name}"`).join(', ')}
+        </Code>
       </div>
 
       <Subtitle>Example commands</Subtitle>

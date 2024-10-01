@@ -142,6 +142,7 @@ export type ShardKey = {
 export type ShardZoneData = {
   zoneId: string;
   country: string;
+  readableName: string;
   isoCode: string;
   typeOneIsoCode: string;
   zoneName: string;

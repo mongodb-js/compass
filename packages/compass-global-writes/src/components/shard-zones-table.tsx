@@ -21,9 +21,15 @@ export function ShardZonesTable({
 }: {
   shardZones: ShardZoneData[];
 }) {
+  console.log(
+    'SHARD ZONES',
+    shardZones.filter((zone) => zone.typeOneIsoCode === 'DE')
+  );
   return (
-    // TODO: Add option to search and group zones by ShardZoneData.typeOneIsoCode
-    // and display them in nested row
+    // TODO(COMPASS-8336):
+    // Add search
+    // group zones by ShardZoneData.typeOneIsoCode
+    // and display them in a single row that can be expanded
     <Table className={containerStyles} title="Zone Mapping">
       <TableHead isSticky>
         <HeaderRow>
@@ -32,16 +38,20 @@ export function ShardZonesTable({
         </HeaderRow>
       </TableHead>
       <TableBody>
-        {shardZones.map((shardZone, index) => {
-          return (
-            <Row key={index}>
-              <Cell>{shardZone.country}</Cell>
-              <Cell>
-                {shardZone.zoneName}({shardZone.zoneLocations.join(', ')})
-              </Cell>
-            </Row>
-          );
-        })}
+        {shardZones.map(
+          ({ readableName, zoneName, zoneLocations, isoCode }, index) => {
+            return (
+              <Row key={index}>
+                <Cell>
+                  {readableName} ({isoCode})
+                </Cell>
+                <Cell>
+                  {zoneName} ({zoneLocations.join(', ')})
+                </Cell>
+              </Row>
+            );
+          }
+        )}
       </TableBody>
     </Table>
   );
