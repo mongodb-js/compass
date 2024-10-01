@@ -98,10 +98,10 @@ function mergedIndexFieldValue(
     if (field === 'size' || field === 'usageCount') {
       return 0;
     }
-    return (index as InProgressIndex)[field];
+    return index[field];
   }
 
-  return (index as RegularIndex)[field];
+  return index[field];
 }
 
 function sortFn(
