@@ -75,18 +75,21 @@ export async function throwIfNotOk(
   const status = res.status;
   let statusText = res.statusText;
   let errorCode = `${res.status}`;
+  let errorName: 'NetworkError' | 'ServerError' = 'NetworkError';
 
   if (isAtlasAPIError(messageJSON)) {
+    errorName = 'ServerError';
     statusText = messageJSON.detail;
     errorCode = messageJSON.errorCode;
   }
 
   if (isCloudBackendError(messageJSON)) {
+    errorName = 'ServerError';
     statusText = messageJSON.message;
     errorCode = messageJSON.errorCode;
   }
 
-  throw new AtlasServiceError('NetworkError', status, statusText, errorCode);
+  throw new AtlasServiceError(errorName, status, statusText, errorCode);
 }
 
 export type AtlasServiceConfig = {

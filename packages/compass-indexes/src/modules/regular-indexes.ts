@@ -516,7 +516,6 @@ export function createRegularIndex(
       // we still need the new info.
       await dispatch(refreshRegularIndexes());
     } catch (err) {
-      console.log({ err });
       dispatch(indexCreationFailed(inProgressIndexId, (err as Error).message));
     }
   };
