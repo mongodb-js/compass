@@ -46,10 +46,21 @@ export function throwIfNetworkTrafficDisabled(
 /**
  * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
  */
-export function isServerError(
+function isAtlasAPIError(
   err: any
 ): err is { error: number; errorCode: string; detail: string } {
-  return Boolean(err.error && err.errorCode && err.detail);
+  return Boolean(err && err.error && err.errorCode && err.detail);
+}
+
+function isCloudBackendError(err: any): err is {
+  errorCode: string;
+  message: string;
+  version: string;
+  status: string;
+} {
+  return Boolean(
+    err && err.errorCode && err.message && err.version && err.status
+  );
 }
 
 export async function throwIfNotOk(
@@ -60,21 +71,22 @@ export async function throwIfNotOk(
   }
 
   const messageJSON = await res.json().catch(() => undefined);
-  if (messageJSON && isServerError(messageJSON)) {
-    throw new AtlasServiceError(
-      'ServerError',
-      res.status,
-      messageJSON.detail ?? 'Internal server error',
-      messageJSON.errorCode ?? 'INTERNAL_SERVER_ERROR'
-    );
-  } else {
-    throw new AtlasServiceError(
-      'NetworkError',
-      res.status,
-      res.statusText,
-      `${res.status}`
-    );
+
+  const status = res.status;
+  let statusText = res.statusText;
+  let errorCode = `${res.status}`;
+
+  if (isAtlasAPIError(messageJSON)) {
+    statusText = messageJSON.detail;
+    errorCode = messageJSON.errorCode;
   }
+
+  if (isCloudBackendError(messageJSON)) {
+    statusText = messageJSON.message;
+    errorCode = messageJSON.errorCode;
+  }
+
+  throw new AtlasServiceError('NetworkError', status, statusText, errorCode);
 }
 
 export type AtlasServiceConfig = {
