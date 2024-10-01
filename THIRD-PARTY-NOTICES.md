@@ -211,7 +211,6 @@ This document was automatically generated on Tue Oct 01 2024.
 | **[cookie-signature](#28f6116b52488ac66a14424869fc346f611bea6c894e7d0f7f2ca701deb8e49c)**                                   | 1.0.6        | MIT                                 |
 | **[cookie](#c396652ff004385e7bdb8398e37493d5f4144e475282a413ec52f1d3fdaf25da)**                                             | 0.6.0        | MIT                                 |
 | **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**                                            | 3.17.3       | MIT                                 |
-| **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**                                       | 0.0.9        | MIT                                 |
 | **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**                                              | 1.0.5        | MIT                                 |
 | **[cross-fetch](#2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5)**                                        | 3.1.8        | MIT                                 |
 | **[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**                                        | 7.0.3        | MIT                                 |
@@ -18000,54 +17999,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-
-<a id="fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c"></a>
-
-### [cpu-features](https://www.npmjs.com/package/cpu-features) (version 0.0.9)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright Brian White. All rights reserved.
-
-
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-
-      of this software and associated documentation files (the "Software"), to
-
-      deal in the Software without restriction, including without limitation the
-
-      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-
-      sell copies of the Software, and to permit persons to whom the Software is
-
-      furnished to do so, subject to the following conditions:
-
-
-
-      The above copyright notice and this permission notice shall be included in
-
-      all copies or substantial portions of the Software.
-
-
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-
-      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-
-      IN THE SOFTWARE.
 
 <a id="9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9"></a>
 
