@@ -1,6 +1,6 @@
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-import type { CreateIndexesOptions } from 'mongodb';
+import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
 import toNS from 'mongodb-ns';
 
 type AtlasIndexStats = {
@@ -51,7 +51,7 @@ export class RollingIndexesService {
   }
   async createRollingIndex(
     namespace: string,
-    indexSpec: Record<string, string | number>,
+    indexSpec: IndexSpecification,
     { collation, ...options }: CreateIndexesOptions
   ): Promise<void> {
     const { atlasMetadata } = this.connectionInfo.current;

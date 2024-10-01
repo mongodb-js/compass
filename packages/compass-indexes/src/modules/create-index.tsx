@@ -1,9 +1,9 @@
 import { EJSON, ObjectId } from 'bson';
-import type { CreateIndexesOptions } from 'mongodb';
+import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
 import type { Action, Reducer, Dispatch } from 'redux';
-import { Badge } from '@mongodb-js/compass-components';
+import { Badge, Link } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
 import type { IndexesThunkAction } from '.';
 import type { RootState } from '.';
@@ -191,6 +191,20 @@ export const OPTIONS = {
     description:
       'Sparse indexes only contain entries for documents that have the indexed field, even if the index field contains a null value. The index skips over any document that is missing the indexed field.',
   },
+  buildInRollingProcess: {
+    type: 'checkbox',
+    label: 'Build in rolling process',
+    description: (
+      <>
+        Building indexes in a rolling fashion can minimize the performance
+        impact of index builds. We only recommend using rolling index builds
+        when regular index builds do not meet your needs.{' '}
+        <Link href="https://www.mongodb.com/docs/manual/core/index-creation/">
+          Learn More
+        </Link>
+      </>
+    ),
+  },
 } as const;
 
 type OptionNames = keyof typeof OPTIONS;
@@ -317,13 +331,24 @@ function isEmptyValue(value: unknown) {
   return false;
 }
 
+function fieldTypeToIndexDirection(type: string): IndexDirection {
+  if (type === '1 (asc)') {
+    return 1;
+  }
+  if (type === '-1 (desc)') {
+    return -1;
+  }
+  if (type === 'text' || type === '2dsphere') {
+    return type;
+  }
+  throw new Error(`Unsupported field type: ${type}`);
+}
+
 export const createIndexFormSubmitted = (): IndexesThunkAction<
   void,
   ErrorEncounteredAction | CreateIndexFormSubmittedAction
 > => {
   return (dispatch, getState) => {
-    const spec = {} as CreateIndexSpec;
-
     // Check for field errors.
     if (
       getState().createIndex.fields.some(
@@ -336,12 +361,18 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     const formIndexOptions = getState().createIndex.options;
 
-    getState().createIndex.fields.forEach((field: Field) => {
-      let type: string | number = field.type;
-      if (field.type === '1 (asc)') type = 1;
-      if (field.type === '-1 (desc)') type = -1;
-      spec[field.name] = type;
-    });
+    let spec: Record<string, IndexDirection>;
+
+    try {
+      spec = Object.fromEntries(
+        getState().createIndex.fields.map((field) => {
+          return [field.name, fieldTypeToIndexDirection(field.type)];
+        })
+      );
+    } catch (e) {
+      dispatch(errorEncountered((e as any).message));
+      return;
+    }
 
     const options: CreateIndexesOptions = {};
 
@@ -437,7 +468,12 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     dispatch({ type: ActionTypes.CreateIndexFormSubmitted });
     void dispatch(
-      createRegularIndex(getState().createIndex.indexId, spec, options)
+      createRegularIndex(
+        getState().createIndex.indexId,
+        spec,
+        options,
+        !!formIndexOptions.buildInRollingProcess.value
+      )
     );
   };
 };
