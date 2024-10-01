@@ -81,7 +81,7 @@ const ActiveTabCloseHandler: React.FunctionComponent = ({ children }) => {
     // Make sure we don't count clicking on buttons that actually cause the
     // workspace to change, like using breadcrumbs or clicking on an item in the
     // Databases / Collections list. There are certain corner-cases this doesn't
-    // handle, but it's good enough to prevent most cases where users can loose
+    // handle, but it's good enough to prevent most cases where users can lose
     // content by accident
     rafraf(() => {
       if (mountedRef.current) {

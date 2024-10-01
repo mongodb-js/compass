@@ -53,6 +53,12 @@ type AutomationAgentDeploymentStatusApiResponse = {
   };
 };
 
+type AtlasShardKey = {
+  _id: string;
+  unique: boolean;
+  key: Record<string, unknown>;
+};
+
 function assertDataIsClusterDetailsApiResponse(
   data: any
 ): asserts data is ClusterDetailsApiResponse {
@@ -185,15 +191,29 @@ export class AtlasGlobalWritesService {
 
   async getShardingKeys(namespace: string) {
     const { database: db, collection } = toNS(namespace);
+    const atlasMetadata = this.getAtlasMetadata();
 
-    const data = await this.atlasService.automationAgentFetch(
-      this.getAtlasMetadata(),
+    const req = await this.atlasService.automationAgentRequest(
+      atlasMetadata,
       'getShardKey',
       {
         db,
         collection,
       }
     );
+
+    if (!req) {
+      throw new Error(
+        'Unexpected response from the automation agent backend: expected to get the request metadata, got undefined'
+      );
+    }
+
+    const res = await this.atlasService.automationAgentAwait<AtlasShardKey>(
+      atlasMetadata,
+      req.requestType,
+      req._id
+    );
+    const data = res.response;
 
     if (data.length === 0) {
       return null;
