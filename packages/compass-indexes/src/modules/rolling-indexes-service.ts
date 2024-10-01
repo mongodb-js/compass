@@ -3,7 +3,7 @@ import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider
 import type { CreateIndexesOptions } from 'mongodb';
 import toNS from 'mongodb-ns';
 
-type AtlasIndexStats = {
+export type AtlasIndexStats = {
   collName: string;
   dbName: string;
   indexName: string;

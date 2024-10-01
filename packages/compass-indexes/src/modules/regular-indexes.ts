@@ -19,6 +19,7 @@ import {
 } from '../utils/modal-descriptions';
 import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
+import type { AtlasIndexStats } from './rolling-indexes-service';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
