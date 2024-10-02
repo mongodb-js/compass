@@ -521,7 +521,7 @@ tests:
         java: Decimal128.parse("5.3E-6175").toString
         csharp: Decimal128.Parse("5.3E-6175").ToString
         php: (string) new Decimal128('5.3E-6175')
-        ruby: 'BSON::Decimal128.new(''5.3E-6175'').to_s'
+        ruby: "BSON::Decimal128.new('5.3E-6175').to_s"
         go: |-
           var parseDecimal128 = func(str string) primitive.Decimal128 {
             d128, err := primitive.ParseDecimal128(str)
@@ -646,32 +646,32 @@ tests:
         shell: BSONSymbol('2').valueOf
       output:
         javascript: new BSONSymbol('2').valueOf
-        python: '''2'''
+        python: "'2'"
         java: new Symbol("2").getSymbol
         csharp: '"2"'
-        php: '''2'''
-        ruby: ':''2'''
+        php: "'2'"
+        ruby: ":'2'"
         go: ''
         rust: 'Bson::Symbol("2").as_symbol().unwrap()'
     - input:
         shell: BSONSymbol('2').toString
       output:
         javascript: new BSONSymbol('2').toString
-        python: '''2'''
+        python: "'2'"
         java: new Symbol("2").toString
         csharp: '"2"'
-        php: '''2'''
-        ruby: '''2'''
+        php: "'2'"
+        ruby: "'2'"
         go: ''
         rust: 'Bson::Symbol("2").as_symbol().unwrap()'
     - input:
         shell: BSONSymbol('2').inspect
       output:
         javascript: new BSONSymbol('2').inspect
-        python: '''2'''
+        python: "'2'"
         java: new Symbol("2").getSymbol
         csharp: '"2"'
-        php: '''2'''
-        ruby: ':''2''.inspect'
+        php: "'2'"
+        ruby: ":'2'.inspect"
         go: ''
         rust: 'format!("{:?}", Bson::Symbol("2"))'

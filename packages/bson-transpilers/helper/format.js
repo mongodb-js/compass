@@ -5,13 +5,11 @@
  * @param {String} str
  * @returns {String}
  */
-const doubleQuoteStringify = function(str) {
+const doubleQuoteStringify = function (str) {
   let newStr = str.toString();
 
   if (
-    (
-      newStr.charAt(0) === '\'' && newStr.charAt(newStr.length - 1) === '\''
-    ) ||
+    (newStr.charAt(0) === "'" && newStr.charAt(newStr.length - 1) === "'") ||
     (newStr.charAt(0) === '"' && newStr.charAt(newStr.length - 1) === '"')
   ) {
     newStr = newStr.substr(1, newStr.length - 2);
@@ -26,13 +24,11 @@ const doubleQuoteStringify = function(str) {
  * @param {String} str
  * @returns {String}
  */
-const singleQuoteStringify = function(str) {
+const singleQuoteStringify = function (str) {
   let newStr = str.toString();
 
   if (
-    (
-      newStr.charAt(0) === '\'' && newStr.charAt(newStr.length - 1) === '\''
-    ) ||
+    (newStr.charAt(0) === "'" && newStr.charAt(newStr.length - 1) === "'") ||
     (newStr.charAt(0) === '"' && newStr.charAt(newStr.length - 1) === '"')
   ) {
     newStr = str.substr(1, newStr.length - 2);
@@ -47,12 +43,12 @@ const singleQuoteStringify = function(str) {
  * @param {String} str
  * @returns {String}
  */
-const removeQuotes = function(str) {
+const removeQuotes = function (str) {
   let newStr = str.toString();
 
   if (
     (newStr.charAt(0) === '"' && newStr.charAt(newStr.length - 1) === '"') ||
-    (newStr.charAt(0) === '\'' && newStr.charAt(newStr.length - 1) === '\'')
+    (newStr.charAt(0) === "'" && newStr.charAt(newStr.length - 1) === "'")
   ) {
     newStr = newStr.substr(1, newStr.length - 2);
   }
@@ -63,5 +59,5 @@ const removeQuotes = function(str) {
 module.exports = {
   doubleQuoteStringify,
   singleQuoteStringify,
-  removeQuotes
+  removeQuotes,
 };

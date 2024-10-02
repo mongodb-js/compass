@@ -7,15 +7,15 @@ const util = require('util');
 const execFile = util.promisify(execFileCb);
 const tar = require('../lib/tar-gz');
 
-describe('tar', function() {
-  before(function() {
+describe('tar', function () {
+  before(function () {
     if (!['linux', 'darwin'].includes(process.platform)) {
       this.skip();
     }
   });
 
   let tmpdir;
-  beforeEach(async function() {
+  beforeEach(async function () {
     tmpdir = path.join(
       os.tmpdir(),
       'hadron-build-tar-test',
@@ -25,11 +25,11 @@ describe('tar', function() {
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     await fs.rm(tmpdir, { recursive: true });
   });
 
-  it('creates a tar archive from a directory, preserves the root and the permissions', async function() {
+  it('creates a tar archive from a directory, preserves the root and the permissions', async function () {
     const src = path.join(tmpdir, 'src');
     const extracted = path.join(tmpdir, 'extracted');
     await fs.mkdir(src, { recursive: true });

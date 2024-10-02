@@ -12,7 +12,7 @@ runner: !<tag:yaml.org,2002:js/function> |-
 tests:
   Document:
     - input:
-        shell: '{x: ''1''}'
+        shell: "{x: '1'}"
       output:
         javascript: |-
           {
@@ -24,7 +24,7 @@ tests:
           }
         java: 'eq("x", "1")'
         csharp: 'new BsonDocument("x", "1")'
-        php: '[''x'' => ''1'']'
+        php: "['x' => '1']"
         ruby: |-
           {
             'x' => '1'
@@ -35,7 +35,7 @@ tests:
           }
         go: 'bson.D{{"x", "1"}}'
     - input:
-        shell: '{x: ''1'',}'
+        shell: "{x: '1',}"
       output:
         javascript: |-
           {
@@ -47,7 +47,7 @@ tests:
           }
         java: 'eq("x", "1")'
         csharp: 'new BsonDocument("x", "1")'
-        php: '[''x'' => ''1'']'
+        php: "['x' => '1']"
         ruby: |-
           {
             'x' => '1'
@@ -58,7 +58,7 @@ tests:
           }
         go: 'bson.D{{"x", "1"}}'
     - input:
-        shell: '{x: [''1'', ''2'']}'
+        shell: "{x: ['1', '2']}"
       output:
         javascript: |-
           {
@@ -79,7 +79,7 @@ tests:
                   "1",
                   "2"
               })
-        php: '[''x'' => [''1'', ''2'']]'
+        php: "['x' => ['1', '2']]"
         ruby: |-
           {
             'x' => [
@@ -119,7 +119,7 @@ tests:
           }
         java: 'eq("x", eq("y", 2L))'
         csharp: 'new BsonDocument("x", new BsonDocument("y", 2))'
-        php: '[''x'' => [''y'' => 2]]'
+        php: "['x' => ['y' => 2]]"
         ruby: |-
           {
             'x' => {
@@ -145,7 +145,7 @@ tests:
         rust: 'doc! {}'
         go: 'bson.D{}'
     - input:
-        shell: '{x: ''1'', n: ''4''}'
+        shell: "{x: '1', n: '4'}"
       output:
         javascript: |-
           {
@@ -164,7 +164,7 @@ tests:
               { "x", "1" }, 
               { "n", "4" }
           }
-        php: '[''x'' => ''1'', ''n'' => ''4'']'
+        php: "['x' => '1', 'n' => '4']"
         ruby: |-
           {
             'x' => '1',
@@ -181,9 +181,9 @@ tests:
               {"n", "4"},
           }
     - input:
-        shell: '{0: ''1'', 1: ''2'', 2: ''3''}'
+        shell: "{0: '1', 1: '2', 2: '3'}"
       output:
-        php: '(object) [0 => ''1'', 1 => ''2'', 2 => ''3'']'
+        php: "(object) [0 => '1', 1 => '2', 2 => '3']"
     - input:
         shell: >-
           { graphLookup : { "from" : "raw_data", "startWith" : "$_id",
@@ -355,7 +355,7 @@ tests:
           }
   Array:
     - input:
-        shell: '[''1'', ''2'']'
+        shell: "['1', '2']"
       output:
         javascript: |-
           [
@@ -372,7 +372,7 @@ tests:
           [
               '1', '2'
           ]
-        php: '[''1'', ''2'']'
+        php: "['1', '2']"
         ruby: |-
           [
             '1', '2'
@@ -388,7 +388,7 @@ tests:
               "2",
           }
     - input:
-        shell: '[''1'', ''2'',]'
+        shell: "['1', '2',]"
       output:
         javascript: |-
           [
@@ -405,7 +405,7 @@ tests:
           [
               '1', '2'
           ]
-        php: '[''1'', ''2'']'
+        php: "['1', '2']"
         ruby: |-
           [
             '1', '2'
@@ -421,7 +421,7 @@ tests:
               "2",
           }
     - input:
-        shell: '[''1'', { settings: ''http2'' }]'
+        shell: "['1', { settings: 'http2' }]"
       output:
         javascript: |-
           [
@@ -442,7 +442,7 @@ tests:
                   'settings': 'http2'
               }
           ]
-        php: '[''1'', [''settings'' => ''http2'']]'
+        php: "['1', ['settings' => 'http2']]"
         ruby: |-
           [
             '1', {
@@ -630,7 +630,7 @@ tests:
               },
           }
     - input:
-        shell: '[''1'', [''2'', ''3'']]'
+        shell: "['1', ['2', '3']]"
       output:
         javascript: |-
           [
@@ -655,7 +655,7 @@ tests:
                   '2', '3'
               ]
           ]
-        php: '[''1'', [''2'', ''3'']]'
+        php: "['1', ['2', '3']]"
         ruby: |-
           [
             '1', [
@@ -691,7 +691,7 @@ tests:
         go: 'bson.A{}'
   ArrayElision:
     - input:
-        shell: '[,''1'', ''2'',]'
+        shell: "[,'1', '2',]"
       output:
         python: |-
           [
@@ -709,7 +709,7 @@ tests:
           [
             undefined, '1', '2'
           ]
-        php: '[null, ''1'', ''2'']'
+        php: "[null, '1', '2']"
         ruby: |-
           [
             nil, '1', '2'
@@ -792,7 +792,7 @@ tests:
               primitive.Undefined{},
           }
     - input:
-        shell: '[''1'',,,,''2'']'
+        shell: "['1',,,,'2']"
       output:
         python: |-
           [
@@ -816,7 +816,7 @@ tests:
           [
             '1', undefined, undefined, undefined, '2'
           ]
-        php: '[''1'', null, null, null, ''2'']'
+        php: "['1', null, null, null, '2']"
         ruby: |-
           [
             '1', nil, nil, nil, '2'
@@ -947,7 +947,7 @@ tests:
         java: Double.parseDouble("2")
         csharp: int.Parse("2")
         php: (int) '2'
-        ruby: '''2''.to_f'
+        ruby: "'2'.to_f"
         rust: '"2".parse::<i32>()?'
         go: |-
           var parseInt = func(str string) int64 {
@@ -1116,25 +1116,25 @@ tests:
         go: 'primitive.Undefined{}'
   string_literals:
     - input:
-        shell: '''string'''
+        shell: "'string'"
       output:
-        javascript: '''string'''
-        python: '''string'''
+        javascript: "'string'"
+        python: "'string'"
         java: '"string"'
         csharp: '"string"'
-        php: '''string'''
-        ruby: '''string'''
+        php: "'string'"
+        ruby: "'string'"
         rust: '"string"'
         go: '"string"'
     - input:
         shell: '"string"'
       output:
-        javascript: '''string'''
-        python: '''string'''
+        javascript: "'string'"
+        python: "'string'"
         java: '"string"'
         csharp: '"string"'
-        php: '''string'''
-        ruby: '''string'''
+        php: "'string'"
+        ruby: "'string'"
         rust: '"string"'
         go: '"string"'
   python_strings: []
@@ -1167,7 +1167,7 @@ tests:
     - input:
         shell: 'new Date(1995, 11, 17)'
       output:
-        javascript: 'new Date(''Sun, 17 Dec 1995 00:00:00 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 00:00:00 GMT')"
         python: 'datetime(1995, 12, 17, 0, 0, 0, tzinfo=timezone.utc)'
         java: new java.util.Date(819158400000L)
         csharp: 'new DateTime(1995, 12, 17, 0, 0, 0)'
@@ -1178,7 +1178,7 @@ tests:
     - input:
         shell: 'new Date(1995, 11, 17, 3, 24)'
       output:
-        javascript: 'new Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 03:24:00 GMT')"
         python: 'datetime(1995, 12, 17, 3, 24, 0, tzinfo=timezone.utc)'
         java: new java.util.Date(819170640000L)
         csharp: 'new DateTime(1995, 12, 17, 3, 24, 0)'
@@ -1189,7 +1189,7 @@ tests:
     - input:
         shell: 'new Date(1995, 11, 17, 3, 24, 55)'
       output:
-        javascript: 'new Date(''Sun, 17 Dec 1995 03:24:55 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 03:24:55 GMT')"
         python: 'datetime(1995, 12, 17, 3, 24, 55, tzinfo=timezone.utc)'
         java: new java.util.Date(819170695000L)
         csharp: 'new DateTime(1995, 12, 17, 3, 24, 55)'
@@ -1198,12 +1198,12 @@ tests:
         rust: 'DateTime::parse_rfc3339_str("1995-12-17T03:24:55.000Z")?'
         go: 'time.Date(1995, 12, 17, 3, 24, 55, 0, time.UTC)'
     - input:
-        shell: 'new Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        shell: "new Date('Sun, 17 Dec 1995 03:24:00 GMT')"
       output:
         python: 'datetime(1995, 12, 17, 3, 24, 0, tzinfo=timezone.utc)'
         java: new java.util.Date(819170640000L)
         csharp: 'new DateTime(1995, 12, 17, 3, 24, 0)'
-        javascript: 'new Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 03:24:00 GMT')"
         php: new UTCDateTime(819170640000)
         ruby: 'Time.utc(1995, 12, 17, 3, 24, 0)'
         rust: 'DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?'
@@ -1211,7 +1211,7 @@ tests:
     - input:
         shell: new Date(819167040000)
       output:
-        javascript: 'new Date(''Sun, 17 Dec 1995 02:24:00 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 02:24:00 GMT')"
         python: 'datetime(1995, 12, 17, 2, 24, 0, tzinfo=timezone.utc)'
         java: new java.util.Date(819167040000L)
         csharp: 'new DateTime(1995, 12, 17, 2, 24, 0)'
@@ -1221,7 +1221,7 @@ tests:
         go: 'time.Date(1995, 12, 17, 2, 24, 0, 0, time.UTC)'
   date_string:
     - input:
-        shell: 'Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        shell: "Date('Sun, 17 Dec 1995 03:24:00 GMT')"
       output:
         python: >-
           datetime(1995, 12, 17, 3, 24, 0, tzinfo=timezone.utc).strftime('%a %b
@@ -1232,18 +1232,18 @@ tests:
         csharp: >-
           new DateTime(1995, 12, 17, 3, 24, 0).ToString("ddd MMM dd yyyy
           HH':'mm':'ss UTC")
-        javascript: 'Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        javascript: "Date('Sun, 17 Dec 1995 03:24:00 GMT')"
         php: >-
           (new
           UTCDateTime(819170640000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
-        ruby: 'Time.utc(1995, 12, 17, 3, 24, 0).strftime(''%a %b %d %Y %H:%M:%S %Z'')'
+        ruby: "Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')"
         rust: >-
           DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?.to_rfc3339_string()
         go: 'time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)'
     - input:
         shell: Date(819167040000)
       output:
-        javascript: 'Date(''Sun, 17 Dec 1995 02:24:00 GMT'')'
+        javascript: "Date('Sun, 17 Dec 1995 02:24:00 GMT')"
         python: >-
           datetime(1995, 12, 17, 2, 24, 0, tzinfo=timezone.utc).strftime('%a %b
           %d %Y %H:%M:%S %Z')
@@ -1256,14 +1256,14 @@ tests:
         php: >-
           (new
           UTCDateTime(819167040000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
-        ruby: 'Time.utc(1995, 12, 17, 2, 24, 0).strftime(''%a %b %d %Y %H:%M:%S %Z'')'
+        ruby: "Time.utc(1995, 12, 17, 2, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')"
         rust: >-
           DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?.to_rfc3339_string()
         go: 'time.Date(1995, 12, 17, 2, 24, 0, 0, time.UTC)'
     - input:
         shell: 'Date(1995, 11, 17)'
       output:
-        javascript: 'Date(''Sun, 17 Dec 1995 00:00:00 GMT'')'
+        javascript: "Date('Sun, 17 Dec 1995 00:00:00 GMT')"
         python: >-
           datetime(1995, 12, 17, 0, 0, 0, tzinfo=timezone.utc).strftime('%a %b
           %d %Y %H:%M:%S %Z')
@@ -1276,29 +1276,29 @@ tests:
         php: >-
           (new
           UTCDateTime(819158400000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
-        ruby: 'Time.utc(1995, 12, 17, 0, 0, 0).strftime(''%a %b %d %Y %H:%M:%S %Z'')'
+        ruby: "Time.utc(1995, 12, 17, 0, 0, 0).strftime('%a %b %d %Y %H:%M:%S %Z')"
         rust: >-
           DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?.to_rfc3339_string()
         go: 'time.Date(1995, 12, 17, 0, 0, 0, 0, time.UTC)'
   ISODate:
     - input:
-        shell: 'new ISODate(''1995-12-17T03:24:00.000Z'')'
+        shell: "new ISODate('1995-12-17T03:24:00.000Z')"
       output:
         python: 'datetime(1995, 12, 17, 3, 24, 0, tzinfo=timezone.utc)'
         java: new java.util.Date(819170640000L)
         csharp: 'new DateTime(1995, 12, 17, 3, 24, 0)'
-        javascript: 'new Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 03:24:00 GMT')"
         php: new UTCDateTime(819170640000)
         ruby: 'Time.utc(1995, 12, 17, 3, 24, 0)'
         rust: 'DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?'
         go: 'time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)'
     - input:
-        shell: 'ISODate(''1995-12-17T03:24:00.000Z'')'
+        shell: "ISODate('1995-12-17T03:24:00.000Z')"
       output:
         python: 'datetime(1995, 12, 17, 3, 24, 0, tzinfo=timezone.utc)'
         java: new java.util.Date(819170640000L)
         csharp: 'new DateTime(1995, 12, 17, 3, 24, 0)'
-        javascript: 'new Date(''Sun, 17 Dec 1995 03:24:00 GMT'')'
+        javascript: "new Date('Sun, 17 Dec 1995 03:24:00 GMT')"
         php: new UTCDateTime(819170640000)
         ruby: 'Time.utc(1995, 12, 17, 3, 24, 0)'
         rust: 'DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?'
@@ -1332,7 +1332,7 @@ tests:
       input:
         shell: RegExp('')
       output:
-        javascript: 'new RegExp(''(?:)'')'
+        javascript: "new RegExp('(?:)')"
         python: 're.compile(r"(?:)")'
         java: 'Pattern.compile("(?:)")'
         csharp: 'new Regex("(?:)")'
@@ -1354,9 +1354,9 @@ tests:
         go: 'primitive.Regex{Pattern: "abc"}'
     - description: regex object with im flags as args
       input:
-        shell: 'new RegExp(''ab+c'', ''im'')'
+        shell: "new RegExp('ab+c', 'im')"
       output:
-        javascript: 'new RegExp(''ab+c'', ''im'')'
+        javascript: "new RegExp('ab+c', 'im')"
         python: re.compile(r"ab+c(?im)")
         java: Pattern.compile("ab+c(?im)")
         csharp: new Regex("(?im)ab+c")
@@ -1366,9 +1366,9 @@ tests:
         go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
     - description: regex object with ig flags as args
       input:
-        shell: 'new RegExp(''ab+c'', ''ig'')'
+        shell: "new RegExp('ab+c', 'ig')"
       output:
-        javascript: 'new RegExp(''ab+c'', ''gi'')'
+        javascript: "new RegExp('ab+c', 'gi')"
         python: re.compile(r"ab+c(?is)")
         java: Pattern.compile("ab+c(?i)")
         csharp: new Regex("(?i)ab+c")
@@ -1452,7 +1452,7 @@ tests:
       input:
         shell: /ab+c/ig
       output:
-        javascript: 'new RegExp(''ab+c'', ''gi'')'
+        javascript: "new RegExp('ab+c', 'gi')"
         python: re.compile(r"ab+c(?is)")
         java: Pattern.compile("ab+c(?i)")
         csharp: new Regex("(?i)ab+c")
@@ -1462,9 +1462,9 @@ tests:
         go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
     - description: regex object with regex literal arg
       input:
-        shell: 'new RegExp(/ab+c/, ''i'')'
+        shell: "new RegExp(/ab+c/, 'i')"
       output:
-        javascript: 'new RegExp(''ab+c'', ''i'')'
+        javascript: "new RegExp('ab+c', 'i')"
         python: re.compile(r"ab+c(?i)")
         java: Pattern.compile("ab+c(?i)")
         csharp: new Regex("(?i)ab+c")

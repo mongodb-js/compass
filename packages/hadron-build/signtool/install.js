@@ -13,7 +13,9 @@ if (process.platform !== 'win32') {
   process.exit(0);
 }
 
-const originalSigntool = require.resolve('electron-winstaller/vendor/signtool.exe');
+const originalSigntool = require.resolve(
+  'electron-winstaller/vendor/signtool.exe'
+);
 
 if (!fs.existsSync(originalSigntool)) {
   throw new Error('Original signtool.exe to be replaced not found');

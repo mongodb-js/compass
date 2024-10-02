@@ -44,7 +44,7 @@ describe('target', () => {
       HADRON_PRODUCT_NAME: 'MongoDB Compass My Awesome Edition',
       HADRON_READONLY: 'true',
       HADRON_ISOLATED: 'true',
-      HADRON_APP_VERSION: '1.2.3'
+      HADRON_APP_VERSION: '1.2.3',
     });
 
     const target = new Target(path.join(__dirname, 'fixtures', 'hadron-app'));

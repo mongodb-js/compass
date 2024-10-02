@@ -15,7 +15,7 @@ const yargs = require('yargs')
   .strict()
   .env()
   .help('help')
-  .fail(function(msg, err) {
+  .fail(function (msg, err) {
     cli.abortIfError(err);
     cli.error(`${msg}\n\n`);
     yargs.showHelp();

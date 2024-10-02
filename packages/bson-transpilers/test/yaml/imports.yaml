@@ -25,7 +25,7 @@ tests:
   all:
     - description: Single import Code
       input:
-        shell: '{x: Code(''code'')}'
+        shell: "{x: Code('code')}"
       output:
         java: |-
           import org.bson.types.Code;
@@ -50,7 +50,7 @@ tests:
           use mongodb::bson::doc;
     - description: Single import Code with scope
       input:
-        shell: '{x: Code(''code'', {x: 1})}'
+        shell: "{x: Code('code', {x: 1})}"
       output:
         java: |-
           import org.bson.Document;
@@ -128,7 +128,7 @@ tests:
           use mongodb::bson::doc;
     - description: Single import DBRef
       input:
-        shell: '{x: DBRef(''db'', ObjectId())}'
+        shell: "{x: DBRef('db', ObjectId())}"
       output:
         java: |-
           import org.bson.types.ObjectId;
@@ -263,7 +263,7 @@ tests:
           use mongodb::bson::doc;
     - description: Single import RegExp
       input:
-        shell: '{x: RegExp(''abc'')}'
+        shell: "{x: RegExp('abc')}"
       output:
         java: |-
           import java.util.regex.Pattern;
@@ -334,7 +334,7 @@ tests:
           use mongodb::bson::doc;
     - description: Single import Symbol
       input:
-        shell: '{x: Symbol(''a'')}'
+        shell: "{x: Symbol('a')}"
       output:
         java: |-
           import org.bson.types.Symbol;

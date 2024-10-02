@@ -43,32 +43,34 @@ exports.describe = ':shipit:';
  */
 const createBrandedApplication = (CONFIG, done) => {
   cli.debug('running electron-packager');
-  packager(CONFIG.packagerOptions).then((res) => {
-    cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
+  packager(CONFIG.packagerOptions)
+    .then((res) => {
+      cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
 
-    if (CONFIG.platform !== 'darwin') {
-      return done(null, true);
-    }
-
-    /**
-     * @see https://jira.mongodb.org/browse/INT-1836
-     */
-    const atomIcns = path.join(CONFIG.resources, 'atom.icns');
-    const electronIcns = path.join(CONFIG.resources, 'electron.icns');
-    fs.exists(atomIcns, function(exists) {
-      if (!exists) {
+      if (CONFIG.platform !== 'darwin') {
         return done(null, true);
       }
-      fs.remove(electronIcns, function(_err) {
-        if (_err) {
-          return done(_err);
+
+      /**
+       * @see https://jira.mongodb.org/browse/INT-1836
+       */
+      const atomIcns = path.join(CONFIG.resources, 'atom.icns');
+      const electronIcns = path.join(CONFIG.resources, 'electron.icns');
+      fs.exists(atomIcns, function (exists) {
+        if (!exists) {
+          return done(null, true);
         }
-        fs.move(atomIcns, electronIcns, done);
+        fs.remove(electronIcns, function (_err) {
+          if (_err) {
+            return done(_err);
+          }
+          fs.move(atomIcns, electronIcns, done);
+        });
       });
+    })
+    .catch((err) => {
+      return done(err);
     });
-  }).catch((err) => {
-    return done(err);
-  });
 };
 
 /**
@@ -85,7 +87,7 @@ const symlinkExecutable = (CONFIG, done) => {
     const newPath = path.join(CONFIG.appPath, 'Contents', 'MacOS');
     cli.debug('chdir', newPath);
     process.chdir(newPath);
-    fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
+    fs.ensureSymlink(CONFIG.productName, 'Electron', function (_err) {
       process.chdir(cwd);
       if (_err) {
         return done(_err);
@@ -116,8 +118,8 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
 
   cli.debug('cleaning up extraneous files from template');
   del(globsToDelete, {
-    force: true
-  }).then(function(paths) {
+    force: true,
+  }).then(function (paths) {
     cli.debug(format('%d extraneous files removed', paths.length));
     done(null, true);
   }, done);
@@ -130,9 +132,11 @@ const cleanupBrandedApplicationScaffold = (CONFIG, done) => {
 const writeLicenseFile = (CONFIG, done) => {
   try {
     const contents = fs.readFileSync(path.join(CONFIG.dir, 'LICENSE'));
-    CONFIG.write('LICENSE', contents).then(() => {
-      cli.debug(format('LICENSE written'));
-    }).then(() => done(null, true));
+    CONFIG.write('LICENSE', contents)
+      .then(() => {
+        cli.debug(format('LICENSE written'));
+      })
+      .then(() => done(null, true));
   } catch (err) {
     done(err);
   }
@@ -148,9 +152,11 @@ const copy3rdPartyNoticesFile = (CONFIG, done) => {
   try {
     const noticesPath = path.join(CONFIG.dir, 'THIRD-PARTY-NOTICES.md');
     const contents = fs.readFileSync(noticesPath);
-    CONFIG.write('THIRD-PARTY-NOTICES.md', contents).then(() => {
-      cli.debug(format('THIRD-PARTY-NOTICES.md written'));
-    }).then(() => done(null, true));
+    CONFIG.write('THIRD-PARTY-NOTICES.md', contents)
+      .then(() => {
+        cli.debug(format('THIRD-PARTY-NOTICES.md written'));
+      })
+      .then(() => done(null, true));
   } catch (err) {
     done(err);
   }
@@ -164,12 +170,19 @@ const copySBOMFile = (CONFIG, done) => {
   try {
     const sbomPath = path.join(CONFIG.dir, '..', '..', '.sbom', 'sbom.json');
     const contents = fs.readFileSync(sbomPath);
-    CONFIG.write('.sbom.json', contents).then(() => {
-      cli.debug(format('.sbom.json written'));
-    }).then(() => done(null, true));
+    CONFIG.write('.sbom.json', contents)
+      .then(() => {
+        cli.debug(format('.sbom.json written'));
+      })
+      .then(() => done(null, true));
   } catch (err) {
-    if (err.code === 'ENOENT' && !process.env.COMPASS_WAS_COMPILED_AND_HAS_SBOM) {
-      cli.debug(format('Skipping sbom.json writing because the file is missing'));
+    if (
+      err.code === 'ENOENT' &&
+      !process.env.COMPASS_WAS_COMPILED_AND_HAS_SBOM
+    ) {
+      cli.debug(
+        format('Skipping sbom.json writing because the file is missing')
+      );
       return done(null, true);
     }
     done(err);
@@ -179,7 +192,10 @@ const copySBOMFile = (CONFIG, done) => {
 // Remove a malicious link from chromium license
 // See: COMPASS-5333
 const fixCompass5333 = (CONFIG, done) => {
-  const chromiumLicensePath = path.join(CONFIG.distRoot(), 'LICENSES.chromium.html');
+  const chromiumLicensePath = path.join(
+    CONFIG.distRoot(),
+    'LICENSES.chromium.html'
+  );
 
   const chromiumLicense = fs.readFileSync(chromiumLicensePath, 'utf8');
 
@@ -190,7 +206,6 @@ const fixCompass5333 = (CONFIG, done) => {
 
   done();
 };
-
 
 /**
  * Replace the version file `electron-packager` creates w/ a version
@@ -208,13 +223,13 @@ const writeVersionFile = (CONFIG, done) => {
   const version = CONFIG.packagerOptions.electronVersion;
 
   return CONFIG.write('version', version)
-    .then(dest => {
+    .then((dest) => {
       cli.debug(format('version `%s` written to `%s`', version, dest));
       if (done) {
         done(null, true);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       if (done) {
         return done(err);
       }
@@ -231,14 +246,14 @@ const writeVersionFile = (CONFIG, done) => {
  * @param {Function} done
  * @api public
  */
-const transformPackageJson = async(CONFIG, done) => {
+const transformPackageJson = async (CONFIG, done) => {
   const PACKAGE_JSON_DEST = path.join(CONFIG.resourcesAppDir, 'package.json');
   const packageKeysToRemove = [
     'devDependencies',
     'dependency-check',
     'repository',
     'check',
-    'config.hadron.build'
+    'config.hadron.build',
   ];
 
   let contents = _.omit(CONFIG.pkg, packageKeysToRemove);
@@ -246,7 +261,7 @@ const transformPackageJson = async(CONFIG, done) => {
   _.assign(contents, {
     channel: CONFIG.channel,
     version: CONFIG.version,
-    distribution: CONFIG.distribution
+    distribution: CONFIG.distribution,
   });
 
   /**
@@ -255,7 +270,7 @@ const transformPackageJson = async(CONFIG, done) => {
    */
   const distributions = contents.config.hadron.distributions;
   _.assign(contents, {
-    productName: CONFIG.productName
+    productName: CONFIG.productName,
   });
   distributions[contents.distribution].productName = CONFIG.productName;
   distributions[contents.distribution].metrics_intercom_app_id =
@@ -282,7 +297,7 @@ const transformPackageJson = async(CONFIG, done) => {
   for (const depType of [
     'dependencies',
     'peerDependencies',
-    'optionalDependencies'
+    'optionalDependencies',
   ]) {
     for (const depName of Object.keys(contents[depType] || {})) {
       const depEdge = packageNode.edgesOut.get(depName);
@@ -320,7 +335,7 @@ const transformPackageJson = async(CONFIG, done) => {
  * @param {Function} done
  * @api public
  */
-const installDependencies = util.callbackify(async(CONFIG) => {
+const installDependencies = util.callbackify(async (CONFIG) => {
   let originalPackagePath = CONFIG.resourcesAppDir;
   let appPackagePath = originalPackagePath;
 
@@ -333,8 +348,11 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     appPackagePath = path.join(
       process.env.EVERGREEN_WORKDIR.replace(/^\/cygdrive\/(\w)\//, '$1:\\'),
       'src',
-      'app');
-    cli.debug(`Moving app package path from ${originalPackagePath} to ${appPackagePath}`);
+      'app'
+    );
+    cli.debug(
+      `Moving app package path from ${originalPackagePath} to ${appPackagePath}`
+    );
     await fs.promises.rename(originalPackagePath, appPackagePath);
   }
 
@@ -342,7 +360,7 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
   const opts = {
     cwd: appPackagePath,
-    shell: true
+    shell: true,
   };
 
   await run.async('npm', ['install', '--production'], opts);
@@ -369,7 +387,7 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     // --build-from-source flag to rebuild-install package, but we can force
     // rebuild by providing a tag prefix that will make prebuild think that
     // prebuilt files don't exist
-    prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild'
+    prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild',
   };
 
   // We can not force rebuild mongodb-client-encryption locally, but we need to
@@ -377,9 +395,7 @@ const installDependencies = util.callbackify(async(CONFIG) => {
   // so let's run rebuild again.
   const clientEncryptionRebuildConfig = {
     ...sharedRebuildConfig,
-    onlyModules: [
-      'mongodb-client-encryption',
-    ],
+    onlyModules: ['mongodb-client-encryption'],
   };
 
   await rebuild(allModulesRebuildConfig);
@@ -387,8 +403,10 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
   cli.debug('Native modules rebuilt against Electron.');
   if (originalPackagePath !== appPackagePath) {
-    cli.debug(`Moving app package back to ${originalPackagePath} from ${appPackagePath}`);
-    await fs.promises.rename(appPackagePath, originalPackagePath)
+    cli.debug(
+      `Moving app package back to ${originalPackagePath} from ${appPackagePath}`
+    );
+    await fs.promises.rename(appPackagePath, originalPackagePath);
   }
 });
 
@@ -415,7 +433,7 @@ const removeDevelopmentFiles = (CONFIG, done) => {
     '.jsfmt*',
     '.git*',
     'report*',
-    '*.less'
+    '*.less',
   ];
 
   var globsToDelete = [
@@ -428,13 +446,15 @@ const removeDevelopmentFiles = (CONFIG, done) => {
     path.join(CONFIG.resourcesAppDir, '{' + DOT_FILES.join(',') + '}'),
     // node-gyp creates symlinks for build purposes, but doesn't clean them up
     // afterwards https://github.com/nodejs/node-gyp/issues/2713
-    path.join(CONFIG.resourcesAppDir, '**', 'node_gyp_bins')
+    path.join(CONFIG.resourcesAppDir, '**', 'node_gyp_bins'),
   ];
 
-  cli.debug('Checking for extraneous files to remove:\n' +
-    JSON.stringify(globsToDelete, null, 2));
+  cli.debug(
+    'Checking for extraneous files to remove:\n' +
+      JSON.stringify(globsToDelete, null, 2)
+  );
 
-  del(globsToDelete).then(function(paths) {
+  del(globsToDelete).then(function (paths) {
     if (paths.length === 0) {
       cli.debug('No extraneous files to remove');
     } else {
@@ -465,22 +485,25 @@ const createApplicationAsar = (CONFIG, done) => {
     ...CONFIG.asar,
     unpack: `{${['*.node', '**/vendor/**']
       .concat(CONFIG.asar.unpack)
-      .join(',')}}`
+      .join(',')}}`,
   };
 
   var src = CONFIG.resourcesAppDir;
   var dest = `${CONFIG.resourcesAppDir}.asar`;
 
-  asar.createPackageWithOptions(src, dest, opts).then(() => {
-    del(src, { force: true }).then(() => {
+  asar
+    .createPackageWithOptions(src, dest, opts)
+    .then(() => {
+      del(src, { force: true }).then(() => {
+        done();
+      }, done);
+    })
+    .catch((err) => {
+      if (err) {
+        cli.error(err);
+      }
       done();
-    }, done);
-  }).catch((err) => {
-    if (err) {
-      cli.error(err);
-    }
-    done();
-  });
+    });
 };
 
 /**
@@ -492,7 +515,9 @@ const createApplicationAsar = (CONFIG, done) => {
  */
 const createBrandedInstaller = (CONFIG, done) => {
   cli.debug('Creating installer');
-  CONFIG.createInstaller().then(() => done()).catch(done);
+  CONFIG.createInstaller()
+    .then(() => done())
+    .catch(done);
 };
 
 const writeConfigToJson = (CONFIG, done) => {
@@ -506,18 +531,17 @@ const writeConfigToJson = (CONFIG, done) => {
 exports.builder = {
   dir: {
     description: 'Project root directory',
-    default: process.cwd()
+    default: process.cwd(),
   },
   skip_installer: {
     description: 'Skip installer generation',
-    default: false
+    default: false,
   },
   no_asar: {
     description: 'Do not package application source to .asar bundle',
-    default: false
-  }
+    default: false,
+  },
 };
-
 
 /**
  * @param {any} argv Parsed command arguments
@@ -532,17 +556,18 @@ exports.run = async (argv, done) => {
   cli.debug(`Building distribution: ${target.distribution}`);
 
   const task = (name, fn) => {
-    return () => new Promise((resolve, reject) => {
-      cli.debug(`start: ${name}`);
-      fn(target, (err) => {
-        if (err) {
-          cli.error(err);
-          return reject(err);
-        }
-        cli.debug(`completed: ${name}`);
-        return resolve();
+    return () =>
+      new Promise((resolve, reject) => {
+        cli.debug(`start: ${name}`);
+        fn(target, (err) => {
+          if (err) {
+            cli.error(err);
+            return reject(err);
+          }
+          cli.debug(`completed: ${name}`);
+          return resolve();
+        });
       });
-    });
   };
 
   const skipInstaller =
@@ -550,31 +575,37 @@ exports.run = async (argv, done) => {
 
   const noAsar = process.env.NO_ASAR === 'true' || argv.no_asar;
 
-  const tasks = _.flatten([
-    task('copy npmrc from root', ({ dir }, done) => {
-      fs.cp(
-        path.resolve(dir, '..', '..', '.npmrc'),
-        path.resolve(dir, '.npmrc'),
-        done
-      );
-    }),
-    task('create branded application', createBrandedApplication),
-    task('create executable symlink', symlinkExecutable),
-    task('cleanup branded application scaffold', cleanupBrandedApplicationScaffold),
-    task('write version file', writeVersionFile),
-    task('transform package.json', transformPackageJson),
-    task('install dependencies', installDependencies),
-    task('fix COMPASS-5333', fixCompass5333),
-    task('write license file', writeLicenseFile),
-    task('write 3rd party notices file', copy3rdPartyNoticesFile),
-    task('write sbom file', copySBOMFile),
-    task('remove development files', removeDevelopmentFiles),
-    !noAsar && task('create application asar', createApplicationAsar),
-    !skipInstaller && task('create branded installer', createBrandedInstaller),
-    task('create application zip', createApplicationZip),
-    task('sign zip', signArchive),
-    task('store build configuration as json', writeConfigToJson)
-  ].filter(Boolean));
+  const tasks = _.flatten(
+    [
+      task('copy npmrc from root', ({ dir }, done) => {
+        fs.cp(
+          path.resolve(dir, '..', '..', '.npmrc'),
+          path.resolve(dir, '.npmrc'),
+          done
+        );
+      }),
+      task('create branded application', createBrandedApplication),
+      task('create executable symlink', symlinkExecutable),
+      task(
+        'cleanup branded application scaffold',
+        cleanupBrandedApplicationScaffold
+      ),
+      task('write version file', writeVersionFile),
+      task('transform package.json', transformPackageJson),
+      task('install dependencies', installDependencies),
+      task('fix COMPASS-5333', fixCompass5333),
+      task('write license file', writeLicenseFile),
+      task('write 3rd party notices file', copy3rdPartyNoticesFile),
+      task('write sbom file', copySBOMFile),
+      task('remove development files', removeDevelopmentFiles),
+      !noAsar && task('create application asar', createApplicationAsar),
+      !skipInstaller &&
+        task('create branded installer', createBrandedInstaller),
+      task('create application zip', createApplicationZip),
+      task('sign zip', signArchive),
+      task('store build configuration as json', writeConfigToJson),
+    ].filter(Boolean)
+  );
 
   try {
     for (const task of tasks) {
@@ -597,7 +628,7 @@ exports.handler = (argv) => {
   exports.run(argv, (_err, CONFIG) => {
     cli.abortIfError(_err);
     cli.ok(`${CONFIG.assets.length} assets successfully built`);
-    CONFIG.assets.map(function(asset) {
+    CONFIG.assets.map(function (asset) {
       cli.info(asset.path);
     });
   });
