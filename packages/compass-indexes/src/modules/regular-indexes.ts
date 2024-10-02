@@ -474,7 +474,7 @@ export function createRegularIndex(
     try {
       const createFn = isRollingIndexBuild
         ? rollingIndexesService.createRollingIndex.bind(rollingIndexesService)
-        : dataService.createIndex.bind(rollingIndexesService);
+        : dataService.createIndex.bind(dataService);
       await createFn(ns, spec, options);
       dispatch(indexCreationSucceeded(inProgressIndexId));
       track('Index Created', trackEvent, connectionInfoRef.current);
