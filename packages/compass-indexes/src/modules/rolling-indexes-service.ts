@@ -9,7 +9,7 @@ export type AtlasIndexStats = {
   indexName: string;
   indexProperties: { label: string; properties: Record<string, unknown> }[];
   indexType: { label: string };
-  keys: { name: string; value: string | number };
+  keys: { name: string; value: string | number }[];
   sizeBytes: number;
   status: 'rolling build' | 'building' | 'exists';
 };

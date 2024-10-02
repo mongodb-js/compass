@@ -20,6 +20,7 @@ import {
 import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
+import { connectionSupports } from '@mongodb-js/compass-connections';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -43,6 +44,14 @@ export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   error?: string;
 };
 
+export type RollingIndex = Partial<AtlasIndexStats> &
+  Pick<
+    AtlasIndexStats,
+    // These are the only ones we're treating as required because they are the
+    // ones we use. Everything else is treated as optional.
+    'indexName' | 'indexType' | 'keys'
+  >;
+
 const prepareInProgressIndex = (
   id: string,
   {
@@ -53,9 +62,9 @@ const prepareInProgressIndex = (
     spec: CreateIndexSpec;
   }
 ): InProgressIndex => {
-  const inProgressIndexFields = Object.keys(spec).map((field: string) => ({
+  const inProgressIndexFields = Object.entries(spec).map(([field, value]) => ({
     field,
-    value: spec[field],
+    value,
   }));
   const inProgressIndexName =
     name ||
@@ -110,6 +119,7 @@ type FetchIndexesStartedAction = {
 type FetchIndexesSucceededAction = {
   type: ActionTypes.FetchIndexesSucceeded;
   indexes: RegularIndex[];
+  rollingIndexes?: RollingIndex[];
 };
 
 type FetchIndexesFailedAction = {
@@ -142,6 +152,7 @@ export type State = {
   status: FetchStatus;
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
+  rollingIndexes?: RollingIndex[];
   error?: string;
 };
 
@@ -191,6 +202,7 @@ export default function reducer(
     return {
       ...state,
       indexes: action.indexes,
+      rollingIndexes: action.rollingIndexes,
       status: FetchStatuses.READY,
     };
   }
@@ -276,10 +288,12 @@ const fetchIndexesStarted = (
 });
 
 const fetchIndexesSucceeded = (
-  indexes: RegularIndex[]
+  indexes: RegularIndex[],
+  rollingIndexes?: RollingIndex[]
 ): FetchIndexesSucceededAction => ({
   type: ActionTypes.FetchIndexesSucceeded,
   indexes,
+  rollingIndexes,
 });
 
 const fetchIndexesFailed = (error: string): FetchIndexesFailedAction => ({
@@ -303,7 +317,11 @@ function pickCollectionStatFields(state: RootState) {
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
-  return async (dispatch, getState, { dataService, collection }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, collection, connectionInfoRef, rollingIndexesService }
+  ) => {
     const {
       isReadonlyView,
       namespace,
@@ -320,11 +338,22 @@ const fetchIndexes = (
       return;
     }
 
+    const isRollingIndexesSupported = connectionSupports(
+      connectionInfoRef.current,
+      'rollingIndexCreation'
+    );
+
     try {
       dispatch(fetchIndexesStarted(reason));
-      const indexes = await dataService.indexes(namespace);
+      const promises = [
+        dataService.indexes(namespace),
+        isRollingIndexesSupported
+          ? rollingIndexesService.listRollingIndexes(namespace)
+          : undefined,
+      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
+      const [indexes, rollingIndexes] = await Promise.all(promises);
       const indexesBefore = pickCollectionStatFields(getState());
-      dispatch(fetchIndexesSucceeded(indexes));
+      dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));
       const indexesAfter = pickCollectionStatFields(getState());
       if (
         reason !== FetchReasons.INITIAL_FETCH &&
