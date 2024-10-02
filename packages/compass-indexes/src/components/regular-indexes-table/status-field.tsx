@@ -40,7 +40,6 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type StatusFieldProps = {
-  // TODO(COMPASS-8329): these belong in their own column
   status: InProgressIndex['status'] | 'ready' | 'building';
   error?: InProgressIndex['error'];
 };
