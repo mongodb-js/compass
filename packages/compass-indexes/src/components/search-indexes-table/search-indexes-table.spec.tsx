@@ -52,7 +52,9 @@ describe('SearchIndexesTable Component', function () {
 
       // Renders indexes list (table rows)
       for (const index of indexes) {
-        const indexRow = screen.getByText(index.name).closest('tr')!;
+        const indexRow = screen
+          .getByText(index.name)
+          .closest('tr') as HTMLTableRowElement;
         expect(indexRow, 'it renders each index in a row').to.exist;
 
         // Renders index fields (table cells)
@@ -160,7 +162,9 @@ describe('SearchIndexesTable Component', function () {
         indexes: vectorSearchIndexes,
       });
 
-      const indexRow = screen.getByText('vectorSearching123').closest('tr')!;
+      const indexRow = screen
+        .getByText('vectorSearching123')
+        .closest('tr') as HTMLTableRowElement;
 
       const expandButton = within(indexRow).getByLabelText('Expand row');
       expect(expandButton).to.exist;
@@ -180,7 +184,7 @@ describe('SearchIndexesTable Component', function () {
   describe('sorting', function () {
     function getIndexNames() {
       return screen.getAllByTestId('search-indexes-name-field').map((el) => {
-        return el.textContent!.trim();
+        return (el.textContent as string).trim();
       });
     }
 

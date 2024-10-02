@@ -30,9 +30,7 @@
         "indexVersion": 2,
         "direction": "forward",
         "indexBounds": {
-          "beds": [
-            "(2, inf.0]"
-          ]
+          "beds": ["(2, inf.0]"]
         }
       }
     },
@@ -59,9 +57,7 @@
       "innerOpens": 1432,
       "innerCloses": 1,
       "outerProjects": [],
-      "outerCorrelated": [
-        2
-      ],
+      "outerCorrelated": [2],
       "inputStage": {
         "stage": "IXSCAN",
         "planNodeId": 1,
@@ -76,10 +72,7 @@
         "innerOpens": 1,
         "innerCloses": 1,
         "outerProjects": [],
-        "outerCorrelated": [
-          3,
-          4
-        ],
+        "outerCorrelated": [3, 4],
         "keyPattern": {
           "beds": 1
         },
@@ -94,9 +87,7 @@
         "indexVersion": 2,
         "direction": "forward",
         "indexBounds": {
-          "beds": [
-            "(2, inf.0]"
-          ]
+          "beds": ["(2, inf.0]"]
         },
         "docsExamined": 0,
         "keysExamined": 1432

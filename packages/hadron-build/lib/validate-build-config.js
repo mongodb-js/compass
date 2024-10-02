@@ -1,14 +1,10 @@
-
 const platformRequiredKeys = {
   darwin: ['dmg_background', 'app_category_type', 'icon'],
   linux: ['deb_section', 'rpm_categories', 'icon'],
-  win32: ['icon', 'favicon_url', 'loading_gif', 'background', 'banner']
+  win32: ['icon', 'favicon_url', 'loading_gif', 'background', 'banner'],
 };
 
-const validateBuildConfig = (
-  platform,
-  config
-) => {
+const validateBuildConfig = (platform, config) => {
   const requiredKeys = platformRequiredKeys[platform];
   if (!requiredKeys) {
     throw new Error(`Unsupported platform: ${platform}`);
@@ -27,5 +23,5 @@ const validateBuildConfig = (
 };
 
 module.exports = {
-  validateBuildConfig
+  validateBuildConfig,
 };

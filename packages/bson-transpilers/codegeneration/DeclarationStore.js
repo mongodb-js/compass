@@ -43,7 +43,9 @@ class DeclarationStore {
   alreadyDeclared(templateID, varRoot, declaration) {
     const existing = this.candidates(templateID, varRoot);
     for (var i = 0; i < existing.length; i++) {
-      const candidate = `${this.varTemplateRoot(templateID, varRoot)}${i > 0 ? i : ''}`;
+      const candidate = `${this.varTemplateRoot(templateID, varRoot)}${
+        i > 0 ? i : ''
+      }`;
       const current = this.vars[declaration(candidate)];
       if (current !== undefined) {
         return current;
@@ -53,7 +55,9 @@ class DeclarationStore {
 
   candidates(templateID, varRoot) {
     const varTemplateRoot = this.varTemplateRoot(templateID, varRoot);
-    return Object.values(this.vars).filter(varName => varName.startsWith(varTemplateRoot));
+    return Object.values(this.vars).filter((varName) =>
+      varName.startsWith(varTemplateRoot)
+    );
   }
 
   clear() {

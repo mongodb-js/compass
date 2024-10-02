@@ -16,7 +16,7 @@ async function setupMacosNotary() {
     debug('downloading macnotary');
     await download(process.env.MACOS_NOTARY_CLIENT_URL, 'macnotary', {
       extract: true,
-      strip: 1 // remove leading platform + arch directory
+      strip: 1, // remove leading platform + arch directory
     });
     await fs.chmod('macnotary/macnotary', 0o755); // ensure +x is set
   }
@@ -58,17 +58,31 @@ async function notarize(src, notarizeOptions) {
 
   try {
     // Step:2 - send the zip to notary service and save the result to signedArchive
-    debug(`sending file to notary service (bundle id = ${notarizeOptions.bundleId})`);
-    const macnotaryResult = await execFile(path.resolve('macnotary/macnotary'), [
-      '-t', 'app',
-      '-m', 'notarizeAndSign',
-      '-u', process.env.MACOS_NOTARY_API_URL,
-      '-b', notarizeOptions.bundleId,
-      '-f', unsignedArchive,
-      '-o', signedArchive,
-      '--verify',
-      ...(notarizeOptions.macosEntitlements ? ['-e', notarizeOptions.macosEntitlements] : [])
-    ], execOpts);
+    debug(
+      `sending file to notary service (bundle id = ${notarizeOptions.bundleId})`
+    );
+    const macnotaryResult = await execFile(
+      path.resolve('macnotary/macnotary'),
+      [
+        '-t',
+        'app',
+        '-m',
+        'notarizeAndSign',
+        '-u',
+        process.env.MACOS_NOTARY_API_URL,
+        '-b',
+        notarizeOptions.bundleId,
+        '-f',
+        unsignedArchive,
+        '-o',
+        signedArchive,
+        '--verify',
+        ...(notarizeOptions.macosEntitlements
+          ? ['-e', notarizeOptions.macosEntitlements]
+          : []),
+      ],
+      execOpts
+    );
     debug('macnotary result:', macnotaryResult.stdout, macnotaryResult.stderr);
     debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
 
@@ -78,16 +92,23 @@ async function notarize(src, notarizeOptions) {
     debug(`unzipping with "unzip -u ${signedArchive}"`);
     await execFile('unzip', ['-u', signedArchive], execOpts);
   } catch (err) {
-    debug('full macnotary error output', inspect(err, {
-      maxArrayLength: Infinity,
-      maxStringLength: Infinity
-    }));
+    debug(
+      'full macnotary error output',
+      inspect(err, {
+        maxArrayLength: Infinity,
+        maxStringLength: Infinity,
+      })
+    );
     throw err;
   } finally {
     // cleanup - remove signedArchive and unsignedArchive
     debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
     debug(`removing ${signedArchive} and ${unsignedArchive}`);
-    await execFile('rm', ['-r', signedArchive, unsignedArchive], execOpts).catch(err => {
+    await execFile(
+      'rm',
+      ['-r', signedArchive, unsignedArchive],
+      execOpts
+    ).catch((err) => {
       debug('error cleaning up', err);
     });
   }

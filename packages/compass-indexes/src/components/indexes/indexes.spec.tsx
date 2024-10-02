@@ -95,7 +95,9 @@ describe('Indexes Component', function () {
       },
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
-    // TODO: actually check for the error
+    expect(screen.getByTestId('indexes-error').textContent).to.equal(
+      'Some random error'
+    );
   });
 
   it('renders indexes toolbar when there is a search indexes error', async function () {
@@ -200,28 +202,20 @@ describe('Indexes Component', function () {
               ],
               usageCount: 20,
             },
+          ],
+          inProgressIndexes: [
             {
-              key: {},
-              ns: 'db.coll',
-              cardinality: 'single',
+              id: 'test-inprogress-index',
               name: 'item',
-              size: 0,
-              relativeSize: 0,
-              type: 'hashed',
-              extra: {
-                status: 'inprogress',
-              },
-              properties: [],
               fields: [
                 {
                   field: 'item',
                   value: 1,
                 },
               ],
-              usageCount: 0,
+              status: 'inprogress',
             },
           ],
-          inProgressIndexes: [],
           error: undefined,
           status: 'READY',
         },
@@ -263,29 +257,21 @@ describe('Indexes Component', function () {
               ],
               usageCount: 20,
             },
+          ],
+          inProgressIndexes: [
             {
-              key: {},
-              ns: 'db.coll',
-              cardinality: 'single',
+              id: 'test-inprogress-index',
               name: 'item',
-              size: 0,
-              relativeSize: 0,
-              type: 'hashed',
-              extra: {
-                status: 'failed',
-                regularError: 'regularError message',
-              },
-              properties: [],
               fields: [
                 {
                   field: 'item',
                   value: 1,
                 },
               ],
-              usageCount: 0,
+              status: 'failed',
+              error: 'Error message',
             },
           ],
-          inProgressIndexes: [],
           error: undefined,
           status: 'READY',
         },

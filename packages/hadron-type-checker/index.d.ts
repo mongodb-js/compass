@@ -10,7 +10,7 @@ import type {
   BSONRegExp,
   Code,
   BSONSymbol,
-  Timestamp
+  Timestamp,
 } from 'bson';
 
 export type TypeCastMap = {

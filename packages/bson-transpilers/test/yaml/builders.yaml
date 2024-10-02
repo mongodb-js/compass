@@ -278,13 +278,13 @@ tests:
         java: 'where("function(){$x===true}")'
       imports: import static com.mongodb.client.model.Filters.where;
     - input:
-        shell: '{''$where'': ''function() { $x===true }''}'
+        shell: "{'$where': 'function() { $x===true }'}"
       output:
         java: 'where("function() { $x===true }")'
       imports: import static com.mongodb.client.model.Filters.where;
   geometry:
     - input:
-        shell: '{$geometry: {type: ''Point'', coordinates: [1, 2]}}'
+        shell: "{$geometry: {type: 'Point', coordinates: [1, 2]}}"
       output:
         java: 'new Point(new Position(1L, 2L))'
       imports: |-
@@ -657,7 +657,7 @@ tests:
         import static com.mongodb.client.model.Sorts.metaTextScore;
         import static com.mongodb.client.model.Sorts.orderBy;
     - input:
-        shell: '{ $sort: { x: 1, y: -1, z: { ''$meta'': ''textScore'' } } }'
+        shell: "{ $sort: { x: 1, y: -1, z: { '$meta': 'textScore' } } }"
       output:
         java: 'sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))'
       imports: |-
@@ -677,7 +677,7 @@ tests:
         import static com.mongodb.client.model.Sorts.metaTextScore;
         import static com.mongodb.client.model.Sorts.orderBy;
     - input:
-        shell: '{ $sort: { x: 1, y: -1, z: { $meta: ''textScore'' } } }'
+        shell: "{ $sort: { x: 1, y: -1, z: { $meta: 'textScore' } } }"
       output:
         java: 'sort(orderBy(ascending("x"), descending("y"), metaTextScore("z")))'
       imports: |-
@@ -782,12 +782,12 @@ tests:
         import com.mongodb.client.model.GraphLookupOptions;
   sortByCount:
     - input:
-        shell: '{ $sortByCount: ''$expr'' }'
+        shell: "{ $sortByCount: '$expr' }"
       output:
         java: sortByCount("$expr")
       imports: import static com.mongodb.client.model.Aggregates.sortByCount;
     - input:
-        shell: '{ $sortByCount: { ''$floor'': ''$x'' } }'
+        shell: "{ $sortByCount: { '$floor': '$x' } }"
       output:
         java: 'sortByCount(eq("$floor", "$x"))'
       imports: |-
@@ -795,7 +795,7 @@ tests:
         import static com.mongodb.client.model.Aggregates.sortByCount;
   replaceRoot:
     - input:
-        shell: '{ $replaceRoot: { newRoot: { x: ''newDoc'' } } }'
+        shell: "{ $replaceRoot: { newRoot: { x: 'newDoc' } } }"
       output:
         java: 'replaceRoot(new Document("x", "newDoc"))'
       imports: |-
@@ -812,13 +812,13 @@ tests:
         import com.mongodb.client.model.Field;
   count:
     - input:
-        shell: '{ $count: ''field'' }'
+        shell: "{ $count: 'field' }"
       output:
         java: count("field")
       imports: import static com.mongodb.client.model.Aggregates.count;
   bucket:
     - input:
-        shell: '{$bucket: { groupBy: ''$expr'', boundaries: [ 0, 10, 20 ],} }'
+        shell: "{$bucket: { groupBy: '$expr', boundaries: [ 0, 10, 20 ],} }"
       output:
         java: 'bucket("$expr", Arrays.asList(0L, 10L, 20L))'
       imports: |-

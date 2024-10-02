@@ -19,7 +19,7 @@ const {
   getKeyPrefix,
   downloadManifest,
   uploadAsset,
-  uploadManifest
+  uploadManifest,
 } = require('../lib/download-center');
 
 const cli = require('mongodb-js-cli')('hadron-build:upload');
@@ -28,7 +28,7 @@ const root = path.resolve(__dirname, '..', '..', '..');
 
 async function checkAssetsExist(paths) {
   await Promise.all(
-    paths.map(async(assetPath) => {
+    paths.map(async (assetPath) => {
       const stats = await fs.stat(assetPath);
       if (!stats.isFile()) {
         throw new TypeError(`Not a file at path ${assetPath}`);
@@ -48,12 +48,12 @@ function isStable(id) {
 
 const distributionLabel = {
   'compass-readonly': 'Readonly Edition',
-  'compass-isolated': 'Isolated Edition'
+  'compass-isolated': 'Isolated Edition',
 };
 
 const channelLabel = {
   stable: 'Stable',
-  beta: 'Beta'
+  beta: 'Beta',
 };
 
 function versionId(version, distribution = '') {
@@ -129,10 +129,10 @@ function generateVersionsForAssets(assets, version, channel) {
                   config.platform,
                   asset.name
                 ),
-                download_link: link
+                download_link: link,
               };
             });
-        })
+        }),
     };
   });
 }
@@ -145,13 +145,13 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
   }
 
   const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN
+    auth: process.env.GITHUB_TOKEN,
   });
 
   const repo = new GithubRepo(
     {
       owner: 'mongodb-js',
-      repo: 'compass'
+      repo: 'compass',
     },
     octokit
   );
@@ -161,7 +161,7 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
   const release = {
     name: version,
     tag: releaseTag,
-    notes: `Release v${version}`
+    notes: `Release v${version}`,
   };
 
   cli.info('Updating draft release…');
@@ -214,10 +214,9 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
 }
 
 async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
-  const assetsToUpload = assets
-    .flatMap((item) => {
-      return item.assets;
-    });
+  const assetsToUpload = assets.flatMap((item) => {
+    return item.assets;
+  });
 
   cli.info('Uploading assets to download center…');
 
@@ -227,7 +226,7 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
     })
   );
 
-  const uploads = assetsToUpload.map(async(asset) => {
+  const uploads = assetsToUpload.map(async (asset) => {
     cli.info(
       `${asset.name}: upload to download center started (path: ${path.relative(
         root,
@@ -249,7 +248,7 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
  */
 async function getLatestRelease(channel = 'stable') {
   const octokit = new Octokit({
-    auth: process.env.GITHUB_TOKEN
+    auth: process.env.GITHUB_TOKEN,
   });
 
   const page = 1;
@@ -265,7 +264,7 @@ async function getLatestRelease(channel = 'stable') {
           owner: 'mongodb-js',
           repo: 'compass',
           per_page: 100,
-          page
+          page,
         }
       );
       releases = data;
@@ -341,7 +340,7 @@ async function updateManifest(dryRun) {
     previous_releases_link: '',
     development_releases_link: '',
     supported_browsers_link: '',
-    tutorial_link: ''
+    tutorial_link: '',
   };
 
   if (isDeepStrictEqual(currentManifest, newManifest)) {
@@ -371,22 +370,22 @@ const describe = 'Upload assets from `release`.';
 const builder = {
   dir: {
     description: 'Project root directory',
-    default: process.cwd()
+    default: process.cwd(),
   },
   version: {
     description: 'Target version',
-    default: require(path.join(process.cwd(), 'package.json')).version
+    default: require(path.join(process.cwd(), 'package.json')).version,
   },
   manifest: {
     description:
       'Upload download center manifest update for the target version (NOTE: This will will replace existing version for the channel with the provided one for all existing and newly added assets)',
-    default: false
+    default: false,
   },
   ['dry-run']: {
     description:
       'Does everything the real script will do without actually publishing assets to GH / download center',
-    default: process.env.npm_config_dry_run === 'true'
-  }
+    default: process.env.npm_config_dry_run === 'true',
+  },
 };
 
 const handler = function handler(argv) {
@@ -430,7 +429,7 @@ const handler = function handler(argv) {
       return;
     }
     const channelToProjectMap = {
-      testing: 'beta'
+      testing: 'beta',
     };
     const mappedChannel = channelToProjectMap[projectChannel] || projectChannel;
     if (channel !== mappedChannel) {
@@ -461,5 +460,5 @@ module.exports = {
   uploadAssetsToDownloadCenter,
   getLatestRelease,
   getLatestReleaseVersions,
-  updateManifest
+  updateManifest,
 };

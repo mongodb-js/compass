@@ -16,7 +16,8 @@ async function zip(_opts, done) {
     opts.outPath = opts.out;
     opts.out = path.dirname(opts.out);
   } else {
-    opts.outPath = path.resolve(opts.out, path.basename(opts.dir, '.app')) + '.zip';
+    opts.outPath =
+      path.resolve(opts.out, path.basename(opts.dir, '.app')) + '.zip';
   }
 
   const runZip = async () => {
@@ -27,16 +28,21 @@ async function zip(_opts, done) {
       execFileSync('zip', args, {
         env: process.env,
         cwd: path.join(opts.dir, '..'),
-        stdio: 'inherit'
+        stdio: 'inherit',
       });
     }
-  }
+  };
 
   const removeZipIfExists = async () => {
     try {
       const stats = await fs.stat(opts.outPath);
       if (!stats.isFile()) {
-        throw new Error('Refusing to wipe path "' + opts.outPath + '" as it is ' + (stats.isDirectory() ? 'a directory' : 'not a file'));
+        throw new Error(
+          'Refusing to wipe path "' +
+            opts.outPath +
+            '" as it is ' +
+            (stats.isDirectory() ? 'a directory' : 'not a file')
+        );
       }
       await fs.unlink(opts.outPath);
     } catch (err) {
@@ -44,7 +50,7 @@ async function zip(_opts, done) {
         throw err;
       }
     }
-  }
+  };
 
   debug('creating zip', opts);
 
@@ -70,7 +76,7 @@ async function zip(_opts, done) {
  * @param {Function} done
  * @return {void}
  */
-module.exports = function(target, done) {
+module.exports = function (target, done) {
   if (target.platform === 'linux') {
     debug('.zip releases assets for linux disabled');
     return done();
@@ -78,7 +84,7 @@ module.exports = function(target, done) {
   zip(module.exports.getOptions(target), done);
 };
 
-module.exports.getOptions = function(target) {
+module.exports.getOptions = function (target) {
   const asset = target.getAssetWithExtension('.zip');
   if (!asset) {
     debug('no asset w extension .zip!');
@@ -88,7 +94,7 @@ module.exports.getOptions = function(target) {
   const res = {
     dir: target.appPath,
     out: asset.path,
-    platform: target.platform
+    platform: target.platform,
   };
 
   debug('options', res);

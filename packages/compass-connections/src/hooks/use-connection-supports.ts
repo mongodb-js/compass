@@ -1,39 +1,6 @@
 import { useSelector } from '../stores/store-context';
-import type { ConnectionState } from '../stores/connections-store-redux';
-
-type ConnectionFeature = 'rollingIndexCreation' | 'globalWrites';
-
-function isFreeOrSharedTierCluster(instanceSize: string | undefined): boolean {
-  if (!instanceSize) {
-    return false;
-  }
-
-  return ['M0', 'M2', 'M5'].includes(instanceSize);
-}
-
-function supportsRollingIndexCreation(connection: ConnectionState) {
-  const atlasMetadata = connection.info?.atlasMetadata;
-
-  if (!atlasMetadata) {
-    return false;
-  }
-
-  const { metricsType, instanceSize } = atlasMetadata;
-  return (
-    !isFreeOrSharedTierCluster(instanceSize) &&
-    (metricsType === 'cluster' || metricsType === 'replicaSet')
-  );
-}
-
-function supportsGlobalWrites(connection: ConnectionState) {
-  const atlasMetadata = connection.info?.atlasMetadata;
-
-  if (!atlasMetadata) {
-    return false;
-  }
-
-  return atlasMetadata.clusterType === 'GEOSHARDED';
-}
+import type { ConnectionFeature } from '../utils/connection-supports';
+import { connectionSupports } from '../utils/connection-supports';
 
 export function useConnectionSupports(
   connectionId: string,
@@ -46,14 +13,6 @@ export function useConnectionSupports(
       return false;
     }
 
-    if (connectionFeature === 'rollingIndexCreation') {
-      return supportsRollingIndexCreation(connection);
-    }
-
-    if (connectionFeature === 'globalWrites') {
-      return supportsGlobalWrites(connection);
-    }
-
-    return false;
+    return connectionSupports(connection.info, connectionFeature);
   });
 }
