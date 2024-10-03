@@ -26,6 +26,8 @@ import {
 import * as regularIndexesSlice from './regular-indexes';
 import type { FetchStatus } from '../utils/fetch-status';
 import { waitFor } from '@mongodb-js/testing-library-compass';
+import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 describe('regular-indexes module', function () {
   before(() => {
@@ -36,7 +38,7 @@ describe('regular-indexes module', function () {
     sinon.restore();
   });
 
-  describe('#fetchRegularIndexees action', function () {
+  describe('#fetchRegularIndexes action', function () {
     it('sets status to ERROR and sets the error when there is an error', async function () {
       const error = new Error('failed to connect to server');
       const store = await setupStoreAndWait(
@@ -58,6 +60,62 @@ describe('regular-indexes module', function () {
       expect(state.error).to.equal(error.message);
       expect(state.status).to.equal('ERROR');
       expect(state.indexes).to.deep.equal(defaultSortedIndexes);
+    });
+
+    it('fetches rolling indexes when supported', async function () {
+      const connectionInfoRef = {
+        current: {
+          atlasMetadata: {
+            metricsType: 'cluster',
+            instanceSize: 'M10',
+          },
+        },
+      } as ConnectionInfoRef;
+
+      const atlasServiceStub = {
+        automationAgentRequest: sinon.stub(),
+        automationAgentAwait: sinon.stub(),
+      };
+
+      atlasServiceStub.automationAgentRequest.resolves({
+        _id: '_id',
+        requestType: 'requestType',
+      });
+      atlasServiceStub.automationAgentAwait.resolves({
+        response: [
+          { indexName: 'abc', status: 'rolling build' },
+          { indexName: 'cba', status: 'exists' },
+        ],
+      });
+
+      const indexesStub = sinon.stub().resolves(defaultSortedIndexes);
+
+      const store = await setupStoreAndWait(
+        {},
+        {
+          indexes: indexesStub,
+        },
+        {
+          connectionInfoRef,
+          atlasService: atlasServiceStub as unknown as AtlasService,
+        }
+      );
+
+      // it fetches immediately
+      await waitFor(() => {
+        expect(store.getState().regularIndexes.status).to.eq('READY');
+      });
+
+      expect(indexesStub.callCount).to.equal(1);
+      expect(atlasServiceStub.automationAgentRequest.callCount).to.equal(1);
+      expect(atlasServiceStub.automationAgentAwait.callCount).to.equal(1);
+
+      expect(store.getState().regularIndexes.indexes).to.have.lengthOf(
+        defaultSortedIndexes.length
+      );
+      expect(store.getState().regularIndexes.rollingIndexes).to.have.lengthOf(
+        1
+      );
     });
   });
 
