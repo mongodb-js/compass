@@ -1,7 +1,7 @@
 import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
-import type { BrowserWindow, Event, ProxyConfig } from 'electron';
+import { BrowserWindow, Event, ProxyConfig, dialog } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
@@ -301,7 +301,41 @@ class CompassApplication {
       try {
         const proxyOptions = proxyPreferenceToProxyOptions(value);
         await app.whenReady();
-        await target.setProxy(translateToElectronProxyConfig(proxyOptions));
+
+        try {
+          const electronProxyConfig =
+            translateToElectronProxyConfig(proxyOptions);
+          await target.setProxy(electronProxyConfig);
+        } catch (err) {
+          const headline = String(
+            err && typeof err === 'object' && 'message' in err
+              ? err.message
+              : err ||
+                  'Currently Compass does not support authenticated or ssh proxies.'
+          );
+
+          log.warn(
+            mongoLogId(1_001_000_328),
+            logContext,
+            'Unable to set proxy configuration',
+            {
+              error: headline,
+            }
+          );
+
+          const sep = path.sep;
+          const configPath = `${app.getPath(
+            'userData'
+          )}${sep}AppPreferences${sep}General.json`;
+
+          dialog.showErrorBox(
+            'Unsupported proxy configuration',
+            `${headline}\n\n
+            To reset the proxy configuration, remove the "proxy" key in ${configPath} and restart Compass.`
+          );
+
+          app.quit();
+        }
 
         const agent = createAgent(proxyOptions);
         const fetch = createFetch(agent || {});
