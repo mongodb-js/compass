@@ -245,19 +245,15 @@ function mergeIndexes(
   inProgressIndexes: InProgressIndex[],
   rollingIndexes: RollingIndex[]
 ): MergedIndex[] {
-  const rollingIndexNames = rollingIndexes.reduce<Record<string, true>>(
-    (result, index) => {
-      result[index.indexName] = true;
-      return result;
-    },
-    {}
+  const rollingIndexNames = new Set(
+    rollingIndexes.map((index) => index.indexName)
   );
 
   const mappedIndexes: MappedRegularIndex[] = indexes
     // exclude partially-built indexes so that we don't include indexes that
     // only exist on the primary node and then duplicate those as rolling
     // builds in the same table
-    .filter((index) => !rollingIndexNames[index.name])
+    .filter((index) => !rollingIndexNames.has(index.name))
     .map((index) => {
       return { ...index, compassIndexType: 'regular-index' };
     });

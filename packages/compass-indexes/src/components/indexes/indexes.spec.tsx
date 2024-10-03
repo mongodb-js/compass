@@ -222,11 +222,11 @@ describe('Indexes Component', function () {
       });
 
       const indexesList = screen.getByTestId('indexes-list');
-      const indexPropertyField = within(indexesList).getAllByTestId(
-        'indexes-properties-field'
-      )[1];
 
-      expect(indexPropertyField).to.contain.text('In Progress ...');
+      const indexStatusField = within(indexesList).getAllByTestId(
+        'indexes-status-field'
+      )[1];
+      expect(indexStatusField).to.contain.text('In Progress');
 
       const dropIndexButton = within(indexesList).queryByTestId(
         'index-actions-delete-action'
@@ -278,11 +278,10 @@ describe('Indexes Component', function () {
       });
 
       const indexesList = screen.getByTestId('indexes-list');
-      const indexPropertyField = within(indexesList).getAllByTestId(
-        'indexes-properties-field'
+      const indexStatusField = within(indexesList).getAllByTestId(
+        'indexes-status-field'
       )[1];
-
-      expect(indexPropertyField).to.contain.text('Failed');
+      expect(indexStatusField).to.contain.text('Failed');
 
       const dropIndexButton = within(indexesList).getByTestId(
         'index-actions-delete-action'
