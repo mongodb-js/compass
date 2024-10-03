@@ -3,13 +3,13 @@ import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider
 import type { CreateIndexesOptions } from 'mongodb';
 import toNS from 'mongodb-ns';
 
-type AtlasIndexStats = {
+export type AtlasIndexStats = {
   collName: string;
   dbName: string;
   indexName: string;
   indexProperties: { label: string; properties: Record<string, unknown> }[];
   indexType: { label: string };
-  keys: { name: string; value: string | number };
+  keys: { name: string; value: string | number }[];
   sizeBytes: number;
   status: 'rolling build' | 'building' | 'exists';
 };

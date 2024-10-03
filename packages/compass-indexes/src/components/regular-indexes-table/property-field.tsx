@@ -1,19 +1,8 @@
 import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
-import {
-  spacing,
-  css,
-  Tooltip,
-  Body,
-  Badge,
-  BadgeVariant,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
-import type {
-  InProgressIndex,
-  RegularIndex,
-} from '../../modules/regular-indexes';
+import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
+import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 const containerStyles = css({
@@ -61,42 +50,19 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
   );
 };
 
-const ErrorBadgeWithTooltip: React.FunctionComponent<{
-  tooltip?: string | null;
-  darkMode?: boolean;
-}> = ({ tooltip, darkMode }) => {
-  return (
-    <Tooltip
-      enabled={!!tooltip}
-      darkMode={darkMode}
-      trigger={<Badge variant={BadgeVariant.Red}>Failed</Badge>}
-    >
-      <Body>{tooltip}</Body>
-    </Tooltip>
-  );
-};
-
 type PropertyFieldProps = {
   cardinality?: RegularIndex['cardinality'];
   extra?: RegularIndex['extra'];
   properties: RegularIndex['properties'];
-
-  // TODO(COMPASS-8329): these belong in their own column
-  status?: InProgressIndex['status'];
-  error?: InProgressIndex['error'];
 };
 
 const HIDDEN_INDEX_TEXT = 'HIDDEN';
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
-  status,
   extra,
   properties,
   cardinality,
-  error,
 }) => {
-  const darkMode = useDarkMode();
-
   return (
     <div className={containerStyles}>
       {extra &&
@@ -120,17 +86,6 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
         <PropertyBadgeWithTooltip
           text={HIDDEN_INDEX_TEXT}
           link={getIndexHelpLink(HIDDEN_INDEX_TEXT) ?? '#'}
-        />
-      )}
-      {status === 'inprogress' && (
-        <Badge data-testid="index-in-progress" variant={BadgeVariant.Blue}>
-          In Progress ...
-        </Badge>
-      )}
-      {status === 'failed' && (
-        <ErrorBadgeWithTooltip
-          tooltip={error ? error : ''}
-          darkMode={darkMode}
         />
       )}
     </div>

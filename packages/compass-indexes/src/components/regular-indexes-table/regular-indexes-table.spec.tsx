@@ -12,6 +12,7 @@ import { RegularIndexesTable } from './regular-indexes-table';
 import type {
   RegularIndex,
   InProgressIndex,
+  RollingIndex,
 } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
 
@@ -132,6 +133,21 @@ const inProgressIndexes: InProgressIndex[] = [
   },
 ];
 
+const rollingIndexes: RollingIndex[] = [
+  {
+    indexName: 'my-rolling-index',
+    indexType: {
+      label: 'regular',
+    },
+    keys: [
+      {
+        name: 'title',
+        value: 'text',
+      },
+    ],
+  },
+];
+
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
 ) => {
@@ -139,6 +155,7 @@ const renderIndexList = (
     <RegularIndexesTable
       indexes={[]}
       inProgressIndexes={[]}
+      rollingIndexes={[]}
       serverVersion="4.4.0"
       isWritable={true}
       readOnly={false}
@@ -262,6 +279,88 @@ describe('RegularIndexesTable Component', function () {
     }
   });
 
+  it('renders rolling indexes', function () {
+    renderIndexList({
+      isWritable: true,
+      readOnly: false,
+      rollingIndexes: rollingIndexes,
+    });
+
+    for (const index of rollingIndexes) {
+      const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
+
+      for (const indexCell of indexFields) {
+        expect(within(indexRow).getByTestId(indexCell)).to.exist;
+      }
+
+      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
+        .throw;
+      expect(() => within(indexRow).getByTestId('index-actions-delete-action'))
+        .to.throw;
+
+      userEvent.click(within(indexRow).getByLabelText('Expand row'));
+      const detailsRow = indexRow.nextSibling as HTMLTableRowElement;
+      expect(detailsRow).to.exist;
+
+      const details = within(detailsRow).getByTestId(
+        `indexes-details-${index.indexName}`
+      );
+      expect(details).to.exist;
+
+      for (const key of index.keys) {
+        expect(within(details).getByTestId(`${key.name}-key`));
+      }
+    }
+  });
+
+  it('strips out regular indexes that are also rolling indexes', function () {
+    const indexesWithRollingIndex: RegularIndex[] = [
+      ...indexes,
+      {
+        name: rollingIndexes[0].indexName,
+        fields: rollingIndexes[0].keys.map(({ name, value }) => ({
+          field: name,
+          value,
+        })),
+        type: rollingIndexes[0].indexType.label as RegularIndex['type'],
+        cardinality: 'single',
+        properties: [],
+        extra: {},
+        size: 11111,
+        relativeSize: 0,
+      },
+    ];
+
+    // first do a sanity check to make sure that we would render it as a regular
+    // index if it didn't also exist as a rolling index
+    renderIndexList({
+      isWritable: true,
+      readOnly: false,
+      indexes: indexesWithRollingIndex,
+    });
+
+    let indexRow = screen.getByTestId(
+      `indexes-row-${rollingIndexes[0].indexName}`
+    );
+    expect(within(indexRow).getByTestId('index-ready')).to.exist;
+    expect(() => within(indexRow).getByTestId('index-building')).to.throw;
+
+    cleanup();
+
+    // then render it along with a rolling index to make sure it is not showing
+    // up as a regular index too
+    renderIndexList({
+      isWritable: true,
+      readOnly: false,
+      indexes: indexesWithRollingIndex,
+      rollingIndexes,
+    });
+
+    indexRow = screen.getByTestId(`indexes-row-${rollingIndexes[0].indexName}`);
+    expect(() => within(indexRow).getByTestId('index-ready')).to.throw;
+    expect(within(indexRow).getByTestId('index-building')).to.exist;
+  });
+
   it('does not render the list if there is an error', function () {
     renderIndexList({
       isWritable: true,
@@ -331,10 +430,10 @@ describe('RegularIndexesTable Component', function () {
 
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
 
@@ -349,10 +448,10 @@ describe('RegularIndexesTable Component', function () {
 
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
 
