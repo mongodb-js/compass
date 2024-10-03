@@ -20,7 +20,7 @@ const statusFieldStyles = css({
 });
 
 const iconBadgeStyles = css({
-  gap: spacing[100],
+  gap: spacing[200],
 });
 
 const ErrorBadgeWithTooltip: React.FunctionComponent<{

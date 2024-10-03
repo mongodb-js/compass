@@ -430,10 +430,10 @@ describe('RegularIndexesTable Component', function () {
 
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
 
@@ -448,10 +448,10 @@ describe('RegularIndexesTable Component', function () {
 
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['a', 'b', 'c']);
 
-      clickSort('Name and Definition');
+      clickSort('Name & Definition');
       expect(getIndexNames()).to.deep.eq(['c', 'b', 'a']);
     });
 

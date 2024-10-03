@@ -173,7 +173,7 @@ function sortFn(
 const COLUMNS: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
-    header: 'Name and Definition',
+    header: 'Name & Definition',
     enableSorting: true,
   },
   {
