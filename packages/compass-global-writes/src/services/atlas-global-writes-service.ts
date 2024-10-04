@@ -37,7 +37,7 @@ type ReplicationItem = {
   zoneId: string;
   zoneName: string;
 };
-type ClusterDetailsApiResponse = {
+export type ClusterDetailsApiResponse = {
   geoSharding: GeoShardingData;
   replicationSpecList: ReplicationItem[];
 };

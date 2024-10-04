@@ -7,12 +7,22 @@ import {
   type CreateShardKeyData,
 } from './reducer';
 import sinon from 'sinon';
+import type { ClusterDetailsApiResponse } from '../services/atlas-global-writes-service';
 
 const DB = 'test';
 const COLL = 'coll';
 const NS = `${DB}.${COLL}`;
 
-function createJsonResponse(data: any) {
+const clusterDetails: ClusterDetailsApiResponse = {
+  geoSharding: {
+    customZoneMapping: {},
+    managedNamespaces: [],
+    selfManagedSharding: false,
+  },
+  replicationSpecList: [],
+};
+
+function createClusterDetailsResponse(data: ClusterDetailsApiResponse) {
   return {
     json: () => Promise.resolve(data),
   };
@@ -41,13 +51,11 @@ describe('GlobalWritesStore Store', function () {
       it('when the namespace is not managed', async function () {
         const store = createStore({
           authenticatedFetch: () =>
-            createJsonResponse({
-              geoSharding: { customZoneMapping: {}, managedNamespaces: [] },
-            }),
+            createClusterDetailsResponse(clusterDetails),
         });
         await store.dispatch(fetchClusterShardingData());
         expect(store.getState().status).to.equal('UNSHARDED');
-        expect(store.getState().isNamespaceSharded).to.equal(false);
+        expect(store.getState().managedNamespace).to.equal(undefined);
       });
 
       // TODO (COMPASS-8277): Add more test for fetching shard key and process errors
@@ -65,9 +73,7 @@ describe('GlobalWritesStore Store', function () {
       it('sets SUBMITTING_FOR_SHARDING state when starting to create shard key and sets to SHARDING on success', async function () {
         const store = createStore({
           authenticatedFetch: () =>
-            createJsonResponse({
-              geoSharding: { customZoneMapping: {}, managedNamespaces: [] },
-            }),
+            createClusterDetailsResponse(clusterDetails),
         });
 
         const promise = store.dispatch(createShardKey(shardKeyData));
@@ -102,9 +108,10 @@ describe('GlobalWritesStore Store', function () {
           },
         ];
 
-        const getClusterInfoApiResponse = createJsonResponse({
+        const getClusterInfoApiResponse = createClusterDetailsResponse({
+          ...clusterDetails,
           geoSharding: {
-            customZoneMapping: {},
+            ...clusterDetails.geoSharding,
             managedNamespaces: alreadyManagedNamespaces,
           },
         });
@@ -137,6 +144,7 @@ describe('GlobalWritesStore Store', function () {
             ...alreadyManagedNamespaces,
             { ...shardKeyData, db: DB, collection: COLL },
           ],
+          selfManagedSharding: false,
         });
       });
     });
