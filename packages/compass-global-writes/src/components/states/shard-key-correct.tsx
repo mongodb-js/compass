@@ -86,11 +86,11 @@ export function ShardKeyCorrect({
       </Banner>
 
       <div className={codeBlockContainerStyles}>
-        <Body>
+        <Body data-testid="shardkey-description-title">
           <strong>{namespace}</strong> is configured with the following shard
           key:
         </Body>
-        <Code language="js">
+        <Code language="js" data-testid="shardkey-description-content">
           {shardKey.fields.map((field) => `"${field.name}"`).join(', ')}
         </Code>
       </div>
@@ -116,12 +116,16 @@ export function ShardKeyCorrect({
 
       <div className={codeBlockContainerStyles}>
         <Label htmlFor="finding-documents">Finding documents</Label>
-        <Code language="js">{sampleCodes.findingDocuments}</Code>
+        <Code language="js" data-testid="sample-finding-documents">
+          {sampleCodes.findingDocuments}
+        </Code>
       </div>
 
       <div className={codeBlockContainerStyles}>
         <Label htmlFor="inserting-documents">Inserting documents</Label>
-        <Code language="js">{sampleCodes.insertingDocuments}</Code>
+        <Code language="js" data-testid="sample-inserting-documents">
+          {sampleCodes.insertingDocuments}
+        </Code>
       </div>
 
       <Subtitle>Location Codes</Subtitle>
