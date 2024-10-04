@@ -143,8 +143,8 @@ export const serverSatisfies = (
   );
 };
 
-// For the user data dirs
-let i = 0;
+// For the user data dirs and logs
+let runCounter = 0;
 
 interface Coverage {
   main?: string;
@@ -569,7 +569,7 @@ async function processCommonOpts({
   if (!defaultUserDataDir) {
     defaultUserDataDir = path.join(
       os.tmpdir(),
-      `user-data-dir-${Date.now().toString(32)}-${++i}`
+      `user-data-dir-${Date.now().toString(32)}-${runCounter}`
     );
   }
   const chromedriverLogPath = path.join(
@@ -630,6 +630,7 @@ async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
+  runCounter++;
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
 
   const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
@@ -643,6 +644,15 @@ async function startCompassElectron(
   if (opts.firstRun === false) {
     chromeArgs.push('--showed-network-opt-in=true');
   }
+
+  // Logging output from Electron, even before the app loads any JavaScript
+  const electronLogFile = path.join(LOG_PATH, `electron-${runCounter}.log`);
+  chromeArgs.push(
+    // See https://www.electronjs.org/docs/latest/api/command-line-switches#--enable-loggingfile
+    '--enable-logging=file',
+    // See https://www.electronjs.org/docs/latest/api/command-line-switches#--log-filepath
+    `--log-file=${electronLogFile}`
+  );
 
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
@@ -756,6 +766,7 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
+  runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
   const browser: CompassBrowser = (await remote({
