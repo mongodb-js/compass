@@ -5,6 +5,7 @@ import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
+import { DocumentEvents } from 'hadron-document';
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({
@@ -30,10 +31,73 @@ export type ReadonlyDocumentProps = {
   showInsights?: boolean;
 };
 
+type ReadonlyDocumentState = {
+  expanded: boolean;
+};
+
 /**
  * Component for a single readonly document in a list of documents.
  */
-class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
+class ReadonlyDocument extends React.Component<
+  ReadonlyDocumentProps,
+  ReadonlyDocumentState
+> {
+  constructor(props: ReadonlyDocumentProps) {
+    super(props);
+    this.state = {
+      expanded: props.doc.expanded,
+    };
+  }
+
+  /**
+   * Subscribe to the update store on mount.
+   */
+  componentDidMount() {
+    this.subscribeToDocumentEvents(this.props.doc);
+  }
+
+  /**
+   * Refreshing the list updates the doc in the props so we should update the
+   * document on the instance.
+   */
+  componentDidUpdate(prevProps: ReadonlyDocumentProps) {
+    if (prevProps.doc !== this.props.doc) {
+      this.unsubscribeFromDocumentEvents(prevProps.doc);
+      this.subscribeToDocumentEvents(this.props.doc);
+    }
+  }
+
+  /**
+   * Unsubscribe from the update store on unmount.
+   */
+  componentWillUnmount() {
+    this.unsubscribeFromDocumentEvents(this.props.doc);
+  }
+
+  /**
+   * Subscribe to the document events.
+   */
+  subscribeToDocumentEvents(doc: Document) {
+    doc.on(DocumentEvents.Expanded, this.handleExpanded);
+    doc.on(DocumentEvents.Collapsed, this.handleCollapsed);
+  }
+
+  /**
+   * Unsubscribe from the document events.
+   */
+  unsubscribeFromDocumentEvents(doc: Document) {
+    doc.on(DocumentEvents.Expanded, this.handleExpanded);
+    doc.on(DocumentEvents.Collapsed, this.handleCollapsed);
+  }
+
+  handleExpanded = () => {
+    this.setState({ expanded: true });
+  };
+
+  handleCollapsed = () => {
+    this.setState({ expanded: false });
+  };
+
   handleClone = () => {
     const clonedDoc = this.props.doc.generateObject({
       excludeInternalFields: true,
@@ -46,6 +110,19 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
    */
   handleCopy = () => {
     this.props.copyToClipboard?.(this.props.doc);
+  };
+
+  /**
+   * Handle clicking the expand all button.
+   */
+  handleExpandAll = () => {
+    const { doc } = this.props;
+    // Update the doc directly - the components internal state will update via events
+    if (doc.expanded) {
+      doc.collapse();
+    } else {
+      doc.expand();
+    }
   };
 
   /**
@@ -64,6 +141,8 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
         onClone={
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
+        onExpand={this.handleExpandAll}
+        expanded={this.state.expanded}
         insights={
           this.props.showInsights
             ? getInsightsForDocument(this.props.doc)
@@ -94,7 +173,6 @@ class ReadonlyDocument extends React.Component<ReadonlyDocumentProps> {
   static propTypes = {
     copyToClipboard: PropTypes.func,
     doc: PropTypes.object.isRequired,
-    expandAll: PropTypes.bool,
     openInsertDocumentDialog: PropTypes.func,
     showInsights: PropTypes.bool,
   };

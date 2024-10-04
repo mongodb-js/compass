@@ -110,11 +110,11 @@ const HadronDocument: React.FunctionComponent<{
   const showMoreToggleOffset = useMemo(
     () =>
       calculateShowMoreToggleOffset({
-        editable,
+        editing,
         level: 0,
         alignWithNestedExpandIcon: false,
       }),
-    [editable]
+    [editing]
   );
 
   return (

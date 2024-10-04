@@ -11,9 +11,9 @@ const actionsGroupContainer = css({
   alignItems: 'center',
   gap: spacing[2],
   width: '100%',
-  top: spacing[2] + spacing[1],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  top: spacing[200],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
   pointerEvents: 'none',
 });
 
@@ -42,6 +42,13 @@ const actionsGroupHovered = css({
 // Insight icon is always visible, even when action buttons are not
 const actionsGroupSignalPopover = css({
   display: 'block !important',
+});
+
+const expandButton = css({
+  '& > div:has(svg)': {
+    paddingLeft: 3,
+    paddingRight: 3,
+  },
 });
 
 function useElementParentHoverState<T extends HTMLElement>(
@@ -155,12 +162,20 @@ const DocumentActionsGroup: React.FunctionComponent<
               glyph={expanded ? 'CaretDown' : 'CaretRight'}
             ></Icon>
           }
-          aria-label={expanded ? 'Collapse all' : 'Expand all'}
+          aria-label={
+            expanded
+              ? 'Collapse all embedded fields'
+              : 'Expand all embedded fields'
+          }
           aria-pressed={expanded}
           data-testid="expand-document-button"
           onClick={onExpand}
-          className={actionsGroupItem}
-          tooltipText={expanded ? 'Collapse all' : 'Expand all'}
+          className={cx(actionsGroupItem, expandButton)}
+          tooltipText={
+            expanded
+              ? 'Collapse all embedded fields'
+              : 'Expand all embedded fields'
+          }
         />
       )}
       <span className={actionsGroupItemSeparator}></span>
