@@ -1,5 +1,5 @@
 import toNS from 'mongodb-ns';
-import _ from 'lodash';
+import keyBy from 'lodash/keyBy';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { CreateShardKeyData } from '../store/reducer';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
@@ -292,7 +292,7 @@ function transformZoneData(
   zoneData: ShardZoneMapping[],
   replicationSpecs: ReplicationItem[]
 ) {
-  const replicationSpecsMap = _.keyBy(replicationSpecs, 'zoneId');
+  const replicationSpecsMap = keyBy(replicationSpecs, 'zoneId');
   return zoneData.map((zone) => ({
     zoneId: zone.zoneId,
     country: zone.country,
