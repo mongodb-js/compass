@@ -49,46 +49,59 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-1100',
+    run_on: 'macos-14',
     silk_asset_group: 'compass-macos',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-1100-arm64',
+    run_on: 'macos-14-arm64',
     silk_asset_group: 'compass-macos-arm',
   }
 ];
 
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
-    name: 'test-server-ubuntu',
+    name: 'test-packaged-app-ubuntu',
     display_name: 'Ubuntu 20.04',
     run_on: 'ubuntu2004-large',
     depends_on: 'package-ubuntu',
   },
   {
-    name: 'test-server-windows',
+    name: 'test-packaged-app-windows',
     display_name: 'Windows 10',
     run_on: 'windows-vsCurrent-large',
     depends_on: 'package-windows',
   },
   {
-    name: 'test-server-rhel',
+    name: 'test-packaged-app-rhel',
     display_name: 'RHEL 8.0',
     run_on: 'rhel80-large',
     depends_on: 'package-rhel',
   },
   {
-    name: 'test-server-macos-11-arm',
+    name: 'test-packaged-app-macos-11-arm',
     display_name: 'MacOS arm64 11',
     run_on: 'macos-1100-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
-    name: 'test-server-macos-11-x64',
+    name: 'test-packaged-app-macos-11-x64',
     display_name: 'MacOS x64 11',
     run_on: 'macos-1100-gui',
+    patchable: false,
+    depends_on: 'package-macos-x64'
+  },
+  {
+    name: 'test-packaged-app-macos-14-arm',
+    display_name: 'MacOS arm64 14',
+    run_on: 'macos-14-arm64-gui',
+    depends_on: 'package-macos-arm'
+  },
+  {
+    name: 'test-packaged-app-macos-14-x64',
+    display_name: 'MacOS x64 14',
+    run_on: 'macos-14-gui',
     patchable: false,
     depends_on: 'package-macos-x64'
   }
