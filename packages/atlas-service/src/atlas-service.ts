@@ -14,6 +14,11 @@ export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
 };
 
+function normalizePath(path?: string) {
+  path = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+  return encodeURI(path);
+}
+
 export class AtlasService {
   private config: AtlasServiceConfig;
   constructor(
@@ -25,16 +30,14 @@ export class AtlasService {
     this.config = getAtlasConfig(preferences);
   }
   adminApiEndpoint(path?: string, requestId?: string): string {
-    const uri = encodeURI(
-      `${this.config.atlasApiBaseUrl}${path ? `/${path}` : ''}`
-    );
+    const uri = `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
     const query = requestId
       ? `?request_id=${encodeURIComponent(requestId)}`
       : '';
     return `${uri}${query}`;
   }
   cloudEndpoint(path?: string): string {
-    return encodeURI(`${this.config.cloudBaseUrl}${path ? `/${path}` : ''}`);
+    return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
   }
   regionalizedCloudEndpoint(
     _atlasMetadata: Pick<AtlasClusterMetadata, 'regionalBaseUrl'>,
@@ -45,7 +48,7 @@ export class AtlasService {
     return this.cloudEndpoint(path);
   }
   driverProxyEndpoint(path?: string): string {
-    return encodeURI(`${this.config.wsBaseUrl}${path ? `/${path}` : ''}`);
+    return `${this.config.wsBaseUrl}${normalizePath(path)}`;
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);

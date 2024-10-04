@@ -6,6 +6,8 @@ describe('RollingIndexesService', function () {
   const atlasServiceStub = {
     automationAgentRequest: Sinon.stub(),
     automationAgentAwait: Sinon.stub(),
+    authenticatedFetch: Sinon.stub(),
+    cloudEndpoint: Sinon.stub().callsFake((str) => str),
   };
   let service: RollingIndexesService;
 
@@ -55,15 +57,19 @@ describe('RollingIndexesService', function () {
   });
 
   describe('createRollingIndex', function () {
-    it('should fail if automation agent returned unexpected result', async function () {
-      atlasServiceStub.automationAgentRequest.resolves({ _id: '_id' });
+    it('should send the request to the kinda automation agent endpoint with the matching body and path params', async function () {
+      await service.createRollingIndex('db.coll', {}, {});
 
-      try {
-        await service.createRollingIndex('db.coll', {}, {});
-        expect.fail('expected createRollingIndex to throw');
-      } catch (err) {
-        expect(err).not.to.be.null;
-      }
+      expect(atlasServiceStub.authenticatedFetch).to.have.been.calledOnce;
+
+      const { args } = atlasServiceStub.authenticatedFetch.getCall(0);
+
+      expect(args[0]).to.eq('/explorer/v1/groups/abc/clusters/123/index');
+      expect(args[1]).to.have.property('method', 'POST');
+      expect(args[1]).to.have.property(
+        'body',
+        '{"clusterId":"123","db":"db","collection":"coll","keys":"{}","options":"","collationOptions":""}'
+      );
     });
   });
 });

@@ -6,6 +6,10 @@ import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
 import CheckboxInput from './checkbox-input';
 import CollapsibleInput from './collapsible-input';
+import {
+  useConnectionInfo,
+  useConnectionSupports,
+} from '@mongodb-js/compass-connections/provider';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[4]}px 0 ${spacing[5]}px 0`,
@@ -38,6 +42,11 @@ function CreateIndexForm({
   onAddFieldClick,
   onRemoveFieldClick,
 }: CreateIndexFormProps) {
+  const { id: connectionId } = useConnectionInfo();
+  const supportsRollingIndexes = useConnectionSupports(
+    connectionId,
+    'rollingIndexCreation'
+  );
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
@@ -86,6 +95,9 @@ function CreateIndexForm({
             <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
           )}
           <CheckboxInput name="sparse"></CheckboxInput>
+          {supportsRollingIndexes && (
+            <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
+          )}
         </div>
       </Accordion>
     </>

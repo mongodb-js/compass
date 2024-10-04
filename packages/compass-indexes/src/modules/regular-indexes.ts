@@ -17,7 +17,7 @@ import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
+import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
@@ -458,8 +458,9 @@ const indexCreationFailed = (
 
 export function createRegularIndex(
   inProgressIndexId: string,
-  spec: CreateIndexSpec,
-  options: CreateIndexesOptions
+  spec: Record<string, IndexDirection>,
+  options: CreateIndexesOptions,
+  isRollingIndexBuild: boolean
 ): IndexesThunkAction<
   Promise<void>,
   | IndexCreationStartedAction
@@ -469,7 +470,7 @@ export function createRegularIndex(
   return async (
     dispatch,
     getState,
-    { track, dataService, connectionInfoRef }
+    { track, dataService, rollingIndexesService, connectionInfoRef }
   ) => {
     const ns = getState().namespace;
     const inProgressIndex = prepareInProgressIndex(inProgressIndexId, {
@@ -501,7 +502,10 @@ export function createRegularIndex(
     };
 
     try {
-      await dataService.createIndex(ns, spec as IndexSpecification, options);
+      const createFn = isRollingIndexBuild
+        ? rollingIndexesService.createRollingIndex.bind(rollingIndexesService)
+        : dataService.createIndex.bind(dataService);
+      await createFn(ns, spec, options);
       dispatch(indexCreationSucceeded(inProgressIndexId));
       track('Index Created', trackEvent, connectionInfoRef.current);
 

@@ -11,8 +11,8 @@ import { OPTIONS, optionChanged } from '../../modules/create-index';
 
 type CheckboxInputProps = {
   name: CheckboxOptions;
-  label: string;
-  description: string;
+  label: React.ReactNode;
+  description: React.ReactNode;
   disabled?: boolean;
   checked: boolean;
   onChange(name: CheckboxOptions, newVal: boolean): void;
@@ -37,6 +37,9 @@ export const CheckboxInput: React.FunctionComponent<CheckboxInputProps> = ({
           onChange(name, event.target.checked);
         }}
         label={<Label htmlFor={labelId}>{label}</Label>}
+        // @ts-expect-error leafygreen types only allow strings here, but can
+        // render a ReactNode too (and we use that to render links inside
+        // descriptions)
         description={description}
         disabled={disabled}
       />
