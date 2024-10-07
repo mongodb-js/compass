@@ -65,11 +65,11 @@ describe('Compass GlobalWrites Plugin', function () {
     const onUnmanageNamespace = Sinon.spy();
     await renderWithProps({ onUnmanageNamespace, isUnmanagingNamespace: true });
 
-    const btn = await screen.findByRole<HTMLButtonElement>('button', {
-      name: /Unmanage collection/,
-    });
+    const btn = await screen.findByTestId<HTMLButtonElement>(
+      'shard-collection-button'
+    );
     expect(btn).to.be.visible;
-    expect(btn).to.have.property('disabled');
+    expect(btn.getAttribute('aria-disabled')).to.equal('true');
 
     userEvent.click(btn);
 
