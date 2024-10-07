@@ -9,7 +9,6 @@ import {
   Code,
   Subtitle,
   Label,
-  SpinLoader,
   Button,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
@@ -30,6 +29,7 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
+  marginBottom: spacing[400],
 });
 
 const codeBlockContainerStyles = css({
@@ -47,7 +47,7 @@ const paragraphStyles = css({
 
 export type ShardKeyCorrectProps = {
   namespace: string;
-  shardKey: ShardKey;
+  shardKey?: ShardKey;
   shardZones: ShardZoneData[];
   isUnmanagingNamespace: boolean;
   onUnmanageNamespace: () => void;
@@ -60,6 +60,10 @@ export function ShardKeyCorrect({
   isUnmanagingNamespace,
   onUnmanageNamespace,
 }: ShardKeyCorrectProps) {
+  if (!shardKey) {
+    throw new Error('Shard key not found in ShardKeyCorrect');
+  }
+
   const customShardKeyField = useMemo(() => {
     return shardKey.fields[1].name;
   }, [shardKey]);
@@ -69,8 +73,8 @@ export function ShardKeyCorrect({
   const sampleCodes = useMemo(() => {
     const { collection, database } = toNS(namespace);
     return {
-      findingDocuments: `use ${database}\ndb.${collection}.find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
-      insertingDocuments: `use ${database}\ndb.${collection}.insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
+      findingDocuments: `use ${database}\ndb.["${collection}"].find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
+      insertingDocuments: `use ${database}\ndb.["${collection}"].insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
     };
   }, [namespace, customShardKeyField]);
 
@@ -116,14 +120,22 @@ export function ShardKeyCorrect({
 
       <div className={codeBlockContainerStyles}>
         <Label htmlFor="finding-documents">Finding documents</Label>
-        <Code language="js" data-testid="sample-finding-documents">
+        <Code
+          language="js"
+          data-testid="sample-finding-documents"
+          id="finding-documents"
+        >
           {sampleCodes.findingDocuments}
         </Code>
       </div>
 
       <div className={codeBlockContainerStyles}>
         <Label htmlFor="inserting-documents">Inserting documents</Label>
-        <Code language="js" data-testid="sample-inserting-documents">
+        <Code
+          language="js"
+          data-testid="sample-inserting-documents"
+          id="inserting-documents"
+        >
           {sampleCodes.insertingDocuments}
         </Code>
       </div>
@@ -170,13 +182,8 @@ export function ShardKeyCorrect({
         <Button
           data-testid="shard-collection-button"
           onClick={onUnmanageNamespace}
-          disabled={isUnmanagingNamespace}
           variant="primary"
-          leftGlyph={
-            isUnmanagingNamespace ? (
-              <SpinLoader title="Unmanaging collection" />
-            ) : undefined
-          }
+          isLoading={isUnmanagingNamespace}
         >
           Unmanage collection
         </Button>
@@ -188,8 +195,7 @@ export function ShardKeyCorrect({
 export default connect(
   (state: RootState) => ({
     namespace: state.namespace,
-    // For this view, sharKey is always defined
-    shardKey: state.shardKey as ShardKey,
+    shardKey: state.shardKey,
     shardZones: state.shardZones,
     isUnmanagingNamespace:
       state.status === ShardingStatuses.UNMANAGING_NAMESPACE,
