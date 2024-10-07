@@ -19,7 +19,7 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@electron/rebuild": "^3.6.0",
+    "@electron/rebuild": "^3.6.2",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
     "@mongodb-js/dl-center": "^1.0.1",
     "@mongodb-js/electron-wix-msi": "^3.0.0",

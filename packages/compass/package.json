@@ -189,7 +189,7 @@
     "system-ca": "^2.0.0"
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.6.0",
+    "@electron/rebuild": "^3.6.2",
     "@electron/remote": "^2.1.2",
     "@mongodb-js/atlas-service": "^0.29.0",
     "@mongodb-js/compass-aggregations": "^9.45.2",
