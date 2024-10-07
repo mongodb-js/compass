@@ -199,10 +199,27 @@ export default function reducer(
       ActionTypes.FetchIndexesSucceeded
     )
   ) {
+    const allIndexNames = new Set(
+      action.indexes
+        .map((index) => {
+          return index.name;
+        })
+        .concat(
+          (action.rollingIndexes ?? []).map((index) => {
+            return index.indexName;
+          })
+        )
+    );
     return {
       ...state,
       indexes: action.indexes,
       rollingIndexes: action.rollingIndexes,
+      // Remove in progress stubs when we got the "real" indexes from one of the
+      // backends. Keep the error ones around even if the name matches (should
+      // only be possible in cases of "index with the same name already exists")
+      inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
+        return !!inProgress.error || !allIndexNames.has(inProgress.name);
+      }),
       status: FetchStatuses.READY,
     };
   }
@@ -243,10 +260,6 @@ export default function reducer(
   }
 
   if (
-    isAction<IndexCreationSucceededAction>(
-      action,
-      ActionTypes.IndexCreationSucceeded
-    ) ||
     isAction<FailedIndexRemovedAction>(action, ActionTypes.FailedIndexRemoved)
   ) {
     return {
