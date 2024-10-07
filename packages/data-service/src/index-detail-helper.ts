@@ -32,7 +32,7 @@ export type IndexDefinition = {
     | 'columnstore';
   cardinality: 'single' | 'compound';
   properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
-  extra: Record<string, string | number | Record<string, any>>;
+  extra: Record<string, string | number | boolean | Record<string, any>>;
   size: IndexSize;
   relativeSize: number;
 } & IndexStats;

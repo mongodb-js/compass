@@ -39,7 +39,7 @@ describe('Search Index Template Dropdown', function () {
     it('notifies upwards with onTemplate when a new template is chosen', async function () {
       const dropDown = screen
         .getByText('Dynamic field mappings')
-        .closest('button')!;
+        .closest('button') as HTMLButtonElement;
 
       userEvent.click(dropDown);
 

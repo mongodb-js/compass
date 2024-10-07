@@ -95,7 +95,9 @@ describe('Indexes Component', function () {
       },
     });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
-    // TODO: actually check for the error
+    expect(screen.getByTestId('indexes-error').textContent).to.equal(
+      'Some random error'
+    );
   });
 
   it('renders indexes toolbar when there is a search indexes error', async function () {
@@ -200,39 +202,31 @@ describe('Indexes Component', function () {
               ],
               usageCount: 20,
             },
+          ],
+          inProgressIndexes: [
             {
-              key: {},
-              ns: 'db.coll',
-              cardinality: 'single',
+              id: 'test-inprogress-index',
               name: 'item',
-              size: 0,
-              relativeSize: 0,
-              type: 'hashed',
-              extra: {
-                status: 'inprogress',
-              },
-              properties: [],
               fields: [
                 {
                   field: 'item',
                   value: 1,
                 },
               ],
-              usageCount: 0,
+              status: 'inprogress',
             },
           ],
-          inProgressIndexes: [],
           error: undefined,
           status: 'READY',
         },
       });
 
       const indexesList = screen.getByTestId('indexes-list');
-      const indexPropertyField = within(indexesList).getAllByTestId(
-        'indexes-properties-field'
-      )[1];
 
-      expect(indexPropertyField).to.contain.text('In Progress ...');
+      const indexStatusField = within(indexesList).getAllByTestId(
+        'indexes-status-field'
+      )[1];
+      expect(indexStatusField).to.contain.text('In Progress');
 
       const dropIndexButton = within(indexesList).queryByTestId(
         'index-actions-delete-action'
@@ -263,40 +257,31 @@ describe('Indexes Component', function () {
               ],
               usageCount: 20,
             },
+          ],
+          inProgressIndexes: [
             {
-              key: {},
-              ns: 'db.coll',
-              cardinality: 'single',
+              id: 'test-inprogress-index',
               name: 'item',
-              size: 0,
-              relativeSize: 0,
-              type: 'hashed',
-              extra: {
-                status: 'failed',
-                regularError: 'regularError message',
-              },
-              properties: [],
               fields: [
                 {
                   field: 'item',
                   value: 1,
                 },
               ],
-              usageCount: 0,
+              status: 'failed',
+              error: 'Error message',
             },
           ],
-          inProgressIndexes: [],
           error: undefined,
           status: 'READY',
         },
       });
 
       const indexesList = screen.getByTestId('indexes-list');
-      const indexPropertyField = within(indexesList).getAllByTestId(
-        'indexes-properties-field'
+      const indexStatusField = within(indexesList).getAllByTestId(
+        'indexes-status-field'
       )[1];
-
-      expect(indexPropertyField).to.contain.text('Failed');
+      expect(indexStatusField).to.contain.text('Failed');
 
       const dropIndexButton = within(indexesList).getByTestId(
         'index-actions-delete-action'

@@ -45,7 +45,7 @@ const loadSymbolTable = (dir, inputLang, outputLang) => {
     'syntax_templates.yaml',
     'import_templates.yaml',
     path.join(inputLang, 'types.yaml'),
-    path.join(inputLang, 'symbols.yaml')
+    path.join(inputLang, 'symbols.yaml'),
   ];
   const contents = files.reduce((str, file) => {
     if (!fs.existsSync(path.join('symbols', file))) {
@@ -60,7 +60,18 @@ const loadSymbolTable = (dir, inputLang, outputLang) => {
 const loadAll = () => {
   const dir = path.join(__dirname, 'lib', 'symbol-table');
   const inputLangs = ['shell'];
-  const outputLangs = ['java', 'shell', 'python', 'csharp', 'javascript', 'object', 'ruby', 'go', 'rust', 'php'];
+  const outputLangs = [
+    'java',
+    'shell',
+    'python',
+    'csharp',
+    'javascript',
+    'object',
+    'ruby',
+    'go',
+    'rust',
+    'php',
+  ];
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }

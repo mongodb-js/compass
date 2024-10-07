@@ -5,8 +5,7 @@
  * @returns {object}
  */
 class PHPUtils {
-  constructor() {
-  }
+  constructor() {}
 
   /**
    * Common string checker to be sure we work with string
@@ -54,7 +53,7 @@ class PHPUtils {
   removeStringQuotes(str) {
     str = this.convertToString(str);
     if (
-      (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+      (str.charAt(0) === "'" && str.charAt(str.length - 1) === "'") ||
       (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')
     ) {
       str = str.substr(1, str.length - 2);

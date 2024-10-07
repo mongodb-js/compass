@@ -10,13 +10,13 @@ const yaml = require('js-yaml');
 
 const modes = process.env.MODE ? process.env.MODE.split(',') : [];
 
-const JavascriptANTLRVisitor = require('../lib/antlr/ECMAScriptVisitor').ECMAScriptVisitor;
+const JavascriptANTLRVisitor =
+  require('../lib/antlr/ECMAScriptVisitor').ECMAScriptVisitor;
 const getCodeGenerationVisitor = require('../codegeneration/CodeGenerationVisitor');
 const getJavascriptVisitor = require('../codegeneration/javascript/Visitor');
 
-
 const getANTLRVisitor = {
-  shell: () => ( getJavascriptVisitor(JavascriptANTLRVisitor) )
+  shell: () => getJavascriptVisitor(JavascriptANTLRVisitor),
 };
 
 const readYAML = (filename) => {
@@ -30,7 +30,7 @@ const readYAML = (filename) => {
   return parseResult;
 };
 
-describe('Casting tests', function() {
+describe('Casting tests', function () {
   if (modes.length > 0 && modes.indexOf('casting') === -1) {
     return;
   }
@@ -58,20 +58,27 @@ describe('Casting tests', function() {
               template: null,
               argsTemplate: null,
               id: 'TestFunc',
-              type: null
-            }
+              type: null,
+            },
           },
-          doc.BsonSymbols, doc.NativeSymbols);
+          doc.BsonSymbols,
+          doc.NativeSymbols
+        );
         transpiler.Syntax = doc.Syntax;
         transpiler.SYMBOL_TYPE = doc.SymbolTypes;
-        describe(`from ${input} to ${output}`, function() {
-          it(test.description, function() {
+        describe(`from ${input} to ${output}`, function () {
+          it(test.description, function () {
             if (test.input[input].args) {
-              transpiler.Symbols.TestFunc.args = test.input[input].args.map((t) => {
-                return t.map((k) => ( k !== null ? transpiler.Types[k] : k ));
-              });
+              transpiler.Symbols.TestFunc.args = test.input[input].args.map(
+                (t) => {
+                  return t.map((k) => (k !== null ? transpiler.Types[k] : k));
+                }
+              );
             }
-            const str = getTree[input](test.input[input].code, transpiler.startRule);
+            const str = getTree[input](
+              test.input[input].code,
+              transpiler.startRule
+            );
             expect(transpiler.start(str)).to.equal(test.output[output]);
           });
         });

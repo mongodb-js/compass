@@ -2,10 +2,16 @@ import semver from 'semver';
 import React, { useCallback, useMemo } from 'react';
 import type { GroupedItemAction } from '@mongodb-js/compass-components';
 import { ItemActionGroup } from '@mongodb-js/compass-components';
-import type { RegularIndex } from '../../modules/regular-indexes';
+
+type Index = {
+  name: string;
+  extra?: {
+    hidden?: boolean;
+  };
+};
 
 type IndexActionsProps = {
-  index: RegularIndex;
+  index: Index;
   serverVersion: string;
   onDeleteIndexClick: (name: string) => void;
   onHideIndexClick: (name: string) => void;
@@ -32,16 +38,10 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   onUnhideIndexClick,
 }) => {
   const indexActions: GroupedItemAction<IndexAction>[] = useMemo(() => {
-    const actions: GroupedItemAction<IndexAction>[] = [
-      {
-        action: 'delete',
-        label: `Drop Index ${index.name}`,
-        icon: 'Trash',
-      },
-    ];
+    const actions: GroupedItemAction<IndexAction>[] = [];
 
     if (serverSupportsHideIndex(serverVersion)) {
-      actions.unshift(
+      actions.push(
         index.extra?.hidden
           ? {
               action: 'unhide',
@@ -57,6 +57,12 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
             }
       );
     }
+
+    actions.push({
+      action: 'delete',
+      label: `Drop Index ${index.name}`,
+      icon: 'Trash',
+    });
 
     return actions;
   }, [index, serverVersion]);

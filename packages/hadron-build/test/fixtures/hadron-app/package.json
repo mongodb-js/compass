@@ -30,7 +30,9 @@
             "dev": "resources/linux/Icon.png"
           },
           "deb_section": "productivity",
-          "rpm_categories": ["IDE"]
+          "rpm_categories": [
+            "IDE"
+          ]
         }
       },
       "distributions": {
@@ -41,7 +43,9 @@
           "bundleId": "com.mongodb.hadron-testing",
           "productName": "MongoDB Compass Enterprise super long test name",
           "plugins": [],
-          "styles": [ "index" ]
+          "styles": [
+            "index"
+          ]
         },
         "foo-bar": {
           "name": "foo-bar"

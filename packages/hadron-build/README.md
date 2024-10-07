@@ -38,7 +38,6 @@ Options:
   --help  Show help                                                    [boolean]
 ```
 
-
 ## Configuration
 
 ```json
@@ -69,11 +68,10 @@ Options:
     "test-check-ci": "npm run test",
     "compile-ui": "hadron-build ui",
     "fmt": "hadron-build fmt",
-    "release": "hadron-build release",
+    "release": "hadron-build release"
   }
 }
 ```
-
 
 ### build.win32
 
@@ -117,7 +115,7 @@ var appBundleId = 'com.mongodb.hadron';
 
 ### Windows
 
-- `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}`: App installation path.  Why in a temp dir? Allows installation and auto update without requiring Administrator.
+- `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}`: App installation path. Why in a temp dir? Allows installation and auto update without requiring Administrator.
 - `C:\Users\${username}\AppData\Roaming\${productName}`: The `[userData][electron-app-getPath]` directory
 - `C:\Users\${username}\AppData\Local\SquirrelTemp\SquirrelSetup.log`: Squirrel.Windows installation log. Global for any app installation that's using Squirrel.Windows.
 - `C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\SquirrelSetup.log`: Application level Squirrel.Windows log
@@ -135,6 +133,7 @@ What you can expect from a successful installation:
 ```
 
 The following exception might be scary, but it's purely informational and ok to ignore.
+
 ```
 2016-06-24 09:46:12> CheckForUpdateImpl: Couldn't write out staging user ID, this user probably shouldn't get beta anything: System.IO.DirectoryNotFoundException: Could not find a part of the path 'C:\Users\${username}\AppData\Local\${_.titlecase(productName)}\packages\.betaId'.
    at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
@@ -191,6 +190,7 @@ The actual installation:
 ```
 
 Another exception that might be scary, but it's purely informational and ok to ignore.
+
 ```
 2016-06-24 09:46:18> ApplyReleasesImpl: Couldn't rewrite shim RegKey, most likely no apps are shimmed: System.NullReferenceException: Object reference not set to an instance of an object.
    at Squirrel.UpdateManager.ApplyReleasesImpl.<unshimOurselves>b__ee(RegistryView view)
@@ -199,6 +199,7 @@ Another exception that might be scary, but it's purely informational and ok to i
 ```
 
 And then finally
+
 ```
 2016-06-24 09:46:18> ApplyReleasesImpl: cleanDeadVersions: for version ${version}
 2016-06-24 09:46:18> ApplyReleasesImpl: cleanDeadVersions: exclude folder app-${version}
@@ -289,6 +290,6 @@ Which assets are generated depends on the target platform.
 [npm_url]: https://npmjs.org/package/hadron-build
 [npm-scripts]: https://docs.npmjs.com/misc/scripts
 [electron-mocha]: https://github.com/jprichardson/electron-mocha
-[electron-app-getPath]: https://github.com/electron/electron/blob/78193a0608b5fa55161e95b7b3845b6bd85af377/docs/api/app.md#appgetpathname
+[electron-app-getpath]: https://github.com/electron/electron/blob/78193a0608b5fa55161e95b7b3845b6bd85af377/docs/api/app.md#appgetpathname
 [appveyor_img]: https://ci.appveyor.com/api/projects/status/n9yqrfsf17s4g1ss?svg=true
 [appveyor_url]: https://ci.appveyor.com/project/imlucas/hadron-build

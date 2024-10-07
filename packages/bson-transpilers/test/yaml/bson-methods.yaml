@@ -12,7 +12,7 @@ runner: !<tag:yaml.org,2002:js/function> |-
 tests:
   Code-methods:
     - input:
-        shell: 'Code(''test code'', {x: 1}).scope'
+        shell: "Code('test code', {x: 1}).scope"
       output:
         javascript: |-
           new Code('test code', {
@@ -26,7 +26,7 @@ tests:
         csharp: >-
           new BsonJavaScriptWithScope("test code", new BsonDocument("x",
           1)).Scope
-        php: '(new Javascript(''test code'', [''x'' => 1]))->getScope()'
+        php: "(new Javascript('test code', ['x' => 1]))->getScope()"
         ruby: |-
           BSON::CodeWithScope.new('test code', {
             'x' => 1
@@ -46,7 +46,7 @@ tests:
         java: new Code("test code").getCode()
         csharp: new BsonJavaScript("test code").Code
         php: (new Javascript('test code'))->getCode()
-        ruby: 'BSON::Code.new(''test code'').javascript'
+        ruby: "BSON::Code.new('test code').javascript"
         go: 'primitive.CodeWithScope{Code: primitive.JavaScript("test code")}.Code'
     - input:
         shell: ObjectId('5ab901c29ee65f5c8550c5b9').toString()
@@ -56,7 +56,7 @@ tests:
         java: new ObjectId("5ab901c29ee65f5c8550c5b9").toHexString()
         csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").ToString()
         php: (string) new ObjectId('5ab901c29ee65f5c8550c5b9')
-        ruby: 'BSON::ObjectId(''5ab901c29ee65f5c8550c5b9'').to_s'
+        ruby: "BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s"
         go: |-
           var objectIDFromHex = func(hex string) primitive.ObjectID {
             objectID, err := primitive.ObjectIDFromHex(hex)
@@ -75,7 +75,7 @@ tests:
         java: new ObjectId("5ab901c29ee65f5c8550c5b9").getTimestamp()
         csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Timestamp
         php: (new ObjectId('5ab901c29ee65f5c8550c5b9'))->getTimestamp()
-        ruby: 'BSON::ObjectId(''5ab901c29ee65f5c8550c5b9'').to_time'
+        ruby: "BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time"
         go: |-
           var objectIDFromHex = func(hex string) primitive.ObjectID {
             objectID, err := primitive.ObjectIDFromHex(hex)
@@ -139,12 +139,12 @@ tests:
           ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
   DBRef-methods:
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId(), ''db'').$db'
+        shell: "new DBRef('coll', new ObjectId(), 'db').$db"
       output:
-        python: 'DBRef(''coll'', ObjectId(), ''db'').database'
+        python: "DBRef('coll', ObjectId(), 'db').database"
         java: 'new DBRef("db", "coll", new ObjectId()).getDatabaseName()'
         csharp: 'new MongoDBRef("coll", new ObjectId(), "db").DatabaseName'
-        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => ''db''][''$db'']'
+        php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']['$db']"
         ruby: |-
           BSON::DBRef.new(
             '$ref' => 'coll',
@@ -152,12 +152,12 @@ tests:
             '$db' => 'db'
           ).database
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId(), ''db'').getDb()'
+        shell: "new DBRef('coll', new ObjectId(), 'db').getDb()"
       output:
-        python: 'DBRef(''coll'', ObjectId(), ''db'').database'
+        python: "DBRef('coll', ObjectId(), 'db').database"
         java: 'new DBRef("db", "coll", new ObjectId()).getDatabaseName()'
         csharp: 'new MongoDBRef("coll", new ObjectId(), "db").DatabaseName'
-        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => ''db''][''$db'']'
+        php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']['$db']"
         ruby: |-
           BSON::DBRef.new(
             '$ref' => 'coll',
@@ -165,9 +165,9 @@ tests:
             '$db' => 'db'
           ).database
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).getRef()'
+        shell: "new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getRef()"
       output:
-        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).collection'
+        python: "DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).collection"
         java: >-
           new DBRef("coll", new
           ObjectId("5bfeee5ffa63a31985db9e5e")).getCollectionName()
@@ -178,9 +178,9 @@ tests:
           ['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'),
           '$db' => null]['$ref']
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).$ref'
+        shell: "new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$ref"
       output:
-        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).collection'
+        python: "DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).collection"
         java: >-
           new DBRef("coll", new
           ObjectId("5bfeee5ffa63a31985db9e5e")).getCollectionName()
@@ -196,21 +196,21 @@ tests:
             '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
           ).collection
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId()).getCollection()'
+        shell: "new DBRef('coll', new ObjectId()).getCollection()"
       output:
-        python: 'DBRef(''coll'', ObjectId()).collection'
+        python: "DBRef('coll', ObjectId()).collection"
         java: 'new DBRef("coll", new ObjectId()).getCollectionName()'
         csharp: 'new MongoDBRef("coll", new ObjectId()).CollectionName'
-        php: '[''$ref'' => ''coll'', ''$id'' => new ObjectId(), ''$db'' => null][''$ref'']'
+        php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]['$ref']"
         ruby: |-
           BSON::DBRef.new(
             '$ref' => 'coll',
             '$id' => BSON::ObjectId.new
           ).collection
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).$id'
+        shell: "new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$id"
       output:
-        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).id'
+        python: "DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id"
         java: 'new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getId()'
         csharp: 'new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id'
         php: >-
@@ -222,9 +222,9 @@ tests:
             '$id' => BSON::ObjectId('5bfeee5ffa63a31985db9e5e')
           ).id
     - input:
-        shell: 'new DBRef(''coll'', new ObjectId(''5bfeee5ffa63a31985db9e5e'')).getId()'
+        shell: "new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()"
       output:
-        python: 'DBRef(''coll'', ObjectId(''5bfeee5ffa63a31985db9e5e'')).id'
+        python: "DBRef('coll', ObjectId('5bfeee5ffa63a31985db9e5e')).id"
         java: 'new DBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).getId()'
         csharp: 'new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id'
         php: >-
@@ -239,11 +239,11 @@ tests:
     - input:
         shell: NumberLong(429496729601).toString()
       output:
-        python: '''429496729601'''
+        python: "'429496729601'"
         java: '"429496729601"'
         csharp: '"429496729601"'
-        php: '''429496729601'''
-        ruby: '''429496729601'''
+        php: "'429496729601'"
+        ruby: "'429496729601'"
         go: '"429496729601"'
         rust: '"429496729601"'
   Decimal128-methods: []
@@ -260,7 +260,7 @@ tests:
   Symbol-methods: []
   ObjectId-utils:
     - input:
-        shell: 'ObjectId.createFromTime(new Date(''Thu, 03 Feb 1972 00:00:00 GMT''))'
+        shell: "ObjectId.createFromTime(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))"
       output:
         javascript: >-
           ObjectId.createFromTime(new Date('Thu, 03 Feb 1972 00:00:00

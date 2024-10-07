@@ -19,13 +19,13 @@ tests:
         go: 'bson.D{{"x", 1}}'
     - description: Doc with trailing comma
       input:
-        shell: '{x: ''x''}'
+        shell: "{x: 'x'}"
       output:
         java: 'new Document("x", "x")'
         go: 'bson.D{{"x", "x"}}'
     - description: Doc with array
       input:
-        shell: '{x: [''x'', ''y'']}'
+        shell: "{x: ['x', 'y']}"
       output:
         java: 'new Document("x", Arrays.asList("x", "y"))'
         go: |-
@@ -39,7 +39,7 @@ tests:
           }
     - description: Doc with subdoc
       input:
-        shell: '{x: {y: ''x''}}'
+        shell: "{x: {y: 'x'}}"
       output:
         java: 'new Document("x", new Document("y", "x"))'
         go: 'bson.D{{"x", bson.D{{"y", "x"}}}}'
@@ -51,7 +51,7 @@ tests:
         go: 'bson.D{}'
     - description: Doc with declaration
       input:
-        shell: '{x: ObjectId(''5ab901c29ee65f5c8550c5b9'')}'
+        shell: "{x: ObjectId('5ab901c29ee65f5c8550c5b9')}"
       output:
         go: |-
           var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -65,7 +65,7 @@ tests:
           bson.D{{"x", objectIDFromHex("5ab901c29ee65f5c8550c5b9")}}
     - description: Two items in document
       input:
-        shell: '{x: ''x'', n: ''4''}'
+        shell: "{x: 'x', n: '4'}"
       output:
         java: |-
           new Document("x", "x")
@@ -124,7 +124,7 @@ tests:
           }
     - description: Array with subdoc
       input:
-        shell: '[''x'', { settings: ''http2'' }]'
+        shell: "['x', { settings: 'http2' }]"
       output:
         java: |-
           Arrays.asList("x", 

@@ -242,37 +242,18 @@ export const inProgressIndexes: InProgressIndex[] = [
     id: 'in-progress-1',
     name: 'AAAA',
     //version: 2,
-    extra: {
-      status: 'inprogress',
-    },
-    key: {
-      aaaa: -1,
-    },
-    usageCount: 4,
-    size: 4096,
-
     fields: [],
-    ns: 'foo',
-    relativeSize: 1,
+    status: 'inprogress',
   },
   {
     id: 'in-progress-2',
-    extra: {
-      status: 'inprogress',
-    },
-    key: {
-      z: 1,
-    },
+    name: 'z',
     fields: [
       {
         field: 'z',
         value: 1,
       },
     ],
-    name: 'z',
-    ns: 'citibike.trips',
-    size: 0,
-    relativeSize: 0,
-    usageCount: 0,
+    status: 'inprogress',
   },
 ];
