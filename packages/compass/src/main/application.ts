@@ -316,7 +316,7 @@ class CompassApplication {
           );
 
           log.warn(
-            mongoLogId(1_001_000_332),
+            mongoLogId(1_001_000_333),
             logContext,
             'Unable to set proxy configuration',
             {
