@@ -430,9 +430,9 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
       void dispatch(fetchShardingZones());
     } catch (error) {
       logger.log.error(
-        logger.mongoLogId(1_001_000_330),
+        logger.mongoLogId(1_001_000_332),
         'AtlasFetchError',
-        'Error fetching cluster sharding data',
+        'Error fetching shard key',
         (error as Error).message
       );
       openToast('global-writes-fetch-shard-key-error', {
