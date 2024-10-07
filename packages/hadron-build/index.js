@@ -1,5 +1,5 @@
 'use strict';
-exports = function() {};
+exports = function () {};
 
 exports.release = require('./commands/release');
 exports.upload = require('./commands/upload');

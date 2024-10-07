@@ -373,7 +373,7 @@ tests:
           skip: '5'
           limit: '10'
           maxTimeMS: '100'
-          collation: '{ locale: ''zh'' }'
+          collation: "{ locale: 'zh' }"
       output:
         python: |-
           # Requires the PyMongo package.
@@ -800,7 +800,7 @@ tests:
     - description: generate driver syntax with declarations
       input:
         shell:
-          aggregation: '{x: ObjectId(''5a7382114ec1f67ae445f778'')}'
+          aggregation: "{x: ObjectId('5a7382114ec1f67ae445f778')}"
           options:
             uri: 'mongodb://localhost:27017'
             database: db

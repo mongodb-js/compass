@@ -9,15 +9,15 @@ import {
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
-import type {
-  AutomationAgentRequestTypes,
-  AutomationAgentResponse,
-} from './make-automation-agent-op-request';
-import { makeAutomationAgentOpRequest } from './make-automation-agent-op-request';
 
 export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
 };
+
+function normalizePath(path?: string) {
+  path = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+  return encodeURI(path);
+}
 
 export class AtlasService {
   private config: AtlasServiceConfig;
@@ -30,16 +30,14 @@ export class AtlasService {
     this.config = getAtlasConfig(preferences);
   }
   adminApiEndpoint(path?: string, requestId?: string): string {
-    const uri = encodeURI(
-      `${this.config.atlasApiBaseUrl}${path ? `/${path}` : ''}`
-    );
+    const uri = `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
     const query = requestId
       ? `?request_id=${encodeURIComponent(requestId)}`
       : '';
     return `${uri}${query}`;
   }
   cloudEndpoint(path?: string): string {
-    return encodeURI(`${this.config.cloudBaseUrl}${path ? `/${path}` : ''}`);
+    return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
   }
   regionalizedCloudEndpoint(
     _atlasMetadata: Pick<AtlasClusterMetadata, 'regionalBaseUrl'>,
@@ -50,7 +48,7 @@ export class AtlasService {
     return this.cloudEndpoint(path);
   }
   driverProxyEndpoint(path?: string): string {
-    return encodeURI(`${this.config.wsBaseUrl}${path ? `/${path}` : ''}`);
+    return `${this.config.wsBaseUrl}${normalizePath(path)}`;
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
@@ -104,34 +102,90 @@ export class AtlasService {
       },
     });
   }
-  automationAgentFetch<OpType extends keyof AutomationAgentRequestTypes>(
-    atlasMetadata: Pick<
-      AtlasClusterMetadata,
-      | 'projectId'
-      | 'clusterUniqueId'
-      | 'regionalBaseUrl'
-      | 'metricsType'
-      | 'metricsId'
-    >,
-    opType: OpType,
-    opBody: Omit<
-      AutomationAgentRequestTypes[OpType],
-      'clusterId' | 'serverlessId'
-    >
-  ): Promise<AutomationAgentResponse<OpType>> {
+  async automationAgentRequest(
+    atlasMetadata: AtlasClusterMetadata,
+    opType: string,
+    opBody: Record<string, unknown>
+  ): Promise<{ _id: string; requestType: string } | undefined> {
     const opBodyClusterId =
       atlasMetadata.metricsType === 'serverless'
         ? { serverlessId: atlasMetadata.clusterUniqueId }
         : { clusterId: atlasMetadata.metricsId };
-    return makeAutomationAgentOpRequest(
-      this.authenticatedFetch.bind(this),
-      this.regionalizedCloudEndpoint(atlasMetadata),
-      atlasMetadata.projectId,
-      opType,
-      Object.assign(
-        opBodyClusterId,
-        opBody
-      ) as AutomationAgentRequestTypes[OpType]
+    const requestUrl = this.regionalizedCloudEndpoint(
+      atlasMetadata,
+      `/explorer/v1/groups/${atlasMetadata.projectId}/requests/${opType}`
     );
+    const json = await this.authenticatedFetch(requestUrl, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ ...opBodyClusterId, ...opBody }),
+    }).then((res) => {
+      if (
+        res.headers
+          .get('content-type')
+          ?.toLowerCase()
+          .includes('application/json')
+      ) {
+        return res.json();
+      }
+    });
+    assertAutomationAgentRequestResponse(json, opType);
+    return json;
   }
+  async automationAgentAwait<T>(
+    atlasMetadata: AtlasClusterMetadata,
+    opType: string,
+    requestId: string
+  ): Promise<{
+    _id: string;
+    requestType: string;
+    response: T[];
+  }> {
+    const requestUrl = this.regionalizedCloudEndpoint(
+      atlasMetadata,
+      `/explorer/v1/groups/${atlasMetadata.projectId}/requests/${requestId}/types/${opType}/await`
+    );
+    const json = await this.authenticatedFetch(requestUrl, {
+      method: 'GET',
+    }).then((res) => {
+      return res.json();
+    });
+    assertAutomationAgentAwaitResponse<T>(json, opType);
+    return json;
+  }
+}
+
+function assertAutomationAgentRequestResponse(
+  json: any,
+  opType: string
+): asserts json is { _id: string; requestType: string } {
+  if (
+    Object.prototype.hasOwnProperty.call(json, '_id') &&
+    Object.prototype.hasOwnProperty.call(json, 'requestType') &&
+    json.requestType === opType
+  ) {
+    return;
+  }
+  throw new Error(
+    'Got unexpected backend response for automation agent request'
+  );
+}
+
+function assertAutomationAgentAwaitResponse<T>(
+  json: any,
+  opType: string
+): asserts json is { _id: string; requestType: string; response: T[] } {
+  if (
+    Object.prototype.hasOwnProperty.call(json, '_id') &&
+    Object.prototype.hasOwnProperty.call(json, 'requestType') &&
+    Object.prototype.hasOwnProperty.call(json, 'response') &&
+    json.requestType === opType
+  ) {
+    return;
+  }
+  throw new Error(
+    'Got unexpected backend response for automation agent request await'
+  );
 }

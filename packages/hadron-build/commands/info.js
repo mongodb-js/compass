@@ -14,44 +14,45 @@ exports.describe = 'Display project info.';
 
 exports.builder = {
   verbose: {
-    describe: 'Confused or trying to track down a bug and want lots of debug output?',
+    describe:
+      'Confused or trying to track down a bug and want lots of debug output?',
     type: 'boolean',
-    default: false
+    default: false,
   },
   format: {
     choices: ['table', 'yaml', 'json'],
     description: 'What output format would you like?',
-    default: 'table'
+    default: 'table',
   },
   flatten: {
     description: 'Flatten the config object into dot notation',
     type: 'boolean',
-    default: false
+    default: false,
   },
   dir: {
     description: 'Project root directory',
-    default: process.cwd()
+    default: process.cwd(),
   },
   version: {
     description: 'Target version',
-    default: undefined
+    default: undefined,
   },
   platform: {
     description: 'Target platform',
-    default: undefined
+    default: undefined,
   },
   arch: {
     description: 'Target arch',
-    default: undefined
+    default: undefined,
   },
   out: {
     description: 'Output file path',
-    default: undefined
-  }
+    default: undefined,
+  },
 };
 
 const serialize = (target) => {
-  return _.omitBy(target, function(value) {
+  return _.omitBy(target, function (value) {
     return _.isFunction(value) || _.isRegExp(value) || _.isUndefined(value);
   });
 };
@@ -61,13 +62,16 @@ const toTable = (target) => {
    * Print the assembled `CONFIG` data as a nice table.
    */
   var configTable = new Table({
-    head: ['Key', 'Value']
+    head: ['Key', 'Value'],
   });
-  _.forIn(target, function(value, key) {
-    configTable.push([key, inspect(value, {
-      depth: null,
-      colors: true
-    })]);
+  _.forIn(target, function (value, key) {
+    configTable.push([
+      key,
+      inspect(value, {
+        depth: null,
+        colors: true,
+      }),
+    ]);
   });
   return configTable.toString();
 };
@@ -76,7 +80,7 @@ exports.handler = (argv) => {
   let target = new Target(argv.dir, {
     version: argv.version,
     platform: argv.platform,
-    arch: argv.arch
+    arch: argv.arch,
   });
 
   if (argv.flatten) {

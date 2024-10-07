@@ -2,26 +2,34 @@
 const assert = require('assert');
 const DeclarationStore = require('../codegeneration/DeclarationStore');
 
-describe('DeclarationStore', function() {
-  it('adds data using #add', function() {
+describe('DeclarationStore', function () {
+  it('adds data using #add', function () {
     const ds = new DeclarationStore();
 
-    ds.addVar('Temp', 'objectID', (varName) => { return `objectId${varName}`; });
+    ds.addVar('Temp', 'objectID', (varName) => {
+      return `objectId${varName}`;
+    });
     assert.strictEqual(ds.length(), 1);
   });
-  it('returns incremented variable names given the pre-incremented variable root-name', function() {
+  it('returns incremented variable names given the pre-incremented variable root-name', function () {
     const ds = new DeclarationStore();
 
-    ds.addVar('ForTemp', 'objectID', () => { return 1; });
+    ds.addVar('ForTemp', 'objectID', () => {
+      return 1;
+    });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp1');
 
-    ds.addVar('ForTemp', 'objectID', () => { return 2; });
+    ds.addVar('ForTemp', 'objectID', () => {
+      return 2;
+    });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp2');
 
-    ds.addVar('ForTemp', 'objectID', () => { return 3; });
+    ds.addVar('ForTemp', 'objectID', () => {
+      return 3;
+    });
     assert.strictEqual(ds.next('ForTemp', 'objectID'), 'objectIDForTemp3');
   });
-  it('stringifies multiple variables declarations', function() {
+  it('stringifies multiple variables declarations', function () {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -34,7 +42,9 @@ describe('DeclarationStore', function() {
 
     const declaration2 = (varName) => {
       return []
-        .concat(`${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`)
+        .concat(
+          `${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`
+        )
         .concat('if err != nil {')
         .concat('    log.Fatal(err)')
         .concat('}')
@@ -49,14 +59,16 @@ describe('DeclarationStore', function() {
       .concat('    log.Fatal(err)')
       .concat('}')
       .concat('')
-      .concat('objectIDForTemp1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")')
+      .concat(
+        'objectIDForTemp1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")'
+      )
       .concat('if err != nil {')
       .concat('    log.Fatal(err)')
       .concat('}')
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('skips defining declarations for multiple of the exact same declaration (1)', function() {
+  it('skips defining declarations for multiple of the exact same declaration (1)', function () {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -69,7 +81,9 @@ describe('DeclarationStore', function() {
 
     const declaration2 = (varName) => {
       return []
-        .concat(`${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`)
+        .concat(
+          `${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`
+        )
         .concat('if err != nil {')
         .concat('    log.Fatal(err)')
         .concat('}')
@@ -95,14 +109,16 @@ describe('DeclarationStore', function() {
       .concat('    log.Fatal(err)')
       .concat('}')
       .concat('')
-      .concat('objectIDForTemp1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")')
+      .concat(
+        'objectIDForTemp1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")'
+      )
       .concat('if err != nil {')
       .concat('    log.Fatal(err)')
       .concat('}')
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('skips defining declarations for multiple of the exact same declaration (2)', function() {
+  it('skips defining declarations for multiple of the exact same declaration (2)', function () {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -115,7 +131,9 @@ describe('DeclarationStore', function() {
 
     const declaration2 = (varName) => {
       return []
-        .concat(`${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`)
+        .concat(
+          `${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`
+        )
         .concat('if err != nil {')
         .concat('    log.Fatal(err)')
         .concat('}')
@@ -124,7 +142,9 @@ describe('DeclarationStore', function() {
 
     const declaration3 = (varName) => {
       return []
-        .concat(`${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`)
+        .concat(
+          `${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`
+        )
         .concat('if err != nil {')
         .concat('    log.Fatal(err)')
         .concat('}')
@@ -141,14 +161,16 @@ describe('DeclarationStore', function() {
       .concat('    log.Fatal(err)')
       .concat('}')
       .concat('')
-      .concat('objectIDForTemp1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")')
+      .concat(
+        'objectIDForTemp1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")'
+      )
       .concat('if err != nil {')
       .concat('    log.Fatal(err)')
       .concat('}')
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('ignores duplications over different variables', function() {
+  it('ignores duplications over different variables', function () {
     const ds = new DeclarationStore();
     const declaration1 = (varName) => {
       return []
@@ -161,7 +183,9 @@ describe('DeclarationStore', function() {
 
     const declaration2 = (varName) => {
       return []
-        .concat(`${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`)
+        .concat(
+          `${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`
+        )
         .concat('if err != nil {')
         .concat('    log.Fatal(err)')
         .concat('}')
@@ -170,7 +194,9 @@ describe('DeclarationStore', function() {
 
     const declaration3 = (varName) => {
       return []
-        .concat(`${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`)
+        .concat(
+          `${varName}, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")`
+        )
         .concat('if err != nil {')
         .concat('    log.Fatal(err)')
         .concat('}')
@@ -187,19 +213,23 @@ describe('DeclarationStore', function() {
       .concat('    log.Fatal(err)')
       .concat('}')
       .concat('')
-      .concat('objectIDForTempA1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")')
+      .concat(
+        'objectIDForTempA1, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")'
+      )
       .concat('if err != nil {')
       .concat('    log.Fatal(err)')
       .concat('}')
       .concat('')
-      .concat('objectIDForTempB, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")')
+      .concat(
+        'objectIDForTempB, err := primitive.ObjectIDFromHex("5ab901c29ee65f5c8550c5b9")'
+      )
       .concat('if err != nil {')
       .concat('    log.Fatal(err)')
       .concat('}')
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('ignores duplications over different functions', function() {
+  it('ignores duplications over different functions', function () {
     const ds = new DeclarationStore();
     const declaration1 = 'var x := func() {}';
     const declaration2 = 'var x := func() {}';
@@ -216,7 +246,7 @@ describe('DeclarationStore', function() {
       .join('\n');
     assert.strictEqual(ds.toString(), expected);
   });
-  it('get length of sets', function() {
+  it('get length of sets', function () {
     const ds = new DeclarationStore();
     const declaration1 = 'var x := func() {}';
     const declaration2 = 'var x := func() {}';

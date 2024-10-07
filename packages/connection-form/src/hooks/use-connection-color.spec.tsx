@@ -33,35 +33,6 @@ describe('useConnectionColor', function () {
     }
   });
 
-  // TODO(COMPASS-7906): remove
-  it.skip('converts legacy colors', function () {
-    const legacyColors = {
-      '#5fc86e': 'color1',
-      '#326fde': 'color2',
-      '#deb342': 'color3',
-      '#d4366e': 'color4',
-      '#59c1e2': 'color5',
-      '#2c5f4a': 'color6',
-      '#d66531': 'color7',
-      '#773819': 'color8',
-      '#3b8196': 'color9',
-      '#ababab': 'color10',
-    };
-
-    for (const [legacyColor, colorCode] of Object.entries(legacyColors)) {
-      const { container: container1 } = render(
-        <TestComponent colorCode={legacyColor} />
-      );
-      const { container: container2 } = render(
-        <TestComponent colorCode={colorCode} />
-      );
-      expect(container1.firstChild?.textContent).to.be.not.be.undefined;
-      expect(container1.firstChild?.textContent).to.equal(
-        container2.firstChild?.textContent
-      );
-    }
-  });
-
   it('does not convert an unknown color code', function () {
     const { container } = render(
       <TestComponent colorCode={'someKindOfColor'} />

@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual, pick } from 'lodash';
+import { isEqual, pick } from 'lodash';
 import type { IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
@@ -17,45 +17,54 @@ import {
   hideModalDescription,
   unhideModalDescription,
 } from '../utils/modal-descriptions';
-import type { IndexSpecification, CreateIndexesOptions } from 'mongodb';
+import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
+import type { AtlasIndexStats } from './rolling-indexes-service';
+import { connectionSupports } from '@mongodb-js/compass-connections';
 
-export type RegularIndex = Omit<
-  IndexDefinition,
-  'type' | 'cardinality' | 'properties' | 'version'
-> &
-  Partial<IndexDefinition>;
+export type RegularIndex = Partial<IndexDefinition> &
+  Pick<
+    IndexDefinition,
+    // These are the only ones we're treating as required because they are the
+    // ones we use. Everything else is treated as optional.
+    | 'name'
+    | 'type'
+    | 'cardinality'
+    | 'properties'
+    | 'fields'
+    | 'extra'
+    | 'size'
+    | 'relativeSize'
+    | 'usageCount'
+  >;
 
-export type InProgressIndex = {
+export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
-  key: CreateIndexSpec;
-  fields: { field: string; value: string | number }[];
-  name: string;
-  ns: string;
-  size: number;
-  relativeSize: number;
-  usageCount: number;
-  extra: {
-    status: 'inprogress' | 'failed';
-    error?: string;
-  };
+  status: 'inprogress' | 'failed';
+  error?: string;
 };
+
+export type RollingIndex = Partial<AtlasIndexStats> &
+  Pick<
+    AtlasIndexStats,
+    // These are the only ones we're treating as required because they are the
+    // ones we use. Everything else is treated as optional.
+    'indexName' | 'indexType' | 'keys'
+  >;
 
 const prepareInProgressIndex = (
   id: string,
   {
-    ns,
     name,
     spec,
   }: {
-    ns: string;
     name?: string;
     spec: CreateIndexSpec;
   }
 ): InProgressIndex => {
-  const inProgressIndexFields = Object.keys(spec).map((field: string) => ({
+  const inProgressIndexFields = Object.entries(spec).map(([field, value]) => ({
     field,
-    value: spec[field],
+    value,
   }));
   const inProgressIndexName =
     name ||
@@ -66,16 +75,13 @@ const prepareInProgressIndex = (
     }, '');
   return {
     id,
-    extra: {
-      status: 'inprogress',
-    },
-    key: spec,
+    // TODO(COMPASS-8335): we need the type because it shows in the table
+    // TODO(COMPASS-8335): the table can also use cardinality
+    status: 'inprogress',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    ns,
-    size: 0,
-    relativeSize: 0,
-    usageCount: 0,
+    // TODO(COMPASS-8335): we never mapped properties and the table does have
+    // room to display them
   };
 };
 
@@ -113,6 +119,7 @@ type FetchIndexesStartedAction = {
 type FetchIndexesSucceededAction = {
   type: ActionTypes.FetchIndexesSucceeded;
   indexes: RegularIndex[];
+  rollingIndexes?: RollingIndex[];
 };
 
 type FetchIndexesFailedAction = {
@@ -142,9 +149,10 @@ type FailedIndexRemovedAction = {
 };
 
 export type State = {
-  indexes: RegularIndex[];
   status: FetchStatus;
+  indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
+  rollingIndexes?: RollingIndex[];
   error?: string;
 };
 
@@ -191,16 +199,10 @@ export default function reducer(
       ActionTypes.FetchIndexesSucceeded
     )
   ) {
-    // Merge the newly fetched indexes and the existing in-progress ones.
-    const inProgressIndexes = state.inProgressIndexes;
-    const allIndexes = _mergeInProgressIndexes(
-      action.indexes,
-      cloneDeep(inProgressIndexes)
-    );
-
     return {
       ...state,
-      indexes: allIndexes,
+      indexes: action.indexes,
+      rollingIndexes: action.rollingIndexes,
       status: FetchStatuses.READY,
     };
   }
@@ -234,16 +236,9 @@ export default function reducer(
       action.inProgressIndex,
     ];
 
-    // Merge the in-progress indexes into the existing indexes.
-    const allIndexes = _mergeInProgressIndexes(
-      state.indexes,
-      cloneDeep(inProgressIndexes)
-    );
-
     return {
       ...state,
       inProgressIndexes,
-      indexes: allIndexes,
     };
   }
 
@@ -256,9 +251,6 @@ export default function reducer(
   ) {
     return {
       ...state,
-      // NOTE: the index is still in indexes because it would have been merged
-      // in there, so it will only be gone from the list once fetchIndexes()
-      // is dispatched and finishes.
       inProgressIndexes: state.inProgressIndexes.filter(
         (x) => x.id !== action.inProgressIndexId
       ),
@@ -275,23 +267,13 @@ export default function reducer(
     const newInProgressIndexes = state.inProgressIndexes;
     newInProgressIndexes[idx] = {
       ...newInProgressIndexes[idx],
-      extra: {
-        ...newInProgressIndexes[idx].extra,
-        status: 'failed',
-        error: action.error,
-      },
+      status: 'failed',
+      error: action.error,
     };
 
-    // When an inprogress index fails to create, we also have to update it in
-    // the state.indexes list to correctly update the UI with error state.
-    const newIndexes = _mergeInProgressIndexes(
-      state.indexes,
-      newInProgressIndexes
-    );
     return {
       ...state,
       inProgressIndexes: newInProgressIndexes,
-      indexes: newIndexes,
     };
   }
 
@@ -306,10 +288,12 @@ const fetchIndexesStarted = (
 });
 
 const fetchIndexesSucceeded = (
-  indexes: RegularIndex[]
+  indexes: RegularIndex[],
+  rollingIndexes?: RollingIndex[]
 ): FetchIndexesSucceededAction => ({
   type: ActionTypes.FetchIndexesSucceeded,
   indexes,
+  rollingIndexes,
 });
 
 const fetchIndexesFailed = (error: string): FetchIndexesFailedAction => ({
@@ -333,7 +317,11 @@ function pickCollectionStatFields(state: RootState) {
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
-  return async (dispatch, getState, { dataService, collection }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, collection, connectionInfoRef, rollingIndexesService }
+  ) => {
     const {
       isReadonlyView,
       namespace,
@@ -350,11 +338,22 @@ const fetchIndexes = (
       return;
     }
 
+    const isRollingIndexesSupported = connectionSupports(
+      connectionInfoRef.current,
+      'rollingIndexCreation'
+    );
+
     try {
       dispatch(fetchIndexesStarted(reason));
-      const indexes = await dataService.indexes(namespace);
+      const promises = [
+        dataService.indexes(namespace),
+        isRollingIndexesSupported
+          ? rollingIndexesService.listRollingIndexes(namespace)
+          : undefined,
+      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
+      const [indexes, rollingIndexes] = await Promise.all(promises);
       const indexesBefore = pickCollectionStatFields(getState());
-      dispatch(fetchIndexesSucceeded(indexes));
+      dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));
       const indexesAfter = pickCollectionStatFields(getState());
       if (
         reason !== FetchReasons.INITIAL_FETCH &&
@@ -459,8 +458,9 @@ const indexCreationFailed = (
 
 export function createRegularIndex(
   inProgressIndexId: string,
-  spec: CreateIndexSpec,
-  options: CreateIndexesOptions
+  spec: Record<string, IndexDirection>,
+  options: CreateIndexesOptions,
+  isRollingIndexBuild: boolean
 ): IndexesThunkAction<
   Promise<void>,
   | IndexCreationStartedAction
@@ -470,11 +470,10 @@ export function createRegularIndex(
   return async (
     dispatch,
     getState,
-    { track, dataService, connectionInfoRef }
+    { track, dataService, rollingIndexesService, connectionInfoRef }
   ) => {
     const ns = getState().namespace;
     const inProgressIndex = prepareInProgressIndex(inProgressIndexId, {
-      ns,
       name: options.name,
       spec,
     });
@@ -503,7 +502,10 @@ export function createRegularIndex(
     };
 
     try {
-      await dataService.createIndex(ns, spec as IndexSpecification, options);
+      const createFn = isRollingIndexBuild
+        ? rollingIndexesService.createRollingIndex.bind(rollingIndexesService)
+        : dataService.createIndex.bind(dataService);
+      await createFn(ns, spec, options);
       dispatch(indexCreationSucceeded(inProgressIndexId));
       track('Index Created', trackEvent, connectionInfoRef.current);
 
@@ -528,33 +530,34 @@ const failedIndexRemoved = (
 // its value. This enables to test dropIndex action.
 export const showConfirmation = showConfirmationModal;
 
+export const dropFailedIndex = (
+  indexName: string
+): IndexesThunkAction<void, FailedIndexRemovedAction> => {
+  return (dispatch, getState) => {
+    const { regularIndexes } = getState();
+    const { inProgressIndexes } = regularIndexes;
+
+    const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
+    if (inProgressIndex && inProgressIndex.status === 'failed') {
+      // This really just removes the (failed) in-progress index
+      dispatch(failedIndexRemoved(String(inProgressIndex.id)));
+    }
+  };
+};
+
 export const dropIndex = (
   indexName: string
-): IndexesThunkAction<
-  Promise<void>,
-  FailedIndexRemovedAction | FetchIndexesActions
-> => {
+): IndexesThunkAction<Promise<void>, FetchIndexesActions> => {
   return async (
     dispatch,
     getState,
     { connectionInfoRef, dataService, track }
   ) => {
     const { namespace, regularIndexes } = getState();
-    const { indexes, inProgressIndexes } = regularIndexes;
+    const { indexes } = regularIndexes;
+
     const index = indexes.find((x) => x.name === indexName);
-
     if (!index) {
-      return;
-    }
-
-    const inProgressIndex = inProgressIndexes.find((x) => x.name === indexName);
-    if (inProgressIndex && inProgressIndex.extra.status === 'failed') {
-      // This really just removes the (failed) in-progress index
-      dispatch(failedIndexRemoved(String(inProgressIndex.id)));
-
-      // By fetching the indexes again we make sure the merged list doesn't have
-      // it either.
-      await dispatch(fetchIndexes(FetchReasons.REFRESH));
       return;
     }
 
@@ -658,29 +661,3 @@ export const unhideIndex = (
     }
   };
 };
-
-function _mergeInProgressIndexes(
-  _indexes: RegularIndex[],
-  inProgressIndexes: InProgressIndex[]
-) {
-  const indexes = cloneDeep(_indexes);
-
-  for (const inProgressIndex of inProgressIndexes) {
-    const index = indexes.find((index) => index.name === inProgressIndex.name);
-
-    if (index) {
-      index.extra = index.extra ?? {};
-      index.extra.status = inProgressIndex.extra.status;
-      if (inProgressIndex.extra.error) {
-        index.extra.error = inProgressIndex.extra.error;
-      }
-    } else {
-      // in-progress indexes also have ids which regular indexes don't
-      const index: RegularIndex = { ...inProgressIndex };
-      delete (index as RegularIndex & { id?: any }).id;
-      indexes.push(index);
-    }
-  }
-
-  return indexes;
-}

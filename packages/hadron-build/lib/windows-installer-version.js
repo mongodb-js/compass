@@ -1,6 +1,8 @@
 'use strict';
 function windowsInstallerVersion(version) {
-  const versionComponents = (version || '').match(/^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/);
+  const versionComponents = (version || '').match(
+    /^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/
+  );
 
   if (versionComponents) {
     const [, major, minor, patch, pre] = versionComponents;

@@ -11,10 +11,12 @@ function Listener() {
   return this;
 }
 
-Listener.prototype = Object.create(ECMAScriptListener.ECMAScriptListener.prototype);
+Listener.prototype = Object.create(
+  ECMAScriptListener.ECMAScriptListener.prototype
+);
 Listener.prototype.constructor = Listener;
 
-Listener.prototype.buildAST = function(tree, ruleNames) {
+Listener.prototype.buildAST = function (tree, ruleNames) {
   ruleNames = ruleNames || null;
 
   let s = antlr4.tree.Trees.getNodeText(tree, ruleNames);
@@ -27,7 +29,7 @@ Listener.prototype.buildAST = function(tree, ruleNames) {
     return s;
   }
 
-  const res = {type: s, node: tree.constructor.name};
+  const res = { type: s, node: tree.constructor.name };
 
   if (c > 0) {
     s = this.buildAST(tree.getChild(0), ruleNames);
