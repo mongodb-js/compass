@@ -3,11 +3,18 @@ import {
   Banner,
   BannerVariant,
   Body,
+  Button,
   css,
   Link,
   spacing,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import {
+  cancelSharding,
+  type RootState,
+  ShardingStatuses,
+} from '../../store/reducer';
 
 const nbsp = '\u00a0';
 
@@ -17,7 +24,15 @@ const containerStyles = css({
   gap: spacing[400],
 });
 
-export function ShardingState() {
+interface ShardingStateProps {
+  isCancellingSharding: boolean;
+  onCancelSharding: () => void;
+}
+
+export function ShardingState({
+  isCancellingSharding,
+  onCancelSharding,
+}: ShardingStateProps) {
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Info}>
@@ -34,9 +49,27 @@ export function ShardingState() {
         hideExternalIcon
       >
         You can read more about Global Writes in our documentation.
+        <Button
+          onClick={onCancelSharding}
+          disabled={isCancellingSharding}
+          leftGlyph={
+            isCancellingSharding ? (
+              <SpinLoader title="Cancelling Request" />
+            ) : undefined
+          }
+        >
+          Cancel Request
+        </Button>
       </Link>
     </div>
   );
 }
 
-export default connect()(ShardingState);
+export default connect(
+  (state: RootState) => ({
+    isCancellingSharding: state.status === ShardingStatuses.CANCEL_SHARDING,
+  }),
+  {
+    onCancelSharding: cancelSharding,
+  }
+)(ShardingState);

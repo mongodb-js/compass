@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import type { GlobalWritesThunkAction } from '.';
-import { openToast } from '@mongodb-js/compass-components';
+import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
 
 export function isAction<A extends Action>(
@@ -29,6 +29,10 @@ enum GlobalWritesActionTypes {
   SubmittingForShardingStarted = 'global-writes/SubmittingForShardingStarted',
   SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
   SubmittingForShardingErrored = 'global-writes/SubmittingForShardingErrored',
+
+  CancellingShardingStarted = 'global-writes/CancellingShardingStarted',
+  CancellingShardingFinished = 'global-writes/CancellingShardingFinished',
+  CancellingShardingErrored = 'global-writes/CancellingShardingErrored',
 
   UnmanagingNamespaceStarted = 'global-writes/UnmanagingNamespaceStarted',
   UnmanagingNamespaceFinished = 'global-writes/UnmanagingNamespaceFinished',
@@ -68,6 +72,19 @@ type SubmittingForShardingErroredAction = {
   type: GlobalWritesActionTypes.SubmittingForShardingErrored;
 };
 
+type CancellingShardingStartedAction = {
+  type: GlobalWritesActionTypes.CancellingShardingStarted;
+};
+
+type CancellingShardingFinishedAction = {
+  type: GlobalWritesActionTypes.CancellingShardingFinished;
+  managedNamespace?: ManagedNamespace;
+};
+
+type CancellingShardingErroredAction = {
+  type: GlobalWritesActionTypes.CancellingShardingErrored;
+};
+
 type UnmanagingNamespaceStartedAction = {
   type: GlobalWritesActionTypes.UnmanagingNamespaceStarted;
 };
@@ -101,6 +118,12 @@ export enum ShardingStatuses {
    * Namespace is being sharded.
    */
   SHARDING = 'SHARDING',
+
+  /**
+   * State when user cancels the sharding and
+   * we are waiting for server to accept the request.
+   */
+  CANCEL_SHARDING = 'CANCEL_SHARDING',
 
   /**
    * Sharding failed.
@@ -428,6 +451,56 @@ export const createShardKey = (
       );
       dispatch({
         type: GlobalWritesActionTypes.SubmittingForShardingErrored,
+      });
+    }
+  };
+};
+
+export const cancelSharding = ():
+  | GlobalWritesThunkAction<
+      Promise<void>,
+      | CancellingShardingStartedAction
+      | CancellingShardingFinishedAction
+      | CancellingShardingErroredAction
+    >
+  | undefined => {
+  return async (dispatch, getState, { atlasGlobalWritesService, logger }) => {
+    const confirmed = await showConfirmation({
+      title: 'Confirmation',
+      description: 'Are you sure you want to cancel the sharding request?',
+    });
+
+    if (!confirmed) return;
+
+    const { namespace } = getState();
+    dispatch({
+      type: GlobalWritesActionTypes.CancellingShardingStarted,
+    });
+
+    try {
+      await atlasGlobalWritesService.unmanageNamespace(namespace);
+      dispatch({
+        type: GlobalWritesActionTypes.CancellingShardingFinished,
+      });
+    } catch (error) {
+      logger.log.error(
+        logger.mongoLogId(1_001_000_331),
+        'AtlasFetchError',
+        'Error cancelling the sharding process',
+        {
+          error: (error as Error).message,
+        }
+      );
+      openToast('global-writes-cancel-sharding-error', {
+        title: `Failed to cancel the sharding process: ${
+          (error as Error).message
+        }`,
+        dismissible: true,
+        timeout: 5000,
+        variant: 'important',
+      });
+      dispatch({
+        type: GlobalWritesActionTypes.CancellingShardingErrored,
       });
     }
   };

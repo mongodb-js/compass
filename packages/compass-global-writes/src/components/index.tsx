@@ -5,6 +5,7 @@ import {
   spacing,
   WorkspaceContainer,
   SpinLoaderWithLabel,
+  ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
 import type { RootState, ShardingStatus } from '../store/reducer';
 import { ShardingStatuses } from '../store/reducer';
@@ -55,7 +56,10 @@ function ShardingStateView({
     return <UnshardedState />;
   }
 
-  if (shardingStatus === ShardingStatuses.SHARDING) {
+  if (
+    shardingStatus === ShardingStatuses.SHARDING ||
+    shardingStatus === ShardingStatuses.CANCEL_SHARDING
+  ) {
     return <ShardingState />;
   }
 
@@ -73,7 +77,9 @@ export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   return (
     <div className={containerStyles}>
       <WorkspaceContainer className={workspaceContentStyles}>
-        <ShardingStateView shardingStatus={shardingStatus} />
+        <ConfirmationModalArea>
+          <ShardingStateView shardingStatus={shardingStatus} />
+        </ConfirmationModalArea>
       </WorkspaceContainer>
     </div>
   );
