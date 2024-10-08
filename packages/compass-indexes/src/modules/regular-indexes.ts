@@ -101,6 +101,17 @@ export enum ActionTypes {
   IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
   IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
   IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
+
+  // Special case event that happens on a timeout when rolling index is created.
+  //
+  // Rolling indexes API doesn't allow us to consistently track whether or not
+  // creation process failed. This means that in some very rare cases, when
+  // creating a job to create a rolling index succeeds, but the actual creation
+  // fails before the index ever shows up in the polled list of indexes, we can
+  // end up with a stuck "in progress" index. For cases like this we will just
+  // check whether or not index is still in progress after a few polls and
+  // remove the in progress index from the list.
+  RollingIndexTimeoutCheck = 'compass-indexes/create-index/rolling-index-timeout-check',
 }
 
 type IndexesOpenedAction = {
@@ -146,6 +157,11 @@ type IndexCreationFailedAction = {
 type FailedIndexRemovedAction = {
   type: ActionTypes.FailedIndexRemoved;
   inProgressIndexId: string;
+};
+
+type RollingIndexTimeoutCheckAction = {
+  type: ActionTypes.RollingIndexTimeoutCheck;
+  indexId: string;
 };
 
 export type State = {
@@ -199,10 +215,27 @@ export default function reducer(
       ActionTypes.FetchIndexesSucceeded
     )
   ) {
+    const allIndexNames = new Set(
+      action.indexes
+        .map((index) => {
+          return index.name;
+        })
+        .concat(
+          (action.rollingIndexes ?? []).map((index) => {
+            return index.indexName;
+          })
+        )
+    );
     return {
       ...state,
       indexes: action.indexes,
       rollingIndexes: action.rollingIndexes,
+      // Remove in progress stubs when we got the "real" indexes from one of the
+      // backends. Keep the error ones around even if the name matches (should
+      // only be possible in cases of "index with the same name already exists")
+      inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
+        return !!inProgress.error || !allIndexNames.has(inProgress.name);
+      }),
       status: FetchStatuses.READY,
     };
   }
@@ -243,10 +276,6 @@ export default function reducer(
   }
 
   if (
-    isAction<IndexCreationSucceededAction>(
-      action,
-      ActionTypes.IndexCreationSucceeded
-    ) ||
     isAction<FailedIndexRemovedAction>(action, ActionTypes.FailedIndexRemoved)
   ) {
     return {
@@ -270,6 +299,27 @@ export default function reducer(
       status: 'failed',
       error: action.error,
     };
+
+    return {
+      ...state,
+      inProgressIndexes: newInProgressIndexes,
+    };
+  }
+
+  if (
+    isAction<RollingIndexTimeoutCheckAction>(
+      action,
+      ActionTypes.RollingIndexTimeoutCheck
+    )
+  ) {
+    const newInProgressIndexes = state.inProgressIndexes.filter((index) => {
+      return index.id !== action.indexId;
+    });
+
+    // Nothing was removed, return the previous state to avoid updates
+    if (newInProgressIndexes.length === state.inProgressIndexes.length) {
+      return state;
+    }
 
     return {
       ...state,
@@ -466,6 +516,7 @@ export function createRegularIndex(
   | IndexCreationStartedAction
   | IndexCreationSucceededAction
   | IndexCreationFailedAction
+  | RollingIndexTimeoutCheckAction
 > {
   return async (
     dispatch,
@@ -508,7 +559,15 @@ export function createRegularIndex(
       await createFn(ns, spec, options);
       dispatch(indexCreationSucceeded(inProgressIndexId));
       track('Index Created', trackEvent, connectionInfoRef.current);
-
+      // See action description for details
+      if (isRollingIndexBuild) {
+        setTimeout(() => {
+          dispatch({
+            type: ActionTypes.RollingIndexTimeoutCheck,
+            indexId: inProgressIndexId,
+          });
+        }, POLLING_INTERVAL * 3);
+      }
       // Start a new fetch so that the newly added index's details can be
       // loaded. indexCreationSucceeded() will remove the in-progress one, but
       // we still need the new info.
