@@ -1,6 +1,6 @@
 # @mongodb-js/compass-components
 
-Compass Components package contains all foundational components and hooks used to build parts of Compass.
+Compass Components package contains all foundational components and hooks used to build parts of Compass. Keeping all leafygreen dependencies and core UI components in a single package allows us to easier manage external depedendencies on LeafyGreen (including making sure that we never have multiple versions of the same LeafyGreen packages in the application at the same time as this can lead to technical issues) and make sure that the UI is consistently updated throughout the whole application.
 
 ## Guidelines
 
