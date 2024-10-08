@@ -5,7 +5,6 @@ import {
   fetchClusterShardingData,
   createShardKey,
   type CreateShardKeyData,
-  type ShardKey,
 } from './reducer';
 import sinon from 'sinon';
 import type {
