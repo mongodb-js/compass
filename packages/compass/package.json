@@ -180,7 +180,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongosh/node-runtime-worker-thread": "^2.3.1",
+    "@mongosh/node-runtime-worker-thread": "^2.3.2",
     "clipboard": "^2.0.6",
     "kerberos": "^2.1.1",
     "keytar": "^7.9.0",
@@ -224,7 +224,7 @@
     "@mongodb-js/compass-workspaces": "^0.24.2",
     "@mongodb-js/connection-info": "^0.9.0",
     "@mongodb-js/connection-storage": "^0.22.0",
-    "@mongodb-js/devtools-proxy-support": "^0.3.9",
+    "@mongodb-js/devtools-proxy-support": "^0.4.1",
     "@mongodb-js/eslint-config-compass": "^1.1.7",
     "@mongodb-js/get-os-info": "^0.3.24",
     "@mongodb-js/mocha-config-compass": "^1.4.2",
@@ -256,7 +256,7 @@
     "local-links": "^1.4.0",
     "make-fetch-happen": "^8.0.14",
     "marky": "^1.2.1",
-    "mongodb": "^6.8.0",
+    "mongodb": "^6.9.0",
     "mongodb-build-info": "^1.7.2",
     "mongodb-cloud-info": "^2.1.2",
     "mongodb-connection-string-url": "^3.0.1",

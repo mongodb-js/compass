@@ -51,8 +51,8 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.4.8",
     "@mongodb-js/compass-user-data": "^0.3.8",
-    "@mongodb-js/devtools-proxy-support": "^0.3.9",
-    "bson": "^6.7.0",
+    "@mongodb-js/devtools-proxy-support": "^0.4.1",
+    "bson": "^6.8.0",
     "hadron-app-registry": "^9.2.7",
     "hadron-ipc": "^3.2.23",
     "js-yaml": "^4.1.0",
