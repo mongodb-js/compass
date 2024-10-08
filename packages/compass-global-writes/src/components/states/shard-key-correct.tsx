@@ -73,8 +73,8 @@ export function ShardKeyCorrect({
   const sampleCodes = useMemo(() => {
     const { collection, database } = toNS(namespace);
     return {
-      findingDocuments: `use ${database}\ndb.["${collection}"].find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
-      insertingDocuments: `use ${database}\ndb.["${collection}"].insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
+      findingDocuments: `use ${database}\ndb[JSON.stringify(collection)].find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
+      insertingDocuments: `use ${database}\ndb[JSON.stringify(collection)].insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
     };
   }, [namespace, customShardKeyField]);
 
