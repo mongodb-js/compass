@@ -48,7 +48,7 @@ type AutomationAgentProcess = {
   errorText: string;
 };
 
-type AutomationAgentDeploymentStatusApiResponse = {
+export type AutomationAgentDeploymentStatusApiResponse = {
   automationStatus: {
     processes: AutomationAgentProcess[];
   };

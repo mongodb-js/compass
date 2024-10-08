@@ -121,7 +121,7 @@ describe('Compass GlobalWrites Plugin', function () {
     );
     expect(findingDocumentsSample).to.be.visible;
     expect(findingDocumentsSample.textContent).to.contain(
-      `use db1db.["coll1"].find({"location": "US-NY", "secondary": "<id_value>"})`
+      `use db1db["coll1"].find({"location": "US-NY", "secondary": "<id_value>"})`
     );
 
     const insertingDocumentsSample = await screen.findByTestId(
@@ -129,7 +129,7 @@ describe('Compass GlobalWrites Plugin', function () {
     );
     expect(insertingDocumentsSample).to.be.visible;
     expect(insertingDocumentsSample.textContent).to.contain(
-      `use db1db.["coll1"].insertOne({"location": "US-NY", "secondary": "<id_value>",...<other fields>})`
+      `use db1db["coll1"].insertOne({"location": "US-NY", "secondary": "<id_value>",...<other fields>})`
     );
   });
 });

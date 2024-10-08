@@ -151,11 +151,41 @@ export type ShardZoneData = {
 export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
-  status: ShardingStatus;
-  shardingError?: string;
-  shardKey?: ShardKey;
+  // status: ShardingStatus;
   shardZones: ShardZoneData[];
-};
+} & (
+  | {
+      status: ShardingStatuses.NOT_READY;
+      shardKey?: never;
+      shardingError?: never;
+    }
+  | {
+      status:
+        | ShardingStatuses.UNSHARDED
+        | ShardingStatuses.SUBMITTING_FOR_SHARDING
+        | ShardingStatuses.SHARDING;
+      /**
+       * note: shardKey might exist even for unsharded.
+       * if the collection was sharded previously and then unmanaged
+       */
+      shardKey?: ShardKey;
+      shardingError?: never;
+    }
+  | {
+      status: ShardingStatuses.SHARDING_ERROR;
+      shardKey?: never;
+      shardingError: string;
+    }
+  | {
+      status:
+        | ShardingStatuses.SHARD_KEY_CORRECT
+        | ShardingStatuses.SHARD_KEY_INVALID
+        | ShardingStatuses.SHARD_KEY_MISMATCH
+        | ShardingStatuses.UNMANAGING_NAMESPACE;
+      shardKey: ShardKey;
+      shardingError?: never;
+    }
+);
 
 const initialState: RootState = {
   namespace: '',
@@ -168,7 +198,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<ManagedNamespaceFetchedAction>(
       action,
       GlobalWritesActionTypes.ManagedNamespaceFetched
-    )
+    ) &&
+    state.status === ShardingStatuses.NOT_READY
   ) {
     return {
       ...state,
@@ -183,11 +214,13 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<NamespaceShardingErrorFetchedAction>(
       action,
       GlobalWritesActionTypes.NamespaceShardingErrorFetched
-    )
+    ) &&
+    state.status === ShardingStatuses.NOT_READY
   ) {
     return {
       ...state,
       status: ShardingStatuses.SHARDING_ERROR,
+      shardKey: undefined,
       shardingError: action.error,
     };
   }
@@ -196,12 +229,14 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<NamespaceShardKeyFetchedAction>(
       action,
       GlobalWritesActionTypes.NamespaceShardKeyFetched
-    )
+    ) &&
+    state.status === ShardingStatuses.NOT_READY
   ) {
     return {
       ...state,
       status: getStatusFromShardKey(action.shardKey, state.managedNamespace),
       shardKey: action.shardKey,
+      shardingError: undefined,
     };
   }
 
@@ -221,7 +256,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<SubmittingForShardingStartedAction>(
       action,
       GlobalWritesActionTypes.SubmittingForShardingStarted
-    )
+    ) &&
+    state.status === ShardingStatuses.UNSHARDED
   ) {
     return {
       ...state,
@@ -233,7 +269,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<SubmittingForShardingFinishedAction>(
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
-    )
+    ) &&
+    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING
   ) {
     return {
       ...state,
@@ -246,7 +283,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<SubmittingForShardingErroredAction>(
       action,
       GlobalWritesActionTypes.SubmittingForShardingErrored
-    )
+    ) &&
+    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING
   ) {
     return {
       ...state,
@@ -259,7 +297,10 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<UnmanagingNamespaceStartedAction>(
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceStarted
-    )
+    ) &&
+    (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
+      state.status === ShardingStatuses.SHARD_KEY_INVALID ||
+      state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
   ) {
     return {
       ...state,
@@ -271,7 +312,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<UnmanagingNamespaceFinishedAction>(
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceFinished
-    )
+    ) &&
+    state.status === ShardingStatuses.UNMANAGING_NAMESPACE
   ) {
     return {
       ...state,
@@ -284,7 +326,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<UnmanagingNamespaceErroredAction>(
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceErrored
-    )
+    ) &&
+    state.status === ShardingStatuses.UNMANAGING_NAMESPACE
   ) {
     return {
       ...state,
@@ -297,7 +340,11 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
 
 export const fetchClusterShardingData =
   (): GlobalWritesThunkAction<Promise<void>, ManagedNamespaceFetchedAction> =>
-  async (dispatch, getState, { atlasGlobalWritesService, logger }) => {
+  async (
+    dispatch,
+    getState,
+    { atlasGlobalWritesService, logger, connectionInfoRef }
+  ) => {
     const { namespace } = getState();
     try {
       // Call the API to check if the namespace is managed. If the namespace is managed,
@@ -323,14 +370,17 @@ export const fetchClusterShardingData =
         'Error fetching cluster sharding data',
         (error as Error).message
       );
-      openToast('global-writes-fetch-shard-info-error', {
-        title: `Failed to fetch sharding information: ${
-          (error as Error).message
-        }`,
-        dismissible: true,
-        timeout: 5000,
-        variant: 'important',
-      });
+      openToast(
+        `global-writes-fetch-shard-info-error-${connectionInfoRef.current.id}-${namespace}`,
+        {
+          title: `Failed to fetch sharding information: ${
+            (error as Error).message
+          }`,
+          dismissible: true,
+          timeout: 5000,
+          variant: 'important',
+        }
+      );
     }
   };
 
@@ -342,7 +392,11 @@ export const createShardKey = (
   | SubmittingForShardingFinishedAction
   | SubmittingForShardingErroredAction
 > => {
-  return async (dispatch, getState, { atlasGlobalWritesService, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasGlobalWritesService, logger, connectionInfoRef }
+  ) => {
     const { namespace } = getState();
     dispatch({
       type: GlobalWritesActionTypes.SubmittingForShardingStarted,
@@ -364,12 +418,15 @@ export const createShardKey = (
           data,
         }
       );
-      openToast('global-writes-create-shard-key-error', {
-        title: `Failed to create shard key: ${(error as Error).message}`,
-        dismissible: true,
-        timeout: 5000,
-        variant: 'important',
-      });
+      openToast(
+        `global-writes-create-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
+        {
+          title: `Failed to create shard key: ${(error as Error).message}`,
+          dismissible: true,
+          timeout: 5000,
+          variant: 'important',
+        }
+      );
       dispatch({
         type: GlobalWritesActionTypes.SubmittingForShardingErrored,
       });
@@ -381,18 +438,9 @@ const setNamespaceBeingSharded = (
   managedNamespace?: ManagedNamespace
 ): GlobalWritesThunkAction<void, SubmittingForShardingFinishedAction> => {
   return (dispatch) => {
-    // TODO: Scope this to the workspace.
-    const toastId = 'global-writes-sharding-in-progress';
     dispatch({
       type: GlobalWritesActionTypes.SubmittingForShardingFinished,
       managedNamespace,
-    });
-    openToast(toastId, {
-      title: 'Sharding your collection …',
-      description: 'This should not take too long.',
-      dismissible: true,
-      variant: 'progress',
-      // TODO: Add actionElement to cancel sharding.
     });
   };
 };
@@ -401,7 +449,11 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
   Promise<void>,
   NamespaceShardingErrorFetchedAction | NamespaceShardKeyFetchedAction
 > => {
-  return async (dispatch, getState, { atlasGlobalWritesService, logger }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasGlobalWritesService, logger, connectionInfoRef }
+  ) => {
     const { namespace } = getState();
 
     try {
@@ -430,17 +482,20 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
       void dispatch(fetchShardingZones());
     } catch (error) {
       logger.log.error(
-        logger.mongoLogId(1_001_000_332),
+        logger.mongoLogId(1_001_000_333),
         'AtlasFetchError',
         'Error fetching shard key',
         (error as Error).message
       );
-      openToast('global-writes-fetch-shard-key-error', {
-        title: `Failed to fetch shard key: ${(error as Error).message}`,
-        dismissible: true,
-        timeout: 5000,
-        variant: 'important',
-      });
+      openToast(
+        `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
+        {
+          title: `Failed to fetch shard key: ${(error as Error).message}`,
+          dismissible: true,
+          timeout: 5000,
+          variant: 'important',
+        }
+      );
     }
   };
 };
@@ -468,7 +523,11 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
   | UnmanagingNamespaceFinishedAction
   | UnmanagingNamespaceErroredAction
 > => {
-  return async (dispatch, getState, { atlasGlobalWritesService }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasGlobalWritesService, connectionInfoRef }
+  ) => {
     const { namespace } = getState();
 
     dispatch({
@@ -484,12 +543,15 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
       dispatch({
         type: GlobalWritesActionTypes.UnmanagingNamespaceErrored,
       });
-      openToast('global-writes-unmanage-namespace-error', {
-        title: `Failed to unmanage namespace: ${(error as Error).message}`,
-        dismissible: true,
-        timeout: 5000,
-        variant: 'important',
-      });
+      openToast(
+        `global-writes-unmanage-namespace-error-${connectionInfoRef.current.id}-${namespace}`,
+        {
+          title: `Failed to unmanage namespace: ${(error as Error).message}`,
+          dismissible: true,
+          timeout: 5000,
+          variant: 'important',
+        }
+      );
     }
   };
 };
