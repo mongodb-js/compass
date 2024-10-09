@@ -23,6 +23,11 @@ const containerStyles = css({
   gap: spacing[400],
 });
 
+const btnStyles = css({
+  float: 'right',
+  height: spacing[600],
+});
+
 interface ShardingStateProps {
   isCancellingSharding: boolean;
   onCancelSharding: () => void;
@@ -37,6 +42,14 @@ export function ShardingState({
       <Banner variant={BannerVariant.Info}>
         <strong>Sharding your collection …</strong>
         {nbsp}this should not take too long.
+        <Button
+          className={btnStyles}
+          data-testid="cancel-sharding-btn"
+          onClick={onCancelSharding}
+          isLoading={isCancellingSharding}
+        >
+          Cancel Request
+        </Button>
       </Banner>
       <Body>
         Once your collection is sharded, this tab will show instructions on
@@ -48,13 +61,6 @@ export function ShardingState({
         hideExternalIcon
       >
         You can read more about Global Writes in our documentation.
-        <Button
-          data-testid="cancel-sharding-btn"
-          onClick={onCancelSharding}
-          isLoading={isCancellingSharding}
-        >
-          Cancel Request
-        </Button>
       </Link>
     </div>
   );
