@@ -7,12 +7,24 @@ import { activateGlobalWritesPlugin } from '../src/store';
 import { createActivateHelpers } from 'hadron-app-registry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
-import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { Provider } from 'react-redux';
-import { render } from '@mongodb-js/testing-library-compass';
+import { renderWithActiveConnection } from '@mongodb-js/testing-library-compass';
 
 import clusterApiResponse from './cluster-api-response.json';
+
+const TEST_CONNECTION_INFO = {
+  id: 'TEST',
+  connectionOptions: {
+    connectionString: 'mongodb://localhost',
+  },
+  atlasMetadata: {
+    clusterName: 'Cluster0',
+    clusterType: 'UNSHARDED',
+    projectId: 'Project0',
+  } as unknown as ConnectionInfo['atlasMetadata'],
+};
 
 const atlasService = {
   cloudEndpoint: (p: string) => {
@@ -36,19 +48,9 @@ const atlasService = {
 
 export const setupStore = (
   options: Partial<GlobalWritesPluginOptions> = {},
-  services: Partial<GlobalWritesPluginServices> = {}
+  services: Partial<GlobalWritesPluginServices> = {},
+  connectionInfo: ConnectionInfo = TEST_CONNECTION_INFO
 ) => {
-  const connectionInfoRef = {
-    current: {
-      id: 'TEST',
-      atlasMetadata: {
-        clusterName: 'Cluster0',
-        clusterType: 'GEOSHARDED',
-        projectId: 'Project0',
-      },
-    },
-  } as ConnectionInfoRef;
-
   return activateGlobalWritesPlugin(
     {
       namespace: 'airbnb.listings',
@@ -57,7 +59,12 @@ export const setupStore = (
     {
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
-      connectionInfoRef,
+      connectionInfoRef: {
+        current: {
+          ...connectionInfo,
+          title: 'My connection',
+        },
+      },
       ...services,
       atlasService: {
         ...atlasService,
@@ -70,10 +77,19 @@ export const setupStore = (
 
 export const renderWithStore = (
   component: JSX.Element,
-  services: Partial<GlobalWritesPluginServices> = {},
-  options: Partial<GlobalWritesPluginOptions> = {}
+  {
+    services = {},
+    options = {},
+    connectionInfo = TEST_CONNECTION_INFO,
+  }: {
+    services?: Partial<GlobalWritesPluginServices>;
+    options?: Partial<GlobalWritesPluginOptions>;
+    connectionInfo?: ConnectionInfo;
+  } = {}
 ) => {
-  const store = setupStore(options, services);
-  render(<Provider store={store}>{component}</Provider>);
-  return store;
+  const store = setupStore(options, services, connectionInfo);
+  return renderWithActiveConnection(
+    <Provider store={store}>{component}</Provider>,
+    connectionInfo
+  );
 };

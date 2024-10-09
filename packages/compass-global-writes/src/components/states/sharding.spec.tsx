@@ -11,8 +11,8 @@ function renderWithProps(
 }
 
 describe('Sharding', function () {
-  it('renders the info banner', function () {
-    renderWithProps();
+  it('renders the info banner', async function () {
+    await renderWithProps();
     expect(screen.getByRole('alert')).to.exist;
   });
 });
