@@ -58,7 +58,7 @@ function ShardingStateView({
 
   if (
     shardingStatus === ShardingStatuses.SHARDING ||
-    shardingStatus === ShardingStatuses.CANCEL_SHARDING
+    shardingStatus === ShardingStatuses.CANCELLING_SHARDING
   ) {
     return <ShardingState />;
   }
