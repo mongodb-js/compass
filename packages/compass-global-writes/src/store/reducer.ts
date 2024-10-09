@@ -151,7 +151,6 @@ export type ShardZoneData = {
 export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
-  // status: ShardingStatus;
   shardZones: ShardZoneData[];
 } & (
   | {
