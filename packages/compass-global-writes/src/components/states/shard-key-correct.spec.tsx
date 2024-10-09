@@ -94,7 +94,7 @@ describe('Compass GlobalWrites Plugin', function () {
     const link = await screen.findByRole('link', {
       name: /Edit Configuration/,
     });
-    const expectedHref = `/v2/${connectionInfo.atlasMetadata?.projectId}/clusters/edit/${connectionInfo.atlasMetadata?.clusterName}`;
+    const expectedHref = `/v2/${connectionInfo.atlasMetadata?.projectId}#/clusters/edit/${connectionInfo.atlasMetadata?.clusterName}`;
 
     expect(link).to.be.visible;
     expect(link).to.have.attribute('href', expectedHref);

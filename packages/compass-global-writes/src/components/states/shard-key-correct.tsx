@@ -164,7 +164,7 @@ export function ShardKeyCorrect({
               Locations’ zone mapping can be changed by navigating to this
               clusters{' '}
               <Link
-                href={`/v2/${atlasMetadata?.projectId}/clusters/edit/${atlasMetadata?.clusterName}`}
+                href={`/v2/${atlasMetadata?.projectId}#/clusters/edit/${atlasMetadata?.clusterName}`}
               >
                 Edit Configuration
               </Link>{' '}
