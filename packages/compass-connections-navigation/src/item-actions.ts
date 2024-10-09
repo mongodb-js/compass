@@ -7,14 +7,12 @@ export type NavigationItemActions = (ItemAction<Actions> | ItemSeparator)[];
 
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
-  hideEditConnect = false,
 }: {
   connectionInfo: ConnectionInfo;
-  hideEditConnect?: boolean;
 }): NavigationItemActions => {
   const isAtlas = !!connectionInfo.atlasMetadata;
   const actions: (ItemAction<Actions> | ItemSeparator | null)[] = [
-    hideEditConnect || isAtlas
+    isAtlas
       ? null
       : {
           action: 'edit-connection',
@@ -85,8 +83,6 @@ export const connectedConnectionItemActions = ({
   const isAtlas = !!connectionInfo.atlasMetadata;
   const connectionManagementActions = notConnectedConnectionItemActions({
     connectionInfo,
-    // for connected connections we don't show connect action
-    hideEditConnect: true,
   });
   const actions: (ItemAction<Actions> | ItemSeparator | null)[] = [
     hasWriteActionsDisabled
