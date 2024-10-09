@@ -301,7 +301,6 @@ describe('csfle-handler', function () {
         storeCredentials: false,
         autoEncryption: {
           kmsProviders: {
-            // @ts-expect-error multiple kms providers are supported in next driver release
             'local:2': {
               key: 'asdf',
             },
