@@ -346,7 +346,6 @@ describe('connection tracking', function () {
           autoEncryption: {
             kmsProviders: {
               local: { key: 'asdf' },
-              // @ts-expect-error with next driver release, this will be fixed
               'local:12': { key: 'asdf' },
               aws: { accessKeyId: 'asdf', secretAccessKey: 'asdf' },
               'kmip:1': { endpoint: 'asdf' },
