@@ -37,6 +37,7 @@ enum GlobalWritesActionTypes {
   CancellingShardingErrored = 'global-writes/CancellingShardingErrored',
 
   NextPollingTimeoutSet = 'global-writes/NextPollingTimeoutSet',
+  NextPollingTimeoutCleared = 'global-writes/NextPollingTimeoutCleared',
 
   UnmanagingNamespaceStarted = 'global-writes/UnmanagingNamespaceStarted',
   UnmanagingNamespaceFinished = 'global-writes/UnmanagingNamespaceFinished',
@@ -92,6 +93,10 @@ type CancellingShardingErroredAction = {
 type NextPollingTimeoutSetAction = {
   type: GlobalWritesActionTypes.NextPollingTimeoutSet;
   timeout: NodeJS.Timeout;
+};
+
+type NextPollingTimeoutClearedAction = {
+  type: GlobalWritesActionTypes.NextPollingTimeoutCleared;
 };
 
 type UnmanagingNamespaceStartedAction = {
@@ -263,12 +268,15 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     (state.status === ShardingStatuses.NOT_READY ||
       state.status === ShardingStatuses.SHARDING)
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
     return {
       ...state,
       status: ShardingStatuses.SHARDING_ERROR,
       shardKey: undefined,
       shardingError: action.error,
-      pollingTimeout: undefined,
+      pollingTimeout: state.pollingTimeout,
     };
   }
 
@@ -280,12 +288,15 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     (state.status === ShardingStatuses.NOT_READY ||
       state.status === ShardingStatuses.SHARDING)
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
     return {
       ...state,
       status: getStatusFromShardKey(action.shardKey, state.managedNamespace),
       shardKey: action.shardKey,
       shardingError: undefined,
-      pollingTimeout: undefined,
+      pollingTimeout: state.pollingTimeout,
     };
   }
 
@@ -342,16 +353,32 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   }
 
   if (
+    isAction<NextPollingTimeoutClearedAction>(
+      action,
+      GlobalWritesActionTypes.NextPollingTimeoutCleared
+    ) &&
+    state.status === ShardingStatuses.SHARDING
+  ) {
+    return {
+      ...state,
+      pollingTimeout: undefined,
+    };
+  }
+
+  if (
     isAction<CancellingShardingStartedAction>(
       action,
       GlobalWritesActionTypes.CancellingShardingStarted
     ) &&
     state.status === ShardingStatuses.SHARDING
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
     return {
       ...state,
       status: ShardingStatuses.CANCELLING_SHARDING,
-      pollingTimeout: undefined,
+      pollingTimeout: state.pollingTimeout,
     };
   }
 
@@ -610,6 +637,7 @@ const startPollingForShardKey = (): GlobalWritesThunkAction<
   NextPollingTimeoutSetAction
 > => {
   return (dispatch) => {
+    console.log('START POLLING');
     const timeout = setTimeout(() => {
       void dispatch(fetchNamespaceShardKey());
     }, POLLING_INTERVAL);
@@ -635,6 +663,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
+    console.log('FETCHING KEY');
     const { namespace, status } = getState();
 
     try {
