@@ -209,7 +209,7 @@ Package|Version|License
 **[content-type](#65e9de41d2cef0ed95875e387bc56dae50b05d41b1a7868ed68c32834843bbab)**|1.0.5|MIT
 **[convert-source-map](#46e32cfc12079a57eefebf967b5959d3657698c6a389222eb3228f49cb2fd8db)**|2.0.0|MIT
 **[cookie-signature](#28f6116b52488ac66a14424869fc346f611bea6c894e7d0f7f2ca701deb8e49c)**|1.0.6|MIT
-**[cookie](#c396652ff004385e7bdb8398e37493d5f4144e475282a413ec52f1d3fdaf25da)**|0.6.0|MIT
+**[cookie](#6fffbd43d8f0d9a659c21e31a0935f0a1226c9990be593a9649dcd61e4db1204)**|0.7.1|MIT
 **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**|3.17.3|MIT
 **[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**|0.0.9|MIT
 **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**|1.0.5|MIT
@@ -270,7 +270,7 @@ Package|Version|License
 **[execa](#4172423d3420d919e31613f23914ef325af8a3bf9ed3c6110a4053369b1cfddd)**|5.1.1|MIT
 **[execa](#099ba5f976333854bfd5aa2237fd12d883c4477af76007a7963109833edef012)**|7.2.0|MIT
 **[expand-template](#46d3e73ca0d4a8c14e99252386f0a5c1a4fd8b2747331373d7b4da97105c15bb)**|2.0.3|(MIT OR WTFPL)
-**[express](#8751e219c34fdecbdbc22ade072ef51354f9ff6434904f388f85002299a5a1ec)**|4.21.0|MIT
+**[express](#96b5945aa9b5ba9189eb3e9f50f6522e976d90a93dc42f2f3aa13cbcffb434a2)**|4.21.1|MIT
 **[ext-list](#84470edae99e3ac5a9fdf9da513cd9a1ea7e479ca5fca13b6abecbb4c522f97c)**|2.2.2|MIT
 **[ext-name](#ad9b31fcbd25bf889177f1e55d92e083fbc5ae2460904d8a81abf075c4762abd)**|5.0.0|MIT
 **[facepaint](#7f6881dbbff5f35b8670063d56384fa880a5558aeaf952f1dc00997cfc7cddd4)**|1.2.1|MIT
@@ -17655,8 +17655,8 @@ License files:
 License tags: MIT
 
 
-<a id="c396652ff004385e7bdb8398e37493d5f4144e475282a413ec52f1d3fdaf25da"></a>
-### [cookie](https://www.npmjs.com/package/cookie) (version 0.6.0)
+<a id="6fffbd43d8f0d9a659c21e31a0935f0a1226c9990be593a9649dcd61e4db1204"></a>
+### [cookie](https://www.npmjs.com/package/cookie) (version 0.7.1)
 License tags: MIT
 
 License files:
@@ -19823,8 +19823,8 @@ License files:
       THE SOFTWARE.
 
 
-<a id="8751e219c34fdecbdbc22ade072ef51354f9ff6434904f388f85002299a5a1ec"></a>
-### [express](https://www.npmjs.com/package/express) (version 4.21.0)
+<a id="96b5945aa9b5ba9189eb3e9f50f6522e976d90a93dc42f2f3aa13cbcffb434a2"></a>
+### [express](https://www.npmjs.com/package/express) (version 4.21.1)
 License tags: MIT
 
 License files:
