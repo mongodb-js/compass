@@ -79,6 +79,7 @@ function ConnectionStringInput({
   updateConnectionFormField,
   onSubmit,
   protectConnectionStrings,
+  disableEditingConnectedConnection,
 }: {
   connectionString: string;
   enableEditingConnectionString: boolean;
@@ -86,6 +87,7 @@ function ConnectionStringInput({
   updateConnectionFormField: UpdateConnectionFormField;
   onSubmit: () => void;
   protectConnectionStrings: boolean;
+  disableEditingConnectedConnection: boolean;
 }): React.ReactElement {
   const textAreaEl = useRef<HTMLTextAreaElement>(null);
   const [editingConnectionString, setEditingConnectionString] =
@@ -173,7 +175,7 @@ function ConnectionStringInput({
             href="https://docs.mongodb.com/manual/reference/connection-string/"
           />
         </div>
-        {!protectConnectionStrings && (
+        {!(protectConnectionStrings || disableEditingConnectedConnection) && (
           <div className={editToggleContainerStyles}>
             <Label
               className={editToggleLabelStyles}
@@ -203,7 +205,9 @@ function ConnectionStringInput({
           onKeyPress={onKeyPressedConnectionString}
           value={displayedConnectionString}
           className={connectionStringStyles}
-          disabled={!enableEditingConnectionString}
+          disabled={
+            !enableEditingConnectionString || disableEditingConnectedConnection
+          }
           id={connectionStringInputId}
           data-testid={connectionStringInputId}
           ref={textAreaEl}

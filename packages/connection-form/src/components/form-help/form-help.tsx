@@ -13,11 +13,12 @@ const sectionContainerStyles = css({
   backgroundColor: 'var(--theme-background-color)',
   border: `1px solid var(--theme-border-color)`,
   margin: 0,
-  marginBottom: spacing[3],
-  padding: spacing[4],
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
-  borderRadius: spacing[2],
+  marginBottom: spacing[400],
+  marginTop: spacing[400],
+  padding: spacing[600],
+  paddingTop: spacing[400],
+  paddingBottom: spacing[400],
+  borderRadius: spacing[200],
 });
 
 const titleStyles = css({
@@ -29,13 +30,13 @@ const descriptionStyles = css({
 });
 
 const sectionDarkModeStyles = css({
-  '--theme-background-color': palette.blue.dark3,
-  '--theme-border-color': palette.blue.dark2,
+  '--theme-background-color': palette.gray.dark3,
+  '--theme-border-color': palette.gray.dark2,
 });
 
 const sectionLightModeStyles = css({
-  '--theme-background-color': palette.blue.light3,
-  '--theme-border-color': palette.blue.light2,
+  '--theme-background-color': palette.gray.light3,
+  '--theme-border-color': palette.gray.light2,
 });
 
 function FormHelp(): React.ReactElement {

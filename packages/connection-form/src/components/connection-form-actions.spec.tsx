@@ -46,6 +46,16 @@ describe('<ConnectionFormModalActions />', function () {
 
       expect(onSaveAndConnectSpy).to.have.been.calledOnce;
     });
+
+    it('should hide "connect" button if there is no callback', function () {
+      render(
+        <ConnectionFormModalActions
+          errors={[]}
+          warnings={[]}
+        ></ConnectionFormModalActions>
+      );
+      expect(screen.queryByRole('button', { name: 'Connect' })).to.not.exist;
+    });
   });
 
   describe('Save Button', function () {

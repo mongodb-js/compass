@@ -22,6 +22,7 @@ const renderConnectionStringInput = (
     <ConfirmationModalArea>
       <ConnectionStringInput
         protectConnectionStrings={false}
+        disableEditingConnectedConnection={false}
         connectionString=""
         enableEditingConnectionString={false}
         onSubmit={() => {}}
