@@ -13,6 +13,7 @@ import type {
   ManagedNamespace,
   ShardZoneMapping,
 } from '../services/atlas-global-writes-service';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 const DB = 'test';
 const COLL = 'coll';
@@ -153,8 +154,10 @@ describe('GlobalWritesStore Store', function () {
         },
       });
       await store.dispatch(fetchClusterShardingData());
-      // expect(store.getState().status).to.equal('SHARD_KEY_CORRECT'); //  no idea why this does not work
-      expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
     });
 
     it('sends correct data to the server when creating a shard key', async function () {
