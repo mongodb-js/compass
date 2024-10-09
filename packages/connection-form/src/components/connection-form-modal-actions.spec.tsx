@@ -3,7 +3,7 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { ConnectionFormModalActions } from './connection-form-actions';
+import { ConnectionFormModalActions } from './connection-form-modal-actions';
 
 describe('<ConnectionFormModalActions />', function () {
   it('should show warnings', function () {

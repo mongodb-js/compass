@@ -120,6 +120,7 @@ export function MultipleConnectionSidebar({
     showNonGenuineMongoDBWarningModal,
     state: {
       editingConnectionInfo,
+      isEditingNewConnection,
       isEditingConnectionInfoModalOpen,
       connectionErrors,
     },
@@ -184,6 +185,10 @@ export function MultipleConnectionSidebar({
     [globalAppRegistry]
   );
 
+  const disableEditingConnectedConnection = !!findActiveConnection(
+    editingConnectionInfo.id
+  );
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -229,7 +234,7 @@ export function MultipleConnectionSidebar({
         {editingConnectionInfo && (
           <ConnectionFormModal
             disableEditingConnectedConnection={
-              !!findActiveConnection(editingConnectionInfo.id)
+              disableEditingConnectedConnection
             }
             onDisconnectClicked={() => disconnect(editingConnectionInfo.id)}
             isOpen={isEditingConnectionInfoModalOpen}
@@ -240,20 +245,32 @@ export function MultipleConnectionSidebar({
               }
             }}
             initialConnectionInfo={editingConnectionInfo}
-            onSaveAndConnectClicked={(connectionInfo) => {
-              void connect(connectionInfo);
-            }}
-            onSaveClicked={(connectionInfo) => {
-              return saveEditedConnection(connectionInfo);
-            }}
-            onCancel={() => {
-              cancelEditConnection(editingConnectionInfo.id);
-            }}
             connectionErrorMessage={
               connectionErrors[editingConnectionInfo.id]?.message
             }
             openSettingsModal={openSettingsModal}
             {...formPreferences}
+            onCancel={() => {
+              cancelEditConnection(editingConnectionInfo.id);
+            }}
+            onSaveClicked={(connectionInfo) => {
+              return saveEditedConnection(connectionInfo);
+            }}
+            onConnectClicked={
+              isEditingNewConnection || disableEditingConnectedConnection
+                ? undefined
+                : (connectionInfo) => {
+                    void connect(connectionInfo);
+                  }
+            }
+            onSaveAndConnectClicked={
+              disableEditingConnectedConnection
+                ? undefined
+                : (connectionInfo) => {
+                    void saveEditedConnection(connectionInfo);
+                    void connect(connectionInfo);
+                  }
+            }
           />
         )}
         <MappedCsfleModal

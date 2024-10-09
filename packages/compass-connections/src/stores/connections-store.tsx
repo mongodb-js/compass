@@ -5,6 +5,7 @@ type State = {
   connectionErrors: Record<string, Error | null>;
   editingConnectionInfo: ConnectionInfo;
   isEditingConnectionInfoModalOpen: boolean;
+  isEditingNewConnection: boolean;
   oidcDeviceAuthState: Record<string, { url: string; code: string }>;
 };
 
@@ -32,16 +33,16 @@ export function useConnections(): {
   showNonGenuineMongoDBWarningModal: (connectionId: string) => void;
 } {
   const connectionsState = useConnectionsState();
+  const editingConnection =
+    connectionsState.connections.byId[connectionsState.editingConnectionInfoId];
   const state = {
     connectionErrors: Object.fromEntries(
       Object.entries(connectionsState.connections.byId).map(([k, v]) => {
         return [k, v.error ?? null];
       })
     ),
-    editingConnectionInfo:
-      connectionsState.connections.byId[
-        connectionsState.editingConnectionInfoId
-      ].info,
+    editingConnectionInfo: editingConnection.info,
+    isEditingNewConnection: !!editingConnection.isBeingCreated,
     isEditingConnectionInfoModalOpen:
       connectionsState.isEditingConnectionInfoModalOpen,
     oidcDeviceAuthState: Object.fromEntries(

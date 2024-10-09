@@ -45,6 +45,7 @@ export type ConnectionFormModalActionsProps = {
   onCancel?(): void;
   onSave?(): void;
   onSaveAndConnect?(): void;
+  onConnect?(): void;
 };
 
 export function ConnectionFormModalActions({
@@ -53,6 +54,7 @@ export function ConnectionFormModalActions({
   onCancel,
   onSave,
   onSaveAndConnect,
+  onConnect
 }: ConnectionFormModalActionsProps): React.ReactElement {
   const saveAndConnectLabel = useConnectionFormSetting('saveAndConnectLabel');
   return (
@@ -102,9 +104,19 @@ export function ConnectionFormModalActions({
           </div>
         )}
 
+        {onConnect && (
+          <Button
+            data-testid={'connect-button'}
+            variant={ButtonVariant.PrimaryOutline}
+            onClick={onConnect}
+          >
+            Connect
+          </Button>
+        )}
+
         {onSaveAndConnect && (
           <Button
-            data-testid="connect-button"
+            data-testid={onConnect ? 'save-and-connect-button' : 'connect-button'}
             variant={ButtonVariant.Primary}
             onClick={onSaveAndConnect}
           >

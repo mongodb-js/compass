@@ -81,12 +81,14 @@ describe('ConnectionForm Component', function () {
       it('renders a banner, disables the connection string and removes advanced connection options + connect button', function () {
         const onDisconnectClicked = Sinon.spy();
         const onSaveClicked = Sinon.spy();
-        const onSaveAndConnectClicked = Sinon.spy();
+        const onConnectClicked = undefined;
+        const onSaveAndConnectClicked = undefined;
 
         renderForm({
           disableEditingConnectedConnection: true,
           onDisconnectClicked,
           onSaveClicked,
+          onConnectClicked,
           onSaveAndConnectClicked,
         });
 
@@ -105,7 +107,6 @@ describe('ConnectionForm Component', function () {
         // pressing enter calls onSubmit which saves
         fireEvent.submit(screen.getByRole('form'));
         expect(onSaveClicked.callCount).to.equal(1);
-        expect(onSaveAndConnectClicked.callCount).to.equal(0);
 
         fireEvent.click(screen.getByRole('button', { name: 'Disconnect' }));
         expect(onDisconnectClicked.callCount).to.equal(1);
@@ -116,12 +117,14 @@ describe('ConnectionForm Component', function () {
       it('leaves the connection string, advanced connection options and connect button intact, does not render a banner', function () {
         const onDisconnectClicked = Sinon.spy();
         const onSaveClicked = Sinon.spy();
+        const onConnectClicked = Sinon.spy();
         const onSaveAndConnectClicked = Sinon.spy();
 
         renderForm({
           disableEditingConnectedConnection: false,
           onDisconnectClicked,
           onSaveClicked,
+          onConnectClicked,
           onSaveAndConnectClicked,
         });
 

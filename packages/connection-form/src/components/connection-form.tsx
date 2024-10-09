@@ -25,7 +25,7 @@ import {
 import { cloneDeep } from 'lodash';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import { ConnectionFormModalActions } from './connection-form-actions';
+import { ConnectionFormModalActions } from './connection-form-modal-actions';
 import {
   useConnectForm,
   type ConnectionPersonalizationOptions,
@@ -316,13 +316,27 @@ type ConnectionFormPropsWithoutSettings = {
   initialConnectionInfo: ConnectionInfo;
   connectionErrorMessage?: string | null;
   disableEditingConnectedConnection?: boolean;
-  onCancel?: () => void;
-  onConnectClicked?: (connectionInfo: ConnectionInfo) => void;
-  onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
-  onSaveClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
   onDisconnectClicked?: () => void;
   onAdvancedOptionsToggle?: (newState: boolean) => void;
   openSettingsModal?: (tab?: string) => void;
+
+  // form action buttons:
+
+  onCancel?: () => void;
+
+  // If onSaveClicked is specified, a Save button will show up. It will be the
+  // primary button if there is no onSaveAndConnectClick.
+  onSaveClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
+
+  // If onConnectClicked is specified, a Connect button will show up.
+  onConnectClicked?: (connectionInfo: ConnectionInfo) => void;
+
+  // If onSaveAndConnectClicked is specified, a button will show up with
+  // its label set to the value of the setting saveAndConnectLabel. It will be
+  // the primary button if specified. If onConnectClicked is specified, the test
+  // id will be save-and-connect-button, otherwise it will be connect-button.
+  // For historical/backwards compatible reasons.
+  onSaveAndConnectClicked?: (connectionInfo: ConnectionInfo) => void;
 };
 
 export type ConnectionFormProps = ConnectionFormPropsWithoutSettings &
@@ -334,6 +348,7 @@ function ConnectionForm({
   disableEditingConnectedConnection = false,
   onSaveAndConnectClicked,
   onSaveClicked,
+  onConnectClicked,
   onDisconnectClicked,
   onCancel,
   onAdvancedOptionsToggle,
@@ -422,39 +437,52 @@ function ConnectionForm({
     },
     [onSaveClicked, setErrors]
   );
-  const onSubmitForm = useCallback(() => {
-    const updatedConnectionOptions = cloneDeep(connectionOptions);
-    // TODO: this method throws on malformed connection strings instead of
-    // returning errors
-    const formErrors = validateConnectionOptionsErrors(
-      updatedConnectionOptions
-    );
-    if (formErrors.length) {
-      setErrors(formErrors);
-      return;
-    }
-    if (disableEditingConnectedConnection) {
-      // there isn't a connect button in this case, so the default action should
-      // be to save, not to save and connect
-      void callOnSaveConnectionClickedAndStoreErrors?.(
-        getConnectionInfoToSave()
+  const onSubmitForm = useCallback(
+    (intendedAction?: 'connect' | 'save-and-connect') => {
+      const updatedConnectionOptions = cloneDeep(connectionOptions);
+      // TODO: this method throws on malformed connection strings instead of
+      // returning errors
+      const formErrors = validateConnectionOptionsErrors(
+        updatedConnectionOptions
       );
-    } else {
-      onSaveAndConnectClicked?.({
-        ...initialConnectionInfo,
-        ...getConnectionInfoToSave(),
-        connectionOptions: updatedConnectionOptions,
-      });
-    }
-  }, [
-    connectionOptions,
-    disableEditingConnectedConnection,
-    setErrors,
-    callOnSaveConnectionClickedAndStoreErrors,
-    getConnectionInfoToSave,
-    onSaveAndConnectClicked,
-    initialConnectionInfo,
-  ]);
+      if (formErrors.length) {
+        setErrors(formErrors);
+        return;
+      }
+      if (intendedAction === 'connect') {
+        // The user explicitly clicked connect, so we use that.
+        onConnectClicked?.({
+          ...initialConnectionInfo,
+          ...getConnectionInfoToSave(),
+          connectionOptions: updatedConnectionOptions,
+        });
+      } else {
+        if (onSaveAndConnectClicked) {
+          // If there is a save&connect button, we use that action by default.
+          onSaveAndConnectClicked?.({
+            ...initialConnectionInfo,
+            ...getConnectionInfoToSave(),
+            connectionOptions: updatedConnectionOptions,
+          });
+        } else {
+          // If there isn't a save&connect button then the next default action
+          // should be to save.
+          void callOnSaveConnectionClickedAndStoreErrors?.(
+            getConnectionInfoToSave()
+          );
+        }
+      }
+    },
+    [
+      connectionOptions,
+      setErrors,
+      onConnectClicked,
+      initialConnectionInfo,
+      getConnectionInfoToSave,
+      callOnSaveConnectionClickedAndStoreErrors,
+      onSaveAndConnectClicked,
+    ]
+  );
 
   const showPersonalisationForm = useConnectionFormSetting(
     'showPersonalisationForm'
@@ -588,14 +616,20 @@ function ConnectionForm({
             warnings={connectionStringInvalidError ? [] : warnings}
             onCancel={onCancel}
             onSave={
-              onSaveClicked &&
-              (() =>
-                void callOnSaveConnectionClickedAndStoreErrors?.(
-                  getConnectionInfoToSave()
-                ))
+              onSaveClicked
+                ? () =>
+                    void callOnSaveConnectionClickedAndStoreErrors?.(
+                      getConnectionInfoToSave()
+                    )
+                : undefined
+            }
+            onConnect={
+              onConnectClicked ? () => onSubmitForm('connect') : undefined
             }
             onSaveAndConnect={
-              disableEditingConnectedConnection ? undefined : onSubmitForm
+              onSaveAndConnectClicked
+                ? () => onSubmitForm('save-and-connect')
+                : undefined
             }
           />
         </div>
