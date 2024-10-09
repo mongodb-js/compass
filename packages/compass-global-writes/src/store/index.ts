@@ -56,13 +56,16 @@ export function activateGlobalWritesPlugin(
   }: GlobalWritesPluginServices,
   { cleanup }: ActivateHelpers
 ) {
-  const atlasGlobalWritesService = new AtlasGlobalWritesService(atlasService);
+  const atlasGlobalWritesService = new AtlasGlobalWritesService(
+    atlasService,
+    connectionInfoRef
+  );
   const store: GlobalWritesStore = createStore(
     reducer,
     {
       namespace: options.namespace,
-      isNamespaceSharded: false,
       status: ShardingStatuses.NOT_READY,
+      shardZones: [],
     },
     applyMiddleware(
       thunk.withExtraArgument({

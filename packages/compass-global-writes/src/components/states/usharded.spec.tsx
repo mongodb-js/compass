@@ -34,21 +34,21 @@ function setShardingKeyFieldValue(value: string) {
 }
 
 describe('UnshardedState', function () {
-  it('renders the warning banner', function () {
-    renderWithProps();
+  it('renders the warning banner', async function () {
+    await renderWithProps();
     expect(screen.getByRole('alert')).to.exist;
   });
 
-  it('renders the text to the user', function () {
-    renderWithProps();
+  it('renders the text to the user', async function () {
+    await renderWithProps();
     expect(screen.getByTestId('unsharded-text-description')).to.exist;
   });
 
   context('shard collection form', function () {
     let onCreateShardKeySpy: sinon.SinonSpy;
-    beforeEach(function () {
+    beforeEach(async function () {
       onCreateShardKeySpy = sinon.spy();
-      renderWithProps({ onCreateShardKey: onCreateShardKeySpy });
+      await renderWithProps({ onCreateShardKey: onCreateShardKeySpy });
     });
 
     it('renders location form field as disabled', function () {
