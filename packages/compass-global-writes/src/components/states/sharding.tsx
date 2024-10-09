@@ -7,7 +7,6 @@ import {
   css,
   Link,
   spacing,
-  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -50,13 +49,9 @@ export function ShardingState({
       >
         You can read more about Global Writes in our documentation.
         <Button
+          data-testid="cancel-sharding-btn"
           onClick={onCancelSharding}
-          disabled={isCancellingSharding}
-          leftGlyph={
-            isCancellingSharding ? (
-              <SpinLoader title="Cancelling Request" />
-            ) : undefined
-          }
+          isLoading={isCancellingSharding}
         >
           Cancel Request
         </Button>
@@ -67,7 +62,7 @@ export function ShardingState({
 
 export default connect(
   (state: RootState) => ({
-    isCancellingSharding: state.status === ShardingStatuses.CANCEL_SHARDING,
+    isCancellingSharding: state.status === ShardingStatuses.CANCELLING_SHARDING,
   }),
   {
     onCancelSharding: cancelSharding,
