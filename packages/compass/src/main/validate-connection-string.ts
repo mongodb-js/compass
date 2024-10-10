@@ -13,6 +13,8 @@ const allowedConnectionStringOptions = [
   'authMechanism',
   'authMechanismProperties', // Partially. See allowed and disallowed AuthMechanismProperties below.
   'authSource',
+  'autoSelectFamily',
+  'autoSelectFamilyAttemptTimeout',
   'bsonRegExp',
   'cert',
   'checkKeys',
@@ -75,6 +77,7 @@ const allowedConnectionStringOptions = [
 ] as const;
 
 const disallowedConnectionStringOptions = [
+  'allowPartialTrustChain',
   'ALPNProtocols',
   'auth',
   'autoEncryption',
