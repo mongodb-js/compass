@@ -600,7 +600,7 @@ export const cancelSharding = ():
       });
     } catch (error) {
       logger.log.error(
-        logger.mongoLogId(1_001_000_331),
+        logger.mongoLogId(1_001_000_334),
         'AtlasFetchError',
         'Error cancelling the sharding process',
         {
