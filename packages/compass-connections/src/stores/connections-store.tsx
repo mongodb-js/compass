@@ -16,6 +16,7 @@ export function useConnections(): {
   state: State;
 
   connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  saveAndConnect: (connectionInfo: ConnectionInfo) => Promise<void>;
   disconnect: (connectionId: string) => void;
 
   createNewConnection: () => void;
@@ -53,6 +54,7 @@ export function useConnections(): {
   };
   const {
     connect,
+    saveAndConnect,
     disconnect,
     createNewConnection,
     editConnection,
@@ -67,6 +69,7 @@ export function useConnections(): {
   return {
     state,
     connect,
+    saveAndConnect,
     disconnect,
     createNewConnection,
     editConnection,

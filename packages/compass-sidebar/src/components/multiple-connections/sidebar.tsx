@@ -109,6 +109,7 @@ export function MultipleConnectionSidebar({
   const connectionsWithStatus = useConnectionsWithStatus();
   const {
     connect,
+    saveAndConnect,
     disconnect,
     createNewConnection,
     editConnection,
@@ -267,8 +268,7 @@ export function MultipleConnectionSidebar({
               disableEditingConnectedConnection
                 ? undefined
                 : (connectionInfo) => {
-                    void saveEditedConnection(connectionInfo);
-                    void connect(connectionInfo);
+                    void saveAndConnect(connectionInfo);
                   }
             }
           />
