@@ -54,7 +54,7 @@ export function ConnectionFormModalActions({
   onCancel,
   onSave,
   onSaveAndConnect,
-  onConnect
+  onConnect,
 }: ConnectionFormModalActionsProps): React.ReactElement {
   const saveAndConnectLabel = useConnectionFormSetting('saveAndConnectLabel');
   return (
@@ -116,7 +116,9 @@ export function ConnectionFormModalActions({
 
         {onSaveAndConnect && (
           <Button
-            data-testid={onConnect ? 'save-and-connect-button' : 'connect-button'}
+            data-testid={
+              onConnect ? 'save-and-connect-button' : 'connect-button'
+            }
             variant={ButtonVariant.Primary}
             onClick={onSaveAndConnect}
           >
