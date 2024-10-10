@@ -42,7 +42,7 @@ export type ClusterDetailsApiResponse = {
   replicationSpecList: ReplicationItem[];
 };
 
-type AutomationAgentProcess = {
+export type AutomationAgentProcess = {
   statusType: string;
   workingOnShort: string;
   errorText: string;

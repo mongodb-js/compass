@@ -1,7 +1,13 @@
 import type { Action, Reducer } from 'redux';
 import type { GlobalWritesThunkAction } from '.';
-import { openToast } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation as showConfirmationModal,
+} from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
+
+const POLLING_INTERVAL = 5000;
+export const TEST_POLLING_INTERVAL = 100;
 
 export function isAction<A extends Action>(
   action: Action,
@@ -30,9 +36,18 @@ enum GlobalWritesActionTypes {
   SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
   SubmittingForShardingErrored = 'global-writes/SubmittingForShardingErrored',
 
+  CancellingShardingStarted = 'global-writes/CancellingShardingStarted',
+  CancellingShardingFinished = 'global-writes/CancellingShardingFinished',
+  CancellingShardingErrored = 'global-writes/CancellingShardingErrored',
+
+  NextPollingTimeoutSet = 'global-writes/NextPollingTimeoutSet',
+  NextPollingTimeoutCleared = 'global-writes/NextPollingTimeoutCleared',
+
   UnmanagingNamespaceStarted = 'global-writes/UnmanagingNamespaceStarted',
   UnmanagingNamespaceFinished = 'global-writes/UnmanagingNamespaceFinished',
   UnmanagingNamespaceErrored = 'global-writes/UnmanagingNamespaceErrored',
+
+  PluginTitleVisibilityChanged = 'global-writes/PluginTitleVisibilityChanged',
 }
 
 type ManagedNamespaceFetchedAction = {
@@ -68,6 +83,28 @@ type SubmittingForShardingErroredAction = {
   type: GlobalWritesActionTypes.SubmittingForShardingErrored;
 };
 
+type CancellingShardingStartedAction = {
+  type: GlobalWritesActionTypes.CancellingShardingStarted;
+};
+
+type CancellingShardingFinishedAction = {
+  type: GlobalWritesActionTypes.CancellingShardingFinished;
+  managedNamespace?: ManagedNamespace;
+};
+
+type CancellingShardingErroredAction = {
+  type: GlobalWritesActionTypes.CancellingShardingErrored;
+};
+
+type NextPollingTimeoutSetAction = {
+  type: GlobalWritesActionTypes.NextPollingTimeoutSet;
+  timeout: NodeJS.Timeout;
+};
+
+type NextPollingTimeoutClearedAction = {
+  type: GlobalWritesActionTypes.NextPollingTimeoutCleared;
+};
+
 type UnmanagingNamespaceStartedAction = {
   type: GlobalWritesActionTypes.UnmanagingNamespaceStarted;
 };
@@ -78,6 +115,11 @@ type UnmanagingNamespaceFinishedAction = {
 
 type UnmanagingNamespaceErroredAction = {
   type: GlobalWritesActionTypes.UnmanagingNamespaceErrored;
+};
+
+type PluginTitleVisibilityChangedAction = {
+  type: GlobalWritesActionTypes.PluginTitleVisibilityChanged;
+  isVisible: boolean;
 };
 
 export enum ShardingStatuses {
@@ -101,6 +143,12 @@ export enum ShardingStatuses {
    * Namespace is being sharded.
    */
   SHARDING = 'SHARDING',
+
+  /**
+   * State when user cancels the sharding and
+   * we are waiting for server to accept the request.
+   */
+  CANCELLING_SHARDING = 'CANCELLING_SHARDING',
 
   /**
    * Sharding failed.
@@ -152,28 +200,42 @@ export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
   shardZones: ShardZoneData[];
+  isPluginTitleVisible: boolean;
 } & (
   | {
       status: ShardingStatuses.NOT_READY;
       shardKey?: never;
       shardingError?: never;
+      pollingTimeout?: never;
     }
   | {
       status:
         | ShardingStatuses.UNSHARDED
         | ShardingStatuses.SUBMITTING_FOR_SHARDING
-        | ShardingStatuses.SHARDING;
+        | ShardingStatuses.CANCELLING_SHARDING;
       /**
        * note: shardKey might exist even for unsharded.
        * if the collection was sharded previously and then unmanaged
        */
       shardKey?: ShardKey;
       shardingError?: never;
+      pollingTimeout?: never;
+    }
+  | {
+      status: ShardingStatuses.SHARDING;
+      /**
+       * note: shardKey might exist
+       * if the collection was sharded previously and then unmanaged
+       */
+      shardKey?: ShardKey;
+      shardingError?: never;
+      pollingTimeout?: NodeJS.Timeout;
     }
   | {
       status: ShardingStatuses.SHARDING_ERROR;
       shardKey?: never;
       shardingError: string;
+      pollingTimeout?: never;
     }
   | {
       status:
@@ -183,6 +245,7 @@ export type RootState = {
         | ShardingStatuses.UNMANAGING_NAMESPACE;
       shardKey: ShardKey;
       shardingError?: never;
+      pollingTimeout?: never;
     }
 );
 
@@ -190,6 +253,7 @@ const initialState: RootState = {
   namespace: '',
   status: ShardingStatuses.NOT_READY,
   shardZones: [],
+  isPluginTitleVisible: true,
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
@@ -214,13 +278,18 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.NamespaceShardingErrorFetched
     ) &&
-    state.status === ShardingStatuses.NOT_READY
+    (state.status === ShardingStatuses.NOT_READY ||
+      state.status === ShardingStatuses.SHARDING)
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
     return {
       ...state,
       status: ShardingStatuses.SHARDING_ERROR,
       shardKey: undefined,
       shardingError: action.error,
+      pollingTimeout: state.pollingTimeout,
     };
   }
 
@@ -229,13 +298,18 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.NamespaceShardKeyFetched
     ) &&
-    state.status === ShardingStatuses.NOT_READY
+    (state.status === ShardingStatuses.NOT_READY ||
+      state.status === ShardingStatuses.SHARDING)
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
     return {
       ...state,
       status: getStatusFromShardKey(action.shardKey, state.managedNamespace),
       shardKey: action.shardKey,
       shardingError: undefined,
+      pollingTimeout: state.pollingTimeout,
     };
   }
 
@@ -269,12 +343,85 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
     ) &&
-    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING
+    (state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING ||
+      state.status === ShardingStatuses.NOT_READY)
   ) {
     return {
       ...state,
       managedNamespace: action.managedNamespace || state.managedNamespace,
       status: ShardingStatuses.SHARDING,
+    };
+  }
+
+  if (
+    isAction<NextPollingTimeoutSetAction>(
+      action,
+      GlobalWritesActionTypes.NextPollingTimeoutSet
+    ) &&
+    state.status === ShardingStatuses.SHARDING
+  ) {
+    return {
+      ...state,
+      pollingTimeout: action.timeout,
+    };
+  }
+
+  if (
+    isAction<NextPollingTimeoutClearedAction>(
+      action,
+      GlobalWritesActionTypes.NextPollingTimeoutCleared
+    ) &&
+    state.status === ShardingStatuses.SHARDING
+  ) {
+    return {
+      ...state,
+      pollingTimeout: undefined,
+    };
+  }
+
+  if (
+    isAction<CancellingShardingStartedAction>(
+      action,
+      GlobalWritesActionTypes.CancellingShardingStarted
+    ) &&
+    state.status === ShardingStatuses.SHARDING
+  ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
+    return {
+      ...state,
+      status: ShardingStatuses.CANCELLING_SHARDING,
+      pollingTimeout: state.pollingTimeout,
+    };
+  }
+
+  if (
+    isAction<CancellingShardingErroredAction>(
+      action,
+      GlobalWritesActionTypes.CancellingShardingErrored
+    ) &&
+    state.status === ShardingStatuses.CANCELLING_SHARDING
+  ) {
+    return {
+      ...state,
+      status: ShardingStatuses.SHARDING,
+    };
+  }
+
+  if (
+    isAction<CancellingShardingFinishedAction>(
+      action,
+      GlobalWritesActionTypes.CancellingShardingFinished
+    ) &&
+    (state.status === ShardingStatuses.CANCELLING_SHARDING ||
+      state.status === ShardingStatuses.SHARDING_ERROR)
+    // the error might come before the cancel request was processed
+  ) {
+    return {
+      ...state,
+      status: ShardingStatuses.UNSHARDED,
+      shardingError: undefined,
     };
   }
 
@@ -331,6 +478,19 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       status: ShardingStatuses.SHARD_KEY_CORRECT,
+    };
+  }
+
+  if (
+    isAction<PluginTitleVisibilityChangedAction>(
+      action,
+      GlobalWritesActionTypes.PluginTitleVisibilityChanged
+    )
+  ) {
+    if (state.isPluginTitleVisible === action.isVisible) return state;
+    return {
+      ...state,
+      isPluginTitleVisible: action.isVisible,
     };
   }
 
@@ -433,6 +593,64 @@ export const createShardKey = (
   };
 };
 
+// Exporting this for test only to stub it and set
+// its value. This enables to test cancelSharding action.
+export const showConfirmation = showConfirmationModal;
+
+export const cancelSharding = (): GlobalWritesThunkAction<
+  Promise<void>,
+  | CancellingShardingStartedAction
+  | CancellingShardingFinishedAction
+  | CancellingShardingErroredAction
+> => {
+  return async (dispatch, getState, { atlasGlobalWritesService, logger }) => {
+    const confirmed = await showConfirmation({
+      title: 'Confirmation',
+      description: 'Are you sure you want to cancel the sharding request?',
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    const { namespace, status } = getState();
+
+    if (status === ShardingStatuses.SHARDING) {
+      dispatch(stopPollingForShardKey());
+    }
+    dispatch({
+      type: GlobalWritesActionTypes.CancellingShardingStarted,
+    });
+
+    try {
+      await atlasGlobalWritesService.unmanageNamespace(namespace);
+      dispatch({
+        type: GlobalWritesActionTypes.CancellingShardingFinished,
+      });
+    } catch (error) {
+      logger.log.error(
+        logger.mongoLogId(1_001_000_334),
+        'AtlasFetchError',
+        'Error cancelling the sharding process',
+        {
+          error: (error as Error).message,
+        }
+      );
+      openToast('global-writes-cancel-sharding-error', {
+        title: `Failed to cancel the sharding process: ${
+          (error as Error).message
+        }`,
+        dismissible: true,
+        timeout: 5000,
+        variant: 'important',
+      });
+      dispatch({
+        type: GlobalWritesActionTypes.CancellingShardingErrored,
+      });
+    }
+  };
+};
+
 const setNamespaceBeingSharded = (
   managedNamespace?: ManagedNamespace
 ): GlobalWritesThunkAction<void, SubmittingForShardingFinishedAction> => {
@@ -441,6 +659,45 @@ const setNamespaceBeingSharded = (
       type: GlobalWritesActionTypes.SubmittingForShardingFinished,
       managedNamespace,
     });
+    dispatch(pollForShardKey());
+  };
+};
+
+const pollForShardKey = (): GlobalWritesThunkAction<
+  void,
+  NextPollingTimeoutSetAction
+> => {
+  return (dispatch, getState) => {
+    const { pollingTimeout, isPluginTitleVisible } = getState();
+    if (
+      !isPluginTitleVisible || // user is not in the Collection Workspace
+      pollingTimeout // prevent double polling
+    ) {
+      return;
+    }
+    const timeout = setTimeout(
+      () => {
+        void dispatch(fetchNamespaceShardKey());
+      },
+      process.env.NODE_ENV !== 'test' ? POLLING_INTERVAL : TEST_POLLING_INTERVAL
+    );
+
+    dispatch({
+      type: GlobalWritesActionTypes.NextPollingTimeoutSet,
+      timeout,
+    });
+  };
+};
+
+const stopPollingForShardKey = (): GlobalWritesThunkAction<
+  void,
+  NextPollingTimeoutClearedAction
+> => {
+  return (dispatch, getState) => {
+    const { pollingTimeout } = getState();
+    if (!pollingTimeout) return;
+    clearTimeout(pollingTimeout);
+    dispatch({ type: GlobalWritesActionTypes.NextPollingTimeoutCleared });
   };
 };
 
@@ -453,7 +710,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    const { namespace } = getState();
+    const { namespace, status } = getState();
 
     try {
       const [shardingError, shardKey] = await Promise.all([
@@ -462,6 +719,9 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
       ]);
 
       if (shardingError) {
+        if (status === ShardingStatuses.SHARDING) {
+          dispatch(stopPollingForShardKey());
+        }
         dispatch({
           type: GlobalWritesActionTypes.NamespaceShardingErrorFetched,
           error: shardingError,
@@ -474,6 +734,9 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         return;
       }
 
+      if (status === ShardingStatuses.SHARDING) {
+        dispatch(stopPollingForShardKey());
+      }
       dispatch({
         type: GlobalWritesActionTypes.NamespaceShardKeyFetched,
         shardKey,
@@ -513,6 +776,30 @@ export const fetchShardingZones = (): GlobalWritesThunkAction<
       type: GlobalWritesActionTypes.ShardZonesFetched,
       shardZones: shardingZones,
     });
+  };
+};
+
+export const setPluginTitleVisibility = (
+  isVisible: boolean
+): GlobalWritesThunkAction<void, PluginTitleVisibilityChangedAction> => {
+  return (dispatch, getState) => {
+    const {
+      status,
+      pollingTimeout,
+      isPluginTitleVisible: previousIsVisible,
+    } = getState();
+    dispatch({
+      type: GlobalWritesActionTypes.PluginTitleVisibilityChanged,
+      isVisible,
+    });
+    if (
+      isVisible &&
+      !previousIsVisible &&
+      status === ShardingStatuses.SHARDING &&
+      !pollingTimeout
+    ) {
+      dispatch(pollForShardKey());
+    }
   };
 };
 
