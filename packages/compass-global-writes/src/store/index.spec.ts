@@ -151,7 +151,7 @@ function createStore({
 }
 
 describe('GlobalWritesStore Store', function () {
-  let confirmationStub;
+  let confirmationStub: Sinon.SinonStub;
 
   beforeEach(() => {
     confirmationStub = sinon
