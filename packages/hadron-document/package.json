@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "8.6.3",
+  "version": "8.6.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -48,7 +48,7 @@
   "dependencies": {
     "bson": "^6.8.0",
     "eventemitter3": "^4.0.0",
-    "hadron-type-checker": "^7.2.2",
+    "hadron-type-checker": "^7.2.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

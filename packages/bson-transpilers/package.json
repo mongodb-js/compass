@@ -1,6 +1,6 @@
 {
   "name": "bson-transpilers",
-  "version": "3.0.9",
+  "version": "3.0.10",
   "apiVersion": "0.0.1",
   "description": "Source to source compilers using ANTLR",
   "contributors": [
