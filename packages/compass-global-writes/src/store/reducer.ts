@@ -4,7 +4,7 @@ import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
 
 const POLLING_INTERVAL = 5000;
-export const TEST_POLLING_INTERVAL = 1;
+export const TEST_POLLING_INTERVAL = 100;
 
 export function isAction<A extends Action>(
   action: Action,
@@ -331,7 +331,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
     ) &&
-    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING
+    (state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING ||
+      state.status === ShardingStatuses.NOT_READY)
   ) {
     return {
       ...state,
