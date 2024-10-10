@@ -81,9 +81,9 @@ describe('CompassWeb', function () {
       screen.getAllByRole('button', { name: 'Add new connection' })[0]
     );
     await waitFor(() => {
-      screen.getByRole('button', { name: 'Connect' });
+      screen.getByRole('button', { name: 'Save & Connect' });
     });
-    userEvent.click(screen.getByRole('button', { name: 'Connect' }));
+    userEvent.click(screen.getByRole('button', { name: 'Save & Connect' }));
     return result;
   }
 

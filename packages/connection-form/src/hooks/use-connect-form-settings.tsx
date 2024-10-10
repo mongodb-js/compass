@@ -33,7 +33,7 @@ const defaultSettings = {
   showKerberosAuth: true,
   showCSFLE: true,
   showProxySettings: true,
-  saveAndConnectLabel: 'Connect',
+  saveAndConnectLabel: 'Save & Connect',
 };
 
 export const ConnectionFormSettingsContext = createContext<

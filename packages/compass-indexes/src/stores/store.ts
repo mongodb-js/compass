@@ -7,10 +7,14 @@ import { writeStateChanged } from '../modules/is-writable';
 import { getDescription } from '../modules/description';
 import { INITIAL_STATE as INDEX_LIST_INITIAL_STATE } from '../modules/index-view';
 import { createIndexOpened } from '../modules/create-index';
-import { fetchRegularIndexes } from '../modules/regular-indexes';
+import {
+  fetchRegularIndexes,
+  stopPollingRegularIndexes,
+} from '../modules/regular-indexes';
 import {
   fetchSearchIndexes,
   createSearchIndexOpened,
+  stopPollingSearchIndexes,
 } from '../modules/search-indexes';
 import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
@@ -82,8 +86,13 @@ export function activateIndexesPlugin(
     collection: collectionModel,
     atlasService,
   }: IndexesPluginServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
+  const pollingIntervalRef = {
+    regularIndexes: null,
+    searchIndexes: null,
+  };
+
   const store: IndexesStore = createStore(
     reducer,
     {
@@ -109,6 +118,7 @@ export function activateIndexesPlugin(
           atlasService,
           connectionInfoRef
         ),
+        pollingIntervalRef,
       })
     )
   );
@@ -140,10 +150,16 @@ export function activateIndexesPlugin(
   if (options.isSearchIndexesSupported) {
     void store.dispatch(fetchSearchIndexes());
   }
+
   on(collectionModel, 'change:status', (model: Collection, status: string) => {
     if (status === 'ready') {
       store.dispatch(collectionStatsFetched(model));
     }
+  });
+
+  addCleanup(() => {
+    store.dispatch(stopPollingRegularIndexes());
+    store.dispatch(stopPollingSearchIndexes());
   });
 
   return { store, deactivate: () => cleanup() };

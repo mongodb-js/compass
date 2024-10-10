@@ -467,7 +467,6 @@ describe('regular-indexes module', function () {
 
     it('starts and stops the polling', async function () {
       const pollInterval = 5000;
-      const tabId = 'my-tab';
 
       const collection = createMockCollection();
 
@@ -498,7 +497,7 @@ describe('regular-indexes module', function () {
       // initial load
       expect(indexesStub.callCount).to.equal(1);
 
-      store.dispatch(startPollingRegularIndexes(tabId));
+      store.dispatch(startPollingRegularIndexes());
 
       // poll
       clock.tick(pollInterval);
@@ -513,7 +512,7 @@ describe('regular-indexes module', function () {
       await waitForStatus('READY');
 
       // stop
-      store.dispatch(stopPollingRegularIndexes(tabId));
+      store.dispatch(stopPollingRegularIndexes());
 
       // no more polling
       clock.tick(pollInterval);
@@ -521,7 +520,7 @@ describe('regular-indexes module', function () {
       await waitForStatus('READY');
 
       // open again
-      store.dispatch(startPollingRegularIndexes(tabId));
+      store.dispatch(startPollingRegularIndexes());
 
       // won't execute immediately
       expect(indexesStub.callCount).to.equal(3);
@@ -540,7 +539,7 @@ describe('regular-indexes module', function () {
       await waitForStatus('READY');
 
       // clean up
-      store.dispatch(stopPollingRegularIndexes(tabId));
+      store.dispatch(stopPollingRegularIndexes());
 
       expect(collection.fetch.callCount).to.equal(0);
     });

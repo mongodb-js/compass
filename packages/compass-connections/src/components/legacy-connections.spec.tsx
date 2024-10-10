@@ -25,7 +25,7 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
     )
   );
 
-  const connectButton = screen.getByRole('button', { name: 'Connect' });
+  const connectButton = screen.getByRole('button', { name: 'Save & Connect' });
   userEvent.click(connectButton);
 
   // Wait for the connecting... modal to hide.
@@ -267,7 +267,9 @@ describe.skip('Connections Component', function () {
           )
         );
 
-        const connectButton = screen.getByRole('button', { name: 'Connect' });
+        const connectButton = screen.getByRole('button', {
+          name: 'Save & Connect',
+        });
         userEvent.click(connectButton);
 
         // Wait for the connecting... modal to be shown.
@@ -288,7 +290,9 @@ describe.skip('Connections Component', function () {
         });
 
         it('should enable the connect button', function () {
-          const connectButton = screen.getByText('Connect');
+          const connectButton = screen.getByRole('button', {
+            name: 'Save & Connect',
+          });
           expect(connectButton).to.not.match('disabled');
         });
 

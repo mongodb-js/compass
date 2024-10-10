@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Oct 09 2024.
+This document was automatically generated on Thu Oct 10 2024.
 
 ## List of dependencies
 
@@ -602,7 +602,6 @@ Package|Version|License
 **[to-fast-properties](#79afe8c8f3cc0bb1187c6ffaf6105b49888137e917978e870d67727353aba954)**|2.0.0|MIT
 **[toidentifier](#2067d1f99d35f28c8384d3e9762282f3c2ded0041392af855caf28ba2209bd2a)**|1.0.1|MIT
 **[tr46](#a94418e116fb43931c49abb9cd596d6814a55956c3d0d11b7e225592b9977197)**|0.0.3|MIT
-**[tr46](#68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a)**|3.0.0|MIT
 **[tr46](#73a239b431778fd3a06957f11cd6de530a4ba35ca946f8656f46e02228113c2b)**|4.1.1|MIT
 **[tslib](#c5fc5d0adaeec50d156fc1f9a16cbca801bfb431eb78f3647a1237a0e239ae35)**|2.6.2|0BSD
 **[tslib](#bd15b467ea785206b74637cc23d2b9088ba8fa47aa3034d1217f3dea848c1d1e)**|2.6.3|0BSD
@@ -626,7 +625,6 @@ Package|Version|License
 **[webidl-conversions](#3604b2bfa479706fe7bd8068257240d32158704a3bffae30b414963343027aa1)**|3.0.1|BSD-2-Clause
 **[webidl-conversions](#cb7c681998e7ee3c598e6e37432bcf448946924eefe816636c3cb122bae46e1c)**|7.0.0|BSD-2-Clause
 **[webpack](#bd55cdb69f5b1b336d12c3f00d849ccb1f2c39987c257c89027d6a790f947496)**|5.94.0|MIT
-**[whatwg-url](#5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911)**|11.0.0|MIT
 **[whatwg-url](#3a968d9d3fed498fc1edf2f65459cc89b6a2fea277b5c9b5c3f3a0b41390835a)**|13.0.0|MIT
 **[whatwg-url](#cd3f81c4a0fd856ab1d9c9fc99c1d7eaf2c12c4867b218e9901e5020a1ffcd85)**|5.0.0|MIT
 **[which-boxed-primitive](#b3f94b6da310368951f52909c400e19c4c2c7a282ba67374f41ab2d070bf83f2)**|1.0.2|MIT
@@ -38665,37 +38663,6 @@ License files:
 License tags: MIT
 
 
-<a id="68f1ee14543e0adeddce4bb4422886f20da6ce5cb83508383fa092c15689cf8a"></a>
-### [tr46](https://www.npmjs.com/package/tr46) (version 3.0.0)
-License tags: MIT
-
-License files:
-* LICENSE.md:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sebastian Mayr
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
-      
-
-
 <a id="73a239b431778fd3a06957f11cd6de530a4ba35ca946f8656f46e02228113c2b"></a>
 ### [tr46](https://www.npmjs.com/package/tr46) (version 4.1.1)
 License tags: MIT
@@ -39769,37 +39736,6 @@ License files:
       CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-      
-
-
-<a id="5d2cdcc7276796013d4573d401d239ff04971bb5a44fbb0e1bc62cae6f5ca911"></a>
-### [whatwg-url](https://www.npmjs.com/package/whatwg-url) (version 11.0.0)
-License tags: MIT
-
-License files:
-* LICENSE.txt:
-
-      The MIT License (MIT)
-      
-      Copyright (c) Sebastian Mayr
-      
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-      
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-      
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
       
 
 

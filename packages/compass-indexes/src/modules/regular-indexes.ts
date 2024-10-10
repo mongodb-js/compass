@@ -52,7 +52,10 @@ export type RollingIndex = Partial<AtlasIndexStats> &
     'indexName' | 'indexType' | 'keys'
   >;
 
-const prepareInProgressIndex = (
+/**
+ * @internal exported only for testing
+ */
+export const prepareInProgressIndex = (
   id: string,
   {
     name,
@@ -101,6 +104,17 @@ export enum ActionTypes {
   IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
   IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
   IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
+
+  // Special case event that happens on a timeout when rolling index is created.
+  //
+  // Rolling indexes API doesn't allow us to consistently track whether or not
+  // creation process failed. This means that in some very rare cases, when
+  // creating a job to create a rolling index succeeds, but the actual creation
+  // fails before the index ever shows up in the polled list of indexes, we can
+  // end up with a stuck "in progress" index. For cases like this we will just
+  // check whether or not index is still in progress after a few polls and
+  // remove the in progress index from the list.
+  RollingIndexTimeoutCheck = 'compass-indexes/create-index/rolling-index-timeout-check',
 }
 
 type IndexesOpenedAction = {
@@ -148,6 +162,11 @@ type FailedIndexRemovedAction = {
   inProgressIndexId: string;
 };
 
+type RollingIndexTimeoutCheckAction = {
+  type: ActionTypes.RollingIndexTimeoutCheck;
+  indexId: string;
+};
+
 export type State = {
   status: FetchStatus;
   indexes: RegularIndex[];
@@ -168,15 +187,11 @@ export default function reducer(
   action: AnyAction
 ): State {
   if (isAction<IndexesOpenedAction>(action, ActionTypes.IndexesOpened)) {
-    return {
-      ...state,
-    };
+    return state;
   }
 
   if (isAction<IndexesClosedAction>(action, ActionTypes.IndexesClosed)) {
-    return {
-      ...state,
-    };
+    return state;
   }
 
   if (
@@ -199,10 +214,27 @@ export default function reducer(
       ActionTypes.FetchIndexesSucceeded
     )
   ) {
+    const allIndexNames = new Set(
+      action.indexes
+        .map((index) => {
+          return index.name;
+        })
+        .concat(
+          (action.rollingIndexes ?? []).map((index) => {
+            return index.indexName;
+          })
+        )
+    );
     return {
       ...state,
       indexes: action.indexes,
       rollingIndexes: action.rollingIndexes,
+      // Remove in progress stubs when we got the "real" indexes from one of the
+      // backends. Keep the error ones around even if the name matches (should
+      // only be possible in cases of "index with the same name already exists")
+      inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
+        return !!inProgress.error || !allIndexNames.has(inProgress.name);
+      }),
       status: FetchStatuses.READY,
     };
   }
@@ -243,10 +275,6 @@ export default function reducer(
   }
 
   if (
-    isAction<IndexCreationSucceededAction>(
-      action,
-      ActionTypes.IndexCreationSucceeded
-    ) ||
     isAction<FailedIndexRemovedAction>(action, ActionTypes.FailedIndexRemoved)
   ) {
     return {
@@ -270,6 +298,27 @@ export default function reducer(
       status: 'failed',
       error: action.error,
     };
+
+    return {
+      ...state,
+      inProgressIndexes: newInProgressIndexes,
+    };
+  }
+
+  if (
+    isAction<RollingIndexTimeoutCheckAction>(
+      action,
+      ActionTypes.RollingIndexTimeoutCheck
+    )
+  ) {
+    const newInProgressIndexes = state.inProgressIndexes.filter((index) => {
+      return index.id !== action.indexId;
+    });
+
+    // Nothing was removed, return the previous state to avoid updates
+    if (newInProgressIndexes.length === state.inProgressIndexes.length) {
+      return state;
+    }
 
     return {
       ...state,
@@ -403,37 +452,37 @@ export const pollRegularIndexes = (): IndexesThunkAction<
 
 export const POLLING_INTERVAL = 5000;
 
-const pollIntervalByTabId = new Map<string, ReturnType<typeof setInterval>>();
-
-export const startPollingRegularIndexes = (
-  tabId: string
-): IndexesThunkAction<void, FetchIndexesActions> => {
-  return function (dispatch) {
-    if (pollIntervalByTabId.has(tabId)) {
+export const startPollingRegularIndexes = (): IndexesThunkAction<
+  void,
+  FetchIndexesActions
+> => {
+  return function (dispatch, _getState, { pollingIntervalRef }) {
+    if (pollingIntervalRef.regularIndexes !== null) {
       return;
     }
-
-    pollIntervalByTabId.set(
-      tabId,
-      setInterval(() => {
-        void dispatch(pollRegularIndexes());
-      }, POLLING_INTERVAL)
-    );
+    pollingIntervalRef.regularIndexes = setInterval(() => {
+      void dispatch(pollRegularIndexes());
+    }, POLLING_INTERVAL);
   };
 };
 
-export const stopPollingRegularIndexes = (tabId: string) => {
-  return () => {
-    if (!pollIntervalByTabId.has(tabId)) {
+export const stopPollingRegularIndexes = (): IndexesThunkAction<
+  void,
+  never
+> => {
+  return (_dispatch, _getState, { pollingIntervalRef }) => {
+    if (pollingIntervalRef.regularIndexes === null) {
       return;
     }
-
-    clearInterval(pollIntervalByTabId.get(tabId));
-    pollIntervalByTabId.delete(tabId);
+    clearInterval(pollingIntervalRef.regularIndexes);
+    pollingIntervalRef.regularIndexes = null;
   };
 };
 
-const indexCreationStarted = (
+/**
+ * @internal exported only for testing
+ */
+export const indexCreationStarted = (
   inProgressIndex: InProgressIndex
 ): IndexCreationStartedAction => ({
   type: ActionTypes.IndexCreationStarted,
@@ -456,6 +505,18 @@ const indexCreationFailed = (
   error,
 });
 
+/**
+ * @internal exported only for testing
+ */
+export const rollingIndexTimeoutCheck = (
+  indexId: string
+): RollingIndexTimeoutCheckAction => {
+  return {
+    type: ActionTypes.RollingIndexTimeoutCheck,
+    indexId,
+  };
+};
+
 export function createRegularIndex(
   inProgressIndexId: string,
   spec: Record<string, IndexDirection>,
@@ -466,6 +527,7 @@ export function createRegularIndex(
   | IndexCreationStartedAction
   | IndexCreationSucceededAction
   | IndexCreationFailedAction
+  | RollingIndexTimeoutCheckAction
 > {
   return async (
     dispatch,
@@ -508,7 +570,12 @@ export function createRegularIndex(
       await createFn(ns, spec, options);
       dispatch(indexCreationSucceeded(inProgressIndexId));
       track('Index Created', trackEvent, connectionInfoRef.current);
-
+      // See action description for details
+      if (isRollingIndexBuild) {
+        setTimeout(() => {
+          dispatch(rollingIndexTimeoutCheck(inProgressIndexId));
+        }, POLLING_INTERVAL * 3).unref?.();
+      }
       // Start a new fetch so that the newly added index's details can be
       // loaded. indexCreationSucceeded() will remove the in-progress one, but
       // we still need the new info.

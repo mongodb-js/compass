@@ -323,6 +323,37 @@ describe('useConnections', function () {
     }
   });
 
+  describe('#saveAndConnect', function () {
+    it('saves the connection options before connecting', async function () {
+      const { result, track, connectionStorage } = renderHookWithConnections(
+        useConnections,
+        {
+          connections: mockConnections,
+          preferences: defaultPreferences,
+        }
+      );
+
+      const updatedConnection = {
+        ...mockConnections[0],
+        savedConnectionType: 'recent' as const,
+      };
+
+      await result.current.saveAndConnect(updatedConnection);
+
+      await waitFor(() => {
+        expect(track.getCall(1).firstArg).to.eq('New Connection');
+      });
+
+      expect(
+        await connectionStorage.load({ id: updatedConnection.id })
+      ).to.have.property('savedConnectionType', 'recent');
+
+      expect(
+        screen.getByText(`Connected to ${mockConnections[0].favorite.name}`)
+      ).to.exist;
+    });
+  });
+
   describe('#disconnect', function () {
     it('disconnect even if connection is in progress cleaning up progress toasts', async function () {
       const { result, track } = renderHookWithConnections(useConnections, {

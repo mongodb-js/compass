@@ -8,7 +8,6 @@ import {
   Badge,
   BadgeVariant,
   useDarkMode,
-  Icon,
 } from '@mongodb-js/compass-components';
 import type { InProgressIndex } from '../../modules/regular-indexes';
 
@@ -64,21 +63,13 @@ const StatusField: React.FunctionComponent<StatusFieldProps> = ({
       )}
 
       {status === 'building' && (
-        <Tooltip
-          enabled={true}
-          trigger={
-            <Badge
-              data-testid="index-building"
-              variant={BadgeVariant.Blue}
-              className={iconBadgeStyles}
-            >
-              Building
-              <Icon glyph="InfoWithCircle" />
-            </Badge>
-          }
+        <Badge
+          data-testid="index-building"
+          variant={BadgeVariant.Blue}
+          className={iconBadgeStyles}
         >
-          <Body>This index is being built in a rolling process</Body>
-        </Tooltip>
+          Building
+        </Badge>
       )}
 
       {status === 'inprogress' && (
