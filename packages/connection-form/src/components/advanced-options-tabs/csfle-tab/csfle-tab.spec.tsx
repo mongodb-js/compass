@@ -381,7 +381,9 @@ describe('In-Use Encryption', function () {
 
       const selector = within(card).getByTestId('csfle-kms-card-name');
       userEvent.clear(selector);
-      userEvent.type(selector, value);
+      if (value !== '') {
+        userEvent.type(selector, value);
+      }
       userEvent.keyboard('{enter}');
     }
 

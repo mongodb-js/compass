@@ -55,7 +55,7 @@
     "@mongodb-js/compass-components": "^1.30.0",
     "@mongodb-js/compass-connections": "^1.43.1",
     "@mongodb-js/compass-logging": "^1.4.8",
-    "bson": "^6.7.0",
+    "bson": "^6.8.0",
     "compass-preferences-model": "^2.29.0",
     "hadron-app-registry": "^9.2.7",
     "lodash": "^4.17.21",

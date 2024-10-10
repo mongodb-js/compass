@@ -77,6 +77,71 @@ describe('ConnectionForm Component', function () {
       sandbox.restore();
     });
 
+    context('when disableEditingConnectedConnection==true', function () {
+      it('renders a banner, disables the connection string and removes advanced connection options + connect button', function () {
+        const onDisconnectClicked = Sinon.spy();
+        const onSaveClicked = Sinon.spy();
+        const onSaveAndConnectClicked = Sinon.spy();
+
+        renderForm({
+          disableEditingConnectedConnection: true,
+          onDisconnectClicked,
+          onSaveClicked,
+          onSaveAndConnectClicked,
+        });
+
+        expect(
+          screen.getByTestId('disabled-connected-connection-banner')
+        ).to.exist;
+        expect(screen.getByRole('button', { name: 'Disconnect' })).to.exist;
+        expect(() =>
+          screen.getByTestId('toggle-edit-connection-string')
+        ).to.throw;
+        expect(() =>
+          screen.getByTestId('advanced-connection-options')
+        ).to.throw;
+        expect(() => screen.getByRole('button', { name: 'Connect' })).to.throw;
+
+        // pressing enter calls onSubmit which saves
+        fireEvent.submit(screen.getByRole('form'));
+        expect(onSaveClicked.callCount).to.equal(1);
+        expect(onSaveAndConnectClicked.callCount).to.equal(0);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Disconnect' }));
+        expect(onDisconnectClicked.callCount).to.equal(1);
+      });
+    });
+
+    context('when disableEditingConnectedConnection==false', function () {
+      it('leaves the connection string, advanced connection options and connect button intact, does not render a banner', function () {
+        const onDisconnectClicked = Sinon.spy();
+        const onSaveClicked = Sinon.spy();
+        const onSaveAndConnectClicked = Sinon.spy();
+
+        renderForm({
+          disableEditingConnectedConnection: false,
+          onDisconnectClicked,
+          onSaveClicked,
+          onSaveAndConnectClicked,
+        });
+
+        expect(() =>
+          screen.getByTestId('disabled-connected-connection-banner')
+        ).to.throw;
+        expect(() =>
+          screen.getByRole('button', { name: 'Disconnect' })
+        ).to.throw;
+        expect(screen.getByTestId('toggle-edit-connection-string')).to.exist;
+        expect(screen.getByTestId('advanced-connection-options')).to.exist;
+        expect(screen.getByRole('button', { name: 'Connect' })).to.exist;
+
+        // pressing enter calls onSubmit which saves and connects (the default)
+        fireEvent.submit(screen.getByRole('form'));
+        expect(onSaveClicked.callCount).to.equal(0);
+        expect(onSaveAndConnectClicked.callCount).to.equal(1);
+      });
+    });
+
     context(
       'when preferences.protectConnectionStringsForNewConnections === true',
       function () {

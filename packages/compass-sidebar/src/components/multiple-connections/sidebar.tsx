@@ -228,6 +228,10 @@ export function MultipleConnectionSidebar({
         />
         {editingConnectionInfo && (
           <ConnectionFormModal
+            disableEditingConnectedConnection={
+              !!findActiveConnection(editingConnectionInfo.id)
+            }
+            onDisconnectClicked={() => disconnect(editingConnectionInfo.id)}
             isOpen={isEditingConnectionInfoModalOpen}
             setOpen={(newOpen) => {
               // This is how leafygreen propagates `X` button click

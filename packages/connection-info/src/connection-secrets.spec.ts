@@ -197,7 +197,6 @@ describe('connection secrets', function () {
                   secretAccessKey: 'secretAccessKey',
                   sessionToken: 'sessionToken',
                 },
-                // @ts-expect-error multiple kms providers are supported in next driver release
                 'aws:1': {
                   accessKeyId: 'accessKeyId',
                   secretAccessKey: 'secretAccessKey',

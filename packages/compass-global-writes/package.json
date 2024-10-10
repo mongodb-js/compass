@@ -56,6 +56,7 @@
     "@mongodb-js/compass-logging": "^1.4.8",
     "@mongodb-js/compass-telemetry": "^1.2.0",
     "hadron-app-registry": "^9.2.7",
+    "lodash": "^4.17.21",
     "@mongodb-js/compass-field-store": "^9.18.1",
     "mongodb-ns": "^2.4.2",
     "react": "^17.0.2",

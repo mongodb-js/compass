@@ -183,8 +183,10 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
 
 function omitPropertiesWhoseValuesAreEmptyObjects<T extends Document>(obj: T) {
   return Object.fromEntries(
-    Object.entries(obj).filter(([, value]) => Object.keys(value).length > 0)
-  ) as Partial<T>;
+    Object.entries(obj).filter(
+      ([, value]) => Object.keys(value ?? {}).length > 0
+    )
+  ) as { [k in keyof T]: Exclude<T[k], Record<string, never>> };
 }
 
 const KMS_PROVIDER_SECRET_PATHS = {

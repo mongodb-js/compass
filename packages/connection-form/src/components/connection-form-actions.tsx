@@ -44,7 +44,7 @@ export type ConnectionFormModalActionsProps = {
 
   onCancel?(): void;
   onSave?(): void;
-  onSaveAndConnect(): void;
+  onSaveAndConnect?(): void;
 };
 
 export function ConnectionFormModalActions({
@@ -89,7 +89,11 @@ export function ConnectionFormModalActions({
           <div className={saveAndConnectStyles}>
             <Button
               data-testid="save-button"
-              variant={ButtonVariant.PrimaryOutline}
+              variant={
+                onSaveAndConnect
+                  ? ButtonVariant.PrimaryOutline
+                  : ButtonVariant.Primary
+              }
               disabled={false}
               onClick={onSave}
             >
@@ -98,13 +102,15 @@ export function ConnectionFormModalActions({
           </div>
         )}
 
-        <Button
-          data-testid="connect-button"
-          variant={ButtonVariant.Primary}
-          onClick={onSaveAndConnect}
-        >
-          {saveAndConnectLabel}
-        </Button>
+        {onSaveAndConnect && (
+          <Button
+            data-testid="connect-button"
+            variant={ButtonVariant.Primary}
+            onClick={onSaveAndConnect}
+          >
+            {saveAndConnectLabel}
+          </Button>
+        )}
       </div>
     </div>
   );

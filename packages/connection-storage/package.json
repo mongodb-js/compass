@@ -61,7 +61,7 @@
     "@mongodb-js/compass-user-data": "^0.3.8",
     "@mongodb-js/compass-utils": "^0.6.12",
     "@mongodb-js/connection-info": "^0.9.0",
-    "bson": "^6.7.0",
+    "bson": "^6.8.0",
     "compass-preferences-model": "^2.29.0",
     "electron": "^30.5.1",
     "hadron-app-registry": "^9.2.7",
