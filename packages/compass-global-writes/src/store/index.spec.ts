@@ -5,15 +5,18 @@ import {
   fetchClusterShardingData,
   createShardKey,
   type CreateShardKeyData,
+  TEST_POLLING_INTERVAL,
 } from './reducer';
 import sinon from 'sinon';
 import type {
   AutomationAgentDeploymentStatusApiResponse,
+  AutomationAgentProcess,
   ClusterDetailsApiResponse,
   ManagedNamespace,
   ShardZoneMapping,
 } from '../services/atlas-global-writes-service';
-import { waitFor } from '@mongodb-js/testing-library-compass';
+import { wait, waitFor } from '@mongodb-js/testing-library-compass';
+import Sinon from 'sinon';
 
 const DB = 'test';
 const COLL = 'coll';
@@ -28,22 +31,24 @@ const clusterDetails: ClusterDetailsApiResponse = {
   replicationSpecList: [],
 };
 
+const shardKeyData: CreateShardKeyData = {
+  customShardKey: 'secondary',
+  isCustomShardKeyHashed: true,
+  isShardKeyUnique: true,
+  numInitialChunks: 1,
+  presplitHashedZones: true,
+};
+
 const managedNamespace: ManagedNamespace = {
   db: DB,
   collection: COLL,
-  customShardKey: 'secondary',
-  isCustomShardKeyHashed: false,
-  isShardKeyUnique: false,
-  numInitialChunks: null,
-  presplitHashedZones: false,
+  ...shardKeyData,
 };
 
-const shardKeyData: CreateShardKeyData = {
-  customShardKey: 'test',
-  isCustomShardKeyHashed: true,
-  isShardKeyUnique: false,
-  numInitialChunks: 1,
-  presplitHashedZones: true,
+const failedShardingProcess: AutomationAgentProcess = {
+  statusType: 'ERROR',
+  workingOnShort: 'ShardingCollections',
+  errorText: `Failed to shard ${NS}`,
 };
 
 function createAuthFetchResponse<
@@ -57,7 +62,81 @@ function createAuthFetchResponse<
   };
 }
 
-function createStore(atlasService: any = {}): GlobalWritesStore {
+function createStore({
+  isNamespaceManaged = () => false,
+  hasShardingError = () => false,
+  hasShardKey = () => false,
+  failsOnShardingRequest = () => false,
+  authenticatedFetchStub,
+}:
+  | {
+      isNamespaceManaged?: () => boolean;
+      hasShardingError?: () => boolean;
+      hasShardKey?: () => boolean;
+      failsOnShardingRequest?: () => boolean;
+      authenticatedFetchStub?: never;
+    }
+  | {
+      isNamespaceManaged?: never;
+      hasShardingError?: never;
+      hasShardKey?: () => boolean;
+      failsOnShardingRequest?: never;
+      authenticatedFetchStub?: () => void;
+    } = {}): GlobalWritesStore {
+  const atlasService = {
+    authenticatedFetch: (uri: string) => {
+      if (uri.includes(`/geoSharding`) && failsOnShardingRequest()) {
+        return Promise.reject(new Error('Failed to shard'));
+      }
+
+      if (uri.includes('/clusters/')) {
+        return createAuthFetchResponse({
+          ...clusterDetails,
+          geoSharding: {
+            ...clusterDetails.geoSharding,
+            managedNamespaces: isNamespaceManaged() ? [managedNamespace] : [],
+          },
+        });
+      }
+
+      if (uri.includes('/deploymentStatus/')) {
+        return createAuthFetchResponse({
+          automationStatus: {
+            processes: hasShardingError() ? [failedShardingProcess] : [],
+          },
+        });
+      }
+
+      return createAuthFetchResponse({});
+    },
+    automationAgentRequest: (_meta: unknown, type: string) => ({
+      _id: '123',
+      requestType: type,
+    }),
+    automationAgentAwait: (_meta: unknown, type: string) => {
+      if (type === 'getShardKey') {
+        return {
+          response: hasShardKey()
+            ? [
+                {
+                  key: {
+                    location: 'range',
+                    secondary: shardKeyData.isCustomShardKeyHashed
+                      ? 'hashed'
+                      : 'range',
+                  },
+                  unique: true,
+                },
+              ]
+            : [],
+        };
+      }
+    },
+  } as any;
+
+  if (authenticatedFetchStub)
+    atlasService.authenticatedFetch = authenticatedFetchStub;
+
   return setupStore(
     {
       namespace: NS,
@@ -76,29 +155,59 @@ describe('GlobalWritesStore Store', function () {
   });
 
   context('scenarios', function () {
-    it('not managed -> sharding', async function () {
+    it('not managed -> sharding -> success', async function () {
+      let mockShardKey = false;
+      const hasShardKey = Sinon.fake(() => mockShardKey);
+      // initial state === unsharded
       const store = createStore({
-        authenticatedFetch: () => createAuthFetchResponse(clusterDetails),
+        hasShardKey,
       });
       await store.dispatch(fetchClusterShardingData());
       expect(store.getState().status).to.equal('UNSHARDED');
       expect(store.getState().managedNamespace).to.equal(undefined);
 
+      // user requests sharding
       const promise = store.dispatch(createShardKey(shardKeyData));
       expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
+
+      // sharding ends with a shardKey
+      mockShardKey = true;
+      await wait(TEST_POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+      });
+    });
+
+    it('not managed -> sharding -> sharding error', async function () {
+      let mockFailure = false;
+      const hasShardingError = Sinon.fake(() => mockFailure);
+      // initial state === unsharded
+      const store = createStore({
+        hasShardingError,
+      });
+      await store.dispatch(fetchClusterShardingData());
+      expect(store.getState().status).to.equal('UNSHARDED');
+      expect(store.getState().managedNamespace).to.equal(undefined);
+
+      // user requests sharding
+      const promise = store.dispatch(createShardKey(shardKeyData));
+      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
+      await promise;
+      expect(store.getState().status).to.equal('SHARDING');
+
+      // sharding ends with an error
+      mockFailure = true;
+      await wait(TEST_POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING_ERROR');
+      });
     });
 
     it('not managed -> failed sharding attempt', async function () {
       const store = createStore({
-        authenticatedFetch: (uri: string) => {
-          if (uri.includes('/geoSharding')) {
-            return Promise.reject(new Error('Failed to shard'));
-          }
-
-          return createAuthFetchResponse(clusterDetails);
-        },
+        failsOnShardingRequest: () => true,
       });
       await store.dispatch(fetchClusterShardingData());
       expect(store.getState().status).to.equal('UNSHARDED');
@@ -110,52 +219,26 @@ describe('GlobalWritesStore Store', function () {
       expect(store.getState().status).to.equal('UNSHARDED');
     });
 
-    it('when the namespace is managed', async function () {
+    it('when the namespace is managed and has a valid shard key', async function () {
       const store = createStore({
-        authenticatedFetch: (uri: string) => {
-          if (uri.includes('/clusters/')) {
-            return createAuthFetchResponse({
-              ...clusterDetails,
-              geoSharding: {
-                ...clusterDetails.geoSharding,
-                managedNamespaces: [managedNamespace],
-              },
-            });
-          }
-
-          if (uri.includes('/deploymentStatus/')) {
-            return createAuthFetchResponse({
-              automationStatus: {
-                processes: [],
-              },
-            });
-          }
-
-          return createAuthFetchResponse({});
-        },
-        automationAgentRequest: (_meta: unknown, type: string) => ({
-          _id: '123',
-          requestType: type,
-        }),
-        automationAgentAwait: (_meta: unknown, type: string) => {
-          if (type === 'getShardKey') {
-            return {
-              response: [
-                {
-                  key: {
-                    location: 'HASHED',
-                    secondary: 'HASHED',
-                  },
-                  unique: false,
-                },
-              ],
-            };
-          }
-        },
+        isNamespaceManaged: () => true,
+        hasShardKey: () => true,
       });
       await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+    });
+
+    it('when the namespace is managed but has a sharding error', async function () {
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardingError: () => true,
+      });
+      await store.dispatch(fetchClusterShardingData());
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING_ERROR');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
       });
     });
@@ -165,7 +248,7 @@ describe('GlobalWritesStore Store', function () {
         {
           db: 'test',
           collection: 'one',
-          customShardKey: 'test',
+          customShardKey: 'secondary',
           isCustomShardKeyHashed: true,
           isShardKeyUnique: false,
           numInitialChunks: 1,
@@ -196,7 +279,7 @@ describe('GlobalWritesStore Store', function () {
         .resolves();
 
       const store = createStore({
-        authenticatedFetch: fetchStub,
+        authenticatedFetchStub: fetchStub,
       });
 
       await store.dispatch(createShardKey(shardKeyData));

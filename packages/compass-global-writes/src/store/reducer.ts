@@ -3,7 +3,8 @@ import type { GlobalWritesThunkAction } from '.';
 import { openToast, showConfirmation } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
 
-export const POLLING_INTERVAL = 5000;
+const POLLING_INTERVAL = 5000;
+export const TEST_POLLING_INTERVAL = 1;
 
 export function isAction<A extends Action>(
   action: Action,
@@ -585,7 +586,7 @@ export const cancelSharding = ():
     const { namespace, status } = getState();
 
     if (status === ShardingStatuses.SHARDING) {
-      stopPollingForShardKey(getState);
+      dispatch(stopPollingForShardKey());
     }
     dispatch({
       type: GlobalWritesActionTypes.CancellingShardingStarted,
@@ -628,19 +629,21 @@ const setNamespaceBeingSharded = (
       type: GlobalWritesActionTypes.SubmittingForShardingFinished,
       managedNamespace,
     });
-    dispatch(startPollingForShardKey());
+    dispatch(pollForShardKey());
   };
 };
 
-const startPollingForShardKey = (): GlobalWritesThunkAction<
+const pollForShardKey = (): GlobalWritesThunkAction<
   void,
   NextPollingTimeoutSetAction
 > => {
   return (dispatch) => {
-    console.log('START POLLING');
-    const timeout = setTimeout(() => {
-      void dispatch(fetchNamespaceShardKey());
-    }, POLLING_INTERVAL);
+    const timeout = setTimeout(
+      () => {
+        void dispatch(fetchNamespaceShardKey());
+      },
+      process.env.NODE_ENV !== 'test' ? POLLING_INTERVAL : TEST_POLLING_INTERVAL
+    );
     dispatch({
       type: GlobalWritesActionTypes.NextPollingTimeoutSet,
       timeout,
@@ -648,10 +651,16 @@ const startPollingForShardKey = (): GlobalWritesThunkAction<
   };
 };
 
-const stopPollingForShardKey = (getState: () => RootState) => {
-  const { pollingTimeout } = getState();
-  if (!pollingTimeout) return;
-  clearTimeout(pollingTimeout);
+const stopPollingForShardKey = (): GlobalWritesThunkAction<
+  void,
+  NextPollingTimeoutClearedAction
+> => {
+  return (dispatch, getState) => {
+    const { pollingTimeout } = getState();
+    if (!pollingTimeout) return;
+    clearTimeout(pollingTimeout);
+    dispatch({ type: GlobalWritesActionTypes.NextPollingTimeoutCleared });
+  };
 };
 
 export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
@@ -663,7 +672,6 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    console.log('FETCHING KEY');
     const { namespace, status } = getState();
 
     try {
@@ -674,7 +682,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
 
       if (shardingError) {
         if (status === ShardingStatuses.SHARDING) {
-          stopPollingForShardKey(getState);
+          dispatch(stopPollingForShardKey());
         }
         dispatch({
           type: GlobalWritesActionTypes.NamespaceShardingErrorFetched,
@@ -689,7 +697,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
       }
 
       if (status === ShardingStatuses.SHARDING) {
-        stopPollingForShardKey(getState);
+        dispatch(stopPollingForShardKey());
       }
       dispatch({
         type: GlobalWritesActionTypes.NamespaceShardKeyFetched,
