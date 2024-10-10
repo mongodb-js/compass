@@ -521,7 +521,7 @@ function ConnectionForm({
                 </div>
               </Banner>
             )}
-            {protectConnectionStrings && (
+            {protectConnectionStrings && !disableEditingConnectedConnection && (
               <Banner
                 data-testid="protect-connection-strings-banner"
                 className={bannerStyles}
