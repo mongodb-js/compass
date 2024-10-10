@@ -1,6 +1,9 @@
 import type { Action, Reducer } from 'redux';
 import type { GlobalWritesThunkAction } from '.';
-import { openToast, showConfirmation } from '@mongodb-js/compass-components';
+import {
+  openToast,
+  showConfirmation as showConfirmationModal,
+} from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
 
 const POLLING_INTERVAL = 5000;
@@ -568,21 +571,25 @@ export const createShardKey = (
   };
 };
 
-export const cancelSharding = ():
-  | GlobalWritesThunkAction<
-      Promise<void>,
-      | CancellingShardingStartedAction
-      | CancellingShardingFinishedAction
-      | CancellingShardingErroredAction
-    >
-  | undefined => {
+// Exporting this for test only to stub it and set
+// its value. This enables to test cancelSharding action.
+export const showConfirmation = showConfirmationModal;
+
+export const cancelSharding = (): GlobalWritesThunkAction<
+  Promise<void>,
+  | CancellingShardingStartedAction
+  | CancellingShardingFinishedAction
+  | CancellingShardingErroredAction
+> => {
   return async (dispatch, getState, { atlasGlobalWritesService, logger }) => {
     const confirmed = await showConfirmation({
       title: 'Confirmation',
       description: 'Are you sure you want to cancel the sharding request?',
     });
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     const { namespace, status } = getState();
 
@@ -638,13 +645,17 @@ const pollForShardKey = (): GlobalWritesThunkAction<
   void,
   NextPollingTimeoutSetAction
 > => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    if (getState().pollingTimeout) {
+      return;
+    }
     const timeout = setTimeout(
       () => {
         void dispatch(fetchNamespaceShardKey());
       },
       process.env.NODE_ENV !== 'test' ? POLLING_INTERVAL : TEST_POLLING_INTERVAL
     );
+
     dispatch({
       type: GlobalWritesActionTypes.NextPollingTimeoutSet,
       timeout,
