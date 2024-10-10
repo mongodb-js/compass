@@ -19,7 +19,7 @@ import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
-const CompassIndexesHadronPlugin = registerHadronPlugin(
+export const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassIndexes',
     component: function IndexesProvider({ children }) {

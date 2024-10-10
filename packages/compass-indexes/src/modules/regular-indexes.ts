@@ -52,7 +52,10 @@ export type RollingIndex = Partial<AtlasIndexStats> &
     'indexName' | 'indexType' | 'keys'
   >;
 
-const prepareInProgressIndex = (
+/**
+ * @internal exported only for testing
+ */
+export const prepareInProgressIndex = (
   id: string,
   {
     name,
@@ -184,15 +187,11 @@ export default function reducer(
   action: AnyAction
 ): State {
   if (isAction<IndexesOpenedAction>(action, ActionTypes.IndexesOpened)) {
-    return {
-      ...state,
-    };
+    return state;
   }
 
   if (isAction<IndexesClosedAction>(action, ActionTypes.IndexesClosed)) {
-    return {
-      ...state,
-    };
+    return state;
   }
 
   if (
@@ -453,37 +452,37 @@ export const pollRegularIndexes = (): IndexesThunkAction<
 
 export const POLLING_INTERVAL = 5000;
 
-const pollIntervalByTabId = new Map<string, ReturnType<typeof setInterval>>();
-
-export const startPollingRegularIndexes = (
-  tabId: string
-): IndexesThunkAction<void, FetchIndexesActions> => {
-  return function (dispatch) {
-    if (pollIntervalByTabId.has(tabId)) {
+export const startPollingRegularIndexes = (): IndexesThunkAction<
+  void,
+  FetchIndexesActions
+> => {
+  return function (dispatch, _getState, { pollingIntervalRef }) {
+    if (pollingIntervalRef.regularIndexes !== null) {
       return;
     }
-
-    pollIntervalByTabId.set(
-      tabId,
-      setInterval(() => {
-        void dispatch(pollRegularIndexes());
-      }, POLLING_INTERVAL)
-    );
+    pollingIntervalRef.regularIndexes = setInterval(() => {
+      void dispatch(pollRegularIndexes());
+    }, POLLING_INTERVAL);
   };
 };
 
-export const stopPollingRegularIndexes = (tabId: string) => {
-  return () => {
-    if (!pollIntervalByTabId.has(tabId)) {
+export const stopPollingRegularIndexes = (): IndexesThunkAction<
+  void,
+  never
+> => {
+  return (_dispatch, _getState, { pollingIntervalRef }) => {
+    if (pollingIntervalRef.regularIndexes === null) {
       return;
     }
-
-    clearInterval(pollIntervalByTabId.get(tabId));
-    pollIntervalByTabId.delete(tabId);
+    clearInterval(pollingIntervalRef.regularIndexes);
+    pollingIntervalRef.regularIndexes = null;
   };
 };
 
-const indexCreationStarted = (
+/**
+ * @internal exported only for testing
+ */
+export const indexCreationStarted = (
   inProgressIndex: InProgressIndex
 ): IndexCreationStartedAction => ({
   type: ActionTypes.IndexCreationStarted,
@@ -505,6 +504,18 @@ const indexCreationFailed = (
   inProgressIndexId,
   error,
 });
+
+/**
+ * @internal exported only for testing
+ */
+export const rollingIndexTimeoutCheck = (
+  indexId: string
+): RollingIndexTimeoutCheckAction => {
+  return {
+    type: ActionTypes.RollingIndexTimeoutCheck,
+    indexId,
+  };
+};
 
 export function createRegularIndex(
   inProgressIndexId: string,
@@ -562,11 +573,8 @@ export function createRegularIndex(
       // See action description for details
       if (isRollingIndexBuild) {
         setTimeout(() => {
-          dispatch({
-            type: ActionTypes.RollingIndexTimeoutCheck,
-            indexId: inProgressIndexId,
-          });
-        }, POLLING_INTERVAL * 3);
+          dispatch(rollingIndexTimeoutCheck(inProgressIndexId));
+        }, POLLING_INTERVAL * 3).unref?.();
       }
       // Start a new fetch so that the newly added index's details can be
       // loaded. indexCreationSucceeded() will remove the in-progress one, but

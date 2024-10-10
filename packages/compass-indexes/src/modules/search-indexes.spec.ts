@@ -289,7 +289,6 @@ describe('search-indexes module', function () {
 
     it('starts and stops the polling', async function () {
       const pollInterval = 5000;
-      const tabId = 'my-tab';
 
       const getSearchIndexesStub = sinon.stub().resolves(searchIndexes);
       const store = await setupStoreAndWait(
@@ -315,7 +314,7 @@ describe('search-indexes module', function () {
       // initial load
       expect(getSearchIndexesStub.callCount).to.equal(1);
 
-      store.dispatch(startPollingSearchIndexes(tabId));
+      store.dispatch(startPollingSearchIndexes());
 
       // poll
       clock.tick(pollInterval);
@@ -330,7 +329,7 @@ describe('search-indexes module', function () {
       await waitForStatus('READY');
 
       // stop
-      store.dispatch(stopPollingSearchIndexes(tabId));
+      store.dispatch(stopPollingSearchIndexes());
 
       // no more polling
       clock.tick(pollInterval);
@@ -338,7 +337,7 @@ describe('search-indexes module', function () {
       await waitForStatus('READY');
 
       // open again
-      store.dispatch(startPollingSearchIndexes(tabId));
+      store.dispatch(startPollingSearchIndexes());
 
       // won't execute immediately
       expect(getSearchIndexesStub.callCount).to.equal(3);
@@ -357,7 +356,7 @@ describe('search-indexes module', function () {
       await waitForStatus('READY');
 
       // clean up
-      store.dispatch(stopPollingSearchIndexes(tabId));
+      store.dispatch(stopPollingSearchIndexes());
     });
   });
 });
