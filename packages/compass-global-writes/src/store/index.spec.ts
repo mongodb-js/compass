@@ -6,6 +6,7 @@ import {
   createShardKey,
   type CreateShardKeyData,
   TEST_POLLING_INTERVAL,
+  unmanageNamespace,
 } from './reducer';
 import sinon from 'sinon';
 import type {
@@ -155,12 +156,11 @@ describe('GlobalWritesStore Store', function () {
   });
 
   context('scenarios', function () {
-    it('not managed -> sharding -> success', async function () {
+    it('not managed -> sharding -> valid shard key', async function () {
       let mockShardKey = false;
-      const hasShardKey = Sinon.fake(() => mockShardKey);
       // initial state === unsharded
       const store = createStore({
-        hasShardKey,
+        hasShardKey: Sinon.fake(() => mockShardKey),
       });
       await store.dispatch(fetchClusterShardingData());
       expect(store.getState().status).to.equal('UNSHARDED');
@@ -182,10 +182,9 @@ describe('GlobalWritesStore Store', function () {
 
     it('not managed -> sharding -> sharding error', async function () {
       let mockFailure = false;
-      const hasShardingError = Sinon.fake(() => mockFailure);
       // initial state === unsharded
       const store = createStore({
-        hasShardingError,
+        hasShardingError: Sinon.fake(() => mockFailure),
       });
       await store.dispatch(fetchClusterShardingData());
       expect(store.getState().status).to.equal('UNSHARDED');
@@ -205,7 +204,7 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('not managed -> failed sharding attempt', async function () {
+    it('not managed -> not managed (failed sharding request)', async function () {
       const store = createStore({
         failsOnShardingRequest: () => true,
       });
@@ -219,7 +218,28 @@ describe('GlobalWritesStore Store', function () {
       expect(store.getState().status).to.equal('UNSHARDED');
     });
 
-    it('when the namespace is managed and has a valid shard key', async function () {
+    it('sharding -> valid shard key', async function () {
+      let mockShardKey = false;
+      // initial state === sharding
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: Sinon.fake(() => mockShardKey),
+      });
+      await store.dispatch(fetchClusterShardingData());
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // sharding ends with a shardKey
+      mockShardKey = true;
+      await wait(TEST_POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+      });
+    });
+
+    it('valid shard key', async function () {
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: () => true,
@@ -231,7 +251,50 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('when the namespace is managed but has a sharding error', async function () {
+    it('valid shard key -> not managed', async function () {
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: () => true,
+      });
+
+      // initial state === shard key correct
+      await store.dispatch(fetchClusterShardingData());
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user asks to unmanage
+      const promise = store.dispatch(unmanageNamespace());
+      expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
+      await promise;
+      expect(store.getState().status).to.equal('UNSHARDED');
+    });
+
+    it('valid shard key -> valid shard key (failed unmanage attempt)', async function () {
+      let mockFailure = false;
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: () => true,
+        failsOnShardingRequest: Sinon.fake(() => mockFailure),
+      });
+
+      // initial state === shard key correct
+      await store.dispatch(fetchClusterShardingData());
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user asks to unmanage
+      mockFailure = true;
+      const promise = store.dispatch(unmanageNamespace());
+      expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
+      await promise;
+      expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+    });
+
+    it('sharding error', async function () {
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardingError: () => true,
