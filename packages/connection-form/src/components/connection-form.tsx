@@ -129,7 +129,7 @@ const headingWithHiddenButtonStyles = css({
   },
 });
 
-const disabledConnectedConnectionBannerStyles = css({
+const bannerStyles = css({
   marginTop: spacing[400],
   paddingRight: 0,
 });
@@ -500,7 +500,7 @@ function ConnectionForm({
             {disableEditingConnectedConnection && onDisconnectClicked && (
               <Banner
                 data-testid="disabled-connected-connection-banner"
-                className={disabledConnectedConnectionBannerStyles}
+                className={bannerStyles}
               >
                 <div className={disabledConnectedConnectionContentStyles}>
                   <div>
@@ -519,6 +519,17 @@ function ConnectionForm({
                     </Button>
                   </div>
                 </div>
+              </Banner>
+            )}
+            {protectConnectionStrings && (
+              <Banner
+                data-testid="protect-connection-strings-banner"
+                className={bannerStyles}
+              >
+                Advanced Connection Options are hidden while the &quot;Protect
+                Connection String Secrets&quot; setting is enabled. Disable the
+                setting to configure Advanced Connection Options or edit your
+                connection string.
               </Banner>
             )}
             <ConnectionStringInput
