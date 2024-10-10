@@ -7,6 +7,7 @@ import {
   type CreateShardKeyData,
   TEST_POLLING_INTERVAL,
   unmanageNamespace,
+  cancelSharding,
 } from './reducer';
 import sinon from 'sinon';
 import type {
@@ -18,6 +19,7 @@ import type {
 } from '../services/atlas-global-writes-service';
 import { wait, waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
+import * as globalWritesReducer from './reducer';
 
 const DB = 'test';
 const COLL = 'coll';
@@ -149,6 +151,18 @@ function createStore({
 }
 
 describe('GlobalWritesStore Store', function () {
+  let confirmationStub;
+
+  beforeEach(() => {
+    confirmationStub = sinon
+      .stub(globalWritesReducer, 'showConfirmation')
+      .resolves(true);
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
+
   it('sets the initial state', function () {
     const store = createStore();
     expect(store.getState().namespace).to.equal(NS);
@@ -237,6 +251,29 @@ describe('GlobalWritesStore Store', function () {
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
       });
+    });
+
+    it('sharding -> cancelling request -> not managed', async function () {
+      let mockManagedNamespace = true;
+      confirmationStub.resolves(true);
+      // initial state === sharding
+      const store = createStore({
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+      });
+      await store.dispatch(fetchClusterShardingData());
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING');
+        expect(store.getState().pollingTimeout).not.to.be.undefined;
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user cancels the sharding request
+      const promise = store.dispatch(cancelSharding());
+      mockManagedNamespace = false;
+      await promise;
+      expect(store.getState().status).to.equal('UNSHARDED');
+      expect(store.getState().pollingTimeout).to.be.undefined;
+      expect(confirmationStub).to.have.been.called;
     });
 
     it('valid shard key', async function () {
