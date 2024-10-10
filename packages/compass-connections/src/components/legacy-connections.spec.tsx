@@ -288,7 +288,9 @@ describe.skip('Connections Component', function () {
         });
 
         it('should enable the connect button', function () {
-          const connectButton = screen.getByText('Connect');
+          const connectButton = screen.getByRole('button', {
+            name: 'Save & Connect',
+          });
           expect(connectButton).to.not.match('disabled');
         });
 

@@ -39,7 +39,6 @@ describe('ConnectionForm Component', function () {
             connectionString: 'mongodb://pineapple:orangutans@localhost:27019',
           },
         }}
-        onSaveClicked={noop}
         {...props}
       />
     );
@@ -54,10 +53,55 @@ describe('ConnectionForm Component', function () {
     expect(screen.getByText('New Connection')).to.exist;
   });
 
-  it('should show the connect button', function () {
+  it('should show no save or connect buttons by default', function () {
     renderForm();
-    const button = screen.getByText('Connect').closest('button');
+    expect(screen.queryByRole('button', { name: 'Save' })).to.be.null;
+    expect(screen.queryByRole('button', { name: 'Connect' })).to.be.null;
+    expect(screen.queryByRole('button', { name: 'Save & Connect' })).to.be.null;
+  });
+
+  it('should show the save button if onSaveClicked is specified', function () {
+    const onSaveClicked = Sinon.spy();
+    renderForm({
+      onSaveClicked: onSaveClicked,
+    });
+    const button = screen
+      .getByRole('button', { name: 'Save' })
+      .closest('button');
     expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
+
+    button?.click();
+    expect(onSaveClicked.callCount).to.equal(1);
+  });
+
+  it('should show the connect button if onConnectClicked is specified', function () {
+    const onConnectClicked = Sinon.spy();
+
+    renderForm({
+      onConnectClicked,
+    });
+    const button = screen
+      .getByRole('button', { name: 'Connect' })
+      .closest('button');
+    expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
+
+    button?.click();
+    expect(onConnectClicked.callCount).to.equal(1);
+  });
+
+  it('should show the save & connect button if onSaveAndConnectClicked is specified', function () {
+    const onSaveAndConnectClicked = Sinon.spy();
+
+    renderForm({
+      onSaveAndConnectClicked,
+    });
+    const button = screen
+      .getByRole('button', { name: 'Save & Connect' })
+      .closest('button');
+    expect(button?.getAttribute('aria-disabled')).to.not.equal('true');
+
+    button?.click();
+    expect(onSaveAndConnectClicked.callCount).to.equal(1);
   });
 
   it('should render the connection string textbox', function () {
@@ -103,6 +147,9 @@ describe('ConnectionForm Component', function () {
           screen.getByTestId('advanced-connection-options')
         ).to.throw;
         expect(() => screen.getByRole('button', { name: 'Connect' })).to.throw;
+        expect(() =>
+          screen.getByRole('button', { name: 'Save & Connect' })
+        ).to.throw;
 
         // pressing enter calls onSubmit which saves
         fireEvent.submit(screen.getByRole('form'));
@@ -137,6 +184,7 @@ describe('ConnectionForm Component', function () {
         expect(screen.getByTestId('toggle-edit-connection-string')).to.exist;
         expect(screen.getByTestId('advanced-connection-options')).to.exist;
         expect(screen.getByRole('button', { name: 'Connect' })).to.exist;
+        expect(screen.getByRole('button', { name: 'Save & Connect' })).to.exist;
 
         // pressing enter calls onSubmit which saves and connects (the default)
         fireEvent.submit(screen.getByRole('form'));

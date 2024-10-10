@@ -30,7 +30,7 @@ describe('<ConnectionFormModalActions />', function () {
     expect(screen.getByText('Error!')).to.be.visible;
   });
 
-  describe('Connect Button', function () {
+  describe('Save&Connect Button', function () {
     it('should call onSaveAndConnect function', function () {
       const onSaveAndConnectSpy = sinon.spy();
       render(
@@ -41,7 +41,9 @@ describe('<ConnectionFormModalActions />', function () {
           onSaveAndConnect={onSaveAndConnectSpy}
         ></ConnectionFormModalActions>
       );
-      const connectButton = screen.getByRole('button', { name: 'Connect' });
+      const connectButton = screen.getByRole('button', {
+        name: 'Save & Connect',
+      });
       userEvent.click(connectButton);
 
       expect(onSaveAndConnectSpy).to.have.been.calledOnce;
@@ -54,7 +56,8 @@ describe('<ConnectionFormModalActions />', function () {
           warnings={[]}
         ></ConnectionFormModalActions>
       );
-      expect(screen.queryByRole('button', { name: 'Connect' })).to.not.exist;
+      expect(screen.queryByRole('button', { name: 'Save & Connect' })).to.not
+        .exist;
     });
   });
 
