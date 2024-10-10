@@ -280,6 +280,22 @@ describe('ConnectionForm Component', function () {
     );
   });
 
+  context('protectConnectionStrings', function () {
+    it('should not render the banner by default', function () {
+      renderForm();
+      expect(
+        screen.queryByTestId('protect-connection-strings-banner')
+      ).to.be.null;
+    });
+
+    it('renders a banner if protectConnectionStrings === true', function () {
+      renderForm({
+        protectConnectionStrings: true,
+      });
+      expect(screen.getByTestId('protect-connection-strings-banner')).to.exist;
+    });
+  });
+
   // TODO(COMPASS-7762)
   context.skip('when preferences.showFavoriteActions === false', function () {
     it('should not render the favorite button', function () {
