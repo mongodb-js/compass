@@ -7,6 +7,7 @@ import {
   TEST_POLLING_INTERVAL,
   unmanageNamespace,
   cancelSharding,
+  setPluginTitleVisibility,
 } from './reducer';
 import sinon from 'sinon';
 import type {
@@ -276,6 +277,33 @@ describe('GlobalWritesStore Store', function () {
       expect(store.getState().status).to.equal('UNSHARDED');
       expect(store.getState().pollingTimeout).to.be.undefined;
       expect(confirmationStub).to.have.been.called;
+    });
+
+    it('sharding -> pause sharding -> resume sharding -> valid shard key', async function () {
+      let mockShardKey = false;
+      confirmationStub.resolves(true);
+      // initial state === sharding
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: Sinon.fake(() => mockShardKey),
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING');
+      });
+
+      // user leaves the workspace
+      store.dispatch(setPluginTitleVisibility(false));
+      mockShardKey = true;
+      await wait(TEST_POLLING_INTERVAL * 2);
+      expect(store.getState().pollingTimeout).to.be.undefined;
+      expect(store.getState().status).to.equal('SHARDING'); // no update
+
+      // user comes back
+      store.dispatch(setPluginTitleVisibility(true));
+      await wait(TEST_POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT'); // now there is an update
+      });
     });
 
     it('valid shard key', async function () {
