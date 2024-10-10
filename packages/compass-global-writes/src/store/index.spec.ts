@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import { type GlobalWritesStore } from '.';
 import { setupStore } from '../../tests/create-store';
 import {
-  fetchClusterShardingData,
   createShardKey,
   type CreateShardKeyData,
   TEST_POLLING_INTERVAL,
@@ -176,9 +175,10 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         hasShardKey: Sinon.fake(() => mockShardKey),
       });
-      await store.dispatch(fetchClusterShardingData());
-      expect(store.getState().status).to.equal('UNSHARDED');
-      expect(store.getState().managedNamespace).to.equal(undefined);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('UNSHARDED');
+        expect(store.getState().managedNamespace).to.equal(undefined);
+      });
 
       // user requests sharding
       const promise = store.dispatch(createShardKey(shardKeyData));
@@ -200,9 +200,10 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         hasShardingError: Sinon.fake(() => mockFailure),
       });
-      await store.dispatch(fetchClusterShardingData());
-      expect(store.getState().status).to.equal('UNSHARDED');
-      expect(store.getState().managedNamespace).to.equal(undefined);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('UNSHARDED');
+        expect(store.getState().managedNamespace).to.equal(undefined);
+      });
 
       // user requests sharding
       const promise = store.dispatch(createShardKey(shardKeyData));
@@ -219,13 +220,16 @@ describe('GlobalWritesStore Store', function () {
     });
 
     it('not managed -> not managed (failed sharding request)', async function () {
+      // initial state === not managed
       const store = createStore({
         failsOnShardingRequest: () => true,
       });
-      await store.dispatch(fetchClusterShardingData());
-      expect(store.getState().status).to.equal('UNSHARDED');
-      expect(store.getState().managedNamespace).to.equal(undefined);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('UNSHARDED');
+        expect(store.getState().managedNamespace).to.equal(undefined);
+      });
 
+      // user tries to submit for sharding, but the request fails
       const promise = store.dispatch(createShardKey(shardKeyData));
       expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
       await promise;
@@ -239,7 +243,6 @@ describe('GlobalWritesStore Store', function () {
         isNamespaceManaged: () => true,
         hasShardKey: Sinon.fake(() => mockShardKey),
       });
-      await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
@@ -260,7 +263,6 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
       });
-      await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING');
         expect(store.getState().pollingTimeout).not.to.be.undefined;
@@ -281,7 +283,6 @@ describe('GlobalWritesStore Store', function () {
         isNamespaceManaged: () => true,
         hasShardKey: () => true,
       });
-      await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
@@ -289,13 +290,11 @@ describe('GlobalWritesStore Store', function () {
     });
 
     it('valid shard key -> not managed', async function () {
+      // initial state === shard key correct
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: () => true,
       });
-
-      // initial state === shard key correct
-      await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
@@ -309,6 +308,7 @@ describe('GlobalWritesStore Store', function () {
     });
 
     it('valid shard key -> valid shard key (failed unmanage attempt)', async function () {
+      // initial state === shard key correct
       let mockFailure = false;
       const store = createStore({
         isNamespaceManaged: () => true,
@@ -316,8 +316,6 @@ describe('GlobalWritesStore Store', function () {
         failsOnShardingRequest: Sinon.fake(() => mockFailure),
       });
 
-      // initial state === shard key correct
-      await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
@@ -336,7 +334,6 @@ describe('GlobalWritesStore Store', function () {
         isNamespaceManaged: () => true,
         hasShardingError: () => true,
       });
-      await store.dispatch(fetchClusterShardingData());
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
