@@ -1,18 +1,21 @@
 import Sinon from 'sinon';
 import { RollingIndexesService } from './rolling-indexes-service';
 import { expect } from 'chai';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 describe('RollingIndexesService', function () {
-  const atlasServiceStub = {
-    automationAgentRequest: Sinon.stub(),
-    automationAgentAwait: Sinon.stub(),
-    authenticatedFetch: Sinon.stub(),
-    cloudEndpoint: Sinon.stub().callsFake((str) => str),
-  };
+  let atlasServiceStub: Sinon.SinonStubbedInstance<AtlasService>;
   let service: RollingIndexesService;
 
   beforeEach(() => {
-    service = new RollingIndexesService(atlasServiceStub, {
+    atlasServiceStub = {
+      automationAgentRequest: Sinon.stub(),
+      automationAgentAwait: Sinon.stub(),
+      authenticatedFetch: Sinon.stub(),
+      cloudEndpoint: Sinon.stub().callsFake((str) => str),
+    } as any;
+
+    service = new RollingIndexesService(atlasServiceStub as any, {
       current: {
         atlasMetadata: {
           projectId: 'abc',
@@ -21,11 +24,6 @@ describe('RollingIndexesService', function () {
         },
       } as any,
     });
-  });
-
-  afterEach(() => {
-    atlasServiceStub.automationAgentRequest.reset();
-    atlasServiceStub.automationAgentAwait.reset();
   });
 
   describe('listRollingIndexes', function () {
@@ -39,7 +37,7 @@ describe('RollingIndexesService', function () {
           { indexName: 'abc', status: 'rolling build' },
           { indexName: 'cba', status: 'exists' },
         ],
-      });
+      } as any);
       const res = await service.listRollingIndexes('db.coll');
       expect(res).to.deep.eq([{ indexName: 'abc', status: 'rolling build' }]);
     });

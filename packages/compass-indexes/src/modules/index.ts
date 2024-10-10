@@ -72,6 +72,10 @@ export type IndexesExtraArgs = {
   connectionInfoRef: ConnectionInfoRef;
   collection: Collection;
   rollingIndexesService: RollingIndexesService;
+  pollingIntervalRef: {
+    regularIndexes: ReturnType<typeof setInterval> | null;
+    searchIndexes: ReturnType<typeof setInterval> | null;
+  };
 };
 export type IndexesThunkDispatch<A extends Action = AnyAction> = ThunkDispatch<
   RootState,

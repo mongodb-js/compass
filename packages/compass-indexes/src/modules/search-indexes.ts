@@ -427,33 +427,27 @@ const updateSearchIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
 
 export const POLLING_INTERVAL = 5000;
 
-const pollIntervalByTabId = new Map<string, ReturnType<typeof setInterval>>();
-
-export const startPollingSearchIndexes = (
-  tabId: string
-): IndexesThunkAction<void, FetchSearchIndexesActions> => {
-  return function (dispatch) {
-    if (pollIntervalByTabId.has(tabId)) {
+export const startPollingSearchIndexes = (): IndexesThunkAction<
+  void,
+  FetchSearchIndexesActions
+> => {
+  return function (dispatch, _getState, { pollingIntervalRef }) {
+    if (pollingIntervalRef.searchIndexes !== null) {
       return;
     }
-
-    pollIntervalByTabId.set(
-      tabId,
-      setInterval(() => {
-        void dispatch(pollSearchIndexes());
-      }, POLLING_INTERVAL)
-    );
+    pollingIntervalRef.searchIndexes = setInterval(() => {
+      void dispatch(pollSearchIndexes());
+    }, POLLING_INTERVAL);
   };
 };
 
-export const stopPollingSearchIndexes = (tabId: string) => {
-  return () => {
-    if (!pollIntervalByTabId.has(tabId)) {
+export const stopPollingSearchIndexes = (): IndexesThunkAction<void, never> => {
+  return (_dispatch, _getState, { pollingIntervalRef }) => {
+    if (pollingIntervalRef.searchIndexes === null) {
       return;
     }
-
-    clearInterval(pollIntervalByTabId.get(tabId));
-    pollIntervalByTabId.delete(tabId);
+    clearInterval(pollingIntervalRef.searchIndexes);
+    pollingIntervalRef.searchIndexes = null;
   };
 };
 
