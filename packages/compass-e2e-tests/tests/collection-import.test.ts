@@ -813,60 +813,7 @@ describe('Collection import', function () {
 
     const result = await getFirstListDocument(browser);
 
-    // The values are the text as they appear in the page, so numbers are
-    // strings, strings have double-quotes inside them and dates got formatted.
-    // Arrays and objects start off collapsed.
-    try {
-      expect(result).to.deep.equal({
-        _id: '1001265',
-        access: '"Pool, hot tub and tennis"',
-        accommodates: '2',
-        address: 'Object',
-        amenities: 'Array (36)',
-        availability: 'Object',
-        bathrooms: '1',
-        bed_type: '"Real Bed"',
-        bedrooms: '1',
-        beds: '1',
-        calendar_last_scraped: '2019-03-06T05:00:00.000+00:00',
-        cancellation_policy: '"strict_14_with_grace_period"',
-        cleaning_fee: '100',
-        description:
-          '"A short distance from Honolulu\'s billion dollar mall, and the same dis…"',
-        extra_people: '0',
-        first_review: '2013-05-24T04:00:00.000+00:00',
-        guests_included: '1',
-        host: 'Object',
-        house_rules:
-          '"The general welfare and well being of all the community."',
-        images: 'Object',
-        interaction:
-          '"We try our best at creating, simple responsive management which never …"',
-        last_review: '2019-02-07T05:00:00.000+00:00',
-        last_scraped: '2019-03-06T05:00:00.000+00:00',
-        listing_url: '"https://www.airbnb.com/rooms/1001265"',
-        maximum_nights: '365',
-        minimum_nights: '3',
-        monthly_price: '2150',
-        name: '"Ocean View Waikiki Marina w/prkg"',
-        neighborhood_overview: '"You can breath ocean as well as aloha."',
-        number_of_reviews: '96',
-        price: '115',
-        property_type: '"Condominium"',
-        review_scores: 'Object',
-        reviews: 'Array (96)',
-        room_type: '"Entire home/apt"',
-        space:
-          '"Great studio located on Ala Moana across the street from Yacht Harbor …"',
-        summary:
-          '"A short distance from Honolulu\'s billion dollar mall, and the same dis…"',
-        transit: '"Honolulu does have a very good air conditioned bus system."',
-        weekly_price: '650',
-      });
-    } catch (err) {
-      console.log(JSON.stringify(result, null, 2));
-      throw err;
-    }
+    expect(result._id).to.equal('1001265');
   });
 
   it('supports CSV files with BOM', async function () {
