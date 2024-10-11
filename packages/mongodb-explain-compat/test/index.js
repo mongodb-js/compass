@@ -1,4 +1,3 @@
-/* global describe, it */
 'use strict';
 const convertExplainCompat = require('..');
 const assert = require('assert');
@@ -11,20 +10,20 @@ function fixture(name) {
   );
 }
 
-describe('convertExplainCompat', () => {
-  it('maps stuff from the SBE format to the pre-SBE format (in1)', () => {
+describe('convertExplainCompat', function () {
+  it('maps stuff from the SBE format to the pre-SBE format (in1)', function () {
     assert.deepStrictEqual(
       convertExplainCompat(fixture('in1')),
       fixture('out1')
     );
   });
-  it('maps stuff from the SBE format to the pre-SBE format (in2)', () => {
+  it('maps stuff from the SBE format to the pre-SBE format (in2)', function () {
     assert.deepStrictEqual(
       convertExplainCompat(fixture('in2')),
       fixture('out2')
     );
   });
-  it('keeps the old SBE format as-is', () => {
+  it('keeps the old SBE format as-is', function () {
     assert.deepStrictEqual(
       convertExplainCompat(fixture('in4')),
       fixture('in4')
@@ -32,7 +31,7 @@ describe('convertExplainCompat', () => {
   });
 
   describe('Sharded Aggregations', function () {
-    it('keeps the classic for as-is - with stages', () => {
+    it('keeps the classic for as-is - with stages', function () {
       assert.deepStrictEqual(
         convertExplainCompat(
           fixture('sharded-aggregate-with-stages.classic.in')
@@ -40,7 +39,7 @@ describe('convertExplainCompat', () => {
         fixture('sharded-aggregate-with-stages.classic.out')
       );
     });
-    it('keeps the classic for as-is - without stages', () => {
+    it('keeps the classic for as-is - without stages', function () {
       assert.deepStrictEqual(
         convertExplainCompat(
           fixture('sharded-aggregate-without-stages.classic.in')
@@ -48,13 +47,13 @@ describe('convertExplainCompat', () => {
         fixture('sharded-aggregate-without-stages.classic.out')
       );
     });
-    it('maps the SBE format to pre-SBE - with stages', () => {
+    it('maps the SBE format to pre-SBE - with stages', function () {
       assert.deepStrictEqual(
         convertExplainCompat(fixture('sharded-aggregate-with-stages.sbe.in')),
         fixture('sharded-aggregate-with-stages.sbe.out')
       );
     });
-    it('maps the SBE format to pre-SBE - without stages', () => {
+    it('maps the SBE format to pre-SBE - without stages', function () {
       assert.deepStrictEqual(
         convertExplainCompat(
           fixture('sharded-aggregate-without-stages.sbe.in')
@@ -79,13 +78,13 @@ describe('convertExplainCompat', () => {
   });
 
   describe('Sharded Queries', function () {
-    it('keeps the classic format as-is', () => {
+    it('keeps the classic format as-is', function () {
       assert.deepStrictEqual(
         convertExplainCompat(fixture('sharded-find.classic.in')),
         fixture('sharded-find.classic.out')
       );
     });
-    it('maps the SBE format to pre-SBE', () => {
+    it('maps the SBE format to pre-SBE', function () {
       assert.deepStrictEqual(
         convertExplainCompat(fixture('sharded-find.sbe.in')),
         fixture('sharded-find.sbe.out')
@@ -93,19 +92,19 @@ describe('convertExplainCompat', () => {
     });
   });
   describe('Unsharded Queries', function () {
-    it('keeps the classic format as-is', () => {
+    it('keeps the classic format as-is', function () {
       assert.deepStrictEqual(
         convertExplainCompat(fixture('unsharded-find.classic.in')),
         fixture('unsharded-find.classic.out')
       );
     });
-    it('maps the SBE format to pre-SBE', () => {
+    it('maps the SBE format to pre-SBE', function () {
       assert.deepStrictEqual(
         convertExplainCompat(fixture('unsharded-find.sbe.in')),
         fixture('unsharded-find.sbe.out')
       );
     });
-    it('handles 7.2 (SERVER-79724) changes to mongos explain for unsharded collections', () => {
+    it('handles 7.2 (SERVER-79724) changes to mongos explain for unsharded collections', function () {
       assert.deepStrictEqual(
         convertExplainCompat(fixture('unsharded-aggregate-on-mongos.7.2.in')),
         fixture('unsharded-aggregate-on-mongos.7.2.out')

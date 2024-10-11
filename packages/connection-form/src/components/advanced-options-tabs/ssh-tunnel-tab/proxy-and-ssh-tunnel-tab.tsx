@@ -22,7 +22,7 @@ import SshTunnelPassword from './ssh-tunnel-password';
 import Socks from './socks';
 import { AppProxy } from './app-proxy';
 import type { ConnectionFormError } from '../../../utils/validation';
-import { useConnectionFormPreference } from '../../../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
 interface TabOption {
   id: string;
@@ -127,7 +127,7 @@ function ProxyAndSshTunnelTab({
   );
 
   const options = [...tabOptions];
-  const showProxySettings = useConnectionFormPreference('showProxySettings');
+  const showProxySettings = useConnectionFormSetting('showProxySettings');
   if (showProxySettings) {
     options.push({
       title: 'Application-level Proxy',

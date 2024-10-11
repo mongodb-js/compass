@@ -52,7 +52,10 @@ import {
   openBulkUpdateSuccessToast,
 } from '../components/bulk-actions-toasts';
 import type { DataService } from '../utils/data-service';
-import type { MongoDBInstance } from '@mongodb-js/compass-app-stores/provider';
+import type {
+  Collection,
+  MongoDBInstance,
+} from '@mongodb-js/compass-app-stores/provider';
 import configureActions from '../actions';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
@@ -167,6 +170,20 @@ export const fetchDocuments: (
 
     throw err;
   }
+};
+
+type CollectionStats = Pick<
+  Collection,
+  'document_count' | 'storage_size' | 'free_storage_size' | 'avg_document_size'
+>;
+const extractCollectionStats = (collection: Collection): CollectionStats => {
+  const coll = collection.toJSON();
+  return {
+    document_count: coll.document_count,
+    storage_size: coll.storage_size,
+    free_storage_size: coll.free_storage_size,
+    avg_document_size: coll.avg_document_size,
+  };
 };
 
 /**
@@ -316,6 +333,7 @@ type CrudState = {
   isUpdatePreviewSupported: boolean;
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
+  collectionStats: CollectionStats | null;
 };
 
 type CrudStoreActionsOptions = {
@@ -347,6 +365,7 @@ class CrudStoreImpl
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
+  collection: Collection;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -362,6 +381,7 @@ class CrudStoreImpl
       | 'fieldStoreService'
       | 'connectionScopedAppRegistry'
       | 'queryBar'
+      | 'collection'
     > & {
       favoriteQueryStorage?: FavoriteQueryStorage;
       recentQueryStorage?: RecentQueryStorage;
@@ -381,6 +401,7 @@ class CrudStoreImpl
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
     this.queryBar = services.queryBar;
+    this.collection = services.collection;
   }
 
   getInitialState(): CrudState {
@@ -418,6 +439,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
+      collectionStats: extractCollectionStats(this.collection),
     };
   }
 
@@ -1516,6 +1538,12 @@ class CrudStoreImpl
     );
   }
 
+  collectionStatsFetched(model: Collection) {
+    this.setState({
+      collectionStats: extractCollectionStats(model),
+    });
+  }
+
   /**
    * This function is called when the collection filter changes.
    */
@@ -1947,6 +1975,7 @@ export type DocumentsPluginServices = {
   connectionInfoRef: ConnectionInfoRef;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
+  collection: Collection;
 };
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,
@@ -1964,6 +1993,7 @@ export function activateDocumentsPlugin(
     connectionInfoRef,
     connectionScopedAppRegistry,
     queryBar,
+    collection,
   }: DocumentsPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
@@ -1984,6 +2014,7 @@ export function activateDocumentsPlugin(
         fieldStoreService,
         connectionScopedAppRegistry,
         queryBar,
+        collection,
       }
     )
   ) as CrudStore;
@@ -2026,6 +2057,12 @@ export function activateDocumentsPlugin(
       }
     }
   );
+
+  on(collection, 'change:status', (model: Collection, status: string) => {
+    if (status === 'ready') {
+      store.collectionStatsFetched(model);
+    }
+  });
 
   if (!options.noRefreshOnConfigure) {
     queueMicrotask(() => {

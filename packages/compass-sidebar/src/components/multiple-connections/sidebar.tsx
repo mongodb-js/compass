@@ -109,6 +109,7 @@ export function MultipleConnectionSidebar({
   const connectionsWithStatus = useConnectionsWithStatus();
   const {
     connect,
+    saveAndConnect,
     disconnect,
     createNewConnection,
     editConnection,
@@ -120,6 +121,7 @@ export function MultipleConnectionSidebar({
     showNonGenuineMongoDBWarningModal,
     state: {
       editingConnectionInfo,
+      isEditingNewConnection,
       isEditingConnectionInfoModalOpen,
       connectionErrors,
     },
@@ -184,6 +186,10 @@ export function MultipleConnectionSidebar({
     [globalAppRegistry]
   );
 
+  const disableEditingConnectedConnection = !!findActiveConnection(
+    editingConnectionInfo.id
+  );
+
   return (
     <ResizableSidebar data-testid="navigation-sidebar" useNewTheme={true}>
       <aside className={sidebarStyles}>
@@ -228,6 +234,10 @@ export function MultipleConnectionSidebar({
         />
         {editingConnectionInfo && (
           <ConnectionFormModal
+            disableEditingConnectedConnection={
+              disableEditingConnectedConnection
+            }
+            onDisconnectClicked={() => disconnect(editingConnectionInfo.id)}
             isOpen={isEditingConnectionInfoModalOpen}
             setOpen={(newOpen) => {
               // This is how leafygreen propagates `X` button click
@@ -236,20 +246,31 @@ export function MultipleConnectionSidebar({
               }
             }}
             initialConnectionInfo={editingConnectionInfo}
-            onSaveAndConnectClicked={(connectionInfo) => {
-              void connect(connectionInfo);
+            connectionErrorMessage={
+              connectionErrors[editingConnectionInfo.id]?.message
+            }
+            openSettingsModal={openSettingsModal}
+            {...formPreferences}
+            onCancel={() => {
+              cancelEditConnection(editingConnectionInfo.id);
             }}
             onSaveClicked={(connectionInfo) => {
               return saveEditedConnection(connectionInfo);
             }}
-            onCancel={() => {
-              cancelEditConnection(editingConnectionInfo.id);
-            }}
-            connectionErrorMessage={
-              connectionErrors[editingConnectionInfo.id]?.message
+            onConnectClicked={
+              isEditingNewConnection || disableEditingConnectedConnection
+                ? undefined
+                : (connectionInfo) => {
+                    void connect(connectionInfo);
+                  }
             }
-            preferences={formPreferences}
-            openSettingsModal={openSettingsModal}
+            onSaveAndConnectClicked={
+              disableEditingConnectedConnection
+                ? undefined
+                : (connectionInfo) => {
+                    void saveAndConnect(connectionInfo);
+                  }
+            }
           />
         )}
         <MappedCsfleModal

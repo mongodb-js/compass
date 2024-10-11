@@ -233,13 +233,15 @@ export function unsetFleOptionsIfEmptyAutoEncryption(
 
   function filterEmptyValues<T extends object>(
     obj: T | undefined
-  ): Partial<T | undefined> {
+  ): { [k in keyof T]: Exclude<T[k], Record<string, never>> } | undefined {
     const values = Object.fromEntries(
       Object.entries(obj ?? {}).filter(
         ([, v]) => Object.keys(v ?? {}).length > 0
       )
     );
-    return Object.keys(values).length > 0 ? (values as Partial<T>) : undefined;
+    return Object.keys(values).length > 0
+      ? (values as { [k in keyof T]: Exclude<T[k], Record<string, never>> })
+      : undefined;
   }
   // Filter out the empty kmsProviders or the tlsOptions
   const kmsProviders = filterEmptyValues(autoEncryption.kmsProviders);
@@ -419,7 +421,6 @@ export function handleRenameKmsProvider<T extends KMSProviderType>({
 
   const kmsProviders = renameDataKey(
     autoEncryption.kmsProviders,
-    // @ts-expect-error multiple kms providers are supported in next driver release
     action.name,
     action.newName
   );

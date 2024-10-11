@@ -6,10 +6,10 @@ import {
   createPluginTestHelpers,
   screen,
 } from '@mongodb-js/testing-library-compass';
-import { CompassSchemaValidationHadronPlugin } from '../../index';
+import { CompassSchemaValidationPlugin } from '../../index';
 
 const { renderWithConnections } = createPluginTestHelpers(
-  CompassSchemaValidationHadronPlugin.withMockServices({
+  CompassSchemaValidationPlugin.provider.withMockServices({
     dataService: {
       collectionInfo() {
         return Promise.resolve({});

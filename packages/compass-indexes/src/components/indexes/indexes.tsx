@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -16,8 +16,8 @@ import { refreshRegularIndexes } from '../../modules/regular-indexes';
 import { refreshSearchIndexes } from '../../modules/search-indexes';
 import type { State as RegularIndexesState } from '../../modules/regular-indexes';
 import type { State as SearchIndexesState } from '../../modules/search-indexes';
-import { SearchIndexesStatuses } from '../../modules/search-indexes';
-import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import { FetchStatuses } from '../../utils/fetch-status';
+import type { FetchStatus } from '../../utils/fetch-status';
 import type { RootState } from '../../modules';
 import {
   CreateSearchIndexModal,
@@ -27,6 +27,7 @@ import type { IndexView } from '../../modules/index-view';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
+import CreateIndexModal from '../create-index-modal/create-index-modal';
 
 // This constant is used as a trigger to show an insight whenever number of
 // indexes in a collection is more than what is specified here.
@@ -66,20 +67,16 @@ const AtlasIndexesBanner = () => {
 
 type IndexesProps = {
   isReadonlyView?: boolean;
-  regularIndexes: Pick<
-    RegularIndexesState,
-    'indexes' | 'error' | 'isRefreshing'
-  >;
+  regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
   currentIndexesView: IndexView;
   refreshRegularIndexes: () => void;
   refreshSearchIndexes: () => void;
 };
 
-function isRefreshingStatus(status: SearchIndexesStatus) {
+function isRefreshingStatus(status: FetchStatus) {
   return (
-    status === SearchIndexesStatuses.FETCHING ||
-    status === SearchIndexesStatuses.REFRESHING
+    status === FetchStatuses.FETCHING || status === FetchStatuses.REFRESHING
   );
 }
 
@@ -109,25 +106,13 @@ export function Indexes({
 
   const isRefreshing =
     currentIndexesView === 'regular-indexes'
-      ? regularIndexes.isRefreshing === true
+      ? isRefreshingStatus(regularIndexes.status)
       : isRefreshingStatus(searchIndexes.status);
 
   const onRefreshIndexes =
     currentIndexesView === 'regular-indexes'
       ? refreshRegularIndexes
       : refreshSearchIndexes;
-
-  const loadIndexes = useCallback(() => {
-    if (currentIndexesView === 'regular-indexes') {
-      refreshRegularIndexes();
-    } else {
-      refreshSearchIndexes();
-    }
-  }, [currentIndexesView, refreshRegularIndexes, refreshSearchIndexes]);
-
-  useEffect(() => {
-    loadIndexes();
-  }, [loadIndexes]);
 
   const enableAtlasSearchIndexes = usePreference('enableAtlasSearchIndexes');
 
@@ -157,6 +142,7 @@ export function Indexes({
       </WorkspaceContainer>
       <CreateSearchIndexModal />
       <UpdateSearchIndexModal />
+      <CreateIndexModal />
     </div>
   );
 }

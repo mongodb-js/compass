@@ -313,6 +313,9 @@ type ConnectionAutoconnectCheckAction = {
 type ConnectionAttemptStartAction = {
   type: ActionTypes.ConnectionAttemptStart;
   connectionInfo: ConnectionInfo;
+  options: {
+    forceSave: boolean;
+  };
 };
 
 type ConnectionAttemptSuccessAction = {
@@ -823,10 +826,13 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         state.connections,
         action.connectionInfo.id,
         {
-          ...(isNewConnection(state, action.connectionInfo.id)
+          ...(isNewConnection(state, action.connectionInfo.id) ||
+          action.options.forceSave
             ? {
-                // For new connections, update the state with new info right
-                // away (we will also save it to the storage at the end)
+                // For new connections or when we're forcing a
+                // save (the Save & Connect button), update the state with new
+                // info right away (we will also save it to the storage at the
+                // end)
                 info: action.connectionInfo,
               }
             : {
@@ -1465,6 +1471,35 @@ export const connect = (
   | ConnectionAttemptCancelledAction
   | OidcNotifyDeviceAuthAction
 > => {
+  return connectWithOptions(connectionInfo, { forceSave: false });
+};
+
+export const saveAndConnect = (
+  connectionInfo: ConnectionInfo
+): ConnectionsThunkAction<
+  Promise<void>,
+  | ConnectionAttemptStartAction
+  | ConnectionAttemptErrorAction
+  | ConnectionAttemptSuccessAction
+  | ConnectionAttemptCancelledAction
+  | OidcNotifyDeviceAuthAction
+> => {
+  return connectWithOptions(connectionInfo, { forceSave: true });
+};
+
+const connectWithOptions = (
+  connectionInfo: ConnectionInfo,
+  options: {
+    forceSave: boolean;
+  }
+): ConnectionsThunkAction<
+  Promise<void>,
+  | ConnectionAttemptStartAction
+  | ConnectionAttemptErrorAction
+  | ConnectionAttemptSuccessAction
+  | ConnectionAttemptCancelledAction
+  | OidcNotifyDeviceAuthAction
+> => {
   return async (
     dispatch,
     getState,
@@ -1516,6 +1551,7 @@ export const connect = (
       dispatch({
         type: ActionTypes.ConnectionAttemptStart,
         connectionInfo,
+        options: { forceSave: options.forceSave },
       });
 
       track(

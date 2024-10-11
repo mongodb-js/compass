@@ -12,7 +12,7 @@ import {
   Badge,
 } from '@mongodb-js/compass-components';
 
-import type { IndexField } from '../modules/create-index/fields';
+import type { Field } from '../modules/create-index';
 
 /**
  * Current allowed types for indexes.
@@ -44,24 +44,24 @@ const createIndexFieldsTypeStyles = css({
 });
 
 export type CreateIndexFieldsProps = {
-  fields: IndexField[];
+  fields: Field[];
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
-  addField: () => void;
-  removeField: (idx: number) => void;
-  updateFieldName: (idx: number, name: string) => void;
-  updateFieldType: (idx: number, fType: string) => void;
+  onAddFieldClick: () => void;
+  onRemoveFieldClick: (idx: number) => void;
+  onSelectFieldNameClick: (idx: number, name: string) => void;
+  onSelectFieldTypeClick: (idx: number, fType: string) => void;
 };
 
 function CreateIndexFields({
   fields,
   serverVersion,
   schemaFields,
-  addField,
-  removeField,
-  updateFieldName,
-  updateFieldType,
+  onAddFieldClick,
+  onRemoveFieldClick,
+  onSelectFieldNameClick,
+  onSelectFieldTypeClick,
 }: CreateIndexFieldsProps): React.ReactElement {
   const [indexTypes, selectorWidth] = useMemo(() => {
     const serverSupportsColumnStoreIndex =
@@ -82,10 +82,10 @@ function CreateIndexFields({
   const onSelectFieldName = useCallback(
     (index: number, name: string | null) => {
       if (name !== null) {
-        updateFieldName(index, name);
+        onSelectFieldNameClick(index, name);
       }
     },
-    [updateFieldName]
+    [onSelectFieldNameClick]
   );
 
   const comboboxOptions = schemaFields.map((value) => ({ value }));
@@ -93,7 +93,7 @@ function CreateIndexFields({
   return (
     <ListEditor
       items={fields}
-      renderItem={(field: IndexField, index: number) => (
+      renderItem={(field: Field, index: number) => (
         <div
           className={createIndexFieldsStyles}
           data-testid={`create-index-fields-line-${index}`}
@@ -132,7 +132,7 @@ function CreateIndexFields({
             <Select
               id={`create-index-fields-type-select-${index}`}
               placeholder={DEFAULT_FIELD.type}
-              onChange={(type) => updateFieldType(index, type)}
+              onChange={(type) => onSelectFieldTypeClick(index, type)}
               allowDeselect={false}
               value={field.type}
               popoverZIndex={999999}
@@ -153,8 +153,8 @@ function CreateIndexFields({
           </div>
         </div>
       )}
-      onAddItem={addField}
-      onRemoveItem={removeField}
+      onAddItem={onAddFieldClick}
+      onRemoveItem={onRemoveFieldClick}
       addButtonTestId="add-index-field-button"
       removeButtonTestId="remove-index-field-button"
     />

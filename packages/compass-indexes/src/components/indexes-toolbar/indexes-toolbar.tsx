@@ -21,13 +21,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import {
-  SearchIndexesStatuses,
-  showCreateModal as onCreateSearchIndex,
-} from '../../modules/search-indexes';
-import { showCreateModal as onCreateRegularIndex } from '../../modules/regular-indexes';
+import { createSearchIndexOpened } from '../../modules/search-indexes';
+import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
-import { changeIndexView } from '../../modules/index-view';
+import { indexViewChanged } from '../../modules/index-view';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -54,14 +51,14 @@ type IndexesToolbarProps = {
   hasTooManyIndexes: boolean;
   isRefreshing: boolean;
   onRefreshIndexes: () => void;
-  onChangeIndexView: (newView: IndexView) => void;
+  onIndexViewChanged: (newView: IndexView) => void;
   // connected:
   isReadonlyView: boolean;
   isWritable: boolean;
-  onCreateRegularIndex: () => void;
-  onCreateSearchIndex: () => void;
+  onCreateRegularIndexClick: () => void;
+  onCreateSearchIndexClick: () => void;
   writeStateDescription?: string;
-  isAtlasSearchSupported: boolean;
+  isSearchIndexesSupported: boolean;
   // via withPreferences:
   readOnly?: boolean;
 };
@@ -71,14 +68,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   errorMessage,
   isReadonlyView,
   isWritable,
-  onCreateRegularIndex,
-  onCreateSearchIndex,
+  onCreateRegularIndexClick,
+  onCreateSearchIndexClick,
   isRefreshing,
   writeStateDescription,
   hasTooManyIndexes,
-  isAtlasSearchSupported,
+  isSearchIndexesSupported,
   onRefreshIndexes,
-  onChangeIndexView,
+  onIndexViewChanged,
   readOnly, // preferences readOnly.
 }) => {
   const isSearchManagementActive = usePreference('enableAtlasSearchIndexes');
@@ -106,10 +103,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                   <div className={createIndexButtonContainerStyles}>
                     <CreateIndexButton
                       isSearchManagementActive={isSearchManagementActive}
-                      isAtlasSearchSupported={isAtlasSearchSupported}
+                      isSearchIndexesSupported={isSearchIndexesSupported}
                       isWritable={isWritable}
-                      onCreateRegularIndex={onCreateRegularIndex}
-                      onCreateSearchIndex={onCreateSearchIndex}
+                      onCreateRegularIndexClick={onCreateRegularIndexClick}
+                      onCreateSearchIndexClick={onCreateSearchIndexClick}
                     ></CreateIndexButton>
                   </div>
                 }
@@ -135,7 +132,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             {isSearchManagementActive && (
               <SegmentedControl
                 size="xsmall"
-                onChange={(evt) => onChangeIndexView(evt as IndexView)}
+                onChange={(evt) => onIndexViewChanged(evt as IndexView)}
                 className={alignSelfEndStyles}
                 label="Viewing"
                 value={indexView}
@@ -147,7 +144,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 >
                   Indexes
                 </SegmentedControlOption>
-                {!isAtlasSearchSupported && (
+                {!isSearchIndexesSupported && (
                   <Tooltip
                     align="top"
                     justify="middle"
@@ -163,19 +160,18 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                     }
                   >
                     <p>
-                      The Atlas Search index management in Compass is only
-                      available for Atlas local deployments and M10+ clusters
-                      running MongoDB 6.0.7 or newer.
+                      Atlas Search index management in Compass is only available
+                      for Atlas local deployments and clusters running MongoDB
+                      6.0.7 or newer.
                     </p>
                     <p>
-                      For clusters running an earlier version of MongoDB or
-                      shared tier clusters you can manage your Atlas Search
-                      indexes from the Atlas web UI, with the CLI, or with the
-                      Administration API.
+                      For clusters running an earlier version of MongoDB, you
+                      can manage your Atlas Search indexes from the Atlas web
+                      Ul, with the CLI, or with the Administration API.
                     </p>
                   </Tooltip>
                 )}
-                {isAtlasSearchSupported && (
+                {isSearchIndexesSupported && (
                   <SegmentedControlOption
                     data-testid="search-indexes-tab"
                     value="search-indexes"
@@ -193,7 +189,9 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           warnings={['Readonly views may not contain indexes.']}
         />
       ) : (
-        !!errorMessage && <ErrorSummary errors={[errorMessage]} />
+        !!errorMessage && (
+          <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
+        )
       )}
     </div>
   );
@@ -201,10 +199,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 
 type CreateIndexButtonProps = {
   isSearchManagementActive: boolean;
-  isAtlasSearchSupported: boolean;
+  isSearchIndexesSupported: boolean;
   isWritable: boolean;
-  onCreateRegularIndex: () => void;
-  onCreateSearchIndex: () => void;
+  onCreateRegularIndexClick: () => void;
+  onCreateSearchIndexClick: () => void;
 };
 
 type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
@@ -213,24 +211,24 @@ export const CreateIndexButton: React.FunctionComponent<
   CreateIndexButtonProps
 > = ({
   isSearchManagementActive,
-  isAtlasSearchSupported,
+  isSearchIndexesSupported,
   isWritable,
-  onCreateRegularIndex,
-  onCreateSearchIndex,
+  onCreateRegularIndexClick,
+  onCreateSearchIndexClick,
 }) => {
   const onActionDispatch = useCallback(
     (action: CreateIndexActions) => {
       switch (action) {
         case 'createRegularIndex':
-          return onCreateRegularIndex();
+          return onCreateRegularIndexClick();
         case 'createSearchIndex':
-          return onCreateSearchIndex();
+          return onCreateSearchIndexClick();
       }
     },
-    [onCreateRegularIndex, onCreateSearchIndex]
+    [onCreateRegularIndexClick, onCreateSearchIndexClick]
   );
 
-  if (isAtlasSearchSupported && isSearchManagementActive) {
+  if (isSearchIndexesSupported && isSearchManagementActive) {
     return (
       <DropdownMenuButton
         data-testid="multiple-index-types-creation-dropdown"
@@ -245,6 +243,7 @@ export const CreateIndexButton: React.FunctionComponent<
           { action: 'createSearchIndex', label: 'Search Index' },
         ]}
         onAction={onActionDispatch}
+        hideOnNarrow={false}
       />
     );
   }
@@ -253,7 +252,7 @@ export const CreateIndexButton: React.FunctionComponent<
     <Button
       data-testid="open-create-index-modal-button"
       disabled={!isWritable}
-      onClick={onCreateRegularIndex}
+      onClick={onCreateRegularIndexClick}
       variant="primary"
       size="small"
     >
@@ -265,6 +264,7 @@ export const CreateIndexButton: React.FunctionComponent<
 const mapState = ({
   isWritable,
   isReadonlyView,
+  isSearchIndexesSupported,
   description,
   serverVersion,
   searchIndexes,
@@ -272,17 +272,17 @@ const mapState = ({
 }: RootState) => ({
   isWritable,
   isReadonlyView,
+  isSearchIndexesSupported,
   writeStateDescription: description,
   indexView,
   serverVersion,
-  isAtlasSearchSupported:
-    searchIndexes.status !== SearchIndexesStatuses.NOT_AVAILABLE,
+  searchIndexes,
 });
 
 const mapDispatch = {
-  onCreateRegularIndex,
-  onCreateSearchIndex,
-  onChangeIndexView: changeIndexView,
+  onCreateRegularIndexClick: createIndexOpened,
+  onCreateSearchIndexClick: createSearchIndexOpened,
+  onIndexViewChanged: indexViewChanged,
 };
 
 export default connect(

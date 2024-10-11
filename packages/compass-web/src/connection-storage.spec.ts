@@ -157,9 +157,11 @@ describe('buildConnectionInfoFromClusterDescription', function () {
           projectId: 'abc',
           metricsId: type === 'serverless' ? `Cluster0-serverless` : '123abc',
           clusterName: `Cluster0-${type}`,
+          clusterUniqueId: '123abc',
           metricsType: type === 'sharded' ? 'cluster' : type,
           instanceSize: expectedInstanceSize,
           regionalBaseUrl: 'https://example.com',
+          clusterType: clusterDescription.clusterType,
         });
     });
   }

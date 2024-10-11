@@ -22,13 +22,13 @@ const requireEnvironmentVariables = (keys) => {
 const getDownloadCenter = (bucketConfig) => {
   requireEnvironmentVariables([
     'DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID',
-    'DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY'
+    'DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY',
   ]);
 
   return new DownloadCenter({
     ...bucketConfig,
     accessKeyId: process.env.DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY
+    secretAccessKey: process.env.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY,
   });
 };
 
@@ -36,28 +36,28 @@ const getKeyPrefix = (channel) => {
   return channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
 };
 
-const uploadAsset = async(channel, asset) => {
+const uploadAsset = async (channel, asset) => {
   const dlCenter = getDownloadCenter({ bucket: DOWNLOADS_BUCKET });
   const objectKey = `${getKeyPrefix(channel)}/${asset.name}`;
   return dlCenter.uploadAsset(objectKey, fs.createReadStream(asset.path));
 };
 
-const downloadManifest = async(key = MANIFEST_OBJECT_KEY) => {
+const downloadManifest = async (key = MANIFEST_OBJECT_KEY) => {
   const dlCenter = getDownloadCenter({ bucket: MANIFEST_BUCKET });
   return dlCenter.downloadConfig(key);
 };
 
-const uploadManifest = async(manifest) => {
+const uploadManifest = async (manifest) => {
   const dlCenter = getDownloadCenter({ bucket: MANIFEST_BUCKET });
   return dlCenter.uploadConfig(MANIFEST_OBJECT_KEY, manifest);
 };
 
 const downloadAssetFromEvergreen = ({ name, path: dest }) => {
   // eslint-disable-next-line no-async-promise-executor
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     requireEnvironmentVariables([
       'EVERGREEN_BUCKET_NAME',
-      'EVERGREEN_BUCKET_KEY_PREFIX'
+      'EVERGREEN_BUCKET_KEY_PREFIX',
     ]);
     const bucket = process.env.EVERGREEN_BUCKET_NAME;
     const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
@@ -77,5 +77,5 @@ module.exports = {
   uploadAsset,
   downloadManifest,
   uploadManifest,
-  downloadAssetFromEvergreen
+  downloadAssetFromEvergreen,
 };

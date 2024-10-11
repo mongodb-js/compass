@@ -1,9 +1,4 @@
-import CreateIndexModal from './components/create-index-modal';
-import { activatePlugin as activateCreateIndexPlugin } from './stores/create-index';
-import {
-  activatePlugin as activateDropIndexPlugin,
-  DropIndexComponent,
-} from './stores/drop-index';
+import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import {
   activateIndexesPlugin,
@@ -15,14 +10,21 @@ import {
   dataServiceLocator,
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
+import {
+  collectionModelLocator,
+  mongoDBInstanceLocator,
+} from '@mongodb-js/compass-app-stores/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { IndexesTabTitle } from './plugin-title';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 
 export const CompassIndexesHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassIndexes',
-    component: Indexes as React.FunctionComponent,
+    component: function IndexesProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
+    },
     activate: activateIndexesPlugin,
   },
   {
@@ -32,38 +34,14 @@ export const CompassIndexesHadronPlugin = registerHadronPlugin(
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),
     track: telemetryLocator,
+    collection: collectionModelLocator,
+    atlasService: atlasServiceLocator,
   }
 );
 
 export const CompassIndexesPlugin = {
   name: 'Indexes' as const,
-  component: CompassIndexesHadronPlugin,
+  provider: CompassIndexesHadronPlugin,
+  content: Indexes as React.FunctionComponent,
+  header: IndexesTabTitle as React.FunctionComponent,
 };
-
-export const CreateIndexPlugin = registerHadronPlugin(
-  {
-    name: 'CreateIndex',
-    activate: activateCreateIndexPlugin,
-    component: CreateIndexModal,
-  },
-  {
-    dataService: dataServiceLocator as DataServiceLocator<'createIndex'>,
-    logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: telemetryLocator,
-    connectionInfoRef: connectionInfoRefLocator,
-  }
-);
-
-export const DropIndexPlugin = registerHadronPlugin(
-  {
-    name: 'DropIndex',
-    activate: activateDropIndexPlugin,
-    component: DropIndexComponent,
-  },
-  {
-    dataService: dataServiceLocator as DataServiceLocator<'dropIndex'>,
-    logger: createLoggerLocator('COMPASS-INDEXES-UI'),
-    track: telemetryLocator,
-    connectionInfoRef: connectionInfoRefLocator,
-  }
-);

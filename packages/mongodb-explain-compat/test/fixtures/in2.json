@@ -56,10 +56,7 @@
       "objSlot": 9,
       "rootSlot": 4,
       "fieldBehavior": "keep",
-      "fields": [
-        "_id",
-        "i"
-      ],
+      "fields": ["_id", "i"],
       "projectFields": [],
       "projectSlots": [],
       "forceNewObject": true,

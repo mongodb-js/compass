@@ -10,8 +10,23 @@ const bson = require('bson');
 
 const transpiler = require('../index');
 
-const outputLanguages = process.env.OUTPUT ? process.env.OUTPUT.split(',') : [ 'csharp', 'python', 'java', 'javascript', 'shell', 'object', 'ruby', 'go', 'rust', 'php'];
-const inputLanguages = process.env.INPUT ? process.env.INPUT.split(',') : [ 'shell' ];
+const outputLanguages = process.env.OUTPUT
+  ? process.env.OUTPUT.split(',')
+  : [
+      'csharp',
+      'python',
+      'java',
+      'javascript',
+      'shell',
+      'object',
+      'ruby',
+      'go',
+      'rust',
+      'php',
+    ];
+const inputLanguages = process.env.INPUT
+  ? process.env.INPUT.split(',')
+  : ['shell'];
 const modes = process.env.MODE ? process.env.MODE.split(',') : [];
 
 const skipType = [];
@@ -45,10 +60,10 @@ const executeJavascript = (input) => {
     ObjectId: bson.ObjectId,
     BSONSymbol: bson.BSONSymbol,
     Timestamp: bson.Timestamp,
-    Code: function(c, s) {
+    Code: function (c, s) {
       return new bson.Code(c, s);
     },
-    Date: function(s) {
+    Date: function (s) {
       const args = Array.from(arguments);
 
       if (args.length === 1) {
@@ -58,7 +73,7 @@ const executeJavascript = (input) => {
       return new Date(Date.UTC(...args));
     },
     Buffer: Buffer,
-    __result: {}
+    __result: {},
   };
   const res = vm.runInContext('__result = ' + input, vm.createContext(sandbox));
   return res;
@@ -73,46 +88,71 @@ fs.readdirSync(testpath).map((file) => {
   if (modes.length > 0 && modes.indexOf(mode) === -1) {
     return;
   }
-  describe(mode, function() {
+  describe(mode, function () {
     const tests = readYAML(path.join(testpath, file));
     for (const type of Object.keys(tests.tests)) {
       if (skipType.indexOf(type) !== -1) {
         continue;
       }
-      describe(`${type}`, function() {
+      describe(`${type}`, function () {
         for (const test of tests.tests[type]) {
           const description = test.description
             ? (d) => {
-              describe(`${test.description}`, function() { return d(); });
-            }
-            : (d) => (d());
+                describe(`${test.description}`, function () {
+                  return d();
+                });
+              }
+            : (d) => d();
           description(() => {
             for (const input of Object.keys(test.input)) {
               if (inputLanguages.indexOf(input) === -1) {
                 continue;
               }
-              const outputLang = test.output ? Object.keys(test.output) : outputLanguages;
+              const outputLang = test.output
+                ? Object.keys(test.output)
+                : outputLanguages;
               for (const output of outputLang) {
                 if (outputLanguages.indexOf(output) === -1) {
                   continue;
                 }
-                if (test.output && output === 'object') { // Can't import libraries from YAML, so un-stringify it first
-                  it(`${input}: ${test.input[input]} => runnable object`, function() {
+                if (test.output && output === 'object') {
+                  // Can't import libraries from YAML, so un-stringify it first
+                  it(`${input}: ${test.input[input]} => runnable object`, function () {
                     const expected = executeJavascript(test.output.object);
-                    const actual = transpiler[input].object.compile(test.input[input]);
-                    if (expected && typeof expected === 'object' && '_bsontype' in expected) {
+                    const actual = transpiler[input].object.compile(
+                      test.input[input]
+                    );
+                    if (
+                      expected &&
+                      typeof expected === 'object' &&
+                      '_bsontype' in expected
+                    ) {
                       expect(actual._bsontype).to.equal(expected._bsontype);
                       expect(actual.value).to.equal(expected.value);
-                    } else if (test.description && test.description.includes('now date')) {
+                    } else if (
+                      test.description &&
+                      test.description.includes('now date')
+                    ) {
                       expect(actual instanceof Date).to.equal(true);
-                    } else if (test.description && test.description.includes('date.now')) {
+                    } else if (
+                      test.description &&
+                      test.description.includes('date.now')
+                    ) {
                       expect(typeof actual).to.equal('number');
                     } else {
                       expect(actual).to.deep.equal(expected);
                     }
                   });
                 } else if (input !== output) {
-                  tests.runner(it, type, expect, input, output, transpiler, test);
+                  tests.runner(
+                    it,
+                    type,
+                    expect,
+                    input,
+                    output,
+                    transpiler,
+                    test
+                  );
                 }
               }
             }

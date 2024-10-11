@@ -2,13 +2,13 @@ import { CollapsibleFieldSet, TextInput } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import React from 'react';
 import { connect } from 'react-redux';
-import type { RootState } from '../../modules/create-index';
-import type { InputOptions } from '../../modules/create-index/options';
+import type { RootState } from '../../modules';
+import type { InputOptions } from '../../modules/create-index';
 import {
-  changeOption,
-  changeOptionEnabled,
+  optionChanged,
+  optionToggled,
   OPTIONS,
-} from '../../modules/create-index/options';
+} from '../../modules/create-index';
 
 type CollapsibleInputProps = {
   name: InputOptions;
@@ -21,7 +21,7 @@ type CollapsibleInputProps = {
   value: string;
   onChange(name: string, newVal: string): void;
   enabled: boolean;
-  onEnabled(name: string, newVal: boolean): void;
+  onToggled(name: string, newVal: boolean): void;
 };
 
 export const CollapsibleInput: React.FunctionComponent<
@@ -37,7 +37,7 @@ export const CollapsibleInput: React.FunctionComponent<
   value,
   onChange,
   enabled,
-  onEnabled,
+  onToggled,
 }) => {
   const id = `create-index-modal-${name}`;
   const inputId = `${id}-${type}`;
@@ -46,7 +46,7 @@ export const CollapsibleInput: React.FunctionComponent<
       id={id}
       toggled={!disabled && enabled}
       onToggle={(enabled) => {
-        onEnabled(name, enabled);
+        onToggled(name, enabled);
       }}
       label={label}
       data-testid={id}
@@ -93,12 +93,12 @@ export default connect(
       description: OPTIONS[name].description,
       optional: OPTIONS[name].optional,
       units: OPTIONS[name].units,
-      value: state.options[name].value,
-      enabled: state.options[name].enabled,
+      value: state.createIndex.options[name].value,
+      enabled: state.createIndex.options[name].enabled,
     };
   },
   {
-    onChange: changeOption,
-    onEnabled: changeOptionEnabled,
+    onChange: optionChanged,
+    onToggled: optionToggled,
   }
 )(CollapsibleInput);

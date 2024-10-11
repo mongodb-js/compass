@@ -3,7 +3,8 @@ export type CollectionSubtab =
   | 'Aggregations'
   | 'Schema'
   | 'Indexes'
-  | 'Validation';
+  | 'Validation'
+  | 'GlobalWrites';
 
 export type WelcomeWorkspace = {
   type: 'Welcome';

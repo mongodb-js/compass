@@ -20,7 +20,7 @@ import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import type { ConnectionFormError, TabId } from '../../utils/validation';
 import { errorsByFieldTab } from '../../utils/validation';
 import { defaultConnectionString } from '../../constants/default-connection';
-import { useConnectionFormPreference } from '../../hooks/use-connect-form-preferences';
+import { useConnectionFormSetting } from '../../hooks/use-connect-form-settings';
 
 const tabsStyles = css({
   marginTop: spacing[2],
@@ -72,7 +72,7 @@ function AdvancedOptionsTabs({
   openSettingsModal?: (tab?: string) => void;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
-  const showCSFLE = useConnectionFormPreference('showCSFLE');
+  const showCSFLE = useConnectionFormSetting('showCSFLE');
 
   const tabs: TabObject[] = [
     { name: 'General', id: 'general', component: GeneralTab },

@@ -143,8 +143,8 @@ export const serverSatisfies = (
   );
 };
 
-// For the user data dirs
-let i = 0;
+// For the user data dirs and logs
+let runCounter = 0;
 
 interface Coverage {
   main?: string;
@@ -569,7 +569,7 @@ async function processCommonOpts({
   if (!defaultUserDataDir) {
     defaultUserDataDir = path.join(
       os.tmpdir(),
-      `user-data-dir-${Date.now().toString(32)}-${++i}`
+      `user-data-dir-${Date.now().toString(32)}-${runCounter}`
     );
   }
   const chromedriverLogPath = path.join(
@@ -630,6 +630,7 @@ async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
 ): Promise<Compass> {
+  runCounter++;
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
 
   const { needsCloseWelcomeModal, webdriverOptions, wdioOptions, chromeArgs } =
@@ -643,6 +644,15 @@ async function startCompassElectron(
   if (opts.firstRun === false) {
     chromeArgs.push('--showed-network-opt-in=true');
   }
+
+  // Logging output from Electron, even before the app loads any JavaScript
+  const electronLogFile = path.join(LOG_PATH, `electron-${runCounter}.log`);
+  chromeArgs.push(
+    // See https://www.electronjs.org/docs/latest/api/command-line-switches#--enable-loggingfile
+    '--enable-logging=file',
+    // See https://www.electronjs.org/docs/latest/api/command-line-switches#--log-filepath
+    `--log-file=${electronLogFile}`
+  );
 
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
@@ -756,6 +766,7 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
+  runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
   const browser: CompassBrowser = (await remote({
@@ -1009,19 +1020,28 @@ export async function init(
   // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
   await browser.setTimeout({ script: 5_000 });
 
-  // larger window for more consistent results
-  const [width, height] = await browser.execute(() => {
-    // in case setWindowSize() below doesn't work
-    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+  if (TEST_COMPASS_WEB) {
+    // larger window for more consistent results
+    const [width, height] = await browser.execute(() => {
+      // in case setWindowSize() below doesn't work
+      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
 
-    return [window.screen.availWidth, window.screen.availHeight];
-  });
-  debug(`available width=${width}, height=${height}`);
-  try {
-    // window.resizeTo() doesn't work on firefox
-    await browser.setWindowSize(width, height);
-  } catch (err: any) {
-    console.error(err?.stack);
+      return [window.screen.availWidth, window.screen.availHeight];
+    });
+    // getting available width=1512, height=944 in electron on mac which is arbitrary
+    debug(`available width=${width}, height=${height}`);
+    try {
+      // window.resizeTo() doesn't work on firefox
+      await browser.setWindowSize(width, height);
+    } catch (err: any) {
+      console.error(err?.stack);
+    }
+  } else {
+    await browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { ipcRenderer } = require('electron');
+      ipcRenderer.invoke('compass:maximize');
+    });
   }
 
   if (compass.needsCloseWelcomeModal) {

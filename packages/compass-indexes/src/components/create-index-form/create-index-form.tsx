@@ -1,10 +1,15 @@
 import React, { useMemo } from 'react';
 import { css, spacing, Accordion, Body } from '@mongodb-js/compass-components';
+import type { Field } from '../../modules/create-index';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/columnstore-indexes';
 import CheckboxInput from './checkbox-input';
 import CollapsibleInput from './collapsible-input';
+import {
+  useConnectionInfo,
+  useConnectionSupports,
+} from '@mongodb-js/compass-connections/provider';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[4]}px 0 ${spacing[5]}px 0`,
@@ -18,27 +23,30 @@ const createIndexModalOptionStyles = css({
   paddingLeft: spacing[1] + 2,
 });
 
-type IndexField = { name: string; type: string };
-
 type CreateIndexFormProps = {
   namespace: string;
-  fields: IndexField[];
+  fields: Field[];
   serverVersion: string;
-  updateFieldName: (idx: number, name: string) => void;
-  updateFieldType: (idx: number, fType: string) => void;
-  addField: () => void; // Plus icon.
-  removeField: (idx: number) => void; // Minus icon.
+  onSelectFieldNameClick: (idx: number, name: string) => void;
+  onSelectFieldTypeClick: (idx: number, fType: string) => void;
+  onAddFieldClick: () => void; // Plus icon.
+  onRemoveFieldClick: (idx: number) => void; // Minus icon.
 };
 
 function CreateIndexForm({
   namespace,
   fields,
   serverVersion,
-  updateFieldName,
-  updateFieldType,
-  addField,
-  removeField,
+  onSelectFieldNameClick,
+  onSelectFieldTypeClick,
+  onAddFieldClick,
+  onRemoveFieldClick,
 }: CreateIndexFormProps) {
+  const { id: connectionId } = useConnectionInfo();
+  const supportsRollingIndexes = useConnectionSupports(
+    connectionId,
+    'rollingIndexCreation'
+  );
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
     return schemaFields
@@ -65,10 +73,10 @@ function CreateIndexForm({
             fields={fields}
             serverVersion={serverVersion}
             isRemovable={!(fields.length > 1)}
-            updateFieldName={updateFieldName}
-            updateFieldType={updateFieldType}
-            addField={addField}
-            removeField={removeField}
+            onSelectFieldNameClick={onSelectFieldNameClick}
+            onSelectFieldTypeClick={onSelectFieldTypeClick}
+            onAddFieldClick={onAddFieldClick}
+            onRemoveFieldClick={onRemoveFieldClick}
           />
         ) : null}
       </div>
@@ -87,6 +95,9 @@ function CreateIndexForm({
             <CollapsibleInput name="columnstoreProjection"></CollapsibleInput>
           )}
           <CheckboxInput name="sparse"></CheckboxInput>
+          {supportsRollingIndexes && (
+            <CheckboxInput name="buildInRollingProcess"></CheckboxInput>
+          )}
         </div>
       </Accordion>
     </>

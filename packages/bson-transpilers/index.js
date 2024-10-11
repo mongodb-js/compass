@@ -3,12 +3,13 @@ const antlr4 = require('antlr4');
 const ECMAScriptLexer = require('./lib/antlr/ECMAScriptLexer.js');
 const ECMAScriptParser = require('./lib/antlr/ECMAScriptParser.js');
 
-const JavascriptANTLRVisitor = require('./lib/antlr/ECMAScriptVisitor').ECMAScriptVisitor;
+const JavascriptANTLRVisitor =
+  require('./lib/antlr/ECMAScriptVisitor').ECMAScriptVisitor;
 
 const ErrorListener = require('./codegeneration/ErrorListener.js');
 const {
   BsonTranspilersInternalError,
-  BsonTranspilersUnimplementedError
+  BsonTranspilersUnimplementedError,
 } = require('./helper/error');
 
 const yaml = require('js-yaml');
@@ -68,8 +69,16 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
 
   /* Object validation. If the symbol table is missing any of these elements,
    * then an error should be thrown. Can be empty, but must exist. */
-  ['BasicTypes', 'BsonTypes', 'NativeTypes', 'SymbolTypes', 'BsonTypes',
-    'BsonSymbols', 'NativeSymbols', 'SymbolTypes'].map((k) => {
+  [
+    'BasicTypes',
+    'BsonTypes',
+    'NativeTypes',
+    'SymbolTypes',
+    'BsonTypes',
+    'BsonSymbols',
+    'NativeSymbols',
+    'SymbolTypes',
+  ].map((k) => {
     if (!(k in doc)) {
       throw new BsonTranspilersInternalError(
         `Invalid Symbol Table: missing ${k}`
@@ -82,15 +91,14 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
     Symbols: Object.assign({}, doc.BsonSymbols, doc.NativeSymbols),
     Types: Object.assign({}, doc.BasicTypes, doc.BsonTypes, doc.NativeTypes),
     Syntax: doc.Syntax,
-    Imports: doc.Imports
+    Imports: doc.Imports,
   });
 
   const compile = (input, idiomatic, driverSyntax) => {
     try {
       const tree = loadTree(input, transpiler.startRule);
-      transpiler.idiomatic = idiomatic === undefined ?
-        transpiler.idiomatic :
-        idiomatic;
+      transpiler.idiomatic =
+        idiomatic === undefined ? transpiler.idiomatic : idiomatic;
       if (!driverSyntax) {
         transpiler.clearImports();
         transpiler.clearDeclarations();
@@ -113,19 +121,24 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
 
       const result = {};
       Object.keys(input).map((k) => {
-        result[k] = (k === 'options' || k === 'exportMode') ? input[k] : compile(input[k], idiomatic, true);
+        result[k] =
+          k === 'options' || k === 'exportMode'
+            ? input[k]
+            : compile(input[k], idiomatic, true);
       });
-      if (!('options' in result) ||
-          !('uri' in result.options) ||
-          !('database' in result.options) ||
-          !('collection' in result.options)) {
+      if (
+        !('options' in result) ||
+        !('uri' in result.options) ||
+        !('database' in result.options) ||
+        !('collection' in result.options)
+      ) {
         throw new BsonTranspilersInternalError(
           'Missing required metadata to generate drivers syntax'
         );
       }
       if (!('aggregation' in result) && !('filter' in result)) {
         throw new BsonTranspilersInternalError(
-          'Need to pass \'aggregation\' or \'filter\' when compiling with driver syntax'
+          "Need to pass 'aggregation' or 'filter' when compiling with driver syntax"
         );
       }
       if (!transpiler.Syntax.driver) {
@@ -138,7 +151,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
     compile: compile,
     getImports: (mode, driverSyntax) => {
       return transpiler.getImports(mode, driverSyntax);
-    }
+    },
   };
 };
 
@@ -146,60 +159,78 @@ module.exports = {
   shell: {
     java: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getJavaGenerator,
       shelljavasymbols
     ),
     python: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getPythonGenerator,
       shellpythonsymbols
     ),
     csharp: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getCsharpGenerator,
       shellcsharpsymbols
     ),
     javascript: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getJavascriptGenerator,
       shelljavascriptsymbols
     ),
     object: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getObjectGenerator,
       shellobjectsymbols
     ),
     ruby: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getRubyGenerator,
       shellrubysymbols
     ),
     go: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getGoGenerator,
       shellgosymbols
     ),
     rust: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getRustGenerator,
       shellrustsymbols
     ),
     php: getTranspiler(
       loadJSTree,
-      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getShellVisitor(
+        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+      ),
       getPhpGenerator,
       shellphpsymbols
-    )
+    ),
   },
   getTree: {
-    shell: loadJSTree
-  }
+    shell: loadJSTree,
+  },
 };

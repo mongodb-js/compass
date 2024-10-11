@@ -6,8 +6,6 @@ const {
   isServe,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
-const { startElectronProxy } = require('./scripts/start-electron-proxy');
-const { createWebSocketProxy } = require('./scripts/ws-proxy');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 
@@ -17,7 +15,7 @@ function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
 }
 
-module.exports = async (env, args) => {
+module.exports = (env, args) => {
   const serve = isServe({ env });
 
   let config = createWebConfig({
@@ -29,6 +27,8 @@ module.exports = async (env, args) => {
   delete config.externals;
 
   config = merge(config, {
+    context: __dirname,
+
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
@@ -143,10 +143,6 @@ module.exports = async (env, args) => {
   });
 
   if (serve) {
-    startElectronProxy();
-    // TODO: logs are pretty rough here, should make it better
-    createWebSocketProxy();
-
     config.output = {
       path: config.output.path,
       filename: config.output.filename,
@@ -180,6 +176,14 @@ module.exports = async (env, args) => {
           tls: localPolyfill('tls'),
         },
       },
+      plugins: [
+        new webpack.DefinePlugin({
+          // Matches the electron-proxy.js default value
+          'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
+            process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
+          ),
+        }),
+      ],
     });
   }
 

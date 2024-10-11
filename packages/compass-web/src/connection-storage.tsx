@@ -25,12 +25,14 @@ type ReplicationSpec = {
   regionConfigs: RegionConfig[];
 };
 
+type ClusterType = 'REPLICASET' | 'SHARDED' | 'GEOSHARDED';
+
 type ClusterDescription = {
   '@provider': string;
   uniqueId: string;
   groupId: string;
   name: string;
-  clusterType: string;
+  clusterType: ClusterType;
   srvAddress: string;
   state: string;
   deploymentItemName: string;
@@ -148,7 +150,8 @@ export function buildConnectionInfoFromClusterDescription(
   orgId: string,
   projectId: string,
   description: ClusterDescriptionWithDataProcessingRegion,
-  deployment: Deployment
+  deployment: Deployment,
+  extraConnectionOptions?: Record<string, any>
 ) {
   const connectionString = new ConnectionString(
     `mongodb+srv://${description.srvAddress}`
@@ -165,6 +168,10 @@ export function buildConnectionInfoFromClusterDescription(
   connectionString.searchParams.set('maxPoolSize', '3');
   if (isSharded(description)) {
     connectionString.searchParams.set('srvMaxHosts', '3');
+  }
+
+  for (const [key, value] of Object.entries(extraConnectionOptions ?? {})) {
+    connectionString.searchParams.set(key, String(value));
   }
 
   const deploymentItem = findDeploymentItemByClusterName(
@@ -191,10 +198,12 @@ export function buildConnectionInfoFromClusterDescription(
     atlasMetadata: {
       orgId: orgId,
       projectId: projectId,
+      clusterUniqueId: description.uniqueId,
       clusterName: description.name,
       regionalBaseUrl: description.dataProcessingRegion.regionalUrl,
       ...getMetricsIdAndType(description, deploymentItem),
       instanceSize: getInstanceSize(description),
+      clusterType: description.clusterType,
     },
   };
 }
@@ -207,7 +216,8 @@ class AtlasCloudConnectionStorage
   constructor(
     private atlasService: AtlasService,
     private orgId: string,
-    private projectId: string
+    private projectId: string,
+    private extraConnectionOptions?: Record<string, any>
   ) {
     super();
   }
@@ -272,27 +282,53 @@ class AtlasCloudConnectionStorage
         this.orgId,
         this.projectId,
         description,
-        deployment
+        deployment,
+        this.extraConnectionOptions
       );
     });
   }
 
-  loadAll(): Promise<ConnectionInfo[]> {
-    return (this.loadAllPromise ??=
-      this._loadAndNormalizeClusterDescriptionInfo());
+  async loadAll(): Promise<ConnectionInfo[]> {
+    try {
+      return (this.loadAllPromise ??=
+        this._loadAndNormalizeClusterDescriptionInfo());
+    } finally {
+      delete this.loadAllPromise;
+    }
   }
 }
 
 const SandboxConnectionStorageContext =
   React.createContext<ConnectionStorage | null>(null);
 
+const SandboxExtraConnectionOptionsContext = React.createContext<
+  Record<string, any> | undefined
+>(undefined);
+
 /**
  * Only used in the sandbox to provide connection info when connecting to the
  * non-Atlas deployment
  * @internal
  */
-export const SandboxConnectionStorageProviver =
-  SandboxConnectionStorageContext.Provider;
+export const SandboxConnectionStorageProviver = ({
+  value,
+  extraConnectionOptions,
+  children,
+}: {
+  value: ConnectionStorage | null;
+  extraConnectionOptions?: Record<string, any>;
+  children: React.ReactNode;
+}) => {
+  return (
+    <SandboxConnectionStorageContext.Provider value={value}>
+      <SandboxExtraConnectionOptionsContext.Provider
+        value={extraConnectionOptions}
+      >
+        {children}
+      </SandboxExtraConnectionOptionsContext.Provider>
+    </SandboxConnectionStorageContext.Provider>
+  );
+};
 
 export const AtlasCloudConnectionStorageProvider = createServiceProvider(
   function AtlasCloudConnectionStorageProvider({
@@ -304,9 +340,17 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
     projectId: string;
     children: React.ReactChild;
   }) {
+    const extraConnectionOptions = useContext(
+      SandboxExtraConnectionOptionsContext
+    );
     const atlasService = atlasServiceLocator();
     const storage = useRef(
-      new AtlasCloudConnectionStorage(atlasService, orgId, projectId)
+      new AtlasCloudConnectionStorage(
+        atlasService,
+        orgId,
+        projectId,
+        extraConnectionOptions
+      )
     );
     const sandboxConnectionStorage = useContext(
       SandboxConnectionStorageContext

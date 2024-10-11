@@ -1,3 +1,4 @@
+import React from 'react';
 import { registerHadronPlugin } from 'hadron-app-registry';
 import { AggregationsPlugin } from './plugin';
 import { activateAggregationsPlugin } from './stores/store';
@@ -28,11 +29,14 @@ import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 import { connectionRepositoryAccessLocator } from '@mongodb-js/compass-connections/provider';
+import { AggregationsTabTitle } from './plugin-title';
 
-export const CompassAggregationsHadronPlugin = registerHadronPlugin(
+const CompassAggregationsHadronPlugin = registerHadronPlugin(
   {
     name: 'CompassAggregations',
-    component: AggregationsPlugin,
+    component: function AggregationsProvider({ children }) {
+      return React.createElement(React.Fragment, null, children);
+    },
     activate: activateAggregationsPlugin,
   },
   {
@@ -57,7 +61,9 @@ export const CompassAggregationsHadronPlugin = registerHadronPlugin(
 
 export const CompassAggregationsPlugin = {
   name: 'Aggregations' as const,
-  component: CompassAggregationsHadronPlugin,
+  provider: CompassAggregationsHadronPlugin,
+  content: AggregationsPlugin,
+  header: AggregationsTabTitle,
 };
 
 export const CreateViewPlugin = registerHadronPlugin(

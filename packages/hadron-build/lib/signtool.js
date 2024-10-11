@@ -3,12 +3,11 @@ const path = require('path');
 const debug = require('debug')('hadron-build:target');
 const { sign: _garasign } = require('@mongodb-js/signing-utils');
 
-const canSign = () => (
+const canSign = () =>
   process.env.GARASIGN_USERNAME &&
   process.env.GARASIGN_PASSWORD &&
   process.env.ARTIFACTORY_USERNAME &&
-  process.env.ARTIFACTORY_PASSWORD
-);
+  process.env.ARTIFACTORY_PASSWORD;
 
 /**
  * When using gpg to sign a file, it creates a signature file

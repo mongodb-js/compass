@@ -24,7 +24,7 @@ describe('hadron-build', () => {
       main: false,
       renderer: false,
       functional: false,
-      release: false
+      release: false,
     };
 
     const cwd = process.cwd();
@@ -40,31 +40,39 @@ describe('hadron-build', () => {
 
     describe('::getSpawnJobs', () => {
       it.skip('should return arguments for requested suite jobs', () => {
-        const argv = _.defaults({
-          unit: true,
-          enzyme: true,
-          main: true,
-          renderer: true,
-          functional: true
-        }, DEFAULT_ARGS);
+        const argv = _.defaults(
+          {
+            unit: true,
+            enzyme: true,
+            main: true,
+            renderer: true,
+            functional: true,
+          },
+          DEFAULT_ARGS
+        );
         expect(commands.test.getSpawnJobs(argv)).to.deep.equal({
           unit: ['--sort', '--recursive', './test/unit'],
           enzyme: ['--sort', '--recursive', './test/enzyme'],
           main: ['--sort', '--recursive', './test/main'],
           renderer: ['--sort', '--renderer', '--recursive', './test/renderer'],
-          functional: ['--sort', './test/functional']
+          functional: ['--sort', './test/functional'],
         });
       });
     });
     describe('::getMochaArgs', () => {
       context('when the arguments are default', () => {
         it.skip('should allow pass through of mocha cli options', () => {
-          var argv = _.defaults({
-            grep: '#spectron'
-          }, DEFAULT_ARGS);
+          var argv = _.defaults(
+            {
+              grep: '#spectron',
+            },
+            DEFAULT_ARGS
+          );
 
           expect(commands.test.getMochaArgs(argv)).to.deep.equal([
-            '--sort', '--grep', '#spectron'
+            '--sort',
+            '--grep',
+            '#spectron',
           ]);
         });
       });
@@ -72,7 +80,9 @@ describe('hadron-build', () => {
 
     describe('::handler', () => {
       it('should set `NODE_ENV` to testing');
-      it('should set the TEST_WITH_PREBUILT environment variable if --release specified');
+      it(
+        'should set the TEST_WITH_PREBUILT environment variable if --release specified'
+      );
       it('should remove the user-data directory');
       it('should spawn electron-mocha');
     });

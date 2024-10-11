@@ -595,7 +595,7 @@ export const CollectionTab = '[data-testid="collection-tabs"]';
 export const CollectionTabStats = (
   tabName: 'documents' | 'indexes'
 ): string => {
-  return `[data-testid="${tabName}-tab-with-stats"] [data-testid="collection-stats"]`;
+  return `[data-testid="${tabName}-tab-title"] [data-testid="collection-stats"]`;
 };
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
@@ -1088,6 +1088,7 @@ export const indexComponent = (name: string): string => {
 };
 export const IndexFieldName = '[data-testid="indexes-name-field"]';
 export const IndexFieldType = '[data-testid="indexes-type-field"]';
+export const IndexPropertyInProgress = '[data-testid="index-in-progress"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const indexToggleOption = (fieldName: string) => {

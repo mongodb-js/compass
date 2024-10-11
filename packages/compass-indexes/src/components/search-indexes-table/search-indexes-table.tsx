@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import type { SearchIndex, SearchIndexStatus } from 'mongodb-data-service';
@@ -21,47 +21,51 @@ import type {
   LGTableDataType,
 } from '@mongodb-js/compass-components';
 
+import { FetchStatuses } from '../../utils/fetch-status';
 import {
-  SearchIndexesStatuses,
   dropSearchIndex,
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
-  pollSearchIndexes,
-  showCreateModal,
-  showUpdateModal,
+  createSearchIndexOpened,
+  updateSearchIndexOpened,
+  startPollingSearchIndexes,
+  stopPollingSearchIndexes,
 } from '../../modules/search-indexes';
-import type { SearchIndexesStatus } from '../../modules/search-indexes';
+import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import { ZeroGraphic } from './zero-graphic';
 import type { RootState } from '../../modules';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-
-export const POLLING_INTERVAL = 5000;
+import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
 type SearchIndexesTableProps = {
   namespace: string;
   indexes: SearchIndex[];
   isWritable?: boolean;
   readOnly?: boolean;
-  onDropIndex: (name: string) => void;
-  onEditIndex: (name: string) => void;
-  openCreateModal: () => void;
-  onPollIndexes: () => void;
-  status: SearchIndexesStatus;
-  pollingInterval?: number;
+  status: FetchStatus;
+  onDropIndexClick: (name: string) => void;
+  onEditIndexClick: (name: string) => void;
+  onOpenCreateModalClick: () => void;
+  onSearchIndexesOpened: (tabId: string) => void;
+  onSearchIndexesClosed: (tabId: string) => void;
 };
 
-function isReadyStatus(status: SearchIndexesStatus) {
+function isReadyStatus(status: FetchStatus) {
   return (
-    status === SearchIndexesStatuses.READY ||
-    status === SearchIndexesStatuses.REFRESHING ||
-    status === SearchIndexesStatuses.POLLING
+    status === FetchStatuses.READY ||
+    status === FetchStatuses.REFRESHING ||
+    status === FetchStatuses.POLLING
   );
 }
 
-function ZeroState({ openCreateModal }: { openCreateModal: () => void }) {
+function ZeroState({
+  onOpenCreateModalClick,
+}: {
+  onOpenCreateModalClick: () => void;
+}) {
   return (
     <EmptyContent
       icon={ZeroGraphic}
@@ -69,7 +73,7 @@ function ZeroState({ openCreateModal }: { openCreateModal: () => void }) {
       subTitle="Atlas Search is an embedded full-text search in MongoDB Atlas that gives you a seamless, scalable experience for building relevance-based app features."
       callToAction={
         <Button
-          onClick={openCreateModal}
+          onClick={onOpenCreateModalClick}
           data-testid="create-atlas-search-index-button"
           variant="primary"
           size="small"
@@ -274,22 +278,24 @@ export const SearchIndexesTable: React.FunctionComponent<
   indexes,
   isWritable,
   readOnly,
-  openCreateModal,
-  onEditIndex,
   status,
-  onDropIndex,
-  onPollIndexes,
-  pollingInterval = POLLING_INTERVAL,
+  onOpenCreateModalClick,
+  onEditIndexClick,
+  onDropIndexClick,
+  onSearchIndexesOpened,
+  onSearchIndexesClosed,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
   const { id: connectionId } = useConnectionInfo();
 
+  const tabId = useWorkspaceTabId();
+
   useEffect(() => {
-    const id = setInterval(onPollIndexes, pollingInterval);
+    onSearchIndexesOpened(tabId);
     return () => {
-      clearInterval(id);
+      onSearchIndexesClosed(tabId);
     };
-  }, [onPollIndexes, pollingInterval]);
+  }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
 
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
     () =>
@@ -319,8 +325,8 @@ export const SearchIndexesTable: React.FunctionComponent<
           actions: (
             <SearchIndexActions
               index={index}
-              onDropIndex={onDropIndex}
-              onEditIndex={onEditIndex}
+              onDropIndex={onDropIndexClick}
+              onEditIndex={onEditIndexClick}
               onRunAggregateIndex={(name) => {
                 openCollectionWorkspace(connectionId, namespace, {
                   newTab: true,
@@ -336,27 +342,30 @@ export const SearchIndexesTable: React.FunctionComponent<
               }}
             />
           ),
-          // eslint-disable-next-line react/display-name
-          renderExpandedContent: () => (
-            <div
-              className={searchIndexDetailsStyles}
-              data-testid={`search-indexes-details-${index.name}`}
-            >
-              {isVectorSearchIndex ? (
-                <VectorSearchIndexDetails definition={index.latestDefinition} />
-              ) : (
-                <SearchIndexDetails definition={index.latestDefinition} />
-              )}
-            </div>
-          ),
+          renderExpandedContent() {
+            return (
+              <div
+                className={searchIndexDetailsStyles}
+                data-testid={`search-indexes-details-${index.name}`}
+              >
+                {isVectorSearchIndex ? (
+                  <VectorSearchIndexDetails
+                    definition={index.latestDefinition}
+                  />
+                ) : (
+                  <SearchIndexDetails definition={index.latestDefinition} />
+                )}
+              </div>
+            );
+          },
         };
       }),
     [
       connectionId,
       indexes,
       namespace,
-      onDropIndex,
-      onEditIndex,
+      onDropIndexClick,
+      onEditIndexClick,
       openCollectionWorkspace,
     ]
   );
@@ -369,7 +378,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
-    return <ZeroState openCreateModal={openCreateModal} />;
+    return <ZeroState onOpenCreateModalClick={onOpenCreateModalClick} />;
   }
 
   const canModifyIndex = isWritable && !readOnly;
@@ -392,10 +401,11 @@ const mapState = ({ searchIndexes, isWritable, namespace }: RootState) => ({
 });
 
 const mapDispatch = {
-  onDropIndex: dropSearchIndex,
-  openCreateModal: showCreateModal,
-  onEditIndex: showUpdateModal,
-  onPollIndexes: pollSearchIndexes,
+  onDropIndexClick: dropSearchIndex,
+  onOpenCreateModalClick: createSearchIndexOpened,
+  onEditIndexClick: updateSearchIndexOpened,
+  onSearchIndexesOpened: startPollingSearchIndexes,
+  onSearchIndexesClosed: stopPollingSearchIndexes,
 };
 
 export default connect(

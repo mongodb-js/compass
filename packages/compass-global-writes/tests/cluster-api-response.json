@@ -1,0 +1,17 @@
+{
+  "geoSharding": {
+    "customZoneMapping": {},
+    "managedNamespaces": [
+      {
+        "collection": "listingsAndReviews",
+        "customShardKey": "address.country",
+        "db": "sample_airbnb",
+        "isCustomShardKeyHashed": false,
+        "isShardKeyUnique": false,
+        "numInitialChunks": null,
+        "presplitHashedZones": false
+      }
+    ],
+    "selfManagedSharding": false
+  }
+}

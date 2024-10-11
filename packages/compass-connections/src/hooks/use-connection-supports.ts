@@ -1,30 +1,7 @@
 import { useSelector } from '../stores/store-context';
-import type { ConnectionState } from '../stores/connections-store-redux';
+import type { ConnectionFeature } from '../utils/connection-supports';
+import { connectionSupports } from '../utils/connection-supports';
 
-// only one for now
-type ConnectionFeature = 'rollingIndexCreation';
-
-function isFreeOrSharedTierCluster(instanceSize: string | undefined): boolean {
-  if (!instanceSize) {
-    return false;
-  }
-
-  return ['M0', 'M2', 'M5'].includes(instanceSize);
-}
-
-function supportsRollingIndexCreation(connection: ConnectionState) {
-  const atlasMetadata = connection.info?.atlasMetadata;
-
-  if (!atlasMetadata) {
-    return false;
-  }
-
-  const { metricsType, instanceSize } = atlasMetadata;
-  return (
-    !isFreeOrSharedTierCluster(instanceSize) &&
-    (metricsType === 'cluster' || metricsType === 'replicaSet')
-  );
-}
 export function useConnectionSupports(
   connectionId: string,
   connectionFeature: ConnectionFeature
@@ -36,10 +13,6 @@ export function useConnectionSupports(
       return false;
     }
 
-    if (connectionFeature === 'rollingIndexCreation') {
-      return supportsRollingIndexCreation(connection);
-    }
-
-    return false;
+    return connectionSupports(connection.info, connectionFeature);
   });
 }

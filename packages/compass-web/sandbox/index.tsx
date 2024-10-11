@@ -37,6 +37,13 @@ const App = () => {
   return (
     <SandboxConnectionStorageProviver
       value={isAtlas ? null : sandboxConnectionStorage}
+      extraConnectionOptions={
+        isAtlas
+          ? // In the sandbox we're waiting for cert user to be propagated to
+            // the clusters, it can take awhile on the first connection
+            { connectTimeoutMS: 120_000, serverSelectionTimeoutMS: 120_000 }
+          : {}
+      }
     >
       <Body as="div" className={sandboxContainerStyles}>
         <CompassWeb
@@ -50,6 +57,7 @@ const App = () => {
             maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
             atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
             enableCreatingNewConnections: !isAtlas,
+            enableGlobalWrites: isAtlas,
           }}
           onTrack={sandboxTelemetry.track}
           onDebug={sandboxLogger.debug}
