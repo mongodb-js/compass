@@ -1,4 +1,10 @@
-import React, { useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Table,
   TableBody,
@@ -13,6 +19,7 @@ import {
   type LeafyGreenTableRow,
   flexRender,
   type HeaderGroup,
+  SearchInput,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 
@@ -23,6 +30,7 @@ const containerStyles = css({
 interface ShardZoneRow {
   locationName: string;
   zone: string;
+  searchable: string;
 }
 
 interface ShardZoneExpandableRow extends ShardZoneRow {
@@ -50,7 +58,26 @@ const parseRow = ({
 }: ShardZoneData): ShardZoneRow => ({
   locationName: `${readableName} (${isoCode})`,
   zone: `${zoneName} (${zoneLocations.join(', ')})`,
+  searchable: readableName,
 });
+
+const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
+  const grouppedZones = shardZones.reduce<
+    Record<ShardZoneData['typeOneIsoCode'], ShardZoneExpandableRow>
+  >((groups, next) => {
+    const { typeOneIsoCode, isoCode } = next;
+    if (!groups[typeOneIsoCode]) {
+      groups[typeOneIsoCode] = { ...parseRow(next), subRows: [] };
+    }
+    if (typeOneIsoCode === isoCode) {
+      Object.assign(groups[typeOneIsoCode], parseRow(next));
+    } else {
+      groups[typeOneIsoCode].subRows.push(parseRow(next));
+    }
+    return groups;
+  }, {});
+  return Object.values(grouppedZones);
+};
 
 export function ShardZonesTable({
   shardZones,
@@ -58,94 +85,124 @@ export function ShardZonesTable({
   shardZones: ShardZoneData[];
 }) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [searchText, setSearchText] = useState<string>('');
+  const handleSearchTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchText(e.currentTarget.value);
+    },
+    [setSearchText]
+  );
 
-  const data = useMemo<ShardZoneExpandableRow[]>(() => {
-    const grouppedZones = shardZones.reduce<
-      Record<ShardZoneData['typeOneIsoCode'], ShardZoneExpandableRow>
-    >((groups, next) => {
-      const { typeOneIsoCode, isoCode } = next;
-      if (!groups[typeOneIsoCode]) {
-        groups[typeOneIsoCode] = { ...parseRow(next), subRows: [] };
-      }
-      if (typeOneIsoCode === isoCode) {
-        Object.assign(groups[typeOneIsoCode], next);
-      } else {
-        groups[typeOneIsoCode].subRows.push(parseRow(next));
-      }
-      return groups;
-    }, {});
-    return Object.values(grouppedZones);
-  }, [shardZones]);
+  const data = useMemo<ShardZoneExpandableRow[]>(
+    () => parseData(shardZones),
+    [shardZones]
+  );
+
+  const filteredData = useMemo<ShardZoneExpandableRow[]>(
+    () =>
+      data.reduce<ShardZoneExpandableRow[]>((filtered, next) => {
+        const { searchable, subRows } = next;
+        if (searchable.includes(searchText)) {
+          filtered.push(next);
+          return filtered;
+        }
+        const matchingSubRows = subRows.filter((subRow) =>
+          subRow.searchable.includes(searchText)
+        );
+        if (matchingSubRows.length > 0) {
+          filtered.push({
+            ...next,
+            subRows: matchingSubRows,
+          });
+        }
+        return filtered;
+      }, []),
+    [data, searchText]
+  );
 
   const table = useLeafyGreenTable({
     containerRef: tableContainerRef,
-    data,
+    data: filteredData,
     columns,
   });
 
   const { rows } = table.getRowModel();
 
-  return (
-    // TODO(COMPASS-8336):
-    // Add search
-    // group zones by ShardZoneData.typeOneIsoCode
-    // and display them in a single row that can be expanded
+  const rowsRef = useRef(rows);
+  rowsRef.current = rows;
+  useEffect(() => {
+    if (!searchText) return;
+    for (const row of rowsRef.current) {
+      if (row.subRows.length && !row.getIsExpanded()) {
+        console.log('expanding row', row.original, row.getIsExpanded());
+        row.toggleExpanded();
+      }
+    }
+  }, [searchText, rowsRef]);
 
-    <Table
-      className={containerStyles}
-      title="Zone Mapping"
-      table={table}
-      ref={tableContainerRef}
-    >
-      <colgroup>
-        <col width="300"></col>
-        <col />
-      </colgroup>
-      <TableHead isSticky>
-        {table
-          .getHeaderGroups()
-          .map((headerGroup: HeaderGroup<ShardZoneRow>) => (
-            <HeaderRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <HeaderCell key={header.id} header={header}>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-                  </HeaderCell>
-                );
-              })}
-            </HeaderRow>
-          ))}
-      </TableHead>
-      <TableBody>
-        {rows.map((row: LeafyGreenTableRow<ShardZoneRow>) => (
-          <Row key={row.id} row={row}>
-            {row.getVisibleCells().map((cell) => {
-              return (
-                <Cell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </Cell>
-              );
-            })}
-            {row.subRows.map((subRow) => (
-              <Row key={subRow.id} row={subRow}>
-                {subRow.getVisibleCells().map((cell) => {
+  return (
+    <>
+      <SearchInput
+        value={searchText}
+        onChange={handleSearchTextChange}
+        aria-label="Search for a location"
+        placeholder="Search for a location"
+      />
+      <Table
+        className={containerStyles}
+        title="Zone Mapping"
+        table={table}
+        ref={tableContainerRef}
+      >
+        <TableHead isSticky>
+          {table
+            .getHeaderGroups()
+            .map((headerGroup: HeaderGroup<ShardZoneRow>) => (
+              <HeaderRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
                   return (
-                    <Cell key={cell.id}>
+                    <HeaderCell key={header.id} header={header}>
                       {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                        header.column.columnDef.header,
+                        header.getContext()
                       )}
-                    </Cell>
+                    </HeaderCell>
                   );
                 })}
-              </Row>
+              </HeaderRow>
             ))}
-          </Row>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {rows.map((row: LeafyGreenTableRow<ShardZoneRow>) => (
+            <Row key={row.id} row={row}>
+              {row.getVisibleCells().map((cell) => {
+                return (
+                  <Cell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </Cell>
+                );
+              })}
+              {row.subRows.map((subRow) => (
+                <Row key={subRow.id} row={subRow}>
+                  {subRow.getVisibleCells().map((cell) => {
+                    return (
+                      <Cell key={cell.id}>
+                        {(() => {
+                          // console.log({ cell, context: cell.getContext() });
+                          return flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          );
+                        })()}
+                      </Cell>
+                    );
+                  })}
+                </Row>
+              ))}
+            </Row>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   );
 }
