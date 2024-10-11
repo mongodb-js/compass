@@ -442,6 +442,7 @@ function GenerativeAIInput({
                 )}
                 ref={promptTextInputRef}
                 data-testid="ai-user-text-input"
+                aria-labelledby=""
                 aria-label="Enter a plain text query that the AI will translate into MongoDB query language."
                 placeholder={placeholder}
                 value={aiPromptText}
