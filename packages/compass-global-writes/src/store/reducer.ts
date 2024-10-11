@@ -253,7 +253,7 @@ const initialState: RootState = {
   namespace: '',
   status: ShardingStatuses.NOT_READY,
   shardZones: [],
-  isPluginTitleVisible: true,
+  isPluginTitleVisible: false,
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
@@ -798,7 +798,7 @@ export const setPluginTitleVisibility = (
       status === ShardingStatuses.SHARDING &&
       !pollingTimeout
     ) {
-      dispatch(pollForShardKey());
+      void dispatch(fetchNamespaceShardKey());
     }
   };
 };
