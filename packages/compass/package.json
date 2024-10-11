@@ -162,7 +162,6 @@
     "download": "hadron-build download",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "build-info": "hadron-build info",
-    "jsx": "babel ./src --out-dir ./lib",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
