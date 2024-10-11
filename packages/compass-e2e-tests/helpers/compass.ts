@@ -1020,19 +1020,28 @@ export async function init(
   // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
   await browser.setTimeout({ script: 5_000 });
 
-  // larger window for more consistent results
-  const [width, height] = await browser.execute(() => {
-    // in case setWindowSize() below doesn't work
-    window.resizeTo(window.screen.availWidth, window.screen.availHeight);
+  if (TEST_COMPASS_WEB) {
+    // larger window for more consistent results
+    const [width, height] = await browser.execute(() => {
+      // in case setWindowSize() below doesn't work
+      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
 
-    return [window.screen.availWidth, window.screen.availHeight];
-  });
-  debug(`available width=${width}, height=${height}`);
-  try {
-    // window.resizeTo() doesn't work on firefox
-    await browser.setWindowSize(width, height);
-  } catch (err: any) {
-    console.error(err?.stack);
+      return [window.screen.availWidth, window.screen.availHeight];
+    });
+    // getting available width=1512, height=944 in electron on mac which is arbitrary
+    debug(`available width=${width}, height=${height}`);
+    try {
+      // window.resizeTo() doesn't work on firefox
+      await browser.setWindowSize(width, height);
+    } catch (err: any) {
+      console.error(err?.stack);
+    }
+  } else {
+    await browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { ipcRenderer } = require('electron');
+      ipcRenderer.invoke('compass:maximize');
+    });
   }
 
   if (compass.needsCloseWelcomeModal) {
