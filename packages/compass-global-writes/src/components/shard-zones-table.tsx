@@ -12,11 +12,11 @@ import {
   type LGColumnDef,
   type LeafyGreenTableRow,
   flexRender,
+  type HeaderGroup,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 
 const containerStyles = css({
-  maxWidth: '700px',
   height: '400px',
 });
 
@@ -33,10 +33,12 @@ const columns: Array<LGColumnDef<ShardZoneRow>> = [
   {
     accessorKey: 'locationName',
     header: 'Location Name',
+    enableSorting: true,
   },
   {
     accessorKey: 'zone',
     header: 'Zone',
+    enableSorting: true,
   },
 ];
 
@@ -95,11 +97,27 @@ export function ShardZonesTable({
       table={table}
       ref={tableContainerRef}
     >
+      <colgroup>
+        <col width="300"></col>
+        <col />
+      </colgroup>
       <TableHead isSticky>
-        <HeaderRow>
-          <HeaderCell>Location Name</HeaderCell>
-          <HeaderCell>Zone</HeaderCell>
-        </HeaderRow>
+        {table
+          .getHeaderGroups()
+          .map((headerGroup: HeaderGroup<ShardZoneRow>) => (
+            <HeaderRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                return (
+                  <HeaderCell key={header.id} header={header}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </HeaderCell>
+                );
+              })}
+            </HeaderRow>
+          ))}
       </TableHead>
       <TableBody>
         {rows.map((row: LeafyGreenTableRow<ShardZoneRow>) => (
