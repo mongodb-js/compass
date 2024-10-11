@@ -254,7 +254,7 @@
     "hadron-build": "^25.5.11",
     "hadron-ipc": "^3.2.23",
     "local-links": "^1.4.0",
-    "make-fetch-happen": "^8.0.14",
+    "make-fetch-happen": "^10.2.1",
     "marky": "^1.2.1",
     "mongodb": "^6.9.0",
     "mongodb-build-info": "^1.7.2",
