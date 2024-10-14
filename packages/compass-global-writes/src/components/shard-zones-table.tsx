@@ -1,10 +1,8 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  getFilteredRowModel,
+  type Row as ReactTableRow,
+} from '@tanstack/table-core';
 import {
   Table,
   TableBody,
@@ -20,6 +18,7 @@ import {
   flexRender,
   type HeaderGroup,
   SearchInput,
+  type LGTableDataType,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 
@@ -79,6 +78,13 @@ const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
   return Object.values(grouppedZones);
 };
 
+const hasFilteredChildren = (
+  row: ReactTableRow<LGTableDataType<ShardZoneRow>>
+) =>
+  row.subRows.filter(
+    (subRow) => Object.values(subRow.columnFilters).includes(true) // columnFilters: e.g. { __global__: true }
+  ).length > 0;
+
 export function ShardZonesTable({
   shardZones,
 }: {
@@ -86,59 +92,47 @@ export function ShardZonesTable({
 }) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const [searchText, setSearchText] = useState<string>('');
-  const handleSearchTextChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchText(e.currentTarget.value);
-    },
-    [setSearchText]
-  );
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
 
   const data = useMemo<ShardZoneExpandableRow[]>(
     () => parseData(shardZones),
     [shardZones]
   );
 
-  const filteredData = useMemo<ShardZoneExpandableRow[]>(
-    () =>
-      data.reduce<ShardZoneExpandableRow[]>((filtered, next) => {
-        const { searchable, subRows } = next;
-        if (searchable.includes(searchText)) {
-          filtered.push(next);
-          return filtered;
-        }
-        const matchingSubRows = subRows.filter((subRow) =>
-          subRow.searchable.includes(searchText)
-        );
-        if (matchingSubRows.length > 0) {
-          filtered.push({
-            ...next,
-            subRows: matchingSubRows,
-          });
-        }
-        return filtered;
-      }, []),
-    [data, searchText]
-  );
-
   const table = useLeafyGreenTable({
     containerRef: tableContainerRef,
-    data: filteredData,
+    data,
     columns,
+    state: {
+      globalFilter: searchText,
+      expanded,
+    },
+    onGlobalFilterChange: setSearchText,
+    onExpandedChange: setExpanded,
+    enableGlobalFilter: true,
+    getFilteredRowModel: getFilteredRowModel(),
+    getIsRowExpanded: (row) => {
+      return (
+        (searchText && hasFilteredChildren(row)) ||
+        (typeof expanded !== 'boolean' && expanded[row.id])
+      );
+    },
+    globalFilterFn: 'auto',
+    filterFromLeafRows: true,
+    maxLeafRowFilterDepth: 2,
   });
 
-  const { rows } = table.getRowModel();
+  const tableRef = useRef(table);
+  tableRef.current = table;
 
-  const rowsRef = useRef(rows);
-  rowsRef.current = rows;
-  useEffect(() => {
-    if (!searchText) return;
-    for (const row of rowsRef.current) {
-      if (row.subRows.length && !row.getIsExpanded()) {
-        console.log('expanding row', row.original, row.getIsExpanded());
-        row.toggleExpanded();
-      }
-    }
-  }, [searchText, rowsRef]);
+  const handleSearchTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      tableRef.current.setGlobalFilter(e.currentTarget.value);
+    },
+    [tableRef]
+  );
+
+  const { rows } = table.getRowModel();
 
   return (
     <>
@@ -187,13 +181,10 @@ export function ShardZonesTable({
                   {subRow.getVisibleCells().map((cell) => {
                     return (
                       <Cell key={cell.id}>
-                        {(() => {
-                          // console.log({ cell, context: cell.getContext() });
-                          return flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          );
-                        })()}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </Cell>
                     );
                   })}
