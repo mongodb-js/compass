@@ -29,7 +29,6 @@ const containerStyles = css({
 interface ShardZoneRow {
   locationName: string;
   zone: string;
-  searchable: string;
 }
 
 interface ShardZoneExpandableRow extends ShardZoneRow {
@@ -46,6 +45,7 @@ const columns: Array<LGColumnDef<ShardZoneRow>> = [
     accessorKey: 'zone',
     header: 'Zone',
     enableSorting: true,
+    enableGlobalFilter: false,
   },
 ];
 
@@ -57,7 +57,6 @@ const parseRow = ({
 }: ShardZoneData): ShardZoneRow => ({
   locationName: `${readableName} (${isoCode})`,
   zone: `${zoneName} (${zoneLocations.join(', ')})`,
-  searchable: readableName,
 });
 
 const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
