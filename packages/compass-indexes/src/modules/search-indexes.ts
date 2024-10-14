@@ -496,6 +496,14 @@ export const createIndex = ({
       dispatch(
         createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
       );
+      track(
+        'Index Failed',
+        {
+          atlas_search: true,
+          type,
+        },
+        connectionInfoRef.current
+      );
       return;
     }
 
