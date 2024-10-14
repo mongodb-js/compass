@@ -55,6 +55,19 @@ describe('PipelinePreview', function () {
     expect(screen.getByText(/No preview documents/)).to.exist;
   });
 
+  it('renders missing search index text for $search', async function () {
+    await renderPipelineEditor({
+      atlasOperator: '$search',
+      previewDocs: [],
+    });
+    expect(screen.getByText('No preview documents')).to.exist;
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
+  });
+
   it('renders document list', async function () {
     await renderPipelineEditor({
       previewDocs: [{ _id: 1 }, { _id: 2 }].map(

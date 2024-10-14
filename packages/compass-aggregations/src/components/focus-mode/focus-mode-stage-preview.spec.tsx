@@ -86,6 +86,18 @@ describe('FocusModeStagePreview', function () {
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(/no preview documents/i)).to.exist;
     });
+    it('renders missing search index text for $search', async function () {
+      await renderFocusModePreview({
+        stageOperator: '$search',
+        documents: [],
+      });
+      expect(screen.getByText('No preview documents')).to.exist;
+      expect(
+        screen.getByText(
+          'This may be because your search has no results or your search index does not exist.'
+        )
+      ).to.exist;
+    });
     it('renders $out stage preview', async function () {
       await renderFocusModePreview(
         {
