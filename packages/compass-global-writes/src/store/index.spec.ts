@@ -6,7 +6,6 @@ import {
   type CreateShardKeyData,
   unmanageNamespace,
   cancelSharding,
-  setPluginTitleVisibility,
   POLLING_INTERVAL,
 } from './reducer';
 import sinon from 'sinon';
@@ -17,7 +16,7 @@ import type {
   ManagedNamespace,
   ShardZoneMapping,
 } from '../services/atlas-global-writes-service';
-import { wait, waitFor } from '@mongodb-js/testing-library-compass';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 import Sinon from 'sinon';
 import * as globalWritesReducer from './reducer';
 
@@ -288,37 +287,6 @@ describe('GlobalWritesStore Store', function () {
       expect(store.getState().status).to.equal('UNSHARDED');
       expect(store.getState().pollingTimeout).to.be.undefined;
       expect(confirmationStub).to.have.been.called;
-    });
-
-    it('sharding -> pause sharding -> resume sharding -> valid shard key', async function () {
-      let mockShardKey = false;
-      confirmationStub.resolves(true);
-      // initial state === sharding
-      clock = sinon.useFakeTimers({
-        shouldAdvanceTime: true,
-      });
-      const store = createStore({
-        isNamespaceManaged: () => true,
-        hasShardKey: Sinon.fake(() => mockShardKey),
-      });
-      await waitFor(() => {
-        expect(store.getState().status).to.equal('SHARDING');
-      });
-
-      // user leaves the workspace
-      store.dispatch(setPluginTitleVisibility(false));
-      mockShardKey = true;
-      clock.tick(POLLING_INTERVAL);
-      clock.tick(POLLING_INTERVAL);
-      expect(store.getState().pollingTimeout).to.be.undefined;
-      expect(store.getState().status).to.equal('SHARDING'); // no update
-
-      // user comes back
-      store.dispatch(setPluginTitleVisibility(true));
-      await wait(POLLING_INTERVAL);
-      await waitFor(() => {
-        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT'); // now there is an update
-      });
     });
 
     it('valid shard key', async function () {

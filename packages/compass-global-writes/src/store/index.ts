@@ -66,7 +66,6 @@ export function activateGlobalWritesPlugin(
       namespace: options.namespace,
       status: ShardingStatuses.NOT_READY,
       shardZones: [],
-      isPluginTitleVisible: true,
     },
     applyMiddleware(
       thunk.withExtraArgument({

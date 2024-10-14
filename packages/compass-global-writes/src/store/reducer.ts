@@ -45,8 +45,6 @@ enum GlobalWritesActionTypes {
   UnmanagingNamespaceStarted = 'global-writes/UnmanagingNamespaceStarted',
   UnmanagingNamespaceFinished = 'global-writes/UnmanagingNamespaceFinished',
   UnmanagingNamespaceErrored = 'global-writes/UnmanagingNamespaceErrored',
-
-  PluginTitleVisibilityChanged = 'global-writes/PluginTitleVisibilityChanged',
 }
 
 type ManagedNamespaceFetchedAction = {
@@ -114,11 +112,6 @@ type UnmanagingNamespaceFinishedAction = {
 
 type UnmanagingNamespaceErroredAction = {
   type: GlobalWritesActionTypes.UnmanagingNamespaceErrored;
-};
-
-type PluginTitleVisibilityChangedAction = {
-  type: GlobalWritesActionTypes.PluginTitleVisibilityChanged;
-  isVisible: boolean;
 };
 
 export enum ShardingStatuses {
@@ -199,7 +192,6 @@ export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
   shardZones: ShardZoneData[];
-  isPluginTitleVisible: boolean;
 } & (
   | {
       status: ShardingStatuses.NOT_READY;
@@ -252,7 +244,6 @@ const initialState: RootState = {
   namespace: '',
   status: ShardingStatuses.NOT_READY,
   shardZones: [],
-  isPluginTitleVisible: true,
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
@@ -480,19 +471,6 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     };
   }
 
-  if (
-    isAction<PluginTitleVisibilityChangedAction>(
-      action,
-      GlobalWritesActionTypes.PluginTitleVisibilityChanged
-    )
-  ) {
-    if (state.isPluginTitleVisible === action.isVisible) return state;
-    return {
-      ...state,
-      isPluginTitleVisible: action.isVisible,
-    };
-  }
-
   return state;
 };
 
@@ -667,9 +645,8 @@ const pollForShardKey = (): GlobalWritesThunkAction<
   NextPollingTimeoutSetAction
 > => {
   return (dispatch, getState) => {
-    const { pollingTimeout, isPluginTitleVisible } = getState();
+    const { pollingTimeout } = getState();
     if (
-      !isPluginTitleVisible || // user is not in the Collection Workspace
       pollingTimeout // prevent double polling
     ) {
       return;
@@ -706,12 +683,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    const { namespace, status, isPluginTitleVisible } = getState();
-
-    if (!isPluginTitleVisible) {
-      dispatch(stopPollingForShardKey());
-      return;
-    }
+    const { namespace, status } = getState();
 
     try {
       const [shardingError, shardKey] = await Promise.all([
@@ -777,30 +749,6 @@ export const fetchShardingZones = (): GlobalWritesThunkAction<
       type: GlobalWritesActionTypes.ShardZonesFetched,
       shardZones: shardingZones,
     });
-  };
-};
-
-export const setPluginTitleVisibility = (
-  isVisible: boolean
-): GlobalWritesThunkAction<void, PluginTitleVisibilityChangedAction> => {
-  return (dispatch, getState) => {
-    const {
-      status,
-      pollingTimeout,
-      isPluginTitleVisible: previousIsVisible,
-    } = getState();
-    dispatch({
-      type: GlobalWritesActionTypes.PluginTitleVisibilityChanged,
-      isVisible,
-    });
-    if (
-      isVisible &&
-      !previousIsVisible &&
-      status === ShardingStatuses.SHARDING &&
-      !pollingTimeout
-    ) {
-      void dispatch(fetchNamespaceShardKey());
-    }
   };
 };
 

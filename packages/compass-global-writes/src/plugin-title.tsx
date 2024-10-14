@@ -1,10 +1,6 @@
 import { connect } from 'react-redux';
-import React, { useEffect } from 'react';
-import {
-  type RootState,
-  setPluginTitleVisibility,
-  ShardingStatuses,
-} from './store/reducer';
+import React from 'react';
+import { type RootState, ShardingStatuses } from './store/reducer';
 import {
   Body,
   css,
@@ -34,20 +30,8 @@ const iconStylesDark = css({
   color: palette.yellow.base,
 });
 
-export const PluginTitle = ({
-  showWarning,
-  onVisibilityChanged,
-}: {
-  showWarning: boolean;
-  onVisibilityChanged: (isVisible: boolean) => void;
-}) => {
+export const PluginTitle = ({ showWarning }: { showWarning: boolean }) => {
   const darkMode = useDarkMode();
-  useEffect(() => {
-    onVisibilityChanged(true);
-    return () => {
-      onVisibilityChanged(false);
-    };
-  });
   return (
     <div data-testid="global-writes-tab-title" className={containerStyles}>
       Global Writes{' '}
@@ -91,8 +75,5 @@ export const PluginTitle = ({
 export const GlobalWritesTabTitle = connect(
   ({ managedNamespace, status }: RootState) => ({
     showWarning: !managedNamespace && status !== ShardingStatuses.NOT_READY,
-  }),
-  {
-    onVisibilityChanged: setPluginTitleVisibility,
-  }
+  })
 )(PluginTitle);
