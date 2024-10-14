@@ -99,7 +99,7 @@ describe('cancellable-queries', function () {
         dataService,
         preferences,
         'cancel.numbers',
-        null,
+        undefined,
         {
           signal,
         }
@@ -138,6 +138,7 @@ describe('cancellable-queries', function () {
         dataService,
         preferences,
         'cancel.numbers',
+        // @ts-expect-error this is deliberately wrong
         'this is not a filter',
         {
           signal,

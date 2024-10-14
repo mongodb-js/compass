@@ -3,6 +3,7 @@ import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
+import type { Sort } from 'mongodb';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
@@ -109,20 +110,34 @@ const INITIAL_BULK_UPDATE_TEXT = `{
   },
 }`;
 
+type FetchDocumentsOptions = {
+  serverVersion: string;
+  isDataLake: boolean;
+  isTimeSeries: boolean;
+};
+
+function getDefaultSortOrder(isTimeSeries: boolean): Sort {
+  if (isTimeSeries) {
+    return { $natural: 1 };
+  }
+
+  return { _id: -1 };
+}
+
 export const fetchDocuments: (
   dataService: DataService,
-  serverVersion: string,
-  isDataLake: boolean,
+  fetchDocumentsOptions: FetchDocumentsOptions,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
-  serverVersion,
-  isDataLake,
+  fetchDocumentsOptions,
   ns,
   filter,
   options,
   executionOptions
 ) => {
+  const { isTimeSeries, isDataLake, serverVersion } = fetchDocumentsOptions;
+
   const canCalculateDocSize =
     // $bsonSize is only supported for mongodb >= 4.4.0
     semver.gte(serverVersion, '4.4.0') &&
@@ -138,6 +153,7 @@ export const fetchDocuments: (
 
   const modifiedOptions = {
     ...options,
+    sort: options?.sort ? options.sort : getDefaultSortOrder(isTimeSeries),
     projection: canCalculateDocSize
       ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
       : options?.projection,
@@ -884,8 +900,11 @@ class CrudStoreImpl
     try {
       documents = await fetchDocuments(
         this.dataService,
-        this.state.version,
-        this.state.isDataLake,
+        {
+          serverVersion: this.state.version,
+          isDataLake: this.state.isDataLake,
+          isTimeSeries: this.state.isTimeSeries,
+        },
         ns,
         filter ?? {},
         opts as any,
@@ -1712,8 +1731,11 @@ class CrudStoreImpl
       ),
       fetchDocuments(
         this.dataService,
-        this.state.version,
-        this.state.isDataLake,
+        {
+          serverVersion: this.state.version,
+          isDataLake: this.state.isDataLake,
+          isTimeSeries: this.state.isTimeSeries,
+        },
         ns,
         query.filter ?? {},
         findOptions as any,
