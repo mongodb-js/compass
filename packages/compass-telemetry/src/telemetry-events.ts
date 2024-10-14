@@ -1349,8 +1349,8 @@ type IndexCreatedEvent = ConnectionScoped<{
  *
  * @category Indexes
  */
-type IndexFailedEvent = ConnectionScoped<{
-  name: 'Index Failed';
+type IndexCreateFailedEvent = ConnectionScoped<{
+  name: 'Index Create Failed';
 
   payload: {
     /**
@@ -2612,7 +2612,7 @@ export type TelemetryEvent =
   | ImportErrorLogOpenedEvent
   | ImportOpenedEvent
   | IndexCreatedEvent
-  | IndexFailedEvent
+  | IndexCreateFailedEvent
   | IndexCreateOpenedEvent
   | IndexDroppedEvent
   | IndexEditedEvent

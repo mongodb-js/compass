@@ -497,7 +497,7 @@ export const createIndex = ({
         createSearchIndexFailed(ATLAS_SEARCH_SERVER_ERRORS[error] || error)
       );
       track(
-        'Index Failed',
+        'Index Create Failed',
         {
           atlas_search: true,
           type,
