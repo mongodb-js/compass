@@ -37,7 +37,7 @@ export default function AtlasNoResults() {
           darkMode ? missingAtlasIndexDarkStyles : missingAtlasIndexLightStyles
         )}
       >
-        No results found
+        No preview documents
       </Subtitle>
       <Body>
         This may be because your search has no results or your search index does
