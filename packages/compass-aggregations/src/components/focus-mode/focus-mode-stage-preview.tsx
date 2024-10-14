@@ -24,6 +24,7 @@ import {
   expandPreviewDocsForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import AtlasNoResults from '../atlas-no-results';
 
 const containerStyles = css({
   display: 'flex',
@@ -149,6 +150,8 @@ export const FocusModePreview = ({
         className={documentListStyles}
       />
     );
+  } else if (isAtlasOnlyStage(stageOperator)) {
+    return <AtlasNoResults />;
   } else {
     content = (
       <div className={centerStyles}>

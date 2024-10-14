@@ -25,6 +25,7 @@ import {
   expandPreviewDocs,
   collapsePreviewDocs,
 } from '../../../modules/pipeline-builder/text-editor-pipeline';
+import AtlasNoResults from '../../atlas-no-results';
 
 const containerStyles = css({
   display: 'flex',
@@ -126,6 +127,9 @@ const PreviewResults = ({
   }
 
   if (previewDocs.length === 0) {
+    if (atlasOperator) {
+      return <AtlasNoResults />;
+    }
     return (
       <div className={centerStyles}>
         <DocumentIcon />
