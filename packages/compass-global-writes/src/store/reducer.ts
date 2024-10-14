@@ -253,7 +253,7 @@ const initialState: RootState = {
   namespace: '',
   status: ShardingStatuses.NOT_READY,
   shardZones: [],
-  isPluginTitleVisible: false,
+  isPluginTitleVisible: true,
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
@@ -710,7 +710,12 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    const { namespace, status } = getState();
+    const { namespace, status, isPluginTitleVisible } = getState();
+
+    if (!isPluginTitleVisible) {
+      dispatch(stopPollingForShardKey());
+      return;
+    }
 
     try {
       const [shardingError, shardKey] = await Promise.all([
