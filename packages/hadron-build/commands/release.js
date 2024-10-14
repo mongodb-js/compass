@@ -254,6 +254,11 @@ const transformPackageJson = async (CONFIG, done) => {
     'repository',
     'check',
     'config.hadron.build',
+    // Compass postinstall script downloads some files that become part of the
+    // build during compilation, we don't need to download them again when
+    // packaging. This allows us to avoid pulling some dev-only deps to the
+    // production dependencies of the bundled application
+    'scripts.install',
   ];
 
   let contents = _.omit(CONFIG.pkg, packageKeysToRemove);
