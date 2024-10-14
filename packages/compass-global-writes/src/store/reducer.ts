@@ -6,8 +6,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
 
-const POLLING_INTERVAL = 5000;
-export const TEST_POLLING_INTERVAL = 100;
+export const POLLING_INTERVAL = 5000;
 
 export function isAction<A extends Action>(
   action: Action,
@@ -675,12 +674,9 @@ const pollForShardKey = (): GlobalWritesThunkAction<
     ) {
       return;
     }
-    const timeout = setTimeout(
-      () => {
-        void dispatch(fetchNamespaceShardKey());
-      },
-      process.env.NODE_ENV !== 'test' ? POLLING_INTERVAL : TEST_POLLING_INTERVAL
-    );
+    const timeout = setTimeout(() => {
+      void dispatch(fetchNamespaceShardKey());
+    }, POLLING_INTERVAL);
 
     dispatch({
       type: GlobalWritesActionTypes.NextPollingTimeoutSet,

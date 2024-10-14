@@ -4,10 +4,10 @@ import { setupStore } from '../../tests/create-store';
 import {
   createShardKey,
   type CreateShardKeyData,
-  TEST_POLLING_INTERVAL,
   unmanageNamespace,
   cancelSharding,
   setPluginTitleVisibility,
+  POLLING_INTERVAL,
 } from './reducer';
 import sinon from 'sinon';
 import type {
@@ -152,6 +152,7 @@ function createStore({
 
 describe('GlobalWritesStore Store', function () {
   let confirmationStub: Sinon.SinonStub;
+  let clock: Sinon.SinonFakeTimers;
 
   beforeEach(() => {
     confirmationStub = sinon
@@ -161,6 +162,7 @@ describe('GlobalWritesStore Store', function () {
 
   afterEach(() => {
     sinon.restore();
+    clock && clock.restore();
   });
 
   it('sets the initial state', function () {
@@ -182,6 +184,9 @@ describe('GlobalWritesStore Store', function () {
       });
 
       // user requests sharding
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const promise = store.dispatch(createShardKey(shardKeyData));
       expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
       await promise;
@@ -189,7 +194,7 @@ describe('GlobalWritesStore Store', function () {
 
       // sharding ends with a shardKey
       mockShardKey = true;
-      await wait(TEST_POLLING_INTERVAL);
+      clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
       });
@@ -207,6 +212,9 @@ describe('GlobalWritesStore Store', function () {
       });
 
       // user requests sharding
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const promise = store.dispatch(createShardKey(shardKeyData));
       expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
       await promise;
@@ -214,7 +222,7 @@ describe('GlobalWritesStore Store', function () {
 
       // sharding ends with an error
       mockFailure = true;
-      await wait(TEST_POLLING_INTERVAL);
+      clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
       });
@@ -240,6 +248,9 @@ describe('GlobalWritesStore Store', function () {
     it('sharding -> valid shard key', async function () {
       let mockShardKey = false;
       // initial state === sharding
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: Sinon.fake(() => mockShardKey),
@@ -251,7 +262,7 @@ describe('GlobalWritesStore Store', function () {
 
       // sharding ends with a shardKey
       mockShardKey = true;
-      await wait(TEST_POLLING_INTERVAL);
+      clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
       });
@@ -283,6 +294,9 @@ describe('GlobalWritesStore Store', function () {
       let mockShardKey = false;
       confirmationStub.resolves(true);
       // initial state === sharding
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: Sinon.fake(() => mockShardKey),
@@ -294,13 +308,14 @@ describe('GlobalWritesStore Store', function () {
       // user leaves the workspace
       store.dispatch(setPluginTitleVisibility(false));
       mockShardKey = true;
-      await wait(TEST_POLLING_INTERVAL * 2);
+      clock.tick(POLLING_INTERVAL);
+      clock.tick(POLLING_INTERVAL);
       expect(store.getState().pollingTimeout).to.be.undefined;
       expect(store.getState().status).to.equal('SHARDING'); // no update
 
       // user comes back
       store.dispatch(setPluginTitleVisibility(true));
-      await wait(TEST_POLLING_INTERVAL);
+      await wait(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT'); // now there is an update
       });
