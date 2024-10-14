@@ -34,7 +34,7 @@ const iconStylesDark = css({
   color: palette.yellow.base,
 });
 
-const PluginTitle = ({
+export const PluginTitle = ({
   showWarning,
   onVisibilityChanged,
 }: {
@@ -66,6 +66,7 @@ const PluginTitle = ({
             >
               <Icon
                 glyph="ImportantWithCircle"
+                aria-label="warning"
                 className={cx(
                   warningIconStyles,
                   iconStylesLight,
