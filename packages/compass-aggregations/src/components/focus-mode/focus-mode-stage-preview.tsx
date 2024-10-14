@@ -151,7 +151,7 @@ export const FocusModePreview = ({
       />
     );
   } else if (isAtlasOnlyStage(stageOperator)) {
-    return <AtlasNoResults />;
+    content = <AtlasNoResults />;
   } else {
     content = (
       <div className={centerStyles}>
