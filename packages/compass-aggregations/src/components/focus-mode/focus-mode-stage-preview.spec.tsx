@@ -99,6 +99,22 @@ describe('FocusModeStagePreview', function () {
           )
         ).to.exist;
       });
+
+      it(`does not render missing search index text for ${stageOperator} and documents.length > 0`, async function () {
+        await renderFocusModePreview({
+          stageOperator,
+          documents: [
+            new HadronDocument({ _id: 12345 }),
+            new HadronDocument({ _id: 54321 }),
+          ],
+        });
+        expect(screen.queryByText('No preview documents')).to.not.exist;
+        expect(
+          screen.queryByText(
+            'This may be because your search has no results or your search index does not exist.'
+          )
+        ).to.not.exist;
+      });
     }
     it('renders $out stage preview', async function () {
       await renderFocusModePreview(
