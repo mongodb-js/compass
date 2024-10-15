@@ -106,7 +106,7 @@ describe('StagePreview', function () {
       stageOperator: '$search',
       documents: [],
     });
-    expect(screen.getByText('No results found')).to.exist;
+    expect(screen.getByText('No preview documents')).to.exist;
     expect(
       screen.getByText(
         'This may be because your search has no results or your search index does not exist.'
