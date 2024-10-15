@@ -27,7 +27,7 @@ const missingAtlasIndexDarkStyles = css({
   color: palette.green.base,
 });
 
-export default function AtlasNoResults() {
+export default function SearchNoResults() {
   const darkMode = useDarkMode();
 
   return (

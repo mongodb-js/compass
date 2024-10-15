@@ -14,7 +14,7 @@ import { Document } from '@mongodb-js/compass-crud';
 
 import type { RootState } from '../../modules';
 import {
-  isAtlasOnlyStage,
+  isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
@@ -25,7 +25,7 @@ import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
-import AtlasNoResults from '../atlas-no-results';
+import SearchNoResults from '../search-no-results';
 
 const centeredContent = css({
   display: 'flex',
@@ -145,8 +145,8 @@ function StagePreviewBody({
     );
   }
 
-  if (isAtlasOnlyStage(stageOperator ?? '') && documents?.length === 0) {
-    return <AtlasNoResults />;
+  if (isSearchStage(stageOperator) && documents?.length === 0) {
+    return <SearchNoResults />;
   }
 
   if (documents && documents.length > 0) {
