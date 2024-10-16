@@ -112,7 +112,7 @@ describe('GenerativeAIInput Component', function () {
       ],
       [
         'PROMPT_TOO_LONG',
-        'Sorry, your collections have too many fields to process. Please try using this feature on a collection with smaller documents.',
+        'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.',
       ],
       [
         'TOO_MANY_REQUESTS',
