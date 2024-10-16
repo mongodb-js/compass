@@ -204,7 +204,7 @@ function getDefaultSort(collectionStats: CollectionStats): Sort {
     return { _id: -1 };
   }
 
-  return { $natural: -1 };
+  return { $natural: 1 };
 }
 
 /**
