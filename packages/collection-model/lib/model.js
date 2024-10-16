@@ -141,6 +141,7 @@ const CollectionModel = AmpersandModel.extend(debounceActions(['fetch']), {
     free_storage_size: 'number',
     index_count: 'number',
     index_size: 'number',
+    index_details: 'object'
   },
   derived: {
     ns: {

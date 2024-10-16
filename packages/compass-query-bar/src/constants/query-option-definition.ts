@@ -30,7 +30,7 @@ export const OPTION_DEFINITION: {
   sort: {
     name: 'sort',
     type: 'document',
-    placeholder: '{ $_id: -1}',
+    placeholder: '{ _id: -1 } or { $natural: 1 }',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.sort/',
   },
   hint: {

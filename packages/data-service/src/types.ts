@@ -9,6 +9,7 @@ export interface CollectionStats {
   storage_size: number;
   free_storage_size: number;
   index_count: number;
+  index_details: CollStatsIndexDetails;
   index_size: number;
 }
 

@@ -113,16 +113,8 @@ const INITIAL_BULK_UPDATE_TEXT = `{
 type FetchDocumentsOptions = {
   serverVersion: string;
   isDataLake: boolean;
-  isTimeSeries: boolean;
+  defaultSort: Sort;
 };
-
-function getDefaultSortOrder(isTimeSeries: boolean): Sort {
-  if (isTimeSeries) {
-    return { $natural: 1 };
-  }
-
-  return { _id: -1 };
-}
 
 export const fetchDocuments: (
   dataService: DataService,
@@ -136,7 +128,7 @@ export const fetchDocuments: (
   options,
   executionOptions
 ) => {
-  const { isTimeSeries, isDataLake, serverVersion } = fetchDocumentsOptions;
+  const { isDataLake, serverVersion, defaultSort } = fetchDocumentsOptions;
 
   const canCalculateDocSize =
     // $bsonSize is only supported for mongodb >= 4.4.0
@@ -153,7 +145,7 @@ export const fetchDocuments: (
 
   const modifiedOptions = {
     ...options,
-    sort: options?.sort ? options.sort : getDefaultSortOrder(isTimeSeries),
+    sort: options?.sort ? options.sort : defaultSort,
     projection: canCalculateDocSize
       ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
       : options?.projection,
@@ -190,7 +182,11 @@ export const fetchDocuments: (
 
 type CollectionStats = Pick<
   Collection,
-  'document_count' | 'storage_size' | 'free_storage_size' | 'avg_document_size'
+  | 'document_count'
+  | 'storage_size'
+  | 'free_storage_size'
+  | 'avg_document_size'
+  | 'index_details'
 >;
 const extractCollectionStats = (collection: Collection): CollectionStats => {
   const coll = collection.toJSON();
@@ -199,8 +195,17 @@ const extractCollectionStats = (collection: Collection): CollectionStats => {
     storage_size: coll.storage_size,
     free_storage_size: coll.free_storage_size,
     avg_document_size: coll.avg_document_size,
+    index_details: coll.index_details,
   };
 };
+
+function getDefaultSort(collectionStats: CollectionStats): Sort {
+  if (collectionStats?.index_details._id_) {
+    return { _id: -1 };
+  }
+
+  return { $natural: -1 };
+}
 
 /**
  * Default number of docs per page.
@@ -350,6 +355,7 @@ type CrudState = {
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
   collectionStats: CollectionStats | null;
+  defaultSort: Sort;
 };
 
 type CrudStoreActionsOptions = {
@@ -424,6 +430,8 @@ class CrudStoreImpl
     const isDataLake = !!this.instance.dataLake.isDataLake;
     const isReadonly = !!this.options.isReadonly;
 
+    const collectionStats = extractCollectionStats(this.collection);
+
     return {
       ns: this.options.namespace,
       collection: toNS(this.options.namespace).collection,
@@ -455,7 +463,8 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
-      collectionStats: extractCollectionStats(this.collection),
+      collectionStats,
+      defaultSort: getDefaultSort(collectionStats),
     };
   }
 
@@ -903,7 +912,7 @@ class CrudStoreImpl
         {
           serverVersion: this.state.version,
           isDataLake: this.state.isDataLake,
-          isTimeSeries: this.state.isTimeSeries,
+          defaultSort: this.state.defaultSort,
         },
         ns,
         filter ?? {},
@@ -1558,8 +1567,10 @@ class CrudStoreImpl
   }
 
   collectionStatsFetched(model: Collection) {
+    const collectionStats = extractCollectionStats(model);
     this.setState({
-      collectionStats: extractCollectionStats(model),
+      collectionStats,
+      defaultSort: getDefaultSort(collectionStats),
     });
   }
 
@@ -1734,7 +1745,7 @@ class CrudStoreImpl
         {
           serverVersion: this.state.version,
           isDataLake: this.state.isDataLake,
-          isTimeSeries: this.state.isTimeSeries,
+          defaultSort: this.state.defaultSort,
         },
         ns,
         query.filter ?? {},

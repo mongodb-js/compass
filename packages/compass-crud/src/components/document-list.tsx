@@ -137,6 +137,7 @@ export type DocumentListProps = {
     | 'resultId'
     | 'docsPerPage'
     | 'updateMaxDocumentsPerPage'
+    | 'defaultSort'
   >;
 
 const DocumentViewComponent: React.FunctionComponent<
@@ -318,6 +319,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     runBulkUpdate,
     docsPerPage,
     updateMaxDocumentsPerPage,
+    defaultSort,
   } = props;
 
   const onOpenInsert = useCallback(
@@ -552,6 +554,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             )}
             docsPerPage={docsPerPage}
             updateMaxDocumentsPerPage={handleMaxDocsPerPageChanged}
+            defaultSort={defaultSort}
           />
         }
       >

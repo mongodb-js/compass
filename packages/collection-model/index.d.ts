@@ -1,4 +1,4 @@
-import type { DataService } from 'mongodb-data-service';
+import type { DataService, CollStatsIndexDetails } from 'mongodb-data-service';
 
 type CollectionMetadata = {
   /**
@@ -76,6 +76,7 @@ interface CollectionProps {
   free_storage_size: number;
   index_count: number;
   index_size: number;
+  index_details: CollStatsIndexDetails
   isTimeSeries: boolean;
   isView: boolean;
   sourceName: string | null;

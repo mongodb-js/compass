@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import type { Sort } from 'mongodb';
 import {
   Button,
   Icon,
@@ -129,6 +130,7 @@ type QueryBarProps = {
   isAIFetching?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
+  defaultSort: Sort;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -158,6 +160,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   isAIFetching = false,
   onShowAIInputClick,
   onHideAIInputClick,
+  defaultSort,
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
@@ -311,6 +314,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
                 onApply={onApply}
                 disabled={isAIFetching}
                 placeholders={placeholders}
+                defaultSort={defaultSort}
               />
             ))}
           </div>
