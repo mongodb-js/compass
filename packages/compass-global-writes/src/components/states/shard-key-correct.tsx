@@ -22,6 +22,7 @@ import {
 import toNS from 'mongodb-ns';
 import { ShardZonesTable } from '../shard-zones-table';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { ShardKeyMarkup } from '../shard-key-markup';
 
 const nbsp = '\u00a0';
 
@@ -92,17 +93,7 @@ export function ShardKeyCorrect({
         </strong>
         {nbsp}We have included a table for reference below.
       </Banner>
-
-      <div className={codeBlockContainerStyles}>
-        <Body data-testid="shardkey-description-title">
-          <strong>{namespace}</strong> is configured with the following shard
-          key:
-        </Body>
-        <Code language="js" data-testid="shardkey-description-content">
-          {shardKey.fields.map((field) => `"${field.name}"`).join(', ')}
-        </Code>
-      </div>
-
+      <ShardKeyMarkup namespace={namespace} shardKey={shardKey} />
       <Subtitle>Example commands</Subtitle>
       <div className={paragraphStyles}>
         <Body>

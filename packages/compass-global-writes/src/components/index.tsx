@@ -12,6 +12,7 @@ import { ShardingStatuses } from '../store/reducer';
 import UnshardedState from './states/unsharded';
 import ShardingState from './states/sharding';
 import ShardKeyCorrect from './states/shard-key-correct';
+import ShardKeyInvalid from './states/shard-key-invalid';
 
 const containerStyles = css({
   paddingLeft: spacing[400],
@@ -68,6 +69,10 @@ function ShardingStateView({
     shardingStatus === ShardingStatuses.UNMANAGING_NAMESPACE
   ) {
     return <ShardKeyCorrect />;
+  }
+
+  if (shardingStatus === ShardingStatuses.SHARD_KEY_INVALID) {
+    return <ShardKeyInvalid />;
   }
 
   return null;
