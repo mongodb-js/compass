@@ -6,19 +6,20 @@ const codeBlockContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[100],
-  maxWidth: '700px',
 });
 
 interface ShardKeyMarkupProps {
   shardKey: ShardKey;
   namespace: string;
   showMetaData?: boolean;
+  type?: 'requested' | 'existing';
 }
 
 export function ShardKeyMarkup({
   namespace,
   shardKey,
   showMetaData,
+  type = 'existing',
 }: ShardKeyMarkupProps) {
   let markup = shardKey.fields
     .map(
@@ -31,7 +32,14 @@ export function ShardKeyMarkup({
   return (
     <div className={codeBlockContainerStyles}>
       <Body data-testid="shardkey-description-title">
-        <strong>{namespace}</strong> is configured with the following shard key:
+        {type === 'existing' ? (
+          <>
+            <strong>{namespace}</strong> is configured with the following shard
+            key:
+          </>
+        ) : (
+          <>You requested to use the shard key:</>
+        )}
       </Body>
       <Code language="js" data-testid="shardkey-description-content">
         {markup}

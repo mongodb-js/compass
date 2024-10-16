@@ -15,6 +15,7 @@ import {
   type ShardKey,
 } from '../../store/reducer';
 import { connect } from 'react-redux';
+import type { ManagedNamespace } from '../../services/atlas-global-writes-service';
 
 const containerStyles = css({
   display: 'flex',
@@ -27,8 +28,25 @@ const unmanageBtnStyles = css({
   marginTop: spacing[100],
 });
 
+const getRequestedShardKey = (
+  managedNamespace: ManagedNamespace
+): ShardKey => ({
+  fields: [
+    {
+      name: 'location',
+      type: 'RANGE',
+    },
+    {
+      name: managedNamespace.customShardKey,
+      type: managedNamespace.isCustomShardKeyHashed ? 'HASHED' : 'RANGE',
+    },
+  ],
+  isUnique: managedNamespace.isShardKeyUnique,
+});
+
 interface ShardKeyMismatchProps {
   shardKey?: ShardKey;
+  requestedShardKey?: ShardKey;
   namespace: string;
   isUnmanagingNamespace: boolean;
   onUnmanageNamespace: () => void;
@@ -36,6 +54,7 @@ interface ShardKeyMismatchProps {
 
 export function ShardKeyMismatch({
   shardKey,
+  requestedShardKey,
   namespace,
   onUnmanageNamespace,
   isUnmanagingNamespace,
@@ -64,14 +83,20 @@ export function ShardKeyMismatch({
             Unmanage collection
           </Button>
         </div>
-        {/* {this.state.error && <div className="bem-alert-error">{exceptionToMessage(this.state.error)}</div>} */}
       </Banner>
       <ShardKeyMarkup
         namespace={namespace}
         shardKey={shardKey}
         showMetaData={true}
       />
-      {/** TODO: Add the requested key */}
+      {requestedShardKey && (
+        <ShardKeyMarkup
+          namespace={namespace}
+          shardKey={requestedShardKey}
+          showMetaData={true}
+          type="requested"
+        />
+      )}
     </div>
   );
 }
@@ -80,6 +105,8 @@ export default connect(
   (state: RootState) => ({
     namespace: state.namespace,
     shardKey: state.shardKey,
+    requestedShardKey:
+      state.managedNamespace && getRequestedShardKey(state.managedNamespace),
     isUnmanagingNamespace:
       state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
   }),

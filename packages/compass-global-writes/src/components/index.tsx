@@ -21,6 +21,7 @@ const containerStyles = css({
   display: 'flex',
   width: '100%',
   height: '100%',
+  maxWidth: '700px',
 });
 
 const workspaceContentStyles = css({
