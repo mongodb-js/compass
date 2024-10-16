@@ -23,7 +23,9 @@ export function ShardKeyMarkup({
 }: ShardKeyMarkupProps) {
   let markup = shardKey.fields
     .map(
-      (field) => `"${field.name}"` + (showMetaData ? ` (${field.type}) ` : '')
+      (field) =>
+        `"${field.name}"` +
+        (showMetaData ? ` (${field.type.toLowerCase()})` : '')
     )
     .join(', ');
   if (showMetaData) {
@@ -31,7 +33,7 @@ export function ShardKeyMarkup({
   }
   return (
     <div className={codeBlockContainerStyles}>
-      <Body data-testid="shardkey-description-title">
+      <Body data-testid={`${type}-shardkey-description-title`}>
         {type === 'existing' ? (
           <>
             <strong>{namespace}</strong> is configured with the following shard
@@ -41,7 +43,7 @@ export function ShardKeyMarkup({
           <>You requested to use the shard key:</>
         )}
       </Body>
-      <Code language="js" data-testid="shardkey-description-content">
+      <Code language="js" data-testid={`${type}-shardkey-description-content`}>
         {markup}
       </Code>
     </div>

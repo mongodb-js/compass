@@ -22,7 +22,7 @@ const paragraphStyles = css({
   gap: spacing[100],
 });
 
-interface ShardKeyInvalidProps {
+export interface ShardKeyInvalidProps {
   shardKey?: ShardKey;
   namespace: string;
 }

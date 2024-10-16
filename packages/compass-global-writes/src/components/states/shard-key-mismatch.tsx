@@ -44,7 +44,7 @@ const getRequestedShardKey = (
   isUnique: managedNamespace.isShardKeyUnique,
 });
 
-interface ShardKeyMismatchProps {
+export interface ShardKeyMismatchProps {
   shardKey?: ShardKey;
   requestedShardKey?: ShardKey;
   namespace: string;
