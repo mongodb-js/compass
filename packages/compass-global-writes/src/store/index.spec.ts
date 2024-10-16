@@ -347,7 +347,7 @@ describe('GlobalWritesStore Store', function () {
     });
 
     context('invalid and mismatching shard keys', function () {
-      it('there is no location', async function () {
+      it('there is no location : invalid', async function () {
         const store = createStore({
           isNamespaceManaged: () => true,
           hasShardKey: () => ({
@@ -364,7 +364,7 @@ describe('GlobalWritesStore Store', function () {
         });
       });
 
-      it('location is not a range', async function () {
+      it('location is not a range : invalid', async function () {
         const store = createStore({
           isNamespaceManaged: () => true,
           hasShardKey: () => ({
@@ -381,7 +381,7 @@ describe('GlobalWritesStore Store', function () {
         });
       });
 
-      it('secondary key does not match', async function () {
+      it('secondary key does not match : mismatch', async function () {
         const store = createStore({
           isNamespaceManaged: () => true,
           hasShardKey: () => ({
@@ -398,7 +398,7 @@ describe('GlobalWritesStore Store', function () {
         });
       });
 
-      it('uniqueness does not match', async function () {
+      it('uniqueness does not match : mismatch', async function () {
         const store = createStore({
           isNamespaceManaged: () => true,
           hasShardKey: () => ({
@@ -413,6 +413,32 @@ describe('GlobalWritesStore Store', function () {
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
         });
+      });
+
+      it('mismatch -> unmanaged', async function () {
+        // initial state - mismatch
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          hasShardKey: () => ({
+            _id: '123',
+            key: {
+              location: 'range',
+              tertiary: 'range',
+            },
+            unique: true,
+          }),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
+        });
+
+        // user asks to unmanage
+        const promise = store.dispatch(unmanageNamespace());
+        expect(store.getState().status).to.equal(
+          'UNMANAGING_NAMESPACE_MISMATCH'
+        );
+        await promise;
+        expect(store.getState().status).to.equal('UNSHARDED');
       });
     });
 
