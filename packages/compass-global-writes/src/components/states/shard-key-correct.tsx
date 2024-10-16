@@ -10,6 +10,7 @@ import {
   Subtitle,
   Label,
   Button,
+  ButtonVariant,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -22,7 +23,7 @@ import {
 import toNS from 'mongodb-ns';
 import { ShardZonesTable } from '../shard-zones-table';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { ShardKeyMarkup } from '../shard-key-markup';
+import ShardKeyMarkup from '../shard-key-markup';
 
 const nbsp = '\u00a0';
 
@@ -175,9 +176,9 @@ export function ShardKeyCorrect({
       </Body>
       <div>
         <Button
-          data-testid="shard-collection-button"
+          data-testid="unmanage-collection-button"
           onClick={onUnmanageNamespace}
-          variant="primary"
+          variant={ButtonVariant.Primary}
           isLoading={isUnmanagingNamespace}
         >
           Unmanage collection

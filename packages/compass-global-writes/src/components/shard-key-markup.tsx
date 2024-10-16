@@ -12,17 +12,32 @@ const codeBlockContainerStyles = css({
 interface ShardKeyMarkupProps {
   shardKey: ShardKey;
   namespace: string;
+  showMetaData?: boolean;
 }
 
-export function ShardKeyMarkup({ namespace, shardKey }: ShardKeyMarkupProps) {
+export function ShardKeyMarkup({
+  namespace,
+  shardKey,
+  showMetaData,
+}: ShardKeyMarkupProps) {
+  let markup = shardKey.fields
+    .map(
+      (field) => `"${field.name}"` + (showMetaData ? ` (${field.type}) ` : '')
+    )
+    .join(', ');
+  if (showMetaData) {
+    markup += ` - unique: ${String(shardKey.isUnique)}`;
+  }
   return (
     <div className={codeBlockContainerStyles}>
       <Body data-testid="shardkey-description-title">
         <strong>{namespace}</strong> is configured with the following shard key:
       </Body>
       <Code language="js" data-testid="shardkey-description-content">
-        {shardKey.fields.map((field) => `"${field.name}"`).join(', ')}
+        {markup}
       </Code>
     </div>
   );
 }
+
+export default ShardKeyMarkup;

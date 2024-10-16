@@ -1,8 +1,26 @@
-import { Banner, BannerVariant } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  BannerVariant,
+  spacing,
+  css,
+} from '@mongodb-js/compass-components';
 import React from 'react';
-import { ShardKeyMarkup } from '../shard-key-markup';
+import ShardKeyMarkup from '../shard-key-markup';
 import type { RootState, ShardKey } from '../../store/reducer';
 import { connect } from 'react-redux';
+
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+  marginBottom: spacing[400],
+});
+
+const paragraphStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+});
 
 interface ShardKeyInvalidProps {
   shardKey?: ShardKey;
@@ -11,10 +29,10 @@ interface ShardKeyInvalidProps {
 
 export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
   if (!shardKey) {
-    throw new Error('Shard key not found in ShardKeyCorrect');
+    throw new Error('Shard key not found in ShardKeyInvalid');
   }
   return (
-    <div>
+    <div className={containerStyles}>
       <Banner variant={BannerVariant.Danger}>
         <strong>
           To configure Global Writes, the first shard key of this collection
@@ -24,9 +42,15 @@ export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
         Please migrate the data in this collection to a new collection and
         reshard it using a valid compound shard key.
       </Banner>
-      <ShardKeyMarkup namespace={namespace} shardKey={shardKey} />
-      Documents in this collection will be distributed across your shards
-      without being mapped to specific zones.
+      <ShardKeyMarkup
+        namespace={namespace}
+        shardKey={shardKey}
+        showMetaData={true}
+      />
+      <div className={paragraphStyles}>
+        Documents in this collection will be distributed across your shards
+        without being mapped to specific zones.
+      </div>
     </div>
   );
 }
