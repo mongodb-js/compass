@@ -49,7 +49,7 @@ const paragraphStyles = css({
 
 export type ShardKeyCorrectProps = {
   namespace: string;
-  shardKey?: ShardKey;
+  shardKey: ShardKey;
   shardZones: ShardZoneData[];
   isUnmanagingNamespace: boolean;
   onUnmanageNamespace: () => void;
@@ -62,10 +62,6 @@ export function ShardKeyCorrect({
   isUnmanagingNamespace,
   onUnmanageNamespace,
 }: ShardKeyCorrectProps) {
-  if (!shardKey) {
-    throw new Error('Shard key not found in ShardKeyCorrect');
-  }
-
   const customShardKeyField = useMemo(() => {
     return shardKey.fields[1].name;
   }, [shardKey]);
@@ -189,13 +185,18 @@ export function ShardKeyCorrect({
 }
 
 export default connect(
-  (state: RootState) => ({
-    namespace: state.namespace,
-    shardKey: state.shardKey,
-    shardZones: state.shardZones,
-    isUnmanagingNamespace:
-      state.status === ShardingStatuses.UNMANAGING_NAMESPACE,
-  }),
+  (state: RootState) => {
+    if (!state.shardKey) {
+      throw new Error('Shard key not found in ShardKeyCorrect');
+    }
+    return {
+      namespace: state.namespace,
+      shardKey: state.shardKey,
+      shardZones: state.shardZones,
+      isUnmanagingNamespace:
+        state.status === ShardingStatuses.UNMANAGING_NAMESPACE,
+    };
+  },
   {
     onUnmanageNamespace: unmanageNamespace,
   }

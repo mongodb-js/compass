@@ -45,7 +45,7 @@ const getRequestedShardKey = (
 });
 
 export interface ShardKeyMismatchProps {
-  shardKey?: ShardKey;
+  shardKey: ShardKey;
   requestedShardKey?: ShardKey;
   namespace: string;
   isUnmanagingNamespace: boolean;
@@ -59,9 +59,6 @@ export function ShardKeyMismatch({
   onUnmanageNamespace,
   isUnmanagingNamespace,
 }: ShardKeyMismatchProps) {
-  if (!shardKey) {
-    throw new Error('Shard key not found in ShardKeyMismatch');
-  }
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Danger}>
@@ -102,14 +99,19 @@ export function ShardKeyMismatch({
 }
 
 export default connect(
-  (state: RootState) => ({
-    namespace: state.namespace,
-    shardKey: state.shardKey,
-    requestedShardKey:
-      state.managedNamespace && getRequestedShardKey(state.managedNamespace),
-    isUnmanagingNamespace:
-      state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
-  }),
+  (state: RootState) => {
+    if (!state.shardKey) {
+      throw new Error('Shard key not found in ShardKeyMismatch');
+    }
+    return {
+      namespace: state.namespace,
+      shardKey: state.shardKey,
+      requestedShardKey:
+        state.managedNamespace && getRequestedShardKey(state.managedNamespace),
+      isUnmanagingNamespace:
+        state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
+    };
+  },
   {
     onUnmanageNamespace: unmanageNamespace,
   }

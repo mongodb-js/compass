@@ -23,14 +23,11 @@ const paragraphStyles = css({
 });
 
 export interface ShardKeyInvalidProps {
-  shardKey?: ShardKey;
+  shardKey: ShardKey;
   namespace: string;
 }
 
 export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
-  if (!shardKey) {
-    throw new Error('Shard key not found in ShardKeyInvalid');
-  }
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Danger}>
@@ -55,7 +52,12 @@ export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
   );
 }
 
-export default connect((state: RootState) => ({
-  namespace: state.namespace,
-  shardKey: state.shardKey,
-}))(ShardKeyInvalid);
+export default connect((state: RootState) => {
+  if (!state.shardKey) {
+    throw new Error('Shard key not found in ShardKeyInvalid');
+  }
+  return {
+    namespace: state.namespace,
+    shardKey: state.shardKey,
+  };
+})(ShardKeyInvalid);
