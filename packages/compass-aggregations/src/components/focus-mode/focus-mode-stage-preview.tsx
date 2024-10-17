@@ -16,6 +16,7 @@ import OutputStagePreview from '../stage-preview/output-stage-preview';
 import { AtlasStagePreview } from '../stage-preview/atlas-stage-preview';
 import {
   isAtlasOnlyStage,
+  isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
 } from '../../utils/stage';
@@ -24,6 +25,7 @@ import {
   expandPreviewDocsForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import SearchNoResults from '../search-no-results';
 
 const containerStyles = css({
   display: 'flex',
@@ -149,6 +151,8 @@ export const FocusModePreview = ({
         className={documentListStyles}
       />
     );
+  } else if (isSearchStage(stageOperator)) {
+    content = <SearchNoResults />;
   } else {
     content = (
       <div className={centerStyles}>

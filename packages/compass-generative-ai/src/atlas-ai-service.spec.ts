@@ -204,7 +204,7 @@ describe('AtlasAiService', function () {
               userInput: 'test',
               collectionName: 'test',
               databaseName: 'peanut',
-              sampleDocuments: [{ test: '4'.repeat(600000) }],
+              sampleDocuments: [{ test: '4'.repeat(5120001) }],
               requestId: 'abc',
               signal: new AbortController().signal,
             });
@@ -231,7 +231,7 @@ describe('AtlasAiService', function () {
               { a: '1' },
               { a: '2' },
               { a: '3' },
-              { a: '4'.repeat(500000) },
+              { a: '4'.repeat(5120001) },
             ],
             requestId: 'abc',
             signal: new AbortController().signal,

@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Mon, Oct 14, 2024 at 08:39 AM
+Generated on Wed, Oct 16, 2024 at 01:37 PM
 
 ## Table of Contents
 
@@ -113,6 +113,7 @@ Generated on Mon, Oct 14, 2024 at 08:39 AM
 
 ### Indexes
 - [Index Created](#event--IndexCreatedEvent)
+- [Index Create Failed](#event--IndexCreateFailedEvent)
 - [Index Create Opened](#event--IndexCreateOpenedEvent)
 - [Index Dropped](#event--IndexDroppedEvent)
 - [Index Edited](#event--IndexEditedEvent)
@@ -1459,6 +1460,35 @@ This event is fired when user opens the import dialog.
 ### Index Created
 
 This event is fired when user creates an index.
+
+**Properties**:
+
+- **unique** (optional): `boolean | undefined`
+  - Indicates whether the index is unique.
+- **ttl** (optional): `any`
+  - Specifies the time-to-live (TTL) setting for the index.
+- **columnstore_index** (optional): `boolean | undefined`
+  - Indicates whether the index is a columnstore index.
+- **has_columnstore_projection** (optional): `any`
+  - Indicates if the index has a columnstore projection.
+- **has_wildcard_projection** (optional): `any`
+  - Indicates if the index includes a wildcard projection.
+- **custom_collation** (optional): `any`
+  - Specifies if the index uses a custom collation.
+- **geo** (optional): `boolean | undefined`
+  - Indicates whether the index is a geospatial index.
+- **atlas_search** (optional): `boolean | undefined`
+  - Indicates whether the index is an Atlas Search index.
+- **type** (optional): `string | undefined`
+  - Specifies the type of the index.
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--IndexCreateFailedEvent"></a>
+
+### Index Create Failed
+
+This event is fired when user creates an index and it fails.
 
 **Properties**:
 
