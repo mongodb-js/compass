@@ -73,6 +73,7 @@ const NOOP_DATA_PROVIDER: IndexesDataService = {
       free_storage_size: 0,
       index_count: 0,
       index_size: 0,
+      index_details: {},
       name: collectionName,
       ns: `${databaseName}.${collectionName}`,
       storage_size: 0,

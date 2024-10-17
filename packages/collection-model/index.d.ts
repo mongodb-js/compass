@@ -76,7 +76,7 @@ interface CollectionProps {
   free_storage_size: number;
   index_count: number;
   index_size: number;
-  index_details: CollStatsIndexDetails
+  index_details: Record<string, CollStatsIndexDetails>;
   isTimeSeries: boolean;
   isView: boolean;
   sourceName: string | null;
