@@ -9,7 +9,7 @@ export type AtlasUserInfo = {
   lastName: string;
   primaryEmail: string;
   login: string;
-} & { enabledAIFeature: boolean };
+};
 
 export type IntrospectInfo = { active: boolean };
 

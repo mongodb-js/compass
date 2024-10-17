@@ -205,9 +205,7 @@ describe('AtlasLoginSettings', function () {
 
   it('should not reset sign in state if there is no sign in attempt in progress', async function () {
     const atlasAuthService = {
-      signIn: sandbox
-        .stub()
-        .resolves({ login: 'user@mongodb.com', enabledAIFeature: false }),
+      signIn: sandbox.stub().resolves({ login: 'user@mongodb.com' }),
     };
 
     const { store } = renderAtlasLoginSettings(atlasAuthService);
