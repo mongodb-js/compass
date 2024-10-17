@@ -1,5 +1,5 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
-import * as Selectors from '../helpers/selectors';
+import type { CompassBrowser } from '../compass-browser';
+import * as Selectors from '../selectors';
 
 export async function getStageOperators(
   browser: CompassBrowser,

@@ -10,7 +10,6 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
@@ -512,7 +511,7 @@ describe('CSFLE / QE', function () {
         // wait for the modal to go away
         await insertDialog.waitForDisplayed({ reverse: true });
 
-        const result = await getFirstListDocument(browser);
+        const result = await browser.getFirstListDocument();
 
         expect(result._id).to.exist;
         expect(result.__safeContent__).to.exist;
@@ -591,7 +590,7 @@ describe('CSFLE / QE', function () {
             'Documents'
           );
 
-          const result = await getFirstListDocument(browser);
+          const result = await browser.getFirstListDocument();
           expect(result[field]).to.be.equal(toString(oldValueJS));
 
           const document = await browser.$(Selectors.DocumentListEntry);
@@ -638,7 +637,7 @@ describe('CSFLE / QE', function () {
               : `{ ${field}: ${newValue} }`
           );
 
-          const modifiedResult = await getFirstListDocument(browser);
+          const modifiedResult = await browser.getFirstListDocument();
           expect(modifiedResult[field]).to.be.equal(toString(newValueJS));
           expect(modifiedResult._id).to.be.equal(result._id);
         });
@@ -696,7 +695,7 @@ describe('CSFLE / QE', function () {
           "{ phoneNumber: '10101010' }"
         );
 
-        const modifiedResult = await getFirstListDocument(browser);
+        const modifiedResult = await browser.getFirstListDocument();
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
 
@@ -847,7 +846,7 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Third' }");
 
-        const result = await getFirstListDocument(browser);
+        const result = await browser.getFirstListDocument();
 
         delete result._id;
         delete result.__safeContent__;
@@ -896,7 +895,7 @@ describe('CSFLE / QE', function () {
           'Documents'
         );
 
-        let decryptedResult = await getFirstListDocument(browser);
+        let decryptedResult = await browser.getFirstListDocument();
 
         delete decryptedResult._id;
         delete decryptedResult.__safeContent__;
@@ -926,7 +925,7 @@ describe('CSFLE / QE', function () {
           .$(Selectors.CSFLEConnectionModal)
           .waitForDisplayed({ reverse: true });
 
-        const encryptedResult = await getFirstListDocument(browser);
+        const encryptedResult = await browser.getFirstListDocument();
 
         delete encryptedResult._id;
         delete encryptedResult.__safeContent__;
@@ -956,7 +955,7 @@ describe('CSFLE / QE', function () {
           .$(Selectors.CSFLEConnectionModal)
           .waitForDisplayed({ reverse: true });
 
-        decryptedResult = await getFirstListDocument(browser);
+        decryptedResult = await browser.getFirstListDocument();
 
         delete decryptedResult._id;
         delete decryptedResult.__safeContent__;
@@ -1075,7 +1074,7 @@ describe('CSFLE / QE', function () {
             collection,
             'Documents'
           );
-          const result = await getFirstListDocument(browser);
+          const result = await browser.getFirstListDocument();
           expect(result.phoneNumber).to.be.equal(JSON.stringify(value));
         }
 
@@ -1261,13 +1260,13 @@ describe('CSFLE / QE', function () {
       // { v: "123", _id: 'asdf' }
       // { v: "456", _id: 'ghjk' }
 
-      let decryptedResult = await getFirstListDocument(browser);
+      let decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"123"', _id: '"asdf"' });
 
       // We can't search for the encrypted value, but it does get decrypted
       await browser.runFindOperation('Documents', '{ _id: "ghjk" }');
-      decryptedResult = await getFirstListDocument(browser);
+      decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"456"', _id: '"ghjk"' });
     });
