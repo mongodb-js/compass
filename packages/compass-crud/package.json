@@ -6,7 +6,7 @@
     "email": "compass@mongodb.com"
   },
   "private": true,
-  "version": "13.44.1",
+  "version": "13.44.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -78,7 +78,7 @@
     "@mongodb-js/compass-editor": "^0.31.1",
     "@mongodb-js/compass-field-store": "^9.19.1",
     "@mongodb-js/compass-logging": "^1.4.8",
-    "@mongodb-js/compass-query-bar": "^8.45.1",
+    "@mongodb-js/compass-query-bar": "^8.45.2",
     "@mongodb-js/compass-telemetry": "^1.2.1",
     "@mongodb-js/compass-workspaces": "^0.25.1",
     "@mongodb-js/explain-plan-helper": "^1.2.4",
