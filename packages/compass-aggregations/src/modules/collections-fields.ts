@@ -175,7 +175,7 @@ export const fetchCollectionFields = (
               namespaceToQuery,
               {},
               {
-                sort: { $natural: 1 },
+                sort: { $natural: -1 },
                 limit: 1,
                 maxTimeMS: FETCH_SCHEMA_MAX_TIME_MS,
               }
