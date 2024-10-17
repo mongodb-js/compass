@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import type { Sort } from 'mongodb';
 import {
   Body,
   DropdownMenuButton,
@@ -121,7 +120,6 @@ export type CrudToolbarProps = {
   querySkip?: number;
   docsPerPage: number;
   updateMaxDocumentsPerPage: (docsPerPage: number) => void;
-  defaultSort: Sort;
 };
 
 const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
@@ -152,7 +150,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   querySkip,
   docsPerPage,
   updateMaxDocumentsPerPage,
-  defaultSort,
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
@@ -195,7 +192,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           onReset={onResetClicked}
           showExplainButton={enableExplainPlan}
           insights={insights}
-          defaultSort={defaultSort}
         />
       </div>
       <div className={crudBarStyles}>

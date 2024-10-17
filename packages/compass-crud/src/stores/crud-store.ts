@@ -113,7 +113,7 @@ const INITIAL_BULK_UPDATE_TEXT = `{
 type FetchDocumentsOptions = {
   serverVersion: string;
   isDataLake: boolean;
-  defaultSort: Sort;
+  defaultSort?: Sort;
 };
 
 export const fetchDocuments: (
@@ -199,12 +199,14 @@ const extractCollectionStats = (collection: Collection): CollectionStats => {
   };
 };
 
-function getDefaultSort(collectionStats: CollectionStats): Sort {
+function getDefaultSort(
+  collectionStats: CollectionStats | null
+): Sort | undefined {
   if (collectionStats?.index_details._id_) {
     return { _id: -1 };
   }
 
-  return { $natural: 1 };
+  return undefined;
 }
 
 /**
@@ -355,7 +357,6 @@ type CrudState = {
   bulkDelete: BulkDeleteState;
   docsPerPage: number;
   collectionStats: CollectionStats | null;
-  defaultSort: Sort;
 };
 
 type CrudStoreActionsOptions = {
@@ -464,7 +465,6 @@ class CrudStoreImpl
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
       collectionStats,
-      defaultSort: getDefaultSort(collectionStats),
     };
   }
 
@@ -912,7 +912,7 @@ class CrudStoreImpl
         {
           serverVersion: this.state.version,
           isDataLake: this.state.isDataLake,
-          defaultSort: this.state.defaultSort,
+          defaultSort: getDefaultSort(this.state.collectionStats),
         },
         ns,
         filter ?? {},
@@ -1570,7 +1570,6 @@ class CrudStoreImpl
     const collectionStats = extractCollectionStats(model);
     this.setState({
       collectionStats,
-      defaultSort: getDefaultSort(collectionStats),
     });
   }
 
@@ -1745,7 +1744,7 @@ class CrudStoreImpl
         {
           serverVersion: this.state.version,
           isDataLake: this.state.isDataLake,
-          defaultSort: this.state.defaultSort,
+          defaultSort: getDefaultSort(this.state.collectionStats),
         },
         ns,
         query.filter ?? {},

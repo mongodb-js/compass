@@ -1,6 +1,4 @@
 import React from 'react';
-import type { Sort } from 'mongodb';
-import { toJSString } from 'mongodb-query-parser';
 import { css, spacing } from '@mongodb-js/compass-components';
 import type {
   QueryOption,
@@ -22,7 +20,6 @@ type QueryBarRowProps = {
   onApply?(): void;
   placeholders?: Record<QueryProperty, string>;
   disabled?: boolean;
-  defaultSort: Sort;
 };
 
 export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
@@ -30,15 +27,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
   onApply,
   placeholders,
   disabled,
-  defaultSort,
 }) => {
-  const getPlaceholder = (name: QueryOption): string | undefined => {
-    if (name === 'sort') {
-      return toJSString(defaultSort)?.replace(/\s+/gm, ' ');
-    }
-    return placeholders?.[name];
-  };
-
   return (
     <div className={rowStyles}>
       {typeof queryOptionsLayout === 'string' ? (
@@ -47,7 +36,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
           name={queryOptionsLayout}
           id={`query-bar-option-input-${queryOptionsLayout}`}
           onApply={onApply}
-          placeholder={getPlaceholder(queryOptionsLayout)}
+          placeholder={placeholders?.[queryOptionsLayout]}
           disabled={disabled}
         />
       ) : (
@@ -57,7 +46,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
             name={optionName}
             id={`query-bar-option-input-${optionName}`}
             onApply={onApply}
-            placeholder={getPlaceholder(optionName)}
+            placeholder={placeholders?.[optionName]}
             disabled={disabled}
           />
         ))
