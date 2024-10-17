@@ -30,6 +30,7 @@ const wait = (ms: number) =>
 
 const allowedArgs = [
   '--test-compass-web',
+  '--test-compass-web-atlas-cloud',
   '--no-compile',
   '--no-native-modules',
   '--test-packaged-app',
@@ -47,18 +48,22 @@ for (const arg of process.argv) {
   }
 }
 
+const disableStartStop = process.argv.includes('--disable-start-stop');
+const shouldTestCompassWebAtlasCloud = process.argv.includes(
+  '--test-compass-web-atlas-cloud'
+);
+const shouldTestCompassWeb =
+  process.argv.includes('--test-compass-web') || shouldTestCompassWebAtlasCloud;
+
 // We can't import mongodb here yet because native modules will be recompiled
 let metricsClient: MongoClient;
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
-let compassWeb: ChildProcessWithoutNullStreams;
+let compassWeb: ChildProcessWithoutNullStreams | undefined;
 
 async function setup() {
   debug('X DISPLAY', process.env.DISPLAY);
-
-  const disableStartStop = process.argv.includes('--disable-start-stop');
-  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
   // When working on the tests it is faster to just keep the server running.
   if (!disableStartStop) {
@@ -66,28 +71,48 @@ async function setup() {
     crossSpawn.sync('npm', ['run', 'start-servers'], { stdio: 'inherit' });
 
     if (shouldTestCompassWeb) {
-      debug('Starting Compass Web');
-      compassWeb = crossSpawn.spawn(
-        'npm',
-        ['run', '--unsafe-perm', 'start-web'],
-        {
-          cwd: path.resolve(__dirname, '..', '..'),
-          env: {
-            ...process.env,
-            OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
-            DISABLE_DEVSERVER_OVERLAY: 'true',
-            APP_ENV: 'webdriverio',
-          },
-        }
-      );
+      debug('Starting Compass Web', { shouldTestCompassWebAtlasCloud });
+
+      const spawnCommand: [string, string[]] = shouldTestCompassWebAtlasCloud
+        ? [
+            'npx',
+            [
+              'ts-node',
+              path.resolve(
+                __dirname,
+                'scripts',
+                'start-compass-web-with-atlas-auth.ts'
+              ),
+            ],
+          ]
+        : [
+            'npm',
+            [
+              'run',
+              '--workspace',
+              '@mongodb-js/compass-web',
+              '--unsafe-perm',
+              'start',
+            ],
+          ];
+
+      compassWeb = crossSpawn.spawn(...spawnCommand, {
+        env: {
+          ...process.env,
+          OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+          DISABLE_DEVSERVER_OVERLAY: 'true',
+          APP_ENV: 'webdriverio',
+        },
+      });
 
       compassWeb.stdout.pipe(process.stdout);
       compassWeb.stderr.pipe(process.stderr);
 
       let serverReady = false;
       const start = Date.now();
+      const timeout = shouldTestCompassWebAtlasCloud ? 240_000 : 120_000;
       while (!serverReady) {
-        if (Date.now() - start >= 120_000) {
+        if (Date.now() - start >= timeout) {
           throw new Error(
             'The compass-web sandbox is still not running after 120000ms'
           );
@@ -95,11 +120,24 @@ async function setup() {
         try {
           const res = await fetch('http://localhost:7777');
           serverReady = res.ok;
+          if (shouldTestCompassWebAtlasCloud) {
+            // TODO: we probably want to have just one endpoint for the sandbox
+            // healthcheck sort of stuff
+            const authRes = await fetch('http://localhost:7777/projectId');
+            serverReady = authRes.ok;
+          }
           debug('Web server ready: %s', serverReady);
         } catch (err) {
           debug('Failed to connect to dev server: %s', (err as any).message);
         }
         await wait(1000);
+      }
+      if (shouldTestCompassWebAtlasCloud) {
+        // Now wait for the cert to be issued
+        // TODO: same as above, probably better to have just one nedpoint we can
+        // ping to wait for everything to be ready
+        debug('Waitiing for x509 cert to propagate to Atlas clusters...');
+        await fetch('http://localhost:7777/x509');
       }
     } else {
       debug('Writing electron-versions.json');
@@ -136,11 +174,8 @@ function getResources() {
 function cleanup() {
   removeUserDataDir();
 
-  const disableStartStop = process.argv.includes('--disable-start-stop');
-  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
-
   if (!disableStartStop) {
-    if (shouldTestCompassWeb) {
+    if (compassWeb) {
       debug('Stopping compass-web');
       try {
         if (compassWeb.pid) {
@@ -198,8 +233,6 @@ function cleanup() {
 
 async function main() {
   await setup();
-
-  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
   if (!shouldTestCompassWeb) {
     if (!process.env.CHROME_VERSION) {
