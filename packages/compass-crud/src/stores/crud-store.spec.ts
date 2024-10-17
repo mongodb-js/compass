@@ -2250,7 +2250,16 @@ describe('store', function () {
     });
 
     it('should call find with $bsonSize projection when mongodb version is >= 4.4, not connected to ADF and csfle is disabled', async function () {
-      await fetchDocuments(dataService, '5.0.0', false, 'test.test', {});
+      await fetchDocuments(
+        dataService,
+        {
+          serverVersion: '5.0.0',
+          isDataLake: false,
+          isTimeSeries: false,
+        },
+        'test.test',
+        {}
+      );
       expect(find).to.have.been.calledOnce;
       expect(find.getCall(0))
         .to.have.nested.property('args.2.projection')
@@ -2261,8 +2270,11 @@ describe('store', function () {
       findResult = [{ __size: new Int32(42), __doc: { _id: 1 } }];
       const docs = await fetchDocuments(
         dataService,
-        '4.0.0',
-        false,
+        {
+          serverVersion: '4.0.0',
+          isDataLake: false,
+          isTimeSeries: false,
+        },
         'test.test',
         {}
       );
@@ -2272,7 +2284,16 @@ describe('store', function () {
     });
 
     it('should NOT call find with $bsonSize projection when mongodb version is < 4.4', async function () {
-      await fetchDocuments(dataService, '4.0.0', false, 'test.test', {});
+      await fetchDocuments(
+        dataService,
+        {
+          serverVersion: '4.0.0',
+          isDataLake: false,
+          isTimeSeries: false,
+        },
+        'test.test',
+        {}
+      );
       expect(find).to.have.been.calledOnce;
       expect(find.getCall(0)).to.have.nested.property(
         'args.2.projection',
@@ -2281,7 +2302,16 @@ describe('store', function () {
     });
 
     it('should NOT call find with $bsonSize projection when connected to ADF', async function () {
-      await fetchDocuments(dataService, '5.0.0', true, 'test.test', {});
+      await fetchDocuments(
+        dataService,
+        {
+          serverVersion: '5.0.0',
+          isDataLake: true,
+          isTimeSeries: false,
+        },
+        'test.test',
+        {}
+      );
       expect(find).to.have.been.calledOnce;
       expect(find.getCall(0)).to.have.nested.property(
         'args.2.projection',
@@ -2291,7 +2321,16 @@ describe('store', function () {
 
     it('should NOT call find with $bsonSize projection when csfle is enabled', async function () {
       csfleMode = 'enabled';
-      await fetchDocuments(dataService, '5.0.0', false, 'test.test', {});
+      await fetchDocuments(
+        dataService,
+        {
+          serverVersion: '5.0.0',
+          isDataLake: false,
+          isTimeSeries: false,
+        },
+        'test.test',
+        {}
+      );
       expect(find).to.have.been.calledOnce;
       expect(find.getCall(0)).to.have.nested.property(
         'args.2.projection',
@@ -2302,8 +2341,11 @@ describe('store', function () {
     it('should keep user projection when provided', async function () {
       await fetchDocuments(
         dataService,
-        '5.0.0',
-        false,
+        {
+          serverVersion: '5.0.0',
+          isDataLake: false,
+          isTimeSeries: false,
+        },
         'test.test',
         {},
         {
@@ -2326,8 +2368,11 @@ describe('store', function () {
 
       const docs = await fetchDocuments(
         dataService,
-        '5.0.0',
-        false,
+        {
+          serverVersion: '5.0.0',
+          isDataLake: false,
+          isTimeSeries: false,
+        },
         'test.test',
         {}
       );
@@ -2346,7 +2391,16 @@ describe('store', function () {
       find = sinon.stub().rejects(new TypeError('🤷‍♂️'));
 
       try {
-        await fetchDocuments(dataService, '5.0.0', false, 'test.test', {});
+        await fetchDocuments(
+          dataService,
+          {
+            serverVersion: '5.0.0',
+            isDataLake: false,
+            isTimeSeries: false,
+          },
+          'test.test',
+          {}
+        );
         expect.fail('Expected fetchDocuments to fail with error');
       } catch (err) {
         expect(find).to.have.been.calledOnce;
@@ -2358,7 +2412,16 @@ describe('store', function () {
       find = sinon.stub().rejects(new MongoServerError('Nope'));
 
       try {
-        await fetchDocuments(dataService, '3.0.0', true, 'test.test', {});
+        await fetchDocuments(
+          dataService,
+          {
+            serverVersion: '3.0.0',
+            isDataLake: true,
+            isTimeSeries: false,
+          },
+          'test.test',
+          {}
+        );
         expect.fail('Expected fetchDocuments to fail with error');
       } catch (err) {
         expect(find).to.have.been.calledOnce;

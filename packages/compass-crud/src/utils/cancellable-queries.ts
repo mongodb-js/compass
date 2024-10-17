@@ -7,7 +7,7 @@ export async function countDocuments(
   dataService: DataService,
   preferences: PreferencesAccess,
   ns: string,
-  filter: BSONObject,
+  filter: BSONObject | undefined,
   {
     signal,
     skip,

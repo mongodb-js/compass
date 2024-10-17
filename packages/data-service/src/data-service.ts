@@ -1108,6 +1108,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
                   ],
                 },
               },
+              indexDetails: { $first: '$storageStats.indexDetails' },
               nindexes: { $max: '$storageStats.nindexes' },
             },
           },
@@ -2581,6 +2582,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       storage_size: data.storageSize ?? 0,
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
+      index_details: data.indexDetails ?? {},
       index_size: data.totalIndexSize ?? 0,
     };
   }
