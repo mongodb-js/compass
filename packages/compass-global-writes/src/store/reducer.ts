@@ -130,6 +130,7 @@ export enum ShardingStatuses {
    * we are waiting for server to accept the request.
    */
   SUBMITTING_FOR_SHARDING = 'SUBMITTING_FOR_SHARDING',
+  SUBMITTING_FOR_SHARDING_ERROR = 'SUBMITTING_FOR_SHARDING_ERROR',
 
   /**
    * Namespace is being sharded.
@@ -141,6 +142,7 @@ export enum ShardingStatuses {
    * we are waiting for server to accept the request.
    */
   CANCELLING_SHARDING = 'CANCELLING_SHARDING',
+  CANCELLING_SHARDING_ERROR = 'CANCELLING_SHARDING_ERROR',
 
   /**
    * Sharding failed.
@@ -224,7 +226,10 @@ export type RootState = {
       pollingTimeout?: NodeJS.Timeout;
     }
   | {
-      status: ShardingStatuses.SHARDING_ERROR;
+      status:
+        | ShardingStatuses.SHARDING_ERROR
+        | ShardingStatuses.CANCELLING_SHARDING_ERROR
+        | ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR;
       shardKey?: never;
       shardingError: string;
       pollingTimeout?: never;
@@ -331,15 +336,30 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   }
 
   if (
+    isAction<SubmittingForShardingStartedAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingStarted
+    ) &&
+    state.status === ShardingStatuses.SHARDING_ERROR
+  ) {
+    return {
+      ...state,
+      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
+    };
+  }
+
+  if (
     isAction<SubmittingForShardingFinishedAction>(
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
     ) &&
     (state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING ||
+      state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR ||
       state.status === ShardingStatuses.NOT_READY)
   ) {
     return {
       ...state,
+      shardingError: undefined,
       managedNamespace: action.managedNamespace || state.managedNamespace,
       status: ShardingStatuses.SHARDING,
     };
@@ -389,14 +409,29 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   }
 
   if (
+    isAction<CancellingShardingStartedAction>(
+      action,
+      GlobalWritesActionTypes.CancellingShardingStarted
+    ) &&
+    state.status === ShardingStatuses.SHARDING_ERROR
+  ) {
+    return {
+      ...state,
+      status: ShardingStatuses.CANCELLING_SHARDING_ERROR,
+    };
+  }
+
+  if (
     isAction<CancellingShardingErroredAction>(
       action,
       GlobalWritesActionTypes.CancellingShardingErrored
     ) &&
-    state.status === ShardingStatuses.CANCELLING_SHARDING
+    (state.status === ShardingStatuses.CANCELLING_SHARDING ||
+      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR)
   ) {
     return {
       ...state,
+      shardingError: undefined,
       status: ShardingStatuses.SHARDING,
     };
   }
