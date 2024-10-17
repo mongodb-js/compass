@@ -169,6 +169,7 @@ export enum ShardingStatuses {
    * Namespace is being unmanaged.
    */
   UNMANAGING_NAMESPACE = 'UNMANAGING_NAMESPACE',
+  UNMANAGING_NAMESPACE_MISMATCH = 'UNMANAGING_NAMESPACE_MISMATCH',
 }
 
 export type ShardingStatus = keyof typeof ShardingStatuses;
@@ -233,7 +234,8 @@ export type RootState = {
         | ShardingStatuses.SHARD_KEY_CORRECT
         | ShardingStatuses.SHARD_KEY_INVALID
         | ShardingStatuses.SHARD_KEY_MISMATCH
-        | ShardingStatuses.UNMANAGING_NAMESPACE;
+        | ShardingStatuses.UNMANAGING_NAMESPACE
+        | ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH;
       shardKey: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
@@ -435,12 +437,14 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       GlobalWritesActionTypes.UnmanagingNamespaceStarted
     ) &&
     (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
-      state.status === ShardingStatuses.SHARD_KEY_INVALID ||
       state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
   ) {
     return {
       ...state,
-      status: ShardingStatuses.UNMANAGING_NAMESPACE,
+      status:
+        state.status === ShardingStatuses.SHARD_KEY_CORRECT
+          ? ShardingStatuses.UNMANAGING_NAMESPACE
+          : ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
     };
   }
 
@@ -449,7 +453,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceFinished
     ) &&
-    state.status === ShardingStatuses.UNMANAGING_NAMESPACE
+    (state.status === ShardingStatuses.UNMANAGING_NAMESPACE ||
+      state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH)
   ) {
     return {
       ...state,
