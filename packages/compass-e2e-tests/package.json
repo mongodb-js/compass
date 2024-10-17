@@ -53,6 +53,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron": "^30.5.1",
+    "electron-to-chromium": "^1.5.28",
     "eslint": "^7.25.0",
     "fast-glob": "^3.2.7",
     "glob": "^10.2.5",

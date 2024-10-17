@@ -109,12 +109,16 @@ async function main() {
   );
 
   const latestBrowserslistVersion = await getLatestVersion('browserslist');
+  const latestElectronToChromiumVersion = await getLatestVersion(
+    'electron-to-chromium'
+  );
 
   const newVersions = {
     'node-abi': `^${latestNodeAbiVersion}`,
     '@electron/remote': `^${latestElectronRemoteVersion}`,
     '@electron/rebuild': `^${latestElectronRebuildVersion}`,
     electron: `^${latestElectronVersion}`,
+    'electron-to-chromium': `^${latestElectronToChromiumVersion}`,
     browserslist: `^${latestBrowserslistVersion}`,
   };
 

@@ -13,7 +13,10 @@ import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
 import { run as packageCompass } from 'hadron-build/commands/release';
-import { redactConnectionString } from 'mongodb-connection-string-url';
+import {
+  redactConnectionString,
+  ConnectionString,
+} from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors';
 export * as Commands from './commands';
@@ -45,7 +48,11 @@ let MONGODB_USE_ENTERPRISE =
   (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
 
 // should we test compass-web (true) or compass electron (false)?
-export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+export const TEST_COMPASS_WEB_ATLAS_CLOUD = process.argv.includes(
+  '--test-compass-web-atlas-cloud'
+);
+export const TEST_COMPASS_WEB =
+  process.argv.includes('--test-compass-web') || TEST_COMPASS_WEB_ATLAS_CLOUD;
 // multiple connections is now the default
 export const TEST_MULTIPLE_CONNECTIONS = true;
 
@@ -56,10 +63,13 @@ in a scannable manner. It is not being output at present because the tests will
 be logged as pending anyway.
 */
 export function skipForWeb(
-  test: Mocha.Runnable | Mocha.Context,
+  test: Mocha.Context,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   reason: string
 ) {
+  if (test?.currentTest?.title) {
+    test.currentTest.title += ` - skipped with reason: ${reason}`;
+  }
   if (TEST_COMPASS_WEB) {
     test.skip();
   }
@@ -75,12 +85,29 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+function getAtlasConnectionStringFromEnv() {
+  const connectionStringJSONString =
+    process.env.E2E_ATLAS_CLOUD_TEST_CLUSTER_CONNECTION_STRING_JSON;
+  if (!connectionStringJSONString) {
+    return undefined;
+  }
+  const { standardSrv } = JSON.parse(connectionStringJSONString);
+  const mongodbConnectionString = new ConnectionString(standardSrv);
+  mongodbConnectionString.username =
+    process.env.E2E_TESTS_COMPASS_WEB_ATLAS_DB_USERNAME!;
+  mongodbConnectionString.password =
+    process.env.E2E_TESTS_COMPASS_WEB_ATLAS_PASSWORD!;
+  return mongodbConnectionString.toString();
+}
+
+export const DEFAULT_CONNECTION_STRING_1 =
+  getAtlasConnectionStringFromEnv() ??
+  `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
 // NOTE: in browser.setupDefaultConnections() we don't give the first connection an
 // explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING_1
-);
+export const DEFAULT_CONNECTION_NAME_1 =
+  process.env.E2E_ATLAS_CLOUD_TEST_CLUSTER_NAME ??
+  connectionNameFromString(DEFAULT_CONNECTION_STRING_1);
 
 // for testing multiple connections
 export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${

@@ -11,6 +11,8 @@ import { createNumbersCollection } from '../helpers/insert-data';
 describe('Time to first query', function () {
   let compass: Compass | undefined;
 
+  const connectionName = DEFAULT_CONNECTION_NAME_1;
+
   beforeEach(async function () {
     await createNumbersCollection();
   });
@@ -42,10 +44,10 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString(connectionName);
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      connectionName,
       'test',
       'numbers',
       'Documents'
@@ -67,10 +69,10 @@ describe('Time to first query', function () {
 
     const { browser } = compass;
 
-    await browser.connectWithConnectionString();
+    await browser.connectWithConnectionString(connectionName);
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      connectionName,
       'test',
       'numbers',
       'Documents'
