@@ -569,7 +569,7 @@ const AIError = ({
     // able to fix the issue on their own it cases where the schema is too big.
     return (
       <>
-        Sorry, your collections have too many fields to process. Please try
+        Sorry, your request is too large. Please use a smaller prompt or try
         using this feature on a collection with smaller documents.
       </>
     );

@@ -582,6 +582,7 @@ export function createRegularIndex(
       await dispatch(refreshRegularIndexes());
     } catch (err) {
       dispatch(indexCreationFailed(inProgressIndexId, (err as Error).message));
+      track('Index Create Failed', trackEvent, connectionInfoRef.current);
     }
   };
 }

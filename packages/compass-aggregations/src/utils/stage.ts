@@ -203,6 +203,21 @@ export function isAtlasOnlyStage(
   return !!stageOperator && ATLAS_ONLY_OPERATOR_NAMES.has(stageOperator);
 }
 
+/*
+Atlas Search does not return an error if there is no search index - it just
+returns no results. So if the connection has access to Atlas Search and the
+aggregation used a search-related stage and got no results we want to display a
+different error.
+*/
+export function isSearchStage(
+  stageOperator: string | null | undefined
+): stageOperator is '$search' | '$searchMeta' | '$vectorSearch' {
+  if (!stageOperator) {
+    return false;
+  }
+  return ['$search', '$searchMeta', '$vectorSearch'].includes(stageOperator);
+}
+
 const STAGE_OPERATORS_MAP = new Map(
   STAGE_OPERATORS.map((stage) => [stage.value, stage])
 );
