@@ -5,12 +5,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { connect } from 'react-redux';
-import type { RootState } from '../../store/reducer';
-import { createShardKey, ShardingStatuses } from '../../store/reducer';
-import CreateShardKeyForm, {
-  type CreateShardKeyFormProps,
-} from '../create-shard-key-form';
+import CreateShardKeyForm from '../create-shard-key-form';
 
 const nbsp = '\u00a0';
 
@@ -20,7 +15,7 @@ const containerStyles = css({
   gap: spacing[400],
 });
 
-export function UnshardedState(props: CreateShardKeyFormProps) {
+export function UnshardedState() {
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Warning}>
@@ -31,18 +26,9 @@ export function UnshardedState(props: CreateShardKeyFormProps) {
         </strong>
         {nbsp}See the instructions below for details.
       </Banner>
-      <CreateShardKeyForm {...props} />
+      <CreateShardKeyForm />
     </div>
   );
 }
 
-export default connect(
-  (state: RootState) => ({
-    namespace: state.namespace,
-    isSubmittingForSharding:
-      state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING,
-  }),
-  {
-    onCreateShardKey: createShardKey,
-  }
-)(UnshardedState);
+export default UnshardedState;

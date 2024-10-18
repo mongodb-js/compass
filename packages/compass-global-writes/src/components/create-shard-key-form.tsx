@@ -17,8 +17,14 @@ import {
   Subtitle,
   TextInput,
 } from '@mongodb-js/compass-components';
-import type { CreateShardKeyData } from '../store/reducer';
+import {
+  createShardKey,
+  type RootState,
+  ShardingStatuses,
+  type CreateShardKeyData,
+} from '../store/reducer';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { connect } from 'react-redux';
 
 const contentStyles = css({
   display: 'flex',
@@ -108,12 +114,14 @@ function CreateShardKeyDescription() {
 export type CreateShardKeyFormProps = {
   namespace: string;
   isSubmittingForSharding: boolean;
+  isCancellingSharding: boolean;
   onCreateShardKey: (data: CreateShardKeyData) => void;
 };
 
-function CreateShardKeyForm({
+export function CreateShardKeyForm({
   namespace,
   isSubmittingForSharding,
+  isCancellingSharding,
   onCreateShardKey,
 }: CreateShardKeyFormProps) {
   const [isAdvancedOptionsOpen, setIsAdvancedOptionsOpen] = useState(false);
@@ -297,7 +305,9 @@ function CreateShardKeyForm({
           <Button
             data-testid="shard-collection-button"
             onClick={onSubmit}
-            disabled={!secondShardKey || isSubmittingForSharding}
+            disabled={
+              !secondShardKey || isSubmittingForSharding || isCancellingSharding
+            }
             variant="primary"
             isLoading={isSubmittingForSharding}
           >
@@ -309,4 +319,21 @@ function CreateShardKeyForm({
   );
 }
 
-export default CreateShardKeyForm;
+export default connect(
+  (state: RootState) => {
+    return {
+      namespace: state.namespace,
+      isSubmittingForSharding: [
+        ShardingStatuses.SUBMITTING_FOR_SHARDING,
+        ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
+      ].includes(state.status),
+      isCancellingSharding: [
+        ShardingStatuses.CANCELLING_SHARDING,
+        ShardingStatuses.CANCELLING_SHARDING_ERROR,
+      ].includes(state.status),
+    };
+  },
+  {
+    onCreateShardKey: createShardKey,
+  }
+)(CreateShardKeyForm);

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Banner,
   BannerVariant,
@@ -9,13 +9,10 @@ import {
 import { connect } from 'react-redux';
 import {
   cancelSharding,
-  createShardKey,
   type RootState,
   ShardingStatuses,
 } from '../../store/reducer';
-import CreateShardKeyForm, {
-  type CreateShardKeyFormProps,
-} from '../create-shard-key-form';
+import CreateShardKeyForm from '../create-shard-key-form';
 
 const containerStyles = css({
   display: 'flex',
@@ -32,28 +29,19 @@ const errorStyles = css({
   marginTop: spacing[200],
 });
 
-interface ShardingErrorProps extends CreateShardKeyFormProps {
+interface ShardingErrorProps {
   shardingError: string;
   isCancellingSharding: boolean;
+  isSubmittingForSharding: boolean;
   onCancelSharding: () => void;
 }
 
 export function ShardingError({
-  namespace,
   shardingError,
   isCancellingSharding,
   isSubmittingForSharding,
   onCancelSharding,
-  onCreateShardKey,
 }: ShardingErrorProps) {
-  const createShardKeyFormProps = useMemo<CreateShardKeyFormProps>(
-    () => ({
-      namespace,
-      isSubmittingForSharding,
-      onCreateShardKey,
-    }),
-    [namespace, isSubmittingForSharding, onCreateShardKey]
-  );
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Warning}>
@@ -72,7 +60,7 @@ export function ShardingError({
           Cancel Request
         </Button>
       </Banner>
-      <CreateShardKeyForm {...createShardKeyFormProps} />
+      <CreateShardKeyForm />
     </div>
   );
 }
@@ -83,16 +71,14 @@ export default connect(
       throw new Error('No shardingError found in ShardingError component');
     }
     return {
-      namespace: state.namespace,
       shardingError: state.shardingError,
       isCancellingSharding:
         state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR,
-      isSubmittingForSharding:
+      isSubmitting:
         state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
     };
   },
   {
     onCancelSharding: cancelSharding,
-    onCreateShardKey: createShardKey,
   }
 )(ShardingError);
