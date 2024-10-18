@@ -1,9 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
-  getFilteredRowModel,
-  type Row as ReactTableRow,
-} from '@tanstack/table-core';
-import {
   Table,
   TableBody,
   TableHead,
@@ -19,6 +15,8 @@ import {
   type HeaderGroup,
   SearchInput,
   type LGTableDataType,
+  getFilteredRowModel,
+  LgTableRowType,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 
@@ -78,7 +76,7 @@ const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
 };
 
 const hasFilteredChildren = (
-  row: ReactTableRow<LGTableDataType<ShardZoneRow>>
+  row: LgTableRowType<LGTableDataType<ShardZoneRow>>
 ) =>
   row.subRows.filter(
     (subRow) => Object.values(subRow.columnFilters).includes(true) // columnFilters: e.g. { __global__: true }
