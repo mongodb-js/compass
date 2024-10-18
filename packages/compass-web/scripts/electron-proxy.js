@@ -542,6 +542,11 @@ function cleanupAndExit() {
 }
 
 electronApp.whenReady().then(async () => {
+  // Create an empty browser window so that webdriver session can be
+  // immediately get attached to something without failing
+  const emptyBrowserWindow = new BrowserWindow({ show: false });
+  emptyBrowserWindow.loadURL('about:blank');
+
   electronApp.on('window-all-closed', () => {
     // We want proxy to keep running even when all the windows are closed, but
     // hide the dock icon because there are not windows associated with it
