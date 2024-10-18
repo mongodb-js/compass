@@ -442,7 +442,8 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       GlobalWritesActionTypes.CancellingShardingFinished
     ) &&
     (state.status === ShardingStatuses.CANCELLING_SHARDING ||
-      state.status === ShardingStatuses.SHARDING_ERROR)
+      state.status === ShardingStatuses.SHARDING_ERROR ||
+      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR)
     // the error might come before the cancel request was processed
   ) {
     return {

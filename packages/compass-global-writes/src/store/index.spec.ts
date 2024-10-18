@@ -205,7 +205,7 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it.only('not managed -> sharding -> sharding error', async function () {
+    it('not managed -> sharding -> sharding error', async function () {
       let mockFailure = false;
       // initial state === unsharded
       const store = createStore({
@@ -445,14 +445,60 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('sharding error', async function () {
+    it('sharding error -> cancelling request -> not managed', async function () {
+      // initial state === sharding error
+      let mockManagedNamespace = true;
+      let mockShardingError = true;
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const store = createStore({
-        isNamespaceManaged: () => true,
-        hasShardingError: () => true,
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        hasShardingError: Sinon.fake(() => mockShardingError),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user triggers a cancellation
+      const promise = store.dispatch(cancelSharding());
+      mockManagedNamespace = false;
+      mockShardingError = false;
+      await promise;
+      expect(store.getState().status).to.equal('UNSHARDED');
+      expect(confirmationStub).to.have.been.called;
+    });
+
+    it('sharding error -> submitting form -> sharding -> sharded', async function () {
+      // initial state === sharding error=
+      let mockShardingError = true;
+      let mockShardKey = false;
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardingError: Sinon.fake(() => mockShardingError),
+        hasShardKey: Sinon.fake(() => mockShardKey),
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING_ERROR');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user submits the form
+      const promise = store.dispatch(createShardKey(shardKeyData));
+      mockShardingError = false;
+      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING_ERROR');
+      await promise;
+      expect(store.getState().status).to.equal('SHARDING');
+
+      // the key is created
+      mockShardKey = true;
+      clock.tick(POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
       });
     });
 
