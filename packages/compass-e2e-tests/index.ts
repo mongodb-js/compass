@@ -267,7 +267,7 @@ async function main() {
   const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
   const e2eTestFilter = process.env.E2E_TEST_FILTER || '*';
 
-  let tests = (
+  const tests = (
     await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {
       cwd: __dirname,
     })
