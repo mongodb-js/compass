@@ -134,6 +134,7 @@ const mockCollection = {
   document_count: 10,
   free_storage_size: 10,
   storage_size: 20,
+  index_details: {},
   fetchMetadata() {
     return Promise.resolve(defaultMetadata);
   },
@@ -334,6 +335,7 @@ describe('store', function () {
           avg_document_size: 1,
           document_count: 10,
           free_storage_size: 10,
+          index_details: {},
           storage_size: 20,
         },
       });
@@ -2255,7 +2257,7 @@ describe('store', function () {
         {
           serverVersion: '5.0.0',
           isDataLake: false,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {}
@@ -2273,7 +2275,7 @@ describe('store', function () {
         {
           serverVersion: '4.0.0',
           isDataLake: false,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {}
@@ -2289,7 +2291,7 @@ describe('store', function () {
         {
           serverVersion: '4.0.0',
           isDataLake: false,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {}
@@ -2307,7 +2309,7 @@ describe('store', function () {
         {
           serverVersion: '5.0.0',
           isDataLake: true,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {}
@@ -2326,7 +2328,7 @@ describe('store', function () {
         {
           serverVersion: '5.0.0',
           isDataLake: false,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {}
@@ -2344,7 +2346,7 @@ describe('store', function () {
         {
           serverVersion: '5.0.0',
           isDataLake: false,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {},
@@ -2371,7 +2373,7 @@ describe('store', function () {
         {
           serverVersion: '5.0.0',
           isDataLake: false,
-          isTimeSeries: false,
+          defaultSort: undefined,
         },
         'test.test',
         {}
@@ -2396,7 +2398,7 @@ describe('store', function () {
           {
             serverVersion: '5.0.0',
             isDataLake: false,
-            isTimeSeries: false,
+            defaultSort: undefined,
           },
           'test.test',
           {}
@@ -2417,7 +2419,7 @@ describe('store', function () {
           {
             serverVersion: '3.0.0',
             isDataLake: true,
-            isTimeSeries: false,
+            defaultSort: undefined,
           },
           'test.test',
           {}
