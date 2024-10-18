@@ -52,7 +52,7 @@ const managedNamespace: ManagedNamespace = {
 const failedShardingProcess: AutomationAgentProcess = {
   statusType: 'ERROR',
   workingOnShort: 'ShardingCollections',
-  errorText: `Failed to shard ${NS}`,
+  errorText: `before timestamp[01:02:03.456]Failed to shard ${NS}`,
 };
 
 function createAuthFetchResponse<
@@ -205,7 +205,7 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('not managed -> sharding -> sharding error', async function () {
+    it.only('not managed -> sharding -> sharding error', async function () {
       let mockFailure = false;
       // initial state === unsharded
       const store = createStore({
@@ -230,6 +230,9 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
+        expect(store.getState().shardingError).to.equal(
+          `Failed to shard ${NS}`
+        ); // the original error text was: `before timestamp[01:02:03.456]Failed to shard ${NS}`
       });
     });
 
