@@ -16,7 +16,7 @@ import {
   SearchInput,
   type LGTableDataType,
   getFilteredRowModel,
-  LgTableRowType,
+  type LgTableRowType,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 
