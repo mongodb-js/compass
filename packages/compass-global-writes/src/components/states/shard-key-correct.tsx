@@ -38,7 +38,6 @@ const codeBlockContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[100],
-  maxWidth: '700px',
 });
 
 const paragraphStyles = css({
