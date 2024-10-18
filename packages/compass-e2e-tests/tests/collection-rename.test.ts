@@ -6,6 +6,7 @@ import {
   screenshotIfFailed,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
+  ATLAS_DOMAIN,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { createDummyCollections } from '../helpers/insert-data';
@@ -84,7 +85,10 @@ describe('Collection Rename Modal', () => {
   before(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setupDefaultConnections();
+    // no need to setup connections if we are running against Atlas
+    if (!ATLAS_DOMAIN) {
+      await browser.setupDefaultConnections();
+    }
   });
 
   beforeEach(async function () {

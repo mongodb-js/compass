@@ -18,6 +18,7 @@ import {
   LOG_PATH,
   removeUserDataDir,
   updateMongoDBServerInfo,
+  ATLAS_DOMAIN,
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
 
@@ -60,52 +61,54 @@ async function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
-  // When working on the tests it is faster to just keep the server running.
-  if (!disableStartStop) {
-    debug('Starting MongoDB server');
-    crossSpawn.sync('npm', ['run', 'start-servers'], { stdio: 'inherit' });
+  if (!ATLAS_DOMAIN) {
+    // When working on the tests it is faster to just keep the server running.
+    if (!disableStartStop) {
+      debug('Starting MongoDB server');
+      crossSpawn.sync('npm', ['run', 'start-servers'], { stdio: 'inherit' });
 
-    if (shouldTestCompassWeb) {
-      debug('Starting Compass Web');
-      compassWeb = crossSpawn.spawn(
-        'npm',
-        ['run', '--unsafe-perm', 'start-web'],
-        {
-          cwd: path.resolve(__dirname, '..', '..'),
-          env: {
-            ...process.env,
-            OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
-            DISABLE_DEVSERVER_OVERLAY: 'true',
-            APP_ENV: 'webdriverio',
-          },
-        }
-      );
+      if (shouldTestCompassWeb) {
+        debug('Starting Compass Web');
+        compassWeb = crossSpawn.spawn(
+          'npm',
+          ['run', '--unsafe-perm', 'start-web'],
+          {
+            cwd: path.resolve(__dirname, '..', '..'),
+            env: {
+              ...process.env,
+              OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+              DISABLE_DEVSERVER_OVERLAY: 'true',
+              APP_ENV: 'webdriverio',
+            },
+          }
+        );
 
-      compassWeb.stdout.pipe(process.stdout);
-      compassWeb.stderr.pipe(process.stderr);
+        compassWeb.stdout.pipe(process.stdout);
+        compassWeb.stderr.pipe(process.stderr);
 
-      let serverReady = false;
-      const start = Date.now();
-      while (!serverReady) {
-        if (Date.now() - start >= 120_000) {
-          throw new Error(
-            'The compass-web sandbox is still not running after 120000ms'
-          );
+        let serverReady = false;
+        const start = Date.now();
+        while (!serverReady) {
+          if (Date.now() - start >= 120_000) {
+            throw new Error(
+              'The compass-web sandbox is still not running after 120000ms'
+            );
+          }
+          try {
+            const res = await fetch('http://localhost:7777');
+            serverReady = res.ok;
+            debug('Web server ready: %s', serverReady);
+          } catch (err) {
+            debug('Failed to connect to dev server: %s', (err as any).message);
+          }
+          await wait(1000);
         }
-        try {
-          const res = await fetch('http://localhost:7777');
-          serverReady = res.ok;
-          debug('Web server ready: %s', serverReady);
-        } catch (err) {
-          debug('Failed to connect to dev server: %s', (err as any).message);
-        }
-        await wait(1000);
+      } else {
+        debug('Writing electron-versions.json');
+        crossSpawn.sync('scripts/write-electron-versions.sh', [], {
+          stdio: 'inherit',
+        });
       }
-    } else {
-      debug('Writing electron-versions.json');
-      crossSpawn.sync('scripts/write-electron-versions.sh', [], {
-        stdio: 'inherit',
-      });
     }
   }
 
@@ -118,8 +121,10 @@ async function setup() {
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
 
-  debug('Getting mongodb server info');
-  updateMongoDBServerInfo();
+  if (!ATLAS_DOMAIN) {
+    debug('Getting mongodb server info');
+    updateMongoDBServerInfo();
+  }
 }
 
 function getResources() {
@@ -139,34 +144,36 @@ function cleanup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
-  if (!disableStartStop) {
-    if (shouldTestCompassWeb) {
-      debug('Stopping compass-web');
-      try {
-        if (compassWeb.pid) {
-          debug(`killing compass-web [${compassWeb.pid}]`);
-          kill(compassWeb.pid, 'SIGINT');
-        } else {
-          debug('no pid for compass-web');
+  if (!ATLAS_DOMAIN) {
+    if (!disableStartStop) {
+      if (shouldTestCompassWeb) {
+        debug('Stopping compass-web');
+        try {
+          if (compassWeb.pid) {
+            debug(`killing compass-web [${compassWeb.pid}]`);
+            kill(compassWeb.pid, 'SIGINT');
+          } else {
+            debug('no pid for compass-web');
+          }
+        } catch (e) {
+          debug('Failed to stop compass-web', e);
         }
-      } catch (e) {
-        debug('Failed to stop compass-web', e);
       }
-    }
 
-    debug('Stopping MongoDB server');
-    try {
-      crossSpawn.sync('npm', ['run', 'stop-servers'], {
-        // If it's taking too long we might as well kill the process and move on,
-        // mongodb-runner is flaky sometimes and in ci `posttest-ci` script will
-        // take care of additional clean up anyway
-        timeout: 120_000,
-        stdio: 'inherit',
-      });
-    } catch (e) {
-      debug('Failed to stop MongoDB Server', e);
+      debug('Stopping MongoDB server');
+      try {
+        crossSpawn.sync('npm', ['run', 'stop-servers'], {
+          // If it's taking too long we might as well kill the process and move on,
+          // mongodb-runner is flaky sometimes and in ci `posttest-ci` script will
+          // take care of additional clean up anyway
+          timeout: 120_000,
+          stdio: 'inherit',
+        });
+      } catch (e) {
+        debug('Failed to stop MongoDB Server', e);
+      }
+      debug('Done stopping');
     }
-    debug('Done stopping');
   }
 
   // Since the webdriverio update something is messing with the terminal's
@@ -258,9 +265,10 @@ async function main() {
 
   const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS || '1');
   const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
+  const e2eTestFilter = process.env.E2E_TEST_FILTER || '*';
 
-  const rawTests = (
-    await glob('tests/**/*.{test,spec}.ts', {
+  let tests = (
+    await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {
       cwd: __dirname,
     })
   ).filter((value, index, array) => {
@@ -271,7 +279,7 @@ async function main() {
     return index >= minGroupIndex && index <= maxGroupIndex;
   });
 
-  console.info('Test files:', rawTests);
+  console.info('Test files:', tests);
 
   // The only test file that's interested in the first-run experience (at the
   // time of writing) is time-to-first-query.ts and that happens to be
@@ -279,7 +287,12 @@ async function main() {
   // will also get the slow first run experience for no good reason unless it is
   // the time-to-first-query.ts test.
   // So yeah.. this is a bit of a micro optimisation.
-  const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
+  for (let i = 0; i < tests.length; ++i) {
+    if (tests[i] === FIRST_TEST) {
+      [tests[i], tests[0]] = [tests[0], tests[i]];
+      break;
+    }
+  }
 
   // Ensure the insert-data mocha hooks are run.
   tests.unshift(path.join('helpers', 'insert-data.ts'));
