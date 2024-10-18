@@ -10,6 +10,7 @@ import {
   Subtitle,
   Label,
   Button,
+  ButtonVariant,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -22,6 +23,7 @@ import {
 import toNS from 'mongodb-ns';
 import { ShardZonesTable } from '../shard-zones-table';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import ShardKeyMarkup from '../shard-key-markup';
 
 const nbsp = '\u00a0';
 
@@ -47,7 +49,7 @@ const paragraphStyles = css({
 
 export type ShardKeyCorrectProps = {
   namespace: string;
-  shardKey?: ShardKey;
+  shardKey: ShardKey;
   shardZones: ShardZoneData[];
   isUnmanagingNamespace: boolean;
   onUnmanageNamespace: () => void;
@@ -60,10 +62,6 @@ export function ShardKeyCorrect({
   isUnmanagingNamespace,
   onUnmanageNamespace,
 }: ShardKeyCorrectProps) {
-  if (!shardKey) {
-    throw new Error('Shard key not found in ShardKeyCorrect');
-  }
-
   const customShardKeyField = useMemo(() => {
     return shardKey.fields[1].name;
   }, [shardKey]);
@@ -92,17 +90,7 @@ export function ShardKeyCorrect({
         </strong>
         {nbsp}We have included a table for reference below.
       </Banner>
-
-      <div className={codeBlockContainerStyles}>
-        <Body data-testid="shardkey-description-title">
-          <strong>{namespace}</strong> is configured with the following shard
-          key:
-        </Body>
-        <Code language="js" data-testid="shardkey-description-content">
-          {shardKey.fields.map((field) => `"${field.name}"`).join(', ')}
-        </Code>
-      </div>
-
+      <ShardKeyMarkup namespace={namespace} shardKey={shardKey} />
       <Subtitle>Example commands</Subtitle>
       <div className={paragraphStyles}>
         <Body>
@@ -184,9 +172,9 @@ export function ShardKeyCorrect({
       </Body>
       <div>
         <Button
-          data-testid="shard-collection-button"
+          data-testid="unmanage-collection-button"
           onClick={onUnmanageNamespace}
-          variant="primary"
+          variant={ButtonVariant.Primary}
           isLoading={isUnmanagingNamespace}
         >
           Unmanage collection
@@ -197,13 +185,18 @@ export function ShardKeyCorrect({
 }
 
 export default connect(
-  (state: RootState) => ({
-    namespace: state.namespace,
-    shardKey: state.shardKey,
-    shardZones: state.shardZones,
-    isUnmanagingNamespace:
-      state.status === ShardingStatuses.UNMANAGING_NAMESPACE,
-  }),
+  (state: RootState) => {
+    if (!state.shardKey) {
+      throw new Error('Shard key not found in ShardKeyCorrect');
+    }
+    return {
+      namespace: state.namespace,
+      shardKey: state.shardKey,
+      shardZones: state.shardZones,
+      isUnmanagingNamespace:
+        state.status === ShardingStatuses.UNMANAGING_NAMESPACE,
+    };
+  },
   {
     onUnmanageNamespace: unmanageNamespace,
   }

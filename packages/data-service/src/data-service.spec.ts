@@ -1199,10 +1199,7 @@ describe('DataService', function () {
       it('throws an error', async function () {
         await expect(
           dataService.getSearchIndexes(testNamespace)
-        ).to.be.rejectedWith(
-          MongoServerError,
-          /Unrecognized pipeline stage name: '\$listSearchIndexes'"|\$listSearchIndexes stage is only allowed on MongoDB Atlas/
-        );
+        ).to.be.rejectedWith(MongoServerError);
       });
     });
 
@@ -1213,10 +1210,7 @@ describe('DataService', function () {
             name: 'my-index',
             definition: {},
           })
-        ).to.be.rejectedWith(
-          MongoServerError,
-          "no such command: 'createSearchIndexes'"
-        );
+        ).to.be.rejectedWith(MongoServerError);
       });
     });
 
@@ -1224,10 +1218,7 @@ describe('DataService', function () {
       it('throws an error', async function () {
         await expect(
           dataService.updateSearchIndex(testNamespace, 'my-index', {})
-        ).to.be.rejectedWith(
-          MongoServerError,
-          "no such command: 'updateSearchIndex'"
-        );
+        ).to.be.rejectedWith(MongoServerError);
       });
     });
 
@@ -1235,10 +1226,7 @@ describe('DataService', function () {
       it('throws an error', async function () {
         await expect(
           dataService.dropSearchIndex(testNamespace, 'my-index')
-        ).to.be.rejectedWith(
-          MongoServerError,
-          "no such command: 'dropSearchIndex'"
-        );
+        ).to.be.rejectedWith(MongoServerError);
       });
     });
 

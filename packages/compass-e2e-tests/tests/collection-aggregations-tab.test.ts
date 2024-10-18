@@ -16,7 +16,6 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
-import { getStageOperators } from '../helpers/read-stage-operators';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import { Key } from 'webdriverio';
 
@@ -166,7 +165,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    const options = await getStageOperators(browser, 0);
+    const options = await browser.getStageOperators(0);
 
     const expectedAggregations = [
       '$addFields',

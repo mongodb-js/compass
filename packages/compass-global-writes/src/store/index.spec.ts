@@ -7,9 +7,11 @@ import {
   unmanageNamespace,
   cancelSharding,
   POLLING_INTERVAL,
+  type ShardKey,
 } from './reducer';
 import sinon from 'sinon';
 import type {
+  AtlasShardKey,
   AutomationAgentDeploymentStatusApiResponse,
   AutomationAgentProcess,
   ClusterDetailsApiResponse,
@@ -74,14 +76,14 @@ function createStore({
   | {
       isNamespaceManaged?: () => boolean;
       hasShardingError?: () => boolean;
-      hasShardKey?: () => boolean;
+      hasShardKey?: () => boolean | AtlasShardKey;
       failsOnShardingRequest?: () => boolean;
       authenticatedFetchStub?: never;
     }
   | {
       isNamespaceManaged?: never;
       hasShardingError?: never;
-      hasShardKey?: () => boolean;
+      hasShardKey?: () => boolean | ShardKey;
       failsOnShardingRequest?: never;
       authenticatedFetchStub?: () => void;
     } = {}): GlobalWritesStore {
@@ -117,20 +119,24 @@ function createStore({
     }),
     automationAgentAwait: (_meta: unknown, type: string) => {
       if (type === 'getShardKey') {
+        const shardKey = hasShardKey();
         return {
-          response: hasShardKey()
-            ? [
-                {
-                  key: {
-                    location: 'range',
-                    secondary: shardKeyData.isCustomShardKeyHashed
-                      ? 'hashed'
-                      : 'range',
+          response:
+            shardKey === true
+              ? [
+                  {
+                    key: {
+                      location: 'range',
+                      secondary: shardKeyData.isCustomShardKeyHashed
+                        ? 'hashed'
+                        : 'range',
+                    },
+                    unique: true,
                   },
-                  unique: true,
-                },
-              ]
-            : [],
+                ]
+              : typeof shardKey === 'object'
+              ? [shardKey]
+              : [],
         };
       }
     },
@@ -338,6 +344,102 @@ describe('GlobalWritesStore Store', function () {
       expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
       await promise;
       expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+    });
+
+    context('invalid and mismatching shard keys', function () {
+      it('there is no location : invalid', async function () {
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          hasShardKey: () => ({
+            _id: '123',
+            key: {
+              notLocation: 'range', // invalid
+              secondary: 'range',
+            },
+            unique: true,
+          }),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARD_KEY_INVALID');
+        });
+      });
+
+      it('location is not a range : invalid', async function () {
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          hasShardKey: () => ({
+            _id: '123',
+            key: {
+              location: 'hashed', // invalid
+              secondary: 'range',
+            },
+            unique: true,
+          }),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARD_KEY_INVALID');
+        });
+      });
+
+      it('secondary key does not match : mismatch', async function () {
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          hasShardKey: () => ({
+            _id: '123',
+            key: {
+              location: 'range',
+              tertiary: 'range', // this is a different secondary key
+            },
+            unique: true,
+          }),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
+        });
+      });
+
+      it('uniqueness does not match : mismatch', async function () {
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          hasShardKey: () => ({
+            _id: '123',
+            key: {
+              location: 'range',
+              secondary: 'range',
+            },
+            unique: false, // this does not match
+          }),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
+        });
+      });
+
+      it('mismatch -> unmanaged', async function () {
+        // initial state - mismatch
+        const store = createStore({
+          isNamespaceManaged: () => true,
+          hasShardKey: () => ({
+            _id: '123',
+            key: {
+              location: 'range',
+              tertiary: 'range',
+            },
+            unique: true,
+          }),
+        });
+        await waitFor(() => {
+          expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
+        });
+
+        // user asks to unmanage
+        const promise = store.dispatch(unmanageNamespace());
+        expect(store.getState().status).to.equal(
+          'UNMANAGING_NAMESPACE_MISMATCH'
+        );
+        await promise;
+        expect(store.getState().status).to.equal('UNSHARDED');
+      });
     });
 
     it('sharding error', async function () {
