@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "22.23.4",
+  "version": "22.23.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"

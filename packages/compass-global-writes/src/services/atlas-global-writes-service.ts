@@ -42,7 +42,7 @@ export type ClusterDetailsApiResponse = {
   replicationSpecList: ReplicationItem[];
 };
 
-type AutomationAgentProcess = {
+export type AutomationAgentProcess = {
   statusType: string;
   workingOnShort: string;
   errorText: string;
@@ -54,7 +54,7 @@ export type AutomationAgentDeploymentStatusApiResponse = {
   };
 };
 
-type AtlasShardKey = {
+export type AtlasShardKey = {
   _id: string;
   unique: boolean;
   key: Record<string, unknown>;

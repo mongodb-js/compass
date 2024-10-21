@@ -3,10 +3,7 @@ import {
   type PreferencesAccess,
   isAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
-import type {
-  AtlasAuthService,
-  AtlasService,
-} from '@mongodb-js/atlas-service/provider';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -24,7 +21,7 @@ type GenerativeAiInput = {
 
 // The size/token validation happens on the server, however, we do
 // want to ensure we're not uploading massive documents (some folks have documents > 1mb).
-const AI_MAX_REQUEST_SIZE = 100000;
+const AI_MAX_REQUEST_SIZE = 5120000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
 const USER_AI_URI = (userId: string) => `unauth/ai/api/v1/hello/${userId}`;
 const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';
@@ -200,14 +197,13 @@ export class AtlasAiService {
 
   constructor(
     private atlasService: AtlasService,
-    private atlasAuthService: AtlasAuthService,
     private preferences: PreferencesAccess,
     private logger: Logger
   ) {
     this.initPromise = this.setupAIAccess();
   }
 
-  private async throwIfAINotEnabled() {
+  private throwIfAINotEnabled() {
     if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN === 'true') {
       return;
     }
@@ -215,13 +211,6 @@ export class AtlasAiService {
       throw new Error(
         "Compass' AI functionality is not currently enabled. Please try again later."
       );
-    }
-    // Only throw if we actually have userInfo / logged in. Otherwise allow
-    // request to fall through so that we can get a proper network error
-    if (
-      (await this.atlasAuthService.getUserInfo()).enabledAIFeature === false
-    ) {
-      throw new Error("Can't use AI before accepting terms and conditions");
     }
   }
 
@@ -277,7 +266,7 @@ export class AtlasAiService {
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
     await this.initPromise;
-    await this.throwIfAINotEnabled();
+    this.throwIfAINotEnabled();
 
     const { signal, requestId, ...rest } = input;
     const msgBody = buildQueryOrAggregationMessageBody(rest);

@@ -11,7 +11,6 @@ import {
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
-import { getFirstListDocument } from '../helpers/read-first-document-content';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { startTelemetryServer } from '../helpers/telemetry';
@@ -189,7 +188,7 @@ describe('Collection import', function () {
       return text === '1 – 1 of 1';
     });
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     expect(result._id).to.exist;
     delete result._id;
@@ -274,7 +273,7 @@ describe('Collection import', function () {
       return text === '1 – 1 of 1';
     });
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     expect(result._id).to.exist;
     delete result._id;
@@ -334,7 +333,7 @@ describe('Collection import', function () {
       return text === '1 – 25 of 1000';
     });
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     expect(result._id).to.exist;
     delete result._id;
@@ -402,7 +401,7 @@ describe('Collection import', function () {
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 25 of 16116');
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     expect(result._id).to.exist;
     delete result._id;
@@ -452,7 +451,7 @@ describe('Collection import', function () {
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     expect(result._id).to.exist;
     delete result._id;
@@ -608,7 +607,7 @@ describe('Collection import', function () {
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 25 of 16116');
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     // _id is different every time
     expect(result._id).to.exist;
@@ -811,7 +810,7 @@ describe('Collection import', function () {
     // show the array and object fields
     await browser.clickVisible(Selectors.ShowMoreFieldsButton);
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     expect(result._id).to.equal('1001265');
   });
@@ -894,7 +893,7 @@ describe('Collection import', function () {
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     // _id is different every time
     expect(result._id).to.exist;
@@ -1044,7 +1043,7 @@ describe('Collection import', function () {
     const text = await messageElement.getText();
     expect(text).to.equal('1 – 1 of 1');
 
-    const result = await getFirstListDocument(browser);
+    const result = await browser.getFirstListDocument();
 
     // _id is different every time
     expect(result._id).to.exist;

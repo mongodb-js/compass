@@ -9,7 +9,6 @@ import {
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-import { getStageOperators } from '../helpers/read-stage-operators';
 import type { Compass } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
 
@@ -262,7 +261,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     const stageContainers = await browser.$$(Selectors.StageCard);
     expect(stageContainers).to.have.lengthOf(1);
 
-    let options = await getStageOperators(browser, 0);
+    let options = await browser.getStageOperators(0);
 
     expect(options).to.include('$match');
     expect(options).to.include('$out');
@@ -291,7 +290,7 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     await browser.focusStageOperator(0);
 
-    options = await getStageOperators(browser, 0);
+    options = await browser.getStageOperators(0);
 
     expect(options).to.include('$match');
     expect(options).to.not.include('$out');
