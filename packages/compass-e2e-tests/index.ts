@@ -1,32 +1,22 @@
 #!/usr/bin/env ts-node
 import path from 'path';
-import fs from 'fs';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
-import type { ChildProcessWithoutNullStreams } from 'child_process';
 // @ts-expect-error it thinks process does not have getActiveResourcesInfo
 import { getActiveResourcesInfo } from 'process';
 import Mocha from 'mocha';
 import Debug from 'debug';
-import type { MongoClient } from 'mongodb';
-import kill from 'tree-kill';
 import {
-  rebuildNativeModules,
-  compileCompassAssets,
-  buildCompass,
-  COMPASS_PATH,
-  LOG_PATH,
-  removeUserDataDir,
-  updateMongoDBServerInfo,
-} from './helpers/compass';
-import ResultLogger from './helpers/result-logger';
+  MOCHA_BAIL,
+  MOCHA_DEFAULT_TIMEOUT,
+} from './helpers/test-runner-context';
+import {
+  mochaGlobalSetup,
+  mochaGlobalTeardown,
+} from './helpers/test-runner-global-fixtures';
+import { mochaRootHooks } from './helpers/insert-data';
 
 const debug = Debug('compass-e2e-tests');
-
-const wait = (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
 
 const allowedArgs = [
   '--test-compass-web',
@@ -47,80 +37,7 @@ for (const arg of process.argv) {
   }
 }
 
-// We can't import mongodb here yet because native modules will be recompiled
-let metricsClient: MongoClient;
-
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
-
-let compassWeb: ChildProcessWithoutNullStreams;
-
-async function setup() {
-  debug('X DISPLAY', process.env.DISPLAY);
-
-  const disableStartStop = process.argv.includes('--disable-start-stop');
-  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
-
-  // When working on the tests it is faster to just keep the server running.
-  if (!disableStartStop) {
-    debug('Starting MongoDB server');
-    crossSpawn.sync('npm', ['run', 'start-servers'], { stdio: 'inherit' });
-
-    if (shouldTestCompassWeb) {
-      debug('Starting Compass Web');
-      compassWeb = crossSpawn.spawn(
-        'npm',
-        ['run', '--unsafe-perm', 'start-web'],
-        {
-          cwd: path.resolve(__dirname, '..', '..'),
-          env: {
-            ...process.env,
-            OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
-            DISABLE_DEVSERVER_OVERLAY: 'true',
-            APP_ENV: 'webdriverio',
-          },
-        }
-      );
-
-      compassWeb.stdout.pipe(process.stdout);
-      compassWeb.stderr.pipe(process.stderr);
-
-      let serverReady = false;
-      const start = Date.now();
-      while (!serverReady) {
-        if (Date.now() - start >= 120_000) {
-          throw new Error(
-            'The compass-web sandbox is still not running after 120000ms'
-          );
-        }
-        try {
-          const res = await fetch('http://localhost:7777');
-          serverReady = res.ok;
-          debug('Web server ready: %s', serverReady);
-        } catch (err) {
-          debug('Failed to connect to dev server: %s', (err as any).message);
-        }
-        await wait(1000);
-      }
-    } else {
-      debug('Writing electron-versions.json');
-      crossSpawn.sync('scripts/write-electron-versions.sh', [], {
-        stdio: 'inherit',
-      });
-    }
-  }
-
-  try {
-    debug('Clearing out past logs');
-    fs.rmdirSync(LOG_PATH, { recursive: true });
-  } catch (e) {
-    debug('.log dir already removed');
-  }
-
-  fs.mkdirSync(LOG_PATH, { recursive: true });
-
-  debug('Getting mongodb server info');
-  updateMongoDBServerInfo();
-}
 
 function getResources() {
   const resources: Record<string, number> = {};
@@ -133,41 +50,16 @@ function getResources() {
   return resources;
 }
 
-function cleanup() {
-  removeUserDataDir();
-
-  const disableStartStop = process.argv.includes('--disable-start-stop');
-  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
-
-  if (!disableStartStop) {
-    if (shouldTestCompassWeb) {
-      debug('Stopping compass-web');
-      try {
-        if (compassWeb.pid) {
-          debug(`killing compass-web [${compassWeb.pid}]`);
-          kill(compassWeb.pid, 'SIGINT');
-        } else {
-          debug('no pid for compass-web');
-        }
-      } catch (e) {
-        debug('Failed to stop compass-web', e);
-      }
-    }
-
-    debug('Stopping MongoDB server');
-    try {
-      crossSpawn.sync('npm', ['run', 'stop-servers'], {
-        // If it's taking too long we might as well kill the process and move on,
-        // mongodb-runner is flaky sometimes and in ci `posttest-ci` script will
-        // take care of additional clean up anyway
-        timeout: 120_000,
-        stdio: 'inherit',
-      });
-    } catch (e) {
-      debug('Failed to stop MongoDB Server', e);
-    }
-    debug('Done stopping');
-  }
+// Trigger a mocha abort on interrupt. This doesn't stop the test runner
+// immediately as it will still try to finish running the current in-progress
+// suite before exiting, but the upside is that we are getting a way more robust
+// cleanup where all the after hooks are taken into account as expected rarely
+// leaving anythihg "hanging"
+async function cleanupOnInterrupt() {
+  // First trigger an abort on the mocha runner and wait for it to finish the
+  // cleanup
+  runner?.abort();
+  await runnerPromise;
 
   // Since the webdriverio update something is messing with the terminal's
   // cursor. This brings it back.
@@ -196,66 +88,10 @@ function cleanup() {
   timeoutId.unref();
 }
 
+let runner: Mocha.Runner | undefined;
+let runnerPromise: Promise<any> | undefined;
+
 async function main() {
-  await setup();
-
-  const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
-
-  if (!shouldTestCompassWeb) {
-    if (!process.env.CHROME_VERSION) {
-      // written during setup() if disableStartStop is false
-      const versionsJSON = await fs.promises.readFile(
-        'electron-versions.json',
-        'utf8'
-      );
-      const versions = JSON.parse(versionsJSON);
-      process.env.CHROME_VERSION = versions.chrome;
-    }
-    debug(
-      'Chrome version corresponding to Electron:',
-      process.env.CHROME_VERSION
-    );
-  }
-
-  // These are mutually exclusive since compass-web is always going to browse to
-  // the running webserver.
-  const shouldTestPackagedApp =
-    process.argv.includes('--test-packaged-app') && !shouldTestCompassWeb;
-
-  // Skip this step if you are running tests consecutively and don't need to
-  // rebuild modules all the time. Also no need to ever recompile when testing
-  // compass-web.
-  const noNativeModules =
-    process.argv.includes('--no-native-modules') || shouldTestCompassWeb;
-
-  // Skip this step if you want to run tests against your own compilation (e.g,
-  // a dev build or a build running in watch mode that autorecompiles). Also no
-  // need to recompile when testing compass-web.
-  const noCompile =
-    process.argv.includes('--no-compile') || shouldTestCompassWeb;
-
-  if (shouldTestPackagedApp) {
-    process.env.TEST_PACKAGED_APP = '1';
-    debug('Building Compass before running the tests ...');
-    await buildCompass();
-  } else {
-    delete process.env.TEST_PACKAGED_APP;
-
-    // set coverage to the root of the monorepo so it will be generated for
-    // everything and not just packages/compass
-    process.env.COVERAGE = path.dirname(path.dirname(COMPASS_PATH));
-
-    debug('Preparing Compass before running the tests');
-    if (!noNativeModules) {
-      debug('Rebuilding native modules ...');
-      await rebuildNativeModules();
-    }
-    if (!noCompile) {
-      debug('Compiling Compass assets ...');
-      await compileCompassAssets();
-    }
-  }
-
   const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS || '1');
   const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
 
@@ -281,21 +117,21 @@ async function main() {
   // So yeah.. this is a bit of a micro optimisation.
   const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
 
-  // Ensure the insert-data mocha hooks are run.
-  tests.unshift(path.join('helpers', 'insert-data.ts'));
-
-  const bail = process.argv.includes('--bail');
-
   const mocha = new Mocha({
-    timeout: 240_000, // kinda arbitrary, but longer than waitforTimeout set in helpers/compass.ts so the test can fail before it times out
-    bail,
-    reporter: path.resolve(
-      __dirname,
-      '..',
-      '..',
-      'configs/mocha-config-compass/reporter.js'
-    ),
+    timeout: MOCHA_DEFAULT_TIMEOUT,
+    bail: MOCHA_BAIL,
+    reporter: require.resolve('@mongodb-js/mocha-config-compass/reporter'),
   });
+
+  // @ts-expect-error mocha types are incorrect, global setup this is bound to
+  // runner, not context
+  mocha.globalSetup(mochaGlobalSetup);
+  mocha.enableGlobalSetup(true);
+
+  mocha.globalTeardown(mochaGlobalTeardown);
+  mocha.enableGlobalTeardown(true);
+
+  mocha.rootHooks(mochaRootHooks);
 
   // print the test order for debugging purposes and so we can tweak the groups later
   console.log('test order', tests);
@@ -304,81 +140,49 @@ async function main() {
     mocha.addFile(path.join(__dirname, testPath));
   });
 
-  const metricsConnection = process.env.E2E_TESTS_METRICS_URI;
-  if (metricsConnection) {
-    debug('Connecting to E2E_TESTS_METRICS_URI');
-    // only require it down here because it gets rebuilt up top
-    const mongodb = await import('mongodb');
-    metricsClient = new mongodb.MongoClient(metricsConnection);
-    await metricsClient.connect();
-  } else {
-    debug('Not logging metrics to a database.');
-  }
-
   debug('Running E2E tests');
-  // mocha.run has a callback and returns a result, so just promisify it manually
-  const { resultLogger, failures } = await new Promise<{
-    resultLogger: ResultLogger;
-    failures: number;
-  }>((resolve, reject) => {
-    // eslint-disable-next-line prefer-const
-    let resultLogger: ResultLogger;
-
-    const runner = mocha.run((failures: number) => {
+  runnerPromise = new Promise((resolve) => {
+    runner = mocha.run((failures: number) => {
       process.exitCode = failures ? 1 : 0;
-      resolve({ resultLogger, failures });
-    });
-
-    debug('Initialising ResultLogger');
-    resultLogger = new ResultLogger(metricsClient, runner);
-
-    // Synchronously create the ResultLogger so it can start listening to events
-    // on runner immediately after calling mocha.run() before any of the events
-    // fire.
-    resultLogger.init().catch((err: Error) => {
-      // reject() doesn't stop mocha.run()...
-      reject(err);
+      resolve(failures);
     });
   });
-
-  await resultLogger.done(failures);
 }
 
 process.once('SIGINT', () => {
-  debug(`Process was interrupted. Cleaning-up and exiting.`);
-  cleanup();
-  process.kill(process.pid, 'SIGINT');
+  debug(`Process was interrupted. Waiting for mocha to abort and clean-up ...`);
+  void (async () => {
+    await cleanupOnInterrupt();
+    process.kill(process.pid, 'SIGINT');
+  })();
 });
 
 process.once('SIGTERM', () => {
-  debug(`Process was terminated. Cleaning-up and exiting.`);
-  cleanup();
-  process.kill(process.pid, 'SIGTERM');
+  debug(`Process was terminated. Waiting for mocha to abort and clean-up ...`);
+  void (async () => {
+    await cleanupOnInterrupt();
+    process.kill(process.pid, 'SIGTERM');
+  })();
 });
 
 process.once('uncaughtException', (err: Error) => {
-  debug('Uncaught exception. Cleaning-up and exiting.');
-  cleanup();
-  throw err;
+  debug('Uncaught exception:');
+  console.error(err.stack || err.message || err);
+  debug('Waiting for mocha to abort and clean-up ...');
+  process.exitCode = 1;
+  void cleanupOnInterrupt();
 });
 
 process.on('unhandledRejection', (err: Error) => {
-  debug('Unhandled exception. Cleaning-up and exiting.');
-  cleanup();
+  debug('Unhandled exception:');
   console.error(err.stack || err.message || err);
+  debug('Waiting for mocha to abort and clean-up ...');
   process.exitCode = 1;
+  void cleanupOnInterrupt();
 });
 
 async function run() {
-  try {
-    await main();
-  } finally {
-    if (metricsClient) {
-      await metricsClient.close();
-    }
-
-    cleanup();
-  }
+  await main();
 }
 
 void run();

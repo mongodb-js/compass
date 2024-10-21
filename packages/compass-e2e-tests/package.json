@@ -10,7 +10,6 @@
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
-    "pretest": "npm run unzip-fixtures",
     "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1432x840x24\" -- ts-node index.ts",
     "test-ci": "npm run test",
     "posttest-ci": "npm run coverage-report",
@@ -23,14 +22,12 @@
     "stop-server-2": "mongodb-runner stop --id=e2e-2",
     "start-servers": "npm run start-server-1 && npm run start-server-2",
     "stop-servers": "npm run stop-server-1 && npm run stop-server-2",
-    "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",
     "test-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --disable-start-stop --bail",
     "test-noserver-nocompile": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail",
     "test-web": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --test-compass-web",
     "test-web-noserver": "env DEBUG=hadron*,mongo*,compass*,xvfb-maybe* npm run test -- --test-compass-web --disable-start-stop --bail",
     "coverage-merge": "nyc merge .log/coverage .nyc_output/coverage.json",
-    "coverage-report": "npm run coverage-merge && nyc report",
-    "server-info": "ts-node ./scripts/server-info.ts"
+    "coverage-report": "npm run coverage-merge && nyc report"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.6.2",

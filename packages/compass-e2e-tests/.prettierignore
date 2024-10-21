@@ -3,7 +3,3 @@
 fixtures
 .nyc_output
 coverage
-
-# Generated files
-electron-versions.json
-write-electron-versions.js

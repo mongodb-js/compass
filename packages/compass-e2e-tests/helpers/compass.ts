@@ -24,6 +24,20 @@ import Debug from 'debug';
 import semver from 'semver';
 import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
+import {
+  DEFAULT_CONNECTION_STRINGS,
+  DEFAULT_CONNECTIONS_NAMES,
+  DEFAULT_CONNECTIONS_SERVER_INFO,
+  ELECTRON_CHROMIUM_VERSION,
+  TEST_COMPASS_WEB as _TEST_COMPASS_WEB,
+  LOG_PATH,
+  LOG_COVERAGE_PATH,
+  COMPASS_DESKTOP_PATH,
+  LOG_OUTPUT_PATH,
+  LOG_SCREENSHOTS_PATH,
+  WEBDRIVER_DEFAULT_WAITFOR_TIMEOUT,
+  WEBDRIVER_DEFAULT_WAITFOR_INTERVAL,
+} from './test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -32,20 +46,8 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 
 const packageCompassAsync = promisify(packageCompass);
 
-export const COMPASS_PATH = path.dirname(
-  require.resolve('mongodb-compass/package.json')
-);
-export const LOG_PATH = path.resolve(__dirname, '..', '.log');
-const OUTPUT_PATH = path.join(LOG_PATH, 'output');
-export const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
-const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
-
-let MONGODB_VERSION = '';
-let MONGODB_USE_ENTERPRISE =
-  (process.env.MONGODB_VERSION?.endsWith('-enterprise') && 'yes') ?? 'no';
-
 // should we test compass-web (true) or compass electron (false)?
-export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+export const TEST_COMPASS_WEB = _TEST_COMPASS_WEB;
 // multiple connections is now the default
 export const TEST_MULTIPLE_CONNECTIONS = true;
 
@@ -75,70 +77,27 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
 // NOTE: in browser.setupDefaultConnections() we don't give the first connection an
 // explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING_1
-);
+export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTIONS_NAMES[0];
 
 // for testing multiple connections
-export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${
-  MONGODB_TEST_SERVER_PORT + 1
-}/test`;
+export const DEFAULT_CONNECTION_STRING_2 = DEFAULT_CONNECTION_STRINGS[1];
 // NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
-export const DEFAULT_CONNECTION_NAME_2 = 'connection-2';
-
-export function updateMongoDBServerInfo() {
-  try {
-    const { stdout, stderr } = crossSpawn.sync(
-      'npm',
-      [
-        'run',
-        '--silent',
-        /**
-         * The server info update is done through a separate script and not by
-         * using a MongoClient directly because doing so causes an unexplainable
-         * segfault crash in e2e-coverage task in evergreen CI. Moving this
-         * logic to a separate script seems to solve this problem, but if at any
-         * point the issue returns, feel free to revert this whole change
-         **/
-        'server-info',
-        '--',
-        '--connectionString',
-        `mongodb://127.0.0.1:${String(MONGODB_TEST_SERVER_PORT)}`,
-      ],
-      { encoding: 'utf-8' }
-    );
-    if (stderr?.length) {
-      throw new Error(stderr);
-    }
-    const { version, enterprise } = JSON.parse(stdout);
-    MONGODB_VERSION = version;
-    MONGODB_USE_ENTERPRISE = enterprise ? 'yes' : 'no';
-    debug(
-      `Got server info: v${String(version)} (${
-        enterprise ? 'enterprise' : 'community'
-      })`
-    );
-  } catch (err) {
-    (err as Error).message =
-      'Failed trying to get MongoDB server info:\n\n' + (err as Error).message;
-    throw err;
-  }
-}
+export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTIONS_NAMES[2];
 
 export const serverSatisfies = (
   semverCondition: string,
   enterpriseExact?: boolean
 ) => {
+  const { version, enterprise } = DEFAULT_CONNECTIONS_SERVER_INFO[0];
   return (
-    semver.satisfies(MONGODB_VERSION, semverCondition, {
+    semver.satisfies(version, semverCondition, {
       includePrerelease: true,
     }) &&
     (typeof enterpriseExact === 'boolean'
-      ? (enterpriseExact && MONGODB_USE_ENTERPRISE === 'yes') ||
-        (!enterpriseExact && MONGODB_USE_ENTERPRISE !== 'yes')
+      ? (enterpriseExact && enterprise) || (!enterpriseExact && !enterprise)
       : true)
   );
 };
@@ -391,13 +350,13 @@ export class Compass {
       });
       if (coverage.main) {
         await fs.writeFile(
-          path.join(COVERAGE_PATH, `main.${this.name}.log`),
+          path.join(LOG_COVERAGE_PATH, `main.${this.name}.log`),
           coverage.main
         );
       }
       if (coverage.renderer) {
         await fs.writeFile(
-          path.join(COVERAGE_PATH, `renderer.${this.name}.log`),
+          path.join(LOG_COVERAGE_PATH, `renderer.${this.name}.log`),
           coverage.renderer
         );
       }
@@ -509,7 +468,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
   debug('spawning compass...', {
     binary,
-    COMPASS_PATH,
+    COMPASS_DESKTOP_PATH,
     defaultUserDataDir,
     args,
     timeout,
@@ -522,7 +481,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { error, stdout, stderr } = await execFileIgnoreError(
     binary,
     [
-      COMPASS_PATH,
+      COMPASS_DESKTOP_PATH,
       // When running binary without webdriver, we need to pass the same flags
       // as we pass when running with webdriverio to have similar behaviour.
       ...CHROME_STARTUP_FLAGS,
@@ -585,9 +544,9 @@ async function processCommonOpts({
   // for consistency let's mkdir for both of them just in case
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
-  await fs.mkdir(OUTPUT_PATH, { recursive: true });
-  await fs.mkdir(SCREENSHOTS_PATH, { recursive: true });
-  await fs.mkdir(COVERAGE_PATH, { recursive: true });
+  await fs.mkdir(LOG_OUTPUT_PATH, { recursive: true });
+  await fs.mkdir(LOG_SCREENSHOTS_PATH, { recursive: true });
+  await fs.mkdir(LOG_COVERAGE_PATH, { recursive: true });
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
@@ -597,14 +556,8 @@ async function processCommonOpts({
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    // default is 3000ms
-    waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
-      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
-      : 120_000, // shorter than the test timeout so the exact line will fail, not the test
-    // default is 500ms
-    waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
-      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
-      : 100,
+    waitforTimeout: WEBDRIVER_DEFAULT_WAITFOR_TIMEOUT,
+    waitforInterval: WEBDRIVER_DEFAULT_WAITFOR_INTERVAL,
   };
 
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
@@ -638,7 +591,7 @@ async function startCompassElectron(
 
   if (!testPackagedApp) {
     // https://www.electronjs.org/docs/latest/tutorial/automated-testing#with-webdriverio
-    chromeArgs.push(`--app=${COMPASS_PATH}`);
+    chromeArgs.push(`--app=${COMPASS_DESKTOP_PATH}`);
   }
 
   if (opts.firstRun === false) {
@@ -685,7 +638,7 @@ async function startCompassElectron(
     automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      browserVersion: process.env.CHROME_VERSION,
+      browserVersion: ELECTRON_CHROMIUM_VERSION,
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
         binary: maybeWrappedBinary,
@@ -866,7 +819,7 @@ function formattedDate(): string {
 }
 
 export async function rebuildNativeModules(
-  compassPath = COMPASS_PATH
+  compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
   const fullCompassPath = require.resolve(
     path.join(compassPath, 'package.json')
@@ -893,7 +846,7 @@ export async function rebuildNativeModules(
 }
 
 export async function compileCompassAssets(
-  compassPath = COMPASS_PATH
+  compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
   await promisify(execFile)('npm', ['run', 'compile'], { cwd: compassPath });
 }
@@ -925,7 +878,7 @@ async function getCompassBuildMetadata(): Promise<BinPathOptions> {
 
 export async function buildCompass(
   force = false,
-  compassPath = COMPASS_PATH
+  compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
   if (!force) {
     try {
@@ -1040,7 +993,7 @@ export async function init(
     await browser.execute(() => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { ipcRenderer } = require('electron');
-      ipcRenderer.invoke('compass:maximize');
+      void ipcRenderer.invoke('compass:maximize');
     });
   }
 
@@ -1116,7 +1069,7 @@ export function screenshotPathName(text: string) {
  * @param {string} filename
  */
 export function outputFilename(filename: string): string {
-  return path.join(OUTPUT_PATH, filename);
+  return path.join(LOG_OUTPUT_PATH, filename);
 }
 
 export async function screenshotIfFailed(
