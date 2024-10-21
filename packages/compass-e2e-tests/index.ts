@@ -18,7 +18,7 @@ import {
   LOG_PATH,
   removeUserDataDir,
   updateMongoDBServerInfo,
-  ATLAS_DOMAIN,
+  TEST_ATLAS_CLOUD_EXTERNAL_URL,
 } from './helpers/compass';
 import ResultLogger from './helpers/result-logger';
 
@@ -61,7 +61,7 @@ async function setup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
-  if (!ATLAS_DOMAIN) {
+  if (!TEST_ATLAS_CLOUD_EXTERNAL_URL) {
     // When working on the tests it is faster to just keep the server running.
     if (!disableStartStop) {
       debug('Starting MongoDB server');
@@ -142,7 +142,7 @@ function cleanup() {
   const disableStartStop = process.argv.includes('--disable-start-stop');
   const shouldTestCompassWeb = process.argv.includes('--test-compass-web');
 
-  if (!ATLAS_DOMAIN) {
+  if (!TEST_ATLAS_CLOUD_EXTERNAL_URL) {
     if (!disableStartStop) {
       if (shouldTestCompassWeb) {
         debug('Stopping compass-web');
