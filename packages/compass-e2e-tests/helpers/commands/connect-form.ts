@@ -989,7 +989,7 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   */
 
   // no need to setup connections if we are running against Atlas
-  if (!TEST_ATLAS_CLOUD_EXTERNAL_URL) {
+  if (TEST_ATLAS_CLOUD_EXTERNAL_URL) {
     return;
   }
 
