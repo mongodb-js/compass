@@ -111,7 +111,8 @@ export function updateMongoDBServerInfo() {
         'server-info',
         '--',
         '--connectionString',
-        `mongodb://127.0.0.1:${String(MONGODB_TEST_SERVER_PORT)}`,
+        process.env.CONNECTION_STRING_1 ||
+          `mongodb://127.0.0.1:${String(MONGODB_TEST_SERVER_PORT)}`,
       ],
       { encoding: 'utf-8' }
     );

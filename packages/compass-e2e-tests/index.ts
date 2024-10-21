@@ -121,10 +121,8 @@ async function setup() {
 
   fs.mkdirSync(LOG_PATH, { recursive: true });
 
-  if (!ATLAS_DOMAIN) {
-    debug('Getting mongodb server info');
-    updateMongoDBServerInfo();
-  }
+  debug('Getting mongodb server info');
+  updateMongoDBServerInfo();
 }
 
 function getResources() {
