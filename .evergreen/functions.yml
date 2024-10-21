@@ -132,26 +132,19 @@ post:
     params:
       file: src/.logs/*.xml
 functions:
-  build-e2e-docker-image:
+  package-and-publish-e2e-docker-image:
     command: shell.exec
-    type: setup
     params:
       shell: bash
-      working_dir: mms
-      include_expansions_in_env: [BAZELISK_HOME, AWS_SECRET_ACCESS_KEY, AWS_ACCESS_KEY_ID, AWS_SESSION_TOKEN]
       env:
-        XDG_RUNTIME_DIR: ${workdir}/docker/run
-        DOCKER_CONFIG: ${workdir}/mms/.docker/mms
+        <<: *compass-env
+        AWS_ACCESS_KEY_ID: ${aws_key}
+        AWS_SECRET_ACCESS_KEY: ${aws_secret}
+        ECR_REGISTRY: ${ecr_registry}
+      include_expansions_in_env: [github_commit, ECR_REGION]
       script: |
-        set -exu
-        export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/docker.sock"
-        PATH="${workdir}/bin:$PATH" bazel build ${bazel_args} ${bazel_target}
-
-  package-and-publish-e2e-docker-image:
-    - *skip-if-patch-build
-    - *build-e2e-docker-image
-    - *check-if-e2e-docker-image-is-already-published
-    - *publish-e2e-docker-image
+        set -e
+        bash .evergreen/e2e-tests/package-and-publish-docker-image.sh
     
   clone:
     - command: git.get_project
