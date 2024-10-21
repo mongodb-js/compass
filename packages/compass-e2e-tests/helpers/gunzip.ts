@@ -1,28 +1,34 @@
 import Debug from 'debug';
 import fastGlob from 'fast-glob';
 import { createReadStream, createWriteStream } from 'fs';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
+import { pipeline } from 'stream/promises';
 import { createGunzip } from 'zlib';
 
 const debug = Debug('compass-e2e-tests:gunzip');
 
-const pipe = promisify(pipeline);
-
-async function gunzip(input: string, output: string) {
+async function gunzip(input: string, output: string, signal: AbortSignal) {
   const readStream = createReadStream(input);
   const gunzip = createGunzip();
   const writeStream = createWriteStream(output);
-
-  await pipe(readStream, gunzip, writeStream);
+  try {
+    await pipeline(readStream, gunzip, writeStream, { signal, end: true });
+  } catch (err) {
+    if (signal.aborted) {
+      return;
+    }
+    throw err;
+  }
 }
 
-async function run(glob: string) {
+async function run(glob: string, signal: AbortSignal) {
   const filenames = await fastGlob(glob);
   for (const input of filenames) {
+    if (signal.aborted) {
+      return;
+    }
     const output = input.replace(/\.gz$/, '');
     debug(input, '=>', output);
-    await gunzip(input, output);
+    await gunzip(input, output, signal);
   }
 }
 

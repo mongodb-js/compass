@@ -71,7 +71,7 @@ export const DEFAULT_CONNECTION_NAMES = DEFAULT_CONNECTIONS.map((info) => {
 
 export const DEFAULT_CONNECTION_PORTS = DEFAULT_CONNECTIONS.map((info) => {
   const str = new ConnectionString(info.connectionOptions.connectionString);
-  return str.hosts[0].split(':')[1];
+  return Number(str.hosts[0].split(':')[1]);
 });
 
 export const DEFAULT_CONNECTIONS_SERVER_INFO: {

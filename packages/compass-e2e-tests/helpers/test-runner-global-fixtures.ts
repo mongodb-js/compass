@@ -9,6 +9,7 @@ import {
   LOG_PATH,
   SKIP_COMPASS_DESKTOP_COMPILE,
   SKIP_NATIVE_MODULE_REBUILD,
+  TEST_COMPASS_DESKTOP,
   TEST_COMPASS_DESKTOP_PACKAGED_APP,
   TEST_COMPASS_WEB,
 } from './test-runner-context';
@@ -25,6 +26,16 @@ import {
   rebuildNativeModules,
   removeUserDataDir,
 } from './compass';
+
+export const globalFixturesAbortController = new AbortController();
+
+function throwIfAborted() {
+  if (globalFixturesAbortController.signal.aborted) {
+    throw new Error('Mocha run was aborted while global setup was in progress');
+  }
+}
+
+export let abortRunner: (() => void) | undefined;
 
 const debug = Debug('compass-e2e-tests:mocha-global-fixtures');
 
@@ -47,74 +58,100 @@ const servers: MongoCluster[] = [];
  *  - Compiles the desktop app
  */
 export async function mochaGlobalSetup(this: Mocha.Runner) {
-  debug('Unzipping fixtures...');
-  await gunzip(path.join(E2E_WORKSPACE_PATH, 'fixtures', '*.gz'));
-
-  debug('X DISPLAY', process.env.DISPLAY);
-
-  if (!DISABLE_START_STOP) {
-    debug('Starting MongoDB servers');
-
-    for (const port of DEFAULT_CONNECTION_PORTS) {
-      const server = await startTestServer({
-        args: ['--port', port],
-        version:
-          process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION,
-      });
-      servers.push(server);
-      cleanupFns.push(() => {
-        debug('Stopping server at port %s', port);
-        return server.close();
-      });
-    }
-
-    if (TEST_COMPASS_WEB) {
-      debug('Starting Compass Web');
-      const compassWeb = spawnCompassWeb();
-      cleanupFns.push(() => {
-        if (compassWeb.pid) {
-          debug(`Killing compass-web [${compassWeb.pid}]`);
-          kill(compassWeb.pid, 'SIGINT');
-        } else {
-          debug('No pid for compass-web');
-        }
-      });
-      await waitForCompassWebToBeReady();
-    }
-  }
-
-  debug('Getting mongodb server info');
-  await updateMongoDBServerInfo();
+  abortRunner = () => {
+    globalFixturesAbortController.abort();
+    this.abort();
+  };
 
   try {
-    debug('Clearing out past logs');
-    fs.rmdirSync(LOG_PATH, { recursive: true });
-  } catch (e) {
-    debug('.log dir already removed');
-  }
+    debug('Unzipping fixtures...');
+    await gunzip(
+      path.join(E2E_WORKSPACE_PATH, 'fixtures', '*.gz'),
+      globalFixturesAbortController.signal
+    );
 
-  fs.mkdirSync(LOG_PATH, { recursive: true });
+    throwIfAborted();
 
-  if (TEST_COMPASS_DESKTOP_PACKAGED_APP) {
-    debug('Building Compass before running the tests ...');
-    await buildCompass();
-  } else {
-    debug('Preparing Compass before running the tests');
+    debug('X DISPLAY', process.env.DISPLAY);
 
-    if (!SKIP_NATIVE_MODULE_REBUILD) {
-      debug('Rebuilding native modules ...');
-      await rebuildNativeModules();
+    if (!DISABLE_START_STOP) {
+      debug('Starting MongoDB servers');
+
+      for (const port of DEFAULT_CONNECTION_PORTS) {
+        const server = await startTestServer({
+          topology: 'replset',
+          secondaries: 0,
+          args: ['--port', String(port)],
+          version:
+            process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION,
+        });
+        servers.push(server);
+        cleanupFns.push(() => {
+          debug('Stopping server at port %s', port);
+          return server.close();
+        });
+        throwIfAborted();
+      }
+
+      if (TEST_COMPASS_WEB) {
+        debug('Starting Compass Web');
+        const compassWeb = spawnCompassWeb();
+        cleanupFns.push(() => {
+          if (compassWeb.pid) {
+            debug(`Killing compass-web [${compassWeb.pid}]`);
+            kill(compassWeb.pid, 'SIGINT');
+          } else {
+            debug('No pid for compass-web');
+          }
+        });
+        await waitForCompassWebToBeReady();
+      }
     }
 
-    if (!SKIP_COMPASS_DESKTOP_COMPILE) {
-      debug('Compiling Compass assets ...');
-      await compileCompassAssets();
-    }
-  }
+    debug('Getting mongodb server info');
+    await updateMongoDBServerInfo();
 
-  cleanupFns.push(() => {
-    removeUserDataDir();
-  });
+    throwIfAborted();
+
+    try {
+      debug('Clearing out past logs');
+      fs.rmdirSync(LOG_PATH, { recursive: true });
+    } catch (e) {
+      debug('.log dir already removed');
+    }
+
+    fs.mkdirSync(LOG_PATH, { recursive: true });
+
+    if (TEST_COMPASS_DESKTOP) {
+      if (TEST_COMPASS_DESKTOP_PACKAGED_APP) {
+        debug('Building Compass before running the tests ...');
+        await buildCompass();
+      } else {
+        debug('Preparing Compass before running the tests');
+
+        if (!SKIP_NATIVE_MODULE_REBUILD) {
+          debug('Rebuilding native modules ...');
+          await rebuildNativeModules();
+        }
+
+        if (!SKIP_COMPASS_DESKTOP_COMPILE) {
+          debug('Compiling Compass assets ...');
+          await compileCompassAssets();
+        }
+      }
+    }
+
+    throwIfAborted();
+
+    cleanupFns.push(() => {
+      removeUserDataDir();
+    });
+  } catch (err) {
+    if (globalFixturesAbortController.signal.aborted) {
+      return;
+    }
+    throw err;
+  }
 }
 
 export async function mochaGlobalTeardown() {
@@ -127,13 +164,18 @@ export async function mochaGlobalTeardown() {
 }
 
 function spawnCompassWeb() {
-  const proc = crossSpawn.spawn('npm', [
-    'run',
-    '--unsafe-perm',
-    'start-web',
-    '--workspace',
-    '@mongodb-js/compass-web',
-  ]);
+  const proc = crossSpawn.spawn(
+    'npm',
+    ['run', '--unsafe-perm', 'start', '--workspace', '@mongodb-js/compass-web'],
+    {
+      env: {
+        ...process.env,
+        OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
+        DISABLE_DEVSERVER_OVERLAY: 'true',
+        APP_ENV: 'webdriverio',
+      },
+    }
+  );
   proc.stdout.pipe(process.stdout);
   proc.stderr.pipe(process.stderr);
   return proc;
@@ -143,6 +185,7 @@ async function waitForCompassWebToBeReady() {
   let serverReady = false;
   const start = Date.now();
   while (!serverReady) {
+    throwIfAborted();
     if (Date.now() - start >= 120_000) {
       throw new Error(
         'The compass-web sandbox is still not running after 120000ms'
@@ -153,7 +196,7 @@ async function waitForCompassWebToBeReady() {
       serverReady = res.ok;
       debug('Web server ready:', serverReady);
     } catch (err) {
-      debug('Failed to connect to dev server', err);
+      debug('Failed to connect to dev server:', (err as any).message);
     }
     await wait(1000);
   }

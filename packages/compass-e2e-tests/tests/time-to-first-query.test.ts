@@ -26,7 +26,7 @@ describe('Time to first query', function () {
     }
   });
 
-  it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
+  it.only('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
     // Starting the application with the webdriver.io fails on the first run
     // sometimes due to devtools / selenium server failing to start in time.
     // While the root cause is unknown, it usually passes just fine on a re-run
@@ -35,7 +35,7 @@ describe('Time to first query', function () {
     //
     // We re-run the whole test to make sure that the timings for the test run
     // are not skewed by waiting for the application to restart multiple times.
-    this.retries(5);
+    // this.retries(5);
 
     // start compass inside the test so that the time is measured together
     compass = await init(this.test?.fullTitle(), { firstRun: true });

@@ -8,7 +8,7 @@ import { execFile } from 'child_process';
 import type { ExecFileOptions, ExecFileException } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
-import { remote } from 'webdriverio';
+import { remote, RemoteOptions } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
 import type { ConsoleMessageType } from 'puppeteer';
@@ -721,7 +721,7 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const browser: CompassBrowser = (await remote({
+  const options: RemoteOptions = {
     capabilities: {
       browserName: BROWSER_NAME, // 'chrome' or 'firefox'
       // https://webdriver.io/docs/driverbinaries/
@@ -738,8 +738,14 @@ export async function startBrowser(
     },
     ...webdriverOptions,
     ...wdioOptions,
-  })) as CompassBrowser;
+  };
+
+  debug('Starting compass via webdriverio with the following configuration:');
+  debug(JSON.stringify(options, null, 2));
+
+  const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
   await browser.navigateTo('http://localhost:7777/');
+
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,

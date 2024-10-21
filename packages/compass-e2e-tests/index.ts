@@ -2,53 +2,36 @@
 import path from 'path';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
-// @ts-expect-error it thinks process does not have getActiveResourcesInfo
-import { getActiveResourcesInfo } from 'process';
+
 import Mocha from 'mocha';
 import Debug from 'debug';
 import {
+  ALLOWED_RUNNER_ARGS,
   MOCHA_BAIL,
   MOCHA_DEFAULT_TIMEOUT,
 } from './helpers/test-runner-context';
 import {
+  abortRunner,
   mochaGlobalSetup,
   mochaGlobalTeardown,
 } from './helpers/test-runner-global-fixtures';
 import { mochaRootHooks } from './helpers/insert-data';
+// @ts-expect-error no types for this package
+import logRunning from 'why-is-node-running';
 
 const debug = Debug('compass-e2e-tests');
 
-const allowedArgs = [
-  '--test-compass-web',
-  '--no-compile',
-  '--no-native-modules',
-  '--test-packaged-app',
-  '--disable-start-stop',
-  '--bail',
-];
-
 for (const arg of process.argv) {
-  if (arg.startsWith('--') && !allowedArgs.includes(arg)) {
+  if (arg.startsWith('--') && !ALLOWED_RUNNER_ARGS.includes(arg)) {
     throw Error(
-      `Unknown command argument "${arg}". Usage:\n\n  npm run test ${allowedArgs
-        .map((arg) => `[${arg}]`)
-        .join(' ')}\n`
+      `Unknown command argument "${arg}". Usage:\n\n  npm run test ${ALLOWED_RUNNER_ARGS.map(
+        (arg) => `[${arg}]`
+      ).join(' ')}\n`
     );
   }
 }
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
-
-function getResources() {
-  const resources: Record<string, number> = {};
-  for (const resource of getActiveResourcesInfo()) {
-    if (resources[resource] === undefined) {
-      resources[resource] = 0;
-    }
-    ++resources[resource];
-  }
-  return resources;
-}
 
 // Trigger a mocha abort on interrupt. This doesn't stop the test runner
 // immediately as it will still try to finish running the current in-progress
@@ -56,39 +39,29 @@ function getResources() {
 // cleanup where all the after hooks are taken into account as expected rarely
 // leaving anythihg "hanging"
 async function cleanupOnInterrupt() {
-  // First trigger an abort on the mocha runner and wait for it to finish the
-  // cleanup
-  runner?.abort();
+  // First trigger an abort on the mocha runner
+  abortRunner?.();
   await runnerPromise;
+}
 
-  // Since the webdriverio update something is messing with the terminal's
-  // cursor. This brings it back.
-  crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
-
-  // Log what's preventing the process from exiting normally to help debug the
-  // cases where the process hangs and gets killed 10 minutes later by evergreen
-  // because there's no output.
-  const intervalId = setInterval(() => {
-    console.log(getResources());
-  }, 1_000);
-
-  // Don't keep logging forever because then evergreen can't kill the job after
-  // 10 minutes of inactivity if we get into a broken state
+function terminateOnTimeout() {
+  // Don't keep logging forever because then evergreen can't kill the job
+  // after 10 minutes of inactivity if we get into a broken state
   const timeoutId = setTimeout(() => {
-    clearInterval(intervalId);
-
-    // Just exit now rather than waiting for 10 minutes just so evergreen can
-    // kill the task and fail anyway.
-    process.exit(process.exitCode ?? 1);
-  }, 60_000);
-
-  // No need to hold things up for a minute if there's nothing else preventing
-  // the process from exiting.
-  intervalId.unref();
+    debug('Mocha is still cleaning up:');
+    // Log what's preventing the process from exiting normally to help debug the
+    // cases where the process hangs and gets killed 10 minutes later by evergreen
+    // because there's no output.
+    logRunning(console);
+    debug('Terminating the process ...');
+    // Just exit now rather than waiting for 10 minutes just so evergreen
+    // can kill the task and fail anyway.
+    process.exitCode ??= 1;
+    process.exit();
+  }, 30_000);
   timeoutId.unref();
 }
 
-let runner: Mocha.Runner | undefined;
 let runnerPromise: Promise<any> | undefined;
 
 async function main() {
@@ -142,8 +115,13 @@ async function main() {
 
   debug('Running E2E tests');
   runnerPromise = new Promise((resolve) => {
-    runner = mocha.run((failures: number) => {
+    mocha.run((failures: number) => {
+      debug('Finished running e2e tests', { failures });
       process.exitCode = failures ? 1 : 0;
+      // Since the webdriverio update something is messing with the terminal's
+      // cursor. This brings it back.
+      crossSpawn.sync('tput', ['cnorm'], { stdio: 'inherit' });
+      terminateOnTimeout();
       resolve(failures);
     });
   });
