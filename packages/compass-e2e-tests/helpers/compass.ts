@@ -26,7 +26,7 @@ import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTION_STRINGS,
-  DEFAULT_CONNECTIONS_NAMES,
+  DEFAULT_CONNECTION_NAMES,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   ELECTRON_CHROMIUM_VERSION,
   TEST_COMPASS_WEB as _TEST_COMPASS_WEB,
@@ -80,12 +80,12 @@ export const MONGODB_TEST_SERVER_PORT = Number(
 export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
 // NOTE: in browser.setupDefaultConnections() we don't give the first connection an
 // explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTIONS_NAMES[0];
+export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTION_NAMES[0];
 
 // for testing multiple connections
 export const DEFAULT_CONNECTION_STRING_2 = DEFAULT_CONNECTION_STRINGS[1];
 // NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
-export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTIONS_NAMES[2];
+export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTION_NAMES[1];
 
 export const serverSatisfies = (
   semverCondition: string,

@@ -65,7 +65,7 @@ export const DEFAULT_CONNECTION_STRINGS = DEFAULT_CONNECTIONS.map((info) => {
   return info.connectionOptions.connectionString;
 });
 
-export const DEFAULT_CONNECTIONS_NAMES = DEFAULT_CONNECTIONS.map((info) => {
+export const DEFAULT_CONNECTION_NAMES = DEFAULT_CONNECTIONS.map((info) => {
   return getConnectionTitle(info);
 });
 
