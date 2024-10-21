@@ -2,6 +2,7 @@ import {
   DEFAULT_CONNECTION_NAME_1,
   DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
+  TEST_COMPASS_WEB_ATLAS_CLOUD,
   TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
 } from '../compass';
@@ -53,6 +54,10 @@ export async function connectWithConnectionString(
   connectionString = DEFAULT_CONNECTION_STRING_1,
   options: ConnectOptions = {}
 ): Promise<void> {
+  if (TEST_COMPASS_WEB_ATLAS_CLOUD) {
+    return connectByName(browser, connectionString);
+  }
+
   // Use this command when you need to add a new connection with a specific
   // connection string. Most test files should just be using
   // browser.connectToDefaults()
