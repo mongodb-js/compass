@@ -132,6 +132,27 @@ post:
     params:
       file: src/.logs/*.xml
 functions:
+  build-e2e-docker-image:
+    command: shell.exec
+    type: setup
+    params:
+      shell: bash
+      working_dir: mms
+      include_expansions_in_env: [BAZELISK_HOME, AWS_SECRET_ACCESS_KEY, AWS_ACCESS_KEY_ID, AWS_SESSION_TOKEN]
+      env:
+        XDG_RUNTIME_DIR: ${workdir}/docker/run
+        DOCKER_CONFIG: ${workdir}/mms/.docker/mms
+      script: |
+        set -exu
+        export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/docker.sock"
+        PATH="${workdir}/bin:$PATH" bazel build ${bazel_args} ${bazel_target}
+
+  package-and-publish-e2e-docker-image:
+    - *skip-if-patch-build
+    - *build-e2e-docker-image
+    - *check-if-e2e-docker-image-is-already-published
+    - *publish-e2e-docker-image
+    
   clone:
     - command: git.get_project
       type: system
