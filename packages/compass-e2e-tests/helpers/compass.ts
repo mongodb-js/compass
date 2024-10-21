@@ -37,6 +37,8 @@ import {
   LOG_SCREENSHOTS_PATH,
   WEBDRIVER_DEFAULT_WAITFOR_TIMEOUT,
   WEBDRIVER_DEFAULT_WAITFOR_INTERVAL,
+  TEST_COMPASS_DESKTOP_PACKAGED_APP,
+  ELECTRON_PATH,
 } from './test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
@@ -434,13 +436,10 @@ async function getCompassExecutionParameters(): Promise<{
   testPackagedApp: boolean;
   binary: string;
 }> {
-  const testPackagedApp = ['1', 'true'].includes(
-    process.env.TEST_PACKAGED_APP ?? ''
-  );
+  const testPackagedApp = TEST_COMPASS_DESKTOP_PACKAGED_APP;
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
-    : // eslint-disable-next-line @typescript-eslint/no-var-requires
-      (require('electron') as unknown as string);
+    : ELECTRON_PATH;
   return { testPackagedApp, binary };
 }
 
