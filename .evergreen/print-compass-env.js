@@ -68,13 +68,11 @@ function printCompassEnv() {
   }
 
   if (process.env.PLATFORM === 'linux') {
-    // To build node modules on linux post electron 13 we need
-    // a newer c++ compiler version, this adds it.
-    // https://jira.mongodb.org/browse/COMPASS-5150
-    pathsToPrepend.unshift('/opt/mongodbtoolchain/v3/bin');
+    // We generally require a relatively recent C++ compiler
+    pathsToPrepend.unshift('/opt/mongodbtoolchain/v4/bin');
 
-    // Make sure that linux is using python 3.6 (node-gyp requirement)
-    pathsToPrepend.unshift('/opt/python/3.6/bin');
+    // node-gyp is tied to a specific Python version range
+    pathsToPrepend.unshift('/opt/python/3.12/bin');
   }
 
   PATH = maybePrependPaths(PATH, pathsToPrepend);
