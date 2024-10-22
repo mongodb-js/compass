@@ -1,11 +1,9 @@
 import gunzip from './gunzip';
-import path from 'path';
 import fs from 'fs';
 import {
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   DISABLE_START_STOP,
-  E2E_WORKSPACE_PATH,
   LOG_PATH,
   SKIP_COMPASS_DESKTOP_COMPILE,
   SKIP_NATIVE_MODULE_REBUILD,
