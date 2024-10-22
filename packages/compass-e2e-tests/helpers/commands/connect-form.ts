@@ -8,6 +8,7 @@ import {
   DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
   DEFAULT_CONNECTION_STRING_2,
+  TEST_ATLAS_CLOUD_EXTERNAL_URL,
   TEST_MULTIPLE_CONNECTIONS,
 } from '../compass';
 import Debug from 'debug';
@@ -986,6 +987,12 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   whereas we do have some tests that try and use those. We can easily change
   this in future if needed, though.
   */
+
+  // no need to setup connections if we are running against Atlas
+  if (TEST_ATLAS_CLOUD_EXTERNAL_URL) {
+    return;
+  }
+
   for (const connectionName of [
     DEFAULT_CONNECTION_NAME_1,
     DEFAULT_CONNECTION_NAME_2,

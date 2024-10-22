@@ -46,6 +46,10 @@ let MONGODB_USE_ENTERPRISE =
 
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+export const TEST_ATLAS_CLOUD_EXTERNAL_URL =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_URL;
+export const TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID;
 // multiple connections is now the default
 export const TEST_MULTIPLE_CONNECTIONS = true;
 
@@ -75,19 +79,22 @@ export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
 );
 
-export const DEFAULT_CONNECTION_STRING_1 = `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
+export const DEFAULT_CONNECTION_STRING_1 =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_CONNECTION_STRING_1 ||
+  `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`;
 // NOTE: in browser.setupDefaultConnections() we don't give the first connection an
 // explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = connectionNameFromString(
-  DEFAULT_CONNECTION_STRING_1
-);
+export const DEFAULT_CONNECTION_NAME_1 =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_CONNECTION_NAME_1 ||
+  connectionNameFromString(DEFAULT_CONNECTION_STRING_1);
 
 // for testing multiple connections
-export const DEFAULT_CONNECTION_STRING_2 = `mongodb://127.0.0.1:${
-  MONGODB_TEST_SERVER_PORT + 1
-}/test`;
+export const DEFAULT_CONNECTION_STRING_2 =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_CONNECTION_STRING_2 ||
+  `mongodb://127.0.0.1:${MONGODB_TEST_SERVER_PORT + 1}/test`;
 // NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
-export const DEFAULT_CONNECTION_NAME_2 = 'connection-2';
+export const DEFAULT_CONNECTION_NAME_2 =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_CONNECTION_NAME_2 || 'connection-2';
 
 export function updateMongoDBServerInfo() {
   try {
@@ -106,7 +113,7 @@ export function updateMongoDBServerInfo() {
         'server-info',
         '--',
         '--connectionString',
-        `mongodb://127.0.0.1:${String(MONGODB_TEST_SERVER_PORT)}`,
+        DEFAULT_CONNECTION_STRING_1,
       ],
       { encoding: 'utf-8' }
     );
@@ -761,6 +768,16 @@ async function startCompassElectron(
   return compass;
 }
 
+export type StoredAtlasCloudCookies = {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  secure: boolean;
+  httpOnly: boolean;
+  expirationDate: number;
+}[];
+
 export async function startBrowser(
   name: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -787,7 +804,47 @@ export async function startBrowser(
     ...webdriverOptions,
     ...wdioOptions,
   })) as CompassBrowser;
-  await browser.navigateTo('http://localhost:7777/');
+
+  if (TEST_ATLAS_CLOUD_EXTERNAL_URL) {
+    // Navigate to a 404 page to set cookies
+    await browser.navigateTo(`https://${TEST_ATLAS_CLOUD_EXTERNAL_URL}/404`);
+
+    const cookiesFile = process.env.TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE;
+    if (!cookiesFile) {
+      throw new Error(
+        'TEST_ATLAS_CLOUD_EXTERNAL_URL is set but TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE is not. Please set TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE to the path of the cookies file.'
+      );
+    }
+    const cookies: StoredAtlasCloudCookies = JSON.parse(
+      await fs.readFile(cookiesFile, 'utf8')
+    );
+
+    // These are the relevant cookies for auth:
+    // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
+    await browser.setCookies(
+      cookies
+        .filter((cookie) => {
+          cookie.name.includes('mmsa-') ||
+            cookie.name.includes('mdb-sat') ||
+            cookie.name.includes('mdb-srt');
+        })
+        .map((cookie) => ({
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+        }))
+    );
+
+    await browser.navigateTo(
+      `https://${TEST_ATLAS_CLOUD_EXTERNAL_URL}/v2/${TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID}#/explorer`
+    );
+  } else {
+    await browser.navigateTo('http://localhost:7777/');
+  }
+
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
