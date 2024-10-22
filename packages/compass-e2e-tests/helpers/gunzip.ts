@@ -1,5 +1,5 @@
 import Debug from 'debug';
-import fastGlob from 'fast-glob';
+import { glob as globAsync } from 'glob';
 import { createReadStream, createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
 import { createGunzip } from 'zlib';
@@ -21,7 +21,7 @@ async function gunzip(input: string, output: string, signal: AbortSignal) {
 }
 
 async function run(glob: string, signal: AbortSignal) {
-  const filenames = await fastGlob(glob);
+  const filenames = await globAsync(glob);
   for (const input of filenames) {
     if (signal.aborted) {
       return;

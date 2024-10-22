@@ -67,7 +67,9 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
   try {
     debug('Unzipping fixtures...');
     await gunzip(
-      path.join(E2E_WORKSPACE_PATH, 'fixtures', '*.gz'),
+      // Not using absolute paths because Windows fails to resolve glob
+      // collectly in this case
+      '../fixtures/*.gz',
       globalFixturesAbortController.signal
     );
 
