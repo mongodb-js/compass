@@ -810,32 +810,34 @@ export async function startBrowser(
     // Navigate to a 404 page to set cookies
     await browser.navigateTo(`https://${TEST_ATLAS_CLOUD_EXTERNAL_URL}/404`);
 
-    const cookiesFile = process.env.COOKIES_FILE;
+    const cookiesFile = process.env.TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE;
     if (!cookiesFile) {
       throw new Error(
-        'ATLAS_DOMAIN is set but COOKIES_FILE is not. Please set COOKIES_FILE to the path of the cookies file.'
+        'TEST_ATLAS_CLOUD_EXTERNAL_URL is set but TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE is not. Please set TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE to the path of the cookies file.'
       );
     }
     const cookies: StoredAtlasCloudCookies = JSON.parse(
       await fs.readFile(cookiesFile, 'utf8')
     );
 
-    for (const cookie of cookies) {
-      if (
-        cookie.name.includes('mmsa-') ||
-        cookie.name.includes('mdb-sat') ||
-        cookie.name.includes('mdb-srt')
-      ) {
-        await browser.setCookies({
+    // These are the relevant cookies for auth:
+    // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
+    await browser.setCookies(
+      cookies
+        .filter((cookie) => {
+          cookie.name.includes('mmsa-') ||
+            cookie.name.includes('mdb-sat') ||
+            cookie.name.includes('mdb-srt');
+        })
+        .map((cookie) => ({
           name: cookie.name,
           value: cookie.value,
           domain: cookie.domain,
           path: cookie.path,
           secure: cookie.secure,
           httpOnly: cookie.httpOnly,
-        });
-      }
-    }
+        }))
+    );
 
     await browser.navigateTo(
       `https://${TEST_ATLAS_CLOUD_EXTERNAL_URL}/v2/${TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID}#/explorer`
