@@ -2,7 +2,6 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { dialog } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
