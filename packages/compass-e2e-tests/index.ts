@@ -16,6 +16,7 @@ import {
   mochaGlobalTeardown,
 } from './helpers/test-runner-global-fixtures';
 import { mochaRootHooks } from './helpers/insert-data';
+// @ts-expect-error no types for this package
 import logRunning from 'why-is-node-running';
 
 const debug = Debug('compass-e2e-tests');
