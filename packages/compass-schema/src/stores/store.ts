@@ -87,6 +87,8 @@ export type SchemaStore = StoreWithStateMixin<SchemaState> & {
   dataService: DataService;
 
   handleSchemaShare(): void;
+  _trackSchemaShared(hasSchema: boolean): void;
+
   onSchemaSampled(): void;
   geoLayerAdded(
     field: string,
@@ -162,6 +164,7 @@ export function activateSchemaPlugin(
         JSON.stringify(this.state.schema, null, '  ')
       );
       const hasSchema = this.state.schema !== null;
+      this._trackSchemaShared(hasSchema);
       openToast(
         'share-schema',
         hasSchema
@@ -179,6 +182,21 @@ export function activateSchemaPlugin(
               timeout: 5_000,
             }
       );
+    },
+
+    _trackSchemaShared(this: SchemaStore, hasSchema: boolean) {
+      const { schema } = this.state;
+      // Use a function here to a) ensure that the calculations here
+      // are only made when telemetry is enabled and b) that errors from
+      // those calculations are caught and logged rather than displayed to
+      // users as errors from the core schema sharing logic.
+      const trackEvent = () => ({
+        has_schema: hasSchema,
+        schema_width: schema?.fields?.length ?? 0,
+        schema_depth: schema ? calculateSchemaDepth(schema) : 0,
+        geo_data: schema ? schemaContainsGeoData(schema) : false,
+      });
+      track('Schema Exported', trackEvent, connectionInfoRef.current);
     },
 
     /**
