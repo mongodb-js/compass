@@ -323,19 +323,7 @@ class CompassApplication {
               error: headline,
             }
           );
-
-          const sep = path.sep;
-          const configPath = `${app.getPath(
-            'userData'
-          )}${sep}AppPreferences${sep}General.json`;
-
-          dialog.showErrorBox(
-            'Unsupported proxy configuration',
-            `${headline}\n\n
-            To reset the proxy configuration, remove the "proxy" key in ${configPath} and restart Compass.`
-          );
-
-          app.quit();
+          await target.setProxy({});
         }
 
         const agent = createAgent(proxyOptions);
