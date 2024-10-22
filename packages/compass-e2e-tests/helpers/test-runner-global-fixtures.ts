@@ -2,7 +2,7 @@ import gunzip from './gunzip';
 import path from 'path';
 import fs from 'fs';
 import {
-  DEFAULT_CONNECTION_PORTS,
+  DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   DISABLE_START_STOP,
   E2E_WORKSPACE_PATH,
@@ -26,6 +26,7 @@ import {
   rebuildNativeModules,
   removeUserDataDir,
 } from './compass';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 export const globalFixturesAbortController = new AbortController();
 
@@ -75,21 +76,22 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
     debug('X DISPLAY', process.env.DISPLAY);
 
     if (!DISABLE_START_STOP) {
-      debug('Starting MongoDB servers');
-
-      for (const port of DEFAULT_CONNECTION_PORTS) {
-        const server = await startTestServer({
-          topology: 'replset',
-          secondaries: 0,
-          args: ['--port', String(port)],
-          version:
-            process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION,
-        });
-        servers.push(server);
-        cleanupFns.push(() => {
-          debug('Stopping server at port %s', port);
-          return server.close();
-        });
+      for (const connectionInfo of DEFAULT_CONNECTIONS) {
+        if (connectionInfo.testServer) {
+          debug(
+            'Starting MongoDB server for connection %s',
+            getConnectionTitle(connectionInfo)
+          );
+          const server = await startTestServer(connectionInfo.testServer);
+          servers.push(server);
+          cleanupFns.push(() => {
+            debug(
+              'Stopping server for connection %s',
+              getConnectionTitle(connectionInfo)
+            );
+            return server.close();
+          });
+        }
         throwIfAborted();
       }
 

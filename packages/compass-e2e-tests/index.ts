@@ -80,7 +80,7 @@ async function main() {
     return index >= minGroupIndex && index <= maxGroupIndex;
   });
 
-  console.info('Test files:', rawTests);
+  debug('Test files:', rawTests);
 
   // The only test file that's interested in the first-run experience (at the
   // time of writing) is time-to-first-query.ts and that happens to be
@@ -107,7 +107,7 @@ async function main() {
   mocha.rootHooks(mochaRootHooks);
 
   // print the test order for debugging purposes and so we can tweak the groups later
-  console.log('test order', tests);
+  debug('Test order:', tests);
 
   tests.forEach((testPath: string) => {
     mocha.addFile(path.join(__dirname, testPath));

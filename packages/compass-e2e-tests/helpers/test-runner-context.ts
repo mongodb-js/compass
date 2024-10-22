@@ -2,16 +2,16 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import ConnectionString from 'mongodb-connection-string-url';
 import path from 'path';
 import electronPath from 'electron';
 import electronPackageJson from 'electron/package.json';
 // @ts-expect-error no types for this package
 import { electronToChromium } from 'electron-to-chromium';
+import type { MongoClusterOptions } from 'mongodb-runner';
 
 if (typeof electronPath !== 'string') {
   throw new Error(
-    'Running e2e tests in an unsupported runtime: `electron` is not a string'
+    'Running e2e tests in an unsupported runtime: `electronPath` is not a string'
   );
 }
 
@@ -43,11 +43,41 @@ export const SKIP_NATIVE_MODULE_REBUILD =
 export const DISABLE_START_STOP = process.argv.includes('--disable-start-stop');
 export const MOCHA_BAIL = process.argv.includes('--bail');
 
-export const DEFAULT_CONNECTIONS: ConnectionInfo[] = [
+export const COMPASS_WEB_BROWSER_NAME = process.env.BROWSER_NAME ?? 'chrome';
+// https://webdriver.io/docs/driverbinaries/
+//
+// If you leave out browserVersion it will try and find the browser binary on
+// your system. If you specify it it will download that version. The main
+// limitation then is that 'latest' is the only 'semantic' version that is
+// supported for Firefox.
+// https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
+//
+// Alternatively we can download it ourselves and specify the path to the binary
+// or we can even start and stop chromedriver/geckodriver manually.
+//
+// NOTE: The version of chromedriver or geckodriver in play might also be
+// relevant.
+export const COPMASS_WEB_BROWSER_VERSION =
+  process.env.BROWSER_VERSION === 'unset'
+    ? undefined
+    : process.env.BROWSER_VERSION ?? 'latest';
+
+const MONGODB_TESTSERVER_VERSION =
+  process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;
+
+export const DEFAULT_CONNECTIONS: (ConnectionInfo & {
+  testServer?: Partial<MongoClusterOptions>;
+})[] = [
   {
     id: 'test-connection-1',
     connectionOptions: {
       connectionString: 'mongodb://127.0.0.1:27091/test',
+    },
+    testServer: {
+      version: MONGODB_TESTSERVER_VERSION,
+      topology: 'replset',
+      secondaries: 0,
+      args: ['--port', '27091'],
     },
   },
   {
@@ -57,6 +87,13 @@ export const DEFAULT_CONNECTIONS: ConnectionInfo[] = [
     },
     favorite: {
       name: 'connection-2',
+      color: 'Iris',
+    },
+    testServer: {
+      version: MONGODB_TESTSERVER_VERSION,
+      topology: 'replset',
+      secondaries: 0,
+      args: ['--port', '27092'],
     },
   },
 ];
@@ -67,11 +104,6 @@ export const DEFAULT_CONNECTION_STRINGS = DEFAULT_CONNECTIONS.map((info) => {
 
 export const DEFAULT_CONNECTION_NAMES = DEFAULT_CONNECTIONS.map((info) => {
   return getConnectionTitle(info);
-});
-
-export const DEFAULT_CONNECTION_PORTS = DEFAULT_CONNECTIONS.map((info) => {
-  const str = new ConnectionString(info.connectionOptions.connectionString);
-  return Number(str.hosts[0].split(':')[1]);
 });
 
 export const DEFAULT_CONNECTIONS_SERVER_INFO: {

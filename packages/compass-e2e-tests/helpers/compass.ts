@@ -40,6 +40,8 @@ import {
   WEBDRIVER_DEFAULT_WAITFOR_INTERVAL,
   TEST_COMPASS_DESKTOP_PACKAGED_APP,
   ELECTRON_PATH,
+  COMPASS_WEB_BROWSER_NAME,
+  COPMASS_WEB_BROWSER_VERSION,
 } from './test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
@@ -69,12 +71,6 @@ export function skipForWeb(
     test.skip();
   }
 }
-
-function getBrowserName() {
-  return process.env.BROWSER_NAME ?? 'chrome';
-}
-
-export const BROWSER_NAME = getBrowserName();
 
 export const MONGODB_TEST_SERVER_PORT = Number(
   process.env.MONGODB_TEST_SERVER_PORT ?? 27091
@@ -724,18 +720,10 @@ export async function startBrowser(
 
   const options: RemoteOptions = {
     capabilities: {
-      browserName: BROWSER_NAME, // 'chrome' or 'firefox'
-      // https://webdriver.io/docs/driverbinaries/
-      // If you leave out browserVersion it will try and find the browser binary
-      // on your system. If you specify it it will download that version. The
-      // main limitation then is that 'latest' is the only 'semantic' version
-      // that is supported for Firefox.
-      // https://github.com/puppeteer/puppeteer/blob/ab5d4ac60200d1cea5bcd4910f9ccb323128e79a/packages/browsers/src/browser-data/browser-data.ts#L66
-      // Alternatively we can download it ourselves and specify the path to the
-      // binary or we can even start and stop chromedriver/geckodriver manually.
-      // NOTE: The version of chromedriver or geckodriver in play might also be
-      // relevant.
-      browserVersion: 'latest',
+      browserName: COMPASS_WEB_BROWSER_NAME,
+      ...(COPMASS_WEB_BROWSER_VERSION && {
+        browserVersion: COPMASS_WEB_BROWSER_VERSION,
+      }),
     },
     ...webdriverOptions,
     ...wdioOptions,
