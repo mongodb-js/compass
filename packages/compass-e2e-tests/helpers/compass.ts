@@ -113,8 +113,7 @@ export function updateMongoDBServerInfo() {
         'server-info',
         '--',
         '--connectionString',
-        process.env.TEST_ATLAS_CLOUD_EXTERNAL_CONNECTION_STRING_1 ||
-          `mongodb://127.0.0.1:${String(MONGODB_TEST_SERVER_PORT)}`,
+        DEFAULT_CONNECTION_STRING_1,
       ],
       { encoding: 'utf-8' }
     );

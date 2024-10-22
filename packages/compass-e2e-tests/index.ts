@@ -285,12 +285,11 @@ async function main() {
   // will also get the slow first run experience for no good reason unless it is
   // the time-to-first-query.ts test.
   // So yeah.. this is a bit of a micro optimisation.
-  for (let i = 0; i < tests.length; ++i) {
-    if (tests[i] === FIRST_TEST) {
-      [tests[i], tests[0]] = [tests[0], tests[i]];
-      break;
-    }
-  }
+  tests.sort((a, b) => {
+    if (a === FIRST_TEST) return -1;
+    else if (b === FIRST_TEST) return 1;
+    else return 0;
+  });
 
   // Ensure the insert-data mocha hooks are run.
   tests.unshift(path.join('helpers', 'insert-data.ts'));
