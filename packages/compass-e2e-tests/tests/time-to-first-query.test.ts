@@ -26,7 +26,7 @@ describe('Time to first query', function () {
     }
   });
 
-  it.only('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
+  it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
     // Starting the application with the webdriver.io fails on the first run
     // sometimes due to devtools / selenium server failing to start in time.
     // While the root cause is unknown, it usually passes just fine on a re-run
