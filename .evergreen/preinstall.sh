@@ -39,9 +39,6 @@ if [ -n "$IS_WINDOWS" ]; then
     ./node.exe node_modules/npm2/bin/npm-cli.js i -g npm@$NPM_VERSION
     rm -rf node_modules/npm2/
     chmod +x npm.cmd npm
-
-    cd ..
-    .evergreen/node-gyp-bug-workaround.sh
 else
     if command -v ldd &> /dev/null && `ldd $(which bash) | grep 'libc.so' | awk '{print $3}'` | grep -Eq 'release version 2.(1|2[0-7])'; then
         echo "Installing unofficial nodejs compiled for glibc 2.17 v${NODE_JS_VERSION} for ${PLATFORM} on ${ARCH}..."
