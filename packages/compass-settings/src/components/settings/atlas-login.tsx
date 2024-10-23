@@ -70,7 +70,6 @@ const atlasLoginEmailStyles = css({
 export const AtlasLoginSettings: React.FunctionComponent<{
   isSignInInProgress: boolean;
   userLogin: string | null;
-  isAIFeatureEnabled: boolean;
   onSignInClick(): void;
   onSignOutClick(): void;
 }> = ({ isSignInInProgress, userLogin, onSignInClick, onSignOutClick }) => {
@@ -174,7 +173,6 @@ export const ConnectedAtlasLoginSettings = connect(
     return {
       isSignInInProgress: state.atlasLogin.status === 'in-progress',
       userLogin: state.atlasLogin.userInfo?.login ?? null,
-      isAIFeatureEnabled: Boolean(state.atlasLogin.userInfo?.enabledAIFeature),
     };
   },
   {

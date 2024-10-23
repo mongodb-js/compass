@@ -67,28 +67,37 @@ let runnerPromise: Promise<any> | undefined;
 async function main() {
   const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS || '1');
   const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
+  const e2eTestFilter = process.env.E2E_TEST_FILTER || '*';
 
-  const rawTests = (
-    await glob('tests/**/*.{test,spec}.ts', {
+  const tests = (
+    await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {
       cwd: __dirname,
     })
-  ).filter((value, index, array) => {
-    const testsPerGroup = Math.ceil(array.length / e2eTestGroupsAmount);
-    const minGroupIndex = (e2eTestGroup - 1) * testsPerGroup;
-    const maxGroupIndex = minGroupIndex + testsPerGroup - 1;
+  )
+    .filter((_value, index, array) => {
+      const testsPerGroup = Math.ceil(array.length / e2eTestGroupsAmount);
+      const minGroupIndex = (e2eTestGroup - 1) * testsPerGroup;
+      const maxGroupIndex = minGroupIndex + testsPerGroup - 1;
 
-    return index >= minGroupIndex && index <= maxGroupIndex;
-  });
+      return index >= minGroupIndex && index <= maxGroupIndex;
+    })
+    .sort((a, b) => {
+      // The only test file that's interested in the first-run experience (at the
+      // time of writing) is time-to-first-query.ts and that happens to be
+      // alphabetically right at the end. Which is fine, but the first test to run
+      // will also get the slow first run experience for no good reason unless it is
+      // the time-to-first-query.ts test.
+      // So yeah.. this is a bit of a micro optimisation.
+      if (a === FIRST_TEST) {
+        return -1;
+      } else if (b === FIRST_TEST) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
 
-  debug('Test files:', rawTests);
-
-  // The only test file that's interested in the first-run experience (at the
-  // time of writing) is time-to-first-query.ts and that happens to be
-  // alphabetically right at the end. Which is fine, but the first test to run
-  // will also get the slow first run experience for no good reason unless it is
-  // the time-to-first-query.ts test.
-  // So yeah.. this is a bit of a micro optimisation.
-  const tests = [FIRST_TEST, ...rawTests.filter((t) => t !== FIRST_TEST)];
+  debug('Test files:', tests);
 
   const mocha = new Mocha({
     timeout: MOCHA_DEFAULT_TIMEOUT,

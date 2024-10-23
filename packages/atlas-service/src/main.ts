@@ -376,10 +376,7 @@ export class CompassAuthService {
 
       await throwIfNotOk(res);
 
-      const userInfo = (await res.json()) as AtlasUserInfo;
-
-      // TODO: Remove hadcoded `enabledAIFeature: true` when Atlas returns the actual value.
-      return { ...userInfo, enabledAIFeature: true };
+      return (await res.json()) as AtlasUserInfo;
     })();
     return this.currentUser;
   }

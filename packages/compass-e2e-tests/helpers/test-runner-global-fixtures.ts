@@ -1,6 +1,7 @@
 import gunzip from './gunzip';
 import fs from 'fs';
 import {
+  COMPASS_WEB_SANDBOX_URL,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   DISABLE_START_STOP,
@@ -8,12 +9,12 @@ import {
   LOG_PATH,
   SKIP_COMPASS_DESKTOP_COMPILE,
   SKIP_NATIVE_MODULE_REBUILD,
+  TEST_ATLAS_CLOUD_EXTERNAL,
   TEST_COMPASS_DESKTOP,
   TEST_COMPASS_DESKTOP_PACKAGED_APP,
   TEST_COMPASS_WEB,
 } from './test-runner-context';
 import Debug from 'debug';
-import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import crossSpawn from 'cross-spawn';
 import kill from 'tree-kill';
@@ -45,8 +46,6 @@ const wait = (ms: number) =>
   });
 
 const cleanupFns: (() => Promise<void> | void)[] = [];
-
-const servers: MongoCluster[] = [];
 
 /**
  * Main hook that does all the main pre-setup before running tests:
@@ -85,7 +84,6 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
             getConnectionTitle(connectionInfo)
           );
           const server = await startTestServer(connectionInfo.testServer);
-          servers.push(server);
           cleanupFns.push(() => {
             debug(
               'Stopping server for connection %s',
@@ -97,8 +95,8 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (TEST_COMPASS_WEB) {
-        debug('Starting Compass Web');
+      if (TEST_COMPASS_WEB && !TEST_ATLAS_CLOUD_EXTERNAL) {
+        debug('Starting Compass Web server ...');
         const compassWeb = spawnCompassWeb();
         cleanupFns.push(() => {
           if (compassWeb.pid) {
@@ -196,7 +194,7 @@ async function waitForCompassWebToBeReady() {
       );
     }
     try {
-      const res = await fetch('http://localhost:7777');
+      const res = await fetch(COMPASS_WEB_SANDBOX_URL);
       serverReady = res.ok;
       debug('Web server ready:', serverReady);
     } catch (err) {
@@ -208,22 +206,19 @@ async function waitForCompassWebToBeReady() {
 
 async function updateMongoDBServerInfo() {
   try {
-    const [info1, info2] = await Promise.all(
-      servers.map(async (server) => {
-        let client: MongoClient | undefined;
-        try {
-          client = new MongoClient(server.connectionString);
-          const info = await client.db('admin').command({ buildInfo: 1 });
-          return {
-            version: info.version,
-            enterprise: isEnterprise(info),
-          };
-        } finally {
-          void client?.close(true);
-        }
-      })
-    );
-    DEFAULT_CONNECTIONS_SERVER_INFO.push(info1, info2);
+    for (const { connectionOptions } of DEFAULT_CONNECTIONS) {
+      let client: MongoClient | undefined;
+      try {
+        client = new MongoClient(connectionOptions.connectionString);
+        const info = await client.db('admin').command({ buildInfo: 1 });
+        DEFAULT_CONNECTIONS_SERVER_INFO.push({
+          version: info.version,
+          enterprise: isEnterprise(info),
+        });
+      } finally {
+        void client?.close(true);
+      }
+    }
   } catch (err) {
     debug('Failed to get MongoDB server info:', err);
   }

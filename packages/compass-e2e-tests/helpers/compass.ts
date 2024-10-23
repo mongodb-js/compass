@@ -41,7 +41,12 @@ import {
   TEST_COMPASS_DESKTOP_PACKAGED_APP,
   ELECTRON_PATH,
   COMPASS_WEB_BROWSER_NAME,
-  COPMASS_WEB_BROWSER_VERSION,
+  COMPASS_WEB_BROWSER_VERSION,
+  TEST_ATLAS_CLOUD_EXTERNAL,
+  TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE,
+  TEST_ATLAS_CLOUD_EXTERNAL_URL,
+  TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID,
+  COMPASS_WEB_SANDBOX_URL,
 } from './test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
@@ -710,6 +715,16 @@ async function startCompassElectron(
   return compass;
 }
 
+export type StoredAtlasCloudCookies = {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  secure: boolean;
+  httpOnly: boolean;
+  expirationDate: number;
+}[];
+
 export async function startBrowser(
   name: string,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -721,19 +736,66 @@ export async function startBrowser(
   const options: RemoteOptions = {
     capabilities: {
       browserName: COMPASS_WEB_BROWSER_NAME,
-      ...(COPMASS_WEB_BROWSER_VERSION && {
-        browserVersion: COPMASS_WEB_BROWSER_VERSION,
+      ...(COMPASS_WEB_BROWSER_VERSION && {
+        browserVersion: COMPASS_WEB_BROWSER_VERSION,
       }),
     },
     ...webdriverOptions,
     ...wdioOptions,
   };
 
-  debug('Starting compass via webdriverio with the following configuration:');
+  debug('Starting browser via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
   const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
-  await browser.navigateTo('http://localhost:7777/');
+
+  if (TEST_ATLAS_CLOUD_EXTERNAL) {
+    // To be able to use `setCookies` method, we need to first open any page on
+    // the same domain as the cookies we are going to set
+    // https://webdriver.io/docs/api/browser/setCookies/
+    await browser.navigateTo(`${TEST_ATLAS_CLOUD_EXTERNAL_URL!}/404`);
+
+    type StoredAtlasCloudCookies = {
+      name: string;
+      value: string;
+      domain: string;
+      path: string;
+      secure: boolean;
+      httpOnly: boolean;
+      expirationDate: number;
+    }[];
+
+    const cookies: StoredAtlasCloudCookies = JSON.parse(
+      await fs.readFile(TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE!, 'utf8')
+    );
+
+    await browser.setCookies(
+      cookies
+        .filter((cookie) => {
+          // These are the relevant cookies for auth:
+          // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
+          return (
+            cookie.name.includes('mmsa-') ||
+            cookie.name.includes('mdb-sat') ||
+            cookie.name.includes('mdb-srt')
+          );
+        })
+        .map((cookie) => ({
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+        }))
+    );
+
+    await browser.navigateTo(
+      `${TEST_ATLAS_CLOUD_EXTERNAL_URL!}/v2/${TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID!}#/explorer`
+    );
+  } else {
+    await browser.navigateTo(COMPASS_WEB_SANDBOX_URL);
+  }
 
   const compass = new Compass(name, browser, {
     mode: 'web',

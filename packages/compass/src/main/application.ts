@@ -2,7 +2,6 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
-import { dialog } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
@@ -323,19 +322,7 @@ class CompassApplication {
               error: headline,
             }
           );
-
-          const sep = path.sep;
-          const configPath = `${app.getPath(
-            'userData'
-          )}${sep}AppPreferences${sep}General.json`;
-
-          dialog.showErrorBox(
-            'Unsupported proxy configuration',
-            `${headline}\n\n
-            To reset the proxy configuration, remove the "proxy" key in ${configPath} and restart Compass.`
-          );
-
-          app.quit();
+          await target.setProxy({});
         }
 
         const agent = createAgent(proxyOptions);

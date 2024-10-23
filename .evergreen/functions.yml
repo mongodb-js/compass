@@ -664,7 +664,7 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          BROWSER_NAME: ${browser_name}
+          COMPASS_WEB_BROWSER_NAME: ${browser_name}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
         script: |

@@ -1,4 +1,5 @@
 import {
+  Banner,
   Description,
   FormFieldContainer,
   Label,
@@ -197,6 +198,12 @@ export const ProxySettingsCustom: React.FunctionComponent<
           disabled={disabled}
         />
       </FormFieldContainer>
+      {(proxyPassword || proxyUsername) && (
+        <Banner variant="warning">
+          Some resources, such as map data for geographic visualizations, cannot
+          currently be loaded through proxies which require authentication.
+        </Banner>
+      )}
     </div>
   );
 };

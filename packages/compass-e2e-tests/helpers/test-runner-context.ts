@@ -25,7 +25,46 @@ export const ALLOWED_RUNNER_ARGS = [
   '--bail',
 ];
 
-export const TEST_COMPASS_WEB = process.argv.includes('--test-compass-web');
+/**
+ * Variables used by a special use-case of running e2e tests against a
+ * cloud(-dev).mongodb.com URL. If you're changing anything related to these,
+ * make sure that the tests in mms are also updated to account for that
+ */
+export const TEST_ATLAS_CLOUD_EXTERNAL_URL =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_URL;
+export const TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE;
+export const TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID =
+  process.env.TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID;
+const TEST_ATLAS_CLOUD_EXTERNAL_DEFAULT_CONNECTIONS: ConnectionInfo[] | null =
+  JSON.parse(process.env.TEST_ATLAS_CLOUD_DEFAULT_CONNECTIONS ?? 'null');
+
+const ALL_ATLAS_CLOUD_EXTERNAL_VARS = [
+  TEST_ATLAS_CLOUD_EXTERNAL_URL,
+  TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE,
+  TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID,
+  TEST_ATLAS_CLOUD_EXTERNAL_DEFAULT_CONNECTIONS,
+];
+
+export const TEST_ATLAS_CLOUD_EXTERNAL = ALL_ATLAS_CLOUD_EXTERNAL_VARS.some(
+  (val) => {
+    return !!val;
+  }
+);
+
+if (
+  TEST_ATLAS_CLOUD_EXTERNAL &&
+  ALL_ATLAS_CLOUD_EXTERNAL_VARS.some((val) => {
+    return !val;
+  })
+) {
+  throw new Error(
+    'Trying to test Atlas Cloud external URL but some required variables are missing'
+  );
+}
+
+export const TEST_COMPASS_WEB =
+  process.argv.includes('--test-compass-web') || TEST_ATLAS_CLOUD_EXTERNAL;
 export const TEST_COMPASS_DESKTOP = !TEST_COMPASS_WEB;
 export const TEST_COMPASS_DESKTOP_PACKAGED_APP = process.argv.includes(
   '--test-packaged-app'
@@ -57,46 +96,50 @@ export const COMPASS_WEB_BROWSER_NAME = process.env.BROWSER_NAME ?? 'chrome';
 //
 // NOTE: The version of chromedriver or geckodriver in play might also be
 // relevant.
-export const COPMASS_WEB_BROWSER_VERSION =
+export const COMPASS_WEB_BROWSER_VERSION =
   process.env.BROWSER_VERSION === 'unset'
     ? undefined
     : process.env.BROWSER_VERSION ?? 'latest';
+export const COMPASS_WEB_SANDBOX_URL = 'http://localhost:7777';
 
 const MONGODB_TESTSERVER_VERSION =
   process.env.MONGODB_VERSION ?? process.env.MONGODB_RUNNER_VERSION;
 
 export const DEFAULT_CONNECTIONS: (ConnectionInfo & {
   testServer?: Partial<MongoClusterOptions>;
-})[] = [
-  {
-    id: 'test-connection-1',
-    connectionOptions: {
-      connectionString: 'mongodb://127.0.0.1:27091/test',
-    },
-    testServer: {
-      version: MONGODB_TESTSERVER_VERSION,
-      topology: 'replset',
-      secondaries: 0,
-      args: ['--port', '27091'],
-    },
-  },
-  {
-    id: 'test-connection-2',
-    connectionOptions: {
-      connectionString: 'mongodb://127.0.0.1:27092/test',
-    },
-    favorite: {
-      name: 'connection-2',
-      color: 'Iris',
-    },
-    testServer: {
-      version: MONGODB_TESTSERVER_VERSION,
-      topology: 'replset',
-      secondaries: 0,
-      args: ['--port', '27092'],
-    },
-  },
-];
+})[] =
+  TEST_ATLAS_CLOUD_EXTERNAL && TEST_ATLAS_CLOUD_EXTERNAL_DEFAULT_CONNECTIONS
+    ? TEST_ATLAS_CLOUD_EXTERNAL_DEFAULT_CONNECTIONS
+    : [
+        {
+          id: 'test-connection-1',
+          connectionOptions: {
+            connectionString: 'mongodb://127.0.0.1:27091/test',
+          },
+          testServer: {
+            version: MONGODB_TESTSERVER_VERSION,
+            topology: 'replset',
+            secondaries: 0,
+            args: ['--port', '27091'],
+          },
+        },
+        {
+          id: 'test-connection-2',
+          connectionOptions: {
+            connectionString: 'mongodb://127.0.0.1:27092/test',
+          },
+          favorite: {
+            name: 'connection-2',
+            color: 'Iris',
+          },
+          testServer: {
+            version: MONGODB_TESTSERVER_VERSION,
+            topology: 'replset',
+            secondaries: 0,
+            args: ['--port', '27092'],
+          },
+        },
+      ];
 
 export const DEFAULT_CONNECTION_STRINGS = DEFAULT_CONNECTIONS.map((info) => {
   return info.connectionOptions.connectionString;
