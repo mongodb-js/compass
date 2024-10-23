@@ -88,7 +88,6 @@ describe('Compass GlobalWrites Plugin', function () {
       expect(searchInput).to.be.visible;
       userEvent.type(searchInput, 'Slo');
       const rows = screen.getAllByRole('row');
-      // screen.debug(rows[1]);
       expect(rows).to.have.lengthOf(2); // 1 header, 1 item
       expect(within(rows[1]).getByText('Slovakia (SK)')).to.be.visible;
       expect(within(rows[1]).getByText('Zone 2 (Location 2)')).to.be.visible;
