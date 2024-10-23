@@ -46,7 +46,7 @@ for (let i = 0; i < 26; ++i) {
 let clients: MongoClient[];
 let test_dbs: Db[];
 
-before(async () => {
+export const beforeAll = async () => {
   // Insert data on both connections so that the same databases and collections
   // will exist on both servers and then anything that's not properly scoped to
   // the correct connection has a chance to operate on the wrong one and
@@ -70,13 +70,13 @@ before(async () => {
   );
 
   test_dbs = clients.map((client) => client.db('test'));
-});
+};
 
-after(async () => {
+export const afterAll = async () => {
   await Promise.all(clients.map((client) => client.close()));
-});
+};
 
-beforeEach(async () => {
+export const beforeEach = async () => {
   // Drop the databases that get created by tests or the functions below
   const promises = [];
 
@@ -87,7 +87,13 @@ beforeEach(async () => {
   }
 
   await Promise.all(promises);
-});
+};
+
+export const mochaRootHooks: Mocha.RootHookObject = {
+  beforeAll,
+  beforeEach,
+  afterAll,
+};
 
 export async function createDummyCollections(): Promise<void> {
   const promises = [];

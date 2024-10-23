@@ -40,6 +40,7 @@
     "webpack": "webpack-compass",
     "postcompile": "npm run typescript",
     "typescript": "tsc -p tsconfig-build.json --emitDeclarationOnly",
+    "prestart": "npm run compile -w @mongodb-js/webpack-config-compass",
     "start": "electron ./scripts/electron-proxy.js",
     "analyze": "npm run webpack -- --mode production --analyze",
     "watch": "npm run webpack -- --mode development --watch",
