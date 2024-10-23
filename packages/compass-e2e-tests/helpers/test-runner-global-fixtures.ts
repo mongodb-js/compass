@@ -4,6 +4,7 @@ import {
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   DISABLE_START_STOP,
+  E2E_WORKSPACE_PATH,
   LOG_PATH,
   SKIP_COMPASS_DESKTOP_COMPILE,
   SKIP_NATIVE_MODULE_REBUILD,
@@ -67,7 +68,8 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
     await gunzip(
       // Not using absolute paths because Windows fails to resolve glob
       // collectly in this case
-      '../fixtures/*.gz',
+      'fixtures/*.gz',
+      E2E_WORKSPACE_PATH,
       globalFixturesAbortController.signal
     );
 

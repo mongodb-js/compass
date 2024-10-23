@@ -3,6 +3,7 @@ import { glob as globAsync } from 'glob';
 import { createReadStream, createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
 import { createGunzip } from 'zlib';
+import path from 'path';
 
 const debug = Debug('compass-e2e-tests:gunzip');
 
@@ -20,14 +21,19 @@ async function gunzip(input: string, output: string, signal: AbortSignal) {
   }
 }
 
-async function run(glob: string, signal: AbortSignal) {
-  const filenames = await globAsync(glob);
+async function run(glob: string, cwd: string, signal: AbortSignal) {
+  const filenames = (await globAsync(glob, { cwd })).map((filepath) => {
+    return path.join(cwd, filepath);
+  });
+  if (filenames.length === 0) {
+    throw new Error(`Failed to unpack ${glob} at ${cwd}: no files found`);
+  }
+  debug('Unpacking following files:', filenames);
   for (const input of filenames) {
     if (signal.aborted) {
       return;
     }
     const output = input.replace(/\.gz$/, '');
-    debug(input, '=>', output);
     await gunzip(input, output, signal);
   }
 }
