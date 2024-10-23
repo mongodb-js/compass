@@ -71,6 +71,8 @@ function printCompassEnv() {
     // We generally require a relatively recent C++ compiler
     pathsToPrepend.unshift('/opt/mongodbtoolchain/v4/bin');
 
+    // no Python 3.1x on ubuntu1604
+    pathsToPrepend.unshift('/opt/python/3.9/bin');
     // node-gyp is tied to a specific Python version range
     pathsToPrepend.unshift('/opt/python/3.12/bin');
   }
