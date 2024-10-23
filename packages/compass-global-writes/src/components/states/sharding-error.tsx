@@ -74,7 +74,7 @@ export default connect(
       shardingError: state.shardingError,
       isCancellingSharding:
         state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR,
-      isSubmitting:
+      isSubmittingForSharding:
         state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
     };
   },
