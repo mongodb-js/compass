@@ -1,4 +1,3 @@
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -23,11 +22,6 @@ export async function removeAllConnections(
   // files that might create a lot of connections that will start running into
   // virtual scrolling issues
 
-  if (!TEST_MULTIPLE_CONNECTIONS) {
-    // not implemented for single connections / compass web
-    return;
-  }
-
   // The previous test could have ended with modals and/or toasts left open and
   // a search filter in the sidebar. Reset those so we can get to a known state.
   await resetForRemove(browser);
@@ -49,11 +43,6 @@ export async function removeConnectionByName(
   browser: CompassBrowser,
   connectionName: string
 ) {
-  if (!TEST_MULTIPLE_CONNECTIONS) {
-    // not implemented for single connections / compass web
-    return;
-  }
-
   await resetForRemove(browser);
 
   await browser.selectConnectionMenuItem(

@@ -6,7 +6,6 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -24,14 +23,10 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
   // hit refresh, then wait for a transition to occur that will correlate to the
   // data actually being refreshed and arriving.
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.selectConnectionMenuItem(
-      connectionName,
-      Selectors.Multiple.RefreshDatabasesItem
-    );
-  } else {
-    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-  }
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Selectors.Multiple.RefreshDatabasesItem
+  );
 }
 
 /**
@@ -118,41 +113,16 @@ describe('CSFLE / QE', function () {
       };
 
       // Save & Connect
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        // in the multiple connections world the favorite form fields are just
-        // part of the connection form
-        options.connectionName = connectionName;
-        options.connectionColor = 'color1';
-        options.connectionFavorite = true;
 
-        await browser.setConnectFormState(options);
+      // in the multiple connections world the favorite form fields are just
+      // part of the connection form
+      options.connectionName = connectionName;
+      options.connectionColor = 'color1';
+      options.connectionFavorite = true;
 
-        await browser.clickVisible(Selectors.ConnectionModalConnectButton);
-      } else {
-        // in the single connections world the favorite form fields are in a
-        // separate modal
-        await browser.setConnectFormState(options);
-        await browser.clickVisible(Selectors.SaveAndConnectButton);
-        await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-        await browser.setValueVisible(
-          Selectors.FavoriteNameInput,
-          connectionName
-        );
-        await browser.clickVisible(
-          `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
-        );
+      await browser.setConnectFormState(options);
 
-        // The modal's button text should read Save & Connect and not the default Save
-        expect(
-          await browser.$(Selectors.FavoriteSaveButton).getText()
-        ).to.equal('Save & Connect');
-
-        await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-        await browser.clickVisible(Selectors.FavoriteSaveButton);
-        await browser
-          .$(Selectors.FavoriteModal)
-          .waitForExist({ reverse: true });
-      }
+      await browser.clickVisible(Selectors.ConnectionModalConnectButton);
 
       // Wait for it to connect
       await browser.waitForConnectionResult(connectionName, {
@@ -172,27 +142,17 @@ describe('CSFLE / QE', function () {
       // extra pause to make very sure that it loaded the connections
       await delay(10000);
 
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        // in the multiple connections world, if we clicked the connection it
-        // would connect and that's not what we want in this case. So we select
-        // edit from the menu.
-        await browser.selectConnectionMenuItem(
-          connectionName,
-          Selectors.Multiple.EditConnectionItem
-        );
-      } else {
-        // in the single connections world, clicking the favorite connection in
-        // the sidebar doesn't connect, it just pre-populates the form
-        await browser.clickVisible(
-          Selectors.sidebarConnectionButton(connectionName)
-        );
-      }
+      // in the multiple connections world, if we clicked the connection it
+      // would connect and that's not what we want in this case. So we select
+      // edit from the menu.
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.EditConnectionItem
+      );
 
       // The modal should appear and the title of the modal should be the favorite name
       await browser.waitUntil(async () => {
-        const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
-          ? Selectors.ConnectionModalTitle
-          : Selectors.ConnectionTitle;
+        const connectionTitleSelector = Selectors.ConnectionModalTitle;
         const text = await browser.$(connectionTitleSelector).getText();
         return text === connectionName;
       });
@@ -905,16 +865,12 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.clickVisible(
-            Selectors.sidebarConnectionActionButton(
-              connectionName,
-              Selectors.Multiple.InUseEncryptionMarker
-            )
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.InUseEncryptionMarker);
-        }
+        await browser.clickVisible(
+          Selectors.sidebarConnectionActionButton(
+            connectionName,
+            Selectors.Multiple.InUseEncryptionMarker
+          )
+        );
 
         await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
@@ -935,16 +891,12 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.clickVisible(
-            Selectors.sidebarConnectionActionButton(
-              connectionName,
-              Selectors.Multiple.InUseEncryptionMarker
-            )
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.InUseEncryptionMarker);
-        }
+        await browser.clickVisible(
+          Selectors.sidebarConnectionActionButton(
+            connectionName,
+            Selectors.Multiple.InUseEncryptionMarker
+          )
+        );
 
         await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 

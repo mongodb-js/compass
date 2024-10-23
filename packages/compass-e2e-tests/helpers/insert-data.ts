@@ -1,11 +1,6 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
-
-import {
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_STRING_2,
-  TEST_MULTIPLE_CONNECTIONS,
-} from './compass';
+import { DEFAULT_CONNECTION_STRINGS } from './test-runner-context';
 
 // This is a list of all the known database names that get created by tests so
 // that we can know what to drop when we clean up before every test. If a new
@@ -53,10 +48,7 @@ export const beforeAll = async () => {
   // hopefully fail a test.
   // This should also mean that the database or collection name that we try and
   // use is always ambiguous, so we're forced to deal with it early in tests.
-  const connectionStrings = [DEFAULT_CONNECTION_STRING_1];
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    connectionStrings.push(DEFAULT_CONNECTION_STRING_2);
-  }
+  const connectionStrings = DEFAULT_CONNECTION_STRINGS;
   clients = connectionStrings.map(
     (connectionString) => new MongoClient(connectionString)
   );
