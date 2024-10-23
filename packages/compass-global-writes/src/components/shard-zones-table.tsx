@@ -78,9 +78,9 @@ const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
 const hasFilteredChildren = (
   row: LgTableRowType<LGTableDataType<ShardZoneRow>>
 ) =>
-  row.subRows.filter(
+  row.subRows.some(
     (subRow) => Object.values(subRow.columnFilters).includes(true) // columnFilters: e.g. { __global__: true }
-  ).length > 0;
+  );
 
 export function ShardZonesTable({
   shardZones,
