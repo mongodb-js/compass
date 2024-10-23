@@ -217,7 +217,7 @@ export class AtlasGlobalWritesService {
     const data = res.response;
 
     if (data.length === 0) {
-      return null;
+      return undefined;
     }
     const { key, unique } = data[0];
 

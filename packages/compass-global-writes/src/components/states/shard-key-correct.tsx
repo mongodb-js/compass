@@ -24,6 +24,7 @@ import toNS from 'mongodb-ns';
 import { ShardZonesTable } from '../shard-zones-table';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import ShardKeyMarkup from '../shard-key-markup';
+import ExampleCommandsMarkup from '../example-commands-markup';
 
 const nbsp = '\u00a0';
 
@@ -68,18 +69,6 @@ export function ShardKeyCorrect({
 
   const { atlasMetadata } = useConnectionInfo();
 
-  const sampleCodes = useMemo(() => {
-    const { collection, database } = toNS(namespace);
-    return {
-      findingDocuments: `use ${database}\ndb[${JSON.stringify(
-        collection
-      )}].find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
-      insertingDocuments: `use ${database}\ndb[${JSON.stringify(
-        collection
-      )}].insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
-    };
-  }, [namespace, customShardKeyField]);
-
   return (
     <div className={containerStyles}>
       <Banner variant={BannerVariant.Info}>
@@ -91,46 +80,7 @@ export function ShardKeyCorrect({
         {nbsp}We have included a table for reference below.
       </Banner>
       <ShardKeyMarkup namespace={namespace} shardKey={shardKey} />
-      <Subtitle>Example commands</Subtitle>
-      <div className={paragraphStyles}>
-        <Body>
-          Start querying your database with some of the most{' '}
-          <Link
-            href="https://www.mongodb.com/docs/atlas/global-clusters"
-            hideExternalIcon
-          >
-            common commands
-          </Link>{' '}
-          for Global Writes.
-        </Body>
-        <Body>
-          Replace the text to perform operations on different documents. US-NY
-          is an ISO 3166 location code referring to New York, United States. You
-          can look up other ISO 3166 location codes below.
-        </Body>
-      </div>
-
-      <div className={codeBlockContainerStyles}>
-        <Label htmlFor="finding-documents">Finding documents</Label>
-        <Code
-          language="js"
-          data-testid="sample-finding-documents"
-          id="finding-documents"
-        >
-          {sampleCodes.findingDocuments}
-        </Code>
-      </div>
-
-      <div className={codeBlockContainerStyles}>
-        <Label htmlFor="inserting-documents">Inserting documents</Label>
-        <Code
-          language="js"
-          data-testid="sample-inserting-documents"
-          id="inserting-documents"
-        >
-          {sampleCodes.insertingDocuments}
-        </Code>
-      </div>
+      <ExampleCommandsMarkup namespace={namespace} shardKey={shardKey} />
 
       <Subtitle>Location Codes</Subtitle>
       <div className={paragraphStyles}>
