@@ -623,7 +623,7 @@ class Target {
         );
       }
 
-      const createDMG = require('electron-installer-dmg');
+      const { createDMG } = require('electron-installer-dmg');
       await createDMG(this.installerOptions);
 
       if (isNotarizationPossible) {
