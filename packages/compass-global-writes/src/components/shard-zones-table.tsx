@@ -62,9 +62,7 @@ const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
     Record<ShardZoneData['typeOneIsoCode'], ShardZoneExpandableRow>
   >((groups, next) => {
     const { typeOneIsoCode, isoCode } = next;
-    if (!groups[typeOneIsoCode]) {
-      groups[typeOneIsoCode] = { ...parseRow(next), subRows: [] };
-    }
+    groups[typeOneIsoCode] ??= { ...parseRow(next), subRows: [] };
     if (typeOneIsoCode === isoCode) {
       Object.assign(groups[typeOneIsoCode], parseRow(next));
     } else {
