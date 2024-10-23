@@ -30,7 +30,7 @@
     "coverage-report": "npm run coverage-merge && nyc report"
   },
   "devDependencies": {
-    "@electron/rebuild": "^3.6.2",
+    "@electron/rebuild": "^3.7.0",
     "@mongodb-js/compass-test-server": "^0.1.22",
     "@mongodb-js/connection-info": "^0.9.1",
     "@mongodb-js/eslint-config-compass": "^1.1.7",
