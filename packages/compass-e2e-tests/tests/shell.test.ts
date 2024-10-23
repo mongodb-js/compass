@@ -8,7 +8,6 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   DEFAULT_CONNECTION_NAME_1,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -66,17 +65,12 @@ describe('Shell', function () {
   it('shows and hides shell based on settings', async function () {
     await browser.connectToDefaults();
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expect(
-        await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.OpenShellItem
-        )
-      ).to.be.equal(true);
-    } else {
-      // Will fail if shell is not on the screen eventually
-      await browser.$(Selectors.ShellSection).waitForExist();
-    }
+    expect(
+      await browser.hasConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Selectors.Multiple.OpenShellItem
+      )
+    ).to.be.equal(true);
 
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -89,16 +83,11 @@ describe('Shell', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expect(
-        await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
-          Selectors.Multiple.OpenShellItem
-        )
-      ).to.be.equal(false);
-    } else {
-      // Will fail if shell eventually doesn't go away from the screen
-      await browser.$(Selectors.ShellSection).waitForExist({ reverse: true });
-    }
+    expect(
+      await browser.hasConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Selectors.Multiple.OpenShellItem
+      )
+    ).to.be.equal(false);
   });
 });

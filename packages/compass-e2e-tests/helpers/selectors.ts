@@ -1,5 +1,3 @@
-import { TEST_MULTIPLE_CONNECTIONS } from './compass';
-
 export type WorkspaceTabSelectorOptions = {
   id?: string;
   connectionName?: string;
@@ -400,11 +398,7 @@ export const sidebarCollection = (
 };
 
 export const sidebarConnection = (connectionName: string): string => {
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    return `${Sidebar} [data-connection-name="${connectionName}"]`;
-  }
-
-  return sidebarFavorite(connectionName);
+  return `${Sidebar} [data-connection-name="${connectionName}"]`;
 };
 
 export const sidebarConnectionButton = (connectionName: string): string => {

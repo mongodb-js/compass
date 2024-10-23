@@ -7,7 +7,6 @@ import {
   screenshotIfFailed,
   DEFAULT_CONNECTION_STRING_1,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -47,15 +46,10 @@ describe('Instance sidebar', function () {
   it('has a connection info modal with connection info', async function () {
     skipForWeb(this, "these actions don't exist in compass-web");
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
-        Selectors.Multiple.ClusterInfoItem
-      );
-    } else {
-      await browser.clickVisible(Selectors.Single.ShowTitleActionsButton);
-      await browser.clickVisible(Selectors.Single.ClusterInfoItem);
-    }
+    await browser.selectConnectionMenuItem(
+      DEFAULT_CONNECTION_NAME_1,
+      Selectors.Multiple.ClusterInfoItem
+    );
 
     const modal = await browser.$(Selectors.ConnectionInfoModal);
     await modal.waitForDisplayed();
@@ -116,10 +110,8 @@ describe('Instance sidebar', function () {
     await browser.waitUntil(async () => {
       const treeItems = await browser.$$(Selectors.SidebarTreeItems);
       // connection, database, collection for multiple connections (twice
-      // because there are two connections), otherwise just database and
-      // collection
-      const expectedCount = TEST_MULTIPLE_CONNECTIONS ? 6 : 2;
-      return treeItems.length === expectedCount;
+      // because there are two connections)
+      return treeItems.length === 6;
     });
 
     const dbElement = await browser.$(
@@ -155,33 +147,25 @@ describe('Instance sidebar', function () {
     // TODO(COMPASS-7086): flaky test
     this.retries(5);
 
-    const Sidebar = TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.Multiple
-      : Selectors.Single;
+    const Sidebar = Selectors.Multiple;
 
     const dbName = `my-sidebar-database-${Date.now()}`;
     const collectionName = 'my-collection';
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // navigate to the databases tab so that the connection is
-      // active/highlighted and then the add button and three dot menu will
-      // display without needing to hover
-      await browser.navigateToConnectionTab(
-        DEFAULT_CONNECTION_NAME_1,
-        'Databases'
-      );
-    }
+    // navigate to the databases tab so that the connection is
+    // active/highlighted and then the add button and three dot menu will
+    // display without needing to hover
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
     // open the create database modal from the sidebar
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
-        Sidebar.CreateDatabaseButton,
-        false
-      );
-    } else {
-      await browser.clickVisible(Sidebar.CreateDatabaseButton);
-    }
+    await browser.selectConnectionMenuItem(
+      DEFAULT_CONNECTION_NAME_1,
+      Sidebar.CreateDatabaseButton,
+      false
+    );
 
     await browser.addDatabase(dbName, collectionName);
 
@@ -256,14 +240,10 @@ describe('Instance sidebar', function () {
       await mongoClient.close();
     }
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
-        Selectors.Multiple.RefreshDatabasesItem
-      );
-    } else {
-      await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-    }
+    await browser.selectConnectionMenuItem(
+      DEFAULT_CONNECTION_NAME_1,
+      Selectors.Multiple.RefreshDatabasesItem
+    );
 
     // wait for the new collection we added via the driver to appear.
     const newCollectionElement = await browser.$(

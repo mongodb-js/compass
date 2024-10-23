@@ -3,31 +3,24 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import Debug from 'debug';
 import { DEFAULT_CONNECTIONS } from '../test-runner-context';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
 
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
-  const Sidebar = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.Multiple
-    : Selectors.Single;
+  const Sidebar = Selectors.Multiple;
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-      await browser
-        .$(Selectors.ConnectionModal)
-        .waitForDisplayed({ reverse: true });
-    }
+  if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+    await browser
+      .$(Selectors.ConnectionModal)
+      .waitForDisplayed({ reverse: true });
   }
 
   await browser.clickVisible(Sidebar.SidebarNewConnectionButton);
 
-  const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.ConnectionModalTitle
-    : Selectors.ConnectionTitle;
+  const connectionTitleSelector = Selectors.ConnectionModalTitle;
 
   const connectionTitle = await browser.$(connectionTitleSelector);
   await connectionTitle.waitUntil(async () => {
@@ -57,29 +50,20 @@ export async function getConnectFormState(
   // General
   const initialTab = await browser.navigateToConnectTab('General');
 
-  const defaultPromises: Record<string, Promise<any>> = {
+  const defaultState = await promiseMap({
     scheme: getCheckedRadioValue(browser, Selectors.ConnectionFormSchemeRadios),
     hosts: getMultipleValues(browser, Selectors.ConnectionFormHostInputs),
     directConnection: getCheckboxValue(
       browser,
       Selectors.ConnectionFormDirectConnectionCheckbox
     ),
-  };
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    defaultPromises.connectionName = getValue(
-      browser,
-      Selectors.ConnectionFormConnectionName
-    );
-    defaultPromises.connectionColor = getValue(
-      browser,
-      Selectors.ConnectionFormConnectionColor
-    );
-    defaultPromises.connectionFavorite = getCheckboxValue(
+    connectionName: getValue(browser, Selectors.ConnectionFormConnectionName),
+    connectionColor: getValue(browser, Selectors.ConnectionFormConnectionColor),
+    connectionFavorite: getCheckboxValue(
       browser,
       Selectors.ConnectionFormFavoriteCheckbox
-    );
-  }
-  const defaultState = await promiseMap(defaultPromises);
+    ),
+  });
 
   // Authentication
   await browser.navigateToConnectTab('Authentication');
@@ -506,25 +490,22 @@ export async function setConnectFormState(
     await browser.clickParent(Selectors.ConnectionFormDirectConnectionCheckbox);
   }
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // Name, Color, Favorite
-    if (state.connectionName) {
-      await browser.setValueVisible(
-        Selectors.ConnectionFormConnectionName,
-        state.connectionName
-      );
-    }
+  if (state.connectionName) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormConnectionName,
+      state.connectionName
+    );
+  }
 
-    if (state.connectionColor) {
-      await browser.selectOption(
-        Selectors.ConnectionFormConnectionColor,
-        colorValueToName(state.connectionColor)
-      );
-    }
+  if (state.connectionColor) {
+    await browser.selectOption(
+      Selectors.ConnectionFormConnectionColor,
+      colorValueToName(state.connectionColor)
+    );
+  }
 
-    if (state.connectionFavorite) {
-      await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
-    }
+  if (state.connectionFavorite) {
+    await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
   }
 
   // Authentication

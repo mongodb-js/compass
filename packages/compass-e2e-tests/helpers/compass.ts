@@ -58,8 +58,6 @@ const packageCompassAsync = promisify(packageCompass);
 
 // should we test compass-web (true) or compass electron (false)?
 export const TEST_COMPASS_WEB = _TEST_COMPASS_WEB;
-// multiple connections is now the default
-export const TEST_MULTIPLE_CONNECTIONS = true;
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
@@ -411,7 +409,6 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
-  noWaitForConnectionScreen?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
 }
@@ -1055,10 +1052,6 @@ export async function init(
 
   if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
-  }
-
-  if (!opts.noWaitForConnectionScreen) {
-    await browser.waitForConnectionScreen();
   }
 
   return compass;

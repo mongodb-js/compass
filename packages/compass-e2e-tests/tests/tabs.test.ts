@@ -5,7 +5,6 @@ import {
   screenshotIfFailed,
   DEFAULT_CONNECTION_NAME_1,
   DEFAULT_CONNECTION_NAME_2,
-  TEST_MULTIPLE_CONNECTIONS,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -148,10 +147,6 @@ describe('Global Tabs', function () {
   });
 
   it("should close a connection's tabs when disconnecting", async function () {
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     // workspace 1: connection 1, Documents tab
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAME_1,

@@ -3,7 +3,6 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import { expect } from 'chai';
@@ -36,36 +35,25 @@ describe('readOnly: true / Read-Only Edition', function () {
   });
 
   it('hides and shows the plus icon on the sidebar to create a database', async function () {
-    const Sidebar = TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.Multiple
-      : Selectors.Single;
+    const Sidebar = Selectors.Multiple;
     await browser.setFeature('readOnly', true);
     await browser.connectToDefaults();
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // navigate to the databases tab so that the connection is
-      // active/highlighted and then the add button and three dot menu will
-      // display without needing to hover
-      await browser.navigateToConnectionTab(
+    // navigate to the databases tab so that the connection is
+    // active/highlighted and then the add button and three dot menu will
+    // display without needing to hover
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
+
+    expect(
+      await browser.hasConnectionMenuItem(
         DEFAULT_CONNECTION_NAME_1,
-        'Databases'
-      );
-    }
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expect(
-        await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
-          Sidebar.CreateDatabaseButton,
-          false
-        )
-      ).to.be.equal(false);
-    } else {
-      expect(
-        await browser.$(Sidebar.CreateDatabaseButton).isExisting()
-      ).to.be.equal(false);
-    }
-
+        Sidebar.CreateDatabaseButton,
+        false
+      )
+    ).to.be.equal(false);
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
@@ -77,26 +65,18 @@ describe('readOnly: true / Read-Only Edition', function () {
     // wait for the modal to go away
     await settingsModal.waitForDisplayed({ reverse: true });
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.navigateToConnectionTab(
-        DEFAULT_CONNECTION_NAME_1,
-        'Databases'
-      );
-    }
+    await browser.navigateToConnectionTab(
+      DEFAULT_CONNECTION_NAME_1,
+      'Databases'
+    );
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expect(
-        await browser.hasConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
-          Sidebar.CreateDatabaseButton,
-          false
-        )
-      ).to.be.equal(true);
-    } else {
-      expect(
-        await browser.$(Sidebar.CreateDatabaseButton).isExisting()
-      ).to.be.equal(true);
-    }
+    expect(
+      await browser.hasConnectionMenuItem(
+        DEFAULT_CONNECTION_NAME_1,
+        Sidebar.CreateDatabaseButton,
+        false
+      )
+    ).to.be.equal(true);
   });
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
