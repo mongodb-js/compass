@@ -110,8 +110,6 @@ function printCompassEnv() {
 
   // https://jira.mongodb.org/browse/NODE-6320
   printVar('GYP_DEFINES', `kerberos_use_rtld=${process.platform === 'linux'}`);
-  printVar('CFLAGS', '-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT=1');
-  printVar('CXXFLAGS', '-DNODE_API_EXPERIMENTAL_NOGC_ENV_OPT_OUT=1');
 }
 
 printCompassEnv();
