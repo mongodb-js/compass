@@ -82,7 +82,8 @@ export const SKIP_NATIVE_MODULE_REBUILD =
 export const DISABLE_START_STOP = process.argv.includes('--disable-start-stop');
 export const MOCHA_BAIL = process.argv.includes('--bail');
 
-export const COMPASS_WEB_BROWSER_NAME = process.env.BROWSER_NAME ?? 'chrome';
+export const COMPASS_WEB_BROWSER_NAME =
+  process.env.COMPASS_WEB_BROWSER_NAME ?? 'chrome';
 // https://webdriver.io/docs/driverbinaries/
 //
 // If you leave out browserVersion it will try and find the browser binary on
@@ -97,7 +98,7 @@ export const COMPASS_WEB_BROWSER_NAME = process.env.BROWSER_NAME ?? 'chrome';
 // NOTE: The version of chromedriver or geckodriver in play might also be
 // relevant.
 export const COMPASS_WEB_BROWSER_VERSION =
-  process.env.BROWSER_VERSION === 'unset'
+  process.env.COMPASS_WEB_BROWSER_VERSION === 'unset'
     ? undefined
     : process.env.BROWSER_VERSION ?? 'latest';
 export const COMPASS_WEB_SANDBOX_URL = 'http://localhost:7777';
