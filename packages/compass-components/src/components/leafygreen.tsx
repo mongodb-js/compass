@@ -55,7 +55,7 @@ import {
   useLeafyGreenTable,
   getFilteredRowModel,
 } from '@leafygreen-ui/table';
-import type { Row as LgTableRowType } from '@tanstack/table-core';
+import type { Row as LgTableRowType } from '@tanstack/table-core'; // TODO(COMPASS-8437): import from LG
 
 export type {
   LGColumnDef,
