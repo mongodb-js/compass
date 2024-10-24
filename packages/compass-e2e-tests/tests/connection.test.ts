@@ -15,7 +15,7 @@ import {
   TEST_COMPASS_WEB,
   connectionNameFromString,
   DEFAULT_CONNECTION_NAME_1,
-  MONGODB_TEST_SERVER_PORT,
+  DEFAULT_CONNECTION_STRING_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -317,11 +317,11 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
+    const [protocol, url] = DEFAULT_CONNECTION_STRING_1.split('://');
     // connect
-    await browser.connectWithConnectionString(
-      `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
-      { connectionStatus: 'failure' }
-    );
+    await browser.connectWithConnectionString(`${protocol}://a:b@${url}`, {
+      connectionStatus: 'failure',
+    });
 
     // check the error
     const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
