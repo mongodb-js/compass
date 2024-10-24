@@ -256,15 +256,25 @@ describe('FileInput', function () {
   describe('when a file is chosen', function () {
     beforeEach(async function () {
       render(
-        <FileInput
-          id="file-input"
-          label="Select something"
-          dataTestId="test-file-input"
-          onChange={spy}
-          error={true}
-          errorMessage={'Error'}
-          mode="open"
-        />
+        <FileInputBackendProvider
+          createFileInputBackend={() =>
+            ({
+              getPathForFile() {
+                return 'a/b/c';
+              },
+            } as any)
+          }
+        >
+          <FileInput
+            id="file-input"
+            label="Select something"
+            dataTestId="test-file-input"
+            onChange={spy}
+            error={true}
+            errorMessage={'Error'}
+            mode="open"
+          />
+        </FileInputBackendProvider>
       );
 
       const fileInput = screen.getByTestId('test-file-input');
@@ -284,7 +294,7 @@ describe('FileInput', function () {
 
     it('calls onChange with the chosen file', function () {
       expect(spy.callCount).to.equal(1);
-      expect(spy.firstCall.args[0]).to.deep.equal(['new/file/path']);
+      expect(spy.firstCall.args[0]).to.deep.equal(['a/b/c']);
     });
   });
 
@@ -343,13 +353,19 @@ describe('FileInput', function () {
           showOpenDialog: sinon.stub(),
         },
       };
-      return { fakeElectron, fakeWindow };
+      const fakeWebUtils = {
+        getPathForFile: sinon.stub().returns('a/b/c'),
+      };
+      return { fakeElectron, fakeWindow, fakeWebUtils };
     }
 
     it('allows using electron-style APIs for file updates', async function () {
-      const { fakeElectron, fakeWindow } = createFakeElectron();
+      const { fakeElectron, fakeWindow, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
       const listener = sinon.stub();
       const unsubscribe = backend.onFilesChosen(listener);
 
@@ -378,10 +394,24 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledTwice;
     });
 
-    it('can partially handle browser-compatible accept values', function () {
-      const { fakeElectron, fakeWindow } = createFakeElectron();
+    it('passes through getPathForFile calls', function () {
+      const { fakeElectron, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
+
+      expect(backend.getPathForFile({} as any)).to.equal('a/b/c');
+    });
+
+    it('can partially handle browser-compatible accept values', function () {
+      const { fakeElectron, fakeWindow, fakeWebUtils } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
 
       fakeElectron.dialog.showSaveDialog.resolves({
         canceled: true,
@@ -404,9 +434,12 @@ describe('FileInput', function () {
     });
 
     it('does not override existing file filters', function () {
-      const { fakeElectron, fakeWindow } = createFakeElectron();
+      const { fakeElectron, fakeWindow, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
 
       fakeElectron.dialog.showSaveDialog.resolves({
         canceled: true,
@@ -430,9 +463,12 @@ describe('FileInput', function () {
     });
 
     it('handles multi:false', function () {
-      const { fakeElectron, fakeWindow } = createFakeElectron();
+      const { fakeElectron, fakeWindow, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
 
       fakeElectron.dialog.showSaveDialog.resolves({
         canceled: true,
@@ -452,9 +488,12 @@ describe('FileInput', function () {
     });
 
     it('handles multi:true', function () {
-      const { fakeElectron, fakeWindow } = createFakeElectron();
+      const { fakeElectron, fakeWindow, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
 
       fakeElectron.dialog.showSaveDialog.resolves({
         canceled: true,
@@ -473,9 +512,12 @@ describe('FileInput', function () {
     });
 
     it('can call showOpenDialog if requested', async function () {
-      const { fakeElectron, fakeWindow } = createFakeElectron();
+      const { fakeElectron, fakeWindow, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
       const listener = sinon.stub();
       backend.onFilesChosen(listener);
 
@@ -501,9 +543,12 @@ describe('FileInput', function () {
     });
 
     it('calls the listener with an empty array if the user canceled the request', async function () {
-      const { fakeElectron } = createFakeElectron();
+      const { fakeElectron, fakeWebUtils } = createFakeElectron();
 
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
       const listener = sinon.stub();
       backend.onFilesChosen(listener);
 
@@ -521,8 +566,11 @@ describe('FileInput', function () {
     });
 
     it('handles autoOpen:true', async function () {
-      const { fakeElectron } = createFakeElectron();
-      const backend = createElectronFileInputBackend(fakeElectron)();
+      const { fakeElectron, fakeWebUtils } = createFakeElectron();
+      const backend = createElectronFileInputBackend(
+        fakeElectron,
+        fakeWebUtils
+      )();
 
       const listener = sinon.stub();
       backend.onFilesChosen(listener);
@@ -577,8 +625,11 @@ describe('FileInput', function () {
       let openFileChooserSpy: sinon.SinonSpy;
 
       beforeEach(async function () {
-        const { fakeElectron } = createFakeElectron();
-        const backend = createElectronFileInputBackend(fakeElectron)();
+        const { fakeElectron, fakeWebUtils } = createFakeElectron();
+        const backend = createElectronFileInputBackend(
+          fakeElectron,
+          fakeWebUtils
+        )();
 
         listener = sinon.stub();
         backend.onFilesChosen(listener);

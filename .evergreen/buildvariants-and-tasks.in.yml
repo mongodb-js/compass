@@ -28,10 +28,10 @@ const PACKAGE_BUILD_VARIANTS = [
     name: 'package-ubuntu',
     display_name: 'Package Ubuntu',
 
-    // # NOTE: We are packaging on Ubuntu 16.04 in order to use glibc 2.23
+    // # NOTE: We are packaging on Ubuntu 18.04 in order to use glibc 2.27
     // # when compiling/re-building addons. This ensures compatibility with other
-    // # debian platforms that have glibc 2.23 or newer.
-    run_on: 'ubuntu1604-large',
+    // # debian platforms that have glibc 2.27 or newer.
+    run_on: 'ubuntu1804-large',
     silk_asset_group: 'compass-ubuntu',
   },
   {
