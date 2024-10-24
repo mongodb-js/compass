@@ -158,6 +158,8 @@ export type FileInputBackend = {
   // Should install a listener that is called when files have been selected.
   // Should return an unsubscribe function.
   onFilesChosen: (listener: (files: string[]) => void) => () => void;
+  // Gets the real on-disk path for a `File`, if the current environment supports it.
+  getPathForFile: (file: File) => string | undefined;
 };
 
 export const FileInputBackendContext = createContext<
@@ -191,6 +193,11 @@ export type ElectronShowFileDialogProvider<ElectronWindow> = {
   };
 };
 
+export type ElectronWebUtilsProvider = {
+  // https://github.com/electron/electron/blob/83d704009687956fb4b69cb13ab03664d7950118/docs/breaking-changes.md#removed-filepath
+  getPathForFile(file: File): string;
+};
+
 export const FileInputBackendProvider: React.FunctionComponent<{
   createFileInputBackend: (() => FileInputBackend) | null;
 }> = ({ children, createFileInputBackend }) => {
@@ -211,7 +218,8 @@ export const FileInputBackendProvider: React.FunctionComponent<{
 //   <FileInput ... />
 // <FileInputBackendProvider/>
 export function createElectronFileInputBackend<ElectronWindow>(
-  electron: ElectronShowFileDialogProvider<ElectronWindow>
+  electron: ElectronShowFileDialogProvider<ElectronWindow>,
+  webUtils: ElectronWebUtilsProvider | null
 ): () => FileInputBackend {
   return () => {
     const listeners: ((files: string[]) => void)[] = [];
@@ -282,22 +290,11 @@ export function createElectronFileInputBackend<ElectronWindow>(
           if (index !== -1) listeners.splice(index, 1);
         };
       },
+      getPathForFile(file: File): string | undefined {
+        return webUtils?.getPathForFile(file);
+      },
     };
   };
-}
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let _electron: typeof import('electron') | undefined | null;
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-function getElectronWebUtils(): typeof import('electron').webUtils | undefined {
-  if (_electron === undefined) {
-    try {
-      _electron = require('electron');
-    } catch {
-      _electron = null;
-    }
-  }
-  return _electron?.webUtils;
 }
 
 function FileInput({
@@ -365,9 +362,7 @@ function FileInput({
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const fileList = Array.from(evt.currentTarget.files ?? []);
       const files = fileList.map((file) => {
-        // https://github.com/electron/electron/blob/83d704009687956fb4b69cb13ab03664d7950118/docs/breaking-changes.md#removed-filepath
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        return getElectronWebUtils()?.getPathForFile(file);
+        return backend?.getPathForFile(file) ?? '';
       });
       onChange(files);
     },
