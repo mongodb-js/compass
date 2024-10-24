@@ -624,7 +624,10 @@ class Target {
       }
 
       const { createDMG } = require('electron-installer-dmg');
-      await createDMG(this.installerOptions);
+      // electron-installer-dmg rejects setting both .dmgPath and .out
+      const installerOptions = { ...this.installerOptions };
+      delete installerOptions.out;
+      await createDMG(installerOptions);
 
       if (isNotarizationPossible) {
         await notarize(this.installerOptions.dmgPath, notarizationOptions);
