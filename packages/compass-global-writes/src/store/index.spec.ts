@@ -51,7 +51,7 @@ const managedNamespace: ManagedNamespace = {
 
 const failedShardingProcess: AutomationAgentProcess = {
   statusType: 'ERROR',
-  workingOnShort: 'ShardingCollections',
+  workingOnShort: 'ShardCollections',
   errorText: `before timestamp[01:02:03.456]Failed to shard ${NS}`,
 };
 
@@ -395,6 +395,7 @@ describe('GlobalWritesStore Store', function () {
             },
             unique: true,
           }),
+          hasShardingError: () => true, // mismatch will also trigger an error
         });
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
@@ -412,6 +413,7 @@ describe('GlobalWritesStore Store', function () {
             },
             unique: false, // this does not match
           }),
+          hasShardingError: () => true, // mismatch will also trigger an error
         });
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
