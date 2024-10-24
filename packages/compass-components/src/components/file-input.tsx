@@ -134,12 +134,6 @@ const disabledDescriptionDarkStyles = css({
 
 type FileInputVariant = 'default' | 'small' | 'vertical';
 
-// https://www.electronjs.org/docs/latest/api/file-object
-type FileWithPath = File & {
-  /** Electron-specific property that contains an absolute path to the file */
-  path: string;
-};
-
 // Matches Electron's file dialog options.
 export type ElectronFileDialogOptions = {
   title?: string;
@@ -292,6 +286,20 @@ export function createElectronFileInputBackend<ElectronWindow>(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let _electron: typeof import('electron') | undefined | null;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+function getElectronWebUtils(): typeof import('electron').webUtils | undefined {
+  if (_electron === undefined) {
+    try {
+      _electron = require('electron');
+    } catch {
+      _electron = null;
+    }
+  }
+  return _electron?.webUtils;
+}
+
 function FileInput({
   autoOpen = false,
   id,
@@ -357,7 +365,9 @@ function FileInput({
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const fileList = Array.from(evt.currentTarget.files ?? []);
       const files = fileList.map((file) => {
-        return (file as FileWithPath).path;
+        // https://github.com/electron/electron/blob/83d704009687956fb4b69cb13ab03664d7950118/docs/breaking-changes.md#removed-filepath
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        return getElectronWebUtils()?.getPathForFile(file);
       });
       onChange(files);
     },
