@@ -24,23 +24,15 @@ import toNS from 'mongodb-ns';
 import { ShardZonesTable } from '../shard-zones-table';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import ShardKeyMarkup from '../shard-key-markup';
+import {
+  containerStyles,
+  paragraphStyles,
+  bannerStyles,
+} from '../common-styles';
 
 const nbsp = '\u00a0';
 
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-  marginBottom: spacing[400],
-});
-
 const codeBlockContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-});
-
-const paragraphStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[100],
@@ -81,7 +73,7 @@ export function ShardKeyCorrect({
 
   return (
     <div className={containerStyles}>
-      <Banner variant={BannerVariant.Info}>
+      <Banner variant={BannerVariant.Info} className={bannerStyles}>
         <strong>
           All documents in your collection should contain both the ‘location’
           field (with a ISO country or subdivision code) and your{' '}

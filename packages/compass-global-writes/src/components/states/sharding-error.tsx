@@ -13,12 +13,7 @@ import {
   ShardingStatuses,
 } from '../../store/reducer';
 import CreateShardKeyForm from '../create-shard-key-form';
-
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-});
+import { containerStyles, bannerStyles } from '../common-styles';
 
 const btnStyles = css({
   float: 'right',
@@ -44,12 +39,10 @@ export function ShardingError({
 }: ShardingErrorProps) {
   return (
     <div className={containerStyles}>
-      <Banner variant={BannerVariant.Warning}>
-        <div>
-          There was an error sharding your collection. Please cancel the
-          request, make any necessary changes to your collection, and try again.
-          <div className={errorStyles}>{shardingError}</div>
-        </div>
+      <Banner variant={BannerVariant.Warning} className={bannerStyles}>
+        There was an error sharding your collection. Please cancel the request,
+        make any necessary changes to your collection, and try again.
+        <div className={errorStyles}>{shardingError}</div>
         <Button
           className={btnStyles}
           data-testid="cancel-sharding-btn"

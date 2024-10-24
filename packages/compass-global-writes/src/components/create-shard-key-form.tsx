@@ -25,12 +25,7 @@ import {
 } from '../store/reducer';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { connect } from 'react-redux';
-
-const contentStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[200],
-});
+import { containerStyles } from './common-styles';
 
 const listStyles = css({
   listStyle: 'disc',
@@ -69,7 +64,7 @@ type ShardingAdvancedOption = 'default' | 'unique-index' | 'hashed-index';
 
 function CreateShardKeyDescription() {
   return (
-    <div className={contentStyles} data-testid="unsharded-text-description">
+    <div className={containerStyles} data-testid="unsharded-text-description">
       <Subtitle>Configure compound shard key</Subtitle>
       <Body>
         To properly configure Global Writes, your collections must be sharded
@@ -165,7 +160,7 @@ export function CreateShardKeyForm({
   return (
     <>
       <CreateShardKeyDescription />
-      <div className={contentStyles} data-testid="shard-collection-form">
+      <div className={containerStyles} data-testid="shard-collection-form">
         <div className={shardKeyFormFieldsStyles}>
           <div>
             <Label htmlFor="first-shard-key">
@@ -277,7 +272,7 @@ export function CreateShardKeyForm({
             </Radio>
           </RadioGroup>
           {selectedAdvancedOption === 'hashed-index' && (
-            <div className={cx(contentStyles, hasedIndexOptionsStyles)}>
+            <div className={cx(containerStyles, hasedIndexOptionsStyles)}>
               <Checkbox
                 data-testid="presplit-data-checkbox"
                 onChange={() => setIsPreSplitData(!isPreSplitData)}

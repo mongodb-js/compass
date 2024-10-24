@@ -14,14 +14,9 @@ import {
   type RootState,
   ShardingStatuses,
 } from '../../store/reducer';
+import { containerStyles, bannerStyles } from '../common-styles';
 
 const nbsp = '\u00a0';
-
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-});
 
 const btnStyles = css({
   float: 'right',
@@ -39,7 +34,7 @@ export function ShardingState({
 }: ShardingStateProps) {
   return (
     <div className={containerStyles}>
-      <Banner variant={BannerVariant.Info}>
+      <Banner variant={BannerVariant.Info} className={bannerStyles}>
         <strong>Sharding your collection …</strong>
         {nbsp}this should not take too long.
         <Button
