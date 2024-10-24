@@ -23,6 +23,8 @@ function getCollectionSubTabFromRoute(
       return 'Indexes';
     case 'validation':
       return 'Validation';
+    case 'global-writes':
+      return 'GlobalWrites';
     default:
       return undefined;
   }
@@ -40,6 +42,8 @@ function getRouteFromCollectionSubTab(subTab: CollectionSubtab): string {
       return 'indexes';
     case 'Validation':
       return 'validation';
+    case 'GlobalWrites':
+      return 'global-writes';
     default:
       return '';
   }
