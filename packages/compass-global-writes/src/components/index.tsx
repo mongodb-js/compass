@@ -14,6 +14,7 @@ import ShardingState from './states/sharding';
 import ShardKeyCorrect from './states/shard-key-correct';
 import ShardKeyInvalid from './states/shard-key-invalid';
 import ShardKeyMismatch from './states/shard-key-mismatch';
+import ShardingError from './states/sharding-error';
 
 const containerStyles = css({
   paddingLeft: spacing[400],
@@ -64,6 +65,14 @@ function ShardingStateView({
     shardingStatus === ShardingStatuses.CANCELLING_SHARDING
   ) {
     return <ShardingState />;
+  }
+
+  if (
+    shardingStatus === ShardingStatuses.SHARDING_ERROR ||
+    shardingStatus === ShardingStatuses.CANCELLING_SHARDING_ERROR ||
+    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR
+  ) {
+    return <ShardingError />;
   }
 
   if (

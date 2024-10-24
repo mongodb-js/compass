@@ -51,8 +51,8 @@ const managedNamespace: ManagedNamespace = {
 
 const failedShardingProcess: AutomationAgentProcess = {
   statusType: 'ERROR',
-  workingOnShort: 'ShardingCollections',
-  errorText: `Failed to shard ${NS}`,
+  workingOnShort: 'ShardCollections',
+  errorText: `before timestamp[01:02:03.456]Failed to shard ${NS}`,
 };
 
 function createAuthFetchResponse<
@@ -230,6 +230,9 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
+        expect(store.getState().shardingError).to.equal(
+          `Failed to shard ${NS}`
+        ); // the original error text was: `before timestamp[01:02:03.456]Failed to shard ${NS}`
       });
     });
 
@@ -392,6 +395,7 @@ describe('GlobalWritesStore Store', function () {
             },
             unique: true,
           }),
+          hasShardingError: () => true, // mismatch will also trigger an error
         });
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
@@ -409,6 +413,7 @@ describe('GlobalWritesStore Store', function () {
             },
             unique: false, // this does not match
           }),
+          hasShardingError: () => true, // mismatch will also trigger an error
         });
         await waitFor(() => {
           expect(store.getState().status).to.equal('SHARD_KEY_MISMATCH');
@@ -442,14 +447,60 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('sharding error', async function () {
+    it('sharding error -> cancelling request -> not managed', async function () {
+      // initial state === sharding error
+      let mockManagedNamespace = true;
+      let mockShardingError = true;
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const store = createStore({
-        isNamespaceManaged: () => true,
-        hasShardingError: () => true,
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        hasShardingError: Sinon.fake(() => mockShardingError),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user triggers a cancellation
+      const promise = store.dispatch(cancelSharding());
+      mockManagedNamespace = false;
+      mockShardingError = false;
+      await promise;
+      expect(store.getState().status).to.equal('UNSHARDED');
+      expect(confirmationStub).to.have.been.called;
+    });
+
+    it('sharding error -> submitting form -> sharding -> sharded', async function () {
+      // initial state === sharding error=
+      let mockShardingError = true;
+      let mockShardKey = false;
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardingError: Sinon.fake(() => mockShardingError),
+        hasShardKey: Sinon.fake(() => mockShardKey),
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARDING_ERROR');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      // user submits the form
+      const promise = store.dispatch(createShardKey(shardKeyData));
+      mockShardingError = false;
+      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING_ERROR');
+      await promise;
+      expect(store.getState().status).to.equal('SHARDING');
+
+      // the key is created
+      mockShardKey = true;
+      clock.tick(POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
       });
     });
 
