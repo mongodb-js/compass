@@ -732,7 +732,10 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         atlasGlobalWritesService.getShardingKeys(namespace),
       ]);
 
-      if (shardingError) {
+      if (shardingError && !shardKey) {
+        // if there is an existing shard key and an error both,
+        // means we have a key mismatch
+        // this will be handled in NamespaceShardKeyFetched
         if (status === ShardingStatuses.SHARDING) {
           dispatch(stopPollingForShardKey());
         }

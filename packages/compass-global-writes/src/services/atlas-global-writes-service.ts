@@ -186,7 +186,7 @@ export class AtlasGlobalWritesService {
     const namespaceShardingError = data.automationStatus.processes.find(
       (process) =>
         process.statusType === 'ERROR' &&
-        process.workingOnShort === 'ShardingCollections' &&
+        process.workingOnShort === 'ShardCollections' &&
         process.errorText.indexOf(namespace) !== -1
     );
     if (!namespaceShardingError) return undefined;
