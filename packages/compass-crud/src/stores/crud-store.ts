@@ -3,6 +3,7 @@ import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
 import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
+import type { Sort } from 'mongodb';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import { Document } from 'hadron-document';
@@ -109,20 +110,26 @@ const INITIAL_BULK_UPDATE_TEXT = `{
   },
 }`;
 
+type FetchDocumentsOptions = {
+  serverVersion: string;
+  isDataLake: boolean;
+  defaultSort?: Sort;
+};
+
 export const fetchDocuments: (
   dataService: DataService,
-  serverVersion: string,
-  isDataLake: boolean,
+  fetchDocumentsOptions: FetchDocumentsOptions,
   ...args: Parameters<DataService['find']>
 ) => Promise<HadronDocument[]> = async (
   dataService: DataService,
-  serverVersion,
-  isDataLake,
+  fetchDocumentsOptions,
   ns,
   filter,
   options,
   executionOptions
 ) => {
+  const { isDataLake, serverVersion, defaultSort } = fetchDocumentsOptions;
+
   const canCalculateDocSize =
     // $bsonSize is only supported for mongodb >= 4.4.0
     semver.gte(serverVersion, '4.4.0') &&
@@ -138,6 +145,7 @@ export const fetchDocuments: (
 
   const modifiedOptions = {
     ...options,
+    sort: options?.sort ? options.sort : defaultSort,
     projection: canCalculateDocSize
       ? { _id: 0, __doc: '$$ROOT', __size: { $bsonSize: '$$ROOT' } }
       : options?.projection,
@@ -174,7 +182,11 @@ export const fetchDocuments: (
 
 type CollectionStats = Pick<
   Collection,
-  'document_count' | 'storage_size' | 'free_storage_size' | 'avg_document_size'
+  | 'document_count'
+  | 'storage_size'
+  | 'free_storage_size'
+  | 'avg_document_size'
+  | 'index_details'
 >;
 const extractCollectionStats = (collection: Collection): CollectionStats => {
   const coll = collection.toJSON();
@@ -183,8 +195,19 @@ const extractCollectionStats = (collection: Collection): CollectionStats => {
     storage_size: coll.storage_size,
     free_storage_size: coll.free_storage_size,
     avg_document_size: coll.avg_document_size,
+    index_details: coll.index_details,
   };
 };
+
+function getDefaultSort(
+  collectionStats: CollectionStats | null
+): Sort | undefined {
+  if (collectionStats?.index_details._id_) {
+    return { _id: -1 };
+  }
+
+  return undefined;
+}
 
 /**
  * Default number of docs per page.
@@ -408,6 +431,8 @@ class CrudStoreImpl
     const isDataLake = !!this.instance.dataLake.isDataLake;
     const isReadonly = !!this.options.isReadonly;
 
+    const collectionStats = extractCollectionStats(this.collection);
+
     return {
       ns: this.options.namespace,
       collection: toNS(this.options.namespace).collection,
@@ -439,7 +464,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
-      collectionStats: extractCollectionStats(this.collection),
+      collectionStats,
     };
   }
 
@@ -884,8 +909,11 @@ class CrudStoreImpl
     try {
       documents = await fetchDocuments(
         this.dataService,
-        this.state.version,
-        this.state.isDataLake,
+        {
+          serverVersion: this.state.version,
+          isDataLake: this.state.isDataLake,
+          defaultSort: getDefaultSort(this.state.collectionStats),
+        },
         ns,
         filter ?? {},
         opts as any,
@@ -1539,8 +1567,9 @@ class CrudStoreImpl
   }
 
   collectionStatsFetched(model: Collection) {
+    const collectionStats = extractCollectionStats(model);
     this.setState({
-      collectionStats: extractCollectionStats(model),
+      collectionStats,
     });
   }
 
@@ -1712,8 +1741,11 @@ class CrudStoreImpl
       ),
       fetchDocuments(
         this.dataService,
-        this.state.version,
-        this.state.isDataLake,
+        {
+          serverVersion: this.state.version,
+          isDataLake: this.state.isDataLake,
+          defaultSort: getDefaultSort(this.state.collectionStats),
+        },
         ns,
         query.filter ?? {},
         findOptions as any,
