@@ -11,6 +11,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { context } from '../helpers/test-runner-context';
 
 describe('Bulk Delete', function () {
   let compass: Compass;
@@ -157,7 +158,7 @@ describe('Bulk Delete', function () {
   });
 
   it('can export a delete query', async function () {
-    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
+    if (context.disableClipboardUsage) {
       this.skip();
     }
 

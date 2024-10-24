@@ -2,14 +2,9 @@
 import path from 'path';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
-
 import Mocha from 'mocha';
 import Debug from 'debug';
-import {
-  ALLOWED_RUNNER_ARGS,
-  MOCHA_BAIL,
-  MOCHA_DEFAULT_TIMEOUT,
-} from './helpers/test-runner-context';
+import { context } from './helpers/test-runner-context';
 import {
   abortRunner,
   mochaGlobalSetup,
@@ -20,16 +15,6 @@ import { mochaRootHooks } from './helpers/insert-data';
 import logRunning from 'why-is-node-running';
 
 const debug = Debug('compass-e2e-tests');
-
-for (const arg of process.argv) {
-  if (arg.startsWith('--') && !ALLOWED_RUNNER_ARGS.includes(arg)) {
-    throw Error(
-      `Unknown command argument "${arg}". Usage:\n\n  npm run test ${ALLOWED_RUNNER_ARGS.map(
-        (arg) => `[${arg}]`
-      ).join(' ')}\n`
-    );
-  }
-}
 
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
@@ -65,9 +50,9 @@ function terminateOnTimeout() {
 let runnerPromise: Promise<any> | undefined;
 
 async function main() {
-  const e2eTestGroupsAmount = parseInt(process.env.E2E_TEST_GROUPS || '1');
-  const e2eTestGroup = parseInt(process.env.E2E_TEST_GROUP || '1');
-  const e2eTestFilter = process.env.E2E_TEST_FILTER || '*';
+  const e2eTestGroupsAmount = context.testGroups;
+  const e2eTestGroup = context.testGroup;
+  const e2eTestFilter = context.testFilter;
 
   const tests = (
     await glob(`tests/**/${e2eTestFilter}.{test,spec}.ts`, {
@@ -99,9 +84,13 @@ async function main() {
 
   debug('Test files:', tests);
 
+  if (tests.length === 0) {
+    throw new Error('No tests to run');
+  }
+
   const mocha = new Mocha({
-    timeout: MOCHA_DEFAULT_TIMEOUT,
-    bail: MOCHA_BAIL,
+    timeout: context.mochaTimeout,
+    bail: context.mochaBail,
     reporter: require.resolve('@mongodb-js/mocha-config-compass/reporter'),
   });
 

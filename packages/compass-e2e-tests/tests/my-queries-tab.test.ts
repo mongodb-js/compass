@@ -15,8 +15,8 @@ import type { QueryOptions } from '../helpers/commands';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-
 import { MongoClient } from 'mongodb';
+import { context as runnerContext } from '../helpers/test-runner-context';
 
 async function openMenuForQueryItem(
   browser: CompassBrowser,
@@ -221,7 +221,7 @@ describe('My Queries tab', function () {
         // copy to clipboard
         await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
 
-        if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+        if (!runnerContext.disableClipboardUsage) {
           await browser.waitUntil(
             async () => {
               const text = (await clipboard.read())
@@ -368,7 +368,7 @@ describe('My Queries tab', function () {
         // copy to clipboard
         await browser.clickVisible(Selectors.SavedItemMenuItemCopy);
 
-        if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+        if (!runnerContext.disableClipboardUsage) {
           await browser.waitUntil(
             async () => {
               const text = (await clipboard.read())

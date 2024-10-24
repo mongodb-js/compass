@@ -1,19 +1,14 @@
 import gunzip from './gunzip';
 import fs from 'fs';
 import {
-  COMPASS_WEB_SANDBOX_URL,
+  context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
-  DISABLE_START_STOP,
-  E2E_WORKSPACE_PATH,
-  LOG_PATH,
-  SKIP_COMPASS_DESKTOP_COMPILE,
-  SKIP_NATIVE_MODULE_REBUILD,
-  TEST_ATLAS_CLOUD_EXTERNAL,
-  TEST_COMPASS_DESKTOP,
-  TEST_COMPASS_DESKTOP_PACKAGED_APP,
-  TEST_COMPASS_WEB,
+  isTestingAtlasCloudExternal,
+  isTestingDesktop,
+  isTestingWeb,
 } from './test-runner-context';
+import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
 import Debug from 'debug';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import crossSpawn from 'cross-spawn';
@@ -76,7 +71,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('X DISPLAY', process.env.DISPLAY);
 
-    if (!DISABLE_START_STOP) {
+    if (!context.disableStartStop) {
       for (const connectionInfo of DEFAULT_CONNECTIONS) {
         if (connectionInfo.testServer) {
           debug(
@@ -95,7 +90,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (TEST_COMPASS_WEB && !TEST_ATLAS_CLOUD_EXTERNAL) {
+      if (isTestingWeb(context) && !isTestingAtlasCloudExternal(context)) {
         debug('Starting Compass Web server ...');
         const compassWeb = spawnCompassWeb();
         cleanupFns.push(() => {
@@ -106,7 +101,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
             debug('No pid for compass-web');
           }
         });
-        await waitForCompassWebToBeReady();
+        await waitForCompassWebToBeReady(context.sandboxUrl);
       }
     }
 
@@ -124,19 +119,19 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     fs.mkdirSync(LOG_PATH, { recursive: true });
 
-    if (TEST_COMPASS_DESKTOP) {
-      if (TEST_COMPASS_DESKTOP_PACKAGED_APP) {
+    if (isTestingDesktop(context)) {
+      if (context.testPackagedApp) {
         debug('Building Compass before running the tests ...');
         await buildCompass();
       } else {
         debug('Preparing Compass before running the tests');
 
-        if (!SKIP_NATIVE_MODULE_REBUILD) {
+        if (context.nativeModules) {
           debug('Rebuilding native modules ...');
           await rebuildNativeModules();
         }
 
-        if (!SKIP_COMPASS_DESKTOP_COMPILE) {
+        if (context.compile) {
           debug('Compiling Compass assets ...');
           await compileCompassAssets();
         }
@@ -183,7 +178,7 @@ function spawnCompassWeb() {
   return proc;
 }
 
-async function waitForCompassWebToBeReady() {
+async function waitForCompassWebToBeReady(sandboxUrl: string) {
   let serverReady = false;
   const start = Date.now();
   while (!serverReady) {
@@ -194,7 +189,7 @@ async function waitForCompassWebToBeReady() {
       );
     }
     try {
-      const res = await fetch(COMPASS_WEB_SANDBOX_URL);
+      const res = await fetch(sandboxUrl);
       serverReady = res.ok;
       debug('Web server ready:', serverReady);
     } catch (err) {

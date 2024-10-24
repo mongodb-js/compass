@@ -1,6 +1,6 @@
 import path from 'path';
 import type { CompassBrowser } from '../compass-browser';
-import { LOG_SCREENSHOTS_PATH } from '../test-runner-context';
+import { LOG_SCREENSHOTS_PATH } from '../test-runner-paths';
 
 const withTimeout = (millis: number, promise: Promise<any>) => {
   let timeoutPid: NodeJS.Timeout;
