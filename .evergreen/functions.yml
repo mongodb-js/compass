@@ -86,7 +86,7 @@ post:
       target: src/all-e2e-logs.tgz
       source_dir: src/packages/compass-e2e-tests/.log
       include:
-        - "**"
+        - '**'
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -303,7 +303,7 @@ functions:
           echo "Running tests in Electron runtime"
 
           # Preparing native addons for electron runtime
-          npm run --unsafe-perm electron-rebuild
+          DEBUG=electron-rebuild* npm run --unsafe-perm electron-rebuild
 
           npm run --unsafe-perm test-ci-electron -- --stream
 
