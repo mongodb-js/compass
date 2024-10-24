@@ -259,6 +259,12 @@ buildvariants:
     - name: e2e-coverage-<%= group.number %>
     <% } %>
 
+  - name: publish-e2e-tests
+    display_name: Publish E2E Tests Docker Image
+    run_on: ubuntu2004-large
+    tasks:
+      - name: publish-e2e-tests
+
   - name: csfle-tests
     display_name: CSFLE Tests
     run_on: ubuntu2004-large
@@ -528,3 +534,9 @@ for (const compassDistribution of COMPASS_DISTRIBUTIONS) {
       - func: create_static_analysis_report
         vars:
           first_party_dependency_filenames: <%= firstPartyDepsFilenames.map(f => '.sbom/' + f).join(',') %>
+
+  - name: publish-e2e-tests
+    tags: ['run-on-pr']
+    commands:
+      - func: clone
+      - func: package-and-publish-e2e-docker-image
