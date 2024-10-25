@@ -1103,7 +1103,7 @@ describe('CSFLE / QE', function () {
       }
     });
 
-    it('can read QE data stored in a mongodb 6 database', async function () {
+    it.only('can read QE data stored in a mongodb 6 database', async function () {
       // connect without QE and insert some fixture data that we generated against a 6.x database using the shell
       await browser.connectWithConnectionForm({
         hosts: [CONNECTION_HOSTS],

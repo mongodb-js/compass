@@ -210,6 +210,20 @@ export const FileInputBackendProvider: React.FunctionComponent<{
   );
 };
 
+export function createJSDomFileInputDummyBackend(): () => FileInputBackend {
+  return () => ({
+    openFileChooser() {
+      return;
+    },
+    onFilesChosen() {
+      return () => void 0;
+    },
+    getPathForFile(file: File) {
+      return (file as any).path;
+    },
+  });
+}
+
 // Use as:
 //
 // import * as electronRemote from '@electron/remote';
