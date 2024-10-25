@@ -1,0 +1,24 @@
+name: "Check PR Title"
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled, converted_to_draft, edited]
+
+jobs:
+  check-pr-title:
+    name: Check PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce conventional commit style
+        uses: realm/ci-actions/title-checker@main
+        with:
+          regex: '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test|ops){1}(\([\w\-\.]+\))?(!)?: .*'
+          error-hint: 'Invalid PR title. Make sure it follows the conventional commit specification (i.e. "<type>(<optional scope>): <description>") or add the no-title-validation label'
+          ignore-labels: 'no-title-validation'
+      - name: Enforce JIRA ticket in title
+        uses: realm/ci-actions/title-checker@main
+        # Skip the JIRA ticket check for PRs opened by bots
+        if: ${{ !contains(github.event.pull_request.user.login, '[bot]') }}
+        with:
+          regex: '[A-Z]{4,10}-[0-9]{1,5}$'
+          error-hint: 'Invalid PR title. Make sure it ends with a JIRA ticket - i.e. VSCODE-1234 or add the no-title-validation label'
+          ignore-labels: 'no-title-validation'
