@@ -10,7 +10,7 @@ import Sinon from 'sinon';
 import { renderWithStore } from '../../../tests/create-store';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
-describe('Compass GlobalWrites Plugin', function () {
+describe('ShardKeyCorrect', function () {
   const shardZones: ShardZoneData[] = [
     {
       zoneId: '45893084',

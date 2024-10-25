@@ -135,7 +135,7 @@ export class AtlasGlobalWritesService {
     );
   }
 
-  async createShardKey(namespace: string, keyData: CreateShardKeyData) {
+  async manageNamespace(namespace: string, keyData: CreateShardKeyData) {
     const clusterDetails = await this.getClusterDetails();
     const { database, collection } = toNS(namespace);
     const requestData: GeoShardingData = {
@@ -222,7 +222,7 @@ export class AtlasGlobalWritesService {
     const data = res.response;
 
     if (data.length === 0) {
-      return null;
+      return undefined;
     }
     const { key, unique } = data[0];
 
@@ -262,6 +262,8 @@ export class AtlasGlobalWritesService {
     assertDataIsShardZonesApiResponse(data);
     return transformZoneData(Object.values(data), replicationSpecs);
   }
+
+  async resumeManagedNamespace(namespace: string) {}
 
   async unmanageNamespace(namespace: string) {
     const clusterDetails = await this.getClusterDetails();
