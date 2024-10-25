@@ -2,15 +2,15 @@ import React from 'react';
 import { expect } from 'chai';
 import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import {
-  ShardKeyCorrect,
-  type ShardKeyCorrectProps,
-} from './shard-key-correct';
-import { type ShardZoneData } from '../../store/reducer';
+  IncompleteShardingSetup,
+  type IncompleteShardingSetupProps,
+} from './incomplete-sharding-setup';
 import Sinon from 'sinon';
 import { renderWithStore } from '../../../tests/create-store';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { type ShardZoneData } from '../../store/reducer';
 
-describe('ShardKeyCorrect', function () {
+describe.only('IncompleteShardingSetup', function () {
   const shardZones: ShardZoneData[] = [
     {
       zoneId: '45893084',
@@ -22,10 +22,9 @@ describe('ShardKeyCorrect', function () {
       zoneLocations: ['Frankfurt'],
     },
   ];
-
-  const baseProps: ShardKeyCorrectProps = {
-    shardZones,
+  const baseProps: IncompleteShardingSetupProps = {
     namespace: 'db1.coll1',
+    shardZones,
     shardKey: {
       fields: [
         { type: 'RANGE', name: 'location' },
@@ -33,47 +32,68 @@ describe('ShardKeyCorrect', function () {
       ],
       isUnique: false,
     },
-    isUnmanagingNamespace: false,
-    onUnmanageNamespace: () => {},
+    isSubmittingForSharding: false,
+    onResume: () => {},
+  };
+
+  const connectionInfo = {
+    id: 'testConnection',
+    connectionOptions: {
+      connectionString: 'mongodb://test',
+    },
+    atlasMetadata: {
+      projectId: 'project1',
+      clusterName: 'myCluster',
+    } as ConnectionInfo['atlasMetadata'],
   };
 
   function renderWithProps(
-    props?: Partial<ShardKeyCorrectProps>,
+    props?: Partial<IncompleteShardingSetupProps>,
     options?: Parameters<typeof renderWithStore>[1]
   ) {
     return renderWithStore(
-      <ShardKeyCorrect {...baseProps} {...props} />,
-      options
+      <IncompleteShardingSetup {...baseProps} {...props} />,
+      {
+        connectionInfo,
+        ...options,
+      }
     );
   }
 
-  it('Provides button to unmanage', async function () {
-    const onUnmanageNamespace = Sinon.spy();
-    await renderWithProps({ onUnmanageNamespace });
+  it('Shows description', async function () {
+    await renderWithProps();
+
+    expect(screen.findByText(/your configuration is incomplete/)).to.be.exist;
+    expect(screen.findByText(/Please enable Global Writes/)).to.be.exist;
+  });
+
+  it('Provides button to resume managed namespace', async function () {
+    const onResume = Sinon.spy();
+    await renderWithProps({ onResume });
 
     const btn = await screen.findByRole<HTMLButtonElement>('button', {
-      name: /Unmanage collection/,
+      name: /Enable Global Writes/,
     });
     expect(btn).to.be.visible;
 
     userEvent.click(btn);
 
-    expect(onUnmanageNamespace).to.have.been.calledOnce;
+    expect(onResume).to.have.been.calledOnce;
   });
 
-  it('Unmanage btn is disabled when the action is in progress', async function () {
-    const onUnmanageNamespace = Sinon.spy();
-    await renderWithProps({ onUnmanageNamespace, isUnmanagingNamespace: true });
+  it('Manage btn is disabled when the action is in progress', async function () {
+    const onResume = Sinon.spy();
+    await renderWithProps({ onResume, isSubmittingForSharding: true });
 
     const btn = await screen.findByTestId<HTMLButtonElement>(
-      'unmanage-collection-button'
+      'manage-collection-button'
     );
     expect(btn).to.be.visible;
     expect(btn.getAttribute('aria-disabled')).to.equal('true');
 
     userEvent.click(btn);
 
-    expect(onUnmanageNamespace).not.to.have.been.called;
+    expect(onResume).not.to.have.been.called;
   });
 
   it('Describes the shardKey', async function () {
@@ -91,25 +111,5 @@ describe('ShardKeyCorrect', function () {
     );
     expect(list).to.be.visible;
     expect(list.textContent).to.contain(`"location", "secondary"`);
-  });
-
-  it('Contains sample codes', async function () {
-    await renderWithProps();
-
-    const findingDocumentsSample = await screen.findByTestId(
-      'sample-finding-documents'
-    );
-    expect(findingDocumentsSample).to.be.visible;
-    expect(findingDocumentsSample.textContent).to.contain(
-      `use db1db["coll1"].find({"location": "US-NY", "secondary": "<id_value>"})`
-    );
-
-    const insertingDocumentsSample = await screen.findByTestId(
-      'sample-inserting-documents'
-    );
-    expect(insertingDocumentsSample).to.be.visible;
-    expect(insertingDocumentsSample.textContent).to.contain(
-      `use db1db["coll1"].insertOne({"location": "US-NY", "secondary": "<id_value>",...<other fields>})`
-    );
   });
 });
