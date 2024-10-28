@@ -12,6 +12,10 @@ import {
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 
 import VirtualizedDocumentJsonView from './virtualized-document-json-view';
+import {
+  getCodemirrorEditorValue,
+  setCodemirrorEditorValue,
+} from '@mongodb-js/compass-editor';
 
 const createBigDocument = (variable: number) =>
   new HadronDocument({
@@ -167,5 +171,45 @@ describe('VirtualizedDocumentJsonView', function () {
     // Verify that we have an editing state
     expect(() => within(documentElement).getByText('Cancel')).to.throw;
     expect(() => within(documentElement).getByText('Replace')).to.throw;
+  });
+
+  it('preserves the edit state of document when a document goes out of visible viewport when scrolling', async function () {
+    const bigDocuments = Array.from({ length: 20 }, (_, idx) =>
+      createBigDocument(idx)
+    );
+    const listRef: VirtualListRef = React.createRef();
+    render(
+      <VirtualizedDocumentJsonView
+        namespace="x.y"
+        docs={bigDocuments}
+        isEditable={true}
+        __TEST_OVERSCAN_COUNT={0}
+        __TEST_LIST_HEIGHT={178}
+        __TEST_LIST_REF={listRef}
+      />
+    );
+
+    let [firstDocumentElement] = screen.getAllByTestId('editable-json');
+    // Trigger the edit state (we only set the edited value if the document is being edited)
+    userEvent.click(within(firstDocumentElement).getByLabelText('Edit'));
+
+    let cmEditor = firstDocumentElement.querySelector(
+      '[data-codemirror="true"]'
+    );
+    await setCodemirrorEditorValue(cmEditor, '{value: "edited"}');
+
+    // Scroll down and then scroll back up
+    act(() => {
+      listRef.current?.scrollToItem(15);
+    });
+    act(() => {
+      listRef.current?.scrollToItem(0);
+    });
+
+    [firstDocumentElement] = screen.getAllByTestId('editable-json');
+    cmEditor = firstDocumentElement.querySelector('[data-codemirror="true"]');
+
+    const value = getCodemirrorEditorValue(cmEditor);
+    expect(value).to.equal('{value: "edited"}');
   });
 });
