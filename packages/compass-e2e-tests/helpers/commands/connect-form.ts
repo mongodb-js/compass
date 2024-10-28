@@ -3,35 +3,24 @@ import { expect } from 'chai';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
-import {
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_NAME_2,
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_STRING_2,
-  TEST_MULTIPLE_CONNECTIONS,
-} from '../compass';
 import Debug from 'debug';
+import { DEFAULT_CONNECTIONS } from '../test-runner-context';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
 
 export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
-  const Sidebar = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.Multiple
-    : Selectors.Single;
+  const Sidebar = Selectors.Multiple;
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-      await browser
-        .$(Selectors.ConnectionModal)
-        .waitForDisplayed({ reverse: true });
-    }
+  if (await browser.$(Selectors.ConnectionModal).isDisplayed()) {
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
+    await browser
+      .$(Selectors.ConnectionModal)
+      .waitForDisplayed({ reverse: true });
   }
 
   await browser.clickVisible(Sidebar.SidebarNewConnectionButton);
 
-  const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.ConnectionModalTitle
-    : Selectors.ConnectionTitle;
+  const connectionTitleSelector = Selectors.ConnectionModalTitle;
 
   const connectionTitle = await browser.$(connectionTitleSelector);
   await connectionTitle.waitUntil(async () => {
@@ -61,29 +50,20 @@ export async function getConnectFormState(
   // General
   const initialTab = await browser.navigateToConnectTab('General');
 
-  const defaultPromises: Record<string, Promise<any>> = {
+  const defaultState = await promiseMap({
     scheme: getCheckedRadioValue(browser, Selectors.ConnectionFormSchemeRadios),
     hosts: getMultipleValues(browser, Selectors.ConnectionFormHostInputs),
     directConnection: getCheckboxValue(
       browser,
       Selectors.ConnectionFormDirectConnectionCheckbox
     ),
-  };
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    defaultPromises.connectionName = getValue(
-      browser,
-      Selectors.ConnectionFormConnectionName
-    );
-    defaultPromises.connectionColor = getValue(
-      browser,
-      Selectors.ConnectionFormConnectionColor
-    );
-    defaultPromises.connectionFavorite = getCheckboxValue(
+    connectionName: getValue(browser, Selectors.ConnectionFormConnectionName),
+    connectionColor: getValue(browser, Selectors.ConnectionFormConnectionColor),
+    connectionFavorite: getCheckboxValue(
       browser,
       Selectors.ConnectionFormFavoriteCheckbox
-    );
-  }
-  const defaultState = await promiseMap(defaultPromises);
+    ),
+  });
 
   // Authentication
   await browser.navigateToConnectTab('Authentication');
@@ -510,25 +490,22 @@ export async function setConnectFormState(
     await browser.clickParent(Selectors.ConnectionFormDirectConnectionCheckbox);
   }
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // Name, Color, Favorite
-    if (state.connectionName) {
-      await browser.setValueVisible(
-        Selectors.ConnectionFormConnectionName,
-        state.connectionName
-      );
-    }
+  if (state.connectionName) {
+    await browser.setValueVisible(
+      Selectors.ConnectionFormConnectionName,
+      state.connectionName
+    );
+  }
 
-    if (state.connectionColor) {
-      await browser.selectOption(
-        Selectors.ConnectionFormConnectionColor,
-        colorValueToName(state.connectionColor)
-      );
-    }
+  if (state.connectionColor) {
+    await browser.selectOption(
+      Selectors.ConnectionFormConnectionColor,
+      colorValueToName(state.connectionColor)
+    );
+  }
 
-    if (state.connectionFavorite) {
-      await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
-    }
+  if (state.connectionFavorite) {
+    await browser.clickParent(Selectors.ConnectionFormFavoriteCheckbox);
   }
 
   // Authentication
@@ -938,29 +915,13 @@ export async function setConnectFormState(
 
 export async function saveConnection(
   browser: CompassBrowser,
-  state: ConnectFormState,
-
-  // TODO(COMPASS-8023): Just remove these once the single connection code is removed
-  favouriteName: string,
-  color: string
+  state: ConnectFormState
 ): Promise<void> {
   await browser.setConnectFormState(state);
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.clickVisible(Selectors.ConnectionModalSaveButton);
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
-  } else {
-    await browser.clickVisible(Selectors.ConnectionEditFavouriteButton);
-    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.setValueVisible(Selectors.FavoriteNameInput, favouriteName);
-    await browser.clickVisible(
-      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-${color}"]`
-    );
-    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-    await browser.clickVisible(Selectors.FavoriteSaveButton);
-    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
-  }
+  await browser.clickVisible(Selectors.ConnectionModalSaveButton);
+  await browser
+    .$(Selectors.ConnectionModal)
+    .waitForDisplayed({ reverse: true });
 }
 
 export async function setupDefaultConnections(browser: CompassBrowser) {
@@ -986,10 +947,8 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   whereas we do have some tests that try and use those. We can easily change
   this in future if needed, though.
   */
-  for (const connectionName of [
-    DEFAULT_CONNECTION_NAME_1,
-    DEFAULT_CONNECTION_NAME_2,
-  ]) {
+  for (const connectionInfo of DEFAULT_CONNECTIONS) {
+    const connectionName = getConnectionTitle(connectionInfo);
     if (await browser.removeConnection(connectionName)) {
       debug('Removing existing connection so we do not create a duplicate', {
         connectionName,
@@ -997,28 +956,11 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
     }
   }
 
-  await browser.saveConnection(
-    {
-      connectionString: DEFAULT_CONNECTION_STRING_1,
-      // NOTE: no connectionName, we're going with the auto-generated one. Also no
-      // connectionColor. Passing a name and colour for single connection world,
-      // though, because that's the only way to create a favourite.
-    },
-    DEFAULT_CONNECTION_NAME_1,
-    'color1'
-  );
-
-  // no need for a second connection in single connection mode
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.saveConnection(
-      {
-        connectionString: DEFAULT_CONNECTION_STRING_2,
-        // NOTE: filling in a name so that this one does _not_ have the auto-generated one
-        connectionName: DEFAULT_CONNECTION_NAME_2,
-        connectionColor: 'Iris',
-      },
-      DEFAULT_CONNECTION_NAME_2,
-      'color8'
-    );
+  for (const connectionInfo of DEFAULT_CONNECTIONS) {
+    await browser.saveConnection({
+      connectionString: connectionInfo.connectionOptions.connectionString,
+      connectionName: connectionInfo.favorite?.name,
+      connectionColor: connectionInfo.favorite?.color,
+    });
   }
 }

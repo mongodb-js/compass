@@ -1,36 +1,5 @@
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
-import delay from '../delay';
 import * as Selectors from '../selectors';
-
-async function disconnectAllSingle(browser: CompassBrowser) {
-  const cancelConnectionButtonElement = await browser.$(
-    Selectors.CancelConnectionButton
-  );
-  // If we are still connecting, let's try cancelling the connection first
-  if (await cancelConnectionButtonElement.isDisplayed()) {
-    try {
-      await browser.closeConnectModal();
-    } catch (e) {
-      // If that failed, the button was probably gone before we managed to
-      // click it. Let's go through the whole disconnecting flow now
-    }
-  }
-
-  await delay(100);
-
-  await browser.execute(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('electron').ipcRenderer.emit('app:disconnect');
-  });
-
-  // for single connections we expect the connect screen to re-appear
-  await browser.$(Selectors.ConnectSection).waitForDisplayed();
-
-  // clear the form
-  await browser.clickVisible(Selectors.Single.SidebarNewConnectionButton);
-  await delay(100);
-}
 
 async function resetForDisconnect(
   browser: CompassBrowser,
@@ -68,10 +37,6 @@ export async function disconnectAll(
   // This command is mostly intended for use inside a beforeEach() hook,
   // probably in conjunction with browser.connectToDefaults() so that each test
   // will start off with multiple connections already connected.
-
-  if (!TEST_MULTIPLE_CONNECTIONS) {
-    return await disconnectAllSingle(browser);
-  }
 
   // The previous test could have ended with modals and/or toasts left open and
   // a search filter in the sidebar. Reset those so we can get to a known state.

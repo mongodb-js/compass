@@ -68,13 +68,10 @@ function printCompassEnv() {
   }
 
   if (process.env.PLATFORM === 'linux') {
-    // To build node modules on linux post electron 13 we need
-    // a newer c++ compiler version, this adds it.
+    // To build node modules on linux post electron 13 we need a newer c++
+    // compiler version and at least python v3.9, this adds it.
     // https://jira.mongodb.org/browse/COMPASS-5150
     pathsToPrepend.unshift('/opt/mongodbtoolchain/v3/bin');
-
-    // Make sure that linux is using python 3.6 (node-gyp requirement)
-    pathsToPrepend.unshift('/opt/python/3.6/bin');
   }
 
   PATH = maybePrependPaths(PATH, pathsToPrepend);
@@ -103,10 +100,16 @@ function printCompassEnv() {
   printVar('IS_RHEL', process.env.IS_RHEL);
   printVar('IS_UBUNTU', process.env.IS_UBUNTU);
   printVar('DEBUG', process.env.DEBUG);
-  printVar('MONGODB_VERSION', process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION);
+  printVar(
+    'MONGODB_VERSION',
+    process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION
+  );
   printVar('DEV_VERSION_IDENTIFIER', process.env.DEV_VERSION_IDENTIFIER);
   printVar('EVERGREEN_REVISION', process.env.EVERGREEN_REVISION);
-  printVar('EVERGREEN_REVISION_ORDER_ID', process.env.EVERGREEN_REVISION_ORDER_ID);
+  printVar(
+    'EVERGREEN_REVISION_ORDER_ID',
+    process.env.EVERGREEN_REVISION_ORDER_ID
+  );
 
   if (process.platform === 'darwin') {
     // Without this, kerberos 2.1.1 is broken on macOS, but this flag is only

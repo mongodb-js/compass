@@ -86,7 +86,7 @@ post:
       target: src/all-e2e-logs.tgz
       source_dir: src/packages/compass-e2e-tests/.log
       include:
-        - "**"
+        - '**'
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -303,7 +303,7 @@ functions:
           echo "Running tests in Electron runtime"
 
           # Preparing native addons for electron runtime
-          npm run --unsafe-perm electron-rebuild
+          DEBUG=electron-rebuild* npm run --unsafe-perm electron-rebuild
 
           npm run --unsafe-perm test-ci-electron -- --stream
 
@@ -664,7 +664,7 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          BROWSER_NAME: ${browser_name}
+          COMPASS_WEB_BROWSER_NAME: ${browser_name}
           E2E_TEST_GROUPS: ${e2e_test_groups}
           E2E_TEST_GROUP: ${e2e_test_group}
         script: |

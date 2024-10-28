@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Oct 20 2024.
+This document was automatically generated on Sun Oct 27 2024.
 
 ## List of dependencies
 
@@ -364,7 +364,7 @@ Package|Version|License
 **[json5](#16281c6ea25e0cec4bc0bb8c01d1759d66992776381bf9c5af6959bec47d2f77)**|2.2.3|MIT
 **[jsondiffpatch](#2cc3b990f6692cd23f883319a727b42a76a3a9d6675d1ebd8a05241eb7edc4ac)**|0.5.0|MIT
 **[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**|6.1.0|MIT
-**[kerberos](#e9b8ef28e3d246d5071f34b07b67580523cda7bd0d7d74dc2e422d79d30c238d)**|2.1.1|Apache-2.0
+**[kerberos](#ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b)**|2.2.0|Apache-2.0
 **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**|1.3.0|MIT
 **[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**|7.9.0|MIT
 **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**|0.1.1|BSD-2-Clause
@@ -23138,8 +23138,8 @@ License files:
       
 
 
-<a id="e9b8ef28e3d246d5071f34b07b67580523cda7bd0d7d74dc2e422d79d30c238d"></a>
-### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.1.1)
+<a id="ac70d4903c6441fd96843a6ecb73f258ee27ef26b25290257564a11c10ecd17b"></a>
+### [kerberos](https://www.npmjs.com/package/kerberos) (version 2.2.0)
 License tags: Apache-2.0
 
 License files:
