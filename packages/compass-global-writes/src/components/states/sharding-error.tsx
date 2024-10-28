@@ -22,6 +22,7 @@ const btnStyles = css({
 
 const errorStyles = css({
   marginTop: spacing[200],
+  whiteSpace: 'pre-wrap',
 });
 
 interface ShardingErrorProps {
@@ -39,7 +40,7 @@ export function ShardingError({
 }: ShardingErrorProps) {
   return (
     <div className={containerStyles}>
-      <Banner variant={BannerVariant.Warning} className={bannerStyles}>
+      <Banner variant={BannerVariant.Danger} className={bannerStyles}>
         There was an error sharding your collection. Please cancel the request,
         make any necessary changes to your collection, and try again.
         <div className={errorStyles}>{shardingError}</div>
