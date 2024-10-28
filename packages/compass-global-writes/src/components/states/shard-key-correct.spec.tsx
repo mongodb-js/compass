@@ -8,7 +8,6 @@ import {
 import { type ShardZoneData } from '../../store/reducer';
 import Sinon from 'sinon';
 import { renderWithStore } from '../../../tests/create-store';
-import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 describe('ShardKeyCorrect', function () {
   const shardZones: ShardZoneData[] = [

@@ -263,8 +263,6 @@ export class AtlasGlobalWritesService {
     return transformZoneData(Object.values(data), replicationSpecs);
   }
 
-  async resumeManagedNamespace(namespace: string) {}
-
   async unmanageNamespace(namespace: string) {
     const clusterDetails = await this.getClusterDetails();
     const { database, collection } = toNS(namespace);
