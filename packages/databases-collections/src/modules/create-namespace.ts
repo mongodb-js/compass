@@ -2,6 +2,7 @@ import type { Action, AnyAction, Reducer } from 'redux';
 import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
+import { connectionSupports } from '@mongodb-js/compass-connections';
 
 /**
  * No dots in DB name error message.
@@ -402,17 +403,20 @@ export const createNamespace = (
         expires: !!data.options.expireAfterSeconds,
       };
 
-      track(
-        `${kind} Created`,
-        trackEvent,
-        connectionRepository.getConnectionInfoById(connectionId)
-      );
+      const connectionInfo =
+        connectionRepository.getConnectionInfoById(connectionId);
+
+      track(`${kind} Created`, trackEvent, connectionInfo);
 
       globalAppRegistry.emit('collection-created', namespace, {
         connectionId,
       });
       workspaces.openCollectionWorkspace(connectionId, namespace, {
         newTab: true,
+        initialSubtab:
+          connectionInfo && connectionSupports(connectionInfo, 'globalWrites')
+            ? 'GlobalWrites'
+            : undefined,
       });
       dispatch(reset());
     } catch (e) {
