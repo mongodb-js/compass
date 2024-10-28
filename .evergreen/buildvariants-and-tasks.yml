@@ -35,7 +35,7 @@ buildvariants:
     expansions:
       silk_asset_group: compass-ubuntu
     display_name: Package Ubuntu
-    run_on: ubuntu1604-large
+    run_on: ubuntu1804-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
