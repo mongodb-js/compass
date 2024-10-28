@@ -6,7 +6,6 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
   DEFAULT_CONNECTION_NAME_1,
   DEFAULT_CONNECTION_STRING_1,
   DEFAULT_CONNECTION_STRING_2,
@@ -169,10 +168,8 @@ describe('My Queries tab', function () {
     client_1 = new MongoClient(DEFAULT_CONNECTION_STRING_1);
     await client_1.connect();
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      client_2 = new MongoClient(DEFAULT_CONNECTION_STRING_2);
-      await client_2.connect();
-    }
+    client_2 = new MongoClient(DEFAULT_CONNECTION_STRING_2);
+    await client_2.connect();
   });
   beforeEach(async function () {
     await createNumbersCollection();
@@ -261,17 +258,13 @@ describe('My Queries tab', function () {
           .db('test')
           .renameCollection('numbers', 'numbers-renamed');
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_1,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_1,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
 
-          // go to My Queries because for multiple connections it is not the default tab
-          await browser.navigateToMyQueries();
-        } else {
-          await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-        }
+        // go to My Queries because for multiple connections it is not the default tab
+        await browser.navigateToMyQueries();
 
         // browse to the query
         await browser.clickVisible(
@@ -398,14 +391,10 @@ describe('My Queries tab', function () {
           .db('test')
           .renameCollection('numbers', newCollectionName);
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_1,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-        }
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_1,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
 
         await browser.navigateToMyQueries();
         // browse to the query
@@ -447,10 +436,6 @@ describe('My Queries tab', function () {
     'when a user has multiple connections and only one contains the namespace',
     function () {
       it('uses the connection that contains the namespace used by the aggregation/query', async function () {
-        if (!TEST_MULTIPLE_CONNECTIONS) {
-          this.skip();
-        }
-
         await browser.connectToDefaults();
 
         const favoriteQueryName = 'only one with namespace';
@@ -466,14 +451,10 @@ describe('My Queries tab', function () {
 
         await client_1.db('test').dropCollection('numbers');
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_1,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-        }
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_1,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
 
         await browser.navigateToMyQueries();
 
@@ -496,9 +477,6 @@ describe('My Queries tab', function () {
     'when a user has multiple connections and none of them contain the namespace',
     function () {
       it('opens a modal where users can select a connection and permanently associate a new namespace for an aggregation/query', async function () {
-        if (!TEST_MULTIPLE_CONNECTIONS) {
-          this.skip();
-        }
         const newCollectionName = 'numbers-renamed';
 
         await browser.connectToDefaults();
@@ -519,18 +497,14 @@ describe('My Queries tab', function () {
           .db('test')
           .renameCollection('numbers', newCollectionName);
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_1,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_2,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-        }
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_1,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_2,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
 
         await browser.navigateToMyQueries();
 
@@ -572,10 +546,6 @@ describe('My Queries tab', function () {
     'when a user has multiple connections that contain the same namespace',
     function () {
       it('opens a modal where users can select the connection to use for an aggregation/query', async function () {
-        if (!TEST_MULTIPLE_CONNECTIONS) {
-          this.skip();
-        }
-
         await browser.connectToDefaults();
 
         const favoriteQueryName = 'all with namespace';
@@ -589,18 +559,14 @@ describe('My Queries tab', function () {
           favoriteQueryName
         );
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_1,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
-          await browser.selectConnectionMenuItem(
-            DEFAULT_CONNECTION_NAME_2,
-            Selectors.Multiple.RefreshDatabasesItem
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-        }
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_1,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
+        await browser.selectConnectionMenuItem(
+          DEFAULT_CONNECTION_NAME_2,
+          Selectors.Multiple.RefreshDatabasesItem
+        );
 
         await browser.navigateToMyQueries();
 

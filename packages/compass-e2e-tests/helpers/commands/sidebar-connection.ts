@@ -1,4 +1,3 @@
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
@@ -6,12 +5,6 @@ export async function getConnectionIdByName(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<string | undefined> {
-  if (!TEST_MULTIPLE_CONNECTIONS) {
-    // the connection id isn't somewhere we can consistently access it in the
-    // single connection world
-    return undefined;
-  }
-
   const connections = await browser.$$(
     Selectors.sidebarConnection(connectionName)
   );
@@ -31,26 +24,13 @@ export async function selectConnection(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<void> {
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.selectConnectionMenuItem(
-      connectionName,
-      Selectors.Multiple.EditConnectionItem
-    );
-  } else {
-    await browser.pause(1000);
-
-    await browser.clickVisible(
-      Selectors.sidebarConnectionButton(connectionName),
-      {
-        screenshot: `selecting-connection-${connectionName}.png`,
-      }
-    );
-  }
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Selectors.Multiple.EditConnectionItem
+  );
 
   await browser.waitUntil(async () => {
-    const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.ConnectionModalTitle
-      : Selectors.ConnectionTitle;
+    const connectionTitleSelector = Selectors.ConnectionModalTitle;
 
     const text = await browser.$(connectionTitleSelector).getText();
     return text === connectionName;
@@ -63,9 +43,7 @@ export async function selectConnectionMenuItem(
   itemSelector: string,
   openMenu = true
 ) {
-  const Sidebar = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.Multiple
-    : Selectors.Single;
+  const Sidebar = Selectors.Multiple;
 
   const selector = Selectors.sidebarConnection(connectionName);
 
@@ -104,36 +82,10 @@ export async function selectConnectionMenuItem(
   await browser.clickVisible(itemSelector);
 }
 
-// TODO(COMPASS-8023): Just remove this once the single connection code is removed
-async function removeConnectionSingle(
-  browser: CompassBrowser,
-  connectionName: string
-): Promise<boolean> {
-  const selector = Selectors.sidebarConnection(connectionName);
-
-  if (await browser.$(selector).isExisting()) {
-    await browser.selectConnection(connectionName);
-
-    await browser.selectConnectionMenuItem(
-      connectionName,
-      Selectors.Single.RemoveConnectionItem
-    );
-
-    await browser.$(selector).waitForDisplayed({ reverse: true });
-    return true;
-  }
-
-  return false;
-}
-
 export async function removeConnection(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<boolean> {
-  if (!TEST_MULTIPLE_CONNECTIONS) {
-    return await removeConnectionSingle(browser, connectionName);
-  }
-
   // make sure there's no filter because if the connection is not displayed then we can't remove it
   if (await browser.$(Selectors.SidebarFilterInput).isExisting()) {
     await browser.clickVisible(Selectors.SidebarFilterInput);
