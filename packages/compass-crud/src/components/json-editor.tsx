@@ -81,16 +81,20 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   );
   const [initialValue] = useState<string>(() => doc.toEJSON());
   const [containsErrors, setContainsErrors] = useState<boolean>(false);
+  const setModifiedEJSONStringRef = useRef<(value: string | null) => void>(
+    doc.setModifiedEJSONString.bind(doc)
+  );
 
   useEffect(() => {
+    const setModifiedEJSONString = setModifiedEJSONStringRef.current;
     return () => {
       // When this component is used in virtualized list, the editor is
       // unmounted on scroll and if the user is editing the document, the
       // editor value is lost. This is a way to keep track of the editor
       // value when the it's unmounted and is restored on next mount.
-      doc.setModifiedEJSONString(editing ? value : null);
+      setModifiedEJSONString(editing ? value : null);
     };
-  }, [value, editing, doc]);
+  }, [value, editing]);
 
   const handleCopy = useCallback(() => {
     copyToClipboard?.(doc);
