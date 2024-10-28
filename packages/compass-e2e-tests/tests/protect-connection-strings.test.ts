@@ -10,6 +10,7 @@ import clipboard from 'clipboardy';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { context } from '../helpers/test-runner-context';
 
 async function expectCopyConnectionStringToClipboard(
   browser: CompassBrowser,
@@ -17,7 +18,7 @@ async function expectCopyConnectionStringToClipboard(
   expected: string
 ): Promise<void> {
   const Sidebar = Selectors.Multiple;
-  if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+  if (!context.disableClipboardUsage) {
     await browser.selectConnectionMenuItem(
       favoriteName,
       Sidebar.CopyConnectionStringItem

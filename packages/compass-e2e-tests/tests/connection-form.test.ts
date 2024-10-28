@@ -12,6 +12,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { context } from '../helpers/test-runner-context';
 
 const DEFAULT_FLE_ENCRYPTED_FIELDS_MAP =
   "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n";
@@ -618,7 +619,7 @@ describe('Connection form', function () {
     // save
     await browser.saveFavorite(favoriteName, 'Green');
 
-    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+    if (!context.disableClipboardUsage) {
       // copy the connection string
       await browser.selectConnectionMenuItem(
         favoriteName,
