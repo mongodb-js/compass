@@ -5,6 +5,7 @@ import {
   Button,
   css,
   spacing,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -23,6 +24,7 @@ const btnStyles = css({
 const errorStyles = css({
   marginTop: spacing[200],
   whiteSpace: 'pre-wrap',
+  textAlign: 'left',
 });
 
 interface ShardingErrorProps {
@@ -49,6 +51,7 @@ export function ShardingError({
           data-testid="cancel-sharding-btn"
           disabled={isCancellingSharding || isSubmittingForSharding}
           isLoading={isCancellingSharding}
+          loadingIndicator={<SpinLoader />}
           onClick={onCancelSharding}
         >
           Cancel Request

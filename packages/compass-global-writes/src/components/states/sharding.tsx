@@ -7,6 +7,7 @@ import {
   css,
   Link,
   spacing,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -42,6 +43,7 @@ export function ShardingState({
           data-testid="cancel-sharding-btn"
           onClick={onCancelSharding}
           isLoading={isCancellingSharding}
+          loadingIndicator={<SpinLoader />}
         >
           Cancel Request
         </Button>

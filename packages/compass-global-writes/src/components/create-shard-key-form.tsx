@@ -14,6 +14,7 @@ import {
   Radio,
   RadioGroup,
   spacing,
+  SpinLoader,
   Subtitle,
   TextInput,
 } from '@mongodb-js/compass-components';
@@ -305,6 +306,7 @@ export function CreateShardKeyForm({
             }
             variant="primary"
             isLoading={isSubmittingForSharding}
+            loadingIndicator={<SpinLoader />}
           >
             Shard Collection
           </Button>

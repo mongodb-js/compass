@@ -11,6 +11,7 @@ import {
   Label,
   Button,
   ButtonVariant,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
@@ -167,6 +168,7 @@ export function ShardKeyCorrect({
           onClick={onUnmanageNamespace}
           variant={ButtonVariant.Primary}
           isLoading={isUnmanagingNamespace}
+          loadingIndicator={<SpinLoader />}
         >
           Unmanage collection
         </Button>

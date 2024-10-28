@@ -5,6 +5,7 @@ import {
   spacing,
   css,
   ButtonVariant,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
@@ -69,6 +70,7 @@ export function ShardKeyMismatch({
             onClick={onUnmanageNamespace}
             variant={ButtonVariant.Default}
             isLoading={isUnmanagingNamespace}
+            loadingIndicator={<SpinLoader />}
             className={unmanageBtnStyles}
           >
             Unmanage collection
