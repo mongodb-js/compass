@@ -76,6 +76,7 @@ import { rgba } from 'polished';
 import { prettify as _prettify } from './prettify';
 import { ActionButton, FormatIcon } from './actions';
 
+// TODO(COMPASS-8453): Re-enable this once the linked tickets are resolved
 // https://github.com/codemirror/dev/issues/1458
 // https://issues.chromium.org/issues/375711382?pli=1
 (EditorView as any).EDIT_CONTEXT = false;
