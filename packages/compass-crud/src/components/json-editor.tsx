@@ -84,6 +84,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   const setModifiedEJSONStringRef = useRef<(value: string | null) => void>(
     doc.setModifiedEJSONString.bind(doc)
   );
+  setModifiedEJSONStringRef.current = doc.setModifiedEJSONString.bind(doc);
 
   useEffect(() => {
     const setModifiedEJSONString = setModifiedEJSONStringRef.current;
