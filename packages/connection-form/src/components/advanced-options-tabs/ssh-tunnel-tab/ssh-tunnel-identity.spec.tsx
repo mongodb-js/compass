@@ -7,6 +7,8 @@ import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler
 import SSHTunnelIdentity from './ssh-tunnel-identity';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
+import { FileInputBackendProvider } from '@mongodb-js/compass-components';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
 
 const formFields: {
   key: keyof SSHConnectionOptions;
@@ -49,11 +51,15 @@ describe('SSHTunnelIdentity', function () {
     updateConnectionFormFieldSpy = sinon.spy();
 
     render(
-      <SSHTunnelIdentity
-        errors={[]}
-        sshTunnelOptions={sshTunnelOptions}
-        updateConnectionFormField={updateConnectionFormFieldSpy}
-      />
+      <FileInputBackendProvider
+        createFileInputBackend={createJSDomFileInputDummyBackend()}
+      >
+        <SSHTunnelIdentity
+          errors={[]}
+          sshTunnelOptions={sshTunnelOptions}
+          updateConnectionFormField={updateConnectionFormFieldSpy}
+        />
+      </FileInputBackendProvider>
     );
   });
 

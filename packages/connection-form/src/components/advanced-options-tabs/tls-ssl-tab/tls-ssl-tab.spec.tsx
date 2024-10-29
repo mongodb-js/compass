@@ -10,6 +10,8 @@ import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SSLTab, { getTLSOptionForConnectionString } from './tls-ssl-tab';
+import { FileInputBackendProvider } from '@mongodb-js/compass-components';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
 
 describe('SchemaInput', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
@@ -28,10 +30,14 @@ describe('SchemaInput', function () {
         'mongodb+srv://0ranges:p!neapp1es@localhost/?ssl=true'
       );
       const component = render(
-        <SSLTab
-          connectionStringUrl={testUrl}
-          updateConnectionFormField={updateConnectionFormFieldSpy}
-        />
+        <FileInputBackendProvider
+          createFileInputBackend={createJSDomFileInputDummyBackend()}
+        >
+          <SSLTab
+            connectionStringUrl={testUrl}
+            updateConnectionFormField={updateConnectionFormFieldSpy}
+          />
+        </FileInputBackendProvider>
       );
       rerender = component.rerender;
     });
