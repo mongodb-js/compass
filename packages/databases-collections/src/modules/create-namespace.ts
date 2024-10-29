@@ -3,6 +3,7 @@ import { parseFilter } from 'mongodb-query-parser';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { CreateNamespaceThunkAction } from '../stores/create-namespace';
 import { connectionSupports } from '@mongodb-js/compass-connections';
+import toNS from 'mongodb-ns';
 
 /**
  * No dots in DB name error message.
@@ -411,12 +412,16 @@ export const createNamespace = (
       globalAppRegistry.emit('collection-created', namespace, {
         connectionId,
       });
+
+      // For special namespaces (admin, local, config), we do not want
+      // to navigate user to the global-writes tab if it's supported.
+      const isSpecialNS = toNS(namespace).isSpecial;
+      const isGlobalWritesSupported =
+        connectionInfo && connectionSupports(connectionInfo, 'globalWrites');
       workspaces.openCollectionWorkspace(connectionId, namespace, {
         newTab: true,
         initialSubtab:
-          connectionInfo && connectionSupports(connectionInfo, 'globalWrites')
-            ? 'GlobalWrites'
-            : undefined,
+          !isSpecialNS && isGlobalWritesSupported ? 'GlobalWrites' : undefined,
       });
       dispatch(reset());
     } catch (e) {
