@@ -248,7 +248,7 @@ Package|Version|License
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**|3.5.0|MIT
 **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**|1.0.1|Apache-2.0
-**[electron](#4dac8b39331bcb6b30b99afe0849c00e3153935fcab1f1086622b9a2ccb4afc8)**|32.2.1|MIT
+**[electron](#ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b)**|32.2.2|MIT
 **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**|1.0.2|MIT
 **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**|2.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
@@ -19215,8 +19215,8 @@ License files:
       
 
 
-<a id="4dac8b39331bcb6b30b99afe0849c00e3153935fcab1f1086622b9a2ccb4afc8"></a>
-### [electron](https://www.npmjs.com/package/electron) (version 32.2.1)
+<a id="ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b"></a>
+### [electron](https://www.npmjs.com/package/electron) (version 32.2.2)
 License tags: MIT
 
 License files:
