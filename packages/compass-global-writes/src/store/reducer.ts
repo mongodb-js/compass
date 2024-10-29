@@ -811,7 +811,6 @@ export const fetchShardingZones = (): GlobalWritesThunkAction<
       return;
     }
     try {
-      throw new Error('dan echlin fake error');
       const shardingZones = await atlasGlobalWritesService.getShardingZones();
       dispatch({
         type: GlobalWritesActionTypes.ShardZonesFetched,
