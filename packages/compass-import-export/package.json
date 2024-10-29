@@ -59,7 +59,7 @@
     "bson": "^6.8.0",
     "compass-preferences-model": "^2.29.1",
     "debug": "^4.3.4",
-    "electron": "^30.5.1",
+    "electron": "^32.2.1",
     "hadron-app-registry": "^9.2.7",
     "hadron-document": "^8.6.4",
     "hadron-ipc": "^3.2.23",

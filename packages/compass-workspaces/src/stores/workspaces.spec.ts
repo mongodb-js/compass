@@ -22,7 +22,7 @@ describe('tabs behavior', function () {
 
   function configureStore() {
     const result = activatePluginWithConnections();
-    return result.plugin.store as WorkspacesStore;
+    return result.plugin.store;
   }
 
   function openTabs(
