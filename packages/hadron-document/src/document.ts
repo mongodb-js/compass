@@ -50,6 +50,9 @@ export class Document extends EventEmitter {
   maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
   editing = false;
   markedForDeletion = false;
+  // This is used to store the changed EJSON string when the document is modified
+  // via the JSONEditor.
+  modifiedEJSONString: string | null = null;
 
   /**
    * Send cancel event.
@@ -456,6 +459,7 @@ export class Document extends EventEmitter {
   finishEditing() {
     if (this.editing) {
       this.editing = false;
+      this.setModifiedEJSONString(null);
       this.emit(DocumentEvents.EditingFinished);
     }
   }
@@ -502,6 +506,10 @@ export class Document extends EventEmitter {
 
   onRemoveError(error: Error) {
     this.emit('remove-error', error.message);
+  }
+
+  setModifiedEJSONString(ejson: string | null) {
+    this.modifiedEJSONString = ejson;
   }
 }
 

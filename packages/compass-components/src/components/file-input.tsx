@@ -134,12 +134,6 @@ const disabledDescriptionDarkStyles = css({
 
 type FileInputVariant = 'default' | 'small' | 'vertical';
 
-// https://www.electronjs.org/docs/latest/api/file-object
-type FileWithPath = File & {
-  /** Electron-specific property that contains an absolute path to the file */
-  path: string;
-};
-
 // Matches Electron's file dialog options.
 export type ElectronFileDialogOptions = {
   title?: string;
@@ -164,6 +158,8 @@ export type FileInputBackend = {
   // Should install a listener that is called when files have been selected.
   // Should return an unsubscribe function.
   onFilesChosen: (listener: (files: string[]) => void) => () => void;
+  // Gets the real on-disk path for a `File`, if the current environment supports it.
+  getPathForFile: (file: File) => string | undefined;
 };
 
 export const FileInputBackendContext = createContext<
@@ -197,6 +193,11 @@ export type ElectronShowFileDialogProvider<ElectronWindow> = {
   };
 };
 
+export type ElectronWebUtilsProvider = {
+  // https://github.com/electron/electron/blob/83d704009687956fb4b69cb13ab03664d7950118/docs/breaking-changes.md#removed-filepath
+  getPathForFile(file: File): string;
+};
+
 export const FileInputBackendProvider: React.FunctionComponent<{
   createFileInputBackend: (() => FileInputBackend) | null;
 }> = ({ children, createFileInputBackend }) => {
@@ -209,6 +210,20 @@ export const FileInputBackendProvider: React.FunctionComponent<{
   );
 };
 
+export function createJSDomFileInputDummyBackend(): () => FileInputBackend {
+  return () => ({
+    openFileChooser() {
+      return;
+    },
+    onFilesChosen() {
+      return () => void 0;
+    },
+    getPathForFile(file: File) {
+      return (file as any).path;
+    },
+  });
+}
+
 // Use as:
 //
 // import * as electronRemote from '@electron/remote';
@@ -217,7 +232,8 @@ export const FileInputBackendProvider: React.FunctionComponent<{
 //   <FileInput ... />
 // <FileInputBackendProvider/>
 export function createElectronFileInputBackend<ElectronWindow>(
-  electron: ElectronShowFileDialogProvider<ElectronWindow>
+  electron: ElectronShowFileDialogProvider<ElectronWindow>,
+  webUtils: ElectronWebUtilsProvider | null
 ): () => FileInputBackend {
   return () => {
     const listeners: ((files: string[]) => void)[] = [];
@@ -288,6 +304,9 @@ export function createElectronFileInputBackend<ElectronWindow>(
           if (index !== -1) listeners.splice(index, 1);
         };
       },
+      getPathForFile(file: File): string | undefined {
+        return webUtils?.getPathForFile(file);
+      },
     };
   };
 }
@@ -357,7 +376,7 @@ function FileInput({
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const fileList = Array.from(evt.currentTarget.files ?? []);
       const files = fileList.map((file) => {
-        return (file as FileWithPath).path;
+        return backend?.getPathForFile(file) ?? '';
       });
       onChange(files);
     },

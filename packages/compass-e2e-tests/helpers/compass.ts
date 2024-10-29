@@ -23,7 +23,6 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
-import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTION_STRINGS,
@@ -44,6 +43,19 @@ import {
   LOG_SCREENSHOTS_PATH,
   ELECTRON_PATH,
 } from './test-runner-paths';
+import treeKill from 'tree-kill';
+
+const killAsync = async (pid: number, signal?: string) => {
+  return new Promise<void>((resolve, reject) => {
+    treeKill(pid, signal ?? 'SIGTERM', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
 
 const debug = Debug('compass-e2e-tests');
 
@@ -666,7 +678,7 @@ async function startCompassElectron(
       return (
         p.ppid === process.pid &&
         (p.cmd?.startsWith(binary) ||
-          /(MongoDB Compass|Electron|electron)/.test(p.name))
+          /(MongoDB Compass|Electron|electron|chromedriver)/.test(p.name))
       );
     });
 
@@ -688,7 +700,7 @@ async function startCompassElectron(
     );
 
     for (const p of filteredProcesses) {
-      tryKillProcess(p.pid, p.name);
+      await killAsync(p.pid);
     }
     throw err;
   }
@@ -801,21 +813,6 @@ export async function startBrowser(
   });
 
   return compass;
-}
-
-function tryKillProcess(pid: number, name = '<unknown>'): void {
-  try {
-    debug(`Killing process ${name} with PID ${pid}`);
-    if (process.platform === 'win32') {
-      crossSpawn.sync('taskkill', ['/PID', String(pid), '/F', '/T']);
-    } else {
-      process.kill(pid);
-    }
-  } catch (err) {
-    debug(`Failed to kill process ${name} with PID ${pid}`, {
-      error: (err as Error).stack,
-    });
-  }
 }
 
 /**
@@ -1096,7 +1093,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
       // this only works for the electron use case
       try {
         debug(`Trying to manually kill Compass [${compass.name}]`);
-        tryKillProcess(compass.mainProcessPid, compass.name);
+        await killAsync(compass.mainProcessPid);
       } catch {
         /* already logged ... */
       }

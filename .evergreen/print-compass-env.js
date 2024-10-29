@@ -71,7 +71,7 @@ function printCompassEnv() {
     // To build node modules on linux post electron 13 we need a newer c++
     // compiler version and at least python v3.9, this adds it.
     // https://jira.mongodb.org/browse/COMPASS-5150
-    pathsToPrepend.unshift('/opt/mongodbtoolchain/v3/bin');
+    pathsToPrepend.unshift('/opt/mongodbtoolchain/v4/bin');
   }
 
   PATH = maybePrependPaths(PATH, pathsToPrepend);
@@ -111,12 +111,8 @@ function printCompassEnv() {
     process.env.EVERGREEN_REVISION_ORDER_ID
   );
 
-  if (process.platform === 'darwin') {
-    // Without this, kerberos 2.1.1 is broken on macOS, but this flag is only
-    // really relevant for Linux.
-    // https://jira.mongodb.org/browse/NODE-6320
-    printVar('GYP_DEFINES', 'kerberos_use_rtld=false');
-  }
+  // https://jira.mongodb.org/browse/NODE-6320
+  printVar('GYP_DEFINES', `kerberos_use_rtld=${process.platform === 'linux'}`);
 }
 
 printCompassEnv();

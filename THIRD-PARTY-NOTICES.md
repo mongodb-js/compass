@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Oct 28 2024.
+This document was automatically generated on Tue Oct 29 2024.
 
 ## List of dependencies
 
@@ -248,7 +248,7 @@ Package|Version|License
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**|3.5.0|MIT
 **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**|1.0.1|Apache-2.0
-**[electron](#b8949aa8130b5ef5da1efc84f1a58e30028db62c230eb1da216dcfd7b263f55f)**|30.5.1|MIT
+**[electron](#ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b)**|32.2.2|MIT
 **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**|1.0.2|MIT
 **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**|2.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
@@ -476,8 +476,8 @@ Package|Version|License
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
 **[negotiator](#e3856213d8f0a7d28cd4166e53ec7e2c019cb7becf4a8535097bac28d21e8579)**|0.6.3|MIT
 **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**|2.0.2|MIT
-**[node-abi](#e95a83ce4ffe7621819fbbceed23c54f12e0e1066aad9e5b3093bbdc7c958e0b)**|3.68.0|MIT
-**[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**|4.3.0|MIT
+**[node-abi](#26b0c85ed4add770fa688d81ed25b3e4018a6114f488c70ab5b36b25cf4084d3)**|3.71.0|MIT
+**[node-addon-api](#75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4)**|6.1.0|MIT
 **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**|1.0.0|MIT
 **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**|2.6.7|MIT
 **[node-fetch](#23d7d5a419e9a25e6384dee4aa24f7162544418f0cdc2d92e94e2cf924507b8c)**|2.7.0|MIT
@@ -19215,8 +19215,8 @@ License files:
       
 
 
-<a id="b8949aa8130b5ef5da1efc84f1a58e30028db62c230eb1da216dcfd7b263f55f"></a>
-### [electron](https://www.npmjs.com/package/electron) (version 30.5.1)
+<a id="ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b"></a>
+### [electron](https://www.npmjs.com/package/electron) (version 32.2.2)
 License tags: MIT
 
 License files:
@@ -28649,8 +28649,8 @@ License files:
 License tags: MIT
 
 
-<a id="e95a83ce4ffe7621819fbbceed23c54f12e0e1066aad9e5b3093bbdc7c958e0b"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.68.0)
+<a id="26b0c85ed4add770fa688d81ed25b3e4018a6114f488c70ab5b36b25cf4084d3"></a>
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.71.0)
 License tags: MIT
 
 License files:
@@ -28680,8 +28680,8 @@ License files:
       
 
 
-<a id="af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8"></a>
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.3.0)
+<a id="75c2a47526765afc024a6641ec7b1b37935dc672a211ebdd9773d74bc43a95b4"></a>
+### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 6.1.0)
 License tags: MIT
 
 License files:
