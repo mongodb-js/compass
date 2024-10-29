@@ -1,6 +1,10 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasAiService } from './atlas-ai-service';
+import {
+  type AIEndpoint,
+  aiURLConfig,
+  AtlasAiService,
+} from './atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
@@ -20,13 +24,11 @@ const PREFERENCES_USER = {
 };
 
 const BASE_URL = 'http://example.com';
+const urlConfig = aiURLConfig['admin-api'];
 
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
-  adminApiEndpoint = (url: string, requestId?: string) =>
-    `${[BASE_URL, url].join('/')}${
-      requestId ? `?request_id=${requestId}` : ''
-    }`;
+  adminApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
   authenticatedFetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
@@ -54,11 +56,20 @@ describe('AtlasAiService', function () {
     preferences = await createSandboxFromDefaultPreferences();
     preferences['getPreferencesUser'] = () => PREFERENCES_USER;
 
-    atlasAiService = new AtlasAiService(
-      new MockAtlasService() as any,
+    const mockAtlasService = new MockAtlasService();
+    atlasAiService = new AtlasAiService({
+      atlasService: mockAtlasService as any,
+      getUrlForEndpoint: (urlId: AIEndpoint) => {
+        const urlPath: string =
+          urlId === 'user-access'
+            ? urlConfig[urlId](PREFERENCES_USER.id)
+            : urlConfig[urlId];
+
+        return mockAtlasService.adminApiEndpoint(urlPath);
+      },
       preferences,
-      createNoopLogger()
-    );
+      logger: createNoopLogger(),
+    });
   });
 
   afterEach(function () {

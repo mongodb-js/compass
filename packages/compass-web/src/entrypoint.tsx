@@ -44,7 +44,10 @@ import {
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
-import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  AtlasAiServiceProvider,
+  aiURLConfig,
+} from '@mongodb-js/compass-generative-ai/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
@@ -59,11 +62,23 @@ import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 
-const WithAtlasProviders: React.FC = ({ children }) => {
+const WithAtlasProviders: React.FC<{
+  projectId: string;
+}> = ({ children, projectId }) => {
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasServiceProvider>
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
+        <AtlasAiServiceProvider
+          apiURLPreset="cloud"
+          urlConfig={{
+            'user-access': (userId: string) =>
+              aiURLConfig.cloud['user-access'](userId, projectId),
+            query: aiURLConfig.cloud.query(projectId),
+            aggregation: aiURLConfig.cloud.aggregation(projectId),
+          }}
+        >
+          {children}
+        </AtlasAiServiceProvider>
       </AtlasServiceProvider>
     </AtlasCloudAuthServiceProvider>
   );
@@ -315,7 +330,7 @@ const CompassWeb = ({
           <PreferencesProvider value={preferencesAccess.current}>
             <LoggerProvider value={logger}>
               <TelemetryProvider options={telemetryOptions.current}>
-                <WithAtlasProviders>
+                <WithAtlasProviders projectId={projectId}>
                   <AtlasCloudConnectionStorageProvider
                     orgId={orgId}
                     projectId={projectId}

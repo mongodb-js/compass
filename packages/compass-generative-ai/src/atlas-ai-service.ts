@@ -23,9 +23,6 @@ type GenerativeAiInput = {
 // want to ensure we're not uploading massive documents (some folks have documents > 1mb).
 const AI_MAX_REQUEST_SIZE = 5120000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
-const USER_AI_URI = (userId: string) => `unauth/ai/api/v1/hello/${userId}`;
-const AGGREGATION_URI = 'ai/api/v1/mql-aggregation';
-const QUERY_URI = 'ai/api/v1/mql-query';
 
 type AIAggregation = {
   content: {
@@ -192,14 +189,49 @@ export function validateAIAggregationResponse(
   }
 }
 
+export const aiURLConfig = {
+  // There are two different sets of endpoints we use for our requests.
+  // Down the line we'd like to only use the admin api, however,
+  // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
+  'admin-api': {
+    'user-access': (userId: string) => `unauth/ai/api/v1/hello/${userId}`,
+    aggregation: 'ai/api/v1/mql-aggregation',
+    query: 'ai/api/v1/mql-query',
+  },
+  cloud: {
+    'user-access': (groupId: string, userId: string) =>
+      `/ai/v1/groups/${groupId}/hello/${userId}`,
+    aggregation: (groupId: string) =>
+      `/ai/v1/groups/${groupId}/mql-aggregation`,
+    query: (groupId: string) => `/ai/v1/groups/${groupId}/mql-query`,
+  },
+} as const;
+export type AIEndpoint = 'user-access' | 'query' | 'aggregation';
+
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
 
-  constructor(
-    private atlasService: AtlasService,
-    private preferences: PreferencesAccess,
-    private logger: Logger
-  ) {
+  private atlasService: AtlasService;
+  private getUrlForEndpoint: (urlId: AIEndpoint) => string;
+  private preferences: PreferencesAccess;
+  private logger: Logger;
+
+  constructor({
+    atlasService,
+    getUrlForEndpoint,
+    preferences,
+    logger,
+  }: {
+    atlasService: AtlasService;
+    getUrlForEndpoint: (urlId: AIEndpoint) => string;
+    preferences: PreferencesAccess;
+    logger: Logger;
+  }) {
+    this.atlasService = atlasService;
+    this.getUrlForEndpoint = getUrlForEndpoint;
+    this.preferences = preferences;
+    this.logger = logger;
+
     this.initPromise = this.setupAIAccess();
   }
 
@@ -215,8 +247,7 @@ export class AtlasAiService {
   }
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
-    const userId = this.preferences.getPreferencesUser().id;
-    const url = this.atlasService.adminApiEndpoint(USER_AI_URI(userId));
+    const url = this.getUrlForEndpoint('user-access');
     const res = await this.atlasService.fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -261,7 +292,7 @@ export class AtlasAiService {
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(
-    uri: string,
+    urlId: 'query' | 'aggregation',
     input: GenerativeAiInput,
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
@@ -271,14 +302,15 @@ export class AtlasAiService {
     const { signal, requestId, ...rest } = input;
     const msgBody = buildQueryOrAggregationMessageBody(rest);
 
-    const url = this.atlasService.adminApiEndpoint(uri, requestId);
+    const url = new URL(this.getUrlForEndpoint(urlId));
+    url.searchParams.append('request_id', encodeURIComponent(requestId));
 
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_308),
       'AtlasAIService',
       'Running AI query generation request',
       {
-        url,
+        url: url.toString(),
         userInput: input.userInput,
         collectionName: input.collectionName,
         databaseName: input.databaseName,
@@ -287,7 +319,7 @@ export class AtlasAiService {
       }
     );
 
-    const res = await this.atlasService.authenticatedFetch(url, {
+    const res = await this.atlasService.authenticatedFetch(url.toString(), {
       signal,
       method: 'POST',
       body: msgBody,
@@ -328,7 +360,7 @@ export class AtlasAiService {
 
   async getAggregationFromUserInput(input: GenerativeAiInput) {
     return this.getQueryOrAggregationFromUserInput(
-      AGGREGATION_URI,
+      'aggregation',
       input,
       validateAIAggregationResponse
     );
@@ -336,7 +368,7 @@ export class AtlasAiService {
 
   async getQueryFromUserInput(input: GenerativeAiInput) {
     return this.getQueryOrAggregationFromUserInput(
-      QUERY_URI,
+      'query',
       input,
       validateAIQueryResponse
     );
