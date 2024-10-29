@@ -122,7 +122,7 @@ export function ShardZonesTable({
 
   const handleSearchTextChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      tableRef.current.setGlobalFilter(e.currentTarget.value);
+      tableRef.current.setGlobalFilter(e.currentTarget?.value || '');
     },
     [tableRef]
   );
