@@ -5,6 +5,7 @@ import {
 } from 'compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
@@ -189,7 +190,7 @@ export function validateAIAggregationResponse(
   }
 }
 
-export const aiURLConfig = {
+const aiURLConfig = {
   // There are two different sets of endpoints we use for our requests.
   // Down the line we'd like to only use the admin api, however,
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
@@ -199,40 +200,73 @@ export const aiURLConfig = {
     query: 'ai/api/v1/mql-query',
   },
   cloud: {
-    'user-access': (groupId: string, userId: string) =>
-      `/ai/v1/groups/${groupId}/hello/${userId}`,
-    aggregation: (groupId: string) =>
-      `/ai/v1/groups/${groupId}/mql-aggregation`,
-    query: (groupId: string) => `/ai/v1/groups/${groupId}/mql-query`,
+    'user-access': (userId: string) => `ai/v1/hello/${userId}`,
+    aggregation: (groupId: string) => `ai/v1/groups/${groupId}/mql-aggregation`,
+    query: (groupId: string) => `ai/v1/groups/${groupId}/mql-query`,
   },
 } as const;
-export type AIEndpoint = 'user-access' | 'query' | 'aggregation';
+type AIEndpoint = 'user-access' | 'query' | 'aggregation';
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
 
+  private apiURLPreset: 'admin-api' | 'cloud';
   private atlasService: AtlasService;
-  private getUrlForEndpoint: (urlId: AIEndpoint) => string;
   private preferences: PreferencesAccess;
   private logger: Logger;
 
   constructor({
+    apiURLPreset,
     atlasService,
-    getUrlForEndpoint,
     preferences,
     logger,
   }: {
+    apiURLPreset: 'admin-api' | 'cloud';
     atlasService: AtlasService;
-    getUrlForEndpoint: (urlId: AIEndpoint) => string;
     preferences: PreferencesAccess;
     logger: Logger;
   }) {
+    this.apiURLPreset = apiURLPreset;
     this.atlasService = atlasService;
-    this.getUrlForEndpoint = getUrlForEndpoint;
     this.preferences = preferences;
     this.logger = logger;
 
     this.initPromise = this.setupAIAccess();
+  }
+
+  private getUrlForEndpoint(
+    urlId: AIEndpoint,
+    connectionInfo?: ConnectionInfo
+  ) {
+    if (this.apiURLPreset === 'cloud') {
+      if (urlId === 'user-access') {
+        return this.atlasService.cloudEndpoint(
+          aiURLConfig[this.apiURLPreset][urlId](
+            this.preferences.getPreferencesUser().id
+          )
+        );
+      }
+
+      const atlasMetadata = connectionInfo?.atlasMetadata;
+      if (!atlasMetadata) {
+        throw new Error(
+          "Can't perform generative ai request: atlasMetadata is not available"
+        );
+      }
+
+      return this.atlasService.cloudEndpoint(
+        aiURLConfig[this.apiURLPreset][urlId](atlasMetadata.projectId)
+      );
+    }
+    const urlConfig = aiURLConfig[this.apiURLPreset][urlId];
+    const urlPath =
+      typeof urlConfig === 'function'
+        ? urlConfig(this.preferences.getPreferencesUser().id)
+        : urlConfig;
+
+    return this.apiURLPreset === 'admin-api'
+      ? this.atlasService.adminApiEndpoint(urlPath)
+      : this.atlasService.cloudEndpoint(urlPath);
   }
 
   private throwIfAINotEnabled() {
@@ -248,6 +282,7 @@ export class AtlasAiService {
 
   private async getAIFeatureEnablement(): Promise<AIFeatureEnablement> {
     const url = this.getUrlForEndpoint('user-access');
+
     const res = await this.atlasService.fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -292,8 +327,16 @@ export class AtlasAiService {
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(
-    urlId: 'query' | 'aggregation',
-    input: GenerativeAiInput,
+    {
+      urlId,
+      input,
+      connectionInfo,
+    }: {
+      urlId: 'query' | 'aggregation';
+      input: GenerativeAiInput;
+
+      connectionInfo?: ConnectionInfo;
+    },
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
     await this.initPromise;
@@ -302,15 +345,17 @@ export class AtlasAiService {
     const { signal, requestId, ...rest } = input;
     const msgBody = buildQueryOrAggregationMessageBody(rest);
 
-    const url = new URL(this.getUrlForEndpoint(urlId));
-    url.searchParams.append('request_id', encodeURIComponent(requestId));
+    const url = `${this.getUrlForEndpoint(
+      urlId,
+      connectionInfo
+    )}?request_id=${encodeURIComponent(requestId)}`;
 
     this.logger.log.info(
       this.logger.mongoLogId(1_001_000_308),
       'AtlasAIService',
       'Running AI query generation request',
       {
-        url: url.toString(),
+        url,
         userInput: input.userInput,
         collectionName: input.collectionName,
         databaseName: input.databaseName,
@@ -319,7 +364,7 @@ export class AtlasAiService {
       }
     );
 
-    const res = await this.atlasService.authenticatedFetch(url.toString(), {
+    const res = await this.atlasService.authenticatedFetch(url, {
       signal,
       method: 'POST',
       body: msgBody,
@@ -358,18 +403,30 @@ export class AtlasAiService {
     return data;
   };
 
-  async getAggregationFromUserInput(input: GenerativeAiInput) {
+  async getAggregationFromUserInput(
+    input: GenerativeAiInput,
+    connectionInfo: ConnectionInfo
+  ) {
     return this.getQueryOrAggregationFromUserInput(
-      'aggregation',
-      input,
+      {
+        connectionInfo,
+        urlId: 'aggregation',
+        input,
+      },
       validateAIAggregationResponse
     );
   }
 
-  async getQueryFromUserInput(input: GenerativeAiInput) {
+  async getQueryFromUserInput(
+    input: GenerativeAiInput,
+    connectionInfo: ConnectionInfo
+  ) {
     return this.getQueryOrAggregationFromUserInput(
-      'query',
-      input,
+      {
+        urlId: 'query',
+        input,
+        connectionInfo,
+      },
       validateAIQueryResponse
     );
   }

@@ -7,10 +7,7 @@ import {
   AtlasAuthServiceProvider,
   AtlasServiceProvider,
 } from '@mongodb-js/atlas-service/provider';
-import {
-  AtlasAiServiceProvider,
-  aiURLConfig,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import {
   CompassFavoriteQueryStorage,
   CompassPipelineStorage,
@@ -64,15 +61,7 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
           },
         }}
       >
-        <AtlasAiServiceProvider
-          apiURLPreset="admin-api"
-          urlConfig={{
-            'user-access': (userId: string) =>
-              aiURLConfig['admin-api']['user-access'](userId),
-            query: aiURLConfig['admin-api'].query,
-            aggregation: aiURLConfig['admin-api'].aggregation,
-          }}
-        >
+        <AtlasAiServiceProvider apiURLPreset="admin-api">
           {children}
         </AtlasAiServiceProvider>
       </AtlasServiceProvider>

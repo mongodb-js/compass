@@ -44,10 +44,7 @@ import {
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasServiceProvider } from '@mongodb-js/atlas-service/provider';
-import {
-  AtlasAiServiceProvider,
-  aiURLConfig,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import CompassConnections from '@mongodb-js/compass-connections';
@@ -64,19 +61,11 @@ import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome
 
 const WithAtlasProviders: React.FC<{
   projectId: string;
-}> = ({ children, projectId }) => {
+}> = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasServiceProvider>
-        <AtlasAiServiceProvider
-          apiURLPreset="cloud"
-          urlConfig={{
-            'user-access': (userId: string) =>
-              aiURLConfig.cloud['user-access'](userId, projectId),
-            query: aiURLConfig.cloud.query(projectId),
-            aggregation: aiURLConfig.cloud.aggregation(projectId),
-          }}
-        >
+        <AtlasAiServiceProvider apiURLPreset="cloud">
           {children}
         </AtlasAiServiceProvider>
       </AtlasServiceProvider>
