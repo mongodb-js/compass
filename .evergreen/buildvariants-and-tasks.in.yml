@@ -28,10 +28,10 @@ const PACKAGE_BUILD_VARIANTS = [
     name: 'package-ubuntu',
     display_name: 'Package Ubuntu',
 
-    // # NOTE: We are packaging on Ubuntu 16.04 in order to use glibc 2.23
+    // # NOTE: We are packaging on Ubuntu 18.04 in order to use glibc 2.27
     // # when compiling/re-building addons. This ensures compatibility with other
-    // # debian platforms that have glibc 2.23 or newer.
-    run_on: 'ubuntu1604-large',
+    // # debian platforms that have glibc 2.27 or newer.
+    run_on: 'ubuntu1804-large',
     silk_asset_group: 'compass-ubuntu',
   },
   {
@@ -275,6 +275,12 @@ buildvariants:
     <% } %>
     <% } %>
 
+  - name: test-web-sandbox-atlas-cloud
+    display_name: Test Web Sandbox (w/ Atlas Cloud login)
+    run_on: ubuntu2004-large
+    tasks:
+      - name: test-web-sandbox-atlas-cloud
+
   - name: generate-vulnerability-report
     display_name: Vulnerability Report
     run_on: ubuntu2004-large
@@ -503,6 +509,21 @@ tasks:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
   <% } %>
 <% } %>
+
+  - name: test-web-sandbox-atlas-cloud
+    tags:
+      - required-for-publish
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-web-sandbox-atlas-cloud
+        vars:
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
   - name: create_static_analysis_report
     tags: ['required-for-publish', 'run-on-pr']

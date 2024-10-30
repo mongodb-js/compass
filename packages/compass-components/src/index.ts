@@ -21,6 +21,7 @@ import type {
 } from './components/file-input';
 import FileInput, {
   createElectronFileInputBackend,
+  createJSDomFileInputDummyBackend,
   FileInputBackendProvider,
 } from './components/file-input';
 import { OptionsToggle } from './components/options-toggle';
@@ -119,6 +120,7 @@ export {
   DropdownMenuButton,
   defaultSidebarWidth,
   createElectronFileInputBackend,
+  createJSDomFileInputDummyBackend,
 };
 export {
   useFocusState,

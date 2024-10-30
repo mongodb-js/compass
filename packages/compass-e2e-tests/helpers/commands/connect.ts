@@ -1,13 +1,17 @@
 import {
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
+  DEFAULT_CONNECTION_NAME_1,
   connectionNameFromString,
 } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
 import * as Selectors from '../selectors';
 import Debug from 'debug';
+import {
+  DEFAULT_CONNECTION_NAMES,
+  isTestingAtlasCloudExternal,
+  isTestingAtlasCloudSandbox,
+} from '../test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -35,14 +39,27 @@ type ConnectOptions = ConnectionResultOptions & {
   removeConnections?: boolean;
 };
 
+/**
+ * Use this command when you need to add a new connection with a specific
+ * connection string. Most test files should just be using
+ * browser.connectToDefaults()
+ */
 export async function connectWithConnectionString(
   browser: CompassBrowser,
-  connectionString = DEFAULT_CONNECTION_STRING_1,
+  connectionStringOrName?: string,
   options: ConnectOptions = {}
 ): Promise<void> {
-  // Use this command when you need to add a new connection with a specific
-  // connection string. Most test files should just be using
-  // browser.connectToDefaults()
+  // When testing Atlas Cloud, we can't really create a new connection, so just
+  // assume a connection name was passed (with a fallback to a default one) and
+  // try to use it
+  if (isTestingAtlasCloudExternal() || isTestingAtlasCloudSandbox()) {
+    await browser.connectByName(
+      connectionStringOrName ?? DEFAULT_CONNECTION_NAME_1
+    );
+    return;
+  }
+
+  connectionStringOrName ??= DEFAULT_CONNECTION_STRING_1;
 
   // if the modal is still animating away when we're connecting again, things
   // are going to get confused
@@ -52,7 +69,7 @@ export async function connectWithConnectionString(
 
   // if a connection with this name already exists, remove it otherwise we'll
   // add a duplicate and things will get complicated fast
-  const connectionName = connectionNameFromString(connectionString);
+  const connectionName = connectionNameFromString(connectionStringOrName);
   if (await browser.removeConnection(connectionName)) {
     debug('Removing existing connection so we do not create a duplicate', {
       connectionName,
@@ -64,7 +81,7 @@ export async function connectWithConnectionString(
 
   await browser.setValueVisible(
     Selectors.ConnectionFormStringInput,
-    connectionString
+    connectionStringOrName
   );
 
   await browser.doConnect(connectionName, options);
@@ -173,9 +190,10 @@ export async function connectByName(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
-  // See setupDefaultConnections() for the details behind the thinking here.
-  await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
-  await browser.connectByName(DEFAULT_CONNECTION_NAME_2);
+  for (const name of DEFAULT_CONNECTION_NAMES) {
+    // See setupDefaultConnections() for the details behind the thinking here.
+    await browser.connectByName(name);
+  }
 
   // We assume that we connected successfully, so just close the success toasts
   // early to make sure they aren't in the way of tests. Tests that care about

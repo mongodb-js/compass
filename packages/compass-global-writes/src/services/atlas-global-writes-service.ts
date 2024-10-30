@@ -4,6 +4,8 @@ import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { CreateShardKeyData } from '../store/reducer';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
+const TIMESTAMP_REGEX = /\[\d{1,2}:\d{2}:\d{2}\.\d{3}\]/;
+
 export type ShardZoneMapping = {
   isoCode: string;
   typeOneIsoCode: string;
@@ -184,10 +186,13 @@ export class AtlasGlobalWritesService {
     const namespaceShardingError = data.automationStatus.processes.find(
       (process) =>
         process.statusType === 'ERROR' &&
-        process.workingOnShort === 'ShardingCollections' &&
+        process.workingOnShort === 'ShardCollections' &&
         process.errorText.indexOf(namespace) !== -1
     );
-    return namespaceShardingError?.errorText;
+    if (!namespaceShardingError) return undefined;
+    const errorTextSplit =
+      namespaceShardingError.errorText.split(TIMESTAMP_REGEX);
+    return errorTextSplit[errorTextSplit.length - 1].trim();
   }
 
   async getShardingKeys(namespace: string) {

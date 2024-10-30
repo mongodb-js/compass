@@ -4,7 +4,11 @@ import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 import type { ConnectFormState } from '../connect-form-state';
 import Debug from 'debug';
-import { DEFAULT_CONNECTIONS } from '../test-runner-context';
+import {
+  DEFAULT_CONNECTIONS,
+  isTestingAtlasCloudExternal,
+  isTestingAtlasCloudSandbox,
+} from '../test-runner-context';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
 
@@ -925,6 +929,12 @@ export async function saveConnection(
 }
 
 export async function setupDefaultConnections(browser: CompassBrowser) {
+  // When running tests against Atlas Cloud, connections can't be added or
+  // removed from the UI manually, so we skip setup for default connections
+  if (isTestingAtlasCloudExternal() || isTestingAtlasCloudSandbox()) {
+    return;
+  }
+
   /*
   This is intended to be used by most test files (ones that don't care too much
   about the intricacies about connections) in a before() hook after starting

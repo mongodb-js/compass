@@ -23,31 +23,39 @@ import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
 import semver from 'semver';
-import crossSpawn from 'cross-spawn';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTION_STRINGS,
   DEFAULT_CONNECTION_NAMES,
   DEFAULT_CONNECTIONS_SERVER_INFO,
+  isTestingWeb,
+  isTestingDesktop,
+  context,
+  assertTestingWeb,
+  isTestingAtlasCloudExternal,
+} from './test-runner-context';
+import {
   ELECTRON_CHROMIUM_VERSION,
-  TEST_COMPASS_WEB as _TEST_COMPASS_WEB,
   LOG_PATH,
   LOG_COVERAGE_PATH,
   COMPASS_DESKTOP_PATH,
   LOG_OUTPUT_PATH,
   LOG_SCREENSHOTS_PATH,
-  WEBDRIVER_DEFAULT_WAITFOR_TIMEOUT,
-  WEBDRIVER_DEFAULT_WAITFOR_INTERVAL,
-  TEST_COMPASS_DESKTOP_PACKAGED_APP,
   ELECTRON_PATH,
-  COMPASS_WEB_BROWSER_NAME,
-  COMPASS_WEB_BROWSER_VERSION,
-  TEST_ATLAS_CLOUD_EXTERNAL,
-  TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE,
-  TEST_ATLAS_CLOUD_EXTERNAL_URL,
-  TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID,
-  COMPASS_WEB_SANDBOX_URL,
-} from './test-runner-context';
+} from './test-runner-paths';
+import treeKill from 'tree-kill';
+
+const killAsync = async (pid: number, signal?: string) => {
+  return new Promise<void>((resolve, reject) => {
+    treeKill(pid, signal ?? 'SIGTERM', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
 
 const debug = Debug('compass-e2e-tests');
 
@@ -57,7 +65,7 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 const packageCompassAsync = promisify(packageCompass);
 
 // should we test compass-web (true) or compass electron (false)?
-export const TEST_COMPASS_WEB = _TEST_COMPASS_WEB;
+export const TEST_COMPASS_WEB = isTestingWeb();
 
 /*
 A helper so we can easily find all the tests we're skipping in compass-web.
@@ -74,10 +82,6 @@ export function skipForWeb(
     test.skip();
   }
 }
-
-export const MONGODB_TEST_SERVER_PORT = Number(
-  process.env.MONGODB_TEST_SERVER_PORT ?? 27091
-);
 
 export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
 // NOTE: in browser.setupDefaultConnections() we don't give the first connection an
@@ -435,7 +439,7 @@ async function getCompassExecutionParameters(): Promise<{
   testPackagedApp: boolean;
   binary: string;
 }> {
-  const testPackagedApp = TEST_COMPASS_DESKTOP_PACKAGED_APP;
+  const testPackagedApp = isTestingDesktop(context) && context.testPackagedApp;
   const binary = testPackagedApp
     ? getCompassBinPath(await getCompassBuildMetadata())
     : ELECTRON_PATH;
@@ -554,8 +558,8 @@ async function processCommonOpts({
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    waitforTimeout: WEBDRIVER_DEFAULT_WAITFOR_TIMEOUT,
-    waitforInterval: WEBDRIVER_DEFAULT_WAITFOR_INTERVAL,
+    waitforTimeout: context.webdriverWaitforTimeout,
+    waitforInterval: context.webdriverWaitforInterval,
   };
 
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
@@ -674,7 +678,7 @@ async function startCompassElectron(
       return (
         p.ppid === process.pid &&
         (p.cmd?.startsWith(binary) ||
-          /(MongoDB Compass|Electron|electron)/.test(p.name))
+          /(MongoDB Compass|Electron|electron|chromedriver)/.test(p.name))
       );
     });
 
@@ -696,7 +700,7 @@ async function startCompassElectron(
     );
 
     for (const p of filteredProcesses) {
-      tryKillProcess(p.pid, p.name);
+      await killAsync(p.pid);
     }
     throw err;
   }
@@ -727,14 +731,16 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
+  assertTestingWeb(context);
+
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
   const options: RemoteOptions = {
     capabilities: {
-      browserName: COMPASS_WEB_BROWSER_NAME,
-      ...(COMPASS_WEB_BROWSER_VERSION && {
-        browserVersion: COMPASS_WEB_BROWSER_VERSION,
+      browserName: context.browserName,
+      ...(context.browserVersion && {
+        browserVersion: context.browserVersion,
       }),
     },
     ...webdriverOptions,
@@ -746,11 +752,17 @@ export async function startBrowser(
 
   const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
 
-  if (TEST_ATLAS_CLOUD_EXTERNAL) {
+  if (isTestingAtlasCloudExternal(context)) {
+    const {
+      atlasCloudExternalCookiesFile,
+      atlasCloudExternalUrl,
+      atlasCloudExternalProjectId,
+    } = context;
+
     // To be able to use `setCookies` method, we need to first open any page on
     // the same domain as the cookies we are going to set
     // https://webdriver.io/docs/api/browser/setCookies/
-    await browser.navigateTo(`${TEST_ATLAS_CLOUD_EXTERNAL_URL!}/404`);
+    await browser.navigateTo(`${atlasCloudExternalUrl}/404`);
 
     type StoredAtlasCloudCookies = {
       name: string;
@@ -763,7 +775,7 @@ export async function startBrowser(
     }[];
 
     const cookies: StoredAtlasCloudCookies = JSON.parse(
-      await fs.readFile(TEST_ATLAS_CLOUD_EXTERNAL_COOKIES_FILE!, 'utf8')
+      await fs.readFile(atlasCloudExternalCookiesFile, 'utf8')
     );
 
     await browser.setCookies(
@@ -788,10 +800,10 @@ export async function startBrowser(
     );
 
     await browser.navigateTo(
-      `${TEST_ATLAS_CLOUD_EXTERNAL_URL!}/v2/${TEST_ATLAS_CLOUD_EXTERNAL_GROUP_ID!}#/explorer`
+      `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
     );
   } else {
-    await browser.navigateTo(COMPASS_WEB_SANDBOX_URL);
+    await browser.navigateTo(context.sandboxUrl);
   }
 
   const compass = new Compass(name, browser, {
@@ -801,21 +813,6 @@ export async function startBrowser(
   });
 
   return compass;
-}
-
-function tryKillProcess(pid: number, name = '<unknown>'): void {
-  try {
-    debug(`Killing process ${name} with PID ${pid}`);
-    if (process.platform === 'win32') {
-      crossSpawn.sync('taskkill', ['/PID', String(pid), '/F', '/T']);
-    } else {
-      process.kill(pid);
-    }
-  } catch (err) {
-    debug(`Failed to kill process ${name} with PID ${pid}`, {
-      error: (err as Error).stack,
-    });
-  }
 }
 
 /**
@@ -1096,7 +1093,7 @@ export async function cleanup(compass?: Compass): Promise<void> {
       // this only works for the electron use case
       try {
         debug(`Trying to manually kill Compass [${compass.name}]`);
-        tryKillProcess(compass.mainProcessPid, compass.name);
+        await killAsync(compass.mainProcessPid);
       } catch {
         /* already logged ... */
       }

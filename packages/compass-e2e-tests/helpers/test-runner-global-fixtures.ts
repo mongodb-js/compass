@@ -1,22 +1,17 @@
 import gunzip from './gunzip';
 import fs from 'fs';
 import {
-  COMPASS_WEB_SANDBOX_URL,
+  context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
-  DISABLE_START_STOP,
-  E2E_WORKSPACE_PATH,
-  LOG_PATH,
-  SKIP_COMPASS_DESKTOP_COMPILE,
-  SKIP_NATIVE_MODULE_REBUILD,
-  TEST_ATLAS_CLOUD_EXTERNAL,
-  TEST_COMPASS_DESKTOP,
-  TEST_COMPASS_DESKTOP_PACKAGED_APP,
-  TEST_COMPASS_WEB,
+  isTestingAtlasCloudExternal,
+  isTestingAtlasCloudSandbox,
+  isTestingDesktop,
+  isTestingWeb,
 } from './test-runner-context';
+import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
 import Debug from 'debug';
 import { startTestServer } from '@mongodb-js/compass-test-server';
-import crossSpawn from 'cross-spawn';
 import kill from 'tree-kill';
 import { MongoClient } from 'mongodb';
 import { isEnterprise } from 'mongodb-build-info';
@@ -27,6 +22,11 @@ import {
   removeUserDataDir,
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
+import {
+  spawnCompassWebSandbox,
+  spawnCompassWebSandboxAndSignInToAtlas,
+  waitForCompassWebSandboxToBeReady,
+} from './compass-web-sandbox';
 
 export const globalFixturesAbortController = new AbortController();
 
@@ -39,11 +39,6 @@ function throwIfAborted() {
 export let abortRunner: (() => void) | undefined;
 
 const debug = Debug('compass-e2e-tests:mocha-global-fixtures');
-
-const wait = (ms: number) =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
 
 const cleanupFns: (() => Promise<void> | void)[] = [];
 
@@ -76,7 +71,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('X DISPLAY', process.env.DISPLAY);
 
-    if (!DISABLE_START_STOP) {
+    if (!context.disableStartStop) {
       for (const connectionInfo of DEFAULT_CONNECTIONS) {
         if (connectionInfo.testServer) {
           debug(
@@ -95,18 +90,36 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (TEST_COMPASS_WEB && !TEST_ATLAS_CLOUD_EXTERNAL) {
+      if (isTestingWeb(context) && !isTestingAtlasCloudExternal(context)) {
         debug('Starting Compass Web server ...');
-        const compassWeb = spawnCompassWeb();
-        cleanupFns.push(() => {
-          if (compassWeb.pid) {
-            debug(`Killing compass-web [${compassWeb.pid}]`);
-            kill(compassWeb.pid, 'SIGINT');
-          } else {
-            debug('No pid for compass-web');
-          }
-        });
-        await waitForCompassWebToBeReady();
+        if (isTestingAtlasCloudSandbox(context)) {
+          const compassWeb = await spawnCompassWebSandboxAndSignInToAtlas(
+            {
+              username: context.atlasCloudSandboxUsername,
+              password: context.atlasCloudSandboxPassword,
+              sandboxUrl: context.sandboxUrl,
+              waitforTimeout: context.webdriverWaitforTimeout,
+            },
+            globalFixturesAbortController.signal
+          );
+          cleanupFns.push(async () => {
+            await compassWeb.deleteSession({ shutdownDriver: true });
+          });
+        } else {
+          const compassWeb = spawnCompassWebSandbox();
+          cleanupFns.push(() => {
+            if (compassWeb.pid) {
+              debug(`Killing compass-web [${compassWeb.pid}]`);
+              kill(compassWeb.pid, 'SIGINT');
+            } else {
+              debug('No pid for compass-web');
+            }
+          });
+          await waitForCompassWebSandboxToBeReady(
+            context.sandboxUrl,
+            globalFixturesAbortController.signal
+          );
+        }
       }
     }
 
@@ -124,19 +137,19 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     fs.mkdirSync(LOG_PATH, { recursive: true });
 
-    if (TEST_COMPASS_DESKTOP) {
-      if (TEST_COMPASS_DESKTOP_PACKAGED_APP) {
+    if (isTestingDesktop(context)) {
+      if (context.testPackagedApp) {
         debug('Building Compass before running the tests ...');
         await buildCompass();
       } else {
         debug('Preparing Compass before running the tests');
 
-        if (!SKIP_NATIVE_MODULE_REBUILD) {
+        if (context.nativeModules) {
           debug('Rebuilding native modules ...');
           await rebuildNativeModules();
         }
 
-        if (!SKIP_COMPASS_DESKTOP_COMPILE) {
+        if (context.compile) {
           debug('Compiling Compass assets ...');
           await compileCompassAssets();
         }
@@ -163,45 +176,6 @@ export async function mochaGlobalTeardown() {
       return fn();
     })
   );
-}
-
-function spawnCompassWeb() {
-  const proc = crossSpawn.spawn(
-    'npm',
-    ['run', '--unsafe-perm', 'start', '--workspace', '@mongodb-js/compass-web'],
-    {
-      env: {
-        ...process.env,
-        OPEN_BROWSER: 'false', // tell webpack dev server not to open the default browser
-        DISABLE_DEVSERVER_OVERLAY: 'true',
-        APP_ENV: 'webdriverio',
-      },
-    }
-  );
-  proc.stdout.pipe(process.stdout);
-  proc.stderr.pipe(process.stderr);
-  return proc;
-}
-
-async function waitForCompassWebToBeReady() {
-  let serverReady = false;
-  const start = Date.now();
-  while (!serverReady) {
-    throwIfAborted();
-    if (Date.now() - start >= 120_000) {
-      throw new Error(
-        'The compass-web sandbox is still not running after 120000ms'
-      );
-    }
-    try {
-      const res = await fetch(COMPASS_WEB_SANDBOX_URL);
-      serverReady = res.ok;
-      debug('Web server ready:', serverReady);
-    } catch (err) {
-      debug('Failed to connect to dev server:', (err as any).message);
-    }
-    await wait(1000);
-  }
 }
 
 async function updateMongoDBServerInfo() {

@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "1.30.1",
+  "version": "1.31.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",
@@ -79,7 +79,7 @@
     "@tanstack/table-core": "^8.14.0",
     "bson": "^6.8.0",
     "focus-trap-react": "^9.0.2",
-    "hadron-document": "^8.6.4",
+    "hadron-document": "^8.6.5",
     "hadron-type-checker": "^7.2.3",
     "is-electron-renderer": "^2.0.1",
     "lodash": "^4.17.21",

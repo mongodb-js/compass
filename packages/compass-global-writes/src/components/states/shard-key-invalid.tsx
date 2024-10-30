@@ -8,13 +8,7 @@ import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
 import type { RootState, ShardKey } from '../../store/reducer';
 import { connect } from 'react-redux';
-
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-  marginBottom: spacing[400],
-});
+import { containerStyles, bannerStyles } from '../common-styles';
 
 const paragraphStyles = css({
   display: 'flex',
@@ -30,7 +24,7 @@ export interface ShardKeyInvalidProps {
 export function ShardKeyInvalid({ shardKey, namespace }: ShardKeyInvalidProps) {
   return (
     <div className={containerStyles}>
-      <Banner variant={BannerVariant.Danger}>
+      <Banner variant={BannerVariant.Danger} className={bannerStyles}>
         <strong>
           To configure Global Writes, the first shard key of this collection
           must be &quot;location&quot; with ranged sharding and you must also
