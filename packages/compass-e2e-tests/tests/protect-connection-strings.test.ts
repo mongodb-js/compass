@@ -4,23 +4,21 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import clipboard from 'clipboardy';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { context } from '../helpers/test-runner-context';
 
 async function expectCopyConnectionStringToClipboard(
   browser: CompassBrowser,
   favoriteName: string,
   expected: string
 ): Promise<void> {
-  const Sidebar = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.Multiple
-    : Selectors.Single;
-  if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+  const Sidebar = Selectors.Multiple;
+  if (!context.disableClipboardUsage) {
     await browser.selectConnectionMenuItem(
       favoriteName,
       Sidebar.CopyConnectionStringItem
@@ -81,10 +79,7 @@ describe('protectConnectionStrings', function () {
       defaultPassword: 'bar',
     };
     await browser.setConnectFormState(state);
-    await browser.saveFavorite(
-      favoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Yellow' : 'color4'
-    );
+    await browser.saveFavorite(favoriteName, 'Yellow');
     await browser.selectConnection(favoriteName);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
@@ -106,9 +101,7 @@ describe('protectConnectionStrings', function () {
       'shows password when input is focused'
     ).to.equal('mongodb://foo:bar@localhost:12345/');
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    }
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
 
     await expectCopyConnectionStringToClipboard(
       browser,
@@ -116,9 +109,7 @@ describe('protectConnectionStrings', function () {
       'mongodb://foo:bar@localhost:12345/'
     );
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectConnection(favoriteName);
-    }
+    await browser.selectConnection(favoriteName);
 
     await browser.setFeature('protectConnectionStrings', true);
 
@@ -126,9 +117,7 @@ describe('protectConnectionStrings', function () {
       'mongodb://foo:*****@localhost:12345/'
     );
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    }
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
 
     await expectCopyConnectionStringToClipboard(
       browser,

@@ -40,14 +40,15 @@ jobs:
         run: |
           node scripts/update-electron.js
           git add .
-          git commit --no-allow-empty -m "chore: update electron" || true
+          git commit --no-allow-empty -m "chore(deps): update electron" || true
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
-          commit-message: 'chore: update electron'
+          commit-message: 'chore(deps): update electron'
           branch: ci/update-electron
-          title: 'chore: update electron'
+          title: 'chore(deps): update electron'
+          labels: no-title-validation
           body: |
             - Update electron

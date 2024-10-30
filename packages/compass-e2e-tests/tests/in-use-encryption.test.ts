@@ -6,11 +6,9 @@ import {
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
@@ -25,14 +23,10 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
   // hit refresh, then wait for a transition to occur that will correlate to the
   // data actually being refreshed and arriving.
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.selectConnectionMenuItem(
-      connectionName,
-      Selectors.Multiple.RefreshDatabasesItem
-    );
-  } else {
-    await browser.clickVisible(Selectors.Single.RefreshDatabasesButton);
-  }
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Selectors.Multiple.RefreshDatabasesItem
+  );
 }
 
 /**
@@ -119,41 +113,16 @@ describe('CSFLE / QE', function () {
       };
 
       // Save & Connect
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        // in the multiple connections world the favorite form fields are just
-        // part of the connection form
-        options.connectionName = connectionName;
-        options.connectionColor = 'color1';
-        options.connectionFavorite = true;
 
-        await browser.setConnectFormState(options);
+      // in the multiple connections world the favorite form fields are just
+      // part of the connection form
+      options.connectionName = connectionName;
+      options.connectionColor = 'color1';
+      options.connectionFavorite = true;
 
-        await browser.clickVisible(Selectors.ConnectionModalConnectButton);
-      } else {
-        // in the single connections world the favorite form fields are in a
-        // separate modal
-        await browser.setConnectFormState(options);
-        await browser.clickVisible(Selectors.SaveAndConnectButton);
-        await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-        await browser.setValueVisible(
-          Selectors.FavoriteNameInput,
-          connectionName
-        );
-        await browser.clickVisible(
-          `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
-        );
+      await browser.setConnectFormState(options);
 
-        // The modal's button text should read Save & Connect and not the default Save
-        expect(
-          await browser.$(Selectors.FavoriteSaveButton).getText()
-        ).to.equal('Save & Connect');
-
-        await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-        await browser.clickVisible(Selectors.FavoriteSaveButton);
-        await browser
-          .$(Selectors.FavoriteModal)
-          .waitForExist({ reverse: true });
-      }
+      await browser.clickVisible(Selectors.ConnectionModalConnectButton);
 
       // Wait for it to connect
       await browser.waitForConnectionResult(connectionName, {
@@ -173,27 +142,17 @@ describe('CSFLE / QE', function () {
       // extra pause to make very sure that it loaded the connections
       await delay(10000);
 
-      if (TEST_MULTIPLE_CONNECTIONS) {
-        // in the multiple connections world, if we clicked the connection it
-        // would connect and that's not what we want in this case. So we select
-        // edit from the menu.
-        await browser.selectConnectionMenuItem(
-          connectionName,
-          Selectors.Multiple.EditConnectionItem
-        );
-      } else {
-        // in the single connections world, clicking the favorite connection in
-        // the sidebar doesn't connect, it just pre-populates the form
-        await browser.clickVisible(
-          Selectors.sidebarConnectionButton(connectionName)
-        );
-      }
+      // in the multiple connections world, if we clicked the connection it
+      // would connect and that's not what we want in this case. So we select
+      // edit from the menu.
+      await browser.selectConnectionMenuItem(
+        connectionName,
+        Selectors.Multiple.EditConnectionItem
+      );
 
       // The modal should appear and the title of the modal should be the favorite name
       await browser.waitUntil(async () => {
-        const connectionTitleSelector = TEST_MULTIPLE_CONNECTIONS
-          ? Selectors.ConnectionModalTitle
-          : Selectors.ConnectionTitle;
+        const connectionTitleSelector = Selectors.ConnectionModalTitle;
         const text = await browser.$(connectionTitleSelector).getText();
         return text === connectionName;
       });
@@ -512,7 +471,7 @@ describe('CSFLE / QE', function () {
         // wait for the modal to go away
         await insertDialog.waitForDisplayed({ reverse: true });
 
-        const result = await getFirstListDocument(browser);
+        const result = await browser.getFirstListDocument();
 
         expect(result._id).to.exist;
         expect(result.__safeContent__).to.exist;
@@ -591,7 +550,7 @@ describe('CSFLE / QE', function () {
             'Documents'
           );
 
-          const result = await getFirstListDocument(browser);
+          const result = await browser.getFirstListDocument();
           expect(result[field]).to.be.equal(toString(oldValueJS));
 
           const document = await browser.$(Selectors.DocumentListEntry);
@@ -638,7 +597,7 @@ describe('CSFLE / QE', function () {
               : `{ ${field}: ${newValue} }`
           );
 
-          const modifiedResult = await getFirstListDocument(browser);
+          const modifiedResult = await browser.getFirstListDocument();
           expect(modifiedResult[field]).to.be.equal(toString(newValueJS));
           expect(modifiedResult._id).to.be.equal(result._id);
         });
@@ -696,7 +655,7 @@ describe('CSFLE / QE', function () {
           "{ phoneNumber: '10101010' }"
         );
 
-        const modifiedResult = await getFirstListDocument(browser);
+        const modifiedResult = await browser.getFirstListDocument();
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
 
@@ -847,7 +806,7 @@ describe('CSFLE / QE', function () {
 
         await browser.runFindOperation('Documents', "{ name: 'Third' }");
 
-        const result = await getFirstListDocument(browser);
+        const result = await browser.getFirstListDocument();
 
         delete result._id;
         delete result.__safeContent__;
@@ -896,7 +855,7 @@ describe('CSFLE / QE', function () {
           'Documents'
         );
 
-        let decryptedResult = await getFirstListDocument(browser);
+        let decryptedResult = await browser.getFirstListDocument();
 
         delete decryptedResult._id;
         delete decryptedResult.__safeContent__;
@@ -906,16 +865,12 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.clickVisible(
-            Selectors.sidebarConnectionActionButton(
-              connectionName,
-              Selectors.Multiple.InUseEncryptionMarker
-            )
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.InUseEncryptionMarker);
-        }
+        await browser.clickVisible(
+          Selectors.sidebarConnectionActionButton(
+            connectionName,
+            Selectors.Multiple.InUseEncryptionMarker
+          )
+        );
 
         await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
@@ -926,7 +881,7 @@ describe('CSFLE / QE', function () {
           .$(Selectors.CSFLEConnectionModal)
           .waitForDisplayed({ reverse: true });
 
-        const encryptedResult = await getFirstListDocument(browser);
+        const encryptedResult = await browser.getFirstListDocument();
 
         delete encryptedResult._id;
         delete encryptedResult.__safeContent__;
@@ -936,16 +891,12 @@ describe('CSFLE / QE', function () {
           name: '"Person Z"',
         });
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          await browser.clickVisible(
-            Selectors.sidebarConnectionActionButton(
-              connectionName,
-              Selectors.Multiple.InUseEncryptionMarker
-            )
-          );
-        } else {
-          await browser.clickVisible(Selectors.Single.InUseEncryptionMarker);
-        }
+        await browser.clickVisible(
+          Selectors.sidebarConnectionActionButton(
+            connectionName,
+            Selectors.Multiple.InUseEncryptionMarker
+          )
+        );
 
         await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
 
@@ -956,7 +907,7 @@ describe('CSFLE / QE', function () {
           .$(Selectors.CSFLEConnectionModal)
           .waitForDisplayed({ reverse: true });
 
-        decryptedResult = await getFirstListDocument(browser);
+        decryptedResult = await browser.getFirstListDocument();
 
         delete decryptedResult._id;
         delete decryptedResult.__safeContent__;
@@ -1075,7 +1026,7 @@ describe('CSFLE / QE', function () {
             collection,
             'Documents'
           );
-          const result = await getFirstListDocument(browser);
+          const result = await browser.getFirstListDocument();
           expect(result.phoneNumber).to.be.equal(JSON.stringify(value));
         }
 
@@ -1261,13 +1212,13 @@ describe('CSFLE / QE', function () {
       // { v: "123", _id: 'asdf' }
       // { v: "456", _id: 'ghjk' }
 
-      let decryptedResult = await getFirstListDocument(browser);
+      let decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"123"', _id: '"asdf"' });
 
       // We can't search for the encrypted value, but it does get decrypted
       await browser.runFindOperation('Documents', '{ _id: "ghjk" }');
-      decryptedResult = await getFirstListDocument(browser);
+      decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"456"', _id: '"ghjk"' });
     });

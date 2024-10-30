@@ -32,8 +32,6 @@
     "package-compass": "npm run package-compass --workspace=mongodb-compass --",
     "package-compass-debug": "npm run package-compass-debug --workspace=mongodb-compass --",
     "package-compass-nocompile": "npm run package-compass-nocompile --workspace=mongodb-compass --",
-    "prestart": "npm run compile --workspace=@mongodb-js/webpack-config-compass",
-    "prestart-web": "npm run prestart",
     "start": "npm run start --workspace=mongodb-compass",
     "start-web": "npm run start --workspace=@mongodb-js/compass-web",
     "test": "lerna run test --concurrency 1 --stream",
@@ -77,7 +75,7 @@
     "js-yaml": "^4.1.0",
     "lerna": "^7.1.5",
     "lodash": "^4.17.21",
-    "node-gyp": "^8.4.1"
+    "node-gyp": "^10.2.0"
   },
   "engines": {
     "node": ">=20.15.0",
@@ -93,8 +91,9 @@
     "scripts"
   ],
   "overrides": {
-    "@types/enzyme": {
-      "@types/react": "^17.0.5"
-    }
+    "@types/react": "^17.0.83",
+    "@types/react-dom": "^17.0.25",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

@@ -28,8 +28,8 @@ describe('Compass GlobalWrites Plugin', function () {
     namespace: 'db1.coll1',
     shardKey: {
       fields: [
-        { type: 'HASHED', name: 'location' },
-        { type: 'RANGE', name: 'secondary' },
+        { type: 'RANGE', name: 'location' },
+        { type: 'HASHED', name: 'secondary' },
       ],
       isUnique: false,
     },
@@ -66,7 +66,7 @@ describe('Compass GlobalWrites Plugin', function () {
     await renderWithProps({ onUnmanageNamespace, isUnmanagingNamespace: true });
 
     const btn = await screen.findByTestId<HTMLButtonElement>(
-      'shard-collection-button'
+      'unmanage-collection-button'
     );
     expect(btn).to.be.visible;
     expect(btn.getAttribute('aria-disabled')).to.equal('true');
@@ -103,12 +103,16 @@ describe('Compass GlobalWrites Plugin', function () {
   it('Describes the shardKey', async function () {
     await renderWithProps();
 
-    const title = await screen.findByTestId('shardkey-description-title');
+    const title = await screen.findByTestId(
+      'existing-shardkey-description-title'
+    );
     expect(title).to.be.visible;
     expect(title.textContent).to.equal(
       `${baseProps.namespace} is configured with the following shard key:`
     );
-    const list = await screen.findByTestId('shardkey-description-content');
+    const list = await screen.findByTestId(
+      'existing-shardkey-description-content'
+    );
     expect(list).to.be.visible;
     expect(list.textContent).to.contain(`"location", "secondary"`);
   });

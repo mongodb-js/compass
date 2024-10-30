@@ -18,6 +18,8 @@ import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';
 import { getNextKmsProviderName } from './kms-provider-content';
+import { FileInputBackendProvider } from '@mongodb-js/compass-components';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-input';
 
 const openAdvancedTab = async (
   tabId: 'general' | 'authentication' | 'tls' | 'proxy' | 'advanced' | 'csfle'
@@ -85,20 +87,24 @@ describe('In-Use Encryption', function () {
     };
 
     render(
-      <ConnectionForm
-        initialConnectionInfo={{
-          id: 'conn-1',
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:27017',
-          },
-        }}
-        onSaveAndConnectClicked={(connectionInfo) => {
-          connectSpy(connectionInfo.connectionOptions);
-        }}
-        onSaveClicked={() => {
-          return Promise.resolve();
-        }}
-      />
+      <FileInputBackendProvider
+        createFileInputBackend={createJSDomFileInputDummyBackend()}
+      >
+        <ConnectionForm
+          initialConnectionInfo={{
+            id: 'conn-1',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+          }}
+          onSaveAndConnectClicked={(connectionInfo) => {
+            connectSpy(connectionInfo.connectionOptions);
+          }}
+          onSaveClicked={() => {
+            return Promise.resolve();
+          }}
+        />
+      </FileInputBackendProvider>
     );
 
     expect(connectSpy).not.to.have.been.called;

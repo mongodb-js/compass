@@ -1,28 +1,19 @@
 import {
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_NAME_2,
   DEFAULT_CONNECTION_STRING_1,
-  TEST_MULTIPLE_CONNECTIONS,
+  DEFAULT_CONNECTION_NAME_1,
   connectionNameFromString,
 } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
 import * as Selectors from '../selectors';
 import Debug from 'debug';
+import {
+  DEFAULT_CONNECTION_NAMES,
+  isTestingAtlasCloudExternal,
+  isTestingAtlasCloudSandbox,
+} from '../test-runner-context';
+
 const debug = Debug('compass-e2e-tests');
-
-export async function waitForConnectionScreen(
-  browser: CompassBrowser
-): Promise<void> {
-  // there isn't a separate connection screen in multiple connections, just a modal you can access at any time
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    return;
-  }
-
-  const selector = Selectors.ConnectSection;
-  const connectScreenElement = await browser.$(selector);
-  await connectScreenElement.waitForDisplayed();
-}
 
 export async function getConnectFormConnectionString(
   browser: CompassBrowser,
@@ -48,41 +39,51 @@ type ConnectOptions = ConnectionResultOptions & {
   removeConnections?: boolean;
 };
 
+/**
+ * Use this command when you need to add a new connection with a specific
+ * connection string. Most test files should just be using
+ * browser.connectToDefaults()
+ */
 export async function connectWithConnectionString(
   browser: CompassBrowser,
-  connectionString = DEFAULT_CONNECTION_STRING_1,
+  connectionStringOrName?: string,
   options: ConnectOptions = {}
 ): Promise<void> {
-  // Use this command when you need to add a new connection with a specific
-  // connection string. Most test files should just be using
-  // browser.connectToDefaults()
-
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // if the modal is still animating away when we're connecting again, things
-    // are going to get confused
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
-
-    // if a connection with this name already exists, remove it otherwise we'll
-    // add a duplicate and things will get complicated fast
-    const connectionName = connectionNameFromString(connectionString);
-    if (await browser.removeConnection(connectionName)) {
-      debug('Removing existing connection so we do not create a duplicate', {
-        connectionName,
-      });
-    }
-
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
-    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+  // When testing Atlas Cloud, we can't really create a new connection, so just
+  // assume a connection name was passed (with a fallback to a default one) and
+  // try to use it
+  if (isTestingAtlasCloudExternal() || isTestingAtlasCloudSandbox()) {
+    await browser.connectByName(
+      connectionStringOrName ?? DEFAULT_CONNECTION_NAME_1
+    );
+    return;
   }
+
+  connectionStringOrName ??= DEFAULT_CONNECTION_STRING_1;
+
+  // if the modal is still animating away when we're connecting again, things
+  // are going to get confused
+  await browser
+    .$(Selectors.ConnectionModal)
+    .waitForDisplayed({ reverse: true });
+
+  // if a connection with this name already exists, remove it otherwise we'll
+  // add a duplicate and things will get complicated fast
+  const connectionName = connectionNameFromString(connectionStringOrName);
+  if (await browser.removeConnection(connectionName)) {
+    debug('Removing existing connection so we do not create a duplicate', {
+      connectionName,
+    });
+  }
+
+  await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+  await browser.$(Selectors.ConnectionModal).waitForDisplayed();
 
   await browser.setValueVisible(
     Selectors.ConnectionFormStringInput,
-    connectionString
+    connectionStringOrName
   );
 
-  const connectionName = connectionNameFromString(connectionString);
   await browser.doConnect(connectionName, options);
 }
 
@@ -133,75 +134,50 @@ export async function waitForConnectionResult(
 ): Promise<string | undefined> {
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
-      // Clear the filter to make sure every connection shows
-      await browser.clickVisible(Selectors.SidebarFilterInput);
-      await browser.setValueVisible(Selectors.SidebarFilterInput, '');
-    }
+  if (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) {
+    // Clear the filter to make sure every connection shows
+    await browser.clickVisible(Selectors.SidebarFilterInput);
+    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
   }
 
   if (connectionStatus === 'either') {
     // For the very rare cases where we don't care whether it fails or succeeds.
     // Usually because the exact result is a race condition.
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      const successSelector = Selectors.Multiple.connectionItemByName(
-        connectionName,
-        {
-          connected: true,
-        }
-      );
-      const failureSelector = Selectors.ConnectionToastErrorText;
-      await browser
-        .$(`${successSelector},${failureSelector}`)
-        .waitForDisplayed(waitOptions);
-    } else {
-      // TODO(COMPASS-7600): this doesn't support compass-web yet, but also
-      // isn't encountered yet
-      await browser
-        .$(`${Selectors.MyQueriesList},${Selectors.ConnectionFormErrorMessage}`)
-        .waitForDisplayed();
-    }
+    const successSelector = Selectors.Multiple.connectionItemByName(
+      connectionName,
+      {
+        connected: true,
+      }
+    );
+    const failureSelector = Selectors.ConnectionToastErrorText;
+    await browser
+      .$(`${successSelector},${failureSelector}`)
+      .waitForDisplayed(waitOptions);
   } else if (connectionStatus === 'success') {
     // Wait for the first meaningful thing on the screen after being connected
     // and assume that's a good enough indicator that we are connected to the
     // server
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser
-        .$(
-          Selectors.Multiple.connectionItemByName(connectionName, {
-            connected: true,
-          })
-        )
-        .waitForDisplayed();
-    } else {
-      // In the single connection world we land on the My Queries page
-      await browser.$(Selectors.MyQueriesList).waitForDisplayed();
-    }
+    await browser
+      .$(
+        Selectors.Multiple.connectionItemByName(connectionName, {
+          connected: true,
+        })
+      )
+      .waitForDisplayed();
   } else if (connectionStatus === 'failure') {
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser
-        .$(Selectors.ConnectionToastErrorText)
-        .waitForDisplayed(waitOptions);
-      return await browser.$(Selectors.LGToastTitle).getText();
-    } else {
-      // TODO(COMPASS-7600): this doesn't support compass-web yet, but also
-      // isn't encountered yet
-      const element = await browser.$(Selectors.ConnectionFormErrorMessage);
-      await element.waitForDisplayed(waitOptions);
-      return await element.getText();
-    }
+    await browser
+      .$(Selectors.ConnectionToastErrorText)
+      .waitForDisplayed(waitOptions);
+    return await browser.$(Selectors.LGToastTitle).getText();
   } else {
     const exhaustiveCheck: never = connectionStatus;
     throw new Error(`Unhandled connectionStatus case: ${exhaustiveCheck}`);
   }
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // make sure the placeholders for databases & collections that are loading are all gone
-    await browser
-      .$(Selectors.DatabaseCollectionPlaceholder)
-      .waitForDisplayed({ reverse: true });
-  }
+  // make sure the placeholders for databases & collections that are loading are all gone
+  await browser
+    .$(Selectors.DatabaseCollectionPlaceholder)
+    .waitForDisplayed({ reverse: true });
 }
 
 export async function connectByName(
@@ -210,24 +186,13 @@ export async function connectByName(
   options: ConnectionResultOptions = {}
 ) {
   await browser.clickVisible(Selectors.sidebarConnectionButton(connectionName));
-
-  if (!TEST_MULTIPLE_CONNECTIONS) {
-    // for single connections it only fills the connection form and we still
-    // have to click connect. For multiple connections clicking the connection
-    // connects
-    await browser.pause(1000);
-    await browser.clickVisible(Selectors.ConnectButton);
-  }
-
   await browser.waitForConnectionResult(connectionName, options);
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
-  // See setupDefaultConnections() for the details behind the thinking here.
-  await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
-
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.connectByName(DEFAULT_CONNECTION_NAME_2);
+  for (const name of DEFAULT_CONNECTION_NAMES) {
+    // See setupDefaultConnections() for the details behind the thinking here.
+    await browser.connectByName(name);
   }
 
   // We assume that we connected successfully, so just close the success toasts

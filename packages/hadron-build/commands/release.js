@@ -254,6 +254,11 @@ const transformPackageJson = async (CONFIG, done) => {
     'repository',
     'check',
     'config.hadron.build',
+    // Compass postinstall script downloads some files that become part of the
+    // build during compilation, we don't need to download them again when
+    // packaging. This allows us to avoid pulling some dev-only deps to the
+    // production dependencies of the bundled application
+    'scripts.install',
   ];
 
   let contents = _.omit(CONFIG.pkg, packageKeysToRemove);
@@ -379,15 +384,24 @@ const installDependencies = util.callbackify(async (CONFIG) => {
     force: true,
   };
 
+  const forceRebuildFromSourceOptions =
+    // We only want to force rebuild on linux to make sure that the version of
+    // glibc is matching the platform we're running this on instead of the
+    // platform the prebuilt was generated on, for other platforms it's okay to
+    // just download the prebuilt modules when available
+    process.platform === 'linux'
+      ? {
+          // electron-rebuild doesn't allow to force rebuild from source, but we
+          // can force it by passing a fake tag that would not allow prebuilt to
+          // download the asset
+          prebuildTagPrefix: 'not-real-prefix-to-force-rebuild',
+        }
+      : {};
+
   const allModulesRebuildConfig = {
     ...sharedRebuildConfig,
     ...CONFIG.rebuild,
-    // We want to ensure that we are actually rebuilding native modules on the
-    // platform we are packaging. There is currently no direct way of passing a
-    // --build-from-source flag to rebuild-install package, but we can force
-    // rebuild by providing a tag prefix that will make prebuild think that
-    // prebuilt files don't exist
-    prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild',
+    ...forceRebuildFromSourceOptions,
   };
 
   // We can not force rebuild mongodb-client-encryption locally, but we need to

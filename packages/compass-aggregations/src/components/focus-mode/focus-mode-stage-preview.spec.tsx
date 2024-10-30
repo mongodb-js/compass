@@ -86,6 +86,36 @@ describe('FocusModeStagePreview', function () {
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(/no preview documents/i)).to.exist;
     });
+    for (const stageOperator of ['$search', '$searchMeta', '$vectorSearch']) {
+      it(`renders missing search index text for ${stageOperator}`, async function () {
+        await renderFocusModePreview({
+          stageOperator,
+          documents: [],
+        });
+        expect(screen.getByText('No preview documents')).to.exist;
+        expect(
+          screen.getByText(
+            'This may be because your search has no results or your search index does not exist.'
+          )
+        ).to.exist;
+      });
+
+      it(`does not render missing search index text for ${stageOperator} and documents.length > 0`, async function () {
+        await renderFocusModePreview({
+          stageOperator,
+          documents: [
+            new HadronDocument({ _id: 12345 }),
+            new HadronDocument({ _id: 54321 }),
+          ],
+        });
+        expect(screen.queryByText('No preview documents')).to.not.exist;
+        expect(
+          screen.queryByText(
+            'This may be because your search has no results or your search index does not exist.'
+          )
+        ).to.not.exist;
+      });
+    }
     it('renders $out stage preview', async function () {
       await renderFocusModePreview(
         {

@@ -5,12 +5,16 @@ import {
   spacing,
   WorkspaceContainer,
   SpinLoaderWithLabel,
+  ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
 import type { RootState, ShardingStatus } from '../store/reducer';
 import { ShardingStatuses } from '../store/reducer';
 import UnshardedState from './states/unsharded';
 import ShardingState from './states/sharding';
 import ShardKeyCorrect from './states/shard-key-correct';
+import ShardKeyInvalid from './states/shard-key-invalid';
+import ShardKeyMismatch from './states/shard-key-mismatch';
+import ShardingError from './states/sharding-error';
 
 const containerStyles = css({
   paddingLeft: spacing[400],
@@ -18,6 +22,7 @@ const containerStyles = css({
   display: 'flex',
   width: '100%',
   height: '100%',
+  maxWidth: '700px',
 });
 
 const workspaceContentStyles = css({
@@ -55,8 +60,19 @@ function ShardingStateView({
     return <UnshardedState />;
   }
 
-  if (shardingStatus === ShardingStatuses.SHARDING) {
+  if (
+    shardingStatus === ShardingStatuses.SHARDING ||
+    shardingStatus === ShardingStatuses.CANCELLING_SHARDING
+  ) {
     return <ShardingState />;
+  }
+
+  if (
+    shardingStatus === ShardingStatuses.SHARDING_ERROR ||
+    shardingStatus === ShardingStatuses.CANCELLING_SHARDING_ERROR ||
+    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR
+  ) {
+    return <ShardingError />;
   }
 
   if (
@@ -66,6 +82,17 @@ function ShardingStateView({
     return <ShardKeyCorrect />;
   }
 
+  if (shardingStatus === ShardingStatuses.SHARD_KEY_INVALID) {
+    return <ShardKeyInvalid />;
+  }
+
+  if (
+    shardingStatus === ShardingStatuses.SHARD_KEY_MISMATCH ||
+    shardingStatus === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH
+  ) {
+    return <ShardKeyMismatch />;
+  }
+
   return null;
 }
 
@@ -73,7 +100,9 @@ export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   return (
     <div className={containerStyles}>
       <WorkspaceContainer className={workspaceContentStyles}>
-        <ShardingStateView shardingStatus={shardingStatus} />
+        <ConfirmationModalArea>
+          <ShardingStateView shardingStatus={shardingStatus} />
+        </ConfirmationModalArea>
       </WorkspaceContainer>
     </div>
   );

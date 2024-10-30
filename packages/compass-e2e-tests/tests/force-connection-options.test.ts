@@ -6,7 +6,6 @@ import {
   positionalArgs,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
   Selectors,
   connectionNameFromString,
 } from '../helpers/compass';
@@ -42,10 +41,8 @@ describe('forceConnectionOptions', function () {
   });
 
   it('forces the value of a specific connection option', async function () {
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // open the connection modal because that's where the warnings will be displayed
-      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
-    }
+    // open the connection modal because that's where the warnings will be displayed
+    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
 
     await browser.waitUntil(
       async () => {
@@ -63,10 +60,8 @@ describe('forceConnectionOptions', function () {
       }
     );
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // close the modal again so connectWithConnectionString sees the expected state
-      await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    }
+    // close the modal again so connectWithConnectionString sees the expected state
+    await browser.clickVisible(Selectors.ConnectionModalCloseButton);
 
     const connectionString =
       'mongodb://127.0.0.1:27091/?appName=userSpecifiedAppName';

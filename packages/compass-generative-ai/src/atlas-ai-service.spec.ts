@@ -4,11 +4,9 @@ import { AtlasAiService } from './atlas-ai-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import { ObjectId } from 'mongodb';
 
 const ATLAS_USER = {
-  enabledAIFeature: true,
   firstName: 'John',
   lastName: 'Doe',
   login: 'johndoe',
@@ -22,24 +20,6 @@ const PREFERENCES_USER = {
 };
 
 const BASE_URL = 'http://example.com';
-
-class MockAtlasAuthService extends AtlasAuthService {
-  isAuthenticated() {
-    return Promise.resolve(true);
-  }
-  async getUserInfo() {
-    return Promise.resolve({} as any);
-  }
-  async signIn() {
-    return Promise.resolve({} as any);
-  }
-  async signOut() {
-    return Promise.resolve();
-  }
-  async getAuthHeaders() {
-    return Promise.resolve({});
-  }
-}
 
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
@@ -76,7 +56,6 @@ describe('AtlasAiService', function () {
 
     atlasAiService = new AtlasAiService(
       new MockAtlasService() as any,
-      new MockAtlasAuthService(),
       preferences,
       createNoopLogger()
     );
@@ -204,7 +183,7 @@ describe('AtlasAiService', function () {
               userInput: 'test',
               collectionName: 'test',
               databaseName: 'peanut',
-              sampleDocuments: [{ test: '4'.repeat(600000) }],
+              sampleDocuments: [{ test: '4'.repeat(5120001) }],
               requestId: 'abc',
               signal: new AbortController().signal,
             });
@@ -231,7 +210,7 @@ describe('AtlasAiService', function () {
               { a: '1' },
               { a: '2' },
               { a: '3' },
-              { a: '4'.repeat(500000) },
+              { a: '4'.repeat(5120001) },
             ],
             requestId: 'abc',
             signal: new AbortController().signal,

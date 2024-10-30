@@ -16,7 +16,6 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 import { startMockAtlasServiceServer } from '../helpers/atlas-service';
 import type { MockAtlasServerResponse } from '../helpers/atlas-service';
-import { getFirstListDocument } from '../helpers/read-first-document-content';
 
 describe('Collection ai query', function () {
   let compass: Compass;
@@ -147,7 +146,7 @@ describe('Collection ai query', function () {
 
       // Run it and check that the correct documents are shown.
       await browser.runFind('Documents', true);
-      const modifiedResult = await getFirstListDocument(browser);
+      const modifiedResult = await browser.getFirstListDocument();
       expect(modifiedResult.i).to.be.equal('51');
     });
   });

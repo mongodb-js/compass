@@ -35,7 +35,7 @@ buildvariants:
     expansions:
       silk_asset_group: compass-ubuntu
     display_name: Package Ubuntu
-    run_on: ubuntu1604-large
+    run_on: ubuntu1804-large
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -257,6 +257,11 @@ buildvariants:
       - name: test-web-sandbox-firefox-1
       - name: test-web-sandbox-firefox-2
       - name: test-web-sandbox-firefox-3
+  - name: test-web-sandbox-atlas-cloud
+    display_name: Test Web Sandbox (w/ Atlas Cloud login)
+    run_on: ubuntu2004-large
+    tasks:
+      - name: test-web-sandbox-atlas-cloud
   - name: generate-vulnerability-report
     display_name: Vulnerability Report
     run_on: ubuntu2004-large
@@ -1714,6 +1719,20 @@ tasks:
           compass_distribution: compass
           e2e_test_groups: 3
           e2e_test_group: 3
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: test-web-sandbox-atlas-cloud
+    tags:
+      - required-for-publish
+      - run-on-pr
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-web-sandbox-atlas-cloud
+        vars:
+          compass_distribution: compass
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: create_static_analysis_report
     tags:

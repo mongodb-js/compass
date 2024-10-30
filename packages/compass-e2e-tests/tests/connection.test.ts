@@ -13,10 +13,9 @@ import {
   serverSatisfies,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
   connectionNameFromString,
   DEFAULT_CONNECTION_NAME_1,
-  MONGODB_TEST_SERVER_PORT,
+  DEFAULT_CONNECTION_STRING_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
@@ -197,27 +196,19 @@ async function assertCannotCreateDb(
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  const Sidebar = TEST_MULTIPLE_CONNECTIONS
-    ? Selectors.Multiple
-    : Selectors.Single;
+  const Sidebar = Selectors.Multiple;
 
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // navigate to the databases tab so that the connection is
-    // active/highlighted and then the add button and three dot menu will
-    // display without needing to hover
-    await browser.navigateToConnectionTab(connectionName, 'Databases');
-  }
+  // navigate to the databases tab so that the connection is
+  // active/highlighted and then the add button and three dot menu will
+  // display without needing to hover
+  await browser.navigateToConnectionTab(connectionName, 'Databases');
 
   // open the create database modal from the sidebar
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    await browser.selectConnectionMenuItem(
-      connectionName,
-      Sidebar.CreateDatabaseButton,
-      false
-    );
-  } else {
-    await browser.clickVisible(Sidebar.CreateDatabaseButton);
-  }
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Sidebar.CreateDatabaseButton,
+    false
+  );
 
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
@@ -326,39 +317,30 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
+    const [protocol, url] = DEFAULT_CONNECTION_STRING_1.split('://');
     // connect
-    await browser.connectWithConnectionString(
-      `mongodb://a:b@127.0.0.1:${MONGODB_TEST_SERVER_PORT}/test`,
-      { connectionStatus: 'failure' }
-    );
+    await browser.connectWithConnectionString(`${protocol}://a:b@${url}`, {
+      connectionStatus: 'failure',
+    });
 
     // check the error
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
-      expect(toastTitle).to.equal('Authentication failed.');
+    const toastTitle = await browser.$(Selectors.LGToastTitle).getText();
+    expect(toastTitle).to.equal('Authentication failed.');
 
-      const errorMessage = await browser
-        .$(Selectors.ConnectionToastErrorText)
-        .getText();
-      expect(errorMessage).to.equal(
-        'There was a problem connecting to 127.0.0.1:27091'
-      );
-    } else {
-      const errorMessage = await browser
-        .$(Selectors.ConnectionFormErrorMessage)
-        .getText();
-      expect(errorMessage).to.equal('Authentication failed.');
-    }
+    const errorMessage = await browser
+      .$(Selectors.ConnectionToastErrorText)
+      .getText();
+    expect(errorMessage).to.equal(
+      'There was a problem connecting to 127.0.0.1:27091'
+    );
 
     // for multiple connections click the review button in the toast
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
-      const errorText = await browser
-        .$(Selectors.ConnectionFormErrorMessage)
-        .getText();
-      expect(errorText).to.equal('Authentication failed.');
-    }
+    await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    const errorText = await browser
+      .$(Selectors.ConnectionFormErrorMessage)
+      .getText();
+    expect(errorText).to.equal('Authentication failed.');
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
@@ -929,10 +911,6 @@ describe('Connection form', function () {
   });
 
   it('fails for multiple authentication errors', async function () {
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      this.skip();
-    }
-
     const connection1Name = 'error-1';
     const connection2Name = 'error-2';
 

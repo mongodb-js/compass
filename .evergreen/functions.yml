@@ -86,7 +86,7 @@ post:
       target: src/all-e2e-logs.tgz
       source_dir: src/packages/compass-e2e-tests/.log
       include:
-        - "**"
+        - '**'
   - command: s3.put
     params:
       <<: *save-artifact-params-private
@@ -203,6 +203,15 @@ functions:
           # Install dependencies
           bash ".evergreen/retry-with-backoff.sh" .evergreen/npm_ci.sh
 
+          # Will fail if versions of direct dependencies listed in package-lock
+          # are not matching versions defined in package.json file of any of the
+          # workspace packages
+          # This command is very noisy when running from root with --all, store
+          # the output in a file that will be uploaded with rest of the logs
+          LS_ALL_STDOUT_FILE="$(npm config get cache)/_logs/$(date -u +"%Y-%m-%dT%H_%M_%SZ")-npm-ls-all.log"
+          echo "Validating dependencies with \`npm ls --all\`..."
+          (npm ls --all > $LS_ALL_STDOUT_FILE && echo "No mismatched dependency versions") || echo "\nThe \`npm ls\` command failed with mismatched dependencies error. This usually means that the dependency versions listed in package.json are not matching dependencies resolved and recorded in package-lock.json. If you updated package.json files in your PR, inspect the error output and try to re-install offending dependncies to fix the package-lock file."
+
   bootstrap:
     - command: shell.exec
       type: setup
@@ -294,7 +303,7 @@ functions:
           echo "Running tests in Electron runtime"
 
           # Preparing native addons for electron runtime
-          npm run --unsafe-perm electron-rebuild
+          DEBUG=electron-rebuild* npm run --unsafe-perm electron-rebuild
 
           npm run --unsafe-perm test-ci-electron -- --stream
 
@@ -588,10 +597,9 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
           ATLAS_LOCAL_VERSION: latest
-          HADRON_DISTRIBUTION: compass
         script: |
           set -e
           # Load environment variables
@@ -620,8 +628,8 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
@@ -655,14 +663,50 @@ functions:
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
-          BROWSER_NAME: ${browser_name}
-          E2E_TEST_GROUPS: ${e2e_test_groups}
-          E2E_TEST_GROUP: ${e2e_test_group}
+          COMPASS_E2E_BROWSER_NAME: ${browser_name}
+          COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
+          COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          npm run --unsafe-perm --workspace compass-e2e-tests test-web
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci web
+
+    
+  test-web-sandbox-atlas-cloud:
+    - command: shell.exec
+      # It can take a very long time for Atlas cluster to get deployed
+      timeout_secs: 2400
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug|}
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG: 'qa'
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME: ${e2e_tests_compass_web_atlas_username}
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD: ${e2e_tests_compass_web_atlas_password}
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME: ${e2e_tests_compass_web_atlas_db_username}
+          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_PASSWORD: ${e2e_tests_compass_web_atlas_password}
+          MCLI_PUBLIC_API_KEY: ${e2e_tests_mcli_public_api_key}
+          MCLI_PRIVATE_API_KEY: ${e2e_tests_mcli_private_api_key}
+          MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
+          MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
+          MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          # Create Atlas cluster for test project
+          source .evergreen/start-atlas-cloud-cluster.sh
+          # Run the tests
+          echo "Starting e2e tests..."
+          # We're only running a special subset of tests as provisioning atlas
+          # clusters in CI is both pricey and flakey, so we want to limit the
+          # coverage to reduce those factors (at least for now)
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
+            --test-atlas-cloud-sandbox \
+            --test-filter="atlas-cloud/**/*"
 
   test-connectivity:
     - command: shell.exec

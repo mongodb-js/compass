@@ -8,7 +8,6 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   connectionNameFromString,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import { setupProxyServer } from '../helpers/proxy';
 import * as Selectors from '../helpers/selectors';
@@ -257,11 +256,9 @@ describe('OIDC integration', function () {
       }
     };
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.removeConnection(connectionName);
-      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
-    }
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
@@ -317,11 +314,9 @@ describe('OIDC integration', function () {
       };
     };
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.removeConnection(connectionName);
-      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
-    }
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
@@ -331,16 +326,14 @@ describe('OIDC integration', function () {
     // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // we have to browse somewhere that will fire off commands that require
-      // authentication so that those commands get rejected due to the expired
-      // auth and then that will trigger the confirmation modal we expect.
-      await browser.selectConnectionMenuItem(
-        connectionName,
-        Selectors.Multiple.OpenShellItem,
-        false
-      );
-    }
+    // we have to browse somewhere that will fire off commands that require
+    // authentication so that those commands get rejected due to the expired
+    // auth and then that will trigger the confirmation modal we expect.
+    await browser.selectConnectionMenuItem(
+      connectionName,
+      Selectors.Multiple.OpenShellItem,
+      false
+    );
 
     await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
     const modalHeader = await browser.$(Selectors.ConfirmationModalHeading);
@@ -366,11 +359,9 @@ describe('OIDC integration', function () {
       };
     };
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.removeConnection(connectionName);
-      await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
-    }
+    await browser.removeConnection(connectionName);
+    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
+    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
@@ -380,16 +371,14 @@ describe('OIDC integration', function () {
     // wait for the token to expire (see expires_in above)
     await browser.pause(10_000);
 
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // we have to browse somewhere that will fire off commands that require
-      // authentication so that those commands get rejected due to the expired
-      // auth and then that will trigger the confirmation modal we expect
-      await browser.selectConnectionMenuItem(
-        connectionName,
-        Selectors.Multiple.OpenShellItem,
-        false
-      );
-    }
+    // we have to browse somewhere that will fire off commands that require
+    // authentication so that those commands get rejected due to the expired
+    // auth and then that will trigger the confirmation modal we expect
+    await browser.selectConnectionMenuItem(
+      connectionName,
+      Selectors.Multiple.OpenShellItem,
+      false
+    );
 
     await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
     const modalHeader = await browser.$(Selectors.ConfirmationModalHeading);
