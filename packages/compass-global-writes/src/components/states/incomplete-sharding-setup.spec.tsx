@@ -10,7 +10,7 @@ import { renderWithStore } from '../../../tests/create-store';
 import { type ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { type ShardZoneData } from '../../store/reducer';
 
-describe.only('IncompleteShardingSetup', function () {
+describe('IncompleteShardingSetup', function () {
   const shardZones: ShardZoneData[] = [
     {
       zoneId: '45893084',

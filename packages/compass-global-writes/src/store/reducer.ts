@@ -322,6 +322,25 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   }
 
   if (
+    isAction<NamespaceShardKeyFetchedAction>(
+      action,
+      GlobalWritesActionTypes.NamespaceShardKeyFetched
+    ) &&
+    state.status === ShardingStatuses.NOT_READY &&
+    !action.shardKey &&
+    !state.managedNamespace
+  ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
+    return {
+      ...state,
+      status: ShardingStatuses.UNSHARDED,
+      pollingTimeout: state.pollingTimeout,
+    };
+  }
+
+  if (
     isAction<ShardZonesFetchedAction>(
       action,
       GlobalWritesActionTypes.ShardZonesFetched
@@ -759,7 +778,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    const { namespace, status } = getState();
+    const { namespace, status, managedNamespace } = getState();
 
     try {
       const [shardingError, shardKey] = await Promise.all([
@@ -767,7 +786,15 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         atlasGlobalWritesService.getShardingKeys(namespace),
       ]);
 
-      if (shardingError && !shardKey) {
+      if (status === ShardingStatuses.SHARDING && (shardKey || shardingError)) {
+        dispatch(stopPollingForShardKey());
+      }
+
+      if (managedNamespace && !shardKey) {
+        if (!shardingError) {
+          dispatch(setNamespaceBeingSharded());
+          return;
+        }
         // if there is an existing shard key and an error both,
         // means we have a key mismatch
         // this will be handled in NamespaceShardKeyFetched
@@ -781,14 +808,10 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         return;
       }
 
-      if (status === ShardingStatuses.SHARDING) {
-        dispatch(stopPollingForShardKey());
-      }
       dispatch({
         type: GlobalWritesActionTypes.NamespaceShardKeyFetched,
         shardKey,
       });
-
       // if there is a key, we fetch sharding zones
       if (!shardKey) return;
       void dispatch(fetchShardingZones());
@@ -874,10 +897,6 @@ export function getStatusFromShardKeyAndManaged(
 ) {
   const [firstShardKey, secondShardKey] = shardKey.fields;
 
-  if (!shardKey && !managedNamespace) {
-    return ShardingStatuses.UNSHARDED;
-  }
-
   // For a shard key to be valid:
   // 1. The first key must be location and of type RANGE.
   // 2. The second key name must match managedNamespace.customShardKey and
@@ -885,6 +904,15 @@ export function getStatusFromShardKeyAndManaged(
 
   const isLocatonKeyValid =
     firstShardKey.name === 'location' && firstShardKey.type === 'RANGE';
+
+  if (!isLocatonKeyValid || !secondShardKey) {
+    return ShardingStatuses.SHARD_KEY_INVALID;
+  }
+
+  if (!managedNamespace) {
+    return ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
+  }
+
   const isCustomKeyValid =
     managedNamespace &&
     managedNamespace.isShardKeyUnique === shardKey.isUnique &&
@@ -892,16 +920,8 @@ export function getStatusFromShardKeyAndManaged(
     secondShardKey.type ===
       (managedNamespace.isCustomShardKeyHashed ? 'HASHED' : 'RANGE');
 
-  if (!isLocatonKeyValid || !secondShardKey) {
-    return ShardingStatuses.SHARD_KEY_INVALID;
-  }
-
   if (!isCustomKeyValid) {
     return ShardingStatuses.SHARD_KEY_MISMATCH;
-  }
-
-  if (!managedNamespace) {
-    return ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
   }
 
   return ShardingStatuses.SHARD_KEY_CORRECT;

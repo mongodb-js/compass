@@ -18,11 +18,8 @@ import {
 } from '../../store/reducer';
 import { ShardZonesTable } from '../shard-zones-table';
 import ShardKeyMarkup from '../shard-key-markup';
-import {
-  containerStyles,
-  bannerStyles,
-} from '../common-styles';
-import ExampleCommandsMarkup from '../example-commands-markup'
+import { containerStyles, bannerStyles } from '../common-styles';
+import ExampleCommandsMarkup from '../example-commands-markup';
 
 const nbsp = '\u00a0';
 

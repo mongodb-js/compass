@@ -27,7 +27,7 @@ const containerStyles = css({
   marginBottom: spacing[400],
 });
 
-const unmanageBtnStyles = css({
+const manageBtnStyles = css({
   marginTop: spacing[100],
 });
 
@@ -68,7 +68,7 @@ export function IncompleteShardingSetup({
             onClick={onResume}
             variant={ButtonVariant.Default}
             isLoading={isSubmittingForSharding}
-            className={unmanageBtnStyles}
+            className={manageBtnStyles}
           >
             Enable Global Writes
           </Button>

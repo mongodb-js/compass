@@ -6,6 +6,7 @@ import {
   type CreateShardKeyData,
   unmanageNamespace,
   cancelSharding,
+  resumeManagedNamespace,
   POLLING_INTERVAL,
   type ShardKey,
 } from './reducer';
@@ -179,9 +180,11 @@ describe('GlobalWritesStore Store', function () {
   context('scenarios', function () {
     it('not managed -> sharding -> valid shard key', async function () {
       let mockShardKey = false;
+      let mockManagedNamespace = false;
       // initial state === unsharded
       const store = createStore({
         hasShardKey: Sinon.fake(() => mockShardKey),
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('UNSHARDED');
@@ -194,6 +197,7 @@ describe('GlobalWritesStore Store', function () {
       });
       const promise = store.dispatch(createShardKey(shardKeyData));
       expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
+      mockManagedNamespace = true;
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
 
@@ -306,6 +310,34 @@ describe('GlobalWritesStore Store', function () {
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+    });
+
+    it('incomplete setup -> shard key correct', async function () {
+      // initial state -> incomplete shardingSetup
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
+      let mockManagedNamespace = false;
+      const store = createStore({
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        hasShardKey: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().managedNamespace).to.be.undefined;
+      });
+
+      // user asks to resume geosharding
+      const promise = store.dispatch(resumeManagedNamespace());
+      mockManagedNamespace = true;
+      expect(store.getState().status).to.equal(
+        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
+      );
+      await promise;
+      clock.tick(POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
       });
     });
 
