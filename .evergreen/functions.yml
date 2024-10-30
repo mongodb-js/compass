@@ -683,7 +683,6 @@ functions:
         env:
           <<: *compass-env
           DEBUG: ${debug|}
-          COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG: 'qa'
           COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME: ${e2e_tests_compass_web_atlas_username}
           COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD: ${e2e_tests_compass_web_atlas_password}
           COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME: ${e2e_tests_compass_web_atlas_db_username}

@@ -95,7 +95,7 @@ atlascli clusters watch $ATLAS_CLUSTER_NAME
 echo "Getting connection string for provisioned cluster..."
 CONNECTION_STRINGS_JSON="$(atlascli clusters connectionStrings describe $ATLAS_CLUSTER_NAME -o json)"
 
-export COMPASS_E2e_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG=$(
+export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG=$(
   if [[ "$MCLI_OPS_MANAGER_URL" =~ "-dev" ]]; then
     echo "dev"
   elif [[ "$MCLI_OPS_MANAGER_URL" =~ "-qa" ]]; then
@@ -104,7 +104,7 @@ export COMPASS_E2e_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG=$(
     echo "prod"
   fi
 )
-echo "Cloud config: $COMPASS_E2e_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG"
+echo "Cloud config: $COMPASS_E2E_ATLAS_CLOUD_SANDBOX_CLOUD_CONFIG"
 
 export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DEFAULT_CONNECTIONS="{\"$ATLAS_CLUSTER_NAME\": $CONNECTION_STRINGS_JSON}"
 echo "Cluster connections: $COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DEFAULT_CONNECTIONS"
