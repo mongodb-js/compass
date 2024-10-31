@@ -124,8 +124,9 @@ export class UserData<T extends z.Schema> {
     let data: string;
     let stats: Stats;
     let handle: fs.FileHandle | undefined = undefined;
-    const release = await this.semaphore.waitForRelease();
+    let release: (() => void) | undefined = undefined;
     try {
+      release = await this.semaphore.waitForRelease();
       handle = await fs.open(absolutePath, 'r');
       [stats, data] = await Promise.all([
         handle.stat(),
@@ -142,7 +143,7 @@ export class UserData<T extends z.Schema> {
       throw error;
     } finally {
       await handle?.close();
-      release();
+      release?.();
     }
 
     try {
