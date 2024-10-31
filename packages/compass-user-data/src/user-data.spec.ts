@@ -158,6 +158,20 @@ describe('user-data', function () {
         expect(mongoshData?.[1]).to.be.instanceOf(Stats);
       }
     });
+
+    it('reads many number of files', async function () {
+      const files = Array.from({ length: 10000 }, (_, i) => [
+        `data${i}.json`,
+        JSON.stringify({ name: `VSCode${i}` }),
+      ]);
+
+      await Promise.all(
+        files.map(([filepath, data]) => writeFileToStorage(filepath, data))
+      );
+
+      const result = await getUserData().readAll();
+      expect(result.data).to.have.lengthOf(10000);
+    });
   });
 
   context('UserData.readOne', function () {
