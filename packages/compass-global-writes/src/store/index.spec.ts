@@ -341,7 +341,7 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('valid shard key -> not managed', async function () {
+    it('valid shard key -> incomplete', async function () {
       // initial state === shard key correct
       const store = createStore({
         isNamespaceManaged: () => true,
@@ -356,7 +356,7 @@ describe('GlobalWritesStore Store', function () {
       const promise = store.dispatch(unmanageNamespace());
       expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
       await promise;
-      expect(store.getState().status).to.equal('UNSHARDED');
+      expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
     });
 
     it('valid shard key -> valid shard key (failed unmanage attempt)', async function () {
@@ -452,7 +452,7 @@ describe('GlobalWritesStore Store', function () {
         });
       });
 
-      it('mismatch -> unmanaged', async function () {
+      it('mismatch -> incomplete sharding setup', async function () {
         // initial state - mismatch
         const store = createStore({
           isNamespaceManaged: () => true,
@@ -475,7 +475,7 @@ describe('GlobalWritesStore Store', function () {
           'UNMANAGING_NAMESPACE_MISMATCH'
         );
         await promise;
-        expect(store.getState().status).to.equal('UNSHARDED');
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
       });
     });
 

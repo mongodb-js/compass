@@ -539,7 +539,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       managedNamespace: undefined,
-      status: ShardingStatuses.UNSHARDED,
+      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
 
