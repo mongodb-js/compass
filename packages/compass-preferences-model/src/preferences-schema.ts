@@ -56,6 +56,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
       | 'web-sandbox-atlas';
+    optInDataExplorerGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -115,7 +116,9 @@ export type NonUserPreferences = {
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
   NonUserPreferences &
-  PermanentFeatureFlags;
+  PermanentFeatureFlags &
+  AtlasProjectPreferences &
+  AtlasOrgPreferences;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (
@@ -209,6 +212,15 @@ export type StoredPreferencesValidator = ReturnType<
 >;
 
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
+
+export type AtlasProjectPreferences = {
+  enableGenAIFeaturesAtlasProject?: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject?: boolean;
+};
+
+export type AtlasOrgPreferences = {
+  enableGenAIFeaturesAtlasOrg?: boolean;
+};
 
 // Preference definitions
 const featureFlagsProps: Required<{
@@ -461,7 +473,10 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable AI Features',
       long: 'Allow the use of AI features in Compass which make requests to 3rd party services.',
     },
-    deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
+    deriveValue: deriveValueFromOtherPreferences('enableGenAIFeatures', [
+      'enableGenAIFeaturesAtlasOrg',
+      'networkTraffic',
+    ]),
     validator: z.boolean().default(true),
     type: 'boolean',
   },
@@ -678,6 +693,16 @@ export const storedUserPreferencesProps: Required<{
       ])
       .default('atlas'),
     type: 'string',
+  },
+  optInDataExplorerGenAIFeatures: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'User Opt-in for Data Explorer Gen AI Features',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
   },
 
   enableAtlasSearchIndexes: {
@@ -1007,12 +1032,54 @@ const nonUserPreferences: Required<{
   },
 };
 
+const atlasProjectPreferencesProps: Required<{
+  [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
+}> = {
+  enableGenAIFeaturesAtlasProject: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAISampleDocumentPassingOnAtlasProject: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+};
+
+const atlasOrgPreferencesProps: Required<{
+  [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
+}> = {
+  enableGenAIFeaturesAtlasOrg: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+};
+
 export const allPreferencesProps: Required<{
   [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
   ...storedUserPreferencesProps,
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
+  ...atlasProjectPreferencesProps,
+  ...atlasOrgPreferencesProps,
 };
 
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */
@@ -1024,6 +1091,22 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
     state:
       s(property) ??
       (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
+  });
+}
+
+/** Helper for deriving value/state for preferences from other preferences */
+function deriveValueFromOtherPreferences<K extends keyof AllPreferences>(
+  property: K,
+  preferencesToDeriveFrom: K[]
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && preferencesToDeriveFrom.every((p) => v(p)),
+    state:
+      s(property) ??
+      (preferencesToDeriveFrom.every((p) => v(p))
+        ? preferencesToDeriveFrom.map((p) => s(p)).filter(Boolean)?.[0] ??
+          'derived'
+        : undefined),
   });
 }
 
