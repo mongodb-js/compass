@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Tue, Oct 29, 2024 at 02:12 PM
+Generated on Wed, Oct 30, 2024 at 02:38 PM
 
 ## Table of Contents
 
@@ -148,6 +148,7 @@ Generated on Tue, Oct 29, 2024 at 02:12 PM
 
 ### Schema
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
+- [Schema Exported](#event--SchemaExportedEvent)
 
 ### Schema Validation
 - [Schema Validation Added](#event--SchemaValidationAddedEvent)
@@ -1798,6 +1799,25 @@ This event is fired when user analyzes the schema.
   - Indicates whether the schema contains geospatial data.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--SchemaExportedEvent"></a>
+
+### Schema Exported
+
+This event is fired when user shares the schema.
+
+**Properties**:
+
+- **has_schema** (required): `boolean`
+  - Indicates whether the schema was analyzed before sharing.
+- **schema_width** (required): `number`
+  - The number of fields at the top level.
+- **schema_depth** (required): `number`
+  - The number of nested levels.
+- **geo_data** (required): `boolean`
+  - Indicates whether the schema contains geospatial data.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 

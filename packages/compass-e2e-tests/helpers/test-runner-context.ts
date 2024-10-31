@@ -4,7 +4,7 @@ import {
 } from '@mongodb-js/connection-info';
 import type { MongoClusterOptions } from 'mongodb-runner';
 import yargs from 'yargs';
-import type { Argv } from 'yargs';
+import type { Argv, CamelCase } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
 import fs from 'fs';
@@ -106,15 +106,17 @@ function buildDesktopArgs(yargs: Argv) {
  * make sure that the tests in mms are also updated to account for that
  */
 const atlasCloudExternalArgs = [
-  'test-atlas-cloud-external',
   'atlas-cloud-external-url',
   'atlas-cloud-external-project-id',
   'atlas-cloud-external-cookies-file',
   'atlas-cloud-external-default-connections-file',
 ] as const;
 
+type AtlasCloudExternalArgs =
+  | typeof atlasCloudExternalArgs[number]
+  | CamelCase<typeof atlasCloudExternalArgs[number]>;
+
 const atlasCloudSandboxArgs = [
-  'test-atlas-cloud-sandbox',
   'atlas-cloud-sandbox-cloud-config',
   'atlas-cloud-sandbox-username',
   'atlas-cloud-sandbox-password',
@@ -122,6 +124,10 @@ const atlasCloudSandboxArgs = [
   'atlas-cloud-sandbox-dbuser-password',
   'atlas-cloud-sandbox-default-connections',
 ] as const;
+
+type AtlasCloudSandboxArgs =
+  | typeof atlasCloudSandboxArgs[number]
+  | CamelCase<typeof atlasCloudSandboxArgs[number]>;
 
 let testEnv: 'desktop' | 'web' | undefined;
 
@@ -191,13 +197,9 @@ function buildWebArgs(yargs: Argv) {
         description:
           'Stringified JSON with connections that are expected to be available in the Atlas project',
       })
-      .implies(
-        Object.fromEntries(
-          atlasCloudSandboxArgs.map((arg) => {
-            return [arg, atlasCloudSandboxArgs];
-          })
-        )
-      )
+      .implies({
+        'test-atlas-cloud-sandbox': atlasCloudSandboxArgs,
+      })
       .option('test-atlas-cloud-external', {
         type: 'boolean',
         description:
@@ -221,13 +223,9 @@ function buildWebArgs(yargs: Argv) {
         description:
           'File with JSON array of connections (following ConnectionInfo schema) that are expected to be available in the Atlas project',
       })
-      .implies(
-        Object.fromEntries(
-          atlasCloudExternalArgs.map((arg) => {
-            return [arg, atlasCloudExternalArgs];
-          })
-        )
-      )
+      .implies({
+        'test-atlas-cloud-external': atlasCloudExternalArgs,
+      })
       .conflicts({
         'test-atlas-cloud-external': 'test-atlas-cloud-sandbox',
         'test-atlas-cloud-sandbox': 'test-atlas-cloud-external',
@@ -310,14 +308,7 @@ export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
 export function isTestingAtlasCloudExternal(
   ctx = context
 ): ctx is WebParsedArgs & {
-  [K in
-    | 'testAtlasCloudExternal'
-    | 'atlasCloudExternalUrl'
-    | 'atlasCloudExternalProjectId'
-    | 'atlasCloudExternalCookiesFile'
-    | 'atlasCloudExternalDefaultConnectionsFile']: NonNullable<
-    WebParsedArgs[K]
-  >;
+  [K in AtlasCloudExternalArgs]: NonNullable<WebParsedArgs[K]>;
 } {
   return isTestingWeb(ctx) && !!ctx.testAtlasCloudExternal;
 }
@@ -325,13 +316,7 @@ export function isTestingAtlasCloudExternal(
 export function isTestingAtlasCloudSandbox(
   ctx = context
 ): ctx is WebParsedArgs & {
-  [K in
-    | 'testAtlasCloudSandbox'
-    | 'atlasCloudSandboxUsername'
-    | 'atlasCloudSandboxPassword'
-    | 'atlasCloudSandboxDbuserUsername'
-    | 'atlasCloudSandboxDbuserPassword'
-    | 'atlasCloudSandboxDefaultConnections']: NonNullable<WebParsedArgs[K]>;
+  [K in AtlasCloudSandboxArgs]: NonNullable<WebParsedArgs[K]>;
 } {
   return isTestingWeb(ctx) && !!ctx.testAtlasCloudSandbox;
 }
@@ -339,13 +324,7 @@ export function isTestingAtlasCloudSandbox(
 export function assertTestingAtlasCloudSandbox(
   ctx = context
 ): asserts ctx is WebParsedArgs & {
-  [K in
-    | 'testAtlasCloudSandbox'
-    | 'atlasCloudSandboxUsername'
-    | 'atlasCloudSandboxPassword'
-    | 'atlasCloudSandboxDbuserUsername'
-    | 'atlasCloudSandboxDbuserPassword'
-    | 'atlasCloudSandboxDefaultConnections']: NonNullable<WebParsedArgs[K]>;
+  [K in AtlasCloudSandboxArgs]: NonNullable<WebParsedArgs[K]>;
 } {
   if (!isTestingAtlasCloudSandbox(ctx)) {
     throw new Error(`Expected tested runtime to be web w/ Atlas Cloud account`);

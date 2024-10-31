@@ -5,6 +5,7 @@ import {
   spacing,
   css,
   ButtonVariant,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
@@ -16,13 +17,7 @@ import {
 } from '../../store/reducer';
 import { connect } from 'react-redux';
 import type { ManagedNamespace } from '../../services/atlas-global-writes-service';
-
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-  marginBottom: spacing[400],
-});
+import { containerStyles, bannerStyles } from '../common-styles';
 
 const unmanageBtnStyles = css({
   marginTop: spacing[100],
@@ -61,7 +56,7 @@ export function ShardKeyMismatch({
 }: ShardKeyMismatchProps) {
   return (
     <div className={containerStyles}>
-      <Banner variant={BannerVariant.Danger}>
+      <Banner variant={BannerVariant.Danger} className={bannerStyles}>
         <strong>
           Your requested shard key cannot be configured because the collection
           has already been sharded with a different key.
@@ -75,6 +70,7 @@ export function ShardKeyMismatch({
             onClick={onUnmanageNamespace}
             variant={ButtonVariant.Default}
             isLoading={isUnmanagingNamespace}
+            loadingIndicator={<SpinLoader />}
             className={unmanageBtnStyles}
           >
             Unmanage collection

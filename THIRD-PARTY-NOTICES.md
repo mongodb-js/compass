@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Oct 29 2024.
+This document was automatically generated on Wed Oct 30 2024.
 
 ## List of dependencies
 
@@ -211,6 +211,7 @@ Package|Version|License
 **[cookie-signature](#28f6116b52488ac66a14424869fc346f611bea6c894e7d0f7f2ca701deb8e49c)**|1.0.6|MIT
 **[cookie](#6fffbd43d8f0d9a659c21e31a0935f0a1226c9990be593a9649dcd61e4db1204)**|0.7.1|MIT
 **[core-js](#2d0305d15eab4ad23db10b97faf9d8e8e0d5ad30a616c5892d1edd535d8a08c8)**|3.17.3|MIT
+**[cpu-features](#fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c)**|0.0.9|MIT
 **[crelt](#9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9)**|1.0.5|MIT
 **[cross-fetch](#2cd4375069c47bf89a4b399cd21cd9573086803b2cb9fc56c29df5a598e051e5)**|3.1.8|MIT
 **[cross-spawn](#67de3a765808182ee1018c35bc07d7a023a8d645e98cc32814dcac2fc2c427ff)**|7.0.3|MIT
@@ -247,7 +248,7 @@ Package|Version|License
 **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**|1.1.1|MIT
 **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**|3.5.0|MIT
 **[electron-squirrel-startup](#09fb8168e8fda2e174f8d1a1c392ffd8f762c5637c788edd00d1e2486d060349)**|1.0.1|Apache-2.0
-**[electron](#4dac8b39331bcb6b30b99afe0849c00e3153935fcab1f1086622b9a2ccb4afc8)**|32.2.1|MIT
+**[electron](#ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b)**|32.2.2|MIT
 **[encodeurl](#b89152db475e86531e570f87b45d8a51aa5e5d87d4cc3b960cee7b8febf1d26a)**|1.0.2|MIT
 **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**|2.0.0|MIT
 **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**|1.4.4|MIT
@@ -17717,6 +17718,34 @@ License files:
       
 
 
+<a id="fa992e00865a6ed732ac63bbf64c89ee2da4ec39944684e6002a3a34b5adb65c"></a>
+### [cpu-features](https://www.npmjs.com/package/cpu-features) (version 0.0.9)
+License tags: MIT
+
+License files:
+* LICENSE:
+
+      Copyright Brian White. All rights reserved.      
+            
+      Permission is hereby granted, free of charge, to any person obtaining a copy      
+      of this software and associated documentation files (the "Software"), to      
+      deal in the Software without restriction, including without limitation the      
+      rights to use, copy, modify, merge, publish, distribute, sublicense, and/or      
+      sell copies of the Software, and to permit persons to whom the Software is      
+      furnished to do so, subject to the following conditions:      
+            
+      The above copyright notice and this permission notice shall be included in      
+      all copies or substantial portions of the Software.      
+            
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR      
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,      
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE      
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER      
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING      
+      FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS      
+      IN THE SOFTWARE.
+
+
 <a id="9eba7acaba2af9d27a0a18fcf40d1f133ffa888d85321e4633e7dac58cab2db9"></a>
 ### [crelt](https://www.npmjs.com/package/crelt) (version 1.0.5)
 License tags: MIT
@@ -19186,8 +19215,8 @@ License files:
       
 
 
-<a id="4dac8b39331bcb6b30b99afe0849c00e3153935fcab1f1086622b9a2ccb4afc8"></a>
-### [electron](https://www.npmjs.com/package/electron) (version 32.2.1)
+<a id="ddfad0a406da8c661d832155ebc87c378ac67db5d3c70f33126149f0084c639b"></a>
+### [electron](https://www.npmjs.com/package/electron) (version 32.2.2)
 License tags: MIT
 
 License files:
