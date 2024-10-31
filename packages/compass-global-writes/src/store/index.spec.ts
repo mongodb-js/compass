@@ -320,6 +320,18 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
+    it('valid shard key -> failsOnShardZoneRequest', async function () {
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: () => true,
+        failsOnShardZoneRequest: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+    });
+
     it('valid shard key -> not managed', async function () {
       // initial state === shard key correct
       const store = createStore({
