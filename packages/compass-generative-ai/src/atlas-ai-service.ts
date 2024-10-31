@@ -239,18 +239,18 @@ export class AtlasAiService {
     connectionInfo?: ConnectionInfo
   ) {
     if (this.apiURLPreset === 'cloud') {
-      const atlasMetadata = connectionInfo?.atlasMetadata;
-      if (!atlasMetadata) {
-        throw new Error(
-          "Can't perform generative ai request: atlasMetadata is not available"
-        );
-      }
-
       if (urlId === 'user-access') {
         return this.atlasService.cloudEndpoint(
           aiURLConfig[this.apiURLPreset][urlId](
             this.preferences.getPreferencesUser().id
           )
+        );
+      }
+
+      const atlasMetadata = connectionInfo?.atlasMetadata;
+      if (!atlasMetadata) {
+        throw new Error(
+          "Can't perform generative ai request: atlasMetadata is not available"
         );
       }
 
@@ -264,9 +264,7 @@ export class AtlasAiService {
         ? urlConfig(this.preferences.getPreferencesUser().id)
         : urlConfig;
 
-    return this.apiURLPreset === 'admin-api'
-      ? this.atlasService.adminApiEndpoint(urlPath)
-      : this.atlasService.cloudEndpoint(urlPath);
+    return this.atlasService.adminApiEndpoint(urlPath);
   }
 
   private throwIfAINotEnabled() {
