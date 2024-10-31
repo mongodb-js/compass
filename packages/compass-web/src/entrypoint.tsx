@@ -59,9 +59,7 @@ import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { type TelemetryServiceOptions } from '@mongodb-js/compass-telemetry';
 import { WorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 
-const WithAtlasProviders: React.FC<{
-  projectId: string;
-}> = ({ children }) => {
+const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasServiceProvider>
@@ -319,7 +317,7 @@ const CompassWeb = ({
           <PreferencesProvider value={preferencesAccess.current}>
             <LoggerProvider value={logger}>
               <TelemetryProvider options={telemetryOptions.current}>
-                <WithAtlasProviders projectId={projectId}>
+                <WithAtlasProviders>
                   <AtlasCloudConnectionStorageProvider
                     orgId={orgId}
                     projectId={projectId}
