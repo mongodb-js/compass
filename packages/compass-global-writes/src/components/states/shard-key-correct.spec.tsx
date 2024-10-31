@@ -92,23 +92,10 @@ describe('ShardKeyCorrect', function () {
     expect(list.textContent).to.contain(`"location", "secondary"`);
   });
 
-  it('Contains sample codes', async function () {
+  it('Includes code examples', async function () {
     await renderWithProps();
 
-    const findingDocumentsSample = await screen.findByTestId(
-      'sample-finding-documents'
-    );
-    expect(findingDocumentsSample).to.be.visible;
-    expect(findingDocumentsSample.textContent).to.contain(
-      `use db1db["coll1"].find({"location": "US-NY", "secondary": "<id_value>"})`
-    );
-
-    const insertingDocumentsSample = await screen.findByTestId(
-      'sample-inserting-documents'
-    );
-    expect(insertingDocumentsSample).to.be.visible;
-    expect(insertingDocumentsSample.textContent).to.contain(
-      `use db1db["coll1"].insertOne({"location": "US-NY", "secondary": "<id_value>",...<other fields>})`
-    );
+    const example = await screen.findByText(/Example commands/);
+    expect(example).to.be.visible;
   });
 });

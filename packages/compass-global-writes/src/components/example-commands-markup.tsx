@@ -17,7 +17,7 @@ const codeBlockContainerStyles = css({
   gap: spacing[100],
 });
 
-interface ExampleCommandsMarkupProps {
+export interface ExampleCommandsMarkupProps {
   shardKey: ShardKey;
   namespace: string;
   showMetaData?: boolean;

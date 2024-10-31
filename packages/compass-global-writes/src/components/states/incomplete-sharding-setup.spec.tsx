@@ -112,4 +112,11 @@ describe('IncompleteShardingSetup', function () {
     expect(list).to.be.visible;
     expect(list.textContent).to.contain(`"location", "secondary"`);
   });
+
+  it('Includes code examples', async function () {
+    await renderWithProps();
+
+    const example = await screen.findByText(/Example commands/);
+    expect(example).to.be.visible;
+  });
 });
