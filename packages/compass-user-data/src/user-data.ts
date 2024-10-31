@@ -4,6 +4,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
+import { Semaphore } from './semaphore';
 
 const { log, mongoLogId } = createLogger('COMPASS-USER-STORAGE');
 
@@ -68,6 +69,7 @@ export class UserData<T extends z.Schema> {
   private readonly serialize: SerializeContent<z.input<T>>;
   private readonly deserialize: DeserializeContent;
   private readonly getFileName: GetFileName;
+  private readonly semaphore = new Semaphore(1000);
 
   constructor(
     private readonly validator: T,
@@ -122,6 +124,7 @@ export class UserData<T extends z.Schema> {
     let data: string;
     let stats: Stats;
     let handle: fs.FileHandle | undefined = undefined;
+    const release = await this.semaphore.waitForRelease();
     try {
       handle = await fs.open(absolutePath, 'r');
       [stats, data] = await Promise.all([
@@ -139,6 +142,7 @@ export class UserData<T extends z.Schema> {
       throw error;
     } finally {
       await handle?.close();
+      release();
     }
 
     try {
