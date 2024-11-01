@@ -48,19 +48,6 @@ async function waitForState(
   });
 }
 
-async function clickConfirmationAction(
-  browser: CompassBrowser,
-  actionSelector: string
-) {
-  await browser.clickVisible(actionSelector);
-
-  const modalElement = await browser.$(Selectors.ConfirmationModal);
-  await modalElement.waitForDisplayed();
-
-  await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-  await modalElement.waitForDisplayed({ reverse: true });
-}
-
 describe('Global writes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -146,8 +133,7 @@ describe('Global writes', function () {
     await waitForState(browser, 'SHARDING');
 
     // Cancel the sharding operation.
-    await clickConfirmationAction(
-      browser,
+    await browser.clickConfirmationAction(
       Selectors.GlobalWrites.CancelShardingButton
     );
 

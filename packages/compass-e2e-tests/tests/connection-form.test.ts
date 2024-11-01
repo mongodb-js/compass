@@ -670,14 +670,7 @@ describe('Connection form', function () {
     // toggle the edit connection string toggle twice
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     expect(await toggle.getAttribute('aria-checked')).to.equal('false');
-    await browser.clickVisible(Selectors.EditConnectionStringToggle);
-
-    const confirmModal = await browser.$(Selectors.ConfirmationModal);
-    await confirmModal.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-
-    await confirmModal.waitForDisplayed({ reverse: true });
+    await browser.clickConfirmationAction(Selectors.EditConnectionStringToggle);
 
     // the toggle should now be on
     expect(await toggle.getAttribute('aria-checked')).to.equal('true');
