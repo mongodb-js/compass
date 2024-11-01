@@ -1,5 +1,8 @@
 #!/bin/bash
 
+RUN_ID="$(date +"%s")-$(git rev-parse --short HEAD)"
+DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds -v '+2H')"
+
 # This script helps to automatically provision Atlas cluster for running the e2e
 # tests against. In CI this will always create a new cluster and delete it when
 # the test run is finished. You can also use this script locally to run e2e
@@ -14,13 +17,8 @@
 #   You can only use your work emails with a subaddress to create those (e.g,
 #   jane.doe+for-testing@mongodb.com).
 #
-# - Setup a new org and project. Save the org id and project id for later.
-#
-# - Add payment details within the organization (Billing) to be able to create
+# - Setup a new org and project. Save the org id and project id for later.# - Add payment details within the organization (Billing) to be able to create
 #   clusters. You can use test stripe card for that (4242 4242 4242 4242).
-#
-# - Create new db user with username / password auth and admin role. This user
-#   will be used to prepopulate dbs with data in tests. Save the credentials.
 #
 # - Create a new API key (Access Manager > Project Access > Create Application >
 #   API Key) for the project you created and save the public and private keys.
@@ -41,24 +39,24 @@
 #
 #     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_USERNAME         Cloud user you created
 #     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_PASSWORD         Cloud user password
-#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME  Db user for the project
-#     COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_PASSWORD  Db user password
 #
 # - Source the script followed by running the tests to make sure that some
 #   variables exported from this script are available for the test env:
 #
 #   (ATLAS_CLOUD_TEST_CLUSTER_NAME="TestCluster" source .evergreen/start-atlas-cloud-cluster.sh \
 #     && npm run -w compass-e2e-tests test web -- --test-atlas-cloud-sandbox --test-filter="atlas-cloud/**/*")
-#
 _ATLAS_CLOUD_TEST_CLUSTER_NAME=${ATLAS_CLOUD_TEST_CLUSTER_NAME:-""}
 
 # Atlas limits the naming to something like /^[\w\d-]{,23}$/ (and will auto
 # truncate if it's too long) so we're very limited in terms of how unique this
 # name can be. Hopefully the epoch + part of git hash is enough for these to not
 # overlap when tests are running
-DEFAULT_ATLAS_CLOUD_TEST_CLUSTER_NAME="e2e-$(date +"%s")-$(git rev-parse HEAD)"
+DEFAULT_ATLAS_CLOUD_TEST_CLUSTER_NAME="e2e-$RUN_ID"
 
 ATLAS_CLUSTER_NAME="${_ATLAS_CLOUD_TEST_CLUSTER_NAME:-$DEFAULT_ATLAS_CLOUD_TEST_CLUSTER_NAME}"
+
+ATLAS_TEST_DB_USERNAME="testuser-$RUN_ID"
+ATLAS_TEST_DB_PASSWORD="$(head -c 32 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9')"
 
 function atlascli() {
   docker run \
@@ -82,9 +80,25 @@ cleanup() {
   else
     echo "Custom cluster name provided ($_ATLAS_CLOUD_TEST_CLUSTER_NAME), skipping cluster cleanup"
   fi
+  echo "Deleting Atlas db user \`$ATLAS_TEST_DB_USERNAME\`..."
+  atlascli dbusers delete $ATLAS_TEST_DB_USERNAME --force
 }
 
 trap cleanup EXIT
+
+echo "Allowing access from current ip..."
+atlascli accessList create \
+  --currentIp \
+  --deleteAfter "$DELETE_AFTER"
+
+echo "Creating Atlas db user \`$ATLAS_TEST_DB_USERNAME\`..."
+atlascli dbusers create atlasAdmin \
+  --username "$ATLAS_TEST_DB_USERNAME" \
+  --password "$ATLAS_TEST_DB_PASSWORD" \
+  --deleteAfter "$DELETE_AFTER" # so that it's autoremoved if cleaning up failed for some reason
+
+export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME="$ATLAS_TEST_DB_USERNAME"
+export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_PASSWORD="$ATLAS_TEST_DB_PASSWORD"
 
 echo "Creating Atlas deployment \`$ATLAS_CLUSTER_NAME\` to test against..."
 atlascli clusters create $ATLAS_CLUSTER_NAME \
