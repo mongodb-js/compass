@@ -52,7 +52,9 @@ describe('Global writes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
-  before(async function () {
+  beforeEach(async function () {
+    // Sharding a collection takes a bit longer
+    this.timeout(1000 * 60 * 20);
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setupDefaultConnections();
