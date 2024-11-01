@@ -46,6 +46,10 @@
 #
 #   (ATLAS_CLOUD_TEST_CLUSTER_NAME="TestCluster" source .evergreen/start-atlas-cloud-cluster.sh \
 #     && npm run -w compass-e2e-tests test web -- --test-atlas-cloud-sandbox --test-filter="atlas-cloud/**/*")
+#
+# When setting up for the first time, make sure you:
+# - Add payment details to be able to create clusters. You can use stripe test card.
+# - Allow network access to the project for your IP address.
 
 _ATLAS_CLOUD_TEST_CLUSTER_NAME=${ATLAS_CLOUD_TEST_CLUSTER_NAME:-""}
 
@@ -87,7 +91,8 @@ echo "Creating Atlas deployment \`$ATLAS_CLUSTER_NAME\` to test against..."
 atlascli clusters create $ATLAS_CLUSTER_NAME \
   --provider AWS \
   --region US_EAST_1 \
-  --tier M10
+  --tier M10 \
+  --type GEOSHARDED
 
 echo "Waiting for the deployment to be provisioned..."
 atlascli clusters watch $ATLAS_CLUSTER_NAME

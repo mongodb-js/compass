@@ -98,7 +98,10 @@ function ShardingStateView({
 
 export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   return (
-    <div className={containerStyles}>
+    <div
+      className={containerStyles}
+      data-testid={`${shardingStatus.toLowerCase()}-status`}
+    >
       <WorkspaceContainer className={workspaceContentStyles}>
         <ConfirmationModalArea>
           <ShardingStateView shardingStatus={shardingStatus} />
