@@ -16,6 +16,7 @@ import ShardKeyInvalid from './states/shard-key-invalid';
 import ShardKeyMismatch from './states/shard-key-mismatch';
 import ShardingError from './states/sharding-error';
 import IncompleteShardingSetup from './states/incomplete-sharding-setup';
+import LoadingError from './states/loading-error';
 
 const containerStyles = css({
   display: 'flex',
@@ -88,6 +89,10 @@ function ShardingStateView({
     shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE
   ) {
     return <IncompleteShardingSetup />;
+  }
+
+  if (shardingStatus === ShardingStatuses.LOADING_ERROR) {
+    return <LoadingError />;
   }
 
   return null;

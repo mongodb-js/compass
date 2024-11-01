@@ -46,11 +46,18 @@ enum GlobalWritesActionTypes {
   UnmanagingNamespaceStarted = 'global-writes/UnmanagingNamespaceStarted',
   UnmanagingNamespaceFinished = 'global-writes/UnmanagingNamespaceFinished',
   UnmanagingNamespaceErrored = 'global-writes/UnmanagingNamespaceErrored',
+
+  LoadingFailed = 'global-writes/LoadingFailed',
 }
 
 type ManagedNamespaceFetchedAction = {
   type: GlobalWritesActionTypes.ManagedNamespaceFetched;
   managedNamespace?: ManagedNamespace;
+};
+
+type LoadingFailedAction = {
+  type: GlobalWritesActionTypes.LoadingFailed;
+  error: string;
 };
 
 type NamespaceShardingErrorFetchedAction = {
@@ -124,6 +131,11 @@ export enum ShardingStatuses {
    * Initial status, no information available yet.
    */
   NOT_READY = 'NOT_READY',
+
+  /**
+   * The status could not be determined because loading failed
+   */
+  LOADING_ERROR = 'LOADING_ERROR',
 
   /**
    * Namespace is not geo-sharded.
@@ -210,10 +222,18 @@ export type RootState = {
   shardZones: ShardZoneData[];
 } & (
   | {
+      status: ShardingStatuses.LOADING_ERROR;
+      shardKey?: ShardKey;
+      shardingError?: never;
+      pollingTimeout?: never;
+      error: string;
+    }
+  | {
       status: ShardingStatuses.NOT_READY;
       shardKey?: never;
       shardingError?: never;
       pollingTimeout?: never;
+      error?: never;
     }
   | {
       status:
@@ -225,6 +245,7 @@ export type RootState = {
       // and then unmanaged
       shardingError?: never;
       pollingTimeout?: never;
+      error?: never;
     }
   | {
       status: ShardingStatuses.SHARDING;
@@ -235,6 +256,7 @@ export type RootState = {
       shardKey?: ShardKey;
       shardingError?: never;
       pollingTimeout?: NodeJS.Timeout;
+      error?: never;
     }
   | {
       status:
@@ -244,6 +266,7 @@ export type RootState = {
       shardKey?: never;
       shardingError: string;
       pollingTimeout?: never;
+      error?: never;
     }
   | {
       status:
@@ -257,6 +280,7 @@ export type RootState = {
       shardKey: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
+      error?: never;
     }
 );
 
@@ -616,6 +640,25 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     };
   }
 
+  if (
+    isAction<LoadingFailedAction>(
+      action,
+      GlobalWritesActionTypes.LoadingFailed
+    ) &&
+    (state.status === ShardingStatuses.NOT_READY ||
+      state.status === ShardingStatuses.SHARDING)
+  ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
+    return {
+      ...state,
+      status: ShardingStatuses.LOADING_ERROR,
+      error: action.error,
+      pollingTimeout: state.pollingTimeout,
+    };
+  }
+
   return state;
 };
 
@@ -644,17 +687,11 @@ export const fetchClusterShardingData =
         'Error fetching cluster sharding data',
         (error as Error).message
       );
-      openToast(
-        `global-writes-fetch-shard-info-error-${connectionInfoRef.current.id}-${namespace}`,
-        {
-          title: `Failed to fetch sharding information: ${
-            (error as Error).message
-          }`,
-          dismissible: true,
-          timeout: 5000,
-          variant: 'important',
-        }
-      );
+      handleLoadingError({
+        error: error as Error,
+        id: `global-writes-fetch-shard-info-error-${connectionInfoRef.current.id}-${namespace}`,
+        description: 'Failed to fetch sharding information',
+      });
     }
   };
 
@@ -829,6 +866,39 @@ const stopPollingForShardKey = (): GlobalWritesThunkAction<
   };
 };
 
+const handleLoadingError = ({
+  error,
+  id,
+  description,
+}: {
+  error: Error;
+  id: string;
+  description: string;
+}): GlobalWritesThunkAction<void, LoadingFailedAction> => {
+  return (dispatch, getState) => {
+    const { status } = getState();
+    const isPolling = status === ShardingStatuses.SHARDING;
+    const isInitialLoad = status === ShardingStatuses.NOT_READY;
+    const errorMessage = `${description} ${error.message}`;
+    if (isInitialLoad || isPolling) {
+      if (isPolling) {
+        dispatch(stopPollingForShardKey());
+      }
+      dispatch({
+        type: GlobalWritesActionTypes.LoadingFailed,
+        error: errorMessage,
+      });
+      return;
+    }
+    openToast(id, {
+      title: errorMessage,
+      dismissible: true,
+      timeout: 5000,
+      variant: 'important',
+    });
+  };
+};
+
 export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
   Promise<void>,
   NamespaceShardingErrorFetchedAction | NamespaceShardKeyFetchedAction
@@ -882,15 +952,11 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         'Error fetching shard key',
         (error as Error).message
       );
-      openToast(
-        `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
-        {
-          title: `Failed to fetch shard key: ${(error as Error).message}`,
-          dismissible: true,
-          timeout: 5000,
-          variant: 'important',
-        }
-      );
+      handleLoadingError({
+        error: error as Error,
+        id: `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
+        description: 'Failed to fetch shard key',
+      });
     }
   };
 };
