@@ -36,7 +36,7 @@ async function createGeoShardKey(
   await browser.clickVisible(Selectors.GlobalWrites.ShardKeyFormSubmitButton);
 }
 
-async function waitForState(
+async function waitForGlobalWritesStatus(
   browser: CompassBrowser,
   nextState: GeoShardingState
 ) {
@@ -82,7 +82,7 @@ describe('Global writes', function () {
     );
 
     // Initial state is loading
-    await waitForState(browser, 'UNSHARDED');
+    await waitForGlobalWritesStatus(browser, 'UNSHARDED');
 
     await createGeoShardKey(browser, {
       secondShardKey: 'country',
@@ -90,7 +90,7 @@ describe('Global writes', function () {
     });
 
     // Wait for the shard key to be correct.
-    await waitForState(browser, 'SHARD_KEY_CORRECT');
+    await waitForGlobalWritesStatus(browser, 'SHARD_KEY_CORRECT');
 
     // Expectations to see the shard key in the UI
     const findingDocumentsText = await browser
@@ -108,7 +108,7 @@ describe('Global writes', function () {
     await browser.clickVisible(Selectors.GlobalWrites.UnmanageNamespaceButton);
 
     // It transitions to the unmanaging state
-    await waitForState(browser, 'UNSHARDED');
+    await waitForGlobalWritesStatus(browser, 'UNSHARDED');
   });
 
   it('should be able to shard an unsharded namespace and cancel the operation', async function () {
@@ -122,7 +122,7 @@ describe('Global writes', function () {
     );
 
     // Initial state is loading
-    await waitForState(browser, 'UNSHARDED');
+    await waitForGlobalWritesStatus(browser, 'UNSHARDED');
 
     await createGeoShardKey(browser, {
       secondShardKey: 'country',
@@ -130,7 +130,7 @@ describe('Global writes', function () {
     });
 
     // Wait for the shard key to be correct.
-    await waitForState(browser, 'SHARDING');
+    await waitForGlobalWritesStatus(browser, 'SHARDING');
 
     // Cancel the sharding operation.
     await browser.clickConfirmationAction(
@@ -138,6 +138,6 @@ describe('Global writes', function () {
     );
 
     // After its cancelled, it should transition back to the unsharded state
-    await waitForState(browser, 'UNSHARDED');
+    await waitForGlobalWritesStatus(browser, 'UNSHARDED');
   });
 });
