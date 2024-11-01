@@ -8,11 +8,11 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  TEST_MULTIPLE_CONNECTIONS,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { context } from '../helpers/test-runner-context';
 
 const DEFAULT_FLE_ENCRYPTED_FIELDS_MAP =
   "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n";
@@ -64,12 +64,9 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     expect(state).to.deep.equal(expectedState);
   });
@@ -97,13 +94,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -136,13 +130,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017,127.0.0.1:27091',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017,127.0.0.1:27091';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -175,13 +166,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -220,13 +208,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -265,13 +250,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -318,13 +300,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -360,13 +339,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -404,13 +380,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -450,13 +423,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -497,13 +467,10 @@ describe('Connection form', function () {
       },
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState();
     expect(state).to.deep.equal(expectedState);
@@ -544,12 +511,9 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
   });
@@ -590,12 +554,9 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     expect(await browser.getConnectFormState()).to.deep.equal(expectedState);
   });
@@ -634,13 +595,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState(false);
     expect(state).to.deep.equal(expectedState);
@@ -656,17 +614,12 @@ describe('Connection form', function () {
     const favoriteName = 'My Favorite';
     const newFavoriteName = 'My Favorite (edited)';
 
-    const Sidebar = TEST_MULTIPLE_CONNECTIONS
-      ? Selectors.Multiple
-      : Selectors.Single;
+    const Sidebar = Selectors.Multiple;
 
     // save
-    await browser.saveFavorite(
-      favoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Green' : 'color1'
-    );
+    await browser.saveFavorite(favoriteName, 'Green');
 
-    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+    if (!context.disableClipboardUsage) {
       // copy the connection string
       await browser.selectConnectionMenuItem(
         favoriteName,
@@ -689,9 +642,7 @@ describe('Connection form', function () {
     );
 
     // duplicating opens the modal, in multiple connections you have to save
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.clickVisible(Selectors.ConnectionModalSaveButton);
-    }
+    await browser.clickVisible(Selectors.ConnectionModalSaveButton);
 
     // delete the duplicate
     await browser.selectConnectionMenuItem(
@@ -702,10 +653,7 @@ describe('Connection form', function () {
     // edit the original
     await browser.selectConnection(favoriteName);
 
-    await browser.saveFavorite(
-      newFavoriteName,
-      TEST_MULTIPLE_CONNECTIONS ? 'Pink' : 'color2'
-    );
+    await browser.saveFavorite(newFavoriteName, 'Pink');
 
     // it should now be updated in the sidebar
     await browser
@@ -713,9 +661,7 @@ describe('Connection form', function () {
       .waitForDisplayed();
 
     // open the modal so we can perform some actions in there
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      await browser.selectConnection(newFavoriteName);
-    }
+    await browser.selectConnection(newFavoriteName);
 
     // the edit the connection string toggle should be on (because this is a new connection we just saved)
     const toggle = await browser.$(Selectors.EditConnectionStringToggle);
@@ -761,13 +707,10 @@ describe('Connection form', function () {
       readPreference: 'defaultReadPreference',
       fleStoreCredentials: false,
       fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
+      connectionName: 'localhost:27017',
+      connectionColor: 'no-color',
+      connectionFavorite: false,
     };
-
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      expectedState.connectionName = 'localhost:27017';
-      expectedState.connectionColor = 'no-color';
-      expectedState.connectionFavorite = false;
-    }
 
     const state = await browser.getConnectFormState(true);
     expect(state).to.deep.equal(expectedState);
@@ -781,13 +724,7 @@ describe('Connection form', function () {
     );
   });
 
-  it('supports saving a favorite (multiple connections)', async function () {
-    if (!TEST_MULTIPLE_CONNECTIONS) {
-      // this will remain skipped until we remove the test because the test is
-      // now for the multiple connections case only
-      this.skip();
-    }
-
+  it('supports saving a favorite', async function () {
     const state: ConnectFormState = {
       connectionName: 'my-connection',
       connectionColor: 'Red',
@@ -814,52 +751,5 @@ describe('Connection form', function () {
       tlsAllowInvalidHostnames: false,
       tlsInsecure: false,
     });
-  });
-
-  it('supports saving a favorite (single connection)', async function () {
-    if (TEST_MULTIPLE_CONNECTIONS) {
-      // this will remain skipped until we remove the test because the test is
-      // now for the single connection case only
-      this.skip();
-    }
-
-    const favoriteName = 'My New Favorite';
-
-    // Fill in a valid URI
-    await browser.setValueVisible(
-      Selectors.ConnectionFormStringInput,
-      'mongodb://127.0.0.1:27091/test'
-    );
-
-    // Save & Connect
-    await browser.clickVisible(Selectors.SaveAndConnectButton);
-
-    // Fill out the favorite info
-    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.setValueVisible(Selectors.FavoriteNameInput, favoriteName);
-    await browser.clickVisible(
-      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
-    );
-
-    // The modal's button text should read Save & Connect and not the default Save
-    expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
-      'Save & Connect'
-    );
-
-    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-
-    await browser.clickVisible(Selectors.FavoriteSaveButton);
-    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
-
-    // Wait for it to connect
-    const element = await browser.$(Selectors.MyQueriesList);
-    await element.waitForDisplayed();
-
-    // It should use the new favorite name as the connection name in the top-left corner
-    expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
-      favoriteName
-    );
-
-    await browser.disconnectAll();
   });
 });

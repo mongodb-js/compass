@@ -1,25 +1,17 @@
 import { UUID } from 'bson';
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
-import { TEST_MULTIPLE_CONNECTIONS } from '../compass';
 
-// TODO(COMPASS-8023): Just remove this command and use setConnectionFormState()
-// once we remove the single connection code
+// TODO(COMPASS-8023): Provide a counterpart `browser.saveConnection` method to
+// be able to edit existing connection
 export async function saveConnectionStringAsFavorite(
   browser: CompassBrowser,
   connectionString: string,
   favoriteName?: string,
-  color: `color${number}` | string = 'color1'
+  color = 'Green'
 ): Promise<string> {
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    // open the connection modal so we can fill in the connection string
-    await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
-  }
-
-  if (TEST_MULTIPLE_CONNECTIONS && color === 'color1') {
-    color = 'Green';
-  }
-
+  // open the connection modal so we can fill in the connection string
+  await browser.clickVisible(Selectors.Multiple.SidebarNewConnectionButton);
   favoriteName ??= new UUID().toHexString();
   await browser.setValueVisible(
     Selectors.ConnectionFormStringInput,

@@ -17,6 +17,7 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
+import { context } from '../helpers/test-runner-context';
 
 const { expect } = chai;
 
@@ -559,7 +560,7 @@ FindIterable<Document> result = collection.find(filter);`);
   });
 
   it('can copy a document from the contextual toolbar', async function () {
-    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
+    if (context.disableClipboardUsage) {
       this.skip();
     }
 

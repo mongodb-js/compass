@@ -252,8 +252,10 @@ describe('connectMongoClient', function () {
         expect(error).to.be.instanceOf(Error);
 
         // propagates the tunnel error
-        expect(error.message).to.match(
-          /(All configured authentication methods failed|ENOTFOUND compass-tests\.fakehost\.localhost)/
+        // NOTE: this heavily depends on which server version we're running on
+        const message = error.errors ? error.errors[0].message : error.message;
+        expect(message).to.match(
+          /(All configured authentication methods failed|ENOTFOUND compass-tests\.fakehost\.localhost)|ECONNREFUSED 127.0.0.1:22/
         );
 
         for (let i = 0; i < 10; i++) {

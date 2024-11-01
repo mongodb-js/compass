@@ -1,8 +1,8 @@
 import chai from 'chai';
 const { expect } = chai;
 
-import type { CompassBrowser } from '../helpers/compass-browser';
-import * as Selectors from '../helpers/selectors';
+import type { CompassBrowser } from '../compass-browser';
+import * as Selectors from '../selectors';
 
 export async function getFirstListDocument(browser: CompassBrowser) {
   // We check the total from the header area so it is probably good enough to

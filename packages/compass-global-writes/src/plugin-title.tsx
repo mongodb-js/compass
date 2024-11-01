@@ -30,7 +30,7 @@ const iconStylesDark = css({
   color: palette.yellow.base,
 });
 
-const PluginTitle = ({ showWarning }: { showWarning: boolean }) => {
+export const PluginTitle = ({ showWarning }: { showWarning: boolean }) => {
   const darkMode = useDarkMode();
   return (
     <div data-testid="global-writes-tab-title" className={containerStyles}>
@@ -50,6 +50,7 @@ const PluginTitle = ({ showWarning }: { showWarning: boolean }) => {
             >
               <Icon
                 glyph="ImportantWithCircle"
+                aria-label="warning"
                 className={cx(
                   warningIconStyles,
                   iconStylesLight,

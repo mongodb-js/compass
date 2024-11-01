@@ -220,7 +220,7 @@ export const getInitialTabState = (
     );
 
     const subTab =
-      initialSubtab ?? isAggregationsSubtab ? 'Aggregations' : 'Documents';
+      initialSubtab ?? (isAggregationsSubtab ? 'Aggregations' : 'Documents');
 
     return {
       id: tabId,

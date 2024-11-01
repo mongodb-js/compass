@@ -55,6 +55,13 @@ function ToastBodyWithAction({
   );
 }
 
+const IS_CI =
+  process.env.ci ||
+  process.env.CI ||
+  process.env.IS_CI ||
+  process.env.NODE_ENV === 'test' ||
+  process.env.APP_ENV === 'webdriverio';
+
 export function useAtlasProxySignIn(): AtlasLoginReturnValue {
   const [status, setStatus] = useState<SignInStatus>('checking');
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -99,6 +106,9 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
           }
           setProjectId(projectId);
           setStatus('signed-in');
+          if (IS_CI) {
+            return;
+          }
           openToast('atlas-proxy', {
             title: 'Signed in to local Atlas Cloud proxy',
             description: (
@@ -116,13 +126,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
       .catch(() => {
         if (mounted) {
           setStatus('signed-out');
-          if (
-            process.env.ci ||
-            process.env.CI ||
-            process.env.IS_CI ||
-            process.env.NODE_ENV === 'test' ||
-            process.env.APP_ENV === 'webdriverio'
-          ) {
+          if (IS_CI) {
             return;
           }
           openToast('atlas-proxy', {

@@ -5,6 +5,7 @@ import dns from 'dns';
 import ensureError from 'ensure-error';
 import { ipcRenderer } from 'hadron-ipc';
 import * as remote from '@electron/remote';
+import { webUtils } from 'electron';
 import { globalAppRegistry } from 'hadron-app-registry';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import semver from 'semver';
@@ -242,7 +243,10 @@ const Application = View.extend({
         <CompassElectron
           appName={remote.app.getName()}
           showWelcomeModal={!wasNetworkOptInShown}
-          createFileInputBackend={createElectronFileInputBackend(remote)}
+          createFileInputBackend={createElectronFileInputBackend(
+            remote,
+            webUtils
+          )}
           onDisconnect={notifyMainProcessOfDisconnect}
           showCollectionSubMenu={showCollectionSubMenu}
           hideCollectionSubMenu={hideCollectionSubMenu}

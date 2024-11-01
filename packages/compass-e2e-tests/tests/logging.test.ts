@@ -4,7 +4,6 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  TEST_MULTIPLE_CONNECTIONS,
   DEFAULT_CONNECTION_NAME_1,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -28,10 +27,8 @@ describe('Logging and Telemetry integration', function () {
       try {
         await browser.connectWithConnectionString();
 
-        if (TEST_MULTIPLE_CONNECTIONS) {
-          // make sure we generate the screen event that the tests expect
-          await browser.navigateToMyQueries();
-        }
+        // make sure we generate the screen event that the tests expect
+        await browser.navigateToMyQueries();
 
         await browser.shellEval(DEFAULT_CONNECTION_NAME_1, 'use test');
         await browser.shellEval(

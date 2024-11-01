@@ -26,17 +26,21 @@ export const CheckboxInput: React.FunctionComponent<CheckboxInputProps> = ({
   checked,
   onChange,
 }) => {
-  const labelId = `create-index-modal-${name}-checkbox`;
+  const labelId = `create-index-modal-${name}`;
   return (
     <FormFieldContainer>
       <Checkbox
         id={labelId}
-        data-testid={labelId}
+        data-testid={`${labelId}-checkbox`}
         checked={checked}
         onChange={(event) => {
           onChange(name, event.target.checked);
         }}
-        label={<Label htmlFor={labelId}>{label}</Label>}
+        label={
+          <Label htmlFor={labelId} data-testid={`${labelId}-label`}>
+            {label}
+          </Label>
+        }
         // @ts-expect-error leafygreen types only allow strings here, but can
         // render a ReactNode too (and we use that to render links inside
         // descriptions)

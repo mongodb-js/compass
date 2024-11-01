@@ -55,5 +55,6 @@ jobs:
           commit-message: 'chore(release): bump package versions'
           branch: ci/bump-packages
           title: 'chore(release): bump package versions'
+          labels: no-title-validation
           body: |
             - Bump package versions

@@ -92,7 +92,7 @@ export type WorkspacesService = {
     options?: TabOptions &
       Omit<
         Extract<OpenWorkspaceOptions, { type: 'Collection' }>,
-        'type' | 'namespace' | 'editViewName' | 'initialSubtab' | 'connectionId'
+        'type' | 'namespace' | 'editViewName' | 'connectionId'
       >
   ): void;
   /**

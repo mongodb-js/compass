@@ -9,6 +9,7 @@ type CreateIndexOptions = {
   wildcardProjection?: string;
   customCollation?: string;
   sparseIndex?: boolean;
+  rollingIndex?: boolean;
 };
 
 type IndexType = '1' | '-1' | '2dsphere' | 'text';
@@ -78,7 +79,14 @@ export async function createIndex(
   // Select extra options
   if (extraOptions) {
     await browser.clickVisible(Selectors.IndexToggleOptions);
-    const { wildcardProjection } = extraOptions;
+    const { wildcardProjection, rollingIndex, indexName } = extraOptions;
+
+    if (indexName) {
+      await browser.clickVisible(Selectors.indexToggleOption('name'));
+      await browser
+        .$(Selectors.indexOptionInput('name', 'text'))
+        .setValue(indexName);
+    }
 
     if (wildcardProjection) {
       await browser.clickVisible(
@@ -89,6 +97,12 @@ export async function createIndex(
       await browser.setCodemirrorEditorValue(
         Selectors.indexOptionInput('wildcardProjection', 'code'),
         wildcardProjection
+      );
+    }
+
+    if (rollingIndex) {
+      await browser.clickVisible(
+        Selectors.indexToggleOption('buildInRollingProcess')
       );
     }
   }

@@ -1,11 +1,7 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
-
-import {
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_STRING_2,
-  TEST_MULTIPLE_CONNECTIONS,
-} from './compass';
+import { DEFAULT_CONNECTION_STRINGS } from './test-runner-context';
+import { redactConnectionString } from 'mongodb-connection-string-url';
 
 // This is a list of all the known database names that get created by tests so
 // that we can know what to drop when we clean up before every test. If a new
@@ -46,37 +42,38 @@ for (let i = 0; i < 26; ++i) {
 let clients: MongoClient[];
 let test_dbs: Db[];
 
-before(async () => {
+export const beforeAll = async () => {
   // Insert data on both connections so that the same databases and collections
   // will exist on both servers and then anything that's not properly scoped to
   // the correct connection has a chance to operate on the wrong one and
   // hopefully fail a test.
   // This should also mean that the database or collection name that we try and
   // use is always ambiguous, so we're forced to deal with it early in tests.
-  const connectionStrings = [DEFAULT_CONNECTION_STRING_1];
-  if (TEST_MULTIPLE_CONNECTIONS) {
-    connectionStrings.push(DEFAULT_CONNECTION_STRING_2);
-  }
+  const connectionStrings = DEFAULT_CONNECTION_STRINGS;
   clients = connectionStrings.map(
     (connectionString) => new MongoClient(connectionString)
   );
 
   await Promise.all(clients.map((client) => client.connect()));
 
+  const connectionsForPrinting = connectionStrings
+    .map((str) => {
+      return redactConnectionString(str);
+    })
+    .join(' and ');
+
   console.log(
-    `Connected successfully to ${connectionStrings.join(
-      ' and '
-    )} for inserting data`
+    `Connected successfully to ${connectionsForPrinting} for inserting data`
   );
 
   test_dbs = clients.map((client) => client.db('test'));
-});
+};
 
-after(async () => {
+export const afterAll = async () => {
   await Promise.all(clients.map((client) => client.close()));
-});
+};
 
-beforeEach(async () => {
+export const beforeEach = async () => {
   // Drop the databases that get created by tests or the functions below
   const promises = [];
 
@@ -87,7 +84,13 @@ beforeEach(async () => {
   }
 
   await Promise.all(promises);
-});
+};
+
+export const mochaRootHooks: Mocha.RootHookObject = {
+  beforeAll,
+  beforeEach,
+  afterAll,
+};
 
 export async function createDummyCollections(): Promise<void> {
   const promises = [];
