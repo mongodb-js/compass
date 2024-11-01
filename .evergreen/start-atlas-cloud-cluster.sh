@@ -19,8 +19,8 @@ DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds
 #
 # - Setup a new org and project. Save the org id and project id for later.
 #
-# - Add payment details within the organization (Billing) to be able to create
-#   clusters. You can use test stripe card for that (4242 4242 4242 4242).
+# - Add test payment details within the organization (Billing) to be able to
+#   create clusters.
 #
 # - Create a new API key (Access Manager > Project Access > Create Application >
 #   API Key) for the project you created and save the public and private keys.
