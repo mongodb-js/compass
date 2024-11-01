@@ -1402,8 +1402,7 @@ export const ProxyCustomButton =
 export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';
 
 export const GlobalWrites = {
-  tabStatus: (status: string) =>
-    `[data-testid="${status.toLowerCase()}-status"]`,
+  tabStatus: (status: string) => `[data-status="${status.toLowerCase()}"]`,
 
   ShardKeyFormSecondKeyInputCombobox:
     '[data-testid="second-shard-key"] [role="combobox"] input',

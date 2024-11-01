@@ -69,9 +69,6 @@ describe('Global writes', function () {
   });
 
   it('should be able to shard an unsharded namespace and also unmanage it', async function () {
-    // Sharding a collection takes a bit longer
-    this.timeout(60_000);
-
     await createGeospatialCollection();
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(

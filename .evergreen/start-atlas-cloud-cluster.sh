@@ -16,6 +16,9 @@
 #
 # - Setup a new org and project. Save the org id and project id for later.
 #
+# - Add payment details within the organization (Billing) to be able to create
+#   clusters. You can use test stripe card for that (4242 4242 4242 4242).
+#
 # - Create new db user with username / password auth and admin role. This user
 #   will be used to prepopulate dbs with data in tests. Save the credentials.
 #
@@ -47,10 +50,6 @@
 #   (ATLAS_CLOUD_TEST_CLUSTER_NAME="TestCluster" source .evergreen/start-atlas-cloud-cluster.sh \
 #     && npm run -w compass-e2e-tests test web -- --test-atlas-cloud-sandbox --test-filter="atlas-cloud/**/*")
 #
-# When setting up for the first time, make sure you:
-# - Add payment details to be able to create clusters. You can use stripe test card.
-# - Allow network access to the project for your IP address.
-
 _ATLAS_CLOUD_TEST_CLUSTER_NAME=${ATLAS_CLOUD_TEST_CLUSTER_NAME:-""}
 
 # Atlas limits the naming to something like /^[\w\d-]{,23}$/ (and will auto
