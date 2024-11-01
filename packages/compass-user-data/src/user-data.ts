@@ -69,7 +69,7 @@ export class UserData<T extends z.Schema> {
   private readonly serialize: SerializeContent<z.input<T>>;
   private readonly deserialize: DeserializeContent;
   private readonly getFileName: GetFileName;
-  private readonly semaphore = new Semaphore(1000);
+  private readonly semaphore = new Semaphore(100);
 
   constructor(
     private readonly validator: T,
