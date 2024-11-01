@@ -13,13 +13,12 @@ type GeoShardingFormData = {
   keyType?: 'UNIQUE' | 'HASHED';
 };
 
-type GeoShardingState = 'UNSHARDED' | 'SHARDING' | 'SHARD_KEY_CORRECT';
+type GeoShardingStatus = 'UNSHARDED' | 'SHARDING' | 'SHARD_KEY_CORRECT';
 
 async function createGeoShardKey(
   browser: CompassBrowser,
   formData: GeoShardingFormData
 ) {
-  // shard-collection-form
   await browser.setComboBoxValue(
     Selectors.GlobalWrites.ShardKeyFormSecondKeyInputCombobox,
     formData.secondShardKey
@@ -38,11 +37,11 @@ async function createGeoShardKey(
 
 async function waitForGlobalWritesStatus(
   browser: CompassBrowser,
-  nextState: GeoShardingState
+  nextStatus: GeoShardingStatus
 ) {
   await browser.waitUntil(async () => {
     const content = await browser.$(
-      Selectors.GlobalWrites.tabStatus(nextState)
+      Selectors.GlobalWrites.tabStatus(nextStatus)
     );
     return await content.isDisplayed();
   });
