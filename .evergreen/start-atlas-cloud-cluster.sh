@@ -17,7 +17,9 @@ DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds
 #   You can only use your work emails with a subaddress to create those (e.g,
 #   jane.doe+for-testing@mongodb.com).
 #
-# - Setup a new org and project. Save the org id and project id for later.# - Add payment details within the organization (Billing) to be able to create
+# - Setup a new org and project. Save the org id and project id for later.
+#
+# - Add payment details within the organization (Billing) to be able to create
 #   clusters. You can use test stripe card for that (4242 4242 4242 4242).
 #
 # - Create a new API key (Access Manager > Project Access > Create Application >
@@ -45,6 +47,7 @@ DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds
 #
 #   (ATLAS_CLOUD_TEST_CLUSTER_NAME="TestCluster" source .evergreen/start-atlas-cloud-cluster.sh \
 #     && npm run -w compass-e2e-tests test web -- --test-atlas-cloud-sandbox --test-filter="atlas-cloud/**/*")
+
 _ATLAS_CLOUD_TEST_CLUSTER_NAME=${ATLAS_CLOUD_TEST_CLUSTER_NAME:-""}
 
 # Atlas limits the naming to something like /^[\w\d-]{,23}$/ (and will auto
