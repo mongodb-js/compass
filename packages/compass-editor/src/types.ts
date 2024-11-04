@@ -14,3 +14,16 @@ export type CompletionWithServerInfo = {
   /** Optional completion description */
   description?: string;
 };
+
+export type EditorRef = {
+  foldAll: () => boolean;
+  unfoldAll: () => boolean;
+  copyAll: () => boolean;
+  prettify: () => boolean;
+  applySnippet: (template: string) => boolean;
+  focus: () => boolean;
+  cursorDocEnd: () => boolean;
+  startCompletion: () => boolean;
+  readonly editorContents: string | null;
+  readonly editor: EditorView | null;
+};
