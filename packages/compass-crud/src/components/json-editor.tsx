@@ -45,8 +45,7 @@ const editorDarkModeStyles = css({
 });
 
 const actionsGroupStyles = css({
-  paddingTop: spacing[2],
-  paddingRight: spacing[2],
+  padding: spacing[200],
 });
 
 export type JSONEditorProps = {

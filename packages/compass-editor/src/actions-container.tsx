@@ -14,10 +14,11 @@ type ActionsContainerProps = {
 
 const actionsContainerStyle = css({
   position: 'absolute',
-  top: spacing[1],
-  right: spacing[2],
+  top: spacing[100],
+  right: spacing[100],
+  left: spacing[100],
   display: 'none',
-  gap: spacing[2],
+  gap: spacing[200],
 });
 
 export const ActionsContainer = ({
