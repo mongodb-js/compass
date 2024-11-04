@@ -1,4 +1,4 @@
-import React, { type RefObject, useMemo } from 'react';
+import React, { type RefObject } from 'react';
 
 import { type Action, ActionButton, FormatIcon } from './action-button';
 import type { EditorRef } from './types';
@@ -27,21 +27,25 @@ export const ActionsContainer = ({
   className,
   editorRef,
 }: ActionsContainerProps) => {
-  const actions = useMemo(() => {
-    return [
-      copyable && (
+  return (
+    <div
+      className={cx(
+        'multiline-editor-actions',
+        actionsContainerStyle,
+        className
+      )}
+    >
+      {copyable && (
         <ActionButton
-          key="Copy"
           label="Copy"
           icon="Copy"
           onClick={() => {
             return editorRef.current?.copyAll() ?? false;
           }}
         ></ActionButton>
-      ),
-      formattable && (
+      )}
+      {formattable && (
         <ActionButton
-          key="Format"
           label="Format"
           icon={
             <FormatIcon
@@ -53,34 +57,23 @@ export const ActionsContainer = ({
             return editorRef.current?.prettify() ?? false;
           }}
         ></ActionButton>
-      ),
-      ...(customActions ?? []).map((action) => {
-        return (
-          <ActionButton
-            key={action.label}
-            icon={action.icon}
-            label={action.label}
-            onClick={() => {
-              if (!editorRef.current?.editor) {
-                return false;
-              }
-              return action.action(editorRef.current.editor);
-            }}
-          ></ActionButton>
-        );
-      }),
-    ];
-  }, [copyable, formattable, customActions, editorRef]);
-
-  return (
-    <div
-      className={cx(
-        'multiline-editor-actions',
-        actionsContainerStyle,
-        className
       )}
-    >
-      {actions}
+      {customActions &&
+        customActions.map((action) => {
+          return (
+            <ActionButton
+              key={action.label}
+              icon={action.icon}
+              label={action.label}
+              onClick={() => {
+                if (!editorRef.current?.editor) {
+                  return false;
+                }
+                return action.action(editorRef.current.editor);
+              }}
+            ></ActionButton>
+          );
+        })}
     </div>
   );
 };
