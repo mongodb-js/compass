@@ -215,11 +215,9 @@ export type RootState = {
         | ShardingStatuses.UNSHARDED
         | ShardingStatuses.SUBMITTING_FOR_SHARDING
         | ShardingStatuses.CANCELLING_SHARDING;
-      /**
-       * note: shardKey might exist even for unsharded.
-       * if the collection was sharded previously and then unmanaged
-       */
       shardKey?: ShardKey;
+      // shardKey might exist if the collection was sharded before
+      // and then unmanaged
       shardingError?: never;
       pollingTimeout?: never;
     }
@@ -487,14 +485,29 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     ) &&
     (state.status === ShardingStatuses.CANCELLING_SHARDING ||
       state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR)
+      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR) &&
     // the error might come before the cancel request was processed
+    !state.shardKey
   ) {
     return {
       ...state,
-      status: state.shardKey
-        ? ShardingStatuses.INCOMPLETE_SHARDING_SETUP
-        : ShardingStatuses.UNSHARDED,
+      status: ShardingStatuses.UNSHARDED,
+      shardingError: undefined,
+    };
+  }
+
+  if (
+    isAction<CancellingShardingFinishedAction>(
+      action,
+      GlobalWritesActionTypes.CancellingShardingFinished
+    ) &&
+    state.status === ShardingStatuses.CANCELLING_SHARDING &&
+    state.shardKey
+  ) {
+    return {
+      ...state,
+      shardKey: state.shardKey,
+      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
       shardingError: undefined,
     };
   }
