@@ -377,10 +377,10 @@ export const calculateShowMoreToggleOffset = ({
   alignWithNestedExpandIcon: boolean;
 }) => {
   // the base padding that we have on all elements rendered in the document
-  const BASE_PADDING_LEFT = spacing[200];
+  const BASE_PADDING_LEFT = spacing[50];
   const OFFSET_WHEN_EDITABLE = editable
     ? // space taken by element actions
-      spacing[400] +
+      spacing[300] +
       // space and margin taken by line number element
       spacing[400] +
       spacing[100] +
