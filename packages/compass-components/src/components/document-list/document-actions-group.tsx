@@ -9,11 +9,11 @@ const actionsGroupContainer = css({
   position: 'absolute',
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2],
+  gap: spacing[200],
   width: '100%',
-  top: spacing[2] + spacing[1],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  top: spacing[300],
+  paddingLeft: spacing[300],
+  paddingRight: spacing[300],
   pointerEvents: 'none',
 });
 
