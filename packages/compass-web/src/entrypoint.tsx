@@ -63,7 +63,9 @@ const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasServiceProvider>
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
+        <AtlasAiServiceProvider apiURLPreset="cloud">
+          {children}
+        </AtlasAiServiceProvider>
       </AtlasServiceProvider>
     </AtlasCloudAuthServiceProvider>
   );
