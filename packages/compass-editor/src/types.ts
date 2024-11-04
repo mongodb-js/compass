@@ -1,3 +1,5 @@
+import type { EditorView } from '@codemirror/view';
+
 export type CompletionWithServerInfo = {
   name?: string;
   value?: string;
