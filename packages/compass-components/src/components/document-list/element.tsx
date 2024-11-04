@@ -364,7 +364,7 @@ const elementKeyDarkMode = css({
 });
 
 const calculateElementSpacerWidth = (editable: boolean, level: number) => {
-  return (editable ? spacing[200] : 0) + spacing[400] * level;
+  return (editable ? spacing[100] : 0) + spacing[400] * level;
 };
 
 export const calculateShowMoreToggleOffset = ({
