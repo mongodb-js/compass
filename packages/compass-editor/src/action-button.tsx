@@ -12,6 +12,7 @@ export type Action = {
 
 const actionButtonStyle = css({
   flex: 'none',
+  pointerEvents: 'all',
 });
 
 const actionButtonContentStyle = css({

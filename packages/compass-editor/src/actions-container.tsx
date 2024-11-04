@@ -19,6 +19,7 @@ const actionsContainerStyle = css({
   left: spacing[100],
   display: 'none',
   gap: spacing[200],
+  pointerEvents: 'none',
 });
 
 export const ActionsContainer = ({
