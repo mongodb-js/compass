@@ -29,12 +29,8 @@ export class AtlasService {
   ) {
     this.config = getAtlasConfig(preferences);
   }
-  adminApiEndpoint(path?: string, requestId?: string): string {
-    const uri = `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
-    const query = requestId
-      ? `?request_id=${encodeURIComponent(requestId)}`
-      : '';
-    return `${uri}${query}`;
+  adminApiEndpoint(path?: string): string {
+    return `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
   }
   cloudEndpoint(path?: string): string {
     return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
