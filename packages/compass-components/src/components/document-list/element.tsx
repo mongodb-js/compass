@@ -192,8 +192,8 @@ const expandButton = css({
 
 const hadronElement = css({
   display: 'flex',
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingLeft: spacing[50],
+  paddingRight: spacing[50],
   marginTop: 1,
 });
 
@@ -239,7 +239,7 @@ const elementRemovedDarkMode = css({
 
 const elementActions = css({
   flex: 'none',
-  width: spacing[3],
+  width: spacing[300],
   position: 'relative',
 });
 
