@@ -128,7 +128,6 @@ function createStore({
       thunk.withExtraArgument({
         globalAppRegistry: new AppRegistry(),
         localAppRegistry: new AppRegistry(),
-        atlasAuthService: {} as any,
         atlasAiService: {} as any,
         pipelineBuilder,
         pipelineStorage: new CompassPipelineStorage(),

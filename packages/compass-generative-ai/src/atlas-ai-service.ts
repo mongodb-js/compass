@@ -8,6 +8,8 @@ import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
+import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
+import { getStore } from './store/atlas-signin-store';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -258,6 +260,12 @@ export class AtlasAiService {
         { error: (err as Error).stack }
       );
     }
+  }
+
+  async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
+    // When the ai feature is attempted to be opened we need to make sure
+    // the user is signed into Atlas and opted in.
+    return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
   }
 
   private getQueryOrAggregationFromUserInput = async <T>(

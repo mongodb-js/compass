@@ -14,7 +14,6 @@ export function isAction<A extends AnyAction>(
 
 export type AtlasSignInState = {
   error: string | null;
-  isModalOpen: boolean;
   // For managing attempt state that doesn't belong in the store
   currentAttemptId: number | null;
 } & (
@@ -37,8 +36,6 @@ export type AtlasSignInThunkAction<
 > = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
 
 export const enum AtlasSignInActions {
-  OpenSignInModal = 'atlas-service/atlas-signin/OpenSignInModal',
-  CloseSignInModal = 'atlas-service/atlas-signin/CloseSignInModal',
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
   RestoringFailed = 'atlas-service/atlas-signin/RestoringFailed',
   RestoringSuccess = 'atlas-service/atlas-signin/RestoringSuccess',
@@ -51,14 +48,6 @@ export const enum AtlasSignInActions {
   TokenRefreshFailed = 'atlas-service/atlas-signin/TokenRefreshFailed',
   SignedOut = 'atlas-service/atlas-signin/SignedOut',
 }
-
-export type AtlasSignInOpenModalAction = {
-  type: AtlasSignInActions.OpenSignInModal;
-};
-
-export type AtlasSignInCloseModalAction = {
-  type: AtlasSignInActions.CloseSignInModal;
-};
 
 export type AtlasSignInRestoringStartAction = {
   type: AtlasSignInActions.RestoringStart;
@@ -251,24 +240,6 @@ const reducer: Reducer<AtlasSignInState, Action> = (
   }
 
   if (
-    isAction<AtlasSignInOpenModalAction>(
-      action,
-      AtlasSignInActions.OpenSignInModal
-    )
-  ) {
-    return { ...state, isModalOpen: true };
-  }
-
-  if (
-    isAction<AtlasSignInCloseModalAction>(
-      action,
-      AtlasSignInActions.CloseSignInModal
-    )
-  ) {
-    return { ...state, isModalOpen: false };
-  }
-
-  if (
     isAction<AtlasSignInTokenRefreshFailedAction>(
       action,
       AtlasSignInActions.TokenRefreshFailed
@@ -337,29 +308,6 @@ const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
   };
 };
 
-export const signInWithModalPrompt = ({
-  signal,
-}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<
-  Promise<AtlasUserInfo>
-> => {
-  return async (dispatch, getState) => {
-    // Nothing to do if we already signed in
-    const { state, userInfo } = getState();
-    if (state === 'success') {
-      return userInfo;
-    }
-    const attempt = dispatch(
-      startAttempt(() => {
-        dispatch(openSignInModal());
-      })
-    );
-    signal?.addEventListener('abort', () => {
-      dispatch(closeSignInModal(signal.reason));
-    });
-    return attempt.promise;
-  };
-};
-
 export const signInWithoutPrompt = ({
   signal,
 }: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<
@@ -383,12 +331,8 @@ export const signInWithoutPrompt = ({
   };
 };
 
-export const openSignInModal = () => {
-  return { type: AtlasSignInActions.OpenSignInModal };
-};
-
 /**
- * Sign in from the opt in window
+ * Sign into Atlas. To be called when the user isn't signed in yet.
  */
 export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
@@ -431,15 +375,6 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       });
       reject(err);
     }
-  };
-};
-
-export const closeSignInModal = (
-  reason?: any
-): AtlasSignInThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(cancelSignIn(reason));
-    dispatch({ type: AtlasSignInActions.CloseSignInModal });
   };
 };
 
