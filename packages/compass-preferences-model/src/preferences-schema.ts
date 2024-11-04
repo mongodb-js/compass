@@ -473,10 +473,10 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable AI Features',
       long: 'Allow the use of AI features in Compass which make requests to 3rd party services.',
     },
-    deriveValue: deriveValueFromOtherPreferences('enableGenAIFeatures', [
-      'enableGenAIFeaturesAtlasOrg',
-      'networkTraffic',
-    ]),
+    deriveValue: deriveValueFromOtherPreferencesAsLogicalAnd(
+      'enableGenAIFeatures',
+      ['enableGenAIFeaturesAtlasOrg', 'networkTraffic']
+    ),
     validator: z.boolean().default(true),
     type: 'boolean',
   },
@@ -1095,12 +1095,11 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
 }
 
 /** Helper for deriving value/state for preferences from other preferences */
-function deriveValueFromOtherPreferences<K extends keyof AllPreferences>(
-  property: K,
-  preferencesToDeriveFrom: K[]
-): DeriveValueFunction<boolean> {
+function deriveValueFromOtherPreferencesAsLogicalAnd<
+  K extends keyof AllPreferences
+>(property: K, preferencesToDeriveFrom: K[]): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: v(property) && preferencesToDeriveFrom.every((p) => v(p)),
+    value: preferencesToDeriveFrom.every((p) => v(p)),
     state:
       s(property) ??
       (preferencesToDeriveFrom.every((p) => v(p))
