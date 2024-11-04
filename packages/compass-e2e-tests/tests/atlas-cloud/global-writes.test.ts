@@ -15,6 +15,9 @@ type GeoShardingFormData = {
 
 type GeoShardingStatus = 'UNSHARDED' | 'SHARDING' | 'SHARD_KEY_CORRECT';
 
+const WEBDRIVER_TIMEOUT = 1000 * 60 * 20;
+const MOCHA_TIMEOUT = WEBDRIVER_TIMEOUT * 1.2;
+
 async function createGeoShardKey(
   browser: CompassBrowser,
   formData: GeoShardingFormData
@@ -39,12 +42,15 @@ async function waitForGlobalWritesStatus(
   browser: CompassBrowser,
   nextStatus: GeoShardingStatus
 ) {
-  await browser.waitUntil(async () => {
-    const content = await browser.$(
-      Selectors.GlobalWrites.tabStatus(nextStatus)
-    );
-    return await content.isDisplayed();
-  });
+  await browser.waitUntil(
+    async () => {
+      const content = await browser.$(
+        Selectors.GlobalWrites.tabStatus(nextStatus)
+      );
+      return await content.isDisplayed();
+    },
+    { timeout: WEBDRIVER_TIMEOUT }
+  );
 }
 
 describe('Global writes', function () {
@@ -53,7 +59,7 @@ describe('Global writes', function () {
 
   beforeEach(async function () {
     // Sharding a collection takes a bit longer
-    this.timeout(1000 * 60 * 20);
+    this.timeout(MOCHA_TIMEOUT);
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setupDefaultConnections();
