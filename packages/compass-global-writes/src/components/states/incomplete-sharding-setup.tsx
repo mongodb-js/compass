@@ -6,6 +6,7 @@ import {
   css,
   ButtonVariant,
   Link,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
@@ -68,6 +69,7 @@ export function IncompleteShardingSetup({
             onClick={onResume}
             variant={ButtonVariant.Default}
             isLoading={isSubmittingForSharding}
+            loadingIndicator={<SpinLoader />}
             className={manageBtnStyles}
           >
             Enable Global Writes

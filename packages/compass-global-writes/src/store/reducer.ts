@@ -492,7 +492,9 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   ) {
     return {
       ...state,
-      status: ShardingStatuses.UNSHARDED,
+      status: state.shardKey
+        ? ShardingStatuses.INCOMPLETE_SHARDING_SETUP
+        : ShardingStatuses.UNSHARDED,
       shardingError: undefined,
     };
   }
@@ -508,6 +510,34 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       ...state,
       managedNamespace: undefined,
       status: ShardingStatuses.UNSHARDED,
+    };
+  }
+
+  if (
+    isAction<SubmittingForShardingErroredAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingErrored
+    ) &&
+    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR
+  ) {
+    return {
+      ...state,
+      managedNamespace: undefined,
+      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
+    };
+  }
+
+  if (
+    isAction<SubmittingForShardingErroredAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingErrored
+    ) &&
+    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE
+  ) {
+    return {
+      ...state,
+      managedNamespace: undefined,
+      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
 
