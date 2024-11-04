@@ -1,5 +1,10 @@
 import type { Compass } from '../../helpers/compass';
-import { cleanup, init, Selectors } from '../../helpers/compass';
+import {
+  cleanup,
+  init,
+  screenshotIfFailed,
+  Selectors,
+} from '../../helpers/compass';
 import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import {
@@ -11,16 +16,20 @@ describe('Rolling indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
-  before(async function () {
+  before(function () {
+    if (!isTestingAtlasCloudSandbox()) {
+      this.skip();
+    }
+  });
+
+  beforeEach(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setupDefaultConnections();
   });
 
-  before(function () {
-    if (!isTestingAtlasCloudSandbox()) {
-      this.skip();
-    }
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
   });
 
   after(async function () {
