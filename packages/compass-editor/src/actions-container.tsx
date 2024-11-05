@@ -24,6 +24,12 @@ const actionsContainerStyle = css({
   pointerEvents: 'none',
 });
 
+const expandContainerStyle = css({
+  position: 'relative',
+  top: -spacing[100],
+  left: -spacing[100],
+});
+
 const actionsGroupItemSeparator = css({
   flex: '1 0 auto',
   pointerEvents: 'none',
@@ -47,12 +53,14 @@ export const ActionsContainer = ({
       )}
     >
       {onExpand && (
-        <ActionButton
-          label={expanded ? 'Collapse all' : 'Expand all'}
-          icon={expanded ? 'CaretDown' : 'CaretRight'}
-          onClick={onExpand}
-          compact
-        />
+        <div className={expandContainerStyle}>
+          <ActionButton
+            label={expanded ? 'Collapse all' : 'Expand all'}
+            icon={expanded ? 'CaretDown' : 'CaretRight'}
+            onClick={onExpand}
+            compact
+          />
+        </div>
       )}
       <span className={actionsGroupItemSeparator}></span>
       {copyable && (
