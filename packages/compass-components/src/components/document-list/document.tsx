@@ -120,8 +120,9 @@ const HadronDocument: React.FunctionComponent<{
         editable,
         level: 0,
         alignWithNestedExpandIcon: false,
+        extraGutterWidth,
       }),
-    [editable]
+    [editable, extraGutterWidth]
   );
 
   return (
