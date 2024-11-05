@@ -301,6 +301,10 @@ const elementSpacer = css({
   flex: 'none',
 });
 
+const readOnlySpacer = css({
+  width: spacing[900],
+});
+
 const elementExpand = css({
   width: spacing[3],
   flex: 'none',
@@ -567,6 +571,7 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
+        {!editable && <div className={readOnlySpacer} />}
         <div className={elementSpacer} style={{ width: elementSpacerWidth }}>
           {/* spacer for nested documents */}
         </div>
