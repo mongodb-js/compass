@@ -1,7 +1,14 @@
 import { cx } from '@mongodb-js/compass-components';
 import { css } from '@mongodb-js/compass-components';
-import { Button, Icon } from '@mongodb-js/compass-components';
+import { Button, Icon, type IconGlyph } from '@mongodb-js/compass-components';
 import React, { useCallback, useEffect, useState } from 'react';
+import type { EditorView } from '@codemirror/view';
+
+export type Action = {
+  icon: IconGlyph;
+  label: string;
+  action: (editor: EditorView) => boolean | void;
+};
 
 const actionButtonStyle = css({
   flex: 'none',
