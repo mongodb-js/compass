@@ -1036,7 +1036,7 @@ const atlasProjectPreferencesProps: Required<{
   [K in keyof AtlasProjectPreferences]: PreferenceDefinition<K>;
 }> = {
   enableGenAIFeaturesAtlasProject: {
-    ui: false,
+    ui: true,
     cli: true,
     global: true,
     description: {
@@ -1046,7 +1046,7 @@ const atlasProjectPreferencesProps: Required<{
     type: 'boolean',
   },
   enableGenAISampleDocumentPassingOnAtlasProject: {
-    ui: false,
+    ui: true,
     cli: true,
     global: true,
     description: {
@@ -1061,7 +1061,7 @@ const atlasOrgPreferencesProps: Required<{
   [K in keyof AtlasOrgPreferences]: PreferenceDefinition<K>;
 }> = {
   enableGenAIFeaturesAtlasOrg: {
-    ui: false,
+    ui: true,
     cli: true,
     global: true,
     description: {

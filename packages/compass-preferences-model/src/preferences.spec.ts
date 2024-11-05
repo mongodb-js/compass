@@ -163,7 +163,6 @@ describe('Preferences class', function () {
       enableDevTools: 'set-global',
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
-      enableGenAIFeatures: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
       readOnly: 'set-global',
@@ -227,7 +226,6 @@ describe('Preferences class', function () {
       },
       {
         networkTraffic: false,
-        enableGenAIFeatures: false,
         enableMaps: false,
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
