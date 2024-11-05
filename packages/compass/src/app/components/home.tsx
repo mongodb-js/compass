@@ -31,7 +31,7 @@ import { getExtraConnectionData } from '../utils/telemetry';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
-// import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
 import { ConnectionStorageProvider } from '@mongodb-js/connection-storage/provider';
@@ -220,7 +220,7 @@ function Home({
             />
             <CompassSettingsPlugin></CompassSettingsPlugin>
             <CompassFindInPagePlugin></CompassFindInPagePlugin>
-            {/* <AtlasAuthPlugin></AtlasAuthPlugin> */}
+            <AtlasAuthPlugin></AtlasAuthPlugin>
             <CompassGenerativeAIPlugin></CompassGenerativeAIPlugin>
             <LegacyConnectionsModal />
           </FieldStorePlugin>

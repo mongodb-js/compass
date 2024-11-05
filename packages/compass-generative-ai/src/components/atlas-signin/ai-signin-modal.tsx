@@ -40,8 +40,6 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
   onSignInModalClose,
   onSignInClick,
 }) => {
-  // const useSi // Is sign in in progress hook?
-
   const darkMode = useDarkMode();
 
   return (
