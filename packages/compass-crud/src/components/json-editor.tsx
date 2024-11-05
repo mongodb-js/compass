@@ -257,6 +257,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     onDeletionFinished,
   ]);
 
+  const toggleExpandCollapse = useCallback(() => {
+    if (doc.expanded) {
+      doc.collapse();
+    } else {
+      doc.expand();
+    }
+  }, [doc]);
+
   // Trying to change CodeMirror editor state when an update "effect" is in
   // progress results in an error which is why we timeout the code mirror update
   // itself.
@@ -296,6 +304,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         className={cx(editorStyles, darkMode && editorDarkModeStyles)}
         actionsClassName={actionsGroupStyles}
         completer={completer}
+        onExpand={editing ? undefined : toggleExpandCollapse}
+        expanded={expanded}
       />
       <DocumentList.DocumentEditActionsFooter
         doc={doc}

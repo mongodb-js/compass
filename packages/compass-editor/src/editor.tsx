@@ -1399,6 +1399,8 @@ type MultilineEditorProps = EditorProps & {
   formattable?: boolean;
   editorClassName?: string;
   actionsClassName?: string;
+  onExpand?: () => void;
+  expanded?: boolean;
 };
 
 const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
@@ -1411,8 +1413,10 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       editorClassName,
       actionsClassName,
       darkMode: _darkMode,
+      onExpand,
+      expanded,
       ...props
-    },
+    }: MultilineEditorProps,
     ref
   ) {
     const darkMode = useDarkMode(_darkMode);
@@ -1492,6 +1496,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         ></BaseEditor>
         {hasActions && (
           <ActionsContainer
+            onExpand={onExpand}
+            expanded={expanded}
             copyable={copyable}
             formattable={formattable}
             editorRef={editorRef}
