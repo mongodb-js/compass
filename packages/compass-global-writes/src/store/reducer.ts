@@ -5,7 +5,6 @@ import {
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
 import type { ManagedNamespace } from '../services/atlas-global-writes-service';
-import { GlobalWrites } from '../components';
 
 export const POLLING_INTERVAL = 5000;
 
