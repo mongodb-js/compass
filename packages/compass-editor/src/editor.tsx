@@ -1389,6 +1389,13 @@ const multilineEditorContainerWithActionsStyle = css({
   minHeight: spacing[5] - 2,
 });
 
+const multilineEditorContainerWithExpandStyle = css({
+  ['& .cm-gutters']: {
+    // Offset to prevent the "expand" button from overlapping with fold / unfold icons
+    paddingLeft: spacing[500],
+  },
+});
+
 const multilineEditorContainerDarkModeStyle = css({
   backgroundColor: editorPalette.dark.backgroundColor,
 });
@@ -1473,6 +1480,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           multilineEditorContainerStyle,
           darkMode && multilineEditorContainerDarkModeStyle,
           hasActions && multilineEditorContainerWithActionsStyle,
+          onExpand && multilineEditorContainerWithExpandStyle,
           className
         )}
         // We want folks to be able to click into the container element
