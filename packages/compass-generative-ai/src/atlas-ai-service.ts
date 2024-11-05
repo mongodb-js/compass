@@ -327,7 +327,7 @@ export class AtlasAiService {
   }
 
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
-    // When the ai feature is attempted to be opened we need to make sure
+    // When the ai feature is attempted to be opened we make sure
     // the user is signed into Atlas and opted in.
     return getStore().dispatch(signIntoAtlasWithModalPrompt({ signal }));
   }

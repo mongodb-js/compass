@@ -8,20 +8,20 @@ import reducer, {
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 
-let store: AtlasServiceStore;
+let store: CompassGenerativeAIServiceStore;
 export function getStore() {
   if (!store) {
-    throw new Error('AtlasAuthPlugin not activated');
+    throw new Error('CompassGenerativeAIPlugin not activated');
   }
   return store;
 }
 
-export type AtlasAuthPluginServices = {
+export type CompassGenerativeAIPluginServices = {
   atlasAuthService: AtlasAuthService;
 };
 export function activatePlugin(
   _: Record<string, never>,
-  services: AtlasAuthPluginServices,
+  services: CompassGenerativeAIPluginServices,
   { cleanup }: ActivateHelpers
 ) {
   store = configureStore(services);
@@ -41,7 +41,9 @@ export function activatePlugin(
   return { store, deactivate: cleanup };
 }
 
-export function configureStore({ atlasAuthService }: AtlasAuthPluginServices) {
+export function configureStore({
+  atlasAuthService,
+}: CompassGenerativeAIPluginServices) {
   const store = createStore(
     reducer,
     applyMiddleware(thunk.withExtraArgument({ atlasAuthService }))
@@ -49,4 +51,4 @@ export function configureStore({ atlasAuthService }: AtlasAuthPluginServices) {
   return store;
 }
 
-export type AtlasServiceStore = ReturnType<typeof configureStore>;
+export type CompassGenerativeAIServiceStore = ReturnType<typeof configureStore>;

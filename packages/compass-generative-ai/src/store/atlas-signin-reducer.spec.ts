@@ -29,7 +29,6 @@ describe('atlasSignInReducer', function () {
       });
 
       expect(store.getState()).to.have.nested.property('state', 'initial');
-      // void store.dispatch(signIntoAtlasWithModalPrompt()).catch(() => {});
       void store.dispatch(atlasServiceSignedIn());
       await store.dispatch(signIn());
       expect(mockAtlasService.signIn).not.to.have.been.called;
