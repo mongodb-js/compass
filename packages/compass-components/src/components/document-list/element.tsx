@@ -301,6 +301,10 @@ const elementSpacer = css({
   flex: 'none',
 });
 
+const readOnlySpacer = css({
+  width: spacing[900],
+});
+
 const elementExpand = css({
   width: spacing[3],
   flex: 'none',
@@ -371,13 +375,15 @@ export const calculateShowMoreToggleOffset = ({
   editable,
   level,
   alignWithNestedExpandIcon,
+  extraGutterWidth = 0,
 }: {
   editable: boolean;
   level: number;
   alignWithNestedExpandIcon: boolean;
+  extraGutterWidth: number | undefined;
 }) => {
   // the base padding that we have on all elements rendered in the document
-  const BASE_PADDING_LEFT = spacing[50];
+  const BASE_PADDING_LEFT = spacing[50] + extraGutterWidth;
   const OFFSET_WHEN_EDITABLE = editable
     ? // space taken by element actions
       spacing[300] +
@@ -402,6 +408,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
+  extraGutterWidth?: number;
 }> = ({
   value: element,
   editable,
@@ -409,6 +416,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart,
   lineNumberSize,
   onAddElement,
+  extraGutterWidth,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -457,8 +465,9 @@ export const HadronElement: React.FunctionComponent<{
         editable,
         level,
         alignWithNestedExpandIcon: true,
+        extraGutterWidth,
       }),
-    [editable, level]
+    [editable, level, extraGutterWidth]
   );
 
   const isValid = key.valid && value.valid;
@@ -566,6 +575,9 @@ export const HadronElement: React.FunctionComponent<{
               ></AddFieldActions>
             </div>
           </div>
+        )}
+        {typeof extraGutterWidth === 'number' && (
+          <div style={{ width: extraGutterWidth }} />
         )}
         <div className={elementSpacer} style={{ width: elementSpacerWidth }}>
           {/* spacer for nested documents */}

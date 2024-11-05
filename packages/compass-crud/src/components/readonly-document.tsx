@@ -131,7 +131,13 @@ class ReadonlyDocument extends React.Component<
    * @returns {Array} The elements.
    */
   renderElements() {
-    return <DocumentList.Document value={this.props.doc} />;
+    return (
+      <DocumentList.Document
+        value={this.props.doc}
+        // Provide extra whitespace for the expand button
+        extraGutterWidth={spacing[900]}
+      />
+    );
   }
 
   renderActions() {
