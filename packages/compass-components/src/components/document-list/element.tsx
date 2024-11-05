@@ -723,6 +723,7 @@ export const HadronElement: React.FunctionComponent<{
                 onEditStart={onEditStart}
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
+                extraGutterWidth={extraGutterWidth}
               ></HadronElement>
             );
           })}
