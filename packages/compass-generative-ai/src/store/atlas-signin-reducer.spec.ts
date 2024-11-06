@@ -150,7 +150,7 @@ describe('atlasSignInReducer', function () {
       });
 
       const signInPromise = store.dispatch(signIntoAtlasWithModalPrompt());
-      store.dispatch(closeSignInModal());
+      store.dispatch(closeSignInModal(new Error('This operation was aborted')));
 
       try {
         await signInPromise;
