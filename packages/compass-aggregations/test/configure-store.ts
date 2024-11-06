@@ -16,6 +16,9 @@ export class MockAtlasAiService {
   async getQueryFromUserInput() {
     return Promise.resolve({});
   }
+  async ensureAiFeatureAccess() {
+    return Promise.resolve();
+  }
 }
 
 function getMockedPluginArgs(
