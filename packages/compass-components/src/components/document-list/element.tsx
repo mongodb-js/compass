@@ -301,10 +301,6 @@ const elementSpacer = css({
   flex: 'none',
 });
 
-const readOnlySpacer = css({
-  width: spacing[900],
-});
-
 const elementExpand = css({
   width: spacing[3],
   flex: 'none',
