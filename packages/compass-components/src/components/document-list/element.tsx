@@ -363,8 +363,12 @@ const elementKeyDarkMode = css({
   color: palette.gray.light2,
 });
 
-const calculateElementSpacerWidth = (editable: boolean, level: number) => {
-  return (editable ? spacing[100] : 0) + spacing[400] * level;
+const calculateElementSpacerWidth = (
+  editable: boolean,
+  level: number,
+  extra: number
+) => {
+  return (editable ? spacing[100] : 0) + extra + spacing[400] * level;
 };
 
 export const calculateShowMoreToggleOffset = ({
@@ -378,23 +382,20 @@ export const calculateShowMoreToggleOffset = ({
   alignWithNestedExpandIcon: boolean;
   extraGutterWidth: number | undefined;
 }) => {
-  // the base padding that we have on all elements rendered in the document
-  const BASE_PADDING_LEFT = spacing[50] + extraGutterWidth;
-  const OFFSET_WHEN_EDITABLE = editable
+  const spacerWidth = calculateElementSpacerWidth(
+    editable,
+    level,
+    extraGutterWidth
+  );
+  const editableOffset = editable
     ? // space taken by element actions
       spacing[300] +
       // space and margin taken by line number element
       spacing[400] +
-      spacing[100] +
-      // element spacer width that we render
-      calculateElementSpacerWidth(editable, level)
+      spacing[100]
     : 0;
-  const EXPAND_ICON_SIZE = spacing[400];
-  return (
-    BASE_PADDING_LEFT +
-    OFFSET_WHEN_EDITABLE +
-    (alignWithNestedExpandIcon ? EXPAND_ICON_SIZE : 0)
-  );
+  const expandIconSize = alignWithNestedExpandIcon ? spacing[400] : 0;
+  return spacerWidth + editableOffset + expandIconSize;
 };
 
 export const HadronElement: React.FunctionComponent<{
@@ -412,7 +413,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart,
   lineNumberSize,
   onAddElement,
-  extraGutterWidth,
+  extraGutterWidth = 0,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -449,8 +450,8 @@ export const HadronElement: React.FunctionComponent<{
   }, [lineNumberSize, editingEnabled]);
 
   const elementSpacerWidth = useMemo(
-    () => calculateElementSpacerWidth(editable, level),
-    [editable, level]
+    () => calculateElementSpacerWidth(editable, level, extraGutterWidth),
+    [editable, level, extraGutterWidth]
   );
 
   // To render the "Show more" toggle for the nested expandable elements we need
@@ -571,9 +572,6 @@ export const HadronElement: React.FunctionComponent<{
               ></AddFieldActions>
             </div>
           </div>
-        )}
-        {typeof extraGutterWidth === 'number' && (
-          <div style={{ width: extraGutterWidth }} />
         )}
         <div className={elementSpacer} style={{ width: elementSpacerWidth }}>
           {/* spacer for nested documents */}
