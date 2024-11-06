@@ -15,6 +15,13 @@ function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
 }
 
+/**
+ * Atlas Cloud uses in-flight compression that doesn't compress anything that is
+ * bigger than 10MB, we want to make sure that compass-web assets stay under the
+ * limit so that they are compressed when served
+ */
+const MAX_COMPRESSION_FILE_SIZE = 10_000_000;
+
 module.exports = (env, args) => {
   const serve = isServe({ env });
 
@@ -28,7 +35,6 @@ module.exports = (env, args) => {
 
   config = merge(config, {
     context: __dirname,
-
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
@@ -90,12 +96,13 @@ module.exports = (env, args) => {
         vm: require.resolve('vm-browserify'),
 
         // TODO(NODE-5408): requires a polyfill to be able to parse connection
-        // string correctly at the moment, but we should also omit some
-        // depdendencies that might not be required for this to work in the
-        // browser
+        // string correctly at the moment
         url: require.resolve('whatwg-url'),
         // Make sure we're not getting multiple versions included
         'whatwg-url': require.resolve('whatwg-url'),
+        // Heavy dependency of whatwg-url that we can replace in the browser
+        // environment
+        tr46: localPolyfill('tr46'),
 
         // Polyfills that are required for the driver to function in browser
         // environment
@@ -140,6 +147,11 @@ module.exports = (env, args) => {
         process: [localPolyfill('process'), 'process'],
       }),
     ],
+    performance: {
+      hints: serve ? 'warning' : 'error',
+      maxEntrypointSize: MAX_COMPRESSION_FILE_SIZE,
+      maxAssetSize: MAX_COMPRESSION_FILE_SIZE,
+    },
   });
 
   if (serve) {
