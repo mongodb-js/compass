@@ -146,6 +146,7 @@ export const notConnectedConnectionItemActions = ({
       action: 'connection-connect',
       label: 'Connect',
       icon: 'Connect',
+      expandedPresentation: 'button',
     },
     ...commonActions,
   ];
