@@ -12,6 +12,14 @@ export type Action = {
 
 const actionButtonStyle = css({
   flex: 'none',
+  pointerEvents: 'all',
+});
+
+const actionCompactButtonStyle = css({
+  '& > div:has(svg)': {
+    paddingLeft: 3,
+    paddingRight: 3,
+  },
 });
 
 const actionButtonContentStyle = css({
@@ -52,7 +60,8 @@ export const ActionButton: React.FunctionComponent<{
     ...args: Parameters<React.MouseEventHandler<HTMLButtonElement>>
   ) => boolean | void;
   'data-testid'?: string;
-}> = ({ label, icon, onClick, ...props }) => {
+  compact?: boolean;
+}> = ({ label, icon, onClick, compact, ...props }) => {
   const [clickResult, setClickResult] = useState<'success' | 'error'>(
     'success'
   );
@@ -89,7 +98,7 @@ export const ActionButton: React.FunctionComponent<{
       aria-label={label}
       title={label}
       onClick={onButtonClick}
-      className={actionButtonStyle}
+      className={cx(actionButtonStyle, { [actionCompactButtonStyle]: compact })}
       data-testid={props['data-testid'] ?? `editor-action-${label}`}
     >
       <div className={actionButtonContentStyle}>
