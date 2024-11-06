@@ -187,7 +187,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
                 connectionInfo: item.connectionInfo,
               }),
               config: {
-                collapseAfter: 0,
+                collapseAfter: 1,
               },
             };
           }
