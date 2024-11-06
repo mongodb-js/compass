@@ -273,6 +273,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     filterRegex,
     fetchAllCollections,
     onDatabaseExpand,
+    excludeInactive,
   });
 
   const connectionListTitleActions =
