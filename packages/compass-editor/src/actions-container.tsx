@@ -10,14 +10,29 @@ type ActionsContainerProps = {
   customActions?: Action[];
   className?: string;
   editorRef: RefObject<EditorRef>;
+  onExpand?: () => void;
+  expanded?: boolean;
 };
 
 const actionsContainerStyle = css({
   position: 'absolute',
-  top: spacing[1],
-  right: spacing[2],
+  top: spacing[100],
+  right: spacing[100],
+  left: spacing[100],
   display: 'none',
-  gap: spacing[2],
+  gap: spacing[200],
+  pointerEvents: 'none',
+});
+
+const expandContainerStyle = css({
+  position: 'relative',
+  top: -spacing[100],
+  left: -spacing[100],
+});
+
+const actionsGroupItemSeparator = css({
+  flex: '1 0 auto',
+  pointerEvents: 'none',
 });
 
 export const ActionsContainer = ({
@@ -26,6 +41,8 @@ export const ActionsContainer = ({
   customActions,
   className,
   editorRef,
+  onExpand,
+  expanded,
 }: ActionsContainerProps) => {
   return (
     <div
@@ -35,6 +52,17 @@ export const ActionsContainer = ({
         className
       )}
     >
+      {onExpand && (
+        <div className={expandContainerStyle}>
+          <ActionButton
+            label={expanded ? 'Collapse all' : 'Expand all'}
+            icon={expanded ? 'CaretDown' : 'CaretRight'}
+            onClick={onExpand}
+            compact
+          />
+        </div>
+      )}
+      <span className={actionsGroupItemSeparator}></span>
       {copyable && (
         <ActionButton
           label="Copy"

@@ -1389,6 +1389,13 @@ const multilineEditorContainerWithActionsStyle = css({
   minHeight: spacing[5] - 2,
 });
 
+const multilineEditorContainerWithExpandStyle = css({
+  ['& .cm-gutters']: {
+    // Offset to prevent the "expand" button from overlapping with fold / unfold icons
+    paddingLeft: spacing[500],
+  },
+});
+
 const multilineEditorContainerDarkModeStyle = css({
   backgroundColor: editorPalette.dark.backgroundColor,
 });
@@ -1399,6 +1406,8 @@ type MultilineEditorProps = EditorProps & {
   formattable?: boolean;
   editorClassName?: string;
   actionsClassName?: string;
+  onExpand?: () => void;
+  expanded?: boolean;
 };
 
 const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
@@ -1411,8 +1420,10 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
       editorClassName,
       actionsClassName,
       darkMode: _darkMode,
+      onExpand,
+      expanded,
       ...props
-    },
+    }: MultilineEditorProps,
     ref
   ) {
     const darkMode = useDarkMode(_darkMode);
@@ -1469,6 +1480,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           multilineEditorContainerStyle,
           darkMode && multilineEditorContainerDarkModeStyle,
           hasActions && multilineEditorContainerWithActionsStyle,
+          onExpand && multilineEditorContainerWithExpandStyle,
           className
         )}
         // We want folks to be able to click into the container element
@@ -1492,6 +1504,8 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
         ></BaseEditor>
         {hasActions && (
           <ActionsContainer
+            onExpand={onExpand}
+            expanded={expanded}
             copyable={copyable}
             formattable={formattable}
             editorRef={editorRef}
