@@ -687,11 +687,13 @@ export const fetchClusterShardingData =
         'Error fetching cluster sharding data',
         (error as Error).message
       );
-      handleLoadingError({
-        error: error as Error,
-        id: `global-writes-fetch-shard-info-error-${connectionInfoRef.current.id}-${namespace}`,
-        description: 'Failed to fetch sharding information',
-      });
+      dispatch(
+        handleLoadingError({
+          error: error as Error,
+          id: `global-writes-fetch-shard-info-error-${connectionInfoRef.current.id}-${namespace}`,
+          description: 'Failed to fetch sharding information',
+        })
+      );
     }
   };
 
@@ -949,14 +951,16 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
       logger.log.error(
         logger.mongoLogId(1_001_000_333),
         'AtlasFetchError',
-        'Error fetching shard key',
+        'Error fetching shard key / deployment status',
         (error as Error).message
       );
-      handleLoadingError({
-        error: error as Error,
-        id: `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
-        description: 'Failed to fetch shard key',
-      });
+      dispatch(
+        handleLoadingError({
+          error: error as Error,
+          id: `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
+          description: 'Failed to fetch shard key / deployment status',
+        })
+      );
     }
   };
 };
