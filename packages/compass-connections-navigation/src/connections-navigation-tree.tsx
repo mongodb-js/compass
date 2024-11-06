@@ -87,8 +87,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       if (item.type === 'connection') {
         if (item.connectionStatus === 'connected') {
           onItemAction(item, 'select-connection');
-        } else {
-          onItemAction(item, 'connection-connect');
         }
       } else if (item.type === 'database') {
         onItemAction(item, 'select-database');
