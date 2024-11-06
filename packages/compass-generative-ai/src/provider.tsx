@@ -10,23 +10,31 @@ import {
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 
-export const AtlasAiServiceProvider: React.FC = createServiceProvider(
-  function AtlasAiServiceProvider({ children }) {
-    const logger = useLogger('ATLAS-AI-SERVICE');
-    const preferences = preferencesLocator();
-    const atlasService = atlasServiceLocator();
+export const AtlasAiServiceProvider: React.FC<{
+  apiURLPreset: 'admin-api' | 'cloud';
+}> = createServiceProvider(function AtlasAiServiceProvider({
+  apiURLPreset,
+  children,
+}) {
+  const logger = useLogger('ATLAS-AI-SERVICE');
+  const preferences = preferencesLocator();
+  const atlasService = atlasServiceLocator();
 
-    const aiService = useMemo(() => {
-      return new AtlasAiService(atlasService, preferences, logger);
-    }, [preferences, logger, atlasService]);
+  const aiService = useMemo(() => {
+    return new AtlasAiService({
+      apiURLPreset,
+      atlasService,
+      preferences,
+      logger,
+    });
+  }, [apiURLPreset, preferences, logger, atlasService]);
 
-    return (
-      <AtlasAiServiceContext.Provider value={aiService}>
-        {children}
-      </AtlasAiServiceContext.Provider>
-    );
-  }
-);
+  return (
+    <AtlasAiServiceContext.Provider value={aiService}>
+      {children}
+    </AtlasAiServiceContext.Provider>
+  );
+});
 
 function useAtlasAiServiceContext(): AtlasAiService {
   const service = useContext(AtlasAiServiceContext);
