@@ -323,7 +323,7 @@ describe('GlobalWritesStore Store', function () {
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
       });
     });
-    
+
     it('valid shard key -> failsOnShardZoneRequest', async function () {
       const store = createStore({
         isNamespaceManaged: () => true,
