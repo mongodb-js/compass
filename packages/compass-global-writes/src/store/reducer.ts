@@ -30,6 +30,7 @@ enum GlobalWritesActionTypes {
   NamespaceShardKeyFetched = 'global-writes/NamespaceShardKeyFetched',
 
   ShardZonesFetched = 'global-writes/ShardZonesFetched',
+  ShardZonesFetchedError = 'global-writes/ShardZonesFetchedError',
 
   SubmittingForShardingStarted = 'global-writes/SubmittingForShardingStarted',
   SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
@@ -65,6 +66,10 @@ type NamespaceShardKeyFetchedAction = {
 type ShardZonesFetchedAction = {
   type: GlobalWritesActionTypes.ShardZonesFetched;
   shardZones: ShardZoneData[];
+};
+
+type ShardZonesFetchedErrorAction = {
+  type: GlobalWritesActionTypes.ShardZonesFetchedError;
 };
 
 type SubmittingForShardingStartedAction = {
@@ -347,6 +352,18 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       shardZones: action.shardZones,
+    };
+  }
+
+  if (
+    isAction<ShardZonesFetchedErrorAction>(
+      action,
+      GlobalWritesActionTypes.ShardZonesFetchedError
+    )
+  ) {
+    return {
+      ...state,
+      shardZones: [],
     };
   }
 
@@ -880,18 +897,37 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
 
 export const fetchShardingZones = (): GlobalWritesThunkAction<
   Promise<void>,
-  ShardZonesFetchedAction
+  ShardZonesFetchedAction | ShardZonesFetchedErrorAction
 > => {
-  return async (dispatch, getState, { atlasGlobalWritesService }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasGlobalWritesService, connectionInfoRef }
+  ) => {
     const { shardZones } = getState();
     if (shardZones.length > 0) {
       return;
     }
-    const shardingZones = await atlasGlobalWritesService.getShardingZones();
-    dispatch({
-      type: GlobalWritesActionTypes.ShardZonesFetched,
-      shardZones: shardingZones,
-    });
+    try {
+      const shardingZones = await atlasGlobalWritesService.getShardingZones();
+      dispatch({
+        type: GlobalWritesActionTypes.ShardZonesFetched,
+        shardZones: shardingZones,
+      });
+    } catch (error) {
+      dispatch({
+        type: GlobalWritesActionTypes.ShardZonesFetchedError,
+      });
+      openToast(
+        `global-writes-fetch-sharding-zones-error-${connectionInfoRef.current.id}`,
+        {
+          title: `Failed to fetch sharding zones: ${(error as Error).message}`,
+          dismissible: true,
+          timeout: 5000,
+          variant: 'important',
+        }
+      );
+    }
   };
 };
 

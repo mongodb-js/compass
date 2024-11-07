@@ -72,6 +72,7 @@ function createStore({
   hasShardingError = () => false,
   hasShardKey = () => false,
   failsOnShardingRequest = () => false,
+  failsOnShardZoneRequest = () => false,
   authenticatedFetchStub,
 }:
   | {
@@ -79,6 +80,7 @@ function createStore({
       hasShardingError?: () => boolean;
       hasShardKey?: () => boolean | AtlasShardKey;
       failsOnShardingRequest?: () => boolean;
+      failsOnShardZoneRequest?: () => boolean;
       authenticatedFetchStub?: never;
     }
   | {
@@ -86,11 +88,12 @@ function createStore({
       hasShardingError?: never;
       hasShardKey?: () => boolean | ShardKey;
       failsOnShardingRequest?: never;
+      failsOnShardZoneRequest?: () => never;
       authenticatedFetchStub?: () => void;
     } = {}): GlobalWritesStore {
   const atlasService = {
     authenticatedFetch: (uri: string) => {
-      if (uri.endsWith(`/geoSharding`) && failsOnShardingRequest()) {
+      if (uri.endsWith('/geoSharding') && failsOnShardingRequest()) {
         return Promise.reject(new Error('Failed to shard'));
       }
 
@@ -110,6 +113,13 @@ function createStore({
             processes: hasShardingError() ? [failedShardingProcess] : [],
           },
         });
+      }
+
+      if (
+        /geoSharding.*newFormLocationMapping/.test(uri) &&
+        failsOnShardZoneRequest()
+      ) {
+        return Promise.reject(new Error('Failed to fetch shard zones'));
       }
 
       return createAuthFetchResponse({});
@@ -266,6 +276,7 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: Sinon.fake(() => mockShardKey),
+        failsOnShardZoneRequest: () => true,
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING');
@@ -306,6 +317,18 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+    });
+
+    it('valid shard key -> failsOnShardZoneRequest', async function () {
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: () => true,
+        failsOnShardZoneRequest: () => true,
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
