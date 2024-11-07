@@ -527,7 +527,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             />
             <Tooltip
               justify="middle"
-              align="bottom"
               trigger={
                 <IconButton
                   onClick={onToggleExcludeInactive}
