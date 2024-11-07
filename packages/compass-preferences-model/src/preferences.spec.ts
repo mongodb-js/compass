@@ -132,6 +132,7 @@ describe('Preferences class', function () {
     expect(states).to.deep.equal({
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
+      enableGenAIFeatures: 'derived',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -184,6 +185,7 @@ describe('Preferences class', function () {
 
     expect(states).to.deep.equal({
       readOnly: 'set-global',
+      enableGenAIFeatures: 'derived',
       ...expectedReleasedFeatureFlagsStates,
     });
   });
@@ -227,6 +229,7 @@ describe('Preferences class', function () {
       {
         networkTraffic: false,
         enableMaps: false,
+        enableGenAIFeatures: false,
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
         autoUpdates: false,
@@ -248,6 +251,7 @@ describe('Preferences class', function () {
       },
       hardcoded: {
         networkTraffic: false,
+        enableGenAIFeatures: false,
       },
     });
     const result = preferences.getPreferences();
@@ -292,6 +296,7 @@ describe('Preferences class', function () {
 
     expect(mainPreferencesStates).to.deep.equal({
       trackUsageStatistics: 'set-global',
+      enableGenAIFeatures: 'derived',
       enableMaps: 'set-cli',
       ...expectedReleasedFeatureFlagsStates,
     });
