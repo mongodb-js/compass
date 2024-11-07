@@ -550,7 +550,7 @@ type AggregationCopiedEvent = {
   name: 'Aggregation Copied';
   payload: {
     /**
-     * A unique id for the aggregation object being deleted.
+     * A unique id for the aggregation object being copied.
      */
     id: string;
 
