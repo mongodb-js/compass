@@ -15,25 +15,23 @@ import ShardKeyCorrect from './states/shard-key-correct';
 import ShardKeyInvalid from './states/shard-key-invalid';
 import ShardKeyMismatch from './states/shard-key-mismatch';
 import ShardingError from './states/sharding-error';
+import IncompleteShardingSetup from './states/incomplete-sharding-setup';
 
 const containerStyles = css({
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
   display: 'flex',
   width: '100%',
-  height: '100%',
+  paddingTop: spacing[400],
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
   maxWidth: '700px',
 });
 
-const workspaceContentStyles = css({
-  paddingTop: spacing[400],
-});
-
-const centeredContent = css({
+const loaderStyles = css({
   display: 'flex',
+  alignItems: 'flex-start',
   justifyContent: 'center',
-  alignItems: 'center',
-  height: '100%',
+  width: '100%',
+  marginTop: spacing[1800] * 2,
 });
 
 type GlobalWritesProps = {
@@ -43,16 +41,8 @@ type GlobalWritesProps = {
 function ShardingStateView({
   shardingStatus,
 }: {
-  shardingStatus: ShardingStatus;
+  shardingStatus: Exclude<ShardingStatus, 'NOT_READY'>;
 }) {
-  if (shardingStatus === ShardingStatuses.NOT_READY) {
-    return (
-      <div className={centeredContent}>
-        <SpinLoaderWithLabel progressText="Loading …" />
-      </div>
-    );
-  }
-
   if (
     shardingStatus === ShardingStatuses.UNSHARDED ||
     shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING
@@ -93,18 +83,33 @@ function ShardingStateView({
     return <ShardKeyMismatch />;
   }
 
+  if (
+    shardingStatus === ShardingStatuses.INCOMPLETE_SHARDING_SETUP ||
+    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE
+  ) {
+    return <IncompleteShardingSetup />;
+  }
+
   return null;
 }
 
 export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
+  if (shardingStatus === ShardingStatuses.NOT_READY) {
+    return (
+      <div className={loaderStyles}>
+        <SpinLoaderWithLabel progressText="Loading …" />
+      </div>
+    );
+  }
+
   return (
-    <div className={containerStyles}>
-      <WorkspaceContainer className={workspaceContentStyles}>
-        <ConfirmationModalArea>
+    <WorkspaceContainer>
+      <ConfirmationModalArea>
+        <div className={containerStyles}>
           <ShardingStateView shardingStatus={shardingStatus} />
-        </ConfirmationModalArea>
-      </WorkspaceContainer>
-    </div>
+        </div>
+      </ConfirmationModalArea>
+    </WorkspaceContainer>
   );
 }
 export default connect((state: RootState) => ({
