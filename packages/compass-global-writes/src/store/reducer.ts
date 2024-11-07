@@ -881,11 +881,8 @@ const handleLoadingError = ({
     const { status } = getState();
     const isPolling = status === ShardingStatuses.SHARDING;
     const isInitialLoad = status === ShardingStatuses.NOT_READY;
-    const errorMessage = `${description} ${error.message}`;
+    const errorMessage = `${description}: ${error.message}`;
     if (isInitialLoad || isPolling) {
-      if (isPolling) {
-        dispatch(stopPollingForShardKey());
-      }
       dispatch({
         type: GlobalWritesActionTypes.LoadingFailed,
         error: errorMessage,
@@ -903,13 +900,16 @@ const handleLoadingError = ({
 
 export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
   Promise<void>,
-  NamespaceShardingErrorFetchedAction | NamespaceShardKeyFetchedAction
+  | NamespaceShardingErrorFetchedAction
+  | NamespaceShardKeyFetchedAction
+  | NextPollingTimeoutClearedAction
 > => {
   return async (
     dispatch,
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
+    dispatch({ type: GlobalWritesActionTypes.NextPollingTimeoutCleared });
     const { namespace, status, managedNamespace } = getState();
 
     try {
@@ -958,7 +958,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         handleLoadingError({
           error: error as Error,
           id: `global-writes-fetch-shard-key-error-${connectionInfoRef.current.id}-${namespace}`,
-          description: 'Failed to fetch shard key / deployment status',
+          description: 'Failed to fetch shard key or deployment status',
         })
       );
     }
