@@ -226,14 +226,14 @@ export type RootState = {
       shardKey?: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
-      error: string;
+      loadingError: string;
     }
   | {
       status: ShardingStatuses.NOT_READY;
       shardKey?: never;
       shardingError?: never;
       pollingTimeout?: never;
-      error?: never;
+      loadingError?: never;
     }
   | {
       status:
@@ -245,7 +245,7 @@ export type RootState = {
       // and then unmanaged
       shardingError?: never;
       pollingTimeout?: never;
-      error?: never;
+      loadingError?: never;
     }
   | {
       status: ShardingStatuses.SHARDING;
@@ -256,7 +256,7 @@ export type RootState = {
       shardKey?: ShardKey;
       shardingError?: never;
       pollingTimeout?: NodeJS.Timeout;
-      error?: never;
+      loadingError?: never;
     }
   | {
       status:
@@ -266,7 +266,7 @@ export type RootState = {
       shardKey?: never;
       shardingError: string;
       pollingTimeout?: never;
-      error?: never;
+      loadingError?: never;
     }
   | {
       status:
@@ -280,7 +280,7 @@ export type RootState = {
       shardKey: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
-      error?: never;
+      loadingError?: never;
     }
 );
 
@@ -654,7 +654,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       status: ShardingStatuses.LOADING_ERROR,
-      error: action.error,
+      loadingError: action.error,
       pollingTimeout: state.pollingTimeout,
     };
   }

@@ -21,6 +21,6 @@ export default connect((state: RootState) => {
     throw new Error('Error not found in LoadingError');
   }
   return {
-    error: state.error,
+    error: state.loadingError,
   };
 })(LoadingError);

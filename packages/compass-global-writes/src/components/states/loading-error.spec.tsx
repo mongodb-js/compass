@@ -1,9 +1,8 @@
 import React from 'react';
 import { expect } from 'chai';
-import { screen, userEvent } from '@mongodb-js/testing-library-compass';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { LoadingError } from './loading-error';
 import { renderWithStore } from '../../../tests/create-store';
-import Sinon from 'sinon';
 
 const error = 'Test failure';
 
