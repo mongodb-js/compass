@@ -531,6 +531,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
               trigger={
                 <IconButton
                   onClick={onToggleExcludeInactive}
+                  active={excludeInactive}
                   aria-label={
                     excludeInactive
                       ? 'Showing active connections'
