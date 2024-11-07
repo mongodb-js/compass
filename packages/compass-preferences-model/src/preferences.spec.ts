@@ -304,6 +304,7 @@ describe('Preferences class', function () {
     const sandboxPreferencesStates = sandbox.getPreferenceStates();
     expect(sandboxPreferencesStates).to.deep.equal({
       enableDevTools: 'derived',
+      enableGenAIFeatures: 'derived',
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'derived',
