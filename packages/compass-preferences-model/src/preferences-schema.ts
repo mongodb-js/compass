@@ -56,6 +56,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
       | 'web-sandbox-atlas';
+    optInDataExplorerGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
     enableExplainPlan: boolean;
@@ -92,7 +93,9 @@ export type InternalUserPreferences = {
 
 // UserPreferences contains all preferences stored to disk.
 export type UserPreferences = UserConfigurablePreferences &
-  InternalUserPreferences;
+  InternalUserPreferences &
+  AtlasOrgPreferences &
+  AtlasProjectPreferences;
 
 export type CliOnlyPreferences = {
   exportConnections?: string;
@@ -209,6 +212,15 @@ export type StoredPreferencesValidator = ReturnType<
 >;
 
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
+
+export type AtlasProjectPreferences = {
+  enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
+};
+
+export type AtlasOrgPreferences = {
+  enableGenAIFeaturesAtlasOrg: boolean;
+};
 
 // Preference definitions
 const featureFlagsProps: Required<{
@@ -461,7 +473,10 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable AI Features',
       long: 'Allow the use of AI features in Compass which make requests to 3rd party services.',
     },
-    deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
+    deriveValue: deriveValueFromOtherPreferencesAsLogicalAnd(
+      'enableGenAIFeatures',
+      ['enableGenAIFeaturesAtlasOrg', 'networkTraffic']
+    ),
     validator: z.boolean().default(true),
     type: 'boolean',
   },
@@ -679,6 +694,16 @@ export const storedUserPreferencesProps: Required<{
       .default('atlas'),
     type: 'string',
   },
+  optInDataExplorerGenAIFeatures: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'User Opt-in for Data Explorer Gen AI Features',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
 
   enableAtlasSearchIndexes: {
     ui: true,
@@ -861,6 +886,36 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+  enableGenAIFeaturesAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAISampleDocumentPassingOnAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAIFeaturesAtlasOrg: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
 
   ...allFeatureFlagsProps,
 };
@@ -1024,6 +1079,21 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
     state:
       s(property) ??
       (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
+  });
+}
+
+/** Helper for deriving value/state for preferences from other preferences */
+function deriveValueFromOtherPreferencesAsLogicalAnd<
+  K extends keyof AllPreferences
+>(property: K, preferencesToDeriveFrom: K[]): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && preferencesToDeriveFrom.every((p) => v(p)),
+    state:
+      s(property) ??
+      (preferencesToDeriveFrom.every((p) => v(p))
+        ? preferencesToDeriveFrom.map((p) => s(p)).filter(Boolean)?.[0] ??
+          'derived'
+        : undefined),
   });
 }
 
