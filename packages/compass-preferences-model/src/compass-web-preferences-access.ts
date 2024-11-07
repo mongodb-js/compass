@@ -15,13 +15,13 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
   }
 
   savePreferences(_attributes: Partial<UserPreferences>) {
+    // Only allow saving the optInDataExplorerGenAIFeatures preference.
     if (
       Object.keys(_attributes).length === 1 &&
       'optInDataExplorerGenAIFeatures' in _attributes
     ) {
       return Promise.resolve(this._preferences.savePreferences(_attributes));
     }
-    // do not save any attributes other than the optInDataExplorerGenAIFeatures setting
     return Promise.resolve(this._preferences.getPreferences());
   }
 
