@@ -93,7 +93,9 @@ export type InternalUserPreferences = {
 
 // UserPreferences contains all preferences stored to disk.
 export type UserPreferences = UserConfigurablePreferences &
-  InternalUserPreferences;
+  InternalUserPreferences &
+  AtlasOrgPreferences &
+  AtlasProjectPreferences;
 
 export type CliOnlyPreferences = {
   exportConnections?: string;
@@ -116,9 +118,7 @@ export type NonUserPreferences = {
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
   NonUserPreferences &
-  PermanentFeatureFlags &
-  AtlasProjectPreferences &
-  AtlasOrgPreferences;
+  PermanentFeatureFlags;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (
@@ -214,12 +214,12 @@ export type StoredPreferencesValidator = ReturnType<
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
 
 export type AtlasProjectPreferences = {
-  enableGenAIFeaturesAtlasProject?: boolean;
-  enableGenAISampleDocumentPassingOnAtlasProject?: boolean;
+  enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
 };
 
 export type AtlasOrgPreferences = {
-  enableGenAIFeaturesAtlasOrg?: boolean;
+  enableGenAIFeaturesAtlasOrg: boolean;
 };
 
 // Preference definitions
@@ -886,6 +886,36 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(false),
     type: 'boolean',
   },
+  enableGenAIFeaturesAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAISampleDocumentPassingOnAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableGenAIFeaturesAtlasOrg: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Features on Atlas Org Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
 
   ...allFeatureFlagsProps,
 };
@@ -1032,54 +1062,12 @@ const nonUserPreferences: Required<{
   },
 };
 
-const atlasProjectPreferencesProps: Required<{
-  [K in keyof AtlasProjectPreferences]: PreferenceDefinition<K>;
-}> = {
-  enableGenAIFeaturesAtlasProject: {
-    ui: false,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Gen AI Features on Atlas Project Level',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
-  enableGenAISampleDocumentPassingOnAtlasProject: {
-    ui: false,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Gen AI Sample Document Passing on Atlas Project Level',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
-};
-
-const atlasOrgPreferencesProps: Required<{
-  [K in keyof AtlasOrgPreferences]: PreferenceDefinition<K>;
-}> = {
-  enableGenAIFeaturesAtlasOrg: {
-    ui: false,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Gen AI Features on Atlas Org Level',
-    },
-    validator: z.boolean().default(true),
-    type: 'boolean',
-  },
-};
-
 export const allPreferencesProps: Required<{
   [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
   ...storedUserPreferencesProps,
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
-  ...atlasProjectPreferencesProps,
-  ...atlasOrgPreferencesProps,
 };
 
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */
@@ -1099,7 +1087,7 @@ function deriveValueFromOtherPreferencesAsLogicalAnd<
   K extends keyof AllPreferences
 >(property: K, preferencesToDeriveFrom: K[]): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: preferencesToDeriveFrom.every((p) => v(p)),
+    value: v(property) && preferencesToDeriveFrom.every((p) => v(p)),
     state:
       s(property) ??
       (preferencesToDeriveFrom.every((p) => v(p))
