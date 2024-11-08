@@ -30,6 +30,7 @@ enum GlobalWritesActionTypes {
   NamespaceShardKeyFetched = 'global-writes/NamespaceShardKeyFetched',
 
   ShardZonesFetched = 'global-writes/ShardZonesFetched',
+  ShardZonesFetchedError = 'global-writes/ShardZonesFetchedError',
 
   SubmittingForShardingStarted = 'global-writes/SubmittingForShardingStarted',
   SubmittingForShardingFinished = 'global-writes/SubmittingForShardingFinished',
@@ -59,12 +60,16 @@ type NamespaceShardingErrorFetchedAction = {
 
 type NamespaceShardKeyFetchedAction = {
   type: GlobalWritesActionTypes.NamespaceShardKeyFetched;
-  shardKey: ShardKey;
+  shardKey?: ShardKey;
 };
 
 type ShardZonesFetchedAction = {
   type: GlobalWritesActionTypes.ShardZonesFetched;
   shardZones: ShardZoneData[];
+};
+
+type ShardZonesFetchedErrorAction = {
+  type: GlobalWritesActionTypes.ShardZonesFetchedError;
 };
 
 type SubmittingForShardingStartedAction = {
@@ -126,11 +131,19 @@ export enum ShardingStatuses {
   UNSHARDED = 'UNSHARDED',
 
   /**
+   * Incomplete sharding setup
+   * sharding key exists but namespace is not managed
+   * (can happen when already sharded namespace is unmanaged)
+   */
+  INCOMPLETE_SHARDING_SETUP = 'INCOMPLETE_SHARDING_SETUP',
+
+  /**
    * State when user submits namespace to be sharded and
    * we are waiting for server to accept the request.
    */
   SUBMITTING_FOR_SHARDING = 'SUBMITTING_FOR_SHARDING',
   SUBMITTING_FOR_SHARDING_ERROR = 'SUBMITTING_FOR_SHARDING_ERROR',
+  SUBMITTING_FOR_SHARDING_INCOMPLETE = 'SUBMITTING_FOR_SHARDING_INCOMPLETE',
 
   /**
    * Namespace is being sharded.
@@ -207,11 +220,9 @@ export type RootState = {
         | ShardingStatuses.UNSHARDED
         | ShardingStatuses.SUBMITTING_FOR_SHARDING
         | ShardingStatuses.CANCELLING_SHARDING;
-      /**
-       * note: shardKey might exist even for unsharded.
-       * if the collection was sharded previously and then unmanaged
-       */
       shardKey?: ShardKey;
+      // shardKey might exist if the collection was sharded before
+      // and then unmanaged
       shardingError?: never;
       pollingTimeout?: never;
     }
@@ -240,7 +251,9 @@ export type RootState = {
         | ShardingStatuses.SHARD_KEY_INVALID
         | ShardingStatuses.SHARD_KEY_MISMATCH
         | ShardingStatuses.UNMANAGING_NAMESPACE
-        | ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH;
+        | ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH
+        | ShardingStatuses.INCOMPLETE_SHARDING_SETUP
+        | ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE;
       shardKey: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
@@ -264,9 +277,6 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       managedNamespace: action.managedNamespace,
-      status: !action.managedNamespace
-        ? ShardingStatuses.UNSHARDED
-        : state.status,
     };
   }
 
@@ -296,16 +306,39 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       GlobalWritesActionTypes.NamespaceShardKeyFetched
     ) &&
     (state.status === ShardingStatuses.NOT_READY ||
-      state.status === ShardingStatuses.SHARDING)
+      state.status === ShardingStatuses.SHARDING) &&
+    action.shardKey
   ) {
     if (state.pollingTimeout) {
       throw new Error('Polling was not stopped');
     }
     return {
       ...state,
-      status: getStatusFromShardKey(action.shardKey, state.managedNamespace),
+      status: getStatusFromShardKeyAndManaged(
+        action.shardKey,
+        state.managedNamespace
+      ),
       shardKey: action.shardKey,
       shardingError: undefined,
+      pollingTimeout: state.pollingTimeout,
+    };
+  }
+
+  if (
+    isAction<NamespaceShardKeyFetchedAction>(
+      action,
+      GlobalWritesActionTypes.NamespaceShardKeyFetched
+    ) &&
+    state.status === ShardingStatuses.NOT_READY &&
+    !action.shardKey &&
+    !state.managedNamespace
+  ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling was not stopped');
+    }
+    return {
+      ...state,
+      status: ShardingStatuses.UNSHARDED,
       pollingTimeout: state.pollingTimeout,
     };
   }
@@ -319,6 +352,18 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       shardZones: action.shardZones,
+    };
+  }
+
+  if (
+    isAction<ShardZonesFetchedErrorAction>(
+      action,
+      GlobalWritesActionTypes.ShardZonesFetchedError
+    )
+  ) {
+    return {
+      ...state,
+      shardZones: [],
     };
   }
 
@@ -349,12 +394,26 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   }
 
   if (
+    isAction<SubmittingForShardingStartedAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingStarted
+    ) &&
+    state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP
+  ) {
+    return {
+      ...state,
+      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE,
+    };
+  }
+
+  if (
     isAction<SubmittingForShardingFinishedAction>(
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
     ) &&
     (state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING ||
       state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR ||
+      state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE ||
       state.status === ShardingStatuses.NOT_READY)
   ) {
     return {
@@ -443,12 +502,29 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     ) &&
     (state.status === ShardingStatuses.CANCELLING_SHARDING ||
       state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR)
+      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR) &&
     // the error might come before the cancel request was processed
+    !state.shardKey
   ) {
     return {
       ...state,
       status: ShardingStatuses.UNSHARDED,
+      shardingError: undefined,
+    };
+  }
+
+  if (
+    isAction<CancellingShardingFinishedAction>(
+      action,
+      GlobalWritesActionTypes.CancellingShardingFinished
+    ) &&
+    state.status === ShardingStatuses.CANCELLING_SHARDING &&
+    state.shardKey
+  ) {
+    return {
+      ...state,
+      shardKey: state.shardKey,
+      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
       shardingError: undefined,
     };
   }
@@ -464,6 +540,34 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       ...state,
       managedNamespace: undefined,
       status: ShardingStatuses.UNSHARDED,
+    };
+  }
+
+  if (
+    isAction<SubmittingForShardingErroredAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingErrored
+    ) &&
+    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR
+  ) {
+    return {
+      ...state,
+      managedNamespace: undefined,
+      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
+    };
+  }
+
+  if (
+    isAction<SubmittingForShardingErroredAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingErrored
+    ) &&
+    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE
+  ) {
+    return {
+      ...state,
+      managedNamespace: undefined,
+      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
 
@@ -495,7 +599,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       managedNamespace: undefined,
-      status: ShardingStatuses.UNSHARDED,
+      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
 
@@ -524,9 +628,6 @@ export const fetchClusterShardingData =
   ) => {
     const { namespace } = getState();
     try {
-      // Call the API to check if the namespace is managed. If the namespace is managed,
-      // we would want to fetch more data that is needed to figure out the state and
-      // accordingly show the UI to the user.
       const managedNamespace =
         await atlasGlobalWritesService.getManagedNamespace(namespace);
 
@@ -534,11 +635,7 @@ export const fetchClusterShardingData =
         type: GlobalWritesActionTypes.ManagedNamespaceFetched,
         managedNamespace,
       });
-      if (!managedNamespace) {
-        return;
-      }
 
-      // At this point, the namespace is managed and we want to fetch the sharding key.
       void dispatch(fetchNamespaceShardKey());
     } catch (error) {
       logger.log.error(
@@ -561,6 +658,23 @@ export const fetchClusterShardingData =
     }
   };
 
+export const resumeManagedNamespace = (): ReturnType<typeof createShardKey> => {
+  return async (dispatch, getState) => {
+    const { shardKey } = getState();
+    if (!shardKey) {
+      throw new Error('Cannot resume managed namespace without a shardKey');
+    }
+    const data: CreateShardKeyData = {
+      customShardKey: shardKey.fields[1].name,
+      isShardKeyUnique: shardKey.isUnique,
+      isCustomShardKeyHashed: shardKey.fields[1].type === 'HASHED',
+      numInitialChunks: null, // default
+      presplitHashedZones: false, // default
+    };
+    await dispatch(createShardKey(data));
+  };
+};
+
 export const createShardKey = (
   data: CreateShardKeyData
 ): GlobalWritesThunkAction<
@@ -580,7 +694,7 @@ export const createShardKey = (
     });
 
     try {
-      const managedNamespace = await atlasGlobalWritesService.createShardKey(
+      const managedNamespace = await atlasGlobalWritesService.manageNamespace(
         namespace,
         data
       );
@@ -724,7 +838,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    const { namespace, status } = getState();
+    const { namespace, status, managedNamespace } = getState();
 
     try {
       const [shardingError, shardKey] = await Promise.all([
@@ -732,7 +846,15 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         atlasGlobalWritesService.getShardingKeys(namespace),
       ]);
 
-      if (shardingError && !shardKey) {
+      if (status === ShardingStatuses.SHARDING && (shardKey || shardingError)) {
+        dispatch(stopPollingForShardKey());
+      }
+
+      if (managedNamespace && !shardKey) {
+        if (!shardingError) {
+          dispatch(setNamespaceBeingSharded());
+          return;
+        }
         // if there is an existing shard key and an error both,
         // means we have a key mismatch
         // this will be handled in NamespaceShardKeyFetched
@@ -746,18 +868,12 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         return;
       }
 
-      if (!shardKey) {
-        dispatch(setNamespaceBeingSharded());
-        return;
-      }
-
-      if (status === ShardingStatuses.SHARDING) {
-        dispatch(stopPollingForShardKey());
-      }
       dispatch({
         type: GlobalWritesActionTypes.NamespaceShardKeyFetched,
         shardKey,
       });
+      // if there is a key, we fetch sharding zones
+      if (!shardKey) return;
       void dispatch(fetchShardingZones());
     } catch (error) {
       logger.log.error(
@@ -781,18 +897,37 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
 
 export const fetchShardingZones = (): GlobalWritesThunkAction<
   Promise<void>,
-  ShardZonesFetchedAction
+  ShardZonesFetchedAction | ShardZonesFetchedErrorAction
 > => {
-  return async (dispatch, getState, { atlasGlobalWritesService }) => {
+  return async (
+    dispatch,
+    getState,
+    { atlasGlobalWritesService, connectionInfoRef }
+  ) => {
     const { shardZones } = getState();
     if (shardZones.length > 0) {
       return;
     }
-    const shardingZones = await atlasGlobalWritesService.getShardingZones();
-    dispatch({
-      type: GlobalWritesActionTypes.ShardZonesFetched,
-      shardZones: shardingZones,
-    });
+    try {
+      const shardingZones = await atlasGlobalWritesService.getShardingZones();
+      dispatch({
+        type: GlobalWritesActionTypes.ShardZonesFetched,
+        shardZones: shardingZones,
+      });
+    } catch (error) {
+      dispatch({
+        type: GlobalWritesActionTypes.ShardZonesFetchedError,
+      });
+      openToast(
+        `global-writes-fetch-sharding-zones-error-${connectionInfoRef.current.id}`,
+        {
+          title: `Failed to fetch sharding zones: ${(error as Error).message}`,
+          dismissible: true,
+          timeout: 5000,
+          variant: 'important',
+        }
+      );
+    }
   };
 };
 
@@ -835,7 +970,7 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
   };
 };
 
-export function getStatusFromShardKey(
+export function getStatusFromShardKeyAndManaged(
   shardKey: ShardKey,
   managedNamespace?: ManagedNamespace
 ) {
@@ -848,16 +983,21 @@ export function getStatusFromShardKey(
 
   const isLocatonKeyValid =
     firstShardKey.name === 'location' && firstShardKey.type === 'RANGE';
+
+  if (!isLocatonKeyValid || !secondShardKey) {
+    return ShardingStatuses.SHARD_KEY_INVALID;
+  }
+
+  if (!managedNamespace) {
+    return ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
+  }
+
   const isCustomKeyValid =
     managedNamespace &&
     managedNamespace.isShardKeyUnique === shardKey.isUnique &&
     secondShardKey.name === managedNamespace.customShardKey &&
     secondShardKey.type ===
       (managedNamespace.isCustomShardKeyHashed ? 'HASHED' : 'RANGE');
-
-  if (!isLocatonKeyValid || !secondShardKey) {
-    return ShardingStatuses.SHARD_KEY_INVALID;
-  }
 
   if (!isCustomKeyValid) {
     return ShardingStatuses.SHARD_KEY_MISMATCH;

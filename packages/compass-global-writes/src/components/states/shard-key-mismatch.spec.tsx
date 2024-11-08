@@ -8,7 +8,7 @@ import {
 import { renderWithStore } from '../../../tests/create-store';
 import Sinon from 'sinon';
 
-describe('Compass GlobalWrites Plugin', function () {
+describe('ShardKeyMismatch', function () {
   const baseProps: ShardKeyMismatchProps = {
     namespace: 'db1.coll1',
     shardKey: {

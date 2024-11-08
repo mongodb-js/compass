@@ -6,6 +6,7 @@ import {
   type CreateShardKeyData,
   unmanageNamespace,
   cancelSharding,
+  resumeManagedNamespace,
   POLLING_INTERVAL,
   type ShardKey,
 } from './reducer';
@@ -71,6 +72,7 @@ function createStore({
   hasShardingError = () => false,
   hasShardKey = () => false,
   failsOnShardingRequest = () => false,
+  failsOnShardZoneRequest = () => false,
   authenticatedFetchStub,
 }:
   | {
@@ -78,6 +80,7 @@ function createStore({
       hasShardingError?: () => boolean;
       hasShardKey?: () => boolean | AtlasShardKey;
       failsOnShardingRequest?: () => boolean;
+      failsOnShardZoneRequest?: () => boolean;
       authenticatedFetchStub?: never;
     }
   | {
@@ -85,11 +88,12 @@ function createStore({
       hasShardingError?: never;
       hasShardKey?: () => boolean | ShardKey;
       failsOnShardingRequest?: never;
+      failsOnShardZoneRequest?: () => never;
       authenticatedFetchStub?: () => void;
     } = {}): GlobalWritesStore {
   const atlasService = {
     authenticatedFetch: (uri: string) => {
-      if (uri.includes(`/geoSharding`) && failsOnShardingRequest()) {
+      if (uri.endsWith('/geoSharding') && failsOnShardingRequest()) {
         return Promise.reject(new Error('Failed to shard'));
       }
 
@@ -109,6 +113,13 @@ function createStore({
             processes: hasShardingError() ? [failedShardingProcess] : [],
           },
         });
+      }
+
+      if (
+        /geoSharding.*newFormLocationMapping/.test(uri) &&
+        failsOnShardZoneRequest()
+      ) {
+        return Promise.reject(new Error('Failed to fetch shard zones'));
       }
 
       return createAuthFetchResponse({});
@@ -179,9 +190,11 @@ describe('GlobalWritesStore Store', function () {
   context('scenarios', function () {
     it('not managed -> sharding -> valid shard key', async function () {
       let mockShardKey = false;
+      let mockManagedNamespace = false;
       // initial state === unsharded
       const store = createStore({
         hasShardKey: Sinon.fake(() => mockShardKey),
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('UNSHARDED');
@@ -194,6 +207,7 @@ describe('GlobalWritesStore Store', function () {
       });
       const promise = store.dispatch(createShardKey(shardKeyData));
       expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
+      mockManagedNamespace = true;
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
 
@@ -262,6 +276,7 @@ describe('GlobalWritesStore Store', function () {
       const store = createStore({
         isNamespaceManaged: () => true,
         hasShardKey: Sinon.fake(() => mockShardKey),
+        failsOnShardZoneRequest: () => true,
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING');
@@ -309,7 +324,113 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('valid shard key -> not managed', async function () {
+    it('valid shard key -> failsOnShardZoneRequest', async function () {
+      const store = createStore({
+        isNamespaceManaged: () => true,
+        hasShardKey: () => true,
+        failsOnShardZoneRequest: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+    });
+
+    it('incomplete setup -> sharding -> shard key correct', async function () {
+      // initial state -> incomplete shardingSetup
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
+      let mockManagedNamespace = false;
+      const store = createStore({
+        isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        hasShardKey: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().managedNamespace).to.be.undefined;
+      });
+
+      // user asks to resume geosharding
+      const promise = store.dispatch(resumeManagedNamespace());
+      mockManagedNamespace = true;
+      expect(store.getState().status).to.equal(
+        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
+      );
+      await promise;
+
+      // sharding
+      expect(store.getState().status).to.equal('SHARDING');
+
+      // done
+      clock.tick(POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+      });
+    });
+
+    it('incomplete setup -> sharding -> incomplete setup (request was cancelled)', async function () {
+      // initial state -> incomplete shardingSetup
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
+      const store = createStore({
+        isNamespaceManaged: () => false,
+        hasShardKey: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().managedNamespace).to.be.undefined;
+      });
+
+      // user asks to resume geosharding
+      const promise = store.dispatch(resumeManagedNamespace());
+      expect(store.getState().status).to.equal(
+        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
+      );
+      await promise;
+
+      // sharding
+      expect(store.getState().status).to.equal('SHARDING');
+
+      // user cancels the request - we go back to incomplete
+      const promise2 = store.dispatch(cancelSharding());
+      await promise2;
+      clock.tick(POLLING_INTERVAL);
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+      });
+    });
+
+    it('incomplete setup -> incomplete setup (failed manage attempt)', async function () {
+      // initial state -> incomplete shardingSetup
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
+      const store = createStore({
+        isNamespaceManaged: () => false,
+        hasShardKey: () => true,
+        failsOnShardingRequest: () => true,
+      });
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().managedNamespace).to.be.undefined;
+      });
+
+      // user asks to resume geosharding
+      const promise = store.dispatch(resumeManagedNamespace());
+      expect(store.getState().status).to.equal(
+        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
+      );
+      await promise;
+
+      // it failed
+      await waitFor(() => {
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+      });
+    });
+
+    it('valid shard key -> incomplete', async function () {
       // initial state === shard key correct
       const store = createStore({
         isNamespaceManaged: () => true,
@@ -324,7 +445,7 @@ describe('GlobalWritesStore Store', function () {
       const promise = store.dispatch(unmanageNamespace());
       expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
       await promise;
-      expect(store.getState().status).to.equal('UNSHARDED');
+      expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
     });
 
     it('valid shard key -> valid shard key (failed unmanage attempt)', async function () {
@@ -420,7 +541,7 @@ describe('GlobalWritesStore Store', function () {
         });
       });
 
-      it('mismatch -> unmanaged', async function () {
+      it('mismatch -> incomplete sharding setup', async function () {
         // initial state - mismatch
         const store = createStore({
           isNamespaceManaged: () => true,
@@ -443,7 +564,7 @@ describe('GlobalWritesStore Store', function () {
           'UNMANAGING_NAMESPACE_MISMATCH'
         );
         await promise;
-        expect(store.getState().status).to.equal('UNSHARDED');
+        expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
       });
     });
 

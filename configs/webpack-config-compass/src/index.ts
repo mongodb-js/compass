@@ -107,6 +107,10 @@ const sharedResolveOptions = (
       // This is an optional dependency of the AWS SDK that doesn't look like
       // an optional dependency to webpack because it's not wrapped in try/catch.
       '@aws-sdk/client-sso-oidc': false,
+
+      // Some lg test helpers that are getting bundled due to re-exporting from
+      // the actual component packages, never needed in the webpack bundles
+      '@lg-tools/test-harnesses': false,
     },
   };
 };

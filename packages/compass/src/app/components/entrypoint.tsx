@@ -61,7 +61,9 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
           },
         }}
       >
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
+        <AtlasAiServiceProvider apiURLPreset="admin-api">
+          {children}
+        </AtlasAiServiceProvider>
       </AtlasServiceProvider>
     </AtlasAuthServiceProvider>
   );
