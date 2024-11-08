@@ -74,6 +74,8 @@ export const PluginTitle = ({ showWarning }: { showWarning: boolean }) => {
 
 export const GlobalWritesTabTitle = connect(
   ({ managedNamespace, status }: RootState) => ({
-    showWarning: !managedNamespace && status !== ShardingStatuses.NOT_READY,
+    showWarning:
+      status !== ShardingStatuses.SHARD_KEY_CORRECT &&
+      status !== ShardingStatuses.NOT_READY,
   })
 )(PluginTitle);
