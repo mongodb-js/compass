@@ -42,7 +42,6 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type AppRegistry from 'hadron-app-registry';
 import type { AtlasAiService } from '@mongodb-js/compass-generative-ai/provider';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { DataService } from '../modules/data-service';
 import type {
@@ -100,7 +99,6 @@ export type PipelineBuilderExtraArgs = {
   localAppRegistry: AppRegistry;
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
-  atlasAuthService: AtlasAuthService;
   workspaces: WorkspacesService;
   preferences: PreferencesAccess;
   logger: Logger;

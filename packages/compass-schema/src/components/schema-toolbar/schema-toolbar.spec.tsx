@@ -23,7 +23,6 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
   favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
   recentQueryStorageAccess: compassRecentQueryStorageAccess,
   atlasAiService: {} as any,
-  atlasAuthService: { on() {}, removeListener() {} } as any,
 });
 
 const testErrorMessage =

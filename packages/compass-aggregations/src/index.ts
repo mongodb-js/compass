@@ -25,7 +25,6 @@ import {
 } from '@mongodb-js/compass-app-stores/provider';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
-import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 import { connectionRepositoryAccessLocator } from '@mongodb-js/compass-connections/provider';
@@ -49,7 +48,6 @@ const CompassAggregationsHadronPlugin = registerHadronPlugin(
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-AGGREGATIONS-UI'),
     track: telemetryLocator,
-    atlasAuthService: atlasAuthServiceLocator,
     atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
     connectionInfoRef: connectionInfoRefLocator,

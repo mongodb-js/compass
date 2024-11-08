@@ -5,8 +5,6 @@ import {
   cancelSignIn,
   attemptId,
   AttemptStateMap,
-  signInWithModalPrompt,
-  closeSignInModal,
   signInWithoutPrompt,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
@@ -176,108 +174,13 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
 
-      void store.dispatch(signInWithModalPrompt()).catch(() => {});
+      void store.dispatch(signInWithoutPrompt()).catch(() => {});
 
       await Promise.all([
         store.dispatch(signIn()),
         store.dispatch(cancelSignIn()),
       ]);
       expect(store.getState()).to.have.nested.property('state', 'canceled');
-    });
-  });
-
-  describe('signInWithModalPrompt', function () {
-    it('should resolve when user finishes sign in with prompt flow', async function () {
-      const mockAtlasService = {
-        isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
-        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
-      };
-      const store = configureStore({
-        atlasAuthService: mockAtlasService as any,
-      });
-
-      const signInPromise = store.dispatch(signInWithModalPrompt());
-      await store.dispatch(signIn());
-      await signInPromise;
-
-      expect(store.getState()).to.have.property('state', 'success');
-    });
-
-    it('should reject if sign in flow fails', async function () {
-      const mockAtlasService = {
-        isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().rejects(new Error('Whoops!')),
-        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
-      };
-      const store = configureStore({
-        atlasAuthService: mockAtlasService as any,
-      });
-
-      const signInPromise = store.dispatch(signInWithModalPrompt());
-      await store.dispatch(signIn());
-
-      try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'Whoops!');
-      }
-
-      expect(store.getState()).to.have.property('state', 'error');
-    });
-
-    it('should reject if user dismissed the modal', async function () {
-      const mockAtlasService = {
-        isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
-        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
-      };
-      const store = configureStore({
-        atlasAuthService: mockAtlasService as any,
-      });
-
-      const signInPromise = store.dispatch(signInWithModalPrompt());
-      store.dispatch(closeSignInModal());
-
-      try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'This operation was aborted');
-      }
-
-      expect(store.getState()).to.have.property('state', 'canceled');
-    });
-
-    it('should reject if provided signal was aborted', async function () {
-      const mockAtlasService = {
-        isAuthenticated: sandbox.stub().resolves(false),
-        signIn: sandbox.stub().resolves({ sub: '1234' }),
-        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
-      };
-      const store = configureStore({
-        atlasAuthService: mockAtlasService as any,
-      });
-
-      const c = new AbortController();
-      const signInPromise = store.dispatch(
-        signInWithModalPrompt({ signal: c.signal })
-      );
-      c.abort(new Error('Aborted from outside'));
-
-      try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'Aborted from outside');
-      }
-
-      expect(store.getState()).to.have.property('state', 'canceled');
     });
   });
 
