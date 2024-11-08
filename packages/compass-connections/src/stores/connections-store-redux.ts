@@ -1739,6 +1739,16 @@ const connectWithOptions = (
               getExtraConnectionData(connectionInfo),
             ]);
 
+            const connections = getState().connections;
+            // Counting all connections, we need to filter out any connections currently being created
+            const totalConnectionsCount = Object.values(
+              connections.byId
+            ).filter(({ isBeingCreated }) => !isBeingCreated).length;
+            const activeConnectionsCount =
+              getActiveConnectionsCount(connections);
+            const inactiveConnectionsCount =
+              totalConnectionsCount - activeConnectionsCount;
+
             return {
               is_atlas: isAtlas,
               atlas_hostname: isAtlas ? resolvedHostname : null,
@@ -1751,6 +1761,8 @@ const connectWithOptions = (
               server_arch: host.arch,
               server_os_family: host.os_family,
               topology_type: dataService.getCurrentTopologyType(),
+              num_active_connections: activeConnectionsCount,
+              num_inactive_connections: inactiveConnectionsCount,
               ...extraInfo,
             };
           },
