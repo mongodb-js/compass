@@ -9,7 +9,6 @@ import {
   waitFor,
   within,
   userEvent,
-  expectElementByTestId,
 } from '@mongodb-js/testing-library-compass';
 import MultipleConnectionSidebar from './sidebar';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
