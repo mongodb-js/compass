@@ -30,15 +30,12 @@ describe('Rolling indexes', function () {
 
   afterEach(async function () {
     await screenshotIfFailed(compass, this.currentTest);
-  });
-
-  after(async function () {
     await cleanup(compass);
   });
 
   it('should be able to create, list, and delete rolling indexes', async function () {
     // Building rolling indexes is a slow process
-    const extendedRollingIndexesTimeout = 1000 * 60 * 20;
+    const extendedRollingIndexesTimeout = 1000 * 60 * 10;
 
     this.timeout(extendedRollingIndexesTimeout * 1.2);
 

@@ -1,6 +1,11 @@
 import { expect } from 'chai';
 import type { Compass } from '../../helpers/compass';
-import { cleanup, init, Selectors } from '../../helpers/compass';
+import {
+  cleanup,
+  init,
+  screenshotIfFailed,
+  Selectors,
+} from '../../helpers/compass';
 import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createGeospatialCollection } from '../../helpers/insert-data';
 import {
@@ -15,7 +20,7 @@ type GeoShardingFormData = {
 
 type GeoShardingStatus = 'UNSHARDED' | 'SHARDING' | 'SHARD_KEY_CORRECT';
 
-const WEBDRIVER_TIMEOUT = 1000 * 60 * 20;
+const WEBDRIVER_TIMEOUT = 1000 * 60 * 10;
 const MOCHA_TIMEOUT = WEBDRIVER_TIMEOUT * 1.2;
 
 async function createGeoShardKey(
@@ -44,26 +49,20 @@ async function waitForGlobalWritesStatus(
 ) {
   await browser.waitUntil(
     async () => {
-      const content = await browser.$(
-        Selectors.GlobalWrites.tabStatus(nextStatus)
-      );
-      return await content.isDisplayed();
+      return await browser
+        .$(Selectors.GlobalWrites.tabStatus(nextStatus))
+        .isDisplayed();
     },
     { timeout: WEBDRIVER_TIMEOUT }
   );
 }
 
 describe('Global writes', function () {
+  // Sharding a collection takes a bit longer
+  this.timeout(MOCHA_TIMEOUT);
+
   let compass: Compass;
   let browser: CompassBrowser;
-
-  beforeEach(async function () {
-    // Sharding a collection takes a bit longer
-    this.timeout(MOCHA_TIMEOUT);
-    compass = await init(this.test?.fullTitle());
-    browser = compass.browser;
-    await browser.setupDefaultConnections();
-  });
 
   before(function () {
     if (!isTestingAtlasCloudSandbox()) {
@@ -71,17 +70,26 @@ describe('Global writes', function () {
     }
   });
 
-  after(async function () {
+  beforeEach(async function () {
+    compass = await init(this.test?.fullTitle());
+    browser = compass.browser;
+    await browser.setupDefaultConnections();
+  });
+
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });
 
   it('should be able to shard an unsharded namespace and also unmanage it', async function () {
-    await createGeospatialCollection();
+    const collName = `global-writes-geospatial-${Date.now()}`;
+
+    await createGeospatialCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAMES[0],
       'test',
-      'geospatial',
+      collName,
       'GlobalWrites'
     );
 
@@ -116,12 +124,14 @@ describe('Global writes', function () {
   });
 
   it('should be able to shard an unsharded namespace and cancel the operation', async function () {
-    await createGeospatialCollection();
+    const collName = `global-writes-geospatial-${Date.now()}`;
+
+    await createGeospatialCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
       DEFAULT_CONNECTION_NAMES[0],
       'test',
-      'geospatial',
+      collName,
       'GlobalWrites'
     );
 

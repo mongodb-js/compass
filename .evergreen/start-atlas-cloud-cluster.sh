@@ -104,11 +104,11 @@ export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME="$ATLAS_TEST_DB_USERNAME"
 export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_PASSWORD="$ATLAS_TEST_DB_PASSWORD"
 
 echo "Creating Atlas deployment \`$ATLAS_CLUSTER_NAME\` to test against..."
-atlascli clusters create $ATLAS_CLUSTER_NAME \
+(atlascli clusters create $ATLAS_CLUSTER_NAME \
   --provider AWS \
   --region US_EAST_1 \
   --tier M10 \
-  --type GEOSHARDED
+  --type GEOSHARDED || true) # can error if custom name was provided, will fail on next step if it's not expected failure
 
 echo "Waiting for the deployment to be provisioned..."
 atlascli clusters watch $ATLAS_CLUSTER_NAME
