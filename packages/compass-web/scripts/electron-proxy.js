@@ -168,14 +168,11 @@ class AtlasCloudAuthenticator {
   }
 
   async getCloudHeaders() {
-    // Order is important, fetching data can update the cookies
-    const csrfHeaders = await this.#getCSRFHeaders();
     const cookie = (await this.#getCloudSessionCookies()).join('; ');
     return {
       cookie,
       host: CLOUD_HOST,
       origin: CLOUD_ORIGIN,
-      ...csrfHeaders,
     };
   }
 

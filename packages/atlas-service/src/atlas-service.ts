@@ -19,6 +19,23 @@ function normalizePath(path?: string) {
   return encodeURI(path);
 }
 
+function getCSRFHeaders() {
+  return {
+    'X-CSRF-Token':
+      document
+        .querySelector('meta[name="csrf-token" i]')
+        ?.getAttribute('content') ?? '',
+    'X-CSRF-Time':
+      document
+        .querySelector('meta[name="csrf-time" i]')
+        ?.getAttribute('content') ?? '',
+  };
+}
+
+function shouldAddCSRFHeaders(method = 'get') {
+  return !/^(get|head|options|trace)$/.test(method.toLowerCase());
+}
+
 export class AtlasService {
   private config: AtlasServiceConfig;
   constructor(
@@ -60,6 +77,7 @@ export class AtlasService {
         ...init,
         headers: {
           ...this.options?.defaultHeaders,
+          ...(shouldAddCSRFHeaders(init?.method) && getCSRFHeaders()),
           ...init?.headers,
         },
       });
