@@ -361,28 +361,31 @@ describe('Multiple Connections Sidebar Component', function () {
         it('should render the only connected connections when toggled', async () => {
           await renderAndWaitForNavigationTree();
 
+          const favoriteConnectionId = savedFavoriteConnection.id;
+          const recentConnectionId = savedRecentConnection.id;
+
           const activeConnectionsToggleButton = screen.getByLabelText(
             'Showing all connections'
           );
 
-          expectElementByTestId(savedFavoriteConnection.id, 'visible');
-          expectElementByTestId(savedRecentConnection.id, 'visible');
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
 
           userEvent.click(activeConnectionsToggleButton);
           expect(activeConnectionsToggleButton.ariaLabel).equals(
             'Showing active connections'
           );
 
-          expectElementByTestId(savedFavoriteConnection.id, 'missing');
-          expectElementByTestId(savedRecentConnection.id, 'missing');
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.null;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.null;
 
           await connectAndNotifyInstanceManager(savedFavoriteConnection);
-          expectElementByTestId(savedFavoriteConnection.id, 'visible');
-          expectElementByTestId(savedRecentConnection.id, 'missing');
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.null;
 
           await connectAndNotifyInstanceManager(savedRecentConnection);
-          expectElementByTestId(savedFavoriteConnection.id, 'visible');
-          expectElementByTestId(savedRecentConnection.id, 'visible');
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
         });
 
         context('and performing actions', function () {
