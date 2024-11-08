@@ -364,28 +364,37 @@ describe('Multiple Connections Sidebar Component', function () {
             'Showing all connections'
           );
 
-          const connection1 = screen.getByTestId(savedFavoriteConnection.id);
-          const connection2 = screen.getByTestId(savedRecentConnection.id);
-          expect(connection1).to.be.visible;
-          expect(connection2).to.be.visible;
+          {
+            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be
+              .visible;
+            expect(screen.queryByTestId(savedRecentConnection.id)).to.be
+              .visible;
+          }
 
           userEvent.click(activeConnectionsToggleButton);
           expect(activeConnectionsToggleButton.ariaLabel).equals(
             'Showing active connections'
           );
 
-          screen.logTestingPlaygroundURL();
-
-          expect(connection1).to.not.exist;
-          expect(connection2).to.not.exist;
+          {
+            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
+            expect(screen.queryByTestId(savedRecentConnection.id)).to.be.null;
+          }
 
           await connectAndNotifyInstanceManager(savedFavoriteConnection);
-          expect(connection1).to.exist;
-          expect(connection2).to.not.exist;
+          {
+            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be
+              .visible;
+            expect(screen.queryByTestId(savedRecentConnection.id)).to.be.null;
+          }
 
           await connectAndNotifyInstanceManager(savedRecentConnection);
-          expect(connection1).to.exist;
-          expect(connection2).to.exist;
+          {
+            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be
+              .visible;
+            expect(screen.queryByTestId(savedRecentConnection.id)).to.be
+              .visible;
+          }
         });
 
         context('and performing actions', function () {
