@@ -9,6 +9,7 @@ import {
   waitFor,
   within,
   userEvent,
+  expectElementByTestId,
 } from '@mongodb-js/testing-library-compass';
 import MultipleConnectionSidebar from './sidebar';
 import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
@@ -364,37 +365,24 @@ describe('Multiple Connections Sidebar Component', function () {
             'Showing all connections'
           );
 
-          {
-            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be
-              .visible;
-            expect(screen.queryByTestId(savedRecentConnection.id)).to.be
-              .visible;
-          }
+          expectElementByTestId(savedFavoriteConnection.id, 'visible');
+          expectElementByTestId(savedRecentConnection.id, 'visible');
 
           userEvent.click(activeConnectionsToggleButton);
           expect(activeConnectionsToggleButton.ariaLabel).equals(
             'Showing active connections'
           );
 
-          {
-            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be.null;
-            expect(screen.queryByTestId(savedRecentConnection.id)).to.be.null;
-          }
+          expectElementByTestId(savedFavoriteConnection.id, 'missing');
+          expectElementByTestId(savedRecentConnection.id, 'missing');
 
           await connectAndNotifyInstanceManager(savedFavoriteConnection);
-          {
-            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be
-              .visible;
-            expect(screen.queryByTestId(savedRecentConnection.id)).to.be.null;
-          }
+          expectElementByTestId(savedFavoriteConnection.id, 'visible');
+          expectElementByTestId(savedRecentConnection.id, 'missing');
 
           await connectAndNotifyInstanceManager(savedRecentConnection);
-          {
-            expect(screen.queryByTestId(savedFavoriteConnection.id)).to.be
-              .visible;
-            expect(screen.queryByTestId(savedRecentConnection.id)).to.be
-              .visible;
-          }
+          expectElementByTestId(savedFavoriteConnection.id, 'visible');
+          expectElementByTestId(savedRecentConnection.id, 'visible');
         });
 
         context('and performing actions', function () {

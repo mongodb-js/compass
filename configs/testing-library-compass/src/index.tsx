@@ -732,6 +732,17 @@ const testingLibrary = {
   renderHook,
 };
 
+/**
+ * Expects an element (queried test id) to visible or missing from the screen
+ */
+function expectElementByTestId(testId: string, state: 'visible' | 'missing') {
+  if (state === 'visible') {
+    expect(screen.queryByTestId(testId)).to.be.visible;
+  } else if (state === 'missing') {
+    expect(screen.queryByTestId(testId)).to.be.null;
+  }
+}
+
 export {
   // There is never a good reason not to have these wrapper providers when
   // rendering something in compass for testing. Using these render methods
@@ -756,4 +767,5 @@ export {
   within,
   fireEvent,
   testingLibrary,
+  expectElementByTestId,
 };
