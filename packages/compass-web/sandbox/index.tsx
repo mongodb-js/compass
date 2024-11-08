@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { resetGlobalCSS, css, Body } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
@@ -16,9 +16,22 @@ const sandboxContainerStyles = css({
 
 resetGlobalCSS();
 
+function getMetaEl(name: string) {
+  return (
+    document.querySelector(`meta[name="${name}" i]`) ??
+    (() => {
+      const el = document.createElement('meta');
+      el.setAttribute('name', name);
+      document.head.prepend(el);
+      return el;
+    })()
+  );
+}
+
 const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
-  const { status, projectId } = useAtlasProxySignIn();
+  const { status, projectParams } = useAtlasProxySignIn();
+  const { projectId, csrfToken, csrfTime } = projectParams ?? {};
 
   const atlasServiceSandboxBackendVariant =
     process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'local'
@@ -27,6 +40,11 @@ const App = () => {
         process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'qa'
       ? 'web-sandbox-atlas-dev'
       : 'web-sandbox-atlas';
+
+  useLayoutEffect(() => {
+    getMetaEl('csrf-token').setAttribute('content', csrfToken ?? '');
+    getMetaEl('csrf-time').setAttribute('content', csrfTime ?? '');
+  }, [csrfToken, csrfTime]);
 
   if (status === 'checking') {
     return null;
