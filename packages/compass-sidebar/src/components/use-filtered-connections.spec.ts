@@ -169,6 +169,38 @@ describe('useFilteredConnections', function () {
       });
     });
 
+    context('excluding inactive connections', function () {
+      it('should match only connected collections items', function () {
+        const { result, rerender } = renderHookWithContext(
+          useFilteredConnections,
+          {
+            initialProps: {
+              connections: mockSidebarConnections,
+              filterRegex: null,
+              fetchAllCollections: fetchAllCollectionsStub,
+              onDatabaseExpand: onDatabaseExpandStub,
+              excludeInactive: true,
+            },
+          }
+        );
+
+        expect(result.current.filtered).to.be.deep.equal([
+          sidebarConnections[0],
+          sidebarConnections[1],
+        ]);
+
+        rerender({
+          connections: mockSidebarConnections,
+          filterRegex: null,
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+          excludeInactive: false,
+        });
+
+        expect(result.current.filtered).to.be.undefined;
+      });
+    });
+
     context('and a connection is toggled', function () {
       it('should return the appropriate connection expanded state for the toggled connection', async function () {
         const { result } = renderHookWithContext(useFilteredConnections, {
@@ -606,6 +638,40 @@ describe('useFilteredConnections', function () {
           connected_connection_2: {},
           disconnected_connection_1: false,
         });
+      });
+    });
+
+    context('excluding inactive connections', function () {
+      it('should match only connected collections items', function () {
+        const { result, rerender } = renderHookWithContext(
+          useFilteredConnections,
+          {
+            initialProps: {
+              connections: mockSidebarConnections,
+              filterRegex: new RegExp('connection_1'),
+              fetchAllCollections: fetchAllCollectionsStub,
+              onDatabaseExpand: onDatabaseExpandStub,
+              excludeInactive: true,
+            },
+          }
+        );
+
+        expect(result.current.filtered).to.be.deep.equal([
+          sidebarConnections[0],
+        ]);
+
+        rerender({
+          connections: mockSidebarConnections,
+          filterRegex: new RegExp('connection_1'),
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+          excludeInactive: false,
+        });
+
+        expect(result.current.filtered).to.be.deep.equal([
+          sidebarConnections[0],
+          sidebarConnections[2],
+        ]);
       });
     });
 
