@@ -115,6 +115,15 @@ export type NonUserPreferences = {
   password?: string;
 };
 
+export type AtlasProjectPreferences = {
+  enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
+};
+
+export type AtlasOrgPreferences = {
+  enableGenAIFeaturesAtlasOrg: boolean;
+};
+
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
   NonUserPreferences &
@@ -212,15 +221,6 @@ export type StoredPreferencesValidator = ReturnType<
 >;
 
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
-
-export type AtlasProjectPreferences = {
-  enableGenAIFeaturesAtlasProject: boolean;
-  enableGenAISampleDocumentPassingOnAtlasProject: boolean;
-};
-
-export type AtlasOrgPreferences = {
-  enableGenAIFeaturesAtlasOrg: boolean;
-};
 
 // Preference definitions
 const featureFlagsProps: Required<{
