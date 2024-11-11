@@ -41,40 +41,39 @@ export const PluginTitle = ({
   return (
     <div data-testid="global-writes-tab-title" className={containerStyles}>
       Global Writes{' '}
-      {showError ||
-        (showWarning && (
-          <Tooltip
-            data-testid="collection-stats-tooltip"
-            align="bottom"
-            justify="middle"
-            trigger={
-              // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-              <span
-                onClick={() => {
-                  // LG does not bubble up the click event to the parent component,
-                  // so we add noop onClick and let it bubble up.
-                }}
-              >
-                <Icon
-                  glyph={showWarning ? 'Warning' : 'ImportantWithCircle'}
-                  aria-label="warning"
-                  className={cx(
-                    warningIconStyles,
-                    iconStylesLight,
-                    darkMode && iconStylesDark
-                  )}
-                />
-              </span>
-            }
-          >
-            <Body>
-              Collections in Atlas Global Clusters with Atlas-managed sharding
-              must be configured with a compound shard key made up of both a
-              &apos;location&apos; field and an identifier field that you
-              provide. Please configure sharding here.
-            </Body>
-          </Tooltip>
-        ))}
+      {(showError || showWarning) && (
+        <Tooltip
+          data-testid="collection-stats-tooltip"
+          align="bottom"
+          justify="middle"
+          trigger={
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+            <span
+              onClick={() => {
+                // LG does not bubble up the click event to the parent component,
+                // so we add noop onClick and let it bubble up.
+              }}
+            >
+              <Icon
+                glyph={showWarning ? 'Warning' : 'ImportantWithCircle'}
+                aria-label="warning"
+                className={cx(
+                  warningIconStyles,
+                  iconStylesLight,
+                  darkMode && iconStylesDark
+                )}
+              />
+            </span>
+          }
+        >
+          <Body>
+            Collections in Atlas Global Clusters with Atlas-managed sharding
+            must be configured with a compound shard key made up of both a
+            &apos;location&apos; field and an identifier field that you provide.
+            Please configure sharding here.
+          </Body>
+        </Tooltip>
+      )}
     </div>
   );
 };
