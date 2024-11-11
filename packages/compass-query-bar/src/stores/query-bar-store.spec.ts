@@ -55,7 +55,6 @@ describe('createQueryWithHistoryAutocompleter', function () {
             loadAll: loadAllStub,
           }),
         },
-        atlasAuthService: { on: sinon.stub() },
         atlasAiService: mockService,
         preferences,
         logger: createNoopLogger(),

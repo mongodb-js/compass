@@ -412,10 +412,10 @@ export const cancelAIQuery = (): QueryBarThunkAction<
 };
 
 export const showInput = (): QueryBarThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { atlasAuthService }) => {
+  return async (dispatch, _getState, { atlasAiService }) => {
     try {
       if (process.env.COMPASS_E2E_SKIP_ATLAS_SIGNIN !== 'true') {
-        await atlasAuthService.signIn({ promptType: 'ai-promo-modal' });
+        await atlasAiService.ensureAiFeatureAccess();
       }
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
