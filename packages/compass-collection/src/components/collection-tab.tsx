@@ -118,10 +118,10 @@ function WithErrorBoundary({
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
   const connectionInfoRef = useConnectionInfoRef();
-  const isGlobalWritesSupported = useConnectionSupports(
-    connectionInfoRef.current.id,
-    'globalWrites'
-  );
+  const isGlobalWritesSupported =
+    useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
+    !props.isReadonly &&
+    !['config', 'local', 'admin'].includes(props.namespace.split('.')[0]);
   return pluginTabs
     .filter((x) => {
       if (x.name === 'GlobalWrites' && !isGlobalWritesSupported) {
