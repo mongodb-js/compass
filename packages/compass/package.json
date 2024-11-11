@@ -240,7 +240,7 @@
     "chalk": "^4.1.2",
     "clean-stack": "^2.0.0",
     "compass-preferences-model": "^2.30.0",
-    "cross-spawn": "^7.0.3",
+    "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron": "^32.2.2",
