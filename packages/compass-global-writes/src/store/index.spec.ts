@@ -236,7 +236,7 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it('not managed -> sharding -> valid shard key', async function () {
+    it('not managed -> sharding -> shard key correct', async function () {
       let mockShardKey = false;
       let mockManagedNamespace = false;
       // initial state === unsharded
@@ -258,6 +258,10 @@ describe('GlobalWritesStore Store', function () {
       mockManagedNamespace = true;
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
+
+      // polling continues for a while
+      clock.tick(POLLING_INTERVAL);
+      clock.tick(POLLING_INTERVAL);
 
       // sharding ends with a shardKey
       mockShardKey = true;
@@ -465,7 +469,7 @@ describe('GlobalWritesStore Store', function () {
       });
     });
 
-    it.only('incomplete setup -> sharding -> incomplete setup (request was cancelled)', async function () {
+    it('incomplete setup -> sharding -> incomplete setup (request was cancelled)', async function () {
       // initial state -> incomplete shardingSetup
       clock = sinon.useFakeTimers({
         shouldAdvanceTime: true,
