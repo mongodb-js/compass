@@ -18,7 +18,11 @@ type GeoShardingFormData = {
   keyType?: 'UNIQUE' | 'HASHED';
 };
 
-type GeoShardingStatus = 'UNSHARDED' | 'SHARDING' | 'SHARD_KEY_CORRECT';
+type GeoShardingStatus =
+  | 'UNSHARDED'
+  | 'SHARDING'
+  | 'SHARD_KEY_CORRECT'
+  | 'INCOMPLETE_SHARDING_SETUP';
 
 const WEBDRIVER_TIMEOUT = 1000 * 60 * 10;
 const MOCHA_TIMEOUT = WEBDRIVER_TIMEOUT * 1.2;
@@ -127,7 +131,15 @@ describe('Global writes', function () {
     await browser.clickVisible(Selectors.GlobalWrites.UnmanageNamespaceButton);
 
     // It transitions to the unmanaging state
-    await waitForGlobalWritesStatus(browser, 'UNSHARDED');
+    await waitForGlobalWritesStatus(browser, 'INCOMPLETE_SHARDING_SETUP');
+
+    // This time there should be a button to manage the namespace again, but not the form
+    await browser
+      .$(Selectors.GlobalWrites.ManageNamespaceButton)
+      .waitForDisplayed();
+    await browser
+      .$(Selectors.GlobalWrites.ShardKeyFormSecondKeyInputCombobox)
+      .waitForDisplayed({ reverse: true });
   });
 
   it('should be able to shard an unsharded namespace and cancel the operation', async function () {

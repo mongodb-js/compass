@@ -1415,6 +1415,7 @@ export const GlobalWrites = {
 
   CancelShardingButton: '[data-testid="cancel-sharding-btn"]',
   UnmanageNamespaceButton: '[data-testid="unmanage-collection-button"]',
+  ManageNamespaceButton: '[data-testid="manage-collection-button"]',
 
   SampleFindingDocuments: '[data-testid="sample-finding-documents"]',
   SampleInsertingDocuments: '[data-testid="sample-inserting-documents"]',
