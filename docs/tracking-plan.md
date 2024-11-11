@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Sun, Nov 3, 2024 at 03:17 AM
+Generated on Sun, Nov 10, 2024 at 03:13 AM
 
 ## Table of Contents
 
@@ -244,7 +244,7 @@ This event is fired when user copied the pipeline to clipboard.
 **Properties**:
 
 - **id** (required): `string`
-  - A unique id for the aggregation object being deleted.
+  - A unique id for the aggregation object being copied.
 - **screen** (required): `"my-queries"`
   - The screen from which the aggregation has been copied.
 

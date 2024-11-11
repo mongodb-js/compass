@@ -39,7 +39,7 @@ import {
 } from '@mongodb-js/compass-databases-collections';
 import {
   PreferencesProvider,
-  ReadOnlyPreferenceAccess,
+  CompassWebPreferencesAccess,
 } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
@@ -63,7 +63,9 @@ const WithAtlasProviders: React.FC = ({ children }) => {
   return (
     <AtlasCloudAuthServiceProvider>
       <AtlasServiceProvider>
-        <AtlasAiServiceProvider>{children}</AtlasAiServiceProvider>
+        <AtlasAiServiceProvider apiURLPreset="cloud">
+          {children}
+        </AtlasAiServiceProvider>
       </AtlasServiceProvider>
     </AtlasCloudAuthServiceProvider>
   );
@@ -260,7 +262,7 @@ const CompassWeb = ({
   });
 
   const preferencesAccess = useRef(
-    new ReadOnlyPreferenceAccess({
+    new CompassWebPreferencesAccess({
       maxTimeMS: 10_000,
       enableExplainPlan: true,
       enableAggregationBuilderRunPipeline: true,
@@ -277,6 +279,7 @@ const CompassWeb = ({
       enableShell: false,
       enableCreatingNewConnections: false,
       enableGlobalWrites: false,
+      optInDataExplorerGenAIFeatures: false,
       ...initialPreferences,
     })
   );

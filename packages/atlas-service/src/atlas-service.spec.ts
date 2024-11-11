@@ -132,4 +132,30 @@ describe('AtlasService', function () {
     );
     expect(getAuthHeadersFn.calledOnce).to.be.true;
   });
+
+  it('should set CSRF headers when available', async function () {
+    const fetchStub = sandbox.stub().resolves({ status: 200, ok: true });
+    global.fetch = fetchStub;
+    document.head.append(
+      (() => {
+        const el = document.createElement('meta');
+        el.setAttribute('name', 'csrf-token');
+        el.setAttribute('content', 'token');
+        return el;
+      })()
+    );
+    document.head.append(
+      (() => {
+        const el = document.createElement('meta');
+        el.setAttribute('name', 'CSRF-TIME');
+        el.setAttribute('content', 'time');
+        return el;
+      })()
+    );
+    await atlasService.fetch('/foo/bar', { method: 'POST' });
+    expect(fetchStub.firstCall.lastArg.headers).to.deep.eq({
+      'X-CSRF-Time': 'time',
+      'X-CSRF-Token': 'token',
+    });
+  });
 });
