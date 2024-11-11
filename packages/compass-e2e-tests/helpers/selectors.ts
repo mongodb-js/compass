@@ -1400,3 +1400,23 @@ export const ProxyCustomButton =
 
 // Close tab confirmation
 export const ConfirmTabCloseModal = '[data-testid="confirm-tab-close"]';
+
+export const GlobalWrites = {
+  tabStatus: (status: string) =>
+    `[data-testid="globalwrites-content"] > [data-status="${status.toLowerCase()}"]`,
+
+  ShardKeyFormSecondKeyInputCombobox:
+    '[data-testid="second-shard-key"] [role="combobox"] input',
+  ShardKeyFormAdvancedOptionsToggle:
+    '[data-testid="advanced-shard-key-configuration"]',
+  shardKeyFormIndexType: (type: 'UNIQUE' | 'HASHED') =>
+    `[data-testid="${type.toLowerCase()}-index"]`,
+  ShardKeyFormSubmitButton: '[data-testid="shard-collection-button"]',
+
+  CancelShardingButton: '[data-testid="cancel-sharding-btn"]',
+  UnmanageNamespaceButton: '[data-testid="unmanage-collection-button"]',
+  ManageNamespaceButton: '[data-testid="manage-collection-button"]',
+
+  SampleFindingDocuments: '[data-testid="sample-finding-documents"]',
+  SampleInsertingDocuments: '[data-testid="sample-inserting-documents"]',
+};
