@@ -90,8 +90,6 @@ describe('Global writes', function () {
     await cleanup(compass);
   });
 
-  // TODO(COMPASS-8495): This test fails in CI, while we can't reproduce this
-  // locally, it looks like a real issue that needs investigation
   it('should be able to shard an unsharded namespace and also unmanage it', async function () {
     const collName = `global-writes-geospatial-${Date.now()}`;
 
