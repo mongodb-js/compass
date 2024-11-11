@@ -74,7 +74,12 @@ describe('Rolling indexes', function () {
     await browser
       .$(Selectors.indexComponent(indexName))
       .$('[data-testid="index-ready"]')
-      .waitForDisplayed({ timeout: extendedRollingIndexesTimeout });
+      .waitForDisplayed({
+        timeout: extendedRollingIndexesTimeout,
+        // Building a rolling index is a slow process, no need to check too
+        // often
+        interval: 2_000,
+      });
 
     // Now that it's ready, delete it (it will also check that it's eventually
     // removed from the list)
