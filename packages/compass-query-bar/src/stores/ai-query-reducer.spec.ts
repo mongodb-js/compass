@@ -61,7 +61,6 @@ describe('aiQueryReducer', function () {
           {
             dataService: mockDataService,
             connectionInfoRef,
-            atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
@@ -104,7 +103,6 @@ describe('aiQueryReducer', function () {
         };
 
         const store = createStore({}, {
-          atlasAuthService: { on: sandbox.stub() },
           atlasAiService: mockAtlasAiService,
           connectionInfoRef,
           dataService: {
@@ -132,7 +130,6 @@ describe('aiQueryReducer', function () {
           getQueryFromUserInput: sandbox.stub().rejects(authError),
         };
         const store = createStore({}, {
-          atlasAuthService: { on: sandbox.stub() },
           atlasAiService: mockAtlasAiService,
           dataService: {
             sample() {
@@ -182,7 +179,6 @@ describe('aiQueryReducer', function () {
           {
             dataService: mockDataService,
             connectionInfoRef,
-            atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),
@@ -223,7 +219,6 @@ describe('aiQueryReducer', function () {
           {
             dataService: mockDataService,
             connectionInfoRef,
-            atlasAuthService: { on: sandbox.stub() },
             atlasAiService: mockAtlasAiService,
             preferences,
             logger: createNoopLogger(),

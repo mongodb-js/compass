@@ -192,8 +192,8 @@ const expandButton = css({
 
 const hadronElement = css({
   display: 'flex',
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingLeft: spacing[50],
+  paddingRight: spacing[50],
   marginTop: 1,
 });
 
@@ -239,7 +239,7 @@ const elementRemovedDarkMode = css({
 
 const elementActions = css({
   flex: 'none',
-  width: spacing[3],
+  width: spacing[300],
   position: 'relative',
 });
 
@@ -363,36 +363,39 @@ const elementKeyDarkMode = css({
   color: palette.gray.light2,
 });
 
-const calculateElementSpacerWidth = (editable: boolean, level: number) => {
-  return (editable ? spacing[200] : 0) + spacing[400] * level;
+const calculateElementSpacerWidth = (
+  editable: boolean,
+  level: number,
+  extra: number
+) => {
+  return (editable ? spacing[100] : 0) + extra + spacing[400] * level;
 };
 
 export const calculateShowMoreToggleOffset = ({
   editable,
   level,
   alignWithNestedExpandIcon,
+  extraGutterWidth = 0,
 }: {
   editable: boolean;
   level: number;
   alignWithNestedExpandIcon: boolean;
+  extraGutterWidth: number | undefined;
 }) => {
-  // the base padding that we have on all elements rendered in the document
-  const BASE_PADDING_LEFT = spacing[200];
-  const OFFSET_WHEN_EDITABLE = editable
+  const spacerWidth = calculateElementSpacerWidth(
+    editable,
+    level,
+    extraGutterWidth
+  );
+  const editableOffset = editable
     ? // space taken by element actions
-      spacing[400] +
+      spacing[300] +
       // space and margin taken by line number element
       spacing[400] +
-      spacing[100] +
-      // element spacer width that we render
-      calculateElementSpacerWidth(editable, level)
+      spacing[100]
     : 0;
-  const EXPAND_ICON_SIZE = spacing[400];
-  return (
-    BASE_PADDING_LEFT +
-    OFFSET_WHEN_EDITABLE +
-    (alignWithNestedExpandIcon ? EXPAND_ICON_SIZE : 0)
-  );
+  const expandIconSize = alignWithNestedExpandIcon ? spacing[400] : 0;
+  return spacerWidth + editableOffset + expandIconSize;
 };
 
 export const HadronElement: React.FunctionComponent<{
@@ -402,6 +405,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   lineNumberSize: number;
   onAddElement(el: HadronElementType): void;
+  extraGutterWidth?: number;
 }> = ({
   value: element,
   editable,
@@ -409,6 +413,7 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart,
   lineNumberSize,
   onAddElement,
+  extraGutterWidth = 0,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
@@ -445,8 +450,8 @@ export const HadronElement: React.FunctionComponent<{
   }, [lineNumberSize, editingEnabled]);
 
   const elementSpacerWidth = useMemo(
-    () => calculateElementSpacerWidth(editable, level),
-    [editable, level]
+    () => calculateElementSpacerWidth(editable, level, extraGutterWidth),
+    [editable, level, extraGutterWidth]
   );
 
   // To render the "Show more" toggle for the nested expandable elements we need
@@ -457,8 +462,9 @@ export const HadronElement: React.FunctionComponent<{
         editable,
         level,
         alignWithNestedExpandIcon: true,
+        extraGutterWidth,
       }),
-    [editable, level]
+    [editable, level, extraGutterWidth]
   );
 
   const isValid = key.valid && value.valid;
@@ -711,6 +717,7 @@ export const HadronElement: React.FunctionComponent<{
                 onEditStart={onEditStart}
                 lineNumberSize={lineNumberSize}
                 onAddElement={onAddElement}
+                extraGutterWidth={extraGutterWidth}
               ></HadronElement>
             );
           })}

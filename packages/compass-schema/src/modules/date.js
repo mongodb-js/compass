@@ -1,7 +1,6 @@
 /* eslint-disable no-use-before-define */
 import d3 from 'd3';
 import { isEqual, range, minBy, maxBy, sortBy, groupBy, map } from 'lodash';
-import moment from 'moment';
 import { inValueRange } from 'mongodb-query-util';
 import { palette, spacing } from '@mongodb-js/compass-components';
 
@@ -33,7 +32,15 @@ const minicharts_d3fns_date = (changeQueryFn) => {
   const options = {};
   const subcharts = [];
 
-  const weekdayLabels = moment.weekdays();
+  const weekdayLabels = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
 
   // A formatter for dates
   const format = d3.time.format.utc('%Y-%m-%d %H:%M:%S');
@@ -215,7 +222,7 @@ const minicharts_d3fns_date = (changeQueryFn) => {
 
       // group by weekdays
       const w = groupBy(values, function (d) {
-        return moment(d.ts).weekday();
+        return new Date(d.ts).getDay();
       });
       const wd = { ...generateDefaults(7), ...w };
       const weekdays = map(wd, function (d, i) {

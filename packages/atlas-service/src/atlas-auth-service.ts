@@ -4,7 +4,7 @@ import type { AtlasUserInfo } from './util';
 export type ArgsWithSignal<T = Record<string, unknown>> = T & {
   signal?: AbortSignal;
 };
-export type SignInPrompt = 'none' | 'ai-promo-modal';
+export type SignInPrompt = 'none';
 
 type AtlasAuthServiceEvents = {
   'signed-in': [];

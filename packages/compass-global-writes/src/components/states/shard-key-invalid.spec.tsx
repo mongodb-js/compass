@@ -7,7 +7,7 @@ import {
 } from './shard-key-invalid';
 import { renderWithStore } from '../../../tests/create-store';
 
-describe('Compass GlobalWrites Plugin', function () {
+describe('ShardKeyInvalid', function () {
   const baseProps: ShardKeyInvalidProps = {
     namespace: 'db1.coll1',
     shardKey: {

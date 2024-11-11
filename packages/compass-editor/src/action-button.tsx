@@ -1,10 +1,25 @@
 import { cx } from '@mongodb-js/compass-components';
 import { css } from '@mongodb-js/compass-components';
-import { Button, Icon } from '@mongodb-js/compass-components';
+import { Button, Icon, type IconGlyph } from '@mongodb-js/compass-components';
 import React, { useCallback, useEffect, useState } from 'react';
+import type { EditorView } from '@codemirror/view';
+
+export type Action = {
+  icon: IconGlyph;
+  label: string;
+  action: (editor: EditorView) => boolean | void;
+};
 
 const actionButtonStyle = css({
   flex: 'none',
+  pointerEvents: 'all',
+});
+
+const actionCompactButtonStyle = css({
+  '& > div:has(svg)': {
+    paddingLeft: 3,
+    paddingRight: 3,
+  },
 });
 
 const actionButtonContentStyle = css({
@@ -45,7 +60,8 @@ export const ActionButton: React.FunctionComponent<{
     ...args: Parameters<React.MouseEventHandler<HTMLButtonElement>>
   ) => boolean | void;
   'data-testid'?: string;
-}> = ({ label, icon, onClick, ...props }) => {
+  compact?: boolean;
+}> = ({ label, icon, onClick, compact, ...props }) => {
   const [clickResult, setClickResult] = useState<'success' | 'error'>(
     'success'
   );
@@ -82,7 +98,7 @@ export const ActionButton: React.FunctionComponent<{
       aria-label={label}
       title={label}
       onClick={onButtonClick}
-      className={actionButtonStyle}
+      className={cx(actionButtonStyle, { [actionCompactButtonStyle]: compact })}
       data-testid={props['data-testid'] ?? `editor-action-${label}`}
     >
       <div className={actionButtonContentStyle}>

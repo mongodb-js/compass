@@ -1,5 +1,10 @@
 import type { Compass } from '../../helpers/compass';
-import { cleanup, init, Selectors } from '../../helpers/compass';
+import {
+  cleanup,
+  init,
+  screenshotIfFailed,
+  Selectors,
+} from '../../helpers/compass';
 import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import {
@@ -11,25 +16,26 @@ describe('Rolling indexes', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
-  before(async function () {
-    compass = await init(this.test?.fullTitle());
-    browser = compass.browser;
-    await browser.setupDefaultConnections();
-  });
-
   before(function () {
     if (!isTestingAtlasCloudSandbox()) {
       this.skip();
     }
   });
 
-  after(async function () {
+  beforeEach(async function () {
+    compass = await init(this.test?.fullTitle());
+    browser = compass.browser;
+    await browser.setupDefaultConnections();
+  });
+
+  afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });
 
   it('should be able to create, list, and delete rolling indexes', async function () {
     // Building rolling indexes is a slow process
-    const extendedRollingIndexesTimeout = 1000 * 60 * 20;
+    const extendedRollingIndexesTimeout = 1000 * 60 * 10;
 
     this.timeout(extendedRollingIndexesTimeout * 1.2);
 
@@ -68,7 +74,12 @@ describe('Rolling indexes', function () {
     await browser
       .$(Selectors.indexComponent(indexName))
       .$('[data-testid="index-ready"]')
-      .waitForDisplayed({ timeout: extendedRollingIndexesTimeout });
+      .waitForDisplayed({
+        timeout: extendedRollingIndexesTimeout,
+        // Building a rolling index is a slow process, no need to check too
+        // often
+        interval: 2_000,
+      });
 
     // Now that it's ready, delete it (it will also check that it's eventually
     // removed from the list)

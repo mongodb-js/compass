@@ -44,7 +44,6 @@ function createStore(
     },
     applyMiddleware(
       thunk.withExtraArgument({
-        atlasAuthService: {} as any,
         atlasAiService: {} as any,
         pipelineBuilder,
         pipelineStorage: new CompassPipelineStorage(),

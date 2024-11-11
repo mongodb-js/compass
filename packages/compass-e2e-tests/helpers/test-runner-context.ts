@@ -39,7 +39,7 @@ function buildCommonArgs(yargs: Argv) {
     .option('webdriver-waitfor-timeout', {
       type: 'number',
       description: 'Set a custom default webdriver waitFor timeout',
-      default: 120_000, // webdriver default is 3000ms
+      default: 1000 * 60 * 2, // 2min, webdriver default is 3s
     })
     .option('webdriver-waitfor-interval', {
       type: 'number',

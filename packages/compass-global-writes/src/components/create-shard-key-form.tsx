@@ -190,6 +190,7 @@ export function CreateShardKeyForm({
             </Label>
             <ComboboxWithCustomOption
               id="second-shard-key"
+              data-testid="second-shard-key"
               aria-label="Second shard key field"
               placeholder="Second shard key field"
               size="default"
@@ -237,6 +238,7 @@ export function CreateShardKeyForm({
             </Radio>
             <Radio
               id="unique-index"
+              data-testid="unique-index"
               value="unique-index"
               checked={selectedAdvancedOption === 'unique-index'}
             >
@@ -255,6 +257,7 @@ export function CreateShardKeyForm({
             </Radio>
             <Radio
               id="hashed-index"
+              data-testid="hashed-index"
               value="hashed-index"
               checked={selectedAdvancedOption === 'hashed-index'}
             >

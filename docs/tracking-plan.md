@@ -1,7 +1,7 @@
 
 # Compass Tracking Plan
 
-Generated on Wed, Oct 30, 2024 at 02:38 PM
+Generated on Mon, Nov 11, 2024 at 04:57 PM
 
 ## Table of Contents
 
@@ -244,7 +244,7 @@ This event is fired when user copied the pipeline to clipboard.
 **Properties**:
 
 - **id** (required): `string`
-  - A unique id for the aggregation object being deleted.
+  - A unique id for the aggregation object being copied.
 - **screen** (required): `"my-queries"`
   - The screen from which the aggregation has been copied.
 
@@ -854,6 +854,10 @@ This event is fired when user successfully connects to a new server/cluster.
   - The OS family of the connected server.
 - **topology_type** (required): `string`
   - The type of connected topology.
+- **num_active_connections** (required): `number`
+  - The number of active connections.
+- **num_inactive_connections** (required): `number`
+  - The number of inactive connections.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
