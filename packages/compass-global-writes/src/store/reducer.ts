@@ -199,12 +199,14 @@ export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
   shardZones: ShardZoneData[];
-  isSubmittingForSharding?: boolean;
-  isCancellingSharding?: boolean;
-  isUnmanagingNamespace?: boolean;
+  userActionInProgress?:
+    | 'submitForSharding'
+    | 'cancelSharding'
+    | 'unmanageNamespace';
 } & (
   | {
       status: ShardingStatuses.LOADING_ERROR;
+      userActionInProgress?: never;
       shardKey?: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
@@ -212,6 +214,7 @@ export type RootState = {
     }
   | {
       status: ShardingStatuses.NOT_READY;
+      userActionInProgress?: never;
       shardKey?: never;
       shardingError?: never;
       pollingTimeout?: never;
@@ -219,6 +222,7 @@ export type RootState = {
     }
   | {
       status: ShardingStatuses.UNSHARDED;
+      userActionInProgress?: 'submitForSharding';
       shardKey?: ShardKey;
       // shardKey might exist if the collection was sharded before
       // and then unmanaged
@@ -228,6 +232,7 @@ export type RootState = {
     }
   | {
       status: ShardingStatuses.SHARDING;
+      userActionInProgress?: 'cancelSharding';
       /**
        * note: shardKey might exist
        * if the collection was sharded previously and then unmanaged
@@ -239,6 +244,7 @@ export type RootState = {
     }
   | {
       status: ShardingStatuses.SHARDING_ERROR;
+      userActionInProgress?: 'cancelSharding' | 'submitForSharding';
       shardKey?: never;
       shardingError: string;
       pollingTimeout?: never;
@@ -375,7 +381,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   ) {
     return {
       ...state,
-      isSubmittingForSharding: true,
+      userActionInProgress: 'submitForSharding',
     };
   }
 
@@ -391,7 +397,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   ) {
     return {
       ...state,
-      isSubmittingForSharding: undefined,
+      userActionInProgress: undefined,
       shardingError: undefined,
       managedNamespace: action.managedNamespace || state.managedNamespace,
       status: ShardingStatuses.SHARDING,
@@ -438,7 +444,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     }
     return {
       ...state,
-      isCancellingSharding: true,
+      userActionInProgress: 'cancelSharding',
       pollingTimeout: state.pollingTimeout,
     };
   }
@@ -447,14 +453,15 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     isAction<CancellingShardingErroredAction>(
       action,
       GlobalWritesActionTypes.CancellingShardingErrored
-    ) &&
-    (state.status === ShardingStatuses.SHARDING ||
-      state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
+    ) ||
+    isAction<UnmanagingNamespaceErroredAction>(
+      action,
+      GlobalWritesActionTypes.UnmanagingNamespaceErrored
+    )
   ) {
     return {
       ...state,
-      isCancellingSharding: undefined,
+      userActionInProgress: undefined,
     };
   }
 
@@ -472,9 +479,9 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     }
     return {
       ...state,
+      userActionInProgress: undefined,
       managedNamespace: undefined,
       shardingError: undefined,
-      isCancellingSharding: undefined,
       pollingTimeout: state.pollingTimeout,
       status: ShardingStatuses.UNSHARDED,
     };
@@ -488,12 +495,16 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     state.status === ShardingStatuses.SHARDING &&
     state.shardKey
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling has not been stopped');
+    }
     return {
       ...state,
+      userActionInProgress: undefined,
       managedNamespace: undefined,
       shardKey: state.shardKey,
       shardingError: undefined,
-      isCancellingSharding: undefined,
+      pollingTimeout: state.pollingTimeout,
       status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
@@ -510,7 +521,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       managedNamepsace: undefined,
-      isSubmittingForSharding: undefined,
+      userActionInProgress: undefined,
     };
   }
 
@@ -524,7 +535,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   ) {
     return {
       ...state,
-      isUnmanagingNamespace: true,
+      userActionInProgress: 'unmanageNamespace',
     };
   }
 
@@ -538,24 +549,9 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   ) {
     return {
       ...state,
+      userActionInProgress: undefined,
       managedNamespace: undefined,
       status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
-      isUnmanagingNamespace: undefined,
-    };
-  }
-
-  if (
-    isAction<UnmanagingNamespaceErroredAction>(
-      action,
-      GlobalWritesActionTypes.UnmanagingNamespaceErrored
-    ) &&
-    (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
-      state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
-  ) {
-    return {
-      ...state,
-      status: ShardingStatuses.SHARD_KEY_CORRECT,
-      isUnmanagingNamespace: undefined,
     };
   }
 
@@ -572,6 +568,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     }
     return {
       ...state,
+      userActionInProgress: undefined,
       status: ShardingStatuses.LOADING_ERROR,
       loadingError: action.error,
       pollingTimeout: state.pollingTimeout,
@@ -646,7 +643,17 @@ export const createShardKey = (
     getState,
     { atlasGlobalWritesService, logger, connectionInfoRef }
   ) => {
-    const { namespace } = getState();
+    const { namespace, userActionInProgress } = getState();
+
+    if (userActionInProgress) {
+      logger.log.warn(
+        logger.mongoLogId(1_001_000_337),
+        'Global writes duplicate action',
+        `SubmittingForSharding triggered while another action is in progress - ${userActionInProgress}`
+      );
+      return;
+    }
+
     dispatch({
       type: GlobalWritesActionTypes.SubmittingForShardingStarted,
     });
@@ -703,7 +710,16 @@ export const cancelSharding = (): GlobalWritesThunkAction<
       return;
     }
 
-    const { namespace, status } = getState();
+    const { namespace, status, userActionInProgress } = getState();
+
+    if (userActionInProgress) {
+      logger.log.warn(
+        logger.mongoLogId(1_001_000_335),
+        'Global writes duplicate action',
+        `CancelSharding triggered while another action is in progress - ${userActionInProgress}`
+      );
+      return;
+    }
 
     if (status === ShardingStatuses.SHARDING) {
       dispatch(stopPollingForShardKey());
@@ -929,9 +945,18 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
   return async (
     dispatch,
     getState,
-    { atlasGlobalWritesService, connectionInfoRef }
+    { atlasGlobalWritesService, connectionInfoRef, logger }
   ) => {
-    const { namespace } = getState();
+    const { namespace, userActionInProgress } = getState();
+
+    if (userActionInProgress) {
+      logger.log.warn(
+        logger.mongoLogId(1_001_000_336),
+        'Global writes duplicate action',
+        `UnmanageNamespace triggered while another action is in progress - ${userActionInProgress}`
+      );
+      return;
+    }
 
     dispatch({
       type: GlobalWritesActionTypes.UnmanagingNamespaceStarted,

@@ -65,8 +65,9 @@ export default connect(
     }
     return {
       shardingError: state.shardingError,
-      isCancellingSharding: !!state.isCancellingSharding,
-      isSubmittingForSharding: !!state.isSubmittingForSharding,
+      isCancellingSharding: state.userActionInProgress === 'cancelSharding',
+      isSubmittingForSharding:
+        state.userActionInProgress === 'submitForSharding',
     };
   },
   {

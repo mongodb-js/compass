@@ -91,7 +91,8 @@ export default connect(
       namespace: state.namespace,
       shardKey: state.shardKey,
       shardZones: state.shardZones,
-      isSubmittingForSharding: !!state.isSubmittingForSharding,
+      isSubmittingForSharding:
+        state.userActionInProgress === 'submitForSharding',
     };
   },
   {

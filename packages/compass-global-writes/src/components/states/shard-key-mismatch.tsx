@@ -103,7 +103,7 @@ export default connect(
       shardKey: state.shardKey,
       requestedShardKey:
         state.managedNamespace && getRequestedShardKey(state.managedNamespace),
-      isUnmanagingNamespace: !!state.isUnmanagingNamespace,
+      isUnmanagingNamespace: state.userActionInProgress === 'unmanageNamespace',
     };
   },
   {

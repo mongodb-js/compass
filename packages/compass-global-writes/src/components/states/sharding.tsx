@@ -61,7 +61,7 @@ export function ShardingState({
 
 export default connect(
   (state: RootState) => ({
-    isCancellingSharding: !!state.isCancellingSharding,
+    isCancellingSharding: state.userActionInProgress === 'cancelSharding',
   }),
   {
     onCancelSharding: cancelSharding,

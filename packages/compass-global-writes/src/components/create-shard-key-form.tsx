@@ -318,8 +318,9 @@ export function CreateShardKeyForm({
 export default connect(
   (state: RootState) => ({
     namespace: state.namespace,
-    isSubmittingForSharding: !!state.isSubmittingForSharding,
-    isCancellingSharding: !!state.isCancellingSharding,
+    isSubmittingForSharding:
+      !!state.userActionInProgress === 'submitForSharding',
+    isCancellingSharding: !!state.userActionInProgress === 'cancelSharding',
   }),
   {
     onCreateShardKey: createShardKey,

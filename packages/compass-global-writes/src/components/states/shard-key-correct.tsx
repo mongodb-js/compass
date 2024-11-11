@@ -85,7 +85,7 @@ export default connect(
       namespace: state.namespace,
       shardKey: state.shardKey,
       shardZones: state.shardZones,
-      isUnmanagingNamespace: !!state.isUnmanagingNamespace,
+      isUnmanagingNamespace: state.userActionInProgress === 'unmanageNamespace',
     };
   },
   {
