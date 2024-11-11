@@ -44,32 +44,19 @@ function ShardingStateView({
 }: {
   shardingStatus: Exclude<ShardingStatus, 'NOT_READY'>;
 }) {
-  if (
-    shardingStatus === ShardingStatuses.UNSHARDED ||
-    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING
-  ) {
+  if (shardingStatus === ShardingStatuses.UNSHARDED) {
     return <UnshardedState />;
   }
 
-  if (
-    shardingStatus === ShardingStatuses.SHARDING ||
-    shardingStatus === ShardingStatuses.CANCELLING_SHARDING
-  ) {
+  if (shardingStatus === ShardingStatuses.SHARDING) {
     return <ShardingState />;
   }
 
-  if (
-    shardingStatus === ShardingStatuses.SHARDING_ERROR ||
-    shardingStatus === ShardingStatuses.CANCELLING_SHARDING_ERROR ||
-    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR
-  ) {
+  if (shardingStatus === ShardingStatuses.SHARDING_ERROR) {
     return <ShardingError />;
   }
 
-  if (
-    shardingStatus === ShardingStatuses.SHARD_KEY_CORRECT ||
-    shardingStatus === ShardingStatuses.UNMANAGING_NAMESPACE
-  ) {
+  if (shardingStatus === ShardingStatuses.SHARD_KEY_CORRECT) {
     return <ShardKeyCorrect />;
   }
 
@@ -77,17 +64,11 @@ function ShardingStateView({
     return <ShardKeyInvalid />;
   }
 
-  if (
-    shardingStatus === ShardingStatuses.SHARD_KEY_MISMATCH ||
-    shardingStatus === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH
-  ) {
+  if (shardingStatus === ShardingStatuses.SHARD_KEY_MISMATCH) {
     return <ShardKeyMismatch />;
   }
 
-  if (
-    shardingStatus === ShardingStatuses.INCOMPLETE_SHARDING_SETUP ||
-    shardingStatus === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE
-  ) {
+  if (shardingStatus === ShardingStatuses.INCOMPLETE_SHARDING_SETUP) {
     return <IncompleteShardingSetup />;
   }
 

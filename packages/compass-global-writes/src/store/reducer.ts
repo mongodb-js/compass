@@ -150,24 +150,9 @@ export enum ShardingStatuses {
   INCOMPLETE_SHARDING_SETUP = 'INCOMPLETE_SHARDING_SETUP',
 
   /**
-   * State when user submits namespace to be sharded and
-   * we are waiting for server to accept the request.
-   */
-  SUBMITTING_FOR_SHARDING = 'SUBMITTING_FOR_SHARDING',
-  SUBMITTING_FOR_SHARDING_ERROR = 'SUBMITTING_FOR_SHARDING_ERROR',
-  SUBMITTING_FOR_SHARDING_INCOMPLETE = 'SUBMITTING_FOR_SHARDING_INCOMPLETE',
-
-  /**
    * Namespace is being sharded.
    */
   SHARDING = 'SHARDING',
-
-  /**
-   * State when user cancels the sharding and
-   * we are waiting for server to accept the request.
-   */
-  CANCELLING_SHARDING = 'CANCELLING_SHARDING',
-  CANCELLING_SHARDING_ERROR = 'CANCELLING_SHARDING_ERROR',
 
   /**
    * Sharding failed.
@@ -191,12 +176,6 @@ export enum ShardingStatuses {
    * location key and second key is valid custom key.
    */
   SHARD_KEY_CORRECT = 'SHARD_KEY_CORRECT',
-
-  /**
-   * Namespace is being unmanaged.
-   */
-  UNMANAGING_NAMESPACE = 'UNMANAGING_NAMESPACE',
-  UNMANAGING_NAMESPACE_MISMATCH = 'UNMANAGING_NAMESPACE_MISMATCH',
 }
 
 export type ShardingStatus = keyof typeof ShardingStatuses;
@@ -220,6 +199,9 @@ export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
   shardZones: ShardZoneData[];
+  isSubmittingForSharding?: boolean;
+  isCancellingSharding?: boolean;
+  isUnmanagingNamespace?: boolean;
 } & (
   | {
       status: ShardingStatuses.LOADING_ERROR;
@@ -236,10 +218,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status:
-        | ShardingStatuses.UNSHARDED
-        | ShardingStatuses.SUBMITTING_FOR_SHARDING
-        | ShardingStatuses.CANCELLING_SHARDING;
+      status: ShardingStatuses.UNSHARDED;
       shardKey?: ShardKey;
       // shardKey might exist if the collection was sharded before
       // and then unmanaged
@@ -259,10 +238,7 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status:
-        | ShardingStatuses.SHARDING_ERROR
-        | ShardingStatuses.CANCELLING_SHARDING_ERROR
-        | ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR;
+      status: ShardingStatuses.SHARDING_ERROR;
       shardKey?: never;
       shardingError: string;
       pollingTimeout?: never;
@@ -273,10 +249,7 @@ export type RootState = {
         | ShardingStatuses.SHARD_KEY_CORRECT
         | ShardingStatuses.SHARD_KEY_INVALID
         | ShardingStatuses.SHARD_KEY_MISMATCH
-        | ShardingStatuses.UNMANAGING_NAMESPACE
-        | ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH
-        | ShardingStatuses.INCOMPLETE_SHARDING_SETUP
-        | ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE;
+        | ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
       shardKey: ShardKey;
       shardingError?: never;
       pollingTimeout?: never;
@@ -396,37 +369,13 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.SubmittingForShardingStarted
     ) &&
-    state.status === ShardingStatuses.UNSHARDED
+    (state.status === ShardingStatuses.UNSHARDED ||
+      state.status === ShardingStatuses.SHARDING_ERROR ||
+      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
   ) {
     return {
       ...state,
-      status: ShardingStatuses.SUBMITTING_FOR_SHARDING,
-    };
-  }
-
-  if (
-    isAction<SubmittingForShardingStartedAction>(
-      action,
-      GlobalWritesActionTypes.SubmittingForShardingStarted
-    ) &&
-    state.status === ShardingStatuses.SHARDING_ERROR
-  ) {
-    return {
-      ...state,
-      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
-    };
-  }
-
-  if (
-    isAction<SubmittingForShardingStartedAction>(
-      action,
-      GlobalWritesActionTypes.SubmittingForShardingStarted
-    ) &&
-    state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP
-  ) {
-    return {
-      ...state,
-      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE,
+      isSubmittingForSharding: true,
     };
   }
 
@@ -435,13 +384,14 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
     ) &&
-    (state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING ||
-      state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR ||
-      state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE ||
+    (state.status === ShardingStatuses.UNSHARDED ||
+      state.status === ShardingStatuses.SHARDING_ERROR ||
+      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP ||
       state.status === ShardingStatuses.NOT_READY)
   ) {
     return {
       ...state,
+      isSubmittingForSharding: undefined,
       shardingError: undefined,
       managedNamespace: action.managedNamespace || state.managedNamespace,
       status: ShardingStatuses.SHARDING,
@@ -479,28 +429,17 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.CancellingShardingStarted
     ) &&
-    state.status === ShardingStatuses.SHARDING
+    (state.status === ShardingStatuses.SHARDING ||
+      state.status === ShardingStatuses.SHARDING_ERROR ||
+      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
   ) {
     if (state.pollingTimeout) {
       throw new Error('Polling was not stopped');
     }
     return {
       ...state,
-      status: ShardingStatuses.CANCELLING_SHARDING,
+      isCancellingSharding: true,
       pollingTimeout: state.pollingTimeout,
-    };
-  }
-
-  if (
-    isAction<CancellingShardingStartedAction>(
-      action,
-      GlobalWritesActionTypes.CancellingShardingStarted
-    ) &&
-    state.status === ShardingStatuses.SHARDING_ERROR
-  ) {
-    return {
-      ...state,
-      status: ShardingStatuses.CANCELLING_SHARDING_ERROR,
     };
   }
 
@@ -509,13 +448,13 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.CancellingShardingErrored
     ) &&
-    (state.status === ShardingStatuses.CANCELLING_SHARDING ||
-      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR)
+    (state.status === ShardingStatuses.SHARDING ||
+      state.status === ShardingStatuses.SHARDING_ERROR ||
+      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
   ) {
     return {
       ...state,
-      shardingError: undefined,
-      status: ShardingStatuses.SHARDING,
+      isCancellingSharding: undefined,
     };
   }
 
@@ -524,16 +463,20 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.CancellingShardingFinished
     ) &&
-    (state.status === ShardingStatuses.CANCELLING_SHARDING ||
-      state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR) &&
-    // the error might come before the cancel request was processed
+    (state.status === ShardingStatuses.SHARDING ||
+      state.status === ShardingStatuses.SHARDING_ERROR) &&
     !state.shardKey
   ) {
+    if (state.pollingTimeout) {
+      throw new Error('Polling has not been stopped');
+    }
     return {
       ...state,
-      status: ShardingStatuses.UNSHARDED,
+      managedNamespace: undefined,
       shardingError: undefined,
+      isCancellingSharding: undefined,
+      pollingTimeout: state.pollingTimeout,
+      status: ShardingStatuses.UNSHARDED,
     };
   }
 
@@ -542,56 +485,32 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.CancellingShardingFinished
     ) &&
-    state.status === ShardingStatuses.CANCELLING_SHARDING &&
+    state.status === ShardingStatuses.SHARDING &&
     state.shardKey
   ) {
     return {
       ...state,
+      managedNamespace: undefined,
       shardKey: state.shardKey,
-      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
       shardingError: undefined,
-    };
-  }
-
-  if (
-    isAction<SubmittingForShardingErroredAction>(
-      action,
-      GlobalWritesActionTypes.SubmittingForShardingErrored
-    ) &&
-    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING
-  ) {
-    return {
-      ...state,
-      managedNamespace: undefined,
-      status: ShardingStatuses.UNSHARDED,
-    };
-  }
-
-  if (
-    isAction<SubmittingForShardingErroredAction>(
-      action,
-      GlobalWritesActionTypes.SubmittingForShardingErrored
-    ) &&
-    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR
-  ) {
-    return {
-      ...state,
-      managedNamespace: undefined,
-      status: ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
-    };
-  }
-
-  if (
-    isAction<SubmittingForShardingErroredAction>(
-      action,
-      GlobalWritesActionTypes.SubmittingForShardingErrored
-    ) &&
-    state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE
-  ) {
-    return {
-      ...state,
-      managedNamespace: undefined,
+      isCancellingSharding: undefined,
       status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
+    };
+  }
+
+  if (
+    isAction<SubmittingForShardingErroredAction>(
+      action,
+      GlobalWritesActionTypes.SubmittingForShardingErrored
+    ) &&
+    (state.status === ShardingStatuses.UNSHARDED ||
+      state.status === ShardingStatuses.SHARDING_ERROR ||
+      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
+  ) {
+    return {
+      ...state,
+      managedNamepsace: undefined,
+      isSubmittingForSharding: undefined,
     };
   }
 
@@ -605,10 +524,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
   ) {
     return {
       ...state,
-      status:
-        state.status === ShardingStatuses.SHARD_KEY_CORRECT
-          ? ShardingStatuses.UNMANAGING_NAMESPACE
-          : ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
+      isUnmanagingNamespace: true,
     };
   }
 
@@ -617,13 +533,14 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceFinished
     ) &&
-    (state.status === ShardingStatuses.UNMANAGING_NAMESPACE ||
-      state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH)
+    (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
+      state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
   ) {
     return {
       ...state,
       managedNamespace: undefined,
       status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
+      isUnmanagingNamespace: undefined,
     };
   }
 
@@ -632,11 +549,13 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceErrored
     ) &&
-    state.status === ShardingStatuses.UNMANAGING_NAMESPACE
+    (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
+      state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
   ) {
     return {
       ...state,
       status: ShardingStatuses.SHARD_KEY_CORRECT,
+      isUnmanagingNamespace: undefined,
     };
   }
 

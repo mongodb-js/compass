@@ -10,7 +10,6 @@ import {
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
 import {
-  ShardingStatuses,
   unmanageNamespace,
   type RootState,
   type ShardKey,
@@ -104,8 +103,7 @@ export default connect(
       shardKey: state.shardKey,
       requestedShardKey:
         state.managedNamespace && getRequestedShardKey(state.managedNamespace),
-      isUnmanagingNamespace:
-        state.status === ShardingStatuses.UNMANAGING_NAMESPACE_MISMATCH,
+      isUnmanagingNamespace: !!state.isUnmanagingNamespace,
     };
   },
   {

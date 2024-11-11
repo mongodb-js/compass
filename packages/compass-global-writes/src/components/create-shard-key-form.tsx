@@ -21,7 +21,6 @@ import {
 import {
   createShardKey,
   type RootState,
-  ShardingStatuses,
   type CreateShardKeyData,
 } from '../store/reducer';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
@@ -317,19 +316,11 @@ export function CreateShardKeyForm({
 }
 
 export default connect(
-  (state: RootState) => {
-    return {
-      namespace: state.namespace,
-      isSubmittingForSharding: [
-        ShardingStatuses.SUBMITTING_FOR_SHARDING,
-        ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
-      ].includes(state.status),
-      isCancellingSharding: [
-        ShardingStatuses.CANCELLING_SHARDING,
-        ShardingStatuses.CANCELLING_SHARDING_ERROR,
-      ].includes(state.status),
-    };
-  },
+  (state: RootState) => ({
+    namespace: state.namespace,
+    isSubmittingForSharding: !!state.isSubmittingForSharding,
+    isCancellingSharding: !!state.isCancellingSharding,
+  }),
   {
     onCreateShardKey: createShardKey,
   }

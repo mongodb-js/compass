@@ -10,7 +10,6 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import {
-  ShardingStatuses,
   unmanageNamespace,
   type RootState,
   type ShardKey,
@@ -86,8 +85,7 @@ export default connect(
       namespace: state.namespace,
       shardKey: state.shardKey,
       shardZones: state.shardZones,
-      isUnmanagingNamespace:
-        state.status === ShardingStatuses.UNMANAGING_NAMESPACE,
+      isUnmanagingNamespace: !!state.isUnmanagingNamespace,
     };
   },
   {

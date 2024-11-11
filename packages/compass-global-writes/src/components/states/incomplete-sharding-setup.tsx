@@ -12,7 +12,6 @@ import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
 import {
   resumeManagedNamespace,
-  ShardingStatuses,
   type ShardZoneData,
   type RootState,
   type ShardKey,
@@ -92,8 +91,7 @@ export default connect(
       namespace: state.namespace,
       shardKey: state.shardKey,
       shardZones: state.shardZones,
-      isSubmittingForSharding:
-        state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_INCOMPLETE,
+      isSubmittingForSharding: !!state.isSubmittingForSharding,
     };
   },
   {

@@ -8,11 +8,7 @@ import {
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import {
-  cancelSharding,
-  type RootState,
-  ShardingStatuses,
-} from '../../store/reducer';
+import { cancelSharding, type RootState } from '../../store/reducer';
 import CreateShardKeyForm from '../create-shard-key-form';
 import { containerStyles, bannerStyles } from '../common-styles';
 
@@ -69,10 +65,8 @@ export default connect(
     }
     return {
       shardingError: state.shardingError,
-      isCancellingSharding:
-        state.status === ShardingStatuses.CANCELLING_SHARDING_ERROR,
-      isSubmittingForSharding:
-        state.status === ShardingStatuses.SUBMITTING_FOR_SHARDING_ERROR,
+      isCancellingSharding: !!state.isCancellingSharding,
+      isSubmittingForSharding: !!state.isSubmittingForSharding,
     };
   },
   {

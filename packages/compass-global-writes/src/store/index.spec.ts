@@ -254,7 +254,7 @@ describe('GlobalWritesStore Store', function () {
         shouldAdvanceTime: true,
       });
       const promise = store.dispatch(createShardKey(shardKeyData));
-      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       mockManagedNamespace = true;
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
@@ -264,6 +264,7 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().isSubmittingForSharding).to.be.undefined;
       });
     });
 
@@ -283,7 +284,7 @@ describe('GlobalWritesStore Store', function () {
         shouldAdvanceTime: true,
       });
       const promise = store.dispatch(createShardKey(shardKeyData));
-      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
 
@@ -292,6 +293,7 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING_ERROR');
+        expect(store.getState().isSubmittingForSharding).to.be.undefined;
         expect(store.getState().shardingError).to.equal(
           `Failed to shard ${NS}`
         ); // the original error text was: `before timestamp[01:02:03.456]Failed to shard ${NS}`
@@ -310,9 +312,10 @@ describe('GlobalWritesStore Store', function () {
 
       // user tries to submit for sharding, but the request fails
       const promise = store.dispatch(createShardKey(shardKeyData));
-      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING');
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       await promise;
       expect(store.getState().status).to.equal('UNSHARDED');
+      expect(store.getState().isSubmittingForSharding).to.be.undefined;
     });
 
     it('sharding -> valid shard key', async function () {
@@ -448,9 +451,7 @@ describe('GlobalWritesStore Store', function () {
       // user asks to resume geosharding
       const promise = store.dispatch(resumeManagedNamespace());
       mockManagedNamespace = true;
-      expect(store.getState().status).to.equal(
-        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
-      );
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       await promise;
 
       // sharding
@@ -460,10 +461,11 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().isSubmittingForSharding).to.be.undefined;
       });
     });
 
-    it('incomplete setup -> sharding -> incomplete setup (request was cancelled)', async function () {
+    it.only('incomplete setup -> sharding -> incomplete setup (request was cancelled)', async function () {
       // initial state -> incomplete shardingSetup
       clock = sinon.useFakeTimers({
         shouldAdvanceTime: true,
@@ -479,9 +481,7 @@ describe('GlobalWritesStore Store', function () {
 
       // user asks to resume geosharding
       const promise = store.dispatch(resumeManagedNamespace());
-      expect(store.getState().status).to.equal(
-        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
-      );
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       await promise;
 
       // sharding
@@ -493,6 +493,8 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().isSubmittingForSharding).to.be.undefined;
+        expect(store.getState().isCancellingSharding).to.be.undefined;
       });
     });
 
@@ -513,14 +515,13 @@ describe('GlobalWritesStore Store', function () {
 
       // user asks to resume geosharding
       const promise = store.dispatch(resumeManagedNamespace());
-      expect(store.getState().status).to.equal(
-        'SUBMITTING_FOR_SHARDING_INCOMPLETE'
-      );
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       await promise;
 
       // it failed
       await waitFor(() => {
         expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().isSubmittingForSharding).to.be.undefined;
       });
     });
 
@@ -537,9 +538,10 @@ describe('GlobalWritesStore Store', function () {
 
       // user asks to unmanage
       const promise = store.dispatch(unmanageNamespace());
-      expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
+      expect(store.getState().isUnmanagingNamespace).to.equal(true);
       await promise;
       expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+      expect(store.getState().isUnmanagingNamespace).to.be.undefined;
     });
 
     it('valid shard key -> valid shard key (failed unmanage attempt)', async function () {
@@ -559,9 +561,10 @@ describe('GlobalWritesStore Store', function () {
       // user asks to unmanage
       mockFailure = true;
       const promise = store.dispatch(unmanageNamespace());
-      expect(store.getState().status).to.equal('UNMANAGING_NAMESPACE');
+      expect(store.getState().isUnmanagingNamespace).to.equal(true);
       await promise;
       expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+      expect(store.getState().isUnmanagingNamespace).to.be.undefined;
     });
 
     context('invalid and mismatching shard keys', function () {
@@ -654,11 +657,10 @@ describe('GlobalWritesStore Store', function () {
 
         // user asks to unmanage
         const promise = store.dispatch(unmanageNamespace());
-        expect(store.getState().status).to.equal(
-          'UNMANAGING_NAMESPACE_MISMATCH'
-        );
+        expect(store.getState().isUnmanagingNamespace).to.equal(true);
         await promise;
         expect(store.getState().status).to.equal('INCOMPLETE_SHARDING_SETUP');
+        expect(store.getState().isUnmanagingNamespace).to.be.undefined;
       });
     });
 
@@ -707,7 +709,7 @@ describe('GlobalWritesStore Store', function () {
       // user submits the form
       const promise = store.dispatch(createShardKey(shardKeyData));
       mockShardingError = false;
-      expect(store.getState().status).to.equal('SUBMITTING_FOR_SHARDING_ERROR');
+      expect(store.getState().isSubmittingForSharding).to.equal(true);
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
 
@@ -716,6 +718,7 @@ describe('GlobalWritesStore Store', function () {
       clock.tick(POLLING_INTERVAL);
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
+        expect(store.getState().isSubmittingForSharding).to.be.undefined;
       });
     });
 

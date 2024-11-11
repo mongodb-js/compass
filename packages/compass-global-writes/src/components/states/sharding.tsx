@@ -10,11 +10,7 @@ import {
   SpinLoader,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import {
-  cancelSharding,
-  type RootState,
-  ShardingStatuses,
-} from '../../store/reducer';
+import { cancelSharding, type RootState } from '../../store/reducer';
 import { containerStyles, bannerStyles } from '../common-styles';
 
 const nbsp = '\u00a0';
@@ -65,7 +61,7 @@ export function ShardingState({
 
 export default connect(
   (state: RootState) => ({
-    isCancellingSharding: state.status === ShardingStatuses.CANCELLING_SHARDING,
+    isCancellingSharding: !!state.isCancellingSharding,
   }),
   {
     onCancelSharding: cancelSharding,
