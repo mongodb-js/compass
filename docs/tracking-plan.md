@@ -854,6 +854,10 @@ This event is fired when user successfully connects to a new server/cluster.
   - The OS family of the connected server.
 - **topology_type** (required): `string`
   - The type of connected topology.
+- **num_active_connections** (required): `number`
+  - The number of active connections.
+- **num_inactive_connections** (required): `number`
+  - The number of inactive connections.
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
