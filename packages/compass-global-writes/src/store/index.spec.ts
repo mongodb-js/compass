@@ -67,6 +67,34 @@ function createAuthFetchResponse<
   };
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+const expectPolling = async ({
+  spy,
+  clock,
+  interval,
+  reverse,
+}: {
+  spy: Sinon.SinonSpy;
+  clock: Sinon.SinonFakeTimers;
+  interval: number;
+  reverse?: boolean;
+}) => {
+  spy.resetHistory();
+  clock.tick(interval);
+  // leaving time for the poll to actually execute after the clock tick
+  await wait(1);
+  if (!reverse) {
+    expect(spy).to.have.been.called;
+  } else {
+    expect(spy).not.to.have.been.called;
+  }
+};
+
 function createStore({
   isNamespaceManaged = () => false,
   hasShardingError = () => false,
@@ -239,9 +267,10 @@ describe('GlobalWritesStore Store', function () {
     it('not managed -> sharding -> shard key correct', async function () {
       let mockShardKey = false;
       let mockManagedNamespace = false;
+      const hasShardKey = Sinon.fake(() => mockShardKey);
       // initial state === unsharded
       const store = createStore({
-        hasShardKey: Sinon.fake(() => mockShardKey),
+        hasShardKey,
         isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
       });
       await waitFor(() => {
@@ -261,13 +290,26 @@ describe('GlobalWritesStore Store', function () {
       await promise;
       expect(store.getState().status).to.equal('SHARDING');
 
-      // polling continues for a while
-      clock.tick(POLLING_INTERVAL);
-      clock.tick(POLLING_INTERVAL);
+      // empty polling for a while
+      await expectPolling({
+        clock,
+        interval: POLLING_INTERVAL,
+        spy: hasShardKey,
+      });
+      await expectPolling({
+        clock,
+        interval: POLLING_INTERVAL,
+        spy: hasShardKey,
+      });
 
       // sharding ends with a shardKey
       mockShardKey = true;
-      clock.tick(POLLING_INTERVAL);
+      await expectPolling({
+        clock,
+        interval: POLLING_INTERVAL,
+        spy: hasShardKey,
+      });
+
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARD_KEY_CORRECT');
         expect(store.getState().userActionInProgress).to.be.undefined;
@@ -400,15 +442,25 @@ describe('GlobalWritesStore Store', function () {
 
     it('sharding -> cancelling request -> not managed', async function () {
       let mockManagedNamespace = true;
+      const hasShardKey = Sinon.fake(() => false);
       confirmationStub.resolves(true);
       // initial state === sharding
+      clock = sinon.useFakeTimers({
+        shouldAdvanceTime: true,
+      });
       const store = createStore({
         isNamespaceManaged: Sinon.fake(() => mockManagedNamespace),
+        hasShardKey,
       });
       await waitFor(() => {
         expect(store.getState().status).to.equal('SHARDING');
-        expect(store.getState().pollingTimeout).not.to.be.undefined;
         expect(store.getState().managedNamespace).to.equal(managedNamespace);
+      });
+
+      await expectPolling({
+        clock,
+        interval: POLLING_INTERVAL,
+        spy: hasShardKey,
       });
 
       // user cancels the sharding request
@@ -416,8 +468,15 @@ describe('GlobalWritesStore Store', function () {
       mockManagedNamespace = false;
       await promise;
       expect(store.getState().status).to.equal('UNSHARDED');
-      expect(store.getState().pollingTimeout).to.be.undefined;
       expect(confirmationStub).to.have.been.called;
+
+      // is no longer polling
+      await expectPolling({
+        reverse: true,
+        clock,
+        interval: POLLING_INTERVAL,
+        spy: hasShardKey,
+      });
     });
 
     it('valid shard key', async function () {

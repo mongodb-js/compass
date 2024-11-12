@@ -20,6 +20,9 @@ type GlobalWritesExtraArgs = {
   track: TrackFunction;
   connectionInfoRef: ConnectionInfoRef;
   atlasGlobalWritesService: AtlasGlobalWritesService;
+  pollingTimeoutRef: {
+    current: ReturnType<typeof setTimeout> | null;
+  };
 };
 
 export type GlobalWritesThunkAction<R, A extends Action> = ThunkAction<
@@ -60,6 +63,9 @@ export function activateGlobalWritesPlugin(
     atlasService,
     connectionInfoRef
   );
+  const pollingTimeoutRef = {
+    current: null,
+  };
   const store: GlobalWritesStore = createStore(
     reducer,
     {
@@ -73,6 +79,7 @@ export function activateGlobalWritesPlugin(
         track,
         connectionInfoRef,
         atlasGlobalWritesService,
+        pollingTimeoutRef,
       })
     )
   );
