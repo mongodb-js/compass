@@ -103,6 +103,10 @@ export function MultipleConnectionSidebar({
     useState<RegExp | null>(null);
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
+  const [excludeInactive, setExcludeInactiveConnections] = useState(false);
+  const toggleExcludeInactiveConnections = useCallback(() => {
+    setExcludeInactiveConnections((previous) => !previous);
+  }, []);
 
   const formPreferences = useConnectionFormPreferences();
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
@@ -204,7 +208,9 @@ export function MultipleConnectionSidebar({
           connectionsWithStatus={connectionsWithStatus}
           activeWorkspace={activeWorkspace}
           filterRegex={activeConnectionsFilterRegex}
+          excludeInactive={excludeInactive}
           onFilterChange={onActiveConnectionFilterChange}
+          onToggleExcludeInactive={toggleExcludeInactiveConnections}
           onConnect={(connectionInfo) => {
             void connect(connectionInfo);
           }}

@@ -357,6 +357,36 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.getByText('Remove')).to.be.visible;
         });
 
+        it('should render the only connected connections when toggled', async () => {
+          await renderAndWaitForNavigationTree();
+
+          const favoriteConnectionId = savedFavoriteConnection.id;
+          const recentConnectionId = savedRecentConnection.id;
+
+          const activeConnectionsToggleButton = screen.getByLabelText(
+            'Showing all connections'
+          );
+
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
+
+          userEvent.click(activeConnectionsToggleButton);
+          expect(activeConnectionsToggleButton.ariaLabel).equals(
+            'Showing active connections'
+          );
+
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.null;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.null;
+
+          await connectAndNotifyInstanceManager(savedFavoriteConnection);
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.null;
+
+          await connectAndNotifyInstanceManager(savedRecentConnection);
+          expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
+          expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
+        });
+
         context('and performing actions', function () {
           beforeEach(async function () {
             await renderAndWaitForNavigationTree({
