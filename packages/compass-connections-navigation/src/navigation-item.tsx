@@ -251,6 +251,9 @@ export function NavigationItem({
           isActive={isActive}
           isFocused={isFocused}
           isExpanded={!!item.isExpanded}
+          hasDefaultAction={
+            item.type !== 'connection' || item.connectionStatus === 'connected'
+          }
           icon={itemIcon}
           name={item.name}
           style={style}

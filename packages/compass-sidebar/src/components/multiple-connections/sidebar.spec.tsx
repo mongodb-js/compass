@@ -460,18 +460,15 @@ describe('Multiple Connections Sidebar Component', function () {
             expect(connectionsStoreActions.disconnect).to.have.been.called;
           });
 
-          it('should connect when the user tries to expand an inactive connection', async function () {
+          it('should not connect when the user tries to expand an inactive connection', function () {
             const connectionItem = screen.getByTestId(savedRecentConnection.id);
 
             userEvent.click(
               within(connectionItem).getByLabelText('Caret Right Icon')
             );
-
-            await waitFor(() => {
-              expect(connectionsStoreActions.connect).to.be.calledWith(
-                savedRecentConnection
-              );
-            });
+            expect(connectionsStoreActions.connect).to.not.be.calledWith(
+              savedRecentConnection
+            );
           });
 
           it('should open edit connection modal when clicked on edit connection action', function () {
