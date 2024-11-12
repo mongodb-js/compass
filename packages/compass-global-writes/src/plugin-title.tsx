@@ -55,7 +55,7 @@ export const PluginTitle = ({
               }}
             >
               <Icon
-                glyph={showWarning ? 'Warning' : 'ImportantWithCircle'}
+                glyph={showError ? 'Warning' : 'ImportantWithCircle'}
                 aria-label="warning"
                 className={cx(
                   warningIconStyles,
