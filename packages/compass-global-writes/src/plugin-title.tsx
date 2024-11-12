@@ -22,12 +22,20 @@ const warningIconStyles = css({
   display: 'flex',
 });
 
-const iconStylesLight = css({
+const warningIconStylesLight = css({
   color: palette.yellow.dark2,
 });
 
-const iconStylesDark = css({
+const warningIconStylesDark = css({
   color: palette.yellow.base,
+});
+
+const importantIconStylesLight = css({
+  color: palette.red.dark2,
+});
+
+const importantIconStylesDark = css({
+  color: palette.red.base,
 });
 
 export const PluginTitle = ({
@@ -56,11 +64,14 @@ export const PluginTitle = ({
             >
               <Icon
                 glyph={showError ? 'Warning' : 'ImportantWithCircle'}
-                aria-label="warning"
+                aria-label={showError ? 'warning' : 'important'}
                 className={cx(
                   warningIconStyles,
-                  iconStylesLight,
-                  darkMode && iconStylesDark
+                  showError ? warningIconStylesLight : importantIconStylesLight,
+                  darkMode &&
+                    (showError
+                      ? warningIconStylesDark
+                      : importantIconStylesDark)
                 )}
               />
             </span>
