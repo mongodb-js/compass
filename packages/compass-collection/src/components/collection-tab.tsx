@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
+import toNS from 'mongodb-ns';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
   useCollectionQueryBar,
@@ -121,7 +122,7 @@ function useCollectionTabs(props: CollectionMetadata) {
   const isGlobalWritesSupported =
     useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
     !props.isReadonly &&
-    !['config', 'local', 'admin'].includes(props.namespace.split('.')[0]);
+    !toNS(props.namespace).specialish;
   return pluginTabs
     .filter((x) => {
       if (x.name === 'GlobalWrites' && !isGlobalWritesSupported) {
