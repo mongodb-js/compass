@@ -134,5 +134,8 @@
     "vm-browserify": "^1.1.2",
     "whatwg-url": "^13.0.0",
     "ws": "^8.16.0"
+  },
+  "dependencies": {
+    "express-rate-limit": "^7.4.1"
   }
 }
