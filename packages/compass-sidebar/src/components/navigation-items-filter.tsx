@@ -12,6 +12,10 @@ const filterContainerStyles = css({
   paddingRight: spacing[400],
 });
 
+const textInputStyles = css({
+  flexGrow: 1,
+});
+
 function createRegExp(input: string) {
   try {
     return input ? new RegExp(input, 'i') : null;
@@ -26,7 +30,6 @@ export default function NavigationItemsFilter({
   title = 'Search',
   filter,
   onFilterChange,
-  className,
 }: {
   placeholder?: string;
   ariaLabel?: string;
@@ -35,7 +38,6 @@ export default function NavigationItemsFilter({
   onFilterChange(
     updater: (filter: ConnectionsFilter) => ConnectionsFilter
   ): void;
-  className?: string;
 }): React.ReactElement {
   const onChange = useCallback<React.ChangeEventHandler<HTMLInputElement>>(
     (event) => {
@@ -55,23 +57,22 @@ export default function NavigationItemsFilter({
   }, []);
 
   return (
-    <div className={filterContainerStyles}>
-      <form noValidate className={className} onSubmit={onSubmit}>
-        <TextInput
-          data-testid="sidebar-filter-input"
-          placeholder={placeholder}
-          type="search"
-          aria-label={ariaLabel}
-          title={title}
-          onChange={onChange}
-        />
-      </form>
+    <form noValidate className={filterContainerStyles} onSubmit={onSubmit}>
+      <TextInput
+        data-testid="sidebar-filter-input"
+        placeholder={placeholder}
+        type="search"
+        aria-label={ariaLabel}
+        title={title}
+        onChange={onChange}
+        className={textInputStyles}
+      />
       <ConnectionsFilterPopover
         open={isPopoverOpen}
         setOpen={setPopoverOpen}
         filter={filter}
         onFilterChange={onFilterChange}
       />
-    </div>
+    </form>
   );
 }

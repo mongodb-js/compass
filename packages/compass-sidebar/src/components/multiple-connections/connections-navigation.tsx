@@ -83,10 +83,6 @@ const connectionCountStyles = css({
   marginLeft: spacing[100],
 });
 
-const searchFormStyles = css({
-  flexGrow: 1,
-});
-
 const noDeploymentStyles = css({
   paddingLeft: spacing[400],
   paddingRight: spacing[400],
@@ -507,7 +503,6 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {connections.length > 0 && (
         <>
           <NavigationItemsFilter
-            className={searchFormStyles}
             placeholder="Search connections"
             filter={filter}
             onFilterChange={onFilterChange}
