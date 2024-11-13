@@ -1,14 +1,7 @@
-import React, { useCallback } from 'react';
-import {
-  ConnectedPlugsIcon,
-  css,
-  DisconnectedPlugIcon,
-  IconButton,
-  spacing,
-  TextInput,
-  Tooltip,
-} from '@mongodb-js/compass-components';
+import React, { useCallback, useState } from 'react';
+import { css, spacing, TextInput } from '@mongodb-js/compass-components';
 import type { ConnectionsFilter } from './use-filtered-connections';
+import ConnectionsFilterPopover from './connections-filter-popover';
 
 const filterContainerStyles = css({
   display: 'flex',
@@ -54,12 +47,7 @@ export default function NavigationItemsFilter({
     [onFilterChange]
   );
 
-  const toggleExcludeInactive = useCallback(() => {
-    onFilterChange((filter) => ({
-      ...filter,
-      excludeInactive: !filter.excludeInactive,
-    }));
-  }, [onFilterChange]);
+  const [isPopoverOpen, setPopoverOpen] = useState(false);
 
   const onSubmit = useCallback((evt) => {
     evt.preventDefault();
@@ -78,30 +66,12 @@ export default function NavigationItemsFilter({
           onChange={onChange}
         />
       </form>
-      <Tooltip
-        justify="middle"
-        trigger={
-          <IconButton
-            onClick={toggleExcludeInactive}
-            active={filter.excludeInactive}
-            aria-label={
-              filter.excludeInactive
-                ? 'Showing active connections'
-                : 'Showing all connections'
-            }
-          >
-            {filter.excludeInactive ? (
-              <ConnectedPlugsIcon />
-            ) : (
-              <DisconnectedPlugIcon />
-            )}
-          </IconButton>
-        }
-      >
-        {filter.excludeInactive
-          ? 'Showing active connections'
-          : 'Showing all connections'}
-      </Tooltip>
+      <ConnectionsFilterPopover
+        open={isPopoverOpen}
+        setOpen={setPopoverOpen}
+        filter={filter}
+        onFilterChange={onFilterChange}
+      />
     </div>
   );
 }
