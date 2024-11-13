@@ -457,7 +457,7 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    // TODO(COMPASS-XXXX): Add `linux` back to this list
+    // TODO(COMPASS-8505): Add `linux` back to this list
     ['win32'].forEach((platform) => {
       // TODO(COMPASS-7906): remove
       it.skip(`[single-connection] should generate a menu template for ${platform}`, function () {
@@ -589,7 +589,7 @@ describe('CompassMenu', function () {
       });
     });
 
-    // TODO(COMPASS-XXXX): Remove this test
+    // TODO(COMPASS-8505): Remove this test
     it('should generate a menu template for linux', async function () {
       await App.preferences.savePreferences({
         enableMultipleConnectionSystem: true,

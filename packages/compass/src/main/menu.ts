@@ -712,7 +712,7 @@ class CompassMenu {
       return darwinMenu(menuState, this.app);
     }
     const menu = nonDarwinMenu(menuState, this.app);
-    // TODO(COMPASS-XXXX): Remove this check once accelerator issue is resolve for linux.
+    // TODO(COMPASS-8505): Remove this check once accelerator issue is resolve for linux.
     if (os.platform() === 'linux') {
       return removeAcceleratorFromMenu(menu);
     }
