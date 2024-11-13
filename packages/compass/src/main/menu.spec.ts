@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter, { once } from 'events';
 import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
@@ -651,6 +651,25 @@ describe('CompassMenu', function () {
           ],
         },
       ]);
+    });
+
+    it('does not crash when rendering menu item with an accelerator', async () => {
+      const menu = Menu.buildFromTemplate([
+        {
+          label: 'Test Super',
+          accelerator: 'Super+Ctrl+T',
+        },
+        {
+          label: 'Test Meta',
+          accelerator: 'Meta+Ctrl+T',
+        },
+      ]);
+      const menuWillClose = once(menu, 'menu-will-close');
+      menu.popup({
+        window: new BrowserWindow({ show: false, width: 100, height: 100 }),
+      });
+      menu.closePopup();
+      await menuWillClose;
     });
 
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {
