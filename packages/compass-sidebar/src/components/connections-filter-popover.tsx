@@ -23,12 +23,6 @@ const containerStyles = css({
   minWidth: 270,
 });
 
-const closeButtonStyles = css({
-  // An alternative to this is to pass hideCloseButton to InteractivePopover,
-  // but that throws an error when the popover is opened
-  display: 'none',
-});
-
 const activatedIndicatorStyles = css({
   position: 'absolute',
   top: spacing[50],
@@ -78,8 +72,8 @@ export default function ConnectionsFilterPopover({
       open={open}
       setOpen={setOpen}
       blurTriggerOnClose
-      closeButtonClassName={closeButtonStyles}
       containerClassName={containerStyles}
+      hideCloseButton
       trigger={({ onClick, children, ref }) => (
         <>
           <Tooltip
