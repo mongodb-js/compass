@@ -43,7 +43,7 @@ export const enum AtlasSignInActions {
   Success = 'compass-generative-ai/atlas-signin/AtlasSignInSuccess',
   Error = 'compass-generative-ai/atlas-signin/AtlasSignInError',
   Cancel = 'compass-generative-ai/atlas-signin/AtlasSignInCancel',
-  TokenRefreshFailed = 'compass-generative-ai/atlas-signin/TokenRefreshFailed',
+  SignInTokenRefreshFailed = 'compass-generative-ai/atlas-signin/SignInTokenRefreshFailed',
   SignedOut = 'compass-generative-ai/atlas-signin/SignedOut',
 }
 
@@ -79,7 +79,7 @@ export type AtlasSignInErrorAction = {
 };
 
 export type AtlasSignInTokenRefreshFailedAction = {
-  type: AtlasSignInActions.TokenRefreshFailed;
+  type: AtlasSignInActions.SignInTokenRefreshFailed;
 };
 
 export type AtlasSignInSignedOutAction = {
@@ -129,7 +129,7 @@ export function getAttempt(id?: number | null): AttemptState {
   return attemptState;
 }
 
-const reducer: Reducer<AtlasSignInState, Action> = (
+const signInReducer: Reducer<AtlasSignInState, Action> = (
   state = { ...INITIAL_STATE },
   action
 ) => {
@@ -201,7 +201,7 @@ const reducer: Reducer<AtlasSignInState, Action> = (
   if (
     isAction<AtlasSignInTokenRefreshFailedAction>(
       action,
-      AtlasSignInActions.TokenRefreshFailed
+      AtlasSignInActions.SignInTokenRefreshFailed
     )
   ) {
     // Only reset state on refresh failed when we are currently successfully
@@ -342,8 +342,8 @@ export const cancelSignIn = (
   };
 };
 
-export const atlasServiceTokenRefreshFailed = () => ({
-  type: AtlasSignInActions.TokenRefreshFailed,
+export const atlasServiceSignInTokenRefreshFailed = () => ({
+  type: AtlasSignInActions.SignInTokenRefreshFailed,
 });
 
 export const atlasServiceSignedOut = () => ({
@@ -354,4 +354,4 @@ export const atlasServiceSignedIn = () => ({
   type: AtlasSignInActions.Success,
 });
 
-export default reducer;
+export default signInReducer;

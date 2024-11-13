@@ -30,6 +30,7 @@ import { CompassSchemaPlugin } from '@mongodb-js/compass-schema';
 import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
+import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
@@ -268,11 +269,11 @@ const CompassWeb = ({
       enableAggregationBuilderRunPipeline: true,
       enableAggregationBuilderExtraOptions: true,
       enableImportExport: false,
-      enableGenAIFeatures: false,
+      enableGenAIFeatures: true,
       enableMultipleConnectionSystem: true,
       enablePerformanceAdvisorBanner: true,
       cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
+        GEN_AI_COMPASS: true,
       },
       maximumNumberOfActiveConnections: 10,
       trackUsageStatistics: true,
@@ -366,7 +367,8 @@ const CompassWeb = ({
                                 onActiveWorkspaceTabChange
                               }
                               onOpenConnectViaModal={onOpenConnectViaModal}
-                            />
+                            ></CompassWorkspace>
+                            <CompassGenerativeAIPlugin />
                           </WithConnectionsStore>
                         </FieldStorePlugin>
                       </CompassInstanceStorePlugin>

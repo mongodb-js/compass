@@ -1,12 +1,14 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, {
+import signInReducer, {
   atlasServiceSignedOut,
   atlasServiceSignedIn,
-  atlasServiceTokenRefreshFailed,
+  //atlasServiceSignInTokenRefreshFailed,
 } from './atlas-signin-reducer';
+import optInReducer, {/*atlasAiServiceOptedIn,*/ atlasServiceOptInTokenRefreshFailed } from './atlas-optin-reducer';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
+import type { AtlasAiService } from '../atlas-ai-service';
 
 let store: CompassGenerativeAIServiceStore;
 export function getStore() {
@@ -15,9 +17,14 @@ export function getStore() {
   }
   return store;
 }
+const reducer = combineReducers({
+  signInReducer,
+  optInReducer
+});
 
 export type CompassGenerativeAIPluginServices = {
   atlasAuthService: AtlasAuthService;
+  atlasAiService: AtlasAiService
 };
 export function activatePlugin(
   _: Record<string, never>,
@@ -25,7 +32,7 @@ export function activatePlugin(
   { cleanup }: ActivateHelpers
 ) {
   store = configureStore(services);
-
+  console.log(services.atlasAiService)
   services.atlasAuthService.on('signed-in', () => {
     void store.dispatch(atlasServiceSignedIn());
   });
@@ -35,18 +42,17 @@ export function activatePlugin(
   });
 
   services.atlasAuthService.on('token-refresh-failed', () => {
-    void store.dispatch(atlasServiceTokenRefreshFailed());
+    void store.dispatch(atlasServiceOptInTokenRefreshFailed());
   });
-
   return { store, deactivate: cleanup };
 }
 
 export function configureStore({
-  atlasAuthService,
+  atlasAuthService, atlasAiService
 }: CompassGenerativeAIPluginServices) {
   const store = createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ atlasAuthService }))
+    applyMiddleware(thunk.withExtraArgument({ atlasAuthService, atlasAiService }))
   );
   return store;
 }
