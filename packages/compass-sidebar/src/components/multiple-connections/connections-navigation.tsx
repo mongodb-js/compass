@@ -12,10 +12,6 @@ import {
   Button,
   Icon,
   ButtonVariant,
-  IconButton,
-  ConnectedPlugsIcon,
-  DisconnectedPlugIcon,
-  Tooltip,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -46,7 +42,10 @@ import {
   fetchAllCollections,
   type Database,
 } from '../../modules/databases';
-import { useFilteredConnections } from '../use-filtered-connections';
+import {
+  type ConnectionsFilter,
+  useFilteredConnections,
+} from '../use-filtered-connections';
 import NavigationItemsFilter from '../navigation-items-filter';
 import {
   type ConnectionImportExportAction,
@@ -84,15 +83,6 @@ const connectionCountStyles = css({
   marginLeft: spacing[100],
 });
 
-const filterContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing[200],
-  paddingLeft: spacing[400],
-  paddingRight: spacing[400],
-});
-
 const searchFormStyles = css({
   flexGrow: 1,
 });
@@ -123,10 +113,10 @@ type ConnectionListTitleActions =
 type ConnectionsNavigationComponentProps = {
   connectionsWithStatus: ReturnType<typeof useConnectionsWithStatus>;
   activeWorkspace: WorkspaceTab | null;
-  filterRegex: RegExp | null;
-  excludeInactive: boolean;
-  onFilterChange(regex: RegExp | null): void;
-  onToggleExcludeInactive(): void;
+  filter: ConnectionsFilter;
+  onFilterChange(
+    updater: (filter: ConnectionsFilter) => ConnectionsFilter
+  ): void;
   onConnect(info: ConnectionInfo): void;
   onNewConnection(): void;
   onEditConnection(info: ConnectionInfo): void;
@@ -167,13 +157,11 @@ type ConnectionsNavigationProps = ConnectionsNavigationComponentProps &
 const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   connectionsWithStatus,
   activeWorkspace,
-  filterRegex,
-  excludeInactive,
+  filter,
   instances,
   databases,
   isPerformanceTabSupported,
   onFilterChange,
-  onToggleExcludeInactive,
   onConnect,
   onNewConnection,
   onEditConnection,
@@ -270,10 +258,9 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     onDatabaseToggle,
   } = useFilteredConnections({
     connections,
-    filterRegex,
+    filter,
     fetchAllCollections,
     onDatabaseExpand,
-    excludeInactive,
   });
 
   const connectionListTitleActions =
@@ -519,37 +506,12 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       </div>
       {connections.length > 0 && (
         <>
-          <div className={filterContainerStyles}>
-            <NavigationItemsFilter
-              className={searchFormStyles}
-              placeholder="Search connections"
-              onFilterChange={onFilterChange}
-            />
-            <Tooltip
-              justify="middle"
-              trigger={
-                <IconButton
-                  onClick={onToggleExcludeInactive}
-                  active={excludeInactive}
-                  aria-label={
-                    excludeInactive
-                      ? 'Showing active connections'
-                      : 'Showing all connections'
-                  }
-                >
-                  {excludeInactive ? (
-                    <ConnectedPlugsIcon />
-                  ) : (
-                    <DisconnectedPlugIcon />
-                  )}
-                </IconButton>
-              }
-            >
-              {excludeInactive
-                ? 'Showing active connections'
-                : 'Showing all connections'}
-            </Tooltip>
-          </div>
+          <NavigationItemsFilter
+            className={searchFormStyles}
+            placeholder="Search connections"
+            filter={filter}
+            onFilterChange={onFilterChange}
+          />
           <ConnectionsNavigationTree
             connections={filtered || connections}
             activeWorkspace={activeWorkspace}

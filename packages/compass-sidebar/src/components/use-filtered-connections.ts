@@ -388,16 +388,19 @@ function filteredConnectionsToSidebarConnection(
   return sidebarConnections;
 }
 
+export type ConnectionsFilter = {
+  regex: RegExp | null;
+  excludeInactive: boolean;
+};
+
 export const useFilteredConnections = ({
   connections,
-  filterRegex,
-  excludeInactive,
+  filter,
   fetchAllCollections,
   onDatabaseExpand,
 }: {
   connections: SidebarConnection[];
-  filterRegex: RegExp | null;
-  excludeInactive: boolean;
+  filter: ConnectionsFilter;
   fetchAllCollections: () => void;
   onDatabaseExpand: (connectionId: string, databaseId: string) => void;
 }): UseFilteredConnectionsHookResult => {
@@ -423,9 +426,9 @@ export const useFilteredConnections = ({
   // connections change often, but the effect only uses connections if the filter is active
   // so we use this conditional dependency to avoid too many calls
   const connectionsWhenFiltering =
-    (filterRegex || excludeInactive) && connections;
+    (filter.regex || filter.excludeInactive) && connections;
   useEffect(() => {
-    if (!filterRegex && !excludeInactive) {
+    if (!filter.regex && !filter.excludeInactive) {
       dispatch({ type: CLEAR_FILTER });
     } else if (connectionsWhenFiltering) {
       // the above check is extra just to please TS
@@ -438,13 +441,13 @@ export const useFilteredConnections = ({
       dispatch({
         type: FILTER_CONNECTIONS,
         connections: connectionsWhenFiltering,
-        filterRegex,
-        excludeInactive,
+        filterRegex: filter.regex,
+        excludeInactive: filter.excludeInactive,
       });
     }
   }, [
-    filterRegex,
-    excludeInactive,
+    filter.regex,
+    filter.excludeInactive,
     connectionsWhenFiltering,
     fetchAllCollections,
   ]);
