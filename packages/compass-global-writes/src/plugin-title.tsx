@@ -38,6 +38,34 @@ const importantIconStylesDark = css({
   color: palette.red.base,
 });
 
+const ErrorIcon = ({ darkMode }: { darkMode: boolean }) => {
+  return (
+    <Icon
+      glyph="Warning"
+      aria-label="warning"
+      className={cx(
+        warningIconStyles,
+        warningIconStylesLight,
+        darkMode && warningIconStylesDark
+      )}
+    />
+  );
+};
+
+const WarningIcon = ({ darkMode }: { darkMode: boolean }) => {
+  return (
+    <Icon
+      glyph="ImportantWithCircle"
+      aria-label="important"
+      className={cx(
+        warningIconStyles,
+        importantIconStylesLight,
+        darkMode && importantIconStylesDark
+      )}
+    />
+  );
+};
+
 export const PluginTitle = ({
   showError,
   showWarning,
@@ -62,18 +90,11 @@ export const PluginTitle = ({
                 // so we add noop onClick and let it bubble up.
               }}
             >
-              <Icon
-                glyph={showError ? 'Warning' : 'ImportantWithCircle'}
-                aria-label={showError ? 'warning' : 'important'}
-                className={cx(
-                  warningIconStyles,
-                  showError ? warningIconStylesLight : importantIconStylesLight,
-                  darkMode &&
-                    (showError
-                      ? warningIconStylesDark
-                      : importantIconStylesDark)
-                )}
-              />
+              {showError ? (
+                <ErrorIcon darkMode={darkMode} />
+              ) : (
+                <WarningIcon darkMode={darkMode} />
+              )}
             </span>
           }
         >
