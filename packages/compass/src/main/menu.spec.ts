@@ -3,6 +3,7 @@ import type { MenuItemConstructorOptions } from 'electron';
 import { BrowserWindow, ipcMain, Menu, app, dialog } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import os from 'os';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';
@@ -696,7 +697,12 @@ describe('CompassMenu', function () {
         label: '&Collection',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
+            // TODO(COMPASS-8505): Add `accelerator` back to this
+            ...(os.platform() === 'linux'
+              ? {}
+              : {
+                  accelerator: 'Alt+CmdOrCtrl+S',
+                }),
             label: '&Share Schema as JSON',
           },
           {
@@ -730,7 +736,12 @@ describe('CompassMenu', function () {
         label: '&Collection',
         submenu: [
           {
-            accelerator: 'Alt+CmdOrCtrl+S',
+            // TODO(COMPASS-8505): Add `accelerator` back to this
+            ...(os.platform() === 'linux'
+              ? {}
+              : {
+                  accelerator: 'Alt+CmdOrCtrl+S',
+                }),
             label: '&Share Schema as JSON',
           },
           {
@@ -754,7 +765,12 @@ describe('CompassMenu', function () {
       expect(
         menu.find((item: any) => item.label === '&Toggle DevTools')
       ).to.deep.eq({
-        accelerator: 'Alt+CmdOrCtrl+I',
+        // TODO(COMPASS-8505): Add `accelerator` back to this
+        ...(os.platform() === 'linux'
+          ? {}
+          : {
+              accelerator: 'Alt+CmdOrCtrl+I',
+            }),
         label: '&Toggle DevTools',
       });
     });
