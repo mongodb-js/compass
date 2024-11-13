@@ -61,8 +61,8 @@ export default function ConnectionsFilterPopover({
     [onFilterChange]
   );
 
-  const excludeInactiveToggleId = useId('exclude-inactive-toggle');
-  const excludeInactiveLabelId = useId('exclude-inactive-label');
+  const excludeInactiveToggleId = useId();
+  const excludeInactiveLabelId = useId();
 
   // Add future filters to the boolean below
   const isActivated = filter.excludeInactive;
