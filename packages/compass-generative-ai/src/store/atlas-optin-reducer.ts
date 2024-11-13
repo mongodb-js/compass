@@ -223,7 +223,7 @@ export const optIntoGenAIWithModalPrompt = ({
   Promise<void>
 > => {
   return (dispatch, getState, { preferences }) => {
-    // Nothing to do if we already signed in.
+    // Nothing to do if we already opted in.
     const { state } = getState();
     if (
       state === 'optin-success' ||
