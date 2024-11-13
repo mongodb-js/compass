@@ -5,10 +5,13 @@ import signInReducer, {
   atlasServiceSignedIn,
   //atlasServiceSignInTokenRefreshFailed,
 } from './atlas-signin-reducer';
-import optInReducer, {/*atlasAiServiceOptedIn,*/ atlasServiceOptInTokenRefreshFailed } from './atlas-optin-reducer';
+import optInReducer, {
+  atlasServiceSignInTokenRefreshFailed,
+} from './atlas-signin-reducer';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { AtlasAiService } from '../atlas-ai-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 let store: CompassGenerativeAIServiceStore;
 export function getStore() {
@@ -19,12 +22,12 @@ export function getStore() {
 }
 const reducer = combineReducers({
   signInReducer,
-  optInReducer
+  optInReducer,
 });
 
 export type CompassGenerativeAIPluginServices = {
   atlasAuthService: AtlasAuthService;
-  atlasAiService: AtlasAiService
+  atlasAiService: AtlasAiService;
 };
 export function activatePlugin(
   _: Record<string, never>,
@@ -32,7 +35,6 @@ export function activatePlugin(
   { cleanup }: ActivateHelpers
 ) {
   store = configureStore(services);
-  console.log(services.atlasAiService)
   services.atlasAuthService.on('signed-in', () => {
     void store.dispatch(atlasServiceSignedIn());
   });
@@ -42,19 +44,27 @@ export function activatePlugin(
   });
 
   services.atlasAuthService.on('token-refresh-failed', () => {
-    void store.dispatch(atlasServiceOptInTokenRefreshFailed());
+    void store.dispatch(atlasServiceSignInTokenRefreshFailed());
   });
   return { store, deactivate: cleanup };
 }
 
 export function configureStore({
-  atlasAuthService, atlasAiService
+  atlasAuthService,
+  atlasAiService,
 }: CompassGenerativeAIPluginServices) {
   const store = createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ atlasAuthService, atlasAiService }))
+    applyMiddleware(
+      thunk.withExtraArgument({ atlasAuthService, atlasAiService })
+    )
   );
   return store;
 }
+
+export type GenAIAtlasExtraArgs = {
+  preferences: PreferencesAccess;
+  atlasAiService: AtlasAiService;
+};
 
 export type CompassGenerativeAIServiceStore = ReturnType<typeof configureStore>;

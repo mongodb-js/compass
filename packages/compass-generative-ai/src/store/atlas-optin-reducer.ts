@@ -1,6 +1,6 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import type { AtlasAiService } from '../atlas-ai-service';
+import type { GenAIAtlasExtraArgs } from './atlas-ai-store';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 
 function isAction<A extends AnyAction>(
@@ -28,7 +28,7 @@ export type AtlasOptInState = {
 export type GenAIAtlasOptInThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, AtlasOptInState, { atlasAiService: AtlasAiService }, A>;
+> = ThunkAction<R, AtlasOptInState, GenAIAtlasExtraArgs, A>;
 
 export const enum AtlasOptInActions {
   OpenOptInModal = 'compass-generative-ai/atlas-optin/OpenOptInModal',
@@ -39,7 +39,6 @@ export const enum AtlasOptInActions {
   OptInSuccess = 'compass-generative-ai/atlas-optin/AtlasOptInSuccess',
   Error = 'compass-generative-ai/atlas-optin/AtlasOptInError',
   Cancel = 'compass-generative-ai/atlas-optin/AtlasOptInCancel',
-  OptInTokenRefreshFailed = 'compass-generative-ai/atlas-optin/OptInTokenRefreshFailed',
 }
 
 export type AtlasOptInOpenModalAction = {
@@ -74,10 +73,6 @@ export type AtlasOptInErrorAction = {
 };
 
 export type AtlasOptInCancelAction = { type: AtlasOptInActions.Cancel };
-
-export type AtlasOptInTokenRefreshFailedAction = {
-  type: AtlasOptInActions.OptInTokenRefreshFailed;
-};
 
 const INITIAL_STATE = {
   state: 'initial' as const,
@@ -191,22 +186,6 @@ const optInReducer: Reducer<AtlasOptInState, Action> = (
     return { ...state, isModalOpen: false };
   }
 
-  if (
-    isAction<AtlasOptInTokenRefreshFailedAction>(
-      action,
-      AtlasOptInActions.OptInTokenRefreshFailed
-    )
-  ) {
-    // Only reset state on refresh failed when we are currently successfully
-    // signed in. All other cases mean that either there is a sign in already
-    // in progress or something else already failed: no need to update either
-    // way
-    if (state.state !== 'optin-success') {
-      return state;
-    }
-    return { ...INITIAL_STATE, state: 'error' };
-  }
-
   return state;
 };
 
@@ -243,10 +222,13 @@ export const optIntoGenAIWithModalPrompt = ({
 }: { signal?: AbortSignal } = {}): GenAIAtlasOptInThunkAction<
   Promise<void>
 > => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { preferences }) => {
     // Nothing to do if we already signed in.
     const { state } = getState();
-    if (state === 'optin-success') {
+    if (
+      state === 'optin-success' ||
+      preferences.getPreferences().optInDataExplorerGenAIFeatures
+    ) {
       return Promise.resolve();
     }
     const attempt = dispatch(
@@ -278,8 +260,6 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
 
     try {
       throwIfAborted(signal);
-      //if pref set to false then call an opt in function
-      console.log(atlasAiService);
       await atlasAiService.optIntoGenAIFeaturesAtlas();
       dispatch(atlasAiServiceOptedIn());
       resolve();
@@ -322,10 +302,6 @@ export const cancelOptIn = (reason?: any): GenAIAtlasOptInThunkAction<void> => {
     dispatch({ type: AtlasOptInActions.Cancel });
   };
 };
-
-export const atlasServiceOptInTokenRefreshFailed = () => ({
-  type: AtlasOptInActions.OptInTokenRefreshFailed,
-});
 
 export const atlasAiServiceOptedIn = () => ({
   type: AtlasOptInActions.OptInSuccess,

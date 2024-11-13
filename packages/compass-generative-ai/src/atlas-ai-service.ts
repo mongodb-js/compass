@@ -461,7 +461,7 @@ export class AtlasAiService {
     );
     if (res.ok) {
       await this.preferences.savePreferences({
-        enableGenAIFeatures: true,
+        optInDataExplorerGenAIFeatures: true,
       });
     }
   }

@@ -18,10 +18,10 @@ import {
 const GEN_AI_FAQ_LINK = 'https://www.mongodb.com/docs/generative-ai-faq/';
 
 type OptInModalProps = {
-  isOptInModalVisible?: boolean;
-  isOptInInProgress?: boolean;
-  onOptInModalClose?: () => void;
-  onOptInClick?: () => void;
+  isOptInModalVisible: boolean;
+  isOptInInProgress: boolean;
+  onOptInModalClose: () => void;
+  onOptInClick: () => void;
 };
 
 const titleStyles = css({
@@ -73,13 +73,12 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
         }
         onOptInClick?.();
       }}
-      linkText="Back to Classic Mode"
+      linkText="Cancel"
       onLinkClick={onOptInModalClose}
     >
       <Body>
         Atlas users can now quickly create queries and aggregations with
-        MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today in
-        Compass.
+        MongoDB&apos;s&nbsp; intelligent AI-powered feature, available today.
       </Body>
     </MarketingModal>
   );
