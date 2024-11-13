@@ -67,7 +67,8 @@ export default function ConnectionsFilterPopover({
     [onFilterChange]
   );
 
-  const excludeInactiveId = useId('Sort by');
+  const excludeInactiveToggleId = useId('exclude-inactive-toggle');
+  const excludeInactiveLabelId = useId('exclude-inactive-label');
 
   // Add future filters to the boolean below
   const isActivated = filter.excludeInactive;
@@ -76,13 +77,14 @@ export default function ConnectionsFilterPopover({
     <InteractivePopover
       open={open}
       setOpen={setOpen}
+      blurTriggerOnClose
       closeButtonClassName={closeButtonStyles}
       containerClassName={containerStyles}
       trigger={({ onClick, children, ref }) => (
         <>
           <Tooltip
             align="right"
-            enabled={!open}
+            /* enabled={!open} */
             trigger={
               <IconButton
                 onClick={onClick}
@@ -116,12 +118,15 @@ export default function ConnectionsFilterPopover({
       <Overline>Filter Options</Overline>
       <div className={groupStyles}>
         <Toggle
-          aria-labelledby={excludeInactiveId}
+          id={excludeInactiveToggleId}
+          aria-labelledby={excludeInactiveLabelId}
           checked={filter.excludeInactive}
           onChange={onExcludeInactiveChange}
           size="small"
         />
-        <Label htmlFor={excludeInactiveId}>Show only active connections</Label>
+        <Label htmlFor={excludeInactiveToggleId} id={excludeInactiveLabelId}>
+          Show only active connections
+        </Label>
       </div>
     </InteractivePopover>
   );
