@@ -7,6 +7,7 @@ import {
   InteractivePopover,
   Label,
   Overline,
+  palette,
   spacing,
   Toggle,
   Tooltip,
@@ -23,7 +24,15 @@ const containerStyles = css({
 });
 
 const closeButtonStyles = css({
+  // An alternative to this is to pass hideCloseButton to InteractivePopover,
+  // but that throws an error when the popover is opened
   display: 'none',
+});
+
+const activatedIndicatorStyles = css({
+  position: 'absolute',
+  top: spacing[50],
+  right: spacing[50],
 });
 
 const groupStyles = css({
@@ -60,6 +69,9 @@ export default function ConnectionsFilterPopover({
 
   const excludeInactiveId = useId('Sort by');
 
+  // Add future filters to the boolean below
+  const isActivated = filter.excludeInactive;
+
   return (
     <InteractivePopover
       open={open}
@@ -80,6 +92,18 @@ export default function ConnectionsFilterPopover({
               >
                 {/* TODO: Show a small blue circle when filter.excludeInactive is enabled */}
                 <Icon glyph="Filter" />
+                {isActivated && (
+                  <svg
+                    className={activatedIndicatorStyles}
+                    width="6"
+                    height="6"
+                    viewBox="0 0 6 6"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="3" cy="3" r="3" fill={palette.blue.base} />
+                  </svg>
+                )}
               </IconButton>
             }
           >
