@@ -78,7 +78,6 @@ export default function ConnectionsFilterPopover({
         <>
           <Tooltip
             align="right"
-            /* enabled={!open} */
             trigger={
               <IconButton
                 onClick={onClick}
@@ -86,7 +85,6 @@ export default function ConnectionsFilterPopover({
                 aria-label="Filter connections"
                 ref={ref as React.Ref<unknown>}
               >
-                {/* TODO: Show a small blue circle when filter.excludeInactive is enabled */}
                 <Icon glyph="Filter" />
                 {isActivated && (
                   <svg
