@@ -76,7 +76,6 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
 
   const signIn = ((window as any).__signIn = useCallback(async () => {
     try {
-      console.log('reached');
       const { projectId } = await fetch('/authenticate', {
         method: 'POST',
       }).then((res) => {
