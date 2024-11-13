@@ -457,7 +457,8 @@ describe('CompassMenu', function () {
       ]);
     });
 
-    ['linux', 'win32'].forEach((platform) => {
+    // TODO(COMPASS-XXXX): Add `linux` back to this list
+    ['win32'].forEach((platform) => {
       // TODO(COMPASS-7906): remove
       it.skip(`[single-connection] should generate a menu template for ${platform}`, function () {
         sinon.stub(process, 'platform').value(platform);
@@ -586,6 +587,70 @@ describe('CompassMenu', function () {
           },
         ]);
       });
+    });
+
+    // TODO(COMPASS-XXXX): Remove this test
+    it('should generate a menu template for linux', async function () {
+      await App.preferences.savePreferences({
+        enableMultipleConnectionSystem: true,
+      });
+      sinon.stub(process, 'platform').value('linux');
+
+      expect(serializable(CompassMenu.getTemplate(0))).to.deep.equal([
+        {
+          label: '&Connections',
+          submenu: [
+            { label: '&Import Saved Connections' },
+            { label: '&Export Saved Connections' },
+            { type: 'separator' },
+            { label: 'E&xit' },
+          ],
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { label: 'Undo', role: 'undo' },
+            { label: 'Redo', role: 'redo' },
+            { type: 'separator' },
+            { label: 'Cut', role: 'cut' },
+            { label: 'Copy', role: 'copy' },
+            { label: 'Paste', role: 'paste' },
+            {
+              label: 'Select All',
+              role: 'selectAll',
+            },
+            { type: 'separator' },
+            { label: 'Find' },
+            { type: 'separator' },
+            { label: '&Settings' },
+          ],
+        },
+        {
+          label: '&View',
+          submenu: [
+            { label: '&Reload' },
+            { label: '&Reload Data' },
+            { type: 'separator' },
+            { label: 'Actual Size' },
+            { label: 'Zoom In' },
+            { label: 'Zoom Out' },
+          ],
+        },
+        {
+          label: '&Help',
+          submenu: [
+            { label: `&Online ${app.getName()} Help` },
+            { label: '&License' },
+            { label: `&View Source Code on GitHub` },
+            { label: `&Suggest a Feature` },
+            { label: `&Report a Bug` },
+            { label: '&Open Log File' },
+            { type: 'separator' },
+            { label: `&About ${app.getName()}` },
+            { label: 'Check for updates…' },
+          ],
+        },
+      ]);
     });
 
     it('should generate a menu template without collection submenu if `showCollection` is `false`', function () {

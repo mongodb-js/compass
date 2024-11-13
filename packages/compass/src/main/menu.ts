@@ -712,8 +712,7 @@ class CompassMenu {
       return darwinMenu(menuState, this.app);
     }
     const menu = nonDarwinMenu(menuState, this.app);
-    // Currently on Linux, the menu accelerators crash the app and while
-    // fix is out, we are removing the accelerators from the all menu items.
+    // TODO(COMPASS-XXXX): Remove this check once accelerator issue is resolve for linux.
     if (os.platform() === 'linux') {
       return removeAcceleratorFromMenu(menu);
     }
