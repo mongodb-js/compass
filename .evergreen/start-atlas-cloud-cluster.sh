@@ -61,6 +61,8 @@ ATLAS_CLUSTER_NAME="${_ATLAS_CLOUD_TEST_CLUSTER_NAME:-$DEFAULT_ATLAS_CLOUD_TEST_
 ATLAS_TEST_DB_USERNAME="testuser-$RUN_ID"
 ATLAS_TEST_DB_PASSWORD="$(head -c 32 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9')"
 
+DOCKER_REGISTRY="${DOCKER_REGISTRY-registry.hub.docker.com}"
+
 function atlascli() {
   docker run \
     -e MCLI_PUBLIC_API_KEY \
@@ -68,7 +70,7 @@ function atlascli() {
     -e MCLI_ORG_ID \
     -e MCLI_PROJECT_ID \
     -e MCLI_OPS_MANAGER_URL \
-    mongodb/atlas atlas $@
+    $DOCKER_REGISTRY/library/mongodb/atlas atlas $@
 }
 
 cleanup() {

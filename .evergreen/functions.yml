@@ -600,10 +600,14 @@ functions:
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
           ATLAS_LOCAL_VERSION: latest
+          DOCKER_REGISTRY: artifactory.corp.mongodb.com
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          # Authenticate with the Artifactory docker registry
+          echo "${ARTIFACTORY_PASSWORD}" | docker login "${DOCKER_REGISTRY}" --username "${ARTIFACTORY_USERNAME}" --password-stdin
 
           # Start atlas local to test Atlas Search
           source .evergreen/start-atlas-local.sh
@@ -690,14 +694,22 @@ functions:
           MCLI_ORG_ID: ${e2e_tests_mcli_org_id}
           MCLI_PROJECT_ID: ${e2e_tests_mcli_project_id}
           MCLI_OPS_MANAGER_URL: ${e2e_tests_mcli_ops_manager_url}
+          DOCKER_REGISTRY: artifactory.corp.mongodb.com
         script: |
           set -e
+          
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          # Authenticate with the Artifactory docker registry
+          echo "${ARTIFACTORY_PASSWORD}" | docker login "${DOCKER_REGISTRY}" --username "${ARTIFACTORY_USERNAME}" --password-stdin
+
           # Create Atlas cluster for test project
           source .evergreen/start-atlas-cloud-cluster.sh
+
           # Run the tests
           echo "Starting e2e tests..."
+
           # We're only running a special subset of tests as provisioning atlas
           # clusters in CI is both pricey and flakey, so we want to limit the
           # coverage to reduce those factors (at least for now)

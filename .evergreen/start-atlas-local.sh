@@ -20,11 +20,12 @@ cleanup() {
 trap cleanup EXIT
 
 # Image name with version
-IMAGE_NAME="mongodb/mongodb-atlas-local:$ATLAS_LOCAL_VERSION"
-echo docker run --rm --name $CONTAINER_NAME -d -e DO_NOT_TRACK=1 -P "$IMAGE_NAME"
+DOCKER_REGISTRY="${DOCKER_REGISTRY-registry.hub.docker.com}"
+DOCKER_IMAGE="$DOCKER_REGISTRY/library/mongodb/mongodb-atlas-local:$ATLAS_LOCAL_VERSION"
+echo docker run --rm --name $CONTAINER_NAME -d -e DO_NOT_TRACK=1 -P "$DOCKER_IMAGE"
 
 # Start the Docker container
-docker run --rm --name $CONTAINER_NAME -d -e DO_NOT_TRACK=1 -P "$IMAGE_NAME"
+docker run --rm --name $CONTAINER_NAME -d -e DO_NOT_TRACK=1 -P "$DOCKER_IMAGE"
 
 echo "Waiting for container to become healthy..."
 
