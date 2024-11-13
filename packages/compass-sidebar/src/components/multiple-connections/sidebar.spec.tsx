@@ -363,16 +363,13 @@ describe('Multiple Connections Sidebar Component', function () {
           const favoriteConnectionId = savedFavoriteConnection.id;
           const recentConnectionId = savedRecentConnection.id;
 
-          const activeConnectionsToggleButton = screen.getByLabelText(
-            'Showing all connections'
-          );
-
           expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
           expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
 
-          userEvent.click(activeConnectionsToggleButton);
-          expect(activeConnectionsToggleButton.ariaLabel).equals(
-            'Showing active connections'
+          userEvent.click(screen.getByLabelText('Filter connections'));
+
+          userEvent.click(
+            screen.getByLabelText('Show only active connections')
           );
 
           expect(screen.queryByTestId(favoriteConnectionId)).to.be.null;
