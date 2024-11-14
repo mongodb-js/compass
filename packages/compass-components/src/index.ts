@@ -59,6 +59,8 @@ export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';
 export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
+export { ConnectedPlugsIcon } from './components/icons/connected-plugs';
+export { DisconnectedPlugIcon } from './components/icons/disconnected-plug';
 export { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';

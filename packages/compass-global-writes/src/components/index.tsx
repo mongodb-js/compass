@@ -82,14 +82,14 @@ function ShardingStateView({
 export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   if (shardingStatus === ShardingStatuses.NOT_READY) {
     return (
-      <div className={loaderStyles}>
+      <div className={loaderStyles} data-status={shardingStatus.toLowerCase()}>
         <SpinLoaderWithLabel progressText="Loading …" />
       </div>
     );
   }
 
   return (
-    <WorkspaceContainer>
+    <WorkspaceContainer data-status={shardingStatus.toLowerCase()}>
       <ConfirmationModalArea>
         <div className={containerStyles}>
           <ShardingStateView shardingStatus={shardingStatus} />

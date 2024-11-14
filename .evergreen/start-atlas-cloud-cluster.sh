@@ -19,6 +19,9 @@ DELETE_AFTER="$(date -u -Iseconds -d '+2 hours' 2>/dev/null || date -u -Iseconds
 #
 # - Setup a new org and project. Save the org id and project id for later.
 #
+# - Add test payment details within the organization (Billing) to be able to
+#   create clusters.
+#
 # - Create a new API key (Access Manager > Project Access > Create Application >
 #   API Key) for the project you created and save the public and private keys.
 #
@@ -101,10 +104,11 @@ export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_USERNAME="$ATLAS_TEST_DB_USERNAME"
 export COMPASS_E2E_ATLAS_CLOUD_SANDBOX_DBUSER_PASSWORD="$ATLAS_TEST_DB_PASSWORD"
 
 echo "Creating Atlas deployment \`$ATLAS_CLUSTER_NAME\` to test against..."
-atlascli clusters create $ATLAS_CLUSTER_NAME \
+(atlascli clusters create $ATLAS_CLUSTER_NAME \
   --provider AWS \
   --region US_EAST_1 \
-  --tier M10
+  --tier M10 \
+  --type GEOSHARDED || true) # can error if custom name was provided, will fail on next step if it's not expected failure
 
 echo "Waiting for the deployment to be provisioned..."
 atlascli clusters watch $ATLAS_CLUSTER_NAME

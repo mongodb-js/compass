@@ -1011,13 +1011,7 @@ describe('Collection aggregations tab', function () {
 
   it('shows confirmation modal when create new pipeline is clicked and aggregation is modified', async function () {
     await browser.selectStageOperator(0, '$match');
-
-    await browser.clickVisible(Selectors.CreateNewPipelineButton);
-    const modalElement = await browser.$(Selectors.ConfirmationModal);
-    await modalElement.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-    await modalElement.waitForDisplayed({ reverse: true });
+    await browser.clickConfirmationAction(Selectors.CreateNewPipelineButton);
   });
 
   describe('aggregation builder in text mode', function () {
@@ -1258,14 +1252,9 @@ describe('Collection aggregations tab', function () {
       );
       await browser.hover(Selectors.AggregationSavedPipelineCard(name));
 
-      await browser.clickVisible(
+      await browser.clickConfirmationAction(
         Selectors.AggregationSavedPipelineCardOpenButton(name)
       );
-
-      const confirmOpenModal = await browser.$(Selectors.ConfirmationModal);
-      await confirmOpenModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-      await confirmOpenModal.waitForDisplayed({ reverse: true });
     });
 
     it('deletes an aggregation', async function () {
@@ -1278,14 +1267,9 @@ describe('Collection aggregations tab', function () {
       );
       await browser.hover(Selectors.AggregationSavedPipelineCard(name));
 
-      await browser.clickVisible(
+      await browser.clickConfirmationAction(
         Selectors.AggregationSavedPipelineCardDeleteButton(name)
       );
-
-      const confirmDeleteModal = await browser.$(Selectors.ConfirmationModal);
-      await confirmDeleteModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-      await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });
 

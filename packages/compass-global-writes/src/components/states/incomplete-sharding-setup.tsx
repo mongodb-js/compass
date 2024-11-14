@@ -19,16 +19,13 @@ import {
 import { connect } from 'react-redux';
 import ExampleCommandsMarkup from '../example-commands-markup';
 import { ShardZonesTable } from '../shard-zones-table';
+import { bannerBtnStyles } from '../common-styles';
 
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[400],
   marginBottom: spacing[400],
-});
-
-const manageBtnStyles = css({
-  marginTop: spacing[100],
 });
 
 export interface IncompleteShardingSetupProps {
@@ -69,7 +66,7 @@ export function IncompleteShardingSetup({
             variant={ButtonVariant.Default}
             isLoading={isSubmittingForSharding}
             loadingIndicator={<SpinLoader />}
-            className={manageBtnStyles}
+            className={bannerBtnStyles}
           >
             Enable Global Writes
           </Button>
