@@ -115,8 +115,14 @@ type UnmanagingNamespaceErroredAction = {
 };
 
 export const getStatus = (state: RootState): ShardingStatuses => {
-  const { managedNamespace, shardKey, shardingError, loadingError, isReady } =
-    state;
+  const {
+    managedNamespace,
+    shardKey,
+    shardingError,
+    loadingError,
+    isReady,
+    isShardingInProgress,
+  } = state;
 
   if (!isReady) return ShardingStatuses.NOT_READY;
   if (loadingError) return ShardingStatuses.LOADING_ERROR;
@@ -130,10 +136,8 @@ export const getStatus = (state: RootState): ShardingStatuses => {
       ? ShardingStatuses.SHARDING_ERROR
       : ShardingStatuses.SHARDING;
   }
+  if (isShardingInProgress) return ShardingStatuses.SHARDING; // this is for the sharding after incomplete
   return getStatusFromShardKeyAndManaged(shardKey, managedNamespace);
-  // note: this does not allow for 'sharding' after 'incomplete'.
-  // a move which does not make sense to me anyway
-  // but it used to be a thing
 };
 
 export enum ShardingStatuses {
@@ -216,6 +220,7 @@ export type RootState = {
     | 'submitForSharding'
     | 'cancelSharding'
     | 'unmanageNamespace';
+  isShardingInProgress?: boolean;
   shardingError?: string;
 } & (
   | {
@@ -249,7 +254,7 @@ export type RootState = {
        * note: shardKey might exist
        * if the collection was sharded previously and then unmanaged
        */
-      shardKey: ShardKey; // TODO ?
+      shardKey?: ShardKey;
       //////////////
       shardingError?: never;
       loadingError?: never;
@@ -324,6 +329,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       shardKey: undefined,
       loadingError: undefined,
       shardingError: action.error,
+      isShardingInProgress: undefined,
       isReady: true,
     };
   }
@@ -341,6 +347,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       userActionInProgress: undefined,
       shardKey: action.shardKey,
       shardingError: undefined,
+      isShardingInProgress: undefined,
       isReady: true,
     };
   }
@@ -418,6 +425,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       ...state,
       userActionInProgress: undefined,
       shardingError: undefined,
+      isShardingInProgress: true,
       managedNamespace: action.managedNamespace || state.managedNamespace,
     };
   }
@@ -449,6 +457,7 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
     return {
       ...state,
       userActionInProgress: undefined,
+      isShardingInProgress: undefined,
       managedNamespace: undefined,
     };
   }

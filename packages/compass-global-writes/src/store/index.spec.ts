@@ -214,7 +214,7 @@ function createStore({
   );
 }
 
-describe.only('GlobalWritesStore Store', function () {
+describe('GlobalWritesStore Store', function () {
   let confirmationStub: Sinon.SinonStub;
   let clock: Sinon.SinonFakeTimers;
 
@@ -503,8 +503,7 @@ describe.only('GlobalWritesStore Store', function () {
       });
     });
 
-    it('incomplete setup -> shard key correct', async function () {
-      // note: this used to include sharding
+    it('incomplete setup -> sharding -> shard key correct', async function () {
       // initial state -> incomplete shardingSetup
       clock = sinon.useFakeTimers({
         shouldAdvanceTime: true,
@@ -530,7 +529,7 @@ describe.only('GlobalWritesStore Store', function () {
       await promise;
 
       // sharding
-      // expect(getStatus(store.getState())).to.equal('SHARDING');
+      expect(getStatus(store.getState())).to.equal('SHARDING');
 
       // done
       clock.tick(POLLING_INTERVAL);
@@ -540,8 +539,7 @@ describe.only('GlobalWritesStore Store', function () {
       });
     });
 
-    it.skip('incomplete setup -> incomplete setup (request was cancelled)', async function () {
-      // note: this used to include sharding
+    it('incomplete setup -> sharding -> incomplete setup (request was cancelled)', async function () {
       // initial state -> incomplete shardingSetup
       clock = sinon.useFakeTimers({
         shouldAdvanceTime: true,
