@@ -41,12 +41,12 @@ const closeButtonStyles = css({
   right: spacing[2],
 });
 
-type InteractivePopoverProps = {
+type InteractivePopoverProps<TriggerElement extends HTMLElement> = {
   className?: string;
   children: React.ReactNode;
   trigger: (triggerProps: {
-    onClick: React.MouseEventHandler<HTMLButtonElement>;
-    ref: React.LegacyRef<HTMLButtonElement>;
+    onClick: React.MouseEventHandler<TriggerElement>;
+    ref: React.Ref<TriggerElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
   hideCloseButton?: boolean;
@@ -64,7 +64,7 @@ type InteractivePopoverProps = {
   'align' | 'justify' | 'spacing' | 'popoverZIndex'
 >;
 
-function InteractivePopover({
+function InteractivePopover<TriggerElement extends HTMLElement>({
   className,
   children,
   trigger,
@@ -79,9 +79,9 @@ function InteractivePopover({
   popoverZIndex,
   containerClassName,
   closeButtonClassName,
-}: InteractivePopoverProps): React.ReactElement {
+}: InteractivePopoverProps<TriggerElement>): React.ReactElement {
   const darkMode = useDarkMode();
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<TriggerElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
 
