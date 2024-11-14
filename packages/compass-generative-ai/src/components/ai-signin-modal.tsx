@@ -102,7 +102,9 @@ const AISignInModal: React.FunctionComponent<SignInModalProps> = ({
 export default connect(
   (state: AtlasSignInState) => {
     return {
+      // @ts-expect-error reducers were combined so these methods are nested one layer lower
       isSignInModalVisible: state.signIn.isModalOpen,
+      // @ts-expect-error reducers were combined so these methods are nested one layer lower
       isSignInInProgress: state.signIn.state === 'in-progress',
     };
   },

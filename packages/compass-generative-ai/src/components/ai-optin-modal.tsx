@@ -103,7 +103,9 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
 export default connect(
   (state: AtlasOptInState) => {
     return {
+      // @ts-expect-error reducers were combined so these methods are nested one layer lower
       isOptInModalVisible: state.optIn.isModalOpen,
+      // @ts-expect-error reducers were combined so these methods are nested one layer lower
       isOptInInProgress: state.optIn.state === 'in-progress',
     };
   },
