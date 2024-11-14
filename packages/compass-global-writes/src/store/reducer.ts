@@ -624,7 +624,7 @@ export const createShardKey = (
 };
 
 // Exporting this for test only to stub it and set
-// its value. This enables to test cancelSharding action.
+// its value. This enables to test cancelShardingaction.
 export const showConfirmation = showConfirmationModal;
 
 export const cancelSharding = (): GlobalWritesThunkAction<
@@ -783,8 +783,8 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
 
       if (managedNamespace && !shardKey) {
         if (!shardingError) {
-          // there is neither a shardKey nor shardingError
-          // means sharding is in progress
+          // Since the namespace is managed, Atlas has been instructed to shard this collection,
+          // and since there is no shard key and no sharding error, the shard must still be in progress
           dispatch(setNamespaceBeingSharded());
           return;
         }
