@@ -114,6 +114,28 @@ type UnmanagingNamespaceErroredAction = {
   type: GlobalWritesActionTypes.UnmanagingNamespaceErrored;
 };
 
+export const getStatus = (state: RootState): ShardingStatuses => {
+  const { managedNamespace, shardKey, shardingError, loadingError, isReady } =
+    state;
+
+  if (!isReady) return ShardingStatuses.NOT_READY;
+  if (loadingError) return ShardingStatuses.LOADING_ERROR;
+  if (!managedNamespace) {
+    return shardKey
+      ? ShardingStatuses.INCOMPLETE_SHARDING_SETUP
+      : ShardingStatuses.UNSHARDED;
+  }
+  if (!shardKey) {
+    return shardingError
+      ? ShardingStatuses.SHARDING_ERROR
+      : ShardingStatuses.SHARDING;
+  }
+  return getStatusFromShardKeyAndManaged(shardKey, managedNamespace);
+  // note: this does not allow for 'sharding' after 'incomplete'.
+  // a move which does not make sense to me anyway
+  // but it used to be a thing
+};
+
 export enum ShardingStatuses {
   /**
    * Initial status, no information available yet.
@@ -187,63 +209,69 @@ export type RootState = {
   namespace: string;
   managedNamespace?: ManagedNamespace;
   shardZones: ShardZoneData[];
+  isReady: boolean;
+  shardKey?: ShardKey;
+  loadingError?: string;
+  userActionInProgress?:
+    | 'submitForSharding'
+    | 'cancelSharding'
+    | 'unmanageNamespace';
+  shardingError?: string;
 } & (
   | {
-      status: ShardingStatuses.LOADING_ERROR;
+      // LOADING_ERROR
       shardKey?: ShardKey;
+      shardingError?: string;
       loadingError: string;
       //////////////
-      userActionInProgress?: never;
-      shardingError?: never;
+      // userActionInProgress?: never;
     }
   | {
-      status: ShardingStatuses.NOT_READY;
+      // NOT_READY
       //////////////
-      userActionInProgress?: never;
+      // userActionInProgress?: never;
       shardKey?: never;
       shardingError?: never;
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.UNSHARDED;
-      userActionInProgress?: 'submitForSharding';
+      // UNSHARDED
+      // userActionInProgress?: 'submitForSharding';
       //////////////
       shardKey?: never;
       shardingError?: never;
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.SHARDING;
-      userActionInProgress?: 'cancelSharding';
+      // SHARDING
+      // userActionInProgress?: 'cancelSharding';
       /**
        * note: shardKey might exist
        * if the collection was sharded previously and then unmanaged
        */
-      shardKey?: ShardKey;
+      shardKey: ShardKey; // TODO ?
       //////////////
       shardingError?: never;
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.SHARDING_ERROR;
-      userActionInProgress?: 'cancelSharding' | 'submitForSharding';
+      // SHARDING_ERROR
+      // userActionInProgress?: 'cancelSharding' | 'submitForSharding';
       shardingError: string;
       //////////////
       shardKey?: never;
       loadingError?: never;
     }
   | {
-      status:
-        | ShardingStatuses.SHARD_KEY_CORRECT
-        | ShardingStatuses.SHARD_KEY_MISMATCH;
-      userActionInProgress?: 'unmanageNamespace';
+      // SHARD_KEY_CORRECT | SHARD_KEY_MISMATCH
+      // userActionInProgress?: 'unmanageNamespace';
       shardKey: ShardKey;
       //////////////
       shardingError?: never;
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.SHARD_KEY_INVALID;
+      // SHARD_KEY_INVALID
       shardKey: ShardKey;
       //////////////
       userActionInProgress?: never;
@@ -251,8 +279,8 @@ export type RootState = {
       loadingError?: never;
     }
   | {
-      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
-      userActionInProgress?: 'cancelSharding' | 'submitForSharding';
+      // INCOMPLETE_SHARDING_SETUP
+      // userActionInProgress?: 'cancelSharding' | 'submitForSharding';
       shardKey: ShardKey;
       //////////////
       shardingError?: never;
@@ -262,17 +290,19 @@ export type RootState = {
 
 const initialState: RootState = {
   namespace: '',
-  status: ShardingStatuses.NOT_READY,
   shardZones: [],
+  isReady: false,
 };
 
 const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
+  const status = getStatus(state);
+
   if (
     isAction<ManagedNamespaceFetchedAction>(
       action,
       GlobalWritesActionTypes.ManagedNamespaceFetched
     ) &&
-    state.status === ShardingStatuses.NOT_READY
+    status === ShardingStatuses.NOT_READY
   ) {
     return {
       ...state,
@@ -285,14 +315,16 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.NamespaceShardingErrorFetched
     ) &&
-    (state.status === ShardingStatuses.NOT_READY ||
-      state.status === ShardingStatuses.SHARDING)
+    (status === ShardingStatuses.NOT_READY ||
+      status === ShardingStatuses.SHARDING)
   ) {
     return {
       ...state,
-      status: ShardingStatuses.SHARDING_ERROR,
+      userActionInProgress: undefined,
       shardKey: undefined,
+      loadingError: undefined,
       shardingError: action.error,
+      isReady: true,
     };
   }
 
@@ -301,34 +333,15 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.NamespaceShardKeyFetched
     ) &&
-    (state.status === ShardingStatuses.NOT_READY ||
-      state.status === ShardingStatuses.SHARDING) &&
-    action.shardKey
+    (status === ShardingStatuses.NOT_READY ||
+      status === ShardingStatuses.SHARDING)
   ) {
     return {
       ...state,
-      status: getStatusFromShardKeyAndManaged(
-        action.shardKey,
-        state.managedNamespace
-      ),
       userActionInProgress: undefined,
       shardKey: action.shardKey,
       shardingError: undefined,
-    };
-  }
-
-  if (
-    isAction<NamespaceShardKeyFetchedAction>(
-      action,
-      GlobalWritesActionTypes.NamespaceShardKeyFetched
-    ) &&
-    state.status === ShardingStatuses.NOT_READY &&
-    !action.shardKey &&
-    !state.managedNamespace
-  ) {
-    return {
-      ...state,
-      status: ShardingStatuses.UNSHARDED,
+      isReady: true,
     };
   }
 
@@ -381,9 +394,9 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.SubmittingForShardingStarted
     ) &&
-    (state.status === ShardingStatuses.UNSHARDED ||
-      state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
+    (status === ShardingStatuses.UNSHARDED ||
+      status === ShardingStatuses.SHARDING_ERROR ||
+      status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
   ) {
     return {
       ...state,
@@ -396,17 +409,16 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.SubmittingForShardingFinished
     ) &&
-    (state.status === ShardingStatuses.UNSHARDED ||
-      state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP ||
-      state.status === ShardingStatuses.NOT_READY)
+    (status === ShardingStatuses.UNSHARDED ||
+      status === ShardingStatuses.SHARDING_ERROR ||
+      status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP ||
+      status === ShardingStatuses.NOT_READY)
   ) {
     return {
       ...state,
       userActionInProgress: undefined,
       shardingError: undefined,
       managedNamespace: action.managedNamespace || state.managedNamespace,
-      status: ShardingStatuses.SHARDING,
     };
   }
 
@@ -415,9 +427,9 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.CancellingShardingStarted
     ) &&
-    (state.status === ShardingStatuses.SHARDING ||
-      state.status === ShardingStatuses.SHARDING_ERROR ||
-      state.status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
+    (status === ShardingStatuses.SHARDING ||
+      status === ShardingStatuses.SHARDING_ERROR ||
+      status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
   ) {
     return {
       ...state,
@@ -430,35 +442,14 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.CancellingShardingFinished
     ) &&
-    (state.status === ShardingStatuses.SHARDING ||
-      state.status === ShardingStatuses.SHARDING_ERROR) &&
-    !state.shardKey
+    (status === ShardingStatuses.SHARDING ||
+      status === ShardingStatuses.SHARDING_ERROR ||
+      status === ShardingStatuses.INCOMPLETE_SHARDING_SETUP)
   ) {
     return {
       ...state,
       userActionInProgress: undefined,
       managedNamespace: undefined,
-      shardKey: state.shardKey,
-      shardingError: undefined,
-      status: ShardingStatuses.UNSHARDED,
-    };
-  }
-
-  if (
-    isAction<CancellingShardingFinishedAction>(
-      action,
-      GlobalWritesActionTypes.CancellingShardingFinished
-    ) &&
-    state.status === ShardingStatuses.SHARDING &&
-    state.shardKey
-  ) {
-    return {
-      ...state,
-      userActionInProgress: undefined,
-      managedNamespace: undefined,
-      shardKey: state.shardKey,
-      shardingError: undefined,
-      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
 
@@ -467,11 +458,13 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceStarted
     ) &&
-    (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
-      state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
+    state.shardKey
   ) {
     return {
       ...state,
+      shardKey: state.shardKey,
+      shardingError: undefined,
+      loadingError: undefined,
       userActionInProgress: 'unmanageNamespace',
     };
   }
@@ -481,14 +474,13 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.UnmanagingNamespaceFinished
     ) &&
-    (state.status === ShardingStatuses.SHARD_KEY_CORRECT ||
-      state.status === ShardingStatuses.SHARD_KEY_MISMATCH)
+    (status === ShardingStatuses.SHARD_KEY_CORRECT ||
+      status === ShardingStatuses.SHARD_KEY_MISMATCH)
   ) {
     return {
       ...state,
       userActionInProgress: undefined,
       managedNamespace: undefined,
-      status: ShardingStatuses.INCOMPLETE_SHARDING_SETUP,
     };
   }
 
@@ -497,14 +489,14 @@ const reducer: Reducer<RootState, Action> = (state = initialState, action) => {
       action,
       GlobalWritesActionTypes.LoadingFailed
     ) &&
-    (state.status === ShardingStatuses.NOT_READY ||
-      state.status === ShardingStatuses.SHARDING)
+    (status === ShardingStatuses.NOT_READY ||
+      status === ShardingStatuses.SHARDING)
   ) {
     return {
       ...state,
       userActionInProgress: undefined,
-      status: ShardingStatuses.LOADING_ERROR,
       loadingError: action.error,
+      isReady: true,
     };
   }
 
@@ -596,7 +588,7 @@ export const createShardKey = (
         namespace,
         data
       );
-      dispatch(setNamespaceBeingSharded(managedNamespace));
+      dispatch(setNamespaceBeingManaged(managedNamespace));
     } catch (error) {
       logger.log.error(
         logger.mongoLogId(1_001_000_331),
@@ -647,7 +639,9 @@ export const cancelSharding = (): GlobalWritesThunkAction<
       return;
     }
 
-    const { namespace, status, userActionInProgress } = getState();
+    const state = getState();
+    const { namespace, userActionInProgress } = state;
+    const status = getStatus(state);
 
     if (userActionInProgress) {
       logger.log.warn(
@@ -694,7 +688,7 @@ export const cancelSharding = (): GlobalWritesThunkAction<
   };
 };
 
-const setNamespaceBeingSharded = (
+const setNamespaceBeingManaged = (
   managedNamespace?: ManagedNamespace
 ): GlobalWritesThunkAction<void, SubmittingForShardingFinishedAction> => {
   return (dispatch) => {
@@ -739,7 +733,7 @@ const handleLoadingError = ({
   description: string;
 }): GlobalWritesThunkAction<void, LoadingFailedAction> => {
   return (dispatch, getState) => {
-    const { status } = getState();
+    const status = getStatus(getState());
     const isPolling = status === ShardingStatuses.SHARDING;
     const isInitialLoad = status === ShardingStatuses.NOT_READY;
     const errorMessage = `${description}: ${error.message}`;
@@ -781,13 +775,7 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         atlasGlobalWritesService.getShardingKeys(namespace),
       ]);
 
-      if (managedNamespace && !shardKey) {
-        if (!shardingError) {
-          // there is neither a shardKey nor shardingError
-          // means sharding is in progress
-          dispatch(setNamespaceBeingSharded());
-          return;
-        }
+      if (shardingError && !shardKey) {
         // if there is an existing shard key and an error both,
         // means we have a key mismatch
         // this will be handled in NamespaceShardKeyFetched
@@ -802,6 +790,14 @@ export const fetchNamespaceShardKey = (): GlobalWritesThunkAction<
         type: GlobalWritesActionTypes.NamespaceShardKeyFetched,
         shardKey,
       });
+
+      if (managedNamespace && !shardKey && !shardingError) {
+        // Since the namespace is managed, Atlas has been instructed to shard this collection,
+        // and since there is no shard key and no sharding error, the sharding must still be in progress
+        dispatch(setNamespaceBeingManaged());
+        return;
+      }
+
       // if there is a key, we fetch sharding zones
       if (!shardKey) return;
       void dispatch(fetchShardingZones());
@@ -909,7 +905,7 @@ export const unmanageNamespace = (): GlobalWritesThunkAction<
 
 export function getStatusFromShardKeyAndManaged(
   shardKey: ShardKey,
-  managedNamespace?: ManagedNamespace
+  managedNamespace: ManagedNamespace
 ) {
   const [firstShardKey, secondShardKey] = shardKey.fields;
 
@@ -923,10 +919,6 @@ export function getStatusFromShardKeyAndManaged(
 
   if (!isLocatonKeyValid || !secondShardKey) {
     return ShardingStatuses.SHARD_KEY_INVALID;
-  }
-
-  if (!managedNamespace) {
-    return ShardingStatuses.INCOMPLETE_SHARDING_SETUP;
   }
 
   const isCustomKeyValid =

@@ -8,11 +8,7 @@ import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
-import reducer, {
-  ShardingStatuses,
-  fetchClusterShardingData,
-  type RootState,
-} from './reducer';
+import reducer, { fetchClusterShardingData, type RootState } from './reducer';
 import { AtlasGlobalWritesService } from '../services/atlas-global-writes-service';
 
 type GlobalWritesExtraArgs = {
@@ -70,8 +66,8 @@ export function activateGlobalWritesPlugin(
     reducer,
     {
       namespace: options.namespace,
-      status: ShardingStatuses.NOT_READY,
       shardZones: [],
+      isReady: false,
     },
     applyMiddleware(
       thunk.withExtraArgument({

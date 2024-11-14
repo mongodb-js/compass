@@ -8,7 +8,7 @@ import {
   ConfirmationModalArea,
 } from '@mongodb-js/compass-components';
 import type { RootState, ShardingStatus } from '../store/reducer';
-import { ShardingStatuses } from '../store/reducer';
+import { getStatus, ShardingStatuses } from '../store/reducer';
 import UnshardedState from './states/unsharded';
 import ShardingState from './states/sharding';
 import ShardKeyCorrect from './states/shard-key-correct';
@@ -99,5 +99,5 @@ export function GlobalWrites({ shardingStatus }: GlobalWritesProps) {
   );
 }
 export default connect((state: RootState) => ({
-  shardingStatus: state.status,
+  shardingStatus: getStatus(state),
 }))(GlobalWrites);

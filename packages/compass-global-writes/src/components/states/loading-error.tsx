@@ -17,7 +17,7 @@ export function LoadingError({ error }: LoadingErrorProps) {
 }
 
 export default connect((state: RootState) => {
-  if (state.status !== ShardingStatuses.LOADING_ERROR) {
+  if (!state.loadingError) {
     throw new Error('Error not found in LoadingError');
   }
   return {
