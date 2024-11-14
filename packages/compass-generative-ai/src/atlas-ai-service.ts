@@ -12,6 +12,8 @@ import { EJSON } from 'bson';
 import { signIntoAtlasWithModalPrompt } from './store/atlas-signin-reducer';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
+import type { StringifyOptions } from 'query-string';
+import queryString from 'query-string';
 
 type GenerativeAiInput = {
   userInput: string;
@@ -27,6 +29,18 @@ type GenerativeAiInput = {
 // want to ensure we're not uploading massive documents (some folks have documents > 1mb).
 const AI_MAX_REQUEST_SIZE = 5120000;
 const AI_MIN_SAMPLE_DOCUMENTS = 1;
+
+// Usage: when sending a request of content type 'application/x-www-form-urlencoded'
+export const formParams = function formParams(
+  params: Record<string, any>,
+  {
+    skipNull = true,
+    arrayFormat = 'bracket',
+    ...options
+  }: StringifyOptions = {}
+) {
+  return queryString.stringify(params, { skipNull, arrayFormat, ...options });
+};
 
 type AIAggregation = {
   content: {
@@ -450,13 +464,13 @@ export class AtlasAiService {
       ),
       {
         method: 'POST',
-        body: JSON.stringify({
-          value: true,
-        }),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           Accept: 'application/json',
         },
+        body: formParams({
+          value: true,
+        }),
       }
     );
     await this.preferences.savePreferences({
