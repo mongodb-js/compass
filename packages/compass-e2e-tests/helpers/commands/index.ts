@@ -64,3 +64,4 @@ export * from './hide-visible-toasts';
 export * from './sidebar-collection';
 export * from './read-first-document-content';
 export * from './read-stage-operators';
+export * from './click-confirmation-action';
