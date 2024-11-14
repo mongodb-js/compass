@@ -1,8 +1,8 @@
 import { css, cx, Modal, spacing } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ConnectionFormProps } from './connection-form';
-import ConnectionForm from './connection-form';
+import type { ConnectionFormProps } from '@mongodb-js/connection-form';
+import ConnectionForm from '@mongodb-js/connection-form';
 
 const modalStyles = css({
   '& > div': {

@@ -5,7 +5,10 @@ import {
   useConnections,
   useConnectionsWithStatus,
 } from '@mongodb-js/compass-connections/provider';
-import { useConnectionFormPreferences } from '@mongodb-js/compass-connections';
+import {
+  useConnectionFormPreferences,
+  ConnectionFormModal,
+} from '@mongodb-js/compass-connections';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   ResizableSidebar,
@@ -15,7 +18,6 @@ import {
   HorizontalRule,
 } from '@mongodb-js/compass-components';
 import { SidebarHeader } from './header/sidebar-header';
-import { ConnectionFormModal } from '@mongodb-js/connection-form';
 import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';

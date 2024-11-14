@@ -3,29 +3,29 @@ import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { ConnectionFormModalActions } from './connection-form-modal-actions';
+import { ConnectionFormActions } from './connection-form-actions';
 
-describe('<ConnectionFormModalActions />', function () {
+describe('<ConnectionFormActions />', function () {
   it('should show warnings', function () {
     render(
-      <ConnectionFormModalActions
+      <ConnectionFormActions
         errors={[]}
         warnings={[{ message: 'Warning!' }]}
         onSave={() => undefined}
         onSaveAndConnect={() => undefined}
-      ></ConnectionFormModalActions>
+      ></ConnectionFormActions>
     );
     expect(screen.getByText('Warning!')).to.be.visible;
   });
 
   it('should show errors', function () {
     render(
-      <ConnectionFormModalActions
+      <ConnectionFormActions
         errors={[{ message: 'Error!' }]}
         warnings={[]}
         onSave={() => undefined}
         onSaveAndConnect={() => undefined}
-      ></ConnectionFormModalActions>
+      ></ConnectionFormActions>
     );
     expect(screen.getByText('Error!')).to.be.visible;
   });
@@ -34,12 +34,12 @@ describe('<ConnectionFormModalActions />', function () {
     it('should call onSaveAndConnect function', function () {
       const onSaveAndConnectSpy = sinon.spy();
       render(
-        <ConnectionFormModalActions
+        <ConnectionFormActions
           errors={[]}
           warnings={[]}
           onSave={() => undefined}
           onSaveAndConnect={onSaveAndConnectSpy}
-        ></ConnectionFormModalActions>
+        ></ConnectionFormActions>
       );
       const connectButton = screen.getByRole('button', {
         name: 'Save & Connect',
@@ -51,10 +51,10 @@ describe('<ConnectionFormModalActions />', function () {
 
     it('should hide "connect" button if there is no callback', function () {
       render(
-        <ConnectionFormModalActions
+        <ConnectionFormActions
           errors={[]}
           warnings={[]}
-        ></ConnectionFormModalActions>
+        ></ConnectionFormActions>
       );
       expect(screen.queryByRole('button', { name: 'Save & Connect' })).to.not
         .exist;
@@ -65,12 +65,12 @@ describe('<ConnectionFormModalActions />', function () {
     it('should call onSave function', function () {
       const onSaveSpy = sinon.spy();
       render(
-        <ConnectionFormModalActions
+        <ConnectionFormActions
           errors={[]}
           warnings={[]}
           onSave={onSaveSpy}
           onSaveAndConnect={() => undefined}
-        ></ConnectionFormModalActions>
+        ></ConnectionFormActions>
       );
       const saveButton = screen.getByRole('button', { name: 'Save' });
       userEvent.click(saveButton);
@@ -79,11 +79,11 @@ describe('<ConnectionFormModalActions />', function () {
 
     it('should hide "save" button if there is no callback', function () {
       render(
-        <ConnectionFormModalActions
+        <ConnectionFormActions
           errors={[]}
           warnings={[]}
           onSaveAndConnect={() => undefined}
-        ></ConnectionFormModalActions>
+        ></ConnectionFormActions>
       );
       expect(screen.queryByRole('button', { name: 'Save' })).to.not.exist;
     });
@@ -93,13 +93,13 @@ describe('<ConnectionFormModalActions />', function () {
     it('should call onCancel function', function () {
       const onCancelSpy = sinon.spy();
       render(
-        <ConnectionFormModalActions
+        <ConnectionFormActions
           errors={[]}
           warnings={[]}
           onSave={() => undefined}
           onSaveAndConnect={() => undefined}
           onCancel={onCancelSpy}
-        ></ConnectionFormModalActions>
+        ></ConnectionFormActions>
       );
       const cancelButton = screen.getByRole('button', { name: 'Cancel' });
       userEvent.click(cancelButton);
@@ -109,12 +109,12 @@ describe('<ConnectionFormModalActions />', function () {
 
     it('should hide onCancel button if there is no callback', function () {
       render(
-        <ConnectionFormModalActions
+        <ConnectionFormActions
           errors={[]}
           warnings={[]}
           onSave={() => undefined}
           onSaveAndConnect={() => undefined}
-        ></ConnectionFormModalActions>
+        ></ConnectionFormActions>
       );
       expect(screen.queryByRole('button', { name: 'Cancel' })).to.not.exist;
     });

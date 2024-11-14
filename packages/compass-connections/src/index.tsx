@@ -19,6 +19,7 @@ import {
 } from './stores/store-context';
 export { default as SingleConnectionForm } from './components/legacy-connections';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
+export { default as ConnectionFormModal } from './components/connection-form-modal';
 export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';

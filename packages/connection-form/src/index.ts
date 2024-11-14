@@ -1,12 +1,10 @@
 import ConnectionForm, { ColorCircleGlyph } from './components/connection-form';
-import ConnectionFormModal from './components/connection-form-modal';
+import type { ConnectionFormProps } from './components/connection-form';
 import { adjustConnectionOptionsBeforeConnect } from './hooks/use-connect-form';
 
-export {
-  adjustConnectionOptionsBeforeConnect,
-  ConnectionFormModal,
-  ColorCircleGlyph,
-};
+export { adjustConnectionOptionsBeforeConnect, ColorCircleGlyph };
+
+export type { ConnectionFormProps };
 
 export {
   useConnectionColor,

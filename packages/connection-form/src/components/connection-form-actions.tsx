@@ -38,7 +38,7 @@ const saveAndConnectStyles = css({
   justifyContent: 'flex-end',
 });
 
-export type ConnectionFormModalActionsProps = {
+export type ConnectionFormActionsProps = {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
 
@@ -48,14 +48,14 @@ export type ConnectionFormModalActionsProps = {
   onConnect?(): void;
 };
 
-export function ConnectionFormModalActions({
+export function ConnectionFormActions({
   errors,
   warnings,
   onCancel,
   onSave,
   onSaveAndConnect,
   onConnect,
-}: ConnectionFormModalActionsProps): React.ReactElement {
+}: ConnectionFormActionsProps): React.ReactElement {
   const saveAndConnectLabel = useConnectionFormSetting('saveAndConnectLabel');
   return (
     <div className={cx(formActionStyles)}>

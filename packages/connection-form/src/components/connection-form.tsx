@@ -25,7 +25,7 @@ import {
 import { cloneDeep } from 'lodash';
 import ConnectionStringInput from './connection-string-input';
 import AdvancedConnectionOptions from './advanced-connection-options';
-import { ConnectionFormModalActions } from './connection-form-modal-actions';
+import { ConnectionFormActions } from './connection-form-actions';
 import {
   useConnectForm,
   type ConnectionPersonalizationOptions,
@@ -622,7 +622,7 @@ function ConnectionForm({
               : formFooterBorderLightModeStyles
           )}
         >
-          <ConnectionFormModalActions
+          <ConnectionFormActions
             errors={connectionStringInvalidError ? [] : errors}
             warnings={connectionStringInvalidError ? [] : warnings}
             onCancel={onCancel}
