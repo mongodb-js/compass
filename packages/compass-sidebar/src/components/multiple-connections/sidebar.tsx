@@ -229,47 +229,6 @@ export function MultipleConnectionSidebar({
           }}
           onOpenConnectViaModal={onOpenConnectViaModal}
         />
-        {editingConnectionInfo && (
-          <ConnectionFormModal
-            disableEditingConnectedConnection={
-              disableEditingConnectedConnection
-            }
-            onDisconnectClicked={() => disconnect(editingConnectionInfo.id)}
-            isOpen={isEditingConnectionInfoModalOpen}
-            setOpen={(newOpen) => {
-              // This is how leafygreen propagates `X` button click
-              if (newOpen === false) {
-                cancelEditConnection(editingConnectionInfo.id);
-              }
-            }}
-            initialConnectionInfo={editingConnectionInfo}
-            connectionErrorMessage={
-              connectionErrors[editingConnectionInfo.id]?.message
-            }
-            openSettingsModal={openSettingsModal}
-            {...formPreferences}
-            onCancel={() => {
-              cancelEditConnection(editingConnectionInfo.id);
-            }}
-            onSaveClicked={(connectionInfo) => {
-              return saveEditedConnection(connectionInfo);
-            }}
-            onConnectClicked={
-              isEditingNewConnection || disableEditingConnectedConnection
-                ? undefined
-                : (connectionInfo) => {
-                    void connect(connectionInfo);
-                  }
-            }
-            onSaveAndConnectClicked={
-              disableEditingConnectedConnection
-                ? undefined
-                : (connectionInfo) => {
-                    void saveAndConnect(connectionInfo);
-                  }
-            }
-          />
-        )}
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}
           onClose={onCloseCsfleModal}

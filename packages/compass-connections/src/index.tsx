@@ -20,6 +20,7 @@ import {
 export { default as SingleConnectionForm } from './components/legacy-connections';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 export { useConnectionFormPreferences } from './hooks/use-connection-form-preferences';
+import ConnectionModal from './components/connection-modal';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
 import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
 export type { ConnectionFeature } from './utils/connection-supports';
@@ -36,7 +37,12 @@ const ConnectionsComponent: React.FunctionComponent<{
   connectFn?: typeof devtoolsConnect | undefined;
   preloadStorageConnectionInfos?: ConnectionInfo[];
 }> = ({ children }) => {
-  return <ConnectionActionsProvider>{children}</ConnectionActionsProvider>;
+  return (
+    <ConnectionActionsProvider>
+      {children}
+      <ConnectionModal />
+    </ConnectionActionsProvider>
+  );
 };
 
 const CompassConnectionsPlugin = registerHadronPlugin(
