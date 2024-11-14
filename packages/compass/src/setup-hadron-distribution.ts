@@ -1,5 +1,5 @@
 import path from 'path';
-import { app } from 'electron';
+import { app, protocol, net } from 'electron';
 
 /**
  * All these variables below are used by Compass and its plugins in one way or
@@ -54,6 +54,16 @@ if (
     // seemingly nothing is using this path anyway, we probably can ignore an
     // error here
     app.setPath('userCache', path.join(app.getPath('cache'), app.getName()));
+
+    // TODO(COMPASS-8269): even with `webSecurity` disabled for local dev,
+    // file:// requests for shell worker are silently getting canceled by the
+    // browser, adding explicit protocol handler for it that just does the same
+    // request using electron network stack works around the issue
+    void app.whenReady().then(() => {
+      protocol.handle('file', (req) => {
+        return net.fetch(req, { bypassCustomProtocolHandlers: true });
+      });
+    });
   }
 
   app.setPath(
