@@ -33,6 +33,9 @@ if [ "$HAS_DOCKER" = true ]; then
   docker version
   $DOCKER_COMPOSE version
 
+  echo "Logging in to docker"
+  echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+
   echo "Starting test environments"
 
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
