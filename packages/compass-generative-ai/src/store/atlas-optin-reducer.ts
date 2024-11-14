@@ -1,7 +1,8 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import type { GenAIAtlasExtraArgs } from './atlas-ai-store';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
+import type { AtlasAiService } from '../atlas-ai-service';
+import type { PreferencesAccess } from 'compass-preferences-model';
 
 function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -28,7 +29,12 @@ export type AtlasOptInState = {
 export type GenAIAtlasOptInThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, AtlasOptInState, GenAIAtlasExtraArgs, A>;
+> = ThunkAction<
+  R,
+  AtlasOptInState,
+  { atlasAiService: AtlasAiService; preferences: PreferencesAccess },
+  A
+>;
 
 export const enum AtlasOptInActions {
   OpenOptInModal = 'compass-generative-ai/atlas-optin/OpenOptInModal',

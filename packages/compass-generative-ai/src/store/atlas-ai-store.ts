@@ -3,11 +3,9 @@ import thunk from 'redux-thunk';
 import signInReducer, {
   atlasServiceSignedOut,
   atlasServiceSignedIn,
-  //atlasServiceSignInTokenRefreshFailed,
-} from './atlas-signin-reducer';
-import optInReducer, {
   atlasServiceSignInTokenRefreshFailed,
 } from './atlas-signin-reducer';
+import optInReducer from './atlas-optin-reducer';
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { ActivateHelpers } from 'hadron-app-registry';
 import type { AtlasAiService } from '../atlas-ai-service';
@@ -25,13 +23,14 @@ const reducer = combineReducers({
   optInReducer,
 });
 
-export type CompassGenerativeAIPluginServices = {
+export type CompassGenerativeAIExtraArgs = {
   atlasAuthService: AtlasAuthService;
   atlasAiService: AtlasAiService;
+  preferences: PreferencesAccess;
 };
 export function activatePlugin(
   _: Record<string, never>,
-  services: CompassGenerativeAIPluginServices,
+  services: CompassGenerativeAIExtraArgs,
   { cleanup }: ActivateHelpers
 ) {
   store = configureStore(services);
@@ -52,19 +51,15 @@ export function activatePlugin(
 export function configureStore({
   atlasAuthService,
   atlasAiService,
-}: CompassGenerativeAIPluginServices) {
+  preferences,
+}: CompassGenerativeAIExtraArgs) {
   const store = createStore(
     reducer,
     applyMiddleware(
-      thunk.withExtraArgument({ atlasAuthService, atlasAiService })
+      thunk.withExtraArgument({ atlasAuthService, atlasAiService, preferences })
     )
   );
   return store;
 }
-
-export type GenAIAtlasExtraArgs = {
-  preferences: PreferencesAccess;
-  atlasAiService: AtlasAiService;
-};
 
 export type CompassGenerativeAIServiceStore = ReturnType<typeof configureStore>;

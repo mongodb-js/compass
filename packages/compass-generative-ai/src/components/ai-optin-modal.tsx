@@ -71,7 +71,7 @@ const AIOptInModal: React.FunctionComponent<OptInModalProps> = ({
         if (isOptInInProgress) {
           return;
         }
-        onOptInClick?.();
+        onOptInClick();
       }}
       linkText="Cancel"
       onLinkClick={onOptInModalClose}
