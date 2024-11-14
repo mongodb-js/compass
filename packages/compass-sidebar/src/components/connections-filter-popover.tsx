@@ -1,4 +1,4 @@
-import React, { useCallback, type PropsWithChildren } from 'react';
+import React, { useCallback, useState, type PropsWithChildren } from 'react';
 
 import {
   css,
@@ -67,58 +67,75 @@ export default function ConnectionsFilterPopover({
   // Add future filters to the boolean below
   const isActivated = filter.excludeInactive;
 
+  // Manually handling the tooltip state instead of supplying a trigger
+  // we do this to avoid the tooltip from rendering when the popover is open
+  // and when the IconButton regains focus as the
+  const [isTooltipOpen, setTooltipOpen] = useState(false);
+  const handleButtonMouseEnter = useCallback(
+    () => setTooltipOpen(true),
+    [setTooltipOpen]
+  );
+  const handleButtonMouseLeave = useCallback(
+    () => setTooltipOpen(false),
+    [setTooltipOpen]
+  );
+
   return (
-    <InteractivePopover
-      open={open}
-      setOpen={setOpen}
-      containerClassName={containerStyles}
-      hideCloseButton
-      trigger={({ onClick, children, ref }) => (
-        <>
-          <Tooltip
-            align="right"
-            trigger={
-              <IconButton
-                onClick={onClick}
-                active={open}
-                aria-label="Filter connections"
-                ref={ref as React.Ref<unknown>}
-              >
-                <Icon glyph="Filter" />
-                {isActivated && (
-                  <svg
-                    className={activatedIndicatorStyles}
-                    width="6"
-                    height="6"
-                    viewBox="0 0 6 6"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <circle cx="3" cy="3" r="3" fill={palette.blue.base} />
-                  </svg>
-                )}
-              </IconButton>
-            }
-          >
-            Filter connections
-          </Tooltip>
-          {children}
-        </>
-      )}
-    >
-      <Overline>Filter Options</Overline>
-      <div className={groupStyles}>
-        <Toggle
-          id={excludeInactiveToggleId}
-          aria-labelledby={excludeInactiveLabelId}
-          checked={filter.excludeInactive}
-          onChange={onExcludeInactiveChange}
-          size="small"
-        />
-        <Label htmlFor={excludeInactiveToggleId} id={excludeInactiveLabelId}>
-          Show only active connections
-        </Label>
-      </div>
-    </InteractivePopover>
+    <>
+      <Tooltip
+        align="right"
+        open={isTooltipOpen && !open}
+        setOpen={setTooltipOpen}
+      >
+        Filter connections
+      </Tooltip>
+      <InteractivePopover
+        open={open}
+        setOpen={setOpen}
+        containerClassName={containerStyles}
+        hideCloseButton
+        trigger={({ onClick, children, ref }) => (
+          <>
+            <IconButton
+              onClick={onClick}
+              onMouseEnter={handleButtonMouseEnter}
+              onMouseLeave={handleButtonMouseLeave}
+              active={open}
+              aria-label="Filter connections"
+              ref={ref as React.Ref<unknown>}
+            >
+              <Icon glyph="Filter" />
+              {isActivated && (
+                <svg
+                  className={activatedIndicatorStyles}
+                  width="6"
+                  height="6"
+                  viewBox="0 0 6 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle cx="3" cy="3" r="3" fill={palette.blue.base} />
+                </svg>
+              )}
+            </IconButton>
+            {children}
+          </>
+        )}
+      >
+        <Overline>Filter Options</Overline>
+        <div className={groupStyles}>
+          <Toggle
+            id={excludeInactiveToggleId}
+            aria-labelledby={excludeInactiveLabelId}
+            checked={filter.excludeInactive}
+            onChange={onExcludeInactiveChange}
+            size="small"
+          />
+          <Label htmlFor={excludeInactiveToggleId} id={excludeInactiveLabelId}>
+            Show only active connections
+          </Label>
+        </div>
+      </InteractivePopover>
+    </>
   );
 }
