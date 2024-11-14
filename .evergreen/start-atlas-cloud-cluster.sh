@@ -89,6 +89,9 @@ cleanup() {
 
 trap cleanup EXIT
 
+echo "Logging in to docker"
+echo "${DOCKERHUB_PASSWORD}" | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+
 echo "Allowing access from current ip..."
 atlascli accessList create \
   --currentIp \
